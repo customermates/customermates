@@ -1805,6 +1805,7 @@
       "verticalBarChart": "Vertikales Balkendiagramm",
       "verticalBarChartWithLabels": "Vertikales Balkendiagramm mit Beschriftungen"
     },
+    "mainView": "Haupt-Dashboard",
     "widgetEditor": {
       "addTitle": "Widget hinzufügen",
       "appearance": {

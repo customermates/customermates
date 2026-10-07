@@ -180,6 +180,33 @@ describe("WidgetsStore refresh compatibility", () => {
     expect(store.layouts).toEqual(final);
   });
 
+  it("still saves a queued arrangement when the dashboard view changes during a layout write", async () => {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+    } as unknown as RootStore;
+    const store = new WidgetsStore(root);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)], activeViewKey: "__all__" });
+    await store.refresh();
+    const first = Promise.withResolvers<unknown>();
+    updateWidgetLayoutsAction
+      .mockReturnValueOnce(first.promise)
+      .mockImplementation(({ layouts }: UpdateWidgetLayoutsData) => Promise.resolve(layoutResult(layouts, 3)));
+    const move = (x: number) => ({ ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x, y: 0 }] });
+    store.onLayoutChange([], move(1));
+    const queued = move(2);
+    store.onLayoutChange([], queued);
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(SECOND_ID, 0, 0)],
+      activeViewKey: "00000000-0000-4000-8000-0000000000aa",
+    });
+    await store.refresh();
+    first.resolve(layoutResult(updateWidgetLayoutsAction.mock.calls[0][0].layouts));
+    await vi.waitFor(() => expect(updateWidgetLayoutsAction).toHaveBeenCalledTimes(2));
+    expect(updateWidgetLayoutsAction.mock.calls[1][0].layouts.lg).toEqual(queued.lg);
+    expect(store.items.map(({ id }) => id)).toEqual([SECOND_ID]);
+  });
+
   it("keeps a queued layout after failure and rolls back a later failure to the last successful arrangement", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },

@@ -13,7 +13,9 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
     const row = await this.prisma.widget.findFirst({
       where: { id, companyId: this.companyId, userId: this.userId, measure: { not: Prisma.AnyNull } },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row
+      ? StoredSchema.parse({ ...row, contractVersion: 2, viewId: row.userId === this.userId ? row.viewId : null })
+      : null;
   }
   async findReadable(id: string): Promise<StoredRecordWidget | null> {
     const row = await this.prisma.widget.findFirst({
@@ -24,7 +26,9 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
         measure: { not: Prisma.AnyNull },
       },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row
+      ? StoredSchema.parse({ ...row, contractVersion: 2, viewId: row.userId === this.userId ? row.viewId : null })
+      : null;
   }
   async listOwned(): Promise<StoredRecordWidget[]> {
     const rows = await this.prisma.widget.findMany({

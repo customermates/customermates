@@ -1805,6 +1805,7 @@
       "verticalBarChart": "Vertical Bar Chart",
       "verticalBarChartWithLabels": "Vertical Bar Chart with Labels"
     },
+    "mainView": "Main",
     "widgetEditor": {
       "addTitle": "Add widget",
       "appearance": {

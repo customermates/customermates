@@ -1805,6 +1805,7 @@
       "verticalBarChart": "Histogramme vertical",
       "verticalBarChartWithLabels": "Histogramme vertical avec étiquettes"
     },
+    "mainView": "Principal",
     "widgetEditor": {
       "addTitle": "Ajouter un widget",
       "appearance": {

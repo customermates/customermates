@@ -19,7 +19,9 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
         activityQuery: { not: Prisma.AnyNull },
       },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row
+      ? StoredSchema.parse({ ...row, contractVersion: 2, viewId: row.userId === this.userId ? row.viewId : null })
+      : null;
   }
 
   async findReadable(id: string) {
@@ -32,7 +34,9 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
         activityQuery: { not: Prisma.AnyNull },
       },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row
+      ? StoredSchema.parse({ ...row, contractVersion: 2, viewId: row.userId === this.userId ? row.viewId : null })
+      : null;
   }
   async listOwned() {
     const rows = await this.prisma.widget.findMany({

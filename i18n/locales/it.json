@@ -1805,6 +1805,7 @@
       "verticalBarChart": "Grafico a barre verticali",
       "verticalBarChartWithLabels": "Grafico a barre verticali con etichette"
     },
+    "mainView": "Principale",
     "widgetEditor": {
       "addTitle": "Aggiungi widget",
       "appearance": {

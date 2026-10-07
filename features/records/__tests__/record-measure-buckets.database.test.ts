@@ -826,6 +826,55 @@ describeDatabase("time-bucketed record measures", () => {
     );
     expect(moved.ok && moved.data).toMatchObject({ viewId: support.id, layout: { lg: { x: 3, y: 0 } } });
 
+    const foreign = await runWithoutTenant(() =>
+      prisma.dataView.create({
+        data: { companyId: f.company.id, userId: f.member.id, surfaceKey: SURFACE.dashboard, name: "Mia's" },
+      }),
+    );
+    const otherSurface = await runWithoutTenant(() =>
+      prisma.dataView.create({
+        data: { companyId: f.company.id, userId: f.admin.id, surfaceKey: SURFACE.routines, name: "Routines" },
+      }),
+    );
+    for (const target of [foreign.id, otherSurface.id]) {
+      const refused = await save("Not mine", { viewId: target });
+      expect(refused.ok, target).toBe(false);
+      if (!refused.ok) expect(JSON.stringify(refused.error)).toContain(CustomErrorCode.dataViewNotFound);
+    }
+    if (!moved.ok) return;
+    const back = await f.run(async () =>
+      f.widgets.invoke({
+        id: moved.data.id,
+        expectedVersion: moved.data.version,
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+        name: "Sales total",
+        isTemplate: true,
+        measure: moved.data.measure,
+        displayOptions: moved.data.displayOptions,
+        viewId: null,
+      }),
+    );
+    expect(back.ok && back.data).toMatchObject({ viewId: null, layout: { lg: { x: 3, y: 0 } } });
+    if (!back.ok) return;
+    const shared = await f.run(() => new PrismaRecordWidgetRepo().findReadable(back.data.id), f.member);
+    expect(shared?.viewId).toBeNull();
+    await f.run(async () =>
+      f.widgets.invoke({
+        id: back.data.id,
+        expectedVersion: back.data.version,
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+        name: "Sales total",
+        isTemplate: true,
+        measure: back.data.measure,
+        displayOptions: back.data.displayOptions,
+        viewId: support.id,
+      }),
+    );
+    const sharedOnView = await f.run(() => new PrismaRecordWidgetRepo().findReadable(back.data.id), f.member);
+    expect(sharedOnView?.viewId).toBeNull();
+
     const read = (viewId?: string, allViews?: boolean) =>
       f.run(() =>
         new GetWidgetsInteractor(new PrismaWidgetRepo(), new PrismaDataViewRepo()).invoke({ viewId, allViews }),

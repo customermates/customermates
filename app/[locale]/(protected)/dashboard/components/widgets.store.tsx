@@ -31,6 +31,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
     actor: string | null;
   } | null = null;
   private layoutWrite: Promise<void> | null = null;
+  private layoutViewKey: string | null = null;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -94,7 +95,8 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
       }
     });
 
-    const ownsPending = this.layoutWrite !== null && this.collectionActor === this.layoutActor;
+    const sameView = this.layoutViewKey === this.activeViewKey;
+    const ownsPending = this.layoutWrite !== null && this.collectionActor === this.layoutActor && sameView;
     this.layouts = ownsPending ? this.rebaseLayouts(layouts, this.layouts) : layouts;
     this.confirmedLayouts = ownsPending ? this.rebaseLayouts(layouts, this.confirmedLayouts) : layouts;
     if (ownsPending && this.pendingLayout) {
@@ -104,8 +106,9 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
         layouts: pendingLayouts,
         payload: this.normalizeLayouts(pendingLayouts),
       };
-    } else if (!ownsPending) this.pendingLayout = null;
+    } else if (!ownsPending && sameView) this.pendingLayout = null;
     this.collectionActor = this.layoutActor;
+    this.layoutViewKey = this.activeViewKey;
     this.layoutItems = this.items;
   }
 
@@ -246,7 +249,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return refreshWidgetsAction(params?.viewId ?? this.activeViewKey);
+    return refreshWidgetsAction(params?.viewId);
   }
 
   private normalizeLayouts(layouts: ResponsiveLayouts): UpdateWidgetLayoutsData["layouts"] {
