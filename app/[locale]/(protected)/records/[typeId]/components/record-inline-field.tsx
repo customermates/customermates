@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { RecordField, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordsStore } from "./records.store";
 
@@ -24,7 +24,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 
-export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordField) {
+export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
   if (field.id === store.type?.primaryFieldId || field.valueType === "richText") return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
@@ -39,7 +39,7 @@ const InlineFieldForm = observer(function InlineFieldForm({
 }: {
   records: RecordsStore;
   record: RecordRow;
-  field: RecordField;
+  field: RecordFieldView;
   onDone: () => void;
 }) {
   const t = useTranslations();
@@ -64,7 +64,7 @@ const InlineSelect = observer(function InlineSelect({
 }: {
   records: RecordsStore;
   record: RecordRow;
-  field: RecordField;
+  field: RecordFieldView;
   children: ReactNode;
 }) {
   const t = useTranslations();
@@ -132,7 +132,7 @@ export const RecordInlineField = observer(function RecordInlineField({
 }: {
   records: RecordsStore;
   record: RecordRow;
-  field: RecordField;
+  field: RecordFieldView;
   children: ReactNode;
 }) {
   const t = useTranslations();

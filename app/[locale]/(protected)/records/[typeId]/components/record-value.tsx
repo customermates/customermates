@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-import type { CalculatedValue, RecordField } from "@/features/records/record-model.schema";
+import type { CalculatedValue, RecordFieldView } from "@/features/records/record-model.schema";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
@@ -15,7 +15,7 @@ export const RecordValue = observer(function RecordValue({
   field,
 }: {
   result?: CalculatedValue;
-  field: RecordField;
+  field: RecordFieldView;
 }) {
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;

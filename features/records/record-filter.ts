@@ -1,4 +1,4 @@
-import type { RecordField } from "./record-model.schema";
+import type { RecordField, RecordFieldView } from "./record-model.schema";
 import type { RecordQuery } from "./record-query.schema";
 
 export type RecordFilterField = Pick<RecordField, "id" | "label" | "valueType" | "multiple" | "format" | "options">;
@@ -20,7 +20,7 @@ export function recordFilterOperators(
 }
 
 export function recordFilterFields(
-  fields: RecordField[],
+  fields: RecordFieldView[],
   labels: { createdAt: string; updatedAt: string; assignedTo: string },
 ): RecordFilterField[] {
   return [

@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordPathStep } from "@/features/records/record-relationship-path.schema";
 
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ export function RelationshipPathInput({
   onChange,
   disabled = false,
 }: {
-  model: RecordModel;
+  model: RecordModelView;
   typeId: string;
   value: RecordPathStep[];
   onChange: (value: RecordPathStep[]) => void;

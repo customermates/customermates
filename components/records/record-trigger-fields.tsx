@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordEventSubscriptionDefinition } from "@/features/records/record-event-subscription.schema";
 import { recordFilterFields } from "@/features/records/record-filter";
 import { FormSelect } from "@/components/forms/form-select";
@@ -27,7 +27,7 @@ export const RecordTriggerFields = observer(
   }: {
     store: {
       form: { recordTrigger?: RecordTriggerForm | null };
-      recordModel: RecordModel | null;
+      recordModel: RecordModelView | null;
       watchesRecordChanges: boolean;
       onChange: (id: string, value: unknown) => void;
     };

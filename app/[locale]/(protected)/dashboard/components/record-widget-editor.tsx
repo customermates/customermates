@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { omit } from "lodash";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordWidgetPreview } from "@/features/widget/record-widget-reader";
 import type { WidgetModalStore } from "./widget-modal.store";
 import {
@@ -59,7 +59,7 @@ function useWidgetModel(store: WidgetModalStore) {
           ],
         ])
       : null;
-  const [state, setState] = useState<{ key: string; model: RecordModel | null } | null>(null);
+  const [state, setState] = useState<{ key: string; model: RecordModelView | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (!key) return;
@@ -103,7 +103,7 @@ export const RecordWidgetEditor = observer(
   }: {
     store: WidgetModalStore;
     settingsHeader?: ReactNode;
-    appearance?: ReactNode | ((model: RecordModel | null | undefined) => ReactNode);
+    appearance?: ReactNode | ((model: RecordModelView | null | undefined) => ReactNode);
     section: "data" | "filters" | "preview" | "all";
   }) => {
     const t = useTranslations();

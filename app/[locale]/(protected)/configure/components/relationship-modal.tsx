@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordModel, RecordRelationship } from "@/features/records/record-model.schema";
+import type { RecordModelView, RecordRelationship } from "@/features/records/record-model.schema";
 import type { RecordRelationshipPath, RecordPathStep } from "@/features/records/record-relationship-path.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
@@ -42,15 +42,15 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
   sourceTypeId = "";
   constructor(
     root: RootStore,
-    model: RecordModel,
+    model: RecordModelView,
     completed: (preview: ConfigurationPreview) => Promise<void>,
     canRenewSummaries = false,
-    onModelRefreshed?: (model: RecordModel) => void,
+    onModelRefreshed?: (model: RecordModelView) => void,
   ) {
     super(root, empty(), model, completed, canRenewSummaries, onModelRefreshed);
     makeObservable(this, { sourceTypeId: observable, edit: action, editPath: action });
   }
-  edit = (model: RecordModel, typeId: string, relationship?: RecordRelationship, targetTypeId?: string) => {
+  edit = (model: RecordModelView, typeId: string, relationship?: RecordRelationship, targetTypeId?: string) => {
     this.resetModel(model);
     this.sourceTypeId = relationship?.sourceTypeId ?? typeId;
     this.onInitOrRefresh(
@@ -58,7 +58,7 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
     );
     this.open();
   };
-  editPath = (model: RecordModel, typeId: string, path: RecordRelationshipPath) => {
+  editPath = (model: RecordModelView, typeId: string, path: RecordRelationshipPath) => {
     this.resetModel(model);
     this.sourceTypeId = typeId;
     this.onInitOrRefresh({
@@ -71,7 +71,7 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
     });
     this.open();
   };
-  protected projectLatestModel(model: RecordModel) {
+  protected projectLatestModel(model: RecordModelView) {
     const source = model.types.find((type) => type.id === this.sourceTypeId);
     if (!source) return null;
     if (!this.form.id) return toJS(this.savedState);

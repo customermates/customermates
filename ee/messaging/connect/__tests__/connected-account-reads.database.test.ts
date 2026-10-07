@@ -149,6 +149,14 @@ describeDatabase("connected-account reads that every role runs", { timeout: 120_
     expect(contextIds).toEqual(listed.data.map(({ id }) => id).sort());
   });
 
+  it("gives the Configure graph only the member's own and shared accounts, never a colleague's private one", async () => {
+    const listed = await runWithTenant(withInbox(), () => getGetMyConnectedAccountsInteractor().invoke());
+
+    if (!listed.ok) throw new Error("Expected the connected-accounts list");
+    expect(listed.data.map(({ id }) => id).sort()).toEqual([accounts[0].id, accounts[1].id, accounts[2].id].sort());
+    expect(listed.data.find(({ id }) => id === accounts[2].id)?.isOwner).toBe(false);
+  });
+
   it("gives the workspace context an empty account list instead of failing, for a role without inbox access", async () => {
     const result = await runWithTenant(withoutInbox(), () => getWorkspaceContextTool.execute());
 
