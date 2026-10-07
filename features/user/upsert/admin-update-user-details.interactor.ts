@@ -10,7 +10,7 @@ import { recordWriteFailure } from "@/features/records/mutate-record.interactor"
 
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { CountryCode, Status, Resource, Action, SubscriptionPlan } from "@/generated/prisma";
+import { CountryCode, Status, Resource, SubscriptionPlan } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -32,7 +32,7 @@ export const AdminUpdateUserDetailsSchema = z.object({
 });
 export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchema>;
 
-@TenantInteractor({ resource: Resource.users, action: Action.update })
+@TenantInteractor({ resource: Resource.users, manage: "update" })
 export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
   AdminUpdateUserDetailsData,
   AdminUpdateUserDetailsData

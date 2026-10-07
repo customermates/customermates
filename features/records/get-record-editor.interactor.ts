@@ -51,17 +51,13 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
-        if (!type || !policy.actor || (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn")))
+        if (!type || !policy.actor || !policy.canReadType(type.id))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
         const ref = input.recordId ? { typeId: type.id, recordId: input.recordId } : null;
         const stored = ref ? await this.records.getRecordCompanyWide(ref) : null;
         if (ref && (!stored || !(await policy.canRead(stored)))) return failNotFound(CustomErrorCode.recordNotFound);
         const accessible = new Set(
-          model.types
-            .filter(
-              (type) => !type.archived && (policy.allowed(type.id, "readAll") || policy.allowed(type.id, "readOwn")),
-            )
-            .map((type) => type.id),
+          model.types.filter((type) => !type.archived && policy.canReadType(type.id)).map((type) => type.id),
         );
         const types = model.types
           .filter(

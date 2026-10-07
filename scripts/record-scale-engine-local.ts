@@ -117,12 +117,8 @@ try {
   const exporter = new exports.ExportRecordsInteractor(repo, policy);
   const importer = new imports.ImportRecordsInteractor(repo, policy, writer, company);
   const model = await run(() => repo.getModel());
-  const typeId = (
-    await client.query('SELECT id FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND "presetKey"=$2', [
-      companyId,
-      "contact",
-    ])
-  ).rows[0].id as string;
+  const { presetId } = await import("../features/records/crm-preset");
+  const typeId = presetId(companyId, "contact");
   const field = (label: string) => {
     const result = model.fields.find((item) => item.typeId === typeId && item.label === label);
     if (!result) throw new Error(`Missing scale field ${label}`);

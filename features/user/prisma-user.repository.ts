@@ -16,7 +16,7 @@ import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-we
 import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-ad-attribution.interactor";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
-import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
+import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.repo";
 import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
 import type { RegisterUserRepo } from "@/features/user/register/register-user.repo";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.repo";

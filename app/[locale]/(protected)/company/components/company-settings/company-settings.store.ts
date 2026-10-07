@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable } from "mobx";
-import { Currency, Resource } from "@/generated/prisma";
+import { Action, Currency, Resource } from "@/generated/prisma";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { updateCompanyAction } from "../../actions";
@@ -13,6 +13,10 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
   constructor(rootStore: RootStore) {
     super(rootStore, { currency: Currency.eur }, Resource.company);
     makeObservable(this, { onSubmit: action });
+  }
+
+  protected override get manageAction() {
+    return Action.update;
   }
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {

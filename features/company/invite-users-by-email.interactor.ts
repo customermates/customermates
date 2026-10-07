@@ -7,7 +7,7 @@ import { z } from "zod";
 import { createElement } from "react";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -30,7 +30,7 @@ const OutputSchema = z.object({
 export type InviteUsersByEmailData = Data<typeof InviteUsersByEmailSchema>;
 type InviteUsersByEmailResult = Data<typeof OutputSchema>;
 
-@TenantInteractor({ resource: Resource.users, action: Action.create })
+@TenantInteractor({ resource: Resource.users, manage: "create" })
 export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
   InviteUsersByEmailData,
   InviteUsersByEmailResult

@@ -3428,8 +3428,8 @@
     "create": "Crear",
     "delete": "Eliminar",
     "edit": "Editar",
+    "general": "General",
     "manageAccess": "Gestión",
-    "no": "No",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
     "readAccess": "Acceso de lectura",
     "readAll": "Todos",
@@ -3442,14 +3442,9 @@
       "api": "API y webhooks",
       "auditLog": "Registro de auditoría",
       "company": "Empresa",
-      "contacts": "Contactos",
       "dataModel": "Modelo de datos",
-      "deals": "Oportunidades",
       "inboxMessages": "Mensajes de la bandeja de entrada",
-      "organizations": "Organizaciones",
       "routines": "Rutinas",
-      "services": "Servicios",
-      "tasks": "Tareas",
       "users": "Usuarios y roles",
       "wiki": "Base de conocimientos del espacio de trabajo"
     },
@@ -3457,7 +3452,7 @@
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
     "systemName": "Administrador",
     "title": "Rol",
-    "yes": "Sí"
+    "workspacePermissions": "Espacio de trabajo"
   },
   "RolesCard": {
     "custom": "Personalizado",

@@ -6,7 +6,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { routineAccessWhere } from "@/ee/routines/routine-access";
 import { userAccessWhere } from "@/features/user/user-access";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
-import { PermissionService, rolePermits, roleReadScope } from "../permission.service";
+import { PermissionService, roleCanRead, rolePermits, roleReadScope } from "../permission.service";
 
 const permissions = new PermissionService();
 
@@ -87,6 +87,11 @@ describe("role permission rule", () => {
       ),
     ).toBe("all");
     expect(roleReadScope(role, "users")).toBe("none");
+    expect(roleCanRead(role, "routines")).toBe(true);
+    expect(roleCanRead(role, "users")).toBe(false);
+    expect(roleCanRead({ isSystemRole: false, permissions: [{ resource: "users", action: "create" }] }, "users")).toBe(
+      false,
+    );
   });
 
   it("answers for the tenant user through the injected service", async () => {

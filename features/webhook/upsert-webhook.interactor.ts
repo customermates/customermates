@@ -12,7 +12,7 @@ import type { ValidateWebhookIdsInteractor } from "@/core/validation/validators/
 import type { z as zType } from "zod";
 
 import z from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { WebhookCurrentEventSchema, WebhookDtoSchema } from "./webhook.schema";
 import { WebhookHeadersSchema, allowsCredentialedHeaders } from "./webhook-headers";
@@ -83,7 +83,7 @@ export const UpsertWebhookSchema = z
   });
 export type UpsertWebhookData = Data<typeof UpsertWebhookSchema>;
 
-@TenantInteractor({ resource: Resource.api, action: Action.update })
+@TenantInteractor({ resource: Resource.api, manage: "upsert" })
 export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebhookData, WebhookDto> {
   constructor(
     private repo: UpsertWebhookRepo,

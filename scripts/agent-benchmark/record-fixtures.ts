@@ -82,12 +82,12 @@ async function initialize(prisma: Prisma.TransactionClient, companyId: string, m
   for (const type of model.types) await prisma.recordTypeDefinition.create({ data: { companyId, id: type.id, label: type.label, pluralLabel: type.pluralLabel, embedded: type.embedded, archived: type.archived, position: type.position, definition: recordJson(type) } });
   for (const field of model.fields) await prisma.recordFieldDefinition.create({ data: { companyId, typeId: field.typeId, id: field.id, behavior: field.behavior.kind, valueType: field.valueType, archived: field.archived, definition: recordJson(field) } });
   for (const relation of model.relationships) await prisma.recordRelationshipDefinition.create({ data: { companyId, id: relation.id, sourceTypeId: relation.sourceTypeId, targetTypeId: relation.targetTypeId, definition: recordJson(relation) } });
-  await prisma.recordSchemaState.create({ data: { companyId, revision: model.revision, storageMode: "generic" } });
+  await prisma.recordSchemaState.create({ data: { companyId, revision: model.revision } });
   await prisma.recordSchemaRevision.create({ data: { companyId, revision: model.revision, actorId: "system:benchmark-fixture", snapshot: recordJson(model) } });
   const permissions = await prisma.rolePermission.findMany({ where: { companyId } });
-  for (const kind of KINDS) for (const roleId of new Set(permissions.map((permission) => permission.roleId))) {
-    const actions = permissions.filter((permission) => permission.roleId === roleId && permission.resource === `${kind}s`).map((permission) => permission.action);
-    if (actions.length) await prisma.recordTypeGrant.create({ data: { companyId, typeId: presetId(companyId, kind), roleId, actions } });
+  for (const roleId of new Set(permissions.map((permission) => permission.roleId))) {
+    const actions = [...new Set(permissions.filter((permission) => permission.roleId === roleId).map((permission) => permission.action))];
+    for (const kind of KINDS) await prisma.recordTypeGrant.create({ data: { companyId, typeId: presetId(companyId, kind), roleId, actions } });
   }
 }
 

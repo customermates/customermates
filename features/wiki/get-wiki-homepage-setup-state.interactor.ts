@@ -4,7 +4,7 @@ import type { GetWikiPagesRepo } from "@/features/wiki/get-wiki-pages.repo";
 import type { WikiCrawlTargetProgress, WikiSynthesisTopicProgress } from "./wiki-crawl-progress.schema";
 
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -80,7 +80,7 @@ function progressOf(crawl: WikiWebsiteCrawlState) {
 }
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
+@TenantInteractor({ resource: Resource.wiki, read: "all" })
 export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor<undefined, WikiHomepageSetupState> {
   constructor(
     private pageRepo: GetWikiPagesRepo,

@@ -3428,8 +3428,8 @@
     "create": "Crea",
     "delete": "Elimina",
     "edit": "Modifica",
+    "general": "Generale",
     "manageAccess": "Gestione",
-    "no": "No",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",
     "readAccess": "Accesso in lettura",
     "readAll": "Tutti",
@@ -3442,14 +3442,9 @@
       "api": "API e webhook",
       "auditLog": "Registro di controllo",
       "company": "Azienda",
-      "contacts": "Contatti",
       "dataModel": "Modello dati",
-      "deals": "Trattative",
       "inboxMessages": "Messaggi della posta in arrivo",
-      "organizations": "Organizzazioni",
       "routines": "Routine",
-      "services": "Servizi",
-      "tasks": "Attività",
       "users": "Utenti e ruoli",
       "wiki": "Base di conoscenza dello spazio di lavoro"
     },
@@ -3457,7 +3452,7 @@
     "systemDescription": "Accesso completo a tutte le funzionalità e le impostazioni. Non può essere modificato né eliminato.",
     "systemName": "Amministratore",
     "title": "Ruolo",
-    "yes": "Sì"
+    "workspacePermissions": "Area di lavoro"
   },
   "RolesCard": {
     "custom": "Personalizzato",

@@ -35,7 +35,7 @@ export class SaveRecordDetailLayoutInteractor extends AuthenticatedInteractor<
     return runInTransaction(async () => {
       const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
       const type = model.types.find((type) => type.id === input.typeId && !type.archived);
-      if (!type || !policy.actor || (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn")))
+      if (!type || !policy.actor || !policy.canReadType(type.id))
         return failNotFound(CustomErrorCode.recordTypeNotFound);
       const hash = recordRequestHash({ operation: "saveRecordDetailLayout", ...input });
       const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
