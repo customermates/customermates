@@ -68,7 +68,7 @@ Jede Person kann ihre eigene Sidebar anordnen; andere sehen die Änderung nicht.
 | Widget hinzufügen | Seitenkopf | `#dashboard-add-widget` (**Widget hinzufügen**) | Öffnet das Widget-Modal |
 | Globale Suche | Oben in der Sidebar | `#nav-search` (**Suchen**) | Öffnet das Such-Modal (auch Cmd/Ctrl+K); siehe [Globale Suche](/docs/app-search) |
 | Suchfeld | Such-Modal | `#global-search-input` | Findet zugängliche Datensätze aller konfigurierten Typen |
-| Datensatz erstellen | Oben in der Sidebar | `#nav-add` (**Hinzufügen**) | Öffnet die Auswahl des Datensatztyps |
+| Datensatz erstellen | Oben in der Sidebar | `#nav-add` (**Hinzufügen**) | Öffnet die Auswahl des Datensatztyps (auch C) |
 | Dokumentation öffnen | Sidebar-Footer | `#nav-documentation` (**Dokumentation**) | Öffnet `/docs` |
 | Feedback senden | Sidebar-Footer | `#nav-feedback` (**Feedback**) | Öffnet den Feedback-Dialog |
 | Seitenleiste anpassen | Sidebar-Footer | `#nav-customize-sidebar` | Blendet Einträge ein oder aus, legt einen eigenen Abschnitt an oder setzt Ihre Sidebar auf den Standard zurück |
@@ -77,9 +77,32 @@ Jede Person kann ihre eigene Sidebar anordnen; andere sehen die Änderung nicht.
 | E-Mail bestätigen | Unter dem Markennamen | keine | **E-Mail nicht verifiziert** erscheint, bis Sie Ihre Adresse bestätigt haben; öffnet **Mein Profil › Einstellungen** |
 | Persönliche Einstellungen | Gruppe Workspace | `#nav-profile` (**Mein Profil**) | Klappt **Einstellungen**, **Kanäle** und **API & Konnektoren** auf oder zu; siehe [Mein Profil](/docs/app-profile) |
 | Workspace-Verwaltung | Gruppe Workspace | `#nav-company` (**Mein Unternehmen**) | Klappt **Abonnement**, **Einstellungen**, **Mitglieder**, **Rollen**, **Audit-Logs**, **Webhooks** und **Letzte Zustellungen** auf oder zu; siehe [Mein Unternehmen](/docs/app-company) |
-| Darstellung und Abmelden | Sidebar-Footer, Ihr Name | keine | **Dunkler Modus** oder **Heller Modus** wechselt und speichert Ihre Darstellung; **Abmelden** beendet die Sitzung |
+| Darstellung und Abmelden | Sidebar-Footer, Ihr Name | keine | **Dunkler Modus** oder **Heller Modus** wechselt und speichert Ihre Darstellung; **Tastenkürzel** listet alle Kürzel; **Abmelden** beendet die Sitzung |
 
 **Link:** die Sidebar steht auf jeder App-Seite; das **Dashboard** ist `/dashboard`. **Mate:** `navigate` und `highlight_element` mit jeder `nav-*`-Id dieses Abschnitts, die Ihre Rolle öffnen darf, außer `nav-search`, `nav-documentation` und `nav-feedback`, die Mate nur hervorheben kann, sowie `#nav-add` und `#nav-assistant`, die keine Ziele sind; Einträge unter **Mein Profil** und **Mein Unternehmen** lassen sich nur bei aufgeklappter Gruppe hervorheben. Der Tarif-Chip, **E-Mail nicht verifiziert** und das Menü unter Ihrem Namen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
+## Welche Tastenkürzel gibt es? [#keyboard-shortcuts]
+
+Drücken Sie überall in der App **?** oder wählen Sie **Tastenkürzel** im Menü unter Ihrem Namen, um alle Kürzel mit den Tasten Ihres Computers zu sehen: Auf dem Mac steht ⌘, unter Windows und Linux Ctrl (Strg).
+
+| Kürzel | Wirkung |
+| --- | --- |
+| Cmd+K (Mac) oder Strg+K | Öffnet die [globale Suche](/docs/app-search) |
+| Cmd+J (Mac) oder Strg+J | Öffnet oder schließt den [KI-Assistenten](/docs/app-assistant) |
+| Cmd+B (Mac) oder Strg+B | Blendet die Seitenleiste ein oder aus |
+| C | Öffnet **Hinzufügen**, dieselbe Auswahl wie **Hinzufügen** in der Seitenleiste |
+| ? | Zeigt die Tastenkürzel |
+| G, dann D | Wechselt zum [Dashboard](/docs/app-dashboard) |
+| G, dann I | Wechselt zum [Posteingang](/docs/app-inbox) |
+| G, dann K | Wechselt zur Wissensdatenbank |
+| G, dann R | Wechselt zu den [Routinen](/docs/app-routines) |
+| G, dann C | Wechselt zu Konfigurieren, wenn Sie das Datenmodell ändern dürfen |
+| G, dann S | Wechselt zu Ihren Einstellungen |
+| G, dann 1 bis 9 | Öffnet die erste bis neunte Liste in Ihrer eigenen Reihenfolge der Seitenleiste; ausgeblendete Listen werden übersprungen |
+| Cmd+Enter (Mac) oder Strg+Enter | Speichert das offene Formular |
+| Esc | Schließt den obersten Dialog oder Drawer |
+
+Nach G haben Sie etwa eine Sekunde für die zweite Taste; ein kleiner Hinweis zeigt, dass die App wartet. Einzeltasten-Kürzel (C, ? und die G-Folgen) wirken nicht, während Sie in einem Feld, einem Editor oder im Assistenten tippen, während ein Menü oder Dialog offen ist oder während eine Eingabemethode Text zusammensetzt. Wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken, schalten Sie **Einzeltasten-Kürzel** im Dialog **Tastenkürzel** aus; die Cmd/Strg-Kürzel funktionieren weiter. Die Einstellung gilt nur für Sie und auf allen Geräten.
 
 ## Was passiert beim ersten Start? [#what-happens-on-first-run]
 
