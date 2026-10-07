@@ -42,7 +42,7 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
       const counts = {
         fields: await prisma.recordFieldDefinition.count({ where: { companyId } }),
         links: await prisma.recordLink.count({ where: { companyId } }),
-        histories: await prisma.auditLog.count({ where: { companyId } }),
+        histories: await prisma.eventLog.count({ where: { companyId } }),
         deliveries: await prisma.webhookDelivery.count({ where: { companyId } }),
       };
       await runSyntheticSeed(context);
@@ -59,7 +59,7 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
       ).not.toBeNull();
       expect(await prisma.recordFieldDefinition.count({ where: { companyId } })).toBe(counts.fields);
       expect(await prisma.recordLink.count({ where: { companyId } })).toBe(counts.links);
-      expect(await prisma.auditLog.count({ where: { companyId } })).toBe(counts.histories);
+      expect(await prisma.eventLog.count({ where: { companyId } })).toBe(counts.histories);
       expect(await prisma.webhookDelivery.count({ where: { companyId } })).toBe(counts.deliveries);
       for (const kind of ["contact", "organization", "deal", "service", "task"] as const) {
         expect(await prisma.crmRecord.count({ where: { companyId, typeId: presetId(companyId, kind) } })).toBe(

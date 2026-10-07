@@ -1,0 +1,220 @@
+{
+  "scope": "Interim checkpoint of PR #203 at pr203/integration a0e734579 (items I1-I5, I8-I15 integrated; I6 and I7 not yet). Slim coordinator scope: production build, a production-mode Chromium smoke of eight key specs, and a smoke of the three new migrations on a scratch production copy. Not final verification; the full four-browser matrix, served hubs and the full migration re-rehearsal belong to the final source.",
+  "checkpoint": "interim",
+  "testedCommit": "a0e7345793affe69514224f8cd1f1eeea047a6fd",
+  "testedTree": "fcd3c70b507024e0ab3fc485be3f966a22da89aa",
+  "testedSourceNote": "The commit that adds this receipt changes only tests/e2e/review/2026-10-07-interim-summary.json and the tests/e2e/README.md receipt link.",
+  "runtime": {
+    "host": "Ubuntu 24.04 x86_64 SSH VM, 16 vCPU, 64 GB, shared with a concurrent review flow; this run pinned to CPUs 8-15",
+    "node": "24.18.0",
+    "postgres": [
+      "17.8 (pgvector 0.8.1 image)"
+    ],
+    "productionBuildId": "DskdBGi7PS-i6bXpBMHsP"
+  },
+  "citedIntegrationGates": {
+    "source": "Coordinator integration gate on the a0e734579 merge (reported by the coordinator; logs in its worktree; not re-executed here)",
+    "results": [
+      "lint, typecheck and commit hooks passed",
+      "full database-enabled Vitest: 9,833 passed, 0 failed",
+      "item I13 browser specs green after a rerun"
+    ]
+  },
+  "gates": [
+    {
+      "name": "build",
+      "command": "yarn build",
+      "exitCode": 0,
+      "seconds": 197.055
+    },
+    {
+      "name": "e2e-migrate",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 1.753
+    },
+    {
+      "name": "e2e-seed1",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 11.497
+    },
+    {
+      "name": "e2e-seed2",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 8.74
+    },
+    {
+      "name": "e2e-bootstrap",
+      "command": "node_modules/.bin/bootstrap",
+      "exitCode": 0,
+      "seconds": 0.76
+    },
+    {
+      "name": "chromium-smoke",
+      "command": "node_modules/.bin/playwright test configure-layout.spec.ts record-configuration.spec.ts record-field-controls.spec.ts record-access-ui.spec.ts widget-types.spec.ts sidebar-personal.spec.ts field-currency.spec.ts configure-permanent-deletion.spec.ts --project=chromium --workers=1 --retries=0",
+      "exitCode": 1,
+      "seconds": 662.459
+    }
+  ],
+  "chromiumSmoke": {
+    "specs": [
+      "configure-layout.spec.ts",
+      "configure-permanent-deletion.spec.ts",
+      "field-currency.spec.ts",
+      "record-access-ui.spec.ts",
+      "record-configuration.spec.ts",
+      "record-field-controls.spec.ts",
+      "sidebar-personal.spec.ts",
+      "widget-types.spec.ts"
+    ],
+    "profile": "chromium",
+    "workers": 1,
+    "retries": 0,
+    "productionBuild": true,
+    "stats": {
+      "expected": 25,
+      "unexpected": 2,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "durationSeconds": 661.692,
+    "globalErrors": 0,
+    "perStatus": {
+      "chromium:expected": 25,
+      "chromium:unexpected": 2
+    },
+    "nonExpected": [
+      {
+        "file": "record-access-ui.spec.ts",
+        "line": 2132,
+        "title": "keeps personal views separate from shared defaults and completes their UI lifecycle for two genuine users",
+        "status": "unexpected",
+        "attempts": [
+          "failed"
+        ]
+      },
+      {
+        "file": "record-field-controls.spec.ts",
+        "line": 243,
+        "title": "builds every calculation operator with the linear editor and persists results and visible errors",
+        "status": "unexpected",
+        "attempts": [
+          "failed"
+        ]
+      }
+    ],
+    "nonExpectedClassification": [
+      {
+        "case": "chromium record-field-controls.spec.ts:243 (configure Subtract, Input 2)",
+        "observed": "After clicking the Number option, the Value type listbox stayed open, so the Fixed value textbox was hidden from the accessibility tree and the fill timed out (15 s). Input 1 completed the identical steps in the same test.",
+        "class": "intermittent UI interaction race; not reproduced in isolation"
+      },
+      {
+        "case": "chromium record-access-ui.spec.ts:2132 (personal views vs shared defaults)",
+        "observed": "The Reset to shared defaults button was re-rendered and detached during the click, and the click timed out (15 s).",
+        "class": "intermittent UI interaction race in the personal-view surface (touched by I4 P13n settings); not reproduced in isolation"
+      }
+    ],
+    "isolationReruns": {
+      "command": "node_modules/.bin/playwright test record-field-controls.spec.ts:243 record-access-ui.spec.ts:2132 --project=chromium --repeat-each=2 --workers=1 --retries=0",
+      "stats": {
+        "expected": 4,
+        "unexpected": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "Diagnostic isolation reruns of the two failed cases (two repeats each, one worker, zero retries, same build and database). They are not counted toward the smoke result."
+    }
+  },
+  "migrationSmokeOnScratchCopy": {
+    "basis": "Fresh clone of the frozen sanitized production-copy baseline (legacy schema, 117 ledger entries), deployed through the loopback-guarded copy runtime with providers paused. Independent expectations from plain SQL on the untouched legacy clone. Aggregates only.",
+    "migrations": [
+      "20261004000000_configurable_records (unedited, rehearsed)",
+      "20261006130000_remove_legacy_record_permissions (I9)",
+      "20261006200000_p13n_settings (I4)",
+      "20261007000000_field_currency (I13)"
+    ],
+    "firstDeploy": {
+      "exitCode": 0,
+      "durationSeconds": 15.468841847000002,
+      "blockedConnections": 0
+    },
+    "secondDeploy": {
+      "exitCode": 0,
+      "durationSeconds": 1.196676515,
+      "noPendingMigrations": true
+    },
+    "ledger": {
+      "ledgerEntries": 121,
+      "ledgerFinished": 121,
+      "ledgerUnfinishedOrRolledBack": 0,
+      "newMigrationsFinished": 4
+    },
+    "workspaces": 145,
+    "formerCompanyCurrencyDistribution": {
+      "EUR": 111,
+      "AUD": 2,
+      "SEK": 2,
+      "MXN": 1,
+      "USD": 21,
+      "INR": 3,
+      "BRL": 3,
+      "GBP": 1,
+      "SGD": 1
+    },
+    "i13FieldCurrency": {
+      "companyCurrencyColumn": 0,
+      "currencyType": 0,
+      "currencyDefinitions": 887,
+      "definitionsWithoutCurrency": 0,
+      "currentSnapshotFieldsWithoutCurrency": 0,
+      "activeOperations": 0,
+      "starterMoneyFields": {
+        "workspacesWithSchemaState": 145,
+        "checked": 870,
+        "missingStarterFields": 0,
+        "currencyMismatchVsLegacyCompanyCurrency": 0,
+        "currentSnapshotChecked": 870,
+        "currentSnapshotMismatch": 0
+      }
+    },
+    "i9RolePermissions": {
+      "legacyRows": 156,
+      "independentlyExpectedAfter": 46,
+      "rolePermissions": 46,
+      "missingVsIndependentExpectation": 0,
+      "unexpectedVsIndependentExpectation": 0,
+      "resourceEnum": [
+        "dataModel",
+        "users",
+        "company",
+        "api",
+        "auditLog",
+        "inboxMessages",
+        "wiki",
+        "routines"
+      ],
+      "storageModeColumn": 0,
+      "presetKeyColumn": 0
+    },
+    "i4P13nSettings": {
+      "expectedRows": 215,
+      "settingsColumn": 1,
+      "settingsNonNull": 0,
+      "p13nRows": 215
+    },
+    "schemaEqualsPrismaSchema": true,
+    "timingsNote": "Deploy durations are observations on a shared 16 vCPU VM, not production-duration guarantees."
+  },
+  "notCoveredByThisInterim": [
+    "full four-browser matrix and served hubs",
+    "the edited CRM migration (I7 event log) and I6",
+    "full re-rehearsal with independent reconciliation, interruption/recovery and owner/administrator UI replay",
+    "copy destruction (held at the owner's direction)"
+  ],
+  "previousCheckpoint": "2026-10-06-summary.json (interim at 4223d7deb) remains the latest four-browser matrix and full rehearsal evidence.",
+  "copiedRecordsIdentifiersEmailsValuesFingerprintsIncluded": false,
+  "generatedAtUtc": "2026-10-07T09:01:15.380488+00:00"
+}

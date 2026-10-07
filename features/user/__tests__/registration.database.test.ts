@@ -13,23 +13,6 @@ import { createTranslator } from "next-intl";
 
 import messages from "@/i18n/locales/en.json";
 
-function routineTriggerRepoStub() {
-  return {
-    findEventRoutinesUnscoped: () => Promise.resolve([]),
-    admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
-  };
-}
-
-function routineEventAccessStub() {
-  return {
-    matchesCurrentUser: () => Promise.resolve(true),
-    currentUserTrigger: ({ triggerPayload }: { triggerPayload: unknown }) =>
-      Promise.resolve({ payload: triggerPayload }),
-    matchesUserUnscoped: () => Promise.resolve(true),
-    canUserAccessUnscoped: () => Promise.resolve(true),
-  };
-}
-
 const activeTenantUser = vi.hoisted(() => ({
   value: null as TenantUser | null,
 }));
@@ -60,7 +43,7 @@ const { RegisterUserInteractor } = await import("@/features/user/register/regist
 const { EventService } = await import("@/features/event/event.service");
 const { DomainEventListener } = await import("@/features/event/domain-event.listener");
 const { DomainEvent } = await import("@/features/event/domain-events");
-const { PrismaAuditLogRepo } = await import("@/features/audit-log/prisma-audit-log.repository");
+const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 const { GetLegalStatusInteractor } = await import("@/features/legal/get-legal-status.interactor");
 const { AcceptLegalDocumentsInteractor } = await import("@/features/legal/accept-legal-documents.interactor");
 const { currentLegalDocumentVersions } = await import("@/constants/legal-documents");
@@ -117,21 +100,7 @@ function unregisteredRouteGuardService(id: string, sessionEmail: string) {
 }
 
 function newEventService() {
-  return new EventService(
-    [],
-    {
-      getWebhooksForEvent: vi.fn().mockResolvedValue([]),
-      getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),
-    },
-    {
-      create: vi.fn().mockResolvedValue([]),
-      createUnscoped: vi.fn().mockResolvedValue([]),
-    },
-    new PrismaAuditLogRepo(new PermissionService()),
-    { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
-    routineTriggerRepoStub(),
-    routineEventAccessStub(),
-  );
+  return new EventService([], new PrismaEventLogRepo({ dispatch: vi.fn().mockResolvedValue(undefined) }));
 }
 
 afterAll(async () => {
@@ -299,18 +268,7 @@ describeDatabase("registration against a real database", () => {
     authUserIds.push(authUserId);
     const eventService = new EventService(
       [],
-      {
-        getWebhooksForEvent: vi.fn().mockResolvedValue([]),
-        getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),
-      },
-      {
-        create: vi.fn().mockResolvedValue([]),
-        createUnscoped: vi.fn().mockResolvedValue([]),
-      },
-      new PrismaAuditLogRepo(new PermissionService()),
-      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
-      routineTriggerRepoStub(),
-      routineEventAccessStub(),
+      new PrismaEventLogRepo({ dispatch: vi.fn().mockResolvedValue(undefined) }),
     );
     const interactor = new RegisterUserInteractor(
       authService as never,
@@ -361,23 +319,16 @@ describeDatabase("registration against a real database", () => {
       ),
     ).toEqual({ companyId: user.companyId });
     const acceptance = await runWithoutTenant(() =>
-      prisma.auditLog.findFirstOrThrow({
+      prisma.eventLog.findFirstOrThrow({
         where: {
           companyId: user.companyId,
-          entityId: user.companyId,
-          event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
-          userId: user.id,
+          subjectId: user.companyId,
+          kind: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
+          actorId: user.id,
         },
       }),
     );
-    const eventData = acceptance.eventData as {
-      payload: {
-        acceptanceType: string;
-        acceptingEmail: string;
-      };
-    };
-
-    expect(eventData.payload).toMatchObject({
+    expect(acceptance.payload).toMatchObject({
       acceptanceType: "initial-onboarding",
       acceptingEmail: registrationEmail,
     });
@@ -402,17 +353,17 @@ describeDatabase("registration against a real database", () => {
     );
 
     const combinedEvents = await runWithoutTenant(() =>
-      prisma.auditLog.findMany({
+      prisma.eventLog.findMany({
         where: {
           companyId: user.companyId,
-          event: DomainEvent.LEGAL_NOTICE_SENT,
-          userId: user.id,
+          kind: DomainEvent.LEGAL_NOTICE_SENT,
+          actorId: user.id,
         },
       }),
     );
     expect(combinedEvents).toHaveLength(1);
-    expect(combinedEvents[0].entityId).toBe(user.id);
-    expect((combinedEvents[0].eventData as { payload: LegalNoticeAuditPayload }).payload).toEqual(noticePayload);
+    expect(combinedEvents[0].subjectId).toBe(user.id);
+    expect(combinedEvents[0].payload).toEqual(noticePayload);
 
     await expect(
       runWithoutTenant(() =>
@@ -431,11 +382,11 @@ describeDatabase("registration against a real database", () => {
     ).rejects.toThrow("forced notice rollback");
     expect(
       await runWithoutTenant(() =>
-        prisma.auditLog.count({
+        prisma.eventLog.count({
           where: {
             companyId: user.companyId,
-            event: DomainEvent.LEGAL_NOTICE_SENT,
-            userId: user.id,
+            kind: DomainEvent.LEGAL_NOTICE_SENT,
+            actorId: user.id,
           },
         }),
       ),
@@ -473,18 +424,7 @@ describeDatabase("registration against a real database", () => {
 
     const eventService = new EventService(
       [],
-      {
-        getWebhooksForEvent: vi.fn().mockResolvedValue([]),
-        getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),
-      },
-      {
-        create: vi.fn().mockResolvedValue([]),
-        createUnscoped: vi.fn().mockResolvedValue([]),
-      },
-      new PrismaAuditLogRepo(new PermissionService()),
-      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
-      routineTriggerRepoStub(),
-      routineEventAccessStub(),
+      new PrismaEventLogRepo({ dispatch: vi.fn().mockResolvedValue(undefined) }),
     );
     const interactor = new RegisterUserInteractor(
       {
@@ -523,10 +463,10 @@ describeDatabase("registration against a real database", () => {
     });
     expect(
       await runWithoutTenant(() =>
-        prisma.auditLog.count({
+        prisma.eventLog.count({
           where: {
             companyId: administrator.companyId,
-            event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
+            kind: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
           },
         }),
       ),
@@ -1098,22 +1038,8 @@ describeDatabase("registration against a real database", () => {
         companyId: admin.companyId,
       }),
     );
-    const auditRepo = new PrismaAuditLogRepo(new PermissionService());
-    const eventService = new EventService(
-      [],
-      {
-        getWebhooksForEvent: vi.fn().mockResolvedValue([]),
-        getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),
-      },
-      {
-        create: vi.fn().mockResolvedValue([]),
-        createUnscoped: vi.fn().mockResolvedValue([]),
-      },
-      auditRepo,
-      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
-      routineTriggerRepoStub(),
-      routineEventAccessStub(),
-    );
+    const auditRepo = new PrismaEventLogRepo({ dispatch: vi.fn().mockResolvedValue(undefined) });
+    const eventService = new EventService([], auditRepo);
     const versions = currentLegalDocumentVersions();
     await runWithoutTenant(async () => {
       await eventService.publish(
@@ -1145,13 +1071,14 @@ describeDatabase("registration against a real database", () => {
     });
 
     await runWithoutTenant(() =>
-      prisma.auditLog.create({
+      prisma.eventLog.create({
         data: {
           companyId: admin.companyId,
-          entityId: admin.companyId,
-          event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
-          eventData: { payload: { versions } },
-          userId: admin.id,
+          subjectId: admin.companyId,
+          subjectKind: "legal",
+          kind: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
+          payload: { versions },
+          actorId: admin.id,
         },
       }),
     );
@@ -1211,18 +1138,7 @@ describeDatabase("registration against a real database", () => {
     };
     const eventService = new EventService(
       [failingRegistrationListener],
-      {
-        getWebhooksForEvent: vi.fn().mockResolvedValue([]),
-        getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),
-      },
-      {
-        create: vi.fn().mockResolvedValue([]),
-        createUnscoped: vi.fn().mockResolvedValue([]),
-      },
-      new PrismaAuditLogRepo(new PermissionService()),
-      { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
-      routineTriggerRepoStub(),
-      routineEventAccessStub(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
     );
     const interactor = new RegisterUserInteractor(
       {
@@ -1257,11 +1173,11 @@ describeDatabase("registration against a real database", () => {
     ).toEqual({ companyId: null });
     expect(
       await runWithoutTenant(() =>
-        prisma.auditLog.count({
+        prisma.eventLog.count({
           where: {
-            event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
-            eventData: {
-              path: ["payload", "acceptingEmail"],
+            kind: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
+            payload: {
+              path: ["acceptingEmail"],
               equals: rollbackEmail,
             },
           },

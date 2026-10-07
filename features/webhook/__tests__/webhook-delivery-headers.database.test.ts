@@ -39,16 +39,41 @@ let transientFailures = 0;
 
 const SECRET = "delivery-test-secret";
 
-const ENVELOPE = {
-  event: "contact.created",
-  data: {
-    userId: "00000000-0000-4000-8000-00000000aaaa",
-    companyId: "00000000-0000-4000-8000-00000000bbbb",
-    entityId: "00000000-0000-4000-8000-00000000cccc",
-    payload: { id: "00000000-0000-4000-8000-00000000cccc", firstName: 'Ada "The Countess"', lastName: "Lovelace" },
-  },
-  timestamp: "2026-01-01T00:00:00.000Z",
+const EVENT = "messaging.message.received";
+const ENTITY_ID = "00000000-0000-4000-8000-00000000cccc";
+const OCCURRED_AT = new Date("2026-01-01T00:00:00.000Z");
+const PAYLOAD = {
+  connectedAccountId: "00000000-0000-4000-8000-00000000aaaa",
+  provider: "whatsapp",
+  providerMessageId: 'Ada "The Countess"',
+  threadId: "00000000-0000-4000-8000-00000000bbbb",
 };
+
+function envelope(seeded: { companyId: string; eventId: string }) {
+  return {
+    event: EVENT,
+    id: seeded.eventId,
+    timestamp: OCCURRED_AT.toISOString(),
+    companyId: seeded.companyId,
+    actorId: null,
+    data: { entityId: ENTITY_ID, ...PAYLOAD },
+  };
+}
+
+async function seedEvent(companyId: string): Promise<string> {
+  const event = await prisma.eventLog.create({
+    data: {
+      companyId,
+      subjectKind: "messaging",
+      subjectId: ENTITY_ID,
+      actorId: null,
+      kind: EVENT,
+      payload: PAYLOAD,
+      createdAt: OCCURRED_AT,
+    },
+  });
+  return event.id;
+}
 
 function signature(body: string): string {
   return createHmac("sha256", SECRET).update(body).digest("hex");
@@ -66,29 +91,31 @@ async function seedWebhook(args: {
 
   companyIds.push(companyId);
 
-  await runWithoutTenant(async () => {
+  const eventId = await runWithoutTenant(async () => {
     await prisma.company.create({ data: { id: companyId } });
     const webhook = await prisma.webhook.create({
       data: {
         companyId,
         url,
-        events: ["contact.created"],
+        events: [EVENT],
         secret: args.secret === undefined ? SECRET : args.secret,
         headers: args.headers ?? undefined,
         bodyTemplate: args.bodyTemplate ?? null,
         enabled: true,
       },
     });
+    const eventId = await seedEvent(companyId);
     await prisma.webhookDelivery.create({
-      data: { id: deliveryId, companyId, webhookId: webhook.id, url, event: "contact.created", requestBody: ENVELOPE },
+      data: { id: deliveryId, companyId, webhookId: webhook.id, eventId, url, event: EVENT, requestBody: { eventId } },
     });
+    return eventId;
   });
 
-  return { companyId, deliveryId, url };
+  return { companyId, deliveryId, eventId };
 }
 
-function deliver(args: { deliveryId: string; url: string; companyId: string }) {
-  return runWithoutTenant(() => deliverWebhook.invoke({ ...args, requestBody: ENVELOPE as Record<string, unknown> }));
+function deliver(args: { deliveryId: string; companyId: string }) {
+  return runWithoutTenant(() => deliverWebhook.invoke({ deliveryId: args.deliveryId, companyId: args.companyId }));
 }
 
 describeDatabase("outbound webhook custom headers and body template", () => {
@@ -118,6 +145,7 @@ describeDatabase("outbound webhook custom headers and body template", () => {
   afterAll(async () => {
     await runWithoutTenant(async () => {
       await prisma.webhookDelivery.deleteMany({ where: { companyId: { in: companyIds } } });
+      await prisma.eventLog.deleteMany({ where: { companyId: { in: companyIds } } });
       await prisma.webhook.deleteMany({ where: { companyId: { in: companyIds } } });
       await prisma.company.deleteMany({ where: { id: { in: companyIds } } });
     });
@@ -152,7 +180,7 @@ describeDatabase("outbound webhook custom headers and body template", () => {
 
     expect(outcome.status).toBe("success");
     expect(JSON.parse(captured[0].rawBody)).toEqual({
-      text: "contact.created for 00000000-0000-4000-8000-00000000cccc",
+      text: `${EVENT} for ${ENTITY_ID}`,
     });
     expect(captured[0].headers["x-webhook-signature"]).toBe(signature(captured[0].rawBody));
   });
@@ -161,7 +189,7 @@ describeDatabase("outbound webhook custom headers and body template", () => {
     captured = [];
     const seeded = await seedWebhook({
       path: "/injection",
-      bodyTemplate: '{"text": "{{data.payload.firstName}}"}',
+      bodyTemplate: '{"text": "{{data.providerMessageId}}"}',
     });
 
     await deliver(seeded);
@@ -171,12 +199,12 @@ describeDatabase("outbound webhook custom headers and body template", () => {
 
   it("serialises a nested object placeholder as a JSON string", async () => {
     captured = [];
-    const seeded = await seedWebhook({ path: "/payload", bodyTemplate: '{"text": "{{data.payload}}"}' });
+    const seeded = await seedWebhook({ path: "/payload", bodyTemplate: '{"text": "{{data}}"}' });
 
     await deliver(seeded);
 
     const body = JSON.parse(captured[0].rawBody) as { text: string };
-    expect(JSON.parse(body.text)).toEqual(ENVELOPE.data.payload);
+    expect(JSON.parse(body.text)).toEqual(envelope(seeded).data);
   });
 
   it("cannot override Content-Type or the signature header", async () => {
@@ -220,98 +248,74 @@ describeDatabase("outbound webhook custom headers and body template", () => {
 
     await runWithoutTenant(async () => {
       await prisma.company.create({ data: { id: companyId } });
-      await prisma.webhook.create({
+      const webhook = await prisma.webhook.create({
         data: {
           companyId,
           url,
-          events: ["contact.created"],
+          events: [EVENT],
           secret: SECRET,
           headers: { Authorization: "Bearer leaked-if-sent" },
           enabled: true,
         },
       });
+      const eventId = await seedEvent(companyId);
       await prisma.webhookDelivery.create({
-        data: { id: deliveryId, companyId, url, event: "contact.created", requestBody: ENVELOPE },
+        data: {
+          id: deliveryId,
+          companyId,
+          webhookId: webhook.id,
+          eventId,
+          url,
+          event: EVENT,
+          requestBody: { eventId },
+        },
       });
     });
 
-    const outcome = await deliver({ companyId, deliveryId, url });
+    const outcome = await deliver({ companyId, deliveryId });
 
     expect(outcome.status).toBe("failed");
     expect(outcome.responseMessage).toContain("HTTPS");
     expect(captured).toHaveLength(0);
   });
 
-  it("refuses to guess when two webhooks share the URL and one carries overrides", async () => {
+  it("never sends a historical delivery that is not bound to its webhook and event", async () => {
     captured = [];
     const companyId = randomUUID();
     const deliveryId = randomUUID();
-    const url = `${baseUrl}/shared`;
+    const url = `${baseUrl}/historical`;
 
     companyIds.push(companyId);
 
     await runWithoutTenant(async () => {
       await prisma.company.create({ data: { id: companyId } });
-      await prisma.webhook.createMany({
-        data: [
-          { companyId, url, events: ["contact.created"], secret: SECRET, enabled: true },
-          {
-            companyId,
-            url,
-            events: ["contact.created"],
-            secret: SECRET,
-            bodyTemplate: '{"text": "{{event}}"}',
-            enabled: true,
-          },
-        ],
-      });
+      await prisma.webhook.create({ data: { companyId, url, events: [EVENT], secret: SECRET, enabled: true } });
       await prisma.webhookDelivery.create({
-        data: { id: deliveryId, companyId, url, event: "contact.created", requestBody: ENVELOPE },
+        data: {
+          id: deliveryId,
+          companyId,
+          url,
+          event: EVENT,
+          requestBody: envelope({ companyId, eventId: deliveryId }),
+        },
       });
     });
 
-    const outcome = await deliver({ companyId, deliveryId, url });
+    const outcome = await deliver({ companyId, deliveryId });
 
     expect(outcome.status).toBe("failed");
     expect(outcome.responseMessage).toContain("unavailable");
     expect(captured).toHaveLength(0);
   });
 
-  it("refuses to guess a historical delivery owner even when shared URLs have no overrides", async () => {
-    captured = [];
-    const companyId = randomUUID();
-    const deliveryId = randomUUID();
-    const url = `${baseUrl}/shared-plain`;
-
-    companyIds.push(companyId);
-
-    await runWithoutTenant(async () => {
-      await prisma.company.create({ data: { id: companyId } });
-      await prisma.webhook.createMany({
-        data: [
-          { companyId, url, events: ["contact.created"], secret: SECRET, enabled: true },
-          { companyId, url, events: ["contact.created"], secret: SECRET, enabled: true },
-        ],
-      });
-      await prisma.webhookDelivery.create({
-        data: { id: deliveryId, companyId, url, event: "contact.created", requestBody: ENVELOPE },
-      });
-    });
-
-    const outcome = await deliver({ companyId, deliveryId, url });
-
-    expect(outcome.status).toBe("failed");
-    expect(captured).toHaveLength(0);
-  });
-
-  it("sends persisted identity and payload once when concurrent workers receive forged or duplicate workflow inputs", async () => {
+  it("sends the persisted event once when concurrent workers receive duplicate workflow inputs", async () => {
     captured = [];
     const seeded = await seedWebhook({ path: "/duplicates" });
-    const inputs = { ...seeded, url: `${baseUrl}/forged`, requestBody: { forged: true } };
+    const inputs = { deliveryId: seeded.deliveryId, companyId: seeded.companyId };
     const outcomes = await Promise.all([deliverWebhook.invoke(inputs), deliverWebhook.invoke(inputs)]);
     expect(outcomes.some((outcome) => outcome.status === "success")).toBe(true);
     expect(captured).toHaveLength(1);
-    expect(JSON.parse(captured[0].rawBody)).toEqual(ENVELOPE);
+    expect(JSON.parse(captured[0].rawBody)).toEqual(envelope(seeded));
     expect(captured[0].headers["x-customermates-delivery-id"]).toBe(seeded.deliveryId);
     expect(await deliver(seeded)).toMatchObject({ status: "success" });
     expect(captured).toHaveLength(1);
@@ -391,7 +395,7 @@ describeDatabase("outbound webhook custom headers and body template", () => {
     const outcome = await deliver(seeded);
 
     expect(outcome.status).toBe("success");
-    expect(JSON.parse(captured[0].rawBody)).toEqual(ENVELOPE);
+    expect(JSON.parse(captured[0].rawBody)).toEqual(envelope(seeded));
     expect(Object.keys(captured[0].headers).filter((name) => name.startsWith("x-"))).toEqual([
       "x-customermates-delivery-id",
       "x-webhook-signature",

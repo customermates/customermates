@@ -7,7 +7,6 @@ const prismaMock = vi.hoisted(() => {
   const transactionClient = {
     $executeRaw: vi.fn().mockResolvedValue(0),
     company: { findUnique: vi.fn().mockResolvedValue(null) },
-    auditLog: { createMany: vi.fn().mockResolvedValue({ count: 0 }) },
     webhookDelivery: { createMany: vi.fn().mockResolvedValue({ count: 0 }) },
   };
 

@@ -2,7 +2,7 @@ import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 import type { ActivityKind } from "@/ee/messaging/activities/activities.schema";
 import type { Filter } from "@/core/base/base-get.schema";
 
-import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
+import { ACTIVITY_KINDS, isChangeActivityKind } from "@/ee/messaging/activities/activities.schema";
 import { interpretFilters } from "@/ee/messaging/activities/timeline-filters";
 
 export type ActivityWidgetState =
@@ -29,9 +29,11 @@ type ActivityWidgetStateInput = {
   scopeTruncated: boolean;
 };
 
+type AccountActivityKind = Exclude<ActivityKind, "record" | "audit" | "configuration">;
+
 type ActivityWidgetSourcePlan = {
   availableRequestedSources: ActivityKind[];
-  connectedAccountSources: Exclude<ActivityKind, "audit">[];
+  connectedAccountSources: AccountActivityKind[];
   requestedSources: ActivityKind[];
 };
 
@@ -51,7 +53,7 @@ export function activityWidgetSourcePlan(
   const available = new Set(availableSources);
   const availableRequestedSources = requestedSources.filter((source) => available.has(source));
   const connectedAccountSources = availableRequestedSources.filter(
-    (source): source is Exclude<ActivityKind, "audit"> => source !== "audit",
+    (source): source is AccountActivityKind => !isChangeActivityKind(source),
   );
 
   return { availableRequestedSources, connectedAccountSources, requestedSources };
@@ -59,7 +61,7 @@ export function activityWidgetSourcePlan(
 
 export function accountSupportsActivitySources(
   account: Pick<ConnectedAccountDto, "hasCalendar" | "hasMessaging">,
-  sources: readonly Exclude<ActivityKind, "audit">[],
+  sources: readonly AccountActivityKind[],
 ): boolean {
   return sources.some((source) => {
     if (source === "calendar_event") return account.hasCalendar;
@@ -74,8 +76,8 @@ export function resolveActivityWidgetState(input: ActivityWidgetStateInput): Act
 
   if (input.availableRequestedSources.length === 0) return "noPermission";
 
-  const canReadAudit = input.availableRequestedSources.includes("audit");
-  const needsConnectedAccount = input.availableRequestedSources.some((source) => source !== "audit");
+  const canReadAudit = input.availableRequestedSources.some(isChangeActivityKind);
+  const needsConnectedAccount = input.availableRequestedSources.some((source) => !isChangeActivityKind(source));
   if (needsConnectedAccount && input.accountsError) return "error";
   if (needsConnectedAccount && !input.accountsReady) return "loading";
   if (input.scopeTruncated && input.itemCount === 0) return "scopeTooBroad";

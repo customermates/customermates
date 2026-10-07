@@ -33,7 +33,14 @@ function attributesOf(event: string): Record<string, string> {
     routineName: "Fixture",
     triggerEvent: event,
     triggerEntityId: "entity-1",
-    triggerPayload: { companyId: "company-1", userId: null, entityId: "entity-1", payload: payloadFor(event) },
+    triggerPayload: {
+      event,
+      id: "00000000-0000-4000-8000-000000000001",
+      timestamp: "2026-01-01T00:00:00.000Z",
+      companyId: "00000000-0000-4000-8000-000000000002",
+      actorId: null,
+      data: { entityId: "entity-1", ...payloadFor(event) },
+    },
   });
 
   const block = composed.slice(0, composed.indexOf("/>"));

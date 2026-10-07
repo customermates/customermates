@@ -35,7 +35,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     await addFromConfigure(page, "List");
     const creation = page.getByRole("dialog");
     await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-    await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
+    await creation.getByRole("button", { name: "Save", exact: true }).first().click();
     await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
     const typeId = new URL(page.url()).pathname.split("/").at(-1);
     const field = await database.query(
@@ -68,7 +68,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     expect(received[1].deliveryId).toBe(received[0].deliveryId);
     expect(received[0].body).toMatchObject({
       event: "record.created",
-      data: { payload: { version: 2, record: { ref: { typeId } } } },
+      data: { record: { ref: { typeId } } },
     });
     expect(JSON.stringify(received[1].body)).toContain("Delivered project");
 
@@ -76,7 +76,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
       .poll(
         async () => {
           const rows = await database.query(
-            'SELECT d.status,d.attempts,d."admissionKey",e."deliveredAt" AS "eventDeliveredAt" FROM "WebhookDelivery" d JOIN "RecordEvent" e ON e."companyId"=d."companyId" AND e.id=d."recordEventId" WHERE d."companyId"=$1 AND d.url=$2',
+            'SELECT d.status,d.attempts,d."admissionKey",e."deliveredAt" AS "eventDeliveredAt" FROM "WebhookDelivery" d JOIN "EventLog" e ON e."companyId"=d."companyId" AND e.id=d."eventId" WHERE d."companyId"=$1 AND d.url=$2',
             [companyId, receiverUrl],
           );
           return rows.rows;
@@ -134,7 +134,7 @@ test("delivers only deleted records that matched the webhook filter before remov
     await addFromConfigure(page, "List");
     const dialog = page.getByRole("dialog");
     await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-    await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
+    await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
     await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
     const typeId = new URL(page.url()).pathname.split("/").at(-1);
     const field = await database.query(
@@ -183,7 +183,7 @@ test("delivers only deleted records that matched the webhook filter before remov
         .poll(
           async () => {
             const event = await database.query(
-              'SELECT "deliveredAt" FROM "RecordEvent" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND kind=\'record.deleted\'',
+              'SELECT "deliveredAt" FROM "EventLog" WHERE "companyId"=$1 AND "subjectTypeId"=$2 AND "subjectId"=$3 AND kind=\'record.deleted\'',
               [companyId, typeId, recordId],
             );
             return event.rows;
@@ -193,7 +193,7 @@ test("delivers only deleted records that matched the webhook filter before remov
         .toEqual([{ deliveredAt: expect.any(Date) }]);
       if (title === "Draft project") {
         const matched = await database.query(
-          'SELECT m."eventId" FROM "RecordEventMatch" m JOIN "RecordEvent" e ON e."companyId"=m."companyId" AND e.id=m."eventId" WHERE m."companyId"=$1 AND m."subscriptionId"=$2 AND e.kind=\'record.deleted\'',
+          'SELECT m."eventId" FROM "RecordEventMatch" m JOIN "EventLog" e ON e."companyId"=m."companyId" AND e.id=m."eventId" WHERE m."companyId"=$1 AND m."subscriptionId"=$2 AND e.kind=\'record.deleted\'',
           [companyId, hook.rows[0].id],
         );
         expect(matched.rows).toEqual([]);
@@ -204,9 +204,7 @@ test("delivers only deleted records that matched the webhook filter before remov
     expect(received[0].deliveryId).toBeTruthy();
     expect(received[0].body).toMatchObject({
       event: "record.deleted",
-      data: {
-        payload: { version: 2, record: { ref: { typeId, recordId: projects.get("Ready project") } } },
-      },
+      data: { record: { ref: { typeId, recordId: projects.get("Ready project") } } },
     });
     expect(JSON.stringify(received[0].body)).toContain("Ready project");
     expect(JSON.stringify(received[0].body)).not.toContain("Draft project");
@@ -214,7 +212,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       .poll(
         async () => {
           const result = await database.query(
-            'SELECT d.status,d.attempts,e."recordId",e.payload->\'afterVersion\' AS "afterVersion" FROM "WebhookDelivery" d JOIN "RecordEvent" e ON e."companyId"=d."companyId" AND e.id=d."recordEventId" WHERE d."companyId"=$1 AND d."webhookId"=$2',
+            'SELECT d.status,d.attempts,e."subjectId" AS "recordId",e.payload->\'afterVersion\' AS "afterVersion" FROM "WebhookDelivery" d JOIN "EventLog" e ON e."companyId"=d."companyId" AND e.id=d."eventId" WHERE d."companyId"=$1 AND d."webhookId"=$2',
             [companyId, hook.rows[0].id],
           );
           return result.rows;

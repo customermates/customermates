@@ -11,22 +11,18 @@ import { SURFACE } from "@/core/data-view/data-view-keys";
 import { Button } from "@/components/ui/button";
 import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { FilterPopover } from "@/components/data-view/header/filter-popover";
+import { DataViewEmpty } from "@/components/data-view/data-view-empty";
 import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities-list";
 import { ActivityTimelineSkeleton } from "./activity-timeline-skeleton";
 import { RecordActivityViewsStore } from "./record-activity-views.store";
 
-export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
-  record,
-  viewSyncToUrl = false,
-}: {
-  record: RecordRef;
-  viewSyncToUrl?: boolean;
-}) {
-  const t = useTranslations();
+export function useRecordActivityViews(record: RecordRef | null, viewSyncToUrl: boolean) {
   const locale = useLocale();
   const root = useRootStore();
   const params = useSearchParams();
-  const viewPathname = `/${locale}/records/${record.typeId}/${record.recordId}`;
+  const viewPathname = record
+    ? `/${locale}/records/${record.typeId}/${record.recordId}`
+    : `/${locale}/company/activity`;
   const requestedView =
     viewSyncToUrl && params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
   const [store] = useState(
@@ -34,6 +30,7 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
   );
   const appliedView = useRef(requestedView);
   useEffect(() => {
+    store.mount();
     runUserAction(() => store.load());
     const release = root.recordWorkspaceStore.subscribe(() => store.load());
     return () => {
@@ -46,17 +43,14 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
     appliedView.current = requestedView;
     store.followRequestedView(requestedView);
   }, [store, requestedView]);
+  return store;
+}
+
+export const ActivitiesFeed = observer(function ActivitiesFeed({ store }: { store: RecordActivityViewsStore }) {
+  const t = useTranslations();
   const error = store.error || store.dataRequest.status === "refresh-error";
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground">{t("Common.actions.labelHistory")}</span>
-
-        <FilterPopover compact store={store} />
-      </div>
-
-      <DataViewViewsRail store={store} />
-
+    <>
       {error && (
         <div className="space-y-2" role="status">
           <TimelineNotice label={t("EntityTimeline.error")} />
@@ -77,8 +71,37 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
           onLoadOlder={() => runUserAction(() => store.load(true))}
         />
       ) : (
-        !error && <TimelineEmptyState label={t("Dashboard.activityWidget.noActivity")} />
+        !error &&
+        (store.filters?.length ? (
+          <DataViewEmpty reason="filtered" store={store} />
+        ) : (
+          <TimelineEmptyState label={t("Dashboard.activityWidget.noActivity")} />
+        ))
       )}
+    </>
+  );
+});
+
+export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
+  record,
+  viewSyncToUrl = false,
+}: {
+  record: RecordRef;
+  viewSyncToUrl?: boolean;
+}) {
+  const t = useTranslations();
+  const store = useRecordActivityViews(record, viewSyncToUrl);
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs text-muted-foreground">{t("Common.actions.labelHistory")}</span>
+
+        <FilterPopover compact store={store} />
+      </div>
+
+      <DataViewViewsRail store={store} />
+
+      <ActivitiesFeed store={store} />
     </div>
   );
 });
