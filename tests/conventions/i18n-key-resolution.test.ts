@@ -23,6 +23,7 @@ import { RECORD_PRESET_KEYS } from "@/features/records/record-navigation.schema"
 import { DomainEvent } from "@/features/event/domain-events";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
+import { CONFIGURATION_ACTIVITY_EVENTS } from "@/ee/messaging/activities/activities.schema";
 import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
@@ -51,9 +52,12 @@ const STARTER_TYPE_KEYS = RECORD_PRESET_KEYS.flatMap((preset) =>
   (["plural", "singular"] as const).map((form) => `RecordModel.starterTypes.${preset}.${form}`),
 );
 
-const DOMAIN_EVENT_KEYS = [...Object.values(DomainEvent), ...RecordDeliveryEnvelopeSchema.shape.event.options].map(
-  (event) => `Common.events.${event}`,
-);
+const ACTIVITY_EVENTS = [
+  ...Object.values(DomainEvent),
+  ...RecordDeliveryEnvelopeSchema.shape.event.options,
+  ...CONFIGURATION_ACTIVITY_EVENTS,
+];
+const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
 const RECORD_VALUE_TYPE_KEYS = RecordValueTypeSchema.options.map((value) => `RecordModel.types.${value}`);
 const RECORD_BEHAVIOR_KEYS = FieldBehaviorSchema.options.map(
   (behavior) => `RecordModel.behaviors.${behavior.shape.kind.value}`,
@@ -215,22 +219,30 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.changedFields",
   "AuditLogModal.fields.city",
   "AuditLogModal.fields.country",
+  "AuditLogModal.fields.createType",
   "AuditLogModal.fields.cronExpression",
   "AuditLogModal.fields.currency",
-  "AuditLogModal.fields.dealStageWeights",
-  "AuditLogModal.fields.dealWeightingColumnId",
   "AuditLogModal.fields.debounceSeconds",
+  "AuditLogModal.fields.deleteField",
+  "AuditLogModal.fields.deleteType",
   "AuditLogModal.fields.disabledReason",
   "AuditLogModal.fields.effectiveAt",
   "AuditLogModal.fields.emails",
   "AuditLogModal.fields.headers",
   "AuditLogModal.fields.isNewCompany",
+  "AuditLogModal.fields.markdown",
   "AuditLogModal.fields.postalCode",
   "AuditLogModal.fields.prompt",
+  "AuditLogModal.fields.publishSummary",
+  "AuditLogModal.fields.putAccessPreset",
+  "AuditLogModal.fields.putActivityPath",
+  "AuditLogModal.fields.putCapability",
+  "AuditLogModal.fields.putField",
+  "AuditLogModal.fields.putRelationship",
+  "AuditLogModal.fields.putType",
   "AuditLogModal.fields.recipientEmail",
   "AuditLogModal.fields.removalReason",
   "AuditLogModal.fields.street",
-  "AuditLogModal.fields.terminology",
   "AuditLogModal.fields.timezone",
   "AuditLogModal.fields.triggerEvents",
   "AuditLogModal.fields.triggerFilters",
@@ -337,8 +349,10 @@ const SUBSCRIPTION_FEATURE_KEYS = [...loadCatalogPaths().leafPaths].filter((key)
 );
 const ENTITY_TIMELINE_TYPE_KEYS = [
   "EntityTimeline.types.activities",
-  "EntityTimeline.types.changes",
+  "EntityTimeline.types.audit",
+  "EntityTimeline.types.configuration",
   "EntityTimeline.types.messages",
+  "EntityTimeline.types.record",
 ] as const;
 const ERROR_CARD_DYNAMIC_KEYS = [
   "ErrorCard.inactiveUser",
@@ -627,8 +641,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.${key}",
   'app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.condition${index === 0 ? "If" : index === 1 ? "Then" : "Otherwise"}',
   'app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.range${end === "start" ? "Start" : "End"}',
-  "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
-  "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
   "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
   "app/[locale]/(protected)/company/components/role/role-modal.tsx :: t :: RoleModal.resources.${resource}",
@@ -647,6 +659,10 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.reducers.${reducer}",
+  "app/[locale]/(protected)/configure/components/calculation-path.tsx :: t :: RecordModel.${key}",
+  "app/[locale]/(protected)/configure/components/calculation-path.tsx :: t :: RecordModel.cardinality.${hop.cardinality}",
+  "app/[locale]/(protected)/configure/components/calculation-path.tsx :: t :: RecordModel.operators.${expression.operator}",
+  "app/[locale]/(protected)/configure/components/calculation-path.tsx :: t :: RecordModel.reducers.${expression.reducer}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.cardinality.${edge.cardinality}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${field.valueType}",
@@ -763,6 +779,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${result.thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.userStatuses.${status}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${option.value}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${type}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.lastMessageDirections.${direction}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
@@ -845,7 +862,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
-    'app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: id === "audit" ? "EntityTimeline.types.changes" : id === "message" ? "EntityTimeline.types.messages" : id === "calendar_event" ? "ContactHistory.calendarMeeting" : "EntityTimeline.types.activities"',
+    'app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: isChangeActivityKind(id) ? `EntityTimeline.types.${id}` : id === "message" ? "EntityTimeline.types.messages" : id === "calendar_event" ? "ContactHistory.calendarMeeting" : "EntityTimeline.types.activities"',
     1,
   ],
   ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
@@ -902,7 +919,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
-    'features/messaging/activities/record-audit-detail.tsx :: t :: side === "before" ? "RecordModel.previousValue" : "RecordModel.currentValue"',
+    'features/messaging/activities/audit-detail.tsx :: t :: action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create"',
     1,
   ],
   ["features/records/workspace-record-preset.ts :: t :: key", 1],
@@ -1436,7 +1453,7 @@ describe("i18n key resolution", () => {
       .filter((key) => key.startsWith("Common.events."))
       .map((key) => key.slice("Common.events.".length))
       .sort();
-    const domainEvents = [...Object.values(DomainEvent), ...RecordDeliveryEnvelopeSchema.shape.event.options].sort();
+    const domainEvents = [...ACTIVITY_EVENTS].sort();
     expect(translatedEvents).toEqual(domainEvents);
   });
 

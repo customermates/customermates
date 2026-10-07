@@ -267,7 +267,7 @@ export const TimelineDetailModal = observer(() => {
           (entry.senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender")))
       : entry.kind === "calendar_event"
         ? calendarEventTitle(entry.event.title, t("ContactHistory.calendarNoTitle"))
-        : entry.kind === "audit" || entry.kind === "record"
+        : entry.kind === "audit" || entry.kind === "configuration" || entry.kind === "record"
           ? t("AuditLogModal.eventAt", {
               event: t(`Common.events.${entry.event}`),
               date: intlStore.formatNumericalShortDateTime(entry.at),
@@ -322,7 +322,7 @@ export const TimelineDetailModal = observer(() => {
 
       {entry?.kind === "activity" && <ActivityDetail entry={entry} />}
 
-      {entry?.kind === "audit" && <AuditDetail entry={entry} />}
+      {(entry?.kind === "audit" || entry?.kind === "configuration") && <AuditDetail entry={entry} />}
 
       {entry?.kind === "record" && <RecordAuditDetail entry={entry} />}
     </AppModal>

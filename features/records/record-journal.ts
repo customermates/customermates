@@ -115,7 +115,6 @@ export function recordEventChanges(
   return {
     kind: !before ? "record.created" : !after ? "record.deleted" : "record.updated",
     payload: {
-      version: 2,
       ref: entry.ref,
       schemaRevision: model.revision,
       cause,

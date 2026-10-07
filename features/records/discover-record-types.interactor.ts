@@ -24,7 +24,6 @@ export const DiscoverRecordTypesSchema = z
   .strict();
 export const DiscoveredRecordTypesSchema = z
   .object({
-    contractVersion: z.literal(2),
     schemaRevision: z.number().int(),
     canManageSchema: z.boolean(),
     canPublishSummary: z.boolean().optional(),
@@ -93,7 +92,6 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
         return {
           ok: true as const,
           data: {
-            contractVersion: 2 as const,
             schemaRevision: model.revision,
             canManageSchema: policy.canManageSchema,
             canPublishSummary: policy.isAdmin,

@@ -33,6 +33,7 @@ import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { useDefinitionDeletion } from "./use-definition-deletion";
 import { CalculationInput } from "./calculation-input";
 import { isResolvedField } from "./configure-model";
+import { CalculationPath } from "./calculation-path";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordInputValue } from "@/features/records/record-input-value";
 
@@ -350,6 +351,14 @@ export const FieldModal = observer(function FieldModal({
   const archived = store.original?.archived ? store.original : null;
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
+  const triggerValueLabel = () => {
+    const trigger = store.triggerField;
+    const value = store.form.triggerValue;
+    if (!trigger || value === undefined || value === null || value === "") return undefined;
+    if (trigger.valueType === "select") return trigger.options.find((option) => option.id === value)?.label;
+    if (typeof value === "boolean") return value ? t("RecordModel.yes") : t("RecordModel.no");
+    return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
+  };
   const askAi = useRecordAiAction({
     registerContext: true,
     active: store.isOpen,
@@ -378,6 +387,7 @@ export const FieldModal = observer(function FieldModal({
             ]
           : []),
       ]}
+      creating={!store.original}
       store={store}
       title={store.original ? t("RecordModel.editField") : t("RecordModel.addField")}
     >
@@ -520,6 +530,23 @@ export const FieldModal = observer(function FieldModal({
                       fields: ["expression", "capture", "triggerFieldId", "triggerValue", "publishedSummary"],
                       content: (
                         <>
+                          <CalculationPath
+                            expression={store.form.expression}
+                            fieldLabel={store.form.label.trim() || t("RecordModel.calculationPath.thisField")}
+                            model={store.model}
+                            snapshot={
+                              store.form.behavior === "snapshot"
+                                ? {
+                                    allowManualOverride: store.form.allowManualOverride,
+                                    capture: store.form.capture,
+                                    triggerLabel: store.triggerField?.label,
+                                    triggerValueLabel: triggerValueLabel(),
+                                  }
+                                : undefined
+                            }
+                            typeId={store.typeId}
+                          />
+
                           <CalculationInput
                             behavior={store.form.behavior}
                             currency={store.form.currency}
@@ -609,6 +636,7 @@ export const FieldModal = observer(function FieldModal({
                                   items={CHIP_COLORS.map((color) => ({
                                     value: color,
                                     label: t(`Common.colors.${color}`),
+                                    color,
                                   }))}
                                   label={t("RecordModel.color")}
                                 />

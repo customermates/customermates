@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { ActivitiesList, TimelineNotice } from "@/features/messaging/activities/activities-list";
 import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activity-timeline-skeleton";
 import { useRecordActivities } from "@/features/messaging/activities/use-record-activities";
+import { ACTIVITY_KINDS, isChangeActivityKind } from "@/ee/messaging/activities/activities.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import {
   requestedRecordActivitySources,
@@ -30,7 +31,7 @@ export const RecordActivityWidgetCard = observer(
     const timeline = useRecordActivities(widget.activityQuery);
     const requested = requestedRecordActivitySources(widget.activityQuery);
     const available = requested.filter((kind) => timeline.available.includes(kind));
-    const accountSources = available.filter((kind) => kind !== "audit");
+    const accountSources = available.filter((kind) => !isChangeActivityKind(kind));
     const needsAccount = accountSources.length > 0;
     useEffect(() => {
       if (needsAccount) void root.connectedAccountsStore.ensureLoaded().catch(() => undefined);
@@ -39,7 +40,7 @@ export const RecordActivityWidgetCard = observer(
     const count = recordActivityFilterCount(query);
     const constrained =
       count > 0 ||
-      query.kinds.length < 4 ||
+      query.kinds.length < ACTIVITY_KINDS.length ||
       Boolean(query.providers?.length || query.threadIds?.length || query.after || query.before);
     const state = resolveActivityWidgetState({
       accountsError: root.connectedAccountsStore.dataRequest.status === "refresh-error",

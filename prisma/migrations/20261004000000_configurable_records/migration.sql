@@ -10,7 +10,8 @@
 --   2. EXPANDS the schema with the generic record storage,
 --   3. converts RECORDS, values, links, assignments, identities and participant lookups,
 --   4. writes the CONFIGURATION (record model revision, grants) and removes what is not carried over:
---      legacy saved views, personalisation, dashboard widgets, legacy history and legacy automation triggers,
+--      legacy saved views, personalisation, dashboard widgets, legacy history (the audit log, except the legal-consent
+--      evidence and the connected account history moved into the event log) and legacy automation triggers,
 --   5. materialises CALCULATED values and their provenance with exact decimals,
 --   6. RECONCILES the CRM data against the legacy source and refuses on any mismatch,
 --   7. REMOVES the legacy tables, columns and enums.
@@ -54,9 +55,9 @@ END
 $$;
 LOCK TABLE "Contact", "Organization", "Deal", "Service", "Task", "CustomColumn", "CustomFieldValue", "ContactIdentifier",
   "ServiceDeal", "ServiceUser", "DealOrganization", "DealUser", "DealContact", "ContactUser", "OrganizationUser", "TaskUser",
-  "TaskContact", "TaskOrganization", "TaskDeal", "TaskService", "ContactOrganization", "EntityTerminology" IN ACCESS EXCLUSIVE MODE;
+  "TaskContact", "TaskOrganization", "TaskDeal", "TaskService", "ContactOrganization", "EntityTerminology", "AuditLog" IN ACCESS EXCLUSIVE MODE;
 LOCK TABLE "Company", "User", "UserRole", "RolePermission", "Widget", "DataView", "P13n", "Routine", "RoutineRun", "Webhook",
-  "WebhookDelivery", "MessagingThreadParticipant", "MessagingThread", "AuditLog" IN SHARE ROW EXCLUSIVE MODE;
+  "WebhookDelivery", "MessagingThreadParticipant", "MessagingThread" IN SHARE ROW EXCLUSIVE MODE;
 
 -- Fresh planner statistics for the legacy source (statistics only; rolled back with everything else).
 ANALYZE "Company", "User", "UserRole", "RolePermission", "Contact", "Organization", "Deal", "Service", "Task", "CustomColumn",
@@ -2025,14 +2026,16 @@ CREATE TABLE "RecordMutationReceipt" (
     CONSTRAINT "RecordMutationReceipt_pkey" PRIMARY KEY ("companyId","userId","idempotencyKey")
 );
 
--- Record event outbox and its subscriptions (routines and webhooks).
-CREATE TABLE "RecordEvent" (
+-- The event log: record history, administrative events and the outbox of webhooks and routines. The actor is
+-- a plain id (no foreign key), so history outlives its users; NULL is the system.
+CREATE TABLE "EventLog" (
     "companyId" TEXT NOT NULL,
     "id" TEXT NOT NULL,
-    "typeId" TEXT NOT NULL,
-    "recordId" TEXT NOT NULL,
-    "actorId" TEXT NOT NULL,
-    "causeId" TEXT NOT NULL,
+    "subjectKind" TEXT NOT NULL,
+    "subjectTypeId" TEXT,
+    "subjectId" TEXT NOT NULL,
+    "actorId" TEXT,
+    "causeId" TEXT,
     "kind" TEXT NOT NULL,
     "payload" JSONB NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2041,7 +2044,7 @@ CREATE TABLE "RecordEvent" (
     "nextAttemptAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "lastFailureCode" TEXT,
 
-    CONSTRAINT "RecordEvent_pkey" PRIMARY KEY ("companyId","id")
+    CONSTRAINT "EventLog_pkey" PRIMARY KEY ("companyId","id")
 );
 
 
@@ -2127,11 +2130,11 @@ CREATE TABLE "RecordEventMatch" (
   CONSTRAINT "RecordEventMatch_pkey" PRIMARY KEY ("companyId", "eventId", "subscriptionId")
 );
 
--- Webhook deliveries bound to record events, with leases, retries and explicit resends. Existing
+-- Webhook deliveries bound to events, with leases, retries and explicit resends. Existing
 -- delivery history stays intact; completed deliveries are never replayed automatically.
 ALTER TABLE "WebhookDelivery"
   ADD COLUMN "webhookId" TEXT,
-  ADD COLUMN "recordEventId" TEXT,
+  ADD COLUMN "eventId" TEXT,
   ADD COLUMN "subscriptionRevision" INTEGER,
   ADD COLUMN "attempts" INTEGER NOT NULL DEFAULT 0,
   ADD COLUMN "nextAttemptAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
@@ -2141,11 +2144,11 @@ ALTER TABLE "WebhookDelivery"
 UPDATE "WebhookDelivery" SET "nextAttemptAt" = NULL WHERE status IN ('success', 'failed');
 CREATE UNIQUE INDEX "WebhookDelivery_companyId_admissionKey_key" ON "WebhookDelivery"("companyId", "admissionKey");
 CREATE INDEX "WebhookDelivery_companyId_webhookId_createdAt_idx" ON "WebhookDelivery"("companyId", "webhookId", "createdAt");
-CREATE INDEX "WebhookDelivery_companyId_recordEventId_idx" ON "WebhookDelivery"("companyId", "recordEventId");
+CREATE INDEX "WebhookDelivery_companyId_eventId_idx" ON "WebhookDelivery"("companyId", "eventId");
 CREATE INDEX "WebhookDelivery_nextAttemptAt_status_idx" ON "WebhookDelivery"("nextAttemptAt", status);
 ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_companyId_webhookId_fkey" FOREIGN KEY ("companyId", "webhookId") REFERENCES "Webhook"("companyId", id) ON DELETE NO ACTION ON UPDATE CASCADE;
-ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_companyId_recordEventId_fkey" FOREIGN KEY ("companyId", "recordEventId") REFERENCES "RecordEvent"("companyId", id) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_record_revision_check" CHECK (("recordEventId" IS NULL AND "subscriptionRevision" IS NULL) OR ("recordEventId" IS NOT NULL AND "subscriptionRevision" > 0));
+ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_companyId_eventId_fkey" FOREIGN KEY ("companyId", "eventId") REFERENCES "EventLog"("companyId", id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_subscription_revision_check" CHECK ("subscriptionRevision" IS NULL OR ("eventId" IS NOT NULL AND "subscriptionRevision" > 0));
 ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_attempts_check" CHECK (attempts >= 0);
 ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_lease_check" CHECK (("leaseToken" IS NULL) = ("leaseExpiresAt" IS NULL));
 
@@ -2318,14 +2321,20 @@ FROM "RolePermission" p JOIN (VALUES ('contacts', 'contact'), ('organizations', 
   ON p.resource::text = k.resource
 GROUP BY p."companyId", k.kind, p."roleId";
 
--- Saved views and personalisation of the legacy record surfaces and timelines, and every dashboard widget
--- (all of them are legacy widgets), are removed.
-DELETE FROM "DataView" WHERE "surfaceKey" ~ '^((contact|organization|deal|service|task)s-card-store|entity-timeline)$';
-DELETE FROM "P13n" WHERE "p13nId" ~ '^((contact|organization|deal|service|task)s-card-store|(contact|organization|deal|service|task)-detail|entity-timeline)$';
+-- Saved views and personalisation of the legacy record surfaces, timelines and audit log page, and every
+-- dashboard widget (all of them are legacy widgets), are removed.
+DELETE FROM "DataView" WHERE "surfaceKey" ~ '^((contact|organization|deal|service|task|audit-log)s-card-store|entity-timeline)$';
+DELETE FROM "P13n" WHERE "p13nId" ~ '^((contact|organization|deal|service|task|audit-log)s-card-store|(contact|organization|deal|service|task)-detail|entity-timeline)$';
 DELETE FROM "Widget";
 
--- History of legacy records and custom columns is removed.
-DELETE FROM "AuditLog" WHERE event ~ '^(contact|organization|deal|service|task|custom_column)\.';
+-- The audit log is not carried over (section 7 drops it), except the legal-consent evidence (accepted legal
+-- documents and sent legal notices) and the connected account history (connected_account.*), which the
+-- operator console's channel usage reads. Those rows move into the event log with their id, actor, entity, time
+-- and payload; the subject kind is the event prefix. They are history only, so they are written as already
+-- delivered and never reach webhooks or routines.
+INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectId", "actorId", kind, payload, "createdAt", "deliveredAt", "nextAttemptAt")
+SELECT "companyId", id, split_part(event, '.', 1), "entityId", "userId", event, COALESCE("eventData"->'payload', 'null'::jsonb), "createdAt", "createdAt", "createdAt"
+FROM "AuditLog" WHERE event IN ('legal.documents_accepted', 'legal.notice_sent') OR event ~ '^connected_account\.';
 
 -- Automations: every webhook and every event-triggered routine is disabled; scheduled routines keep their
 -- schedule and enabled state. Legacy record events are removed from every webhook and routine, together with
@@ -2374,8 +2383,10 @@ CREATE INDEX "RecordAssignment_companyId_userId_typeId_recordId_idx" ON "RecordA
 CREATE INDEX "RecordTypeGrant_companyId_roleId_idx" ON "RecordTypeGrant"("companyId", "roleId");
 CREATE INDEX "RecordOperation_companyId_state_createdAt_idx" ON "RecordOperation"("companyId", "state", "createdAt");
 CREATE INDEX "RecordOperation_state_leaseUntil_idx" ON "RecordOperation"("state", "leaseUntil");
-CREATE INDEX "RecordEvent_companyId_typeId_recordId_createdAt_idx" ON "RecordEvent"("companyId", "typeId", "recordId", "createdAt");
-CREATE INDEX "RecordEvent_deliveredAt_nextAttemptAt_idx" ON "RecordEvent"("deliveredAt", "nextAttemptAt");
+CREATE INDEX "EventLog_subject_idx" ON "EventLog"("companyId", "subjectKind", "subjectTypeId", "subjectId", "createdAt");
+CREATE INDEX "EventLog_companyId_kind_createdAt_idx" ON "EventLog"("companyId", "kind", "createdAt");
+CREATE INDEX "EventLog_subjectKind_createdAt_idx" ON "EventLog"("subjectKind", "createdAt");
+CREATE INDEX "EventLog_deliveredAt_nextAttemptAt_idx" ON "EventLog"("deliveredAt", "nextAttemptAt");
 CREATE UNIQUE INDEX "RecordIdentity_companyId_id_channelClass_key" ON "RecordIdentity"("companyId", "id", "channelClass");
 CREATE INDEX "RecordIdentityKey_companyId_identityId_channelClass_idx" ON "RecordIdentityKey"("companyId", "identityId", "channelClass");
 CREATE INDEX "RecordIdentityLink_companyId_typeId_recordId_idx" ON "RecordIdentityLink"("companyId", "typeId", "recordId");
@@ -2562,7 +2573,7 @@ ALTER TABLE "RecordOperation" ADD CONSTRAINT "RecordOperation_companyId_fkey" FO
 ALTER TABLE "RecordStageRow" ADD CONSTRAINT "RecordStageRow_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "RecordStageRow" ADD CONSTRAINT "RecordStageRow_companyId_operationId_fkey" FOREIGN KEY ("companyId", "operationId") REFERENCES "RecordOperation"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "RecordMutationReceipt" ADD CONSTRAINT "RecordMutationReceipt_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordEvent" ADD CONSTRAINT "RecordEvent_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "EventLog" ADD CONSTRAINT "EventLog_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "RecordIdentity" ADD CONSTRAINT "RecordIdentity_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "RecordIdentityKey" ADD CONSTRAINT "RecordIdentityKey_companyId_identityId_channelClass_fkey" FOREIGN KEY ("companyId", "identityId", "channelClass") REFERENCES "RecordIdentity"("companyId", "id", "channelClass") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "RecordIdentityLink" ADD CONSTRAINT "RecordIdentityLink_companyId_identityId_fkey" FOREIGN KEY ("companyId", "identityId") REFERENCES "RecordIdentity"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2573,13 +2584,13 @@ ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_co
 ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_companyId_ownerUserId_fkey" FOREIGN KEY ("companyId", "ownerUserId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_eventId_fkey" FOREIGN KEY ("companyId", "eventId") REFERENCES "RecordEvent"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_eventId_fkey" FOREIGN KEY ("companyId", "eventId") REFERENCES "EventLog"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_subscriptionId_fkey" FOREIGN KEY ("companyId", "subscriptionId") REFERENCES "RecordEventSubscription"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- =============================================================================================
 -- Section 6: RECONCILIATION. Independent comparisons of the generic data with the legacy source (records,
--- assignments, values, links, totals, identities, provenance, configuration and the link repair). Any mismatch
--- aborts the transaction; the legacy data is then untouched.
+-- assignments, values, links, totals, identities, provenance, configuration, the link repair and the carried-over
+-- audit events). Any mismatch aborts the transaction; the legacy data is then untouched.
 -- =============================================================================================
 
 CREATE TEMP TABLE crm_upgrade_mismatch (check_name text NOT NULL, total bigint NOT NULL) ON COMMIT DROP;
@@ -2806,6 +2817,16 @@ SELECT 'repairs:links', abs(recorded.total - expected.total) FROM
      WHERE NOT crm_upgrade.is_http_url(part) AND btrim(part) ~* '^[a-z0-9-]+(\.[a-z0-9-]+)+(/\S*)?$')) AS expected
 WHERE recorded.total <> expected.total;
 
+-- Carried-over audit events: every legal-consent and connected account row is in the event log, unchanged.
+INSERT INTO crm_upgrade_mismatch
+SELECT 'events:' || split_part(COALESCE(legacy.event, event.kind), '.', 1), count(*) FROM
+  (SELECT * FROM "AuditLog" WHERE event IN ('legal.documents_accepted', 'legal.notice_sent') OR event ~ '^connected_account\.') AS legacy
+FULL JOIN "EventLog" event ON event."companyId" = legacy."companyId" AND event.id = legacy.id
+WHERE legacy.id IS NULL OR event.id IS NULL OR event.kind <> legacy.event OR event."subjectKind" <> split_part(legacy.event, '.', 1)
+  OR event."subjectId" <> legacy."entityId" OR event."actorId" IS DISTINCT FROM legacy."userId"
+  OR event."createdAt" <> legacy."createdAt" OR event.payload <> COALESCE(legacy."eventData"->'payload', 'null'::jsonb)
+GROUP BY 1;
+
 DO $$
 DECLARE
   v_summary text;
@@ -2827,6 +2848,7 @@ ALTER TABLE "Routine" DROP COLUMN "changedFields";
 DROP TABLE "Contact", "Organization", "Deal", "Service", "Task", "CustomColumn", "CustomFieldValue", "ContactIdentifier", "ServiceDeal",
   "ServiceUser", "DealOrganization", "DealUser", "DealContact", "ContactUser", "OrganizationUser", "TaskUser", "TaskContact",
   "TaskOrganization", "TaskDeal", "TaskService", "ContactOrganization", "EntityTerminology";
+DROP TABLE "AuditLog";
 ALTER TABLE "Widget" DROP COLUMN "entityType", DROP COLUMN "entityFilters", DROP COLUMN "dealFilters", DROP COLUMN "groupByType",
   DROP COLUMN "groupByCustomColumnId", DROP COLUMN "aggregationType", DROP COLUMN "timelineFilters";
 DROP FUNCTION custom_field_range_start(text);

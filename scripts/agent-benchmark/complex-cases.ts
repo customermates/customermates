@@ -202,20 +202,16 @@ async function ownerlessDeal(h: SeedHelpers, key: string, name: string, value: n
 }
 
 async function auditValueChange(h: SeedHelpers, key: string, previous: number, current: number, at: string) {
-  await h.tx.auditLog.create({
+  await h.tx.recordHistory.create({
     data: {
       id: h.id("audit-value:" + key + ":" + at),
       companyId: h.companyId,
-      userId: h.id("sofia"),
-      entityId: h.id(key),
-      event: "deal.updated",
-      createdAt: new Date(at),
-      eventData: {
-        companyId: h.companyId,
-        userId: h.id("sofia"),
-        entityId: h.id(key),
-        payload: { changes: { totalValue: { previous, current } } },
-      },
+      kind: "deal",
+      recordId: h.id(key),
+      actorId: h.id("sofia"),
+      at: new Date(at),
+      before: { totalValue: previous },
+      after: { totalValue: current },
     },
   });
 }

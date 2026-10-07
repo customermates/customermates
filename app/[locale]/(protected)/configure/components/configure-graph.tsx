@@ -11,9 +11,10 @@ import type {
   ConfigureGraphList,
   ConfigureGraphSource,
 } from "./configure-graph-model";
-import type { ConfigureGraphRoute } from "./configure-graph-layout";
+import type { ConfigureGraphPosition, ConfigureGraphRoute } from "./configure-graph-layout";
+import type { ConfigureGraphLayout } from "@/features/p13n/p13n-settings.schema";
 
-import { createContext, useContext, useEffect, useId, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import {
@@ -28,9 +29,10 @@ import {
   ReactFlow,
   ReactFlowProvider,
   applyNodeChanges,
+  useInternalNode,
   useReactFlow,
 } from "@xyflow/react";
-import { Cable, Link2, Maximize, Plus, Sigma, ZoomIn, ZoomOut } from "lucide-react";
+import { Cable, Link2, Maximize, Plus, RotateCcw, Sigma, ZoomIn, ZoomOut } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { ClickableChip } from "@/components/chip/clickable-chip";
@@ -42,12 +44,16 @@ import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { upsertP13nAction } from "@/app/actions";
+import { CONFIGURE_GRAPH_P13N_ID } from "@/features/p13n/p13n-settings.schema";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "../../profile/components/account-status-color";
 import {
+  configureEdgeGeometry,
   configureGraphLayout,
+  configureGraphPlacement,
   configureGraphViewport,
-  configureRoutePath,
   GRAPH_VISIBLE_ACCOUNTS,
   GRAPH_VISIBLE_FIELDS,
 } from "./configure-graph-layout";
@@ -63,6 +69,8 @@ type Props = {
   model: RecordModelView;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
+  layout: ConfigureGraphLayout["positions"] | null;
+  onLayoutChange: (layout: ConfigureGraphLayout["positions"] | null) => void;
   showArchived: boolean;
   canManage: boolean;
   disabled: boolean;
@@ -113,6 +121,8 @@ function NodeHandles({ connectable }: { connectable: boolean }) {
   ));
 }
 
+const CONNECTED_ACCOUNTS_HREF = "/profile/connected-accounts";
+
 type ListNode = Node<{ list: ConfigureGraphList }, "list">;
 type AccountsNode = Node<{ accounts: ConfigureGraphSource[] }, "accounts">;
 type PromptNode = Node<{ state: "available" | "locked" }, "prompt">;
@@ -136,14 +146,12 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
 
       <button
         aria-label={list.type.pluralLabel}
-        className="nodrag flex w-full items-center gap-2.5 rounded-t-xl px-3.5 pt-3 pb-2.5 text-left outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:pointer-events-none"
+        className="flex w-full items-center gap-2.5 rounded-t-xl px-3.5 pt-3 pb-2.5 text-left outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:pointer-events-none"
         disabled={disabled}
         type="button"
         onClick={() => onSelectList(list.type.id)}
       >
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-          <Icon aria-hidden className="size-4" />
-        </span>
+        <Icon aria-hidden className="size-4 shrink-0" />
 
         <span className="min-w-0 flex-1">
           <span className="block truncate text-base font-semibold">{list.type.pluralLabel}</span>
@@ -267,13 +275,11 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
       <NodeHandles connectable={false} />
 
       <div className="flex items-center gap-2.5 px-3.5 pt-3 pb-2.5">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-          <Cable aria-hidden className="size-4" />
-        </span>
+        <Cable aria-hidden className="size-4 shrink-0" />
 
         <span className="min-w-0 flex-1 truncate text-base font-semibold">{t("RecordModel.graph.accounts")}</span>
 
-        <AppLink className="nodrag shrink-0 text-sm" href="/profile/connected-accounts">
+        <AppLink className="nodrag shrink-0 text-sm" href={CONNECTED_ACCOUNTS_HREF}>
           {t("RecordModel.graph.manage")}
         </AppLink>
       </div>
@@ -302,8 +308,14 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
         })}
 
         {hidden > 0 && (
-          <li className="flex h-12 items-center px-3.5 ps-[2.625rem] text-sm text-muted-foreground">
-            {t("RecordModel.graph.moreAccounts", { count: hidden })}
+          <li>
+            <AppLink
+              appearance="unstyled"
+              className="nodrag flex h-12 w-full items-center px-3.5 ps-[2.625rem] text-sm text-muted-foreground outline-none hover:bg-accent/50 hover:text-foreground focus-visible:bg-accent/60"
+              href={CONNECTED_ACCOUNTS_HREF}
+            >
+              {t("RecordModel.graph.moreAccounts", { count: hidden })}
+            </AppLink>
           </li>
         )}
       </ul>
@@ -329,9 +341,7 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
       <NodeHandles connectable={false} />
 
       <div className="flex items-center gap-2.5 px-3.5 pt-3">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-          <Cable aria-hidden className="size-4" />
-        </span>
+        <Cable aria-hidden className="size-4 shrink-0 text-muted-foreground" />
 
         <span className="min-w-0 flex-1 text-base font-semibold">{t("RecordModel.graph.connectTitle")}</span>
       </div>
@@ -340,10 +350,7 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
 
       <div className="px-3.5 pt-2 pb-3">
         <Button asChild className="nodrag" size="xs" variant="secondary">
-          <AppLink
-            appearance="unstyled"
-            href={state === "locked" ? "/company/subscription" : "/profile/connected-accounts"}
-          >
+          <AppLink appearance="unstyled" href={state === "locked" ? "/company/subscription" : CONNECTED_ACCOUNTS_HREF}>
             {state === "locked" ? t("MessagingUpsell.cta") : t("ConnectedAccountsCard.connectAccount")}
           </AppLink>
         </Button>
@@ -352,17 +359,35 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
   );
 }
 
-type GraphEdgeData = { edge: ConfigureGraphEdge; route: ConfigureGraphRoute };
+type GraphEdgeData = {
+  edge: ConfigureGraphEdge;
+  route: ConfigureGraphRoute;
+  anchors: { source: ConfigureGraphPosition; target: ConfigureGraphPosition };
+  lane: number;
+};
 type GraphEdge = Edge<GraphEdgeData, "graph">;
 
-function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
+function useNodeBox(id: string, fallback: ConfigureGraphPosition | undefined): ConfigureGraphPosition | undefined {
+  const node = useInternalNode(id);
+  if (!node || !fallback) return fallback;
+  return {
+    x: node.internals.positionAbsolute.x,
+    y: node.internals.positionAbsolute.y,
+    width: node.measured.width ?? fallback.width,
+    height: node.measured.height ?? fallback.height,
+  };
+}
+
+function GraphEdgeView({ data, source, target }: EdgeProps<GraphEdge>) {
   const t = useTranslations();
   const { canManage, disabled, labelOf, listOf, onEditRelationship } = useGraphActions();
   const descriptionId = useId();
-  if (!data) return null;
-  const { edge, route } = data;
-  const path = configureRoutePath(route.points);
-  const chipPosition = { transform: `translate(-50%, -50%) translate(${route.label.x}px, ${route.label.y}px)` };
+  const sourceBox = useNodeBox(source, data?.anchors.source);
+  const targetBox = useNodeBox(target, data?.anchors.target);
+  if (!data || !sourceBox || !targetBox) return null;
+  const { edge, route, anchors, lane } = data;
+  const { path, label: labelPoint } = configureEdgeGeometry(route, anchors, sourceBox, targetBox, lane);
+  const chipPosition = { transform: `translate(-50%, -50%) translate(${labelPoint.x}px, ${labelPoint.y}px)` };
   if (edge.kind === "relationship") {
     const { relation } = edge;
     const cardinality = t(`RecordModel.cardinality.${edge.cardinality}`);
@@ -456,6 +481,44 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
 
 const FIT_VIEW = { padding: 0.08, maxZoom: 1 };
 
+const COARSE_POINTER = "(pointer: coarse)";
+
+function subscribeCoarsePointer(onChange: () => void) {
+  const query = window.matchMedia(COARSE_POINTER);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function useCoarsePointer() {
+  return useSyncExternalStore(
+    subscribeCoarsePointer,
+    () => window.matchMedia(COARSE_POINTER).matches,
+    () => false,
+  );
+}
+
+async function saveGraphLayout(layout: ConfigureGraphLayout | null) {
+  const result = await upsertP13nAction({ p13nId: CONFIGURE_GRAPH_P13N_ID, settings: layout });
+  if (!result.ok) toastZodErrorTree(result.error);
+}
+
+function edgeLanes(edges: readonly { id: string; source: string; target: string }[]) {
+  const groups = new Map<string, string[]>();
+  for (const edge of edges) {
+    const key = [edge.source, edge.target].sort().join(" ");
+    groups.set(key, [...(groups.get(key) ?? []), edge.id]);
+  }
+  const lanes = new Map<string, number>();
+  const reversed = new Set(edges.filter((edge) => edge.source > edge.target).map((edge) => edge.id));
+  for (const ids of groups.values()) {
+    ids.forEach((id, index) => {
+      const lane = index - (ids.length - 1) / 2;
+      lanes.set(id, reversed.has(id) ? -lane : lane);
+    });
+  }
+  return lanes;
+}
+
 const nodeTypes = { list: ListNodeView, accounts: AccountsNodeView, prompt: PromptNodeView };
 const edgeTypes = { graph: GraphEdgeView };
 
@@ -463,6 +526,8 @@ function ConfigureGraphCanvas({
   model,
   catalog,
   accounts,
+  layout: saved,
+  onLayoutChange,
   showArchived,
   canManage,
   disabled,
@@ -476,6 +541,7 @@ function ConfigureGraphCanvas({
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
   const connectPrompt = accounts.state !== "unavailable";
+  const coarsePointer = useCoarsePointer();
   const help = canManage ? t("RecordModel.graph.help") : t("RecordModel.graph.helpReadOnly");
   const container = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState<"TB" | "LR" | null>(null);
@@ -497,8 +563,9 @@ function ConfigureGraphCanvas({
     const sources = accounts.state === "available" ? accounts.accounts : [];
     const data = configureGraphData(model, catalog, sources, showArchived, connectPrompt);
     const layout = configureGraphLayout(data, canManage, connectPrompt, measured, direction ?? "TB");
+    const placement = configureGraphPlacement(layout.positions, saved);
     const at = (id: string) => {
-      const position = layout.positions.get(id);
+      const position = placement.get(id);
       return { x: position?.x ?? 0, y: position?.y ?? 0 };
     };
     const nodes: Node[] = [
@@ -509,27 +576,30 @@ function ConfigureGraphCanvas({
           ? [{ id: ACCOUNTS_NODE_ID, type: "prompt", position: at(ACCOUNTS_NODE_ID), data: { state: accounts.state } }]
           : []),
     ];
-    const edges: GraphEdge[] = data.edges.flatMap((edge) => {
+    const routed = data.edges.flatMap((edge) => {
       const route = layout.routes.get(edge.id);
-      if (!route) return [];
       const [source, target] =
         edge.kind === "relationship"
           ? [edge.relation.sourceTypeId, edge.relation.targetTypeId]
           : [edge.source, edge.target];
+      const anchors = { source: layout.positions.get(source), target: layout.positions.get(target) };
+      if (!route || !anchors.source || !anchors.target) return [];
       return [
-        {
-          id: edge.id,
-          type: "graph",
-          source,
-          target,
-          sourceHandle: "bottom",
-          targetHandle: "top",
-          data: { edge, route },
-        },
+        { id: edge.id, source, target, edge, route, anchors: { source: anchors.source, target: anchors.target } },
       ];
     });
-    return { nodes, edges, positions: layout.positions };
-  }, [model, catalog, accounts, showArchived, connectPrompt, canManage, measured, direction]);
+    const lanes = edgeLanes(routed);
+    const edges: GraphEdge[] = routed.map(({ id, source, target, edge, route, anchors }) => ({
+      id,
+      type: "graph",
+      source,
+      target,
+      sourceHandle: "bottom",
+      targetHandle: "top",
+      data: { edge, route, anchors, lane: lanes.get(id) ?? 0 },
+    }));
+    return { nodes, edges, positions: placement };
+  }, [model, catalog, accounts, showArchived, connectPrompt, canManage, measured, direction, saved]);
   const [flowNodes, setFlowNodes] = useState<Node[]>(nodes);
   useEffect(
     () =>
@@ -565,6 +635,21 @@ function ConfigureGraphCanvas({
       .catch(reportApplicationError);
   }, [ready, flow, measured, flowNodes, positions, direction]);
   const listIds = useMemo(() => new Set(model.types.map((type) => type.id)), [model.types]);
+  const keepLayout = () =>
+    runUserAction(async () => {
+      const positions = Object.fromEntries(
+        Object.entries(saved ?? {}).filter(([id]) => listIds.has(id) || id === ACCOUNTS_NODE_ID),
+      );
+      for (const node of flow.getNodes())
+        positions[node.id] = { x: Math.round(node.position.x), y: Math.round(node.position.y) };
+      onLayoutChange(positions);
+      await saveGraphLayout({ positions });
+    });
+  const resetLayout = async () => {
+    placed.current = null;
+    onLayoutChange(null);
+    await saveGraphLayout(null);
+  };
   const actions = useMemo<GraphActions>(
     () => ({
       canManage,
@@ -582,7 +667,6 @@ function ConfigureGraphCanvas({
     <GraphActionsContext.Provider value={actions}>
       <div
         ref={container}
-        aria-describedby="configure-graph-help"
         aria-label={t("RecordModel.graph.label")}
         className="relative min-h-0 flex-1"
         data-configure-graph=""
@@ -609,7 +693,7 @@ function ConfigureGraphCanvas({
           nodeTypes={nodeTypes}
           nodes={flowNodes}
           nodesConnectable={canManage && !disabled}
-          nodesDraggable={false}
+          nodesDraggable={!disabled && !coarsePointer}
           nodesFocusable={false}
           proOptions={{ hideAttribution: true }}
           zoomOnScroll={false}
@@ -627,6 +711,7 @@ function ConfigureGraphCanvas({
             if (target && target !== source && listIds.has(target)) onConnect(source, target);
           }}
           onInit={() => setReady(true)}
+          onNodeDragStop={keepLayout}
           onNodesChange={(changes) => setFlowNodes((current) => applyNodeChanges(changes, current))}
         >
           <Background
@@ -644,13 +729,20 @@ function ConfigureGraphCanvas({
             role="group"
           >
             {[
-              { label: t("RecordModel.graph.zoomIn"), icon: ZoomIn, run: () => flow.zoomIn() },
-              { label: t("RecordModel.graph.zoomOut"), icon: ZoomOut, run: () => flow.zoomOut() },
-              { label: t("RecordModel.graph.fitView"), icon: Maximize, run: () => flow.fitView(FIT_VIEW) },
-            ].map(({ label, icon: Icon, run }) => (
+              { label: t("RecordModel.graph.zoomIn"), icon: ZoomIn, run: () => flow.zoomIn(), off: false },
+              { label: t("RecordModel.graph.zoomOut"), icon: ZoomOut, run: () => flow.zoomOut(), off: false },
+              { label: t("RecordModel.graph.fitView"), icon: Maximize, run: () => flow.fitView(FIT_VIEW), off: false },
+              { label: t("RecordModel.graph.resetLayout"), icon: RotateCcw, run: resetLayout, off: !saved || disabled },
+            ].map(({ label, icon: Icon, run, off }) => (
               <Tooltip key={label}>
                 <TooltipTrigger asChild>
-                  <Button aria-label={label} size="icon-sm" variant="secondary" onClick={() => runUserAction(run)}>
+                  <Button
+                    aria-label={label}
+                    disabled={off}
+                    size="icon-sm"
+                    variant="secondary"
+                    onClick={() => runUserAction(run)}
+                  >
                     <Icon aria-hidden />
                   </Button>
                 </TooltipTrigger>
@@ -658,12 +750,6 @@ function ConfigureGraphCanvas({
                 <TooltipContent side="right">{label}</TooltipContent>
               </Tooltip>
             ))}
-          </Panel>
-
-          <Panel className="!m-3 flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-2" position="top-left">
-            <p className="hidden max-w-lg text-xs text-muted-foreground lg:block" id="configure-graph-help">
-              {help}
-            </p>
           </Panel>
         </ReactFlow>
       </div>

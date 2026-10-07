@@ -417,6 +417,16 @@ export function useFilterSelectItems(
       };
     }
     if (isCustom) return NO_FILTER_OPTIONS;
+    if (scopedOptions && field === FilterFieldKey.timelineKind.toString()) {
+      return {
+        items: () =>
+          scopedOptions.map((option) => ({
+            key: option.value,
+            value: option.value,
+            textValue: t(`EntityTimeline.types.${option.value}`),
+          })),
+      };
+    }
     if (scopedOptions) return { items: () => scopedOptionItems(scopedOptions, field, t) };
 
     const enumValue = filterFieldKeyOf(field);

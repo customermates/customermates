@@ -13,7 +13,7 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
     const row = await this.prisma.widget.findFirst({
       where: { id, companyId: this.companyId, userId: this.userId, measure: { not: Prisma.AnyNull } },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row ? StoredSchema.parse(row) : null;
   }
   async findReadable(id: string): Promise<StoredRecordWidget | null> {
     const row = await this.prisma.widget.findFirst({
@@ -24,14 +24,14 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
         measure: { not: Prisma.AnyNull },
       },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row ? StoredSchema.parse(row) : null;
   }
   async listOwned(): Promise<StoredRecordWidget[]> {
     const rows = await this.prisma.widget.findMany({
       where: { companyId: this.companyId, userId: this.userId, measure: { not: Prisma.AnyNull } },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
-    return rows.map((row) => StoredSchema.parse({ ...row, contractVersion: 2 }));
+    return rows.map((row) => StoredSchema.parse(row));
   }
   async listPlacements() {
     return listWidgetPlacements(this.prisma, this.companyId, this.userId);
@@ -51,6 +51,6 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
           data: { ...data, version: { increment: 1 } },
         })
       : await this.prisma.widget.create({ data: { ...data, id, companyId: this.companyId, userId: this.userId } });
-    return StoredSchema.parse({ ...row, contractVersion: 2 });
+    return StoredSchema.parse(row);
   }
 }

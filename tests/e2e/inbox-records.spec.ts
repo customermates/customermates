@@ -77,12 +77,11 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   await expect(historyDetail).toBeVisible();
   await expect(historyDetail.getByText("Inbox Person", { exact: true }).first()).toBeVisible();
   const journal = await database.query(
-    'SELECT kind,payload FROM "RecordEvent" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 ORDER BY "createdAt"',
+    'SELECT kind,payload FROM "EventLog" WHERE "companyId"=$1 AND "subjectTypeId"=$2 AND "subjectId"=$3 ORDER BY "createdAt"',
     [companyId, stored.rows[0].typeId, stored.rows[0].recordId],
   );
   expect(journal.rows.map((row) => row.kind)).toEqual(["record.created"]);
   expect(journal.rows[0].payload).toMatchObject({
-    version: 2,
     ref: { typeId: stored.rows[0].typeId, recordId: stored.rows[0].recordId },
   });
   await page.screenshot({ path: testInfo.outputPath("record-history-detail.png"), animations: "disabled" });

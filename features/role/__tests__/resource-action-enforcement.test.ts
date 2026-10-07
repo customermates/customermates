@@ -54,11 +54,6 @@ const ENFORCED: Array<[resource: string, action: string, load: () => Promise<Gua
   ],
   ["wiki", "readAll", async () => (await import("@/features/wiki/get-wiki-pages.interactor")).GetWikiPagesInteractor],
   [
-    "auditLog",
-    "readAll",
-    async () => (await import("@/features/audit-log/get/get-audit-logs.interactor")).GetAuditLogsInteractor,
-  ],
-  [
     "inboxMessages",
     "create",
     async () => (await import("@/ee/messaging/outbound/send-email.interactor")).SendEmailInteractor,

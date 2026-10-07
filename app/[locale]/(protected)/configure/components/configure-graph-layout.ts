@@ -17,7 +17,7 @@ const ICON_CHIP = { width: 24, height: 24 };
 
 type ConfigureGraphPoint = { x: number; y: number };
 
-type ConfigureGraphPosition = ConfigureGraphPoint & { width: number; height: number };
+export type ConfigureGraphPosition = ConfigureGraphPoint & { width: number; height: number };
 
 export type ConfigureGraphRoute = { points: ConfigureGraphPoint[]; label: ConfigureGraphPoint };
 
@@ -99,6 +99,82 @@ export function configureRoutePath(points: readonly ConfigureGraphPoint[]) {
   }
   const last = rest[rest.length - 1];
   return `${path} L ${last.x} ${last.y}`;
+}
+
+const PLACEMENT_GAP = 40;
+const LANE_GAP = 36;
+
+function overlaps(box: ConfigureGraphPosition, other: ConfigureGraphPosition) {
+  return (
+    box.x < other.x + other.width + PLACEMENT_GAP &&
+    other.x < box.x + box.width + PLACEMENT_GAP &&
+    box.y < other.y + other.height + PLACEMENT_GAP &&
+    other.y < box.y + box.height + PLACEMENT_GAP
+  );
+}
+
+export function configureGraphPlacement(
+  layout: ReadonlyMap<string, ConfigureGraphPosition>,
+  saved: Readonly<Record<string, ConfigureGraphPoint>> | null,
+) {
+  if (!saved) return new Map(layout);
+  const placement = new Map<string, ConfigureGraphPosition>();
+  for (const [id, box] of layout) {
+    const point = saved[id];
+    if (point) placement.set(id, { ...box, x: point.x, y: point.y });
+  }
+  const unsaved = [...layout].filter(([id]) => !saved[id]).sort(([, a], [, b]) => a.y - b.y || a.x - b.x);
+  for (const [id, box] of unsaved) {
+    const candidate = { ...box };
+    for (;;) {
+      const blocking = [...placement.values()].filter((other) => overlaps(candidate, other));
+      if (!blocking.length) break;
+      candidate.y = Math.max(...blocking.map((other) => other.y + other.height)) + PLACEMENT_GAP;
+    }
+    placement.set(id, candidate);
+  }
+  return placement;
+}
+
+function boundaryPoint(box: ConfigureGraphPosition, toward: ConfigureGraphPoint) {
+  const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const dx = toward.x - center.x;
+  const dy = toward.y - center.y;
+  if (!dx && !dy) return center;
+  const scale = Math.min(
+    dx ? box.width / 2 / Math.abs(dx) : Number.POSITIVE_INFINITY,
+    dy ? box.height / 2 / Math.abs(dy) : Number.POSITIVE_INFINITY,
+  );
+  return { x: center.x + dx * scale, y: center.y + dy * scale };
+}
+
+export function configureEdgeGeometry(
+  route: ConfigureGraphRoute,
+  anchors: { source: ConfigureGraphPoint; target: ConfigureGraphPoint },
+  source: ConfigureGraphPosition,
+  target: ConfigureGraphPosition,
+  lane: number,
+) {
+  const dx = source.x - anchors.source.x;
+  const dy = source.y - anchors.source.y;
+  if (Math.abs(target.x - anchors.target.x - dx) < 0.5 && Math.abs(target.y - anchors.target.y - dy) < 0.5) {
+    return {
+      path: configureRoutePath(route.points.map((point) => ({ x: point.x + dx, y: point.y + dy }))),
+      label: { x: route.label.x + dx, y: route.label.y + dy },
+    };
+  }
+  const start = boundaryPoint(source, { x: target.x + target.width / 2, y: target.y + target.height / 2 });
+  const end = boundaryPoint(target, { x: source.x + source.width / 2, y: source.y + source.height / 2 });
+  const length = Math.hypot(end.x - start.x, end.y - start.y) || 1;
+  const offset = lane * LANE_GAP;
+  const normal = { x: -(end.y - start.y) / length, y: (end.x - start.x) / length };
+  const middle = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+  const label = { x: middle.x + normal.x * offset, y: middle.y + normal.y * offset };
+  const control = { x: middle.x + normal.x * offset * 2, y: middle.y + normal.y * offset * 2 };
+  return {
+    path: `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`,
+    label,
+  };
 }
 
 const VIEWPORT_PADDING = 16;

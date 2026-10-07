@@ -113,7 +113,7 @@ test("creates, edits, connects, assigns, reloads, and deletes all five starter t
   );
   expect(remaining.rows).toEqual([{ count: 0 }]);
   const events = await database.query(
-    'SELECT "recordId",array_agg(DISTINCT kind ORDER BY kind) AS kinds FROM "RecordEvent" WHERE "companyId"=$1 AND "recordId"=ANY($2::text[]) GROUP BY "recordId"',
+    'SELECT "subjectId" AS "recordId",array_agg(DISTINCT kind ORDER BY kind) AS kinds FROM "EventLog" WHERE "companyId"=$1 AND "subjectId"=ANY($2::text[]) GROUP BY "subjectId"',
     [companyId, [...records.values()].map((record) => record.id)],
   );
   expect(events.rows).toHaveLength(5);

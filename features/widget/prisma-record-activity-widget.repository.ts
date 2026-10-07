@@ -19,7 +19,7 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
         activityQuery: { not: Prisma.AnyNull },
       },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row ? StoredSchema.parse(row) : null;
   }
 
   async findReadable(id: string) {
@@ -32,7 +32,7 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
         activityQuery: { not: Prisma.AnyNull },
       },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row ? StoredSchema.parse(row) : null;
   }
   async listOwned() {
     const rows = await this.prisma.widget.findMany({
@@ -44,7 +44,7 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
       },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
-    return rows.map((row) => StoredSchema.parse({ ...row, contractVersion: 2 }));
+    return rows.map((row) => StoredSchema.parse(row));
   }
   async listPlacements() {
     return listWidgetPlacements(this.prisma, this.companyId, this.userId);
@@ -64,6 +64,6 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
           data: { ...data, version: { increment: 1 } },
         })
       : await this.prisma.widget.create({ data: { ...data, id, companyId: this.companyId, userId: this.userId } });
-    return StoredSchema.parse({ ...row, contractVersion: 2 });
+    return StoredSchema.parse(row);
   }
 }

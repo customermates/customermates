@@ -11,7 +11,7 @@ import { systemActivityAuditEvents } from "./system-audit-events";
 
 export type RecordActivityIndexRow = {
   id: string;
-  kind: "record" | "audit" | "message" | "activity" | "calendar_event";
+  kind: ActivityKind;
   at: string;
 };
 
@@ -201,14 +201,23 @@ export function compileRecordActivityIndex(
   const includedThread =
     Boolean(input.threadIds?.length) || filters.some((filter) => filter.kind === "thread" && filter.operator === "in");
   const branches: Prisma.Sql[] = [];
-  if (enabled("audit") && !accountOrProviderFilter && !includedThread) {
-    if (!scoped && recordFilters.every(({ filter }) => filter.operator === "notIn" || filter.operator === "hasNone")) {
-      branches.push(Prisma.sql`SELECT event.id, 'audit'::text AS kind, event."createdAt" AS at FROM "AuditLog" event
-        WHERE event."companyId" = ${companyId} AND event.event IN (${Prisma.join(systemActivityAuditEvents(canReadWiki))})`);
-    }
-    branches.push(Prisma.sql`SELECT event.id, 'record'::text AS kind, event."createdAt" AS at FROM "RecordEvent" event
-    JOIN history_scope scope ON scope."typeId" = event."typeId" AND scope.id = event."recordId"
-    WHERE event."companyId" = ${companyId} AND ${auditMatches(Prisma.sql`event."typeId"`, Prisma.sql`event."recordId"`)}`);
+  const changes = !accountOrProviderFilter && !includedThread;
+  const workspace =
+    changes &&
+    !scoped &&
+    recordFilters.every(({ filter }) => filter.operator === "notIn" || filter.operator === "hasNone");
+  if (enabled("record") && changes) {
+    branches.push(Prisma.sql`SELECT event.id, 'record'::text AS kind, event."createdAt" AS at FROM "EventLog" event
+    JOIN history_scope scope ON scope."typeId" = event."subjectTypeId" AND scope.id = event."subjectId"
+    WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record' AND ${auditMatches(Prisma.sql`event."subjectTypeId"`, Prisma.sql`event."subjectId"`)}`);
+  }
+  if (enabled("audit") && workspace) {
+    branches.push(Prisma.sql`SELECT event.id, 'audit'::text AS kind, event."createdAt" AS at FROM "EventLog" event
+      WHERE event."companyId" = ${companyId} AND event.kind IN (${Prisma.join(systemActivityAuditEvents(canReadWiki))})`);
+  }
+  if (enabled("configuration") && workspace) {
+    branches.push(Prisma.sql`SELECT revision.revision::text AS id, 'configuration'::text AS kind, revision."createdAt" AS at
+      FROM "RecordSchemaRevision" revision WHERE revision."companyId" = ${companyId} AND revision.change IS NOT NULL`);
   }
   if (enabled("message")) {
     branches.push(Prisma.sql`SELECT message.id, 'message'::text AS kind, message."sentAt" AS at FROM "MessagingMessage" message
@@ -275,7 +284,8 @@ export function compileRecordHistoryScope(
     selection.length
       ? Prisma.sql`
     UNION SELECT historical."typeId", historical.id FROM (
-      SELECT event."typeId", event."recordId" AS id FROM "RecordEvent" event WHERE event."companyId" = ${companyId}
+      SELECT event."subjectTypeId" AS "typeId", event."subjectId" AS id FROM "EventLog" event
+      WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record'
     ) historical WHERE (${Prisma.join(selection, " OR ")}) AND NOT EXISTS (
       SELECT 1 FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = historical."typeId" AND record.id = historical.id
     )`
