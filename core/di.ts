@@ -187,6 +187,7 @@ import { SignUpWithEmailInteractor } from "@/features/auth/sign-up-with-email.in
 // Company interactors
 import { env } from "@/env";
 import { ChooseWorkspaceOnboardingInteractor } from "@/features/company/choose-workspace-onboarding.interactor";
+import { GetCompanyInteractor } from "@/features/company/get-company.interactor";
 import { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
 import { InviteTokenValidationInteractor } from "@/features/company/invite-token-validation.interactor";
 import { InviteUsersByEmailInteractor } from "@/features/company/invite-users-by-email.interactor";
@@ -731,6 +732,8 @@ export const getDecideMcpConsentInteractor = () =>
   new DecideMcpConsentInteractor(getAuthService(), getRouteGuardService());
 
 // --- Company ---
+
+export const getGetCompanyInteractor = () => new GetCompanyInteractor(getCompanyRepo());
 
 export const getGetOrCreateInviteTokenInteractor = () => new GetOrCreateInviteTokenInteractor(getCompanyRepo());
 

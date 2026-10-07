@@ -31,6 +31,13 @@ vi.mock("@/core/di", () => ({
   getGetUserDetailsInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { id: "user" } }),
   }),
+  getGetCompanyInteractor: () => ({
+    invoke: () =>
+      Promise.resolve({
+        ok: true,
+        data: { id: "company" },
+      }),
+  }),
   getGetRolesApiInteractor: () => ({ invoke: calls.roles }),
   getGetMyConnectedAccountsContextInteractor: () => ({
     invoke: calls.accounts,
@@ -391,6 +398,7 @@ describe("managed Wiki retrieval tools", () => {
     expect(result.ok).toBe(true);
     expect(decode(result.result)).toMatchObject({
       user: { id: "user" },
+      company: { id: "company" },
       roles: [{ id: "role-1" }],
       connectedAccounts: [{ id: "account-1" }],
     });
