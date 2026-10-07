@@ -25,6 +25,7 @@ import { deterministicId } from "./crm-preset";
 import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { configurationInputFields, configurationInputValue, fieldValueDefinition } from "./record-configuration-values";
 import { canonicalRecordJson } from "./record-json";
+import { duplicateNameIssues } from "./record-names";
 import { recordEventSubscriptionIsValid } from "./record-event-subscription-validation";
 
 export function calculationDependencyHash(field: RecordField, model: RecordModel): string {
@@ -428,7 +429,7 @@ export class RecordConfigurationService extends UserAccessor {
     if (!RecordModelSchema.safeParse(model).success)
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
-    validation.issues.push(...(removed?.issues ?? []));
+    validation.issues.push(...(removed?.issues ?? []), ...duplicateNameIssues(model, current));
     const readsFully = (typeId: string) => policy.isAdmin || policy.readScope(typeId) === "all";
     if (removed) {
       for (const typeId of removed.deletion.typeIds) {

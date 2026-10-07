@@ -79,18 +79,20 @@ export function configureCalculationSources(model: RecordModelView, field: Recor
     }),
   );
   const listLabel = (typeId: string) => model.types.find((type) => type.id === typeId)?.pluralLabel;
-  const sources = new Set<string>();
+  const sources = new Map<string, string>();
+  const listsWithFields = new Set<string>();
   for (const fieldId of expressionFieldDependencies(expression)) {
     const source = model.fields.find((candidate) => candidate.id === fieldId);
     if (!source) continue;
     const list = source.typeId === field.typeId ? undefined : listLabel(source.typeId);
-    sources.add(list ? `${list} · ${source.label}` : source.label);
+    if (list) listsWithFields.add(source.typeId);
+    sources.set(source.id, list ? `${list} · ${source.label}` : source.label);
   }
   for (const typeId of lists) {
     const label = listLabel(typeId);
-    if (label && ![...sources].some((source) => source.startsWith(`${label} · `))) sources.add(label);
+    if (label && !listsWithFields.has(typeId)) sources.set(typeId, label);
   }
-  return { sources: [...sources], lists: [...lists] };
+  return { sources: [...sources.values()], lists: [...lists] };
 }
 
 export function configureGraphData(

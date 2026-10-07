@@ -7,6 +7,17 @@ import type { RecordModelView } from "@/features/records/record-model.schema";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
+const ISSUE_MESSAGES = {
+  existing_values_incompatible: "RecordModel.existingValuesIncompatible",
+  saved_view_incompatible: "RecordModel.savedViewIncompatible",
+  detail_layout_incompatible: "RecordModel.detailLayoutIncompatible",
+  summary_approval_required: "RecordModel.summaryApprovalRequired",
+  duplicate_list_name: "RecordModel.duplicateListName",
+  duplicate_field_name: "RecordModel.duplicateFieldName",
+  duplicate_option_label: "RecordModel.duplicateOptionLabel",
+  duplicate_relationship_label: "RecordModel.duplicateRelationshipLabel",
+} as const;
+
 export function RecordConfigurationPreview({
   preview,
   model,
@@ -42,17 +53,7 @@ export function RecordConfigurationPreview({
               <li key={index}>
                 {label && <span className="font-medium">{label}: </span>}
 
-                {t(
-                  issue.code === "existing_values_incompatible"
-                    ? "RecordModel.existingValuesIncompatible"
-                    : issue.code === "saved_view_incompatible"
-                      ? "RecordModel.savedViewIncompatible"
-                      : issue.code === "detail_layout_incompatible"
-                        ? "RecordModel.detailLayoutIncompatible"
-                        : issue.code === "summary_approval_required"
-                          ? "RecordModel.summaryApprovalRequired"
-                          : "RecordModel.dependencyHelp",
-                )}
+                {t(ISSUE_MESSAGES[issue.code as keyof typeof ISSUE_MESSAGES] ?? "RecordModel.dependencyHelp")}
               </li>
             );
           })}
