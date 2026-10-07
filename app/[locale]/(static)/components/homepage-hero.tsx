@@ -1,4 +1,5 @@
 import type { Hero } from "@/core/fumadocs/schemas/homepage";
+import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
@@ -8,58 +9,40 @@ import { AppLink } from "@/components/shared/app-link";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
 
-import { HomepageHeroVisual } from "./homepage-hero-visual";
-
-import { RotatingAccent } from "./rotating-accent";
+import { HomepageProductStage } from "./homepage-product-stage";
 
 type Props = {
   heroSection: Hero;
+  locale: ContentLocale;
 };
 
-export function HomepageHero({ heroSection }: Props) {
-  const accentRotations = heroSection.titleAccentRotations?.length
-    ? heroSection.titleAccentRotations
-    : heroSection.titleAccent
-      ? [heroSection.titleAccent]
-      : [];
-  const headlineAccent = accentRotations[0];
-
+export function HomepageHero({ heroSection, locale }: Props) {
   return (
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
       <GridPattern className="z-0" fade="bottom" />
 
-      <MarketingContainer className="relative z-10 !max-w-[72rem] !px-6 sm:!px-12 lg:!px-10">
-        <div className="grid items-center gap-12 py-20 sm:py-24 lg:grid-cols-[1.2fr_1fr] lg:gap-12 lg:py-28">
-          <div className="min-w-0 [container-type:inline-size]">
+      <MarketingContainer className="relative z-10 pt-16 pb-6 sm:pt-20 lg:pt-24">
+        <div className="grid gap-x-14 gap-y-8 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+          <div className="min-w-0">
             <AgplGithubBadge className="!mb-0" />
 
-            <div className="mt-4 text-[clamp(1.5rem,8.8cqw,4rem)] leading-[1.07] font-medium tracking-[-0.045em]">
-              <div className="flex flex-col items-start gap-y-[0.1em]">
-                <h1 className="text-balance whitespace-nowrap" data-homepage-hero-line="lead">
-                  {heroSection.title}
+            <h1
+              className="mt-5 text-[clamp(2.4rem,6.2vw,4.5rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance"
+              data-homepage-hero-line="lead"
+            >
+              {/* eslint-disable react/jsx-newline */}
+              {heroSection.title}{" "}
+              <span className="text-muted-foreground" data-homepage-hero-line="accent">
+                {heroSection.titleAccent}
+              </span>
+              {/* eslint-enable react/jsx-newline */}
+            </h1>
+          </div>
 
-                  {headlineAccent ? <span className="sr-only">{` ${headlineAccent}`}</span> : null}
-                </h1>
+          <div className="min-w-0 lg:pb-2">
+            <p className="text-base leading-7 text-muted-foreground sm:text-[1.05rem]">{heroSection.useCase}</p>
 
-                <span
-                  aria-hidden
-                  className="inline-flex max-w-full whitespace-nowrap text-[0.87em]"
-                  data-homepage-hero-line="rotation"
-                >
-                  <RotatingAccent
-                    activeClassName="rounded-xl bg-primary/10 px-[0.12em]"
-                    className="p-[0.12em] text-primary [&>span]:justify-start"
-                    words={accentRotations}
-                  />
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-7 max-w-[30rem]">
-              <p className="text-base leading-7 text-muted-foreground">{heroSection.useCase}</p>
-            </div>
-
-            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Button asChild size="lg">
                 <AppLink href={heroSection.buttonLeftHref}>
                   {heroSection.buttonLeftText}
@@ -85,9 +68,14 @@ export function HomepageHero({ heroSection }: Props) {
 
             <p className="text-meta mt-5 text-xs">{heroSection.startFree}</p>
           </div>
-
-          {heroSection.illustration ? <HomepageHeroVisual copy={heroSection.illustration} /> : null}
         </div>
+
+        <HomepageProductStage
+          disclosure={heroSection.stage.disclosure}
+          label={heroSection.stage.label}
+          locale={locale}
+          tabs={heroSection.stage.tabs}
+        />
       </MarketingContainer>
     </section>
   );

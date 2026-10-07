@@ -1,76 +1,64 @@
 ---
-title: "The Open-Source CRM Built for AI Agents"
-description: "Customermates is the open-source CRM that external AI clients operate through MCP, with a unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram. Made in Germany, with the cloud database in Frankfurt, from [[commercial.price.starter.monthly]] per user per month."
+title: "The Open-Source, AI-Native CRM"
+description: "Customermates is the open-source, AI-native CRM with MCP for Claude, ChatGPT, or Gemini, the AI agent Mate in Customermates Cloud, and, on Pro and up, one inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram. Made in Germany, with the cloud database in Frankfurt, from [[commercial.price.starter.monthly]] per user per month."
 rootMetadata:
-  defaultTitle: "Customermates: Open-Source CRM Built for AI Agents"
-  defaultDescription: "The open-source CRM your own Claude, ChatGPT or Gemini runs through MCP, with a unified inbox and a Frankfurt cloud database. From [[commercial.price.starter.monthly]] per user per month."
+  defaultTitle: "Customermates: The Open-Source, AI-Native CRM"
+  defaultDescription: "The open-source, AI-native CRM: email, LinkedIn and WhatsApp in one inbox, records that update themselves, and AI agents that draft your next step."
 
 hero:
-  illustration:
-    label: "Illustrative workflow"
-    prompt: "Read our latest conversations with Leon and draft a follow-up that moves the deal forward."
-    context: "Context connected"
-    draft: "Hi Leon, glad the checklist helped. Shall we plan the rollout and next steps on Tuesday at 10:00?"
-    ready: "Draft ready for your review"
-    channels: "Every conversation. One customer story."
-    working: "Reviewing customer context"
-    replay: "Replay workflow"
-    response: "I reviewed the recent LinkedIn, WhatsApp, and email conversations and prepared a personal follow-up for"
-    draftLabel: "Message draft"
-    steps:
-      - running: "Reading LinkedIn conversations"
-        done: "LinkedIn conversations checked"
-      - running: "Checking WhatsApp messages"
-        done: "WhatsApp messages checked"
-      - running: "Reviewing email history"
-        done: "Email history checked"
-      - running: "Creating the follow-up draft"
-        done: "Follow-up draft created"
-  title: The Open-Source CRM
-  titleAccent: for AI agents.
-  titleAccentRotations:
-    - for AI agents.
-    - for Claude.
-    - for ChatGPT.
-    - for Codex.
-    - for Cursor.
-    - for Gemini.
-    - for Grok Bot.
-    - for Hermes Agent.
-    - for OpenClaw.
-    - for n8n.
-  useCase: Your customer relationships need a shared memory. Customermates brings data, conversations, and tasks together into an open foundation for your team and your AI agents.
+  title: The AI-native CRM
+  titleAccent: that updates itself from your inbox.
+  useCase: Customermates is the open-source, AI-native CRM for small teams. Email, LinkedIn, WhatsApp, Instagram and Telegram land on the right customer, and AI agents like Mate, Claude or ChatGPT draft the next step for you to review.
   subtitle: "One inbox for email, LinkedIn, WhatsApp, Instagram and Telegram. Connect ChatGPT, Claude, Gemini or Cursor through MCP and review drafts and changes in the CRM."
   buttonLeftText: Start a [[commercial.trial.days]]-day trial for €0
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the live demo
   buttonRightHref: "#live-demo"
   startFree: ✓ No credit card required ✓ Cancel anytime ✓ Made in Germany
+  stage:
+    label: Product areas
+    disclosure: Real screens from the Customermates demo workspace. People, companies and numbers are sample data.
+    tabs:
+      - capture: homepage-inbox
+        label: Inbox
+        caption: Email, LinkedIn, WhatsApp, Instagram and Telegram in one place
+        alt: Customermates inbox with a WhatsApp conversation with Sophie Wagner, using demo data
+      - capture: homepage-record
+        label: Customers
+        caption: Fields, deals and history in one record
+        alt: Customer record for Anna Müller with her fields and a history across channels, using demo data
+      - capture: homepage-pipeline
+        label: Pipeline
+        caption: Deal value and status on every card
+        alt: Deals board grouped into Open, Won, Lost and Abandoned, using demo data
+      - capture: homepage-dashboard
+        label: Dashboard
+        caption: Your numbers, built from your own data
+        alt: Dashboard widgets for deal value, the sales pipeline and recent changes, using demo data
+      - capture: homepage-routines
+        label: Routines
+        caption: AI work on a schedule or trigger
+        alt: Routines with weekly summaries, reply drafts and duplicate checks, using demo data
 
-visualLabels:
-  agentActivity: Working with the record
-  connectedRecord: Connected record
-  customerRecord: Customer record
-  dealValue: Deal value
-  draft: Draft
-  humanDecision: Human review
-  latestActivity: Latest activity
-  lost: Lost
-  open: Open
-  pipeline: Deal pipeline
-  readyForReview: Ready for review
-  recipient: Recipient
-  reviewAndSend: Review & send
-  weightedValue: Weighted value
-  won: Won
+flow:
+  eyebrow: How it works
+  title: Most CRMs need feeding. This one feeds itself.
+  steps:
+    - title: Everything flows in
+      description: Connect email, LinkedIn, WhatsApp, Instagram and Telegram on Pro and up. Other tools, such as a form builder or n8n, create records through the REST API.
+    - title: One customer story
+      description: Conversations attach to the right contact, organization and deal, so the record stays current without copy and paste.
+    - title: AI prepares the next step
+      description: Mate or your own AI agent answers questions and drafts replies, and Mate also runs routines in Customermates Cloud. Drafts wait for your review in the conversation.
 
 howItWorks:
-  eyebrow: How it works
-  title: Skip the CRM busywork. Connect your AI client. Done.
+  eyebrow: Your own AI
+  title: Use Claude or ChatGPT with your CRM.
   handoff:
     eyebrow: Human control
-    title: The agent drafts. You decide what leaves.
-    description: ChatGPT prepares a LinkedIn draft for Leon Becker. Max Bergmann reviews it in Customermates and decides what gets sent.
+    title: Replies drafted, ready for your review.
+    description: A draft waits in the conversation until you edit or send it. A routine can prepare drafts every morning, so replies are ready before you are.
+    alt: Email thread with Anna Müller ending in a saved reply draft with a Send draft button, using demo data
   steps:
     - n: "01"
       title: Sign in with Google or email
@@ -84,27 +72,49 @@ howItWorks:
     - n: "04"
       title: Ask your AI client about your CRM data
       description: "The client uses the MCP tools Customermates exposes, within your permissions. Review drafts and changes in the CRM; whether the client asks before acting depends on the client."
+
 walkthrough:
-  badge: Unified customer context
+  badge: Unified inbox
   title: Every channel,
   titleAccent: one customer story.
-  visualLabel: All supported inbox providers connect to Anna Müller
+  desktopAlt: LinkedIn conversation with Leon Becker in the Customermates inbox, using demo data
+  phoneAlt: WhatsApp conversation with Sophie Wagner in the inbox on a phone, using demo data
   bullets:
-    - title: Every supported provider, one customer record
-      description: Email, LinkedIn, WhatsApp, Instagram, and Telegram conversations stay connected to the customer context they belong to. On Pro and up.
+    - title: Every supported channel, one inbox
+      description: Email, LinkedIn, WhatsApp, Instagram, and Telegram conversations stay connected to the customer they belong to. On Pro and up.
     - title: Real people instead of anonymous threads
-      description: Customer identity, connected messages, and CRM context remain visible together.
-    - title: Context an external AI client can use
-      description: A supported external client may use allowed MCP operations while you review its changes and drafts in Customermates.
+      description: Customer identity, connected messages, and CRM context remain visible together, in any browser on desktop or phone.
+    - title: Context your AI can use
+      description: Mate and connected AI clients read the same history you do, within your permissions.
 
 pipelineStory:
-  eyebrow: Pipeline clarity
+  eyebrow: Pipeline and reporting
   title: See the real value behind every move.
-  description: Keep deal value, weighted value, status, and ownership visible while work moves between columns.
+  description: Because conversations keep records current, the pipeline and the dashboard show where things really stand.
+  disclosure: Sample data from the Customermates demo workspace.
   points:
     - Table and Kanban views
     - Real deal and weighted values
-    - One visible human action
+    - Dashboards built from your own data
+  captures:
+    - capture: homepage-pipeline
+      title: Pipeline.
+      caption: Status, deal value, weighted value and owner on every card.
+      alt: Deals board grouped into Open, Won, Lost and Abandoned, using demo data
+    - capture: homepage-dashboard
+      title: Dashboard.
+      caption: Widgets for deal value, pipeline, recent changes, messages and events.
+      alt: Dashboard widgets for deal value, the sales pipeline and recent changes, using demo data
+
+routines:
+  eyebrow: Routines
+  title: Recurring work, done before you start.
+  description: Routines run Mate in Customermates Cloud on a schedule or when something changes, like a Monday pipeline summary, reply drafts for new emails, or a check for duplicate records. Each run uses hosted AI credits from your plan's allowance.
+  points:
+    - On a schedule, like every Monday at 8:00
+    - Or when a record or message changes
+    - Each routine runs as its owner, within their permissions
+  alt: Routines list grouped by owner with schedules, triggers and last runs, using demo data
 
 productProof:
   demoEyebrow: Live workspace
@@ -192,7 +202,7 @@ benefits:
       description: Use the managed cloud with its database in the AWS Frankfurt region, or self-host the AGPL core CRM and PostgreSQL with the Starter feature set.
     - icon: Terminal
       title: Open Source Core & Self-Hosting
-      description: Self-host the AGPL core CRM and PostgreSQL; the unified inbox and calendar view remain managed-cloud features.
+      description: Self-host the AGPL core CRM and PostgreSQL; the unified inbox, calendar view, Mate and Routines remain managed-cloud features.
     - icon: Download
       title: REST API Access
       description: Read and write CRM records through the API for migrations and external workflows.
@@ -228,6 +238,9 @@ pricingTitle:
 faq:
   title: Frequently asked questions
   faqs:
+    - id: faq-ai-native
+      title: What is an AI-native CRM?
+      content: "A CRM built for AI agents from the start. In Customermates, conversations and records share one context. Mate, the AI agent in Customermates Cloud, or your own Claude, ChatGPT, or Cursor through MCP reads that context within your permissions, drafts replies, and updates records. Mate also runs routines on a schedule or trigger. Drafts wait for your review, and the core is open source."
     - id: faq-1
       title: Why is your CRM better than others?
       content: "It is not better for everyone, but it is different in ways that matter to small sales teams. External AI clients such as Claude, ChatGPT or Cursor operate the CRM directly through MCP with [[derived.mcp.tools.total]] tools. From Pro, email, LinkedIn, WhatsApp, Instagram and Telegram conversations sit next to the customer record in one unified inbox. The core is open source (AGPL-3.0) and can be self-hosted, and the managed cloud database runs in the AWS Frankfurt region. If you need marketing automation, quotes or invoicing, a larger suite fits better."
@@ -239,16 +252,16 @@ faq:
       content: You can create a workspace and first records quickly. Migration, external-client setup, and integration effort depend on your source data and systems.
     - id: faq-4
       title: Where is my data stored?
-      content: The managed database runs in the AWS Frankfurt region, while application hosting and other providers, including US providers, are listed on our Subprocessors page. You can self-host the AGPL core CRM application and PostgreSQL with the Starter feature set; the unified inbox and calendar view remain managed-cloud features, and connected providers remain separate.
+      content: The managed database runs in the AWS Frankfurt region, while application hosting and other providers, including US providers, are listed on our Subprocessors page. You can self-host the AGPL core CRM application and PostgreSQL with the Starter feature set; the unified inbox, calendar view, Mate and Routines remain managed-cloud features, and connected providers remain separate.
     - id: faq-5
       title: Why is your CRM cheaper than others?
-      content: "We have no investors to pay back and run a lean team, so we do not need enterprise-style pricing. There is one monthly price per seat, starting at [[commercial.price.starter.monthly]] on Starter, and every core CRM feature is included from Starter. The core is open source, so you can also self-host it. External AI clients, automation tools, and messaging providers you connect keep their own subscriptions and usage costs."
+      content: "We have no investors to pay back and run a lean team, so we do not need enterprise-style pricing. There is one monthly price per seat, starting at [[commercial.price.starter.monthly]] on Starter, and every core CRM feature is included from Starter. The core is open source, so you can also self-host it. Mate and Routines use the hosted AI credits included in each cloud plan. External AI clients, automation tools, and messaging providers you connect keep their own subscriptions and usage costs."
 
 closingEyebrow: Customermates
 
 cta:
   action: Ready to get started?
-  description: Start with Customermates today and switch to an agentic open-source CRM built for flexible workflows and external AI clients connected through MCP.
+  description: Start with Customermates today, the open-source, AI-native CRM where conversations keep records current and AI agents prepare the next step.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: View live demo

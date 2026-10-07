@@ -15,6 +15,8 @@ import { HomepagePipeline } from "./components/homepage-pipeline";
 import { HomepageClosing, HomepageFaq } from "./components/homepage-closing";
 import { HomepageLiveDemo } from "./components/homepage-live-demo";
 import { HomepageProductProof } from "./components/homepage-product-proof";
+import { HomepageRoutines } from "./components/homepage-routines";
+import { HomepageStory } from "./components/homepage-story";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homepageSource } from "@/core/fumadocs/source";
 import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
@@ -60,11 +62,12 @@ export default async function HomePage({ params }: StaticLocaleProps) {
     closingEyebrow,
     cta,
     faq,
+    flow,
     hero,
     howItWorks,
     pipelineStory,
     productProof,
-    visualLabels,
+    routines,
     walkthrough,
   } = homepagePage.data;
 
@@ -83,19 +86,15 @@ export default async function HomePage({ params }: StaticLocaleProps) {
         })}
       />
 
-      <HomepageHero heroSection={hero} />
+      <HomepageHero heroSection={hero} locale={contentLocale} />
 
       <HomepageFacts benefitsSection={benefits} />
 
-      <HomepageLiveDemo locale={contentLocale} proof={productProof} />
-
-      <HomepageProductProof proof={productProof} />
+      <HomepageStory flow={flow} />
 
       <HomepageStatsRow />
 
-      {walkthrough ? (
-        <HomepageWalkthrough locale={contentLocale} visualLabels={visualLabels} walkthrough={walkthrough} />
-      ) : null}
+      {walkthrough ? <HomepageWalkthrough locale={contentLocale} walkthrough={walkthrough} /> : null}
 
       {howItWorks ? (
         <HomepageHowItWorks
@@ -104,11 +103,16 @@ export default async function HomePage({ params }: StaticLocaleProps) {
           locale={contentLocale}
           steps={howItWorks.steps}
           title={howItWorks.title}
-          visualLabels={visualLabels}
         />
       ) : null}
 
-      <HomepagePipeline locale={contentLocale} story={pipelineStory} visualLabels={visualLabels} />
+      <HomepagePipeline locale={contentLocale} story={pipelineStory} />
+
+      <HomepageRoutines locale={contentLocale} routines={routines} />
+
+      <HomepageLiveDemo locale={contentLocale} proof={productProof} />
+
+      <HomepageProductProof proof={productProof} />
 
       <HomepageBenefits benefitsSection={benefits} />
 

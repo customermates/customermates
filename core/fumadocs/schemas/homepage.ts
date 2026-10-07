@@ -32,31 +32,36 @@ export const benefitsSchema = z.object({
 });
 export type Benefits = z.infer<typeof benefitsSchema>;
 
+export const HOMEPAGE_STAGE_CAPTURES = [
+  "homepage-inbox",
+  "homepage-record",
+  "homepage-pipeline",
+  "homepage-dashboard",
+  "homepage-routines",
+] as const;
+
+const homepageStageTabSchema = z.object({
+  alt: z.string(),
+  capture: z.enum(HOMEPAGE_STAGE_CAPTURES),
+  caption: z.string(),
+  label: z.string(),
+});
+export type HomepageStageTab = z.infer<typeof homepageStageTabSchema>;
+
 export const heroSchema = z.object({
-  illustration: z
-    .object({
-      label: z.string(),
-      prompt: z.string(),
-      context: z.string(),
-      draft: z.string(),
-      ready: z.string(),
-      channels: z.string(),
-      working: z.string(),
-      replay: z.string(),
-      response: z.string(),
-      draftLabel: z.string(),
-      steps: z.array(z.object({ running: z.string(), done: z.string() })).length(4),
-    })
-    .optional(),
   buttonLeftHref: z.string(),
   buttonLeftText: z.string(),
   buttonRightHref: z.string(),
   buttonRightText: z.string(),
+  stage: z.object({
+    disclosure: z.string(),
+    label: z.string(),
+    tabs: z.array(homepageStageTabSchema).length(HOMEPAGE_STAGE_CAPTURES.length),
+  }),
   startFree: z.string(),
   subtitle: z.string(),
   title: z.string(),
-  titleAccent: z.string().optional(),
-  titleAccentRotations: z.array(z.string()).optional(),
+  titleAccent: z.string(),
   useCase: z.string(),
 });
 export type Hero = z.infer<typeof heroSchema>;
@@ -67,19 +72,10 @@ export const howItWorksStepSchema = z.object({
   description: z.string(),
 });
 
-export const clipTerminalSchema = z.object({
-  connected: z.string(),
-  done: z.string(),
-  followOk: z.string(),
-  followQ: z.string(),
-  prompt: z.string(),
-  resultSummary: z.string(),
-});
-export type ClipTerminal = z.infer<typeof clipTerminalSchema>;
-
 export const howItWorksSchema = z.object({
   eyebrow: z.string(),
   handoff: z.object({
+    alt: z.string(),
     description: z.string(),
     eyebrow: z.string(),
     title: z.string(),
@@ -95,21 +91,48 @@ export const walkthroughBulletSchema = z.object({
 
 export const walkthroughSchema = z.object({
   badge: z.string(),
+  bullets: z.array(walkthroughBulletSchema),
+  desktopAlt: z.string(),
+  phoneAlt: z.string(),
   title: z.string(),
   titleAccent: z.string(),
-  videoSrc: z.string().optional(),
-  visualLabel: z.string(),
-  bullets: z.array(walkthroughBulletSchema),
 });
 export type Walkthrough = z.infer<typeof walkthroughSchema>;
 
+export const homepageFlowSchema = z.object({
+  eyebrow: z.string(),
+  steps: z.array(z.object({ description: z.string(), title: z.string() })).length(3),
+  title: z.string(),
+});
+export type HomepageFlow = z.infer<typeof homepageFlowSchema>;
+
 export const homepageStorySchema = z.object({
+  captures: z
+    .array(
+      z.object({
+        alt: z.string(),
+        capture: z.enum(["homepage-pipeline", "homepage-dashboard"]),
+        caption: z.string(),
+        title: z.string(),
+      }),
+    )
+    .length(2),
   description: z.string(),
+  disclosure: z.string(),
   eyebrow: z.string(),
   points: z.array(z.string()).length(3),
   title: z.string(),
 });
 export type HomepageStory = z.infer<typeof homepageStorySchema>;
+
+export const homepageRoutinesSchema = z.object({
+  alt: z.string(),
+  description: z.string(),
+  eyebrow: z.string(),
+  points: z.array(z.string()).length(3),
+  title: z.string(),
+});
+export type HomepageRoutines = z.infer<typeof homepageRoutinesSchema>;
 
 export const homepageProductProofSchema = z.object({
   demoDescription: z.string(),
@@ -122,25 +145,6 @@ export const homepageProductProofSchema = z.object({
   videoTitle: z.string(),
 });
 export type HomepageProductProof = z.infer<typeof homepageProductProofSchema>;
-
-export const homepageVisualLabelsSchema = z.object({
-  agentActivity: z.string(),
-  connectedRecord: z.string(),
-  customerRecord: z.string(),
-  dealValue: z.string(),
-  draft: z.string(),
-  humanDecision: z.string(),
-  latestActivity: z.string(),
-  lost: z.string(),
-  open: z.string(),
-  pipeline: z.string(),
-  readyForReview: z.string(),
-  recipient: z.string(),
-  reviewAndSend: z.string(),
-  weightedValue: z.string(),
-  won: z.string(),
-});
-export type HomepageVisualLabels = z.infer<typeof homepageVisualLabelsSchema>;
 
 export const pricingTitleSchema = z.object({
   subtitle: z.string(),
@@ -162,14 +166,15 @@ export const homepageSchema = frontmatterSchema.extend({
   description: z.string(),
   faq: faqSchema,
   features: featuresSchema,
+  flow: homepageFlowSchema,
   hero: heroSchema,
   howItWorks: howItWorksSchema.optional(),
   pricing: pricingDataSchema.optional(),
   pricingTitle: pricingTitleSchema.optional(),
   productProof: homepageProductProofSchema,
   pipelineStory: homepageStorySchema,
+  routines: homepageRoutinesSchema,
   walkthrough: walkthroughSchema.optional(),
   rootMetadata: rootMetadataSchema,
   title: z.string(),
-  visualLabels: homepageVisualLabelsSchema,
 });

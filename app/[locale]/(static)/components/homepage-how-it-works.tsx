@@ -1,16 +1,16 @@
 import type { ContentLocale } from "@/i18n/locale-registry";
-import type { HomepageVisualLabels } from "@/core/fumadocs/schemas/homepage";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
 
-import { HomepageHandoffVisual } from "./homepage-story-visuals";
+import { HomepageCaptureImage } from "./homepage-capture-image";
 
 type StepItem = { description: string; n: string; title: string };
 
 type Props = {
   eyebrow: string;
   handoff: {
+    alt: string;
     description: string;
     eyebrow: string;
     title: string;
@@ -18,16 +18,22 @@ type Props = {
   locale: ContentLocale;
   steps: StepItem[];
   title: string;
-  visualLabels: HomepageVisualLabels;
 };
 
-export function HomepageHowItWorks({ eyebrow, handoff, locale, steps, title, visualLabels }: Props) {
+export function HomepageHowItWorks({ eyebrow, handoff, locale, steps, title }: Props) {
   return (
     <>
       <MarketingSection id="human-handoff">
         <div className="marketing-grid items-center gap-y-10">
           <div className="col-span-12 lg:col-span-7 lg:row-start-1">
-            <HomepageHandoffVisual labels={visualLabels} locale={locale} />
+            <div className="overflow-hidden rounded-card border border-border bg-card shadow-xl shadow-black/5">
+              <HomepageCaptureImage
+                alt={handoff.alt}
+                locale={locale}
+                name="homepage-draft"
+                sizes="(min-width: 1024px) 50vw, 92vw"
+              />
+            </div>
           </div>
 
           <div className="col-span-12 lg:col-start-9 lg:col-end-13 lg:row-start-1">
@@ -40,7 +46,7 @@ export function HomepageHowItWorks({ eyebrow, handoff, locale, steps, title, vis
         </div>
       </MarketingSection>
 
-      <MarketingSection id="how-it-works" tone="canvas">
+      <MarketingSection id="connect-ai" tone="canvas">
         <div className="marketing-grid gap-y-10">
           <div className="col-span-12 lg:col-span-4">
             <p className="text-eyebrow">{eyebrow}</p>

@@ -63,7 +63,6 @@ const reviewedVisibleCopy = (reason: string, sites: readonly string[]) =>
 
 const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
   ...reviewedVisibleCopy("Proper names and product brands are locale-invariant.", [
-    'app/[locale]/(static)/components/homepage-hero-visual.tsx :: jsx-text :: "ChatGPT"',
     'components/ai-connection/ai-client-logo.tsx :: jsx-alt :: "Google Gemini"',
     'app/components/navigation/public-navbar-menu.tsx :: jsx-alt :: "n8n"',
     'components/marketing/founder-contact-card.tsx :: jsx-alt :: "Benjamin Wagner"',
@@ -79,8 +78,6 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'components/marketing/comparison-table.tsx :: jsx-alt :: "Customermates"',
   ]),
   ...reviewedVisibleCopy("Terminal and keyboard tokens have invariant external meaning.", [
-    'app/[locale]/(static)/components/homepage-clip-terminal.tsx :: jsx-text :: "~/agent"',
-    'app/[locale]/(static)/components/homepage-clip-terminal.tsx :: jsx-text :: "tool"',
     'app/components/navigation/nav-header.tsx :: jsx-text :: "&#8984;K"',
   ]),
   ...reviewedVisibleCopy("Reciprocal directory labels are externally defined and locale-invariant.", [
