@@ -681,7 +681,6 @@
       "archivedChats": "Archivierte Chats",
       "assistantWorking": "Mate antwortet",
       "back": "Zurück zum Chat",
-      "cancel": "Abbrechen",
       "chats": "Chats",
       "copyCode": "Code kopieren",
       "copyLink": "Link kopieren",
@@ -706,6 +705,7 @@
       "loadingOlderMessages": "Ältere Nachrichten werden geladen",
       "loadMoreChats": "Weitere Chats laden",
       "loadOlderMessages": "Frühere Nachrichten laden",
+      "moreActions": "Weitere Aktionen für {name}",
       "newChat": "Neuer Chat",
       "noChats": "Noch keine Chats",
       "noChatsBody": "Starte einen Chat, um Fragen und Arbeitsschritte später wiederzufinden.",
@@ -1892,6 +1892,7 @@
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
+      "nameRequired": "Geben Sie einen Namen für die Ansicht ein.",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
     }
@@ -2720,6 +2721,7 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "Enterprise-Kontingent für {name} auf {value} Credits pro Nutzer setzen? Das gilt für den gesamten Workspace.",
+      "changes": "Diese Änderungen für {name} speichern? Sie gelten für den gesamten Arbeitsbereich.",
       "plan": "Den Tarif für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
       "subscription": "Den Abonnementstatus für {name} auf {value} setzen? Das gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
       "tags": "Schlagwörter für {name} auf {value} setzen? Das gilt für den gesamten Arbeitsbereich.",
@@ -2845,11 +2847,8 @@
     },
     "delete": {
       "action": "Workspace löschen",
-      "confirmLabel": "Zur Bestätigung {name} eingeben",
-      "confirmMessage": "{name} und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
       "confirmTitle": "Diesen Workspace dauerhaft löschen",
       "reasonLabel": "Grund",
-      "title": "Diesen Workspace löschen",
       "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
     },
     "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",

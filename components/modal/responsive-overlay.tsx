@@ -26,6 +26,7 @@ import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
+import { OverlayDismissGuardContext, useOwnOverlayDismissGuard } from "./overlay-dismiss-guard";
 
 function focusOverlayContent(event: Event) {
   if (event.currentTarget instanceof HTMLElement) event.currentTarget.focus({ preventScroll: true });
@@ -60,6 +61,12 @@ export function ResponsiveOverlay({
 }: Props) {
   const isWide = useIsWiderThan("md");
   const titleId = useId();
+  const dismissGuard = useOwnOverlayDismissGuard();
+
+  function handleOpenChange(next: boolean) {
+    if (!next && dismissGuard.shouldKeepOpen()) return;
+    onOpenChange(next);
+  }
 
   function handleEscapeKeyDown(event: KeyboardEvent) {
     keepOpenForAssistantSurface(event);
@@ -67,7 +74,7 @@ export function ResponsiveOverlay({
   }
 
   return isWide ? (
-    <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild aria-expanded={open}>
         {trigger}
       </PopoverTrigger>
@@ -92,13 +99,15 @@ export function ResponsiveOverlay({
           {headerAction}
         </PopoverHeader>
 
-        <div className={cn(OVERLAY_SCROLL_REGION)}>{children}</div>
+        <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+          <div className={cn(OVERLAY_SCROLL_REGION)}>{children}</div>
 
-        {footer && <PopoverFooter className="p-3">{footer}</PopoverFooter>}
+          {footer && <PopoverFooter className="p-3">{footer}</PopoverFooter>}
+        </OverlayDismissGuardContext.Provider>
       </PopoverContent>
     </Popover>
   ) : (
-    <Drawer open={open} repositionInputs={false} onOpenChange={onOpenChange}>
+    <Drawer open={open} repositionInputs={false} onOpenChange={handleOpenChange}>
       <DrawerTrigger asChild aria-expanded={open}>
         {trigger}
       </DrawerTrigger>
@@ -118,9 +127,11 @@ export function ResponsiveOverlay({
           {headerAction}
         </DrawerHeader>
 
-        <DrawerBody className="px-0 pb-4">{children}</DrawerBody>
+        <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+          <DrawerBody className="px-0 pb-4">{children}</DrawerBody>
 
-        {footer && <DrawerFooter className="flex-col-reverse">{footer}</DrawerFooter>}
+          {footer && <DrawerFooter className="flex-col-reverse">{footer}</DrawerFooter>}
+        </OverlayDismissGuardContext.Provider>
       </DrawerContent>
     </Drawer>
   );
