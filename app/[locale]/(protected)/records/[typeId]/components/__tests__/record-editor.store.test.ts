@@ -24,6 +24,7 @@ const root = {
 const context = (type: string): RecordEditorContext => ({
   model,
   linkColors: {},
+  linkIcons: {},
   typeId: id(type),
   permittedActions: ["create", "readAll", "update", "delete"],
   canManageSchema: true,

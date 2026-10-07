@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import type { RecordColumn } from "@/features/records/record-columns";
 import type { RecordDto, RecordRef } from "@/features/records/record-model.schema";
-import type { RecordLinkColors } from "@/features/records/record-presentation";
+import type { RecordLinkColors, RecordLinkIcons } from "@/features/records/record-presentation";
 
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordLinkColor } from "@/features/records/record-presentation";
@@ -23,7 +23,7 @@ const LINKED_CHIPS_MAX_WIDTH = 240;
 export function RecordCell({
   column,
   linkColors,
-  types,
+  linkIcons,
   record,
   onOpen,
   onMore,
@@ -32,7 +32,7 @@ export function RecordCell({
 }: {
   column: RecordColumn;
   linkColors: RecordLinkColors;
-  types: readonly { id: string; icon: string }[];
+  linkIcons: RecordLinkIcons;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
   onMore: () => void;
@@ -110,7 +110,7 @@ export function RecordCell({
   const items = summary.records.map((related) => ({
     id: `${related.ref.typeId}:${related.ref.recordId}`,
     ref: related.ref,
-    startContent: <RecordChipIcon typeId={related.ref.typeId} types={types} />,
+    startContent: <RecordChipIcon icons={linkIcons} typeId={related.ref.typeId} />,
     label:
       related.title.state === "value" && related.title.value.kind === "text"
         ? related.title.value.value

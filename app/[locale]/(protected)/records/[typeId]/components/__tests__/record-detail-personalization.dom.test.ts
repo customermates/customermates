@@ -93,6 +93,7 @@ function harness(readOnly = false) {
   const context: RecordEditorContext = {
     model: createCrmPreset(companyId),
     linkColors: {},
+    linkIcons: {},
     typeId,
     permittedActions: readOnly ? ["readAll"] : ["readAll", "update", "delete"],
     canManageSchema: false,

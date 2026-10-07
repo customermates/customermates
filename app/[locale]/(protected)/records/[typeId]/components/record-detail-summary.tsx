@@ -78,7 +78,7 @@ const RelatedSummary = observer(function RelatedSummary({
   const items = records.map((record) => ({
     id: record.ref.recordId,
     ref: record.ref,
-    startContent: <RecordChipIcon typeId={record.ref.typeId} types={store.presentation.model.types} />,
+    startContent: <RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />,
     label:
       record.title.state === "value" && record.title.value.kind === "text"
         ? record.title.value.value
@@ -171,8 +171,8 @@ const SummaryValue = observer(function SummaryValue({
       relativeTimestamp
       column={column}
       linkColors={store.presentation.linkColors}
+      linkIcons={store.presentation.linkIcons}
       record={store.record}
-      types={store.presentation.model.types}
       onMore={() => undefined}
       onOpen={() => undefined}
     />

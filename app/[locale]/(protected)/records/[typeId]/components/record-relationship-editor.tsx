@@ -196,7 +196,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                       </button>
                     ) : undefined
                   }
-                  startContent={<RecordChipIcon typeId={record.ref.typeId} types={store.presentation.model.types} />}
+                  startContent={<RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />}
                   tooltip={title(record)}
                   variant={recordLinkColor(store.presentation.linkColors, typeId)}
                 >

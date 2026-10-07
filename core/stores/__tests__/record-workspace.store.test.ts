@@ -38,6 +38,7 @@ function fixture() {
   const context: RecordEditorResult = {
     model,
     linkColors: {},
+    linkIcons: {},
     typeId: model.types[0].id,
     record: null,
     canManageSchema: true,

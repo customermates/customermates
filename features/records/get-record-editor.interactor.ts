@@ -15,7 +15,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordWriteFailure } from "./mutate-record.interactor";
 import { recordDto, withMemberUsers } from "./query-records.interactor";
 import { resolveRecordPath } from "./record-relationship-path";
-import { recordLinkColors, type RecordLinkColors } from "./record-presentation";
+import { recordLinkColors, recordLinkIcons, type RecordLinkColors, type RecordLinkIcons } from "./record-presentation";
 import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
 import type { RecordDetailLayoutResult } from "./record-detail-layout.schema";
 
@@ -26,6 +26,7 @@ export type RecordEditorContext = {
   permittedActions: Action[];
   canManageSchema: boolean;
   linkColors: RecordLinkColors;
+  linkIcons: RecordLinkIcons;
   systemActions?: Array<"manageMembership">;
   detailLayout?: RecordDetailLayoutResult;
 };
@@ -117,6 +118,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
               detailLayout: layout.data,
               canManageSchema: policy.canManageSchema,
               linkColors: recordLinkColors(model.types, relationships),
+              linkIcons: recordLinkIcons(model.types, relationships),
               systemActions:
                 stored?.protectedKind === "membershipAuthorization" &&
                 policy.allowedSystem("users", "update") &&

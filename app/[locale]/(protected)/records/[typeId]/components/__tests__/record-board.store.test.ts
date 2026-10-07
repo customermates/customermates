@@ -27,6 +27,7 @@ const root = {
 const presentation = {
   model,
   linkColors: {},
+  linkIcons: {},
   typeId: id("deal"),
   canManageSchema: true,
   permittedActions: ["readAll", "update"],

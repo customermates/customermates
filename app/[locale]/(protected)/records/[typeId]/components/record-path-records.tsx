@@ -82,7 +82,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
               return (
                 <AppChip
                   key={`${record.ref.typeId}:${record.ref.recordId}`}
-                  startContent={<RecordChipIcon typeId={record.ref.typeId} types={store.presentation.model.types} />}
+                  startContent={<RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />}
                   tooltip={title}
                   variant={recordLinkColor(store.presentation.linkColors, record.ref.typeId)}
                 >

@@ -71,8 +71,8 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
               <RecordCell
                 column={column}
                 linkColors={store.presentation.linkColors}
+                linkIcons={store.presentation.linkIcons}
                 record={store.record}
-                types={store.presentation.model.types}
                 onMore={() => undefined}
                 onOpen={() => undefined}
               />
