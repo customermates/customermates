@@ -155,7 +155,11 @@ export const FormSelect = observer(
                 {items?.map((item) => (
                   <SelectItem key={item.value} disabled={item.disabled} textValue={item.label} value={item.value}>
                     {item.color ? (
-                      <AppChip variant={item.color}>{item.label}</AppChip>
+                      <span className="flex items-center gap-2">
+                        <AppChip variant={item.color}>{item.label}</AppChip>
+
+                        {item.description && <span className="text-xs text-muted-foreground">{item.description}</span>}
+                      </span>
                     ) : (
                       <span className={cn("flex items-center gap-2", item.description && "items-start")}>
                         {item.startContent}

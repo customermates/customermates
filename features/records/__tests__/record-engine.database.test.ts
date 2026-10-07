@@ -76,7 +76,7 @@ const { RecordEventPayloadSchema } = await import("../record-event.schema");
 const { RecordRevisionChangeSchema } = await import("../record-revision.schema");
 const { RecordHistoryReader } = await import("../record-history-reader");
 const { createTestRecordRecipientReader, createTestRoutineRepo } = await import("@/tests/helpers/record-delivery");
-const { RecordWebhookAdmission } = await import("@/features/webhook/record-webhook-admission");
+const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
 const { DeliverWebhookInteractor } = await import("@/features/webhook/deliver-webhook.interactor");
 const { PrismaWebhookDeliveryQueueRepo } = await import("@/features/webhook/prisma-webhook-delivery-queue.repository");
 const { PrismaWebhookDeliveryRepo } = await import("@/features/webhook/prisma-webhook-delivery.repository");
@@ -84,12 +84,12 @@ const { ResendWebhookDeliveryInteractor } = await import("@/features/webhook/res
 const { ValidateWebhookDeliveryIdsInteractor } = await import(
   "@/core/validation/validators/validate-webhook-delivery-ids.interactor"
 );
-const { RecordRoutineAdmission } = await import("@/ee/routines/record-routine-admission");
+const { RoutineAdmission } = await import("@/ee/routines/routine-admission");
 const { PrismaRoutineEventAccess } = await import("@/ee/routines/prisma-routine-event-access");
-const { ProcessRecordEventInteractor } = await import("../process-record-event.interactor");
-const { ProcessDueRecordEventsInteractor } = await import("../process-due-record-events.interactor");
-const { PrismaRecordEventOutboxRepo } = await import("../prisma-record-event-outbox.repository");
-const { PrismaAuditLogRepo } = await import("@/features/audit-log/prisma-audit-log.repository");
+const { ProcessEventInteractor } = await import("@/features/event/process-event.interactor");
+const { ProcessDueEventsInteractor } = await import("@/features/event/process-due-events.interactor");
+const { PrismaEventOutboxRepo } = await import("@/features/event/prisma-event-outbox.repository");
+const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 const { runInRoutineContext } = await import("@/core/decorators/routine-context");
 const { RecordIdentityReader, IDENTITY_MATCH_DISPLAY_LIMIT } = await import("../record-identity-reader");
 const { ResolveRecordIdentitiesInteractor } = await import("../resolve-record-identities.interactor");
@@ -410,16 +410,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     for (const row of before) expect((await f.readRecord(row.ref)).version).toBe(row.version + 1);
     const events = await f.run(() =>
-      prisma.recordEvent.findMany({
+      prisma.eventLog.findMany({
         where: { companyId: f.company.id, causeId: key },
       }),
     );
-    expect(new Set(events.map((event) => `${event.typeId}:${event.recordId}`)).size).toBe(events.length);
+    expect(new Set(events.map((event) => `${event.subjectTypeId}:${event.subjectId}`)).size).toBe(events.length);
     expect(events.length).toBeGreaterThanOrEqual(3);
     expect(await f.mutation(patch, f.admin, key)).toEqual(result);
     expect(
       await f.run(() =>
-        prisma.recordEvent.count({
+        prisma.eventLog.count({
           where: { companyId: f.company.id, causeId: key },
         }),
       ),
@@ -1418,11 +1418,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const service = await f.create("service", "Initially below threshold", [["service.amount", decimal("5")]]);
     const events = () =>
       f.run(() =>
-        prisma.recordEvent.findMany({
+        prisma.eventLog.findMany({
           where: {
             companyId: f.company.id,
-            typeId: service.typeId,
-            recordId: service.recordId,
+            subjectTypeId: service.typeId,
+            subjectId: service.recordId,
           },
           orderBy: { createdAt: "asc" },
           include: { matches: true },
@@ -1509,7 +1509,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         orderBy: { eventId: "asc" },
       }),
     );
-    expect(matches.map((match) => [match.event.typeId, match.event.kind]).sort()).toEqual(
+    expect(matches.map((match) => [match.event.subjectTypeId, match.event.kind]).sort()).toEqual(
       [
         [f.id("service"), "record.created"],
         [f.id("service"), "record.updated"],
@@ -1518,7 +1518,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(new Set(matches.map((match) => match.eventId)).size).toBe(3);
     const matchedServiceUpdate = recordInvariant(
-      matches.find((match) => match.event.typeId === service.typeId && match.event.kind === "record.updated"),
+      matches.find((match) => match.event.subjectTypeId === service.typeId && match.event.kind === "record.updated"),
     );
     const reader = createTestRecordRecipientReader();
     const delivery = {
@@ -1583,9 +1583,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     );
     const dispatch = vi.fn().mockResolvedValue(undefined);
-    const process = new ProcessRecordEventInteractor(
-      new PrismaRecordEventOutboxRepo(),
-      new RecordRoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
+    const process = new ProcessEventInteractor(
+      new PrismaEventOutboxRepo(),
+      new RoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
     );
     expect(await process.invoke({ companyId: f.company.id, eventId: match.eventId })).toEqual({ status: "delivered" });
     expect(await process.invoke({ companyId: f.company.id, eventId: match.eventId })).toEqual({ status: "delivered" });
@@ -1600,9 +1600,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       triggerEvent: "record.updated",
       status: "queued",
       triggerPayload: {
-        version: 2,
         id: match.eventId,
-        record: { ref: service },
+        data: { record: { ref: service } },
       },
     });
     expect(dispatch).toHaveBeenCalledExactlyOnceWith("run-routine", {
@@ -1621,7 +1620,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     };
     expect(await f.run(() => access.matchesCurrentUser(args))).toBe(true);
     expect(await f.run(() => access.currentUserTrigger(args))).toMatchObject({
-      payload: { version: 2, id: match.eventId, record: { ref: service } },
+      payload: { id: match.eventId, data: { record: { ref: service } } },
     });
     expect(await f.update(service, [["service.amount", decimal("5")]])).toMatchObject({ ok: true });
     expect(await f.run(() => access.matchesCurrentUser(args))).toBe(false);
@@ -1700,8 +1699,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toBe(0);
     expect(
       await f.run(() =>
-        prisma.auditLog.count({
-          where: { companyId: f.company.id, event: "routine.created" },
+        prisma.eventLog.count({
+          where: { companyId: f.company.id, kind: "routine.created" },
         }),
       ),
     ).toBe(0);
@@ -1803,27 +1802,27 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const record = await f.create("service", "Visible at event time");
     const event = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
-          where: { companyId: f.company.id, recordId: record.recordId },
+        prisma.eventLog.findFirst({
+          where: { companyId: f.company.id, subjectId: record.recordId },
         }),
       ),
     );
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const reader = createTestRecordRecipientReader();
-    const process = new ProcessRecordEventInteractor(
-      new PrismaRecordEventOutboxRepo(),
-      new RecordWebhookAdmission(reader, { dispatch } as never),
+    const process = new ProcessEventInteractor(
+      new PrismaEventOutboxRepo(),
+      new WebhookAdmission(reader, { dispatch } as never),
     );
     expect(await process.invoke({ companyId: f.company.id, eventId: event.id })).toEqual({ status: "delivered" });
     expect(await process.invoke({ companyId: f.company.id, eventId: event.id })).toEqual({ status: "delivered" });
     const rows = await f.run(() =>
       prisma.webhookDelivery.findMany({
-        where: { companyId: f.company.id, recordEventId: event.id },
+        where: { companyId: f.company.id, eventId: event.id },
       }),
     );
     expect(rows).toHaveLength(1);
     const delivery = rows[0];
-    expect(delivery.requestBody).toEqual({ version: 2, eventId: event.id });
+    expect(delivery.requestBody).toEqual({ eventId: event.id });
     expect(dispatch).toHaveBeenCalledExactlyOnceWith("deliver-webhook", {
       deliveryId: delivery.id,
       companyId: f.company.id,
@@ -1854,7 +1853,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(post.mock.calls[0][0].requestBody).toMatchObject({
       event: "record.created",
-      data: { payload: { version: 2, id: event.id, record: { ref: record } } },
+      id: event.id,
+      data: { record: { ref: record } },
     });
     expect(JSON.stringify(post.mock.calls[0][0].requestBody)).toContain("Visible at event time");
     await f.run(() => runInTransaction(() => f.repo.setGrants(record.typeId, [])));
@@ -1888,10 +1888,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           where: { companyId: f.company.id, id: delivery.id },
         }),
       ),
-    ).toMatchObject({ webhookId: null, recordEventId: event.id });
+    ).toMatchObject({ webhookId: null, eventId: event.id });
   });
 
-  it("shows and resends a messaging delivery from its stored body, but never a retired record body", async () => {
+  it("shows and resends a messaging delivery from its event, but never a retired delivery without one", async () => {
     const f = await fixture();
     const hook = await f.run(() =>
       getUpsertWebhookInteractor().invoke({
@@ -1900,15 +1900,27 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     if (!hook.ok) throw new Error(JSON.stringify(hook.error));
+    const event = await f.run(() =>
+      prisma.eventLog.create({
+        data: {
+          companyId: f.company.id,
+          subjectKind: "messaging",
+          subjectId: "message-1",
+          actorId: null,
+          kind: "messaging.message.received",
+          payload: { connectedAccountId: "account-1", threadId: "thread-1" },
+          createdAt: new Date("2026-04-22T10:00:00.000Z"),
+          deliveredAt: new Date("2026-04-22T10:00:00.000Z"),
+        },
+      }),
+    );
     const body = {
       event: "messaging.message.received",
-      data: {
-        userId: null,
-        companyId: f.company.id,
-        entityId: "message-1",
-        payload: { connectedAccountId: "account-1", threadId: "thread-1" },
-      },
+      id: event.id,
       timestamp: "2026-04-22T10:00:00.000Z",
+      companyId: f.company.id,
+      actorId: null,
+      data: { entityId: "message-1", connectedAccountId: "account-1", threadId: "thread-1" },
     };
     const [messaging, retired] = await f.run(() =>
       Promise.all([
@@ -1916,9 +1928,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           data: {
             companyId: f.company.id,
             webhookId: hook.data.id,
+            eventId: event.id,
             url: "https://receiver.example.test/messaging-resend",
             event: "messaging.message.received",
-            requestBody: body,
+            requestBody: { eventId: event.id },
             status: "failed",
             success: false,
             nextAttemptAt: null,
@@ -1929,7 +1942,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             companyId: f.company.id,
             webhookId: hook.data.id,
             url: "https://receiver.example.test/messaging-resend",
-            event: "contact.created",
+            event: "messaging.message.received",
             requestBody: { event: "contact.created", data: { payload: { firstName: "Hidden" } } },
             status: "success",
             success: true,
@@ -1955,8 +1968,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({
       webhookId: hook.data.id,
       event: "messaging.message.received",
-      recordEventId: null,
-      requestBody: body,
+      eventId: event.id,
+      requestBody: { eventId: event.id },
       status: "pending",
     });
     expect(dispatch).toHaveBeenCalledExactlyOnceWith("deliver-webhook", {
@@ -1990,21 +2003,21 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const ref = await f.create("service", "Resend source");
     const event = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
-          where: { companyId: f.company.id, recordId: ref.recordId },
+        prisma.eventLog.findFirst({
+          where: { companyId: f.company.id, subjectId: ref.recordId },
         }),
       ),
     );
-    await new ProcessRecordEventInteractor(
-      new PrismaRecordEventOutboxRepo(),
-      new RecordWebhookAdmission(createTestRecordRecipientReader(), {
+    await new ProcessEventInteractor(
+      new PrismaEventOutboxRepo(),
+      new WebhookAdmission(createTestRecordRecipientReader(), {
         dispatch: vi.fn(),
       } as never),
     ).invoke({ companyId: f.company.id, eventId: event.id });
     const original = recordInvariant(
       await f.run(() =>
         prisma.webhookDelivery.findFirst({
-          where: { companyId: f.company.id, recordEventId: event.id },
+          where: { companyId: f.company.id, eventId: event.id },
         }),
       ),
     );
@@ -2037,10 +2050,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(retry).toMatchObject({
       webhookId: hook.data.id,
-      recordEventId: event.id,
+      eventId: event.id,
       admissionKey: null,
       subscriptionRevision: original.subscriptionRevision,
-      requestBody: { version: 2, eventId: event.id },
+      requestBody: { eventId: event.id },
     });
     expect(dispatch).toHaveBeenCalledExactlyOnceWith("deliver-webhook", {
       deliveryId: retry.id,
@@ -2074,7 +2087,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(
       await f.run(() =>
         prisma.webhookDelivery.count({
-          where: { companyId: f.company.id, recordEventId: event.id },
+          where: { companyId: f.company.id, eventId: event.id },
         }),
       ),
     ).toBe(2);
@@ -2114,15 +2127,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const record = await f.create("service", "Queued record");
     const event = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
-          where: { companyId: f.company.id, recordId: record.recordId },
+        prisma.eventLog.findFirst({
+          where: { companyId: f.company.id, subjectId: record.recordId },
         }),
       ),
     );
     const reader = createTestRecordRecipientReader();
-    const process = new ProcessRecordEventInteractor(
-      new PrismaRecordEventOutboxRepo(),
-      new RecordWebhookAdmission(reader, {
+    const process = new ProcessEventInteractor(
+      new PrismaEventOutboxRepo(),
+      new WebhookAdmission(reader, {
         dispatch: vi.fn().mockResolvedValue(undefined),
       } as never),
     );
@@ -2130,7 +2143,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const delivery = recordInvariant(
       await f.run(() =>
         prisma.webhookDelivery.findFirst({
-          where: { companyId: f.company.id, recordEventId: event.id },
+          where: { companyId: f.company.id, eventId: event.id },
         }),
       ),
     );
@@ -2202,8 +2215,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toBe(0);
     expect(
       await f.run(() =>
-        prisma.auditLog.count({
-          where: { companyId: f.company.id, event: "webhook.created" },
+        prisma.eventLog.count({
+          where: { companyId: f.company.id, kind: "webhook.created" },
         }),
       ),
     ).toBe(0);
@@ -2799,17 +2812,17 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         include: { event: true },
       }),
     );
-    expect(matches.filter((row) => row.subscriptionId === subscription.id).map((row) => row.event.recordId)).toEqual([
+    expect(matches.filter((row) => row.subscriptionId === subscription.id).map((row) => row.event.subjectId)).toEqual([
       services[0].recordId,
     ]);
     expect(matches.filter((row) => row.subscriptionId === lineHook.id)).toHaveLength(1);
     const events = await f.run(() =>
-      prisma.recordEvent.findMany({
+      prisma.eventLog.findMany({
         where: { companyId: f.company.id, causeId: key },
       }),
     );
     expect(events.filter((row) => row.kind === "record.deleted")).toHaveLength(6);
-    expect(new Set(events.map((row) => `${row.typeId}:${row.recordId}:${row.kind}`)).size).toBe(events.length);
+    expect(new Set(events.map((row) => `${row.subjectTypeId}:${row.subjectId}:${row.kind}`)).size).toBe(events.length);
     const matched = recordInvariant(matches.find((row) => row.subscriptionId === subscription.id));
     const request = {
       companyId: f.company.id,
@@ -2821,7 +2834,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const reader = createTestRecordRecipientReader();
     expect(await reader.readEvent(request)).toMatchObject({
       event: "record.deleted",
-      record: { ref: services[0] },
+      data: { record: { ref: services[0] } },
     });
     await f.run(() => runInTransaction(() => f.repo.setGrants(f.id("service"), [])));
     expect(await reader.readEvent(request)).toBeNull();
@@ -2969,7 +2982,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         );
       const accepted = await matches();
       expect(accepted).toHaveLength(251);
-      expect(new Set(accepted.map((row) => row.event.recordId))).toEqual(
+      expect(new Set(accepted.map((row) => row.event.subjectId))).toEqual(
         new Set(lineIds.filter((_, index) => index % 2 === 0)),
       );
       expect(
@@ -3076,7 +3089,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           Promise.all([
             prisma.crmRecord.count({ where: { companyId: f.company.id } }),
             prisma.recordLink.count({ where: { companyId: f.company.id } }),
-            prisma.recordEvent.count({
+            prisma.eventLog.count({
               where: { companyId: f.company.id, causeId: idempotencyKey },
             }),
           ]),
@@ -3153,19 +3166,19 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }
       if (scenario === "resume") {
         const events = await f.run(() =>
-          prisma.recordEvent.findMany({
+          prisma.eventLog.findMany({
             where: { companyId: f.company.id, causeId: idempotencyKey },
           }),
         );
         expect(events.filter((event) => event.kind === "record.deleted")).toHaveLength(4);
-        expect(new Set(events.map((event) => event.recordId))).toEqual(
+        expect(new Set(events.map((event) => event.subjectId))).toEqual(
           new Set([service, deal, ...lines].map((ref) => ref.recordId)),
         );
         expect(await liveGraph()).toEqual([before[0] - 4, before[1] - 4, 4]);
         expect(await advance()).toEqual({ done: true });
         expect(
           await f.run(() =>
-            prisma.recordEvent.findMany({
+            prisma.eventLog.findMany({
               where: { companyId: f.company.id, causeId: idempotencyKey },
             }),
           ),
@@ -3218,7 +3231,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         eventId: match.eventId,
         subscriptionId: subscription.id,
       }),
-    ).toMatchObject({ event: "record.deleted", record: { ref: service } });
+    ).toMatchObject({ event: "record.deleted", data: { record: { ref: service } } });
     expect(
       await f.run(
         async () =>
@@ -3256,35 +3269,35 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const service = await f.create("service", "Outbox source");
     const event = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
+        prisma.eventLog.findFirst({
           where: {
             companyId: f.company.id,
-            typeId: service.typeId,
-            recordId: service.recordId,
+            subjectTypeId: service.typeId,
+            subjectId: service.recordId,
           },
         }),
       ),
     );
-    const outbox = new PrismaRecordEventOutboxRepo();
+    const outbox = new PrismaEventOutboxRepo();
     let fail = true;
     const admission = {
       admit: vi.fn(async () => {
-        await new PrismaAuditLogRepo(new PermissionService()).logUnscoped({
-          companyId: f.company.id,
-          userId: f.admin.id,
-          entityId: event.id,
-          event: "outbox.test",
-          eventData: {},
+        await new PrismaEventLogRepo({ dispatch: vi.fn() }).appendUnscoped(f.company.id, {
+          kind: "outbox.test",
+          subjectId: event.id,
+          actorId: f.admin.id,
+          payload: {},
+          delivered: true,
         });
         if (fail) throw new Error("Injected failure before admission commit");
       }),
     };
-    const worker = new ProcessRecordEventInteractor(outbox, admission);
+    const worker = new ProcessEventInteractor(outbox, admission);
     const input = { companyId: f.company.id, eventId: event.id };
     const audits = () =>
       f.run(() =>
-        prisma.auditLog.count({
-          where: { companyId: f.company.id, entityId: event.id },
+        prisma.eventLog.count({
+          where: { companyId: f.company.id, subjectId: event.id },
         }),
       );
     expect(await worker.invoke(input)).toEqual({ status: "deferred" });
@@ -3301,7 +3314,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(admission.admit).toHaveBeenCalledTimes(1);
     fail = false;
     await f.run(() =>
-      prisma.recordEvent.update({
+      prisma.eventLog.update({
         where: {
           companyId: f.company.id,
           companyId_id: { companyId: f.company.id, id: event.id },
@@ -3346,7 +3359,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         expect(started).not.toHaveBeenCalled();
       }),
     );
-    expect(dispatch).toHaveBeenCalledExactlyOnceWith("process-record-events", {
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith("process-events", {
       companyId: f.company.id,
     });
     expect(started).toHaveBeenCalledTimes(1);
@@ -3369,14 +3382,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const ref = await f.create("service", "Due event source");
     const event = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
-          where: { companyId: f.company.id, recordId: ref.recordId },
+        prisma.eventLog.findFirst({
+          where: { companyId: f.company.id, subjectId: ref.recordId },
         }),
       ),
     );
-    const outbox = new PrismaRecordEventOutboxRepo();
+    const outbox = new PrismaEventOutboxRepo();
     const admit = vi.fn(() => Promise.resolve());
-    const batch = new ProcessDueRecordEventsInteractor(outbox, new ProcessRecordEventInteractor(outbox, { admit }));
+    const batch = new ProcessDueEventsInteractor(outbox, new ProcessEventInteractor(outbox, { admit }));
     expect(await batch.invoke({ companyId: f.company.id })).toMatchObject({
       processed: 1,
       hasMore: false,
@@ -3393,25 +3406,25 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const first = await f.create("service", "First outbox record");
     const second = await f.create("service", "Second outbox record");
     const foreign = await other.create("service", "Foreign outbox record");
-    const outbox = new PrismaRecordEventOutboxRepo();
+    const outbox = new PrismaEventOutboxRepo();
     const firstEvent = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
-          where: { companyId: f.company.id, recordId: first.recordId },
+        prisma.eventLog.findFirst({
+          where: { companyId: f.company.id, subjectId: first.recordId },
         }),
       ),
     );
     const secondEvent = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
-          where: { companyId: f.company.id, recordId: second.recordId },
+        prisma.eventLog.findFirst({
+          where: { companyId: f.company.id, subjectId: second.recordId },
         }),
       ),
     );
     const foreignEvent = recordInvariant(
       await other.run(() =>
-        prisma.recordEvent.findFirst({
-          where: { companyId: other.company.id, recordId: foreign.recordId },
+        prisma.eventLog.findFirst({
+          where: { companyId: other.company.id, subjectId: foreign.recordId },
         }),
       ),
     );
@@ -3420,7 +3433,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         event.id === firstEvent.id ? Promise.reject(new Error("Injected failure")) : Promise.resolve(),
       ),
     };
-    const worker = new ProcessRecordEventInteractor(outbox, admission);
+    const worker = new ProcessEventInteractor(outbox, admission);
     expect(
       await worker.invoke({
         companyId: f.company.id,
@@ -3433,7 +3446,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await worker.invoke({ companyId: f.company.id, eventId: secondEvent.id })).toEqual({ status: "delivered" });
     const dueAt = new Date("1900-01-01T00:00:00.000Z");
     await other.run(() =>
-      prisma.recordEvent.update({
+      prisma.eventLog.update({
         where: {
           companyId: other.company.id,
           companyId_id: { companyId: other.company.id, id: foreignEvent.id },
@@ -3454,11 +3467,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const service = await f.create("service", "Visible service", [["service.amount", decimal("7")]]);
     const event = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
+        prisma.eventLog.findFirst({
           where: {
             companyId: f.company.id,
-            typeId: service.typeId,
-            recordId: service.recordId,
+            subjectTypeId: service.typeId,
+            subjectId: service.recordId,
             kind: "record.created",
           },
         }),
@@ -3472,10 +3485,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     };
     expect(await reader.readEvent(request)).toBeNull();
     expect(await reader.readEvent({ ...request, userId: f.admin.id })).toMatchObject({
-      version: 2,
       id: event.id,
       event: "record.created",
-      record: { ref: service },
+      data: { record: { ref: service } },
     });
     expect(
       await reader.readEvent({
@@ -3499,7 +3511,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     ).toMatchObject({ ok: true });
     expect(await reader.readEvent(request)).toMatchObject({
-      record: { ref: service },
+      data: { record: { ref: service } },
     });
     const query = RecordQuerySchema.parse({
       typeId: service.typeId,
@@ -3512,7 +3524,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ],
     });
     expect(await reader.readEvent({ ...request, query })).toMatchObject({
-      record: { ref: service },
+      data: { record: { ref: service } },
     });
     expect(
       await reader.readEvent({
@@ -3577,11 +3589,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const event = recordInvariant(
       await f.run(() =>
-        prisma.recordEvent.findFirst({
+        prisma.eventLog.findFirst({
           where: {
             companyId: f.company.id,
-            typeId: deal.typeId,
-            recordId: deal.recordId,
+            subjectTypeId: deal.typeId,
+            subjectId: deal.recordId,
             kind: "record.updated",
           },
           orderBy: { createdAt: "desc" },
@@ -3595,7 +3607,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       eventId: event.id,
     };
     const restricted = await reader.readEvent(request);
-    expect(restricted?.record.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
+    expect(restricted?.data.record.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
       after: { value: { state: "restricted" } },
     });
     expect(JSON.stringify(restricted)).not.toContain(service.recordId);
@@ -3646,7 +3658,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toBe(1);
     const readable = await reader.readEvent({ ...request, query });
-    expect(readable?.record.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
+    expect(readable?.data.record.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
       after: { value: { state: "value", value: decimal("34") } },
     });
   });
@@ -3702,7 +3714,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       ],
     });
-    expect(await f.run(() => prisma.recordEvent.count({ where: { companyId: f.company.id } }))).toBe(0);
+    expect(await f.run(() => prisma.eventLog.count({ where: { companyId: f.company.id } }))).toBe(0);
     const revoke: ConfigurationChange = {
       expectedRevision: 2,
       idempotencyKey: randomUUID(),
@@ -3984,15 +3996,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: false });
     const audit = await f.run(() =>
-      prisma.auditLog.findFirst({
+      prisma.eventLog.findFirst({
         where: {
           companyId: f.company.id,
-          entityId: f.memberRole.id,
-          event: "role.updated",
+          subjectId: f.memberRole.id,
+          kind: "role.updated",
         },
       }),
     );
-    expect(JSON.stringify(audit?.eventData)).toContain(typeId);
+    expect(JSON.stringify(audit?.payload)).toContain(typeId);
     const revision = await f.run(() =>
       prisma.recordSchemaRevision.findUnique({
         where: {
@@ -4241,8 +4253,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toBe(1);
     expect(
       await f.run(() =>
-        prisma.auditLog.count({
-          where: { companyId: f.company.id, event: "role.created" },
+        prisma.eventLog.count({
+          where: { companyId: f.company.id, kind: "role.created" },
         }),
       ),
     ).toBe(1);
@@ -4444,11 +4456,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => f.repo.getState())).toMatchObject({ revision: 5 });
     expect(
       await f.run(() =>
-        prisma.auditLog.count({
+        prisma.eventLog.count({
           where: {
             companyId: f.company.id,
-            entityId: id,
-            event: "role.deleted",
+            subjectId: id,
+            kind: "role.deleted",
           },
         }),
       ),
@@ -4602,7 +4614,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       },
     });
     expect(await f.run(() => service.getSystemTasksCount())).toBe(1);
-    const events = await f.run(() => prisma.recordEvent.findMany({ where: { companyId: f.company.id } }));
+    const events = await f.run(() => prisma.eventLog.findMany({ where: { companyId: f.company.id } }));
     expect(events).toHaveLength(1);
     expect(RecordEventPayloadSchema.parse(recordInvariant(events[0]).payload).cause.kind).toBe("system");
     const request = { ref, expectedVersion: 1 };
@@ -4830,10 +4842,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     await f.run(() => getMembershipTaskService().updated(f.member.id));
     expect(
       await f.run(() =>
-        prisma.recordEvent.count({
+        prisma.eventLog.count({
           where: {
             companyId: f.company.id,
-            recordId: task.id,
+            subjectId: task.id,
             kind: "record.deleted",
           },
         }),
@@ -4841,8 +4853,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toBe(1);
     expect(
       await f.run(() =>
-        prisma.auditLog.count({
-          where: { companyId: f.company.id, event: "user.updated" },
+        prisma.eventLog.count({
+          where: { companyId: f.company.id, kind: "user.updated" },
         }),
       ),
     ).toBe(1);
@@ -4903,8 +4915,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => getMembershipTaskService().getSystemTasksCount())).toBe(1);
     expect(
       await f.run(() =>
-        prisma.auditLog.count({
-          where: { companyId: f.company.id, event: "user.updated" },
+        prisma.eventLog.count({
+          where: { companyId: f.company.id, kind: "user.updated" },
         }),
       ),
     ).toBe(0);
@@ -5098,7 +5110,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.mutation(mutation, f.admin, key)).toEqual(result);
     const events = () =>
       f.run(() =>
-        prisma.recordEvent.findMany({
+        prisma.eventLog.findMany({
           where: { companyId: f.company.id },
           orderBy: { createdAt: "asc" },
         }),
@@ -5217,7 +5229,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       displayOptions: { showFilters: false },
       activityQuery: RecordActivityQuerySchema.parse({
         scope: { typeIds: [type.id], records: [] },
-        kinds: ["audit"],
+        kinds: ["record"],
         filters: [
           {
             kind: "record",
@@ -5233,7 +5245,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: {
         kind: "activityTimeline",
-        contractVersion: 2,
         version: 1,
         data: { items: [{ kind: "record" }] },
       },
@@ -5388,20 +5399,20 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ).toMatchObject({ ok: true });
     }
     await f.run(() =>
-      prisma.recordEvent.updateMany({
-        where: { companyId: f.company.id, typeId: type.id },
+      prisma.eventLog.updateMany({
+        where: { companyId: f.company.id, subjectTypeId: type.id },
         data: { createdAt: new Date("2020-01-01T00:00:00Z") },
       }),
     );
     const expected = await f.run(() =>
-      prisma.recordEvent.findMany({
-        where: { companyId: f.company.id, typeId: type.id },
+      prisma.eventLog.findMany({
+        where: { companyId: f.company.id, subjectTypeId: type.id },
         orderBy: { id: "desc" },
       }),
     );
     const first = await f.timeline({
       scope: { records: [ref], typeIds: [] },
-      kinds: ["audit"],
+      kinds: ["record"],
       limit: 2,
     });
     if (!first.ok) throw new Error(JSON.stringify(first.error));
@@ -5409,7 +5420,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(first.data.nextCursor).not.toBeNull();
     const second = await f.timeline({
       scope: { records: [ref], typeIds: [] },
-      kinds: ["audit"],
+      kinds: ["record"],
       limit: 2,
       cursor: first.data.nextCursor,
     });
@@ -5457,7 +5468,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         assignedUserIds: [f.member.id],
       }),
     ).toMatchObject({ ok: true });
-    expect(await f.timeline({ scope: { records: [ref], typeIds: [] }, kinds: ["audit"] }, f.member)).toMatchObject({
+    expect(await f.timeline({ scope: { records: [ref], typeIds: [] }, kinds: ["record"] }, f.member)).toMatchObject({
       ok: true,
     });
     expect(
@@ -5469,12 +5480,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: true });
     const deleted = await f.timeline({
       scope: { records: [ref], typeIds: [] },
-      kinds: ["audit"],
+      kinds: ["record"],
     });
     expect(deleted, JSON.stringify(deleted)).toMatchObject({ ok: true });
     if (!deleted.ok) throw new Error("Deleted history failed");
     expect(deleted.data.items.some((item) => item.kind === "record" && item.event === "record.deleted")).toBe(true);
-    expect(await f.timeline({ scope: { records: [ref], typeIds: [] }, kinds: ["audit"] }, f.member)).toMatchObject({
+    expect(await f.timeline({ scope: { records: [ref], typeIds: [] }, kinds: ["record"] }, f.member)).toMatchObject({
       ok: false,
     });
     await f.run(() =>
@@ -5483,10 +5494,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: { actions: ["readAll"] },
       }),
     );
-    expect(await f.timeline({ scope: { records: [ref], typeIds: [] }, kinds: ["audit"] }, f.member)).toMatchObject({
+    expect(await f.timeline({ scope: { records: [ref], typeIds: [] }, kinds: ["record"] }, f.member)).toMatchObject({
       ok: true,
     });
-    const global = await f.timeline({ kinds: ["audit"] }, f.member);
+    const global = await f.timeline({ kinds: ["record"] }, f.member);
     expect(
       global.ok && global.data.items.some((item) => item.kind === "record" && item.event === "record.deleted"),
     ).toBe(true);
@@ -5586,11 +5597,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: true });
     const row = await f.run(() =>
-      prisma.recordEvent.findFirstOrThrow({
+      prisma.eventLog.findFirstOrThrow({
         where: {
           companyId: f.company.id,
-          typeId: deal.typeId,
-          recordId: deal.recordId,
+          subjectTypeId: deal.typeId,
+          subjectId: deal.recordId,
           causeId,
         },
       }),
@@ -5667,11 +5678,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: true });
     const events = await f.run(() =>
-      prisma.recordEvent.findMany({
+      prisma.eventLog.findMany({
         where: { companyId: f.company.id, causeId: key },
       }),
     );
-    expect(events.map((event) => [event.typeId, event.recordId, event.kind])).toEqual(
+    expect(events.map((event) => [event.subjectTypeId, event.subjectId, event.kind])).toEqual(
       expect.arrayContaining([
         [deal.typeId, deal.recordId, "record.deleted"],
         [line.typeId, line.recordId, "record.deleted"],
@@ -5679,7 +5690,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ]),
     );
     const deleted = RecordEventPayloadSchema.parse(
-      recordInvariant(events.find((event) => event.recordId === deal.recordId)).payload,
+      recordInvariant(events.find((event) => event.subjectId === deal.recordId)).payload,
     );
     expect(deleted.afterVersion).toBeNull();
     expect(deleted.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
@@ -5687,7 +5698,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       after: null,
     });
     const surviving = RecordEventPayloadSchema.parse(
-      recordInvariant(events.find((event) => event.recordId === service.recordId)).payload,
+      recordInvariant(events.find((event) => event.subjectId === service.recordId)).payload,
     );
     expect(surviving.links).toEqual([
       {
@@ -11488,11 +11499,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       value: decimal("1000"),
     });
     const events = await f.run(() =>
-      prisma.recordEvent.findMany({
+      prisma.eventLog.findMany({
         where: {
           companyId: f.company.id,
-          typeId: deal.typeId,
-          recordId: deal.recordId,
+          subjectTypeId: deal.typeId,
+          subjectId: deal.recordId,
         },
         orderBy: { createdAt: "desc" },
         take: 1,
@@ -12509,11 +12520,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ).toMatchObject({ ok: true, data: { status: "completed" } });
       const deletedSourceEvent = recordInvariant(
         await f.run(() =>
-          prisma.recordEvent.findFirst({
+          prisma.eventLog.findFirst({
             where: {
               companyId: f.company.id,
-              typeId: deletedSource.typeId,
-              recordId: deletedSource.recordId,
+              subjectTypeId: deletedSource.typeId,
+              subjectId: deletedSource.recordId,
               kind: "record.deleted",
             },
           }),
@@ -12607,11 +12618,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ).not.toBeNull();
       const originalEvent = recordInvariant(
         await f.run(() =>
-          prisma.recordEvent.findFirst({
+          prisma.eventLog.findFirst({
             where: {
               companyId: f.company.id,
-              typeId: summary.typeId,
-              recordId: summary.recordId,
+              subjectTypeId: summary.typeId,
+              subjectId: summary.recordId,
               kind: "record.created",
             },
           }),
@@ -12873,7 +12884,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       });
       expect(envelope).not.toBeNull();
       for (const field of [total, memo]) {
-        expect(envelope?.record.fields.find((entry) => entry.fieldId === field.id)?.after?.value).toEqual({
+        expect(envelope?.data.record.fields.find((entry) => entry.fieldId === field.id)?.after?.value).toEqual({
           state: "restricted",
         });
       }
@@ -13446,24 +13457,23 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     if (!created.ok || created.data.status !== "completed") throw new Error("Private person fixture failed");
     const person = recordInvariant(created.data.refs[0]);
     const systemEvent = await f.run(() =>
-      prisma.auditLog.create({
+      prisma.eventLog.create({
         data: {
           companyId: f.company.id,
-          userId: f.admin.id,
-          entityId: f.company.id,
-          event: "webhook.updated",
-          eventData: {
-            payload: {
-              changes: {
-                name: { previous: "Before", current: "After" },
-                secret: {
-                  previous: "suppressed-secret",
-                  current: "suppressed-new-secret",
-                },
-                headers: {
-                  previous: {},
-                  current: { Authorization: "suppressed-token" },
-                },
+          actorId: f.admin.id,
+          subjectId: f.company.id,
+          subjectKind: "webhook",
+          kind: "webhook.updated",
+          payload: {
+            changes: {
+              name: { previous: "Before", current: "After" },
+              secret: {
+                previous: "suppressed-secret",
+                current: "suppressed-new-secret",
+              },
+              headers: {
+                previous: {},
+                current: { Authorization: "suppressed-token" },
               },
             },
           },
@@ -13471,26 +13481,26 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     const exportEvent = await f.run(() =>
-      prisma.auditLog.create({
+      prisma.eventLog.create({
         data: {
           companyId: f.company.id,
-          userId: f.admin.id,
-          entityId: f.company.id,
-          event: "records.exported",
-          eventData: {
-            payload: { rowCount: 100, recordIds: [person.recordId] },
-          },
+          actorId: f.admin.id,
+          subjectId: f.company.id,
+          subjectKind: "records",
+          kind: "records.exported",
+          payload: { rowCount: 100, recordIds: [person.recordId] },
         },
       }),
     );
     await f.run(() =>
-      prisma.auditLog.create({
+      prisma.eventLog.create({
         data: {
           companyId: f.company.id,
-          userId: f.admin.id,
-          entityId: randomUUID(),
-          event: "messaging.email.received",
-          eventData: { payload: { bodyText: "suppressed-message-content" } },
+          actorId: f.admin.id,
+          subjectId: randomUUID(),
+          subjectKind: "messaging",
+          kind: "messaging.email.received",
+          payload: { bodyText: "suppressed-message-content" },
         },
       }),
     );
@@ -13607,7 +13617,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.update(service, [["service.amount", decimal("13")]])).toMatchObject({ ok: false });
     const operationEvents = () =>
       f.run(() =>
-        prisma.recordEvent.findMany({
+        prisma.eventLog.findMany({
           where: { companyId: f.company.id, causeId: request.idempotencyKey },
         }),
       );
@@ -13670,7 +13680,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const events = await operationEvents();
     expect(events).toHaveLength(3);
     const history = RecordEventPayloadSchema.parse(
-      recordInvariant(events.find((event) => event.recordId === deal.recordId)).payload,
+      recordInvariant(events.find((event) => event.subjectId === deal.recordId)).payload,
     );
     expect(history.cause).toEqual({ kind: "mutation", operationId });
     expect(history.afterVersion).toBe((await f.readRecord(deal)).version);
@@ -15155,8 +15165,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: true });
     const history = () =>
       f.run(() =>
-        prisma.recordEvent.count({
-          where: { companyId: f.company.id, typeId: original.typeId, recordId: original.recordId },
+        prisma.eventLog.count({
+          where: { companyId: f.company.id, subjectTypeId: original.typeId, subjectId: original.recordId },
         }),
       );
     const before = await history();
@@ -15209,19 +15219,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     if (!hook.ok) throw new Error("Webhook fixture failed");
     const record = await f.create("service", "Stable delivery");
     const event = recordInvariant(
-      await f.run(() =>
-        prisma.recordEvent.findFirst({ where: { companyId: f.company.id, recordId: record.recordId } }),
-      ),
+      await f.run(() => prisma.eventLog.findFirst({ where: { companyId: f.company.id, subjectId: record.recordId } })),
     );
     const reader = createTestRecordRecipientReader();
-    await new ProcessRecordEventInteractor(
-      new PrismaRecordEventOutboxRepo(),
-      new RecordWebhookAdmission(reader, { dispatch: vi.fn().mockResolvedValue(undefined) } as never),
+    await new ProcessEventInteractor(
+      new PrismaEventOutboxRepo(),
+      new WebhookAdmission(reader, { dispatch: vi.fn().mockResolvedValue(undefined) } as never),
     ).invoke({ companyId: f.company.id, eventId: event.id });
     const delivery = recordInvariant(
-      await f.run(() =>
-        prisma.webhookDelivery.findFirst({ where: { companyId: f.company.id, recordEventId: event.id } }),
-      ),
+      await f.run(() => prisma.webhookDelivery.findFirst({ where: { companyId: f.company.id, eventId: event.id } })),
     );
     const subscription = () =>
       f.run(() => prisma.recordEventSubscription.findFirst({ where: { companyId: f.company.id, id: hook.data.id } }));
@@ -15342,9 +15348,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     );
     const dispatch = vi.fn().mockResolvedValue(undefined);
-    await new ProcessRecordEventInteractor(
-      new PrismaRecordEventOutboxRepo(),
-      new RecordRoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
+    await new ProcessEventInteractor(
+      new PrismaEventOutboxRepo(),
+      new RoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
     ).invoke({ companyId: f.company.id, eventId: match.eventId });
     expect(await f.run(() => prisma.routineRun.count({ where: { companyId: f.company.id, routineId } }))).toBe(1);
     expect(dispatch).toHaveBeenCalledTimes(1);
@@ -16254,7 +16260,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toBe(1001);
       expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
       const publishedEvents = await f.run(() =>
-        prisma.recordEvent.count({
+        prisma.eventLog.count({
           where: {
             companyId: f.company.id,
             causeId: operationId,
@@ -16294,11 +16300,11 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toMatchObject({ textValue: "Stale" });
       expect(
         await f.run(() =>
-          prisma.recordEvent.count({
+          prisma.eventLog.count({
             where: {
               companyId: f.company.id,
               causeId: operationId,
-              typeId: unrelatedService.typeId,
+              subjectTypeId: unrelatedService.typeId,
             },
           }),
         ),
@@ -16306,7 +16312,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       expect(await service.advance(operationId)).toEqual({ done: true });
       expect(
         await f.run(() =>
-          prisma.recordEvent.count({
+          prisma.eventLog.count({
             where: {
               companyId: f.company.id,
               causeId: operationId,
@@ -16380,7 +16386,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
       expect(
         await f.run(() =>
-          prisma.recordEvent.count({
+          prisma.eventLog.count({
             where: {
               companyId: f.company.id,
               causeId: noChangeOperationId,
@@ -16400,7 +16406,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toBe(0);
       expect(
         await f.run(() =>
-          prisma.recordEvent.count({
+          prisma.eventLog.count({
             where: {
               companyId: f.company.id,
               causeId: operationId,
@@ -16693,7 +16699,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toBe(501);
       expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
       const events = await f.run(() =>
-        prisma.recordEvent.findMany({
+        prisma.eventLog.findMany({
           where: { companyId: f.company.id, causeId: operationId },
         }),
       );

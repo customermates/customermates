@@ -9,9 +9,33 @@ vi.mock("../../../records/actions", () => ({
 import { TypeModalStore } from "../type-modal";
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
-const root = { registerModalStore: vi.fn() } as unknown as RootStore;
+const root = { registerModalStore: vi.fn(), localeStore: { locale: "en" } } as unknown as RootStore;
 
 describe("list configuration", () => {
+  it("suggests the plural name from the name until the plural is edited", () => {
+    const model = createCrmPreset(company);
+    const store = new TypeModalStore(root, model, vi.fn());
+    store.edit(model, null);
+    store.renameList("Project");
+    expect(store.form.pluralName).toBe("Projects");
+    store.onChange("pluralName", "Programmes");
+    store.renameList("Programme");
+    expect(store.form.pluralName).toBe("Programmes");
+    store.onChange("pluralName", "");
+    store.renameList("Initiative");
+    expect(store.form.pluralName).toBe("Initiatives");
+  });
+  it("keeps a custom plural of an existing list when it is renamed", () => {
+    const model = createCrmPreset(company);
+    const store = new TypeModalStore(root, model, vi.fn());
+    const deal = recordInvariant(model.types.find((type) => type.id === id("deal")));
+    store.edit(model, { ...deal, label: "Deal", pluralLabel: "Pipeline" });
+    store.renameList("Opportunity");
+    expect(store.form.pluralName).toBe("Pipeline");
+    store.edit(model, { ...deal, label: "Deal", pluralLabel: "Deals" });
+    store.renameList("Opportunity");
+    expect(store.form.pluralName).toBe("Opportunities");
+  });
   it("leaves the Channels field out of list settings", () => {
     const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());

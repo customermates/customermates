@@ -1,3 +1,4 @@
+import { EventEnvelopeSchema } from "@/features/event/event-envelope";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 
 const MESSAGING_ENTITY_KIND: Record<string, RoutineTriggerEntityKind> = {
@@ -31,16 +32,12 @@ export function isRecordRemovalEvent(event: string): boolean {
 
 export function changedFieldsOf(eventData: unknown): string[] {
   const record = RecordDeliveryEnvelopeSchema.safeParse(eventData);
-  return record.success ? record.data.record.fields.map((field) => field.fieldId) : [];
+  return record.success ? record.data.data.record.fields.map((field) => field.fieldId) : [];
 }
 
 export function threadIdOf(eventData: unknown): string | null {
-  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return null;
-
-  const { payload } = eventData as { payload?: unknown };
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
-
-  const { threadId } = payload as { threadId?: unknown };
+  const envelope = EventEnvelopeSchema.safeParse(eventData);
+  const threadId = envelope.success ? envelope.data.data.threadId : null;
 
   return typeof threadId === "string" ? threadId : null;
 }

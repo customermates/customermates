@@ -18,7 +18,7 @@ async function createList(page: Page, name: string) {
   await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
-  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1)!;

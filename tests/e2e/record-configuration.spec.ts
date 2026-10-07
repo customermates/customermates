@@ -30,7 +30,7 @@ async function createList(page: Page, name: string) {
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill(name);
   await expect(dialog.getByRole("switch", { name: "Enable channels", exact: true })).toHaveCount(0);
-  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
@@ -190,7 +190,7 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await calculation.getByRole("button", { name: /^Input 2\b/ }).click();
   await calculation.getByRole("textbox", { name: "Fixed value", exact: true }).fill("2");
   await calculation.getByRole("button", { name: "Result", exact: true }).click();
-  await expect(calculation).toContainText("Budget × 2");
+  await expect(page.getByRole("dialog").locator("[data-calculation-sentence]")).toContainText("Budget × 2");
   await page.screenshot({ path: testInfo.outputPath("linear-calculation-editor.png"), animations: "disabled" });
   await applyConfiguration(page);
   const model = await readModel(database, companyId);
