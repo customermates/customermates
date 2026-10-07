@@ -3,9 +3,21 @@
 import { useTranslations } from "next-intl";
 
 import type { ConfigurationPreview } from "@/features/records/configuration.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+
+const ISSUE_MESSAGES = {
+  existing_values_incompatible: "RecordModel.existingValuesIncompatible",
+  saved_view_incompatible: "RecordModel.savedViewIncompatible",
+  detail_layout_incompatible: "RecordModel.detailLayoutIncompatible",
+  summary_approval_required: "RecordModel.summaryApprovalRequired",
+  deletion_requires_read_all: "RecordModel.deletionRequiresReadAll",
+  duplicate_list_name: "RecordModel.duplicateListName",
+  duplicate_field_name: "RecordModel.duplicateFieldName",
+  duplicate_option_label: "RecordModel.duplicateOptionLabel",
+  duplicate_relationship_label: "RecordModel.duplicateRelationshipLabel",
+} as const;
 
 export function RecordConfigurationPreview({
   preview,
@@ -13,16 +25,18 @@ export function RecordConfigurationPreview({
   renewal,
 }: {
   preview: ConfigurationPreview;
-  model: RecordModel;
+  model: RecordModelView;
   renewal?: { fieldIds: string[]; approved: boolean; disabled: boolean; onChange: (approved: boolean) => void };
 }) {
   const t = useTranslations();
   return (
     <div className="space-y-2 text-sm" role="status">
       <p className={preview.valid ? "font-medium" : "font-medium text-destructive"}>
-        {preview.valid
-          ? t("RecordModel.previewReady", { count: preview.affectedRecords })
-          : t("RecordModel.invalidConfiguration")}
+        {!preview.valid
+          ? t("RecordModel.invalidConfiguration")
+          : preview.affectedRecords === null
+            ? t("RecordModel.previewReadyHidden")
+            : t("RecordModel.previewReady", { count: preview.affectedRecords })}
       </p>
 
       {preview.dataValidation === "staged" && (
@@ -40,17 +54,7 @@ export function RecordConfigurationPreview({
               <li key={index}>
                 {label && <span className="font-medium">{label}: </span>}
 
-                {t(
-                  issue.code === "existing_values_incompatible"
-                    ? "RecordModel.existingValuesIncompatible"
-                    : issue.code === "saved_view_incompatible"
-                      ? "RecordModel.savedViewIncompatible"
-                      : issue.code === "detail_layout_incompatible"
-                        ? "RecordModel.detailLayoutIncompatible"
-                        : issue.code === "summary_approval_required"
-                          ? "RecordModel.summaryApprovalRequired"
-                          : "RecordModel.dependencyHelp",
-                )}
+                {t(ISSUE_MESSAGES[issue.code as keyof typeof ISSUE_MESSAGES] ?? "RecordModel.dependencyHelp")}
               </li>
             );
           })}

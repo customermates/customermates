@@ -9,7 +9,7 @@ import { useSearchParams } from "next/navigation";
 
 import { useAppForm } from "@/components/forms/form-context";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { cn } from "@/core/utils/cn";
 
 export type EditorTab = {
@@ -82,44 +82,27 @@ export const EditorTabs = observer(function EditorTabs({
   };
 
   return (
-    <Tabs className={cn("min-h-0 flex-1 gap-0", className)} value={active} onValueChange={select}>
-      <TabsList
-        aria-label={label}
-        className="h-13 w-full shrink-0 justify-start gap-0 overflow-x-auto overflow-y-hidden rounded-none border-b p-0 group-data-[orientation=horizontal]/tabs:h-13"
-        data-editor-tabs=""
-        variant="line"
-      >
-        {tabs.map((tab) => {
-          const invalid = tab.fields?.some((field) => {
-            const errors = form?.getError(field);
-            return Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
-          });
-          return (
-            <TabsTrigger
-              key={tab.id}
-              className="h-full min-w-max shrink-0 rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:bottom-0"
-              data-invalid={invalid || undefined}
-              value={tab.id}
-            >
-              {tab.label}
-
-              {invalid && (
-                <>
-                  <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-destructive" data-tab-error-dot="" />
-
-                  <span className="sr-only">{t("EditorTabs.invalid")}</span>
-                </>
-              )}
-            </TabsTrigger>
-          );
-        })}
-      </TabsList>
-
+    <SegmentedControl
+      className={cn("min-h-0 flex-1 gap-0", className)}
+      items={tabs.map((tab) => ({
+        value: tab.id,
+        label: tab.label,
+        invalid: tab.fields?.some((field) => {
+          const errors = form?.getError(field);
+          return Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+        }),
+        invalidLabel: t("EditorTabs.invalid"),
+      }))}
+      label={label ?? ""}
+      listClassName="mx-6 mt-4 mb-2 w-auto"
+      value={active}
+      onValueChange={select}
+    >
       {tabs.map((tab) => (
-        <TabsContent key={tab.id} className={cn("m-0 min-h-0", contentClassName)} value={tab.id}>
+        <SegmentedControlPanel key={tab.id} className={cn("m-0", contentClassName)} value={tab.id}>
           {tab.content}
-        </TabsContent>
+        </SegmentedControlPanel>
       ))}
-    </Tabs>
+    </SegmentedControl>
   );
 });

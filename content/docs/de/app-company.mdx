@@ -282,7 +282,7 @@ Bei **Inbox-Nachrichten** verbindet **Erstellen** Konten, sendet E-Mails und Cha
 
 Einen neuen Webhook, eine neue Routine oder eine neue Rolle zu speichern erfordert **Erstellen**, einen bestehenden Eintrag zu speichern **Bearbeiten**. Rollen, die es vor diesen Spalten schon gab, wurden ohne Rechtegewinn oder Rechteverlust übernommen: Eine Zeile, die die Rolle vorher verwalten durfte, hat jetzt jede angebotene Checkbox angehakt.
 
-Delegierte Datenmodell-Verwalter können beim Anlegen eines Typs genehmigte Zugriffsvorlagen verwenden. Zusätzliche Rechte zu vergeben erfordert **Benutzer & Rollen** **Bearbeiten**. Auf Self-Hosted-Installationen sind Inbox-Nachrichten und Routinen ausgeblendet. Das Ändern von Rollennamen oder Datensatzrechten erhält unveränderte Systemberechtigungen.
+Delegierte Datenmodell-Verwalter können eine Zugriffsvorlage nur beim Anlegen eines neuen Typs anwenden. **Bearbeiten** auf **Benutzer & Rollen** legt die Vorlagen fest, und eine Vorlage darf die eigene Rolle des Anlegenden enthalten. Zusätzliche Rechte zu vergeben erfordert **Benutzer & Rollen** **Bearbeiten**. Auf Self-Hosted-Installationen sind Inbox-Nachrichten und Routinen ausgeblendet. Das Ändern von Rollennamen oder Datensatzrechten erhält unveränderte Systemberechtigungen.
 
 **Link:** `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`, danach `highlight_element` mit `company-roles-add` für eine neue Rolle; bei geöffnetem Editor zeigen `role-modal-save` und `role-modal-reset` auf **Speichern** und **Zurücksetzen** und `role-modal-delete` auf **Löschen**, wo es angeboten wird. Die Felder und die Berechtigungszeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 

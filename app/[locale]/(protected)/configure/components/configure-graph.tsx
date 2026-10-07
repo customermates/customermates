@@ -3,7 +3,7 @@
 import "@xyflow/react/dist/style.css";
 
 import type { Edge, EdgeProps, Node, NodeProps } from "@xyflow/react";
-import type { RecordField, RecordModel, RecordRelationship } from "@/features/records/record-model.schema";
+import type { RecordField, RecordModelView, RecordRelationship } from "@/features/records/record-model.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 import type {
   ConfigureGraphCatalog,
@@ -58,6 +58,7 @@ import {
   GRAPH_VISIBLE_FIELDS,
 } from "./configure-graph-layout";
 import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
+import { isResolvedField } from "./configure-model";
 
 export type ConfigureGraphAccounts =
   | { state: "available"; accounts: ConfigureGraphSource[] }
@@ -65,7 +66,7 @@ export type ConfigureGraphAccounts =
   | { state: "unavailable" };
 
 type Props = {
-  model: RecordModel;
+  model: RecordModelView;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
   layout: ConfigureGraphLayout["positions"] | null;
@@ -200,7 +201,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
                     data-configure-graph-field={field.id}
                     disabled={disabled || !canManage}
                     type="button"
-                    onClick={() => onEditField(list.type.id, field)}
+                    onClick={() => isResolvedField(field) && onEditField(list.type.id, field)}
                   >
                     {calculated ? (
                       <Sigma aria-hidden className="size-3.5 shrink-0 text-primary" />

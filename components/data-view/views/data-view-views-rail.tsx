@@ -32,10 +32,13 @@ import { VIEW_META_NAME_INPUT_ID, ViewMetaOverlay } from "./view-meta-overlay";
 import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
 import { surfaceKeyOf, viewHref } from "./view-actions";
 import { useRovingFocus } from "./use-roving-focus";
-import { useViewCommands } from "./use-view-commands";
+import { type ViewDeleteNotice, useViewCommands } from "./use-view-commands";
 import { useViewAi } from "./use-view-ai";
 
 type Props<E extends HasId> = {
+  allLabel?: string;
+  allowDuplicate?: boolean;
+  deleteNotice?: (view: DataViewChipDto) => ViewDeleteNotice;
   joinsTopBar?: boolean;
   detailParam?: string;
   store: BaseDataViewStore<E>;
@@ -53,6 +56,9 @@ function isPlainClick(event: MouseEvent<HTMLAnchorElement>): boolean {
 }
 
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
+  allLabel,
+  allowDuplicate = true,
+  deleteNotice,
   joinsTopBar = false,
   detailParam,
   store,
@@ -71,6 +77,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
   const commands = useViewCommands({
     closeMeta: () => setMeta(null),
+    deleteNotice,
     openMeta: setMeta,
     pathname,
     store,
@@ -88,18 +95,18 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   };
   const latestSelect = useRef(selectView);
   latestSelect.current = selectView;
-  const allLabel = t("DataView.views.all");
+  const allName = allLabel ?? t("DataView.views.all");
 
   useEffect(() => {
     if (!joinsTopBar || !offersViews) return;
     const surface = {
-      options: () => [{ id: ALL_VIEW_KEY, name: allLabel }, ...sortViewsByPosition(store.views)],
+      options: () => [{ id: ALL_VIEW_KEY, name: allName }, ...sortViewsByPosition(store.views)],
       activeViewKey: () => store.activeViewKey,
       select: (viewKey: string) => latestSelect.current(viewKey),
     };
     viewPickerStore.register(surface);
     return () => viewPickerStore.unregister(surface);
-  }, [allLabel, joinsTopBar, offersViews, store, viewPickerStore]);
+  }, [allName, joinsTopBar, offersViews, store, viewPickerStore]);
 
   const chips = orderChips(store.views, store.activeViewKey);
   const activeView = store.views.find((view) => view.id === store.activeViewKey);
@@ -108,30 +115,32 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
   if (!offersViews) return null;
 
-  const activeName = activeView?.name ?? t("DataView.views.all");
+  const activeName = activeView?.name ?? allName;
   const ordered = sortViewsByPosition(store.views);
   const isDrafting = meta !== null && meta.mode !== "edit";
   const menuTarget: DataViewChipDto = activeView ?? {
     id: ALL_VIEW_KEY,
-    name: t("DataView.views.all"),
+    name: allName,
     position: -1,
     state: store.allViewState,
   };
-  const menuItems = activeView
-    ? viewMenuItems({
-        index: ordered.findIndex((candidate) => candidate.id === activeView.id),
-        total: ordered.length,
-      })
-    : allViewMenuItems();
+  const menuItems = (
+    activeView
+      ? viewMenuItems({
+          index: ordered.findIndex((candidate) => candidate.id === activeView.id),
+          total: ordered.length,
+        })
+      : allViewMenuItems()
+  ).filter((item) => allowDuplicate || item.id !== "duplicate");
 
   const previewFor = (name: string, isActive: boolean): ReactNode => (
     <>
       <span className="block font-medium">{name}</span>
 
-      {isActive && (
+      {isActive && store.pagination && (
         <span className="block text-[11px] text-muted-foreground">
           {t("DataView.views.recordCount", {
-            count: store.pagination?.total ?? 0,
+            count: store.pagination.total ?? 0,
           })}
         </span>
       )}
@@ -190,8 +199,8 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                     )}
                     id="global-data-views-all"
                     isActive={chip.isActive}
-                    label={t("DataView.views.all")}
-                    preview={previewFor(t("DataView.views.all"), chip.isActive)}
+                    label={allName}
+                    preview={previewFor(allName, chip.isActive)}
                     tabIndex={tabIndexAt(index)}
                     onKeyDown={onKeyDownAt(index)}
                     onSelect={onChipClick(ALL_VIEW_KEY)}

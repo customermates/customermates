@@ -681,7 +681,6 @@
       "archivedChats": "Chat archiviate",
       "assistantWorking": "Mate sta rispondendo",
       "back": "Torna alla chat",
-      "cancel": "Annulla",
       "chats": "Chat",
       "copyCode": "Copia codice",
       "copyLink": "Copia link",
@@ -706,6 +705,7 @@
       "loadingOlderMessages": "Caricamento dei messaggi precedenti",
       "loadMoreChats": "Carica altre chat",
       "loadOlderMessages": "Carica messaggi precedenti",
+      "moreActions": "Altre azioni per {name}",
       "newChat": "Nuova chat",
       "noChats": "Ancora nessuna chat",
       "noChatsBody": "Avvia una chat per ritrovare in seguito le domande e il lavoro completato.",
@@ -1706,6 +1706,7 @@
       "title": "Attività recenti"
     },
     "addCard": "Aggiungi widget",
+    "deleteView": "Eliminare «{name}»? {count, plural, =0 {Non contiene widget.} one {Il suo widget passa in {main}:} other {I suoi # widget passano in {main}:}}",
     "displayTypeRequirements": {
       "grouping": "Scegli un raggruppamento per classificare i gruppi.",
       "noGrouping": "Imposta Raggruppa per su Nessun raggruppamento per mostrare un numero.",
@@ -1724,6 +1725,7 @@
       "verticalBarChart": "Grafico a barre verticali",
       "verticalBarChartWithLabels": "Grafico a barre verticali con etichette"
     },
+    "mainView": "Principale",
     "widgetEditor": {
       "addTitle": "Aggiungi widget",
       "appearance": {
@@ -1893,6 +1895,7 @@
       "moveRight": "Sposta a destra",
       "name": "Nome",
       "namePlaceholder": "Nome della vista",
+      "nameRequired": "Inserisci un nome per la vista.",
       "pickerEmpty": "Nessuna vista corrispondente",
       "pickerPlaceholder": "Trova una vista…",
       "pickerTitle": "Cambia vista",
@@ -2764,6 +2767,7 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "Impostare l'allocazione Enterprise di {name} su {value} crediti per utente? Si applica all'intero spazio di lavoro.",
+      "changes": "Salvare queste modifiche per {name}? Si applicano all'intera area di lavoro.",
       "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
       "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
       "tags": "Impostare le etichette di {name} su {value}? Si applica all'intera area di lavoro.",
@@ -2889,11 +2893,8 @@
     },
     "delete": {
       "action": "Elimina spazio di lavoro",
-      "confirmLabel": "Digita {name} per confermare",
-      "confirmMessage": "{name} e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}} saranno eliminati definitivamente. L'operazione non è reversibile.",
       "confirmTitle": "Elimina definitivamente questo spazio di lavoro",
       "reasonLabel": "Motivo",
-      "title": "Elimina questo spazio di lavoro",
       "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. L'operazione non è reversibile."
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
@@ -3072,6 +3073,7 @@
     "configure": "Configura",
     "connectionType": "Collegamento",
     "constant": "Valore fisso",
+    "contactFullName": "Nome completo",
     "createdAt": "Creato il",
     "createList": "Crea elenco",
     "currency": "Valuta",
@@ -3093,6 +3095,7 @@
     "deletionCalculations": "Calcoli che potrebbero essere interessati: {fields}.",
     "deletionLinks": "Collegamenti eliminati: {count}.",
     "deletionRecords": "Verranno eliminati: {records}.",
+    "deletionRequiresReadAll": "L'eliminazione definitiva richiede l'accesso in lettura a tutti i suoi record. Chiedi a chi può leggere tutti i record o a un amministratore.",
     "deletionRestrictedLinks": "Il numero di collegamenti è nascosto perché alcuni record collegati hanno un accesso limitato.",
     "dependencyHelp": "Risolvi le dipendenze interessate prima di applicare questa modifica.",
     "descending": "Decrescente",
@@ -3102,6 +3105,10 @@
     "detailLayoutSaveFailed": "Impossibile salvare le modifiche al layout.",
     "directRelationship": "Relazione diretta",
     "disabled": "Disattivo",
+    "duplicateFieldName": "Un altro campo di questa lista usa già questo nome, compresi i campi eliminati di recente. Scegli un altro nome.",
+    "duplicateListName": "Un'altra lista usa già questo nome. I nomi delle liste devono essere univoci, senza distinzione tra maiuscole, accenti e spazi in eccesso.",
+    "duplicateOptionLabel": "Due opzioni di questo campo hanno la stessa etichetta. Le etichette delle opzioni devono essere univoche.",
+    "duplicateRelationshipLabel": "Un'altra relazione di questa lista usa già questa etichetta. Scegli un'altra etichetta.",
     "edit": "Modifica",
     "editField": "Modifica campo",
     "editValue": "Modifica {field}",
@@ -3329,6 +3336,7 @@
       "fieldMessage": "Questo elimina definitivamente il campo e tutti i suoi valori salvati. L’operazione non può essere annullata.",
       "fieldTitle": "Eliminare {name} definitivamente?",
       "grants": "{count, plural, one {# permesso di ruolo} other {# permessi di ruolo}}",
+      "hiddenRecords": "Contiene record che non puoi vedere.",
       "identifiers": "{count, plural, one {# identificatore} other {# identificatori}} su {records, plural, one {# record} other {# record}}",
       "links": "{count, plural, one {# collegamento tra record} other {# collegamenti tra record}}",
       "listMessage": "Questo elimina definitivamente la lista con i suoi campi, record, collegamenti, relazioni, viste salvate e permessi di ruolo. L’operazione non può essere annullata.",
@@ -3336,6 +3344,7 @@
       "nothingStored": "Nessun dato salvato lo utilizza.",
       "records": "{count, plural, one {# record} other {# record}}",
       "relationships": "{count, plural, one {# relazione} other {# relazioni}}",
+      "requiresReadAll": "{name} contiene ancora record che non puoi vedere. Solo chi può leggere tutti i suoi record, o un amministratore, può eliminarlo definitivamente.",
       "values": "{count, plural, one {# valore salvato} other {# valori salvati}}",
       "views": "{count, plural, one {# vista salvata o layout personale} other {# viste salvate o layout personali}}"
     },
@@ -3343,6 +3352,7 @@
     "pluralDescription": "Mostrato nella navigazione e nei titoli delle liste. Suggerito dal nome finché non lo modifichi.",
     "pluralName": "Nome plurale",
     "previewReady": "Pronto per l’applicazione. Verranno verificati {count} record.",
+    "previewReadyHidden": "Pronto da applicare. Include record che non puoi vedere.",
     "priceModes": {
       "live": "Prezzo attuale",
       "saved": "Prezzo salvato"
@@ -3351,7 +3361,7 @@
     "probability": "Probabilità %",
     "progressUnavailable": "Impossibile caricare l’avanzamento. La bozza viene conservata.",
     "publishSummary": "Pubblica riepilogo",
-    "publishSummaryHelp": "I membri che possono leggere questo record vedono questo valore anche se i dati collegati sono privati. Salvare approva i dati usati in questo calcolo.",
+    "publishSummaryHelp": "I membri che possono leggere questo record vedono questo valore anche se i dati collegati sono privati. Salvare approva i dati usati in questo calcolo. Un riepilogo di un singolo valore o un totale su un solo record mostra esattamente quel valore.",
     "rangeEnd": "A",
     "rangeStart": "Da",
     "record": "Record",
