@@ -5,7 +5,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const ENFORCED = true;
 
@@ -1271,7 +1271,7 @@ describe("versioned REST OpenAPI coverage", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents every route handler in the OpenAPI spec", () => {
     const undocumented = undocumentedRouteViolations(routeOperations(), specOperations());
     expect(undocumented).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has a route handler for every spec operation", () => {
     const orphaned = orphanedSpecViolations(routeOperations(), specOperations());
