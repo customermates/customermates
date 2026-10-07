@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 test("edits identity channels in the generic drawer and searches persisted channels", async ({
@@ -37,7 +38,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
     animations: "disabled",
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Identity Person", exact: true }).click();
+  await openRecordDetails(page, "Identity Person");
   await expect(dialog.getByText("person@example.test", { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "Unlink Email", exact: false }).click();
   await dialog.getByRole("button", { name: "Reset", exact: true }).click();

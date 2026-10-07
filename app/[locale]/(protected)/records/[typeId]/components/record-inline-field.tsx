@@ -45,7 +45,7 @@ export function canEditInline(store: RecordsStore, record: RecordRow, field: Rec
 }
 
 export function isCalculatedForEditor(store: RecordsStore, record: RecordRow, field: RecordField) {
-  return store.canUpdateRecord(record) && !isRecordFieldWritable(field);
+  return store.canUpdateRecord(record) && !isRecordFieldWritable(field) && field.id !== store.type?.primaryFieldId;
 }
 
 function latestRow(records: RecordsStore, record: RecordRow) {

@@ -10,6 +10,7 @@ import {
   setShowArchivedParts,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { nativeResponseCheckpointState, observeNativeResponse } from "./native-response-checkpoint";
 import { presetId } from "../../features/records/crm-preset";
@@ -244,7 +245,7 @@ test("paginates and retries record and widget history, restores a personal timel
   );
   await expect(linkedHistory.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
   await expect(linkedHistory.locator("ol > li")).toHaveCount(0);
-  await page.getByRole("button", { name, exact: true }).click();
+  await openRecordDetails(page, name);
   const drawer = page.getByRole("dialog", { name: "Service", exact: true });
   await expect(drawer).toBeVisible();
   const parentUrl = page.url();
@@ -1184,7 +1185,7 @@ test("retains readable list content after a failed refresh and retries the empty
     );
   const before = (await values()).rows;
   await page.goto(`/en/records/${service.typeId}`);
-  await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   const search = page.locator("#records-search");
   if ((page.viewportSize()?.width ?? 0) < 1024)
     await page.getByRole("button", { name: english.Common.table.search, exact: true }).click();
@@ -1221,7 +1222,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await search.fill("retained-response-failure");
   await expect.poll(() => evidence.faults.length).toBe(1);
   await expect(page.locator('[data-page-state="loading"]')).toHaveCount(0);
-  await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
   await expect(search).toHaveValue("retained-response-failure");
   await search.fill("completed-empty-search");
@@ -1230,7 +1231,7 @@ test("retains readable list content after a failed refresh and retries the empty
       exact: true,
     }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
   const surfaceKey = recordSurfaceKey(service.typeId);
   const saveAction = serverActionIds("app/actions.ts", "saveDataViewStateAction");
@@ -1269,7 +1270,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(error.getByRole("heading", { name: english.ErrorCard.title, exact: true })).toBeVisible();
   await expect(search).toHaveValue(name);
   await error.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
-  await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   await expect(error).toHaveCount(0);
   expect(matchingReads).toBe(2);
   expect((await values()).rows).toEqual(before);
@@ -1304,7 +1305,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await page.unrouteAll({ behavior: "wait" });
   await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
   await page.reload();
-  await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   await expect(search).toHaveValue(name);
   await page.screenshot({
     path: testInfo.outputPath("recovered-list-error-state.png"),
@@ -1457,7 +1458,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   for (const name of ["Recovery service", "Recovery second"]) {
     await page
       .getByRole("row")
-      .filter({ has: page.getByRole("button", { name, exact: true }) })
+      .filter({ has: page.getByRole("link", { name, exact: true }) })
       .getByRole("checkbox")
       .check();
   }
