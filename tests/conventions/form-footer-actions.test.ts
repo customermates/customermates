@@ -182,8 +182,8 @@ const NOT_YET_MIGRATED: Record<string, Rule[]> = {
   ],
   "app/components/navigation/sidebar-customize.tsx": ["overlay-footer"],
   "app/[locale]/(protected)/configure/components/activity-path-modal.tsx": ["archive-switch"],
-  "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["save-label", "legacy-footer"],
-  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["save-label", "legacy-footer"],
+  "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["legacy-footer"],
+  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["legacy-footer"],
   "app/[locale]/(protected)/configure/components/field-modal.tsx": ["archive-switch"],
   "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": [
     "save-label",
@@ -251,7 +251,6 @@ const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>([
   "Dashboard.widgetEditor.save",
   "MassActions.apply",
   "MassActions.update",
-  "RecordModel.apply",
 ]);
 
 describe("footer actions follow one shared component (design rules 30, 31, 35)", () => {
