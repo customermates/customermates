@@ -31,7 +31,12 @@ import type { RecordRevisionChange } from "./record-revision.schema";
 import type { RecordEventSubscriptionDefinition } from "./record-event-subscription.schema";
 import type { ConfigurationPreview } from "./configuration.schema";
 
-export type RecordDefinitionDeletion = { typeIds: string[]; fieldIds: string[]; relationIds: string[] };
+export type RecordDefinitionDeletion = {
+  typeIds: string[];
+  fieldIds: string[];
+  relationIds: string[];
+  channelTypeIds: string[];
+};
 
 export type StoredRecord = CrmRecord & {
   values: RecordValue[];

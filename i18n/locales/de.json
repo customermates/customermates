@@ -3015,6 +3015,14 @@
       "oneToMany": "Eins zu viele",
       "oneToOne": "Eins zu eins"
     },
+    "channelsField": {
+      "deleted": "Gelöscht",
+      "deleteMessage": "Nachrichten werden den Datensätzen dieser Liste nicht mehr zugeordnet. E-Mail-Adressen, Telefonnummern und soziale Konten bleiben erhalten: Stelle das Kanäle-Feld wieder her, um sie erneut zuzuordnen, oder lösche es endgültig.",
+      "deleteTitle": "Kanäle-Feld löschen?",
+      "detail": "E-Mail-Adressen, Telefonnummern und soziale Konten, über die Nachrichten Datensätzen zugeordnet werden",
+      "restore": "Wiederherstellen",
+      "short": "E-Mail, Telefon, Social"
+    },
     "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
     "color": "Farbe",
     "conditionIf": "Bedingung",
@@ -3058,7 +3066,6 @@
     "editValue": "{field} bearbeiten",
     "empty": "Noch keine Datensätze",
     "emptyDescription": "Erstelle deinen ersten Datensatz.",
-    "enableChannels": "Kanäle aktivieren",
     "enabled": "An",
     "existingValuesIncompatible": "Vorhandene Werte passen nicht zu dieser Definition. Behalte einen kompatiblen Typ oder aktualisiere zuerst diese Werte.",
     "field": "Feld",
@@ -3275,6 +3282,7 @@
     "optionAttribute": "Optionsattribut",
     "options": "Optionen",
     "permanentDeletion": {
+      "channelsMessage": "Dadurch werden das Kanäle-Feld und alle E-Mail-Adressen, Telefonnummern und sozialen Konten der Datensätze dieser Liste endgültig gelöscht. Nachrichten werden diesen Datensätzen nicht mehr zugeordnet. Das kann nicht rückgängig gemacht werden.",
       "deleteField": "Feld endgültig löschen",
       "deleteList": "Liste endgültig löschen",
       "dependentField": "{field} in {list} hängt noch davon ab. Lösche oder ändere zuerst dieses Feld.",
@@ -3282,6 +3290,7 @@
       "fieldMessage": "Dadurch werden das Feld und alle gespeicherten Werte endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
       "fieldTitle": "{name} endgültig löschen?",
       "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
+      "identifiers": "{count, plural, one {# Kennung} other {# Kennungen}} an {records, plural, one {# Datensatz} other {# Datensätzen}}",
       "links": "{count, plural, one {# Verknüpfung zwischen Datensätzen} other {# Verknüpfungen zwischen Datensätzen}}",
       "listMessage": "Dadurch werden die Liste mit ihren Feldern, Datensätzen, Verknüpfungen, Beziehungen, gespeicherten Ansichten und Rollenrechten endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
       "listTitle": "{name} endgültig löschen?",
