@@ -275,7 +275,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
   const name = `Removed path ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, name);
   await addFromConfigure(page, "Relationship");
-  await select(page, "targetTypeId", name);
+  await select(page, "targetTypeId", suggestListPlural(name, "en"));
   await page.getByRole("dialog").locator("#sourceLabel").fill("Related entries");
   await page.getByRole("dialog").locator("#targetLabel").fill("Related from");
   await apply(page);
