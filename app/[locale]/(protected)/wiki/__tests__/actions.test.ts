@@ -51,7 +51,7 @@ describe("startWikiHomepageSetupAction", () => {
     mocks.start.mockResolvedValue({
       ok: false,
       error: createZodError("Mate could not start the Wiki setup.", ["homepage"], {
-        error: CustomErrorCode.wikiHomepageSetupStartFailed,
+        error: CustomErrorCode.generic,
       }),
     });
 

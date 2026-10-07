@@ -32,6 +32,7 @@ import { visibleColumnDefs } from "./visible-column-defs";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
+import { isInteractiveClick } from "./is-interactive-click";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 import { BoardGroupingPrompt } from "./board-grouping-prompt";
 import { DataCardBody } from "./data-card-body";
@@ -109,8 +110,9 @@ function KanbanCard({
       data-item-id={itemId}
       style={style}
       onClick={(e) => {
-        if (!isDragging && !transform) onClick?.();
         e.stopPropagation();
+        if (isInteractiveClick(e)) return;
+        if (!isDragging && !transform) onClick?.();
       }}
       onKeyDown={(event) => {
         const opens =

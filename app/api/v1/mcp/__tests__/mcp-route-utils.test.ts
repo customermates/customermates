@@ -27,8 +27,8 @@ const expectedFailureTool: McpTool = {
   outputSchema: z.object({ value: z.string() }),
   execute: () =>
     mcpInteractorFailure(
-      createZodError("Service missing", ["id"], {
-        error: CustomErrorCode.serviceNotFound,
+      createZodError("Webhook missing", ["id"], {
+        error: CustomErrorCode.webhookNotFound,
       }),
     ),
 };
@@ -133,8 +133,8 @@ describe("public MCP execution boundary", () => {
           kind: "not_found",
           issues: [
             {
-              customCode: "serviceNotFound",
-              message: "Service missing",
+              customCode: "webhookNotFound",
+              message: "Webhook missing",
               path: ["id"],
             },
           ],

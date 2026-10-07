@@ -22,6 +22,8 @@ const child = spawn(
     hostname,
     "--port",
     new URL(environment.baseUrl).port,
+    // Node's 5 s idle close races Playwright request contexts reusing a keep-alive socket ("socket hang up").
+    ...(mode === "start" ? ["--keepAliveTimeout", "30000"] : []),
   ],
   {
     stdio: "inherit",

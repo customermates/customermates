@@ -147,9 +147,9 @@ describe("agent turn terminal classification", () => {
   it("accepts only renderable terminal codes and known resource names", () => {
     expect(isAgentTurnTerminalCode("completed")).toBe(true);
     expect(isAgentTurnTerminalCode("arbitrary-provider-code")).toBe(false);
-    expect(areAgentTurnAffectedResources(["contacts", "widgets"])).toBe(true);
-    expect(areAgentTurnAffectedResources(["contacts", "contacts"])).toBe(false);
-    expect(areAgentTurnAffectedResources(["contacts", "private-table"])).toBe(false);
+    expect(areAgentTurnAffectedResources(["wiki", "widgets"])).toBe(true);
+    expect(areAgentTurnAffectedResources(["wiki", "wiki"])).toBe(false);
+    expect(areAgentTurnAffectedResources(["wiki", "private-table"])).toBe(false);
   });
 
   it("accepts exactly the public terminal stop-reason contract", () => {

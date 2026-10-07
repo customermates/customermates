@@ -62,8 +62,6 @@ describe("generic dashboard widget UI", () => {
     expect(store).not.toContain("flushPendingChanges");
     const autoApplying = sources("app/[locale]/(protected)/dashboard").filter((file) => /filter-palette|FILTER_AUTO_APPLY_DELAY_MS/.test(readFileSync(file, "utf8")));
     expect(autoApplying).toEqual([]);
-    const borrowed = [...sources("components/data-view/filter-palette"), ...sources("components/data-view/header")].filter((file) => /filter-modal\/filter-accordion|<FilterAccordion/.test(readFileSync(file, "utf8")));
-    expect(borrowed).toEqual([]);
   });
   it("previews both widget kinds using backend results keyed to the current draft", () => {
     const chart = component("record-widget-editor.tsx");

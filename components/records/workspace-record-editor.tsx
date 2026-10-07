@@ -13,7 +13,7 @@ export const WorkspaceRecordEditor = observer(function WorkspaceRecordEditor() {
   return (
     <>
       <Sheet open={store.isOpening} onOpenChange={(open) => !open && store.close()}>
-        <SheetContent aria-describedby={undefined} className="w-full gap-0 sm:max-w-[640px]" side="left">
+        <SheetContent aria-describedby={undefined} className="w-full gap-0 bg-background sm:max-w-[640px]" side="left">
           <SheetTitle>{t("PageState.loading")}</SheetTitle>
 
           <SheetBody className="flex items-center gap-2 px-6 text-sm" role="status">

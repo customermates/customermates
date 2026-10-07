@@ -68,10 +68,14 @@ function consoleCalls(source: ts.SourceFile): ConsoleCall[] {
   return calls;
 }
 
-function consoleCallsIn(path: string): ConsoleCall[] {
-  const text = readFileSync(path, "utf8");
+function consoleCallsInText(path: string, text: string): ConsoleCall[] {
+  if (!text.includes("console") && !text.includes("\\")) return [];
   const kind = path.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
   return consoleCalls(ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, kind));
+}
+
+function consoleCallsIn(path: string): ConsoleCall[] {
+  return consoleCallsInText(path, readFileSync(path, "utf8"));
 }
 
 function excluded(file: string): boolean {
@@ -142,5 +146,105 @@ describe("runtime console boundary", () => {
       { method: "log", line: 3 },
       { method: "warn", line: 4 },
     ]);
+  });
+
+  it.each([
+    {
+      name: "direct access",
+      path: "direct.ts",
+      text: 'console.warn("public");',
+      expected: [{ method: "warn", line: 1 }],
+    },
+    {
+      name: "escaped console identifier",
+      path: "escaped.ts",
+      text: String.raw`\u0063onsole.warn("public");`,
+      expected: [{ method: "warn", line: 1 }],
+    },
+    {
+      name: "braced escaped console identifier",
+      path: "braced.ts",
+      text: String.raw`\u{63}onsole.warn("public");`,
+      expected: [{ method: "warn", line: 1 }],
+    },
+    {
+      name: "hex escaped qualified string property",
+      path: "qualified-hex.ts",
+      text: String.raw`globalThis['\x63onsole'].error("public");`,
+      expected: [{ method: "error", line: 1 }],
+    },
+    {
+      name: "unicode escaped qualified string property",
+      path: "qualified-unicode.ts",
+      text: String.raw`window['\u0063onsole'].warn("public");`,
+      expected: [{ method: "warn", line: 1 }],
+    },
+    {
+      name: "qualified template property",
+      path: "template-element.ts",
+      text: 'self[`console`].warn("public");',
+      expected: [{ method: "warn", line: 1 }],
+    },
+    {
+      name: "escaped qualified template property",
+      path: "template-escaped.ts",
+      text: "globalThis[`" + String.raw`\x63onsole` + '`].warn("public");',
+      expected: [{ method: "warn", line: 1 }],
+    },
+    {
+      name: "escaped qualified property identifier",
+      path: "escaped-property.ts",
+      text: String.raw`globalThis.\u0063onsole.error("public");`,
+      expected: [{ method: "error", line: 1 }],
+    },
+    {
+      name: "escaped global owner and console property",
+      path: "qualified-root-escaped.ts",
+      text: String.raw`\u0067lobalThis.\u0063onsole.error("public");`,
+      expected: [{ method: "error", line: 1 }],
+    },
+    {
+      name: "escaped console access in TSX",
+      path: "tsx.tsx",
+      text: String.raw`const view = <button onClick={() => \u0063onsole.warn('public')}>public</button>;`,
+      expected: [{ method: "warn", line: 1 }],
+    },
+    {
+      name: "escaped console access in template interpolation",
+      path: "template-interpolation.ts",
+      text: 'const title = `public${' + String.raw`\u0063onsole.warn("public")` + '}`;',
+      expected: [{ method: "warn", line: 1 }],
+    },
+    {
+      name: "console text in a comment",
+      path: "comment.ts",
+      text: '// console.warn("public");',
+      expected: [],
+    },
+    {
+      name: "console text in a string",
+      path: "string.ts",
+      text: 'const title = "console";',
+      expected: [],
+    },
+    {
+      name: "backslash without console access",
+      path: "regex.ts",
+      text: String.raw`const expression = /\d/;`,
+      expected: [],
+    },
+    {
+      name: "source without console text or backslashes",
+      path: "no-console.ts",
+      text: "const value = 42; export { value };",
+      expected: [],
+    },
+  ])("preserves unfiltered AST detection for $name", ({ path, text, expected }) => {
+    const kind = path.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+    const unfiltered = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, kind);
+    expect(Reflect.get(unfiltered, "parseDiagnostics")).toEqual([]);
+    expect(consoleCalls(unfiltered)).toEqual(expected);
+    expect(consoleCallsInText(path, text)).toEqual(expected);
+    expect(consoleCallsInText(path, text)).toEqual(consoleCalls(unfiltered));
   });
 });
