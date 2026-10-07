@@ -39,7 +39,7 @@ async function withTemporaryDatabase(fn: (prisma: PrismaClient, client: Client) 
     for (const name of migrations)
       await client.query(readFileSync(join(migrationsRoot, name, "migration.sql"), "utf8"));
     prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: isolatedUrl.toString() }) });
-    await prisma.company.create({ data: { id: SEED_IDS.company, currency: "eur" } });
+    await prisma.company.create({ data: { id: SEED_IDS.company } });
     await fn(prisma, client);
   } finally {
     await prisma?.$disconnect();
@@ -67,7 +67,7 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
       const ownNote = await prisma.wikiPage.create({
         data: { companyId: SEED_IDS.company, title: "My team notes", markdown: "Keep our own notes." },
       });
-      const otherCompany = await prisma.company.create({ data: { currency: "eur" } });
+      const otherCompany = await prisma.company.create({ data: {} });
       const otherPage = await prisma.wikiPage.create({
         data: {
           companyId: otherCompany.id,
@@ -140,7 +140,7 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
         data: { title: "Edited fixture" },
       });
       await prisma.wikiPage.delete({ where: { id: SYNTHETIC_WIKI_PAGE_IDS.voice } });
-      const otherCompany = await prisma.company.create({ data: { currency: "eur" } });
+      const otherCompany = await prisma.company.create({ data: {} });
       await prisma.wikiPage.create({
         data: {
           id: SYNTHETIC_WIKI_PAGE_IDS.voice,

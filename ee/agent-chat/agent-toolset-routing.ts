@@ -29,7 +29,7 @@ export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
   widgets: "dashboard widgets",
   webhooks: "webhooks and their deliveries",
   routines: "routines: scheduled or event-driven automations",
-  admin: "team members, roles, record access, workspace settings and profile",
+  admin: "team members, roles, record access and profile",
 };
 
 export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCode | "any", readonly string[]>> = {
@@ -45,11 +45,12 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "lookup field",
       "weighted pipeline",
       "saved pricing",
+      "currency",
     ],
-    de: ["datenmodell", "datensatztyp", "berechnetes feld"],
-    es: ["modelo de datos"],
-    fr: ["modèle de données"],
-    it: ["modello dati"],
+    de: ["datenmodell", "datensatztyp", "berechnetes feld", "währung"],
+    es: ["modelo de datos", "moneda"],
+    fr: ["modèle de données", "devise"],
+    it: ["modello dati", "valuta"],
   },
   views: {
     any: ["kanban"],
@@ -240,18 +241,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
   },
   admin: {
     any: ["avatar"],
-    en: [
-      "team member",
-      "teammate",
-      "invite",
-      "role",
-      "permission",
-      "rename",
-      "currency",
-      "workspace setting",
-      "my name",
-    ],
-    de: ["teammitglied", "einladen", "rolle", "berechtigung", "umbenennen", "währung", "einstellung"],
+    en: ["team member", "teammate", "invite", "role", "permission", "rename", "workspace setting", "my name"],
+    de: ["teammitglied", "einladen", "rolle", "berechtigung", "umbenennen", "einstellung"],
     es: [
       "miembro del equipo",
       "invita",
@@ -259,12 +250,11 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "permiso",
       "cambiar el nombre",
       "renombrar",
-      "moneda",
       "configuración",
       "mi nombre",
     ],
-    fr: ["membre de l'équipe", "inviter", "rôle", "autorisation", "renommer", "devise", "paramètres", "mon nom"],
-    it: ["membro del team", "invita", "ruolo", "permesso", "rinominare", "valuta", "impostazioni", "il mio nome"],
+    fr: ["membre de l'équipe", "inviter", "rôle", "autorisation", "renommer", "paramètres", "mon nom"],
+    it: ["membro del team", "invita", "ruolo", "permesso", "rinominare", "impostazioni", "il mio nome"],
   },
 };
 
@@ -295,7 +285,6 @@ const ACTIVITY_KIND_TOOLSETS: Record<string, AgentOnDemandToolset> = {
 };
 
 const ACTIVITY_KIND_EXACT_TOOLSETS: Record<string, AgentOnDemandToolset> = {
-  "workspace.settings": "admin",
   "workspace.configure": "admin",
 };
 

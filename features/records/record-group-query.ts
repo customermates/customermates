@@ -49,7 +49,6 @@ export function compileRecordGroups(
   model: RecordModel,
   access: RecordAccessMap,
   memberScope: RecordReadScope,
-  currency: string,
 ): Prisma.Sql {
   const resolved = query.grouping && resolveRecordGrouping(query.typeId, query.grouping, model);
   if (!resolved) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
@@ -231,7 +230,7 @@ export function compileRecordGroups(
       FROM axis
     ),
     page_axis AS (SELECT * FROM requested ORDER BY position, metadata->>'label' COLLATE ${recordCollation(query.locale)}, key LIMIT ${MAX_AXIS_GROUPS + 2}),
-    ${recordGroupSummaryCtes(companyId, query.typeId, query.groupSummaries ?? [], model, access, currency)}
+    ${recordGroupSummaryCtes(companyId, query.typeId, query.groupSummaries ?? [], model, access)}
     ranked AS (
       SELECT members.key, members.id, ROW_NUMBER() OVER (PARTITION BY members.key ORDER BY members.ordinal) AS position
       FROM members JOIN page_axis ON page_axis.key = members.key WHERE page_axis.materialised

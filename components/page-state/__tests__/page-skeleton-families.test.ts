@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import { DashboardPageSkeleton } from "@/app/[locale]/(protected)/dashboard/components/dashboard-page-skeleton";
 import { InboxPageSkeleton } from "@/app/[locale]/(protected)/inbox/components/inbox-page-skeleton";
-import { CompanySettingsPageSkeleton } from "@/app/[locale]/(protected)/company/components/company-settings/company-settings-page-skeleton";
 import { SubscriptionPageSkeleton } from "@/app/[locale]/(protected)/company/components/subscription/subscription-page-skeleton";
 import { OnboardingPageSkeleton } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-page-skeleton";
 import {
@@ -25,7 +24,6 @@ describe("page skeleton families", () => {
     ["dashboard", DashboardPageSkeleton],
     ["detail", EntityDetailPageSkeleton],
     ["profile-settings", ProfileSettingsPageSkeleton],
-    ["company-settings", CompanySettingsPageSkeleton],
     ["subscription", SubscriptionPageSkeleton],
     ["api-keys", ApiKeysPageSkeleton],
     ["connected-accounts", ConnectedAccountsPageSkeleton],
@@ -84,16 +82,12 @@ describe("page skeleton families", () => {
     expect(detail).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
   });
 
-  it("matches profile, company, and subscription settings geometry without fabricated branches", () => {
+  it("matches profile and subscription settings geometry without fabricated branches", () => {
     const profile = renderToStaticMarkup(createElement(ProfileSettingsPageSkeleton));
-    const company = renderToStaticMarkup(createElement(CompanySettingsPageSkeleton));
     const subscription = renderToStaticMarkup(createElement(SubscriptionPageSkeleton));
 
     expect(profile).toContain("data-profile-settings-avatar");
     expect(count(profile, "data-settings-field")).toBe(7);
-    expect(count(company, "data-settings-field")).toBe(1);
-    expect(company).not.toContain("data-company-terminology-node");
-    expect(company).toContain("border-t border-border pt-6");
     expect(count(subscription, "data-settings-field")).toBe(1);
     expect(subscription).toContain("data-subscription-plan-field");
     expect(subscription).toContain("data-subscription-status-chip");

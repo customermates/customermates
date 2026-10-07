@@ -657,7 +657,7 @@ export async function seedBenchmarkCase(
   await prisma.$transaction(async (prismaTx) => {
     const recordFixtures = benchmarkRecordFixtures(prismaTx, [companyId, sentinelCompanyId]);
     const tx = recordFixtures.writer;
-    await tx.company.createMany({ data: [companyId, sentinelCompanyId].map((value) => ({ id: value, currency: "eur", tags: [FIXTURE_VERSION], createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED })) });
+    await tx.company.createMany({ data: [companyId, sentinelCompanyId].map((value) => ({ id: value, tags: [FIXTURE_VERSION], createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED })) });
     await tx.subscription.create({
       data: {
         companyId,

@@ -5,7 +5,7 @@ import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import { expressionAt, expressionTypeId, replaceExpression, expressionSummary } from "../calculation-editor";
 
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
-const model = createCrmPreset(company, "EUR");
+const model = createCrmPreset(company);
 const id = (key: string) => presetId(company, key);
 const weighted = recordInvariant(model.fields.find((field) => field.id === id("deal.weightedValue")));
 const expression = weighted.behavior.kind === "input" ? null : weighted.behavior.expression;

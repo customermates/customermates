@@ -46,12 +46,11 @@ export class RecordCalculationService {
   async recalculate(
     model: RecordModel,
     seeds: RecordRef[],
-    currency: string,
     capture: Map<string, Set<string>> = new Map(),
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ): Promise<{ complete: boolean; changed: RecordRef[] }> {
     try {
-      return await this.calculate(model, seeds, currency, capture, limit);
+      return await this.calculate(model, seeds, capture, limit);
     } catch (error) {
       if (error instanceof CalculationBudgetExceeded) return { complete: false, changed: [] };
       throw error;
@@ -61,7 +60,6 @@ export class RecordCalculationService {
   private async calculate(
     model: RecordModel,
     seeds: RecordRef[],
-    currency: string,
     capture: Map<string, Set<string>>,
     limit: number,
   ): Promise<{ complete: boolean; changed: RecordRef[] }> {
@@ -147,7 +145,7 @@ export class RecordCalculationService {
         ) {
           result = {
             state: "value",
-            value: { ...result.value, currency: currency.toUpperCase() },
+            value: { ...result.value, currency: recordInvariant(definition.format?.currency) },
           };
         }
         if (result.state === "value" && !scalarMatchesType(result.value, definition.valueType, definition.multiple))
@@ -256,13 +254,7 @@ export class RecordCalculationService {
     };
   }
 
-  async calculateField(
-    model: RecordModel,
-    ref: RecordRef,
-    fieldId: string,
-    currency: string,
-    limit: number,
-  ): Promise<void> {
+  async calculateField(model: RecordModel, ref: RecordRef, fieldId: string, limit: number): Promise<void> {
     const definition = model.fields.find((field) => field.id === fieldId && field.typeId === ref.typeId);
     if (!definition || definition.behavior.kind === "input" || definition.archived) return;
     const rows = new Map<string, Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>>();
@@ -313,7 +305,7 @@ export class RecordCalculationService {
     ) {
       result = {
         state: "value",
-        value: { ...result.value, currency: currency.toUpperCase() },
+        value: { ...result.value, currency: recordInvariant(definition.format?.currency) },
       };
     }
     if (result.state === "value" && !scalarMatchesType(result.value, definition.valueType, definition.multiple))

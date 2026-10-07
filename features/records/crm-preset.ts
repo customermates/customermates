@@ -20,7 +20,7 @@ export function presetId(companyId: string, key: string): string {
   return deterministicId(companyId, key);
 }
 
-export function createCrmPreset(companyId: string, currency: string): RecordModel {
+export function createCrmPreset(companyId: string): RecordModel {
   const types: RecordType[] = [];
   const fields: RecordField[] = [];
   const relationships: RecordRelationship[] = [];
@@ -73,6 +73,7 @@ export function createCrmPreset(companyId: string, currency: string): RecordMode
       publishedSummary: false,
       options: [],
       position: fields.filter((value) => value.typeId === id(type)).length,
+      ...(valueType === "currency" ? { format: { currency: "EUR" } } : {}),
     };
     fields.push(definition);
     return definition;
@@ -143,7 +144,7 @@ export function createCrmPreset(companyId: string, currency: string): RecordMode
       defaultValue: {
         kind: "decimal",
         value: "0",
-        currency: currency.toUpperCase(),
+        currency: "EUR",
       },
     },
     true,

@@ -21,6 +21,7 @@ import {
   createLegacyMigrationDatabase,
   deployMigrations,
   LEGACY_CRM_TABLES,
+  migrationNames,
   prismaCli,
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
@@ -1055,11 +1056,11 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         "SELECT migration_name FROM \"_prisma_migrations\" WHERE started_at > NOW() - interval '10 minutes' AND migration_name >= $1 ORDER BY migration_name",
         [CONFIGURABLE_RECORDS_MIGRATION],
       ),
-    ).toEqual([
-      { migration_name: CONFIGURABLE_RECORDS_MIGRATION },
-      { migration_name: "20261006130000_remove_legacy_record_permissions" },
-      { migration_name: "20261006200000_p13n_settings" },
-    ]);
+    ).toEqual(
+      (await migrationNames((name) => name >= CONFIGURABLE_RECORDS_MIGRATION)).map((name) => ({
+        migration_name: name,
+      })),
+    );
     expect(
       await rows(production.client, 'SELECT resource::text FROM "RolePermission" WHERE "roleId"=$1', [f.memberRole.id]),
     ).toEqual([]);

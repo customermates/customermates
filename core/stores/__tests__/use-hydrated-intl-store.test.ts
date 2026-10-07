@@ -57,7 +57,6 @@ beforeEach(() => {
   hydrationDelay = null;
 
   const rootStore = {
-    companyStore: { company: null },
     localeStore: { locale: "de" },
     userStore: { user: { formattingLocale: Locale.system } },
   } as unknown as RootStore;
