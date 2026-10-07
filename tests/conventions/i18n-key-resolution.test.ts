@@ -663,6 +663,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/calculation-path.tsx :: t :: RecordModel.cardinality.${hop.cardinality}",
   "app/[locale]/(protected)/configure/components/calculation-path.tsx :: t :: RecordModel.operators.${expression.operator}",
   "app/[locale]/(protected)/configure/components/calculation-path.tsx :: t :: RecordModel.reducers.${expression.reducer}",
+  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.cardinality.${cardinality}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.cardinality.${edge.cardinality}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${field.valueType}",

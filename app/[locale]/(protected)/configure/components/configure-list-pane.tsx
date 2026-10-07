@@ -342,25 +342,21 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 <ul className="divide-y divide-border">
                   {relations.map((relation) => {
                     const outgoing = relation.sourceTypeId === selected.id;
+                    const cardinality = configureCardinality(
+                      outgoing
+                        ? relation
+                        : {
+                            sourceCardinality: relation.targetCardinality,
+                            targetCardinality: relation.sourceCardinality,
+                          },
+                    );
                     const other = model.types.find(
                       (type) => type.id === (outgoing ? relation.targetTypeId : relation.sourceTypeId),
                     );
                     return (
                       <li key={relation.id} className="bg-card" data-configure-relationship-row={relation.id}>
                         <ConfigureRow
-                          detail={[
-                            t(
-                              `RecordModel.cardinality.${configureCardinality(
-                                outgoing
-                                  ? relation
-                                  : {
-                                      sourceCardinality: relation.targetCardinality,
-                                      targetCardinality: relation.sourceCardinality,
-                                    },
-                              )}`,
-                            ),
-                            other?.pluralLabel,
-                          ]
+                          detail={[t(`RecordModel.cardinality.${cardinality}`), other?.pluralLabel]
                             .filter(Boolean)
                             .join(" · ")}
                           interactive={interactive}
