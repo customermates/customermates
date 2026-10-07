@@ -25,6 +25,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/protected-enhancements-context";
 import { GlobalKeyboardShortcuts } from "@/app/components/keyboard-shortcuts/global-keyboard-shortcuts";
 import { KeyboardShortcutsDialog } from "@/app/components/keyboard-shortcuts/keyboard-shortcuts-dialog";
+import { ViewPicker } from "@/components/data-view/views/view-picker";
 
 const ConnectedAccountModal = dynamic(
   () => import("./profile/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
@@ -76,6 +77,8 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <GlobalKeyboardShortcuts />
 
           <KeyboardShortcutsDialog />
+
+          <ViewPicker />
 
           <GlobalSearchModal />
 

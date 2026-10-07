@@ -88,6 +88,9 @@ vi.mock("@/app/components/keyboard-shortcuts/global-keyboard-shortcuts", () => (
 vi.mock("@/app/components/keyboard-shortcuts/keyboard-shortcuts-dialog", () => ({
   KeyboardShortcutsDialog: () => "keyboard-shortcuts-dialog",
 }));
+vi.mock("@/components/data-view/views/view-picker", () => ({
+  ViewPicker: () => "view-picker",
+}));
 vi.mock("@/app/components/agent-chat/agent-chat", () => ({
   AgentChat: () => "agent-chat",
 }));

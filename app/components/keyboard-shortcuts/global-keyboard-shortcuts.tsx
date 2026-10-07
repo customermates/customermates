@@ -32,7 +32,13 @@ export function GlobalKeyboardShortcuts() {
   const t = useTranslations();
 
   useEffect(() => {
-    const { keyboardShortcutsStore: store, globalSearchModalStore, addPickerStore, navigationGuard } = rootStore;
+    const {
+      keyboardShortcutsStore: store,
+      globalSearchModalStore,
+      addPickerStore,
+      viewPickerStore,
+      navigationGuard,
+    } = rootStore;
     const platform = detectKeyboardPlatform(navigator);
     let goTimer: ReturnType<typeof setTimeout> | undefined;
     let hintTimer: ReturnType<typeof setTimeout> | undefined;
@@ -74,7 +80,7 @@ export function GlobalKeyboardShortcuts() {
 
       if (matchesShortcut(event, "search", platform)) {
         event.preventDefault();
-        globalSearchModalStore.open();
+        globalSearchModalStore.openFrom(focusOrigin());
         return;
       }
 
@@ -110,6 +116,18 @@ export function GlobalKeyboardShortcuts() {
       if (matchesShortcut(event, "add", platform)) {
         event.preventDefault();
         addPickerStore.openFrom(focusOrigin());
+        return;
+      }
+
+      if (matchesShortcut(event, "searchAlias", platform)) {
+        event.preventDefault();
+        globalSearchModalStore.openFrom(focusOrigin());
+        return;
+      }
+
+      if (matchesShortcut(event, "switchView", platform) && viewPickerStore.surface) {
+        event.preventDefault();
+        viewPickerStore.openFrom(focusOrigin());
         return;
       }
 

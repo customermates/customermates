@@ -83,7 +83,7 @@ function matchesByKey(event: KeyPress, chord: KeyChord): boolean {
 
 function matchesByCode(event: KeyPress, chord: KeyChord): boolean {
   if (!chord.codes.includes(event.code) || event.key.length !== 1) return false;
-  const positional = DIGIT.test(chord.key);
+  const positional = DIGIT.test(chord.key) || (Boolean(chord.mod) && producesItsOwnShift(chord.key));
   const nonLatinLayout = !PRINTABLE_ASCII.test(event.key);
   if (!positional && !nonLatinLayout) return false;
   return event.shiftKey === Boolean(chord.shift);

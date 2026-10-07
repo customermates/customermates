@@ -1893,6 +1893,9 @@
       "moveRight": "Sposta a destra",
       "name": "Nome",
       "namePlaceholder": "Nome della vista",
+      "pickerEmpty": "Nessuna vista corrispondente",
+      "pickerPlaceholder": "Trova una vista…",
+      "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}"
     }
@@ -2133,10 +2136,12 @@
     "title": "Password dimenticata"
   },
   "GlobalSearch": {
+    "askMateWith": "Chiedi a Mate: {question}",
     "clearRecent": "Cancella",
     "emptyDescription": "Cerca record negli elenchi a cui hai accesso.",
     "emptyTitle": "Trova tutto nel tuo spazio di lavoro",
     "groupRecent": "Aperti di recente",
+    "hintAskMate": "Chiedi a Mate",
     "hintNavigate": "Naviga",
     "hintOpen": "Apri",
     "loading": "Ricerca...",
@@ -2369,7 +2374,7 @@
   },
   "KeyboardShortcuts": {
     "actions": {
-      "add": "Aggiungi",
+      "add": "Aggiungi un record o un elenco",
       "askMate": "Chiedi a Mate",
       "close": "Chiudi la finestra o il pannello in primo piano",
       "goConfigure": "Configura",
@@ -2381,19 +2386,27 @@
       "goSettings": "Impostazioni",
       "save": "Salva",
       "search": "Cerca",
+      "searchAlias": "Cerca",
       "shortcuts": "Mostra scorciatoie da tastiera",
+      "switchView": "Cambia vista di un elenco",
       "toggleSidebar": "Mostra o nascondi la barra laterale"
     },
     "groups": {
-      "forms": "Moduli e finestre di dialogo",
+      "create": "Crea",
+      "forms": "Moduli",
       "general": "Generale",
-      "navigation": "Vai a"
+      "listsAndViews": "Elenchi e viste",
+      "navigation": "Navigazione"
     },
+    "noMatches": "Nessuna scorciatoia corrisponde alla ricerca.",
     "pendingGo": "Vai a… premi una lettera o il numero di un elenco",
+    "searchLabel": "Cerca scorciatoie",
+    "searchPlaceholder": "Cerca scorciatoie…",
     "singleKey": {
-      "description": "C, ? e le sequenze G. Disattivale se usi l'input vocale o premi tasti per errore.",
+      "description": "C, /, V, ? e le sequenze G. Disattivale se usi l'input vocale o premi tasti per errore.",
       "label": "Scorciatoie a tasto singolo"
     },
+    "then": "poi",
     "title": "Scorciatoie da tastiera"
   },
   "LegalDocumentNotice": {

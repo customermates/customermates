@@ -4,6 +4,7 @@ import { chordLabel, chordMatches, detectKeyboardPlatform, type KeyPress } from 
 import {
   GO_PREFIX,
   SHORTCUTS,
+  SHORTCUT_GROUPS,
   goSequenceTarget,
   isSingleKeyShortcut,
   matchesShortcut,
@@ -60,6 +61,16 @@ describe("modified shortcuts", () => {
     expect(matchesShortcut(press("k", "KeyV", { ctrlKey: true }), "search", "other")).toBe(true);
   });
 
+  it("toggles the sidebar with Cmd/Ctrl+\\ and never with Cmd/Ctrl+B or AltGr", () => {
+    expect(matchesShortcut(press("\\", "Backslash", { metaKey: true }), "toggleSidebar", "mac")).toBe(true);
+    expect(matchesShortcut(press("\\", "Backslash", { ctrlKey: true }), "toggleSidebar", "other")).toBe(true);
+    expect(matchesShortcut(press("#", "Backslash", { ctrlKey: true }), "toggleSidebar", "other")).toBe(true);
+    expect(matchesShortcut(press("\\", "Minus", { ctrlKey: true, altKey: true }), "toggleSidebar", "other")).toBe(
+      false,
+    );
+    expect(matchesShortcut(press("b", "KeyB", { ctrlKey: true }), "toggleSidebar", "other")).toBe(false);
+  });
+
   it("matches Cmd/Ctrl+Enter on both Enter keys and Escape alone", () => {
     expect(matchesShortcut(press("Enter", "Enter", { metaKey: true }), "save", "mac")).toBe(true);
     expect(matchesShortcut(press("Enter", "NumpadEnter", { ctrlKey: true }), "save", "other")).toBe(true);
@@ -80,6 +91,16 @@ describe("single-key shortcuts", () => {
     expect(matchesShortcut(press("с", "KeyC"), "add", "other")).toBe(true);
   });
 
+  it("matches / as a search alias and V for the view picker", () => {
+    expect(matchesShortcut(press("/", "Slash"), "searchAlias", "other")).toBe(true);
+    expect(matchesShortcut(press("/", "Digit7", { shiftKey: true }), "searchAlias", "other")).toBe(true);
+    expect(matchesShortcut(press("?", "Slash", { shiftKey: true }), "searchAlias", "other")).toBe(false);
+    expect(matchesShortcut(press("/", "Slash", { ctrlKey: true }), "searchAlias", "other")).toBe(false);
+    expect(matchesShortcut(press("v", "KeyV"), "switchView", "other")).toBe(true);
+    expect(matchesShortcut(press("м", "KeyV"), "switchView", "other")).toBe(true);
+    expect(matchesShortcut(press("v", "KeyV", { metaKey: true }), "switchView", "mac")).toBe(false);
+  });
+
   it("never matches during IME composition", () => {
     expect(matchesShortcut(press("c", "KeyC", { isComposing: true }), "add", "other")).toBe(false);
     expect(matchesShortcut(press("Process", "KeyC", { keyCode: 229 }), "add", "other")).toBe(false);
@@ -88,7 +109,10 @@ describe("single-key shortcuts", () => {
 
   it("only marks printable unmodified keys as single-key shortcuts", () => {
     const single = SHORTCUTS.filter(isSingleKeyShortcut).map((entry) => entry.id);
-    expect(single).toEqual(expect.arrayContaining(["add", "shortcuts", "goDashboard", "goList"]));
+    expect(single).toEqual(
+      expect.arrayContaining(["add", "shortcuts", "searchAlias", "switchView", "goDashboard", "goList"]),
+    );
+    expect(single).not.toContain("toggleSidebar");
     expect(single).not.toEqual(expect.arrayContaining(["search"]));
     expect(single).not.toContain("close");
     expect(single).not.toContain("save");
@@ -147,10 +171,20 @@ describe("G sequences", () => {
 });
 
 describe("labels", () => {
+  it("groups every shortcut in the reference order", () => {
+    expect(SHORTCUT_GROUPS).toEqual(["general", "navigation", "create", "listsAndViews", "forms"]);
+    expect(SHORTCUTS.every((entry) => SHORTCUT_GROUPS.includes(entry.group))).toBe(true);
+    expect(SHORTCUTS.some((entry) => entry.sequence.some((chord) => chord.mod && /^\d$/.test(chord.key)))).toBe(false);
+  });
+
   it("prints the platform modifier", () => {
     expect(shortcutKeyLabels("search", "mac")).toEqual(["⌘K"]);
     expect(shortcutKeyLabels("search", "other")).toEqual(["Ctrl+K"]);
     expect(shortcutKeyLabels("askMate", "other")).toEqual(["Ctrl+J"]);
+    expect(shortcutKeyLabels("toggleSidebar", "mac")).toEqual(["⌘\\"]);
+    expect(shortcutKeyLabels("toggleSidebar", "other")).toEqual(["Ctrl+\\"]);
+    expect(shortcutKeyLabels("searchAlias", "other")).toEqual(["/"]);
+    expect(shortcutKeyLabels("switchView", "mac")).toEqual(["V"]);
     expect(shortcutKeyLabels("save", "mac")).toEqual(["⌘↵"]);
     expect(shortcutKeyLabels("save", "other")).toEqual(["Ctrl+Enter"]);
     expect(shortcutKeyLabels("close", "mac")).toEqual(["Esc"]);

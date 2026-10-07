@@ -1893,6 +1893,9 @@
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
+      "pickerEmpty": "Keine passende Ansicht",
+      "pickerPlaceholder": "Ansicht suchen …",
+      "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
     }
@@ -2133,10 +2136,12 @@
     "title": "Passwort vergessen"
   },
   "GlobalSearch": {
+    "askMateWith": "Mate fragen: {question}",
     "clearRecent": "Leeren",
     "emptyDescription": "Finde Datensätze in den Listen, auf die du Zugriff hast.",
     "emptyTitle": "Finde alles in deinem Workspace",
     "groupRecent": "Zuletzt geöffnet",
+    "hintAskMate": "Mate fragen",
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
     "loading": "Suche...",
@@ -2369,7 +2374,7 @@
   },
   "KeyboardShortcuts": {
     "actions": {
-      "add": "Hinzufügen",
+      "add": "Datensatz oder Liste hinzufügen",
       "askMate": "Mate fragen",
       "close": "Obersten Dialog oder Drawer schließen",
       "goConfigure": "Konfigurieren",
@@ -2381,19 +2386,27 @@
       "goSettings": "Einstellungen",
       "save": "Speichern",
       "search": "Suchen",
+      "searchAlias": "Suchen",
       "shortcuts": "Tastenkürzel anzeigen",
+      "switchView": "Ansicht einer Liste wechseln",
       "toggleSidebar": "Seitenleiste ein- oder ausblenden"
     },
     "groups": {
-      "forms": "Formulare und Dialoge",
+      "create": "Erstellen",
+      "forms": "Formulare",
       "general": "Allgemein",
-      "navigation": "Gehe zu"
+      "listsAndViews": "Listen und Ansichten",
+      "navigation": "Navigation"
     },
+    "noMatches": "Kein Kürzel passt zu Ihrer Suche.",
     "pendingGo": "Gehe zu … Buchstaben oder Listennummer drücken",
+    "searchLabel": "Kürzel durchsuchen",
+    "searchPlaceholder": "Kürzel durchsuchen …",
     "singleKey": {
-      "description": "C, ? und die G-Folgen. Schalten Sie sie aus, wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken.",
+      "description": "C, /, V, ? und die G-Folgen. Schalten Sie sie aus, wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken.",
       "label": "Einzeltasten-Kürzel"
     },
+    "then": "dann",
     "title": "Tastenkürzel"
   },
   "LegalDocumentNotice": {

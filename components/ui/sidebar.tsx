@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { detectKeyboardPlatform, isTypingTarget } from "@/components/keyboard/key-matching";
+import { detectKeyboardPlatform } from "@/components/keyboard/key-matching";
 import { matchesShortcut } from "@/components/keyboard/shortcut-registry";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -78,7 +78,7 @@ function SidebarProvider({
   React.useEffect(() => {
     const platform = detectKeyboardPlatform(navigator);
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || isTypingTarget(event.target)) return;
+      if (event.defaultPrevented) return;
       if (!matchesShortcut(event, "toggleSidebar", platform)) return;
       event.preventDefault();
       toggleSidebar();

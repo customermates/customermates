@@ -756,6 +756,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/agent-chat/agent-chat-items.tsx :: t :: AgentChat.approval.${item.resolution}",
   "app/components/agent-chat/credit-blocked-notice.tsx :: t :: AgentChat.credits.blocked.${reason}",
   "app/components/agent-chat/usage-ring.tsx :: t :: Subscription.planNames.${usage.plan}",
+  "app/components/global-search-modal.tsx :: t :: KeyboardShortcuts.actions.${entry.id}",
   "app/components/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx :: t :: KeyboardShortcuts.actions.${entry.id}",
   "app/components/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx :: t :: KeyboardShortcuts.groups.${group}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.planNames.${plan}",

@@ -1893,6 +1893,9 @@
       "moveRight": "Déplacer vers la droite",
       "name": "Nom",
       "namePlaceholder": "Nom de la vue",
+      "pickerEmpty": "Aucune vue correspondante",
+      "pickerPlaceholder": "Trouver une vue…",
+      "pickerTitle": "Changer de vue",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}"
     }
@@ -2133,10 +2136,12 @@
     "title": "Mot de passe oublié"
   },
   "GlobalSearch": {
+    "askMateWith": "Demander à Mate : {question}",
     "clearRecent": "Effacer",
     "emptyDescription": "Recherchez des fiches dans les listes auxquelles vous avez accès.",
     "emptyTitle": "Trouvez tout dans votre espace de travail",
     "groupRecent": "Ouverts récemment",
+    "hintAskMate": "Demander à Mate",
     "hintNavigate": "Naviguer",
     "hintOpen": "Ouvrir",
     "loading": "Recherche...",
@@ -2369,7 +2374,7 @@
   },
   "KeyboardShortcuts": {
     "actions": {
-      "add": "Ajouter",
+      "add": "Ajouter un enregistrement ou une liste",
       "askMate": "Demander à Mate",
       "close": "Fermer la boîte de dialogue ou le panneau du dessus",
       "goConfigure": "Configurer",
@@ -2381,19 +2386,27 @@
       "goSettings": "Paramètres",
       "save": "Enregistrer",
       "search": "Rechercher",
+      "searchAlias": "Rechercher",
       "shortcuts": "Afficher les raccourcis clavier",
+      "switchView": "Changer de vue dans une liste",
       "toggleSidebar": "Afficher ou masquer la barre latérale"
     },
     "groups": {
-      "forms": "Formulaires et boîtes de dialogue",
+      "create": "Créer",
+      "forms": "Formulaires",
       "general": "Général",
-      "navigation": "Aller à"
+      "listsAndViews": "Listes et vues",
+      "navigation": "Navigation"
     },
+    "noMatches": "Aucun raccourci ne correspond à votre recherche.",
     "pendingGo": "Aller à… appuyez sur une lettre ou un numéro de liste",
+    "searchLabel": "Rechercher des raccourcis",
+    "searchPlaceholder": "Rechercher des raccourcis…",
     "singleKey": {
-      "description": "C, ? et les séquences G. Désactivez-les si vous utilisez la saisie vocale ou appuyez sur des touches par erreur.",
+      "description": "C, /, V, ? et les séquences G. Désactivez-les si vous utilisez la saisie vocale ou appuyez sur des touches par erreur.",
       "label": "Raccourcis à une touche"
     },
+    "then": "puis",
     "title": "Raccourcis clavier"
   },
   "LegalDocumentNotice": {

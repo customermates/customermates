@@ -43,6 +43,7 @@ async function storedPreference(database: Client, userId: string) {
 }
 
 const addPicker = (page: Page) => page.getByRole("dialog", { name: "Create new…" });
+const viewPicker = (page: Page) => page.getByRole("dialog", { name: "Switch view" });
 const shortcutsDialog = (page: Page) => page.getByRole("dialog", { name: "Keyboard shortcuts" });
 
 test("global shortcuts, G navigation, the shortcuts dialog and the single-key preference", async ({
@@ -60,6 +61,8 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
 
   await page.keyboard.press(`${mod.key}+k`);
   await expect(page.locator("#global-search-input")).toBeVisible();
+  await expect(page.locator('[cmdk-item] [data-shortcut="goDashboard"]')).toContainText("then");
+  await expect(page.locator('[cmdk-item] [data-shortcut="add"]')).toHaveText("C");
   await page.keyboard.press("c");
   await expect(addPicker(page)).toHaveCount(0);
   await page.keyboard.press("Escape");
@@ -81,11 +84,27 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
 
   const typingField = page.getByPlaceholder("Search...").first();
   await typingField.click();
-  await page.keyboard.type("gd c");
+  await page.keyboard.type("gd c/v");
   await expect(page).toHaveURL(firstList);
   await expect(addPicker(page)).toHaveCount(0);
+  await expect(viewPicker(page)).toHaveCount(0);
   await typingField.fill("");
   await typingField.blur();
+
+  await page.keyboard.press("v");
+  await expect(viewPicker(page)).toBeVisible();
+  await page.keyboard.type("All");
+  await page.keyboard.press("Enter");
+  await expect(viewPicker(page)).toHaveCount(0);
+  await expect(page).toHaveURL(firstList);
+
+  await page.keyboard.press(`${mod.key}+k`);
+  await expect(page.locator('[cmdk-item][data-value^="palette-view-"]').first()).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  await page.keyboard.press("/");
+  await expect(page.locator("#global-search-input")).toBeVisible();
+  await page.keyboard.press("Escape");
 
   await page.keyboard.press("g");
   await page.keyboard.press("d");
@@ -106,8 +125,12 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await expect(dialog).toBeVisible();
   await expect(dialog.locator("[data-shortcut-row=search] [data-shortcut=search]")).toHaveText(`${mod.label}K`);
   await expect(dialog.locator("[data-shortcut-row=goDashboard] kbd")).toHaveText(["G", "D"]);
+  await expect(dialog.locator("[data-shortcut-row=goDashboard]")).toContainText("then");
   await expect(dialog.locator("[data-shortcut-row=goList] kbd")).toHaveText(["G", "1–9"]);
   await expect(dialog.locator("[data-shortcut-row=save] kbd")).toHaveText(mod.key === "Meta" ? "⌘↵" : "Ctrl+Enter");
+  await dialog.getByRole("searchbox", { name: "Search shortcuts" }).fill("view");
+  await expect(dialog.locator("[data-shortcut-row]")).toHaveCount(1);
+  await expect(dialog.locator("[data-shortcut-row=switchView] kbd")).toHaveText("V");
   await page.keyboard.press("c");
   await expect(addPicker(page)).toHaveCount(0);
 
@@ -147,17 +170,17 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   expect(errors).toEqual([]);
 });
 
-test("Cmd/Ctrl+B toggles the sidebar and the sidebar trigger tooltip names it", async ({ page }, testInfo) => {
+test("Cmd/Ctrl+\\ toggles the sidebar and the sidebar trigger tooltip names it", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === "mobile", "Desktop keyboard journey");
   await openApp(page, "/en/dashboard");
   const mod = await modifierKey(page);
   const sidebar = page.locator('[data-slot="sidebar"][data-state]').first();
   await expect(sidebar).toHaveAttribute("data-state", "expanded");
-  await page.keyboard.press(`${mod.key}+b`);
+  await page.keyboard.press(`${mod.key}+Backslash`);
   await expect(sidebar).toHaveAttribute("data-state", "collapsed");
   await page.locator("#sidebar-trigger").hover();
-  await expect(page.getByRole("tooltip")).toContainText(`${mod.label}B`);
-  await page.keyboard.press(`${mod.key}+b`);
+  await expect(page.getByRole("tooltip")).toContainText(`${mod.label}\\`);
+  await page.keyboard.press(`${mod.key}+Backslash`);
   await expect(sidebar).toHaveAttribute("data-state", "expanded");
 });
 

@@ -1893,6 +1893,9 @@
       "moveRight": "Mover a la derecha",
       "name": "Nombre",
       "namePlaceholder": "Nombre de la vista",
+      "pickerEmpty": "Ninguna vista coincide",
+      "pickerPlaceholder": "Buscar una vista…",
+      "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
       "recordCount": "{count, plural, one {# registro} other {# registros}}"
     }
@@ -2133,10 +2136,12 @@
     "title": "Contraseña olvidada"
   },
   "GlobalSearch": {
+    "askMateWith": "Preguntar a Mate: {question}",
     "clearRecent": "Borrar",
     "emptyDescription": "Busca registros en las listas a las que tienes acceso.",
     "emptyTitle": "Encuentra todo en tu espacio de trabajo",
     "groupRecent": "Abiertos recientemente",
+    "hintAskMate": "Preguntar a Mate",
     "hintNavigate": "Navegar",
     "hintOpen": "Abrir",
     "loading": "Buscando...",
@@ -2369,7 +2374,7 @@
   },
   "KeyboardShortcuts": {
     "actions": {
-      "add": "Añadir",
+      "add": "Añadir un registro o una lista",
       "askMate": "Preguntar a Mate",
       "close": "Cerrar el diálogo o panel superior",
       "goConfigure": "Configurar",
@@ -2381,19 +2386,27 @@
       "goSettings": "Ajustes",
       "save": "Guardar",
       "search": "Buscar",
+      "searchAlias": "Buscar",
       "shortcuts": "Mostrar atajos de teclado",
+      "switchView": "Cambiar de vista en una lista",
       "toggleSidebar": "Mostrar u ocultar la barra lateral"
     },
     "groups": {
-      "forms": "Formularios y diálogos",
+      "create": "Crear",
+      "forms": "Formularios",
       "general": "General",
-      "navigation": "Ir a"
+      "listsAndViews": "Listas y vistas",
+      "navigation": "Navegación"
     },
+    "noMatches": "Ningún atajo coincide con tu búsqueda.",
     "pendingGo": "Ir a… pulsa una letra o un número de lista",
+    "searchLabel": "Buscar atajos",
+    "searchPlaceholder": "Buscar atajos…",
     "singleKey": {
-      "description": "C, ? y las secuencias G. Desactívalos si usas entrada por voz o pulsas teclas por error.",
+      "description": "C, /, V, ? y las secuencias G. Desactívalos si usas entrada por voz o pulsas teclas por error.",
       "label": "Atajos de una tecla"
     },
+    "then": "luego",
     "title": "Atajos de teclado"
   },
   "LegalDocumentNotice": {

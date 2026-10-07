@@ -2,12 +2,12 @@ import type { KeyChord, KeyPress, KeyboardPlatform } from "./key-matching";
 
 import { chordLabel, chordMatches, detectKeyboardPlatform } from "./key-matching";
 
-export type ShortcutGroup = "general" | "navigation" | "forms";
+export type ShortcutGroup = "general" | "navigation" | "create" | "listsAndViews" | "forms";
 
 export type ShortcutId =
   | "search"
+  | "searchAlias"
   | "askMate"
-  | "add"
   | "shortcuts"
   | "toggleSidebar"
   | "goDashboard"
@@ -16,7 +16,9 @@ export type ShortcutId =
   | "goRoutines"
   | "goConfigure"
   | "goSettings"
+  | "add"
   | "goList"
+  | "switchView"
   | "save"
   | "close";
 
@@ -43,56 +45,29 @@ function letter(key: string): KeyChord {
 }
 
 function goTo(id: ShortcutId, key: string, destination: ShortcutDestination): Shortcut {
-  return {
-    id,
-    group: "navigation",
-    sequence: [GO_PREFIX, letter(key)],
-    destination,
-  };
+  return { id, group: "navigation", sequence: [GO_PREFIX, letter(key)], destination };
 }
 
 export const SHORTCUTS: readonly Shortcut[] = [
   { id: "search", group: "general", sequence: [{ ...letter("k"), mod: true }] },
-  {
-    id: "askMate",
-    group: "general",
-    sequence: [{ ...letter("j"), mod: true }],
-  },
-  { id: "add", group: "general", sequence: [letter("c")] },
-  {
-    id: "shortcuts",
-    group: "general",
-    sequence: [{ key: "?", codes: ["Slash"], shift: true }],
-  },
-  {
-    id: "toggleSidebar",
-    group: "general",
-    sequence: [{ ...letter("b"), mod: true }],
-  },
+  { id: "searchAlias", group: "general", sequence: [{ key: "/", codes: ["Slash"] }] },
+  { id: "askMate", group: "general", sequence: [{ ...letter("j"), mod: true }] },
+  { id: "shortcuts", group: "general", sequence: [{ key: "?", codes: ["Slash"], shift: true }] },
+  { id: "toggleSidebar", group: "general", sequence: [{ key: "\\", codes: ["Backslash"], mod: true }] },
   goTo("goDashboard", "d", "dashboard"),
   goTo("goInbox", "i", "inbox"),
   goTo("goKnowledgeBase", "k", "wiki"),
   goTo("goRoutines", "r", "routines"),
   goTo("goConfigure", "c", "configure"),
   goTo("goSettings", "s", "settings"),
-  {
-    id: "goList",
-    group: "navigation",
-    sequence: [GO_PREFIX, LIST_POSITION_CHORDS[0]],
-  },
-  {
-    id: "save",
-    group: "forms",
-    sequence: [{ key: "Enter", codes: ["Enter", "NumpadEnter"], mod: true }],
-  },
-  {
-    id: "close",
-    group: "forms",
-    sequence: [{ key: "Escape", codes: ["Escape"] }],
-  },
+  { id: "add", group: "create", sequence: [letter("c")] },
+  { id: "goList", group: "listsAndViews", sequence: [GO_PREFIX, LIST_POSITION_CHORDS[0]] },
+  { id: "switchView", group: "listsAndViews", sequence: [letter("v")] },
+  { id: "save", group: "forms", sequence: [{ key: "Enter", codes: ["Enter", "NumpadEnter"], mod: true }] },
+  { id: "close", group: "forms", sequence: [{ key: "Escape", codes: ["Escape"] }] },
 ];
 
-export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = ["general", "navigation", "forms"];
+export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = ["general", "navigation", "create", "listsAndViews", "forms"];
 
 export function shortcut(id: ShortcutId): Shortcut {
   const found = SHORTCUTS.find((candidate) => candidate.id === id);

@@ -11,6 +11,8 @@ const state = vi.hoisted(() => ({
   toggleAgent: vi.fn(),
   openAdd: vi.fn(),
   openShortcuts: vi.fn(),
+  openViewPicker: vi.fn(),
+  viewSurface: null as object | null,
   push: vi.fn(),
   tryNavigate: vi.fn((navigate: () => void) => navigate()),
   toast: vi.fn(),
@@ -48,8 +50,14 @@ vi.mock("@/core/stores/root-store.provider", () => {
       return { enabled: state.agentConfigEnabled, toggle: state.toggleAgent };
     },
     recordWorkspaceStore: { routeReady: () => state.routeReady },
-    globalSearchModalStore: { open: state.openSearch },
+    globalSearchModalStore: { openFrom: state.openSearch },
     addPickerStore: { openFrom: state.openAdd },
+    viewPickerStore: {
+      get surface() {
+        return state.viewSurface;
+      },
+      openFrom: state.openViewPicker,
+    },
     navigationGuard: { tryNavigate: state.tryNavigate },
     keyboardShortcutsStore,
   };
@@ -83,8 +91,17 @@ beforeEach(() => {
     agentConfigEnabled: true,
     singleKeyShortcutsEnabled: true,
     routeReady: true,
+    viewSurface: null,
   });
-  for (const mock of [state.openSearch, state.toggleAgent, state.openAdd, state.openShortcuts, state.push, state.toast])
+  for (const mock of [
+    state.openSearch,
+    state.toggleAgent,
+    state.openAdd,
+    state.openShortcuts,
+    state.openViewPicker,
+    state.push,
+    state.toast,
+  ])
     mock.mockClear();
   state.tryNavigate.mockClear();
   container = document.createElement("div");
@@ -139,6 +156,35 @@ describe("global keyboard shortcuts", () => {
     expect(state.openAdd).toHaveBeenCalledOnce();
     press("?", { shiftKey: true, code: "Slash" });
     expect(state.openShortcuts).toHaveBeenCalledOnce();
+  });
+
+  it("opens search with / and the view picker with V only where a list offers views", () => {
+    press("/", { code: "Slash" });
+    expect(state.openSearch).toHaveBeenCalledOnce();
+    press("v");
+    expect(state.openViewPicker).not.toHaveBeenCalled();
+    state.viewSurface = {};
+    press("v");
+    expect(state.openViewPicker).toHaveBeenCalledOnce();
+  });
+
+  it("leaves / and V to fields, editors and the Mate composer", () => {
+    state.viewSurface = {};
+    const input = document.createElement("input");
+    const editor = document.createElement("div");
+    editor.setAttribute("contenteditable", "true");
+    const mate = document.createElement("div");
+    mate.setAttribute("data-agent-surface", "");
+    const composer = document.createElement("div");
+    composer.setAttribute("contenteditable", "true");
+    mate.append(composer);
+    document.body.append(input, editor, mate);
+    for (const target of [input, editor, composer]) {
+      expect(press("/", { code: "Slash" }, target).defaultPrevented).toBe(false);
+      expect(press("v", {}, target).defaultPrevented).toBe(false);
+    }
+    expect(state.openSearch).not.toHaveBeenCalled();
+    expect(state.openViewPicker).not.toHaveBeenCalled();
   });
 
   it("ignores single keys while typing, inside an open dialog and after a handler claimed them", () => {

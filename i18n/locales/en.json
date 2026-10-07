@@ -1893,6 +1893,9 @@
       "moveRight": "Move right",
       "name": "Name",
       "namePlaceholder": "View name",
+      "pickerEmpty": "No matching view",
+      "pickerPlaceholder": "Find a view…",
+      "pickerTitle": "Switch view",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}"
     }
@@ -2133,10 +2136,12 @@
     "title": "Forgot password"
   },
   "GlobalSearch": {
+    "askMateWith": "Ask Mate: {question}",
     "clearRecent": "Clear",
     "emptyDescription": "Find records across the lists you can access.",
     "emptyTitle": "Find anything in your workspace",
     "groupRecent": "Recently opened",
+    "hintAskMate": "Ask Mate",
     "hintNavigate": "Navigate",
     "hintOpen": "Open",
     "loading": "Searching...",
@@ -2369,7 +2374,7 @@
   },
   "KeyboardShortcuts": {
     "actions": {
-      "add": "Add",
+      "add": "Add a record or list",
       "askMate": "Ask Mate",
       "close": "Close the topmost dialog or drawer",
       "goConfigure": "Configure",
@@ -2381,19 +2386,27 @@
       "goSettings": "Settings",
       "save": "Save",
       "search": "Search",
+      "searchAlias": "Search",
       "shortcuts": "Show keyboard shortcuts",
+      "switchView": "Switch view on a list",
       "toggleSidebar": "Show or hide the sidebar"
     },
     "groups": {
-      "forms": "Forms and dialogs",
+      "create": "Create",
+      "forms": "Forms",
       "general": "General",
-      "navigation": "Go to"
+      "listsAndViews": "Lists and views",
+      "navigation": "Navigation"
     },
+    "noMatches": "No shortcut matches your search.",
     "pendingGo": "Go to… press a letter or a list number",
+    "searchLabel": "Search shortcuts",
+    "searchPlaceholder": "Search shortcuts…",
     "singleKey": {
-      "description": "C, ? and the G sequences. Turn them off if you use speech input or press keys by accident.",
+      "description": "C, /, V, ? and the G sequences. Turn them off if you use speech input or press keys by accident.",
       "label": "Single-key shortcuts"
     },
+    "then": "then",
     "title": "Keyboard shortcuts"
   },
   "LegalDocumentNotice": {

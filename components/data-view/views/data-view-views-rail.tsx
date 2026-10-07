@@ -7,7 +7,7 @@ import type { ViewMetaDraft } from "./use-view-commands";
 
 import { ChevronDownIcon, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter, usePathname as useLocalePathname } from "@/i18n/navigation";
@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { cn } from "@/core/utils/cn";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
 import { ViewMenuItems } from "./view-menu-items";
@@ -76,6 +77,30 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     owningRail: () => (owningRail.current?.store === store ? owningRail.current.element : null),
   });
 
+  const { viewPickerStore } = useRootStore();
+  const selectView = (viewKey: string) => {
+    if (detailParam && searchParams.get(detailParam)) {
+      router.push(viewHref(localePathname, viewKey));
+      return;
+    }
+
+    commands.select(viewKey);
+  };
+  const latestSelect = useRef(selectView);
+  latestSelect.current = selectView;
+  const allLabel = t("DataView.views.all");
+
+  useEffect(() => {
+    if (!joinsTopBar || !offersViews) return;
+    const surface = {
+      options: () => [{ id: ALL_VIEW_KEY, name: allLabel }, ...sortViewsByPosition(store.views)],
+      activeViewKey: () => store.activeViewKey,
+      select: (viewKey: string) => latestSelect.current(viewKey),
+    };
+    viewPickerStore.register(surface);
+    return () => viewPickerStore.unregister(surface);
+  }, [allLabel, joinsTopBar, offersViews, store, viewPickerStore]);
+
   const chips = orderChips(store.views, store.activeViewKey);
   const activeView = store.views.find((view) => view.id === store.activeViewKey);
   const tabbableIndex = chips.findIndex((chip) => chip.isActive);
@@ -117,13 +142,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     if (!isPlainClick(event)) return;
 
     event.preventDefault();
-
-    if (detailParam && searchParams.get(detailParam)) {
-      router.push(viewHref(localePathname, viewKey));
-      return;
-    }
-
-    commands.select(viewKey);
+    selectView(viewKey);
   };
 
   return (
