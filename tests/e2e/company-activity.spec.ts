@@ -16,12 +16,12 @@ test("shows admin and configuration history on the workspace activity page and f
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Activity auditors");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Reads the workspace history");
+  await role.getByRole("tab", { name: "Workspace", exact: true }).click();
+  await role.locator('[data-resource-permission="auditLog"]').getByRole("radio", { name: "All", exact: true }).check();
+  await role.getByRole("tab", { name: "Record types", exact: true }).click();
   await role
-    .getByRole("radiogroup", { name: "Audit Log — Read access", exact: true })
-    .getByRole("radio", { name: "All", exact: true })
-    .check();
-  await role
-    .getByRole("radiogroup", { name: "Contacts — Read access", exact: true })
+    .locator("[data-record-permission]")
+    .filter({ hasText: /^Contacts/ })
     .getByRole("radio", { name: "All", exact: true })
     .check();
   await role.getByRole("button", { name: "Save", exact: true }).click();
