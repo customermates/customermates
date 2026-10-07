@@ -354,7 +354,7 @@ export const FieldModal = observer(function FieldModal({
     const value = store.form.triggerValue;
     if (!trigger || value === undefined || value === null || value === "") return undefined;
     if (trigger.valueType === "select") return trigger.options.find((option) => option.id === value)?.label;
-    if (typeof value === "boolean") return t(value ? "RecordModel.yes" : "RecordModel.no");
+    if (typeof value === "boolean") return value ? t("RecordModel.yes") : t("RecordModel.no");
     return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
   };
   const askAi = useRecordAiAction({

@@ -72,6 +72,13 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 };
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  // The calculation path sentence for formulas is placeholders around an equals sign.
+  "de:RecordModel.calculationPath.formula",
+  "es:RecordModel.calculationPath.formula",
+  "fr:RecordModel.calculationPath.formula",
+  "it:RecordModel.calculationPath.formula",
+  // French uses "via" for a route through a relationship, as in English.
+  "fr:RecordModel.calculationPath.via",
   // German dashboards abbreviate quarters with Q, as in English.
   "de:RecordWidgets.quarterLabel",
   // The board count is pure ICU plural syntax around user-defined record type labels.

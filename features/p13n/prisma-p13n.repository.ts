@@ -87,7 +87,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(grouping),
       detailOptions: normalizeDetailOptions(detailOptions),
-      settings: readP13nSettings(p13nId, settings),
+      settings: readP13nSettings(p13nId, settings) ?? undefined,
       ...(Array.isArray(res.viewStateKeys) ? this.explicitViewState(res) : {}),
     };
   }
@@ -192,7 +192,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(row.grouping),
       detailOptions: normalizeDetailOptions(row.detailOptions),
-      settings: readP13nSettings(p13nId, row.settings),
+      settings: readP13nSettings(p13nId, row.settings) ?? undefined,
       ...(Array.isArray(row.viewStateKeys) ? this.explicitViewState(row) : {}),
     };
   }

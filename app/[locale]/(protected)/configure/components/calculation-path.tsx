@@ -62,6 +62,12 @@ export const CalculationPath = observer(function CalculationPath({
   const t = useTranslations();
   const summary = (value: CalculationExpression) => expressionSummary(value, model, (key) => t(`RecordModel.${key}`));
   const list = model.types.find((type) => type.id === typeId);
+  const reducerNouns: Record<string, string> = {
+    sum: t("RecordModel.calculationPath.reducers.sum"),
+    average: t("RecordModel.calculationPath.reducers.average"),
+    min: t("RecordModel.calculationPath.reducers.min"),
+    max: t("RecordModel.calculationPath.reducers.max"),
+  };
   const steps: PathStep[] = [];
   let sentence: string;
   if (expression.kind === "related") {
@@ -90,7 +96,7 @@ export const CalculationPath = observer(function CalculationPath({
           ? t("RecordModel.calculationPath.count", { field: fieldLabel, list: last?.pluralLabel ?? "" })
           : t("RecordModel.calculationPath.rollup", {
               field: fieldLabel,
-              reducer: t(`RecordModel.calculationPath.reducers.${expression.reducer}`),
+              reducer: reducerNouns[expression.reducer],
               value: summary(value),
               list: last?.pluralLabel ?? "",
             });

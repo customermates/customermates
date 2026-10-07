@@ -15,7 +15,7 @@ import { unwrapValidated } from "@/core/validation/validation.utils";
 import { PageContainer } from "@/components/shared/page-container";
 import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
-import { CONFIGURE_GRAPH_P13N_ID, ConfigureGraphLayoutSchema } from "@/features/p13n/p13n-settings.schema";
+import { CONFIGURE_GRAPH_P13N_ID, readP13nSettings } from "@/features/p13n/p13n-settings.schema";
 import { ConfigurePageView } from "./components/configure-page-view";
 
 async function loadAccounts(): Promise<ConfigureGraphAccounts> {
@@ -47,7 +47,7 @@ async function loadAccounts(): Promise<ConfigureGraphAccounts> {
 
 async function loadSavedLayout() {
   const entry = await getGetP13nInteractor().invoke({ p13nId: CONFIGURE_GRAPH_P13N_ID });
-  return ConfigureGraphLayoutSchema.safeParse(entry.data?.settings).data ?? null;
+  return readP13nSettings(CONFIGURE_GRAPH_P13N_ID, entry.data?.settings);
 }
 
 export default async function ConfigurePage() {
