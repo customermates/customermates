@@ -1,5 +1,3 @@
-// The current circulating ISO 4217 codes a money field can carry, lowercase as the pickers store them.
-
 export const CURRENCIES: ReadonlyArray<{ key: string }> = `
   aed afn all amd aoa ars aud awg azn bam bbd bdt bhd bif bmd bnd bob brl bsd btn bwp byn bzd cad cdf chf clp
   cny cop crc cup cve czk djf dkk dop dzd egp ern etb eur fjd fkp gbp gel ghs gip gmd gnf gtq gyd hkd hnl htg
