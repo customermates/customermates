@@ -48,7 +48,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
 
     const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
     const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
-    const redirectUrl = `${baseUrl}${settingsHref("plan")}`;
+    const redirectUrl = `${baseUrl}${settingsHref("billing")}`;
     const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
       offer,
       quantity: activeUsersCount,

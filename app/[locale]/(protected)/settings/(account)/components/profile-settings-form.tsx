@@ -19,12 +19,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
 import { DISPLAY_LANGUAGE_VALUES, FORMATTING_LOCALE_VALUES } from "@/i18n/user-locale";
-import {
-  appLocaleCookie,
-  browserAppLocale,
-  displayLanguageNavigationTarget,
-  expiredAppLocaleCookie,
-} from "@/i18n/locale-preference";
+import { browserAppLocale } from "@/i18n/locale-preference";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
@@ -50,7 +45,7 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
   const currentLocale = useLocale();
   const { setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const { profileSettingsStore: store, userStore, navigationGuard } = useRootStore();
+  const { profileSettingsStore: store, userStore } = useRootStore();
   const { savedState } = store;
 
   useEffect(() => setMounted(true), []);
@@ -119,14 +114,7 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
           if (store.error) return;
           setTheme(store.form.theme ?? Theme.system);
           const locale = store.form.displayLanguage;
-          if (locale !== previousDisplayLanguage) {
-            if (locale === Locale.system) document.cookie = expiredAppLocaleCookie();
-            else if (locale) document.cookie = appLocaleCookie(locale);
-            const target = displayLanguageNavigationTarget(locale, pathname);
-            navigationGuard.tryNavigate(() => {
-              window.location.href = target;
-            });
-          }
+          if (locale && locale !== previousDisplayLanguage) userStore.applyDisplayLanguage(locale, pathname);
         });
       }}
     >

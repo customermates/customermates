@@ -27,7 +27,7 @@ export function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
         variant="secondary"
         onClick={() => {
           if (contact) window.location.assign("mailto:support@customermates.com?subject=Hosted%20Assistant%20credits");
-          else router.push(settingsHref("plan"));
+          else router.push(settingsHref("billing"));
         }}
       >
         {contact ? t("AgentChat.credits.contact") : t("AgentChat.credits.viewPlans")}

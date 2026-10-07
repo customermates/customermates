@@ -118,7 +118,7 @@ describe("agent interface targets", () => {
     expect(agentRouteVisible("/routines", "cloud", reads(Resource.wiki))).toBe(false);
     expect(agentRouteVisible("/routines", "cloud", reads(Resource.routines))).toBe(true);
     expect(agentRouteVisible("/inbox", "cloud", everything)).toBe(true);
-    for (const path of ["/inbox", "/routines", "/settings/channels", "/settings/plan"])
+    for (const path of ["/inbox", "/routines", "/settings/channels", "/settings/billing"])
       expect(agentRouteVisible(path, "self-hosted", everything), path).toBe(false);
     expect(agentRouteVisible("*", "cloud", reads())).toBe(true);
   });

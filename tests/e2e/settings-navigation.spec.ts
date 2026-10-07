@@ -29,7 +29,13 @@ test("settings live in one area reached from the workspace menu, with Back to th
 
   await test.step("the workspace menu opens Settings on Profile & preferences", async () => {
     const menu = await openMenu(page, "#nav-workspace-menu");
-    await expect(menu.getByRole("menuitem", { name: "Invite members" })).toBeVisible();
+    await expect(menu.getByRole("menuitem").first()).toHaveText("Invite members");
+    expect((await menu.getByRole("menuitem").allTextContents()).slice(0, 4)).toEqual([
+      "Invite members",
+      "Members",
+      "Settings",
+      expect.stringMatching(/^Billing/),
+    ]);
     await menu.getByRole("menuitem", { name: "Settings", exact: true }).click();
     await expect(page).toHaveURL(/\/en\/settings\/profile$/);
     await openSidebar(page);
@@ -67,21 +73,19 @@ test("settings live in one area reached from the workspace menu, with Back to th
   expect(errors).toEqual([]);
 });
 
-test("the personal menu holds profile, theme, docs, feedback and customize", async ({ page, database, workspace }) => {
+test("the personal menu holds profile, theme, language, docs, feedback and customize", async ({
+  page,
+  database,
+  workspace,
+}) => {
   const errors = collectErrors(page, [COUNTRY_FLAG_ORIGIN]);
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
 
   let menu = await openMenu(page, "#nav-personal-menu");
-  for (const item of [
-    "Profile & preferences",
-    "Keyboard shortcuts",
-    "Documentation",
-    "Send feedback",
-    "Customize sidebar",
-    "Sign Out",
-  ])
+  for (const item of ["Profile & preferences", "Documentation", "Send feedback", "Customize sidebar", "Sign Out"])
     await expect(menu.getByRole("menuitem", { name: item, exact: true })).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: /keyboard shortcuts/i })).toHaveCount(0);
 
   await menu.getByRole("menuitem", { name: "Theme", exact: true }).click();
   await page.getByRole("menuitemradio", { name: "Dark", exact: true }).click();
@@ -107,5 +111,20 @@ test("the personal menu holds profile, theme, docs, feedback and customize", asy
   menu = await openMenu(page, "#nav-personal-menu");
   await menu.getByRole("menuitem", { name: "Profile & preferences", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/settings\/profile$/);
+
+  menu = await openMenu(page, "#nav-personal-menu");
+  await menu.getByRole("menuitem", { name: /^Language/ }).click();
+  await page.getByRole("menuitemradio", { name: "German", exact: true }).click();
+  await expect(page).toHaveURL(/\/de\/settings\/profile$/);
+  await expect
+    .poll(
+      async () =>
+        (
+          await database.query<{ language: string }>('SELECT "displayLanguage" AS language FROM "User" WHERE id=$1', [
+            workspace.userId,
+          ])
+        ).rows[0]?.language,
+    )
+    .toBe("de");
   expect(errors).toEqual([]);
 });

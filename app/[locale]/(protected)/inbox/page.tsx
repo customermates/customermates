@@ -74,7 +74,7 @@ export default async function InboxPage({ searchParams }: Props) {
   return (
     <PageContainer padded={false}>
       <LockedFeatureOverlay
-        ctaHref={settingsHref("plan")}
+        ctaHref={settingsHref("billing")}
         ctaLabel={t("MessagingUpsell.cta")}
         description={
           planLocked ? t("MessagingUpsell.description") : t("ConnectedAccountsCard.paidSubscriptionRequired")

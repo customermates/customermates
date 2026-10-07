@@ -11,13 +11,13 @@ Workspace-wide administration: the subscription (Cloud only), the team and its p
 
 Open these pages from **Settings** in the workspace menu on the workspace name (`#nav-workspace-menu`); inside Settings the sidebar lists them under **Workspace**. Each page has its own route, and the browser address puts the language in front of it (example: `/en/settings/members`). The breadcrumb reads **My Company** › page name; the first crumb opens the first page you can see, and the second switches between the sibling pages.
 
-Routes are relative and carry no language prefix: they work on the address the workspace runs on, and the app adds the user's language, so `/settings/plan` opens `/en/settings/plan` for an English user. For a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return; that origin is the instance's configured `BASE_URL`. Mate's `highlight_element` also takes each navigate target: each points at its page's entry in the settings sidebar, which is shown only while Settings is open. **Add** targets exist only for roles that can create there, and the layout targets only while display options are open. Billing targets appear only for roles with **Company** **Edit**, and a dialog target only while its dialog is open: where a control opens the dialog, it is the target's prerequisite, and Mate asks the user to open it first. Where a row opens the dialog, `list_ui_targets` names that row as the prerequisite (for example `a member row`); rows have no target, so Mate asks the user to click the row.
+Routes are relative and carry no language prefix: they work on the address the workspace runs on, and the app adds the user's language, so `/settings/billing` opens `/en/settings/billing` for an English user. For a full link, put the route after the origin of the `url` that `search_docs`, `get_docs_page` and `fetch` return; that origin is the instance's configured `BASE_URL`. Mate's `highlight_element` also takes each navigate target: each points at its page's entry in the settings sidebar, which is shown only while Settings is open. **Add** targets exist only for roles that can create there, and the layout targets only while display options are open. Billing targets appear only for roles with **Company** **Edit**, and a dialog target only while its dialog is open: where a control opens the dialog, it is the target's prerequisite, and Mate asks the user to open it first. Where a row opens the dialog, `list_ui_targets` names that row as the prerequisite (for example `a member row`); rows have no target, so Mate asks the user to click the row.
 
 Subscription is Cloud only. Activity needs **Audit Log** read access **All**, and Webhooks and Recent Deliveries need **API & Webhooks** read access **All**. The **Users & Roles** read setting controls whether Members and Roles appear; **Assigned** limits the member list to your own row, and **None** hides both pages. Subscription is visible to every role saved with a **Company** row, which the role editor always saves; changing it needs **Company** **Edit**. Adding, editing and deleting need the matching **Create**, **Edit** or **Delete** checkbox on the page's row. The built-in **Admin** role sees and can change everything.
 
 | Page | Route | Navigate target | Highlight targets on the page | Explained in |
 |---|---|---|---|---|
-| **Subscription** | `/settings/plan` | `nav-settings-plan` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Subscription](#subscription-tab) |
+| **Subscription** | `/settings/billing` | `nav-settings-billing` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Subscription](#subscription-tab) |
 | **Members** | `/settings/members` | `nav-settings-members` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Invite User** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **User** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Members](#members-tab) |
 | **Roles** | `/settings/roles` | `nav-settings-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board`; in the editor `role-modal-save`, `role-modal-reset`, `role-modal-delete` | [Roles](#roles-tab) |
 | **Activity** | `/settings/activity` | `nav-settings-activity` | None | [Activity](#activity-tab) |
@@ -40,7 +40,7 @@ A member without a permission sees fewer pages and controls:
 
 ## Subscription page: plan and billing [#subscription-tab]
 
-The link to billing is the **Subscription** page: it shows the plan, status, seats and billing of the workspace. Route `/settings/plan`, sidebar id `#nav-settings-plan`, Cloud only: on a self-hosted install the entry is hidden, the URL redirects to the Dashboard, and there is no subscription. Every member can open the page. Who may use the billing controls is under [Who can manage billing?](#who-can-manage-billing). Customermates bills through Lemon Squeezy, the payment provider that runs checkout and the customer portal.
+The link to billing is the **Subscription** page: it shows the plan, status, seats and billing of the workspace. Route `/settings/billing`, sidebar id `#nav-settings-billing`, Cloud only: on a self-hosted install the entry is hidden, the URL redirects to the Dashboard, and there is no subscription. Every member can open the page. Who may use the billing controls is under [Who can manage billing?](#who-can-manage-billing). Customermates bills through Lemon Squeezy, the payment provider that runs checkout and the customer portal.
 
 | Field | What it shows |
 |---|---|
@@ -51,13 +51,13 @@ The link to billing is the **Subscription** page: it shows the plan, status, sea
 
 The top bar holds **Refresh** (`#company-subscription-refresh`) and **Manage with Lemon Squeezy** (`#company-subscription-manage`), and the plan picker below the fields carries `#company-subscription-plan-picker`. Plan prices and allowances are under [Which plans are there?](#which-plans-are-there); the hosted AI credits per plan are under [Plans and credits](/docs/app-assistant#plans-and-credits).
 
-**Link:** the link to the **Subscription** page, `/settings/plan`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan`; `highlight_element` also takes `company-subscription-refresh`, `company-subscription-manage` and `company-subscription-plan-picker`, each shown only to roles with **Company** **Edit**, in the subscription state that offers it. The fields are not highlight targets, so Mate names them. On self-hosted, `list_ui_targets` still offers the targets, but the page redirects to the Dashboard.
+**Link:** the link to the **Subscription** page, `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`; `highlight_element` also takes `company-subscription-refresh`, `company-subscription-manage` and `company-subscription-plan-picker`, each shown only to roles with **Company** **Edit**, in the subscription state that offers it. The fields are not highlight targets, so Mate names them. On self-hosted, `list_ui_targets` still offers the targets, but the page redirects to the Dashboard.
 
 ### Who can manage billing? [#who-can-manage-billing]
 
 Only roles with **Company** **Edit** ticked, and the **Admin** role, see the billing controls: the plan picker, **Manage with Lemon Squeezy** and **Refresh**. Everyone else sees the values read-only with a hint to ask a workspace administrator. The role's **Company** row is set under **My Company › Roles**.
 
-**Link:** `/settings/plan`, and for the role's **Company** row `/settings/roles`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan` or `nav-settings-roles`; the role rows are not highlight targets, so Mate names them.
+**Link:** `/settings/billing`, and for the role's **Company** row `/settings/roles`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing` or `nav-settings-roles`; the role rows are not highlight targets, so Mate names them.
 
 ### What does each subscription status mean?
 
@@ -76,7 +76,7 @@ A trial whose end date has passed without a checkout counts as expired, too. Ref
 
 The chip under the Customermates name in the sidebar shows the plan name while the status is **Active**, and otherwise the plan with its status, for example **Pro · Trial · 3 days left**, **1 day left** or **ends today**. It is green, turns amber at 3 or fewer trial days, and is red for every other status. Clicking it opens **My Company › Subscription**. Self-hosted installs show no chip.
 
-**Link:** `/settings/plan`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan`; the status chip and the plan chip in the sidebar are not highlight targets, so Mate names them.
+**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`; the status chip and the plan chip in the sidebar are not highlight targets, so Mate names them.
 
 ### Which plans are there, and what are their prices? [#which-plans-are-there]
 
@@ -91,7 +91,7 @@ Customermates Cloud has four plans, **Starter**, **Pro**, **Business** and **Ent
 
 Every plan includes the full CRM, the audit log, the API, the MCP server and the hosted assistant. Starter, Pro and Business are billed monthly per seat, in euros; there is no other billing interval. Hosted AI credits per active user and month: Starter 200, Pro 500, Business 1,200, Enterprise as contracted, and 500 during the trial. Each request is charged its exact provider cost and shown to one decimal; see [How many credits does each plan include?](/docs/app-assistant#plans-and-credits).
 
-**Link:** `/settings/plan`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan`, then `highlight_element` with `company-subscription-plan-picker` for the plan cards while the picker is shown; the target outlines all cards, so Mate names the plan.
+**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `company-subscription-plan-picker` for the plan cards while the picker is shown; the target outlines all cards, so Mate names the plan.
 
 ### How do I choose, upgrade or change a plan? [#how-do-i-choose-or-change-a-plan]
 
@@ -101,7 +101,7 @@ Clicking a card opens the Lemon Squeezy checkout for as many seats as the worksp
 
 After the first checkout the picker does not come back on its own; change the plan with **Manage with Lemon Squeezy** instead. Enterprise workspaces never see the picker, and a checkout is refused with "Enterprise workspaces are billed manually and cannot start self-service checkout."
 
-**Link:** `/settings/plan`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan`, then `highlight_element` with `company-subscription-plan-picker` while the picker is shown; the target outlines all three cards, so Mate names the card to click. After the first checkout, `company-subscription-manage` points at **Manage with Lemon Squeezy** instead.
+**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `company-subscription-plan-picker` while the picker is shown; the target outlines all three cards, so Mate names the card to click. After the first checkout, `company-subscription-manage` points at **Manage with Lemon Squeezy** instead.
 
 ### How do I cancel, change the payment method or get invoices?
 
@@ -111,7 +111,7 @@ Changes made in the portal reach Customermates automatically. If the page still 
 
 Members without **Company** **Edit** see neither button. The hosted assistant and MCP clients cannot read or change the plan, the status, the seats or anything else about billing.
 
-**Link:** `/settings/plan`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan`, then `highlight_element` with `company-subscription-manage` for **Manage with Lemon Squeezy** or `company-subscription-refresh` for **Refresh**; each is shown only to roles with **Company** **Edit** and to the **Admin** role, **Manage with Lemon Squeezy** once the workspace has a self-serve Lemon Squeezy subscription and **Refresh** once it has a Lemon Squeezy subscription and outside the trial, neither on Enterprise.
+**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, then `highlight_element` with `company-subscription-manage` for **Manage with Lemon Squeezy** or `company-subscription-refresh` for **Refresh**; each is shown only to roles with **Company** **Edit** and to the **Admin** role, **Manage with Lemon Squeezy** once the workspace has a self-serve Lemon Squeezy subscription and **Refresh** once it has a Lemon Squeezy subscription and outside the trial, neither on Enterprise.
 
 ### How are seats counted and billed?
 
@@ -119,7 +119,7 @@ A seat is a member with status **Active**. Members **Waiting for approval** and 
 
 To lower the bill, set members who no longer need access to **Inactive** on [Members](#members-tab). That also pauses the routines they own and removes their connected messaging accounts at the next daily run.
 
-**Link:** `/settings/plan` for **Active seats**, and `/settings/members` to change a status. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan` or `nav-settings-members`; **Active seats** and the member rows are not highlight targets, so Mate names them. Once the user has opened a member row, `member-modal-status` points at **Status** and `member-modal-save` at **Save** (roles with **Users & Roles** **Edit**).
+**Link:** `/settings/billing` for **Active seats**, and `/settings/members` to change a status. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing` or `nav-settings-members`; **Active seats** and the member rows are not highlight targets, so Mate names them. Once the user has opened a member row, `member-modal-status` points at **Status** and `member-modal-save` at **Save** (roles with **Users & Roles** **Edit**).
 
 ### What happens when the free trial ends or a payment fails, and why am I locked out? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
@@ -144,25 +144,25 @@ A paid workspace that stays **Unpaid** or **Expired** for 3 days has all members
 
 Only the web app is paused before that point. Until the members are set **Inactive**, their API keys and MCP connections keep reading and changing records, and webhooks keep firing for those changes; messaging, channels and the hosted assistant stop as soon as the subscription is no longer usable.
 
-**Link:** `/subscription-expired` for **Subscription Required**; it opens only while access is paused, otherwise it redirects to `/settings/plan`. **Mate:** no target, and Mate is not available on this page, so it can only pass on the URL; the plan cards carry `#company-subscription-plan-picker` here too, but Mate cannot highlight them, and **Contact Support** and **Retry** have no id.
+**Link:** `/subscription-expired` for **Subscription Required**; it opens only while access is paused, otherwise it redirects to `/settings/billing`. **Mate:** no target, and Mate is not available on this page, so it can only pass on the URL; the plan cards carry `#company-subscription-plan-picker` here too, but Mate cannot highlight them, and **Contact Support** and **Retry** have no id.
 
 ### What happens to connected accounts when the plan changes, for example a switch to Starter? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
 When Lemon Squeezy reports a different plan, through the automatic sync or **Refresh**, Customermates removes each user's newest connected accounts beyond the new plan's allowance per user. The Starter allowance is [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every connected account is removed. The first checkout from the trial counts as a change from Pro: choosing Starter removes every connected account. Members with the **Admin** role get an email that lists the removed accounts. Routines above the new allowance are kept, because the allowance applies only when a routine is created.
 
-**Link:** `/settings/plan`, and the remaining accounts on `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan` or `nav-settings-channels`, and `highlight_element` with `company-subscription-refresh` for **Refresh**; the account cards are not highlight targets, so Mate names them.
+**Link:** `/settings/billing`, and the remaining accounts on `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing` or `nav-settings-channels`, and `highlight_element` with `company-subscription-refresh` for **Refresh**; the account cards are not highlight targets, so Mate names them.
 
 ### How does an Enterprise workspace differ?
 
 An **Enterprise** workspace is set up with Customermates and billed by invoice. The page shows **Plan** and the note "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes." **Trial ends**, **Current period ends**, **Active seats**, the plan picker, **Refresh** and **Manage with Lemon Squeezy** are hidden, self-service checkout is refused, and member status changes are not sent to billing.
 
-**Link:** `/settings/plan`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan`; **Plan** and the Enterprise note are not highlight targets, so Mate names them.
+**Link:** `/settings/billing`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`; **Plan** and the Enterprise note are not highlight targets, so Mate names them.
 
 ### Where do upgrade buttons lead?
 
 On Starter, the Inbox and **My Profile** › **Channels** show **Upgrade to unlock messaging** with the button **Upgrade your plan**. A Pro user at the connected-account limit sees **Upgrade to connect more accounts** with **View plans**, and the hosted assistant's credit notice shows **View plans** too. All of them open **My Company** › **Subscription**. Only roles with **Company** **Edit** can act there, and once the workspace has a subscription, upgrading goes through **Manage with Lemon Squeezy**.
 
-**Link:** `/settings/plan`; the buttons sit on `/inbox` and `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-plan`, `nav-inbox` or `nav-settings-channels`; **Upgrade your plan** and **View plans** are not highlight targets, so Mate names them.
+**Link:** `/settings/billing`; the buttons sit on `/inbox` and `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-billing`, `nav-inbox` or `nav-settings-channels`; **Upgrade your plan** and **View plans** are not highlight targets, so Mate names them.
 
 ## Where is the currency set? [#where-is-the-currency-set]
 

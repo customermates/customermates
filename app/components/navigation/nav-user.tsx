@@ -5,7 +5,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import {
   BookOpen,
   ChevronsUpDown,
-  Keyboard,
+  Languages,
   LogIn as LogOut,
   MessageCircle,
   Palette,
@@ -40,6 +40,8 @@ export type ThemeChoice = "system" | "light" | "dark";
 type Props = {
   user: AccountMenuUser | null;
   theme: ThemeChoice;
+  language: string;
+  languages: ReadonlyArray<{ value: string; label: string }>;
   restricted: boolean;
   customizable: boolean;
   emailVerified: boolean | null;
@@ -51,7 +53,7 @@ type Props = {
     notVerified: string;
     theme: string;
     themes: Record<ThemeChoice, string>;
-    keyboardShortcuts: string;
+    language: string;
     documentation: string;
     feedback: string;
     customizeSidebar: string;
@@ -59,6 +61,7 @@ type Props = {
   };
   onNavigate: () => void;
   onThemeChange: (theme: ThemeChoice) => void;
+  onLanguageChange: (language: string) => void;
   onFeedback: (invoker: HTMLElement) => void;
   onCustomizeSidebar: () => void;
   onSignOut: () => void;
@@ -70,6 +73,8 @@ export const NavUser = observer(
   ({
     user,
     theme,
+    language,
+    languages,
     restricted,
     customizable,
     emailVerified,
@@ -78,6 +83,7 @@ export const NavUser = observer(
     labels,
     onNavigate,
     onThemeChange,
+    onLanguageChange,
     onFeedback,
     onCustomizeSidebar,
     onSignOut,
@@ -169,11 +175,27 @@ export const NavUser = observer(
 
                 {!restricted && (
                   <>
-                    <DropdownMenuItem disabled>
-                      <Keyboard />
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <Languages />
 
-                      <span>{labels.keyboardShortcuts}</span>
-                    </DropdownMenuItem>
+                        <span className="flex-1">{labels.language}</span>
+
+                        <span className="text-xs text-muted-foreground">
+                          {languages.find((candidate) => candidate.value === language)?.label}
+                        </span>
+                      </DropdownMenuSubTrigger>
+
+                      <DropdownMenuSubContent>
+                        <DropdownMenuRadioGroup value={language} onValueChange={onLanguageChange}>
+                          {languages.map((candidate) => (
+                            <DropdownMenuRadioItem key={candidate.value} value={candidate.value}>
+                              {candidate.label}
+                            </DropdownMenuRadioItem>
+                          ))}
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
 
                     <DropdownMenuItem asChild>
                       <AppLink appearance="unstyled" href={docsHref} prefetch={false} onClick={onNavigate}>

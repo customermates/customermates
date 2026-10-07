@@ -32,7 +32,7 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
   workspace: [
     { slug: "members", icon: Users, labelKey: "SettingsNav.members", resource: Resource.users },
     { slug: "roles", icon: Shield, labelKey: "SettingsNav.roles", resource: Resource.users },
-    { slug: "plan", icon: CreditCard, labelKey: "SettingsNav.plan", resource: Resource.company, cloudOnly: true },
+    { slug: "billing", icon: CreditCard, labelKey: "SettingsNav.billing", resource: Resource.company, cloudOnly: true },
     { slug: "activity", icon: History, labelKey: "SettingsNav.activity", resource: Resource.auditLog },
     { slug: "webhooks", icon: Webhook, labelKey: "SettingsNav.webhooks", resource: Resource.api },
   ],

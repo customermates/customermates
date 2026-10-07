@@ -104,7 +104,7 @@ Um die Seite zu sehen, braucht die Zeile **Inbox-Nachrichten** Ihrer Rolle **Les
 
 Der Tarif des Workspace muss Messaging enthalten: Pro, Business, Enterprise oder eine Testphase. In Starter zeigt die Seite **Upgrade nötig, um Messaging freizuschalten** mit dem Button **Tarif upgraden**, der **Mein Unternehmen › Abonnement** öffnet. Jede Aktion außer dem Trennen braucht außerdem ein nutzbares Abonnement, also den Status **Aktiv** oder eine noch nicht abgelaufene Testphase; sonst wird sie abgelehnt, und **Kanal verbinden** meldet „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“ Self-Hosted-Installationen haben keine Seite Kanäle.
 
-**Link:** `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`; in Starter hat die gesperrte Seite kein Ziel **Kanal verbinden**, und **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen oder navigiert mit `nav-settings-plan`.
+**Link:** `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`; in Starter hat die gesperrte Seite kein Ziel **Kanal verbinden**, und **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen oder navigiert mit `nav-settings-billing`.
 
 ### Wie verbinde ich einen Kanal? [#how-do-i-connect-a-channel]
 
@@ -135,7 +135,7 @@ Kanäle pro Mitglied: Starter [[commercial.entitlement.starter.includedAccountsP
 
 Ist das Limit in Pro erreicht, öffnet **Kanal verbinden** den Dialog **Upgrade, um mehr Konten zu verbinden**; dessen Button **Tarife ansehen** führt zu **Mein Unternehmen › Abonnement**. In Business verweist eine Fehlermeldung auf Enterprise. Nach einem Downgrade werden bei jedem Mitglied die neuesten Kanäle oberhalb des neuen Kontingents entfernt und als **Gelöscht** markiert, und Mitglieder mit der Rolle **Admin** erhalten eine E-Mail.
 
-**Link:** `/settings/channels`, und `/settings/plan` für **Tarife ansehen**. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`, danach `highlight_element` mit `profile-connected-accounts-connect`, oder `nav-settings-plan` für die Tarife; **Tarife ansehen** und der Upgrade-Dialog haben keine Id, deshalb nennt Mate sie beim Namen.
+**Link:** `/settings/channels`, und `/settings/billing` für **Tarife ansehen**. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`, danach `highlight_element` mit `profile-connected-accounts-connect`, oder `nav-settings-billing` für die Tarife; **Tarife ansehen** und der Upgrade-Dialog haben keine Id, deshalb nennt Mate sie beim Namen.
 
 ### Was bedeutet welcher Kanalstatus? [#what-does-each-status-mean]
 

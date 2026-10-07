@@ -22,10 +22,12 @@ import {
   Repeat,
   ShieldCheck,
   UserPlus,
+  Users,
   RotateCcw,
   BookOpen,
 } from "lucide-react";
-import { Action, Resource } from "@/generated/prisma";
+import { Action, Locale, Resource } from "@/generated/prisma";
+import { DISPLAY_LANGUAGE_VALUES } from "@/i18n/user-locale";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
@@ -347,24 +349,11 @@ const FullAppSidebar = observer(
       </AppChip>
     ) : undefined;
     const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
-    const planVisible = visibleSubroutes("workspace", rootStore.appMode, canAccess).some(
-      (subroute) => subroute.slug === "plan",
+    const workspaceRoutes = visibleSubroutes("workspace", rootStore.appMode, canAccess).map(
+      (subroute) => subroute.slug,
     );
     const workspaceMenu = restricted ? null : (
       <>
-        <DropdownMenuItem asChild>
-          <AppLink
-            appearance="unstyled"
-            href={SETTINGS_ENTRY_HREF}
-            id="workspace-menu-settings"
-            onClick={() => closeMobileSidebar()}
-          >
-            <Settings />
-
-            <span>{t("NavigationBar.settings")}</span>
-          </AppLink>
-        </DropdownMenuItem>
-
         {userStore.can(Resource.users, Action.create) && (
           <DropdownMenuItem
             id="workspace-menu-invite"
@@ -381,17 +370,45 @@ const FullAppSidebar = observer(
           </DropdownMenuItem>
         )}
 
-        {planVisible && (
+        {workspaceRoutes.includes("members") && (
           <DropdownMenuItem asChild>
             <AppLink
               appearance="unstyled"
-              href={settingsHref("plan")}
-              id="workspace-menu-plan"
+              href={settingsHref("members")}
+              id="workspace-menu-members"
+              onClick={() => closeMobileSidebar()}
+            >
+              <Users />
+
+              <span>{t("SettingsNav.members")}</span>
+            </AppLink>
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuItem asChild>
+          <AppLink
+            appearance="unstyled"
+            href={SETTINGS_ENTRY_HREF}
+            id="workspace-menu-settings"
+            onClick={() => closeMobileSidebar()}
+          >
+            <Settings />
+
+            <span>{t("NavigationBar.settings")}</span>
+          </AppLink>
+        </DropdownMenuItem>
+
+        {workspaceRoutes.includes("billing") && (
+          <DropdownMenuItem asChild>
+            <AppLink
+              appearance="unstyled"
+              href={settingsHref("billing")}
+              id="workspace-menu-billing"
               onClick={() => closeMobileSidebar()}
             >
               <CreditCard />
 
-              <span className="flex-1">{t("SettingsNav.plan")}</span>
+              <span className="flex-1">{t("SettingsNav.billing")}</span>
 
               {planChipNode}
             </AppLink>
@@ -438,7 +455,6 @@ const FullAppSidebar = observer(
             }
             assistantShortcut="⌘J"
             brandName="Customermates"
-            brandSubtitle={planChipNode}
             logoAlt={t("Common.imageAlt.logo")}
             overlaysDisabled={!restricted && !recordWorkspaceStore.routeReady(intlPathname)}
             quickActions={!area}
@@ -517,18 +533,30 @@ const FullAppSidebar = observer(
                   light: t("Common.themes.light"),
                   dark: t("Common.themes.dark"),
                 },
-                keyboardShortcuts: t("UserAvatar.keyboardShortcuts"),
+                language: t("UserAvatar.language"),
                 documentation: t("UserAvatar.documentation"),
                 feedback: t("UserAvatar.sendFeedback"),
                 customizeSidebar: t("SidebarCustomize.title"),
                 signOut: t("UserAvatar.signOut"),
               }}
+              language={userStore.user?.displayLanguage ?? Locale.system}
+              languages={DISPLAY_LANGUAGE_VALUES.map((value) => ({
+                value,
+                label: value === Locale.system ? t("Common.locales.system") : t(`Common.locales.${value}`),
+              }))}
               profileHref={settingsHref("profile")}
               restricted={restricted}
               theme={theme === "light" || theme === "dark" ? theme : "system"}
               user={user}
               onCustomizeSidebar={() => closeMobileSidebar(() => setCustomizeOpen(true))}
               onFeedback={openFeedback}
+              onLanguageChange={(value) =>
+                closeMobileSidebar(() =>
+                  runUserAction(() =>
+                    userStore.updateDisplayLanguage(value as Locale, `${intlPathname}${window.location.search}`),
+                  ),
+                )
+              }
               onNavigate={() => closeMobileSidebar()}
               onSignOut={() =>
                 closeMobileSidebar(() => {

@@ -267,7 +267,7 @@ export const searchTool = {
     "Knowledge Base results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Knowledge Base pages. " +
     "A misspelled word that matches no Knowledge Base page is corrected from the Knowledge Base's own words, and didYouMean names the corrected query; when no Knowledge Base page fits, search again with other words. " +
     "For focused CRM or product-doc queries prefer search_crm_records or query_crm_records, query_crm_measure for totals, or search_docs. " +
-    "App routes in the docs text that fetch returns, such as `/settings/plan`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",
+    "App routes in the docs text that fetch returns, such as `/settings/billing`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -330,7 +330,7 @@ export const fetchTool = {
     "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. Knowledge Base Read is required for Knowledge Base pages. " +
     "Start at a search result's offset to land on the matched section; at offset 0 a multi-chunk page also returns an outline of its headings with their offsets. " +
     "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer read_crm_record or get_docs_page. " +
-    "For a docs result, app routes in text, such as `/settings/plan`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
+    "For a docs result, app routes in text, such as `/settings/billing`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,

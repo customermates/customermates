@@ -353,7 +353,7 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
 
       <div className="px-3.5 pt-2 pb-3">
         <Button asChild className="nodrag" size="xs" variant="secondary">
-          <AppLink appearance="unstyled" href={state === "locked" ? settingsHref("plan") : CONNECTED_ACCOUNTS_HREF}>
+          <AppLink appearance="unstyled" href={state === "locked" ? settingsHref("billing") : CONNECTED_ACCOUNTS_HREF}>
             {state === "locked" ? t("MessagingUpsell.cta") : t("ConnectedAccountsCard.connectAccount")}
           </AppLink>
         </Button>

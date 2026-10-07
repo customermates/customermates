@@ -2,16 +2,17 @@ import type { UserProfileData } from "@/features/user/upsert/update-user-details
 import type { TenantUser } from "@/features/user/user.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
-import type { Theme } from "@/generated/prisma";
+import type { Locale, Theme } from "@/generated/prisma";
 
 import { makeObservable } from "mobx";
 import { action, observable } from "mobx";
 import { Action, CountryCode, Resource } from "@/generated/prisma";
 
-import { updateThemeAction } from "@/app/[locale]/(protected)/dashboard/actions";
+import { updatePreferencesAction } from "@/app/[locale]/(protected)/dashboard/actions";
 import { resendVerificationEmailFromAppAction } from "../actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { normalizeStoredDisplayLanguage, normalizeStoredFormattingLocale } from "@/i18n/user-locale";
+import { appLocaleCookie, displayLanguageNavigationTarget, expiredAppLocaleCookie } from "@/i18n/locale-preference";
 
 export class UserStore extends BaseStore {
   public user: TenantUser | null = null;
@@ -26,6 +27,7 @@ export class UserStore extends BaseStore {
       can: action,
       canAccess: action,
       updateTheme: action,
+      updateDisplayLanguage: action,
     });
   }
 
@@ -39,13 +41,35 @@ export class UserStore extends BaseStore {
   updateTheme = async (theme: Theme): Promise<void> => {
     if (!this.user) return;
 
-    const res = await updateThemeAction({ theme });
+    const res = await updatePreferencesAction({ theme });
     if (!res.ok) {
       toastZodErrorTree(res.error);
       return;
     }
 
     this.applyUserUpdate(res.data);
+  };
+
+  updateDisplayLanguage = async (displayLanguage: Locale, pathname: string): Promise<void> => {
+    if (!this.user) return;
+
+    const res = await updatePreferencesAction({ displayLanguage });
+    if (!res.ok) {
+      toastZodErrorTree(res.error);
+      return;
+    }
+
+    this.applyUserUpdate(res.data);
+    this.applyDisplayLanguage(displayLanguage, pathname);
+  };
+
+  applyDisplayLanguage = (displayLanguage: Locale, pathname: string) => {
+    if (displayLanguage === "system") document.cookie = expiredAppLocaleCookie();
+    else document.cookie = appLocaleCookie(displayLanguage);
+    const target = displayLanguageNavigationTarget(displayLanguage, pathname);
+    this.rootStore.navigationGuard.tryNavigate(() => {
+      window.location.href = target;
+    });
   };
 
   can = (resource: Resource, action: Action): boolean => {

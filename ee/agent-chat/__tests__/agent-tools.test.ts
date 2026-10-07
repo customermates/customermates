@@ -969,7 +969,7 @@ describe("agent tools", () => {
     ["Suchen", "nav-search"],
     ["perfil", "nav-settings-profile"],
     ["Miembros", "nav-settings-members"],
-    ["Forfait", "nav-settings-plan"],
+    ["Facturation", "nav-settings-billing"],
     ["profilo", "nav-settings-profile"],
     ["Kanäle", "nav-settings-channels"],
     ["Buscar", "nav-search"],

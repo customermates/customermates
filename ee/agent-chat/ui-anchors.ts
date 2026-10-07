@@ -99,7 +99,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "company-subscription",
-    route: settingsHref("plan"),
+    route: settingsHref("billing"),
     controls: [
       {
         control: "manage",
@@ -442,13 +442,13 @@ export const MENU_NAV_TARGETS: {
   {
     key: "workspace-menu",
     description:
-      "Workspace menu on the workspace name at the top of the sidebar: Settings, Invite members, Plan and, for operators, the Operator console",
+      "Workspace menu on the workspace name at the top of the sidebar: Invite members, Members, Settings, Billing and, for operators, the Operator console",
     labelKey: "WorkspaceMenu.label",
   },
   {
     key: "personal-menu",
     description:
-      "Personal menu on the avatar at the bottom of the sidebar: Profile & preferences, Theme, Keyboard shortcuts, Documentation, Send feedback, Customize sidebar and Sign out",
+      "Personal menu on the avatar at the bottom of the sidebar: Profile & preferences, Theme, Language, Documentation, Send feedback, Customize sidebar and Sign out",
     labelKey: "UserAvatar.menu",
   },
 ];
@@ -459,7 +459,7 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   "api-keys": "Settings link to API keys for the REST API, MCP clients and connectors",
   members: "Settings link to Members, the team members of the workspace and their roles",
   roles: "Settings link to Roles and their permissions",
-  plan: "Settings link to Plan, the subscription, trial status and billing",
+  billing: "Settings link to Billing, the plan, subscription, trial status and invoices",
   activity: "Settings link to Activity, the audit log of changes in the workspace",
   webhooks: "Settings link to Webhooks, with a Deliveries tab for sent webhook deliveries",
 };

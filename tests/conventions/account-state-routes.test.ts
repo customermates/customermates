@@ -16,18 +16,12 @@ describe("guarded account-state route contract", () => {
       /requireAccountState\(\s*activeIntent\s*\?\s*\[\s*"overdueVerification",\s*"unregistered"\s*\]\s*:\s*\[\s*"overdueVerification",\s*"unregistered",\s*"unauthenticated"\s*\]\s*,/,
     ],
     ["app/[locale]/(public)/auth/pending/page.tsx", /requireAccountState\(\s*"pending"\s*\)/],
-    [
-      "app/[locale]/(protected)/onboarding/page.tsx",
-      /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/,
-    ],
-    [
-      "app/[locale]/(protected)/onboarding/join/page.tsx",
-      /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/,
-    ],
+    ["app/[locale]/(protected)/onboarding/page.tsx", /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/],
+    ["app/[locale]/(protected)/onboarding/join/page.tsx", /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/],
     ["app/[locale]/(protected)/legal-update/page.tsx", /requireAccountState\(\s*\[\s*"allowed",\s*"legal"\s*\]\s*\)/],
     [
       "app/[locale]/(protected)/subscription-expired/page.tsx",
-      /requireAccountState\(\s*"subscription",\s*settingsHref\("plan"\),?\s*\)/,
+      /requireAccountState\(\s*"subscription",\s*settingsHref\("billing"\),?\s*\)/,
     ],
     [
       "app/[locale]/(public)/auth/mcp-consent/page.tsx",
@@ -43,9 +37,7 @@ describe("guarded account-state route contract", () => {
     const registerInteractor = source("features/user/register/register-user.interactor.ts");
     const registrationBoundary = source("features/user/register/register-onboarding-profile.interactor.ts");
     const completeInteractor = source("features/onboarding-wizard/complete-onboarding-wizard.interactor.ts");
-    const completeWikiStepInteractor = source(
-      "features/onboarding-wizard/complete-onboarding-wiki-step.interactor.ts",
-    );
+    const completeWikiStepInteractor = source("features/onboarding-wizard/complete-onboarding-wiki-step.interactor.ts");
 
     expect(page).toMatch(/requireAccountState\(\s*\[\s*"unregistered",\s*"onboarding"\s*\](?:\s*,|\s*\))/);
     expect(actions).toMatch(
@@ -122,9 +114,8 @@ describe("guarded account-state route contract", () => {
       "<CompanyInviteModal />",
       "<WorkspaceRecordEditor />",
       "<ConnectedAccountModal />",
-    ]) {
+    ])
       expect(layout.lastIndexOf(component), component).toBeGreaterThan(guardedMarkup);
-    }
   });
 
   it("keeps mutation policy in interactors and page guards server-authoritative", () => {

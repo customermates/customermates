@@ -40,7 +40,7 @@ export default async function ConnectedAccountsPage() {
   return (
     <PageContainer padded={false}>
       <LockedFeatureOverlay
-        ctaHref={settingsHref("plan")}
+        ctaHref={settingsHref("billing")}
         ctaLabel={t("MessagingUpsell.cta")}
         description={t("MessagingUpsell.description")}
         title={t("MessagingUpsell.title")}

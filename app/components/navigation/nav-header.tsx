@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { ChevronsUpDown, Loader2, Plus, Search, Sparkles } from "lucide-react";
+import { ChevronDown, Loader2, Plus, Search, Sparkles } from "lucide-react";
 
 import { AppImage } from "@/components/shared/app-image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -14,7 +14,6 @@ type Props = {
   workspaceMenu: ReactNode | null;
   workspaceMenuLabel: string;
   brandName: string;
-  brandSubtitle?: ReactNode;
   logoAlt: string;
   assistantLabel?: string;
   assistantShortcut?: string;
@@ -33,7 +32,6 @@ export function NavHeader({
   workspaceMenu,
   workspaceMenuLabel,
   brandName,
-  brandSubtitle,
   logoAlt,
   assistantLabel,
   assistantShortcut,
@@ -49,22 +47,14 @@ export function NavHeader({
     <>
       <AppImage
         alt={logoAlt}
-        className="size-8 shrink-0 rounded-lg shadow-[0_0_10px_0] shadow-primary/10 dark:shadow-primary/20"
-        height={32}
+        className="size-4 shrink-0 rounded-[4px]"
+        height={16}
         loading="eager"
         src="customermates-square.svg"
-        width={32}
+        width={16}
       />
 
-      <span className="flex flex-col min-w-0 flex-1 leading-tight">
-        <span className="truncate font-semibold text-sm">{brandName}</span>
-
-        {brandSubtitle && (
-          <span className="flex items-center gap-1 min-h-[18px] min-w-0 max-w-full text-xs text-muted-foreground animate-fade-in group-data-[collapsible=icon]:hidden">
-            {brandSubtitle}
-          </span>
-        )}
-      </span>
+      <span className="min-w-0 flex-1 truncate font-medium">{brandName}</span>
     </>
   );
 
@@ -79,12 +69,11 @@ export function NavHeader({
                   aria-label={`${brandName}, ${workspaceMenuLabel}`}
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   id="nav-workspace-menu"
-                  size="lg"
                   tooltip={brandName}
                 >
                   {brand}
 
-                  <ChevronsUpDown className="ml-auto size-4" />
+                  <ChevronDown className="ml-auto size-4 opacity-60" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
 
@@ -99,7 +88,7 @@ export function NavHeader({
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <SidebarMenuButton asChild size="lg">
+            <SidebarMenuButton asChild>
               <div>{brand}</div>
             </SidebarMenuButton>
           )}

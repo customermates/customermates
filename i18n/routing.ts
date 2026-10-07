@@ -97,7 +97,7 @@ export const PROTECTED_ROUTES = [
   "/settings/api-keys",
   "/settings/channels",
   "/settings/members",
-  "/settings/plan",
+  "/settings/billing",
   "/settings/profile",
   "/settings/roles",
   "/settings/webhooks",

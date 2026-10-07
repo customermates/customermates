@@ -146,7 +146,7 @@ describe("AgentUiControlStore.navigate", () => {
 
     const selfHosted = controlStore({ appMode: "self-hosted" });
     selfHosted.registerNavigate(navigate);
-    for (const targetId of ["nav-inbox", "nav-routines", "nav-settings-channels", "nav-settings-plan"])
+    for (const targetId of ["nav-inbox", "nav-routines", "nav-settings-channels", "nav-settings-billing"])
       await expect(selfHosted.navigate({ targetId }), targetId).resolves.toMatchObject({ ok: false });
     expect(navigate).not.toHaveBeenCalled();
 

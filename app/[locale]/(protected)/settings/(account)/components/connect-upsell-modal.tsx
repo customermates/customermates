@@ -36,7 +36,7 @@ export const ConnectUpsellModal = observer(() => {
             {t("Common.actions.cancel")}
           </Button>
 
-          <AppLink href={settingsHref("plan")} onClick={close}>
+          <AppLink href={settingsHref("billing")} onClick={close}>
             <Button type="button">{t("ConnectedAccountsCard.viewPlansCta")}</Button>
           </AppLink>
         </AppCardFooter>

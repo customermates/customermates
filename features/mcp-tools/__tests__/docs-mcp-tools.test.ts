@@ -18,7 +18,7 @@ function getPage(args: { slug: string; locale?: ContentLocale; source?: "docs" |
 
 describe("search_docs", () => {
   it("tells agents how to complete the relative app routes it returns", () => {
-    expect(searchDocsTool.description).toMatch(/App routes in a snippet, such as `\/settings\/plan`, are relative/);
+    expect(searchDocsTool.description).toMatch(/App routes in a snippet, such as `\/settings\/billing`, are relative/);
   });
 
   it("describes its text result", () => {
@@ -71,7 +71,9 @@ describe("get_docs_page", () => {
   });
 
   it("tells agents how to complete the relative app routes in the markdown", () => {
-    expect(getDocsPageTool.description).toMatch(/App routes in the markdown, such as `\/settings\/plan`, are relative/);
+    expect(getDocsPageTool.description).toMatch(
+      /App routes in the markdown, such as `\/settings\/billing`, are relative/,
+    );
   });
 
   it("names every widget editor target of the Dashboard page in its tips for agents", () => {
@@ -118,10 +120,10 @@ describe("search and fetch", () => {
 
   it("tell deep-research connectors how to complete the relative app routes in fetched docs", () => {
     expect(description("fetch")).toMatch(
-      /app routes in text, such as `\/settings\/plan`, are relative: for a full link, put the route after the origin of url/,
+      /app routes in text, such as `\/settings\/billing`, are relative: for a full link, put the route after the origin of url/,
     );
     expect(description("search")).toMatch(
-      /App routes in the docs text that fetch returns, such as `\/settings\/plan`, are relative/,
+      /App routes in the docs text that fetch returns, such as `\/settings\/billing`, are relative/,
     );
   });
 
@@ -131,7 +133,7 @@ describe("search and fetch", () => {
         readFileSync(join(process.cwd(), "content", "docs", locale, "mcp-catalog-summaries.json"), "utf8"),
       ) as Record<string, string>;
       for (const tool of ["search_docs", "get_docs_page", "search", "fetch"]) {
-        expect(summaries[tool], `${tool} (${locale})`).toContain("`/settings/plan`");
+        expect(summaries[tool], `${tool} (${locale})`).toContain("`/settings/billing`");
         expect(summaries[tool], `${tool} (${locale})`).toContain("`BASE_URL`");
       }
     }

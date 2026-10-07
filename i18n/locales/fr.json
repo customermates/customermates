@@ -29,9 +29,6 @@
     "privacyLink": "Détails de confidentialité",
     "title": "Aidez-nous à comprendre ce qui fonctionne"
   },
-  "ActivityPage": {
-    "title": "Activité"
-  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -3705,10 +3702,10 @@
     "activity": "Activité",
     "apiKeys": "Clés API",
     "back": "Retour",
+    "billing": "Facturation",
     "channels": "Canaux",
     "deliveries": "Livraisons",
     "members": "Membres",
-    "plan": "Forfait",
     "profile": "Profil et préférences",
     "roles": "Rôles",
     "webhooks": "Webhooks",
@@ -3892,7 +3889,7 @@
     "company": "Mon entreprise",
     "documentation": "Documentation",
     "home": "Accueil",
-    "keyboardShortcuts": "Raccourcis clavier",
+    "language": "Langue",
     "menu": "Menu personnel",
     "sendFeedback": "Envoyer un avis",
     "signOut": "Se déconnecter",

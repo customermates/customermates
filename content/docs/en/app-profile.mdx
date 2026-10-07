@@ -104,7 +104,7 @@ Seeing the page needs **Read access** **All** on your role's **Inbox messages** 
 
 The workspace plan must include messaging: Pro, Business, Enterprise, or a trial. On Starter the page shows **Upgrade to unlock messaging** with the button **Upgrade your plan**, which opens **My Company › Subscription**. Every action except disconnecting also needs a usable subscription, meaning status **Active** or a trial that has not ended; otherwise it is refused, and **Connect channel** shows "Connecting channels requires an active subscription or a trial that hasn't expired." Self-hosted installs have no Channels page.
 
-**Link:** `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`; on Starter the locked page has no **Connect channel** target, and **Upgrade your plan** has no id, so Mate names it or navigates with `nav-settings-plan`.
+**Link:** `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`; on Starter the locked page has no **Connect channel** target, and **Upgrade your plan** has no id, so Mate names it or navigates with `nav-settings-billing`.
 
 ### How do I connect a channel?
 
@@ -137,7 +137,7 @@ Channels per member: Starter [[commercial.entitlement.starter.includedAccountsPe
 
 At the limit on Pro, **Connect channel** opens **Upgrade to connect more accounts** with **View plans**, which leads to **My Company › Subscription**. On Business, an error message points to Enterprise. After a downgrade, each member's newest channels above the new allowance are removed and marked **Deleted**, and members with the **Admin** role get an email.
 
-**Link:** `/settings/channels`, and `/settings/plan` for **View plans**. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, then `highlight_element` with `profile-connected-accounts-connect`, or `nav-settings-plan` for the plans; **View plans** and the upgrade dialog have no id, so Mate names them.
+**Link:** `/settings/channels`, and `/settings/billing` for **View plans**. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`, then `highlight_element` with `profile-connected-accounts-connect`, or `nav-settings-billing` for the plans; **View plans** and the upgrade dialog have no id, so Mate names them.
 
 ### What does each channel status mean? [#what-does-each-status-mean]
 

@@ -129,11 +129,15 @@ const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widg
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map((recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`);
+const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map(
+  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`,
+);
 const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_STARTER_RECIPES.map(
   (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.description`,
 );
-const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map((interval) => `RecordWidgets.intervals.${interval}`);
+const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map(
+  (interval) => `RecordWidgets.intervals.${interval}`,
+);
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
   (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
@@ -715,6 +719,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/settings/(account)/components/api-key-modal.tsx :: t :: OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}",
   "app/[locale]/(protected)/settings/(account)/components/connected-account-modal.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
   "app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/components/app-sidebar.tsx :: t :: Common.locales.${value}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${key}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
@@ -873,9 +878,18 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
-  ["app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx :: t :: option.labelKey", 1],
-  ["app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey", 1],
-  ["app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey", 1],
+  [
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx :: t :: option.labelKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey",
+    1,
+  ],
   ["app/[locale]/(static)/docs/[slug]/page.tsx :: t :: navKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
@@ -1110,7 +1124,7 @@ const NAMESPACE_PATTERN = /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\
 const TRANSLATOR_NAMESPACE_PATTERN = /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
 const STRING_LITERAL_PATTERN = /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
 const INDIRECT_TRANSLATION_KEY_PATTERN =
-  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
+  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|successKey|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
 const TOAST_CALL_PATTERN = /toast(?:Success|Error)\(([\s\S]*?)\);/g;
 
 function loadCatalogPaths(): {

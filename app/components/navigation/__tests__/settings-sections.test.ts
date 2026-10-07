@@ -10,11 +10,11 @@ describe("settings sections", () => {
     expect(SETTINGS_SECTIONS.workspace.map(({ slug }) => slug)).toEqual([
       "members",
       "roles",
-      "plan",
+      "billing",
       "activity",
       "webhooks",
     ]);
-    expect(settingsSectionOf("plan")).toBe("workspace");
+    expect(settingsSectionOf("billing")).toBe("workspace");
     expect(settingsSectionOf("unknown")).toBeNull();
   });
 

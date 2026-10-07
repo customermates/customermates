@@ -17,7 +17,7 @@ const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["en", "roles page URL", "/settings/roles"],
   ["en", "link to the roles page", "/settings/roles"],
-  ["en", "link to the subscription page", "/settings/plan"],
+  ["en", "link to the subscription page", "/settings/billing"],
   ["en", "webhooks page URL", "/settings/webhooks"],
   ["en", "API keys page URL", "/settings/api-keys"],
   ["en", "routines page URL", "/routines"],
@@ -39,7 +39,7 @@ const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["de", "Route Webhooks", "/settings/webhooks"],
   ["de", "URL der Profileinstellungen-Seite", "/settings/profile"],
   ["de", "Link zur Profileinstellungen-Seite", "/settings/profile"],
-  ["de", "URL der Abonnement-Seite", "/settings/plan"],
+  ["de", "URL der Abonnement-Seite", "/settings/billing"],
 ];
 
 const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
@@ -121,11 +121,11 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ],
   ["en", "how do I add a new column", "concepts#how-do-i-add-change-or-delete-a-custom-column", null],
   ["de", "Wo lege ich die Währung fest", "app-company#where-is-the-currency-set", "/configure"],
-  ["de", "URL der Abonnement-Seite", "app-company#subscription-tab", "/settings/plan"],
+  ["de", "URL der Abonnement-Seite", "app-company#subscription-tab", "/settings/billing"],
   ["en", "link to the members page", "app-company#members-tab", "/settings/members"],
   ["en", "link to the roles page", "app-company#roles-tab", "/settings/roles"],
-  ["en", "link to the subscription page", "app-company#subscription-tab", "/settings/plan"],
-  ["en", "link to billing", "app-company#subscription-tab", "/settings/plan"],
+  ["en", "link to the subscription page", "app-company#subscription-tab", "/settings/billing"],
+  ["en", "link to billing", "app-company#subscription-tab", "/settings/billing"],
   ["en", "where is the currency set", "app-company#where-is-the-currency-set", "/configure"],
   ["en", "link to the audit logs", "app-company#activity-tab", "/settings/activity"],
   ["en", "link to the inbox", "app-inbox#what-is-the-inbox", "/inbox"],
@@ -134,13 +134,13 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "link to the onboarding wizard", "app-onboarding#what-are-the-three-steps", "/onboarding/wizard"],
   ["en", "link to the API keys page", "api-keys#how-do-i-create-an-api-key", "/settings/api-keys"],
   ["en", "Where is the Recent Deliveries page?", "app-company#deliveries-tab", "/settings/webhooks/deliveries"],
-  ["en", "Who can manage billing?", "app-company#who-can-manage-billing", "/settings/plan"],
+  ["en", "Who can manage billing?", "app-company#who-can-manage-billing", "/settings/billing"],
   ["en", "Where do I set stage probabilities?", "app-company#how-do-stage-probabilities-and-totals-work", "/configure"],
   [
     "en",
     "What happens to my connected accounts if we switch to Starter?",
     "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
-    "/settings/plan",
+    "/settings/billing",
   ],
   ["en", "create a custom role", "app-company#how-does-the-role-editor-work", "/settings/roles"],
   [

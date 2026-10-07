@@ -52,13 +52,13 @@ describe("proxy locale preference cookies", () => {
   });
 
   it("uses an explicit app preference ahead of the browser for locale-less app routes", async () => {
-    const result = await call("/settings/plan?tab=billing", {
+    const result = await call("/settings/billing?tab=billing", {
       acceptLanguage: "en-US,en;q=0.9",
       cookie: `${APP_LOCALE_COOKIE_NAME}=it`,
     });
 
     expect(result.status).toBe(307);
-    expect(result.location).toBe("http://localhost:4000/it/settings/plan?tab=billing");
+    expect(result.location).toBe("http://localhost:4000/it/settings/billing?tab=billing");
     expect(result.response.headers.get("vary")).toBe("accept-language, cookie");
   });
 
