@@ -1741,6 +1741,7 @@
       "editTitle": "„{name}“ bearbeiten",
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
+        "change": "Anderes Widget wählen",
         "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
         "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
         "scratchTitle": "Von Grund auf neu",
@@ -1751,6 +1752,11 @@
         "live": "Live-Vorschau",
         "size": "Dashboard-Größe {w} × {h}",
         "untitled": "Unbenanntes Widget"
+      },
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Keine} one {1 aktiv} other {# aktiv}}",
+        "filters": "Filter",
+        "grouping": "Gruppierung"
       },
       "settings": "Widget-Einstellungen",
       "sharing": {

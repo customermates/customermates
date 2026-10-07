@@ -20,14 +20,7 @@ vi.mock("@/components/forms/form-autocomplete", () => ({ FormAutocomplete: () =>
 vi.mock("@/components/forms/form-autocomplete-item", () => ({ FormAutocompleteItem: () => null }));
 vi.mock("@/components/forms/form-input", () => ({ FormInput: () => null }));
 vi.mock("@/components/forms/form-select", () => ({ FormSelect: () => null }));
-vi.mock("@/components/editor-tabs/editor-tabs", () => ({
-  EditorTabs: ({ tabs }: { tabs: Array<{ id: string; content: unknown }> }) =>
-    createElement(
-      "div",
-      null,
-      tabs.map((tab) => createElement("div", { key: tab.id }, tab.content as never)),
-    ),
-}));
+vi.mock("@/components/forms/form-context", () => ({ useAppForm: () => null }));
 vi.mock("../record-widget-chart", () => ({ RecordWidgetChart: () => createElement("div", { "data-chart": "" }) }));
 vi.mock("../record-widget-filters", () => ({
   RecordWidgetFieldFilters: () => null,

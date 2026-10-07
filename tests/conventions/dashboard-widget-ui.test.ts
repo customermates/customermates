@@ -9,7 +9,7 @@ const sources = (dir: string) => walkFiles(join(REPO_ROOT, dir), (path) => /\.ts
 describe("generic dashboard widget UI", () => {
   it("retains shared form actions, deletion treatment and ordinary appearance switches", () => {
     const modal = component("widget-modal.tsx");
-    expect(modal).toContain("<FormActions");
+    expect(modal).toContain("<FormFooterActions");
     expect(modal).toContain('anchorScope="widget-modal"');
     expect(modal).toContain('id: "delete-widget"');
     expect(modal).toContain("icon: Trash2");

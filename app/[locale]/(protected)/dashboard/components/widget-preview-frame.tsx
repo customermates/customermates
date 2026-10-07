@@ -41,7 +41,7 @@ type Props = {
   loading?: boolean;
 };
 
-const MAX_PREVIEW_SCALE = 1.75;
+const MAX_PREVIEW_SCALE = 1;
 const MAX_PREVIEW_VIEWPORT_SHARE = 0.75;
 const STAGE_RESET_CLASS =
   "[&_[data-slot=card-header]]:pr-6! [&_[data-slot=card-content]]:overflow-visible! [&_[data-uid=app-card]]:overflow-visible! [&_[data-uid=app-card]]:border! [&_[data-uid=app-card]]:bg-background! [&_[data-uid=app-card]]:shadow-xs!";
@@ -73,7 +73,7 @@ export const WidgetPreviewFrame = observer(({ children, error, geometry: layout,
 
   return (
     <section aria-labelledby="widget-preview-heading" className="min-w-0" data-slot="widget-preview-frame">
-      <div className="flex h-13 min-w-0 items-center gap-2 border-b">
+      <div className="flex h-8 min-w-0 items-center gap-2">
         <h3 className="flex items-center gap-2 text-sm font-medium" id="widget-preview-heading">
           <span aria-hidden className="relative flex size-2">
             <span

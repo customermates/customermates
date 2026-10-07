@@ -1741,6 +1741,7 @@
       "editTitle": "Modifica «{name}»",
       "kind": {
         "activityTimelineDescription": "Segui in ordine cronologico le modifiche ai record, i messaggi e le attività di account e calendario.",
+        "change": "Scegli un altro widget",
         "chartDescription": "Confronta i dati del CRM in un grafico.",
         "description": "Scegli un formato e seleziona tu i dati.",
         "scratchTitle": "Parti da zero",
@@ -1751,6 +1752,11 @@
         "live": "Anteprima dal vivo",
         "size": "Dimensione nella dashboard {w} × {h}",
         "untitled": "Widget senza titolo"
+      },
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Nessuno} one {1 attivo} other {# attivi}}",
+        "filters": "Filtri",
+        "grouping": "Raggruppamento"
       },
       "settings": "Impostazioni del widget",
       "sharing": {

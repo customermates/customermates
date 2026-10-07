@@ -1741,6 +1741,7 @@
       "editTitle": "Edit {name}",
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
+        "change": "Choose another widget",
         "chartDescription": "Compare CRM data in a visual chart.",
         "description": "Pick a format and choose the data yourself.",
         "scratchTitle": "Start from scratch",
@@ -1751,6 +1752,11 @@
         "live": "Live preview",
         "size": "Dashboard size {w} × {h}",
         "untitled": "Untitled widget"
+      },
+      "sections": {
+        "activeFilters": "{count, plural, =0 {None} one {1 active} other {# active}}",
+        "filters": "Filters",
+        "grouping": "Grouping"
       },
       "settings": "Widget settings",
       "sharing": {
