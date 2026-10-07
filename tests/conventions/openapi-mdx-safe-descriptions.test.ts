@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 
+import { REPO_SCAN_TIMEOUT_MS } from "./walk";
+
 const HTTP_VERBS = new Set(["get", "post", "put", "patch", "delete"]);
 const INLINE_CODE_SPAN = /`[^`]*`/g;
 const MDX_HOSTILE = /[{}<]/;
@@ -32,7 +34,7 @@ describe("openapi mdx safe descriptions", () => {
       .filter(({ text }) => MDX_HOSTILE.test(text.replace(INLINE_CODE_SPAN, "")))
       .map(({ location, text }) => `${location} must fence MDX expression syntax in backticks: ${text}`);
     expect(violations).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("reads at least one operation so the walk cannot pass vacuously", () => {
     expect(operationProse().length).toBeGreaterThan(0);
