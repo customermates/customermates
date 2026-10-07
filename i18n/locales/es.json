@@ -681,7 +681,6 @@
       "archivedChats": "Chats archivados",
       "assistantWorking": "Mate está respondiendo",
       "back": "Volver al chat",
-      "cancel": "Cancelar",
       "chats": "Chats",
       "copyCode": "Copiar código",
       "copyLink": "Copiar enlace",
@@ -706,6 +705,7 @@
       "loadingOlderMessages": "Cargando mensajes anteriores",
       "loadMoreChats": "Cargar más chats",
       "loadOlderMessages": "Cargar mensajes anteriores",
+      "moreActions": "Más acciones para {name}",
       "newChat": "Nuevo chat",
       "noChats": "Aún no hay chats",
       "noChatsBody": "Inicie un chat para volver más tarde a sus preguntas y al trabajo completado.",
@@ -1707,6 +1707,7 @@
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
+    "deleteView": "¿Eliminar «{name}»? {count, plural, =0 {No tiene widgets.} one {Su widget pasa a {main}:} other {Sus # widgets pasan a {main}:}}",
     "displayTypeRequirements": {
       "grouping": "Elige una agrupación para clasificar los grupos.",
       "noGrouping": "Establece Agrupar por en Sin agrupación para mostrar un número.",
@@ -1725,6 +1726,7 @@
       "verticalBarChart": "Gráfico de barras vertical",
       "verticalBarChartWithLabels": "Gráfico de barras vertical con etiquetas"
     },
+    "mainView": "Principal",
     "widgetEditor": {
       "addTitle": "Añadir widget",
       "appearance": {
@@ -1894,6 +1896,7 @@
       "moveRight": "Mover a la derecha",
       "name": "Nombre",
       "namePlaceholder": "Nombre de la vista",
+      "nameRequired": "Introduce un nombre para la vista.",
       "railLabel": "Vistas guardadas",
       "recordCount": "{count, plural, one {# registro} other {# registros}}"
     }
@@ -2722,6 +2725,7 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "¿Establecer la asignación Enterprise de {name} en {value} créditos por usuario? Se aplica a todo el espacio de trabajo.",
+      "changes": "¿Guardar estos cambios para {name}? Se aplican a todo el espacio de trabajo.",
       "plan": "¿Establecer el plan de {name} en {value}? Se aplica a todo el espacio de trabajo.",
       "subscription": "¿Establecer el estado de suscripción de {name} en {value}? Se aplica a todo el espacio de trabajo y no contacta con ningún proveedor de facturación.",
       "tags": "¿Establecer las etiquetas de {name} en {value}? Se aplica a todo el espacio de trabajo.",
@@ -2847,11 +2851,8 @@
     },
     "delete": {
       "action": "Eliminar espacio de trabajo",
-      "confirmLabel": "Escribe {name} para confirmar",
-      "confirmMessage": "{name} y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}} se eliminarán de forma permanente. Esta acción no se puede deshacer.",
       "confirmTitle": "Eliminar permanentemente este espacio de trabajo",
       "reasonLabel": "Motivo",
-      "title": "Eliminar este espacio de trabajo",
       "warningDescription": "Al eliminar {name} se borran de forma permanente el espacio de trabajo y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}}, junto con sus contactos, negocios, mensajes, credenciales de acceso y registros de facturación. Esta acción no se puede deshacer."
     },
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar la lista.",

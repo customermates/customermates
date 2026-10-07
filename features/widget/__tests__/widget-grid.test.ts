@@ -54,6 +54,13 @@ describe("grid geometry", () => {
     ]);
   });
 
+  it("pushes overlapping saved widgets below each other, as the dashboard resolves collisions", () => {
+    expect(occupiedGrid([chart("a", { x: 0, y: 0, w: 4, h: 2 }), chart("b", { x: 2, y: 0, w: 4, h: 2 })])).toEqual([
+      { id: "a", x: 0, y: 0, w: 4, h: 2 },
+      { id: "b", x: 2, y: 2, w: 4, h: 2 },
+    ]);
+  });
+
   it("sizes new widgets for their display type", () => {
     expect(widgetDefaultSize("chart", DisplayType.number)).toEqual({ w: 3, h: 2 });
     expect(widgetDefaultSize("chart", DisplayType.areaChart)).toEqual({ w: 6, h: 3 });

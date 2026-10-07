@@ -681,7 +681,6 @@
       "archivedChats": "Chat archiviate",
       "assistantWorking": "Mate sta rispondendo",
       "back": "Torna alla chat",
-      "cancel": "Annulla",
       "chats": "Chat",
       "copyCode": "Copia codice",
       "copyLink": "Copia link",
@@ -706,6 +705,7 @@
       "loadingOlderMessages": "Caricamento dei messaggi precedenti",
       "loadMoreChats": "Carica altre chat",
       "loadOlderMessages": "Carica messaggi precedenti",
+      "moreActions": "Altre azioni per {name}",
       "newChat": "Nuova chat",
       "noChats": "Ancora nessuna chat",
       "noChatsBody": "Avvia una chat per ritrovare in seguito le domande e il lavoro completato.",
@@ -1707,6 +1707,7 @@
       "title": "Attività recenti"
     },
     "addCard": "Aggiungi widget",
+    "deleteView": "Eliminare «{name}»? {count, plural, =0 {Non contiene widget.} one {Il suo widget passa in {main}:} other {I suoi # widget passano in {main}:}}",
     "displayTypeRequirements": {
       "grouping": "Scegli un raggruppamento per classificare i gruppi.",
       "noGrouping": "Imposta Raggruppa per su Nessun raggruppamento per mostrare un numero.",
@@ -1725,6 +1726,7 @@
       "verticalBarChart": "Grafico a barre verticali",
       "verticalBarChartWithLabels": "Grafico a barre verticali con etichette"
     },
+    "mainView": "Principale",
     "widgetEditor": {
       "addTitle": "Aggiungi widget",
       "appearance": {
@@ -1894,6 +1896,7 @@
       "moveRight": "Sposta a destra",
       "name": "Nome",
       "namePlaceholder": "Nome della vista",
+      "nameRequired": "Inserisci un nome per la vista.",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}"
     }
@@ -2722,6 +2725,7 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "Impostare l'allocazione Enterprise di {name} su {value} crediti per utente? Si applica all'intero spazio di lavoro.",
+      "changes": "Salvare queste modifiche per {name}? Si applicano all'intera area di lavoro.",
       "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
       "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
       "tags": "Impostare le etichette di {name} su {value}? Si applica all'intera area di lavoro.",
@@ -2847,11 +2851,8 @@
     },
     "delete": {
       "action": "Elimina spazio di lavoro",
-      "confirmLabel": "Digita {name} per confermare",
-      "confirmMessage": "{name} e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}} saranno eliminati definitivamente. L'operazione non è reversibile.",
       "confirmTitle": "Elimina definitivamente questo spazio di lavoro",
       "reasonLabel": "Motivo",
-      "title": "Elimina questo spazio di lavoro",
       "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. L'operazione non è reversibile."
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",

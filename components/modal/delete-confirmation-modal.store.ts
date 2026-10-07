@@ -11,8 +11,8 @@ export interface DeleteConfirmationData {
   entityName?: string;
   confirmLabel?: string;
   confirmVariant?: "default" | "destructive";
-  details?: ConfirmationSentence[];
-  blockers?: ConfirmationSentence[];
+  details?: Array<string | ConfirmationSentence>;
+  blockers?: Array<string | ConfirmationSentence>;
   confirmationText?: string;
   successKey?: string;
   focusAfterConfirm?: () => boolean;
