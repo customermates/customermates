@@ -1,10 +1,9 @@
-import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, parseSource, readSourceText, walkFiles } from "./walk";
 
 const ENFORCED = true;
 
@@ -48,7 +47,7 @@ function sourceFiles() {
 
 function valueImportsOf(file: string) {
   const path = join(REPO_ROOT, file);
-  const source = ts.createSourceFile(path, readFileSync(path, "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const source = parseSource(path, readSourceText(path), ts.ScriptKind.TS);
   const found: { specifier: string; name: string; line: number }[] = [];
 
   for (const statement of source.statements) {
@@ -87,7 +86,7 @@ describe("background tenant boundary", () => {
       );
 
     expect(violations, violations.join("\n")).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("only workflows act as a background tenant", () => {
     const violations = importersOf(BACKGROUND_TENANT_MODULE, "runAsBackgroundTenant")
@@ -96,11 +95,11 @@ describe("background tenant boundary", () => {
       .map((file) => `${file} value-imports runAsBackgroundTenant outside ${BACKGROUND_TENANT_CALLER_PREFIX}`);
 
     expect(violations, violations.join("\n")).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("sees the identity-assuming surface it is meant to guard", () => {
     expect(sourceFiles().length).toBeGreaterThan(100);
     expect(importersOf(TENANT_CONTEXT_MODULE, "runWithTenant").sort()).toEqual([...TENANT_ENTRYPOINTS].sort());
     expect(valueImportsOf(BACKGROUND_TENANT_DEFINITION).some((entry) => entry.name === "runWithTenant")).toBe(true);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 });

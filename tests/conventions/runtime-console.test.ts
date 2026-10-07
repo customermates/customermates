@@ -4,7 +4,7 @@ import { relative } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const ALLOWED_CALLS = new Map<string, string[]>([
   ["features/email/email.service.ts", ["log"]],
@@ -124,7 +124,7 @@ describe("runtime console boundary", () => {
     }
 
     expect(mismatches, mismatches.join("\n")).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects direct and qualified console access in a synthetic runtime source", () => {
     const source = ts.createSourceFile(
