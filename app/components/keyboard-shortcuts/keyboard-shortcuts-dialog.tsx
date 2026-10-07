@@ -72,7 +72,9 @@ export const KeyboardShortcutsDialog = observer(() => {
     !needle ||
     [
       t(`KeyboardShortcuts.actions.${entry.id}`),
-      ...[entry, ...alternativesOf(entry)].flatMap((candidate) => shortcutKeyLabels(candidate.id, platform)),
+      ...[entry, ...alternativesOf(entry)].map((candidate) =>
+        shortcutKeyLabels(candidate.id, platform).join(` ${t("KeyboardShortcuts.then")} `),
+      ),
     ].some((text) => text.toLocaleLowerCase().includes(needle));
   const groups = SHORTCUT_GROUPS.map((group) => ({
     group,
@@ -86,7 +88,7 @@ export const KeyboardShortcutsDialog = observer(() => {
   })).filter(({ entries }) => entries.length > 0);
 
   return (
-    <AppModal size="xl" store={store} title={t("KeyboardShortcuts.title")}>
+    <AppModal size="lg" store={store} title={t("KeyboardShortcuts.title")}>
       <AppCard>
         <AppCardHeader>
           <h2 className="text-x-lg grow">{t("KeyboardShortcuts.title")}</h2>
@@ -103,21 +105,24 @@ export const KeyboardShortcutsDialog = observer(() => {
 
           {groups.length === 0 && <p className="text-sm text-muted-foreground">{t("KeyboardShortcuts.noMatches")}</p>}
 
-          <div className={cn("grid gap-x-8 gap-y-5", groups.length > 1 && "sm:grid-cols-2")}>
+          <div className="flex flex-col gap-5">
             {groups.map(({ group, entries }) => (
-              <section key={group} aria-labelledby={`keyboard-shortcuts-${group}`} className="flex flex-col gap-1">
+              <section key={group} aria-labelledby={`keyboard-shortcuts-${group}`} className="flex flex-col gap-2">
                 <h3 className="text-xs font-medium text-muted-foreground" id={`keyboard-shortcuts-${group}`}>
                   {t(`KeyboardShortcuts.groups.${group}`)}
                 </h3>
 
-                <ul className="flex flex-col">
+                <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
                   {entries.map((entry) => {
                     const off = isSingleKeyShortcut(entry) && !store.singleKeyShortcutsEnabled;
 
                     return (
                       <li
                         key={entry.id}
-                        className={cn("flex min-h-8 items-center justify-between gap-4 text-sm", off && "opacity-50")}
+                        className={cn(
+                          "flex min-h-11 items-center justify-between gap-4 px-4 py-2 text-sm",
+                          off && "opacity-50",
+                        )}
                         data-shortcut-row={entry.id}
                       >
                         <span className="min-w-0">{t(`KeyboardShortcuts.actions.${entry.id}`)}</span>
@@ -141,7 +146,7 @@ export const KeyboardShortcutsDialog = observer(() => {
             ))}
           </div>
 
-          <div className="border-t border-border pt-4">
+          <div className="rounded-lg border border-border px-4 py-3">
             <KeyboardShortcutsSingleKeySwitch id="keyboard-shortcuts-single-key" />
           </div>
         </AppCardBody>
