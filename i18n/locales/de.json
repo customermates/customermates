@@ -3287,6 +3287,7 @@
     "oppositeLabel": "Bezeichnung auf der Gegenseite",
     "option": "Option",
     "optionAttribute": "Optionsattribut",
+    "optionCount": "{count, plural, =0 {Keine Optionen} one {# Option} other {# Optionen}}",
     "options": "Optionen",
     "permanentDeletion": {
       "channelsMessage": "Dadurch werden das Kanäle-Feld und alle E-Mail-Adressen, Telefonnummern und sozialen Konten der Datensätze dieser Liste endgültig gelöscht. Nachrichten werden diesen Datensätzen nicht mehr zugeordnet. Das kann nicht rückgängig gemacht werden.",

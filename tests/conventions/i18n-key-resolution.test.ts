@@ -670,6 +670,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: Common.colors.${color}",
+  "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${store.form.behavior}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.types.${value}",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.cardinality.${value}",

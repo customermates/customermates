@@ -29,7 +29,7 @@ import { RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
-import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { useDefinitionDeletion } from "./use-definition-deletion";
 import { CalculationInput } from "./calculation-input";
 import { isResolvedField } from "./configure-model";
@@ -485,410 +485,368 @@ export const FieldModal = observer(function FieldModal({
             />
           )}
 
-          <EditorTabs
-            className="-mx-6"
-            contentClassName="space-y-4 px-6 pt-5"
-            label={editing ? t("RecordModel.editField") : t("RecordModel.addField")}
-            tabs={[
-              {
-                id: "general",
-                label: t("RecordModel.general"),
-                fields: [
-                  "label",
-                  "valueType",
-                  "behavior",
-                  "currency",
-                  "decimalPlaces",
-                  "defaultValue",
-                  "required",
-                  "multiple",
-                  "providerAvatar",
-                  "archived",
-                ],
-                content: (
+          <>
+            {!store.isChannels && <FormInput required id="label" label={t("RecordModel.name")} />}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormSelect
+                disabled={store.isChannels}
+                id="valueType"
+                items={
+                  store.isChannels
+                    ? [{ value: "channels", label: t("EntityChannels.heading") }]
+                    : RecordValueTypeSchema.options.flatMap((value) =>
+                        value === "select"
+                          ? [
+                              { value, label: t("RecordModel.types.select") },
+                              { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
+                            ]
+                          : [{ value, label: t(`RecordModel.types.${value}`) }],
+                      )
+                }
+                label={t("RecordModel.valueType")}
+                value={store.form.valueType === "select" && store.form.multiple ? "multiSelect" : store.form.valueType}
+                onValueChange={store.chooseValueType}
+              />
+
+              {!store.isChannels && (
+                <FormSelect
+                  id="behavior"
+                  items={(store.form.valueType === "select" && store.form.multiple
+                    ? ["input"]
+                    : ["input", "formula", "lookup", "rollup", "snapshot"]
+                  ).map((value) => ({
+                    value,
+                    label: t(`RecordModel.behaviors.${value}`),
+                  }))}
+                  label={t("RecordModel.behavior")}
+                  onValueChange={(behavior) => {
+                    store.onChange("behavior", behavior);
+                    if (behavior === "lookup" || behavior === "rollup") {
+                      const relation = store.model.relationships.find(
+                        (relation) =>
+                          !relation.archived &&
+                          (relation.sourceTypeId === store.typeId || relation.targetTypeId === store.typeId),
+                      );
+                      if (!relation) return;
+                      const direction = relation.sourceTypeId === store.typeId ? "outgoing" : "incoming";
+                      const targetId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
+                      const field = store.model.fields.find(
+                        (field) =>
+                          field.typeId === targetId && !field.archived && field.valueType === store.form.valueType,
+                      );
+                      const current = store.form.expression;
+                      store.onChange(
+                        "expression",
+                        current.kind === "related"
+                          ? { ...current, reducer: behavior === "lookup" ? "one" : "sum" }
+                          : {
+                              kind: "related",
+                              relationId: relation.id,
+                              direction,
+                              reducer: behavior === "lookup" ? "one" : "sum",
+                              expression: field
+                                ? { kind: "field", fieldId: field.id }
+                                : { kind: "literal", value: null },
+                            },
+                      );
+                    }
+                  }}
+                />
+              )}
+            </div>
+
+            {store.isChannels && (
+              <>
+                <p className="text-sm text-muted-foreground">{t("RecordModel.channelsHelp")}</p>
+
+                {channelsAvatarAvailable(store.model, store.typeId) && (
+                  <FormSwitch id="providerAvatar" label={t("RecordModel.useChannelAvatar")} />
+                )}
+              </>
+            )}
+
+            {store.form.valueType === "currency" && (
+              <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
+            )}
+
+            {["number", "currency"].includes(store.form.valueType) && (
+              <FormInput
+                description={t("RecordModel.decimalPlacesHelp")}
+                id="decimalPlaces"
+                inputMode="numeric"
+                label={t("RecordModel.decimalPlaces")}
+                max={30}
+                min={0}
+                step={1}
+                type="number"
+              />
+            )}
+
+            {store.form.behavior === "input" && !store.isChannels && (
+              <div className="space-y-3">
+                <FormSwitch id="hasDefaultValue" label={t("RecordModel.setDefaultValue")} />
+
+                {store.form.hasDefaultValue && (
+                  <RecordInputField
+                    field={store.inputDefinition}
+                    id="defaultValue"
+                    label={t("RecordModel.defaultValue")}
+                  />
+                )}
+              </div>
+            )}
+
+            {!store.isChannels && <FormSwitch id="required" label={t("RecordModel.required")} />}
+
+            {["text", "email", "phone", "url"].includes(store.form.valueType) && (
+              <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
+            )}
+
+            {store.original && <FormSwitch id="archived" label={t("RecordModel.archiveField")} />}
+          </>
+
+          {store.form.behavior !== "input" && (
+            <CollapsibleSection
+              defaultOpen
+              summary={t(`RecordModel.behaviors.${store.form.behavior}`)}
+              title={t("RecordModel.fieldTabs.calculation")}
+            >
+              <>
+                <CalculationPath
+                  expression={store.form.expression}
+                  fieldLabel={store.form.label.trim() || t("RecordModel.calculationPath.thisField")}
+                  model={store.model}
+                  snapshot={
+                    store.form.behavior === "snapshot"
+                      ? {
+                          allowManualOverride: store.form.allowManualOverride,
+                          capture: store.form.capture,
+                          triggerLabel: store.triggerField?.label,
+                          triggerValueLabel: triggerValueLabel(),
+                        }
+                      : undefined
+                  }
+                  typeId={store.typeId}
+                />
+
+                <CalculationInput
+                  behavior={store.form.behavior}
+                  currency={store.form.currency}
+                  model={store.model}
+                  typeId={store.typeId}
+                  value={store.form.expression}
+                  onChange={(expression) => store.onChange("expression", expression)}
+                />
+
+                {store.form.behavior === "snapshot" && (
                   <>
-                    {!store.isChannels && <FormInput required id="label" label={t("RecordModel.name")} />}
+                    <FormSwitch id="allowManualOverride" label={t("RecordModel.allowManualOverride")} />
 
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <FormSelect
-                        disabled={store.isChannels}
-                        id="valueType"
-                        items={
-                          store.isChannels
-                            ? [{ value: "channels", label: t("EntityChannels.heading") }]
-                            : RecordValueTypeSchema.options.flatMap((value) =>
-                                value === "select"
-                                  ? [
-                                      { value, label: t("RecordModel.types.select") },
-                                      { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
-                                    ]
-                                  : [{ value, label: t(`RecordModel.types.${value}`) }],
-                              )
-                        }
-                        label={t("RecordModel.valueType")}
-                        value={
-                          store.form.valueType === "select" && store.form.multiple
-                            ? "multiSelect"
-                            : store.form.valueType
-                        }
-                        onValueChange={store.chooseValueType}
-                      />
+                    <FormSelect
+                      id="capture"
+                      items={[
+                        { value: "explicit", label: t("RecordModel.captureExplicit") },
+                        { value: "create", label: t("RecordModel.captureCreate") },
+                        { value: "whenChanged", label: t("RecordModel.captureChanged") },
+                      ]}
+                      label={t("RecordModel.capture")}
+                    />
 
-                      {!store.isChannels && (
-                        <FormSelect
-                          id="behavior"
-                          items={(store.form.valueType === "select" && store.form.multiple
-                            ? ["input"]
-                            : ["input", "formula", "lookup", "rollup", "snapshot"]
-                          ).map((value) => ({
-                            value,
-                            label: t(`RecordModel.behaviors.${value}`),
-                          }))}
-                          label={t("RecordModel.behavior")}
-                          onValueChange={(behavior) => {
-                            store.onChange("behavior", behavior);
-                            if (behavior === "lookup" || behavior === "rollup") {
-                              const relation = store.model.relationships.find(
-                                (relation) =>
-                                  !relation.archived &&
-                                  (relation.sourceTypeId === store.typeId || relation.targetTypeId === store.typeId),
-                              );
-                              if (!relation) return;
-                              const direction = relation.sourceTypeId === store.typeId ? "outgoing" : "incoming";
-                              const targetId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
-                              const field = store.model.fields.find(
-                                (field) =>
-                                  field.typeId === targetId &&
-                                  !field.archived &&
-                                  field.valueType === store.form.valueType,
-                              );
-                              const current = store.form.expression;
-                              store.onChange(
-                                "expression",
-                                current.kind === "related"
-                                  ? { ...current, reducer: behavior === "lookup" ? "one" : "sum" }
-                                  : {
-                                      kind: "related",
-                                      relationId: relation.id,
-                                      direction,
-                                      reducer: behavior === "lookup" ? "one" : "sum",
-                                      expression: field
-                                        ? { kind: "field", fieldId: field.id }
-                                        : { kind: "literal", value: null },
-                                    },
-                              );
-                            }
-                          }}
-                        />
-                      )}
-                    </div>
-
-                    {store.isChannels && (
+                    {store.form.capture === "whenChanged" && (
                       <>
-                        <p className="text-sm text-muted-foreground">{t("RecordModel.channelsHelp")}</p>
+                        <FormSelect
+                          id="triggerFieldId"
+                          items={store.triggerFields.map((field) => ({
+                            value: field.id,
+                            label: field.label,
+                          }))}
+                          label={t("RecordModel.triggerField")}
+                        />
 
-                        {channelsAvatarAvailable(store.model, store.typeId) && (
-                          <FormSwitch id="providerAvatar" label={t("RecordModel.useChannelAvatar")} />
+                        {store.triggerField && (
+                          <RecordInputField
+                            field={{ ...store.triggerField, required: false }}
+                            id="triggerValue"
+                            label={t("RecordModel.triggerValue")}
+                          />
                         )}
                       </>
                     )}
-
-                    {store.form.valueType === "currency" && (
-                      <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
-                    )}
-
-                    {["number", "currency"].includes(store.form.valueType) && (
-                      <FormInput
-                        description={t("RecordModel.decimalPlacesHelp")}
-                        id="decimalPlaces"
-                        inputMode="numeric"
-                        label={t("RecordModel.decimalPlaces")}
-                        max={30}
-                        min={0}
-                        step={1}
-                        type="number"
-                      />
-                    )}
-
-                    {store.form.behavior === "input" && !store.isChannels && (
-                      <div className="space-y-3">
-                        <FormSwitch id="hasDefaultValue" label={t("RecordModel.setDefaultValue")} />
-
-                        {store.form.hasDefaultValue && (
-                          <RecordInputField
-                            field={store.inputDefinition}
-                            id="defaultValue"
-                            label={t("RecordModel.defaultValue")}
-                          />
-                        )}
-                      </div>
-                    )}
-
-                    {!store.isChannels && <FormSwitch id="required" label={t("RecordModel.required")} />}
-
-                    {["text", "email", "phone", "url"].includes(store.form.valueType) && (
-                      <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
-                    )}
-
-                    {store.original && <FormSwitch id="archived" label={t("RecordModel.archiveField")} />}
                   </>
-                ),
-              },
-              ...(store.form.behavior === "input"
-                ? []
-                : [
-                    {
-                      id: "calculation",
-                      label: t("RecordModel.fieldTabs.calculation"),
-                      fields: ["expression", "capture", "triggerFieldId", "triggerValue", "publishedSummary"],
-                      content: (
-                        <>
-                          <CalculationPath
-                            expression={store.form.expression}
-                            fieldLabel={store.form.label.trim() || t("RecordModel.calculationPath.thisField")}
-                            model={store.model}
-                            snapshot={
-                              store.form.behavior === "snapshot"
-                                ? {
-                                    allowManualOverride: store.form.allowManualOverride,
-                                    capture: store.form.capture,
-                                    triggerLabel: store.triggerField?.label,
-                                    triggerValueLabel: triggerValueLabel(),
-                                  }
-                                : undefined
+                )}
+
+                {(store.canPublishSummary || store.original?.publishedSummary) && (
+                  <div className="space-y-2">
+                    {store.canPublishSummary ? (
+                      <FormSwitch id="publishedSummary" label={t("RecordModel.publishSummary")} />
+                    ) : (
+                      <p className="text-sm">{t("RecordModel.summaryApprovalRequired")}</p>
+                    )}
+
+                    <p className="text-xs text-muted-foreground">{t("RecordModel.publishSummaryHelp")}</p>
+                  </div>
+                )}
+              </>
+            </CollapsibleSection>
+          )}
+
+          {store.form.valueType === "select" && (
+            <CollapsibleSection
+              defaultOpen
+              summary={t("RecordModel.optionCount", { count: store.form.options.length })}
+              title={t("RecordModel.options")}
+            >
+              <div className="space-y-3">
+                {store.form.options.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">{t("RecordModel.noOptions")}</p>
+                ) : (
+                  <div aria-hidden className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                    <span className="min-w-0 flex-1">{t("RecordModel.option")}</span>
+
+                    <span className="w-36">{t("RecordModel.color")}</span>
+
+                    {optionMetadata && <span className="w-24">{t("RecordModel.probability")}</span>}
+
+                    <span className="w-9" />
+                  </div>
+                )}
+
+                {store.form.options.map((option, index) => (
+                  <div key={option.id} className="space-y-3">
+                    <div className="flex items-start gap-2">
+                      <FormInput
+                        aria-label={t("RecordModel.option")}
+                        containerClassName="min-w-0 flex-1"
+                        id={`options.${index}.label`}
+                        label={null}
+                      />
+
+                      <FormSelect
+                        ariaLabel={t("RecordModel.color")}
+                        containerClassName="w-36"
+                        id={`options.${index}.color`}
+                        items={CHIP_COLORS.map((color) => ({
+                          value: color,
+                          label: t(`Common.colors.${color}`),
+                          color,
+                        }))}
+                        label={null}
+                      />
+
+                      {optionMetadata && (
+                        <FormInput
+                          aria-label={t("RecordModel.probability")}
+                          containerClassName="w-24"
+                          id={`options.${index}.probability`}
+                          inputMode="decimal"
+                          label={null}
+                        />
+                      )}
+
+                      <Button
+                        aria-label={t("RecordModel.removeOption")}
+                        disabled={store.isDisabled}
+                        size="icon"
+                        type="button"
+                        variant="ghostDestructive"
+                        onClick={() => store.removeOption(option.id)}
+                      >
+                        <Trash2 aria-hidden className="size-4" />
+                      </Button>
+                    </div>
+
+                    {option.attributes.map((attribute, offset) => (
+                      <div key={offset} className="ml-3 space-y-3 border-l pl-4">
+                        <div className="flex items-end gap-2">
+                          <FormInput
+                            containerClassName="flex-1"
+                            id={`options.${index}.attributes.${offset}.key`}
+                            label={t("RecordModel.attribute")}
+                          />
+
+                          <Button
+                            aria-label={t("RecordModel.removeInput")}
+                            disabled={store.isDisabled}
+                            size="icon"
+                            type="button"
+                            variant="ghostDestructive"
+                            onClick={() =>
+                              store.onChange(
+                                `options.${index}.attributes`,
+                                option.attributes.filter((_, position) => position !== offset),
+                              )
                             }
-                            typeId={store.typeId}
-                          />
-
-                          <CalculationInput
-                            behavior={store.form.behavior}
-                            currency={store.form.currency}
-                            model={store.model}
-                            typeId={store.typeId}
-                            value={store.form.expression}
-                            onChange={(expression) => store.onChange("expression", expression)}
-                          />
-
-                          {store.form.behavior === "snapshot" && (
-                            <>
-                              <FormSwitch id="allowManualOverride" label={t("RecordModel.allowManualOverride")} />
-
-                              <FormSelect
-                                id="capture"
-                                items={[
-                                  { value: "explicit", label: t("RecordModel.captureExplicit") },
-                                  { value: "create", label: t("RecordModel.captureCreate") },
-                                  { value: "whenChanged", label: t("RecordModel.captureChanged") },
-                                ]}
-                                label={t("RecordModel.capture")}
-                              />
-
-                              {store.form.capture === "whenChanged" && (
-                                <>
-                                  <FormSelect
-                                    id="triggerFieldId"
-                                    items={store.triggerFields.map((field) => ({
-                                      value: field.id,
-                                      label: field.label,
-                                    }))}
-                                    label={t("RecordModel.triggerField")}
-                                  />
-
-                                  {store.triggerField && (
-                                    <RecordInputField
-                                      field={{ ...store.triggerField, required: false }}
-                                      id="triggerValue"
-                                      label={t("RecordModel.triggerValue")}
-                                    />
-                                  )}
-                                </>
-                              )}
-                            </>
-                          )}
-
-                          {(store.canPublishSummary || store.original?.publishedSummary) && (
-                            <div className="space-y-2">
-                              {store.canPublishSummary ? (
-                                <FormSwitch id="publishedSummary" label={t("RecordModel.publishSummary")} />
-                              ) : (
-                                <p className="text-sm">{t("RecordModel.summaryApprovalRequired")}</p>
-                              )}
-
-                              <p className="text-xs text-muted-foreground">{t("RecordModel.publishSummaryHelp")}</p>
-                            </div>
-                          )}
-                        </>
-                      ),
-                    },
-                  ]),
-              ...(store.form.valueType === "select"
-                ? [
-                    {
-                      id: "options",
-                      label: t("RecordModel.options"),
-                      fields: store.form.options.flatMap((_, index) => [
-                        `options.${index}.label`,
-                        `options.${index}.color`,
-                        `options.${index}.probability`,
-                      ]),
-                      content: (
-                        <div className="space-y-3">
-                          {store.form.options.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">{t("RecordModel.noOptions")}</p>
-                          ) : (
-                            <div
-                              aria-hidden
-                              className="flex items-center gap-2 text-xs font-medium text-muted-foreground"
-                            >
-                              <span className="min-w-0 flex-1">{t("RecordModel.option")}</span>
-
-                              <span className="w-36">{t("RecordModel.color")}</span>
-
-                              {optionMetadata && <span className="w-24">{t("RecordModel.probability")}</span>}
-
-                              <span className="w-9" />
-                            </div>
-                          )}
-
-                          {store.form.options.map((option, index) => (
-                            <div key={option.id} className="space-y-3">
-                              <div className="flex items-start gap-2">
-                                <FormInput
-                                  aria-label={t("RecordModel.option")}
-                                  containerClassName="min-w-0 flex-1"
-                                  id={`options.${index}.label`}
-                                  label={null}
-                                />
-
-                                <FormSelect
-                                  ariaLabel={t("RecordModel.color")}
-                                  containerClassName="w-36"
-                                  id={`options.${index}.color`}
-                                  items={CHIP_COLORS.map((color) => ({
-                                    value: color,
-                                    label: t(`Common.colors.${color}`),
-                                    color,
-                                  }))}
-                                  label={null}
-                                />
-
-                                {optionMetadata && (
-                                  <FormInput
-                                    aria-label={t("RecordModel.probability")}
-                                    containerClassName="w-24"
-                                    id={`options.${index}.probability`}
-                                    inputMode="decimal"
-                                    label={null}
-                                  />
-                                )}
-
-                                <Button
-                                  aria-label={t("RecordModel.removeOption")}
-                                  disabled={store.isDisabled}
-                                  size="icon"
-                                  type="button"
-                                  variant="ghostDestructive"
-                                  onClick={() => store.removeOption(option.id)}
-                                >
-                                  <Trash2 aria-hidden className="size-4" />
-                                </Button>
-                              </div>
-
-                              {option.attributes.map((attribute, offset) => (
-                                <div key={offset} className="ml-3 space-y-3 border-l pl-4">
-                                  <div className="flex items-end gap-2">
-                                    <FormInput
-                                      containerClassName="flex-1"
-                                      id={`options.${index}.attributes.${offset}.key`}
-                                      label={t("RecordModel.attribute")}
-                                    />
-
-                                    <Button
-                                      aria-label={t("RecordModel.removeInput")}
-                                      disabled={store.isDisabled}
-                                      size="icon"
-                                      type="button"
-                                      variant="ghostDestructive"
-                                      onClick={() =>
-                                        store.onChange(
-                                          `options.${index}.attributes`,
-                                          option.attributes.filter((_, position) => position !== offset),
-                                        )
-                                      }
-                                    >
-                                      <Trash2 aria-hidden className="size-4" />
-                                    </Button>
-                                  </div>
-
-                                  <CalculationInput
-                                    literalOnly
-                                    currency={store.form.currency}
-                                    model={store.model}
-                                    path={`options.${index}.attributes.${offset}`}
-                                    typeId={store.typeId}
-                                    value={{ kind: "literal", value: attribute.value }}
-                                    onChange={(expression) => {
-                                      if (expression.kind === "literal" && expression.value)
-                                        store.onChange(`options.${index}.attributes.${offset}.value`, expression.value);
-                                    }}
-                                  />
-                                </div>
-                              ))}
-
-                              {!store.form.multiple && (
-                                <Button
-                                  className="h-auto px-0 text-muted-foreground hover:bg-transparent hover:text-foreground has-[>svg]:px-0"
-                                  disabled={store.isDisabled}
-                                  size="sm"
-                                  type="button"
-                                  variant="ghost"
-                                  onClick={() =>
-                                    store.onChange(`options.${index}.attributes`, [
-                                      ...option.attributes,
-                                      { key: "", value: { kind: "decimal", value: "0", currency: null } },
-                                    ])
-                                  }
-                                >
-                                  <Plus aria-hidden className="size-3.5" />
-
-                                  {t("RecordModel.addAttribute")}
-                                </Button>
-                              )}
-                            </div>
-                          ))}
-
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Button
-                              disabled={store.isDisabled}
-                              size="sm"
-                              type="button"
-                              variant="secondary"
-                              onClick={store.addOption}
-                            >
-                              <Plus className="size-4" />
-
-                              {t("RecordModel.addOption")}
-                            </Button>
-
-                            {!optionMetadata && !store.form.multiple && (
-                              <Button
-                                disabled={store.isDisabled}
-                                size="sm"
-                                type="button"
-                                variant="ghost"
-                                onClick={() => setShowProbability(true)}
-                              >
-                                {t("RecordModel.addProbability")}
-                              </Button>
-                            )}
-                          </div>
+                          >
+                            <Trash2 aria-hidden className="size-4" />
+                          </Button>
                         </div>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-          />
+
+                        <CalculationInput
+                          literalOnly
+                          currency={store.form.currency}
+                          model={store.model}
+                          path={`options.${index}.attributes.${offset}`}
+                          typeId={store.typeId}
+                          value={{ kind: "literal", value: attribute.value }}
+                          onChange={(expression) => {
+                            if (expression.kind === "literal" && expression.value)
+                              store.onChange(`options.${index}.attributes.${offset}.value`, expression.value);
+                          }}
+                        />
+                      </div>
+                    ))}
+
+                    {!store.form.multiple && (
+                      <Button
+                        className="h-auto px-0 text-muted-foreground hover:bg-transparent hover:text-foreground has-[>svg]:px-0"
+                        disabled={store.isDisabled}
+                        size="sm"
+                        type="button"
+                        variant="ghost"
+                        onClick={() =>
+                          store.onChange(`options.${index}.attributes`, [
+                            ...option.attributes,
+                            { key: "", value: { kind: "decimal", value: "0", currency: null } },
+                          ])
+                        }
+                      >
+                        <Plus aria-hidden className="size-3.5" />
+
+                        {t("RecordModel.addAttribute")}
+                      </Button>
+                    )}
+                  </div>
+                ))}
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    disabled={store.isDisabled}
+                    size="sm"
+                    type="button"
+                    variant="secondary"
+                    onClick={store.addOption}
+                  >
+                    <Plus className="size-4" />
+
+                    {t("RecordModel.addOption")}
+                  </Button>
+
+                  {!optionMetadata && !store.form.multiple && (
+                    <Button
+                      disabled={store.isDisabled}
+                      size="sm"
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowProbability(true)}
+                    >
+                      {t("RecordModel.addProbability")}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CollapsibleSection>
+          )}
 
           {store.preview && (
             <RecordConfigurationPreview model={store.model} preview={store.preview} renewal={store.summaryRenewal} />

@@ -3287,6 +3287,7 @@
     "oppositeLabel": "Label on the other side",
     "option": "Option",
     "optionAttribute": "Option attribute",
+    "optionCount": "{count, plural, =0 {No options} one {# option} other {# options}}",
     "options": "Options",
     "permanentDeletion": {
       "channelsMessage": "This permanently deletes the Channels field and every email address, phone number and social account stored on this list's records. Messages no longer match these records. This cannot be undone.",

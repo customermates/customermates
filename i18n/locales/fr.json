@@ -3287,6 +3287,7 @@
     "oppositeLabel": "Libellé de l’autre côté",
     "option": "Option",
     "optionAttribute": "Attribut de l’option",
+    "optionCount": "{count, plural, =0 {Aucune option} one {# option} other {# options}}",
     "options": "Options",
     "permanentDeletion": {
       "channelsMessage": "Cela supprime définitivement le champ Canaux et toutes les adresses e-mail, numéros de téléphone et comptes sociaux enregistrés sur les fiches de cette liste. Les messages ne seront plus associés à ces fiches. Cette action est irréversible.",

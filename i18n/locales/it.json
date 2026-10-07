@@ -3287,6 +3287,7 @@
     "oppositeLabel": "Etichetta sull’altro lato",
     "option": "Opzione",
     "optionAttribute": "Attributo dell’opzione",
+    "optionCount": "{count, plural, =0 {Nessuna opzione} one {# opzione} other {# opzioni}}",
     "options": "Opzioni",
     "permanentDeletion": {
       "channelsMessage": "Questa operazione elimina definitivamente il campo Canali e tutti gli indirizzi e-mail, i numeri di telefono e gli account social salvati nei record di questa lista. I messaggi non verranno più associati a questi record. L’operazione non può essere annullata.",
