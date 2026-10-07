@@ -38098,6 +38098,18 @@
                             "type": "string",
                             "maxLength": 64
                           },
+                          "color": {
+                            "description": "Chip color for links to records of this list; neutral when unset.",
+                            "type": "string",
+                            "enum": [
+                              "default",
+                              "secondary",
+                              "destructive",
+                              "success",
+                              "warning",
+                              "info"
+                            ]
+                          },
                           "primaryFieldId": {
                             "type": "string",
                             "format": "uuid",
@@ -39923,6 +39935,18 @@
                                 "icon": {
                                   "type": "string",
                                   "maxLength": 64
+                                },
+                                "color": {
+                                  "description": "Chip color for links to records of this list; neutral when unset.",
+                                  "type": "string",
+                                  "enum": [
+                                    "default",
+                                    "secondary",
+                                    "destructive",
+                                    "success",
+                                    "warning",
+                                    "info"
+                                  ]
                                 },
                                 "primaryFieldId": {
                                   "anyOf": [
@@ -41764,6 +41788,18 @@
                                 "icon": {
                                   "type": "string",
                                   "maxLength": 64
+                                },
+                                "color": {
+                                  "description": "Chip color for links to records of this list; neutral when unset.",
+                                  "type": "string",
+                                  "enum": [
+                                    "default",
+                                    "secondary",
+                                    "destructive",
+                                    "success",
+                                    "warning",
+                                    "info"
+                                  ]
                                 },
                                 "primaryFieldId": {
                                   "anyOf": [
