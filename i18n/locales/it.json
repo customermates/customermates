@@ -795,7 +795,6 @@
       "versions": "Versioni dei documenti",
       "visibility": "Visibilità"
     },
-    "noValue": "Nessun valore",
     "relationsAdded": "Relazioni aggiunte nel campo «{field}»",
     "relationsDeleted": "Relazioni rimosse dal campo «{field}»",
     "unchangedLines": "{count, plural, one {# riga invariata} other {# righe invariate}}"
@@ -2959,7 +2958,6 @@
     "archiveRelationship": "Archivia relazione",
     "archiveRelationshipPath": "Archivia questa colonna di record collegati",
     "ascending": "Crescente",
-    "assignedMembers": "Membri assegnati",
     "assignedTo": "Assegnato a",
     "attribute": "Nome dell’attributo",
     "behavior": "Origine del valore",

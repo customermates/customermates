@@ -795,7 +795,6 @@
       "versions": "Versions des documents",
       "visibility": "Visibilité"
     },
-    "noValue": "Aucune valeur",
     "relationsAdded": "Ajouts : {field}",
     "relationsDeleted": "Suppressions : {field}",
     "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}"
@@ -2959,7 +2958,6 @@
     "archiveRelationship": "Archiver la relation",
     "archiveRelationshipPath": "Archiver cette colonne de fiches liées",
     "ascending": "Croissant",
-    "assignedMembers": "Membres attribués",
     "assignedTo": "Attribué à",
     "attribute": "Nom de l’attribut",
     "behavior": "Source de la valeur",

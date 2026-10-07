@@ -9,6 +9,10 @@ import type { CalculatedValue, RecordField } from "@/features/records/record-mod
 import { AppChip } from "@/components/chip/app-chip";
 import { toChipColor } from "@/constants/chip-colors";
 
+export function EmptyValue() {
+  return <span className="text-muted-foreground">—</span>;
+}
+
 export const RecordValue = observer(function RecordValue({
   result,
   field,
@@ -19,7 +23,7 @@ export const RecordValue = observer(function RecordValue({
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;
   const t = useTranslations();
-  if (!result || result.state === "missing") return <span className="text-muted-foreground">—</span>;
+  if (!result || result.state === "missing") return <EmptyValue />;
   if (result.state === "restricted")
     return <span className="text-muted-foreground">{t("RecordModel.restricted")}</span>;
   if (result.state === "error") return <span className="text-destructive">{t("RecordModel.calculationError")}</span>;
