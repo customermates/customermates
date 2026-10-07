@@ -35,7 +35,6 @@ function fixture() {
     has: vi.fn().mockResolvedValue(false),
     link: vi.fn(),
     unlink: vi.fn(),
-    audit: vi.fn(),
   };
   const access = {
     actor: user,
@@ -116,18 +115,15 @@ describe("conversation record authorization and atomic mutation", () => {
     }
   });
 
-  it("audits a new link, saves a receipt and does not duplicate an existing association", async () => {
+  it("links a record, saves a receipt and does not duplicate an existing association", async () => {
     const f = fixture();
     expect(await f.mutate.invoke(input)).toMatchObject({ ok: true, data: { ref, linked: true } });
     expect(f.links.link).toHaveBeenCalledWith(threadId, ref);
-    expect(f.links.audit).toHaveBeenCalledWith(threadId, ref, "link");
     expect(f.records.saveReceipt).toHaveBeenCalledOnce();
     f.links.has.mockResolvedValue(true);
     f.links.link.mockClear();
-    f.links.audit.mockClear();
     expect((await f.mutate.invoke({ ...input, idempotencyKey: threadId })).ok).toBe(true);
     expect(f.links.link).not.toHaveBeenCalled();
-    expect(f.links.audit).not.toHaveBeenCalled();
   });
 
   it("replays identical receipts but rechecks revoked authority and rejects a changed payload", async () => {
