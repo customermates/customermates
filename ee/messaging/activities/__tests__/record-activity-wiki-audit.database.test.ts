@@ -72,21 +72,21 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
           eventData: { title: "Refund policy" },
         },
       });
-      const companyEntry = await prisma.auditLog.create({
+      const roleEntry = await prisma.auditLog.create({
         data: {
           companyId: company.id,
           userId: admin.id,
-          entityId: company.id,
-          event: DomainEvent.COMPANY_UPDATED,
-          eventData: {},
+          entityId: randomUUID(),
+          event: DomainEvent.ROLE_CREATED,
+          eventData: { name: "Auditors" },
         },
       });
-      return { company, adminRole, auditRole, admin, auditor, wikiEntry, companyEntry };
+      return { company, adminRole, auditRole, admin, auditor, wikiEntry, roleEntry };
     });
     const admin = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
     const repo = new PrismaRecordRepo();
     await runWithTenant(admin, () =>
-      runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id, "EUR"), admin.id), { timeout: 30000 }),
+      runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),
     );
     const auditor = (wiki: boolean) =>
       createMockUser({
@@ -116,12 +116,12 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
       );
 
     const withoutWiki = await visibleAudit(false);
-    expect(withoutWiki.ids).toContain(seed.companyEntry.id);
+    expect(withoutWiki.ids).toContain(seed.roleEntry.id);
     expect(withoutWiki.ids).not.toContain(seed.wikiEntry.id);
     expect(withoutWiki.loaded).not.toContain(seed.wikiEntry.id);
 
     const withWiki = await visibleAudit(true);
-    expect(withWiki.ids).toEqual(expect.arrayContaining([seed.companyEntry.id, seed.wikiEntry.id]));
+    expect(withWiki.ids).toEqual(expect.arrayContaining([seed.roleEntry.id, seed.wikiEntry.id]));
     expect(withWiki.loaded).toContain(seed.wikiEntry.id);
   }, 120_000);
 });

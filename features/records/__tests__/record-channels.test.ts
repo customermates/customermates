@@ -14,7 +14,7 @@ const operationId = "73000000-0000-4000-8000-000000000002";
 
 describe("configurable Channels capability", () => {
   it("decodes historical person bindings without accepting the retired kind as a configuration input", () => {
-    const model = createCrmPreset(companyId, "EUR");
+    const model = createCrmPreset(companyId);
     const current = model.capabilities.find((binding) => binding.kind === "channels");
     if (!current) throw new Error("Missing Channels preset");
     const legacy = { ...current, kind: "personIdentity" };
@@ -31,7 +31,7 @@ describe("configurable Channels capability", () => {
   });
 
   it("enables arbitrary types, retains disabled definitions, and prevents duplicate bindings", () => {
-    const model = createCrmPreset(companyId, "EUR");
+    const model = createCrmPreset(companyId);
     const typeId = presetId(companyId, "organization");
     const binding = { id: operationId, kind: "channels" as const, typeId, fields: [], enabled: true };
     model.capabilities.push(binding);
@@ -53,7 +53,7 @@ describe("configurable Channels capability", () => {
   });
 
   it("allows explicit conversation paths on ordinary types and confines channel options to Channels", () => {
-    const model = createCrmPreset(companyId, "EUR");
+    const model = createCrmPreset(companyId);
     const typeId = presetId(companyId, "deal");
     model.activityPaths.push({
       id: operationId,

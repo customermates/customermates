@@ -52,7 +52,7 @@ Getting an AI client onto your workspace is the same three moves every time:
 Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
 </Step>
 <Step title="Confirm the tools arrived">
-Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear, and `get_workspace_context` is the natural first call: it returns your user, the workspace currency and record-type labels, roles, and connected accounts in one go.
+Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear, and `get_workspace_context` is the natural first call: it returns your user, company, roles, connected accounts and the Knowledge Base in one go; record-type labels come from `discover_record_types`.
 </Step>
 </Steps>
 
@@ -297,7 +297,7 @@ The patch applies to every target atomically; a large recalculation can return `
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Read the current user, workspace currency, role catalog with permissions, accessible connected messaging accounts, and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
+Read the current user, company, role catalog with permissions, accessible connected messaging accounts, and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
 
 **Read-only.** Optional: `wikiPage`.
 
@@ -592,9 +592,9 @@ One tool with an `action` switch: list, get, create, update, delete, plus the de
 {/* mcp-catalog:admin */}
 #### `update_workspace_settings`
 
-target profile changes your own name, country and avatar. target company changes workspace currency and needs Edit on Company. Rename or configure record types through configure_record_model; type names are no longer workspace terminology settings.
+Changes your own name, country and avatar. Money fields carry their own currency: change it, or rename record types, through configure_record_model.
 
-Required: `target`. Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `currency`.
+Optional: `firstName`, `lastName`, `country`, `avatarUrl`.
 
 #### `manage_team`
 

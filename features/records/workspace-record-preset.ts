@@ -4,8 +4,8 @@ import { createCrmPreset, presetId } from "./crm-preset";
 import { DEFAULT_SELECT_COLUMNS } from "./crm-preset-options";
 import { recordInvariant } from "./record-invariant";
 
-export function createWorkspaceRecordPreset(companyId: string, currency: string, t: (key: string) => string) {
-  const model = createCrmPreset(companyId, currency);
+export function createWorkspaceRecordPreset(companyId: string, t: (key: string) => string) {
+  const model = createCrmPreset(companyId);
   const id = (key: string) => presetId(companyId, key);
   const labels = new Map<string, { singular: string; plural: string }>();
   for (const key of RECORD_PRESET_KEYS) {

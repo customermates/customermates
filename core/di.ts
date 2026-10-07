@@ -187,12 +187,11 @@ import { SignUpWithEmailInteractor } from "@/features/auth/sign-up-with-email.in
 // Company interactors
 import { env } from "@/env";
 import { ChooseWorkspaceOnboardingInteractor } from "@/features/company/choose-workspace-onboarding.interactor";
-import { GetCompanySettingsInteractor } from "@/features/company/get-company-settings.interactor";
+import { GetCompanyInteractor } from "@/features/company/get-company.interactor";
 import { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
 import { InviteTokenValidationInteractor } from "@/features/company/invite-token-validation.interactor";
 import { InviteUsersByEmailInteractor } from "@/features/company/invite-users-by-email.interactor";
 import { OpenInvitationInteractor } from "@/features/company/open-invitation.interactor";
-import { UpdateCompanySettingsInteractor } from "@/features/company/update-company-settings.interactor";
 // Role interactors
 import { DeleteRoleInteractor } from "@/features/role/delete-role.interactor";
 import { GetRoleEditorInteractor } from "@/features/role/get-role-editor.interactor";
@@ -442,7 +441,7 @@ export const getConfigureRecordsProviderInteractor = () =>
     getApplyRecordConfigurationInteractor(),
   );
 export const getQueryRecordMeasureInteractor = () =>
-  new QueryRecordMeasureInteractor(getRecordRepo(), getRecordAccessPolicy(), getCompanyRepo());
+  new QueryRecordMeasureInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordAccessPolicy = () => new RecordAccessPolicy(getUserRepo(), getRecordRepo());
 export const getPreviewRecordDeletionInteractor = () =>
   new PreviewRecordDeletionInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
@@ -454,7 +453,7 @@ export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(ge
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getImportRecordsInteractor = () =>
-  new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService(), getCompanyRepo());
+  new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
 export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getGetRecordEditorInteractor = () =>
   new GetRecordEditorInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordDetailLayoutReader());
@@ -475,7 +474,6 @@ export const getMutateRecordInteractor = () =>
     getRecordRepo(),
     getRecordAccessPolicy(),
     getRecordWriteService(),
-    getCompanyRepo(),
     getBackgroundTaskService(),
   );
 export const getPreviewRecordConfigurationInteractor = () =>
@@ -486,16 +484,10 @@ export const getApplyRecordConfigurationInteractor = () =>
     getRecordAccessPolicy(),
     getRecordConfigurationService(),
     new RecordConfigurationWriter(getRecordRepo(), getRecordCalculationService()),
-    getCompanyRepo(),
     getBackgroundTaskService(),
   );
 export const getRecordOperationService = () =>
-  new RecordOperationService(
-    getRecordRepo(),
-    getRecordAccessPolicy(),
-    getRecordConfigurationService(),
-    getCompanyRepo(),
-  );
+  new RecordOperationService(getRecordRepo(), getRecordAccessPolicy(), getRecordConfigurationService());
 export const getGetRecordOperationInteractor = () =>
   new GetRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getCancelRecordOperationInteractor = () =>
@@ -741,10 +733,7 @@ export const getDecideMcpConsentInteractor = () =>
 
 // --- Company ---
 
-export const getGetCompanySettingsInteractor = () => new GetCompanySettingsInteractor(getCompanyRepo());
-
-export const getUpdateCompanySettingsInteractor = () =>
-  new UpdateCompanySettingsInteractor(getCompanyRepo(), getEventService());
+export const getGetCompanyInteractor = () => new GetCompanyInteractor(getCompanyRepo());
 
 export const getGetOrCreateInviteTokenInteractor = () => new GetOrCreateInviteTokenInteractor(getCompanyRepo());
 
@@ -1246,8 +1235,7 @@ export const getGetP13nInteractor = () => new GetP13nInteractor(getP13nRepo());
 
 // --- Data views ---
 
-export const getRecordViewPolicy = () =>
-  new RecordViewPolicy(getRecordRepo(), getRecordAccessPolicy(), getCompanyRepo());
+export const getRecordViewPolicy = () => new RecordViewPolicy(getRecordRepo(), getRecordAccessPolicy());
 
 export const getGetDataViewsInteractor = () => new GetDataViewsInteractor(getDataViewRepo(), getRecordViewPolicy());
 
@@ -1524,7 +1512,6 @@ export const getGetRecordPresentationInteractor = () =>
     getRecordAccessPolicy(),
     getDataViewRepo(),
     getQueryRecordsInteractor(),
-    getCompanyRepo(),
   );
 
 export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo();

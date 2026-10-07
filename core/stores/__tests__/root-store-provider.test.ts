@@ -2,22 +2,12 @@ import type { ReactNode } from "react";
 import type { Root as ReactRoot } from "react-dom/client";
 import type { RootStoreInitialState } from "../root-store.provider";
 import type { TenantUser } from "@/features/user/user.schema";
-import type { Company } from "@/generated/prisma";
 
 import { act, createElement, Suspense, use } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  Action,
-  Currency,
-  Locale,
-  Resource,
-  Status,
-  SubscriptionPlan,
-  SubscriptionStatus,
-  Theme,
-} from "@/generated/prisma";
+import { Action, Locale, Resource, Status, SubscriptionPlan, SubscriptionStatus, Theme } from "@/generated/prisma";
 
 vi.mock("../root.store", () => ({
   RootStore: class {
@@ -34,12 +24,6 @@ vi.mock("../root.store", () => ({
         this.userStore.user = user;
       },
       can: () => this.userStore.user !== null,
-    };
-    readonly companyStore = {
-      company: null as Company | null,
-      setCompany: (company: Company | null) => {
-        this.companyStore.company = company;
-      },
     };
     readonly recordWorkspaceStore = {
       navigation: null as RootStoreInitialState["recordNavigation"],
@@ -96,7 +80,6 @@ const initialState: RootStoreInitialState = {
     onboardingWizardCompletedAt: new Date("2025-01-01T00:00:00.000Z"),
     role: { isSystemRole: true, permissions: [] },
   } as unknown as TenantUser,
-  company: { currency: Currency.usd } as unknown as Company,
   subscription: {
     status: SubscriptionStatus.active,
     plan: SubscriptionPlan.pro,
@@ -118,7 +101,6 @@ function InitialStateProbe() {
   const rootStore = useRootStore();
   const values = [
     rootStore.userStore.can(Resource.routines, Action.readAll) ? "allowed" : "blocked",
-    rootStore.companyStore.company?.currency,
     rootStore.subscriptionStore.subscription?.plan,
     rootStore.intlStore.formatNumber(1234.5),
   ];
@@ -150,9 +132,9 @@ afterEach(() => {
 });
 
 describe("RootStoreProvider initial state", () => {
-  it("seeds permission, company, subscription, and locale before a delayed child hydrates", async () => {
+  it("seeds permission, subscription, and locale before a delayed child hydrates", async () => {
     const html = renderToString(createElement(TestApp));
-    expect(html).toContain("allowed|usd|pro|1.234,5");
+    expect(html).toContain("allowed|pro|1.234,5");
 
     hydrationDelay = new Promise<void>((resolve) => {
       releaseHydration = resolve;
@@ -179,7 +161,7 @@ describe("RootStoreProvider initial state", () => {
       __customermatesHistory: { session: expect.any(String), index: expect.any(Number) },
     });
 
-    expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|usd|pro|1.234,5");
+    expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5");
 
     await act(async () => {
       delayHydration = false;
@@ -188,7 +170,7 @@ describe("RootStoreProvider initial state", () => {
     });
 
     await vi.waitFor(() => {
-      expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|usd|pro|1.234,5");
+      expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5");
     });
     expect(recoverableErrors).toEqual([]);
   });

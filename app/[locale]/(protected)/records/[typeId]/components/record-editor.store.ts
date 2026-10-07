@@ -437,11 +437,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     );
   };
   private scalar(field: RecordField): RecordScalar | null {
-    return recordInputValue(
-      toJS(this.form.values[field.id]),
-      field,
-      this.rootStore.companyStore.company?.currency ?? "EUR",
-    );
+    return recordInputValue(toJS(this.form.values[field.id]), field);
   }
   previewValue = (field: RecordField): CalculatedValue => {
     const stored = this.record?.fields.find((value) => value.fieldId === field.id)?.result;

@@ -1,3 +1,4 @@
+import { recordInvariant } from "./record-invariant";
 import type { Filter, FilterableField, GetQueryParams } from "@/core/base/base-get.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
@@ -130,17 +131,13 @@ export function recordDefaults(type: RecordType): DataViewState {
       : null,
   };
 }
-export function filterScalar(
-  raw: string,
-  field: Pick<RecordField, "valueType" | "format">,
-  currency: string,
-): RecordScalar {
+export function filterScalar(raw: string, field: Pick<RecordField, "valueType" | "format">): RecordScalar {
   if (field.valueType === "select") return { kind: "select", value: raw };
   if (field.valueType === "number" || field.valueType === "currency") {
     return {
       kind: "decimal",
       value: raw,
-      currency: field.valueType === "currency" ? (field.format?.currency ?? currency.toUpperCase()) : null,
+      currency: field.valueType === "currency" ? recordInvariant(field.format?.currency) : null,
     };
   }
   if (["date", "dateTime", "dateRange", "dateTimeRange"].includes(field.valueType))
@@ -156,7 +153,6 @@ export function presentationQuery(
   typeId: string,
   fields: RecordField[],
   params: Pick<GetQueryParams, "filters" | "searchTerm" | "sortDescriptor" | "pagination" | "page" | "pageSize">,
-  currency: string,
   relations: RecordRelationship[] = [],
   paths: RecordRelationshipPath[] = [],
 ): RecordQuery {
@@ -242,13 +238,13 @@ export function presentationQuery(
         fieldId: field.id,
         operator: filter.operator,
         value: null,
-        values: filter.value.map((value) => filterScalar(value, field, currency)),
+        values: filter.value.map((value) => filterScalar(value, field)),
       });
     } else if (filter.operator in operators && "value" in filter && typeof filter.value === "string") {
       filters.push({
         fieldId: field.id,
         operator: operators[filter.operator as keyof typeof operators],
-        value: filterScalar(filter.value, field, currency),
+        value: filterScalar(filter.value, field),
       });
     } else throw new Error("Unsupported presentation filter");
   }

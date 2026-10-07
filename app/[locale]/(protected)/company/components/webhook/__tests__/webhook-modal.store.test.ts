@@ -97,7 +97,7 @@ describe("WebhookModalStore submit", () => {
 });
 
 const COMPANY_ID = "30000000-0000-4000-8000-000000000010";
-const model = createCrmPreset(COMPANY_ID, "EUR");
+const model = createCrmPreset(COMPANY_ID);
 
 describe("WebhookModalStore record triggers", () => {
   it("loads the current schema without erasing a draft and submits the exact definition", async () => {

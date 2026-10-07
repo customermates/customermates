@@ -384,7 +384,7 @@ async function fixture(): Promise<AgentTurnWorkflowPayload> {
     });
   });
   await runWithTenant(actor, () =>
-    runInTransaction(() => new PrismaRecordRepo().saveModel(createCrmPreset(companyId, "EUR"), userId)),
+    runInTransaction(() => new PrismaRecordRepo().saveModel(createCrmPreset(companyId), userId)),
   );
   return {
     turnRequestId,

@@ -110,7 +110,7 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
       });
     });
     await runWithTenant(tenantUser, () =>
-      runInTransaction(() => new PrismaRecordRepo().saveModel(createCrmPreset(company, "EUR"), user)),
+      runInTransaction(() => new PrismaRecordRepo().saveModel(createCrmPreset(company), user)),
     );
   });
 

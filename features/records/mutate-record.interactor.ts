@@ -42,7 +42,6 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private writer: RecordWriteService,
-    private company: { getDetails(): Promise<{ currency: string }> },
     private background: Pick<BackgroundTaskService, "dispatch">,
   ) {
     super();
@@ -69,7 +68,6 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
         const model = await this.records.getModel();
         if (model.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
         try {
-          const company = await this.company.getDetails();
           const journal = new RecordJournal(this.records, model);
           const cause = {
             kind: "mutation" as const,
@@ -77,7 +75,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
           };
           const changed = await this.writer
             .withRepository(journal.repository)
-            .apply(input.mutation, model, policy, company.currency, undefined, {
+            .apply(input.mutation, model, policy, undefined, {
               beforeDeletion: (refs) => journal.prepareDeletion(refs, model, this.userId, input.idempotencyKey, cause),
             });
           await journal.flush(model, this.userId, input.idempotencyKey, cause);
