@@ -17,7 +17,8 @@ import { fail, failAuthorization, failConflict, failNotFound } from "@/core/vali
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordRequestHash } from "@/features/records/mutate-record.interactor";
 import { RecordActivityWidgetInputSchema } from "./record-activity-widget.schema";
-import { resolveWidgetLayout } from "./widget-placement";
+import { resolveDashboardView, resolveWidgetLayout } from "./widget-placement";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 
 @TenantInteractor()
 export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteractor<
@@ -30,6 +31,7 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
     private policy: RecordAccessPolicy,
     private activities: GetRecordActivitiesInteractor,
     private reader: RecordActivityWidgetReader,
+    private views: DataViewStateRepo,
   ) {
     super();
   }
@@ -51,23 +53,25 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
         const state = await this.records.getState();
         if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
         if (state?.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
+        const current = input.id ? await this.widgets.findOwned(input.id) : null;
         if (input.id) {
-          const row = await this.widgets.findOwned(input.id);
-          if (!row) return failNotFound(CustomErrorCode.widgetNotFound);
-          if (row.version !== input.expectedVersion) return failConflict(CustomErrorCode.recordVersionChanged);
+          if (!current) return failNotFound(CustomErrorCode.widgetNotFound);
+          if (current.version !== input.expectedVersion) return failConflict(CustomErrorCode.recordVersionChanged);
         }
         const result = await this.activities.invoke({ ...input.activityQuery, cursor: null, limit: 25 });
         if (!result.ok) return result;
         const id = input.id ?? randomUUID();
+        const view = await resolveDashboardView(this.views, input.viewId, current ? current.viewId : undefined);
+        if (!view.ok) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewId"]);
         const placement = resolveWidgetLayout({
           id,
           kind: "activityTimeline",
           requested: input.layout,
-          isCreate: !input.id,
-          widgets: await this.widgets.listPlacements(),
+          needsPlacement: !current || current.viewId !== view.viewId,
+          widgets: await this.widgets.listPlacements(view.viewId),
         });
         if (!placement.ok) return fail(placement.code, ["layout"]);
-        const row = await this.widgets.save(input, id, placement.layout);
+        const row = await this.widgets.save(input, id, view.viewId, placement.layout);
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return {
           ok: true as const,

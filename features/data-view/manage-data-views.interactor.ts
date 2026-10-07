@@ -50,7 +50,10 @@ import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
 
 export type DataViewConfigurationSources = Record<
-  Exclude<BuiltinAiManageableDataViewSurfaceKey, typeof SURFACE.entityTimeline | typeof SURFACE.activity>,
+  Exclude<
+    BuiltinAiManageableDataViewSurfaceKey,
+    typeof SURFACE.entityTimeline | typeof SURFACE.activity | typeof SURFACE.dashboard
+  >,
   DataViewConfigurationRepo
 >;
 
@@ -491,6 +494,18 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           surfaceKey === SURFACE.activity ? CHANGE_ACTIVITY_KINDS : ACTIVITY_KINDS,
         ),
         sortableFields: [{ field: "at", resolvedFields: ["at"] }] as SortableField[],
+        groupableFields: [] as GroupableFieldSpec[],
+        groupableDtos: [],
+        filterValues: undefined,
+        appearance: [],
+        supportsSearch: false,
+        viewModes: [ViewMode.table],
+      };
+    }
+    if (surfaceKey === SURFACE.dashboard) {
+      return {
+        filterableFields: [],
+        sortableFields: [] as SortableField[],
         groupableFields: [] as GroupableFieldSpec[],
         groupableDtos: [],
         filterValues: undefined,

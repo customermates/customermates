@@ -36,6 +36,7 @@ function widget(id: string, x: number, y: number): WidgetDto {
   return {
     companyId: "company-1",
     version: 1,
+    viewId: null,
     createdAt: new Date(0),
     data: null,
     status: "ready",
@@ -91,7 +92,7 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     store.setItems({ items: [widget(FIRST_ID, 0, 0)] });
-    refreshWidgetsAction.mockResolvedValueOnce([widget(SECOND_ID, 6, 4)]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(SECOND_ID, 6, 4)] });
 
     await store.refresh();
 
@@ -110,7 +111,7 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     const initial = widget(FIRST_ID, 0, 0);
-    refreshWidgetsAction.mockResolvedValueOnce([initial]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [initial] });
     await store.refresh();
 
     const error = new Error("layout write failed");
@@ -140,7 +141,7 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     const initial = widget(FIRST_ID, 0, 0);
-    refreshWidgetsAction.mockResolvedValueOnce([initial]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [initial] });
     await store.refresh();
 
     updateWidgetLayoutsAction.mockResolvedValueOnce({ ok: false, error: { errors: ["nope"] } });
@@ -160,7 +161,7 @@ describe("WidgetsStore refresh compatibility", () => {
       loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce([widget(FIRST_ID, 0, 0)]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
     updateWidgetLayoutsAction
@@ -178,13 +179,40 @@ describe("WidgetsStore refresh compatibility", () => {
     expect(store.layouts).toEqual(final);
   });
 
+  it("still saves a queued arrangement when the dashboard view changes during a layout write", async () => {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+    } as unknown as RootStore;
+    const store = new WidgetsStore(root);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)], activeViewKey: "__all__" });
+    await store.refresh();
+    const first = Promise.withResolvers<unknown>();
+    updateWidgetLayoutsAction
+      .mockReturnValueOnce(first.promise)
+      .mockImplementation(({ layouts }: UpdateWidgetLayoutsData) => Promise.resolve(layoutResult(layouts, 3)));
+    const move = (x: number) => ({ ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x, y: 0 }] });
+    store.onLayoutChange([], move(1));
+    const queued = move(2);
+    store.onLayoutChange([], queued);
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(SECOND_ID, 0, 0)],
+      activeViewKey: "00000000-0000-4000-8000-0000000000aa",
+    });
+    await store.refresh();
+    first.resolve(layoutResult(updateWidgetLayoutsAction.mock.calls[0][0].layouts));
+    await vi.waitFor(() => expect(updateWidgetLayoutsAction).toHaveBeenCalledTimes(2));
+    expect(updateWidgetLayoutsAction.mock.calls[1][0].layouts.lg).toEqual(queued.lg);
+    expect(store.items.map(({ id }) => id)).toEqual([SECOND_ID]);
+  });
+
   it("keeps a queued layout after failure and rolls back a later failure to the last successful arrangement", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
       loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce([widget(FIRST_ID, 0, 0)]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
     const second = Promise.withResolvers<unknown>();
@@ -221,7 +249,7 @@ describe("WidgetsStore refresh compatibility", () => {
         loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
       } as unknown as RootStore;
       const store = new WidgetsStore(root);
-      refreshWidgetsAction.mockResolvedValueOnce([widget(FIRST_ID, 0, 0)]);
+      refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
       await store.refresh();
       const pending = Promise.withResolvers<unknown>();
       updateWidgetLayoutsAction
@@ -256,7 +284,7 @@ describe("WidgetsStore refresh compatibility", () => {
       loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce([widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)] });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
     const second = Promise.withResolvers<unknown>();
@@ -285,7 +313,7 @@ describe("WidgetsStore refresh compatibility", () => {
       loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce([widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)] });
     await store.refresh();
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
       Promise.resolve(layoutResult(layouts)),
@@ -310,9 +338,9 @@ describe("WidgetsStore refresh compatibility", () => {
       loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce([widget(FIRST_ID, 0, 0)]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
     await store.refresh();
-    const read = Promise.withResolvers<WidgetDto[]>();
+    const read = Promise.withResolvers<{ items: WidgetDto[] }>();
     refreshWidgetsAction.mockReturnValueOnce(read.promise);
     const refreshing = store.refresh();
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
@@ -320,7 +348,7 @@ describe("WidgetsStore refresh compatibility", () => {
     );
     store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }] });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    read.resolve([widget(FIRST_ID, 0, 0)]);
+    read.resolve({ items: [widget(FIRST_ID, 0, 0)] });
     await refreshing;
     expect(store.layouts.lg?.find((item) => item.i === FIRST_ID)?.x).toBe(2);
     store.setItems({ items: [widget(FIRST_ID, 0, 0)] });
@@ -336,7 +364,7 @@ describe("WidgetsStore refresh compatibility", () => {
       loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce([widget(FIRST_ID, 0, 0)]);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
     await store.refresh();
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
       Promise.resolve(layoutResult(layouts, 4)),
