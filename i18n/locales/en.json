@@ -29,6 +29,9 @@
     "privacyLink": "Privacy details",
     "title": "Help us learn what works"
   },
+  "ActivityPage": {
+    "title": "Activity"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -753,12 +756,7 @@
     "unnamed": "Unnamed"
   },
   "AuditLogModal": {
-    "createdAt": "Created At",
-    "entity": "Element",
-    "entityId": "Element ID",
-    "event": "Event",
     "eventAt": "{event} at {date}",
-    "eventData": "Event Data",
     "fields": {
       "acceptanceType": "Acceptance type",
       "acceptingEmail": "Accepted by",
@@ -766,11 +764,12 @@
       "changedFields": "Watched fields",
       "city": "City",
       "country": "Country",
+      "createType": "New type",
       "cronExpression": "Schedule",
       "currency": "Currency",
-      "dealStageWeights": "Stage probabilities",
-      "dealWeightingColumnId": "Stage field",
       "debounceSeconds": "Debounce",
+      "deleteField": "Permanently deleted field",
+      "deleteType": "Permanently deleted type",
       "disabledReason": "Disabled reason",
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
@@ -779,10 +778,16 @@
       "markdown": "Markdown",
       "postalCode": "Postal code",
       "prompt": "Instructions",
+      "publishSummary": "Published summary",
+      "putAccessPreset": "Access preset",
+      "putActivityPath": "Activity path",
+      "putCapability": "Capability",
+      "putField": "Field",
+      "putRelationship": "Relationship",
+      "putType": "Type",
       "recipientEmail": "Sent to",
       "removalReason": "Removal reason",
       "street": "Street",
-      "terminology": "Record naming",
       "timezone": "Time zone",
       "triggerEvents": "Trigger events",
       "triggerFilters": "Trigger filters",
@@ -793,15 +798,7 @@
     "noValue": "No value",
     "relationsAdded": "{field} Added",
     "relationsDeleted": "{field} Removed",
-    "title": "Audit Log Details",
-    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}",
-    "userId": "User"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Workspace changes are recorded here as they happen.",
-    "emptyTitle": "No activity yet",
-    "searchTooltip": "Search by element id",
-    "title": "Audit Logs"
+    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
@@ -1165,6 +1162,13 @@
         "created": "Record created",
         "deleted": "Record deleted",
         "updated": "Record updated"
+      },
+      "record_grants": {
+        "updated": "Record access changed"
+      },
+      "record_model": {
+        "initialized": "Data model set up",
+        "updated": "Data model changed"
       },
       "records": {
         "exported": "Records Exported"
@@ -2048,8 +2052,10 @@
     "noFurtherDetail": "No further detail was recorded for this event.",
     "types": {
       "activities": "Activities",
-      "changes": "Changes",
-      "messages": "Messages"
+      "audit": "Admin and system",
+      "configuration": "Configuration",
+      "messages": "Messages",
+      "record": "Record changes"
     }
   },
   "ErrorCard": {
@@ -2944,7 +2950,6 @@
     "addProbability": "Add probability",
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
-    "apply": "Apply changes",
     "archiveActivityPath": "Archive connection",
     "archived": "Archived",
     "archiveField": "Archive field",
@@ -2953,8 +2958,8 @@
     "archiveRelationship": "Archive relationship",
     "archiveRelationshipPath": "Archive this related-record column",
     "ascending": "Ascending",
+    "assignedMembers": "Assigned members",
     "assignedTo": "Assigned to",
-    "assignmentChange": "Assigned members: {before} → {after}",
     "attribute": "Attribute name",
     "behavior": "Value source",
     "behaviors": {
@@ -2968,6 +2973,28 @@
     "calculationError": "Calculation unavailable",
     "calculationInput": "Input {number}",
     "calculationNavigation": "Calculation navigation",
+    "calculationPath": {
+      "captureChanged": "captured when {field} changes",
+      "captureChangedTo": "captured when {field} changes to {value}",
+      "captureCreate": "captured when the record is created",
+      "captureExplicit": "captured on request",
+      "count": "{field} = the number of linked {list}",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = the {value} of the linked {list}",
+      "manual": "can be overwritten manually",
+      "reducers": {
+        "average": "average",
+        "max": "maximum",
+        "min": "minimum",
+        "sum": "sum"
+      },
+      "rollup": "{field} = the {reducer} of {value} across linked {list}",
+      "sentence": "{clauses}.",
+      "steps": "Calculation path",
+      "thisField": "This field",
+      "title": "How the value is calculated",
+      "via": "via {relationship} ({cardinality})"
+    },
     "calculationResult": "Result",
     "calculationSource": "Use",
     "cancelOperation": "Cancel change",
@@ -2996,7 +3023,6 @@
     "createdAt": "Created at",
     "createList": "Create list",
     "currency": "Currency",
-    "currentValue": "Current value",
     "decimalPlaces": "Decimal places",
     "decimalPlacesHelp": "Leave empty for the default. This changes how values are displayed, not how they are calculated.",
     "defaultColumns": "Default columns",
@@ -3065,6 +3091,7 @@
       "recordsRestricted": "Record count not available",
       "recordUnit": "{count, plural, one {record} other {records}}",
       "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
+      "resetLayout": "Reset layout",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out"
     },
@@ -3260,10 +3287,9 @@
       "views": "{count, plural, one {# saved view or personal layout} other {# saved views or personal layouts}}"
     },
     "pinnedFields": "Pinned detail fields",
-    "pluralDescription": "The name shown in navigation. Leave empty to use the list name.",
-    "pluralName": "Navigation label",
+    "pluralDescription": "Shown in navigation and list titles. Suggested from the name until you change it.",
+    "pluralName": "Plural name",
     "previewReady": "Ready to apply. {count} records will be checked.",
-    "previousValue": "Previous value",
     "priceModes": {
       "live": "Live price",
       "saved": "Saved price"

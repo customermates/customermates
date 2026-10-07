@@ -24,7 +24,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 | **URL** | Pflichtfeld. Der Endpunkt, der für jedes abonnierte Ereignis einen `POST` erhält. Eine URL ohne Schema wird mit vorangestelltem `https://` gespeichert. |
 | **Beschreibung** | Optional, bis zu 500 Zeichen. Erscheint in der Liste. |
 | **Ereignisse** | Pflichtfeld. Ein oder mehrere Ereignisse aus dem Katalog am Ende dieser Seite. |
-| **Secret** | Optional, 1 bis 256 Zeichen. Ist es gesetzt, tragen Zustellungen eine damit erstellte Signatur (siehe [Wie prüfe ich die Signatur?](#how-do-i-verify-the-signature)). Zeigt ein älterer Webhook auf dieselbe URL, gilt stattdessen dessen Secret, und ohne Secret gehen Zustellungen unsigniert hinaus (siehe [Was passiert, wenn mehrere Webhooks dieselbe URL nutzen?](#one-url-one-configuration)). |
+| **Secret** | Optional, 1 bis 256 Zeichen. Ist es gesetzt, tragen Zustellungen eine damit erstellte Signatur (siehe [Wie prüfe ich die Signatur?](#how-do-i-verify-the-signature)). |
 | **Eigene Header** | Optional. Ein `Name: Wert` pro Zeile (siehe [Eigene Header und Body-Vorlagen](#custom-headers-and-body-templates)). |
 | **Body-Vorlage** | Optionales JSON-Dokument, das den Standardumschlag ersetzt. |
 | **Aktiviert** | Standardmäßig eingeschaltet. Ein deaktivierter Webhook erhält keine Zustellungen und behält seine Konfiguration, Sie können ihn also pausieren, ohne ihn zu löschen. |
@@ -84,58 +84,54 @@ Jede Zustellung ist ein `POST` mit `Content-Type: application/json` und demselbe
 ```json
 {
   "event": "<event-name>",
+  "id": "<event-id>",
+  "timestamp": "<iso-8601>",
+  "companyId": "<workspace>",
+  "actorId": "<verursacher>",
   "data": {
-    "userId": "<verursacher>",
-    "companyId": "<workspace>",
-    "entityId": "<betroffener-record>",
-    "payload": {
-      /* event-spezifisch */
-    }
-  },
-  "timestamp": "<iso-8601>"
+    /* event-spezifisch */
+  }
 }
 ```
 
-`userId` ist der User, der den Write verursacht hat, inklusive User, die über einen API-Key handeln. Bei Messaging-Events, die durch eingehende Provider-Aktivität statt durch eine User-Aktion ausgelöst werden, ist `userId` gleich `null`.
+`id` bezeichnet das Event: Ein erneutes Senden und jeder Wiederholungsversuch tragen dieselbe `id`, nutzen Sie sie also zum Deduplizieren. `actorId` ist der User, der den Write verursacht hat, inklusive User, die über einen API-Key handeln, und Routinen, die für ihren Eigentümer laufen. Bei Messaging-Events, die durch eingehende Provider-Aktivität statt durch eine User-Aktion ausgelöst werden, ist `actorId` gleich `null`.
 
-Bei aktuellen CRM-Events enthält `data.payload` einen versionierten Datensatzumschlag. Die Referenz umfasst `typeId` und `recordId` und bleibt auch nach einer Umbenennung eindeutig. Legen Sie am Webhook Datensatzquellen fest, um Typen und Felder für die Zustellung auszuwählen.
+Bei Datensatz-Events enthält `data` die Datensatzänderung: `data.record` mit der Referenz (`typeId` und `recordId`, auch nach einer Umbenennung eindeutig) und den Änderungen, `data.cause` mit der Ursache des Writes und `data.causeId`, die alle Events desselben Writes teilen. Legen Sie am Webhook Datensatzquellen fest, um Typen und Felder für die Zustellung auszuwählen.
 
 Beispiel für `record.updated` bei einem Kontakt, ohne für die Erklärung unnötige Felder:
 
 ```json
 {
   "event": "record.updated",
+  "id": "<event-id>",
+  "timestamp": "2026-04-22T10:00:00.000Z",
+  "companyId": "<workspace-id>",
+  "actorId": "<ausloesender-user-id>",
   "data": {
-    "userId": "<ausloesender-user-id>",
-    "companyId": "<workspace-id>",
-    "entityId": "<record-id>",
-    "payload": {
-      "version": 2,
-      "event": "record.updated",
-      "record": {
-        "ref": { "typeId": "<kontakt-typ-id>", "recordId": "<record-id>" },
-        "schemaRevision": 3,
-        "beforeVersion": 1,
-        "afterVersion": 2,
-        "fields": [
-          {
-            "fieldId": "<vorname-feld-id>",
-            "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
-            "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
-          }
-        ]
-      }
+    "causeId": "<cause-id>",
+    "cause": { "kind": "mutation" },
+    "record": {
+      "ref": { "typeId": "<kontakt-typ-id>", "recordId": "<record-id>" },
+      "schemaRevision": 3,
+      "beforeVersion": 1,
+      "afterVersion": 2,
+      "fields": [
+        {
+          "fieldId": "<vorname-feld-id>",
+          "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
+          "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
+        }
+      ]
     }
-  },
-  "timestamp": "2026-04-22T10:00:00.000Z"
+  }
 }
 ```
 
-Der tatsächliche Datensatzumschlag enthält außerdem IDs, Zeitstempel, Ursache, Zuweisungen, Identitäten und Änderungen an Verknüpfungen. Feldeinträge tragen Anzeigedaten und können statt eines Werts `missing`, `restricted` oder `error` enthalten. Stabile Typ- und Feld-IDs liefert `POST /api/v1/model/discover` oder das MCP-Tool `get_record_model`.
+Die tatsächliche Datensatzänderung enthält außerdem Zuweisungen, Identitäten, Änderungen an Verknüpfungen und verknüpfte Datensätze. Feldeinträge tragen Anzeigedaten und können statt eines Werts `missing`, `restricted` oder `error` enthalten. Stabile Typ- und Feld-IDs liefert `POST /api/v1/model/discover` oder das MCP-Tool `get_record_model`.
 
 ## Das `changes`-Objekt: geänderte Felder [#the-changes-object]
 
-`record.fields` listet geänderte Felder mit Werten für `before` und `after` auf. `record.links`, `record.assignments` und `record.identities` beschreiben weitere geänderte Verbindungen. `record.beforeVersion` und `record.afterVersion` bezeichnen die betroffenen Datensatzversionen. Ein fehlender oder eingeschränkter Wert ist nicht dasselbe wie der Zahlenwert 0.
+`data.record.fields` listet geänderte Felder mit Werten für `before` und `after` auf. `data.record.links`, `data.record.assignments` und `data.record.identities` beschreiben weitere geänderte Verbindungen. `data.record.beforeVersion` und `data.record.afterVersion` bezeichnen die betroffenen Datensatzversionen. Ein fehlender oder eingeschränkter Wert ist nicht dasselbe wie der Zahlenwert 0.
 
 Änderungen ohne Wirkung erzeugen kein `record.updated`-Event. Der Payload wird bei der Zustellung gemäß den aktuellen Datensatz- und Berechnungsfeldrechten des Webhook-Eigentümers redigiert.
 
@@ -150,10 +146,10 @@ Header-Werte und das Signaturgeheimnis werden von der REST-API und von MCP nie z
 **Eine Body-Vorlage** ersetzt den Standardumschlag für Endpunkte mit fester Struktur. Schreiben Sie ein JSON-Dokument und verweisen Sie über Platzhalter auf Werte des Umschlags:
 
 ```json
-{ "text": "{{event}} for {{data.entityId}}" }
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
-Verfügbar sind `{{event}}`, `{{timestamp}}` sowie jeder Pfad unterhalb von `{{data}}`, darunter `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` und `{{data.payload}}`. Ein Platzhalter muss innerhalb eines JSON-Strings stehen; `{"count": {{data.payload.count}}}` wird abgelehnt. Ein Platzhalter, der ein Objekt liefert, wird als JSON-String eingesetzt, ein fehlender Pfad wird zu einem leeren String. Eingesetzte Werte werden escaped, sodass Datensatzinhalte die Struktur des Dokuments nicht verändern können.
+Verfügbar sind `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` sowie jeder Pfad unterhalb von `{{data}}`, etwa `{{data.record.ref.recordId}}` bei einem Datensatz-Event oder `{{data.entityId}}` bei einem Messaging-Event. Ein Platzhalter muss innerhalb eines JSON-Strings stehen; `{"count": {{data.count}}}` wird abgelehnt. Ein Platzhalter, der ein Objekt liefert, wird als JSON-String eingesetzt, ein fehlender Pfad wird zu einem leeren String. Eingesetzte Werte werden escaped, sodass Datensatzinhalte die Struktur des Dokuments nicht verändern können.
 
 Die Vorlage darf bis zu 8.192 Zeichen lang sein und muss ein JSON-Objekt ergeben. Sie wird beim Speichern geprüft. Eine Zustellung, deren Vorlage nicht gerendert werden kann oder deren gerenderter Body länger als 131.072 Zeichen ist, wird als fehlgeschlagen erfasst statt gesendet und nicht wiederholt. Die Signatur wird immer über den tatsächlich gesendeten Body berechnet, prüfen Sie sie also gegen den gerenderten Body und nicht gegen den Umschlag.
 
@@ -162,12 +158,6 @@ Die Vorlage darf bis zu 8.192 Zeichen lang sein und muss ein JSON-Objekt ergeben
 Zustellungen werden mit dem Ereignis-Payload erfasst, nicht mit dem gerenderten Body. **Ereignis-Details** zeigt also das ausgelöste Ereignis und nicht die exakt gesendeten Bytes.
 
 **Link:** `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`; in einem geöffneten Dialog **Webhook** heben `webhook-modal-headers` und `webhook-modal-body-template` **Eigene Header** und **Body-Vorlage** hervor, ohne **Bearbeiten** bei **API & Webhooks** schreibgeschützt.
-
-### Was passiert, wenn mehrere Webhooks dieselbe URL nutzen? [#one-url-one-configuration]
-
-Zeigen mehrere Webhooks desselben Workspace auf dieselbe URL, deaktivierte eingeschlossen, wird jede Zustellung an diese URL mit dem Secret des ältesten von ihnen signiert, oder unsigniert gesendet, wenn dieser kein Secret hat, denn Secret, Header und Body-Vorlage werden einer Zustellung über Workspace und URL zugeordnet, nicht über den Webhook. Trägt einer von ihnen Header oder eine Body-Vorlage, schlägt jede Zustellung an diese URL mit Status-Code 422 fehl und wird nicht wiederholt, auch die des Webhooks ohne Überschreibungen. Geben Sie jeder Subscription eine eigene URL, etwa über einen Pfad oder einen Query-String, bevor Sie ein Secret, Header oder eine Vorlage hinzufügen.
-
-**Link:** `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`; die Zeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie sende ich an Slack, Discord oder n8n? [#how-do-i-send-to-slack-discord-or-n8n]
 
@@ -201,7 +191,7 @@ anthropic-version: 2023-06-01
 ```
 
 ```json
-{ "text": "{{event}} for {{data.entityId}}" }
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
 Der Endpunkt liest ausschließlich `text` und ignoriert jedes andere Feld. Die Vorlage ist deshalb zwingend; ohne sie startet die Routine ohne Kontext. Jede Zustellung startet einen eigenen Lauf auf Ihr Routinen-Kontingent, ein Retry einen weiteren. Abonnieren Sie deshalb möglichst wenige Ereignisse.
@@ -213,7 +203,7 @@ Beitrag über einen Incoming Webhook in einen Kanal posten. Die URL trägt die A
 Verwenden Sie die Incoming-Webhook-URL aus **Slack → Apps → Incoming Webhooks**.
 
 ```json
-{ "text": "{{event}} for {{data.entityId}}" }
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
 ### Discord [#discord]
@@ -223,7 +213,7 @@ Dieselbe Struktur unter einem anderen Schlüssel.
 Verwenden Sie die Webhook-URL aus **Kanal → Kanal bearbeiten → Integrationen → Webhooks**.
 
 ```json
-{ "content": "{{event}} for {{data.entityId}}" }
+{ "content": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
 ### n8n [#n8n]
@@ -248,7 +238,7 @@ Hat der Webhook ein **Secret**, enthält jede Request:
 X-Webhook-Signature: <hex>
 ```
 
-`<hex>` ist `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, ohne Präfix. Berechnen Sie den Wert auf Ihrer Seite neu und vergleichen Sie in konstanter Zeit. Teilen sich mehrere Webhooks eine URL, gilt das Secret des ältesten, wie unter [Was passiert, wenn mehrere Webhooks dieselbe URL nutzen?](#one-url-one-configuration) beschrieben.
+`<hex>` ist `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, ohne Präfix. Berechnen Sie den Wert auf Ihrer Seite neu und vergleichen Sie in konstanter Zeit.
 
 Node.js-Beispiel:
 
@@ -265,13 +255,13 @@ function verify(rawBody: string, received: string, secret: string) {
 
 Customermates wiederholt eine fehlgeschlagene Zustellung automatisch, mit bis zu 10 Versuchen insgesamt und wachsenden Pausen von höchstens einer Stunde dazwischen, bei Timeouts, Netzwerkfehlern, 5xx-Responses und 408, 425 und 429; andere 4xx-Responses, etwa 400, 401, 403, 404 und 422, werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Jede Zustellung wird unter **Mein Unternehmen › Letzte Zustellungen** (`/company/webhook-deliveries`) und über `manage_webhooks` mit `action: "list_deliveries"` protokolliert. Die Seite listet die neuesten Zustellungen zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Das Suchfeld durchsucht Ereignis und URL, die Filter decken Ereignis, URL und Erstellungsdatum ab. Zustellungen werden nicht automatisch gelöscht; sie bleiben erhalten, solange der Workspace besteht.
 
-Ein Klick auf eine Zeile öffnet **Ereignis-Details**. Der Dialog zeigt den Status (**Ausstehend**, bis der erste Versuch abgeschlossen ist, danach **Zugestellt** oder **Fehlgeschlagen**), **URL**, **Ereignis**, **Element**, **Erstellt am**, **Status-Code**, **Antwort-Nachricht** und den **Ereignis-Payload**. Der Payload eines Messaging-Ereignisses wird so angezeigt, wie er gesendet wurde. Der Payload eines Datensatz-Ereignisses wird mit Ihren aktuellen Rechten neu gelesen: Werte, die Sie nicht lesen dürfen, erscheinen als eingeschränkt, und ohne Zugriff auf den Datensatz bleibt der Payload leer.
+Ein Klick auf eine Zeile öffnet **Ereignis-Details**. Der Dialog zeigt den Status (**Ausstehend**, bis der erste Versuch abgeschlossen ist, danach **Zugestellt** oder **Fehlgeschlagen**), **URL**, **Ereignis**, **Element**, **Erstellt am**, **Status-Code**, **Antwort-Nachricht** und den **Ereignis-Payload**. Jede Zustellung wird aus ihrem Event gelesen: Der Payload eines Messaging-Ereignisses wird so angezeigt, wie er gesendet wurde, der Payload eines Datensatz-Ereignisses wird mit Ihren aktuellen Rechten neu gelesen: Werte, die Sie nicht lesen dürfen, erscheinen als eingeschränkt, und ohne Zugriff auf den Datensatz bleibt der Payload leer.
 
-Eine Zustellung gilt als fehlgeschlagen, wenn der HTTP-Status außerhalb des 2xx-Bereichs liegt, die Request timeoutet oder keine Antwort eintrifft. Der Request-Timeout beträgt 5 Sekunden. Eine Zustellung schlägt außerdem schon vor dem Senden fehl, mit Status-Code 422, wenn ihre URL mit einem anderen Webhook geteilt wird und einer von ihnen Header oder eine Vorlage trägt, wenn Header an eine Adresse gehen würden, die sie nicht erlaubt, oder wenn die Body-Vorlage nicht gerendert werden kann.
+Eine Zustellung gilt als fehlgeschlagen, wenn der HTTP-Status außerhalb des 2xx-Bereichs liegt, die Request timeoutet oder keine Antwort eintrifft. Der Request-Timeout beträgt 5 Sekunden. Eine Zustellung schlägt außerdem schon vor dem Senden fehl, mit Status-Code 422, wenn Header an eine Adresse gehen würden, die sie nicht erlaubt, oder wenn die Body-Vorlage nicht gerendert werden kann.
 
 Die Wiederholungen laufen innerhalb desselben Zustellvorgangs, erzeugen also keine zusätzlichen Zustellungseinträge; jeder Eintrag zeigt das jeweils letzte Ergebnis, kann also **Fehlgeschlagen** anzeigen, während noch Wiederholungen ausstehen, und zu **Zugestellt** wechseln, sobald eine gelingt.
 
-Sie können eine Zustellung zusätzlich selbst erneut senden. In **Ereignis-Details** erscheint oben das Symbol mit den kreisförmigen Pfeilen (**Erneut senden**), sobald die Zustellung **Zugestellt** oder **Fehlgeschlagen** ist, für Rollen mit **Erstellen** bei **API & Webhooks**. Über MCP nutzen Sie `manage_webhooks` mit `action: "resend_delivery"` und der Id der Zustellung. Ein erneutes Senden erzeugt einen neuen Zustellungseintrag für denselben Webhook und sendet ihn mit der aktuellen URL, dem aktuellen Secret, den aktuellen Headern und der aktuellen Vorlage des Webhooks; das Original bleibt unverändert. Ein Messaging-Ereignis wird mit seinem gespeicherten Body erneut gesendet. Ein Datensatz-Ereignis wird mit den aktuellen Rechten des Webhook-Eigentümers neu gelesen; nur dieser Eigentümer oder ein Administrator kann es erneut senden, und das erneute Senden wird abgelehnt, wenn sich die Datensatzquellen des Webhooks seit der ursprünglichen Zustellung geändert haben. Der Webhook muss noch existieren, aktiviert sein und das Ereignis abonnieren; Zustellungen stillgelegter typspezifischer Ereignisse lassen sich nicht erneut senden.
+Sie können eine Zustellung zusätzlich selbst erneut senden. In **Ereignis-Details** erscheint oben das Symbol mit den kreisförmigen Pfeilen (**Erneut senden**), sobald die Zustellung **Zugestellt** oder **Fehlgeschlagen** ist, für Rollen mit **Erstellen** bei **API & Webhooks**. Über MCP nutzen Sie `manage_webhooks` mit `action: "resend_delivery"` und der Id der Zustellung. Ein erneutes Senden erzeugt einen neuen Zustellungseintrag für denselben Webhook und sendet ihn mit der aktuellen URL, dem aktuellen Secret, den aktuellen Headern und der aktuellen Vorlage des Webhooks; das Original bleibt unverändert. Ein Messaging-Ereignis wird aus seinem gespeicherten Event erneut gesendet. Ein Datensatz-Ereignis wird mit den aktuellen Rechten des Webhook-Eigentümers neu gelesen; nur dieser Eigentümer oder ein Administrator kann es erneut senden, und das erneute Senden wird abgelehnt, wenn sich die Datensatzquellen des Webhooks seit der ursprünglichen Zustellung geändert haben. Der Webhook muss noch existieren, aktiviert sein und das Ereignis abonnieren; Zustellungen stillgelegter typspezifischer Ereignisse lassen sich nicht erneut senden.
 
 **Link:** `/company/webhook-deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhook-deliveries` (hervorhebbar nur, solange **Mein Unternehmen** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat); `company-webhook-deliveries-search` und `company-webhook-deliveries-filter` heben das Suchfeld und die Filter hervor. `company-webhook-deliveries-display-options` hebt die Anzeigeoptionen hervor, `company-webhook-deliveries-layout-table` und `company-webhook-deliveries-layout-board` die Layout-Controls darin (zuerst die Anzeigeoptionen öffnen). Ist eine Zustellungszeile geöffnet, hebt `webhook-delivery-modal-resend` das Symbol **Erneut senden** in **Ereignis-Details** hervor (Rollen mit **Erstellen**, nur bei zugestellten und fehlgeschlagenen Zustellungen); die Zeilen und der Rest des Dialogs sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
@@ -285,7 +275,7 @@ Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor 
 
 ## Was enthalten Delete-Payloads? [#what-do-delete-payloads-contain]
 
-Bei `record.deleted` enthält `data.payload` ein Version-zwei-Envelope mit der eindeutigen `record.ref`, zulässigen Vorher-Werten und entfernten Beziehungen. `afterVersion` ist null. Quellfilter gelten unmittelbar vor der Entfernung; der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft. Die Datensatz-ID steht auch in `data.entityId`; zum Verknüpfen von CRM-Daten verwenden Sie die vollständige Referenz.
+Bei `record.deleted` enthält `data.record` die eindeutige `ref`, die zulässigen Vorher-Werte und die entfernten Beziehungen. `afterVersion` ist null. Quellfilter gelten unmittelbar vor der Entfernung; der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft.
 
 ## Wie untersuche ich eine fehlgeschlagene Zustellung? [#how-do-i-debug-a-delivery]
 
@@ -301,11 +291,11 @@ Ein Webhook kann [[derived.webhooks.events.total]] Events abonnieren: [[derived.
 
 ### Record-Events [#record-events]
 
-| Event | Wann es feuert | `payload` |
+| Event | Wann es feuert | `data` |
 | --- | --- | --- |
-| `record.created` | Ein Datensatz eines konfigurierten Quelltyps wird erstellt | Datensatzumschlag Version 2 |
-| `record.updated` | Feld, Zuweisung, Identität oder Verknüpfung eines konfigurierten Quelltyps ändert sich | Datensatzumschlag Version 2 mit vorherigen und neuen Werten |
-| `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird gelöscht | Datensatzumschlag Version 2 |
+| `record.created` | Ein Datensatz eines konfigurierten Quelltyps wird erstellt | die Datensatzänderung mit den neuen Werten |
+| `record.updated` | Feld, Zuweisung, Identität oder Verknüpfung eines konfigurierten Quelltyps ändert sich | die Datensatzänderung mit vorherigen und neuen Werten |
+| `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird gelöscht | die Datensatzänderung mit den vorherigen Werten |
 
 Die folgenden typspezifischen Bezeichner sind stillgelegt. Sie bleiben nur erhalten, damit ältere Konfigurationen und Zustellungseinträge lesbar bleiben; für Webhooks und Routinen lassen sie sich nicht auswählen, und keine Änderung löst sie aus. Ersetzen Sie sie durch ein generisches Event mit Datensatzquelle.
 
@@ -329,7 +319,7 @@ Die folgenden typspezifischen Bezeichner sind stillgelegt. Sie bleiben nur erhal
 
 ### Messaging-Events [#messaging-events]
 
-Messaging-Events feuern bei eingehender Provider-Aktivität auf verbundenen Accounts. Die Liste **Ereignisse** bietet sie in jedem Workspace an, sie feuern aber nur, wo verbundene Accounts existieren, und das setzt die Cloud und einen Tarif mit Messaging voraus. `userId` ist `null`. Payloads referenzieren Provider-Records per id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Records einzubetten.
+Messaging-Events feuern bei eingehender Provider-Aktivität auf verbundenen Accounts. Die Liste **Ereignisse** bietet sie in jedem Workspace an, sie feuern aber nur, wo verbundene Accounts existieren, und das setzt die Cloud und einen Tarif mit Messaging voraus. `actorId` ist `null`. `data` referenziert Provider-Records per id (`entityId` für die betroffene Nachricht, den Thread, Kalender, Kalendertermin oder die Verbindung, dazu `connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Records einzubetten. Ein Messaging-Event wird nur gespeichert, solange ein Webhook oder eine Event-Routine es abonniert.
 
 | Event | Wann es feuert |
 | --- | --- |

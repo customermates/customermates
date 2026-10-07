@@ -54,16 +54,11 @@ export class PrismaWidgetRepo
     if (row.kind === WidgetKind.activityTimeline && row.activityQuery) {
       const stored = RecordActivityWidgetDtoSchema.omit({ schemaRevision: true, data: true, status: true })
         .strip()
-        .parse({ ...row, contractVersion: 2 });
+        .parse(row);
       return getRecordActivityWidgetReader().read(stored);
     }
     if (row.measure !== null && row.measure !== undefined) {
-      const stored = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true })
-        .strip()
-        .parse({
-          ...row,
-          contractVersion: 2,
-        });
+      const stored = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true }).strip().parse(row);
       return getRecordWidgetReader().read(stored);
     }
     throw new Error(`Widget ${row.id} has no record definition`);

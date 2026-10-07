@@ -32,7 +32,6 @@ export const TOOL_CREATE_TYPE = {
   },
 };
 export const EMPTY_RECORD_DISCOVERY: DiscoveredRecordTypes = {
-  contractVersion: 2,
   schemaRevision: 1,
   canManageSchema: false,
   total: 0,

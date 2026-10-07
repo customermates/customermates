@@ -29,6 +29,9 @@
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"
   },
+  "ActivityPage": {
+    "title": "Actividad"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -753,12 +756,7 @@
     "unnamed": "Sin nombre"
   },
   "AuditLogModal": {
-    "createdAt": "Creado el",
-    "entity": "Elemento",
-    "entityId": "ID del elemento",
-    "event": "Evento",
     "eventAt": "{event} el {date}",
-    "eventData": "Datos del evento",
     "fields": {
       "acceptanceType": "Tipo de aceptación",
       "acceptingEmail": "Aceptado por",
@@ -766,11 +764,12 @@
       "changedFields": "Campos vigilados",
       "city": "Ciudad",
       "country": "País",
+      "createType": "Nuevo tipo",
       "cronExpression": "Programación",
       "currency": "Moneda",
-      "dealStageWeights": "Probabilidades de etapa",
-      "dealWeightingColumnId": "Campo de etapa",
       "debounceSeconds": "Retardo",
+      "deleteField": "Campo eliminado definitivamente",
+      "deleteType": "Tipo eliminado definitivamente",
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
@@ -779,10 +778,16 @@
       "markdown": "Markdown",
       "postalCode": "Código postal",
       "prompt": "Instrucciones",
+      "publishSummary": "Resumen publicado",
+      "putAccessPreset": "Plantilla de acceso",
+      "putActivityPath": "Ruta de actividad",
+      "putCapability": "Funcionalidad",
+      "putField": "Campo",
+      "putRelationship": "Relación",
+      "putType": "Tipo",
       "recipientEmail": "Enviado a",
       "removalReason": "Motivo de eliminación",
       "street": "Calle",
-      "terminology": "Nombres de registros",
       "timezone": "Zona horaria",
       "triggerEvents": "Eventos del disparador",
       "triggerFilters": "Filtros del disparador",
@@ -793,15 +798,7 @@
     "noValue": "Sin valor",
     "relationsAdded": "Elementos añadidos en {field}",
     "relationsDeleted": "Elementos eliminados de {field}",
-    "title": "Detalles del registro de auditoría",
-    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}",
-    "userId": "Usuario"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Los cambios del espacio de trabajo se registran aquí a medida que ocurren.",
-    "emptyTitle": "Aún no hay actividad",
-    "searchTooltip": "Buscar por ID de elemento",
-    "title": "Registros de auditoría"
+    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
@@ -1165,6 +1162,13 @@
         "created": "Registro creado",
         "deleted": "Registro eliminado",
         "updated": "Registro actualizado"
+      },
+      "record_grants": {
+        "updated": "Acceso a registros cambiado"
+      },
+      "record_model": {
+        "initialized": "Modelo de datos configurado",
+        "updated": "Modelo de datos cambiado"
       },
       "records": {
         "exported": "Registros exportados"
@@ -2048,8 +2052,10 @@
     "noFurtherDetail": "No se registraron más detalles para este evento.",
     "types": {
       "activities": "Actividades",
-      "changes": "Cambios",
-      "messages": "Mensajes"
+      "audit": "Administración y sistema",
+      "configuration": "Configuración",
+      "messages": "Mensajes",
+      "record": "Cambios de registros"
     }
   },
   "ErrorCard": {
@@ -2944,7 +2950,6 @@
     "addProbability": "Añadir probabilidad",
     "aggregation": "Agregación",
     "allowManualOverride": "Permitir un valor de reemplazo manual",
-    "apply": "Aplicar cambios",
     "archiveActivityPath": "Archivar conexión",
     "archived": "Archivado",
     "archiveField": "Archivar campo",
@@ -2953,8 +2958,8 @@
     "archiveRelationship": "Archivar relación",
     "archiveRelationshipPath": "Archivar esta columna de registros relacionados",
     "ascending": "Ascendente",
+    "assignedMembers": "Miembros asignados",
     "assignedTo": "Asignado a",
-    "assignmentChange": "Miembros asignados: {before} → {after}",
     "attribute": "Nombre del atributo",
     "behavior": "Origen del valor",
     "behaviors": {
@@ -2968,6 +2973,28 @@
     "calculationError": "Cálculo no disponible",
     "calculationInput": "Entrada {number}",
     "calculationNavigation": "Navegación del cálculo",
+    "calculationPath": {
+      "captureChanged": "se guarda cuando cambia {field}",
+      "captureChangedTo": "se guarda cuando {field} cambia a {value}",
+      "captureCreate": "se guarda al crear el registro",
+      "captureExplicit": "se guarda a petición",
+      "count": "{field} = el número de {list} vinculados",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = {value} del registro vinculado de {list}",
+      "manual": "se puede sobrescribir manualmente",
+      "reducers": {
+        "average": "el promedio",
+        "max": "el máximo",
+        "min": "el mínimo",
+        "sum": "la suma"
+      },
+      "rollup": "{field} = {reducer} de {value} en los {list} vinculados",
+      "sentence": "{clauses}.",
+      "steps": "Ruta de cálculo",
+      "thisField": "Este campo",
+      "title": "Cómo se calcula el valor",
+      "via": "a través de {relationship} ({cardinality})"
+    },
     "calculationResult": "Resultado",
     "calculationSource": "Usar",
     "cancelOperation": "Cancelar cambio",
@@ -2996,7 +3023,6 @@
     "createdAt": "Creado el",
     "createList": "Crear lista",
     "currency": "Moneda",
-    "currentValue": "Valor actual",
     "decimalPlaces": "Decimales",
     "decimalPlacesHelp": "Déjalo vacío para usar el formato predeterminado. Solo cambia cómo se muestran los valores, no su cálculo.",
     "defaultColumns": "Columnas predeterminadas",
@@ -3065,6 +3091,7 @@
       "recordsRestricted": "Número de registros no disponible",
       "recordUnit": "{count, plural, one {registro} other {registros}}",
       "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
+      "resetLayout": "Restablecer diseño",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar"
     },
@@ -3260,10 +3287,9 @@
       "views": "{count, plural, one {# vista guardada o diseño personal} other {# vistas guardadas o diseños personales}}"
     },
     "pinnedFields": "Campos de detalle fijados",
-    "pluralDescription": "El nombre mostrado en la navegación. Déjalo vacío para usar el nombre de la lista.",
-    "pluralName": "Etiqueta de navegación",
+    "pluralDescription": "Se muestra en la navegación y en los títulos de lista. Se sugiere a partir del nombre hasta que lo cambies.",
+    "pluralName": "Nombre en plural",
     "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
-    "previousValue": "Valor anterior",
     "priceModes": {
       "live": "Precio actual",
       "saved": "Precio guardado"

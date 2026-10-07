@@ -40,11 +40,6 @@ export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
 
 export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
   {
-    scope: "company-audit-logs",
-    route: "/company/audit-logs",
-    label: "audit log entries",
-  },
-  {
     scope: "company-webhook-deliveries",
     route: "/company/webhook-deliveries",
     label: "webhook deliveries",

@@ -52,16 +52,4 @@ export class PrismaThreadRecordsRepo extends TenantRepository implements ThreadR
       where: { companyId: this.companyId, threadId, typeId: ref.typeId, recordId: ref.recordId },
     });
   }
-
-  async audit(threadId: string, ref: RecordRef, action: "link" | "unlink") {
-    await this.prisma.auditLog.create({
-      data: {
-        companyId: this.companyId,
-        userId: this.userId,
-        entityId: threadId,
-        event: `messaging.thread.record.${action === "link" ? "linked" : "unlinked"}`,
-        eventData: { version: 2, threadId, ref },
-      },
-    });
-  }
 }

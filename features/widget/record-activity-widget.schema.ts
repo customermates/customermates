@@ -35,7 +35,6 @@ export const RecordActivityWidgetDtoSchema = z
   .object({
     id: z.uuid(),
     kind: z.literal("activityTimeline"),
-    contractVersion: z.literal(2),
     version: z.number().int().positive(),
     userId: z.string(),
     companyId: z.string(),
