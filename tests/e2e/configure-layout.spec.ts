@@ -52,7 +52,8 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   await openConfigure(page, id("deal"));
   const pane = page.locator("[data-configure-list-pane]");
   const general = page.getByRole("region", { name: "General", exact: true });
-  await expect(pane).toContainText(/\d+ fields · \d+ relationships$/);
+  await expect(pane).toContainText(/\d+ fields · \d+ relationships/);
+  await expect(pane).not.toContainText("activity connection");
   const icon = general.getByRole("button", { name: "Icon", exact: true });
   await expect(icon).toContainText("Growth");
   await icon.click();
