@@ -681,7 +681,6 @@
       "archivedChats": "Archived chats",
       "assistantWorking": "Mate is responding",
       "back": "Back to chat",
-      "cancel": "Cancel",
       "chats": "Chats",
       "copyCode": "Copy code",
       "copyLink": "Copy link",
@@ -706,6 +705,7 @@
       "loadingOlderMessages": "Loading older messages",
       "loadMoreChats": "Load more chats",
       "loadOlderMessages": "Load earlier messages",
+      "moreActions": "More actions for {name}",
       "newChat": "New chat",
       "noChats": "No chats yet",
       "noChatsBody": "Start a chat to return to your questions and completed work later.",
@@ -1898,6 +1898,7 @@
       "moveRight": "Move right",
       "name": "Name",
       "namePlaceholder": "View name",
+      "nameRequired": "Enter a name for the view.",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}"
     }
@@ -2726,6 +2727,7 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
+      "changes": "Save these changes to {name}? They apply to the whole workspace.",
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
       "tags": "Set the tags for {name} to {value}? This applies to the whole workspace.",
@@ -2851,11 +2853,8 @@
     },
     "delete": {
       "action": "Delete workspace",
-      "confirmLabel": "Type {name} to confirm",
-      "confirmMessage": "{name} and {members, plural, =1 {its one member account} other {all # member accounts}} will be permanently deleted. This cannot be undone.",
       "confirmTitle": "Delete this workspace permanently",
       "reasonLabel": "Reason",
-      "title": "Delete this workspace",
       "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. This cannot be undone."
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
