@@ -451,6 +451,8 @@ export class RecordConfigurationService extends UserAccessor {
       : null;
     if (removed?.deletion.typeIds.length && !policy.canManageRoles)
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+    if (removed?.deletion.channelTypeIds.some((typeId) => !policy.isAdmin && !policy.allowed(typeId, "readAll")))
+      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
     for (const typeId of reorderedTypes) {
       const slots = model.fields.flatMap((field, index) => (field.typeId === typeId ? [index] : []));
       const ordered = slots.map((index) => model.fields[index]).sort((left, right) => left.position - right.position);
@@ -522,7 +524,7 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
-    const viewTypes = new Set(changedTypes);
+    const viewTypes = new Set([...changedTypes, ...(removed?.deletion.channelTypeIds ?? [])]);
     const changedRelations = new Set(
       [...current.relationships, ...model.relationships]
         .filter(

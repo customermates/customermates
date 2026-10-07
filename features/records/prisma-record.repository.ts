@@ -580,27 +580,20 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   async countDefinitionDeletion({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion) {
     const companyId = this.companyId;
     const surfaces = typeIds.map(recordSurfaceKey);
-    const identityLinks = { companyId, typeId: { in: channelTypeIds } };
-    const [records, values, links, relationships, views, personalizations, grants, identifiers, identifierRecords] =
-      await Promise.all([
-        this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
-        this.prisma.recordValue.count({
-          where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
-        }),
-        this.prisma.recordLink.count({ where: { companyId, relationId: { in: relationIds } } }),
-        this.prisma.recordRelationshipDefinition.count({ where: { companyId, id: { in: relationIds } } }),
-        this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaces } } }),
-        this.prisma.p13n.count({
-          where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
-        }),
-        this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
-        this.prisma.recordIdentityLink
-          .groupBy({ by: ["identityId"], where: identityLinks })
-          .then((rows) => rows.length),
-        this.prisma.recordIdentityLink
-          .groupBy({ by: ["typeId", "recordId"], where: identityLinks })
-          .then((rows) => rows.length),
-      ]);
+    const [records, values, links, relationships, views, personalizations, grants, identityLinks] = await Promise.all([
+      this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
+      this.prisma.recordValue.count({
+        where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
+      }),
+      this.prisma.recordLink.count({ where: { companyId, relationId: { in: relationIds } } }),
+      this.prisma.recordRelationshipDefinition.count({ where: { companyId, id: { in: relationIds } } }),
+      this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaces } } }),
+      this.prisma.p13n.count({
+        where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
+      }),
+      this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
+      this.countIdentityLinks(channelTypeIds),
+    ]);
     return {
       records,
       values,
@@ -608,9 +601,18 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       relationships,
       views: views + personalizations,
       grants,
-      identifiers,
-      identifierRecords,
+      ...identityLinks,
     };
+  }
+
+  private async countIdentityLinks(typeIds: string[]) {
+    if (!typeIds.length) return { identifiers: 0, identifierRecords: 0 };
+    const [row] = await this.prisma.$queryRaw<Array<{ identifiers: number; identifierRecords: number }>>(Prisma.sql`
+      SELECT COUNT(DISTINCT link."identityId")::integer AS identifiers,
+        COUNT(DISTINCT (link."typeId", link."recordId"))::integer AS "identifierRecords"
+      FROM "RecordIdentityLink" link
+      WHERE link."companyId" = ${this.companyId} AND link."typeId" IN (${Prisma.join(typeIds)})`);
+    return { identifiers: row?.identifiers ?? 0, identifierRecords: row?.identifierRecords ?? 0 };
   }
 
   async deleteDefinitions({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion): Promise<void> {

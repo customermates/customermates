@@ -253,6 +253,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   }
   protected override afterChange(id?: string): void {
     if (id === "valueType" && !["number", "currency"].includes(this.form.valueType)) this.form.decimalPlaces = "";
+    if (id === "valueType" && this.form.valueType === "channels") this.form.behavior = "input";
     if (id === "valueType" || id === "multiple") {
       this.form.hasDefaultValue = false;
       this.form.defaultValue = undefined;
@@ -415,6 +416,7 @@ export const FieldModal = observer(function FieldModal({
                 icon: Trash2,
                 label: t("Common.actions.delete"),
                 variant: "destructive" as const,
+                busy: deletion.isUpdatingChannels,
                 disabled: store.isLoading || store.isReadOnly,
                 onClick: () => deletion.requestChannelsRemoval(store.model, activeChannels),
               },
@@ -426,6 +428,7 @@ export const FieldModal = observer(function FieldModal({
                 id: "restore-channels",
                 icon: RotateCcw,
                 label: t("RecordModel.channelsField.restore"),
+                busy: deletion.isUpdatingChannels,
                 disabled: store.isLoading || store.isReadOnly,
                 onClick: () => deletion.restoreChannels(store.model, deletedChannels),
               },

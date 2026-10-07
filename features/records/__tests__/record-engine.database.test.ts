@@ -15793,6 +15793,28 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       ),
     ).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(
+      await f.run(() =>
+        executeMcpTool(manageDataViewsTool, [
+          {
+            action: "create",
+            surfaceKey: `records:${contactTypeId}`,
+            name: "With channels",
+            state: { columnOrder: [f.id("contact.name"), "system:channels"] },
+          },
+        ]),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({
+      ok: true,
+      data: {
+        valid: false,
+        issues: expect.arrayContaining([{ code: "saved_view_incompatible", typeId: contactTypeId }]),
+      },
+    });
+    await f.run(() =>
+      prisma.dataView.deleteMany({ where: { companyId: f.company.id, surfaceKey: `records:${contactTypeId}` } }),
+    );
     expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({
       ok: true,
       data: {

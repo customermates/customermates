@@ -21,6 +21,7 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
   const t = useTranslations();
   const { showConfirmation } = useDeleteConfirmation();
   const [isPreviewing, setIsPreviewing] = useState(false);
+  const [isUpdatingChannels, setIsUpdatingChannels] = useState(false);
   const requestDeletion = async (model: RecordModel, target: Target) => {
     if (isPreviewing) return;
     const change: ConfigurationChange = {
@@ -102,17 +103,23 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
     }
   };
   const setChannelsEnabled = async (model: RecordModel, binding: ChannelsBinding, enabled: boolean) => {
-    const applied = await applyRecordConfigurationAction({
-      expectedRevision: model.revision,
-      idempotencyKey: crypto.randomUUID(),
-      operations: [{ operation: "putCapability", capability: { ...binding, enabled } }],
-    });
-    if (!applied.ok) {
-      toastZodErrorTree(applied.error);
-      return false;
+    if (isUpdatingChannels) return false;
+    setIsUpdatingChannels(true);
+    try {
+      const applied = await applyRecordConfigurationAction({
+        expectedRevision: model.revision,
+        idempotencyKey: crypto.randomUUID(),
+        operations: [{ operation: "putCapability", capability: { ...binding, enabled } }],
+      });
+      if (!applied.ok) {
+        toastZodErrorTree(applied.error);
+        return false;
+      }
+      await onDeleted();
+      return true;
+    } finally {
+      setIsUpdatingChannels(false);
     }
-    await onDeleted();
-    return true;
   };
   const requestChannelsRemoval = (model: RecordModel, binding: ChannelsBinding) =>
     showConfirmation({
@@ -123,5 +130,5 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
   const restoreChannels = async (model: RecordModel, binding: ChannelsBinding) => {
     await setChannelsEnabled(model, binding, true);
   };
-  return { requestDeletion, requestChannelsRemoval, restoreChannels, isPreviewing };
+  return { requestDeletion, requestChannelsRemoval, restoreChannels, isPreviewing, isUpdatingChannels };
 }
