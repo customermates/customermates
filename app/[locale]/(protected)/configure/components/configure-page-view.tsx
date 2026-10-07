@@ -215,6 +215,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (kind === "calculation")
         fieldModal.edit(model, selected.id, null, { behavior: "formula", valueType: "number" });
       if (kind === "relationship") relationModal.edit(model, selected.id);
+      if (kind === "channels") fieldModal.edit(model, selected.id, null, { valueType: "channels" });
       if (kind === "activity") activityModal.edit(model, selected.id);
     },
     [activityModal, fieldModal, model, relationModal, selected, typeModal],

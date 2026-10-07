@@ -96,14 +96,10 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
     providerAvatar: false,
     fields: [],
   });
-  await addFromConfigure(page, "Field");
-  await dialog.getByRole("combobox", { name: "Value type", exact: true }).click();
-  const duplicate = page.getByRole("option", { name: /^Channels/ });
-  await expect(duplicate).toHaveAttribute("aria-disabled", "true");
-  await expect(duplicate).toContainText("This list already has a Channels field.");
+  await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
+  await expect(page.getByRole("menuitem", { name: "Relationship", exact: true })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Channels", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
-  await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
-  await expect(dialog).not.toBeVisible();
 
   await openConfigureTab(page, "Fields");
   await openConfigureRow(page, "Fields", "Channels");

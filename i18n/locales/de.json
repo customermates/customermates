@@ -2987,7 +2987,6 @@
       "oneToOne": "Eins zu eins"
     },
     "channelsField": {
-      "alreadyAdded": "Diese Liste hat bereits ein Kanäle-Feld. Öffne es im Tab Felder oder stelle es wieder her, falls es gelöscht wurde.",
       "deleted": "Gelöscht",
       "deleteMessage": "Nachrichten werden den Datensätzen dieser Liste nicht mehr zugeordnet. E-Mail-Adressen, Telefonnummern und soziale Konten bleiben erhalten: Stelle das Kanäle-Feld wieder her, um sie erneut zuzuordnen, oder lösche es endgültig.",
       "deleteTitle": "Kanäle-Feld löschen?",

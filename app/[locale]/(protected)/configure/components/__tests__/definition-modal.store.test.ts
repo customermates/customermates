@@ -431,14 +431,11 @@ describe("Channels field", () => {
     expect(restored.operation === "putCapability" && restored.capability).toEqual({ ...binding, enabled: true });
   });
 
-  it("adds one Channels field with a stable binding id and offers it only where none exists", () => {
+  it("adds one Channels field from the Add menu with a stable binding id", () => {
     const model = createCrmPreset(company);
     const store = new FieldModalStore(root, model, vi.fn());
-    store.edit(model, id("contact"), null);
-    expect(store.hasChannels).toBe(true);
-    store.edit(model, id("organization"), null);
-    expect(store.hasChannels).toBe(false);
-    store.onChange("valueType", "channels");
+    store.edit(model, id("organization"), null, { valueType: "channels" });
+    expect(store.isChannels).toBe(true);
     const first = validate(store.operations()).operations;
     expect(validate(store.operations()).operations).toEqual(first);
     expect(first).toHaveLength(1);

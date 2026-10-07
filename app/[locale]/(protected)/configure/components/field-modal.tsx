@@ -177,9 +177,6 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   get isChannels() {
     return this.form.valueType === "channels";
   }
-  get hasChannels() {
-    return Boolean(recordChannelsBinding(this.model, this.typeId));
-  }
   private channelsForm(binding: ChannelsBinding) {
     return {
       ...initial(),
@@ -493,27 +490,16 @@ export const FieldModal = observer(function FieldModal({
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <FormSelect
-                        disabled={Boolean(store.channels)}
+                        disabled={store.isChannels}
                         id="valueType"
-                        items={[
-                          ...RecordValueTypeSchema.options.map((value) => ({
-                            value,
-                            label: t(`RecordModel.types.${value}`),
-                          })),
-                          ...(store.original
-                            ? []
-                            : [
-                                {
-                                  value: "channels",
-                                  label: t("EntityChannels.heading"),
-                                  disabled: !store.channels && store.hasChannels,
-                                  description:
-                                    !store.channels && store.hasChannels
-                                      ? t("RecordModel.channelsField.alreadyAdded")
-                                      : t("RecordModel.channelsField.detail"),
-                                },
-                              ]),
-                        ]}
+                        items={
+                          store.isChannels
+                            ? [{ value: "channels", label: t("EntityChannels.heading") }]
+                            : RecordValueTypeSchema.options.map((value) => ({
+                                value,
+                                label: t(`RecordModel.types.${value}`),
+                              }))
+                        }
                         label={t("RecordModel.valueType")}
                       />
 

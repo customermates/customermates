@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
 
-export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Activity connection";
+export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Channels" | "Activity connection";
 export type ConfigureSection = "Fields" | "Relationships" | "Activity connections";
 
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -149,10 +149,9 @@ export async function createConfiguredList(page: Page, name: string, { channels 
 
 export async function addChannelsField(page: Page, typeId: string) {
   await openConfigure(page, typeId);
-  await addFromConfigure(page, "Field");
+  await addFromConfigure(page, "Channels");
   const dialog = configureDrawer(page);
-  await dialog.getByRole("combobox", { name: "Value type", exact: true }).click();
-  await page.getByRole("option", { name: /^Channels/ }).click();
+  await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText("Channels");
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
   await saveDrawer(page);
   await openConfigureTab(page, "Fields");

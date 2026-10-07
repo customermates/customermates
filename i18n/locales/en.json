@@ -2987,7 +2987,6 @@
       "oneToOne": "One to one"
     },
     "channelsField": {
-      "alreadyAdded": "This list already has a Channels field. Open it from the Fields tab, or restore it if it was deleted.",
       "deleted": "Deleted",
       "deleteMessage": "Messages stop matching this list's records. The email addresses, phone numbers and social accounts are kept: restore the Channels field to match them again, or delete it permanently.",
       "deleteTitle": "Delete the Channels field?",

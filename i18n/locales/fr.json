@@ -2987,7 +2987,6 @@
       "oneToOne": "Un à un"
     },
     "channelsField": {
-      "alreadyAdded": "Cette liste a déjà un champ Canaux. Ouvrez-le depuis l’onglet Champs ou restaurez-le s’il a été supprimé.",
       "deleted": "Supprimé",
       "deleteMessage": "Les messages ne seront plus associés aux fiches de cette liste. Les adresses e-mail, numéros de téléphone et comptes sociaux sont conservés : restaurez le champ Canaux pour les associer à nouveau, ou supprimez-le définitivement.",
       "deleteTitle": "Supprimer le champ Canaux ?",

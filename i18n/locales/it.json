@@ -2987,7 +2987,6 @@
       "oneToOne": "Uno a uno"
     },
     "channelsField": {
-      "alreadyAdded": "Questa lista ha già un campo Canali. Aprilo dalla scheda Campi oppure ripristinalo se è stato eliminato.",
       "deleted": "Eliminato",
       "deleteMessage": "I messaggi non verranno più associati ai record di questa lista. Gli indirizzi e-mail, i numeri di telefono e gli account social vengono conservati: ripristina il campo Canali per associarli di nuovo oppure eliminalo definitivamente.",
       "deleteTitle": "Eliminare il campo Canali?",
