@@ -128,6 +128,7 @@ describeDatabase("routine run projection on PostgreSQL", () => {
       threadId: null,
       changedFields: [nameFieldId],
       changedFieldsTruncated: false,
+      changedFieldLabels: { [nameFieldId]: "First name" },
     });
   });
 
