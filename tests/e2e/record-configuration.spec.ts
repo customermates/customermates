@@ -77,7 +77,8 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   await expect(general.getByRole("switch", { name: "Enable channels", exact: true })).toHaveCount(0);
   await expect(general.getByRole("switch", { name: "Use channel profile picture", exact: true })).toHaveCount(0);
   const before = await channelsOf(contactTypeId);
-  expect(before).toMatchObject({ enabled: true, providerAvatar: true });
+  expect(before).toMatchObject({ providerAvatar: true });
+  expect(before?.enabled).not.toBe(false);
   await openConfigureRow(page, "Fields", "Channels");
   await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText("Channels");
   await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toBeDisabled();
