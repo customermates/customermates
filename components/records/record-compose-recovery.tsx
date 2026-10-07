@@ -29,7 +29,7 @@ export const RecordComposeRecovery = observer(function RecordComposeRecovery() {
     >
       <SheetContent
         aria-describedby={undefined}
-        className="w-full sm:max-w-[640px]"
+        className="w-full bg-background sm:max-w-[640px]"
         side="left"
         onBlur={releaseFocusToAssistantSurface}
         onEscapeKeyDown={keepOpenForAssistantSurface}

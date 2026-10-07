@@ -6,6 +6,7 @@ import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/au
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/company/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/company/components/company-invite/invite-by-email.store";
 import { CompanySettingsStore } from "@/app/[locale]/(protected)/company/components/company-settings/company-settings.store";
+import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
 import { CompanyStore } from "@/app/[locale]/(protected)/company/components/company.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { RoleModalStore } from "@/app/[locale]/(protected)/company/components/role/role-modal.store";
@@ -92,6 +93,7 @@ export class RootStore {
   private _operatorWorkspacesStore?: OperatorWorkspacesStore;
 
   private _companySettingsStore?: CompanySettingsStore;
+  private _sidebarLayoutStore?: SidebarLayoutStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
   private _verifyEmailStore?: VerifyEmailStore;
   private _mcpConsentStore?: McpConsentStore;
@@ -266,6 +268,10 @@ export class RootStore {
 
   get companySettingsStore() {
     return (this._companySettingsStore ??= new CompanySettingsStore(this));
+  }
+
+  get sidebarLayoutStore() {
+    return (this._sidebarLayoutStore ??= new SidebarLayoutStore(this));
   }
 
   get forgotPasswordStore() {

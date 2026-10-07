@@ -4,8 +4,10 @@ import { useTranslations } from "next-intl";
 
 import type { RecordColumn } from "@/features/records/record-columns";
 import type { RecordDto, RecordRef } from "@/features/records/record-model.schema";
+import type { RecordLinkColors } from "@/features/records/record-presentation";
 
-import { AppChip } from "@/components/chip/app-chip";
+import { AppChipStack } from "@/components/chip/app-chip-stack";
+import { recordLinkColor } from "@/features/records/record-presentation";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordValue } from "./record-value";
@@ -15,8 +17,11 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { Avatar } from "@/components/ui/avatar";
 
+const LINKED_CHIPS_MAX_WIDTH = 240;
+
 export function RecordCell({
   column,
+  linkColors,
   record,
   onOpen,
   onMore,
@@ -24,6 +29,7 @@ export function RecordCell({
   avatarFieldId,
 }: {
   column: RecordColumn;
+  linkColors: RecordLinkColors;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
   onMore: () => void;
@@ -86,36 +92,34 @@ export function RecordCell({
           (summary) => summary.relationId === column.relation.id && summary.direction === column.direction,
         );
   if (!summary?.records.length) return empty;
+  const items = summary.records.map((related) => ({
+    id: `${related.ref.typeId}:${related.ref.recordId}`,
+    ref: related.ref,
+    label:
+      related.title.state === "value" && related.title.value.kind === "text"
+        ? related.title.value.value
+        : related.title.state === "restricted"
+          ? t("RecordModel.restricted")
+          : related.title.state === "error"
+            ? t("RecordModel.calculationError")
+            : t("RecordModel.record"),
+  }));
   return (
-    <div className="flex flex-wrap items-center gap-1">
-      {summary.records.map((related) => {
-        const title =
-          related.title.state === "value" && related.title.value.kind === "text"
-            ? related.title.value.value
-            : related.title.state === "restricted"
-              ? t("RecordModel.restricted")
-              : related.title.state === "error"
-                ? t("RecordModel.calculationError")
-                : t("RecordModel.record");
-        return (
-          <button
-            key={`${related.ref.typeId}:${related.ref.recordId}`}
-            aria-label={t("RecordModel.openRecord", { name: title })}
-            className="max-w-full rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            type="button"
-            onClick={() => onOpen(related.ref)}
-          >
-            <AppChip interactive>{title}</AppChip>
-          </button>
-        );
-      })}
+    <div className="flex min-w-0 items-center gap-1">
+      <AppChipStack
+        chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
+        items={items}
+        maxWidth={LINKED_CHIPS_MAX_WIDTH}
+        variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
+        onChipClick={(item) => onOpen(item.ref)}
+      />
 
       {summary.hasMore && (
         <button
           aria-label={t("RecordModel.linkedRecordCount", {
             count: summary.readableCount,
           })}
-          className="rounded-md text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          className="shrink-0 rounded-md text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
           type="button"
           onClick={onMore}
         >

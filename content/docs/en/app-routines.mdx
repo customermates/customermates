@@ -59,7 +59,7 @@ The scheduler checks for due routines every five minutes, so a run may start a f
 
 An event trigger starts a routine when something changes in the app, for example a deal. An event trigger names one or more in-app events: every record event and every messaging event that a [webhook](/docs/webhooks#which-events-exist) can subscribe to, except **Email Deleted** and **Chat Deleted** (`messaging.email.deleted`, `messaging.chat.deleted`). Pick them under **Events**. Changes a routine run makes never trigger routines, so routines cannot chain or loop; changes made in the app, in a Mate chat, over the API or over MCP do. Two optional controls narrow it further, so the routine spends credits only on the cases you care about.
 
-**Changed fields** applies to update events only. Name the fields you want to watch, for example a deal's value or one of your custom columns, and the routine runs only when one of them actually changed. The control is hidden when no update event is selected, because creations and deletions do not report field-level changes.
+**Changed fields** applies to update events only. Name the fields you want to watch, for example a deal's value or one of your own fields, and the routine runs only when one of them actually changed. The control is hidden when no update event is selected, because creations and deletions do not report field-level changes.
 
 **Record filters** restrict each configured source to matching records. Creation and update filters match the resulting committed state. Deletion filters match the complete state immediately before removal, including fields and relationships; their match is captured in the deletion transaction. Multi-source triggers keep their event names, watched field IDs and filters local to each type.
 

@@ -12,3 +12,18 @@ export function recordInputValue(raw: unknown, field: RecordField, currency: str
   }
   return filterScalar(String(raw), field, currency);
 }
+
+export function recordDraftValue(value: RecordScalar | null | undefined): unknown {
+  if (!value) return undefined;
+  if (value.kind === "richText") return JSON.parse(value.documentJson);
+  if (value.kind === "range") return `${value.start ?? ""},${value.end ?? ""}`;
+  if (value.kind === "textList") return value.value.join("\n");
+  return value.value;
+}
+
+export function isRecordFieldWritable(field: RecordField) {
+  return (
+    field.behavior.kind === "input" ||
+    (field.behavior.kind === "snapshot" && Boolean(field.behavior.allowManualOverride))
+  );
+}

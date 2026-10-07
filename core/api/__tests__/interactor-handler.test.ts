@@ -97,7 +97,7 @@ describe("interactorFailureResponse", () => {
   it.each([
     [CustomErrorCode.notAuthenticated, 401],
     [CustomErrorCode.permissionDenied, 403],
-    [CustomErrorCode.contactNotFound, 404],
+    [CustomErrorCode.webhookNotFound, 404],
     [CustomErrorCode.channelAlreadyLinked, 409],
     [CustomErrorCode.unipileRateLimit, 429],
     [CustomErrorCode.unipileProviderError, 422],

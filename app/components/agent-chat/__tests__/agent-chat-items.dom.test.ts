@@ -72,8 +72,8 @@ describe("AgentActivity controls", () => {
               providerCallId: "call-0",
               activity: {
                 kind: "records.read",
-                resource: "contacts",
-                affectedResources: ["contacts"],
+                resource: "wiki",
+                affectedResources: ["wiki"],
                 risk: "read",
               },
               status: "done",

@@ -9,6 +9,7 @@ import type { RecordRelationshipPath } from "@/features/records/record-relations
 
 import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
+import { recordLinkColor } from "@/features/records/record-presentation";
 import { useRecordChoices } from "./record-relationship-editor";
 import { RecordDetailField } from "./record-detail-field";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
@@ -73,7 +74,9 @@ export const RecordPathRecords = observer(function RecordPathRecords({
                   type="button"
                   onClick={(event) => store.rootStore.recordWorkspaceStore.open(record.ref, event.currentTarget)}
                 >
-                  <AppChip interactive>{title}</AppChip>
+                  <AppChip interactive variant={recordLinkColor(store.presentation.linkColors, record.ref.typeId)}>
+                    {title}
+                  </AppChip>
                 </button>
               );
             })}

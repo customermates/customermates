@@ -18,7 +18,7 @@ import { RecordCalculationService, calculationSources, recordKey } from "./recor
 import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { validateRecordModel } from "./record-model-validation";
-import { presetId } from "./crm-preset";
+import { deterministicId } from "./crm-preset";
 import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
@@ -115,7 +115,7 @@ export class RecordOperationService extends UserAccessor {
               }
               const result = await writer.apply(request.mutation, current, policy, currency, BACKGROUND_FANOUT_LIMIT, {
                 skipCalculations: true,
-                createRecordId: presetId(this.companyId, `operation:${operationId}:record`),
+                createRecordId: deterministicId(this.companyId, `operation:${operationId}:record`),
               });
               const typeIds = new Set(result.refs.map((ref) => ref.typeId));
               let expanded = true;

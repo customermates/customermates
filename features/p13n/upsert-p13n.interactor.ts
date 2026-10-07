@@ -12,27 +12,34 @@ import { FilterSchema, SortDescriptorSchema, PaginationRequestSchema } from "@/c
 import { ViewMode } from "@/core/base/base-query-builder";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
+import { SIDEBAR_P13N_ID, SidebarLayoutSchema } from "./sidebar-layout.schema";
 
-const Schema = z.object({
-  p13nId: z
-    .string()
-    .min(1)
-    .refine(
-      (value) => !value.startsWith("records:") && !value.startsWith("record-detail:"),
-      "Record presentation requires the validated view or detail-layout operations",
-    ),
-  activeViewKey: z.string().nullish(),
-  filters: z.array(FilterSchema).nullish(),
-  searchTerm: z.string().nullish(),
-  sortDescriptor: SortDescriptorSchema.nullish(),
-  pagination: PaginationRequestSchema.pick({ pageSize: true }).nullish(),
-  columnOrder: z.array(z.string()).nullish(),
-  columnWidths: z.record(z.string(), z.number()).nullish(),
-  hiddenColumns: z.array(z.string()).optional(),
-  viewMode: z.enum(ViewMode).nullish(),
-  grouping: GroupingSchema.nullish(),
-  detailOptions: EntityDetailOptionsSchema.nullish(),
-});
+const Schema = z
+  .object({
+    p13nId: z
+      .string()
+      .min(1)
+      .refine(
+        (value) => !value.startsWith("records:") && !value.startsWith("record-detail:"),
+        "Record presentation requires the validated view or detail-layout operations",
+      ),
+    activeViewKey: z.string().nullish(),
+    filters: z.array(FilterSchema).nullish(),
+    searchTerm: z.string().nullish(),
+    sortDescriptor: SortDescriptorSchema.nullish(),
+    pagination: PaginationRequestSchema.pick({ pageSize: true }).nullish(),
+    columnOrder: z.array(z.string()).nullish(),
+    columnWidths: z.record(z.string(), z.number()).nullish(),
+    hiddenColumns: z.array(z.string()).optional(),
+    viewMode: z.enum(ViewMode).nullish(),
+    grouping: GroupingSchema.nullish(),
+    detailOptions: EntityDetailOptionsSchema.nullish(),
+    settings: SidebarLayoutSchema.nullish(),
+  })
+  .refine((data) => data.settings === undefined || data.p13nId === SIDEBAR_P13N_ID, {
+    path: ["settings"],
+    message: "Settings are only stored for the sidebar",
+  });
 export type UpsertP13nData = Data<typeof Schema>;
 
 @TenantInteractor()
