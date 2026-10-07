@@ -1,7 +1,7 @@
 import type { z } from "zod";
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
-import type { RecordModel } from "./record-model.schema";
+import type { RecordModelView } from "./record-model.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -11,11 +11,12 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { resolveRecordPath } from "./record-relationship-path";
+import { visibleFormulaFields } from "./record-formula-visibility";
 import { GetModelSchema } from "./configure-records.interactor";
 
 @AllowInDemoMode
 @TenantInteractor()
-export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<typeof GetModelSchema>, RecordModel> {
+export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<typeof GetModelSchema>, RecordModelView> {
   constructor(
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
@@ -23,7 +24,7 @@ export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<ty
     super();
   }
   @Validate(GetModelSchema)
-  async invoke(input: z.infer<typeof GetModelSchema>): Validated<RecordModel> {
+  async invoke(input: z.infer<typeof GetModelSchema>): Validated<RecordModelView> {
     return runInTransaction(
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
@@ -57,7 +58,11 @@ export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<ty
           data: {
             ...model,
             types,
-            fields: model.fields.filter((field) => ids.has(field.typeId)),
+            fields: visibleFormulaFields(
+              model.fields.filter((field) => ids.has(field.typeId)),
+              model,
+              policy,
+            ),
             accessPresets: policy.canManageSchema || policy.canManageRoles ? model.accessPresets : [],
             capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
             activityPaths: model.activityPaths.filter(

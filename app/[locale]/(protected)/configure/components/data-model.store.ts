@@ -1,14 +1,14 @@
 import { action, makeObservable, observable, runInAction } from "mobx";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import { getRecordModelAction } from "../../records/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
 export class DataModelStore {
-  model: RecordModel;
+  model: RecordModelView;
   refreshFailed = false;
   isRefreshing = false;
   private sequence = 0;
-  constructor(model: RecordModel) {
+  constructor(model: RecordModelView) {
     this.model = model;
     makeObservable(this, {
       model: observable.ref,
@@ -17,7 +17,7 @@ export class DataModelStore {
       hydrate: action,
     });
   }
-  hydrate = (model: RecordModel) => {
+  hydrate = (model: RecordModelView) => {
     if (model.revision >= this.model.revision) this.model = model;
   };
   refresh = async () => {

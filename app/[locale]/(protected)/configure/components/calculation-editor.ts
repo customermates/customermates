@@ -1,4 +1,4 @@
-import type { CalculationExpression, RecordModel } from "@/features/records/record-model.schema";
+import type { CalculationExpression, RecordModelView } from "@/features/records/record-model.schema";
 
 export type ExpressionPath = Array<number | "expression">;
 
@@ -37,7 +37,7 @@ export function expressionTypeId(
   value: CalculationExpression,
   path: ExpressionPath,
   typeId: string,
-  model: RecordModel,
+  model: RecordModelView,
 ) {
   let current = value;
   for (const step of path) {
@@ -54,7 +54,7 @@ export function expressionTypeId(
 
 export function expressionSummary(
   expression: CalculationExpression,
-  model: RecordModel,
+  model: RecordModelView,
   label: (key: string) => string,
 ): string {
   const fieldLabel = (id: string) => model.fields.find((field) => field.id === id)?.label ?? label("field");

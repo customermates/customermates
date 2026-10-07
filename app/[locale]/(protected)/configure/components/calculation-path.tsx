@@ -1,6 +1,6 @@
 "use client";
 
-import type { CalculationExpression, RecordModel, RecordType } from "@/features/records/record-model.schema";
+import type { CalculationExpression, RecordModelView, RecordType } from "@/features/records/record-model.schema";
 
 import { Fragment } from "react";
 import { observer } from "mobx-react-lite";
@@ -18,7 +18,7 @@ type PathStep = { label: string; icon?: string; result?: boolean };
 type Capture = { allowManualOverride: boolean; capture: string; triggerLabel?: string; triggerValueLabel?: string };
 
 type Props = {
-  model: RecordModel;
+  model: RecordModelView;
   typeId: string;
   fieldLabel: string;
   expression: CalculationExpression;
@@ -27,7 +27,7 @@ type Props = {
 
 type RelatedExpression = Extract<CalculationExpression, { kind: "related" }>;
 
-function relatedChain(model: RecordModel, typeId: string, expression: RelatedExpression) {
+function relatedChain(model: RecordModelView, typeId: string, expression: RelatedExpression) {
   const hops: { relationLabel: string; cardinality: string; target: RecordType | undefined }[] = [];
   let current: CalculationExpression = expression;
   let listId = typeId;

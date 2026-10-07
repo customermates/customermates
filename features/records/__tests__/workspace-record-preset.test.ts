@@ -4,6 +4,7 @@ import { APP_LOCALES } from "@/i18n/locale-registry";
 import { createWorkspaceRecordPreset } from "../workspace-record-preset";
 import { presetId } from "../crm-preset";
 import { validateRecordModel } from "../record-model-validation";
+import { duplicateNameIssues } from "../record-names";
 
 describe("new workspace CRM templates", () => {
   it.each(APP_LOCALES)("seeds the existing defaults in %s", async (locale) => {
@@ -12,6 +13,7 @@ describe("new workspace CRM templates", () => {
     const model = createWorkspaceRecordPreset(companyId, translate);
     const id = (key: string) => presetId(companyId, key);
     expect(validateRecordModel(model).issues).toEqual([]);
+    expect(duplicateNameIssues(model, { ...model, types: [], fields: [], relationships: [] })).toEqual([]);
     expect(model.types.filter((type) => !type.embedded)).toHaveLength(5);
     expect(model.types.find((type) => type.embedded)?.parentRelationshipId).toBe(id("lineItem.deal"));
     const stage = model.fields.find((field) => field.id === id("deal.stage"));
