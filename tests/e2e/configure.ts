@@ -65,8 +65,10 @@ export async function openDrawerTab(page: Page, name: string) {
 
 export async function openConfigureTab(page: Page, section: ConfigureSection | "General") {
   const tab = page.locator("[data-configure-list-pane]").getByRole("tab", { name: section, exact: true });
-  if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
-  await expect(tab).toHaveAttribute("aria-selected", "true");
+  await expect(async () => {
+    if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
+    await expect(tab).toHaveAttribute("aria-selected", "true", { timeout: 1000 });
+  }).toPass();
 }
 
 export async function openConfigureRow(page: Page, section: ConfigureSection, label: string) {
