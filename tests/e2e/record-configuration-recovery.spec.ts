@@ -74,7 +74,9 @@ async function preview(page: Page) {
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
   await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toBeVisible();
-  await expect(dialog.getByRole("button", { name: labels.apply, exact: true }).first()).toBeEnabled();
+  await expect(
+    dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first(),
+  ).toBeEnabled();
 }
 
 async function apply(page: Page) {
@@ -86,7 +88,7 @@ async function createList(page: Page, name: string) {
   await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
   await dialog.locator("#name").fill(name);
-  await dialog.getByRole("button", { name: labels.createList, exact: true }).first().click();
+  await dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
@@ -167,7 +169,11 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
     await expect(page.getByRole("dialog").getByRole("button", { name: recovery.keep, exact: true })).toHaveCount(0);
     await preview(page);
     expect((await model(database, companyId)).revision).toBe(remoteFieldModel.revision);
-    await page.getByRole("dialog").getByRole("button", { name: labels.apply, exact: true }).first().click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: englishMessages.Common.actions.save, exact: true })
+      .first()
+      .click();
     await expect(page.getByRole("dialog")).not.toBeVisible();
     const merged = await model(database, companyId);
     expect(merged.revision).toBe(remoteFieldModel.revision + 1);
@@ -306,7 +312,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
     await expect(dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first()).toBeDisabled();
     await expect(dialog.getByRole("button", { name: recovery.refresh, exact: true })).toHaveCount(0);
     await expect(dialog.getByRole("button", { name: recovery.keep, exact: true })).toHaveCount(0);
-    await expect(dialog.getByRole("button", { name: labels.apply, exact: true })).toHaveCount(0);
+    await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath("stale-removed-path-draft.png"), fullPage: true });
     const unchanged = await model(database, companyId);
     expect(unchanged.revision).toBe(removed.revision);

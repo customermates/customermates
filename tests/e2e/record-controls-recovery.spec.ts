@@ -1487,7 +1487,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   await expect(dialog.getByRole("status")).toContainText("Ready to apply");
   const beforeSchema = await receiptCount();
   modelFault = true;
-  await dialog.getByRole("button", { name: english.RecordModel.apply, exact: true }).first().click();
+  await dialog.getByRole("button", { name: english.Common.actions.save, exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   const schemaError = page.getByRole("alert").filter({ hasText: english.ErrorCard.title });
   await expect(schemaError).toBeVisible();

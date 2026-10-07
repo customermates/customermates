@@ -6,6 +6,7 @@ import {
   getGetRecordModelInteractor,
   getDiscoverRecordTypesInteractor,
   getGetMyConnectedAccountsInteractor,
+  getGetP13nInteractor,
   getGetSubscriptionInteractor,
   getUserService,
 } from "@/core/di";
@@ -14,6 +15,7 @@ import { unwrapValidated } from "@/core/validation/validation.utils";
 import { PageContainer } from "@/components/shared/page-container";
 import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
+import { CONFIGURE_GRAPH_P13N_ID, ConfigureGraphLayoutSchema } from "@/features/p13n/p13n-settings.schema";
 import { ConfigurePageView } from "./components/configure-page-view";
 
 async function loadAccounts(): Promise<ConfigureGraphAccounts> {
@@ -43,9 +45,14 @@ async function loadAccounts(): Promise<ConfigureGraphAccounts> {
   };
 }
 
+async function loadSavedLayout() {
+  const entry = await getGetP13nInteractor().invoke({ p13nId: CONFIGURE_GRAPH_P13N_ID });
+  return ConfigureGraphLayoutSchema.safeParse(entry.data?.settings).data ?? null;
+}
+
 export default async function ConfigurePage() {
   await requireAccess();
-  const [model, catalog, accounts] = await Promise.all([
+  const [model, catalog, accounts, savedLayout] = await Promise.all([
     unwrapValidated(getGetRecordModelInteractor().invoke({})),
     unwrapValidated(
       getDiscoverRecordTypesInteractor().invoke({
@@ -55,6 +62,7 @@ export default async function ConfigurePage() {
       }),
     ),
     loadAccounts(),
+    loadSavedLayout(),
   ]);
   return (
     <PageContainer padded={false}>
@@ -64,6 +72,7 @@ export default async function ConfigurePage() {
         canPublishSummary={catalog.canPublishSummary ?? false}
         catalog={catalog.types}
         initialModel={model}
+        savedLayout={savedLayout}
       />
     </PageContainer>
   );

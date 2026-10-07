@@ -20,7 +20,7 @@ test("searches custom records across pages, opens generic drawers, and attaches 
   await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);

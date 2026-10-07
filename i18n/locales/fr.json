@@ -2958,7 +2958,6 @@
     "addProbability": "Ajouter une probabilité",
     "aggregation": "Agrégation",
     "allowManualOverride": "Autoriser une valeur de remplacement manuelle",
-    "apply": "Appliquer les modifications",
     "archiveActivityPath": "Archiver la connexion",
     "archived": "Archivé",
     "archiveField": "Archiver le champ",
@@ -2982,6 +2981,28 @@
     "calculationError": "Calcul indisponible",
     "calculationInput": "Entrée {number}",
     "calculationNavigation": "Navigation du calcul",
+    "calculationPath": {
+      "captureChanged": "enregistrée quand {field} change",
+      "captureChangedTo": "enregistrée quand {field} passe à {value}",
+      "captureCreate": "enregistrée à la création de l’élément",
+      "captureExplicit": "enregistrée sur demande",
+      "count": "{field} = le nombre de {list} liés",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = {value} de l’élément lié de {list}",
+      "manual": "peut être remplacée manuellement",
+      "reducers": {
+        "average": "la moyenne",
+        "max": "le maximum",
+        "min": "le minimum",
+        "sum": "la somme"
+      },
+      "rollup": "{field} = {reducer} de {value} sur les {list} liés",
+      "sentence": "{clauses}.",
+      "steps": "Chemin de calcul",
+      "thisField": "Ce champ",
+      "title": "Comment la valeur est calculée",
+      "via": "via {relationship} ({cardinality})"
+    },
     "calculationResult": "Résultat",
     "calculationSource": "Utiliser",
     "cancelOperation": "Annuler la modification",
@@ -3079,6 +3100,7 @@
       "recordsRestricted": "Nombre d’enregistrements indisponible",
       "recordUnit": "{count, plural, one {enregistrement} other {enregistrements}}",
       "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
+      "resetLayout": "Réinitialiser la disposition",
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"
     },
@@ -3274,8 +3296,8 @@
       "views": "{count, plural, one {# vue enregistrée ou mise en page personnelle} other {# vues enregistrées ou mises en page personnelles}}"
     },
     "pinnedFields": "Champs de détail épinglés",
-    "pluralDescription": "Le nom affiché dans la navigation. Laissez vide pour utiliser le nom de la liste.",
-    "pluralName": "Libellé de navigation",
+    "pluralDescription": "Affiché dans la navigation et les titres de liste. Proposé à partir du nom jusqu’à ce que vous le modifiiez.",
+    "pluralName": "Nom au pluriel",
     "previewReady": "Prêt à appliquer. {count} fiches seront vérifiées.",
     "previousValue": "Valeur précédente",
     "priceModes": {

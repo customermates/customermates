@@ -32,7 +32,7 @@ async function createList(page: Page, name: string, channels = false) {
   const toggle = dialog.getByRole("switch", { name: "Enable channels", exact: true });
   await expect(toggle).not.toBeChecked();
   if (channels) await toggle.check();
-  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);

@@ -1,6 +1,7 @@
 "use client";
 
 import type { RecordModel } from "@/features/records/record-model.schema";
+import type { ConfigureGraphLayout } from "@/features/p13n/p13n-settings.schema";
 import type { ConfigureAddKind } from "./configure-actions";
 import type { ConfigureGraphAccounts } from "./configure-graph";
 import type { ConfigureGraphCatalog } from "./configure-graph-model";
@@ -54,12 +55,14 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   initialModel,
   catalog,
   accounts,
+  savedLayout,
   canManage,
   canPublishSummary = false,
 }: {
   initialModel: RecordModel;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
+  savedLayout: ConfigureGraphLayout | null;
   canManage: boolean;
   canPublishSummary?: boolean;
 }) {
@@ -331,6 +334,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             catalog={catalog}
             disabled={!interactive}
             model={model}
+            savedLayout={savedLayout}
             showArchived={showArchived}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}

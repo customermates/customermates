@@ -17,6 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toLocalIso } from "@/components/forms/iso-date-values";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
+import { toChipColor } from "@/constants/chip-colors";
 import { Currency } from "@/generated/prisma";
 import { getUsersAction } from "../../company/actions";
 import {
@@ -57,6 +59,7 @@ export const CalculationInput = observer(function CalculationInput({
   const activePath = selected ? selection : [];
   const current = selected ?? value;
   const currentTypeId = expressionTypeId(value, activePath, typeId, model);
+  const iconOf = (listId: string) => model.types.find((type) => type.id === listId)?.icon;
   const id = `${path}${activePath.map((step) => (step === "expression" ? ".expression" : `.arguments.${step}`)).join("")}`;
   const fields = model.fields.filter((field) => field.typeId === currentTypeId && !field.archived);
   const relations = model.relationships.filter(
@@ -173,8 +176,6 @@ export const CalculationInput = observer(function CalculationInput({
   );
   return (
     <section aria-label={t("RecordModel.operation")} className="min-w-0 space-y-4" data-calculation-editor="linear">
-      <p className="break-words text-sm text-muted-foreground">{summary(value)}</p>
-
       {activePath.length > 0 && (
         <div aria-label={t("RecordModel.calculationNavigation")} className="flex flex-wrap items-center gap-1">
           <Button disabled={disabled} size="sm" type="button" variant="ghost" onClick={() => setSelection([])}>
@@ -335,7 +336,12 @@ export const CalculationInput = observer(function CalculationInput({
               disabled={disabled}
               id={`${id}.value.value`}
               items={fields.flatMap((field) =>
-                field.options.map((option) => ({ value: option.id, label: `${field.label} · ${option.label}` })),
+                field.options.map((option) => ({
+                  value: option.id,
+                  label: option.label,
+                  color: toChipColor(option.color),
+                  description: field.label,
+                })),
               )}
               label={t("RecordModel.option")}
               value={current.value.value}
@@ -394,10 +400,22 @@ export const CalculationInput = observer(function CalculationInput({
             id={`${id}.relationId`}
             items={relations.flatMap((relation) => [
               ...(relation.sourceTypeId === currentTypeId
-                ? [{ value: `${relation.id}:outgoing`, label: relation.sourceLabel }]
+                ? [
+                    {
+                      value: `${relation.id}:outgoing`,
+                      label: relation.sourceLabel,
+                      startContent: <RecordTypeGlyph icon={iconOf(relation.targetTypeId)} />,
+                    },
+                  ]
                 : []),
               ...(relation.targetTypeId === currentTypeId
-                ? [{ value: `${relation.id}:incoming`, label: relation.targetLabel }]
+                ? [
+                    {
+                      value: `${relation.id}:incoming`,
+                      label: relation.targetLabel,
+                      startContent: <RecordTypeGlyph icon={iconOf(relation.sourceTypeId)} />,
+                    },
+                  ]
                 : []),
             ])}
             label={t("RecordModel.relationship")}
