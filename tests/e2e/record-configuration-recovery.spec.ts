@@ -11,6 +11,7 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { addFromConfigure, configureTopBar, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { suggestListPlural } from "../../app/[locale]/(protected)/configure/components/list-plural";
 
 const labels = englishMessages.RecordModel;
 const recovery = {
@@ -243,7 +244,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
         expect(type(committed, typeId)).toMatchObject({
           id: typeId,
           label: expectedName,
-          pluralLabel: initialName,
+          pluralLabel: suggestListPlural(expectedName, "en"),
           description: localDescription,
           icon: scenario.icon,
         });
