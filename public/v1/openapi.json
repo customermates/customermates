@@ -40404,6 +40404,7 @@
                             "type": "boolean"
                           },
                           "multiple": {
+                            "description": "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior.",
                             "type": "boolean"
                           },
                           "format": {
@@ -42092,6 +42093,7 @@
                                   "type": "boolean"
                                 },
                                 "multiple": {
+                                  "description": "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior.",
                                   "type": "boolean"
                                 },
                                 "format": {
@@ -44032,6 +44034,7 @@
                                   "type": "boolean"
                                 },
                                 "multiple": {
+                                  "description": "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior.",
                                   "type": "boolean"
                                 },
                                 "format": {
