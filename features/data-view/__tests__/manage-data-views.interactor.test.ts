@@ -124,11 +124,12 @@ describe("agent saved-view management", () => {
     const result = await runWithTenant(user, () => subject.interactor.invoke({ action: "surfaces" }));
     expect(result.ok && result.data).toEqual({
       action: "surfaces",
-      total: 3,
+      total: 4,
       items: [
         { surfaceKey: SURFACE.users, label: "Members", path: "/company/members" },
         { surfaceKey: SURFACE.roles, label: "Roles", path: "/company/roles" },
         { surfaceKey: SURFACE.entityTimeline, label: "Record activity timeline", path: null },
+        { surfaceKey: SURFACE.dashboard, label: "Dashboard", path: "/dashboard" },
       ],
     });
     expect(subject.views.loadSurfaceState).not.toHaveBeenCalled();

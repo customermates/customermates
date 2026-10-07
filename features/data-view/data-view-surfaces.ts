@@ -66,4 +66,8 @@ export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescri
     path: DATA_VIEW_PATHS[SURFACE.routines],
     resource: Resource.routines,
   },
+  [SURFACE.dashboard]: {
+    label: "Dashboard",
+    path: DATA_VIEW_PATHS[SURFACE.dashboard],
+  },
 };

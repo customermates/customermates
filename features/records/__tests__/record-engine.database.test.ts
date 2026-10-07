@@ -126,6 +126,7 @@ const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
 const { manageRecordDetailLayoutV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 
+const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
@@ -217,7 +218,14 @@ async function fixture() {
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const widgets = new PrismaRecordWidgetRepo();
   const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
-  const writeWidget = new UpsertRecordWidgetInteractor(widgets, repo, policy, measure, widgetReader);
+  const writeWidget = new UpsertRecordWidgetInteractor(
+    widgets,
+    repo,
+    policy,
+    measure,
+    widgetReader,
+    new PrismaDataViewRepo(),
+  );
   const configurations = new RecordConfigurationService(repo);
   const preview = new PreviewRecordConfigurationInteractor(repo, policy, configurations);
   const configure = new ApplyRecordConfigurationInteractor(
@@ -287,6 +295,7 @@ async function fixture() {
     policy,
     activities,
     activityWidgetReader,
+    new PrismaDataViewRepo(),
   );
   const timeline = (input: Partial<RecordActivitiesInput>, as = admin) =>
     run(

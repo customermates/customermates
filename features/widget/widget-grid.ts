@@ -107,6 +107,12 @@ function floatUp<T extends GridRect>(rect: T, placed: GridRect[]): T {
   return { ...rect, y };
 }
 
+function pushBelowCollisions(rect: GridRect, placed: GridRect[]): { x: number; y: number } {
+  let y = rect.y;
+  while (placed.some((other) => rectsOverlap(other, { ...rect, y }))) y += 1;
+  return { x: rect.x, y };
+}
+
 export function compactGrid<T extends GridRect>(rects: T[]): T[] {
   const placed: T[] = [];
   for (const rect of [...rects].sort((left, right) => left.y - right.y || left.x - right.x))
@@ -121,7 +127,7 @@ export function occupiedGrid(widgets: StoredWidget[]): PlacedRect[] {
     const { w, h } = widgetLayoutGeometry(widget.kind, WIDGET_GRID_COLUMNS, saved);
     const spot =
       saved && saved.y !== null && saved.y !== undefined
-        ? { x: Math.min(saved.x, WIDGET_GRID_COLUMNS - w), y: saved.y }
+        ? pushBelowCollisions({ x: Math.min(saved.x, WIDGET_GRID_COLUMNS - w), y: saved.y, w, h }, placed)
         : firstFreeSpot(placed, WIDGET_GRID_COLUMNS, w, h);
     placed.push({ id: widget.id, ...spot, w, h });
   }
