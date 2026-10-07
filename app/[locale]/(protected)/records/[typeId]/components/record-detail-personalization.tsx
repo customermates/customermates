@@ -124,12 +124,13 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
 }: RecordDetailLayoutState & { className?: string }) {
   const t = useTranslations();
   if (!isPersonalizing && !layout.isSaving && !layout.failed) return null;
+  const isRecordBusy = editor.isTransactionBusy;
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
       {isPersonalizing && (
         <Button
           aria-label={t("RecordModel.resetDetailLayout")}
-          disabled={layout.isSaving || (!layout.state.hasPersonalization && !layout.dirty)}
+          disabled={isRecordBusy || layout.isSaving || (!layout.state.hasPersonalization && !layout.dirty)}
           size="sm"
           type="button"
           variant="ghost"
@@ -152,6 +153,7 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
           {layout.saveFailed ? t("RecordModel.detailLayoutSaveFailed") : t("RecordModel.detailLayoutReadFailed")}
 
           <Button
+            disabled={isRecordBusy}
             size="sm"
             type="button"
             variant="ghost"
@@ -161,7 +163,13 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
           </Button>
 
           {layout.saveFailed && (
-            <Button size="sm" type="button" variant="ghost" onClick={() => editor.runAfterChannelDraft(layout.discard)}>
+            <Button
+              disabled={isRecordBusy}
+              size="sm"
+              type="button"
+              variant="ghost"
+              onClick={() => editor.runAfterChannelDraft(layout.discard)}
+            >
               {t("Common.actions.discard")}
             </Button>
           )}

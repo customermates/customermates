@@ -58,6 +58,7 @@ function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: H
             icon: layout.isPersonalizing ? Check : Settings2,
             label: layout.isPersonalizing ? t("EntityDetail.donePersonalizing") : t("EntityDetail.personalize"),
             pressed: layout.isPersonalizing,
+            disabled: store.isTransactionBusy,
             onClick: () => layout.setIsPersonalizing(!layout.isPersonalizing),
           },
         ]

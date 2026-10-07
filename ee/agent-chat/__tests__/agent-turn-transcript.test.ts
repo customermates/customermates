@@ -8,7 +8,7 @@ function activity(overrides: Partial<AgentActivityDescriptor> = {}): AgentActivi
   return {
     kind: "records.create",
     risk: "write",
-    affectedResources: ["contacts"],
+    affectedResources: ["wiki"],
     ...overrides,
   } as AgentActivityDescriptor;
 }
@@ -155,7 +155,7 @@ describe("agent turn transcript", () => {
     transcript.beginToolCall({
       toolCallId: "failed",
       toolName: "create_deals",
-      activity: activity({ affectedResources: ["deals"] }),
+      activity: activity({ affectedResources: ["widgets"] }),
     });
     transcript.completeToolCall({
       toolCallId: "failed",
@@ -167,7 +167,7 @@ describe("agent turn transcript", () => {
     transcript.beginToolCall({
       toolCallId: "read",
       toolName: "list_records",
-      activity: activity({ risk: "read", affectedResources: ["services"] }),
+      activity: activity({ risk: "read", affectedResources: ["messages"] }),
     });
     transcript.completeToolCall({
       toolCallId: "read",
@@ -176,7 +176,7 @@ describe("agent turn transcript", () => {
       failed: false,
     });
 
-    expect(transcript.affectedResources).toEqual(["contacts"]);
+    expect(transcript.affectedResources).toEqual(["wiki"]);
     expect(transcript.hasSuccessfulMutation).toBe(true);
   });
 

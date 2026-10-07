@@ -16,20 +16,41 @@ import { recordWriteFailure } from "./mutate-record.interactor";
 
 export const ResolveRecordIdentitiesSchema = z
   .object({
-    identifiers: z.array(RecordIdentityInputSchema.pick({ provider: true, value: true })).max(1000),
+    identifiers: z
+      .array(RecordIdentityInputSchema.pick({ provider: true, value: true }))
+      .max(1000)
+      .describe("Up to 1,000 exact channel identifiers. Each input, including a repeated one, returns its own match."),
     typeIds: z.array(z.uuid()).max(100).optional(),
   })
   .strict();
 type Input = z.infer<typeof ResolveRecordIdentitiesSchema>;
 export const ResolveRecordIdentitiesResultSchema = z
   .object({
+    schemaRevision: z
+      .number()
+      .int()
+      .nonnegative()
+      .describe("Workspace schema revision for expectedRevision in a following record mutation."),
     matches: z.array(
       RecordIdentityInputSchema.pick({ provider: true, value: true })
-        .extend({ records: z.array(RecordIdentityReferenceSchema) })
+        .extend({
+          records: z.array(
+            RecordIdentityReferenceSchema.extend({
+              version: z
+                .number()
+                .int()
+                .positive()
+                .describe("Current record version for expectedVersion in an updateMany target."),
+            }).strict(),
+          ),
+        })
         .strict(),
     ),
   })
-  .strict();
+  .strict()
+  .describe(
+    "matches follow the input order. A record linked through several identifiers appears under each of them: deduplicate by typeId and recordId before building updateMany targets. Resolve every input with more than one record before updating; never pick one arbitrarily.",
+  );
 type Output = z.infer<typeof ResolveRecordIdentitiesResultSchema>;
 
 @AllowInDemoMode
@@ -51,13 +72,10 @@ export class ResolveRecordIdentitiesInteractor extends AuthenticatedInteractor<I
         try {
           return {
             ok: true,
-            data: {
-              matches: await new RecordIdentityReader(this.records, this.policy).resolve(
-                input.identifiers,
-                input.typeIds,
-                { complete: true },
-              ),
-            },
+            data: await new RecordIdentityReader(this.records, this.policy).resolveForUpdate(
+              input.identifiers,
+              input.typeIds,
+            ),
           };
         } catch (error) {
           return recordWriteFailure(error);

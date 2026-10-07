@@ -7,6 +7,7 @@ import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.intera
 import type { AccountState } from "@/features/auth/account-state";
 import type { SidebarUser } from "./sidebar-user";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
+import type { SidebarLayout } from "@/features/p13n/sidebar-layout.schema";
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -33,6 +34,7 @@ const ShellHeader = dynamic(() => import("../shell-header").then((mod) => ({ def
 
 type NavigationSwitchProps = {
   recordNavigation?: RecordNavigation | null;
+  sidebarLayout?: SidebarLayout | null;
   accountState: AccountState;
   sidebarUser: SidebarUser | null;
   appUser: TenantUser | null;
@@ -52,6 +54,7 @@ type NavigationSwitchProps = {
 
 export function NavigationSwitch({
   recordNavigation = null,
+  sidebarLayout = null,
   accountState,
   sidebarUser,
   appUser,
@@ -119,6 +122,7 @@ export function NavigationSwitch({
 
     userStore.setUser(identifiedUser);
     rootStore.recordWorkspaceStore.setNavigation(accountAllowed ? recordNavigation : null);
+    rootStore.sidebarLayoutStore.setLayout(accountAllowed ? sidebarLayout : null);
     companyStore.setCompany(accountAllowed ? company : null);
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
 
@@ -131,6 +135,7 @@ export function NavigationSwitch({
     rootStore,
     subscription,
     recordNavigation,
+    sidebarLayout,
   ]);
 
   let shell: React.ReactNode;
