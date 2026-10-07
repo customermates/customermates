@@ -3280,7 +3280,6 @@
     "option": "Option",
     "optionAttribute": "Optionsattribut",
     "options": "Optionen",
-    "optionsEmpty": "Noch keine Optionen. Fügen Sie die Auswahlmöglichkeiten hinzu.",
     "permanentDeletion": {
       "channelsMessage": "Dadurch werden das Kanäle-Feld und alle E-Mail-Adressen, Telefonnummern und sozialen Konten der Datensätze dieser Liste endgültig gelöscht. Nachrichten werden diesen Datensätzen nicht mehr zugeordnet. Das kann nicht rückgängig gemacht werden.",
       "deleteField": "Feld endgültig löschen",

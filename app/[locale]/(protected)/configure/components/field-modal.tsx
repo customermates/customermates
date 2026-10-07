@@ -25,7 +25,6 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/core/utils/cn";
 import { RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
@@ -394,9 +393,6 @@ export const FieldModal = observer(function FieldModal({
   const editing = Boolean(store.original || store.channels);
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
-  const optionGrid = optionMetadata
-    ? "grid-cols-[minmax(0,1fr)_9rem_6rem_2.25rem]"
-    : "grid-cols-[minmax(0,1fr)_9rem_2.25rem]";
   const triggerValueLabel = () => {
     const trigger = store.triggerField;
     const value = store.form.triggerValue;
@@ -712,50 +708,34 @@ export const FieldModal = observer(function FieldModal({
                         `options.${index}.probability`,
                       ]),
                       content: (
-                        <div className="space-y-3" data-field-options="">
-                          {store.form.options.length ? (
-                            <div
-                              aria-hidden
-                              className={cn("grid gap-2 text-xs font-medium text-muted-foreground", optionGrid)}
-                            >
-                              <span>{t("RecordModel.option")}</span>
-
-                              <span>{t("RecordModel.color")}</span>
-
-                              {optionMetadata && <span>{t("RecordModel.probability")}</span>}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground" data-field-options-empty="">
-                              {t("RecordModel.optionsEmpty")}
-                            </p>
-                          )}
+                        <div className="space-y-3">
+                          <span className="text-sm font-medium">{t("RecordModel.options")}</span>
 
                           {store.form.options.map((option, index) => (
-                            <div key={option.id} className="space-y-2" data-field-option={option.id}>
-                              <div className={cn("grid items-center gap-2", optionGrid)}>
+                            <div key={option.id} className="space-y-3">
+                              <div className="flex flex-wrap items-end gap-2">
                                 <FormInput
-                                  aria-label={t("RecordModel.option")}
+                                  containerClassName="min-w-32 flex-1"
                                   id={`options.${index}.label`}
-                                  label={null}
+                                  label={t("RecordModel.option")}
                                 />
 
                                 <FormSelect
-                                  ariaLabel={t("RecordModel.color")}
                                   id={`options.${index}.color`}
                                   items={CHIP_COLORS.map((color) => ({
                                     value: color,
                                     label: t(`Common.colors.${color}`),
                                     color,
                                   }))}
-                                  label={null}
+                                  label={t("RecordModel.color")}
                                 />
 
                                 {optionMetadata && (
                                   <FormInput
-                                    aria-label={t("RecordModel.probability")}
+                                    containerClassName="w-24"
                                     id={`options.${index}.probability`}
                                     inputMode="decimal"
-                                    label={null}
+                                    label={t("RecordModel.probability")}
                                   />
                                 )}
 
@@ -764,15 +744,15 @@ export const FieldModal = observer(function FieldModal({
                                   disabled={store.isDisabled}
                                   size="icon"
                                   type="button"
-                                  variant="softDestructive"
+                                  variant="ghost"
                                   onClick={() => store.removeOption(option.id)}
                                 >
-                                  <Trash2 aria-hidden className="size-4" />
+                                  <Trash2 className="size-4" />
                                 </Button>
                               </div>
 
                               {option.attributes.map((attribute, offset) => (
-                                <div key={offset} className="space-y-3 border-l border-border pl-3">
+                                <div key={offset} className="space-y-3">
                                   <div className="flex items-end gap-2">
                                     <FormInput
                                       containerClassName="flex-1"
@@ -785,7 +765,7 @@ export const FieldModal = observer(function FieldModal({
                                       disabled={store.isDisabled}
                                       size="icon"
                                       type="button"
-                                      variant="softDestructive"
+                                      variant="ghost"
                                       onClick={() =>
                                         store.onChange(
                                           `options.${index}.attributes`,
@@ -824,40 +804,34 @@ export const FieldModal = observer(function FieldModal({
                                   ])
                                 }
                               >
-                                <Plus aria-hidden className="size-4" />
-
                                 {t("RecordModel.addAttribute")}
                               </Button>
                             </div>
                           ))}
 
-                          <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            disabled={store.isDisabled}
+                            size="sm"
+                            type="button"
+                            variant="secondary"
+                            onClick={store.addOption}
+                          >
+                            <Plus className="size-4" />
+
+                            {t("RecordModel.addOption")}
+                          </Button>
+
+                          {!optionMetadata && (
                             <Button
                               disabled={store.isDisabled}
                               size="sm"
                               type="button"
-                              variant="secondary"
-                              onClick={store.addOption}
+                              variant="ghost"
+                              onClick={() => setShowProbability(true)}
                             >
-                              <Plus className="size-4" />
-
-                              {t("RecordModel.addOption")}
+                              {t("RecordModel.addProbability")}
                             </Button>
-
-                            {!optionMetadata && store.form.options.length > 0 && (
-                              <Button
-                                disabled={store.isDisabled}
-                                size="sm"
-                                type="button"
-                                variant="ghost"
-                                onClick={() => setShowProbability(true)}
-                              >
-                                <Plus aria-hidden className="size-4" />
-
-                                {t("RecordModel.addProbability")}
-                              </Button>
-                            )}
-                          </div>
+                          )}
                         </div>
                       ),
                     },

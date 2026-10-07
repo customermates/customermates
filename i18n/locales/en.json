@@ -3280,7 +3280,6 @@
     "option": "Option",
     "optionAttribute": "Option attribute",
     "options": "Options",
-    "optionsEmpty": "No options yet. Add the choices people can pick.",
     "permanentDeletion": {
       "channelsMessage": "This permanently deletes the Channels field and every email address, phone number and social account stored on this list's records. Messages no longer match these records. This cannot be undone.",
       "deleteField": "Delete field permanently",
