@@ -12,6 +12,7 @@ import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-ava
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-picker";
+import { toChipColor } from "@/constants/chip-colors";
 import { Editor } from "@/components/editor/editor";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getUsersAction } from "../../../company/actions";
@@ -52,6 +53,7 @@ export const RecordInputField = observer(function RecordInputField({
         items={field.options.map((option) => ({
           value: option.id,
           label: option.label,
+          color: toChipColor(option.color),
         }))}
       />
     );

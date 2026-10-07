@@ -1846,6 +1846,7 @@
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
+    "rowActions": "Acciones de fila",
     "selectAllRows": "Seleccionar todas las filas",
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
@@ -1963,6 +1964,9 @@
     "taskList": "Lista de tareas",
     "underline": "Subrayado",
     "urlPlaceholder": "Introduce una URL..."
+  },
+  "EditorTabs": {
+    "invalid": "Contiene errores"
   },
   "EmailLayout": {
     "tagline": "El CRM agéntico de código abierto"
@@ -2999,6 +3003,7 @@
     "disabled": "Desactivado",
     "edit": "Editar",
     "editField": "Editar campo",
+    "editValue": "Editar {field}",
     "empty": "Todavía no hay registros",
     "emptyDescription": "Crea tu primer registro para empezar.",
     "enableChannels": "Activar canales",
@@ -3150,6 +3155,7 @@
     "mapLabel": "Mapa de listas y relaciones",
     "member": "Miembro",
     "missing": "Sin valor",
+    "moreActions": "Más acciones para {name}",
     "moveDown": "Bajar {field}",
     "moveUp": "Subir {field}",
     "multipleValues": "Permitir varios valores",
@@ -3166,6 +3172,7 @@
     "onTargetDelete": "Al eliminar el registro vinculado",
     "openPage": "Abrir página",
     "openRecord": "Abrir {name}",
+    "openRecordDetails": "Abrir detalles de {name}",
     "operation": "Cálculo",
     "operationCancelled": "El cambio se canceló.",
     "operationFailed": "El cambio falló. El estado completo anterior sigue activo.",

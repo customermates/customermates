@@ -17,7 +17,7 @@ import type { RecordIdentityInput } from "@/features/records/record-identity.sch
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/configure/components/model-change-rebase";
-import { recordInputValue } from "@/features/records/record-input-value";
+import { isRecordFieldWritable, recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { mutateRecordAction, getRecordEditorAction } from "../../actions";
 
@@ -36,13 +36,6 @@ const STALE_WRITE_CODES: ReadonlySet<string> = new Set([
   CustomErrorCode.recordVersionChanged,
   CustomErrorCode.recordSchemaChanged,
 ]);
-function scalarDraft(value: RecordScalar | null): unknown {
-  if (!value) return undefined;
-  if (value.kind === "richText") return JSON.parse(value.documentJson);
-  if (value.kind === "range") return `${value.start ?? ""},${value.end ?? ""}`;
-  if (value.kind === "textList") return value.value.join("\n");
-  return value.value;
-}
 export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   record: RecordDto | null = null;
   presentation: RecordEditorContext;
@@ -140,6 +133,14 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.refreshGeneration += 1;
     return true;
   }
+  /** True while a save, background operation or refresh is in flight; layout controls must wait for it. */
+  get isTransactionBusy() {
+    return this.isLoading || Boolean(this.pendingOperationId) || this.refreshRequired;
+  }
+  /** Transaction busy, or holding unsaved edits or a related draft; destructive actions must wait. */
+  get isBusy() {
+    return this.isTransactionBusy || this.hasRelatedDraft || this.hasUnsavedChanges;
+  }
   get isReadOnly() {
     if (this.pendingOperationId || this.refreshRequired || this.conflicts.length || this.hasRelatedDraft) return true;
     return this.record !== null
@@ -203,7 +204,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
           const result = record?.fields.find((value) => value.fieldId === field.id)?.result;
           return [
             field.id,
-            scalarDraft(
+            recordDraftValue(
               result?.state === "value"
                 ? result.value
                 : !record && field.behavior.kind === "input"
@@ -447,8 +448,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   previewValue = (field: RecordField): CalculatedValue => {
     const stored = this.record?.fields.find((value) => value.fieldId === field.id)?.result;
     if (stored?.state === "restricted") return stored;
-    if (field.behavior.kind !== "input" && !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride))
-      return stored ?? { state: "missing" };
+    if (!isRecordFieldWritable(field)) return stored ?? { state: "missing" };
 
     const value = this.scalar(field);
     if (value === null) return { state: "missing" };
@@ -457,6 +457,31 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   onSubmit = async () => {
     if (!this.isOpen || this.isReadOnly || this.isLoading || this.pendingOperationId) return;
+    // Mirrors the server: new records need every required input; updates only check the fields being changed.
+    const missing = this.fields.filter((field) => {
+      if (!field.required || field.behavior.kind !== "input" || this.record?.protectedKind) return false;
+      if (this.record?.fields.find((value) => value.fieldId === field.id)?.result.state === "restricted") return false;
+      if (
+        this.record &&
+        JSON.stringify(this.form.values[field.id]) === JSON.stringify(this.savedState.values[field.id])
+      )
+        return false;
+      const value = this.scalar(field);
+      return value === null || (value.kind === "text" && !value.value.trim());
+    });
+    if (missing.length) {
+      const required = this.rootStore.localeStore.getTranslation("RecordModel.required");
+      this.setError({
+        errors: [],
+        properties: {
+          values: {
+            errors: [],
+            properties: Object.fromEntries(missing.map((field) => [field.id, { errors: [required] }])),
+          },
+        },
+      } as Parameters<typeof this.setError>[0]);
+      return;
+    }
     const session = this.sessionGeneration;
     const isCurrent = () => session === this.sessionGeneration && this.isOpen;
     this.setIsLoading(true);
@@ -464,8 +489,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       const fields = this.fields
         .filter(
           (field) =>
-            (field.behavior.kind === "input" ||
-              (field.behavior.kind === "snapshot" && field.behavior.allowManualOverride)) &&
+            isRecordFieldWritable(field) &&
             !this.form.captureFieldIds.includes(field.id) &&
             (field.behavior.kind !== "snapshot" || this.form.values[field.id] !== undefined) &&
             (!this.record ||

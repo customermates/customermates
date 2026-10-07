@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
@@ -17,6 +18,7 @@ type Props<E extends HasId> = {
   columns: ColumnDef<E>[];
   onRowClick?: (item: E) => void;
   rowHref?: (item: E) => string | undefined;
+  rowActions?: (item: E) => ReactNode;
   store: BaseDataViewStore<E>;
   view: DataViewView;
 };
@@ -25,6 +27,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   columns,
   onRowClick,
   rowHref,
+  rowActions,
   store,
   view,
 }: Props<E>) {
@@ -46,6 +49,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
       <DataTable
         className="animate-page-result-in motion-reduce:animate-none"
         columns={resolvedColumns}
+        rowActions={rowActions}
         store={store}
         onRowClick={interactive ? onRowClick : undefined}
         onRowHref={rowHref}

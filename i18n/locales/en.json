@@ -1846,6 +1846,7 @@
     "noValue": "No value",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
+    "rowActions": "Row actions",
     "selectAllRows": "Select all rows",
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
@@ -1963,6 +1964,9 @@
     "taskList": "Task List",
     "underline": "Underline",
     "urlPlaceholder": "Enter URL..."
+  },
+  "EditorTabs": {
+    "invalid": "Contains errors"
   },
   "EmailLayout": {
     "tagline": "The agentic, open-source CRM"
@@ -2999,6 +3003,7 @@
     "disabled": "Off",
     "edit": "Edit",
     "editField": "Edit field",
+    "editValue": "Edit {field}",
     "empty": "No records yet",
     "emptyDescription": "Create your first record to get started.",
     "enableChannels": "Enable channels",
@@ -3150,6 +3155,7 @@
     "mapLabel": "Map of lists and relationships",
     "member": "Member",
     "missing": "No value",
+    "moreActions": "More actions for {name}",
     "moveDown": "Move {field} down",
     "moveUp": "Move {field} up",
     "multipleValues": "Allow several values",
@@ -3166,6 +3172,7 @@
     "onTargetDelete": "When the linked record is deleted",
     "openPage": "Open page",
     "openRecord": "Open {name}",
+    "openRecordDetails": "Open details for {name}",
     "operation": "Calculation",
     "operationCancelled": "The change was cancelled.",
     "operationFailed": "The change failed. The previous complete state is still active.",

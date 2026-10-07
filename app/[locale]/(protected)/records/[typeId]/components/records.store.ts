@@ -152,6 +152,43 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       targets: this.selectionTargets,
       fields: [{ fieldId, value }],
     });
+  /** Whether a row may be edited in place now: update permission and no bulk or board write in flight. */
+  canUpdateRecord(record: RecordRow) {
+    return (
+      this.presentation.permittedActions.includes("update") &&
+      !record.protectedKind &&
+      !this.isBulkMutating &&
+      !this.pendingBulkOperation &&
+      !this.pendingBoardOperation
+    );
+  }
+  /** Inline table edit of one field on one record; returns whether the change was accepted. */
+  updateRecordField = async (record: RecordRow, fieldId: string, value: RecordScalar | null): Promise<boolean> => {
+    if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return false;
+    this.movingRecords.add(record.id);
+    try {
+      const result = await mutateRecordAction({
+        expectedRevision: this.presentation.model.revision,
+        idempotencyKey: crypto.randomUUID(),
+        mutation: {
+          action: "update",
+          ref: { typeId: record.ref.typeId, recordId: record.ref.recordId },
+          expectedVersion: record.version,
+          fields: [{ fieldId, value }],
+        },
+      });
+      if (!result.ok) {
+        toastZodErrorTree(result.error);
+        await this.refresh();
+        return false;
+      }
+      if (result.data.status === "pending") this.setBoardOperation(result.data.operationId);
+      else await this.rootStore.recordWorkspaceStore.invalidate();
+      return true;
+    } finally {
+      this.movingRecords.delete(record.id);
+    }
+  };
   setBoardOperation = (operationId: string | null) => {
     this.pendingBoardOperation = operationId;
   };

@@ -1846,6 +1846,7 @@
     "noValue": "Kein Wert",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
+    "rowActions": "Zeilenaktionen",
     "selectAllRows": "Alle Zeilen auswählen",
     "selectGroup": "Gruppe {group} auswählen",
     "selectRow": "Zeile {id} auswählen",
@@ -1963,6 +1964,9 @@
     "taskList": "Aufgabenliste",
     "underline": "Unterstrichen",
     "urlPlaceholder": "URL eingeben..."
+  },
+  "EditorTabs": {
+    "invalid": "Enthält Fehler"
   },
   "EmailLayout": {
     "tagline": "Das agentische Open-Source-CRM"
@@ -2999,6 +3003,7 @@
     "disabled": "Aus",
     "edit": "Bearbeiten",
     "editField": "Feld bearbeiten",
+    "editValue": "{field} bearbeiten",
     "empty": "Noch keine Datensätze",
     "emptyDescription": "Erstelle deinen ersten Datensatz.",
     "enableChannels": "Kanäle aktivieren",
@@ -3150,6 +3155,7 @@
     "mapLabel": "Karte der Listen und Beziehungen",
     "member": "Mitglied",
     "missing": "Kein Wert",
+    "moreActions": "Weitere Aktionen für {name}",
     "moveDown": "{field} nach unten verschieben",
     "moveUp": "{field} nach oben verschieben",
     "multipleValues": "Mehrere Werte erlauben",
@@ -3166,6 +3172,7 @@
     "onTargetDelete": "Beim Löschen des verknüpften Datensatzes",
     "openPage": "Seite öffnen",
     "openRecord": "{name} öffnen",
+    "openRecordDetails": "Details zu {name} öffnen",
     "operation": "Berechnung",
     "operationCancelled": "Die Änderung wurde abgebrochen.",
     "operationFailed": "Die Änderung ist fehlgeschlagen. Der vorherige vollständige Stand bleibt aktiv.",

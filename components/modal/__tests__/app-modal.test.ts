@@ -201,14 +201,21 @@ describe("AppModal actions", () => {
     expect(html).toContain('data-overlay-action-count="2"');
   });
 
-  it("rejects more actions than the fixed header rail supports", () => {
-    expect(() =>
-      renderModal([
-        { id: "one", icon: RefreshCw, label: "One", onClick: vi.fn() },
-        { id: "two", icon: RefreshCw, label: "Two", onClick: vi.fn() },
-        { id: "three", icon: RefreshCw, label: "Three", onClick: vi.fn() },
-      ] as unknown as AppModalActions),
-    ).toThrow("AppModal supports at most two header actions");
+  it("orders header actions as Ask AI, Customize, other, Delete, then navigation", () => {
+    testContext.isWide = true;
+    const html = renderModal([
+      { id: "open", icon: RefreshCw, label: "Open page", href: "/records" },
+      { id: "delete", icon: Trash2, label: "Delete", variant: "destructive", onClick: vi.fn() },
+      { id: "sync", icon: RefreshCw, label: "Sync", onClick: vi.fn() },
+      { id: "customize", icon: RefreshCw, label: "Customize", kind: "customize", onClick: vi.fn() },
+      { id: "ai", icon: RefreshCw, label: "Ask AI", kind: "assistant", onClick: vi.fn() },
+    ]);
+    const order = ["Ask AI", "Customize", "Sync", "Delete", "Open page"].map((label) =>
+      html.indexOf(`aria-label="${label}"`),
+    );
+    expect(order.every((index) => index >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    expect(html).toContain('data-overlay-action-count="5"');
   });
 });
 
