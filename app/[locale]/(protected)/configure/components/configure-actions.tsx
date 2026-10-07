@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { recordChannelsEnabled } from "@/features/records/record-channels";
+import { recordChannelsBinding } from "@/features/records/record-channels";
 
 import { useDefinitionDeletion } from "./use-definition-deletion";
 import { ConfigureListAddItems, type ConfigureListAddKind } from "./configure-add-menu";
@@ -147,7 +147,7 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
             <DropdownMenuSeparator />
 
             <ConfigureListAddItems
-              channels={!recordChannelsEnabled(model, selected.id)}
+              channels={!recordChannelsBinding(model, selected.id)}
               sublist={canAddSublist && !selected.embedded}
               onAdd={onAdd}
             />

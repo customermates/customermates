@@ -209,6 +209,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     () => tryNavigate(() => window.history.pushState(null, "", configureHref({ typeId: null }))),
     [tryNavigate],
   );
+  const editChannels = (listId: string) => fieldModal.editChannels(model, listId);
   const addTo = useCallback(
     (typeId: string, kind: ConfigureAddKind) => {
       const type = model.types.find((candidate) => candidate.id === typeId);
@@ -218,10 +219,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (kind === "relationship") relationModal.edit(model, typeId);
       if (kind === "activity") activityModal.edit(model, typeId);
       if (kind === "sublist") typeModal.editSublist(model, typeId);
-      if (kind === "channels") {
-        typeModal.edit(model, type);
-        typeModal.onChange("channelsEnabled", true);
-      }
+      if (kind === "channels") fieldModal.edit(model, typeId, null, { valueType: "channels" });
     },
     [activityModal, fieldModal, model, relationModal, typeModal],
   );
@@ -316,6 +314,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
               activityModal.edit(model, selected.id, path);
               if (path.archived) activityModal.onChange("archived", false);
             }}
+            onEditChannels={() => editChannels(selected.id)}
             onEditField={(field) => {
               fieldModal.edit(model, selected.id, field);
               if (field.archived) fieldModal.onChange("archived", false);
@@ -352,6 +351,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             showArchived={showArchived}
             onAdd={addTo}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
+            onEditChannels={editChannels}
             onEditField={(listId, field) => {
               fieldModal.edit(model, listId, field);
               if (field.archived) fieldModal.onChange("archived", false);
