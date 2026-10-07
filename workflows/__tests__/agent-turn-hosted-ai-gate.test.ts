@@ -525,6 +525,8 @@ function streamedToolCallStep(toolName: string, toolCallId: string, input: unkno
   };
 }
 
+const DEAL_TYPE_ID = "33333333-3333-4333-8333-333333333333";
+
 describe("agent-turn hosted-AI provider gates", () => {
   it.each(["chat", "routine"] as const)(
     "passes the exact durable Wiki snapshot into the first %s provider request",
@@ -1330,19 +1332,23 @@ describe("agent-turn credit-bounded continuation", () => {
       wiki: { total: 1, items: [{ title: "Voice", excerpt: "Use plain language." }] },
     });
     state.contextFits.mockReturnValueOnce(false).mockReturnValue(true);
-    state.definitions.push({ name: "list_records", description: "list_records", inputSchema: { type: "object" } });
-    state.normalize.mockResolvedValue({ ok: true, input: { entity: "deal" } });
+    state.definitions.push({
+      name: "query_crm_records",
+      description: "query_crm_records",
+      inputSchema: { type: "object" },
+    });
+    state.normalize.mockResolvedValue({ ok: true, input: { typeId: DEAL_TYPE_ID } });
     state.execute.mockResolvedValue({ ok: true, result: "total: 42" });
     let segment = 0;
     state.runTools = async ({ messages, executeAndCompleteTool }) => {
       segment += 1;
       if (segment === 1) {
-        await executeAndCompleteTool("list_records", { entity: "deal" }, "call-snapshot");
+        await executeAndCompleteTool("query_crm_records", { typeId: DEAL_TYPE_ID }, "call-snapshot");
         return {
           finishReason: "tool-calls",
           messages,
           steps: [
-            streamedToolCallStep("list_records", "call-snapshot", { entity: "deal" }),
+            streamedToolCallStep("query_crm_records", "call-snapshot", { typeId: DEAL_TYPE_ID }),
             ...Array.from({ length: 31 }, () => streamedStep("", "tool-calls")),
           ],
         };
@@ -1366,11 +1372,11 @@ describe("agent-turn credit-bounded continuation", () => {
   it("carries a digest of earlier tool results into the compacted segment", async () => {
     state.contextFits.mockReturnValueOnce(false).mockReturnValue(true);
     state.definitions.push({
-      name: "list_records",
-      description: "list_records",
+      name: "query_crm_records",
+      description: "query_crm_records",
       inputSchema: { type: "object" },
     });
-    state.normalize.mockResolvedValue({ ok: true, input: { entity: "deal" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { typeId: DEAL_TYPE_ID } });
     state.execute.mockResolvedValue({
       ok: true,
       result: ["total: 42", "items[1]{id,name}:", "  11111111-2222-3333-4444-555555555555,Nova Expansion"].join("\n"),
@@ -1379,14 +1385,12 @@ describe("agent-turn credit-bounded continuation", () => {
     state.runTools = async ({ messages, executeAndCompleteTool }) => {
       segment += 1;
       if (segment === 1) {
-        await executeAndCompleteTool("list_records", { entity: "deal" }, "call-digest");
+        await executeAndCompleteTool("query_crm_records", { typeId: DEAL_TYPE_ID }, "call-digest");
         return {
           finishReason: "tool-calls",
           messages,
           steps: [
-            streamedToolCallStep("list_records", "call-digest", {
-              entity: "deal",
-            }),
+            streamedToolCallStep("query_crm_records", "call-digest", { typeId: DEAL_TYPE_ID }),
             ...Array.from({ length: 31 }, () => streamedStep("", "tool-calls")),
           ],
         };
@@ -1412,16 +1416,20 @@ describe("agent-turn credit-bounded continuation", () => {
 
   describe("benchmark tool output recording", () => {
     const runOneToolRound = async (recordToolOutputs: boolean | undefined) => {
-      state.definitions.push({ name: "list_records", description: "list_records", inputSchema: { type: "object" } });
-      state.normalize.mockResolvedValue({ ok: true, input: { entity: "deal" } });
+      state.definitions.push({
+        name: "query_crm_records",
+        description: "query_crm_records",
+        inputSchema: { type: "object" },
+      });
+      state.normalize.mockResolvedValue({ ok: true, input: { typeId: DEAL_TYPE_ID } });
       state.execute.mockResolvedValue({ ok: true, result: "total: 42" });
       state.runTools = async ({ messages, executeAndCompleteTool }) => {
-        await executeAndCompleteTool("list_records", { entity: "deal" }, "call-recorded");
+        await executeAndCompleteTool("query_crm_records", { typeId: DEAL_TYPE_ID }, "call-recorded");
         return {
           finishReason: "stop",
           messages,
           steps: [
-            streamedToolCallStep("list_records", "call-recorded", { entity: "deal" }),
+            streamedToolCallStep("query_crm_records", "call-recorded", { typeId: DEAL_TYPE_ID }),
             streamedStep("Done.", "stop"),
           ],
         };
@@ -1437,7 +1445,7 @@ describe("agent-turn credit-bounded continuation", () => {
         expect.objectContaining({
           type: "benchmark-tool-output",
           toolCallId: "call-recorded",
-          toolName: "list_records",
+          toolName: "query_crm_records",
           ok: true,
           text: "total: 42",
         }),
@@ -3025,7 +3033,7 @@ describe("agent-turn authoritative tool inputs", () => {
   it.each(["length", "error"])(
     "never replays a tool call a %s step did not run, and settles it as not run",
     async (finishReason) => {
-      define("list_records");
+      define("query_crm_records");
       const seen: string[] = [];
       let segment = 0;
       state.runTools = ({ messages }) => {
@@ -3040,7 +3048,12 @@ describe("agent-turn authoritative tool inputs", () => {
                 ...streamedStep("Partial.", finishReason),
                 content: [
                   { type: "text", text: "Partial." },
-                  { type: "tool-call", toolName: "list_records", toolCallId: "unrun-1", input: { entity: "deal" } },
+                  {
+                    type: "tool-call",
+                    toolName: "query_crm_records",
+                    toolCallId: "unrun-1",
+                    input: { typeId: DEAL_TYPE_ID },
+                  },
                 ],
               },
             ],
@@ -3175,7 +3188,7 @@ describe("agent-turn authoritative tool inputs", () => {
   });
 
   it("runs an analysis without approval and never refuses it as a write, even while the searched name matches two deals", async () => {
-    define("list_records");
+    define("search_crm_records");
     define("analyze_records");
     const nova = "11111111-1111-4111-8111-111111111111";
     const request = "Mark the Nova Expansion deal as Won.";
@@ -3186,9 +3199,9 @@ describe("agent-turn authoritative tool inputs", () => {
         content: [
           {
             type: "tool-call",
-            toolName: "list_records",
+            toolName: "search_crm_records",
             toolCallId: "list-1",
-            input: { entity: "deal", searchTerm: "Nova Expansion" },
+            input: { searchTerm: "Nova Expansion", typeIds: [DEAL_TYPE_ID] },
           },
         ],
       },
@@ -3198,7 +3211,7 @@ describe("agent-turn authoritative tool inputs", () => {
           {
             type: "tool-result",
             toolCallId: "list-1",
-            toolName: "list_records",
+            toolName: "search_crm_records",
             output: {
               type: "json",
               value: {
@@ -3211,7 +3224,7 @@ describe("agent-turn authoritative tool inputs", () => {
       },
     ];
     const analysis = {
-      reads: [{ tool: "get_records", input: JSON.stringify({ items: [{ entity: "deal", id: nova }] }) }],
+      reads: [{ tool: "read_crm_record", input: JSON.stringify({ typeId: DEAL_TYPE_ID, recordId: nova }) }],
       code: "(data) => data",
     };
     state.normalize.mockImplementation((_name: string, input: unknown) => Promise.resolve({ ok: true, input }));
@@ -3219,7 +3232,7 @@ describe("agent-turn authoritative tool inputs", () => {
     let output: unknown;
     state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
       await completeStepAndPrepareNext(
-        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        streamedToolCallStep("search_crm_records", "list-1", { searchTerm: "Nova Expansion", typeIds: [DEAL_TYPE_ID] }),
         searched,
       );
       gated = await tools.analyze_records.needsApproval(analysis, { toolCallId: "call-1" });
