@@ -168,6 +168,19 @@ describe("manage_widgets create", () => {
       contractVersion: 2,
     });
   });
+  it("creates a chart at a requested grid position in the same call and echoes the saved layout", async () => {
+    const layout = { x: 4, y: 2, w: 6, h: 3 };
+    spies.upsertRecordWidget.mockResolvedValue({
+      ok: true,
+      data: { ...chartWidget(), layout: { lg: { i: WIDGET_ID, ...layout } } },
+    });
+    const result = await run({ ...chartCreate, layout });
+    expect(spies.upsertRecordWidget).toHaveBeenCalledWith(expect.objectContaining({ layout }));
+    expect(decode(result)).toMatchObject({ id: WIDGET_ID, layout });
+    expect(await run({ ...chartCreate, layout: { x: 8, y: 0, w: 6, h: 3 } })).toContain("Validation error:");
+    expect(spies.upsertRecordWidget).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects retired entity chart contracts and missing concurrency preconditions", async () => {
     expect(await run({ action: "create", name: "Legacy", entityType: "deal" })).toContain("Validation error:");
     const incomplete = { ...chartCreate, expectedRevision: undefined };
@@ -396,6 +409,7 @@ describe("manage_widgets read and delete", () => {
           kind: WidgetKind.chart,
           contractVersion: 2,
           version: 1,
+          layout: { x: 0, y: 0, w: 4, h: 4 },
         },
         {
           id: RECORD_ID,
@@ -403,6 +417,7 @@ describe("manage_widgets read and delete", () => {
           kind: WidgetKind.activityTimeline,
           contractVersion: 2,
           version: 1,
+          layout: { x: 4, y: 0, w: 6, h: 4 },
         },
       ],
       total: 2,

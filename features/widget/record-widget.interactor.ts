@@ -16,6 +16,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordRequestHash } from "@/features/records/mutate-record.interactor";
 import { RecordWidgetInputSchema } from "./record-widget.schema";
 import { widgetDisplayTypeIssue } from "./widget-display-rules";
+import { resolveWidgetLayout } from "./widget-placement";
 
 @TenantInteractor()
 export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<RecordWidgetInput, RecordWidgetDto> {
@@ -56,7 +57,17 @@ export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<Record
         if (!data.ok) return data;
         if (widgetDisplayTypeIssue(input.displayOptions.displayType, input.measure, await this.records.getModel()))
           return fail(CustomErrorCode.widgetDisplayTypeUnsupported, ["displayOptions", "displayType"]);
-        const row = await this.widgets.save(input, input.id ?? randomUUID());
+        const id = input.id ?? randomUUID();
+        const placement = resolveWidgetLayout({
+          id,
+          kind: "chart",
+          displayType: input.displayOptions.displayType,
+          requested: input.layout,
+          isCreate: !input.id,
+          widgets: await this.widgets.listPlacements(),
+        });
+        if (!placement.ok) return fail(placement.code, ["layout"]);
+        const row = await this.widgets.save(input, id, placement.layout);
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return { ok: true as const, data: await this.reader.read(row) };
       },

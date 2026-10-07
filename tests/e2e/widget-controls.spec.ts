@@ -47,6 +47,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await page.getByRole("option", { name: "Services", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Group by", exact: true }).click();
   await page.getByRole("option", { name: "Each record", exact: true }).click();
+  await dialog.getByRole("tab", { name: "Appearance", exact: true }).click();
   await dialog.getByRole("switch", { name: "Share as a template", exact: true }).check();
   await dialog.getByRole("switch", { name: "Show metric and filters", exact: true }).uncheck();
   await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
@@ -72,6 +73,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   for (const displayType of Object.values(DisplayType).filter((type) => widgetDisplayRequirement(type) === null)) {
     await test.step(`save and reload ${displayType}`, async () => {
       await edit("Complete chart controls");
+      await dialog.getByRole("tab", { name: "Appearance", exact: true }).click();
       await dialog.locator(`[id="display-type-${displayType}"]`).check();
       if (displayType === DisplayType.doughnutChart)
         await dialog.getByRole("switch", { name: "Show legend", exact: true }).uncheck();
@@ -100,7 +102,15 @@ test("persists every chart style, appearance, a copied template, resizing and de
       const chart = page
         .locator('[data-uid="app-card"]')
         .filter({ has: page.getByRole("heading", { name: "Complete chart controls", exact: true }) });
-      await expect(chart.locator("svg.recharts-surface")).toBeVisible();
+      await expect(
+        chart
+          .locator(
+            displayType === DisplayType.horizontalBarChartWithLabels
+              ? '[data-slot="widget-bar-row"]'
+              : "svg.recharts-surface",
+          )
+          .first(),
+      ).toBeVisible();
       await expect(chart).toBeVisible();
       await page.screenshot({ path: testInfo.outputPath(`chart-${displayType}.png`), animations: "disabled" });
     });
@@ -177,6 +187,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await dialog.locator(`#widget-template-${saved.id}`).click();
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Complete chart controls");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Independent copied chart");
+  await dialog.getByRole("tab", { name: "Appearance", exact: true }).click();
   await dialog.getByRole("switch", { name: "Share as a template", exact: true }).uncheck();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
@@ -233,7 +244,7 @@ test("preserves widget previews and accessible draft confirmations across respon
   await recordDrawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(recordDrawer).toHaveCount(0);
   await page.getByRole("link", { name: "Dashboard", exact: true }).click();
-  const preview = page.locator('[data-widget-editor="linear"] svg.recharts-surface');
+  const preview = page.locator('[data-widget-editor="split"] svg.recharts-surface');
   const guard = page.getByRole("alertdialog", { name: "Unsaved Changes", exact: true });
   for (const [initialWidth, changedWidth, surface] of [
     [1100, 600, "dialog"],

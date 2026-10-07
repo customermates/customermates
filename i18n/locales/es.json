@@ -1117,6 +1117,8 @@
       "webhookNotFound": "ID de webhook no encontrado o no accesible.",
       "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
+      "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
+      "widgetLayoutTooSmall": "Este widget necesita al menos 2 columnas y 3 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
@@ -1746,21 +1748,29 @@
       "kind": {
         "activityTimelineDescription": "Sigue en orden cronológico los cambios en registros, los mensajes y la actividad de cuentas y calendario.",
         "chartDescription": "Compara los datos del CRM en un gráfico.",
+        "description": "Elige un formato y selecciona tú mismo los datos.",
+        "scratchTitle": "Empezar desde cero",
         "title": "Elegir un widget"
       },
       "preview": {
-        "title": "Vista previa"
+        "incomplete": "Completa la configuración de datos para ver una vista previa.",
+        "live": "Vista previa en vivo",
+        "size": "Tamaño en el panel {w} × {h}",
+        "title": "Vista previa",
+        "untitled": "Widget sin título"
       },
       "save": "Guardar cambios",
+      "settings": "Configuración del widget",
       "sharing": {
         "template": "Compartir como plantilla"
       },
       "steps": {
-        "chooseDescription": "Elige un formato o parte de una configuración compartida en tu espacio de trabajo.",
+        "chooseDescription": "Empieza con una recomendación, un formato en blanco o una configuración compartida en tu espacio de trabajo.",
         "configureDescription": "Elige qué muestra este widget y qué aspecto tiene."
       },
       "tabs": {
         "appearance": "Apariencia",
+        "data": "Datos",
         "filtersLabel": "{count, plural, =0 {Filtros, ninguno activo} =1 {Filtros, 1 activo} other {Filtros, # activos}}"
       },
       "templates": {
@@ -1770,30 +1780,51 @@
       }
     },
     "widgetGallery": {
-      "description": "Widgets listos para tu modelo de datos actual. Puedes editarlo todo antes de guardar.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Oportunidades en cada etapa, en el orden de las etapas, con la conversión entre pasos.",
-          "name": "Oportunidades por etapa"
+      "creationDate": "fecha de creación",
+      "description": "Sugerencias creadas a partir de los tipos de registro y campos de tu espacio de trabajo. Puedes cambiarlo todo antes de guardar.",
+      "recipes": {
+        "countBySelect": {
+          "description": "Número de {type} por cada {group}.",
+          "name": "{type} por {group}"
         },
-        "openPipeline": {
-          "description": "Valor total de las oportunidades que no están ganadas ni perdidas.",
-          "name": "Pipeline abierto"
+        "countPerMember": {
+          "description": "Número de {type} por cada {group}.",
+          "name": "{type} por {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tareas que no están completadas ni archivadas, contadas por cada usuario asignado.",
-          "name": "Tareas abiertas por responsable"
+        "openCountPerAssignee": {
+          "description": "{type} que no están en un {group} cerrado, contados por cada usuario asignado.",
+          "name": "{type} abiertos por responsable"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Valor de las oportunidades ganadas por organización vinculada, clasificado con su parte del total.",
-          "name": "Principales organizaciones por ingresos"
+        "openValueTotal": {
+          "description": "Total de {field} de {type} que no están en un {group} cerrado.",
+          "name": "{field} abierto"
         },
-        "wonValuePerMonth": {
-          "description": "Valor de las oportunidades ganadas por mes, según el primer campo de fecha de la oportunidad o la fecha de creación.",
-          "name": "Valor ganado por mes"
+        "stageFunnel": {
+          "description": "{type} en cada {group}, en orden, con la conversión entre pasos.",
+          "name": "{type} por {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} ordenados por el {field} de sus {type} vinculados, con la parte de cada uno en el total.",
+          "name": "Principales {related} por {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} ordenados por el {field} de sus {type} ganados, con la parte de cada uno en el total.",
+          "name": "Principales {related} por {field} ganado"
+        },
+        "valueOverTime": {
+          "description": "{field} de {type} por mes, según {date}.",
+          "name": "{field} por mes"
+        },
+        "valueTotal": {
+          "description": "Suma de {field} en todos los {type}.",
+          "name": "{field} total"
+        },
+        "wonValueOverTime": {
+          "description": "{field} de {type} ganados por mes, según {date}.",
+          "name": "{field} ganado por mes"
         }
       },
-      "title": "Widgets iniciales"
+      "title": "Recomendado para tus datos"
     },
     "widgetKinds": {
       "activityTimeline": "Cronología de actividad",
@@ -3361,6 +3392,7 @@
     "loadingSchema": "Cargando campos…",
     "measure": "Medida",
     "noRecordsInPeriod": "Sin registros",
+    "notes": "Sobre estas cifras",
     "operators": {
       "between": "Entre",
       "contains": "Contiene",
@@ -3381,7 +3413,6 @@
     "overall": "Total: {value}",
     "preview": "Vista previa de la medida",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
-    "previewHelp": "La vista previa usa los registros actuales y tus permisos.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
       "group": "Grupo",

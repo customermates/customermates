@@ -13,10 +13,11 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordRequestHash } from "@/features/records/mutate-record.interactor";
 import { RecordActivityWidgetInputSchema } from "./record-activity-widget.schema";
+import { resolveWidgetLayout } from "./widget-placement";
 
 @TenantInteractor()
 export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteractor<
@@ -57,7 +58,16 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
         }
         const result = await this.activities.invoke({ ...input.activityQuery, cursor: null, limit: 25 });
         if (!result.ok) return result;
-        const row = await this.widgets.save(input, input.id ?? randomUUID());
+        const id = input.id ?? randomUUID();
+        const placement = resolveWidgetLayout({
+          id,
+          kind: "activityTimeline",
+          requested: input.layout,
+          isCreate: !input.id,
+          widgets: await this.widgets.listPlacements(),
+        });
+        if (!placement.ok) return fail(placement.code, ["layout"]);
+        const row = await this.widgets.save(input, id, placement.layout);
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return {
           ok: true as const,
