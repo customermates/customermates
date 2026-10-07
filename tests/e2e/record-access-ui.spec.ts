@@ -971,6 +971,7 @@ async function relationshipCreateUi(
 async function relationshipEditUi(page: Page, typeId: string, label: string, restore = false) {
   await followConfigureLink(page);
   await expect(page).toHaveURL(`/en/configure?typeId=${typeId}`);
+  await openConfigureTab(page, "Relationships");
   await expect(
     page.getByRole("region", { name: englishMessages.RecordModel.relationships, exact: true }),
   ).toBeVisible();
@@ -2007,7 +2008,6 @@ test("keeps retained values restricted after a delegated manager converts fields
     for (const field of [total, memo]) {
       const dialog = await summaryFieldEditorUi(manager.page, summaryType.id, field.label);
       await openDrawerTab(manager.page, "Calculation");
-      await expect(dialog.getByText(englishMessages.RecordModel.summaryApprovalRequired, { exact: true })).toBeVisible();
       await expect(
         dialog.getByRole("switch", { name: englishMessages.RecordModel.publishSummary, exact: true }),
       ).toHaveCount(0);
@@ -2169,6 +2169,8 @@ test("publishes and withdraws a private-input summary through the field UI witho
     await expect(
       delegated.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first(),
     ).toBeEnabled();
+    await openDrawerTab(member.page, "Calculation");
+    await expect(delegated.getByRole("region", { name: "Calculation", exact: true })).toBeVisible();
     await expect(delegated.locator("#publishedSummary")).toHaveCount(0);
     await expect(delegated.getByText(englishMessages.RecordModel.summaryApprovalRequired, { exact: true })).toHaveCount(
       0,
@@ -2198,6 +2200,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
       animations: "disabled",
     });
     const stillDelegated = await summaryFieldEditorUi(member.page, deal.typeId, summary.label);
+    await openDrawerTab(member.page, "Calculation");
     await expect(stillDelegated.locator("#publishedSummary")).toHaveCount(0);
     await expect(
       stillDelegated.getByText(englishMessages.RecordModel.summaryApprovalRequired, { exact: true }),

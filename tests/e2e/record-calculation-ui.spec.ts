@@ -89,7 +89,6 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await selectOption(page, "Relationship", "Service");
     await selectOption(page, "Value", "Price");
     await expect(calculation.getByRole("combobox", { name: "Aggregation", exact: true })).toHaveCount(0);
-    await dialog.getByRole("textbox", { name: "Name", exact: false }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath("lookup-calculation-editor.png"), animations: "disabled" });
     await applyConfiguration(page);
   });
