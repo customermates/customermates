@@ -55,7 +55,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");
   await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-  await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await creation.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const field = await database.query(

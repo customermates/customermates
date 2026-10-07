@@ -2951,7 +2951,6 @@
     "addProbability": "Añadir probabilidad",
     "aggregation": "Agregación",
     "allowManualOverride": "Permitir un valor de reemplazo manual",
-    "apply": "Aplicar cambios",
     "archiveActivityPath": "Archivar conexión",
     "archived": "Archivado",
     "archiveField": "Archivar campo",
@@ -2975,6 +2974,28 @@
     "calculationError": "Cálculo no disponible",
     "calculationInput": "Entrada {number}",
     "calculationNavigation": "Navegación del cálculo",
+    "calculationPath": {
+      "captureChanged": "se guarda cuando cambia {field}",
+      "captureChangedTo": "se guarda cuando {field} cambia a {value}",
+      "captureCreate": "se guarda al crear el registro",
+      "captureExplicit": "se guarda a petición",
+      "count": "{field} = el número de {list} vinculados",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = {value} del registro vinculado de {list}",
+      "manual": "se puede sobrescribir manualmente",
+      "reducers": {
+        "average": "el promedio",
+        "max": "el máximo",
+        "min": "el mínimo",
+        "sum": "la suma"
+      },
+      "rollup": "{field} = {reducer} de {value} en los {list} vinculados",
+      "sentence": "{clauses}.",
+      "steps": "Ruta de cálculo",
+      "thisField": "Este campo",
+      "title": "Cómo se calcula el valor",
+      "via": "a través de {relationship} ({cardinality})"
+    },
     "calculationResult": "Resultado",
     "calculationSource": "Usar",
     "cancelOperation": "Cancelar cambio",
@@ -3071,6 +3092,7 @@
       "recordsRestricted": "Número de registros no disponible",
       "recordUnit": "{count, plural, one {registro} other {registros}}",
       "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
+      "resetLayout": "Restablecer diseño",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar"
     },
@@ -3266,8 +3288,8 @@
       "views": "{count, plural, one {# vista guardada o diseño personal} other {# vistas guardadas o diseños personales}}"
     },
     "pinnedFields": "Campos de detalle fijados",
-    "pluralDescription": "El nombre mostrado en la navegación. Déjalo vacío para usar el nombre de la lista.",
-    "pluralName": "Etiqueta de navegación",
+    "pluralDescription": "Se muestra en la navegación y en los títulos de lista. Se sugiere a partir del nombre hasta que lo cambies.",
+    "pluralName": "Nombre en plural",
     "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
     "priceModes": {
       "live": "Precio actual",

@@ -2951,7 +2951,6 @@
     "addProbability": "Wahrscheinlichkeit hinzufügen",
     "aggregation": "Zusammenfassung",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
-    "apply": "Änderungen anwenden",
     "archiveActivityPath": "Verbindung archivieren",
     "archived": "Archiviert",
     "archiveField": "Feld archivieren",
@@ -2975,6 +2974,28 @@
     "calculationError": "Berechnung nicht verfügbar",
     "calculationInput": "Eingabe {number}",
     "calculationNavigation": "Berechnungsnavigation",
+    "calculationPath": {
+      "captureChanged": "wird gespeichert, wenn sich {field} ändert",
+      "captureChangedTo": "wird gespeichert, wenn sich {field} zu {value} ändert",
+      "captureCreate": "wird beim Anlegen des Eintrags gespeichert",
+      "captureExplicit": "wird auf Anforderung gespeichert",
+      "count": "{field} = Anzahl der verknüpften {list}",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = {value} des verknüpften Eintrags in {list}",
+      "manual": "kann manuell überschrieben werden",
+      "reducers": {
+        "average": "Durchschnitt",
+        "max": "Maximum",
+        "min": "Minimum",
+        "sum": "Summe"
+      },
+      "rollup": "{field} = {reducer} von {value} über die verknüpften {list}",
+      "sentence": "{clauses}.",
+      "steps": "Berechnungsweg",
+      "thisField": "Dieses Feld",
+      "title": "So wird der Wert berechnet",
+      "via": "über {relationship} ({cardinality})"
+    },
     "calculationResult": "Ergebnis",
     "calculationSource": "Verwenden",
     "cancelOperation": "Änderung abbrechen",
@@ -3071,6 +3092,7 @@
       "recordsRestricted": "Anzahl der Datensätze nicht verfügbar",
       "recordUnit": "{count, plural, one {Datensatz} other {Datensätze}}",
       "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
+      "resetLayout": "Layout zurücksetzen",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern"
     },
@@ -3266,8 +3288,8 @@
       "views": "{count, plural, one {# gespeicherte Ansicht oder persönliches Layout} other {# gespeicherte Ansichten oder persönliche Layouts}}"
     },
     "pinnedFields": "Angeheftete Detailfelder",
-    "pluralDescription": "Der Name in der Navigation. Leer lassen, um den Listennamen zu verwenden.",
-    "pluralName": "Navigationsbezeichnung",
+    "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis Sie ihn ändern.",
+    "pluralName": "Pluralname",
     "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
     "priceModes": {
       "live": "Aktueller Preis",

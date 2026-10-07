@@ -2951,7 +2951,6 @@
     "addProbability": "Add probability",
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
-    "apply": "Apply changes",
     "archiveActivityPath": "Archive connection",
     "archived": "Archived",
     "archiveField": "Archive field",
@@ -2975,6 +2974,28 @@
     "calculationError": "Calculation unavailable",
     "calculationInput": "Input {number}",
     "calculationNavigation": "Calculation navigation",
+    "calculationPath": {
+      "captureChanged": "captured when {field} changes",
+      "captureChangedTo": "captured when {field} changes to {value}",
+      "captureCreate": "captured when the record is created",
+      "captureExplicit": "captured on request",
+      "count": "{field} = the number of linked {list}",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = the {value} of the linked {list}",
+      "manual": "can be overwritten manually",
+      "reducers": {
+        "average": "average",
+        "max": "maximum",
+        "min": "minimum",
+        "sum": "sum"
+      },
+      "rollup": "{field} = the {reducer} of {value} across linked {list}",
+      "sentence": "{clauses}.",
+      "steps": "Calculation path",
+      "thisField": "This field",
+      "title": "How the value is calculated",
+      "via": "via {relationship} ({cardinality})"
+    },
     "calculationResult": "Result",
     "calculationSource": "Use",
     "cancelOperation": "Cancel change",
@@ -3071,6 +3092,7 @@
       "recordsRestricted": "Record count not available",
       "recordUnit": "{count, plural, one {record} other {records}}",
       "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
+      "resetLayout": "Reset layout",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out"
     },
@@ -3266,8 +3288,8 @@
       "views": "{count, plural, one {# saved view or personal layout} other {# saved views or personal layouts}}"
     },
     "pinnedFields": "Pinned detail fields",
-    "pluralDescription": "The name shown in navigation. Leave empty to use the list name.",
-    "pluralName": "Navigation label",
+    "pluralDescription": "Shown in navigation and list titles. Suggested from the name until you change it.",
+    "pluralName": "Plural name",
     "previewReady": "Ready to apply. {count} records will be checked.",
     "priceModes": {
       "live": "Live price",
