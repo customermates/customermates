@@ -1,0 +1,128 @@
+{
+  "scope": "Fourth interim checkpoint of PR #203 at pr203/integration 1182c57ea (adds I26: faster convention-test repository scans and split email preview renders; test files only, application code unchanged since 9a5d121dd). Slim coordinator scope: production build and a production-mode Chromium smoke of eight key specs; the migration smoke of 5984bfaf3 applies unchanged. Not final verification; the full four-browser matrix, served hubs and the full migration re-rehearsal belong to the final source.",
+  "checkpoint": "interim",
+  "testedCommit": "1182c57ea68c4aeb44e2d6f51691693e5726f902",
+  "testedTree": "1d4629cd8daf03a62101df81df2343df46a2ac84",
+  "testedSourceNote": "The commit that adds this receipt changes only tests/e2e/review/2026-10-07-interim-4-summary.json and the tests/e2e/README.md receipt link.",
+  "runtime": {
+    "host": "Ubuntu 24.04 x86_64 SSH VM, 16 vCPU, 64 GB, shared with a concurrent review flow; this run pinned to CPUs 8-15",
+    "node": "24.18.0",
+    "postgres": [
+      "17.8 (pgvector 0.8.1 image)"
+    ],
+    "productionBuildId": "JbQHYO6oDDrd5xQYWY404"
+  },
+  "citedIntegrationGates": {
+    "source": "Coordinator pipeline gate for I26 on 1182c57ea (pr203-prompts/pipeline/state/I26.gate.log; not re-executed here)",
+    "results": [
+      "generators exit 0, no conflicts",
+      "full database-enabled Vitest: 9,976 passed, 21 skipped (9,997); 1,007 files passed, 1 skipped (1,008)",
+      "e2e database migrate and seed exit 0",
+      "production build ok",
+      "GATE GREEN 1182c57ea on base ea4b8d2e2"
+    ],
+    "qualification": "The cited skip count is 21, one more than the 20 named skips of the 4223d7deb receipt; the new skip is not classified here."
+  },
+  "gates": [
+    {
+      "name": "build",
+      "command": "yarn build",
+      "exitCode": 0,
+      "seconds": 165.485
+    },
+    {
+      "name": "e2e-migrate",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 2.992
+    },
+    {
+      "name": "e2e-seed1",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 21.287
+    },
+    {
+      "name": "e2e-seed2",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 18.54
+    },
+    {
+      "name": "e2e-bootstrap",
+      "command": "node_modules/.bin/bootstrap",
+      "exitCode": 0,
+      "seconds": 1.354
+    },
+    {
+      "name": "chromium-smoke",
+      "command": "node_modules/.bin/playwright test record-configuration.spec.ts shared-channels.spec.ts docs-app-links.spec.ts record-access-ui.spec.ts record-field-controls.spec.ts configure-layout.spec.ts company-activity.spec.ts widget-types.spec.ts --project=chromium --workers=1 --retries=0",
+      "exitCode": 1,
+      "seconds": 913.587
+    }
+  ],
+  "chromiumSmoke": {
+    "specs": [
+      "company-activity.spec.ts",
+      "configure-layout.spec.ts",
+      "docs-app-links.spec.ts",
+      "record-access-ui.spec.ts",
+      "record-configuration.spec.ts",
+      "record-field-controls.spec.ts",
+      "shared-channels.spec.ts",
+      "widget-types.spec.ts"
+    ],
+    "profile": "chromium",
+    "workers": 1,
+    "retries": 0,
+    "productionBuild": true,
+    "stats": {
+      "expected": 26,
+      "unexpected": 1,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "durationSeconds": 912.345,
+    "globalErrors": 0,
+    "perStatus": {
+      "chromium:expected": 26,
+      "chromium:unexpected": 1
+    },
+    "nonExpected": [
+      {
+        "file": "record-access-ui.spec.ts",
+        "line": 3214,
+        "title": "publishes and withdraws a private-input summary through the field UI without granting the delegated reader access to its inputs",
+        "status": "unexpected",
+        "attempts": [
+          "failed"
+        ]
+      }
+    ],
+    "nonExpectedClassification": [
+      {
+        "case": "chromium record-access-ui.spec.ts:3214 (private-input summary, delegated member)",
+        "observed": "Edit field Save button disabled on an untouched existing field where the spec expects it enabled (15 s); unchanged since 5984bfaf3.",
+        "class": "known stale test expectation after an intended product change (expected to fail until the I1 round 3 spec fix lands)",
+        "cause": "I1 round 3 (61f8e6143, d7b13d3e3) disables the Configure drawer Save button unless creating, with unsaved changes, or with a ready preview; the spec still asserts Save enabled before any edit (line 3375)."
+      }
+    ],
+    "classificationNote": "record-access-ui.spec.ts:2132 (personal views), intermittent in the first two interim smokes, passed again in this run.",
+    "isolationReruns": null
+  },
+  "migrationSmoke": {
+    "basis": "No change under prisma/migrations or prisma/schema.prisma between 5984bfaf3 and this commit (git diff empty), so the fresh scratch-copy smoke of all migrations recorded in 2026-10-07-interim-2-summary.json applies unchanged.",
+    "migrationAndSchemaDiffSince5984bfaf3": []
+  },
+  "notCoveredByThisInterim": [
+    "full four-browser matrix and served hubs",
+    "item I6",
+    "a fresh migration smoke (unchanged since 5984bfaf3)",
+    "full re-rehearsal with the independent reconciliation oracle, interruption/recovery and owner/administrator UI replay",
+    "copy destruction (held at the owner's direction)"
+  ],
+  "applicationCodeChangedSince9a5d121dd": [],
+  "previousCheckpoint": "2026-10-07-interim-3-summary.json (9a5d121dd), 2026-10-07-interim-2-summary.json (5984bfaf3, migration smoke with the event log), 2026-10-07-interim-summary.json (a0e734579) and 2026-10-06-summary.json (4223d7deb, latest four-browser matrix and full rehearsal evidence).",
+  "copiedRecordsIdentifiersEmailsValuesFingerprintsIncluded": false,
+  "generatedAtUtc": "2026-10-07T18:50:41.713403+00:00"
+}
