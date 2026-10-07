@@ -3054,6 +3054,7 @@
         "dependency": "{subject} hängt von dieser Änderung ab. Passe es zuerst an.",
         "detailLayout": "Persönliche Datensatzlayouts verwenden noch {subject}.",
         "existingValues": "Einige vorhandene Werte von {subject} passen nicht zur Änderung.",
+        "readAll": "{subject} enthält noch Datensätze, die Sie nicht sehen können. Endgültig löschen kann nur, wer alle Datensätze lesen darf, oder ein Admin.",
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
       },
@@ -3073,6 +3074,7 @@
       "recentlyDeletedHelp": "Gelöschte Listen, Felder, Beziehungen und Aktivitätsverbindungen bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
       "removed": {
         "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
+        "hidden": "Enthält Datensätze, die Sie nicht sehen können.",
         "identifiers": "{count, plural, one {# Kennung} other {# Kennungen}} an {records, plural, one {# Datensatz} other {# Datensätzen}}",
         "links": "{count, plural, one {# Verknüpfung zwischen Datensätzen} other {# Verknüpfungen zwischen Datensätzen}}",
         "nothingStored": "Es werden keine gespeicherten Daten entfernt.",
@@ -3087,6 +3089,7 @@
     "configure": "Konfigurieren",
     "connectionType": "Verbindung",
     "constant": "Fester Wert",
+    "contactFullName": "Name",
     "createdAt": "Erstellt am",
     "createList": "Liste erstellen",
     "currency": "Währung",
@@ -3116,6 +3119,10 @@
     "detailLayoutSaveFailed": "Layoutänderungen konnten nicht gespeichert werden.",
     "directRelationship": "Direkte Beziehung",
     "disabled": "Aus",
+    "duplicateFieldName": "Ein anderes Feld dieser Liste verwendet diesen Namen bereits, auch kürzlich gelöschte Felder. Wähle einen anderen Namen.",
+    "duplicateListName": "Eine andere Liste verwendet diesen Namen bereits. Listennamen müssen eindeutig sein, unabhängig von Groß- und Kleinschreibung, Akzenten und zusätzlichen Leerzeichen.",
+    "duplicateOptionLabel": "Zwei Optionen dieses Felds haben dieselbe Bezeichnung. Optionsbezeichnungen müssen eindeutig sein.",
+    "duplicateRelationshipLabel": "Eine andere Beziehung dieser Liste verwendet diese Bezeichnung bereits. Wähle eine andere Bezeichnung.",
     "edit": "Bearbeiten",
     "editField": "Feld bearbeiten",
     "editValue": "{field} bearbeiten",
@@ -3336,6 +3343,7 @@
     "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis Sie ihn ändern.",
     "pluralName": "Pluralname",
     "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
+    "previewReadyHidden": "Bereit zum Anwenden. Die Änderung betrifft auch Datensätze, die Sie nicht sehen können.",
     "priceModes": {
       "live": "Aktueller Preis",
       "saved": "Gespeicherter Preis"
@@ -3344,7 +3352,7 @@
     "probability": "Wahrscheinlichkeit %",
     "progressUnavailable": "Fortschritt konnte nicht geladen werden. Dein Entwurf bleibt erhalten.",
     "publishSummary": "Zusammenfassung freigeben",
-    "publishSummaryHelp": "Mitglieder mit Leserechten für diesen Datensatz sehen diesen Wert auch bei privaten verknüpften Daten. Mit dem Speichern werden die Eingaben dieser Berechnung freigegeben.",
+    "publishSummaryHelp": "Mitglieder mit Leserechten für diesen Datensatz sehen diesen Wert auch bei privaten verknüpften Daten. Mit dem Speichern werden die Eingaben dieser Berechnung freigegeben. Eine Zusammenfassung eines einzelnen Werts oder eine Summe über einen Datensatz zeigt diesen Wert exakt.",
     "rangeEnd": "Bis",
     "rangeStart": "Von",
     "record": "Datensatz",

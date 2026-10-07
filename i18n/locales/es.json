@@ -3054,6 +3054,7 @@
         "dependency": "{subject} depende de este cambio. Actualízalo primero.",
         "detailLayout": "Diseños personales de registros todavía usan {subject}.",
         "existingValues": "Algunos valores existentes de {subject} no encajan con el cambio.",
+        "readAll": "{subject} todavía contiene registros que no puede ver. Solo quien puede leer todos sus registros, o un administrador, puede eliminarlo definitivamente.",
         "savedView": "Vistas guardadas o diseños personales todavía usan {subject}.",
         "summaryApproval": "{subject} necesita una nueva aprobación del resumen."
       },
@@ -3073,6 +3074,7 @@
       "recentlyDeletedHelp": "Las listas, campos, relaciones y conexiones de actividad eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
       "removed": {
         "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
+        "hidden": "Contiene registros que no puede ver.",
         "identifiers": "{count, plural, one {# identificador} other {# identificadores}} en {records, plural, one {# registro} other {# registros}}",
         "links": "{count, plural, one {# vínculo entre registros} other {# vínculos entre registros}}",
         "nothingStored": "No se elimina ningún dato guardado.",
@@ -3087,6 +3089,7 @@
     "configure": "Configurar",
     "connectionType": "Conexión",
     "constant": "Valor fijo",
+    "contactFullName": "Nombre completo",
     "createdAt": "Creado el",
     "createList": "Crear lista",
     "currency": "Moneda",
@@ -3116,6 +3119,10 @@
     "detailLayoutSaveFailed": "No se pudieron guardar los cambios de diseño.",
     "directRelationship": "Relación directa",
     "disabled": "Desactivado",
+    "duplicateFieldName": "Otro campo de esta lista ya usa este nombre, incluidos los campos eliminados recientemente. Elige otro nombre.",
+    "duplicateListName": "Otra lista ya usa este nombre. Los nombres de lista deben ser únicos, sin distinguir mayúsculas, acentos ni espacios adicionales.",
+    "duplicateOptionLabel": "Dos opciones de este campo tienen la misma etiqueta. Las etiquetas de opción deben ser únicas.",
+    "duplicateRelationshipLabel": "Otra relación de esta lista ya usa esta etiqueta. Elige otra etiqueta.",
     "edit": "Editar",
     "editField": "Editar campo",
     "editValue": "Editar {field}",
@@ -3336,6 +3343,7 @@
     "pluralDescription": "Se muestra en la navegación y en los títulos de lista. Se sugiere a partir del nombre hasta que lo cambies.",
     "pluralName": "Nombre en plural",
     "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
+    "previewReadyHidden": "Listo para aplicar. Incluye registros que no puede ver.",
     "priceModes": {
       "live": "Precio actual",
       "saved": "Precio guardado"
@@ -3344,7 +3352,7 @@
     "probability": "Probabilidad %",
     "progressUnavailable": "No se pudo cargar el progreso. Tu borrador se conserva.",
     "publishSummary": "Publicar resumen",
-    "publishSummaryHelp": "Los miembros que pueden leer este registro ven este valor aunque los datos vinculados sean privados. Guardar aprueba los datos usados en este cálculo.",
+    "publishSummaryHelp": "Los miembros que pueden leer este registro ven este valor aunque los datos vinculados sean privados. Guardar aprueba los datos usados en este cálculo. Un resumen de un solo valor o un total sobre un solo registro muestra ese valor exactamente.",
     "rangeEnd": "Hasta",
     "rangeStart": "Desde",
     "record": "Registro",

@@ -34,7 +34,7 @@ import { z } from "zod";
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
 import { RecordWidgetReadSchema } from "@/features/widget/get-record-widgets.interactor";
-import { RecordModelSchema, RecordDtoSchema } from "./record-model.schema";
+import { RecordModelViewSchema, RecordDtoSchema } from "./record-model.schema";
 import { GetModelSchema } from "./configure-records.interactor";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
 import { ReadRecentlyDeletedSchema, RecentlyDeletedSchema } from "./get-recently-deleted.interactor";
@@ -212,7 +212,7 @@ export const recordApiPaths = {
       "discoverRecordModel",
       "Discover record types and their configuration",
       GetModelSchema,
-      RecordModelSchema,
+      RecordModelViewSchema,
     ),
   },
   "/v1/model/deleted": {

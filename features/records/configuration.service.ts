@@ -25,6 +25,7 @@ import { deterministicId } from "./crm-preset";
 import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { configurationInputFields, configurationInputValue, fieldValueDefinition } from "./record-configuration-values";
 import { canonicalRecordJson } from "./record-json";
+import { duplicateNameIssues } from "./record-names";
 import { recordEventSubscriptionIsValid } from "./record-event-subscription-validation";
 
 export function calculationDependencyHash(field: RecordField, model: RecordModel): string {
@@ -420,6 +421,38 @@ export class RecordConfigurationService extends UserAccessor {
     if (!RecordModelSchema.safeParse(model).success)
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
+    validation.issues.push(...duplicateNameIssues(model, current));
+    const removed = lifecycle?.removed ? { deletion: lifecycle.removed } : null;
+    const readsFully = (typeId: string) =>
+      policy.isAdmin || !current.types.some((type) => type.id === typeId) || policy.readScope(typeId) === "all";
+    if (removed) {
+      for (const typeId of removed.deletion.typeIds) {
+        if (!readsFully(typeId) && (await this.records.countRecordsCompanyWide([typeId])) > 0)
+          validation.issues.push({ code: "deletion_requires_read_all", typeId });
+      }
+      for (const fieldId of removed.deletion.fieldIds) {
+        const field = current.fields.find((candidate) => candidate.id === fieldId);
+        if (!field || removed.deletion.typeIds.includes(field.typeId) || readsFully(field.typeId)) continue;
+        const stored = await this.records.countDefinitionDeletion({
+          typeIds: [],
+          fieldIds: [fieldId],
+          relationIds: [],
+          channelTypeIds: [],
+        });
+        if (stored.values)
+          validation.issues.push({ code: "deletion_requires_read_all", fieldId, typeId: field.typeId });
+      }
+      for (const typeId of removed.deletion.channelTypeIds) {
+        if (removed.deletion.typeIds.includes(typeId) || readsFully(typeId)) continue;
+        const stored = await this.records.countDefinitionDeletion({
+          typeIds: [],
+          fieldIds: [],
+          relationIds: [],
+          channelTypeIds: [typeId],
+        });
+        if (stored.identifiers) validation.issues.push({ code: "deletion_requires_read_all", typeId });
+      }
+    }
     const approvals = new Map(
       input.operations
         .filter((operation) => operation.operation === "publishSummary")
@@ -646,13 +679,16 @@ export class RecordConfigurationService extends UserAccessor {
       subscriptionCursor = last.id;
     }
     const affectedRecords = await this.records.countRecordsCompanyWide([...changedTypes]);
+    const affectedReadable = [...changedTypes].every(readsFully);
     const inputs = configurationInputFields(current, model);
     const inputTypes = [...new Set(inputs.map((field) => field.typeId))];
-    const validationCount = await this.records.countRecordsCompanyWide(inputTypes);
-    const dataValidation = validationCount > SYNCHRONOUS_RECORD_LIMIT ? "staged" : "complete";
-    if (dataValidation === "complete") {
+    const checkedTypes = inputTypes.filter(readsFully);
+    const validationCount = await this.records.countRecordsCompanyWide(checkedTypes);
+    const dataValidation =
+      checkedTypes.length < inputTypes.length || validationCount > SYNCHRONOUS_RECORD_LIMIT ? "staged" : "complete";
+    if (validationCount <= SYNCHRONOUS_RECORD_LIMIT) {
       const invalid = new Set<string>();
-      for (const typeId of inputTypes) {
+      for (const typeId of checkedTypes) {
         const refs = await this.records.getRecordRefsCompanyWide(typeId, undefined, SYNCHRONOUS_RECORD_LIMIT + 1);
         const rows = await this.records.getRecordsCompanyWide(refs);
         for (const row of rows) {
@@ -677,6 +713,30 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
+    const deletionCounts = removed ? await this.records.countDefinitionDeletion(removed.deletion) : null;
+    const deletionReadable =
+      !removed ||
+      [
+        ...removed.deletion.typeIds,
+        ...removed.deletion.channelTypeIds,
+        ...removed.deletion.fieldIds.flatMap(
+          (fieldId) => current.fields.find((field) => field.id === fieldId)?.typeId ?? [],
+        ),
+        ...removed.deletion.relationIds.flatMap((relationId) => {
+          const relation = current.relationships.find((candidate) => candidate.id === relationId);
+          return relation ? [relation.sourceTypeId, relation.targetTypeId] : [];
+        }),
+      ].every(readsFully);
+    const hiddenDeletion =
+      !deletionReadable &&
+      Boolean(
+        deletionCounts &&
+          (deletionCounts.records || deletionCounts.values || deletionCounts.links || deletionCounts.identifiers),
+      );
+    const deletion =
+      deletionCounts && hiddenDeletion
+        ? { ...deletionCounts, records: null, values: null, links: null, identifiers: null, identifierRecords: null }
+        : deletionCounts;
     return {
       change: {
         version: 1,
@@ -708,7 +768,8 @@ export class RecordConfigurationService extends UserAccessor {
         valid: !validation.issues.length && !blockers.length,
         execution: affectedRecords > SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
         dataValidation,
-        affectedRecords,
+        affectedRecords: affectedReadable || affectedRecords === 0 ? affectedRecords : null,
+        hiddenRecords: (!affectedReadable && affectedRecords > 0) || hiddenDeletion,
         references: [...references].map(([reference, id]) => ({
           reference,
           id,
@@ -720,15 +781,7 @@ export class RecordConfigurationService extends UserAccessor {
             fieldId: field.id,
             dependencyHash: calculationDependencyHash(field, model),
           })),
-        ...(lifecycle
-          ? {
-              deletion: {
-                blockers,
-                cleaned,
-                removed: lifecycle.removed ? await this.records.countDefinitionDeletion(lifecycle.removed) : null,
-              },
-            }
-          : {}),
+        ...(lifecycle ? { deletion: { blockers, cleaned, removed: deletion } } : {}),
       },
     };
   }

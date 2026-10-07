@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
 import type { ConfigurationPreview } from "@/features/records/configuration.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
@@ -21,7 +21,7 @@ import { usePreviewBlockers } from "./use-preview-blockers";
 
 type SheetStore = BaseModalStore & {
   preview: ConfigurationPreview | null;
-  model: RecordModel;
+  model: RecordModelView;
   isReadOnly: boolean;
   previewReady: boolean;
   onSubmit: () => Promise<void>;

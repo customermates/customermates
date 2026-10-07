@@ -532,7 +532,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ],
   [
     "RecordModel.configurationDeletion.issues.${*}",
-    ["existingValues", "savedView", "detailLayout", "summaryApproval", "dependency"].map(
+    ["existingValues", "savedView", "detailLayout", "summaryApproval", "readAll", "dependency"].map(
       (key) => `RecordModel.configurationDeletion.issues.${key}`,
     ),
   ],
@@ -917,6 +917,10 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
+    "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate",
+    1,
+  ],
+  [
     'components/records/record-operation-progress.tsx :: t :: status.state === "failed" ? "RecordModel.operationFailed" : "RecordModel.operationCancelled"',
     1,
   ],
@@ -987,6 +991,15 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     keys: ["RecordModel.configurationDeletion.moved"],
   },
   {
+    file: "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts",
+    keys: [
+      "RecordModel.duplicateListName",
+      "RecordModel.duplicateFieldName",
+      "RecordModel.duplicateOptionLabel",
+      "RecordModel.duplicateRelationshipLabel",
+    ],
+  },
+  {
     file: "components/records/record-operation-progress.tsx",
     keys: ["RecordModel.operationFailed", "RecordModel.operationCancelled"],
   },
@@ -1004,6 +1017,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "RecordModel.lineFields.savedPrice",
       "RecordModel.lineFields.effectivePrice",
       "RecordModel.lineFields.amount",
+      "RecordModel.contactFullName",
       "RecordModel.priceModes.live",
       "RecordModel.priceModes.saved",
     ],

@@ -377,7 +377,14 @@ export const ConfigurationPreviewSchema = z
     valid: z.boolean(),
     execution: z.enum(["synchronous", "background"]),
     dataValidation: z.enum(["complete", "staged"]),
-    affectedRecords: z.number().int(),
+    affectedRecords: z
+      .number()
+      .int()
+      .nullable()
+      .describe("Exact only when the caller reads every affected list fully; otherwise null."),
+    hiddenRecords: z
+      .boolean()
+      .describe("True when the change touches records the caller cannot see; counts are then withheld."),
     references: z.array(z.object({ reference: z.string(), id: z.uuid() }).strict()),
     issues: z.array(
       z
@@ -396,14 +403,14 @@ export const ConfigurationPreviewSchema = z
         cleaned: z.array(DeletionCleanupSchema),
         removed: z
           .object({
-            records: z.number().int(),
-            values: z.number().int(),
-            links: z.number().int(),
+            records: z.number().int().nullable(),
+            values: z.number().int().nullable(),
+            links: z.number().int().nullable(),
             relationships: z.number().int(),
             views: z.number().int(),
             grants: z.number().int(),
-            identifiers: z.number().int(),
-            identifierRecords: z.number().int(),
+            identifiers: z.number().int().nullable(),
+            identifierRecords: z.number().int().nullable(),
           })
           .strict()
           .nullable(),

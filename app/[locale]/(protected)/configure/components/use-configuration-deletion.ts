@@ -6,7 +6,7 @@ import type {
   ConfigurationTarget,
   DeletionReference,
 } from "@/features/records/configuration.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { ConfirmationChip, ConfirmationSentence } from "@/components/modal/confirmation-sentence";
 
 import { useState } from "react";
@@ -26,7 +26,14 @@ type Deletion = NonNullable<ConfigurationPreview["deletion"]>;
 type Translate = ReturnType<typeof useTranslations>;
 type Lifecycle = "delete" | "restore" | "deletePermanently";
 
-function referenceChip(reference: DeletionReference, model: RecordModel | null): ConfirmationChip {
+const DUPLICATE_ISSUES = {
+  duplicate_list_name: "RecordModel.duplicateListName",
+  duplicate_field_name: "RecordModel.duplicateFieldName",
+  duplicate_option_label: "RecordModel.duplicateOptionLabel",
+  duplicate_relationship_label: "RecordModel.duplicateRelationshipLabel",
+} as const;
+
+function referenceChip(reference: DeletionReference, model: RecordModelView | null): ConfirmationChip {
   const typeIcon = (typeId: string | undefined) => model?.types.find((type) => type.id === typeId)?.icon ?? "list";
   if (reference.kind === "channels") {
     return {
@@ -60,7 +67,7 @@ function referenceChip(reference: DeletionReference, model: RecordModel | null):
   return { label: reference.label, icon: kind, href: focusHref({ kind, id: reference.id }) };
 }
 
-export function deletionBlockerSentences(t: Translate, deletion: Deletion, model: RecordModel | null) {
+export function deletionBlockerSentences(t: Translate, deletion: Deletion, model: RecordModelView | null) {
   return deletion.blockers.map((blocker) =>
     confirmationSentence((values) => t(`RecordModel.configurationDeletion.blockers.${blocker.reason}`, values), {
       source: referenceChip(blocker.source, model),
@@ -69,7 +76,7 @@ export function deletionBlockerSentences(t: Translate, deletion: Deletion, model
   );
 }
 
-function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModel | null): ConfirmationSentence[] {
+function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelView | null): ConfirmationSentence[] {
   const personal = deletion.cleaned.filter(
     (entry) => entry.consumer.kind === "personalLayout" || entry.consumer.kind === "detailLayout",
   );
@@ -101,9 +108,11 @@ function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModel |
 export function issueSentences(
   t: Translate,
   preview: ConfigurationPreview,
-  model: RecordModel | null,
+  model: RecordModelView | null,
 ): ConfirmationSentence[] {
   return preview.issues.map((issue) => {
+    const duplicate = DUPLICATE_ISSUES[issue.code as keyof typeof DUPLICATE_ISSUES];
+    if (duplicate) return [t(duplicate)];
     const field = model?.fields.find((candidate) => candidate.id === issue.fieldId);
     const type = model?.types.find((candidate) => candidate.id === (field?.typeId ?? issue.typeId));
     const relation = model?.relationships.find((candidate) => candidate.id === issue.relationId);
@@ -126,7 +135,9 @@ export function issueSentences(
             ? "detailLayout"
             : issue.code === "summary_approval_required"
               ? "summaryApproval"
-              : "dependency";
+              : issue.code === "deletion_requires_read_all"
+                ? "readAll"
+                : "dependency";
     return chip
       ? confirmationSentence((values) => t(`RecordModel.configurationDeletion.issues.${key}`, values), {
           subject: chip,
@@ -139,15 +150,17 @@ function removedSentences(t: Translate, deletion: Deletion): ConfirmationSentenc
   const removed = deletion.removed;
   if (!removed) return [];
   const lines = [
-    removed.records > 0 && t("RecordModel.configurationDeletion.removed.records", { count: removed.records }),
-    removed.values > 0 && t("RecordModel.configurationDeletion.removed.values", { count: removed.values }),
-    removed.links > 0 && t("RecordModel.configurationDeletion.removed.links", { count: removed.links }),
+    removed.records === null && t("RecordModel.configurationDeletion.removed.hidden"),
+    (removed.records ?? 0) > 0 &&
+      t("RecordModel.configurationDeletion.removed.records", { count: removed.records ?? 0 }),
+    (removed.values ?? 0) > 0 && t("RecordModel.configurationDeletion.removed.values", { count: removed.values ?? 0 }),
+    (removed.links ?? 0) > 0 && t("RecordModel.configurationDeletion.removed.links", { count: removed.links ?? 0 }),
     removed.views > 0 && t("RecordModel.configurationDeletion.removed.views", { count: removed.views }),
     removed.grants > 0 && t("RecordModel.configurationDeletion.removed.grants", { count: removed.grants }),
-    removed.identifiers > 0 &&
+    (removed.identifiers ?? 0) > 0 &&
       t("RecordModel.configurationDeletion.removed.identifiers", {
-        count: removed.identifiers,
-        records: removed.identifierRecords,
+        count: removed.identifiers ?? 0,
+        records: removed.identifierRecords ?? 0,
       }),
   ].filter((line): line is string => Boolean(line));
   return (lines.length ? lines : [t("RecordModel.configurationDeletion.removed.nothingStored")]).map((line) => [line]);
@@ -163,7 +176,7 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
     target: ConfigurationTarget,
     expectedRevision: number,
     name: string,
-    model: RecordModel | null,
+    model: RecordModelView | null,
   ) => {
     if (isBusy) return;
     const change: ConfigurationChange = {
@@ -236,7 +249,7 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
     }
   };
 
-  const requestDeleteColumn = async (model: RecordModel, typeId: string, pathId: string, name: string) => {
+  const requestDeleteColumn = async (model: RecordModelView, typeId: string, pathId: string, name: string) => {
     const type = model.types.find((candidate) => candidate.id === typeId);
     if (!type || isBusy) return;
     const definition = typeDefinition(type);
@@ -291,7 +304,7 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
   return {
     isBusy,
     requestDeleteColumn,
-    requestDelete: (model: RecordModel, target: ConfigurationTarget, name: string) =>
+    requestDelete: (model: RecordModelView, target: ConfigurationTarget, name: string) =>
       run("delete", target, model.revision, name, model),
     requestRestore: (target: ConfigurationTarget, revision: number, name: string) =>
       run("restore", target, revision, name, null),

@@ -1,6 +1,6 @@
 "use client";
 
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { ConfigureGraphLayout } from "@/features/p13n/p13n-settings.schema";
 import type { ConfigureAddKind } from "./configure-actions";
 import type { ConfigureGraphAccounts } from "./configure-graph";
@@ -27,6 +27,7 @@ import { discoverRecordTypesAction } from "../../records/actions";
 import { ActivityPathModal, ActivityPathModalStore } from "./activity-path-modal";
 import { ConfigureTopBarActions } from "./configure-actions";
 import { ConfigureListPane } from "./configure-list-pane";
+import { isResolvedField } from "./configure-model";
 import { DataModelStore } from "./data-model.store";
 import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
 import { FieldModal, FieldModalStore } from "./field-modal";
@@ -62,7 +63,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   canManage,
   canPublishSummary = false,
 }: {
-  initialModel: RecordModel;
+  initialModel: RecordModelView;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
   savedLayout: ConfigureGraphLayout | null;
@@ -214,7 +215,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (!selected) return true;
       if (target.kind === "field") {
         const field = model.fields.find((candidate) => candidate.id === target.id && candidate.typeId === selected.id);
-        if (field) fieldModal.edit(model, selected.id, field);
+        if (field && isResolvedField(field)) fieldModal.edit(model, selected.id, field);
       }
       if (target.kind === "relationship") {
         const relation = model.relationships.find((candidate) => candidate.id === target.id);

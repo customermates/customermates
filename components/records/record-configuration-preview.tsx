@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import type { ConfigurationPreview } from "@/features/records/configuration.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
@@ -13,14 +13,18 @@ export function RecordConfigurationPreview({
   renewal,
 }: {
   preview: ConfigurationPreview;
-  model: RecordModel;
+  model: RecordModelView;
   renewal?: { fieldIds: string[]; approved: boolean; disabled: boolean; onChange: (approved: boolean) => void };
 }) {
   const t = useTranslations();
   return (
     <div className="space-y-2 text-sm" role="status">
       {preview.valid && (
-        <p className="font-medium">{t("RecordModel.previewReady", { count: preview.affectedRecords })}</p>
+        <p className="font-medium">
+          {preview.affectedRecords === null
+            ? t("RecordModel.previewReadyHidden")
+            : t("RecordModel.previewReady", { count: preview.affectedRecords })}
+        </p>
       )}
 
       {preview.dataValidation === "staged" && (

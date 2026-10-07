@@ -2,7 +2,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RoutineRunPage } from "@/ee/routines/routine-history";
 import type { RoutineSchedulePreset } from "@/ee/routines/routine-schedule-preset";
 import type { RoutineDto, RoutineOwnerDto, RoutineRunDto, UpsertRoutineData } from "@/ee/routines/routine.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { FormEvent } from "react";
 
 import { Resource, RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
@@ -99,7 +99,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   runsRequestState: RoutineRunsRequestState = "idle";
   isLoadingMoreRuns = false;
   isStartingRun = false;
-  recordModel: RecordModel | null = null;
+  recordModel: RecordModelView | null = null;
   private filterFieldsLoadPromise: Promise<void> | null = null;
   private runsSessionGeneration = 0;
   private runsRoutineId: string | null = null;

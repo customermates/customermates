@@ -2,7 +2,7 @@
 
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
-import type { RecordField } from "@/features/records/record-model.schema";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
 
 import { useTranslations } from "next-intl";
 
@@ -14,7 +14,7 @@ import { IntlLink } from "@/i18n/navigation";
 type Props = {
   run: RoutineRunDto;
   customColumns?: CustomColumnDto[];
-  recordFields?: RecordField[];
+  recordFields?: RecordFieldView[];
 };
 
 export function RoutineRunTriggerCard({ run, customColumns = [], recordFields }: Props) {

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ConfigurationPreview } from "@/features/records/configuration.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
@@ -12,7 +12,7 @@ import { deletionBlockerSentences, issueSentences } from "./use-configuration-de
 
 const INLINE_ISSUES = new Set(["summary_approval_required", "summary_approval_changed"]);
 
-export function usePreviewBlockers(preview: ConfigurationPreview | null, model: RecordModel) {
+export function usePreviewBlockers(preview: ConfigurationPreview | null, model: RecordModelView) {
   const t = useTranslations();
   const { showConfirmation } = useDeleteConfirmation();
   const shown = useRef<ConfigurationPreview | null>(null);

@@ -1,4 +1,9 @@
-import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
+import type {
+  RecordFieldView,
+  RecordModelView,
+  RecordRelationship,
+  RecordType,
+} from "@/features/records/record-model.schema";
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 
 import { recordChannelsEnabled } from "@/features/records/record-channels";
@@ -26,7 +31,7 @@ export type ConfigureGraphSource = {
 };
 
 type ConfigureGraphField = {
-  field: RecordField;
+  field: RecordFieldView;
   calculated: boolean;
   sources: string[];
 };
@@ -36,7 +41,7 @@ export type ConfigureGraphList = {
   recordCount: number | null | undefined;
   parentId: string | null;
   fields: ConfigureGraphField[];
-  channels: RecordModel["capabilities"][number] | null;
+  channels: RecordModelView["capabilities"][number] | null;
 };
 
 export type ConfigureGraphEdge =
@@ -65,8 +70,8 @@ export function configureCardinality(
   return `${left}To${right}`;
 }
 
-export function configureCalculationSources(model: RecordModel, field: RecordField) {
-  if (field.behavior.kind === "input") return { sources: [], lists: [] };
+export function configureCalculationSources(model: RecordModelView, field: RecordFieldView) {
+  if (field.behavior.kind === "input" || !field.behavior.expression) return { sources: [], lists: [] };
   const { expression } = field.behavior;
   const lists = new Set(
     [...expressionRelationshipDependencies(expression)].flatMap((relationId) => {
@@ -75,22 +80,24 @@ export function configureCalculationSources(model: RecordModel, field: RecordFie
     }),
   );
   const listLabel = (typeId: string) => model.types.find((type) => type.id === typeId)?.pluralLabel;
-  const sources = new Set<string>();
+  const sources = new Map<string, string>();
+  const listsWithFields = new Set<string>();
   for (const fieldId of expressionFieldDependencies(expression)) {
     const source = model.fields.find((candidate) => candidate.id === fieldId);
     if (!source) continue;
     const list = source.typeId === field.typeId ? undefined : listLabel(source.typeId);
-    sources.add(list ? `${list} · ${source.label}` : source.label);
+    if (list) listsWithFields.add(source.typeId);
+    sources.set(source.id, list ? `${list} · ${source.label}` : source.label);
   }
   for (const typeId of lists) {
     const label = listLabel(typeId);
-    if (label && ![...sources].some((source) => source.startsWith(`${label} · `))) sources.add(label);
+    if (label && !listsWithFields.has(typeId)) sources.set(typeId, label);
   }
-  return { sources: [...sources], lists: [...lists] };
+  return { sources: [...sources.values()], lists: [...lists] };
 }
 
 export function configureGraphData(
-  model: RecordModel,
+  model: RecordModelView,
   catalog: ConfigureGraphCatalog,
   accounts: ConfigureGraphSource[],
   connectPrompt = false,

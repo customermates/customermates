@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
@@ -19,7 +19,7 @@ import { ModelChangeSheet } from "./model-change-sheet";
 import { activityPathDefinition } from "./configure-model";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
 
-type ActivityPath = RecordModel["activityPaths"][number];
+type ActivityPath = RecordModelView["activityPaths"][number];
 const empty = () => ({
   id: undefined as string | undefined,
   label: "",
@@ -31,21 +31,21 @@ export class ActivityPathModalStore extends ModelChangeStore<ReturnType<typeof e
   typeId = "";
   constructor(
     root: RootStore,
-    model: RecordModel,
+    model: RecordModelView,
     completed: (preview: ConfigurationPreview) => Promise<void>,
     canRenewSummaries = false,
-    onModelRefreshed?: (model: RecordModel) => void,
+    onModelRefreshed?: (model: RecordModelView) => void,
   ) {
     super(root, empty(), model, completed, canRenewSummaries, onModelRefreshed);
     makeObservable(this, { typeId: observable, edit: action });
   }
-  edit = (model: RecordModel, typeId: string, definition?: ActivityPath) => {
+  edit = (model: RecordModelView, typeId: string, definition?: ActivityPath) => {
     this.resetModel(model);
     this.typeId = typeId;
     this.onInitOrRefresh(definition ? { ...empty(), ...activityPathDefinition(definition) } : empty());
     this.open();
   };
-  protected projectLatestModel(model: RecordModel) {
+  protected projectLatestModel(model: RecordModelView) {
     if (!model.types.some((type) => type.id === this.typeId)) return null;
     if (!this.form.id) return toJS(this.savedState);
     const latest = model.activityPaths.find((path) => path.id === this.form.id);

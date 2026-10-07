@@ -1,4 +1,4 @@
-import type { RecordField, RecordModel, RecordRelationship } from "./record-model.schema";
+import type { RecordField, RecordRelationship, RecordModelView, RecordFieldView } from "./record-model.schema";
 
 import type { RecordSystemColumnSchema } from "./record-column.schema";
 import { relationshipColumnKey, relationshipPathColumnKey } from "./record-column.schema";
@@ -6,8 +6,8 @@ import { recordChannelsEnabled } from "./record-channels";
 import { resolveRecordPath } from "./record-relationship-path";
 import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 
-export type RecordColumn =
-  | { kind: "field"; id: string; label: string; sortable: boolean; field: RecordField }
+export type RecordColumn<F extends RecordFieldView = RecordField> =
+  | { kind: "field"; id: string; label: string; sortable: boolean; field: F }
   | { kind: "identity"; id: "system:channels"; label: string; sortable: false }
   | {
       kind: "relationship";
@@ -32,8 +32,11 @@ export type RecordColumn =
       sortable: boolean;
     };
 
-export function recordColumns(typeId: string, model: RecordModel): RecordColumn[] {
-  const columns: RecordColumn[] = model.fields
+export function recordColumns<F extends RecordFieldView = RecordField>(
+  typeId: string,
+  model: Omit<RecordModelView, "fields"> & { fields: F[] },
+): RecordColumn<F>[] {
+  const columns: RecordColumn<F>[] = model.fields
     .filter((field) => field.typeId === typeId && !field.archived && field.valueType !== "richText")
     .map((field) => ({
       kind: "field",
