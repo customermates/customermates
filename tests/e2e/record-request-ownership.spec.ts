@@ -144,7 +144,7 @@ test("discards an earlier real configuration preview without attaching it to ano
     await delayed.release();
     await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Current configured field");
     await expect(editor.getByRole("button", { name: "Save", exact: true }).first()).toBeEnabled();
-    await expect(editor.getByRole("button", { name: "Apply changes", exact: true }).first()).toHaveCount(0);
+    await expect(editor.getByRole("status").filter({ hasText: "Ready to apply" })).toHaveCount(0);
     await page.screenshot({
       path: testInfo.outputPath("field-draft-after-delayed-preview.png"),
       animations: "disabled",

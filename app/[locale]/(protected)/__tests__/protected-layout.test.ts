@@ -48,9 +48,6 @@ vi.mock("../settings/(workspace)/components/user/user-modal", () => ({
 vi.mock("../settings/(workspace)/components/company-invite/company-invite-modal", () => ({
   CompanyInviteModal: () => "company-invite-modal",
 }));
-vi.mock("../settings/(workspace)/components/audit-log/audit-log-modal", () => ({
-  AuditLogModal: () => "audit-log-modal",
-}));
 vi.mock("../settings/(workspace)/components/webhook/webhook-delivery-modal", () => ({
   WebhookDeliveryModal: () => "webhook-delivery-modal",
 }));

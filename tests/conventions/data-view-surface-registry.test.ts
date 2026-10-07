@@ -2,7 +2,12 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { DATA_VIEW_SURFACE_KEYS, SURFACE, type BuiltinDataViewSurfaceKey } from "@/core/data-view/data-view-keys";
+import {
+  DATA_VIEW_SURFACE_KEYS,
+  SURFACE,
+  isActivitySurface,
+  type BuiltinDataViewSurfaceKey,
+} from "@/core/data-view/data-view-keys";
 import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 
 const root = process.cwd();
@@ -54,14 +59,15 @@ describe("data view surface registry", () => {
       }
     }
 
-    const expected = new Set(Object.values(SURFACE).filter((key) => key !== SURFACE.entityTimeline));
+    const expected = new Set(Object.values(SURFACE).filter((key) => !isActivitySurface(key)));
     expect([...reached].sort()).toEqual([...expected].sort());
   });
 
-  it("mounts the embedded timeline surface from the activities panel rather than from a page", () => {
+  it("mounts both activity surfaces from the activities panel rather than from a page loader", () => {
     expect(DATA_VIEW_PATHS[SURFACE.entityTimeline]).toBeNull();
+    expect(DATA_VIEW_PATHS[SURFACE.activity]).toBe("/settings/activity");
     expect(read("features/messaging/activities/record-activity-views.store.ts")).toContain(
-      "this.p13nId = SURFACE.entityTimeline",
+      "this.p13nId = record ? SURFACE.entityTimeline : SURFACE.activity",
     );
   });
 });

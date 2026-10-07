@@ -88,7 +88,7 @@ Eine leere Wissensdatenbank bietet **Neue Seite** für manuelles Schreiben und *
 
 Über die Link-Funktion des Editors finden Sie andere Wissensdatenbank-Seiten. Alternativ wählen Sie **Seitenlink kopieren** unter **Seitenaktionen**. Es sind gewöhnliche Markdown-Links; beim Umbenennen bleibt die Adresse erhalten. Ein separater Index oder zusätzliche Verknüpfungsmetadaten sind nicht nötig.
 
-Wissensdatenbank-Leserechte erlauben das Anzeigen von Seiten. Die Wissensdatenbank-Rechte Erstellen, Bearbeiten und Löschen erlauben das Anlegen, das Bearbeiten und Verschieben oder das Löschen von Seiten, und jedes schließt Leserechte ein. Ändert eine andere Person oder ein Agent die Seite vor Ihrem Speichern, wird Ihr veralteter Speicherstand abgelehnt. Ihre Änderungen bleiben sichtbar, damit Sie sie mit der aktuellen Seite abgleichen können. Löschen ist endgültig. Änderungen erscheinen in den normalen Audit-Logs; ihre Wissensdatenbank-Inhalte benötigen sowohl Audit-Log-Zugriff als auch Wissensdatenbank-Leserechte. Das Audit-Log bietet keine Wiederherstellung.
+Wissensdatenbank-Leserechte erlauben das Anzeigen von Seiten. Die Wissensdatenbank-Rechte Erstellen, Bearbeiten und Löschen erlauben das Anlegen, das Bearbeiten und Verschieben oder das Löschen von Seiten, und jedes schließt Leserechte ein. Ändert eine andere Person oder ein Agent die Seite vor Ihrem Speichern, wird Ihr veralteter Speicherstand abgelehnt. Ihre Änderungen bleiben sichtbar, damit Sie sie mit der aktuellen Seite abgleichen können. Löschen ist endgültig. Änderungen erscheinen auf der normalen Seite **Aktivität**; ihre Wissensdatenbank-Inhalte benötigen sowohl Audit-Log-Zugriff als auch Wissensdatenbank-Leserechte. Das Audit-Log bietet keine Wiederherstellung.
 
 Der Betriebsleitfaden bleibt in der Seitenliste an erster Stelle angeheftet. Personen mit dem Wissensdatenbank-Recht Bearbeiten können die übrigen Seiten durch Ziehen umordnen. Die gespeicherte Reihenfolge gilt für den gesamten Workspace.
 
@@ -174,7 +174,7 @@ Jede Datensatzreferenz enthält `typeId` und `recordId`. Abfrage, Suche und Aggr
 {/* mcp-catalog:records */}
 #### `discover_record_types`
 
-Zugängliche Datensatztypen anhand von Namen oder stabilen Typ-IDs finden. Das Ergebnis enthält contractVersion, schemaRevision, erlaubte Aktionen und ob Sie das Datenmodell bearbeiten dürfen. Mit page und pageSize weiterblättern; includeEmbedded zeigt auch eingebettete Typen wie Positionen.
+Zugängliche Datensatztypen anhand von Namen oder stabilen Typ-IDs finden. Das Ergebnis enthält schemaRevision, erlaubte Aktionen und ob Sie das Datenmodell bearbeiten dürfen. Mit page und pageSize weiterblättern; includeEmbedded zeigt auch eingebettete Typen wie Positionen.
 
 **Nur lesend.** Optional: `typeIds`, `search`, `includeEmbedded`, `page`, `pageSize`.
 
@@ -564,7 +564,7 @@ Der Quelltyp legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden pa
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
 
-Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Schreibvorgänge akzeptieren optional ein layout {x, y, w, h} im 12-Spalten-Raster, das im selben Aufruf gespeichert wird; ohne layout erhält ein neues Widget den ersten freien Platz und ein geändertes bleibt, wo es ist; überlappende Positionen werden abgelehnt. list liefert das aktuelle Layout jedes Widgets. Löschen entfernt die Widget-Konfiguration, nicht ihre Quelldatensätze.
+Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Schreibvorgänge akzeptieren optional ein layout `{x, y, w, h}` im 12-Spalten-Raster, das im selben Aufruf gespeichert wird; ohne layout erhält ein neues Widget den ersten freien Platz und ein geändertes bleibt, wo es ist; überlappende Positionen werden abgelehnt. list liefert das aktuelle Layout jedes Widgets. Löschen entfernt die Widget-Konfiguration, nicht ihre Quelldatensätze.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`.
 {/* /mcp-catalog */}

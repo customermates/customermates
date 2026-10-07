@@ -6,7 +6,7 @@ import { MessagingProviderSchema } from "../messaging.schema";
 export const RecordActivityCursorSchema = z
   .object({
     at: z.iso.datetime(),
-    kind: z.enum(["record", "audit", "message", "activity", "calendar_event"]),
+    kind: z.enum(ACTIVITY_KINDS),
     id: z.string().min(1).max(200),
   })
   .strict();
@@ -17,7 +17,7 @@ export const RecordActivityFilterSchema = z.discriminatedUnion("kind", [
     .object({
       kind: z.literal("source"),
       operator: SelectionOperatorSchema,
-      values: z.array(z.enum(ACTIVITY_KINDS)).min(1).max(4),
+      values: z.array(z.enum(ACTIVITY_KINDS)).min(1).max(ACTIVITY_KINDS.length),
     })
     .strict(),
   z
@@ -64,7 +64,7 @@ export const RecordActivitiesInputSchema = z
     kinds: z
       .array(z.enum(ACTIVITY_KINDS))
       .min(1)
-      .max(4)
+      .max(ACTIVITY_KINDS.length)
       .default([...ACTIVITY_KINDS]),
     providers: z.array(MessagingProviderSchema).max(7).optional(),
     threadIds: z.array(z.uuid()).max(50).optional(),

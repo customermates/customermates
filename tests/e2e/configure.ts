@@ -92,7 +92,7 @@ export async function saveDrawer(page: Page) {
   const dialog = configureDrawer(page);
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog.getByRole("status").last()).toContainText("Ready to apply");
-  await dialog.getByRole("button", { name: "Apply changes", exact: true }).first().click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expectConfigureRevisionAfter(page, revision);
 }
@@ -100,13 +100,14 @@ export async function saveDrawer(page: Page) {
 export async function saveGeneral(page: Page) {
   const revision = await configureRevision(page);
   const topBar = configureTopBar(page);
-  const apply = topBar.getByRole("button", { name: "Apply changes", exact: true });
+  const save = topBar.getByRole("button", { name: "Save", exact: true });
   const reset = topBar.getByRole("button", { name: "Reset", exact: true });
-  await topBar.getByRole("button", { name: "Save", exact: true }).click();
+  const ready = page.locator("[data-configure-list-pane]").getByRole("status").filter({ hasText: "Ready to apply" });
+  await save.click();
   await expect
-    .poll(async () => ((await apply.isVisible()) && (await apply.isEnabled())) || !(await reset.isVisible()))
+    .poll(async () => ((await ready.isVisible()) && (await save.isEnabled())) || !(await reset.isVisible()))
     .toBe(true);
-  if (await reset.isVisible()) await apply.click();
+  if (await reset.isVisible()) await save.click();
   await expect(reset).toHaveCount(0);
   await expectConfigureRevisionAfter(page, revision);
 }
@@ -142,7 +143,7 @@ export async function createConfiguredList(page: Page, name: string, { channels 
   const toggle = dialog.getByRole("switch", { name: "Enable channels", exact: true });
   await expect(toggle).not.toBeChecked();
   if (channels) await toggle.check();
-  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);

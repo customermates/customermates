@@ -25,6 +25,7 @@ type Props = Omit<ComponentProps<"input">, "value" | "onChange" | "id"> & {
   endContent?: ReactNode;
   labelEndAddon?: ReactNode;
   controlStartAddon?: ReactNode;
+  onValueChange?: (value: string) => void;
 };
 
 export const FormInput = observer(
@@ -41,6 +42,7 @@ export const FormInput = observer(
     endContent,
     labelEndAddon,
     controlStartAddon,
+    onValueChange,
     ...props
   }: Props) => {
     const store = useAppForm();
@@ -74,7 +76,9 @@ export const FormInput = observer(
             readOnly={isReadOnly}
             required={required}
             value={value}
-            onChange={(event) => store?.onChange(id, event.target.value)}
+            onChange={(event) =>
+              onValueChange ? onValueChange(event.target.value) : store?.onChange(id, event.target.value)
+            }
             {...props}
           />
 

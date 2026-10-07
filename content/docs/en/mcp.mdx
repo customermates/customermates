@@ -90,7 +90,7 @@ An empty Knowledge Base offers **New page** for manual writing and **Build from 
 
 Use the editor's link control to find another Knowledge Base page, or choose **Copy page link** in **Page actions**. These are ordinary Markdown links; renaming a page does not change its address. You do not need to maintain a separate index or linking metadata.
 
-Knowledge Base Read lets you view pages. Knowledge Base Create, Edit and Delete let you create, edit and move, or delete pages, and each of them includes Read. If another person or agent changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them with the latest page. Deletion is permanent. Changes use the normal Audit Logs; viewing their Knowledge Base content requires both Audit Log access and Knowledge Base Read. The audit log is not a restore feature.
+Knowledge Base Read lets you view pages. Knowledge Base Create, Edit and Delete let you create, edit and move, or delete pages, and each of them includes Read. If another person or agent changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them with the latest page. Deletion is permanent. Changes appear on the normal **Activity** page; viewing their Knowledge Base content requires both Audit Log access and Knowledge Base Read. The audit log is not a restore feature.
 
 ### Operating Guide, procedures, and knowledge [#page-types]
 
@@ -172,7 +172,7 @@ Every record reference contains both `typeId` and `recordId`. Query and search a
 {/* mcp-catalog:records */}
 #### `discover_record_types`
 
-Find accessible record types by name or stable type IDs. Results include contractVersion, schemaRevision, permitted actions and whether you may edit the data model. Use page and pageSize to continue; includeEmbedded reveals types such as line items.
+Find accessible record types by name or stable type IDs. Results include schemaRevision, permitted actions and whether you may edit the data model. Use page and pageSize to continue; includeEmbedded reveals types such as line items.
 
 **Read-only.** Optional: `typeIds`, `search`, `includeEmbedded`, `page`, `pageSize`.
 
@@ -562,7 +562,7 @@ The source determines the aggregation grain. Deal reporting counts each matching
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
 
-List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout {x, y, w, h} on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. Delete removes the widget configuration, not its source records.
+List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout `{x, y, w, h}` on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. Delete removes the widget configuration, not its source records.
 
 **Can delete data.** Required: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`.
 {/* /mcp-catalog */}

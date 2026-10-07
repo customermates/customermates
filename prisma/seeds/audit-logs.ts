@@ -5,6 +5,7 @@ import type { Prisma, PrismaClient } from "@/generated/prisma";
 
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { DomainEvent } from "@/features/event/domain-events";
+import { subjectKindOf } from "@/features/event/event-envelope";
 import { RoleDtoSchema } from "@/features/role/role.schema";
 import { toWebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import { WebhookDtoSchema } from "@/features/webhook/webhook.schema";
@@ -47,11 +48,12 @@ export type SyntheticAuditSnapshot = {
 export type SyntheticAuditFixture = {
   companyId: string;
   createdAt: Date;
-  entityId: string;
-  event: DomainEvent;
-  eventData: Prisma.InputJsonValue;
+  subjectKind: string;
+  subjectId: string;
+  kind: DomainEvent;
+  payload: Prisma.InputJsonValue;
   id: string;
-  userId: string;
+  actorId: string;
 };
 
 function inputJson(value: unknown): Prisma.InputJsonValue {
@@ -73,21 +75,16 @@ function auditFixture<E extends DomainEvent>(args: {
 }): SyntheticAuditFixture {
   const { companyId, createdAt, entityId, event, index, payload, userId } = args;
   if (Number.isNaN(createdAt.getTime())) throw new Error(`Invalid timestamp for synthetic audit fixture ${index}`);
-  const eventData = {
-    companyId,
-    entityId,
-    payload,
-    userId,
-  } as DomainEventMap[E];
 
   return {
     id: fixtureId(SYNTHETIC_AUDIT_LOG_ID_PREFIX, index),
     companyId,
     createdAt,
-    entityId,
-    event,
-    eventData: inputJson(eventData),
-    userId,
+    subjectKind: subjectKindOf(event),
+    subjectId: entityId,
+    kind: event,
+    payload: inputJson(payload),
+    actorId: userId,
   };
 }
 
@@ -221,20 +218,21 @@ export function buildSyntheticAuditLogFixtures(args: {
 }
 
 export async function persistSyntheticAuditLogFixtures(
-  prisma: Pick<PrismaClient, "auditLog">,
+  prisma: Pick<PrismaClient, "eventLog">,
   companyId: string,
   fixtures: SyntheticAuditFixture[],
 ): Promise<void> {
   for (const fixture of fixtures) {
-    const { id, ...data } = fixture;
-    await prisma.auditLog.upsert({
-      where: { id },
+    const { id, ...event } = fixture;
+    const data = { ...event, deliveredAt: event.createdAt, nextAttemptAt: event.createdAt };
+    await prisma.eventLog.upsert({
+      where: { companyId_id: { companyId: event.companyId, id } },
       update: data,
       create: { id, ...data },
     });
   }
 
-  await prisma.auditLog.deleteMany({
+  await prisma.eventLog.deleteMany({
     where: {
       companyId,
       id: {

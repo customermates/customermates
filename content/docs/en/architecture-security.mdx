@@ -93,25 +93,25 @@ The published self-hosted image sets no error reporting address and turns off Ne
 
 ## What does the audit log record?
 
-Changes to records and to the workspace configuration around them are logged with the user, the event, the element id and the payload. Updates to records, roles, webhooks, custom fields, routines and connected accounts carry a field-level diff. Creates, deletes and member saves carry a snapshot instead, which is written even when nothing changed. User registrations, record exports and accepted legal documents are recorded as well. A failed write leaves no entry. The audit log is included on every cloud plan and in the self-hosted edition alike.
+Every change is written to one event log with its actor, its kind, the affected element and its payload, in the same transaction as the change itself. Record changes carry field-level before and after values; updates to roles, webhooks, routines and connected accounts carry a field-level diff, and creates, deletes and member saves carry a snapshot. Configuration changes to the data model and to record access by role are kept with the configuration revision they produced. User registrations, record exports and accepted legal documents are recorded as well. The actor is kept even after the user is removed, and automated changes are recorded as system or as the routine owner. A failed write leaves no entry. The audit log is included on every cloud plan and in the self-hosted edition alike.
 
-**Link:** the **Audit Logs** page, `/settings/activity`. **Mate:** `navigate` and `highlight_element` with `nav-settings-activity`; the rows are not highlight targets, so Mate names them.
+**Link:** the **Activity** page, `/settings/activity`. **Mate:** `navigate` and `highlight_element` with `nav-settings-activity`; the entries are not highlight targets, so Mate names them.
 
 ## What is not in the audit log?
 
-Messaging events are not written to the audit log. Authentication events such as sign-ins, the API key lifecycle, subscription changes, saved views, widgets, agent conversations and vendor operator actions are not recorded either. Webhook secrets and header values are redacted in webhook entries. An entry written by an automated process, such as removing a connected account when a trial ends, names the user it affected rather than someone who performed it.
+Messaging events are not part of the audit log; they are kept only as delivery entries while a webhook or an event routine subscribes to them. Authentication events such as sign-ins, the API key lifecycle, subscription changes, saved views, widgets, agent conversations and vendor operator actions are not recorded either. Webhook secrets and header values are redacted in webhook entries. An entry written by an automated process, such as removing a connected account when a trial ends, names the user it affected rather than someone who performed it.
 
 ## Who can read the audit log, and where?
 
-Read it under **My Company** › **Audit Logs**; see the [Company page](/docs/app-company). Access needs **Read access** **All** on the **Audit Log** row of your role, which offers no **Create**, **Edit** or **Delete**; the **Admin** role always has it. The page lists every entry in the workspace, including changes to records the reader's role cannot open otherwise. Search matches the element id, and the filters cover the event and the date; click a row for **Audit Log Details**. The same permission shows the change history on record pages.
+Read it under **My Company** › **Activity**; see the [Company page](/docs/app-company#activity-tab). Access needs **Read access** **All** on the **Audit Log** row of your role, which offers no **Create**, **Edit** or **Delete**; the **Admin** role always has it. The page shows record changes, admin and system events and configuration changes, and can be filtered by kind. Record changes follow the reader's record access. The same permission shows the change history on record pages.
 
-**Link:** the **Audit Logs** page, `/settings/activity`. **Mate:** `navigate` and `highlight_element` with `nav-settings-activity`; `company-audit-logs-search`, `company-audit-logs-filter` and `company-audit-logs-display-options` highlight the toolbar, and there is no **Add**. The rows and **Audit Log Details** are not highlight targets, so Mate names them.
+**Link:** the **Activity** page, `/settings/activity`. **Mate:** `navigate` and `highlight_element` with `nav-settings-activity`; the entries are not highlight targets, so Mate names them.
 
 ## How long are audit entries kept, and can I export them?
 
-Entries are not deleted automatically; they are kept as long as the workspace exists. The **Audit Logs** page has no export action. The activity timeline, its REST endpoint and the `get_activities` tool return the same entries under the same permission.
+Entries are not deleted automatically; they are kept as long as the workspace exists. The **Activity** page has no export action. The activity timeline, its REST endpoint and the `get_activities` tool return the same entries under the same permission.
 
-**Link:** the **Audit Logs** page, `/settings/activity`. **Mate:** `navigate` and `highlight_element` with `nav-settings-activity`; the page has no export button to highlight.
+**Link:** the **Activity** page, `/settings/activity`. **Mate:** `navigate` and `highlight_element` with `nav-settings-activity`; the page has no export button to highlight.
 
 ## Where do I report a vulnerability?
 

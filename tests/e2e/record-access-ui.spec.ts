@@ -492,7 +492,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .first()
       .fill("Delegated records");
     await creation
-      .getByRole("button", { name: "Create list", exact: true })
+      .getByRole("button", { name: "Save", exact: true })
       .first()
       .click();
     await expect(creation).not.toBeVisible();
@@ -583,7 +583,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .getByRole("option", { name: "Approved assigned writers", exact: true })
       .click();
     await creation
-      .getByRole("button", { name: "Create list", exact: true })
+      .getByRole("button", { name: "Save", exact: true })
       .first()
       .click();
     await expect(creation).not.toBeVisible();
@@ -1303,7 +1303,7 @@ async function relationshipCreateTypeUi(page: Page, name: string) {
     .first()
     .fill(name);
   await dialog
-    .getByRole("button", { name: "Create list", exact: true })
+    .getByRole("button", { name: "Save", exact: true })
     .first()
     .click();
   await expect(dialog).not.toBeVisible();
@@ -3466,14 +3466,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     await expect(
       delegatedSource.locator("#renew-published-summaries"),
     ).toHaveCount(0);
-    await expect(
-      delegatedSource
-        .getByRole("button", {
-          name: englishMessages.RecordModel.apply,
-          exact: true,
-        })
-        .first(),
-    ).toHaveCount(0);
+    await expect(delegatedSource.getByRole("status").filter({ hasText: "Ready to apply" })).toHaveCount(0);
     await member.page.keyboard.press("Escape");
     await member.page
       .getByRole("alertdialog")

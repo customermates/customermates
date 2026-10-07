@@ -22,7 +22,6 @@ const collectionViews = [
   "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
   "app/[locale]/(protected)/settings/(workspace)/components/user/members-page-view.tsx",
   "app/[locale]/(protected)/settings/(workspace)/components/role/roles-page-view.tsx",
-  "app/[locale]/(protected)/settings/(workspace)/components/audit-log/audit-logs-page-view.tsx",
   "app/[locale]/(protected)/routines/components/routines-page-view.tsx",
   "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-view.tsx",
   "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx",

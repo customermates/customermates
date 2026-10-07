@@ -8,7 +8,6 @@ import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { FeedbackModal } from "./settings/(workspace)/components/feedback/feedback-modal";
 import { CompanyUserModal } from "./settings/(workspace)/components/user/user-modal";
 import { CompanyInviteModal } from "./settings/(workspace)/components/company-invite/company-invite-modal";
-import { AuditLogModal } from "./settings/(workspace)/components/audit-log/audit-log-modal";
 import { WebhookDeliveryModal } from "./settings/(workspace)/components/webhook/webhook-delivery-modal";
 import { WebhookModal } from "./settings/(workspace)/components/webhook/webhook-modal";
 import { RoutineModal } from "./routines/components/routine-modal";
@@ -113,8 +112,6 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <RecordComposeRecovery />
 
           <FeedbackModal />
-
-          <AuditLogModal />
 
           <ApiKeyModal />
 

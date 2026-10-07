@@ -1,8 +1,6 @@
 import type { AppMode } from "@/core/config/environment";
 import type { BaseModalStore } from "../base/base-modal.store";
 
-import { AuditLogModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/audit-log/audit-log-modal.store";
-import { AuditLogsStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/audit-log/audit-logs.store";
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/company-invite/invite-by-email.store";
 import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
@@ -84,7 +82,6 @@ export class RootStore {
   private _webhooksStore?: WebhooksStore;
   private _routinesStore?: RoutinesStore;
   private _widgetsGridStore?: WidgetsStore;
-  private _auditLogsStore?: AuditLogsStore;
   private _operatorUsersStore?: OperatorUsersStore;
   private _operatorAuditStore?: OperatorAuditStore;
   private _operatorWorkspacesStore?: OperatorWorkspacesStore;
@@ -118,7 +115,6 @@ export class RootStore {
   private _routineModalStore?: RoutineModalStore;
   private _routineRunChatStore?: AgentChatStore;
   private _widgetModalStore?: WidgetModalStore;
-  private _auditLogModalStore?: AuditLogModalStore;
   private _feedbackModalStore?: FeedbackModalStore;
   private _timelineDetailModalStore?: TimelineDetailModalStore;
   private _filterPaletteStore?: FilterPaletteStore;
@@ -348,14 +344,6 @@ export class RootStore {
 
   get operatorAuditStore() {
     return (this._operatorAuditStore ??= new OperatorAuditStore(this));
-  }
-
-  get auditLogsStore() {
-    return (this._auditLogsStore ??= new AuditLogsStore(this));
-  }
-
-  get auditLogModalStore() {
-    return (this._auditLogModalStore ??= new AuditLogModalStore(this));
   }
 
   get feedbackModalStore() {

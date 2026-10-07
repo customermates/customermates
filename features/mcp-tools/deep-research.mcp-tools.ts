@@ -141,7 +141,7 @@ async function fetchRecord(ref: RecordRef) {
     title,
     text,
     url: `${env.BASE_URL}/records/${ref.typeId}/${ref.recordId}`,
-    metadata: { typeId: ref.typeId, contractVersion: "2" },
+    metadata: { typeId: ref.typeId },
   };
   return { text: JSON.stringify(output), structuredContent: output };
 }

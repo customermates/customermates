@@ -16,8 +16,6 @@ const STORE_REPOSITORY: Record<string, string> = {
     "features/webhook/prisma-webhook.repository.ts",
   "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries.store.ts":
     "features/webhook/prisma-webhook-delivery.repository.ts",
-  "app/[locale]/(protected)/settings/(workspace)/components/audit-log/audit-logs.store.ts":
-    "features/audit-log/prisma-audit-log.repository.ts",
   "app/[locale]/(protected)/operator/components/users/operator-users.store.ts":
     "ee/operator/prisma-operator-users.repository.ts",
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store.ts":
@@ -37,8 +35,6 @@ const COLUMN_HOOK_STORE: Record<string, string> = {
     "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks.store.ts",
   "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns.tsx":
     "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries.store.ts",
-  "app/[locale]/(protected)/settings/(workspace)/components/audit-log/use-audit-log-columns.tsx":
-    "app/[locale]/(protected)/settings/(workspace)/components/audit-log/audit-logs.store.ts",
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx":
     "app/[locale]/(protected)/operator/components/users/operator-users.store.ts",
   "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx":
@@ -53,10 +49,9 @@ const REPOSITORY_MODEL: Record<string, string> = {
   "features/role/prisma-role.repository.ts": "UserRole",
   "features/webhook/prisma-webhook.repository.ts": "Webhook",
   "features/webhook/prisma-webhook-delivery.repository.ts": "WebhookDelivery",
-  "features/audit-log/prisma-audit-log.repository.ts": "AuditLog",
   "ee/operator/prisma-operator-users.repository.ts": "User",
   "ee/operator/prisma-operator-workspaces.repository.ts": "Company",
-  "ee/operator/prisma-operator-audit.repository.ts": "AuditLog",
+  "ee/operator/prisma-operator-audit.repository.ts": "EventLog",
   "ee/messaging/persistence/prisma-messaging.repository.ts": "MessagingThread",
   "ee/calendar/prisma-calendar.repository.ts": "Calendar",
   "ee/calendar/prisma-calendar-events.repository.ts": "CalendarEvent",

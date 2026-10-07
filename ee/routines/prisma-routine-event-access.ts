@@ -9,6 +9,7 @@ import {
   messageVisibilityWhere,
   threadAccessWhere,
 } from "@/ee/messaging/messaging-access";
+import { EventEnvelopeSchema } from "@/features/event/event-envelope";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import type {
@@ -72,7 +73,7 @@ export class PrismaRoutineEventAccess extends TenantRepository implements Routin
       !parsed.success ||
       parsed.data.companyId !== companyId ||
       parsed.data.event !== args.event ||
-      parsed.data.record.ref.recordId !== args.entityId
+      parsed.data.data.record.ref.recordId !== args.entityId
     )
       return null;
     return this.records.readEvent({
@@ -178,15 +179,8 @@ export class PrismaRoutineEventAccess extends TenantRepository implements Routin
   }
 
   private eventBody(triggerPayload: unknown): Record<string, unknown> | null {
-    const envelope = this.objectValue(triggerPayload);
-    const payload = envelope?.payload;
-    return payload && typeof payload === "object" && !Array.isArray(payload)
-      ? (payload as Record<string, unknown>)
-      : null;
-  }
-
-  private objectValue(value: unknown): Record<string, unknown> | null {
-    return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+    const envelope = EventEnvelopeSchema.safeParse(triggerPayload);
+    return envelope.success ? envelope.data.data : null;
   }
 
   private stringProperty(value: Record<string, unknown>, key: string): string | null {

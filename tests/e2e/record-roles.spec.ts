@@ -16,7 +16,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");
   await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-  await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await creation.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   expect(typeId).toBeTruthy();
@@ -84,7 +84,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   await openConfigure(page, typeId);
   await page
     .getByRole("region", { name: "General", exact: true })
-    .getByRole("textbox", { name: "Navigation label", exact: true })
+    .getByRole("textbox", { name: "Plural name", exact: true })
     .fill("Initiatives");
   await saveGeneral(page);
   const stale = await page.request.post("/api/v1/roles/delete", {
@@ -117,7 +117,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   expect(
     (
       await database.query(
-        'SELECT COUNT(*)::integer AS count FROM "AuditLog" WHERE "companyId"=$1 AND "entityId"=$2 AND event=\'role.deleted\'',
+        'SELECT COUNT(*)::integer AS count FROM "EventLog" WHERE "companyId"=$1 AND "subjectId"=$2 AND kind=\'role.deleted\'',
         [companyId, roleId],
       )
     ).rows[0].count,

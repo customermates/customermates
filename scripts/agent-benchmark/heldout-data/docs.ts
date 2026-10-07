@@ -54,12 +54,12 @@ export const DOCS_HELDOUT: readonly DocsHeldoutItem[] = [
     docsLocale: "en",
     query: "Somebody wiped a contact yesterday. Where can I find out who it was?",
     slug: "app-company",
-    anchors: ["app-company#audit-logs-tab"],
+    anchors: ["app-company#activity-tab"],
     alternatives: [
       "architecture-security#what-does-the-audit-log-record",
       "architecture-security#who-can-read-the-audit-log-and-where",
     ],
-    fact: "My Company > Audit Logs (/settings/activity) records who changed or deleted which record and when; reading it needs Audit Log read access All or the Admin role.",
+    fact: "My Company > Activity (/settings/activity) records who changed or deleted which record, setting or configuration and when; reading it needs Audit Log read access All or the Admin role.",
   },
   {
     id: "dh-en-04",

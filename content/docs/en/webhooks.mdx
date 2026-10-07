@@ -24,7 +24,7 @@ Webhooks let other systems react to CRM changes without polling.
 | **URL** | Required. The endpoint that receives a `POST` for every subscribed event. A URL entered without a scheme is saved with `https://` in front. |
 | **Description** | Optional, up to 500 characters. Shown in the list. |
 | **Events** | Required. One or more events from the catalog at the end of this page. |
-| **Secret** | Optional, 1 to 256 characters. When set, deliveries carry a signature made with it (see [How do I verify the signature?](#how-do-i-verify-the-signature)). If an older webhook points at the same URL, that webhook's secret applies instead, and without one deliveries go out unsigned (see [What happens when several webhooks use the same URL?](#one-url-one-configuration)). |
+| **Secret** | Optional, 1 to 256 characters. When set, deliveries carry a signature made with it (see [How do I verify the signature?](#how-do-i-verify-the-signature)). |
 | **Custom headers** | Optional. One `Name: value` per line (see [Custom headers and body templates](#custom-headers-and-body-templates)). |
 | **Body template** | Optional JSON document that replaces the standard envelope. |
 | **Enabled** | On by default. A disabled webhook receives no deliveries and keeps its configuration, so you can pause it without deleting it. |
@@ -84,58 +84,54 @@ Every delivery is a `POST` with `Content-Type: application/json` and the same en
 ```json
 {
   "event": "<event-name>",
+  "id": "<event-id>",
+  "timestamp": "<iso-8601>",
+  "companyId": "<workspace>",
+  "actorId": "<who-triggered-it>",
   "data": {
-    "userId": "<who-triggered-it>",
-    "companyId": "<workspace>",
-    "entityId": "<affected-record>",
-    "payload": {
-      /* event-specific */
-    }
-  },
-  "timestamp": "<iso-8601>"
+    /* event-specific */
+  }
 }
 ```
 
-`userId` is the user who caused the write, including a user acting through an API key. For messaging events, which are triggered by inbound provider activity rather than a user action, `userId` is `null`.
+`id` identifies the event: a resend and every retry carry the same `id`, so use it to deduplicate. `actorId` is the user who caused the write, including a user acting through an API key or a routine run by its owner. For messaging events, which are triggered by inbound provider activity rather than a user action, `actorId` is `null`.
 
-For current CRM events, `data.payload` contains a versioned record envelope. The record reference includes both `typeId` and `recordId`, so it remains unambiguous even when a type is renamed. Configure record sources on the webhook to select the types and fields that should trigger delivery.
+For record events, `data` holds the record change: `data.record` with the record reference (`typeId` and `recordId`, unambiguous even when a type is renamed) and the changes, `data.cause` with what caused the write, and `data.causeId`, shared by every event of the same write. Configure record sources on the webhook to select the types and fields that should trigger delivery.
 
 Example, `record.updated` for a contact, with unrelated fields omitted:
 
 ```json
 {
   "event": "record.updated",
+  "id": "<event-id>",
+  "timestamp": "2026-04-22T10:00:00.000Z",
+  "companyId": "<workspace-id>",
+  "actorId": "<actor-user-id>",
   "data": {
-    "userId": "<actor-user-id>",
-    "companyId": "<workspace-id>",
-    "entityId": "<record-id>",
-    "payload": {
-      "version": 2,
-      "event": "record.updated",
-      "record": {
-        "ref": { "typeId": "<contact-type-id>", "recordId": "<record-id>" },
-        "schemaRevision": 3,
-        "beforeVersion": 1,
-        "afterVersion": 2,
-        "fields": [
-          {
-            "fieldId": "<first-name-field-id>",
-            "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
-            "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
-          }
-        ]
-      }
+    "causeId": "<cause-id>",
+    "cause": { "kind": "mutation" },
+    "record": {
+      "ref": { "typeId": "<contact-type-id>", "recordId": "<record-id>" },
+      "schemaRevision": 3,
+      "beforeVersion": 1,
+      "afterVersion": 2,
+      "fields": [
+        {
+          "fieldId": "<first-name-field-id>",
+          "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
+          "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
+        }
+      ]
     }
-  },
-  "timestamp": "2026-04-22T10:00:00.000Z"
+  }
 }
 ```
 
-The actual record envelope also carries IDs, timestamps, cause information, assignments, identities and link changes. Field entries include display metadata and may show `missing`, `restricted`, or `error` instead of a value. Use `POST /api/v1/model/discover` or the `get_record_model` MCP tool to resolve stable type and field IDs.
+The actual record change also carries assignments, identities, link changes and related records. Field entries include display metadata and may show `missing`, `restricted`, or `error` instead of a value. Use `POST /api/v1/model/discover` or the `get_record_model` MCP tool to resolve stable type and field IDs.
 
 ## The `changes` object: changed fields [#the-changes-object]
 
-`record.fields` lists changed fields with `before` and `after` values; `record.links`, `record.assignments`, and `record.identities` describe other changed connections. `record.beforeVersion` and `record.afterVersion` identify the record versions involved. A missing or restricted field is not the same as zero.
+`data.record.fields` lists changed fields with `before` and `after` values; `data.record.links`, `data.record.assignments`, and `data.record.identities` describe other changed connections. `data.record.beforeVersion` and `data.record.afterVersion` identify the record versions involved. A missing or restricted field is not the same as zero.
 
 No-op updates do not produce `record.updated` events. The payload is redacted according to the webhook owner's current record and calculated-field access at delivery time.
 
@@ -150,10 +146,10 @@ Header values and the signing secret are never returned by the REST API or by MC
 **A body template** replaces the standard envelope for endpoints that expect a fixed shape. Write a JSON document and reference envelope values with placeholders:
 
 ```json
-{ "text": "{{event}} for {{data.entityId}}" }
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
-Available placeholders are `{{event}}`, `{{timestamp}}` and any path under `{{data}}`, including `{{data.entityId}}`, `{{data.companyId}}`, `{{data.userId}}` and `{{data.payload}}`. A placeholder must sit inside a JSON string; `{"count": {{data.payload.count}}}` is rejected. A placeholder that resolves to an object is inserted as a JSON string, and a missing path becomes an empty string. Substituted values are escaped, so record content cannot alter the structure of the document.
+Available placeholders are `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` and any path under `{{data}}`, such as `{{data.record.ref.recordId}}` for a record event or `{{data.entityId}}` for a messaging event. A placeholder must sit inside a JSON string; `{"count": {{data.count}}}` is rejected. A placeholder that resolves to an object is inserted as a JSON string, and a missing path becomes an empty string. Substituted values are escaped, so record content cannot alter the structure of the document.
 
 The template may be up to 8,192 characters and must produce a JSON object. It is checked when you save the webhook. A delivery whose template fails to render, or whose rendered body is longer than 131,072 characters, is recorded as failed rather than sent and is not retried. The signature is always computed over the body actually sent, so verify it against the rendered body rather than the envelope.
 
@@ -162,12 +158,6 @@ The template may be up to 8,192 characters and must produce a JSON object. It is
 Deliveries are recorded with the event payload rather than the rendered body, so **Event Details** shows the event that fired and not the exact bytes sent.
 
 **Link:** `/settings/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`; in an open **Webhook** dialog `webhook-modal-headers` and `webhook-modal-body-template` highlight **Custom headers** and **Body template**, read-only without **Edit** on **API & Webhooks**.
-
-### What happens when several webhooks use the same URL? [#one-url-one-configuration]
-
-When several webhooks in the same workspace point at the same URL, disabled ones included, every delivery to that URL is signed with the secret of the oldest of them, or sent unsigned if that one has no secret, because the secret, the headers and the body template are matched to a delivery by workspace and URL, not by webhook. If any of them carries headers or a body template, every delivery to that URL fails with status code 422 and is not retried, including deliveries from the webhook that has no overrides. Give each subscription its own URL, by adding a path or a query string, before adding a secret, headers or a template.
-
-**Link:** `/settings/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`; the rows are not highlight targets, so Mate names them.
 
 ## How do I send to Slack, Discord or n8n?
 
@@ -199,7 +189,7 @@ anthropic-version: 2023-06-01
 ```
 
 ```json
-{ "text": "{{event}} for {{data.entityId}}" }
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
 The endpoint reads only `text` and ignores every other field, so the template is required; without it the routine starts with no context. Every delivery starts a separate run against your routine allowance, and a retry starts another, so subscribe to the narrowest set of events that does the job.
@@ -211,7 +201,7 @@ Post to a channel with an incoming webhook. The URL carries the authentication, 
 Use the incoming webhook URL from **Slack → Apps → Incoming Webhooks**.
 
 ```json
-{ "text": "{{event}} for {{data.entityId}}" }
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
 ### Discord
@@ -221,7 +211,7 @@ The same shape under a different key.
 Use the webhook URL from **Channel → Edit Channel → Integrations → Webhooks**.
 
 ```json
-{ "content": "{{event}} for {{data.entityId}}" }
+{ "content": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
 ### n8n
@@ -246,7 +236,7 @@ If the webhook has a **Secret**, every request includes:
 X-Webhook-Signature: <hex>
 ```
 
-`<hex>` is `HMAC-SHA256(secret, rawRequestBody)`, lowercase hex, no prefix. Recompute it on your side and compare in constant time. When several webhooks share a URL, the secret of the oldest one applies, as described under [What happens when several webhooks use the same URL?](#one-url-one-configuration).
+`<hex>` is `HMAC-SHA256(secret, rawRequestBody)`, lowercase hex, no prefix. Recompute it on your side and compare in constant time.
 
 Node.js example:
 
@@ -263,13 +253,13 @@ function verify(rawBody: string, received: string, secret: string) {
 
 Customermates retries a failed delivery automatically, up to 10 attempts in total with a growing pause of at most one hour between them, for timeouts, network errors, 5xx responses and 408, 425 and 429; other 4xx responses, such as 400, 401, 403, 404 and 422, are not retried, because a repeat would fail the same way. Every delivery is recorded on **My Company › Recent Deliveries** (`/settings/webhooks/deliveries`) and through `manage_webhooks` with `action: "list_deliveries"`. The page lists the newest deliveries first with their **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. The search box matches the event and the URL, and the filters cover the event, the URL and the creation date. Delivery records are not deleted automatically; they are kept as long as the workspace exists.
 
-Click a row to open **Event Details**. It shows the status (**Pending** until the first attempt finishes, then **Delivered** or **Failed**), **URL**, **Event**, **Element**, **Created At**, **Status Code**, **Response Message** and the **Event payload**. A messaging event's payload is shown as it was sent. A record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record.
+Click a row to open **Event Details**. It shows the status (**Pending** until the first attempt finishes, then **Delivered** or **Failed**), **URL**, **Event**, **Element**, **Created At**, **Status Code**, **Response Message** and the **Event payload**. Every delivery is read from its event: a messaging event's payload is shown as it was sent, and a record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record.
 
-A delivery is marked failed if the HTTP status is outside the 2xx range, the request times out, or no response arrives. The request timeout is 5 seconds. A delivery also fails before any request is sent, with status code 422, when its URL is shared with another webhook and one of them carries headers or a template, when headers would go to an address that does not allow them, or when the body template cannot be rendered.
+A delivery is marked failed if the HTTP status is outside the 2xx range, the request times out, or no response arrives. The request timeout is 5 seconds. A delivery also fails before any request is sent, with status code 422, when headers would go to an address that does not allow them or when the body template cannot be rendered.
 
 Retries happen inside the delivery run, so they do not create extra delivery records; each record shows the latest outcome, so it can show **Failed** while retries are still pending and change to **Delivered** when one succeeds.
 
-You can also resend a delivery yourself. In **Event Details**, the circular-arrows icon (**Resend**) appears at the top once the delivery is **Delivered** or **Failed**, for roles with **Create** on **API & Webhooks**. Through MCP, use `manage_webhooks` with `action: "resend_delivery"` plus the delivery id. A resend creates a new delivery record for the same webhook and sends it with the webhook's current URL, secret, headers and template; the original is unchanged. A messaging event is resent with its stored body. A record event is read again with the webhook owner's current access; only that owner or an administrator can resend it, and the resend is refused when the webhook's record sources changed since the original delivery. The webhook must still exist, be enabled and subscribe to the event; a delivery of a retired type-specific event cannot be resent.
+You can also resend a delivery yourself. In **Event Details**, the circular-arrows icon (**Resend**) appears at the top once the delivery is **Delivered** or **Failed**, for roles with **Create** on **API & Webhooks**. Through MCP, use `manage_webhooks` with `action: "resend_delivery"` plus the delivery id. A resend creates a new delivery record for the same webhook and sends it with the webhook's current URL, secret, headers and template; the original is unchanged. A messaging event is resent from its stored event. A record event is read again with the webhook owner's current access; only that owner or an administrator can resend it, and the resend is refused when the webhook's record sources changed since the original delivery. The webhook must still exist, be enabled and subscribe to the event; a delivery of a retired type-specific event cannot be resent.
 
 **Link:** `/settings/webhooks/deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks` (highlightable only while **My Company** is expanded, which it is by default on its own pages unless the member collapsed it); `company-webhook-deliveries-search` and `company-webhook-deliveries-filter` highlight the search box and the filters. `company-webhook-deliveries-display-options` highlights the display options, and `company-webhook-deliveries-layout-table` and `company-webhook-deliveries-layout-board` the layout controls inside them (open display options first). Once the user has opened a delivery row, `webhook-delivery-modal-resend` highlights the **Resend** icon in **Event Details** (roles with **Create**, only on delivered and failed deliveries); the rows and the rest of the dialog are not highlight targets, so Mate names them.
 
@@ -283,7 +273,7 @@ The `notes` field in payloads is Tiptap JSON, the same structure the editor stor
 
 ## What do delete payloads contain?
 
-For `record.deleted`, `data.payload` is a version 2 record envelope with the qualified `record.ref`, authorized before-values and removed relationships. Its `afterVersion` is null. Source filters match immediately before removal, while the owner’s current access is checked again before delivery. The record ID also appears as `data.entityId`; use the qualified reference when joining CRM data.
+For `record.deleted`, `data.record` carries the qualified `ref`, the authorized before-values and the removed relationships. Its `afterVersion` is null. Source filters match immediately before removal, while the owner’s current access is checked again before delivery.
 
 ## How do I debug a delivery?
 
@@ -299,11 +289,11 @@ A webhook can subscribe to [[derived.webhooks.events.total]] events: [[derived.w
 
 ### Record events
 
-| Event | When it fires | `payload` |
+| Event | When it fires | `data` |
 | --- | --- | --- |
-| `record.created` | A record of a configured source type is created | version 2 record envelope |
-| `record.updated` | A field, assignment, identity, or link changes on a configured source type | version 2 record envelope with before/after changes |
-| `record.deleted` | A record of a configured source type is deleted | version 2 record envelope |
+| `record.created` | A record of a configured source type is created | the record change with its after-values |
+| `record.updated` | A field, assignment, identity, or link changes on a configured source type | the record change with before/after values |
+| `record.deleted` | A record of a configured source type is deleted | the record change with its before-values |
 
 The following type-specific identifiers are retired. They are kept only so older configurations and delivery records stay readable; they cannot be selected for a webhook or routine, and no change emits them. Replace them with a generic event and a record source.
 
@@ -327,7 +317,7 @@ The following type-specific identifiers are retired. They are kept only so older
 
 ### Messaging events
 
-Messaging events fire on inbound provider activity on connected accounts. The **Events** list offers them in every workspace, but they fire only where connected accounts exist, which requires Cloud and a plan that includes messaging. `userId` is `null`. Payloads reference provider records by id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId`, and similar) rather than embedding CRM records.
+Messaging events fire on inbound provider activity on connected accounts. The **Events** list offers them in every workspace, but they fire only where connected accounts exist, which requires Cloud and a plan that includes messaging. `actorId` is `null`. `data` references provider records by id (`entityId` for the affected message, thread, calendar, calendar event or relation, plus `connectedAccountId`, `provider`, `providerMessageId`, `threadId`, and similar) rather than embedding CRM records. A messaging event is kept only while a webhook or an event routine subscribes to it.
 
 | Event | When it fires |
 | --- | --- |
