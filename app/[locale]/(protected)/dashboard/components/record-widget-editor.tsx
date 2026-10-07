@@ -30,7 +30,8 @@ import { discoverWidgetRecordTypesAction, previewRecordWidgetAction } from "../a
 import { isRecordWidgetForm } from "./record-widget-form";
 import { browserTimeZone } from "./widget-time-zone";
 import { RecordWidgetCard } from "./record-widget-card";
-import { WidgetEditorColumns, WidgetEditorSection, WidgetPreviewSkeleton } from "./widget-editor-layout";
+import { WidgetEditorColumns, WidgetPreviewSkeleton } from "./widget-editor-layout";
+import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { cn } from "@/core/utils/cn";
 import { recordFilterFields } from "@/features/records/record-filter";
@@ -268,15 +269,14 @@ export const RecordWidgetEditor = observer(
         )}
       </div>
     );
+    const filterCount =
+      measure.source.filters.length +
+      measure.source.relationships.length +
+      (measure.source.relatedFilters?.length ?? 0);
     const filtersContent = (
       <div className="space-y-4">
-        <h3 className="text-sm font-medium" id="widget-entity-filters-heading">
-          {t("Dashboard.widgetEditor.tabs.filtersLabel", {
-            count:
-              measure.source.filters.length +
-              measure.source.relationships.length +
-              (measure.source.relatedFilters?.length ?? 0),
-          })}
+        <h3 className="sr-only" id="widget-entity-filters-heading">
+          {t("Dashboard.widgetEditor.tabs.filtersLabel", { count: filterCount })}
         </h3>
 
         <FormInput id="measure.source.search" label={t("RecordWidgets.search")} />
@@ -481,17 +481,42 @@ export const RecordWidgetEditor = observer(
       <WidgetEditorColumns
         preview={<section id="widget-config-preview">{previewContent}</section>}
         settings={
-          <>
-            {settingsHeader}
+          <EditorTabs
+            contentClassName="space-y-4 pt-4"
+            label={t("Dashboard.widgetEditor.settings")}
+            tabs={[
+              {
+                id: "data",
+                label: t("Dashboard.widgetEditor.tabs.data"),
+                fields: [
+                  "name",
+                  "measure.source.typeId",
+                  "measure.aggregation",
+                  "measure.valueFieldId",
+                  "measure.groupBy",
+                ],
+                content: (
+                  <>
+                    {settingsHeader}
 
-            <WidgetEditorSection id="widget-config-data" title={t("Dashboard.widgetEditor.tabs.data")}>
-              {dataContent}
-            </WidgetEditorSection>
-
-            <section id="widget-config-filters">{filtersContent}</section>
-
-            {typeof appearance === "function" ? appearance(model) : appearance}
-          </>
+                    {dataContent}
+                  </>
+                ),
+              },
+              {
+                id: "filters",
+                label: t("Dashboard.widgetEditor.tabs.filtersLabel", { count: filterCount }),
+                fields: ["measure.source.filters", "measure.source.relatedFilters", "measure.groupBy.filter"],
+                content: <section id="widget-config-filters">{filtersContent}</section>,
+              },
+              {
+                id: "appearance",
+                label: t("Dashboard.widgetEditor.tabs.appearance"),
+                fields: ["displayOptions", "isTemplate"],
+                content: typeof appearance === "function" ? appearance(model) : appearance,
+              },
+            ]}
+          />
         }
       />
     );

@@ -611,9 +611,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     } else await route.fallback();
   });
   await select(page, '[id="measure.source.typeId"]', "Services");
-  const schemaRetry = dialog
-    .locator("#widget-config-filters")
-    .getByRole("button", { name: english.ErrorCard.retry, exact: true });
+  const schemaRetry = dialog.getByRole("button", { name: english.ErrorCard.retry, exact: true });
   await expect(schemaRetry).toBeVisible();
   await schemaRetry.click();
   await expect(schemaRetry).toHaveCount(0);
@@ -622,6 +620,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   await select(page, "#widget-group-path", "Line items");
   await select(page, "#widget-group-path", "Deal");
   await select(page, "#widget-group-field", "Stage");
+  await dialog.getByRole("tab", { name: english.Dashboard.widgetEditor.tabs.appearance, exact: true }).click();
   await expect(
     dialog.getByRole("switch", {
       name: english.Common.inputs.displayOptions.useGroupColors,
@@ -642,6 +641,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     })
     .check();
   await expect(dialog.getByRole("button", { name: "Colors", exact: true })).toHaveCount(0);
+  await dialog.getByRole("tab", { name: english.Dashboard.widgetEditor.tabs.data, exact: true }).click();
   await expectChartPreview(page, "€10.00", { New: "€5.00", Won: "€12.50" });
   await expect(dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true })).toBeEnabled();
   previewFault = true;
@@ -1292,10 +1292,11 @@ test("retains readable list content after a failed refresh and retries the empty
   expect(completedSave.eof).toBeGreaterThan(0);
   expect(
     (
-      await database.query(
-        'SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
-        [companyId, workspace.userId, surfaceKey],
-      )
+      await database.query('SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
+        companyId,
+        workspace.userId,
+        surfaceKey,
+      ])
     ).rows,
   ).toEqual([{ searchTerm: name }]);
   await page.unrouteAll({ behavior: "wait" });

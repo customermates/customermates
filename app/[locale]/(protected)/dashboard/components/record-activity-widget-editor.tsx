@@ -23,7 +23,8 @@ import { resolveSearchReferencesAction } from "../../search/actions";
 import { getMessagingThreadsAction } from "../../inbox/actions";
 import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordActivityWidgetForm } from "./record-widget-form";
-import { WidgetEditorColumns, WidgetEditorSection } from "./widget-editor-layout";
+import { WidgetEditorColumns } from "./widget-editor-layout";
+import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { RecordActivityWidgetCard } from "./record-activity-widget-card";
 import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activity-timeline-skeleton";
@@ -412,15 +413,30 @@ export const RecordActivityWidgetEditor = observer(
       <WidgetEditorColumns
         preview={<section id="widget-config-preview">{previewContent}</section>}
         settings={
-          <>
-            {settingsHeader}
+          <EditorTabs
+            contentClassName="space-y-4 pt-4"
+            label={t("Dashboard.widgetEditor.settings")}
+            tabs={[
+              {
+                id: "data",
+                label: t("Dashboard.widgetEditor.tabs.data"),
+                fields: ["name", "activityQuery"],
+                content: (
+                  <>
+                    {settingsHeader}
 
-            <WidgetEditorSection id="widget-config-data" title={t("Dashboard.widgetEditor.tabs.data")}>
-              {dataContent}
-            </WidgetEditorSection>
-
-            {appearance}
-          </>
+                    {dataContent}
+                  </>
+                ),
+              },
+              {
+                id: "appearance",
+                label: t("Dashboard.widgetEditor.tabs.appearance"),
+                fields: ["displayOptions", "isTemplate"],
+                content: appearance,
+              },
+            ]}
+          />
         }
       />
     );

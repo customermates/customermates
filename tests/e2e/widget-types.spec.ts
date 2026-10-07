@@ -248,6 +248,10 @@ async function selectOption(page: Page, label: string, option: string) {
   await page.getByRole("option", { name: option, exact: true }).click();
 }
 
+async function showTab(page: Page, name: "Data" | "Appearance") {
+  await page.getByRole("dialog").getByRole("tab", { name, exact: true }).click();
+}
+
 async function startChart(page: Page, name: string, source: string) {
   const dialog = page.getByRole("dialog");
   await page.locator("#dashboard-add-widget").click();
@@ -327,13 +331,16 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
     await page.getByRole("option", { name: "Value", exact: true }).click();
     const type = (displayType: string) => dialog.locator(`[id="display-type-${displayType}"]`);
+    await showTab(page, "Appearance");
     await expect(type("number")).toBeEnabled();
     for (const displayType of ["areaChart", "rankedTable", "funnelChart"])
       await expect(type(displayType)).toBeDisabled();
     await expect(dialog.locator('label[for="display-type-areaChart"]')).toContainText(
       "Group by a date field and choose a time interval.",
     );
+    await showTab(page, "Data");
     await selectOption(page, "Group by", "Stage");
+    await showTab(page, "Appearance");
     await expect(type("number")).toBeDisabled();
     await expect(dialog.locator('label[for="display-type-number"]')).toContainText(
       "Set Group by to No grouping to show one number.",
@@ -341,8 +348,10 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await expect(type("funnelChart")).toBeEnabled();
     await expect(type("rankedTable")).toBeEnabled();
     await expect(type("areaChart")).toBeDisabled();
+    await showTab(page, "Data");
     await expect(dialog.getByRole("combobox", { name: "Time interval", exact: true })).toHaveCount(0);
     await selectOption(page, "Group by", "No grouping");
+    await showTab(page, "Appearance");
     await type("number").check();
     await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
     await expect(dialog.locator('[data-slot="widget-number"]')).toContainText(money(total));
@@ -364,6 +373,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await startChart(page, "Deals closed", "Deals");
     await selectOption(page, "Group by", "Close date");
     await selectOption(page, "Time interval", "Month");
+    await showTab(page, "Appearance");
     await dialog.locator('[id="display-type-areaChart"]').check();
     await save(page);
     const saved = await readWidget(database, companyId, "Deals closed");
@@ -413,6 +423,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
     await page.getByRole("option", { name: "Value", exact: true }).click();
     await selectOption(page, "Group by", "Each record");
+    await showTab(page, "Appearance");
     await dialog.locator('[id="display-type-rankedTable"]').check();
     await save(page);
     expect((await readWidget(database, companyId, "Deal ranking")).displayOptions.displayType).toBe("rankedTable");
@@ -431,6 +442,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
   await test.step("order forward stage steps with conversion and keep the lost stage outside", async () => {
     await startChart(page, "Stage funnel", "Deals");
     await selectOption(page, "Group by", "Stage");
+    await showTab(page, "Appearance");
     await dialog.locator('[id="display-type-funnelChart"]').check();
     await save(page);
     const saved = await readWidget(database, companyId, "Stage funnel");
@@ -496,6 +508,7 @@ test("adds every starter template resolved against the model and keeps them edit
     await expect(dialog.locator("#widget-gallery-heading")).toHaveText("Recommended for your data");
     await dialog.locator(`#widget-gallery-${template.key}`).click();
     await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(template.name);
+    await showTab(page, "Appearance");
     await expect(dialog.locator(`[id="display-type-${template.displayType}"]`)).toBeChecked();
     await save(page);
     expect((await readWidget(database, companyId, template.name)).displayOptions.displayType).toBe(

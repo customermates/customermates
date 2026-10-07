@@ -8,10 +8,7 @@ export const WIDGET_EDITOR_GRID_CLASS =
 export function WidgetEditorColumns({ preview, settings }: { preview: ReactNode; settings: ReactNode }) {
   return (
     <div className={WIDGET_EDITOR_GRID_CLASS} data-widget-editor="split">
-      <div
-        className="min-w-0 space-y-6 [&>section]:border-t [&>section]:border-border [&>section]:pt-6"
-        data-slot="widget-editor-settings"
-      >
+      <div className="flex min-w-0 flex-col" data-slot="widget-editor-settings">
         {settings}
       </div>
 
@@ -33,17 +30,5 @@ export function WidgetPreviewSkeleton() {
         ))}
       </div>
     </div>
-  );
-}
-
-export function WidgetEditorSection({ children, id, title }: { children: ReactNode; id: string; title: string }) {
-  return (
-    <section aria-labelledby={`${id}-heading`} className="space-y-4" id={id}>
-      <h3 className="text-sm font-medium" id={`${id}-heading`}>
-        {title}
-      </h3>
-
-      {children}
-    </section>
   );
 }
