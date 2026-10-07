@@ -47,6 +47,7 @@ export function chatUiCopy(t: ChatTranslator) {
     loadOlderMessages: t("AgentChat.ui.loadOlderMessages"),
     loadingChat: t("AgentChat.ui.loadingChat"),
     loadingOlderMessages: t("AgentChat.ui.loadingOlderMessages"),
+    moreActions: (name: string) => t("AgentChat.ui.moreActions", { name }),
     newChat: t("AgentChat.ui.newChat"),
     noChats: t("AgentChat.ui.noChats"),
     noChatsBody: t("AgentChat.ui.noChatsBody"),

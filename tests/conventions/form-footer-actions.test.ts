@@ -180,8 +180,6 @@ const NOT_YET_MIGRATED: Record<string, Rule[]> = {
     "footer-primitive",
     "submit-button",
   ],
-  "app/[locale]/(protected)/operator/components/users/operator-user-modal.tsx": ["save-label"],
-  "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx": ["save-label"],
   "app/components/navigation/sidebar-customize.tsx": ["overlay-footer"],
   "app/[locale]/(protected)/configure/components/activity-path-modal.tsx": ["archive-switch"],
   "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["save-label", "legacy-footer"],
