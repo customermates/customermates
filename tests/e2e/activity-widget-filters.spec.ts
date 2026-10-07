@@ -10,10 +10,7 @@ import {
 } from "../../features/records/record-query.schema";
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { addFromConfigure, openConfigure, openConfigureRow, saveDrawer, setShowArchivedParts } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-
-const labels = englishMessages.RecordModel;
 
 async function model(database: Client, companyId: string): Promise<RecordModel> {
   const result = await database.query(
@@ -37,8 +34,23 @@ async function mutation(page: Page, current: RecordModel, change: RecordMutation
   return result;
 }
 
-async function applyPath(page: Page) {
-  await saveDrawer(page);
+async function showContactMessagesOnOrganizations(page: Page, database: Client, companyId: string, shown: boolean) {
+  const current = await model(database, companyId);
+  const relationship = current.relationships.find(
+    (relationship) => relationship.id === presetId(companyId, "contact.organizations"),
+  );
+  if (!relationship) throw new Error("Expected preset organization contacts relationship");
+  const response = await page.request.post("/api/v1/model/apply", {
+    data: {
+      expectedRevision: current.revision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "putRelationship", relationship: { ...relationship, messagesOnTarget: shown } }],
+    },
+  });
+  expect(response.status(), await response.text()).toBe(200);
+  expect(
+    (await model(database, companyId)).relationships.find((candidate) => candidate.id === relationship.id),
+  ).toMatchObject({ messagesOnSource: false, messagesOnTarget: shown });
 }
 
 async function chooseMultiple(page: Page, selector: string, value: string) {
@@ -84,7 +96,7 @@ async function todayBound(page: Page, key: "after" | "before", time: string) {
   await expect(calendar).toHaveCount(0);
 }
 
-test("configures an activity path and applies provider, channel, conversation and date filters to a persisted widget", async ({
+test("shows contact messages on organizations and applies provider, channel, conversation and date filters to a persisted widget", async ({
   page,
   database,
   companyId,
@@ -100,39 +112,13 @@ test("configures an activity path and applies provider, channel, conversation an
   });
   const organizationTypeId = presetId(companyId, "organization");
   const contactTypeId = presetId(companyId, "contact");
-  await openConfigure(page, organizationTypeId);
   const dialog = page.locator(
     ':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"],[data-overlay-surface="sheet"])[role="dialog"]',
   );
-  const seedModel = await model(database, companyId);
-  const seededPath = seedModel.activityPaths.find(
-    (path) => path.typeId === organizationTypeId && path.label === "Contacts",
-  );
-  if (!seededPath) throw new Error("Expected preset contact activity path");
-  await openConfigureRow(page, "Activity connections", seededPath.label);
-  await dialog.locator("#archived").check();
-  await applyPath(page);
-  const pathName = "Configured client conversations";
-  await addFromConfigure(page, "Activity connection");
-  await dialog.locator("#label").fill(pathName);
-  await dialog.getByRole("combobox", { name: labels.addPathStep, exact: true }).click();
-  await page.getByRole("option", { name: "Contacts", exact: true }).click();
-  await dialog.locator("#includeAudit").uncheck();
-  await expect(dialog.locator("#includeMessages")).toBeChecked();
-  await applyPath(page);
   const current = await model(database, companyId);
-  const configured = current.activityPaths.find(
-    (path) => path.typeId === organizationTypeId && path.label === pathName,
-  );
-  if (!configured) throw new Error("Expected UI-created activity path");
-  expect(configured).toMatchObject({
-    typeId: organizationTypeId,
-    path: [{ relationId: presetId(companyId, "contact.organizations"), direction: "incoming" }],
-    includeMessages: true,
-    includeAudit: false,
-    archived: false,
-  });
-  expect(current.activityPaths.find((path) => path.id === seededPath.id)?.archived).toBe(true);
+  expect(
+    current.relationships.find((relationship) => relationship.id === presetId(companyId, "contact.organizations")),
+  ).toMatchObject({ messagesOnSource: false, messagesOnTarget: true });
   const organization = (
     await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [
       companyId,
@@ -338,35 +324,11 @@ test("configures an activity path and applies provider, channel, conversation an
   else await expect(selectedInboxRow).toBeVisible();
   await returnToDashboard();
   await page.screenshot({ path: testInfo.outputPath("activity-message-inbox-return.png"), fullPage: true });
-  await openConfigure(page, organizationTypeId);
-  await openConfigureRow(page, "Activity connections", pathName);
-  await dialog.locator("#includeMessages").uncheck();
-  await dialog.locator("#includeAudit").check();
-  await dialog.locator("#archived").check();
-  await applyPath(page);
-  expect((await model(database, companyId)).activityPaths.find((path) => path.id === configured.id)).toMatchObject({
-    includeMessages: false,
-    includeAudit: true,
-    archived: true,
-  });
+  await showContactMessagesOnOrganizations(page, database, companyId, false);
   await page.goto("/en/dashboard");
   await expect(card.getByText(englishMessages.Dashboard.activityWidget.noMatches, { exact: true })).toBeVisible();
   await expect(card.getByText(selectedBody, { exact: true })).toHaveCount(0);
-  await openConfigure(page, organizationTypeId);
-  await setShowArchivedParts(page, true);
-  await openConfigureRow(page, "Activity connections", pathName);
-  await expect(dialog.locator("#archived")).not.toBeChecked();
-  await expect(dialog.locator("#includeMessages")).not.toBeChecked();
-  await expect(dialog.locator("#includeAudit")).toBeChecked();
-  await dialog.locator("#includeMessages").check();
-  await dialog.locator("#includeAudit").uncheck();
-  await applyPath(page);
-  expect((await model(database, companyId)).activityPaths.find((path) => path.id === configured.id)).toMatchObject({
-    id: configured.id,
-    includeMessages: true,
-    includeAudit: false,
-    archived: false,
-  });
+  await showContactMessagesOnOrganizations(page, database, companyId, true);
   await page.goto("/en/dashboard");
   await expect(card.getByText(selectedBody, { exact: true })).toBeVisible();
   const unchangedWidget = (

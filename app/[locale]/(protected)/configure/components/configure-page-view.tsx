@@ -24,7 +24,6 @@ import { Button } from "@/components/ui/button";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 
 import { discoverRecordTypesAction } from "../../records/actions";
-import { ActivityPathModal, ActivityPathModalStore } from "./activity-path-modal";
 import { ConfigureTopBarActions } from "./configure-actions";
 import { ConfigureListPane } from "./configure-list-pane";
 import { DataModelStore } from "./data-model.store";
@@ -126,20 +125,16 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const [relationModal] = useState(
     () => new RelationshipModalStore(root, initialModel, refresh, canPublishSummary, store.hydrate),
   );
-  const [activityModal] = useState(
-    () => new ActivityPathModalStore(root, initialModel, refresh, canPublishSummary, store.hydrate),
-  );
   useEffect(() => {
-    for (const modal of [typeModal, general, fieldModal, relationModal, activityModal])
-      modal.setCanRenewSummaries(canPublishSummary);
-  }, [canPublishSummary, typeModal, general, fieldModal, relationModal, activityModal]);
+    for (const modal of [typeModal, general, fieldModal, relationModal]) modal.setCanRenewSummaries(canPublishSummary);
+  }, [canPublishSummary, typeModal, general, fieldModal, relationModal]);
   useEffect(() => {
-    const stores = [typeModal, fieldModal, relationModal, activityModal];
+    const stores = [typeModal, fieldModal, relationModal];
     for (const modal of stores) root.registerModalStore(modal);
     return () => {
       for (const modal of stores) root.unregisterModalStore(modal);
     };
-  }, [root, typeModal, fieldModal, relationModal, activityModal]);
+  }, [root, typeModal, fieldModal, relationModal]);
 
   const consumedCreate = useRef(false);
   useEffect(() => {
@@ -218,9 +213,8 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (kind === "calculation")
         fieldModal.edit(model, selected.id, null, { behavior: "formula", valueType: "number" });
       if (kind === "relationship") relationModal.edit(model, selected.id);
-      if (kind === "activity") activityModal.edit(model, selected.id);
     },
-    [activityModal, fieldModal, model, relationModal, selected, typeModal],
+    [fieldModal, model, relationModal, selected, typeModal],
   );
   const topBar = useMemo(
     () => (
@@ -300,10 +294,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             model={model}
             selected={selected}
             showArchived={showArchived}
-            onEditActivity={(path) => {
-              activityModal.edit(model, selected.id, path);
-              if (path.archived) activityModal.onChange("archived", false);
-            }}
             onEditField={(field) => {
               fieldModal.edit(model, selected.id, field);
               if (field.archived) fieldModal.onChange("archived", false);
@@ -358,8 +348,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       <FieldModal store={fieldModal} onDeleted={fieldDeleted} />
 
       <RelationshipModal store={relationModal} />
-
-      <ActivityPathModal store={activityModal} />
     </div>
   );
 });

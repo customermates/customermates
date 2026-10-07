@@ -175,7 +175,6 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
               fields,
               relationships,
               capabilities: model.capabilities.filter((binding) => binding.typeId === type.id),
-              activityPaths: [],
               accessPresets: policy.canManageSchema ? model.accessPresets : [],
             },
             canManageSchema: policy.canManageSchema,

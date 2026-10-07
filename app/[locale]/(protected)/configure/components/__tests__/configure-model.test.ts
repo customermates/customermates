@@ -39,7 +39,7 @@ describe("configure lists", () => {
 });
 
 describe("configure list details", () => {
-  it("counts active fields, relationships and activity connections", () => {
+  it("counts active fields and relationships", () => {
     const model = createCrmPreset(company);
     const counts = configureCounts(model, id("deal"));
     expect(counts.fields).toBe(model.fields.filter((field) => field.typeId === id("deal")).length);
@@ -48,7 +48,6 @@ describe("configure list details", () => {
       model.relationships.filter((relation) => [relation.sourceTypeId, relation.targetTypeId].includes(id("deal")))
         .length + (deal?.relationshipPaths?.length ?? 0),
     );
-    expect(counts.activity).toBe(model.activityPaths.filter((path) => path.typeId === id("deal")).length);
   });
 
   it("describes calculated fields by their source list", () => {
@@ -60,10 +59,10 @@ describe("configure list details", () => {
     expect(sources).toContainEqual({ kind: "input" });
   });
 
-  it("names the lists an activity path passes through", () => {
+  it("names the lists a relationship path passes through", () => {
     const model = createCrmPreset(company);
-    const path = model.activityPaths.find((path) => path.typeId === id("organization") && path.path.length > 0);
-    if (path) expect(configurePathLists(model, id("organization"), path.path).length).toBe(path.path.length);
+    const path = model.types.find((type) => type.id === id("deal"))?.relationshipPaths?.[0];
+    expect(path && configurePathLists(model, id("deal"), path.path)).toEqual(["Line items", "Services"]);
     expect(configurePathLists(model, id("deal"), [])).toEqual([]);
   });
 });

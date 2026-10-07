@@ -35,8 +35,6 @@ export function configurationActivity(
         return operation.preset.label;
       case "putCapability":
         return typeLabel(operation.capability.typeId);
-      case "putActivityPath":
-        return `${typeLabel(operation.activityPath.typeId)} · ${operation.activityPath.label}`;
       case "publishSummary":
         return fieldLabel(operation.fieldId);
       case "setTypeGrants":

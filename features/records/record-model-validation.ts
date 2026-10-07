@@ -367,23 +367,6 @@ export function validateRecordModel(model: RecordModel): {
       }
     }
   }
-  for (const activity of model.activityPaths) {
-    if (activity.archived) continue;
-    let typeId = activity.typeId;
-    if (!types.has(typeId) || types.get(typeId)?.archived) issues.push({ code: "activity_requires_type", typeId });
-    for (const step of activity.path) {
-      const relation = relations.get(step.relationId);
-      const outgoing = step.direction === "outgoing";
-      if (!relation || relation.archived || (outgoing ? relation.sourceTypeId : relation.targetTypeId) !== typeId) {
-        issues.push({
-          code: "invalid_activity_path",
-          relationId: step.relationId,
-        });
-        break;
-      }
-      typeId = outgoing ? relation.targetTypeId : relation.sourceTypeId;
-    }
-  }
   for (const field of model.fields) {
     if (field.multiple && !["text", "email", "phone", "url"].includes(field.valueType))
       issues.push({ code: "invalid_multiple_value_type", fieldId: field.id });

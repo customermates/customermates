@@ -82,16 +82,5 @@ export function createWorkspaceRecordPreset(companyId: string, t: (key: string) 
     if (!type.defaults.columns.includes(field.id)) type.defaults.columns.push(field.id);
     type.defaults.groupBy = field.id;
   }
-  for (const path of model.activityPaths) {
-    const last = path.path.at(-1);
-    const relationship = model.relationships.find((relation) => relation.id === last?.relationId);
-    const typeId =
-      relationship && last
-        ? last.direction === "outgoing"
-          ? relationship.targetTypeId
-          : relationship.sourceTypeId
-        : path.typeId;
-    path.label = recordInvariant(labels.get(typeId)).plural;
-  }
   return model;
 }

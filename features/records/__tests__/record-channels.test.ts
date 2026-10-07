@@ -52,18 +52,9 @@ describe("configurable Channels capability", () => {
     expect(validateRecordModel(model).issues).toContainEqual({ code: "duplicate_channels_capability", typeId });
   });
 
-  it("allows explicit conversation paths on ordinary types and confines channel options to Channels", () => {
+  it("keeps ordinary types without Channels and confines channel options to Channels", () => {
     const model = createCrmPreset(companyId);
     const typeId = presetId(companyId, "deal");
-    model.activityPaths.push({
-      id: operationId,
-      typeId,
-      label: "Deal conversations",
-      path: [],
-      includeMessages: true,
-      includeAudit: true,
-      archived: false,
-    });
     expect(recordChannelsEnabled(model, typeId)).toBe(false);
     expect(validateRecordModel(model).issues).toEqual([]);
     const avatar = model.capabilities.find((binding) => binding.kind === "avatar");

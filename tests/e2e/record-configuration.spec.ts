@@ -125,7 +125,7 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
   expect(errors).toEqual([]);
 });
 
-test("edits a linear calculation and restores archived fields, activity connections and a list", async ({
+test("edits a linear calculation and restores archived fields and a list", async ({
   page,
   database,
   companyId,
@@ -207,23 +207,6 @@ test("edits a linear calculation and restores archived fields, activity connecti
     archived: false,
     behavior: doubled?.behavior,
   });
-  await openConfigureRow(page, "Activity connections", name);
-  await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
-  await applyConfiguration(page);
-  await expect(configureRow(page, "Activity connections", name)).toContainText("Archived");
-  await openConfigureRow(page, "Activity connections", name);
-  await expect(dialog.getByRole("switch", { name: "Archive connection", exact: true })).not.toBeChecked();
-  await applyConfiguration(page);
-  expect((await readModel(database, companyId)).activityPaths.find((path) => path.typeId === typeId)).toMatchObject({
-    label: name,
-    archived: false,
-    path: [],
-    includeAudit: true,
-    includeMessages: false,
-  });
-  await openConfigureRow(page, "Activity connections", name);
-  await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
-  await applyConfiguration(page);
   await openListAction(page, "Archive list");
   await applyConfiguration(page);
   await openConfigure(page);

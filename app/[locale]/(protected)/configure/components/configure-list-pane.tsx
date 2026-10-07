@@ -33,8 +33,6 @@ import { configureCounts, configureFieldSource, configurePathLists } from "./con
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { TypeSettingsFields } from "./type-modal";
 
-type ActivityPath = RecordModel["activityPaths"][number];
-
 type Props = {
   model: RecordModel;
   selected: RecordType;
@@ -47,7 +45,6 @@ type Props = {
   onEditField: (field: RecordField) => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onEditRelationshipPath: (path: RecordRelationshipPath) => void;
-  onEditActivity: (path: ActivityPath) => void;
 };
 
 function ConfigureGroup({
@@ -199,7 +196,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   onEditField,
   onEditRelationship,
   onEditRelationshipPath,
-  onEditActivity,
 }: Props) {
   const t = useTranslations();
   const dndId = useId();
@@ -225,17 +221,13 @@ export const ConfigureListPane = observer(function ConfigureListPane({
       (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
   );
   const paths = (selected.relationshipPaths ?? []).filter((path) => !path.archived || showArchived);
-  const activity = model.activityPaths.filter(
-    (path) => path.typeId === selected.id && (!path.archived || showArchived),
-  );
   const hasArchivedParts =
     model.fields.some((field) => field.typeId === selected.id && field.archived) ||
     model.relationships.some(
       (relation) =>
         relation.archived && (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
     ) ||
-    (selected.relationshipPaths ?? []).some((path) => path.archived) ||
-    model.activityPaths.some((path) => path.typeId === selected.id && path.archived);
+    (selected.relationshipPaths ?? []).some((path) => path.archived);
   const listStatus = selected.archived
     ? t("RecordModel.archived")
     : !selected.embedded && !selected.navigationVisible
@@ -363,36 +355,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                         label={path.label}
                         status={path.archived ? t("RecordModel.archived") : null}
                         onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                empty
-              )}
-            </ConfigureGroup>
-          ),
-        },
-        {
-          id: "activity",
-          label: t("RecordModel.activityConnections"),
-          content: (
-            <ConfigureGroup
-              description={t("RecordModel.activityConnectionsHelp")}
-              title={t("RecordModel.activityConnections")}
-            >
-              {activity.length ? (
-                <ul className="divide-y divide-border">
-                  {activity.map((path) => (
-                    <li key={path.id}>
-                      <ConfigureRow
-                        detail={
-                          configurePathLists(model, selected.id, path.path).join(" → ") || t("RecordModel.thisList")
-                        }
-                        interactive={interactive}
-                        label={path.label}
-                        status={path.archived ? t("RecordModel.archived") : null}
-                        onOpen={canManage ? () => onEditActivity(path) : undefined}
                       />
                     </li>
                   ))}

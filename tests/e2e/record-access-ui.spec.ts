@@ -2760,6 +2760,8 @@ test("keeps retained values restricted after a delegated manager converts fields
           targetCardinality: "many",
           onSourceDelete: "unlink",
           onTargetDelete: "unlink",
+          messagesOnSource: false,
+          messagesOnTarget: false,
           archived: false,
         },
       },
@@ -3146,16 +3148,6 @@ test("keeps retained values restricted after a delegated manager converts fields
     await manager.page.getByRole("dialog").locator("#archived").check();
     await applyUi();
     await openConfigure(manager.page, sourceType.id);
-    await openConfigureRow(
-      manager.page,
-      "Activity connections",
-      sourceType.pluralLabel,
-    );
-    await manager.page
-      .getByRole("dialog")
-      .getByRole("switch", { name: "Archive connection", exact: true })
-      .check();
-    await applyUi();
     await openListAction(manager.page, "Archive list");
     await applyUi();
     model = await readModel(page);

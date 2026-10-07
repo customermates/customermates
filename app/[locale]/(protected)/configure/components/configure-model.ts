@@ -53,7 +53,6 @@ export function configureCounts(model: RecordModel, typeId: string) {
       model.relationships.filter(
         (relation) => !relation.archived && (relation.sourceTypeId === typeId || relation.targetTypeId === typeId),
       ).length + (type?.relationshipPaths ?? []).filter((path) => !path.archived).length,
-    activity: model.activityPaths.filter((path) => path.typeId === typeId && !path.archived).length,
   };
 }
 
@@ -96,9 +95,6 @@ export function archiveListOperations(
 ): ConfigurationChange["operations"] {
   const archivedTypes = new Set(model.types.filter((type) => type.archived).map((type) => type.id));
   return [
-    ...model.activityPaths
-      .filter((path) => path.typeId === typeId && path.archived !== archived)
-      .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived } })),
     ...model.relationships
       .filter(
         (relation) =>

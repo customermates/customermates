@@ -126,18 +126,6 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
                 fields: model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
                 relationships,
                 capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
-                activityPaths: model.activityPaths.filter(
-                  (path) =>
-                    ids.has(path.typeId) &&
-                    path.path.every((step) =>
-                      model.relationships.some(
-                        (relation) =>
-                          relation.id === step.relationId &&
-                          accessible.has(relation.sourceTypeId) &&
-                          accessible.has(relation.targetTypeId),
-                      ),
-                    ),
-                ),
                 accessPresets: [],
               },
             },

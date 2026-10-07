@@ -36,6 +36,8 @@ const empty = () => ({
   targetCardinality: "many" as "one" | "many",
   onSourceDelete: "unlink" as "unlink" | "restrict" | "cascade",
   onTargetDelete: "unlink" as "unlink" | "restrict" | "cascade",
+  messagesOnSource: false,
+  messagesOnTarget: false,
   archived: false,
 });
 export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof empty>> {

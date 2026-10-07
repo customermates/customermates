@@ -349,7 +349,7 @@ Without threadId, filter and paginate accessible inbox threads; with threadId, r
 
 #### `get_activities`
 
-Activity timeline for accessible record references (`typeId` and `recordId`) or types, using declared activity paths. Combine typed inclusion, exclusion and presence filters for records, source kinds, providers, accounts and conversations; also filter by time range. Tenant, record, and inbox permissions apply to every path and source. The result contains `items`, `availableSources`, and an opaque-position `nextCursor`; pass that cursor unchanged to load older entries. The default limit is 25, maximum 100. Legacy entity scopes, page numbers, and entity-specific filters are rejected.
+Activity timeline for accessible record references (`typeId` and `recordId`) or types, including messages of directly linked records where a relationship shows them. Combine typed inclusion, exclusion and presence filters for records, source kinds, providers, accounts and conversations; also filter by time range. Tenant, record, and inbox permissions apply to every record and source. The result contains `items`, `availableSources`, and an opaque-position `nextCursor`; pass that cursor unchanged to load older entries. The default limit is 25, maximum 100. Legacy entity scopes, page numbers, and entity-specific filters are rejected.
 
 **Read-only.** Optional: `scope`, `kinds`, `providers`, `threadIds`, `after`, `before`, `filters`, `cursor`, `limit`.
 

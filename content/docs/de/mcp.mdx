@@ -351,7 +351,7 @@ Ohne threadId zugängliche Inbox-Threads filtern und seitenweise lesen; mit thre
 
 #### `get_activities`
 
-Aktivitäts-Timeline für zugängliche Datensatzreferenzen (`typeId` und `recordId`) oder Typen entlang konfigurierter Aktivitätspfade. Typisierte Ein-, Ausschluss- und Anwesenheitsfilter für Datensätze, Quelltypen, Anbieter, Kanäle und Unterhaltungen kombinieren sowie nach Zeitraum filtern. Mandanten-, Datensatz- und Postfachberechtigungen gelten für jeden Pfad und jede Quelle. Das Ergebnis enthält `items`, `availableSources` und `nextCursor`; diesen Cursor unverändert zum Laden älterer Einträge übergeben. Standardlimit: 25, Maximum: 100. Alte Entitätsumfänge, Seitennummern und entitätsspezifische Filter werden abgelehnt.
+Aktivitäts-Timeline für zugängliche Datensatzreferenzen (`typeId` und `recordId`) oder Typen, einschließlich der Nachrichten direkt verknüpfter Datensätze, wenn eine Beziehung sie anzeigt. Typisierte Ein-, Ausschluss- und Anwesenheitsfilter für Datensätze, Quelltypen, Anbieter, Kanäle und Unterhaltungen kombinieren sowie nach Zeitraum filtern. Mandanten-, Datensatz- und Postfachberechtigungen gelten für jeden Datensatz und jede Quelle. Das Ergebnis enthält `items`, `availableSources` und `nextCursor`; diesen Cursor unverändert zum Laden älterer Einträge übergeben. Standardlimit: 25, Maximum: 100. Alte Entitätsumfänge, Seitennummern und entitätsspezifische Filter werden abgelehnt.
 
 **Nur lesend.** Optional: `scope`, `kinds`, `providers`, `threadIds`, `after`, `before`, `filters`, `cursor`, `limit`.
 

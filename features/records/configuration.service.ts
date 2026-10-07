@@ -108,7 +108,6 @@ function removeArchivedDefinitions(
   model.fields = model.fields.filter((field) => !fieldIds.has(field.id));
   model.relationships = model.relationships.filter((relation) => !relationIds.has(relation.id));
   model.capabilities = model.capabilities.filter((binding) => !typeIds.has(binding.typeId));
-  model.activityPaths = model.activityPaths.filter((path) => !typeIds.has(path.typeId) && !crosses(path.path));
   const issues: ModelIssue[] = [];
   for (const field of model.fields) {
     if (field.behavior.kind === "input") continue;
@@ -183,7 +182,6 @@ export class RecordConfigurationService extends UserAccessor {
       if (operation.operation === "putRelationship") register(operation.relationship.id);
       if (operation.operation === "putAccessPreset") register(operation.preset.id);
       if (operation.operation === "putCapability") register(operation.capability.id);
-      if (operation.operation === "putActivityPath") register(operation.activityPath.id);
     }
     for (const operation of input.operations) {
       if (operation.operation === "createType") {
@@ -312,15 +310,6 @@ export class RecordConfigurationService extends UserAccessor {
             position: required ? 0 : 1,
           });
         }
-        model.activityPaths.push({
-          id: deterministicId(this.companyId, `activities:${id}:self`),
-          typeId: id,
-          label: operation.pluralLabel,
-          path: [],
-          includeMessages: false,
-          includeAudit: true,
-          archived: false,
-        });
         if (operation.accessPresetId) {
           const preset = model.accessPresets.find(
             (preset) => preset.id === resolve(operation.accessPresetId ?? "") && !preset.archived,
@@ -390,26 +379,7 @@ export class RecordConfigurationService extends UserAccessor {
         )
           throw new RecordWriteError(CustomErrorCode.recordProtected, "authorization");
         upsert(model.capabilities, binding);
-        if (binding.kind === "channels" && binding.enabled !== false && (!existing || existing.enabled === false)) {
-          const selfId = deterministicId(this.companyId, `activities:${binding.typeId}:self`);
-          const self = model.activityPaths.find((path) => path.id === selfId);
-          const type = model.types.find((type) => type.id === binding.typeId);
-          if (self) self.includeMessages = true;
-          else if (type) {
-            model.activityPaths.push({
-              id: selfId,
-              typeId: type.id,
-              label: type.pluralLabel,
-              path: [],
-              includeMessages: true,
-              includeAudit: true,
-              archived: false,
-            });
-          }
-        }
       }
-      if (operation.operation === "putActivityPath")
-        upsert(model.activityPaths, resolveDefinition(operation.activityPath) as RecordModel["activityPaths"][number]);
     }
     const removed = input.operations.some(
       (operation) => operation.operation === "deleteType" || operation.operation === "deleteField",

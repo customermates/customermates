@@ -21,6 +21,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
+import { recordChannelsEnabled } from "../record-channels";
 
 vi.mock("@/env", () => ({
   env: {
@@ -1079,6 +1080,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             targetCardinality: "many",
             onSourceDelete: "unlink",
             onTargetDelete: "unlink",
+            messagesOnSource: false,
+            messagesOnTarget: false,
             archived: false,
           },
         },
@@ -1181,12 +1184,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.configure.invoke({
           expectedRevision: current.revision,
           idempotencyKey: randomUUID(),
-          operations: [
-            { operation: "putType", type: { ...targetType, archived: true } },
-            ...current.activityPaths
-              .filter((path) => path.typeId === target.typeId)
-              .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived: true } })),
-          ],
+          operations: [{ operation: "putType", type: { ...targetType, archived: true } }],
         }),
       ),
     ).toMatchObject({ ok: true });
@@ -2632,6 +2630,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                 targetCardinality: "many",
                 onSourceDelete: "unlink",
                 onTargetDelete: "cascade",
+                messagesOnSource: false,
+                messagesOnTarget: false,
                 archived: false,
               },
             },
@@ -5368,9 +5368,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(configured, JSON.stringify(configured)).toMatchObject({ ok: true });
     const model = await f.run(() => f.repo.getModel());
     const type = recordInvariant(model.types.find((type) => type.pluralLabel === "Projects"));
-    expect(
-      model.activityPaths.some((path) => path.typeId === type.id && path.includeAudit && path.path.length === 0),
-    ).toBe(true);
     const created = await f.mutation(
       {
         action: "create",
@@ -6029,9 +6026,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           ...archivableModel.capabilities
             .filter((binding) => binding.kind === "channels" && binding.typeId === archivableType.id)
             .map((binding) => ({ operation: "putCapability" as const, capability: { ...binding, enabled: false } })),
-          ...archivableModel.activityPaths
-            .filter((path) => path.typeId === archivableType.id)
-            .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived: true } })),
         ],
       }),
     );
@@ -6128,9 +6122,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect((await resolve())[0].records[0]?.ref).toEqual(ref);
     expect((await f.readRecord(ref)).identities?.[0]?.id).toBe(identityId);
-    expect((await f.run(() => f.repo.getModel())).activityPaths).toEqual(
-      expect.arrayContaining([expect.objectContaining({ typeId, path: [], includeMessages: true })]),
-    );
+    expect(recordChannelsEnabled(await f.run(() => f.repo.getModel()), typeId)).toBe(true);
     const membership = recordInvariant(
       f.model.capabilities.find((binding) => binding.kind === "membershipAuthorization"),
     );
@@ -11789,6 +11781,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             targetCardinality: "many",
             onSourceDelete: "unlink",
             onTargetDelete: "restrict",
+            messagesOnSource: false,
+            messagesOnTarget: false,
             archived: false,
           },
         },
@@ -12410,6 +12404,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               targetCardinality: "many",
               onSourceDelete: "unlink",
               onTargetDelete: "unlink",
+              messagesOnSource: false,
+              messagesOnTarget: false,
               archived: false,
             },
           },
@@ -12800,12 +12796,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             operation: "putRelationship",
             relationship: { ...relation, archived: true },
           },
-          ...model.activityPaths
-            .filter((path) => path.typeId === sourceType.id)
-            .map((activityPath) => ({
-              operation: "putActivityPath" as const,
-              activityPath: { ...activityPath, archived: true },
-            })),
         ],
       };
       expect(await f.run(() => f.preview.invoke(change), manager)).toMatchObject({ ok: true, data: { valid: true } });
@@ -13015,7 +13005,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).rejects.toThrow();
   });
 
-  it("uses declared multi-hop activity paths without crossing record, account or folder access", async () => {
+  it("shows directly linked records' messages per relationship switch without crossing record, account or folder access", async () => {
     const f = await fixture();
     const created = await f.mutation({
       action: "create",
@@ -13037,7 +13027,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     if (!created.ok || created.data.status !== "completed") throw new Error("Person fixture failed");
     const person = recordInvariant(created.data.refs[0]);
-    const service = await f.create("service", "Service");
     const deal = await f.create(
       "deal",
       "Deal",
@@ -13050,25 +13039,18 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       ],
     );
-    for (const name of ["First", "Second"]) {
-      await f.create(
-        "lineItem",
-        name,
-        [],
-        [
-          {
-            relationId: f.id("lineItem.deal"),
-            direction: "outgoing",
-            record: deal,
-          },
-          {
-            relationId: f.id("lineItem.service"),
-            direction: "outgoing",
-            record: service,
-          },
-        ],
-      );
-    }
+    const organization = await f.create(
+      "organization",
+      "Organization",
+      [],
+      [{ relationId: f.id("contact.organizations"), direction: "incoming", record: person }],
+    );
+    const task = await f.create(
+      "task",
+      "Task",
+      [],
+      [{ relationId: f.id("task.contacts"), direction: "outgoing", record: person }],
+    );
     const account = await f.run(() =>
       prisma.connectedAccount.create({
         data: {
@@ -13184,8 +13166,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     await f.run(() =>
       runInTransaction(async () => {
-        await f.repo.setGrants(service.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
-        await f.repo.setGrants(person.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
+        for (const ref of [deal, organization, task])
+          await f.repo.setGrants(ref.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
         await prisma.rolePermission.create({
           data: {
             companyId: f.company.id,
@@ -13197,7 +13179,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     const request: Partial<RecordActivitiesInput> = {
-      scope: { records: [service], typeIds: [] },
+      scope: { records: [deal], typeIds: [] },
       kinds: ["message", "activity", "calendar_event"],
     };
     expect(await f.timeline(request, f.member)).toMatchObject({
@@ -13205,7 +13187,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: { items: [] },
     });
     await f.run(() =>
-      runInTransaction(() => f.repo.setGrants(deal.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+      runInTransaction(() => f.repo.setGrants(person.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
     );
     const visible = await f.timeline(request, f.member);
     if (!visible.ok) throw new Error(JSON.stringify(visible.error));
@@ -13220,6 +13202,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       },
     });
     expect(JSON.stringify(visible.data)).not.toContain("cached-secret");
+    const ids = async (ref: RecordRef) => {
+      const result = await f.timeline({ ...request, scope: { records: [ref], typeIds: [] } }, f.member);
+      if (!result.ok) throw new Error(JSON.stringify(result.error));
+      return result.data.items.map((entry) => entry.id).sort();
+    };
+    expect(await ids(organization)).toEqual([message.id, meeting.id, socialActivity.id].sort());
+    expect(await ids(task)).toEqual([]);
     const filtered = async (filters: NonNullable<RecordActivitiesInput["filters"]>) => {
       const result = await f.timeline({ ...request, filters }, f.member);
       if (!result.ok) throw new Error(JSON.stringify(result.error));
@@ -13429,10 +13418,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     const current = await f.run(() => f.repo.getModel());
     const changed = structuredClone(current);
-    const path = recordInvariant(
-      changed.activityPaths.find((path) => path.typeId === service.typeId && path.includeMessages),
+    const relationship = recordInvariant(
+      changed.relationships.find((relationship) => relationship.id === f.id("deal.contacts")),
     );
-    path.archived = true;
+    relationship.messagesOnSource = false;
     await f.run(() =>
       runInTransaction(() => f.repo.saveModel({ ...changed, revision: current.revision + 1 }, f.admin.id)),
     );
@@ -15597,6 +15586,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             targetCardinality: "many",
             onSourceDelete: "unlink",
             onTargetDelete: "unlink",
+            messagesOnSource: false,
+            messagesOnTarget: false,
             archived: false,
           },
         },
@@ -15673,9 +15664,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             },
             { operation: "putType", type: { ...projectType, archived: true } },
             { operation: "putRelationship", relationship: { ...relation, archived: true } },
-            ...model.activityPaths
-              .filter((path) => path.typeId === projectTypeId)
-              .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived: true } })),
           ],
         }),
       ),
@@ -15710,7 +15698,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(after.types.some((type) => type.id === projectTypeId)).toBe(false);
     expect(after.relationships.some((item) => item.id === relationId)).toBe(false);
     expect(after.fields.some((field) => field.typeId === projectTypeId || field.id === rollupId)).toBe(false);
-    expect(after.activityPaths.some((path) => path.typeId === projectTypeId)).toBe(false);
     expect(
       await f.run(() =>
         Promise.all([
@@ -15872,6 +15859,8 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
               targetCardinality: "many",
               onSourceDelete: "unlink",
               onTargetDelete: "unlink",
+              messagesOnSource: false,
+              messagesOnTarget: false,
               archived: false,
             },
           },
@@ -16416,6 +16405,8 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
               targetCardinality: "many",
               onSourceDelete: "unlink",
               onTargetDelete: "unlink",
+              messagesOnSource: false,
+              messagesOnTarget: false,
               archived: false,
             },
           },

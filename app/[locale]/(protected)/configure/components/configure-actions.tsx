@@ -6,7 +6,6 @@ import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
 import {
-  Activity,
   Archive,
   ArchiveRestore,
   Calculator,
@@ -33,7 +32,7 @@ import {
 
 import { useDefinitionDeletion } from "./use-definition-deletion";
 
-export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "activity";
+export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship";
 
 type Props = {
   ai: ReactNode;
@@ -169,12 +168,6 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
               <Link2 aria-hidden="true" />
 
               {t("RecordModel.addMenu.relationship")}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem onSelect={() => onAdd("activity")}>
-              <Activity aria-hidden="true" />
-
-              {t("RecordModel.addMenu.activityConnection")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

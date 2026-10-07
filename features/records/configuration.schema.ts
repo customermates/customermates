@@ -9,7 +9,6 @@ import {
   RecordRelationshipSchema,
   RecordAccessPresetSchema,
   RecordCapabilitySchema,
-  RecordActivityPathSchema,
   RecordGrantSchema,
   ExpressionBudgetSchema,
   RecordGroupSummaryDefinitionSchema,
@@ -254,25 +253,6 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                       })
                       .strict(),
                   ),
-                }),
-              })
-              .strict(),
-            z
-              .object({
-                operation: z.literal("putActivityPath"),
-                activityPath: RecordActivityPathSchema.extend({
-                  id: ConfigurationReferenceSchema,
-                  typeId: ConfigurationReferenceSchema,
-                  path: z
-                    .array(
-                      z
-                        .object({
-                          relationId: ConfigurationReferenceSchema,
-                          direction: z.enum(["incoming", "outgoing"]),
-                        })
-                        .strict(),
-                    )
-                    .max(6),
                 }),
               })
               .strict(),
