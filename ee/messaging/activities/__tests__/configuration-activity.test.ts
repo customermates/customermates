@@ -48,6 +48,28 @@ describe("configurationActivity", () => {
     ]);
   });
 
+  it("names a permanently deleted Channels field by its list from the model before the deletion", () => {
+    const before = {
+      types: [{ id: "type-contacts", pluralLabel: "Contacts" }],
+      fields: [],
+      capabilities: [{ id: "capability-channels", kind: "channels", typeId: "type-contacts", enabled: false }],
+    } as unknown as RecordModel;
+    const after = { ...before, capabilities: [] } as unknown as RecordModel;
+    const deletion = {
+      references: [],
+      source: { kind: "configuration" },
+      configuration: { operations: [{ operation: "deleteCapability", capabilityId: "capability-channels" }] },
+      grants: [],
+    } as unknown as RecordRevisionChange;
+
+    expect(configurationActivity(deletion, [after, before], ROLES).changes).toEqual([
+      { field: "deleteCapability", snapshot: true, previous: undefined, current: "Contacts" },
+    ]);
+    expect(configurationActivity(deletion, [after], ROLES).changes.map((change) => change.current)).toEqual([
+      "capability-channels",
+    ]);
+  });
+
   it("names a permanently deleted type and field from the model before the deletion", () => {
     const before = {
       types: [{ id: "type-projects", pluralLabel: "Projects" }],
