@@ -16,10 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toLocalIso } from "@/components/forms/iso-date-values";
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { toChipColor } from "@/constants/chip-colors";
-import { Currency } from "@/generated/prisma";
 import { getUsersAction } from "../../company/actions";
 import {
   expressionAt,
@@ -41,6 +39,7 @@ export const CalculationInput = observer(function CalculationInput({
   path = "expression",
   behavior,
   literalOnly = false,
+  currency,
 }: {
   model: RecordModel;
   typeId: string;
@@ -49,10 +48,10 @@ export const CalculationInput = observer(function CalculationInput({
   path?: string;
   behavior?: "input" | "formula" | "lookup" | "rollup" | "snapshot";
   literalOnly?: boolean;
+  currency: string;
 }) {
   const t = useTranslations();
   const form = useAppForm();
-  const { companyStore } = useRootStore();
   const disabled = form?.isDisabled ?? false;
   const [selection, setSelection] = useState<ExpressionPath>([]);
   const selected = expressionAt(value, selection);
@@ -126,7 +125,7 @@ export const CalculationInput = observer(function CalculationInput({
       return {
         kind: "decimal",
         value: "0",
-        currency: kind === "currency" ? (companyStore.company?.currency ?? Currency.eur).toUpperCase() : null,
+        currency: kind === "currency" ? currency.toUpperCase() : null,
       };
     }
     if (kind === "boolean") return { kind, value: false };

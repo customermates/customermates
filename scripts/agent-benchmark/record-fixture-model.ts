@@ -66,7 +66,7 @@ export function benchmarkRecordModel(
   companyId: string,
   declarations: readonly BenchmarkFieldDeclaration[],
 ): RecordModel {
-  const model = createCrmPreset(companyId, "eur");
+  const model = createCrmPreset(companyId);
   const stageId = presetId(companyId, "deal.stage");
   model.fields = model.fields.filter((field) => field.id !== stageId);
   for (const type of model.types) {

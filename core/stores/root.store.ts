@@ -5,9 +5,7 @@ import { AuditLogModalStore } from "@/app/[locale]/(protected)/company/component
 import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs.store";
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/company/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/company/components/company-invite/invite-by-email.store";
-import { CompanySettingsStore } from "@/app/[locale]/(protected)/company/components/company-settings/company-settings.store";
 import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
-import { CompanyStore } from "@/app/[locale]/(protected)/company/components/company.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { RoleModalStore } from "@/app/[locale]/(protected)/company/components/role/role-modal.store";
 import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/roles.store";
@@ -71,7 +69,6 @@ export class RootStore {
   private _connectedAccountsStore?: ConnectedAccountsStore;
   private _connectedAccountModalStore?: ConnectedAccountModalStore;
   private _connectUpsellModalStore?: ConnectUpsellModalStore;
-  private _companyStore?: CompanyStore;
   private _messagingThreadsStore?: MessagingThreadsStore;
   private _messagingThreadDetailStore?: MessagingThreadDetailStore;
   private _threadComposeStore?: ThreadComposeStore;
@@ -91,8 +88,6 @@ export class RootStore {
   private _operatorUsersStore?: OperatorUsersStore;
   private _operatorAuditStore?: OperatorAuditStore;
   private _operatorWorkspacesStore?: OperatorWorkspacesStore;
-
-  private _companySettingsStore?: CompanySettingsStore;
   private _sidebarLayoutStore?: SidebarLayoutStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
   private _verifyEmailStore?: VerifyEmailStore;
@@ -160,10 +155,6 @@ export class RootStore {
 
   get localeStore() {
     return (this._localeStore ??= new LocaleStore(this));
-  }
-
-  get companyStore() {
-    return (this._companyStore ??= new CompanyStore(this));
   }
 
   get usersStore() {
@@ -264,10 +255,6 @@ export class RootStore {
 
   get signUpStore() {
     return (this._signUpStore ??= new SignUpStore(this));
-  }
-
-  get companySettingsStore() {
-    return (this._companySettingsStore ??= new CompanySettingsStore(this));
   }
 
   get sidebarLayoutStore() {

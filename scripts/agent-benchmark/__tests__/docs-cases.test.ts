@@ -28,7 +28,7 @@ const ANSWERS: Record<(typeof DOCS_CASE_IDS)[number], { pass: string[]; fail: st
     fail: ["It stays open for 24 hours."],
   },
   D6: {
-    pass: ["Unter Mein Unternehmen > Einstellungen im Feld Währung.", "Öffnen Sie /company/settings."],
+    pass: ["Jedes Geldfeld hat seine eigene Währung, unter Konfigurieren am Feld.", "Öffnen Sie /configure."],
     fail: ["In Ihrem Profil unter Sprache."],
   },
   D7: {

@@ -20,7 +20,6 @@ const domTestFiles = [
   "components/ai-elements/__tests__/message-links.test.ts",
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
   "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",
-  "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-view.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-outline.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-editor.test.ts",

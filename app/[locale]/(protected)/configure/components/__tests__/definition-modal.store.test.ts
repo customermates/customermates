@@ -16,11 +16,7 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn()
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
-const root = {
-  registerModalStore: vi.fn(),
-  companyStore: { company: { currency: "EUR" } },
-  localeStore: { locale: "en" },
-} as unknown as RootStore;
+const root = { registerModalStore: vi.fn(), localeStore: { locale: "en" } } as unknown as RootStore;
 
 function validate(operations: unknown) {
   return ConfigurationChangeSchema.parse({ expectedRevision: 1, idempotencyKey: crypto.randomUUID(), operations });
@@ -28,7 +24,7 @@ function validate(operations: unknown) {
 
 describe("configuration modal contracts", () => {
   it("restores archived types and fields through ordinary preview operations without replacing definitions", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const type = recordInvariant(model.types.find((type) => type.id === id("organization")));
     const field = recordInvariant(
       model.fields.find((field) => field.typeId === type.id && field.id !== type.primaryFieldId),
@@ -54,7 +50,7 @@ describe("configuration modal contracts", () => {
     });
   });
   it("restores archived relationships and activity paths with stable ids and endpoint metadata", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const relation = recordInvariant(model.relationships[0]);
     relation.archived = true;
     const relationStore = new RelationshipModalStore(root, model, vi.fn());
@@ -77,7 +73,7 @@ describe("configuration modal contracts", () => {
     });
   });
   it("preserves and edits generic option metadata while retaining explicit zero probability", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const field = recordInvariant(model.fields.find((field) => field.id === id("deal.stage")));
     const option = recordInvariant(field.options[0]);
     option.attributes = [
@@ -99,7 +95,7 @@ describe("configuration modal contracts", () => {
     ]);
   });
   it("round trips a deeply composed seeded calculation unchanged", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const field = recordInvariant(model.fields.find((field) => field.id === id("deal.weightedValue")));
     const store = new FieldModalStore(root, model, vi.fn());
     store.edit(model, id("deal"), field);
@@ -107,7 +103,7 @@ describe("configuration modal contracts", () => {
     expect(operation.operation === "putField" && operation.field.behavior).toEqual(field.behavior);
   });
   it("edits activity paths without dropping relationship directions or auditing choices", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const path = recordInvariant(
       model.activityPaths.find((path) => path.typeId === id("organization") && path.path.length),
     );
@@ -121,7 +117,7 @@ describe("configuration modal contracts", () => {
     });
   });
   it("creates an explicit self activity path with both supported sources", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new ActivityPathModalStore(root, model, vi.fn());
     store.edit(model, id("organization"));
     store.onChange("label", "Direct activities");
@@ -140,7 +136,7 @@ describe("configuration modal contracts", () => {
 
 describe("field value defaults and typed snapshot triggers", () => {
   it("distinguishes an absent Boolean default from an explicitly false default", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new FieldModalStore(root, model, vi.fn());
     store.edit(model, id("organization"), null);
     store.onChange("label", "Confirmed");
@@ -158,7 +154,7 @@ describe("field value defaults and typed snapshot triggers", () => {
     expect(operation.operation === "putField" && operation.field.behavior).toEqual({ kind: "input" });
   });
   it("preserves zero and exact decimal defaults, then clears incompatible local defaults when type changes", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new FieldModalStore(root, model, vi.fn());
     store.edit(model, id("organization"), null);
     store.onChange("label", "Budget");
@@ -181,7 +177,7 @@ describe("field value defaults and typed snapshot triggers", () => {
     expect(store.form.defaultValue).toBeUndefined();
   });
   it("round trips Boolean, date-range and rich-text snapshot trigger values without string coercion", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const base = recordInvariant(model.fields.find((field) => field.id === id("deal.name")));
     const cases = [
       { type: "boolean" as const, value: { kind: "boolean" as const, value: false } },
@@ -215,7 +211,7 @@ describe("field value defaults and typed snapshot triggers", () => {
 
 describe("field summary publication previews", () => {
   function setup(admin: boolean) {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const completed = vi.fn().mockResolvedValue(undefined);
     const configuredRoot = {
       ...root,
@@ -331,7 +327,7 @@ describe("field summary publication previews", () => {
 
 describe("field decimal display formatting", () => {
   it("round trips precision, supports zero and clearing, and retains exact defaults and unrelated formatting", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const field = recordInvariant(model.fields.find((field) => field.id === id("service.amount")));
     field.format = { ...field.format, decimalPlaces: 3, color: "success" };
     field.behavior = { kind: "input", defaultValue: { kind: "decimal", value: "19.876500000125", currency: "EUR" } };
@@ -354,7 +350,7 @@ describe("field decimal display formatting", () => {
     });
   });
   it.each(["0", "30"])("accepts the backend's integer formatting boundary %s", (precision) => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new FieldModalStore(root, model, vi.fn());
     store.edit(model, id("organization"), null);
     store.onChange("label", "Formatted amount");
@@ -368,7 +364,7 @@ describe("field decimal display formatting", () => {
   it.each(["-1", "31", "1.5", "invalid"])(
     "rejects invalid formatting precision %s without rounding it",
     (precision) => {
-      const model = createCrmPreset(company, "EUR");
+      const model = createCrmPreset(company);
       const store = new FieldModalStore(root, model, vi.fn());
       store.edit(model, id("organization"), null);
       store.onChange("label", "Formatted amount");
@@ -379,7 +375,7 @@ describe("field decimal display formatting", () => {
     },
   );
   it("drops numeric display formatting when the field changes to a nonnumeric value type", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const field = recordInvariant(model.fields.find((field) => field.id === id("service.amount")));
     field.format = { ...field.format, decimalPlaces: 4 };
     const store = new FieldModalStore(root, model, vi.fn());
@@ -400,7 +396,7 @@ describe("configuration form validation feedback", () => {
       vi.mocked(previewRecordConfigurationAction).mockClear();
       vi.mocked(applyRecordConfigurationAction).mockClear();
       vi.mocked(toastZodErrorTree).mockClear();
-      const model = createCrmPreset(company, "EUR");
+      const model = createCrmPreset(company);
       const store = new FieldModalStore(root, model, vi.fn());
       store.edit(model, id("organization"), null);
       store.onChange("label", "Formatted amount");

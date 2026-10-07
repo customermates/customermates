@@ -29,9 +29,7 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
   onSubmit = async () => this.apply(false);
   apply = async (clear: boolean) => {
     if (this.isReadOnly || this.isLoading) return;
-    const value = clear
-      ? null
-      : recordInputValue(toJS(this.form.value), this.field, this.rootStore.companyStore.company?.currency ?? "EUR");
+    const value = clear ? null : recordInputValue(toJS(this.form.value), this.field);
     if (value !== null) {
       const parsed = RecordScalarSchema.safeParse(value);
       if (!parsed.success) {

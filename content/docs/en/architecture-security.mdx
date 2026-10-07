@@ -93,7 +93,7 @@ The published self-hosted image sets no error reporting address and turns off Ne
 
 ## What does the audit log record?
 
-Changes to records and to the workspace configuration around them are logged with the user, the event, the element id and the payload. Updates to records, roles, webhooks, custom fields, routines and connected accounts carry a field-level diff. Creates, deletes and member or company-settings saves carry a snapshot instead, which is written even when nothing changed. User registrations, record exports and accepted legal documents are recorded as well. A failed write leaves no entry. The audit log is included on every cloud plan and in the self-hosted edition alike.
+Changes to records and to the workspace configuration around them are logged with the user, the event, the element id and the payload. Updates to records, roles, webhooks, custom fields, routines and connected accounts carry a field-level diff. Creates, deletes and member saves carry a snapshot instead, which is written even when nothing changed. User registrations, record exports and accepted legal documents are recorded as well. A failed write leaves no entry. The audit log is included on every cloud plan and in the self-hosted edition alike.
 
 **Link:** the **Audit Logs** page, `/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; the rows are not highlight targets, so Mate names them.
 

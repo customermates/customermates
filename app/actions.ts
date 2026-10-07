@@ -12,7 +12,6 @@ import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
 
 import {
   getDeleteDataViewInteractor,
-  getGetCompanySettingsInteractor,
   getGetDataViewsInteractor,
   getGetP13nInteractor,
   getSaveDataViewStateInteractor,
@@ -21,10 +20,6 @@ import {
   getUpsertP13nInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
-
-export async function getCompanySettingsAction() {
-  return serializeResult(getGetCompanySettingsInteractor().invoke());
-}
 
 export async function upsertP13nAction(data: UpsertP13nData) {
   return serializeResult(getUpsertP13nInteractor().invoke(data));
