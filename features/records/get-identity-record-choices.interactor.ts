@@ -93,13 +93,7 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
             : [];
           const createTypes = bindings.flatMap((binding) => {
             const type = model.types.find((type) => type.id === binding.typeId);
-            if (
-              !type ||
-              type.embedded ||
-              !policy.allowed(type.id, "create") ||
-              (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn"))
-            )
-              return [];
+            if (!type || type.embedded || !policy.allowed(type.id, "create") || !policy.canReadType(type.id)) return [];
             const fields = model.fields.filter((field) => field.typeId === type.id && !field.archived);
             const primary = fields.find((field) => field.id === type.primaryFieldId);
             const named =
@@ -140,11 +134,7 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
               schemaRevision: model.revision,
               canManage:
                 createTypes.length > 0 ||
-                typeIds.some(
-                  (typeId) =>
-                    policy.allowed(typeId, "update") &&
-                    (policy.allowed(typeId, "readAll") || policy.allowed(typeId, "readOwn")),
-                ),
+                typeIds.some((typeId) => policy.allowed(typeId, "update") && policy.canReadType(typeId)),
             },
           };
         } catch (error) {

@@ -3428,8 +3428,8 @@
     "create": "Erstellen",
     "delete": "Löschen",
     "edit": "Bearbeiten",
+    "general": "Allgemein",
     "manageAccess": "Verwalten",
-    "no": "Nein",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
     "readAccess": "Lesen",
     "readAll": "Alle",
@@ -3442,14 +3442,9 @@
       "api": "API & Webhooks",
       "auditLog": "Audit-Log",
       "company": "Unternehmen",
-      "contacts": "Kontakte",
       "dataModel": "Datenmodell",
-      "deals": "Deals",
       "inboxMessages": "Inbox-Nachrichten",
-      "organizations": "Organisationen",
       "routines": "Routinen",
-      "services": "Services",
-      "tasks": "Aufgaben",
       "users": "Benutzer & Rollen",
       "wiki": "Wissensdatenbank"
     },
@@ -3457,7 +3452,7 @@
     "systemDescription": "Voller Zugriff auf alle Funktionen und Einstellungen. Kann nicht geändert oder gelöscht werden.",
     "systemName": "Admin",
     "title": "Rolle",
-    "yes": "Ja"
+    "workspacePermissions": "Workspace"
   },
   "RolesCard": {
     "custom": "Benutzerdefiniert",

@@ -7,7 +7,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { MessagingThread } from "../messaging.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { MessagingThreadSchema } from "../messaging.schema";
 
@@ -19,13 +19,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { GetQueryParamsSchema, createGetResultSchema } from "@/core/base/base-get.schema";
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingThread> {
   constructor(
     repo: GetMessagingThreadsRepo,

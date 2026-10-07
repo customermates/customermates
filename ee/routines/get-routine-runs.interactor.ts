@@ -1,7 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineRunPage } from "./routine-history";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { z } from "zod";
 
@@ -12,6 +12,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import type { GetRoutineRunsRepo } from "./get-routine-runs.repo";
 
 const Schema = z.object({
   routineId: z.uuid(),
@@ -20,18 +21,8 @@ const Schema = z.object({
 
 export type GetRoutineRunsData = Data<typeof Schema>;
 
-export abstract class GetRoutineRunsRepo {
-  abstract getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage>;
-}
-
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.routines, action: Action.readAll },
-    { resource: Resource.routines, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.routines, read: true })
 export class GetRoutineRunsInteractor extends AuthenticatedInteractor<GetRoutineRunsData, RoutineRunPage> {
   constructor(private repo: GetRoutineRunsRepo) {
     super();

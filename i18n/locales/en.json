@@ -3428,8 +3428,8 @@
     "create": "Create",
     "delete": "Delete",
     "edit": "Edit",
+    "general": "General",
     "manageAccess": "Manage",
-    "no": "No",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
     "readAccess": "Read access",
     "readAll": "All",
@@ -3442,14 +3442,9 @@
       "api": "API & Webhooks",
       "auditLog": "Audit Log",
       "company": "Company",
-      "contacts": "Contacts",
       "dataModel": "Data model",
-      "deals": "Deals",
       "inboxMessages": "Inbox messages",
-      "organizations": "Organizations",
       "routines": "Routines",
-      "services": "Services",
-      "tasks": "Tasks",
       "users": "Users & Roles",
       "wiki": "Knowledge Base"
     },
@@ -3457,7 +3452,7 @@
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
     "systemName": "Admin",
     "title": "Role",
-    "yes": "Yes"
+    "workspacePermissions": "Workspace"
   },
   "RolesCard": {
     "custom": "Custom",

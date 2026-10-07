@@ -11,7 +11,7 @@ const snapshot = () => ({
   deal: [{ id: "deal", name: "Preserved" }],
   customColumn: [{ id: customField, entityType: "deal" }],
   customFieldValue: [{ columnId: customField, value: "open" }],
-  "generic:recordSchemaState": [{ companyId, revision: 1, storageMode: "generic" }],
+  "generic:recordSchemaState": [{ companyId, revision: 1 }],
   "generic:crmRecord": [{ typeId: dealType, id: "deal", version: 1 }, { typeId: contactType, id: "contact", version: 1 }],
   "generic:recordValue": [{ typeId: dealType, recordId: "deal", fieldId: customField, textValue: "open" }, { typeId: contactType, recordId: "contact", fieldId: presetId(companyId, "contact.firstName"), textValue: "Preserved" }],
   "generic:recordTypeGrant": [{ typeId: contactType, roleId: "role", actions: ["readAll"] }],

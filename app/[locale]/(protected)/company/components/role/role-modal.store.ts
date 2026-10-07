@@ -1,65 +1,54 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
-import type { UpsertRoleData, RoleSystemControls } from "@/features/role/role-management.schema";
 import type { RoleEditorContext } from "@/features/role/role-management.schema";
+import type { AccessRow } from "@/features/role/resource-access";
 import type { RolePermissionsDto as RoleDto } from "@/features/role/role.schema";
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 import { Resource, Action } from "@/generated/prisma";
+import {
+  accessRow,
+  MANAGE_ACTIONS,
+  manageImpliesReadAll,
+  RECORD_TYPE_ACCESS,
+  RESOURCE_ACCESS,
+  rowActions,
+} from "@/features/role/resource-access";
 import { deleteRoleAction, upsertRoleAction, getRoleEditorAction } from "../../actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
-function defaultRolePermissions(): RoleSystemControls {
-  return {
-    users: { canManage: "no", readAccess: "own" },
-    company: { canManage: "no" },
-    dataModel: { canManage: "no" },
-    api: { canManage: "no", readAccess: "none" },
-    inboxMessages: { canManage: "no", readAccess: "none" },
-    wiki: { canManage: "no", readAccess: "all" },
-    auditLog: { readAccess: "none" },
-    routines: { canManage: "no", readAccess: "none" },
-  };
-}
-
 type RoleForm = {
   id?: string;
   name: string;
   description: string;
-  permissions: RoleSystemControls;
-  recordGrants: Array<{
-    typeId: string;
-    create: boolean;
-    update: boolean;
-    delete: boolean;
-    readAccess: "none" | "own" | "all";
-  }>;
+  permissions: Record<Resource, AccessRow>;
+  recordGrants: Array<AccessRow & { typeId: string }>;
 };
 
+const SYSTEM_RESOURCES = Object.keys(RESOURCE_ACCESS) as Resource[];
+
+const NEW_ROLE_ACTIONS: Partial<Record<Resource, Action[]>> = {
+  [Resource.users]: [Action.readOwn],
+  [Resource.wiki]: [Action.readAll],
+};
+
+function fullAccess(access: { manage: readonly string[]; read: readonly string[] }): AccessRow {
+  return accessRow([...access.manage, ...(access.read.includes("all") ? [Action.readAll] : [])]);
+}
+
 function roleForm(role?: RoleDto | null): RoleForm {
-  const permissions = defaultRolePermissions();
-  for (const resourceKey of Object.keys(permissions) as Array<keyof typeof permissions>) {
-    const resource = permissions[resourceKey];
-    if (role && "readAccess" in resource) resource.readAccess = "none";
-    if (role?.isSystemRole) {
-      if ("canManage" in resource) resource.canManage = "yes";
-      if ("readAccess" in resource) resource.readAccess = "all";
-    } else {
-      for (const permission of role?.permissions ?? []) {
-        if (permission.resource !== resourceKey) continue;
-        if (
-          "canManage" in resource &&
-          [Action.create, Action.update, Action.delete].some((action) => action === permission.action)
-        )
-          resource.canManage = "yes";
-        if ("readAccess" in resource && permission.action === Action.readAll) resource.readAccess = "all";
-        else if ("readAccess" in resource && resource.readAccess === "none" && permission.action === Action.readOwn)
-          resource.readAccess = "own";
-      }
-    }
-  }
-  if (permissions.wiki.canManage === "yes") permissions.wiki.readAccess = "all";
+  const permissions = Object.fromEntries(
+    SYSTEM_RESOURCES.map((resource) => {
+      if (role?.isSystemRole) return [resource, fullAccess(RESOURCE_ACCESS[resource])];
+      if (!role) return [resource, accessRow(NEW_ROLE_ACTIONS[resource] ?? [])];
+      const row = accessRow(
+        role.permissions.filter((permission) => permission.resource === resource).map(({ action }) => action),
+      );
+      if (manageImpliesReadAll(resource) && MANAGE_ACTIONS.some((action) => row[action])) row.readAccess = "all";
+      return [resource, row];
+    }),
+  ) as Record<Resource, AccessRow>;
   return { id: role?.id, name: role?.name ?? "", description: role?.description ?? "", permissions, recordGrants: [] };
 }
 
@@ -156,17 +145,12 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
       }
       runInAction(() => {
         const form = roleForm(result.data.role);
-        form.recordGrants = result.data.types.map((type) => {
-          const actions = result.data.role?.recordGrants?.find((grant) => grant.typeId === type.id)?.actions ?? [];
-          const admin = result.data.role?.isSystemRole;
-          return {
-            typeId: type.id,
-            create: Boolean(admin || actions.includes("create")),
-            update: Boolean(admin || actions.includes("update")),
-            delete: Boolean(admin || actions.includes("delete")),
-            readAccess: admin || actions.includes("readAll") ? "all" : actions.includes("readOwn") ? "own" : "none",
-          };
-        });
+        form.recordGrants = result.data.types.map((type) => ({
+          typeId: type.id,
+          ...(result.data.role?.isSystemRole
+            ? fullAccess(RECORD_TYPE_ACCESS)
+            : accessRow(result.data.role?.recordGrants?.find((grant) => grant.typeId === type.id)?.actions ?? [])),
+        }));
         this.context = result.data;
         this.onInitOrRefresh(form);
       });
@@ -219,27 +203,19 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
     this.setIsLoading(true);
     try {
       const form = toJS(this.form);
-      const permissions = Object.fromEntries(
-        Object.entries(form.permissions).flatMap(([resource, rights]) => {
-          const saved = this.savedState.permissions[resource as keyof RoleSystemControls];
-          const changed = Object.fromEntries(
-            Object.entries(rights).filter(([key, value]) => !form.id || Reflect.get(saved, key) !== value),
-          );
-          return Object.keys(changed).length ? [[resource, changed]] : [];
-        }),
-      ) as UpsertRoleData["permissions"];
       const data = {
-        ...form,
-        permissions,
+        id: form.id,
+        name: form.name,
+        description: form.description,
+        permissions: SYSTEM_RESOURCES.flatMap((resource) => {
+          const actions = rowActions(form.permissions[resource], RESOURCE_ACCESS[resource]);
+          const saved = rowActions(this.savedState.permissions[resource], RESOURCE_ACCESS[resource]);
+          return form.id && actions.join() === saved.join() ? [] : [{ resource, actions }];
+        }),
         expectedRevision: this.context.schemaRevision,
-        recordGrants: form.recordGrants.map((grant) => ({
-          typeId: grant.typeId,
-          actions: [
-            ...(grant.create ? [Action.create] : []),
-            ...(grant.update ? [Action.update] : []),
-            ...(grant.delete ? [Action.delete] : []),
-            ...(grant.readAccess === "all" ? [Action.readAll] : grant.readAccess === "own" ? [Action.readOwn] : []),
-          ],
+        recordGrants: form.recordGrants.map(({ typeId, ...row }) => ({
+          typeId,
+          actions: rowActions(row, RECORD_TYPE_ACCESS),
         })),
       };
       const result = await upsertRoleAction({ ...data, idempotencyKey: this.submissionKey(data) });
@@ -258,6 +234,10 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
   };
 
   protected override afterChange(id: string, value: unknown): void {
-    if (id === "permissions.wiki.canManage" && value === "yes") this.form.permissions.wiki.readAccess = "all";
+    const [, resource, action] = id.split(".");
+    if (id.startsWith("permissions.") && value === true && manageImpliesReadAll(resource as Resource)) {
+      if (MANAGE_ACTIONS.some((manage) => manage === action))
+        this.form.permissions[resource as Resource].readAccess = "all";
+    }
   }
 }

@@ -150,9 +150,7 @@ export class PreviewRecordDeletionInteractor extends AuthenticatedInteractor<
                 return count ? [{ typeId: type.id, label: type.pluralLabel, count }] : [];
               }),
               removedLinks: visible.size === plan.affected.size ? plan.links.size : null,
-              calculations: [...calculations.values()].filter(
-                (field) => policy.allowed(field.typeId, "readAll") || policy.allowed(field.typeId, "readOwn"),
-              ),
+              calculations: [...calculations.values()].filter((field) => policy.canReadType(field.typeId)),
             },
           };
         } catch (error) {

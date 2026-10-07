@@ -30,7 +30,7 @@ vi.mock("../subscribe-manage-button", () => ({ SubscribeManageButton: () => null
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     subscriptionStore: { subscription: null, handleRefresh: vi.fn() },
-    userStore: { canManage: () => harness.userCanManage },
+    userStore: { can: () => harness.userCanManage },
   }),
 }));
 

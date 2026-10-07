@@ -6,7 +6,7 @@ import { z } from "zod";
 import * as Sentry from "@sentry/node";
 import { getTranslations } from "next-intl/server";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -64,7 +64,7 @@ export const MoveEmailThreadResultSchema = z.object({
 });
 export type MoveEmailThreadResult = Data<typeof MoveEmailThreadResultSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmailThreadData, MoveEmailThreadResult> {
   constructor(
     private repo: MoveEmailThreadRepo,

@@ -1052,13 +1052,8 @@
                                     "type": "string",
                                     "enum": [
                                       "dataModel",
-                                      "contacts",
-                                      "deals",
-                                      "organizations",
-                                      "services",
                                       "users",
                                       "company",
-                                      "tasks",
                                       "api",
                                       "auditLog",
                                       "inboxMessages",
@@ -1268,152 +1263,46 @@
                     "maxLength": 500
                   },
                   "permissions": {
-                    "type": "object",
-                    "properties": {
-                      "users": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "resource": {
+                          "type": "string",
+                          "enum": [
+                            "dataModel",
+                            "users",
+                            "company",
+                            "api",
+                            "auditLog",
+                            "inboxMessages",
+                            "wiki",
+                            "routines"
+                          ]
+                        },
+                        "actions": {
+                          "maxItems": 5,
+                          "type": "array",
+                          "items": {
                             "type": "string",
                             "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "own",
-                              "all"
+                              "create",
+                              "readOwn",
+                              "readAll",
+                              "update",
+                              "delete"
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       },
-                      "company": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "dataModel": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "api": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "inboxMessages": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "wiki": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "auditLog": {
-                        "type": "object",
-                        "properties": {
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "routines": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "own",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      }
+                      "required": [
+                        "resource",
+                        "actions"
+                      ],
+                      "additionalProperties": false
                     },
-                    "additionalProperties": false,
-                    "description": "Only supplied system permission groups change. Omit unchanged groups or properties to preserve exact existing rights."
+                    "description": "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible."
                   },
                   "recordGrants": {
                     "maxItems": 1000,
@@ -1527,13 +1416,8 @@
                                 "type": "string",
                                 "enum": [
                                   "dataModel",
-                                  "contacts",
-                                  "deals",
-                                  "organizations",
-                                  "services",
                                   "users",
                                   "company",
-                                  "tasks",
                                   "api",
                                   "auditLog",
                                   "inboxMessages",

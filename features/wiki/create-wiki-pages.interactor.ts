@@ -5,7 +5,7 @@ import type { WikiPageDto, WikiPageInput } from "./wiki.schema";
 
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -31,7 +31,7 @@ export type CreateWikiPagesRepoResult =
   | { status: "wiki-not-empty" }
   | { status: "guide-exists" };
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.create })
+@TenantInteractor({ resource: Resource.wiki, manage: "create" })
 export class CreateWikiPagesInteractor extends AuthenticatedInteractor<CreateWikiPagesData, WikiPageDto[]> {
   constructor(
     private repo: CreateWikiPagesRepo,
