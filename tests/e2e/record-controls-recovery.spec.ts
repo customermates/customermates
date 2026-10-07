@@ -179,7 +179,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await page.locator('[data-palette-value="messages"]').click();
   await page.locator("#filter-palette-back").click();
   await page.keyboard.press("Escape");
-  await expect(history.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(history.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await expect(rows).toHaveCount(0);
   await history.locator("#global-data-views-new").click();
   const viewName = "My message history";
@@ -205,7 +205,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await page.reload();
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
   await expect(view).toHaveAttribute("aria-current", "page");
-  await expect(history.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(history.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await history.locator("#global-data-views-all").click();
   await expect(history.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
   await history.getByRole("button", { name: english.Common.ariaLabels.tooltipFilters, exact: true }).click();
