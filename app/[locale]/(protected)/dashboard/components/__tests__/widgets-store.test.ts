@@ -35,7 +35,6 @@ const SECOND_ID = "00000000-0000-4000-8000-000000000002";
 function widget(id: string, x: number, y: number): WidgetDto {
   return {
     companyId: "company-1",
-    contractVersion: 2,
     version: 1,
     viewId: null,
     createdAt: new Date(0),

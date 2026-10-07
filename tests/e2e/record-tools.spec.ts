@@ -12,7 +12,6 @@ import { localE2eEnvironment } from "./local-environment";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const DiscoverySchema = z.object({
-  contractVersion: z.literal(2),
   schemaRevision: z.number().int(),
   types: z.array(z.object({ id: z.uuid(), label: z.string(), pluralLabel: z.string() })),
 });
@@ -64,7 +63,6 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
     const discovery = DiscoverySchema.parse(
       await call("discover_record_types", { includeEmbedded: false, page: 1, pageSize: 25 }),
     );
-    expect(discovery.contractVersion).toBe(2);
     const change = ProviderConfigurationChangeSchema.parse({
       expectedRevision: discovery.schemaRevision,
       idempotencyKey: randomUUID(),

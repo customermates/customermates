@@ -8,7 +8,7 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordActivityFilter, RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import type { WidgetModalStore } from "./widget-modal.store";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
-import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
+import { ACTIVITY_KINDS, isChangeActivityKind } from "@/ee/messaging/activities/activities.schema";
 import { MessagingProviderSchema } from "@/ee/messaging/messaging.schema";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
@@ -159,8 +159,8 @@ export const RecordActivityWidgetEditor = observer(
     const sources = ACTIVITY_KINDS.map((id) => ({
       id,
       label: t(
-        id === "audit"
-          ? "EntityTimeline.types.changes"
+        isChangeActivityKind(id)
+          ? `EntityTimeline.types.${id}`
           : id === "message"
             ? "EntityTimeline.types.messages"
             : id === "calendar_event"

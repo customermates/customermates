@@ -20,7 +20,6 @@ const mocks = vi.hoisted(() => ({
 vi.mock("../../actions", () => mocks);
 const model = createCrmPreset(randomUUID());
 const discovery = {
-  contractVersion: 2 as const,
   schemaRevision: model.revision,
   canManageSchema: true,
   total: model.types.length,
@@ -49,7 +48,6 @@ function chart(name = "Value", id = randomUUID()) {
     companyId: "company",
     userId: "member",
     kind: "chart",
-    contractVersion: 2,
     version: 2,
     measure: {
       source: { typeId: model.types[0].id, filters: [], relationships: [] },
@@ -115,7 +113,6 @@ describe("generic widget modal", () => {
       data: RecordActivityWidgetDtoSchema.parse({
         id: randomUUID(),
         kind: "activityTimeline",
-        contractVersion: 2,
         version: 1,
         userId: "member",
         companyId: "company",
@@ -343,7 +340,6 @@ describe("generic widget modal", () => {
     expect(store.form).toMatchObject({
       kind: "activityTimeline",
       name: "Recent activity",
-      contractVersion: 2,
       activityQuery: { scope: { typeIds: [], records: [] }, filters: [] },
     });
   });

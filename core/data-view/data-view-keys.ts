@@ -5,9 +5,9 @@ export const SURFACE = Object.freeze({
   roles: "roles-card-store",
   webhooks: "webhooks-card-store",
   webhookDeliveries: "webhook-deliveries-card-store",
-  auditLogs: "audit-logs-card-store",
   messagingThreads: "messaging-threads-card-store",
   entityTimeline: "entity-timeline",
+  activity: "activity",
   operatorUsers: "operator-users",
   operatorWorkspaces: "operator-workspaces",
   operatorAudit: "operator-audit",
@@ -20,9 +20,9 @@ export const DATA_VIEW_SURFACE_KEYS = [
   SURFACE.roles,
   SURFACE.webhooks,
   SURFACE.webhookDeliveries,
-  SURFACE.auditLogs,
   SURFACE.messagingThreads,
   SURFACE.entityTimeline,
+  SURFACE.activity,
   SURFACE.operatorUsers,
   SURFACE.operatorWorkspaces,
   SURFACE.operatorAudit,
@@ -34,3 +34,7 @@ export type BuiltinDataViewSurfaceKey = (typeof DATA_VIEW_SURFACE_KEYS)[number];
 export type RecordSurfaceKey = `records:${string}`;
 export type DataViewSurfaceKey = BuiltinDataViewSurfaceKey | RecordSurfaceKey;
 export const recordSurfaceKey = (typeId: string): RecordSurfaceKey => `records:${typeId}`;
+export const isActivitySurface = (
+  surfaceKey: string,
+): surfaceKey is typeof SURFACE.entityTimeline | typeof SURFACE.activity =>
+  surfaceKey === SURFACE.entityTimeline || surfaceKey === SURFACE.activity;

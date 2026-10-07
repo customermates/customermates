@@ -1019,8 +1019,6 @@ describe("agent tools", () => {
     ["Bandeja de entrada", "nav-inbox"],
     ["Boîte de réception", "nav-inbox"],
     ["Tableau de bord", "nav-dashboard"],
-    ["Registros de auditoría", "nav-company-audit-logs"],
-    ["Registri di controllo", "nav-company-audit-logs"],
     ["API et connecteurs", "nav-profile-api-keys"],
     ["La mia azienda", "nav-company"],
   ])("answers the multi-word page name %s with that page instead of most of the catalog", async (query, id) => {

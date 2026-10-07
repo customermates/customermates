@@ -15,7 +15,7 @@ test("persists a routine for a customer-created type and matches only its config
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");
   await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-  await creation.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await creation.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const field = await database.query(
@@ -72,7 +72,7 @@ test("persists a routine for a customer-created type and matches only its config
   await record.getByRole("button", { name: "Save", exact: true }).click();
   await expect(record).not.toBeVisible();
   const matches = await database.query(
-    'SELECT e.kind,e."typeId" FROM "RecordEventMatch" m JOIN "RecordEvent" e ON e."companyId"=m."companyId" AND e.id=m."eventId" WHERE m."companyId"=$1 AND m."subscriptionId"=$2',
+    'SELECT e.kind,e."subjectTypeId" AS "typeId" FROM "RecordEventMatch" m JOIN "EventLog" e ON e."companyId"=m."companyId" AND e.id=m."eventId" WHERE m."companyId"=$1 AND m."subscriptionId"=$2',
     [companyId, saved.rows[0].id],
   );
   expect(matches.rows).toEqual([{ kind: "record.updated", typeId }]);

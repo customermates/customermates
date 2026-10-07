@@ -55,7 +55,7 @@ export class PrismaWidgetRepo
     if (row.kind === WidgetKind.activityTimeline && row.activityQuery) {
       const stored = RecordActivityWidgetDtoSchema.omit({ schemaRevision: true, data: true, status: true })
         .strip()
-        .parse({ ...row, contractVersion: 2, viewId: row.userId === this.user.id ? row.viewId : null });
+        .parse({ ...row, viewId: row.userId === this.user.id ? row.viewId : null });
       return getRecordActivityWidgetReader().read(stored);
     }
     if (row.measure !== null && row.measure !== undefined) {
@@ -63,7 +63,6 @@ export class PrismaWidgetRepo
         .strip()
         .parse({
           ...row,
-          contractVersion: 2,
           viewId: row.userId === this.user.id ? row.viewId : null,
         });
       return getRecordWidgetReader().read(stored);

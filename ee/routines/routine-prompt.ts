@@ -33,7 +33,7 @@ export function composeRoutinePrompt(prompt: string, context: RoutineTriggerCont
   const ref = routineRecordReference(context.triggerPayload);
   const recordLabels = record.success
     ? Object.fromEntries(
-        record.data.record.fields.map((field) => [field.fieldId, field.after?.label ?? field.before?.label]),
+        record.data.data.record.fields.map((field) => [field.fieldId, field.after?.label ?? field.before?.label]),
       )
     : {};
   const fields = changed.slice(0, ROUTINE_TRIGGER_FIELD_LIMIT);

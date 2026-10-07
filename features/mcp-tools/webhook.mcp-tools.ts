@@ -85,7 +85,7 @@ const CreateWebhookSchema = z.object({
     .nullable()
     .optional()
     .describe(
-      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{id}}, {{timestamp}}, {{companyId}}, {{actorId}} or {{data...}} placeholders such as {{data.record.ref.recordId}} or {{data.entityId}}; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
     ),
   enabled: z.boolean().default(true),
 });
@@ -113,7 +113,7 @@ const UpdateWebhookSchema = z.object({
     .nullable()
     .optional()
     .describe(
-      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{id}}, {{timestamp}}, {{companyId}}, {{actorId}} or {{data...}} placeholders such as {{data.record.ref.recordId}} or {{data.entityId}}; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
     ),
   enabled: z.boolean().optional(),
 });
@@ -184,7 +184,7 @@ const ManageWebhooksSchema = z.object({
     .nullable()
     .optional()
     .describe(
-      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{id}}, {{timestamp}}, {{companyId}}, {{actorId}} or {{data...}} placeholders such as {{data.record.ref.recordId}} or {{data.entityId}}; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
     ),
   enabled: z.boolean().optional().describe("create (default true) and update."),
   searchTerm: z

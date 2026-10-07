@@ -29,7 +29,6 @@ vi.mock("@/prisma/db", () => {
   const tx = {
     $executeRaw: vi.fn(),
     widget: { findMany: mocks.findMany, findFirst: mocks.findFirst, deleteMany: mocks.deleteMany },
-    auditLog: { createMany: vi.fn() },
     webhookDelivery: { createMany: vi.fn() },
   };
   return {
@@ -85,11 +84,10 @@ describe("generic widget repository", () => {
     expect(mocks.chart).toHaveBeenCalledWith(
       expect.objectContaining({
         id: stored.id,
-        contractVersion: 2,
         measure: expect.objectContaining({ ...stored.measure, source: expect.objectContaining(stored.measure.source) }),
       }),
     );
-    expect(widgets).toEqual([expect.objectContaining({ id: stored.id, status: "unavailable", contractVersion: 2 })]);
+    expect(widgets).toEqual([expect.objectContaining({ id: stored.id, status: "unavailable" })]);
     expect(mocks.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { userId: user.id, companyId: user.companyId } }),
     );
@@ -103,9 +101,7 @@ describe("generic widget repository", () => {
     });
     mocks.findFirst.mockResolvedValue(stored);
     const result = await scoped((repo) => repo.getWidgetById(stored.id));
-    expect(mocks.activity).toHaveBeenCalledWith(
-      expect.objectContaining({ activityQuery: stored.activityQuery, contractVersion: 2 }),
-    );
+    expect(mocks.activity).toHaveBeenCalledWith(expect.objectContaining({ activityQuery: stored.activityQuery }));
     expect(mocks.chart).not.toHaveBeenCalled();
     expect(result).toMatchObject({ schemaRevision: 2, kind: "activityTimeline" });
   });

@@ -37,36 +37,37 @@ describeDatabase("routine run projection on PostgreSQL", () => {
   const typeId = presetId(companyId, "contact");
   const nameFieldId = presetId(companyId, "contact.firstName");
   const triggerPayload = {
-    version: 2,
     id: randomUUID(),
     companyId,
     event: "record.updated",
     timestamp: "2026-01-01T00:00:00.000Z",
     actorId: ownerId,
-    causeId: "cause-1",
-    cause: { kind: "mutation" },
-    record: {
-      ref: { typeId, recordId: contactId },
-      schemaRevision: 1,
-      beforeVersion: 1,
-      afterVersion: 2,
-      assignments: null,
-      identities: null,
-      links: [],
-      related: [],
-      fields: [
-        {
-          fieldId: nameFieldId,
-          before: null,
-          after: {
+    data: {
+      causeId: "cause-1",
+      cause: { kind: "mutation" },
+      record: {
+        ref: { typeId, recordId: contactId },
+        schemaRevision: 1,
+        beforeVersion: 1,
+        afterVersion: 2,
+        assignments: null,
+        identities: null,
+        links: [],
+        related: [],
+        fields: [
+          {
             fieldId: nameFieldId,
-            label: "First name",
-            valueType: "text",
-            options: [],
-            value: { state: "value", value: { kind: "text", value: "private@example.com" } },
+            before: null,
+            after: {
+              fieldId: nameFieldId,
+              label: "First name",
+              valueType: "text",
+              options: [],
+              value: { state: "value", value: { kind: "text", value: "private@example.com" } },
+            },
           },
-        },
-      ],
+        ],
+      },
     },
   };
 

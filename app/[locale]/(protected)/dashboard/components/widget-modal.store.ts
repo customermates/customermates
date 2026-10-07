@@ -68,7 +68,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   constructor(rootStore: RootStore) {
     super(rootStore, {
       kind: "chart",
-      contractVersion: 2,
       name: "",
       isTemplate: false,
       expectedRevision: 0,
@@ -389,7 +388,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     const form = toJS(this.form);
     if (isRecordActivityWidgetForm(form)) {
       try {
-        const input = omit(form, ["kind", "contractVersion", "idempotencyKey"]);
+        const input = omit(form, ["kind", "idempotencyKey"]);
         const payload = JSON.stringify(input);
         if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
         const parsed = RecordActivityWidgetInputSchema.safeParse({
@@ -416,7 +415,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
     if (isRecordWidgetForm(form)) {
       try {
-        const input = omit(form, ["kind", "contractVersion", "idempotencyKey"]);
+        const input = omit(form, ["kind", "idempotencyKey"]);
         const payload = JSON.stringify(input);
         if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
         const parsed = RecordWidgetInputSchema.safeParse({
@@ -474,7 +473,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   private buildNewForm = (kind: WidgetKind, defaultActivityName?: string): WidgetModalForm => {
     const common = {
-      contractVersion: 2 as const,
       name: "",
       isTemplate: false,
       expectedRevision: this.recordTypes?.schemaRevision ?? 0,
@@ -517,7 +515,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       return {
         form: {
           kind: "activityTimeline",
-          contractVersion: 2,
           ...common,
           name: widget.name,
           isTemplate: common.isTemplate ?? false,
@@ -533,7 +530,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       return {
         form: {
           kind: "chart",
-          contractVersion: 2,
           ...common,
           name: widget.name,
           isTemplate: common.isTemplate ?? false,

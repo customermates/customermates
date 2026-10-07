@@ -39,7 +39,7 @@ describe("synthetic personalization fixtures", () => {
     const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
     const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
 
-    expect(fixtures).toHaveLength(16);
+    expect(fixtures).toHaveLength(15);
     expect(fixtures.map(({ p13nId }) => p13nId)).toEqual([
       surface("contact"),
       "users-card-store",
@@ -48,7 +48,6 @@ describe("synthetic personalization fixtures", () => {
       "webhooks-card-store",
       surface("deal"),
       surface("service"),
-      "audit-logs-card-store",
       "webhook-deliveries-card-store",
       surface("organization"),
       "routines-card-store",
@@ -182,13 +181,6 @@ describe("synthetic personalization fixtures", () => {
       sortDescriptor: { direction: "desc", field: "name" },
       viewMode: "table",
     });
-    expect(byP13nId.get("audit-logs-card-store")).toMatchObject({
-      columnOrder: ["event", "entityId", "createdAt", "user"],
-      hiddenColumns: ["entityId"],
-      pagination: { pageSize: 25 },
-      sortDescriptor: { direction: "desc", field: "createdAt" },
-      viewMode: "table",
-    });
     expect(byP13nId.get("webhook-deliveries-card-store")).toMatchObject({
       pagination: { pageSize: 25 },
       sortDescriptor: { direction: "desc", field: "createdAt" },
@@ -307,12 +299,12 @@ describe("synthetic personalization fixtures", () => {
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
 
-    expect(rows).toHaveLength(17);
+    expect(rows).toHaveLength(16);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
     expect(rows.has(fixtureId(SYNTHETIC_P13N_ID_PREFIX, 999))).toBe(false);
 
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures.slice(0, -1));
-    expect(rows).toHaveLength(16);
+    expect(rows).toHaveLength(15);
     expect(rows.has(fixtures.at(-1)?.id ?? "")).toBe(false);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
   });

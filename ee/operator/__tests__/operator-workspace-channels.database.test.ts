@@ -62,19 +62,15 @@ async function channelEvent(args: {
   event: "connected_account.created" | "connected_account.deleted";
   at: Date;
 }) {
-  await prisma.auditLog.create({
+  await prisma.eventLog.create({
     data: {
       companyId: args.companyId,
-      userId: args.userId,
-      entityId: args.accountId,
-      event: args.event,
+      actorId: args.userId,
+      subjectKind: "connected_account",
+      subjectId: args.accountId,
+      kind: args.event,
       createdAt: args.at,
-      eventData: {
-        companyId: args.companyId,
-        userId: args.userId,
-        entityId: args.accountId,
-        payload: { provider: args.provider, displayName: args.identifier, emailAddress: null },
-      },
+      payload: { provider: args.provider, displayName: args.identifier, emailAddress: null },
     },
   });
 }

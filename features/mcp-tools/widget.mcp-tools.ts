@@ -133,7 +133,6 @@ export const manageWidgetsTool = {
             id: widget.id,
             name: widget.name,
             kind: widget.kind,
-            contractVersion: 2,
             version: widget.version,
             viewId: widget.viewId,
             ...(rect ? { layout: { x: rect.x, y: rect.y, w: rect.w, h: rect.h } } : {}),
@@ -203,7 +202,6 @@ export const manageWidgetsTool = {
             name: result.data.name,
             version: result.data.version,
             ...placementOf(result.data.layout),
-            contractVersion: 2,
           })
         : mcpInteractorFailure(result.error);
     }
@@ -231,7 +229,6 @@ export const manageWidgetsTool = {
           name: result.data.name,
           version: result.data.version,
           ...placementOf(result.data.layout),
-          contractVersion: 2,
         })
       : mcpInteractorFailure(result.error);
   },
