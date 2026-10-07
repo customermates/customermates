@@ -1,4 +1,4 @@
-import { ACTIVITY_KINDS } from "./activities.schema";
+import { ACTIVITY_KINDS, isChangeActivityKind } from "./activities.schema";
 import type { RecordActivityQuery } from "./record-activities.schema";
 
 export function recordActivityFilterCount(query: RecordActivityQuery) {
@@ -23,7 +23,7 @@ export function requestedRecordActivitySources(query: RecordActivityQuery) {
   return ACTIVITY_KINDS.filter(
     (kind) =>
       query.kinds.includes(kind) &&
-      !(kind === "audit" && accountFilter) &&
+      !(isChangeActivityKind(kind) && accountFilter) &&
       !(kind !== "message" && threadFilter) &&
       filters.every(
         (filter) =>

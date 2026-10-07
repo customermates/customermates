@@ -114,7 +114,7 @@ describe("get_activities", () => {
     expect(spies.getActivities).toHaveBeenCalledWith(
       expect.objectContaining({
         scope: { records: [], typeIds: [] },
-        kinds: ["audit", "message", "activity", "calendar_event"],
+        kinds: ["record", "audit", "configuration", "message", "activity", "calendar_event"],
       }),
     );
   });

@@ -22,7 +22,7 @@ import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { RelationshipPathInput } from "@/components/records/relationship-path-input";
 import { recordInvariant } from "@/features/records/record-invariant";
-import { recordTypeIcon } from "@/components/records/record-type-icon";
+import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { configureCardinality } from "./configure-graph-model";
 import { relationshipDefinition, typeDefinition } from "./configure-model";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
@@ -136,7 +136,6 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
   const types = store.model.types;
   const source = types.find((type) => type.id === store.sourceTypeId);
   const target = types.find((type) => type.id === store.form.targetTypeId);
-  const SourceIcon = recordTypeIcon(source?.icon ?? "");
   const cardinality = configureCardinality(store.form);
   const listLabel = (type: typeof source) => type?.pluralLabel ?? t("RecordModel.relationshipEditor.otherList");
   return (
@@ -149,7 +148,7 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
             {
               value: store.sourceTypeId,
               label: listLabel(source),
-              startContent: <SourceIcon aria-hidden className="size-4 text-muted-foreground" />,
+              startContent: <RecordTypeGlyph icon={source?.icon} />,
             },
           ]}
           label={t("RecordModel.relationshipEditor.thisList")}
@@ -187,14 +186,11 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
       <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="target">
         <FormSelect
           id="targetTypeId"
-          items={types.map((type) => {
-            const Icon = recordTypeIcon(type.icon);
-            return {
-              value: type.id,
-              label: type.pluralLabel,
-              startContent: <Icon aria-hidden className="size-4 text-muted-foreground" />,
-            };
-          })}
+          items={types.map((type) => ({
+            value: type.id,
+            label: type.pluralLabel,
+            startContent: <RecordTypeGlyph icon={type.icon} />,
+          }))}
           label={t("RecordModel.linkedType")}
         />
 
@@ -245,6 +241,7 @@ export const RelationshipModal = observer(function RelationshipModal({
   return (
     <ModelChangeSheet
       actions={[...(askAi ? [askAi] : []), ...(deleteAction ? [deleteAction] : [])]}
+      creating={!store.form.id}
       store={store}
       title={t("RecordModel.relationship")}
     >

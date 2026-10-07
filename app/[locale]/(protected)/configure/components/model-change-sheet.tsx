@@ -7,6 +7,7 @@ import type { RecordModel } from "@/features/records/record-model.schema";
 
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -47,13 +48,13 @@ function focusFirstBodyControl(event: Event) {
 export const ModelChangeSheet = observer(function ModelChangeSheet({
   store,
   title,
-  submitLabel,
+  creating = false,
   actions = [],
   children,
 }: {
   store: SheetStore;
   title: string;
-  submitLabel?: string;
+  creating?: boolean;
   actions?: readonly AppModalActionProps[];
   children: ReactNode;
 }) {
@@ -70,8 +71,6 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
     if (store.withUnsavedChangesGuard && store.hasUnsavedChanges) store.setIsClosingWithGuard(true);
     else store.close();
   };
-  const label =
-    submitLabel ?? (store.previewReady && !store.isLoading ? t("RecordModel.apply") : t("Common.actions.save"));
   const footer = (
     <div className="flex shrink-0 items-center justify-end gap-2 max-sm:flex-col-reverse max-sm:items-stretch">
       <Button disabled={store.isLoading} size="sm" type="button" variant="secondary" onClick={requestClose}>
@@ -79,12 +78,14 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
       </Button>
 
       <Button
-        disabled={store.isLoading || store.isReadOnly}
+        disabled={store.isLoading || store.isReadOnly || !(creating || store.hasUnsavedChanges || store.previewReady)}
         size="sm"
         type="button"
         onClick={() => runUserAction(store.onSubmit)}
       >
-        {label}
+        {store.isLoading && <Loader2 aria-hidden className="animate-spin" />}
+
+        {t("Common.actions.save")}
       </Button>
     </div>
   );

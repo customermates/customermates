@@ -24,7 +24,7 @@ export function routineRunTriggerContext(
   const envelope = RecordDeliveryEnvelopeSchema.safeParse(triggerPayload);
   const labels = envelope.success
     ? Object.fromEntries(
-        envelope.data.record.fields.flatMap((field) => {
+        envelope.data.data.record.fields.flatMap((field) => {
           const label = field.after?.label ?? field.before?.label;
           return label ? [[field.fieldId, label]] : [];
         }),

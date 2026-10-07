@@ -44,8 +44,8 @@ export async function captureRecordEventMatches(
     records.getModel(),
     records.getGrants(),
     client.$queryRaw<Array<{ typeId: string }>>(Prisma.sql`
-      SELECT DISTINCT event."typeId" FROM "RecordEvent" event
-      WHERE event."companyId" = ${companyId} AND ${selected}`),
+      SELECT DISTINCT event."subjectTypeId" AS "typeId" FROM "EventLog" event
+      WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record' AND ${selected}`),
   ]);
   for (const { owner, companyId: rowCompanyId, ...stored } of rows) {
     if (rowCompanyId !== companyId) throw new Error("Foreign record event subscription");
@@ -90,17 +90,17 @@ export async function captureRecordEventMatches(
           : Prisma.sql`FALSE`;
         const changed = source.changedFieldIds.length
           ? Prisma.sql`(event.kind <> 'record.updated' OR EXISTS (SELECT 1 FROM "CrmRecord" ${watchedRecord}
-              WHERE ${watchedRecord}."companyId" = ${companyId} AND ${watchedRecord}."typeId" = event."typeId"
-                AND ${watchedRecord}.id = event."recordId" AND (${readableChange})))`
+              WHERE ${watchedRecord}."companyId" = ${companyId} AND ${watchedRecord}."typeId" = event."subjectTypeId"
+                AND ${watchedRecord}.id = event."subjectId" AND (${readableChange})))`
           : Prisma.sql`TRUE`;
         await client.$executeRaw(Prisma.sql`
           INSERT INTO "RecordEventMatch" ("companyId", "eventId", "subscriptionId", "subscriptionRevision")
           SELECT ${companyId}, event.id, ${subscription.id}, ${subscription.revision}
-          FROM "RecordEvent" event
-          WHERE event."companyId" = ${companyId} AND ${selected} AND event."typeId" = ${typeId}
+          FROM "EventLog" event
+          WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record' AND ${selected} AND event."subjectTypeId" = ${typeId}
             AND event.kind IN (${Prisma.join(source.events)}) AND ${changed} AND ${recursion}
             AND ${beforeDeletion ? Prisma.sql`event.kind = 'record.deleted'` : Prisma.sql`event.kind <> 'record.deleted'`}
-            AND EXISTS (SELECT 1 FROM (${compiled.matching}) matching WHERE matching.id = event."recordId")
+            AND EXISTS (SELECT 1 FROM (${compiled.matching}) matching WHERE matching.id = event."subjectId")
           ON CONFLICT ("companyId", "eventId", "subscriptionId") DO NOTHING`);
       }
     }

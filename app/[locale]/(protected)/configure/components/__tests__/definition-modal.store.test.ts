@@ -17,7 +17,7 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn()
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
-const root = { registerModalStore: vi.fn() } as unknown as RootStore;
+const root = { registerModalStore: vi.fn(), localeStore: { locale: "en" } } as unknown as RootStore;
 
 function validate(operations: unknown) {
   return ConfigurationChangeSchema.parse({ expectedRevision: 1, idempotencyKey: crypto.randomUUID(), operations });

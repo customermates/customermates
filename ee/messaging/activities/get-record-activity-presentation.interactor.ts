@@ -17,11 +17,11 @@ import { SURFACE, ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { failNotFound, fail } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { ACTIVITY_KINDS } from "./activities.schema";
+import { ACTIVITY_KINDS, CHANGE_ACTIVITY_KINDS } from "./activities.schema";
 import { activityViewColumns, activityViewFilterableFields, activityViewFilters } from "./record-activity-view";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
-const Input = z.object({ record: RecordRefSchema, params: GetQueryParamsSchema.default({}) }).strict();
+const Input = z.object({ record: RecordRefSchema.nullable(), params: GetQueryParamsSchema.default({}) }).strict();
 export type RecordActivityPresentationInput = z.infer<typeof Input>;
 export type RecordActivityPresentation = GetResult<ActivityEntryDto> &
   RecordActivitiesResult & { columns: ColumnPresentation[] };
@@ -43,7 +43,9 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
   async invoke({ record, params }: RecordActivityPresentationInput): Validated<RecordActivityPresentation> {
     return runInTransaction(
       async () => {
-        const persisted = await this.views.loadSurfaceState(SURFACE.entityTimeline);
+        const surface = record ? SURFACE.entityTimeline : SURFACE.activity;
+        const kinds = record ? ACTIVITY_KINDS : CHANGE_ACTIVITY_KINDS;
+        const persisted = await this.views.loadSurfaceState(surface);
         const viewKey = params.viewId ?? persisted.activeViewKey ?? ALL_VIEW_KEY;
         const selected = persisted.views.find((view) => view.id === viewKey);
         if (viewKey !== ALL_VIEW_KEY && !selected) return failNotFound(CustomErrorCode.dataViewNotFound);
@@ -51,11 +53,11 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
           params: { filters: params.filters },
           base: selected?.state ?? persisted.allState,
         });
-        const invalid = await this.policy.validate(SURFACE.entityTimeline, state);
+        const invalid = await this.policy.validate(surface, state);
         if (invalid) return fail(invalid);
         const result = await this.activities.invoke({
-          scope: { records: [record], typeIds: [] },
-          kinds: [...ACTIVITY_KINDS],
+          scope: { records: record ? [record] : [], typeIds: [] },
+          kinds: [...kinds],
           filters: activityViewFilters(state.filters),
           cursor: null,
           limit: 25,
@@ -68,12 +70,12 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
             ...result.data,
             ...state,
             grouping: undefined,
-            p13nId: SURFACE.entityTimeline,
+            p13nId: surface,
             views: persisted.views,
             activeViewKey: viewKey,
             allState: persisted.allState,
             columns: activityViewColumns(types),
-            filterableFields: activityViewFilterableFields(types),
+            filterableFields: activityViewFilterableFields(types, kinds),
             viewPersistable: true,
           },
         };

@@ -11,9 +11,9 @@ const LOCATIONS: Record<BuiltinAiManageableDataViewSurfaceKey, string> = {
   [SURFACE.roles]: "RolesCard.title",
   [SURFACE.webhooks]: "WebhooksCard.title",
   [SURFACE.webhookDeliveries]: "WebhookDeliveriesCard.title",
-  [SURFACE.auditLogs]: "AuditLogsCard.title",
   [SURFACE.messagingThreads]: "NavigationBar.inbox",
   [SURFACE.entityTimeline]: "Common.actions.labelHistory",
+  [SURFACE.activity]: "ActivityPage.title",
   [SURFACE.routines]: "NavigationBar.routines",
 };
 

@@ -81,7 +81,7 @@ export const PROTECTED_ROUTES = [
   "/records/:typeId",
   "/records/:typeId/:recordId",
   "/auth/mcp-consent",
-  "/company/audit-logs",
+  "/company/activity",
   "/company/members",
   "/company/roles",
   "/company/subscription",

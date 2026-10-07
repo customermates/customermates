@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { RecordEventOutboxRepo } from "../record-event-outbox.repo";
+import type { EventOutboxRepo } from "@/features/event/event-outbox.repo";
 import type { RecordOperationQueueRepo } from "../record-operation-queue.repo";
 import type { WebhookDeliveryQueueRepo } from "@/features/webhook/webhook-delivery-queue.repo";
 import { SweepRecordDeliveriesInteractor } from "../sweep-record-deliveries.interactor";
@@ -17,14 +17,14 @@ describe("record delivery recovery sweep", () => {
     ]);
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const sweep = new SweepRecordDeliveriesInteractor(
-      { dueCompaniesUnscoped } as unknown as RecordEventOutboxRepo,
+      { dueCompaniesUnscoped } as unknown as EventOutboxRepo,
       { dueUnscoped } as unknown as WebhookDeliveryQueueRepo,
       { claimDueUnscoped: vi.fn().mockResolvedValue([]) } as unknown as RecordOperationQueueRepo,
       { dispatch },
     );
 
     await expect(sweep.invoke()).resolves.toEqual({ eventWorkspaces: 1, webhookDeliveries: 1, recordOperations: 0 });
-    expect(dispatch).toHaveBeenCalledWith("process-record-events", {
+    expect(dispatch).toHaveBeenCalledWith("process-events", {
       companyId: "6a61ad3a-df22-43db-9a09-c77b582cbfee",
     });
     expect(dispatch).toHaveBeenCalledWith("deliver-webhook", {
@@ -39,7 +39,7 @@ describe("record delivery recovery sweep", () => {
     const sweep = new SweepRecordDeliveriesInteractor(
       {
         dueCompaniesUnscoped: vi.fn().mockResolvedValue(["6a61ad3a-df22-43db-9a09-c77b582cbfee"]),
-      } as unknown as RecordEventOutboxRepo,
+      } as unknown as EventOutboxRepo,
       {
         dueUnscoped: vi.fn().mockResolvedValue([
           {
@@ -70,7 +70,7 @@ describe("record delivery recovery sweep", () => {
       .mockResolvedValueOnce([operation]);
     const dispatch = vi.fn().mockRejectedValueOnce(new Error("Workflow unavailable")).mockResolvedValue(undefined);
     const sweep = new SweepRecordDeliveriesInteractor(
-      { dueCompaniesUnscoped: vi.fn().mockResolvedValue([]) } as unknown as RecordEventOutboxRepo,
+      { dueCompaniesUnscoped: vi.fn().mockResolvedValue([]) } as unknown as EventOutboxRepo,
       { dueUnscoped: vi.fn().mockResolvedValue([]) } as unknown as WebhookDeliveryQueueRepo,
       { claimDueUnscoped } as unknown as RecordOperationQueueRepo,
       { dispatch },
@@ -91,7 +91,7 @@ describe("record delivery recovery sweep", () => {
     const companyId = "6a61ad3a-df22-43db-9a09-c77b582cbfee";
     const operationId = "8f1f44a8-67a5-4262-a57c-f6bc1155a231";
     const sweep = new SweepRecordDeliveriesInteractor(
-      { dueCompaniesUnscoped: vi.fn().mockResolvedValue([]) } as unknown as RecordEventOutboxRepo,
+      { dueCompaniesUnscoped: vi.fn().mockResolvedValue([]) } as unknown as EventOutboxRepo,
       { dueUnscoped: vi.fn().mockResolvedValue([]) } as unknown as WebhookDeliveryQueueRepo,
       {
         claimDueUnscoped: vi

@@ -63,16 +63,9 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   const t = useTranslations();
   const deletion = useConfigurationDeletion(onDeleted);
   if (!canManage) return <div className="flex shrink-0 items-center gap-1">{ai}</div>;
-  if (selected && general.original?.id === selected.id && general.hasUnsavedChanges) {
-    return (
-      <FormActions
-        formId={generalFormId}
-        primaryButtonLabel={general.previewReady && !general.isLoading ? "RecordModel.apply" : "Common.actions.save"}
-        store={general}
-        variant="topbar"
-      />
-    );
-  }
+  if (selected && general.original?.id === selected.id && general.hasUnsavedChanges)
+    return <FormActions formId={generalFormId} store={general} variant="topbar" />;
+
   return (
     <div className="flex shrink-0 items-center gap-1">
       {ai}

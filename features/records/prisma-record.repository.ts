@@ -47,7 +47,7 @@ import type { MeasureRow } from "./record-measure";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { transactionStorage } from "@/core/decorators/transaction-context";
+import { wakeEventOutbox } from "@/features/event/event-outbox.repo";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { CalculatedValueSchema, RecordModelSchema } from "./record-model.schema";
 import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
@@ -70,12 +70,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   private async wakeRecordEvents(): Promise<void> {
-    if (!this.background) return;
-    const companyId = this.companyId;
-    const store = transactionStorage.getStore();
-    if (store?.recordEventWakeups.has(companyId)) return;
-    store?.recordEventWakeups.add(companyId);
-    await this.background.dispatch("process-record-events", { companyId });
+    if (this.background) await wakeEventOutbox(this.background, this.companyId);
   }
 
   override get companyId(): string {
@@ -351,8 +346,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         ),
       )}) AS target("typeId", "recordId", "fieldId")
       CROSS JOIN LATERAL (
-        SELECT event."actorId" FROM "RecordEvent" event
-        WHERE event."companyId" = ${this.companyId} AND event."typeId" = target."typeId" AND event."recordId" = target."recordId"
+        SELECT event."actorId" FROM "EventLog" event
+        WHERE event."companyId" = ${this.companyId} AND event."subjectKind" = 'record' AND event."subjectTypeId" = target."typeId" AND event."subjectId" = target."recordId"
           AND event.payload->'changedFieldIds' @> jsonb_build_array(target."fieldId")
         ORDER BY event."createdAt" DESC, event.id DESC
         LIMIT 1
@@ -1152,17 +1147,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean> {
-    const [event, audit] = await Promise.all([
-      this.prisma.recordEvent.findFirst({
-        where: { companyId: this.companyId, typeId: ref.typeId, recordId: ref.recordId },
-        select: { id: true },
-      }),
-      this.prisma.auditLog.findFirst({
-        where: { companyId: this.companyId, entityId: ref.recordId },
-        select: { id: true },
-      }),
-    ]);
-    return Boolean(event || audit);
+    const event = await this.prisma.eventLog.findFirst({
+      where: { companyId: this.companyId, subjectKind: "record", subjectTypeId: ref.typeId, subjectId: ref.recordId },
+      select: { id: true },
+    });
+    return Boolean(event);
   }
 
   async delete(ref: RecordRef): Promise<void> {
@@ -1527,12 +1516,13 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     beforeDeletion = false,
   ): Promise<void> {
     const id = randomUUID();
-    await this.prisma.recordEvent.create({
+    await this.prisma.eventLog.create({
       data: {
         companyId: this.companyId,
         id,
-        typeId: ref.typeId,
-        recordId: ref.recordId,
+        subjectKind: "record",
+        subjectTypeId: ref.typeId,
+        subjectId: ref.recordId,
         actorId,
         causeId,
         kind,
@@ -1705,8 +1695,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const stage = (kind: string) =>
       Prisma.sql`stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = ${kind}`;
     await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "RecordEvent" ("companyId", id, "typeId", "recordId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
-      SELECT ${companyId}, stage.payload->>'id', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
+      INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectTypeId", "subjectId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
+      SELECT ${companyId}, stage.payload->>'id', 'record', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
         stage.payload->>'actorId', stage.payload->>'causeId', stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
       FROM "RecordStageRow" stage WHERE ${stage("event")}
     `);

@@ -1,6 +1,7 @@
 "use client";
 
 import type { RecordModel } from "@/features/records/record-model.schema";
+import type { ConfigureGraphLayout } from "@/features/p13n/p13n-settings.schema";
 import type { ConfigureAddKind } from "./configure-actions";
 import type { ConfigureGraphAccounts } from "./configure-graph";
 import type { ConfigureGraphCatalog } from "./configure-graph-model";
@@ -57,12 +58,14 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   initialModel,
   catalog,
   accounts,
+  savedLayout,
   canManage,
   canPublishSummary = false,
 }: {
   initialModel: RecordModel;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
+  savedLayout: ConfigureGraphLayout | null;
   canManage: boolean;
   canPublishSummary?: boolean;
 }) {
@@ -76,6 +79,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const t = useTranslations();
   const generalFormId = useId();
   const [store] = useState(() => new DataModelStore(initialModel));
+  const [graphLayout, setGraphLayout] = useState(savedLayout?.positions ?? null);
   const authoritative = useRef(initialModel);
   useEffect(() => {
     if (authoritative.current === initialModel) return;
@@ -330,11 +334,13 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             catalog={catalog}
             disabled={!interactive}
             focusedListId={focusedListId}
+            layout={graphLayout}
             model={model}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
             onEditField={(listId, field) => fieldModal.edit(model, listId, field)}
             onEditRelationship={(relation) => relationModal.edit(model, relation.sourceTypeId, relation)}
+            onLayoutChange={setGraphLayout}
             onSelectList={selectList}
           />
         </div>

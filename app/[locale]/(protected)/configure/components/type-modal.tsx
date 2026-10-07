@@ -28,6 +28,7 @@ import { encodeGroupingToken, decodeGroupingToken } from "@/core/base/grouping/g
 import { FormRecordTypeIcon } from "@/components/records/form-record-type-icon";
 import { configureFieldOrder, moveConfigureField, reorderFieldOperations, typeDefinition } from "./configure-model";
 import { ModelChangeSheet } from "./model-change-sheet";
+import { suggestListPlural } from "./list-plural";
 
 const initialType = () => ({
   name: "",
@@ -64,6 +65,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     makeObservable(this, {
       original: observable.ref,
       section: observable,
+      renameList: action,
       edit: action,
       moveField: action,
     });
@@ -115,6 +117,15 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     this.channelBindingId = projected.channelBindingId;
     return toJS(projected.form);
   }
+  private suggestPlural(name: string) {
+    return suggestListPlural(name, this.rootStore.localeStore.locale);
+  }
+  renameList = (name: string) => {
+    const plural = this.form.pluralName.trim();
+    const following = !plural || plural === this.suggestPlural(this.form.name);
+    this.onChange("name", name);
+    if (following) this.onChange("pluralName", this.suggestPlural(name));
+  };
   moveField = (activeId: string, overId: string) => {
     this.onChange("fieldOrder", moveConfigureField(this.form.fieldOrder, activeId, overId));
   };
@@ -170,7 +181,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
           type: {
             ...typeDefinition(this.original),
             label: this.form.name,
-            pluralLabel: this.form.pluralName || this.form.name,
+            pluralLabel: this.form.pluralName.trim() || this.suggestPlural(this.form.name),
             description: this.form.description,
             icon: this.form.icon,
             navigationVisible: this.form.navigationVisible,
@@ -215,7 +226,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
         operation: "createType",
         reference: "$type",
         label: this.form.name,
-        pluralLabel: this.form.pluralName || this.form.name,
+        pluralLabel: this.form.pluralName.trim() || this.suggestPlural(this.form.name),
         description: this.form.description,
         icon: this.form.icon,
         embedded: false,
@@ -250,10 +261,17 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
   const inputId = (id: string) => (idPrefix ? `${idPrefix}-${id}` : undefined);
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormInput required id="name" inputId={inputId("name")} label={t("RecordModel.name")} />
+      <div className="space-y-3">
+        <FormInput
+          required
+          id="name"
+          inputId={inputId("name")}
+          label={t("RecordModel.name")}
+          onValueChange={store.renameList}
+        />
 
         <FormInput
+          containerClassName="sm:max-w-xs"
           description={t("RecordModel.pluralDescription")}
           id="pluralName"
           inputId={inputId("pluralName")}
@@ -330,11 +348,7 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
       ? t("RecordModel.sharedDefaults")
       : t("RecordModel.typeSettings");
   return (
-    <ModelChangeSheet
-      store={store}
-      submitLabel={store.original ? undefined : t("RecordModel.createList")}
-      title={title}
-    >
+    <ModelChangeSheet creating={!store.original} store={store} title={title}>
       <AppForm store={store}>
         <div className="space-y-4">
           <ModelChangeRecovery store={store} />

@@ -264,15 +264,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 )}
               </ConfigureGroup>
 
-              {editingGeneral && (
-                <FormActions
-                  formId={generalFormId}
-                  primaryButtonLabel={
-                    general.previewReady && !general.isLoading ? "RecordModel.apply" : "Common.actions.save"
-                  }
-                  store={general}
-                />
-              )}
+              {editingGeneral && <FormActions formId={generalFormId} store={general} />}
             </>
           ),
         },
@@ -392,9 +384,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     <div className="animate-page-result-in flex w-full flex-col motion-reduce:animate-none" data-configure-list-pane="">
       <div className="flex w-full max-w-3xl items-center justify-between gap-4 p-4 md:p-6">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <Icon aria-hidden="true" className="size-4" />
-          </span>
+          <Icon aria-hidden="true" className="size-5 shrink-0" />
 
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">{selected.pluralLabel}</h1>

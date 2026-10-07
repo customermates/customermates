@@ -29,11 +29,9 @@ vi.mock("@/ee/messaging/messaging.service", () => ({
   },
 }));
 vi.mock("@/core/email/email.service", () => ({
-  EmailService: class {
-    send() {
-      return Promise.resolve(true);
-    }
-  },
+  EmailService: vi.fn(function () {
+    return { send: () => Promise.resolve(true) };
+  }),
 }));
 
 const { getDeleteAccountsForPlanInteractor } = await import("@/core/di");
@@ -59,7 +57,7 @@ const account = (id: string, createdAt: Date, displayName: string) => ({
 });
 
 const auditRows = () =>
-  runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company }, orderBy: { createdAt: "asc" } }));
+  runWithoutTenant(() => prisma.eventLog.findMany({ where: { companyId: company }, orderBy: { createdAt: "asc" } }));
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
@@ -88,7 +86,7 @@ describeDatabase("a billing-driven account removal leaves an audit trail", { tim
   beforeEach(async () => {
     removedAtProvider.length = 0;
     await runWithoutTenant(async () => {
-      await prisma.auditLog.deleteMany({ where: { companyId: company } });
+      await prisma.eventLog.deleteMany({ where: { companyId: company } });
       await prisma.connectedAccount.deleteMany({ where: { companyId: company } });
       await prisma.connectedAccount.createMany({
         data: [
@@ -116,12 +114,10 @@ describeDatabase("a billing-driven account removal leaves an audit trail", { tim
     const rows = await auditRows();
 
     expect(rows).toHaveLength(2);
-    expect(rows.every((row) => row.event === "connected_account.deleted")).toBe(true);
-    expect(rows.every((row) => row.userId === owner && row.companyId === company)).toBe(true);
-    expect(rows.map((row) => row.entityId).sort()).toEqual([olderAccount, newerAccount].sort());
-    expect(rows[0].eventData).toMatchObject({
-      payload: { provider: "linkedin", removalReason: "planDowngrade" },
-    });
+    expect(rows.every((row) => row.kind === "connected_account.deleted")).toBe(true);
+    expect(rows.every((row) => row.actorId === owner && row.companyId === company)).toBe(true);
+    expect(rows.map((row) => row.subjectId).sort()).toEqual([olderAccount, newerAccount].sort());
+    expect(rows[0].payload).toMatchObject({ provider: "linkedin", removalReason: "planDowngrade" });
   });
 
   it("removes only the overage and audits only what it removed", async () => {
@@ -134,10 +130,8 @@ describeDatabase("a billing-driven account removal leaves an audit trail", { tim
 
     expect(surviving.map((row) => row.id)).toEqual([olderAccount]);
     expect(rows).toHaveLength(1);
-    expect(rows[0].entityId).toBe(newerAccount);
-    expect(rows[0].eventData).toMatchObject({
-      payload: { displayName: "Newer Account", removalReason: "planDowngrade" },
-    });
+    expect(rows[0].subjectId).toBe(newerAccount);
+    expect(rows[0].payload).toMatchObject({ displayName: "Newer Account", removalReason: "planDowngrade" });
   });
 
   it("writes nothing when the plan still covers every account", async () => {
@@ -149,7 +143,7 @@ describeDatabase("a billing-driven account removal leaves an audit trail", { tim
 
   it("is idempotent: a repeated downgrade neither re-deletes nor re-audits", async () => {
     await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "starter" });
-    await runWithoutTenant(() => prisma.auditLog.deleteMany({ where: { companyId: company } }));
+    await runWithoutTenant(() => prisma.eventLog.deleteMany({ where: { companyId: company } }));
     removedAtProvider.length = 0;
 
     await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "starter" });

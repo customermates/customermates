@@ -91,6 +91,7 @@ export const ActivityPathModal = observer(function ActivityPathModal({
             ]
           : []
       }
+      creating={!store.form.id}
       store={store}
       title={t("RecordModel.activityConnections")}
     >

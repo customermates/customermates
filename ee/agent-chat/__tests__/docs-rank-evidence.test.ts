@@ -590,9 +590,9 @@ describe("bounded classifier evidence", () => {
     ],
     [
       "app-company",
-      "audit-logs-tab",
+      "activity-tab",
       "who edited this contact, is there a history",
-      "who changed which record or setting, and when.",
+      "who changed which record, setting or configuration, and when.",
     ],
     [
       "app-onboarding",
