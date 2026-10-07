@@ -222,6 +222,45 @@ async function readSnapshot(
   };
 }
 
+export async function writeRecordChange(
+  prisma: Prisma.TransactionClient | PrismaClient,
+  companyId: string,
+  model: RecordModel,
+  entry: {
+    id: string;
+    ref: RecordRef;
+    actorId: string;
+    at: Date;
+    before: ReadonlyMap<string, RecordScalar> | null;
+    after: ReadonlyMap<string, RecordScalar>;
+  },
+): Promise<void> {
+  const before = entry.before ? await readSnapshot(prisma, companyId, model, entry.ref, 1, entry.before) : null;
+  const after = await readSnapshot(prisma, companyId, model, entry.ref, before ? 2 : 1, entry.after);
+  const change = recordEventChanges({ ref: entry.ref, before, links: [] }, after, model, { kind: "mutation" });
+  if (!change) throw new Error(`Synthetic history ${entry.id} carries no change`);
+  const data = {
+    companyId,
+    subjectKind: "record",
+    subjectTypeId: entry.ref.typeId,
+    subjectId: entry.ref.recordId,
+    actorId: entry.actorId,
+    causeId: entry.id,
+    kind: change.kind,
+    payload: change.payload as Prisma.InputJsonValue,
+    createdAt: entry.at,
+    deliveredAt: entry.at,
+    nextAttemptAt: entry.at,
+    attempts: 0,
+    lastFailureCode: null,
+  };
+  await prisma.eventLog.upsert({
+    where: { companyId_id: { companyId, id: entry.id } },
+    create: { id: entry.id, ...data },
+    update: data,
+  });
+}
+
 export async function seedRecordHistory(context: SeedContext, entities: RelationshipSeedInput): Promise<void> {
   const { prisma, ids } = context;
   const companyId = ids.company;
@@ -267,32 +306,13 @@ export async function seedRecordHistory(context: SeedContext, entities: Relation
         value: `${previousFirstName} ${entities.contacts[entry.index].lastName}`.trim(),
       });
     }
-    const before =
-      entry.kind === "record.updated" ? await readSnapshot(prisma, companyId, model, ref, 1, overrides) : null;
-    const after =
-      entry.kind === "record.updated"
-        ? await readSnapshot(prisma, companyId, model, ref, 2, new Map())
-        : await readSnapshot(prisma, companyId, model, ref, 1, overrides);
-    const change = recordEventChanges({ ref, before, links: [] }, after, model, { kind: "mutation" });
-    if (!change) throw new Error(`Synthetic ${entry.type} history ${entry.recordId} carries no change`);
-    const data = {
-      companyId,
-      typeId: ref.typeId,
-      recordId: ref.recordId,
+    await writeRecordChange(prisma, companyId, model, {
+      id: entry.id,
+      ref,
       actorId: entry.actorId,
-      causeId: entry.id,
-      kind: change.kind,
-      payload: change.payload as Prisma.InputJsonValue,
-      createdAt: entry.at,
-      deliveredAt: entry.at,
-      nextAttemptAt: entry.at,
-      attempts: 0,
-      lastFailureCode: null,
-    };
-    await prisma.recordEvent.upsert({
-      where: { companyId_id: { companyId, id: entry.id } },
-      create: { id: entry.id, ...data },
-      update: data,
+      at: entry.at,
+      before: entry.kind === "record.updated" ? overrides : null,
+      after: entry.kind === "record.updated" ? new Map() : overrides,
     });
   }
   for (const entry of entries.filter((candidate) => candidate.kind === "record.updated")) {
@@ -302,7 +322,7 @@ export async function seedRecordHistory(context: SeedContext, entities: Relation
       data: { version: 2, updatedAt: row.updatedAt },
     });
   }
-  await prisma.recordEvent.deleteMany({
+  await prisma.eventLog.deleteMany({
     where: {
       companyId,
       id: { startsWith: `${SYNTHETIC_RECORD_EVENT_ID_PREFIX}-`, notIn: entries.map(({ id }) => id) },

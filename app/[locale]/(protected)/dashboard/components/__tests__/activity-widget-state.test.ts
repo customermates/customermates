@@ -34,26 +34,26 @@ function timelineKindFilter(operator: FilterOperatorKey.in | FilterOperatorKey.n
 describe("requestedActivitySources", () => {
   it.each([
     [[], []],
-    [["changes"], ["audit"]],
+    [["audit"], ["audit"]],
     [["messages"], ["message"]],
     [["activities"], ["activity", "calendar_event"]],
     [
-      ["changes", "messages"],
-      ["audit", "message"],
+      ["record", "messages"],
+      ["record", "message"],
     ],
     [
-      ["changes", "activities"],
-      ["audit", "activity", "calendar_event"],
+      ["configuration", "activities"],
+      ["configuration", "activity", "calendar_event"],
     ],
     [
       ["messages", "activities"],
       ["message", "activity", "calendar_event"],
     ],
-    [["changes", "messages", "activities"], ACTIVITY_KINDS],
+    [["record", "audit", "configuration", "messages", "activities"], ACTIVITY_KINDS],
   ] as const)("maps the activity-type card selection %j to %j", (selected, expected) => {
     const filter =
       selected.length === 0
-        ? timelineKindFilter(FilterOperatorKey.notIn, ["changes", "messages", "activities"])
+        ? timelineKindFilter(FilterOperatorKey.notIn, ["record", "audit", "configuration", "messages", "activities"])
         : timelineKindFilter(FilterOperatorKey.in, [...selected]);
 
     expect(requestedActivitySources([filter])).toEqual(expected);
@@ -68,17 +68,21 @@ describe("requestedActivitySources", () => {
       "calendar_event",
     ]);
     expect(requestedActivitySources([timelineKindFilter(FilterOperatorKey.notIn, ["activity"])])).toEqual([
+      "record",
       "audit",
+      "configuration",
       "message",
       "calendar_event",
     ]);
   });
 
   it("intersects requested sources with permissions before requiring accounts", () => {
-    expect(activityWidgetSourcePlan([timelineKindFilter(FilterOperatorKey.in, ["changes"])], ACTIVITY_KINDS)).toEqual({
-      availableRequestedSources: ["audit"],
+    expect(
+      activityWidgetSourcePlan([timelineKindFilter(FilterOperatorKey.in, ["record", "audit"])], ACTIVITY_KINDS),
+    ).toEqual({
+      availableRequestedSources: ["record", "audit"],
       connectedAccountSources: [],
-      requestedSources: ["audit"],
+      requestedSources: ["record", "audit"],
     });
     expect(activityWidgetSourcePlan([timelineKindFilter(FilterOperatorKey.in, ["messages"])], ["audit"])).toEqual({
       availableRequestedSources: [],

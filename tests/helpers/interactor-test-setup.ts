@@ -121,7 +121,6 @@ export const MOCK_PRISMA_DB_MODULE = {
     $transaction: vi.fn().mockImplementation((fn: any) =>
       fn({
         $executeRaw: vi.fn().mockResolvedValue(undefined),
-        auditLog: { createMany: vi.fn() },
         webhookDelivery: { createMany: vi.fn() },
       }),
     ),

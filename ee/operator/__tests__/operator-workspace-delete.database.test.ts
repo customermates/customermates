@@ -343,8 +343,15 @@ describeDatabase("operator workspace deletion against a real database", { timeou
 
     await runWithoutTenant(async () => {
       const owner = members[0];
-      await prisma.auditLog.create({
-        data: { companyId, userId: owner.userId, event: "contact.created", eventData: {}, entityId: randomUUID() },
+      await prisma.eventLog.create({
+        data: {
+          companyId,
+          actorId: owner.userId,
+          subjectKind: "role",
+          kind: "role.created",
+          payload: {},
+          subjectId: randomUUID(),
+        },
       });
       await prisma.inviteToken.create({
         data: {

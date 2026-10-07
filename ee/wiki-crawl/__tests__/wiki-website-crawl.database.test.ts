@@ -67,29 +67,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   const user: TenantUser = createMockUser({ id: randomUUID(), companyId });
 
   const eventService = () =>
-    new EventService(
-      [],
-      {
-        getWebhooksForEvent: () => Promise.resolve([]),
-        getWebhooksForEventUnscoped: () => Promise.resolve([]),
-      },
-      {
-        create: () => Promise.resolve([]),
-        createUnscoped: () => Promise.resolve([]),
-      },
-      { log: () => Promise.resolve(), logUnscoped: () => Promise.resolve() },
-      { dispatch: () => Promise.resolve() } as never,
-      {
-        findEventRoutinesUnscoped: () => Promise.resolve([]),
-        admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
-      },
-      {
-        matchesCurrentUser: () => Promise.resolve(true),
-        currentUserTrigger: () => Promise.resolve(null),
-        matchesUserUnscoped: () => Promise.resolve(true),
-        canUserAccessUnscoped: () => Promise.resolve(true),
-      },
-    );
+    new EventService([], {
+      appendUnscoped: () => Promise.resolve(),
+      hasSubscribersUnscoped: () => Promise.resolve(false),
+    });
   const service = () =>
     new WikiWebsiteCrawlService(
       new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())),

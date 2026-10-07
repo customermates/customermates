@@ -62,13 +62,6 @@ describeDatabase("field currency migration", { timeout: 240000 }, () => {
     const swiss = await populateLegacyWorkspace(client, { currency: "chf" });
     const euro = await populateLegacyWorkspace(client);
     await applyConfigurableRecordsMigration(client, { later: false });
-    const audit = (event: string) =>
-      client.query(
-        `INSERT INTO "AuditLog" (id, event, "eventData", "companyId", "userId", "entityId") VALUES (gen_random_uuid(), $1, '{}', $2, $3, $2)`,
-        [event, swiss.companyId, swiss.admin.id],
-      );
-    await audit("company.updated");
-    await audit("role.created");
     const starter = ["service.amount", "lineItem.savedPrice", "lineItem.effectivePrice", "lineItem.amount"]
       .concat(["deal.totalValue", "deal.weightedValue"])
       .map((key) => presetId(swiss.companyId, key));
@@ -101,12 +94,6 @@ describeDatabase("field currency migration", { timeout: 240000 }, () => {
       ),
     ).toEqual([]);
     expect(await rows(client, `SELECT to_regtype('"Currency"') AS type`)).toEqual([{ type: null }]);
-    expect(
-      await rows(
-        client,
-        `SELECT event FROM "AuditLog" WHERE "companyId" = $1 AND event IN ('company.updated', 'role.created')`,
-        [swiss.companyId],
-      ),
-    ).toEqual([{ event: "role.created" }]);
+    expect(await rows(client, `SELECT to_regclass('"AuditLog"') AS audit`)).toEqual([{ audit: null }]);
   });
 });

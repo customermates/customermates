@@ -29,6 +29,9 @@
     "privacyLink": "Détails de confidentialité",
     "title": "Aidez-nous à comprendre ce qui fonctionne"
   },
+  "ActivityPage": {
+    "title": "Activité"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -753,12 +756,7 @@
     "unnamed": "Sans nom"
   },
   "AuditLogModal": {
-    "createdAt": "Créé le",
-    "entity": "Élément",
-    "entityId": "ID de l'élément",
-    "event": "Évènement",
     "eventAt": "{event} le {date}",
-    "eventData": "Données de l'évènement",
     "fields": {
       "acceptanceType": "Type d'acceptation",
       "acceptingEmail": "Accepté par",
@@ -766,11 +764,12 @@
       "changedFields": "Champs surveillés",
       "city": "Ville",
       "country": "Pays",
+      "createType": "Nouveau type",
       "cronExpression": "Planification",
       "currency": "Devise",
-      "dealStageWeights": "Probabilités d'étape",
-      "dealWeightingColumnId": "Champ d'étape",
       "debounceSeconds": "Délai d’attente",
+      "deleteField": "Champ supprimé définitivement",
+      "deleteType": "Type supprimé définitivement",
       "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
       "emails": "Adresses e-mail",
@@ -779,10 +778,16 @@
       "markdown": "Markdown",
       "postalCode": "Code postal",
       "prompt": "Consignes",
+      "publishSummary": "Résumé publié",
+      "putAccessPreset": "Modèle d’accès",
+      "putActivityPath": "Chemin d’activité",
+      "putCapability": "Fonctionnalité",
+      "putField": "Champ",
+      "putRelationship": "Relation",
+      "putType": "Type",
       "recipientEmail": "Envoyé à",
       "removalReason": "Motif de suppression",
       "street": "Rue",
-      "terminology": "Noms des enregistrements",
       "timezone": "Fuseau horaire",
       "triggerEvents": "Évènements déclencheurs",
       "triggerFilters": "Filtres du déclencheur",
@@ -793,15 +798,7 @@
     "noValue": "Aucune valeur",
     "relationsAdded": "Ajouts : {field}",
     "relationsDeleted": "Suppressions : {field}",
-    "title": "Détails du journal d'audit",
-    "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}",
-    "userId": "Utilisateur"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Les modifications de l’espace de travail sont enregistrées ici au fur et à mesure.",
-    "emptyTitle": "Aucune activité pour le moment",
-    "searchTooltip": "Rechercher par ID d'élément",
-    "title": "Journaux d'audit"
+    "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "La connexion a été annulée chez le fournisseur.",
@@ -1165,6 +1162,13 @@
         "created": "Fiche créée",
         "deleted": "Fiche supprimée",
         "updated": "Fiche mise à jour"
+      },
+      "record_grants": {
+        "updated": "Accès aux enregistrements modifié"
+      },
+      "record_model": {
+        "initialized": "Modèle de données configuré",
+        "updated": "Modèle de données modifié"
       },
       "records": {
         "exported": "Enregistrements exportés"
@@ -2050,8 +2054,10 @@
     "noFurtherDetail": "Aucun détail supplémentaire n'a été enregistré pour cet événement.",
     "types": {
       "activities": "Activités",
-      "changes": "Modifications",
-      "messages": "Messages"
+      "audit": "Administration et système",
+      "configuration": "Configuration",
+      "messages": "Messages",
+      "record": "Modifications d’enregistrements"
     }
   },
   "ErrorCard": {
@@ -2948,7 +2954,6 @@
     "addProbability": "Ajouter une probabilité",
     "aggregation": "Agrégation",
     "allowManualOverride": "Autoriser une valeur de remplacement manuelle",
-    "apply": "Appliquer les modifications",
     "archiveActivityPath": "Archiver la connexion",
     "archived": "Archivé",
     "archiveField": "Archiver le champ",
@@ -2957,8 +2962,8 @@
     "archiveRelationship": "Archiver la relation",
     "archiveRelationshipPath": "Archiver cette colonne de fiches liées",
     "ascending": "Croissant",
+    "assignedMembers": "Membres attribués",
     "assignedTo": "Attribué à",
-    "assignmentChange": "Membres attribués : {before} → {after}",
     "attribute": "Nom de l’attribut",
     "behavior": "Source de la valeur",
     "behaviors": {
@@ -2972,6 +2977,28 @@
     "calculationError": "Calcul indisponible",
     "calculationInput": "Entrée {number}",
     "calculationNavigation": "Navigation du calcul",
+    "calculationPath": {
+      "captureChanged": "enregistrée quand {field} change",
+      "captureChangedTo": "enregistrée quand {field} passe à {value}",
+      "captureCreate": "enregistrée à la création de l’élément",
+      "captureExplicit": "enregistrée sur demande",
+      "count": "{field} = le nombre de {list} liés",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = {value} de l’élément lié de {list}",
+      "manual": "peut être remplacée manuellement",
+      "reducers": {
+        "average": "la moyenne",
+        "max": "le maximum",
+        "min": "le minimum",
+        "sum": "la somme"
+      },
+      "rollup": "{field} = {reducer} de {value} sur les {list} liés",
+      "sentence": "{clauses}.",
+      "steps": "Chemin de calcul",
+      "thisField": "Ce champ",
+      "title": "Comment la valeur est calculée",
+      "via": "via {relationship} ({cardinality})"
+    },
     "calculationResult": "Résultat",
     "calculationSource": "Utiliser",
     "cancelOperation": "Annuler la modification",
@@ -3000,7 +3027,6 @@
     "createdAt": "Créé le",
     "createList": "Créer une liste",
     "currency": "Devise",
-    "currentValue": "Valeur actuelle",
     "decimalPlaces": "Décimales",
     "decimalPlacesHelp": "Laissez vide pour utiliser le format par défaut. Cela modifie l’affichage des valeurs, pas leur calcul.",
     "defaultColumns": "Colonnes par défaut",
@@ -3069,6 +3095,7 @@
       "recordsRestricted": "Nombre d’enregistrements indisponible",
       "recordUnit": "{count, plural, one {enregistrement} other {enregistrements}}",
       "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
+      "resetLayout": "Réinitialiser la disposition",
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"
     },
@@ -3264,10 +3291,9 @@
       "views": "{count, plural, one {# vue enregistrée ou mise en page personnelle} other {# vues enregistrées ou mises en page personnelles}}"
     },
     "pinnedFields": "Champs de détail épinglés",
-    "pluralDescription": "Le nom affiché dans la navigation. Laissez vide pour utiliser le nom de la liste.",
-    "pluralName": "Libellé de navigation",
+    "pluralDescription": "Affiché dans la navigation et les titres de liste. Proposé à partir du nom jusqu’à ce que vous le modifiiez.",
+    "pluralName": "Nom au pluriel",
     "previewReady": "Prêt à appliquer. {count} fiches seront vérifiées.",
-    "previousValue": "Valeur précédente",
     "priceModes": {
       "live": "Prix actuel",
       "saved": "Prix enregistré"

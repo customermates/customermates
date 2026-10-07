@@ -55,7 +55,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await page.locator("#nav-add").click();
   await page.getByRole("dialog").getByRole("button", { name: "Create list", exact: true }).click();
   await editor.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
-  await editor.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await editor.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(page).toHaveURL(/\/records\/[a-f0-9-]+$/);
   await expect(editor).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
@@ -68,7 +68,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await followConfigureLink(page);
   const general = page.getByRole("region", { name: "General", exact: true });
   await general.getByRole("textbox", { name: "Name", exact: false }).first().fill("Engagement");
-  await general.getByRole("textbox", { name: "Navigation label", exact: false }).fill("Engagements");
+  await general.getByRole("textbox", { name: "Plural name", exact: true }).fill("Engagements");
   await saveGeneral(page);
   await openSidebar();
   await expect(navLink).toHaveText("Engagements");
