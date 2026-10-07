@@ -98,7 +98,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
               pluralLabel: type.pluralLabel,
               description: type.description,
               icon: type.icon,
-              color: type.color,
+              ...(type.color ? { color: type.color } : {}),
               embedded: type.embedded,
               fieldCount: model.fields.filter((field) => field.typeId === type.id && !field.archived).length,
               permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter((action) =>
