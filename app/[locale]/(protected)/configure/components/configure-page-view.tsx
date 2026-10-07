@@ -203,6 +203,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     () => tryNavigate(() => window.history.pushState(null, "", configureHref({ typeId: null }))),
     [tryNavigate],
   );
+  const editChannels = (listId: string) => fieldModal.editChannels(model, listId);
   const add = useCallback(
     (kind: ConfigureAddKind) => {
       if (kind === "list") {
@@ -300,6 +301,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
               activityModal.edit(model, selected.id, path);
               if (path.archived) activityModal.onChange("archived", false);
             }}
+            onEditChannels={() => editChannels(selected.id)}
             onEditField={(field) => {
               fieldModal.edit(model, selected.id, field);
               if (field.archived) fieldModal.onChange("archived", false);
@@ -334,6 +336,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             showArchived={showArchived}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
+            onEditChannels={editChannels}
             onEditField={(listId, field) => {
               fieldModal.edit(model, listId, field);
               if (field.archived) fieldModal.onChange("archived", false);

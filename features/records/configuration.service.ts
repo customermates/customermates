@@ -80,6 +80,7 @@ function removeArchivedDefinitions(
 ): { deletion: RecordDefinitionDeletion; issues: ModelIssue[] } {
   const typeIds = new Set<string>();
   const fieldIds = new Set<string>();
+  const channelTypeIds = new Set<string>();
   for (const operation of operations) {
     if (operation.operation === "deleteType") {
       if (!model.types.some((type) => type.id === operation.typeId && type.archived))
@@ -89,6 +90,11 @@ function removeArchivedDefinitions(
       if (!model.fields.some((field) => field.id === operation.fieldId && field.archived))
         throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
       fieldIds.add(operation.fieldId);
+    } else if (operation.operation === "deleteCapability") {
+      const binding = model.capabilities.find((candidate) => candidate.id === operation.capabilityId);
+      if (binding?.kind !== "channels" || binding.enabled !== false)
+        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      channelTypeIds.add(binding.typeId);
     } else throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
   }
   for (const field of model.fields) if (typeIds.has(field.typeId)) fieldIds.add(field.id);
@@ -107,7 +113,23 @@ function removeArchivedDefinitions(
     );
   model.fields = model.fields.filter((field) => !fieldIds.has(field.id));
   model.relationships = model.relationships.filter((relation) => !relationIds.has(relation.id));
-  model.capabilities = model.capabilities.filter((binding) => !typeIds.has(binding.typeId));
+  model.capabilities = model.capabilities.filter(
+    (binding) => !typeIds.has(binding.typeId) && !(binding.kind === "channels" && channelTypeIds.has(binding.typeId)),
+  );
+  const withoutChannels = (columns: string[]) => columns.filter((column) => column !== "system:channels");
+  model.types = model.types.map((type) =>
+    channelTypeIds.has(type.id)
+      ? {
+          ...type,
+          defaults: {
+            ...type.defaults,
+            columns: withoutChannels(type.defaults.columns),
+            hiddenColumns: withoutChannels(type.defaults.hiddenColumns),
+            pinnedFields: withoutChannels(type.defaults.pinnedFields),
+          },
+        }
+      : type,
+  );
   model.activityPaths = model.activityPaths.filter((path) => !typeIds.has(path.typeId) && !crosses(path.path));
   const issues: ModelIssue[] = [];
   for (const field of model.fields) {
@@ -124,7 +146,15 @@ function removeArchivedDefinitions(
     if (type.parentRelationshipId && relationIds.has(type.parentRelationshipId))
       issues.push({ code: "deletion_dependency", typeId: type.id });
   }
-  return { deletion: { typeIds: [...typeIds], fieldIds: [...fieldIds], relationIds: [...relationIds] }, issues };
+  return {
+    deletion: {
+      typeIds: [...typeIds],
+      fieldIds: [...fieldIds],
+      relationIds: [...relationIds],
+      channelTypeIds: [...channelTypeIds].filter((typeId) => !typeIds.has(typeId)),
+    },
+    issues,
+  };
 }
 
 export type PreparedConfiguration = {
@@ -412,7 +442,10 @@ export class RecordConfigurationService extends UserAccessor {
         upsert(model.activityPaths, resolveDefinition(operation.activityPath) as RecordModel["activityPaths"][number]);
     }
     const removed = input.operations.some(
-      (operation) => operation.operation === "deleteType" || operation.operation === "deleteField",
+      (operation) =>
+        operation.operation === "deleteType" ||
+        operation.operation === "deleteField" ||
+        operation.operation === "deleteCapability",
     )
       ? removeArchivedDefinitions(model, input.operations)
       : null;

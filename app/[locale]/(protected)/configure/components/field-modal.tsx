@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
@@ -34,6 +34,10 @@ import { useDefinitionDeletion } from "./use-definition-deletion";
 import { CalculationInput } from "./calculation-input";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordInputValue } from "@/features/records/record-input-value";
+import { recordChannelsBinding } from "@/features/records/record-channels";
+import { channelsAvatarAvailable, channelsFieldOperations } from "./channels-field";
+
+type ChannelsBinding = RecordModel["capabilities"][number];
 
 function scalarDraft(value: RecordScalar | null | undefined): unknown {
   if (!value) return undefined;
@@ -46,11 +50,12 @@ function scalarDraft(value: RecordScalar | null | undefined): unknown {
 const initial = () => ({
   id: undefined as string | undefined,
   label: "",
-  valueType: "text" as RecordField["valueType"],
+  valueType: "text" as RecordField["valueType"] | "channels",
   behavior: "input" as RecordField["behavior"]["kind"],
   required: false,
   multiple: false,
   archived: false,
+  providerAvatar: false,
   currency: "eur",
   decimalPlaces: "",
   expression: {
@@ -75,6 +80,7 @@ const initial = () => ({
 export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>> {
   typeId = "";
   original: RecordField | null = null;
+  channels: ChannelsBinding | null = null;
   private definitionId: string = crypto.randomUUID();
   private publication: { signature: string; operations: ConfigurationChange["operations"] } | null = null;
   constructor(
@@ -88,7 +94,9 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     makeObservable(this, {
       typeId: observable,
       original: observable.ref,
+      channels: observable.ref,
       edit: action,
+      editChannels: action,
       addOption: action,
       removeOption: action,
     });
@@ -105,6 +113,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     this.resetModel(model);
     this.typeId = typeId;
     this.original = field;
+    this.channels = null;
     this.definitionId = field?.id ?? crypto.randomUUID();
     this.publication = null;
     this.onInitOrRefresh(
@@ -154,9 +163,42 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     );
     this.open();
   };
+  editChannels = (model: RecordModel, typeId: string) => {
+    const binding = recordChannelsBinding(model, typeId);
+    if (!binding) return;
+    this.resetModel(model);
+    this.typeId = typeId;
+    this.original = null;
+    this.channels = binding;
+    this.definitionId = binding.id;
+    this.publication = null;
+    this.onInitOrRefresh(this.channelsForm(binding));
+    this.open();
+  };
+  get isChannels() {
+    return this.form.valueType === "channels";
+  }
+  get hasChannels() {
+    return Boolean(recordChannelsBinding(this.model, this.typeId));
+  }
+  private channelsForm(binding: ChannelsBinding) {
+    return {
+      ...initial(),
+      valueType: "channels" as const,
+      archived: binding.enabled === false,
+      providerAvatar: binding.providerAvatar ?? false,
+    };
+  }
   protected projectLatestModel(model: RecordModel) {
     if (!model.types.some((type) => type.id === this.typeId)) return null;
     this.publication = null;
+    if (this.channels) {
+      const latest = recordChannelsBinding(model, this.typeId);
+      if (!latest) return null;
+      this.channels = latest;
+      this.definitionId = latest.id;
+      return this.channelsForm(latest);
+    }
     if (!this.original) return toJS(this.savedState);
     const latest = model.fields.find((field) => field.id === this.original?.id);
     if (!latest) return null;
@@ -186,7 +228,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       id: this.definitionId,
       typeId: this.typeId,
       label: this.form.label,
-      valueType: this.form.valueType,
+      valueType: this.form.valueType === "channels" ? "text" : this.form.valueType,
       behavior: { kind: "input" },
       required: false,
       multiple: ["text", "email", "phone", "url"].includes(this.form.valueType) && this.form.multiple,
@@ -261,6 +303,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     if (this.canPublishSummary && this.publication?.signature === JSON.stringify(toJS(this.form)))
       return this.publication.operations;
     const form = this.form;
+    if (form.valueType === "channels") return channelsFieldOperations(this.model, this.typeId, form, this.definitionId);
     const trigger = this.triggerField;
     const triggerValue = trigger
       ? recordInputValue(form.triggerValue, trigger, this.rootStore.companyStore.company?.currency ?? "EUR")
@@ -353,6 +396,9 @@ export const FieldModal = observer(function FieldModal({
   const t = useTranslations();
   const deletion = useDefinitionDeletion(onDeleted);
   const archived = store.original?.archived ? store.original : null;
+  const activeChannels = store.channels?.enabled !== false ? store.channels : null;
+  const deletedChannels = store.channels?.enabled === false ? store.channels : null;
+  const editing = Boolean(store.original || store.channels);
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
   const askAi = useRecordAiAction({
@@ -369,7 +415,30 @@ export const FieldModal = observer(function FieldModal({
     <ModelChangeSheet
       actions={[
         ...(askAi ? [askAi] : []),
-        ...(archived
+        ...(activeChannels
+          ? [
+              {
+                id: "delete-channels",
+                icon: Trash2,
+                label: t("Common.actions.delete"),
+                variant: "destructive" as const,
+                disabled: store.isLoading || store.isReadOnly,
+                onClick: () => deletion.requestChannelsRemoval(store.model, activeChannels),
+              },
+            ]
+          : []),
+        ...(deletedChannels
+          ? [
+              {
+                id: "restore-channels",
+                icon: RotateCcw,
+                label: t("RecordModel.channelsField.restore"),
+                disabled: store.isLoading || store.isReadOnly,
+                onClick: () => deletion.restoreChannels(store.model, deletedChannels),
+              },
+            ]
+          : []),
+        ...(archived || deletedChannels
           ? [
               {
                 id: "delete-field",
@@ -378,13 +447,17 @@ export const FieldModal = observer(function FieldModal({
                 variant: "destructive" as const,
                 busy: deletion.isPreviewing,
                 disabled: store.isLoading || store.isReadOnly,
-                onClick: () => deletion.requestDeletion(store.model, { field: archived }),
+                onClick: () =>
+                  deletion.requestDeletion(
+                    store.model,
+                    archived ? { field: archived } : { channels: deletedChannels as ChannelsBinding },
+                  ),
               },
             ]
           : []),
       ]}
       store={store}
-      title={store.original ? t("RecordModel.editField") : t("RecordModel.addField")}
+      title={editing ? t("RecordModel.editField") : t("RecordModel.addField")}
     >
       <AppForm store={store}>
         <div className="space-y-4">
@@ -401,7 +474,7 @@ export const FieldModal = observer(function FieldModal({
           <EditorTabs
             className="-mx-6"
             contentClassName="space-y-4 px-6 pt-5"
-            label={store.original ? t("RecordModel.editField") : t("RecordModel.addField")}
+            label={editing ? t("RecordModel.editField") : t("RecordModel.addField")}
             tabs={[
               {
                 id: "general",
@@ -415,65 +488,94 @@ export const FieldModal = observer(function FieldModal({
                   "defaultValue",
                   "required",
                   "multiple",
+                  "providerAvatar",
                   "archived",
                 ],
                 content: (
                   <>
-                    <FormInput required id="label" label={t("RecordModel.name")} />
+                    {!store.isChannels && <FormInput required id="label" label={t("RecordModel.name")} />}
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <FormSelect
+                        disabled={Boolean(store.channels)}
                         id="valueType"
-                        items={RecordValueTypeSchema.options.map((value) => ({
-                          value,
-                          label: t(`RecordModel.types.${value}`),
-                        }))}
+                        items={[
+                          ...RecordValueTypeSchema.options.map((value) => ({
+                            value,
+                            label: t(`RecordModel.types.${value}`),
+                          })),
+                          ...(store.original
+                            ? []
+                            : [
+                                {
+                                  value: "channels",
+                                  label: t("EntityChannels.heading"),
+                                  disabled: !store.channels && store.hasChannels,
+                                  description:
+                                    !store.channels && store.hasChannels
+                                      ? t("RecordModel.channelsField.alreadyAdded")
+                                      : t("RecordModel.channelsField.detail"),
+                                },
+                              ]),
+                        ]}
                         label={t("RecordModel.valueType")}
                       />
 
-                      <FormSelect
-                        id="behavior"
-                        items={["input", "formula", "lookup", "rollup", "snapshot"].map((value) => ({
-                          value,
-                          label: t(`RecordModel.behaviors.${value}`),
-                        }))}
-                        label={t("RecordModel.behavior")}
-                        onValueChange={(behavior) => {
-                          store.onChange("behavior", behavior);
-                          if (behavior === "lookup" || behavior === "rollup") {
-                            const relation = store.model.relationships.find(
-                              (relation) =>
-                                !relation.archived &&
-                                (relation.sourceTypeId === store.typeId || relation.targetTypeId === store.typeId),
-                            );
-                            if (!relation) return;
-                            const direction = relation.sourceTypeId === store.typeId ? "outgoing" : "incoming";
-                            const targetId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
-                            const field = store.model.fields.find(
-                              (field) =>
-                                field.typeId === targetId &&
-                                !field.archived &&
-                                field.valueType === store.form.valueType,
-                            );
-                            const current = store.form.expression;
-                            store.onChange(
-                              "expression",
-                              current.kind === "related"
-                                ? { ...current, reducer: behavior === "lookup" ? "one" : "sum" }
-                                : {
-                                    kind: "related",
-                                    relationId: relation.id,
-                                    direction,
-                                    reducer: behavior === "lookup" ? "one" : "sum",
-                                    expression: field
-                                      ? { kind: "field", fieldId: field.id }
-                                      : { kind: "literal", value: null },
-                                  },
-                            );
-                          }
-                        }}
-                      />
+                      {!store.isChannels && (
+                        <FormSelect
+                          id="behavior"
+                          items={["input", "formula", "lookup", "rollup", "snapshot"].map((value) => ({
+                            value,
+                            label: t(`RecordModel.behaviors.${value}`),
+                          }))}
+                          label={t("RecordModel.behavior")}
+                          onValueChange={(behavior) => {
+                            store.onChange("behavior", behavior);
+                            if (behavior === "lookup" || behavior === "rollup") {
+                              const relation = store.model.relationships.find(
+                                (relation) =>
+                                  !relation.archived &&
+                                  (relation.sourceTypeId === store.typeId || relation.targetTypeId === store.typeId),
+                              );
+                              if (!relation) return;
+                              const direction = relation.sourceTypeId === store.typeId ? "outgoing" : "incoming";
+                              const targetId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
+                              const field = store.model.fields.find(
+                                (field) =>
+                                  field.typeId === targetId &&
+                                  !field.archived &&
+                                  field.valueType === store.form.valueType,
+                              );
+                              const current = store.form.expression;
+                              store.onChange(
+                                "expression",
+                                current.kind === "related"
+                                  ? { ...current, reducer: behavior === "lookup" ? "one" : "sum" }
+                                  : {
+                                      kind: "related",
+                                      relationId: relation.id,
+                                      direction,
+                                      reducer: behavior === "lookup" ? "one" : "sum",
+                                      expression: field
+                                        ? { kind: "field", fieldId: field.id }
+                                        : { kind: "literal", value: null },
+                                    },
+                              );
+                            }
+                          }}
+                        />
+                      )}
                     </div>
+
+                    {store.isChannels && (
+                      <>
+                        <p className="text-sm text-muted-foreground">{t("RecordModel.channelsHelp")}</p>
+
+                        {channelsAvatarAvailable(store.model, store.typeId) && (
+                          <FormSwitch id="providerAvatar" label={t("RecordModel.useChannelAvatar")} />
+                        )}
+                      </>
+                    )}
 
                     {store.form.valueType === "currency" && (
                       <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
@@ -492,7 +594,7 @@ export const FieldModal = observer(function FieldModal({
                       />
                     )}
 
-                    {store.form.behavior === "input" && (
+                    {store.form.behavior === "input" && !store.isChannels && (
                       <div className="space-y-3">
                         <FormSwitch id="hasDefaultValue" label={t("RecordModel.setDefaultValue")} />
 
@@ -506,7 +608,7 @@ export const FieldModal = observer(function FieldModal({
                       </div>
                     )}
 
-                    <FormSwitch id="required" label={t("RecordModel.required")} />
+                    {!store.isChannels && <FormSwitch id="required" label={t("RecordModel.required")} />}
 
                     {["text", "email", "phone", "url"].includes(store.form.valueType) && (
                       <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
