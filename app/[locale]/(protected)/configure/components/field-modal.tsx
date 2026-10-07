@@ -33,15 +33,9 @@ import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { useDefinitionDeletion } from "./use-definition-deletion";
 import { CalculationInput } from "./calculation-input";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
-import { recordInputValue } from "@/features/records/record-input-value";
+import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 
-function scalarDraft(value: RecordScalar | null | undefined): unknown {
-  if (!value) return undefined;
-  if (value.kind === "richText") return JSON.parse(value.documentJson);
-  if (value.kind === "range") return `${value.start ?? ""},${value.end ?? ""}`;
-  if (value.kind === "textList") return value.value.join("\n");
-  return value.value;
-}
+const MULTIPLE_VALUE_TYPES: readonly RecordField["valueType"][] = ["text", "email", "phone", "url", "select"];
 
 const initial = () => ({
   id: undefined as string | undefined,
@@ -91,6 +85,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       edit: action,
       addOption: action,
       removeOption: action,
+      chooseValueType: action,
     });
   }
   get canPublishSummary() {
@@ -124,7 +119,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             ...(field.behavior.kind === "input"
               ? {
                   hasDefaultValue: field.behavior.defaultValue !== undefined && field.behavior.defaultValue !== null,
-                  defaultValue: scalarDraft(field.behavior.defaultValue),
+                  defaultValue: recordDraftValue(field.behavior.defaultValue),
                 }
               : { expression: field.behavior.expression }),
             ...(field.behavior.kind === "snapshot"
@@ -132,7 +127,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
                   capture: field.behavior.capture,
                   allowManualOverride: field.behavior.allowManualOverride ?? false,
                   triggerFieldId: field.behavior.triggerFieldId ?? "",
-                  triggerValue: scalarDraft(field.behavior.triggerValue),
+                  triggerValue: recordDraftValue(field.behavior.triggerValue),
                 }
               : {}),
             options: field.options.map((option) => {
@@ -177,6 +172,10 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     });
     this.setPreview(null);
   };
+  chooseValueType = (choice: string) => {
+    this.onChange("valueType", choice === "multiSelect" ? "select" : choice);
+    this.onChange("multiple", choice === "multiSelect");
+  };
   removeOption = (id: string) => {
     this.form.options = this.form.options.filter((option) => option.id !== id);
     this.setPreview(null);
@@ -189,7 +188,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       valueType: this.form.valueType,
       behavior: { kind: "input" },
       required: false,
-      multiple: ["text", "email", "phone", "url"].includes(this.form.valueType) && this.form.multiple,
+      multiple: MULTIPLE_VALUE_TYPES.includes(this.form.valueType) && this.form.multiple,
       archived: false,
       publishedSummary: false,
       position: this.original?.position ?? 0,
@@ -300,7 +299,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       valueType: form.valueType,
       behavior,
       required: form.required,
-      multiple: ["text", "email", "phone", "url"].includes(form.valueType) && form.multiple,
+      multiple: MULTIPLE_VALUE_TYPES.includes(form.valueType) && form.multiple,
       archived: form.archived,
       position:
         this.original?.position ??
@@ -424,11 +423,21 @@ export const FieldModal = observer(function FieldModal({
                     <div className="grid gap-4 sm:grid-cols-2">
                       <FormSelect
                         id="valueType"
-                        items={RecordValueTypeSchema.options.map((value) => ({
-                          value,
-                          label: t(`RecordModel.types.${value}`),
-                        }))}
+                        items={RecordValueTypeSchema.options.flatMap((value) =>
+                          value === "select"
+                            ? [
+                                { value, label: t("RecordModel.types.select") },
+                                { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
+                              ]
+                            : [{ value, label: t(`RecordModel.types.${value}`) }],
+                        )}
                         label={t("RecordModel.valueType")}
+                        value={
+                          store.form.valueType === "select" && store.form.multiple
+                            ? "multiSelect"
+                            : store.form.valueType
+                        }
+                        onValueChange={store.chooseValueType}
                       />
 
                       <FormSelect

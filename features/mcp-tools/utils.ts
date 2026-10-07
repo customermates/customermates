@@ -173,7 +173,14 @@ export const FILTER_OPERATOR_GROUPS = {
     FilterOperatorKey.lt,
     FilterOperatorKey.lte,
   ],
-  multiValue: [FilterOperatorKey.in, FilterOperatorKey.notIn, FilterOperatorKey.between],
+  multiValue: [
+    FilterOperatorKey.in,
+    FilterOperatorKey.notIn,
+    FilterOperatorKey.between,
+    FilterOperatorKey.hasAnyOf,
+    FilterOperatorKey.hasAllOf,
+    FilterOperatorKey.hasNoneOf,
+  ],
   relativeWindow: [FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays],
   noValue: [
     FilterOperatorKey.isNull,
@@ -203,6 +210,7 @@ export const FILTER_SYNTAX = {
   },
   examples: [
     { field: "<single-select-custom-column-uuid>", operator: "in", value: ["<option-uuid>"] },
+    { field: "<multiple-choice-custom-column-uuid>", operator: "hasAllOf", value: ["<option-uuid>", "<option-uuid>"] },
     { field: "createdAt", operator: "inLastDays", value: 30 },
     { field: "email", operator: "isNotNull" },
   ],

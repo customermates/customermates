@@ -54,7 +54,7 @@ const STARTER_TYPE_KEYS = RECORD_PRESET_KEYS.flatMap((preset) =>
 const DOMAIN_EVENT_KEYS = [...Object.values(DomainEvent), ...RecordDeliveryEnvelopeSchema.shape.event.options].map(
   (event) => `Common.events.${event}`,
 );
-const RECORD_VALUE_TYPE_KEYS = RecordValueTypeSchema.options.map((value) => `RecordModel.types.${value}`);
+const RECORD_VALUE_TYPE_KEYS = [...RecordValueTypeSchema.options, "multiSelect"].map((value) => `RecordModel.types.${value}`);
 const RECORD_BEHAVIOR_KEYS = FieldBehaviorSchema.options.map(
   (behavior) => `RecordModel.behaviors.${behavior.shape.kind.value}`,
 );
@@ -649,8 +649,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.reducers.${reducer}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.cardinality.${edge.cardinality}",
-  "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${field.valueType}",
-  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.types.${field.valueType}",
+  "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
+  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: Common.colors.${color}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.types.${value}",

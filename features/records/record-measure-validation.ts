@@ -55,7 +55,11 @@ export function recordMeasureIssue(measure: RecordMeasure, model: RecordModel): 
   const field = model.fields.find(
     (field) => field.typeId === typeId && field.id === (fieldId ?? type?.primaryFieldId) && !field.archived,
   );
-  if (!field || field.multiple || ["richText", "dateRange", "dateTimeRange"].includes(field.valueType))
+  if (
+    !field ||
+    (field.multiple && field.valueType !== "select") ||
+    ["richText", "dateRange", "dateTimeRange"].includes(field.valueType)
+  )
     return invalid();
   if (interval && (fieldId === null || !["date", "dateTime"].includes(field.valueType)))
     return dateIntervalIssue("dateInterval");

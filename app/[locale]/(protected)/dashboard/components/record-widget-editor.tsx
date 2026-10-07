@@ -204,7 +204,7 @@ export const RecordWidgetEditor = observer(
         (field) =>
           field.typeId === groupTypeId &&
           !field.archived &&
-          !field.multiple &&
+          (!field.multiple || field.valueType === "select") &&
           !["richText", "dateRange", "dateTimeRange"].includes(field.valueType),
       ) ?? [];
     const temporalGroup =

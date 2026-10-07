@@ -106,7 +106,7 @@ export const RecordWidgetFieldFilters = observer(
             );
           }
           const filterId = `${id}[${index}]`;
-          const many = filter.operator === "in" || filter.operator === "notIn";
+          const many = filter.operator === "in" || filter.operator === "notIn" || filter.operator === "all";
           return (
             <div key={`${field.id}:${index}`} className="space-y-3 border-b border-border pb-4">
               <div className="flex items-center justify-between gap-2">
@@ -140,12 +140,12 @@ export const RecordWidgetFieldFilters = observer(
                   store.onChange(filterId, {
                     fieldId: field.id,
                     operator,
-                    value: ["empty", "notEmpty", "in", "notIn", "between"].includes(operator)
+                    value: ["empty", "notEmpty", "in", "notIn", "all", "between"].includes(operator)
                       ? null
                       : operator === "inLastDays" || operator === "notInLastDays"
                         ? { kind: "decimal", value: "30", currency: null }
                         : defaults(field),
-                    ...(["in", "notIn", "between"].includes(operator)
+                    ...(["in", "notIn", "all", "between"].includes(operator)
                       ? { values: operator === "between" ? [defaults(field), defaults(field)] : [defaults(field)] }
                       : {}),
                   })

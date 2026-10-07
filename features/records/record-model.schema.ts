@@ -68,6 +68,16 @@ const ValidatedRecordScalarSchema = z.union([
     })
     .strict(),
   z.object({ kind: z.literal("select"), value: z.string().min(1).max(200) }).strict(),
+  z
+    .object({
+      kind: z.literal("selectList"),
+      value: z
+        .array(z.string().min(1).max(200))
+        .min(1)
+        .max(100)
+        .refine((ids) => new Set(ids).size === ids.length, "Each option can be selected once"),
+    })
+    .strict(),
   z.object({ kind: z.literal("member"), value: z.uuid() }).strict(),
   z
     .object({
@@ -87,6 +97,7 @@ export const RecordScalarSchema = z
       "dateTime",
       "range",
       "select",
+      "selectList",
       "member",
       "richText",
     ]),

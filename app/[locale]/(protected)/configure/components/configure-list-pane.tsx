@@ -32,6 +32,7 @@ import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { configureCounts, configureFieldSource, configurePathLists } from "./configure-model";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { TypeSettingsFields } from "./type-modal";
+import { recordFieldTypeKey } from "@/features/records/record-input-value";
 
 type ActivityPath = RecordModel["activityPaths"][number];
 
@@ -315,7 +316,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                           label={field.label}
                         >
                           <ConfigureRow
-                            detail={`${t(`RecordModel.types.${field.valueType}`)} · ${fieldSource(field)}`}
+                            detail={`${t(`RecordModel.types.${recordFieldTypeKey(field)}`)} · ${fieldSource(field)}`}
                             interactive={interactive}
                             label={field.label}
                             leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}

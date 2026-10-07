@@ -110,7 +110,14 @@ export function compileRecordMeasure(
     Prisma.sql`((${instant} AT TIME ZONE 'UTC') AT TIME ZONE ${measure.groupBy?.timeZone ?? "UTC"}::text)`;
   let groupValue = Prisma.sql`NULL::jsonb`;
   let groupState = Prisma.sql`'missing'`;
-  if (groupField) {
+  if (groupField?.valueType === "select" && groupField.multiple) {
+    groupValue = Prisma.sql`CASE WHEN ${groupReadable} AND group_option.id IS NOT NULL THEN jsonb_build_object('kind', 'select', 'value', group_option.id) ELSE NULL END`;
+    groupState = Prisma.sql`CASE WHEN NOT (${groupReadable}) THEN 'restricted' WHEN group_value.state = 'error' THEN 'error' WHEN group_option.id IS NULL THEN 'missing' ELSE 'value' END`;
+    joins.push(
+      Prisma.sql`LEFT JOIN "RecordValue" group_value ON group_value."companyId" = ${companyId} AND group_value."typeId" = ${typeId} AND group_value."recordId" = ${group}.id AND group_value."fieldId" = ${groupField.id}`,
+      Prisma.sql`LEFT JOIN LATERAL unnest(CASE WHEN group_value.state = 'value' THEN group_value."textListValue" ELSE ARRAY[]::text[] END) group_option(id) ON TRUE`,
+    );
+  } else if (groupField) {
     const scalar =
       interval && groupField.valueType === "date"
         ? bucket(Prisma.sql`group_value."instantValue"`)

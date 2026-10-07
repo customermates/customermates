@@ -48,7 +48,15 @@ export function configurationInputValue(
         ? null
         : (field.behavior.defaultValue ?? null);
   return normalizeRecordScalar(
-    scalar,
+    convertChoiceScalar(scalar, field),
     row.protectedKind === "membershipAuthorization" ? { ...field, required: false } : field,
   );
+}
+
+function convertChoiceScalar(scalar: RecordScalar | null, field: RecordField): RecordScalar | null {
+  if (field.valueType !== "select" || !scalar) return scalar;
+  if (field.multiple && scalar.kind === "select") return { kind: "selectList", value: [scalar.value] };
+  if (!field.multiple && scalar.kind === "selectList" && scalar.value.length === 1)
+    return { kind: "select", value: scalar.value[0] };
+  return scalar;
 }
