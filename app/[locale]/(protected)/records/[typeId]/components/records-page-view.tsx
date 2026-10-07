@@ -107,6 +107,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
               column={column}
               linkColors={store.presentation.linkColors}
               record={row.original}
+              types={store.presentation.model.types}
               onMore={() => openRecord(row.original)}
               onOpen={openRelated}
             />

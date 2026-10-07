@@ -7,7 +7,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import type { CalculatedValue, RecordField, RecordMember } from "@/features/records/record-model.schema";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { Avatar } from "@/components/ui/avatar";
+import { MemberChip } from "@/components/chip/member-chip";
 import { toChipColor } from "@/constants/chip-colors";
 
 export const RecordValue = observer(function RecordValue({
@@ -72,15 +72,7 @@ export const RecordValue = observer(function RecordValue({
   if (value.kind === "richText") return null;
   if (value.kind === "member") {
     const member = members.find((user) => user.id === value.value);
-    if (!member) return <span>{t("RecordModel.member")}</span>;
-    const name = `${member.firstName} ${member.lastName}`.trim();
-    return (
-      <span className="flex min-w-0 items-center gap-1.5">
-        <Avatar aria-hidden name={[member.firstName, member.lastName]} size="sm" src={member.avatarUrl} />
-
-        <span className="truncate">{name}</span>
-      </span>
-    );
+    return member ? <MemberChip member={member} /> : <AppChip>{t("RecordModel.member")}</AppChip>;
   }
   return <span className="truncate">{value.value}</span>;
 });

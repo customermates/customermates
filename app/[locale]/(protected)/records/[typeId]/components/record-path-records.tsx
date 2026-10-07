@@ -8,6 +8,7 @@ import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
 
 import { Button } from "@/components/ui/button";
+import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChip } from "@/components/chip/app-chip";
 import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { recordLinkColor } from "@/features/records/record-presentation";
@@ -81,6 +82,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
               return (
                 <AppChip
                   key={`${record.ref.typeId}:${record.ref.recordId}`}
+                  startContent={<RecordChipIcon typeId={record.ref.typeId} types={store.presentation.model.types} />}
                   tooltip={title}
                   variant={recordLinkColor(store.presentation.linkColors, record.ref.typeId)}
                 >

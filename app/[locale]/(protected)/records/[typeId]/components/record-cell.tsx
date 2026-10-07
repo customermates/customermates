@@ -8,7 +8,8 @@ import type { RecordLinkColors } from "@/features/records/record-presentation";
 
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordLinkColor } from "@/features/records/record-presentation";
-import { AvatarStack } from "@/components/shared/avatar-stack";
+import { MemberAvatar, memberName } from "@/components/chip/member-chip";
+import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordValue } from "./record-value";
 import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
@@ -22,6 +23,7 @@ const LINKED_CHIPS_MAX_WIDTH = 240;
 export function RecordCell({
   column,
   linkColors,
+  types,
   record,
   onOpen,
   onMore,
@@ -30,6 +32,7 @@ export function RecordCell({
 }: {
   column: RecordColumn;
   linkColors: RecordLinkColors;
+  types: readonly { id: string; icon: string }[];
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
   onMore: () => void;
@@ -73,8 +76,20 @@ export function RecordCell({
     return <RecordValue field={column.field} members={record.memberUsers} result={result} />;
   }
   if (column.kind === "system") {
-    if (column.id === "system:assignedTo")
-      return record.assignedUsers.length ? <AvatarStack items={record.assignedUsers} size="sm" /> : empty;
+    if (column.id === "system:assignedTo") {
+      return record.assignedUsers.length ? (
+        <AppChipStack
+          items={record.assignedUsers.map((member) => ({
+            id: member.id,
+            label: memberName(member),
+            startContent: <MemberAvatar member={member} />,
+          }))}
+          maxWidth={LINKED_CHIPS_MAX_WIDTH}
+        />
+      ) : (
+        empty
+      );
+    }
 
     const instant = column.id === "system:createdAt" ? record.createdAt : record.updatedAt;
     return (
@@ -95,6 +110,7 @@ export function RecordCell({
   const items = summary.records.map((related) => ({
     id: `${related.ref.typeId}:${related.ref.recordId}`,
     ref: related.ref,
+    startContent: <RecordChipIcon typeId={related.ref.typeId} types={types} />,
     label:
       related.title.state === "value" && related.title.value.kind === "text"
         ? related.title.value.value

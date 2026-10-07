@@ -16,6 +16,7 @@ import type { RecordEditorStore } from "./record-editor.store";
 import { Button } from "@/components/ui/button";
 import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
+import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChip } from "@/components/chip/app-chip";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -195,6 +196,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                       </button>
                     ) : undefined
                   }
+                  startContent={<RecordChipIcon typeId={record.ref.typeId} types={store.presentation.model.types} />}
                   tooltip={title(record)}
                   variant={recordLinkColor(store.presentation.linkColors, typeId)}
                 >

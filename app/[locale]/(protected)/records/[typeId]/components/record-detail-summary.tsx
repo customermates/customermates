@@ -11,6 +11,7 @@ import { EntityDetailSummaryRail } from "@/components/entity-detail/entity-detai
 import { RecordValue } from "./record-value";
 import { RecordCell } from "./record-cell";
 import { useRecordChoices } from "./record-relationship-editor";
+import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { EntityDetailAvatarSummaryValue } from "@/components/entity-detail/entity-detail-summary";
@@ -77,6 +78,7 @@ const RelatedSummary = observer(function RelatedSummary({
   const items = records.map((record) => ({
     id: record.ref.recordId,
     ref: record.ref,
+    startContent: <RecordChipIcon typeId={record.ref.typeId} types={store.presentation.model.types} />,
     label:
       record.title.state === "value" && record.title.value.kind === "text"
         ? record.title.value.value
@@ -170,6 +172,7 @@ const SummaryValue = observer(function SummaryValue({
       column={column}
       linkColors={store.presentation.linkColors}
       record={store.record}
+      types={store.presentation.model.types}
       onMore={() => undefined}
       onOpen={() => undefined}
     />
