@@ -94,6 +94,7 @@ export const PROTECTED_ROUTES = [
   "/onboarding",
   "/onboarding/join",
   "/onboarding/wizard",
+  "/open/:area/:preset",
   "/operator/audit",
   "/operator/overview",
   "/operator/users",
@@ -186,7 +187,7 @@ function decodePathname(pathname: string): string | null {
   }
 }
 
-function escapeRegExp(value: string): string {
+export function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
