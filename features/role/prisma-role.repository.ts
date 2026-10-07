@@ -5,11 +5,12 @@ import type { DeleteRoleRepo } from "./delete-role.repo";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/update-user-role.repo";
 import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Action } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
 
 import { QueryRepository } from "@/core/base/query-repository";
+import { MANAGE_ACTIONS, manageImpliesReadAll, RESOURCE_ACCESS } from "@/features/role/resource-access";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 
@@ -102,72 +103,14 @@ export class PrismaRoleRepo
       update: roleData,
     });
 
-    const permissions: Array<{
-      roleId: string;
-      companyId: string;
-      resource: Resource;
-      action: Action;
-    }> = [];
-
-    for (const [resourceKey, permission] of Object.entries(args.permissions)) {
-      if (!permission) continue;
-      const resource = resourceKey as Resource;
-      const isManageOnlyResource =
-        (resource === "company" || resource === "dataModel") &&
-        "canManage" in permission &&
-        permission.canManage !== undefined;
-      const changedActions: Action[] = [];
-      if ("canManage" in permission && permission.canManage !== undefined)
-        changedActions.push(Action.create, Action.update, Action.delete);
-      if (("readAccess" in permission && permission.readAccess !== undefined) || isManageOnlyResource)
-        changedActions.push(Action.readOwn, Action.readAll);
-      else if (resource === Resource.wiki && "canManage" in permission && permission.canManage === "yes")
-        changedActions.push(Action.readAll);
-      if (changedActions.length) {
-        await this.prisma.rolePermission.deleteMany({
-          where: { companyId, roleId: savedRole.id, resource, action: { in: changedActions } },
-        });
-      }
-
-      if ("canManage" in permission && permission.canManage === "yes") {
-        permissions.push(
-          { roleId: savedRole.id, companyId, resource, action: Action.create },
-          { roleId: savedRole.id, companyId, resource, action: Action.update },
-          { roleId: savedRole.id, companyId, resource, action: Action.delete },
-        );
-        if (resource === Resource.wiki)
-          permissions.push({ roleId: savedRole.id, companyId, resource, action: Action.readAll });
-      }
-
-      if (isManageOnlyResource) {
-        permissions.push(
-          { roleId: savedRole.id, companyId, resource, action: Action.readOwn },
-          { roleId: savedRole.id, companyId, resource, action: Action.readAll },
-        );
-      }
-
-      if ("readAccess" in permission) {
-        switch (permission.readAccess) {
-          case "own":
-            permissions.push({ roleId: savedRole.id, companyId, resource, action: Action.readOwn });
-            break;
-          case "all":
-            permissions.push({ roleId: savedRole.id, companyId, resource, action: Action.readAll });
-            break;
-          case "none":
-          default:
-            break;
-        }
-      }
-    }
-
-    const unique = new Map<string, { roleId: string; companyId: string; resource: Resource; action: Action }>();
-
-    for (const p of permissions) unique.set(`${p.resource}:${p.action}`, p);
-
-    if (permissions.length > 0) {
+    for (const { resource, actions } of args.permissions) {
+      const stored = new Set(actions);
+      if (manageImpliesReadAll(resource) && MANAGE_ACTIONS.some((action) => stored.has(action)))
+        stored.add(Action.readAll);
+      if (RESOURCE_ACCESS[resource].read.length === 0) stored.add(Action.readOwn).add(Action.readAll);
+      await this.prisma.rolePermission.deleteMany({ where: { companyId, roleId: savedRole.id, resource } });
       await this.prisma.rolePermission.createMany({
-        data: Array.from(unique.values()),
+        data: [...stored].map((action) => ({ roleId: savedRole.id, companyId, resource, action })),
       });
     }
 

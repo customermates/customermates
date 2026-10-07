@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { RefreshCw } from "lucide-react";
-import { Resource, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { Action, Resource, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
@@ -27,7 +27,7 @@ const SubscriptionViewContent = observer(({ initialSubscription }: Props) => {
 
   const subscription = subscriptionStore.subscription ?? initialSubscription;
   const showRefresh =
-    userStore.canManage(Resource.company) &&
+    userStore.can(Resource.company, Action.update) &&
     subscription?.hasActiveSubscription === true &&
     subscription.plan !== SubscriptionPlan.enterprise &&
     subscription.status !== SubscriptionStatus.trial;

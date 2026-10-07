@@ -433,6 +433,7 @@ model P13n {
   groupingColumnId String?
   grouping         Json?
   detailOptions    Json?
+  settings         Json?
   activeViewKey    String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -676,13 +677,8 @@ model OperatorAuditEvent {
 
 enum Resource {
   dataModel
-  contacts
-  deals
-  organizations
-  services
   users
   company
-  tasks
   api
   auditLog
   inboxMessages
@@ -1782,14 +1778,12 @@ model RecordSchemaState {
   companyId         String  @id
   revision          Int     @default(0)
   activeOperationId String?
-  storageMode       String  @default("legacy")
   company           Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 model RecordTypeDefinition {
   companyId          String
   id                 String                         @default(uuid())
-  presetKey          String?
   label              String
   pluralLabel        String
   archived           Boolean                        @default(false)
@@ -1808,7 +1802,6 @@ model RecordTypeDefinition {
   eventSubscriptions RecordEventSubscription[]
 
   @@id([companyId, id])
-  @@unique([companyId, presetKey])
   @@index([companyId, archived, position])
 }
 

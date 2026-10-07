@@ -62,10 +62,7 @@ export class ReadThreadRecordsInteractor extends AuthenticatedInteractor<
           const canManage =
             canEditThread &&
             model.types.some(
-              (type) =>
-                !type.archived &&
-                policy.allowed(type.id, "update") &&
-                (policy.allowed(type.id, "readOwn") || policy.allowed(type.id, "readAll")),
+              (type) => !type.archived && policy.allowed(type.id, "update") && policy.canReadType(type.id),
             );
           return {
             ok: true as const,

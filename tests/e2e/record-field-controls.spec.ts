@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
-import { addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
+import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function choose(page: Page, label: string, option: string) {
@@ -31,6 +31,8 @@ async function addField(page: Page, name: string, valueType: string, behavior?: 
   await page.getByRole("dialog").getByRole("textbox", { name: "Name", exact: false }).fill(name);
   await choose(page, "Value type", valueType);
   if (behavior) await choose(page, "Value source", behavior);
+  if (behavior && behavior !== "Entered manually") await openDrawerTab(page, "Calculation");
+  else if (valueType === "Single choice") await openDrawerTab(page, "Options");
 }
 
 async function list(page: Page, typeId: string) {
@@ -221,6 +223,11 @@ test("configures and persists all fourteen field types, multiple values and cale
   expect(JSON.stringify(value("Notes").jsonValue)).toContain("Formatted notes survive typed storage");
   await page.reload();
   await page.getByRole("button", { name: "Complete typed record", exact: true }).click();
+  await expect(dialog.getByRole("tab", { name: "Notes", exact: true })).toHaveAttribute("data-state", "active");
+  await expect(dialog.getByRole("textbox", { name: "Notes", exact: true })).toContainText(
+    "Formatted notes survive typed storage",
+  );
+  await dialog.getByRole("tab", { name: "Overview", exact: true }).click();
   await expect(dialog.getByRole("textbox", { name: "Email addresses", exact: true })).toHaveValue(
     "one@example.test\ntwo@example.test",
   );
@@ -799,8 +806,10 @@ test("changes numeric display precision through the field editor without roundin
   const recordRow = page
     .getByRole("row")
     .filter({ has: page.getByRole("button", { name: "Precision record", exact: true }) });
-  await expect(recordRow.getByRole("cell", { name: "12", exact: true })).toBeVisible();
-  await expect(recordRow.getByRole("cell", { name: "€20", exact: true })).toBeVisible();
+  const cellShowing = (text: string) =>
+    recordRow.getByRole("cell").filter({ hasText: new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) });
+  await expect(cellShowing("12")).toBeVisible();
+  await expect(cellShowing("€20")).toBeVisible();
   const values = async () =>
     (
       await database.query(
@@ -836,12 +845,12 @@ test("changes numeric display precision through the field editor without roundin
     }
     expect(await values()).toEqual(stored);
     await list(page, typeId);
-    await expect(recordRow.getByRole("cell", { name: numberDisplay, exact: true })).toBeVisible();
-    await expect(recordRow.getByRole("cell", { name: moneyDisplay, exact: true })).toBeVisible();
+    await expect(cellShowing(numberDisplay)).toBeVisible();
+    await expect(cellShowing(moneyDisplay)).toBeVisible();
   }
   await page.reload();
-  await expect(recordRow.getByRole("cell", { name: "12.3456", exact: true })).toBeVisible();
-  await expect(recordRow.getByRole("cell", { name: "€19.88", exact: true })).toBeVisible();
+  await expect(cellShowing("12.3456")).toBeVisible();
+  await expect(cellShowing("€19.88")).toBeVisible();
   await page.getByRole("button", { name: "Precision record", exact: true }).click();
   await expect(dialog.getByRole("textbox", { name: "Display amount", exact: true })).toHaveValue("12.3456");
   await expect(dialog.getByRole("textbox", { name: "Display price", exact: true })).toHaveValue("19.8765");

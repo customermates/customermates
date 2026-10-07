@@ -25,7 +25,7 @@ import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordGroupableFields, resolveRecordGrouping } from "@/features/records/record-grouping";
 import { encodeGroupingToken, decodeGroupingToken } from "@/core/base/grouping/grouping.schema";
-import { RECORD_TYPE_ICON_KEYS, recordTypeIcon, type RecordTypeIconKey } from "@/components/records/record-type-icon";
+import { FormRecordTypeIcon } from "@/components/records/form-record-type-icon";
 import {
   archiveListOperations,
   configureFieldOrder,
@@ -260,17 +260,6 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
 }) {
   const t = useTranslations();
   const inputId = (id: string) => (idPrefix ? `${idPrefix}-${id}` : undefined);
-  const iconLabels: Record<RecordTypeIconKey, string> = {
-    contact: t("RecordModel.icons.contact"),
-    building: t("RecordModel.icons.building"),
-    handshake: t("RecordModel.icons.handshake"),
-    package: t("RecordModel.icons.package"),
-    check: t("RecordModel.icons.check"),
-    folder: t("RecordModel.icons.folder"),
-    briefcase: t("RecordModel.icons.briefcase"),
-    list: t("RecordModel.icons.list"),
-  };
-  const iconKeys: string[] = RECORD_TYPE_ICON_KEYS;
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -287,22 +276,7 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
       <FormTextarea id="description" inputId={inputId("description")} label={t("RecordModel.description")} />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormSelect
-          id="icon"
-          inputId={inputId("icon")}
-          items={[
-            ...RECORD_TYPE_ICON_KEYS.map((key) => {
-              const Icon = recordTypeIcon(key);
-              return {
-                value: key,
-                label: iconLabels[key],
-                startContent: <Icon aria-hidden className="size-4 text-muted-foreground" />,
-              };
-            }),
-            ...(iconKeys.includes(store.form.icon) ? [] : [{ value: store.form.icon, label: iconLabels.folder }]),
-          ]}
-          label={t("RecordModel.icon")}
-        />
+        <FormRecordTypeIcon id="icon" inputId={inputId("icon")} label={t("RecordModel.icon")} />
 
         {!store.original && (
           <FormSelect

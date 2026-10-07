@@ -34,10 +34,11 @@ describe("shared tabs", () => {
     expect(trigger).toContain("dark:group-data-[variant=segmented]/tabs-list:data-[state=active]:bg-primary/5");
   });
 
-  it("keeps widget configuration in one linear form", () => {
+  it("keeps widget configuration in one form beside its live preview", () => {
     const widgetModal = read("app/[locale]/(protected)/dashboard/components/widget-modal.tsx");
+    const editorLayout = read("app/[locale]/(protected)/dashboard/components/widget-editor-layout.tsx");
 
-    expect(widgetModal).toContain('data-widget-editor="linear"');
+    expect(editorLayout).toContain('data-widget-editor="split"');
     expect(widgetModal).toContain('section="all"');
     expect(widgetModal).not.toContain("<Tabs");
   });

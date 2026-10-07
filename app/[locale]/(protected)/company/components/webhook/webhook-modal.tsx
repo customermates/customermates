@@ -26,6 +26,7 @@ import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { AppChip } from "@/components/chip/app-chip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { AppCardHeader } from "@/components/card/app-card-header";
+import { Action } from "@/generated/prisma";
 
 const WEBHOOK_EVENTS = WebhookCurrentEventSchema.options.map((event) => ({ key: event }));
 
@@ -35,7 +36,7 @@ const BODY_TEMPLATE_PLACEHOLDER = '{"text": "{{event}} for {{data.entityId}}"}';
 export const WebhookModal = observer(() => {
   const t = useTranslations();
   const { webhookModalStore, userStore } = useRootStore();
-  const { form, canManage, isDisabled } = webhookModalStore;
+  const { form, isDisabled } = webhookModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
   useEffect(() => {
     if (!webhookModalStore.isOpen) return;
@@ -46,7 +47,7 @@ export const WebhookModal = observer(() => {
   return (
     <AppModal
       actions={
-        form?.id && canManage
+        form?.id && webhookModalStore.ownsRecordAccess && webhookModalStore.allows(Action.delete)
           ? [
               {
                 id: "delete-webhook",

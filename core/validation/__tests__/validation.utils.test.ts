@@ -8,7 +8,7 @@ import { CustomErrorCode } from "../validation.types";
 describe("createErrorHandler", () => {
   it("interpolates every occurrence of a repeated placeholder", () => {
     const handler = createErrorHandler({
-      [CustomErrorCode.customColumnTypeMismatch]: "Expected {actualType}; received {actualType}.",
+      [CustomErrorCode.recordValueInvalid]: "Expected {actualType}; received {actualType}.",
     });
 
     const message = handler({
@@ -17,7 +17,7 @@ describe("createErrorHandler", () => {
       path: [],
       params: {
         actualType: "text",
-        error: CustomErrorCode.customColumnTypeMismatch,
+        error: CustomErrorCode.recordValueInvalid,
       },
     } as $ZodRawIssue);
 

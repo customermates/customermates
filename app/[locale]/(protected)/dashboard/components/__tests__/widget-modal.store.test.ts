@@ -427,7 +427,9 @@ describe("starter widget gallery", () => {
   const deal = model.types.find((type) => type.label === "Deal");
   const stage = model.fields.find((field) => field.typeId === deal?.id && field.valueType === "select");
   const template = (displayType: DisplayType, groupBy: object | null) => ({
-    key: displayType === DisplayType.areaChart ? ("wonValuePerMonth" as const) : ("dealsByStage" as const),
+    key: `starter:${displayType}`,
+    recipe: displayType === DisplayType.areaChart ? ("valueOverTime" as const) : ("stageFunnel" as const),
+    labels: { type: "Deals", group: "Stage" },
     measure: {
       source: { typeId: deal?.id ?? "", filters: [], relationships: [] },
       aggregation: "count" as const,

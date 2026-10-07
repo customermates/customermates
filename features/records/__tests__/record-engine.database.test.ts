@@ -92,6 +92,7 @@ const { PrismaRecordEventOutboxRepo } = await import("../prisma-record-event-out
 const { PrismaAuditLogRepo } = await import("@/features/audit-log/prisma-audit-log.repository");
 const { runInRoutineContext } = await import("@/core/decorators/routine-context");
 const { RecordIdentityReader, IDENTITY_MATCH_DISPLAY_LIMIT } = await import("../record-identity-reader");
+const { ResolveRecordIdentitiesInteractor } = await import("../resolve-record-identities.interactor");
 const { PrismaRecordActivitiesRepo } = await import("@/ee/messaging/activities/prisma-record-activities.repository");
 const { GetRecordActivitiesInteractor } = await import("@/ee/messaging/activities/get-record-activities.interactor");
 const { RecordActivitiesInputSchema } = await import("@/ee/messaging/activities/record-activities.schema");
@@ -497,6 +498,175 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("resolves channel identifiers with versions for one atomic updateMany without record reads", async () => {
+    const f = await fixture();
+    const contact = async (firstName: string, identities: Array<{ provider: "mail" | "linkedin"; value: string }>) => {
+      const result = await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [{ fieldId: f.id("contact.firstName"), value: textValue(firstName) }],
+        identities,
+      });
+      if (!result.ok || result.data.status !== "completed") throw new Error("Identity fixture failed");
+      return recordInvariant(result.data.refs.find((ref) => ref.typeId === f.id("contact")));
+    };
+    const alice = await contact("Alice", [
+      { provider: "mail", value: "alice@batch.example.test" },
+      { provider: "linkedin", value: "alice-batch-example" },
+    ]);
+    const bob = await contact("Bob", [{ provider: "mail", value: "bob@batch.example.test" }]);
+    const carol = await contact("Carol", [{ provider: "mail", value: "shared@batch.example.test" }]);
+    const dave = await contact("Dave", [{ provider: "mail", value: "shared@batch.example.test" }]);
+    const eve = await contact("Eve", [{ provider: "mail", value: "eve@batch.example.test" }]);
+    await f.update(bob, [["contact.lastName", textValue("Moved")]]);
+    const lookup = new ResolveRecordIdentitiesInteractor(f.repo, f.policy);
+    const resolve = async (identifiers: Array<{ provider: "mail" | "linkedin"; value: string }>, as = f.admin) => {
+      const result = await f.run(() => lookup.invoke({ identifiers }), as);
+      if (!result.ok) throw new Error(JSON.stringify(result.error));
+      return result.data;
+    };
+    const identifiers = [
+      { provider: "mail" as const, value: "alice@batch.example.test" },
+      { provider: "mail" as const, value: "ALICE@batch.example.test" },
+      { provider: "linkedin" as const, value: "alice-batch-example" },
+      { provider: "mail" as const, value: "bob@batch.example.test" },
+      { provider: "mail" as const, value: "shared@batch.example.test" },
+      { provider: "mail" as const, value: "eve@batch.example.test" },
+      { provider: "mail" as const, value: "unknown@batch.example.test" },
+    ];
+    const resolved = await resolve(identifiers);
+    expect(resolved.schemaRevision).toBe(1);
+    expect(resolved.matches.map(({ provider, value }) => ({ provider, value }))).toEqual(identifiers);
+    const version = async (ref: RecordRef) => ({ ref, version: (await f.readRecord(ref)).version });
+    const [aliceV, bobV, carolV, daveV, eveV] = await Promise.all([alice, bob, carol, dave, eve].map(version));
+    expect(bobV.version).toBe(2);
+    const refsOf = (index: number) =>
+      resolved.matches[index].records.map((record) => ({ ref: record.ref, version: record.version }));
+    expect([0, 1, 2].map(refsOf)).toEqual([[aliceV], [aliceV], [aliceV]]);
+    expect(refsOf(3)).toEqual([bobV]);
+    expect(refsOf(4)).toEqual(expect.arrayContaining([carolV, daveV]));
+    expect(refsOf(4)).toHaveLength(2);
+    expect(refsOf(5)).toEqual([eveV]);
+    expect(resolved.matches[6].records).toEqual([]);
+    expect(resolved.matches[0].records[0]).toMatchObject({
+      typeLabel: expect.any(String),
+      title: "Alice",
+      canEdit: true,
+    });
+
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setGrants(alice.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn", "update"] }]);
+        await f.repo.setAssignments(alice, [f.member.id]);
+        await f.repo.setAssignments(carol, [f.member.id]);
+      }),
+    );
+    const restricted = await resolve(identifiers, f.member);
+    expect(restricted.matches.map((match) => match.records.map((record) => record.ref))).toEqual([
+      [alice],
+      [alice],
+      [alice],
+      [],
+      [carol],
+      [],
+      [],
+    ]);
+
+    const owners = vi.spyOn(f.repo, "getIdentityOwnersCompanyWide");
+    const reads = vi.spyOn(f.repo, "searchRecords");
+    const models = vi.spyOn(f.repo, "getModel");
+    await resolve(identifiers);
+    const small = [owners, reads, models].map((spy) => spy.mock.calls.length);
+    expect(small).toEqual([1, 1, models.mock.calls.length]);
+    for (const spy of [owners, reads, models]) spy.mockClear();
+    const bulk = await resolve([
+      ...identifiers,
+      ...Array.from({ length: 1000 - identifiers.length }, (_, index) => ({
+        provider: "mail" as const,
+        value: `missing-${index}@batch.example.test`,
+      })),
+    ]);
+    expect(bulk.matches).toHaveLength(1000);
+    expect(bulk.matches.slice(0, identifiers.length)).toEqual(resolved.matches);
+    expect(owners).toHaveBeenCalledTimes(2);
+    expect(reads).toHaveBeenCalledTimes(1);
+    expect(models).toHaveBeenCalledTimes(small[2]);
+    vi.restoreAllMocks();
+    expect(
+      await f.run(() =>
+        lookup.invoke({
+          identifiers: Array.from({ length: 1001 }, (_, index) => ({
+            provider: "mail" as const,
+            value: `over-${index}@batch.example.test`,
+          })),
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+
+    const targets = [
+      ...new Map(
+        resolved.matches
+          .filter((match) => match.records.length === 1)
+          .flatMap((match) => match.records)
+          .map((record) => [
+            `${record.ref.typeId}:${record.ref.recordId}`,
+            { ref: record.ref, expectedVersion: record.version },
+          ]),
+      ).values(),
+    ];
+    expect(targets.map((target) => target.ref)).toEqual([alice, bob, eve]);
+    const patch = (expectedVersions = targets): RecordMutation => ({
+      action: "updateMany",
+      targets: expectedVersions,
+      fields: [{ fieldId: f.id("contact.lastName"), value: textValue("Batch") }],
+    });
+    expect(
+      await f.mutation(
+        { ...patch(), targets: Array.from({ length: 101 }, () => targets[0]) } as RecordMutation,
+        f.admin,
+        randomUUID(),
+        resolved.schemaRevision,
+      ),
+    ).toMatchObject({ ok: false });
+    expect(await f.mutation(patch(), f.admin, randomUUID(), resolved.schemaRevision + 1)).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { kind: "conflict" } }] },
+    });
+
+    await f.update(eve, [["contact.lastName", textValue("Concurrent")]]);
+    expect(await f.mutation(patch(), f.admin, randomUUID(), resolved.schemaRevision)).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { kind: "conflict" } }] },
+    });
+    for (const [ref, lastName] of [
+      [alice, null],
+      [bob, "Moved"],
+      [eve, "Concurrent"],
+    ] as const) {
+      expect(await f.value(ref, "contact.lastName")).toEqual(
+        lastName ? { state: "value", value: textValue(lastName) } : expect.objectContaining({ state: "missing" }),
+      );
+    }
+
+    const fresh = await resolve(identifiers);
+    const freshTargets = [alice, bob, eve].map((ref) => ({
+      ref,
+      expectedVersion: recordInvariant(
+        fresh.matches.flatMap((match) => match.records).find((record) => record.ref.recordId === ref.recordId),
+      ).version,
+    }));
+    const key = randomUUID();
+    const applied = await f.mutation(patch(freshTargets), f.admin, key, fresh.schemaRevision);
+    expect(applied).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(await f.mutation(patch(freshTargets), f.admin, key, fresh.schemaRevision)).toEqual(applied);
+    for (const target of freshTargets) {
+      const record = await f.readRecord(target.ref);
+      expect(record.version).toBe(target.expectedVersion + 1);
+      expect(await f.value(target.ref, "contact.lastName")).toEqual({ state: "value", value: textValue("Batch") });
+    }
+    expect(await f.value(carol, "contact.lastName")).toEqual(expect.objectContaining({ state: "missing" }));
+  });
+
   it("previews and deletes one combined selection with cascaded line items and unchanged catalog records", async () => {
     const f = await fixture();
     const service = await f.create("service", "Catalog", [["service.amount", decimal("25")]]);
@@ -580,12 +750,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(order(f.id("contact"), saved.fields)).toEqual(order(f.id("contact")));
     expect(order(f.id("lineItem"), saved.fields)).toEqual(order(f.id("lineItem")));
-  });
-
-  it("marks a newly initialized workspace as generic storage", async () => {
-    const f = await fixture();
-    const state = await f.run(() => f.repo.getState());
-    expect(state?.storageMode).toBe("generic");
   });
 
   it("exports filtered generic records and omits links to inaccessible records", async () => {
@@ -2121,13 +2285,70 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("lets an update-only API role add record events to its existing webhook", async () => {
+    const f = await fixture();
+    const grant = async (actions: Array<"create" | "readAll" | "update">) => {
+      await f.run(async () => {
+        await prisma.rolePermission.deleteMany({ where: { companyId: f.company.id, roleId: f.memberRole.id } });
+        await prisma.rolePermission.createMany({
+          data: actions.map((action) => ({
+            companyId: f.company.id,
+            roleId: f.memberRole.id,
+            resource: "api",
+            action,
+          })),
+        });
+      });
+      return createMockUser({
+        ...f.member,
+        role: {
+          ...f.memberRole,
+          permissions: actions.map((action) => ({ id: randomUUID(), resource: "api", action })),
+        },
+      });
+    };
+    const creator = await grant(["create", "readAll"]);
+    const created = await f.run(
+      () =>
+        getUpsertWebhookInteractor().invoke({
+          url: "https://receiver.example.test/member",
+          events: ["messaging.message.received"],
+        }),
+      creator,
+    );
+    if (!created.ok) throw new Error("Member webhook fixture failed");
+    const editor = await grant(["readAll", "update"]);
+    expect(
+      await f.run(
+        () =>
+          getUpsertWebhookInteractor().invoke({
+            id: created.data.id,
+            events: ["record.created"],
+            expectedSchemaRevision: 1,
+          }),
+        editor,
+      ),
+    ).toMatchObject({ ok: true, data: { events: ["record.created"] } });
+    await expect(
+      f.run(
+        () =>
+          getUpsertWebhookInteractor().invoke({
+            url: "https://receiver.example.test/second",
+            events: ["record.created"],
+            expectedSchemaRevision: 1,
+          }),
+        editor,
+      ),
+    ).rejects.toThrow("create on api");
+  });
+
   it("enforces record webhook ownership and current API grants inside the write transaction", async () => {
     const f = await fixture();
-    const permissions = ["readAll", "update", "delete"].map((action) => ({
+    const permissions = ["create", "readAll", "update", "delete"].map((action) => ({
       companyId: f.company.id,
       roleId: f.memberRole.id,
       resource: "api" as const,
-      action: action as "readAll" | "update" | "delete",
+      action: action as "create" | "readAll" | "update" | "delete",
     }));
     await f.run(() => prisma.rolePermission.createMany({ data: permissions }));
     const member = createMockUser({
@@ -3025,15 +3246,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expectedRevision: 1,
       idempotencyKey: randomUUID(),
       recordGrants: [],
-      permissions: {
-        users: { canManage: "no", readAccess: "own" },
-        company: { canManage: "no" },
-        dataModel: { canManage: "no" },
-        api: { canManage: "no", readAccess: "none" },
-        inboxMessages: { canManage: "no", readAccess: "none" },
-        auditLog: { readAccess: "none" },
-        routines: { canManage: "no", readAccess: "none" },
-      },
+      permissions: [
+        { resource: "users", actions: ["readOwn"] },
+        { resource: "company", actions: [] },
+        { resource: "dataModel", actions: [] },
+        { resource: "api", actions: [] },
+        { resource: "inboxMessages", actions: [] },
+        { resource: "auditLog", actions: [] },
+        { resource: "routines", actions: [] },
+      ],
       ...overrides,
     });
 
@@ -3813,7 +4034,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const initial = roleInput({
       id: f.memberRole.id,
-      permissions: {},
+      permissions: [],
       recordGrants: [
         { typeId: f.id("contact"), actions: ["readOwn"] },
         { typeId: f.id("deal"), actions: ["readAll"] },
@@ -3845,7 +4066,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           ...initial,
           idempotencyKey: randomUUID(),
           expectedRevision: 2,
-          permissions: { company: {} },
+          permissions: [],
           recordGrants: [{ typeId: f.id("contact"), actions: [] }],
         }),
       ),
@@ -4119,6 +4340,58 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: false });
     expect(await f.run(() => f.repo.getState())).toMatchObject({ revision: 1 });
+  });
+
+  it("role management requires the specific Users & Roles action for create, edit and delete", async () => {
+    const f = await fixture();
+    const target = await f.run(() => getUpsertRoleInteractor().invoke(roleInput({ name: "Target" })));
+    if (!target.ok) throw target.error;
+    const grantOnly = (action: "create" | "update" | "delete") =>
+      f.run(async () => {
+        await prisma.rolePermission.deleteMany({ where: { companyId: f.company.id, roleId: f.memberRole.id } });
+        await prisma.rolePermission.create({
+          data: { companyId: f.company.id, roleId: f.memberRole.id, resource: "users", action },
+        });
+      });
+    const revision = async () => (await f.run(() => f.repo.getState()))?.revision ?? 0;
+    const edit = async () =>
+      f.run(
+        async () =>
+          getUpsertRoleInteractor().invoke(
+            roleInput({ id: target.data.role.id, name: `Target ${randomUUID()}`, expectedRevision: await revision() }),
+          ),
+        f.member,
+      );
+    const create = async () =>
+      f.run(
+        async () =>
+          getUpsertRoleInteractor().invoke(
+            roleInput({ name: `New ${randomUUID()}`, expectedRevision: await revision() }),
+          ),
+        f.member,
+      );
+    const remove = async (id: string) =>
+      f.run(
+        async () =>
+          getDeleteRoleInteractor().invoke({ id, expectedRevision: await revision(), idempotencyKey: randomUUID() }),
+        f.member,
+      );
+
+    await grantOnly("create");
+    const created = await create();
+    expect(created).toMatchObject({ ok: true });
+    expect(await edit()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: false });
+
+    await grantOnly("update");
+    expect(await edit()).toMatchObject({ ok: true });
+    expect(await create()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: false });
+
+    await grantOnly("delete");
+    expect(await create()).toMatchObject({ ok: false });
+    expect(await edit()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: true });
   });
 
   it("role management prevents preset dangling references and deletes with retry protection", async () => {
@@ -13753,7 +14026,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       version: 2,
       layout: { lg: layouts.lg[0] },
     });
-    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({ version: 1, layout: null });
+    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({
+      version: 1,
+      layout: foreign.data.layout,
+    });
     expect(await f.run(() => f.widgets.findOwned(untouchedId))).toMatchObject({
       version: 1,
       layout: { lg: untouchedPosition },

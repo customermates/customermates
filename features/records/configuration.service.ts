@@ -21,7 +21,7 @@ import {
   expressionRelationshipDependencies,
   validateRecordModel,
 } from "./record-model-validation";
-import { presetId } from "./crm-preset";
+import { deterministicId } from "./crm-preset";
 import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { configurationInputFields, configurationInputValue, fieldValueDefinition } from "./record-configuration-values";
 import { canonicalRecordJson } from "./record-json";
@@ -172,7 +172,7 @@ export class RecordConfigurationService extends UserAccessor {
         if (generated) return;
         throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
       }
-      references.set(reference, presetId(this.companyId, `configuration:${input.idempotencyKey}:${reference}`));
+      references.set(reference, deterministicId(this.companyId, `configuration:${input.idempotencyKey}:${reference}`));
     };
     for (const operation of input.operations) {
       if (operation.operation === "createType") register(operation.reference);
@@ -269,10 +269,10 @@ export class RecordConfigurationService extends UserAccessor {
           throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
         const nameId =
           references.get(`${operation.reference}.name`) ??
-          presetId(this.companyId, `configuration:${input.idempotencyKey}:${id}:name`);
+          deterministicId(this.companyId, `configuration:${input.idempotencyKey}:${id}:name`);
         const notesId =
           references.get(`${operation.reference}.notes`) ??
-          presetId(this.companyId, `configuration:${input.idempotencyKey}:${id}:notes`);
+          deterministicId(this.companyId, `configuration:${input.idempotencyKey}:${id}:notes`);
         model.types.push({
           id,
           label: operation.label,
@@ -313,7 +313,7 @@ export class RecordConfigurationService extends UserAccessor {
           });
         }
         model.activityPaths.push({
-          id: presetId(this.companyId, `activities:${id}:self`),
+          id: deterministicId(this.companyId, `activities:${id}:self`),
           typeId: id,
           label: operation.pluralLabel,
           path: [],
@@ -391,7 +391,7 @@ export class RecordConfigurationService extends UserAccessor {
           throw new RecordWriteError(CustomErrorCode.recordProtected, "authorization");
         upsert(model.capabilities, binding);
         if (binding.kind === "channels" && binding.enabled !== false && (!existing || existing.enabled === false)) {
-          const selfId = presetId(this.companyId, `activities:${binding.typeId}:self`);
+          const selfId = deterministicId(this.companyId, `activities:${binding.typeId}:self`);
           const self = model.activityPaths.find((path) => path.id === selfId);
           const type = model.types.find((type) => type.id === binding.typeId);
           if (self) self.includeMessages = true;

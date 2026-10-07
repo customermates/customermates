@@ -26,6 +26,7 @@ const root = {
 } as unknown as RootStore;
 const presentation = {
   model,
+  linkColors: {},
   typeId: id("deal"),
   canManageSchema: true,
   permittedActions: ["readAll", "update"],

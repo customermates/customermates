@@ -4,7 +4,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { WikiPageDto } from "./wiki.schema";
 
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -47,7 +47,7 @@ export type UpdateWikiPageRepoResult =
   | { status: "guide-exists" }
   | { status: "invalid"; error: CustomErrorCode };
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.update })
+@TenantInteractor({ resource: Resource.wiki, manage: "update" })
 export class UpdateWikiPageInteractor extends AuthenticatedInteractor<UpdateWikiPageData, WikiPageDto> {
   constructor(
     private repo: UpdateWikiPageRepo,

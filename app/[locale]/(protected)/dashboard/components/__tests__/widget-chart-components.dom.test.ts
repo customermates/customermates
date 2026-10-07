@@ -46,7 +46,7 @@ afterEach(() => {
 
 describe("time series and funnel charts", () => {
   it.each([
-    [false, ["0", "1", "2", "3"]],
+    [false, ["0", "1", "2", "3", "4"]],
     [true, ["0", "0.75", "1.5", "2.25", "3"]],
   ])("uses whole-number value ticks unless decimals are allowed (%s)", async (allowDecimals, expected) => {
     const series = [point("Ada", 3), point("Bo", 2), point("Cy", 1)];
@@ -59,8 +59,6 @@ describe("time series and funnel charts", () => {
             chartData: series,
             colors: ["#336699"],
             strokeColors: ["#224466"],
-            gridColor: "var(--border)",
-            textColor: "var(--muted-foreground)",
             allowDecimals,
           }),
           createElement(HorizontalBarChart, {
@@ -68,8 +66,6 @@ describe("time series and funnel charts", () => {
             currency: null,
             chartData: series,
             colors: ["#336699"],
-            gridColor: "var(--border)",
-            textColor: "var(--muted-foreground)",
             allowDecimals,
           }),
         ]),
@@ -101,8 +97,6 @@ describe("time series and funnel charts", () => {
           ],
           colors: ["#336699"],
           strokeColors: ["#224466"],
-          gridColor: "var(--border)",
-          textColor: "var(--muted-foreground)",
         }),
       );
       await Promise.resolve();
@@ -118,8 +112,6 @@ describe("time series and funnel charts", () => {
     await act(async () => {
       root.render(
         createElement(FunnelChart, {
-          currency: null,
-          textColor: "var(--muted-foreground)",
           chartData: [
             point("New", 10, { detail: "10" }),
             point("Qualified", 5, { detail: "5 · 50%" }),
@@ -129,19 +121,13 @@ describe("time series and funnel charts", () => {
       );
       await Promise.resolve();
     });
-    const rectangles = [...container.querySelectorAll(".recharts-bar-rectangle path")];
-    const spacers = rectangles.filter((bar) => bar.getAttribute("fill") === "transparent");
-    const values = rectangles.filter((bar) => bar.getAttribute("fill") === "#336699");
-    expect(spacers).toHaveLength(2);
-    expect(values).toHaveLength(3);
-    const geometry = values.map((bar) => ({
-      x: Number(bar.getAttribute("x")),
-      width: Number(bar.getAttribute("width")),
-    }));
-    expect(geometry[0].width).toBeGreaterThan(geometry[1].width);
-    expect(geometry[1].width).toBeGreaterThan(geometry[2].width);
-    for (const bar of geometry) expect(bar.x + bar.width / 2).toBeCloseTo(geometry[0].x + geometry[0].width / 2, 5);
-    const ticks = [...container.querySelectorAll(".recharts-yAxis-tick-labels text")].map((tick) => tick.textContent);
-    expect(ticks).toEqual(expect.arrayContaining(["New", "Qualified", "Won", "10", "5 · 50%", "2 · 40%"]));
+    const steps = [...container.querySelectorAll('[data-slot="widget-funnel-step"]')];
+    expect(steps.map((step) => step.textContent)).toEqual(["New10", "Qualified5 · 50%", "Won2 · 40%"]);
+    const widths = [...container.querySelectorAll<HTMLElement>('[data-slot="widget-funnel-bar"]')].map((bar) =>
+      Number.parseFloat(bar.style.width),
+    );
+    expect(widths).toEqual([100, 50, 20]);
+    for (const bar of container.querySelectorAll('[data-slot="widget-funnel-bar"]'))
+      expect(bar.parentElement?.className).toContain("justify-center");
   });
 });

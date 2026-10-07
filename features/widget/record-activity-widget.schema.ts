@@ -1,4 +1,7 @@
 import { z } from "zod";
+import type { WidgetLayout } from "./widget-display.schema";
+import type { WidgetPlacementRow } from "./widget-placement";
+import { WidgetPlacementSchema } from "./widget-grid";
 import {
   RecordActivityQuerySchema,
   RecordActivitiesResultSchema,
@@ -15,6 +18,7 @@ export const RecordActivityWidgetInputSchema = z
     activityQuery: RecordActivityQuerySchema,
     displayOptions: z.object({ showFilters: z.boolean() }).strict(),
     isTemplate: z.boolean(),
+    layout: WidgetPlacementSchema.optional(),
   })
   .strict()
   .superRefine((value, context) => {
@@ -56,5 +60,6 @@ export interface RecordActivityWidgetRepo {
   findReadable(id: string): Promise<StoredRecordActivityWidget | null>;
   listOwned(): Promise<StoredRecordActivityWidget[]>;
   findOwned(id: string): Promise<StoredRecordActivityWidget | null>;
-  save(input: RecordActivityWidgetInput, id: string): Promise<StoredRecordActivityWidget>;
+  listPlacements(): Promise<WidgetPlacementRow[]>;
+  save(input: RecordActivityWidgetInput, id: string, layout?: WidgetLayout): Promise<StoredRecordActivityWidget>;
 }

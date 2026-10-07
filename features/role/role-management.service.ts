@@ -43,11 +43,7 @@ export class RoleManagementService extends UserAccessor {
           const policy = await this.policy.load();
           if (
             !policy.actor ||
-            !(
-              policy.canManageRoles ||
-              policy.allowedSystem("users", "readOwn") ||
-              policy.allowedSystem("users", "readAll")
-            )
+            !(policy.canManageRoles || policy.canReadSystem("users") || policy.allowedSystem("users", "create"))
           )
             throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
           const model = await this.records.getModel();
@@ -65,7 +61,7 @@ export class RoleManagementService extends UserAccessor {
                 role && typeIds
                   ? { ...role, recordGrants: role.recordGrants?.filter((grant) => typeIds.includes(grant.typeId)) }
                   : role,
-              canEdit: mutable && policy.canManageRoles,
+              canEdit: mutable && policy.allowedSystem("users", role ? "update" : "create"),
               canDelete: Boolean(
                 role &&
                   mutable &&
@@ -91,7 +87,7 @@ export class RoleManagementService extends UserAccessor {
       async (): Validated<RoleMutationResult> => {
         try {
           const policy = await this.policy.load();
-          if (!policy.actor || !policy.canManageRoles)
+          if (!policy.actor || !policy.allowedSystem("users", input.id ? "update" : "create"))
             throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
           const hash = recordRequestHash({ kind: "roleUpsert", input });
           const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
@@ -140,7 +136,7 @@ export class RoleManagementService extends UserAccessor {
             const prepared = await this.configurations.prepare(
               { expectedRevision: model.revision, idempotencyKey: input.idempotencyKey, operations },
               model,
-              policy,
+              previous ? policy : { ...policy, canManageRoles: true },
             );
             prepared.change.source = change.source;
             await this.writer.apply(prepared, model, this.userId, await this.records.getWorkspaceCurrencyOrThrow());

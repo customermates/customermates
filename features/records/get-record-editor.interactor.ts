@@ -15,6 +15,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordWriteFailure } from "./mutate-record.interactor";
 import { recordDto } from "./query-records.interactor";
 import { resolveRecordPath } from "./record-relationship-path";
+import { recordLinkColors, type RecordLinkColors } from "./record-presentation";
 import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
 import type { RecordDetailLayoutResult } from "./record-detail-layout.schema";
 
@@ -24,6 +25,7 @@ export type RecordEditorContext = {
   typeId: string;
   permittedActions: Action[];
   canManageSchema: boolean;
+  linkColors: RecordLinkColors;
   systemActions?: Array<"manageMembership">;
   detailLayout?: RecordDetailLayoutResult;
 };
@@ -49,17 +51,13 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
-        if (!type || !policy.actor || (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn")))
+        if (!type || !policy.actor || !policy.canReadType(type.id))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
         const ref = input.recordId ? { typeId: type.id, recordId: input.recordId } : null;
         const stored = ref ? await this.records.getRecordCompanyWide(ref) : null;
         if (ref && (!stored || !(await policy.canRead(stored)))) return failNotFound(CustomErrorCode.recordNotFound);
         const accessible = new Set(
-          model.types
-            .filter(
-              (type) => !type.archived && (policy.allowed(type.id, "readAll") || policy.allowed(type.id, "readOwn")),
-            )
-            .map((type) => type.id),
+          model.types.filter((type) => !type.archived && policy.canReadType(type.id)).map((type) => type.id),
         );
         const types = model.types
           .filter(
@@ -87,6 +85,13 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
             (type) => type.relationshipPaths?.flatMap((path) => path.path.map((step) => step.relationId)) ?? [],
           ),
         );
+        const relationships = model.relationships.filter(
+          (relation) =>
+            !relation.archived &&
+            accessible.has(relation.sourceTypeId) &&
+            accessible.has(relation.targetTypeId) &&
+            (ids.has(relation.sourceTypeId) || ids.has(relation.targetTypeId) || pathRelations.has(relation.id)),
+        );
         try {
           const layout = await this.layouts.read(type.id, model, policy);
           if (!layout.ok) return layout;
@@ -103,6 +108,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
               record,
               detailLayout: layout.data,
               canManageSchema: policy.canManageSchema,
+              linkColors: recordLinkColors(model.types, relationships),
               systemActions:
                 stored?.protectedKind === "membershipAuthorization" &&
                 policy.allowedSystem("users", "update") &&
@@ -118,15 +124,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
                 ...model,
                 types,
                 fields: model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
-                relationships: model.relationships.filter(
-                  (relation) =>
-                    !relation.archived &&
-                    accessible.has(relation.sourceTypeId) &&
-                    accessible.has(relation.targetTypeId) &&
-                    (ids.has(relation.sourceTypeId) ||
-                      ids.has(relation.targetTypeId) ||
-                      pathRelations.has(relation.id)),
-                ),
+                relationships,
                 capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
                 activityPaths: model.activityPaths.filter(
                   (path) =>

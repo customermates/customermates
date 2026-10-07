@@ -11,7 +11,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
 
-import { Resource, Action, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
+import { Resource, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -123,7 +123,7 @@ function emailRecipient(email: string, displayName?: string | null): MessagingAt
   };
 }
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, MessagingMessageDto | null> {
   constructor(
     private repo: SendEmailRepo,

@@ -734,7 +734,8 @@
                         "value"
                       ],
                       "additionalProperties": false
-                    }
+                    },
+                    "description": "Up to 1,000 exact channel identifiers. Each input, including a repeated one, returns its own match."
                   },
                   "typeIds": {
                     "maxItems": 100,
@@ -762,6 +763,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "schemaRevision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991,
+                      "description": "Workspace schema revision for expectedRevision in a following record mutation."
+                    },
                     "matches": {
                       "type": "array",
                       "items": {
@@ -835,6 +842,12 @@
                                 },
                                 "canEdit": {
                                   "type": "boolean"
+                                },
+                                "version": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 9007199254740991,
+                                  "description": "Current record version for expectedVersion in an updateMany target."
                                 }
                               },
                               "required": [
@@ -843,7 +856,8 @@
                                 "typePluralLabel",
                                 "title",
                                 "avatarUrl",
-                                "canEdit"
+                                "canEdit",
+                                "version"
                               ],
                               "additionalProperties": false
                             }
@@ -859,9 +873,11 @@
                     }
                   },
                   "required": [
+                    "schemaRevision",
                     "matches"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "matches follow the input order. A record linked through several identifiers appears under each of them: deduplicate by typeId and recordId before building updateMany targets. Resolve every input with more than one record before updating; never pick one arbitrarily."
                 }
               }
             }
@@ -1036,13 +1052,8 @@
                                     "type": "string",
                                     "enum": [
                                       "dataModel",
-                                      "contacts",
-                                      "deals",
-                                      "organizations",
-                                      "services",
                                       "users",
                                       "company",
-                                      "tasks",
                                       "api",
                                       "auditLog",
                                       "inboxMessages",
@@ -1252,152 +1263,46 @@
                     "maxLength": 500
                   },
                   "permissions": {
-                    "type": "object",
-                    "properties": {
-                      "users": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "resource": {
+                          "type": "string",
+                          "enum": [
+                            "dataModel",
+                            "users",
+                            "company",
+                            "api",
+                            "auditLog",
+                            "inboxMessages",
+                            "wiki",
+                            "routines"
+                          ]
+                        },
+                        "actions": {
+                          "maxItems": 5,
+                          "type": "array",
+                          "items": {
                             "type": "string",
                             "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "own",
-                              "all"
+                              "create",
+                              "readOwn",
+                              "readAll",
+                              "update",
+                              "delete"
                             ]
                           }
-                        },
-                        "additionalProperties": false
+                        }
                       },
-                      "company": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "dataModel": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "api": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "inboxMessages": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "wiki": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "auditLog": {
-                        "type": "object",
-                        "properties": {
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
-                      "routines": {
-                        "type": "object",
-                        "properties": {
-                          "canManage": {
-                            "type": "string",
-                            "enum": [
-                              "yes",
-                              "no"
-                            ]
-                          },
-                          "readAccess": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "own",
-                              "all"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      }
+                      "required": [
+                        "resource",
+                        "actions"
+                      ],
+                      "additionalProperties": false
                     },
-                    "additionalProperties": false,
-                    "description": "Only supplied system permission groups change. Omit unchanged groups or properties to preserve exact existing rights."
+                    "description": "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible."
                   },
                   "recordGrants": {
                     "maxItems": 1000,
@@ -1511,13 +1416,8 @@
                                 "type": "string",
                                 "enum": [
                                   "dataModel",
-                                  "contacts",
-                                  "deals",
-                                  "organizations",
-                                  "services",
                                   "users",
                                   "company",
-                                  "tasks",
                                   "api",
                                   "auditLog",
                                   "inboxMessages",
@@ -12300,6 +12200,43 @@
                       },
                       "isTemplate": {
                         "type": "boolean"
+                      },
+                      "layout": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 11,
+                            "description": "Column, 0 to 11, from the left edge."
+                          },
+                          "y": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 1000,
+                            "description": "Row from the top. Widgets float up into empty rows above them, as on the dashboard."
+                          },
+                          "w": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12,
+                            "description": "Width in columns, 1 to 12."
+                          },
+                          "h": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12,
+                            "description": "Height in rows of 124 px, 1 to 12."
+                          }
+                        },
+                        "required": [
+                          "x",
+                          "y",
+                          "w",
+                          "h"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Optional position and size on the 12-column desktop grid. Omit it to keep the current position on update or to place a new widget in the first free spot. It must not overlap another widget."
                       }
                     },
                     "required": [
@@ -12646,6 +12583,43 @@
                       },
                       "isTemplate": {
                         "type": "boolean"
+                      },
+                      "layout": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 11,
+                            "description": "Column, 0 to 11, from the left edge."
+                          },
+                          "y": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 1000,
+                            "description": "Row from the top. Widgets float up into empty rows above them, as on the dashboard."
+                          },
+                          "w": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12,
+                            "description": "Width in columns, 1 to 12."
+                          },
+                          "h": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12,
+                            "description": "Height in rows of 124 px, 1 to 12."
+                          }
+                        },
+                        "required": [
+                          "x",
+                          "y",
+                          "w",
+                          "h"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Optional position and size on the 12-column desktop grid. Omit it to keep the current position on update or to place a new widget in the first free spot. It must not overlap another widget."
                       }
                     },
                     "required": [
@@ -38082,6 +38056,18 @@
                             "type": "string",
                             "maxLength": 64
                           },
+                          "color": {
+                            "description": "Chip color for links to records of this list; neutral when unset.",
+                            "type": "string",
+                            "enum": [
+                              "default",
+                              "secondary",
+                              "destructive",
+                              "success",
+                              "warning",
+                              "info"
+                            ]
+                          },
                           "primaryFieldId": {
                             "type": "string",
                             "format": "uuid",
@@ -39907,6 +39893,18 @@
                                 "icon": {
                                   "type": "string",
                                   "maxLength": 64
+                                },
+                                "color": {
+                                  "description": "Chip color for links to records of this list; neutral when unset.",
+                                  "type": "string",
+                                  "enum": [
+                                    "default",
+                                    "secondary",
+                                    "destructive",
+                                    "success",
+                                    "warning",
+                                    "info"
+                                  ]
                                 },
                                 "primaryFieldId": {
                                   "anyOf": [
@@ -41832,6 +41830,18 @@
                                 "icon": {
                                   "type": "string",
                                   "maxLength": 64
+                                },
+                                "color": {
+                                  "description": "Chip color for links to records of this list; neutral when unset.",
+                                  "type": "string",
+                                  "enum": [
+                                    "default",
+                                    "secondary",
+                                    "destructive",
+                                    "success",
+                                    "warning",
+                                    "info"
+                                  ]
                                 },
                                 "primaryFieldId": {
                                   "anyOf": [
@@ -79028,42 +79038,16 @@
                         "legalNoticeNotDelivered",
                         "termsNotAgreed",
                         "privacyAcknowledgementRequired",
-                        "customColumnNotFound",
-                        "customColumnIdNotFound",
-                        "customColumnTypeMismatch",
-                        "customColumnUsedByRoutineCannotDelete",
                         "invalidChannelValue",
                         "channelAlreadyLinked",
-                        "duplicateChannel",
-                        "contactRefRequired",
-                        "relationNotAllowed",
-                        "customFieldInvalidEmail",
-                        "customFieldInvalidPhone",
-                        "customFieldInvalidUrl",
-                        "customFieldInvalidCurrency",
                         "customFieldInvalidDate",
-                        "customFieldInvalidDateTime",
-                        "customFieldInvalidDateRange",
-                        "customFieldInvalidDateTimeRange",
-                        "customFieldInvalidSingleSelect",
-                        "widgetDealQuantityOnlyForService",
-                        "widgetWeightedValueNotAllowedForService",
-                        "widgetGroupByEntityTypeNotAllowedForCount",
-                        "widgetGroupByTypeMustMatchEntityType",
-                        "widgetDealFiltersNotAllowedForDealEntityType",
-                        "widgetDealAggregationNotAllowedForTask",
                         "widgetKindImmutable",
                         "widgetDisplayTypeUnsupported",
-                        "taskOnlyCustomTasksCanBeDeleted",
-                        "taskNameCannotBeChangedForSystemTasks",
-                        "organizationNotFound",
+                        "widgetLayoutOverlap",
+                        "widgetLayoutTooSmall",
                         "userNotFound",
                         "userSelfAdminUpdateForbidden",
                         "userPlatformOperatorStatusForbidden",
-                        "dealNotFound",
-                        "serviceNotFound",
-                        "contactNotFound",
-                        "taskNotFound",
                         "widgetNotFound",
                         "webhookNotFound",
                         "webhookDeliveryNotFound",
@@ -79075,7 +79059,6 @@
                         "wikiWhenToUseRequired",
                         "wikiPageUpdateEmpty",
                         "wikiProcedureNeedsSteps",
-                        "wikiHomepageSetupStartFailed",
                         "threadNotFound",
                         "messageNotFound",
                         "emailFolderNotFound",
@@ -79088,7 +79071,6 @@
                         "roleSelfEditForbidden",
                         "roleSystemImmutable",
                         "roleAccessPresetInUse",
-                        "routineNotFound",
                         "routineAdminRequired",
                         "routineDeleteHasRunningRun",
                         "routineEditNotOwner",
@@ -79121,10 +79103,7 @@
                         "webhookHeadersTooLarge",
                         "webhookBodyTemplateInvalid",
                         "webhookHeadersRequireHttps",
-                        "activityScopeTooManyIds",
-                        "activitySourcesUnavailable",
                         "activityDuplicateFilterField",
-                        "activityPageOutOfRange",
                         "messageContentRequired",
                         "sendEmailTargetRequired",
                         "emailRecipientsRequired",

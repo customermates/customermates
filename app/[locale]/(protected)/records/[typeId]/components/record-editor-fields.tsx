@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { observer } from "mobx-react-lite";
+import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { useTranslations } from "next-intl";
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,10 +44,7 @@ export const RecordEditorField = observer(function RecordEditorField({
         {t(captureStaged ? "RecordModel.captureOnSave" : "RecordModel.captureValue")}
       </Button>
     ) : null;
-  if (
-    restricted ||
-    (field.behavior.kind !== "input" && !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride))
-  ) {
+  if (restricted || !isRecordFieldWritable(field)) {
     return store.record ? (
       <EntityDetailStaticField
         action={restricted ? null : captureAction}

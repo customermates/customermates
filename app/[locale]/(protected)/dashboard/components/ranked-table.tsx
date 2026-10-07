@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 export type RankedTableRow = {
@@ -52,9 +53,7 @@ export function RankedTable({ color, hiddenCount, rows }: Props) {
               <td className="py-1.5 pr-2 tabular-nums text-muted-foreground">{index + 1}</td>
 
               <th className="w-full max-w-0 py-1.5 text-left font-normal" scope="row">
-                <span className="block truncate" title={row.label}>
-                  {row.label}
-                </span>
+                <TruncatedText>{row.label}</TruncatedText>
 
                 <span aria-hidden className="mt-1 block h-1 overflow-hidden rounded-full bg-muted">
                   <span

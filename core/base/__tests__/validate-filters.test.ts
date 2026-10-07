@@ -2,10 +2,11 @@ import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 
 import { describe, it, expect } from "vitest";
 
-import { BaseQueryBuilder, FilterOperatorKey, defaultValidateFilters } from "@/core/base/base-query-builder";
+import { FilterOperatorKey, defaultValidateFilters } from "@/core/base/base-query-builder";
+import { QueryRepository } from "@/core/base/query-repository";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
-class TestQueryBuilder extends BaseQueryBuilder<Record<string, unknown>> {}
+class TestQueryBuilder extends QueryRepository<Record<string, unknown>> {}
 
 const FIELDS: FilterableField[] = [{ field: FilterFieldKey.draft, operators: [FilterOperatorKey.in] }];
 const RELATION_FIELDS: FilterableField[] = [
@@ -15,7 +16,7 @@ const RELATION_FIELDS: FilterableField[] = [
   },
 ];
 
-describe("BaseQueryBuilder.validateFilters delegates to defaultValidateFilters", () => {
+describe("QueryRepository.validateFilters delegates to defaultValidateFilters", () => {
   const qb = new TestQueryBuilder();
 
   it("keeps a well-formed filter on an allowed field and operator", () => {

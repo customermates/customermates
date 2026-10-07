@@ -9,7 +9,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Resource, Action, MessagingProvider } from "@/generated/prisma";
+import { Resource, MessagingProvider } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
@@ -25,7 +25,7 @@ export const LinkedinSaveToSalesListSchema = z.object({
 });
 type LinkedinSaveToSalesListData = Data<typeof LinkedinSaveToSalesListSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class LinkedinSaveToSalesListInteractor extends AuthenticatedInteractor<
   LinkedinSaveToSalesListData,
   LinkedinSaveToSalesListResult

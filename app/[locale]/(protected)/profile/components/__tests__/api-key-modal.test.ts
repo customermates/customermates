@@ -86,7 +86,6 @@ function renderModal(
     userStore: {
       can: vi.fn().mockReturnValue(true),
       canAccess: vi.fn().mockReturnValue(true),
-      canManage: vi.fn().mockReturnValue(true),
       user: null,
     },
   } as unknown as RootStore;
@@ -111,9 +110,8 @@ function renderViewModal(name = "Gemini", canManage = true) {
     registerModalStore: vi.fn(),
     recordWorkspaceStore: { navigation: null },
     userStore: {
-      can: vi.fn().mockReturnValue(true),
+      can: vi.fn().mockReturnValue(canManage),
       canAccess: vi.fn().mockReturnValue(true),
-      canManage: vi.fn().mockReturnValue(canManage),
       user: null,
     },
   } as unknown as RootStore;

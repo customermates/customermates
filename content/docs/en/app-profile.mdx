@@ -15,7 +15,7 @@ Routes are relative and carry no language prefix: they work on the address the w
 
 **Settings** is listed for every member. **Channels** is listed on Customermates Cloud only, when your role's **Inbox messages** row has **Read access** **All**; on self-hosted its targets are still offered, but the page redirects to the Dashboard. **API & Connectors** is listed when the **API & Webhooks** row has **Read access** **All**.
 
-Roles are edited under **My Company › Roles** by a member whose role has **Manage** on **Users & Roles**; see [App guide, Company](/docs/app-company). A new custom role starts with **Read access** **None** on both rows, so its members see only **Settings** until someone changes the role. The **Admin** role sees every entry the installation offers. Opening a hidden page by its URL brings you back to the Dashboard.
+Roles are edited under **My Company › Roles** by a member whose role has **Edit** on **Users & Roles**; see [App guide, Company](/docs/app-company). A new custom role starts with **Read access** **None** on both rows, so its members see only **Settings** until someone changes the role. The **Admin** role sees every entry the installation offers. Opening a hidden page by its URL brings you back to the Dashboard.
 
 | Page | Route | Navigate target | Highlight targets on the page | Explained in |
 |---|---|---|---|---|
@@ -42,7 +42,7 @@ Change the field and click **Save**: **Display Language** sets the interface lan
 | **Formatting Locale** | `#profile-settings-formatting-locale` | **English** (US formats), **German**, **French**, **Italian**, **Spanish**, or **System** (the formats of your display language) | How numbers, dates, times and amounts are written, independent of the interface language |
 | **Theme** | `#profile-settings-theme` | **System** (follows your operating system), **Dark**, **Light** | Light or dark interface |
 
-The header above the form shows your name, your email address, **Email verified** or **Email not verified**, your status and your role. None of these can be changed here. The email address cannot be changed anywhere in the app. Role and status are set under **My Company › Members** by a member whose role has **Manage** on **Users & Roles**, who can also edit your first name, last name, country and avatar URL there.
+The header above the form shows your name, your email address, **Email verified** or **Email not verified**, your status and your role. None of these can be changed here. The email address cannot be changed anywhere in the app. Role and status are set under **My Company › Members** by a member whose role has **Edit** on **Users & Roles**, who can also edit your first name, last name, country and avatar URL there.
 
 The avatar menu at the bottom of the sidebar has a **Dark Mode** or **Light Mode** switch that also saves your theme, and **Sign Out**.
 
@@ -64,7 +64,7 @@ In the assistant and over MCP, `update_workspace_settings` with `target: "profil
 
 ## API & Connectors page: your API keys [#api--connectors-tab]
 
-The **API & Connectors** page holds your API keys. Route `/profile/api-keys`, sidebar entry **API & Connectors**. Keys for MCP and REST clients; the full rules are on [API keys](/docs/api-keys). The page lists only your own keys. Opening it needs **Read access** **All** on your role's **API & Webhooks** row, and adding or deleting keys needs **Manage** **Yes** on that row. The same row also controls **My Company › Webhooks** and **Recent Deliveries**.
+The **API & Connectors** page holds your API keys. Route `/profile/api-keys`, sidebar entry **API & Connectors**. Keys for MCP and REST clients; the full rules are on [API keys](/docs/api-keys). The page lists only your own keys. Opening it needs **Read access** **All** on your role's **API & Webhooks** row; adding keys needs **Create** and deleting them **Delete** on that row. The same row also controls **My Company › Webhooks** and **Recent Deliveries**.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
@@ -78,7 +78,7 @@ The quick route offers four tiles: **Claude**, **ChatGPT & Codex**, **Cursor** a
 
 There is no rotate or revoke button: create a new key, update the client, then delete the old one. Taking **API & Webhooks** away from a role does not disable keys its members already hold; to stop a member's keys, set that member **Inactive** under **My Company › Members**.
 
-**Link:** the link to the API keys page, `/profile/api-keys`, titled **API & Connectors**. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**). In the dialog it takes `api-key-option-standard` (prerequisite `profile-api-keys-generate`), then `api-key-name`, `api-key-expires` and `api-key-save` (prerequisite `api-key-option-standard`; **Save** is enabled once something changed), and `api-key-delete` once the user has opened a key from its card. The quick connection tiles and the key cards have no target, so Mate names them.
+**Link:** the link to the API keys page, `/profile/api-keys`, titled **API & Connectors**. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**). In the dialog it takes `api-key-option-standard` (prerequisite `profile-api-keys-generate`), then `api-key-name`, `api-key-expires` and `api-key-save` (prerequisite `api-key-option-standard`; **Save** is enabled once something changed), and `api-key-delete` once the user has opened a key from its card. The quick connection tiles and the key cards have no target, so Mate names them.
 
 ## Channels page [#channels-tab]
 
@@ -94,13 +94,13 @@ Channels are the email, LinkedIn, WhatsApp, Instagram and Telegram accounts that
 | Email tab | Channel dialog | `#connected-account-tab-email` (**Email**) | Appearance and signature; only on a Gmail, Outlook or IMAP account you own |
 | Signature and save | Email tab | `#connected-account-signature` (**Add a signature**) / `#connected-account-email-save` (**Save email settings**) | The signature switch, and the button that stores the tab once something changed |
 | Folders tab | Channel dialog | `#connected-account-tab-folders` (**Folders** with a count, for example **Folders 4/6**) | One switch per folder; only when the account reports folders |
-| Reactivate, resync or disconnect | Channel dialog | `#connected-account-reactivate` / `#connected-account-resync` / `#connected-account-disconnect` | Owner only, with **Manage** on **Inbox messages**; **Reactivate** or **Resync** depending on the status |
+| Reactivate, resync or disconnect | Channel dialog | `#connected-account-reactivate` / `#connected-account-resync` / `#connected-account-disconnect` | Owner only, with **Edit** on **Inbox messages** for **Reactivate** and **Resync** and **Delete** for **Disconnect**; **Reactivate** or **Resync** depending on the status |
 
 **Link:** the link to the **Channels** page, `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, and `highlight_element` with `profile-connected-accounts-connect` for **Connect channel**, on screen only when your role may connect and the page is not locked, loading or failed. Once the user has opened a channel from its card, it also takes the channel dialog ids in the table above without `#`, each only where the table says it appears; the cards and the empty-state button `#profile-connected-accounts-connect-empty` are not highlight targets, so Mate names them.
 
 ### Who can use Channels?
 
-Seeing the page needs **Read access** **All** on your role's **Inbox messages** row; with **None**, both **Channels** and the Inbox are hidden. Connecting a channel and changing, reactivating, resyncing or disconnecting it needs **Manage** **Yes** on the same row. With read access alone you see your channels and teammates' shared ones but cannot change anything. Whatever your role, including **Admin**, you can act only on channels you own.
+Seeing the page needs **Read access** **All** on your role's **Inbox messages** row; with **None**, both **Channels** and the Inbox are hidden. Connecting a channel needs **Create** on the same row, changing, reactivating or resyncing it **Edit**, and disconnecting it **Delete**. With read access alone you see your channels and teammates' shared ones but cannot change anything. Whatever your role, including **Admin**, you can act only on channels you own.
 
 The workspace plan must include messaging: Pro, Business, Enterprise, or a trial. On Starter the page shows **Upgrade to unlock messaging** with the button **Upgrade your plan**, which opens **My Company › Subscription**. Every action except disconnecting also needs a usable subscription, meaning status **Active** or a trial that has not ended; otherwise it is refused, and **Connect channel** shows "Connecting channels requires an active subscription or a trial that hasn't expired." Self-hosted installs have no Channels page.
 
@@ -157,9 +157,9 @@ A channel's status on its card says whether it syncs: **Connected** works normal
 
 ### How do I share a channel, such as a mailbox, and make it visible to teammates, or keep it private? [#private-or-shared]
 
-A new channel is **Private**: only you see its conversations. The owner switches **Visibility** on the **Details** tab to **Shared**, and the change applies at once with the message **Account shared with your workspace**. A shared channel, with all its conversations, becomes visible to every member whose role has **Inbox messages** read access, and those with **Manage** on that row can also reply and send from it. Switching back to **Private** hides it again.
+A new channel is **Private**: only you see its conversations. The owner switches **Visibility** on the **Details** tab to **Shared**, and the change applies at once with the message **Account shared with your workspace**. A shared channel, with all its conversations, becomes visible to every member whose role has **Inbox messages** read access, and those with **Create** on that row can also reply and send from it. Switching back to **Private** hides it again.
 
-Sharing needs the Business or Enterprise plan; on other plans the switch is disabled with the hint "Shared accounts require the Business plan or higher." It also needs **Manage** on **Inbox messages** and a usable subscription. Teammates see your shared channel on their Channels page, where they can open its details and folders but cannot change, reactivate, resync or disconnect it. Single conversations can also be shared from the Inbox, see [App guide, Inbox](/docs/app-inbox).
+Sharing needs the Business or Enterprise plan; on other plans the switch is disabled with the hint "Shared accounts require the Business plan or higher." It also needs **Edit** on **Inbox messages** and a usable subscription. Teammates see your shared channel on their Channels page, where they can open its details and folders but cannot change, reactivate, resync or disconnect it. Single conversations can also be shared from the Inbox, see [App guide, Inbox](/docs/app-inbox).
 
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; the channel card has no target, so Mate names it. Once the user has opened the channel, `highlight_element` takes `connected-account-visibility` for the **Visibility** switch (`#connected-account-visibility`), shown to the owner only and disabled below the Business plan.
 
@@ -167,13 +167,13 @@ Sharing needs the Business or Enterprise plan; on other plans the switch is disa
 
 Email accounts whose provider reports folders get a **Folders** tab with one switch per folder. A switch decides whether that folder's messages show in the Inbox, for you and for everyone who can see the channel; switching a folder off hides its messages without deleting them. The change applies at once.
 
-By default every folder is on except trash, junk or spam, drafts and the all-mail folder; when the provider does not label its folders, names containing junk, spam, trash, deleted, draft or outbox are treated the same way. Switching on one of the excluded folders starts a background import of its history. Only the owner with **Manage** on **Inbox messages** can switch folders; everyone else sees **Synced** or **Hidden**.
+By default every folder is on except trash, junk or spam, drafts and the all-mail folder; when the provider does not label its folders, names containing junk, spam, trash, deleted, draft or outbox are treated the same way. Switching on one of the excluded folders starts a background import of its history. Only the owner with **Edit** on **Inbox messages** can switch folders; everyone else sees **Synced** or **Hidden**.
 
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; once the user has opened the channel, `highlight_element` takes `connected-account-tab-folders` for the **Folders** tab (`#connected-account-tab-folders`), shown only for accounts with folders; the folder switches are not highlight targets, so Mate names them.
 
 ### How do I change the font, link colour and signature of outgoing emails? [#email-appearance-and-signature]
 
-The **Email** tab sets how emails sent from that account look: font, font size, link colour and signature. It appears only on a Gmail, Outlook or IMAP account you own, editing needs **Manage** on **Inbox messages**, and **Save email settings** stores both sections.
+The **Email** tab sets how emails sent from that account look: font, font size, link colour and signature. It appears only on a Gmail, Outlook or IMAP account you own, editing needs **Edit** on **Inbox messages**, and **Save email settings** stores both sections.
 
 | Field | Options | Default |
 |---|---|---|
@@ -198,7 +198,7 @@ Open an existing channel card; only its owner sees **Reactivate** and the other 
 - **Resync** (for **Connected** or **Connecting**): re-imports the history in the background, which usually takes 1 to 3 minutes.
 - **Disconnect**: asks for confirmation, then removes the account at the provider and permanently deletes the conversations, messages, calendars and events Customermates imported from it. A shared channel disappears for your teammates as well.
 
-All three need **Manage** on **Inbox messages**.
+**Reactivate** and **Resync** need **Edit** on **Inbox messages**, and **Disconnect** needs **Delete**.
 
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; after the user opens the channel from its card, `highlight_element` takes `connected-account-reactivate` for **Reactivate**, `connected-account-resync` for **Resync** and `connected-account-disconnect` for **Disconnect**, each only when the owner sees it.
 

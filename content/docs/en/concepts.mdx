@@ -33,15 +33,17 @@ In the record form, a relationship appears as a labeled relation field. Pick the
 
 The backend enforces endpoint types, workspace ownership, cardinality, duplicate prevention, and deletion behavior. A multi-record lookup or rollup must choose an aggregation such as sum or count. MCP clients use `mutate_crm_record` with stable relation IDs from `get_record_model` to link or unlink. Every record reference contains both `typeId` and `recordId`.
 
-## What are custom columns, and which field types are there? [#what-are-custom-columns]
+## What are fields, and which field types are there? [#what-are-custom-columns]
 
-A field has a **value type** and a **behavior**. The value types are text, rich text, number, currency, boolean, date, date and time, date range, date and time range, select, email, phone, URL, and member. Text, email, phone, and URL fields can allow multiple values. Select options have stable IDs and editable labels.
+Every type starts with seeded fields, and a workspace can add its own custom fields; table views show fields as columns. A field has a **value type** and a **behavior**. The value types are text, rich text, number, currency, boolean, date, date and time, date range, date and time range, select, email, phone, URL, and member. Text, email, phone, and URL fields can allow multiple values. Select options have stable IDs and editable labels.
 
 Behaviors are manually entered input, formula, lookup through a relationship, rollup over linked records, and snapshot captured at a configured event. Formulas use a validated, deterministic expression language with typed operations; they cannot run arbitrary JavaScript or SQL. The engine rejects cycles, incompatible values, and excessive work before accepting a definition. Custom fields can participate in filters, sorting, views, widgets, routines, and assistant operations where access permits it.
 
-## How do I add, change or delete custom columns, including the deal stage column? [#how-do-i-add-change-or-delete-a-custom-column]
+## How do I add, change or delete fields, including the deal stage field? [#how-do-i-add-change-or-delete-a-custom-column]
 
 Open **Configure** (`/configure`), select a list in the left rail, and add or edit its fields; **Add** in the top bar also creates calculations, relationships and activity connections, and **Map** shows how lists connect. The field editor opens beside the list and offers the value type, entered or calculated behavior, options, formatting, and a readable calculation editor. A change previews its affected records, views, widgets, routines, and other formulas before it is applied. Incompatible changes are blocked until their dependencies are resolved. Archiving a type removes it from ordinary use without silently deleting its records. Only an archived list or field can be deleted permanently, from the list menu or the field editor: the confirmation counts the records, values, links, relationships, saved views and role grants it removes, lists any definitions that still depend on it, and asks you to type its name.
+
+To add a custom field to contacts, select the **Contacts** list in **Configure** and choose **Add** → **Field**; every other type works the same way. To edit or delete a custom field, open it in the field editor and change its settings or switch on **Archive field**.
 
 Schema editing is separate from record editing. Administrators can delegate it; expanding role access still requires role-management authority. Over MCP, `get_record_model` reads the schema and `configure_record_model` previews and applies a change with an expected revision and idempotency key. A stale revision requires a fresh preview.
 

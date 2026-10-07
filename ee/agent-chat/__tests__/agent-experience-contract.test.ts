@@ -77,52 +77,19 @@ describe("agent experience contract", () => {
 
   it("describes work without retaining tool payloads or identifiers", () => {
     const input = {
-      entityType: "contact",
-      id: "00000000-0000-4000-8000-000000000001",
+      mutation: { action: "update", recordId: "00000000-0000-4000-8000-000000000001" },
       apiKey: "secret",
     };
-    const activity = describeInternalTool("update_contacts", input);
+    const activity = describeInternalTool("mutate_crm_record", input);
 
     expect(activity).toEqual({
       kind: "records.update",
-      resource: "contacts",
       risk: "write",
-      affectedResources: ["contacts"],
+      affectedResources: [],
     });
-    expect(JSON.stringify(activity)).not.toContain(input.id);
+    expect(JSON.stringify(activity)).not.toContain(input.mutation.recordId);
     expect(JSON.stringify(activity)).not.toContain(input.apiKey);
-    expect(agentActivityCopy(activity, deT).running).toContain("Kontakte");
-  });
-
-  it("shows counts and record names without retaining IDs or other record details", () => {
-    const created = describeInternalTool("create_contacts", {
-      contacts: [
-        {
-          firstName: "Ada",
-          internalId: "00000000-0000-4000-8000-000000000001",
-        },
-        { firstName: "Grace", apiKey: "never-show" },
-      ],
-    });
-    const updated = describeInternalTool("update_deals", {
-      deals: [{ id: "00000000-0000-4000-8000-000000000002", name: "Private project" }],
-    });
-
-    expect(created).toMatchObject({
-      kind: "records.create",
-      resource: "contacts",
-      count: 2,
-    });
-    expect(updated).toMatchObject({
-      kind: "records.update",
-      resource: "deals",
-      count: 1,
-    });
-    expect(agentActivityCopy(created, enT).running).toBe("Creating 2 contacts · Ada, Grace");
-    expect(agentActivityCopy(created, deT).done).toBe("2 Kontakte wurden erstellt · Ada, Grace");
-    expect(agentActivityCopy(updated, enT).done).toBe("Updated 1 deal · Private project");
-    expect(agentActivityCopy(updated, deT).running).toBe("1 Deal wird aktualisiert · Private project");
-    expect(JSON.stringify([created, updated])).not.toMatch(/never-show|00000000/);
+    expect(agentActivityCopy(activity, deT).running).toBe("Datensätze werden aktualisiert");
   });
 
   it("explains Wiki creation with task-specific progress", () => {
@@ -241,29 +208,7 @@ describe("agent experience contract", () => {
   it("gives custom fields, widgets, settings, and profiles distinct privacy-safe activity names", () => {
     const privateId = "00000000-0000-4000-8000-000000000001";
     const tools = [
-      ["manage_custom_columns", { action: "list", entityType: "contact", id: privateId }, "customFields.read"],
-      [
-        "manage_custom_columns",
-        {
-          action: "upsert",
-          intent: "create",
-          entityType: "contact",
-          label: "Private field",
-          apiKey: "secret",
-        },
-        "customFields.create",
-      ],
-      [
-        "manage_custom_columns",
-        {
-          action: "upsert",
-          intent: "update",
-          id: privateId,
-          label: "Private field",
-        },
-        "customFields.update",
-      ],
-      ["manage_custom_columns", { action: "delete", id: privateId }, "customFields.delete"],
+      ["configure_record_model", { action: "preview" }, "customFields.read"],
       ["manage_widgets", { action: "get", ids: [privateId] }, "widgets.read"],
       ["manage_widgets", { action: "create", name: "Private widget" }, "widgets.create"],
       ["manage_widgets", { action: "update", id: privateId, name: "Private widget" }, "widgets.update"],
@@ -280,9 +225,6 @@ describe("agent experience contract", () => {
     const expectedDoneLabels = {
       de: [
         "Benutzerdefinierte Felder wurden geprüft",
-        "Benutzerdefiniertes Feld wurde erstellt · Private field",
-        "Benutzerdefiniertes Feld wurde aktualisiert · Private field",
-        "Benutzerdefiniertes Feld wurde entfernt",
         "Dashboard-Widgets wurden geprüft",
         "Dashboard-Widget wurde erstellt · Private widget",
         "Dashboard-Widget wurde aktualisiert · Private widget",
@@ -292,9 +234,6 @@ describe("agent experience contract", () => {
       ],
       en: [
         "Reviewed custom fields",
-        "Created a custom field · Private field",
-        "Updated a custom field · Private field",
-        "Removed a custom field",
         "Reviewed dashboard widgets",
         "Created a dashboard widget · Private widget",
         "Updated a dashboard widget · Private widget",
@@ -304,9 +243,6 @@ describe("agent experience contract", () => {
       ],
       es: [
         "Campos personalizados revisados",
-        "Campo personalizado creado · Private field",
-        "Campo personalizado actualizado · Private field",
-        "Campo personalizado eliminado",
         "Widgets del panel revisados",
         "Widget del panel creado · Private widget",
         "Widget del panel actualizado · Private widget",
@@ -316,9 +252,6 @@ describe("agent experience contract", () => {
       ],
       fr: [
         "Champs personnalisés vérifiés",
-        "Champ personnalisé créé · Private field",
-        "Champ personnalisé mis à jour · Private field",
-        "Champ personnalisé supprimé",
         "Widgets du tableau de bord vérifiés",
         "Widget du tableau de bord créé · Private widget",
         "Widget du tableau de bord mis à jour · Private widget",
@@ -328,9 +261,6 @@ describe("agent experience contract", () => {
       ],
       it: [
         "Campi personalizzati controllati",
-        "Campo personalizzato creato · Private field",
-        "Campo personalizzato aggiornato · Private field",
-        "Campo personalizzato rimosso",
         "Widget della dashboard controllati",
         "Widget della dashboard creato · Private widget",
         "Widget della dashboard aggiornato · Private widget",
@@ -346,14 +276,6 @@ describe("agent experience contract", () => {
       expect(new Set(labels).size).toBe(labels.length);
     }
     expect(JSON.stringify(activities)).not.toMatch(/00000000|secret/);
-    const ambiguousLegacyActivity = describeInternalTool("manage_custom_columns", {
-      action: "upsert",
-      intent: "invalid",
-      id: privateId,
-    });
-    expect(ambiguousLegacyActivity.kind).toBe("customFields.configure");
-    expect(agentActivityCopy(ambiguousLegacyActivity, enT).done).toBe("Configured custom fields");
-    expect(JSON.stringify(ambiguousLegacyActivity)).not.toContain(privateId);
     const ambiguousWidgetActivity = describeInternalTool("manage_widgets", {
       action: "legacy",
     });
@@ -475,7 +397,7 @@ describe("agent experience contract", () => {
     expect(AgentActivityDescriptorSchema.safeParse(activity).success).toBe(true);
   });
 
-  it.each(["manage_custom_columns", "manage_widgets", "manage_webhooks"])(
+  it.each(["manage_widgets", "manage_webhooks"])(
     "marks multiplexed tool %s sensitive only when the call needs approval",
     (toolName) => {
       expect(describeInternalTool(toolName, { action: "delete" }).risk).toBe("sensitive");
@@ -497,13 +419,6 @@ describe("agent experience contract", () => {
     expect(write.kind).toBe(writeKind);
   });
 
-  it.each(["manage_record_links", "update_record_notes"])(
-    "marks approval-free workspace tool %s as an ordinary write",
-    (toolName) => {
-      expect(describeInternalTool(toolName, undefined).risk).toBe("write");
-    },
-  );
-
   it("gates a team invitation but keeps an ordinary member update immediate", () => {
     expect(
       describeInternalTool("manage_team", {
@@ -513,13 +428,6 @@ describe("agent experience contract", () => {
     ).toBe("sensitive");
     expect(describeInternalTool("manage_team", { action: "update_member" }).risk).toBe("write");
   });
-
-  it.each([undefined, { mode: "append", notes: "Follow up next week" }, { mode: "replace", notes: "" }])(
-    "keeps every notes mutation an unapproved ordinary write for input %j",
-    (input) => {
-      expect(describeInternalTool("update_record_notes", input).risk).toBe("write");
-    },
-  );
 
   it("shows distinct, bounded consequences for real sends, drafts, discards, and support", () => {
     const internalId = "00000000-0000-4000-8000-000000000001";

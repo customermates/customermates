@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, selectConfigureList } from "./configure";
+import { openDrawerTab, addFromConfigure, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, selectConfigureList } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function applyConfiguration(page: Page) {
@@ -56,6 +56,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
     await selectOption(page, "Value type", "Money");
     await selectOption(page, "Value source", source);
+    await openDrawerTab(page, "Calculation");
     await expect(dialog.locator('[data-calculation-editor="linear"]')).toHaveCount(1);
   };
   const selectType = async (label: string, typeId: string) => {
@@ -88,7 +89,6 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await selectOption(page, "Relationship", "Service");
     await selectOption(page, "Value", "Price");
     await expect(calculation.getByRole("combobox", { name: "Aggregation", exact: true })).toHaveCount(0);
-    await dialog.getByRole("textbox", { name: "Name", exact: false }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath("lookup-calculation-editor.png"), animations: "disabled" });
     await applyConfiguration(page);
   });

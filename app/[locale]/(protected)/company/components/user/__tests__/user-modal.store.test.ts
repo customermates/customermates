@@ -33,7 +33,7 @@ const makeRootStore = ({ signedInUserId, canManage }: { signedInUserId: string |
     registerModalStore: vi.fn(),
     userStore: {
       user: signedInUserId ? userRecord(signedInUserId) : null,
-      canManage: () => canManage,
+      can: () => canManage,
     },
     rolesStore: { setItems: vi.fn() },
     usersStore: { refresh: vi.fn() },

@@ -8,6 +8,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { RECORD_TYPE_ICON_KEYS } from "@/components/records/record-type-icon";
 import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -25,7 +26,7 @@ import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery
 import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
-import { WIDGET_GALLERY_KEYS } from "@/features/widget/widget-gallery";
+import { WIDGET_STARTER_RECIPES } from "@/features/widget/widget-gallery";
 import { RecordFilterSchema } from "@/features/records/record-query.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
@@ -124,9 +125,9 @@ const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widg
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const WIDGET_GALLERY_NAME_KEYS = WIDGET_GALLERY_KEYS.map((key) => `Dashboard.widgetGallery.templates.${key}.name`);
-const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_GALLERY_KEYS.map(
-  (key) => `Dashboard.widgetGallery.templates.${key}.description`,
+const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map((recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`);
+const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_STARTER_RECIPES.map(
+  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.description`,
 );
 const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map((interval) => `RecordWidgets.intervals.${interval}`);
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
@@ -416,12 +417,7 @@ const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "cancelled", "reject", "timeo
   (resolution) => `AgentChat.approval.${resolution}`,
 );
 const AGENT_ACTIVITY_RESOURCE_KEYS = [
-  "AgentChat.activity.resource.contacts",
-  "AgentChat.activity.resource.deals",
   "AgentChat.activity.resource.messages",
-  "AgentChat.activity.resource.organizations",
-  "AgentChat.activity.resource.services",
-  "AgentChat.activity.resource.tasks",
   "AgentChat.activity.resource.widgets",
   "AgentChat.activity.resource.wiki",
 ];
@@ -438,12 +434,7 @@ const AGENT_READ_ONLY_SUGGESTION_KEYS = [
 ];
 
 const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
-  "AgentChat.activity.resourceSingular.contacts",
-  "AgentChat.activity.resourceSingular.deals",
   "AgentChat.activity.resourceSingular.messages",
-  "AgentChat.activity.resourceSingular.organizations",
-  "AgentChat.activity.resourceSingular.services",
-  "AgentChat.activity.resourceSingular.tasks",
   "AgentChat.activity.resourceSingular.widgets",
   "AgentChat.activity.resourceSingular.wiki",
 ];
@@ -553,8 +544,8 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["ConnectedAccountsCard.signatureTemplates.${*}", SIGNATURE_TEMPLATE_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
   ["Dashboard.displayTypeRequirements.${*}", WIDGET_DISPLAY_REQUIREMENT_KEYS],
-  ["Dashboard.widgetGallery.templates.${*}.name", WIDGET_GALLERY_NAME_KEYS],
-  ["Dashboard.widgetGallery.templates.${*}.description", WIDGET_GALLERY_DESCRIPTION_KEYS],
+  ["Dashboard.widgetGallery.recipes.${*}.name", WIDGET_GALLERY_NAME_KEYS],
+  ["Dashboard.widgetGallery.recipes.${*}.description", WIDGET_GALLERY_DESCRIPTION_KEYS],
   ["RecordWidgets.intervals.${*}", RECORD_MEASURE_INTERVAL_KEYS],
   ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
   ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
@@ -623,6 +614,10 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     FILTER_FIELD_KEYS,
   ],
   ["components/forms/use-form-field.ts :: t :: Common.inputs.${id}", FORM_FIELD_INPUT_KEYS],
+  [
+    "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
+    RECORD_TYPE_ICON_KEYS.map((key) => `RecordModel.icons.${key}`),
+  ],
   ["ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}", ENTITLEMENT_DENIAL_KEYS],
 ]);
 
@@ -679,12 +674,10 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
   "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.name",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.name",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.name",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${widget.kind}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",
@@ -746,6 +739,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/agent-chat/usage-ring.tsx :: t :: Subscription.planNames.${usage.plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.planNames.${plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.status.${status}",
+  "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.choices.${tool}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.install.instruction.${tool}",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.choices.${candidate}",

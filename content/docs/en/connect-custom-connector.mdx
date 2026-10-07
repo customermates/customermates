@@ -38,9 +38,9 @@ Back in Claude, Customermates appears with its tools listed.
 
 Add it once and it syncs to Claude on web, desktop, and mobile. The connection is tied to your Claude account, not one device, and refreshes in the background.
 
-One click instead: in Customermates, open **My Profile → API & Connectors**, press **Add**, choose **Claude** under **Quick connections**, then **Claude account**, and click **Add to Claude**. It opens Claude's add-connector dialog pre-filled with your `<BASE_URL>/api/v1/mcp` (Claude web and Teams only). The onboarding step **Connect your AI** offers the same button. **Add** needs **Manage** on **API & Webhooks**; without it, paste the URL as above.
+One click instead: in Customermates, open **My Profile → API & Connectors**, press **Add**, choose **Claude** under **Quick connections**, then **Claude account**, and click **Add to Claude**. It opens Claude's add-connector dialog pre-filled with your `<BASE_URL>/api/v1/mcp` (Claude web and Teams only). The onboarding step **Connect your AI** offers the same button. **Add** needs **Create** on **API & Webhooks**; without it, paste the URL as above.
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**). The **Quick connections** tiles and **Add to Claude** are not highlight targets, so Mate names them.
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**). The **Quick connections** tiles and **Add to Claude** are not highlight targets, so Mate names them.
 
 ## How do I connect ChatGPT? [#chatgpt]
 
@@ -58,7 +58,7 @@ Yes. Add the connector the same way, but authenticate with a header:
 
 <Steps>
 <Step title="Create a key">
-In Customermates, open **My Profile → API & Connectors**, press **Add** and choose **Standard API key**. Copy the 64-character string immediately. It is shown once. Creating a key needs **Manage** set to **Yes** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
+In Customermates, open **My Profile → API & Connectors**, press **Add** and choose **Standard API key**. Copy the 64-character string immediately. It is shown once. Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
 </Step>
 <Step title="Authenticate with a header">
 In the connector form set **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** your key.
@@ -67,7 +67,7 @@ In the connector form set **Authentication: Header**, **Header name: `x-api-key`
 
 Save. ChatGPT reaches the server and lists every tool. It lists them even when the key is wrong, because Customermates checks the key only when a tool reads or changes workspace data; if every such call then says "Sign in to use this action.", the key is wrong, truncated, expired or deleted, so create a new one. A documentation lookup such as `search_docs` answers even with a wrong key, so it does not prove that the key works.
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
 
 ## What does the Authorize access screen show? [#sign-in-and-approve]
 
@@ -94,7 +94,7 @@ The connector accepts any client, so the **Authorize access** screen is the gate
 - Add it once on Claude web and it appears on **desktop and mobile** too. The connection is tied to your Claude account, not one device.
 - It refreshes in the background. Use it within any 30-day window and you never re-authorize; go idle longer and you approve once more.
 - Every call runs as the Customermates user who approved, inside that account's data and with that user's role permissions. API keys work the same way: they inherit the owning user's permissions, and there is no per-key scoping.
-- If that user is set to **Inactive**, every call that reads or changes workspace data fails with "Your user account is inactive. Contact a workspace administrator." until a member with **Manage** on **Users & Roles** sets them back to **Active**.
+- If that user is set to **Inactive**, every call that reads or changes workspace data fails with "Your user account is inactive. Contact a workspace administrator." until a member with **Edit** on **Users & Roles** sets them back to **Active**.
 
 ## What should I try first? [#try-your-first-prompt]
 
@@ -102,7 +102,7 @@ The server sends its instructions to your AI when it connects, so the client alr
 
 - *"Pull the last ten contacts I created. Any without an email address?"*
 - *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
-- *"Set the Status column on the Acme deal to Won and add a note that the contract was signed today."*
+- *"Set the Status field on the Acme deal to Won and add a note that the contract was signed today."*
 
 Contacts, organizations, deals, services, and tasks are the starting record types; your workspace can add more. Fields such as a deal's stage or a task's priority are configured per workspace. Ask your AI to call `discover_record_types` and `get_record_model` to see the relevant fields and allowed values before writing.
 
@@ -122,15 +122,15 @@ Leave every tool that is not read-only on *Ask*. The full list is in the [MCP to
 |---|---|---|
 | "Couldn't register with the sign-in service" (Claude) or "Connector verification failed" (ChatGPT) | Server URL wrong or unreachable | Confirm it is exactly `<BASE_URL>/api/v1/mcp`, with the address you open Customermates at as `<BASE_URL>` |
 | Tools are listed, but every call that reads or changes workspace data says "Sign in to use this action." (ChatGPT with a header); documentation lookups still answer | The `x-api-key` value is wrong, truncated, expired or deleted | Create a new key under **My Profile → API & Connectors** and paste the full 64 characters |
-| Every call that reads or changes workspace data says "Your user account is inactive. Contact a workspace administrator." | Your Customermates user was set to **Inactive** | A member with **Manage** on **Users & Roles** sets you back to **Active** under **My Company → Members** |
+| Every call that reads or changes workspace data says "Your user account is inactive. Contact a workspace administrator." | Your Customermates user was set to **Inactive** | A member with **Edit** on **Users & Roles** sets you back to **Active** under **My Company → Members** |
 | No "Add custom connector" option | Free plan | Custom connectors need a paid Claude or ChatGPT plan. See [the CLI method](/docs/connect-cli) |
 | Approved but nothing connects | You approved from a different account | Sign into the right Customermates account, then retry |
 | "Tool not found" | Stale connector cache | Remove and re-add the connector |
 | Server rejects a relationship update | The relationship ID or endpoint is missing or inaccessible | Ask the agent to read `get_record_model`, then use `mutate_crm_record` with `link` or `unlink` |
 | Select field rejected | Value not in the field's option list | Ask the agent to call `get_record_model` first |
-| A messaging, calendar or social tool is refused with a plan message | The workspace has no plan with messaging (Starter, self-hosted, or no active subscription or trial) | On Cloud, a member with **Manage** **Yes** on **Company** chooses Pro or higher under **My Company → Subscription**. Self-hosted instances have no messaging; use Customermates Cloud for these tools |
+| A messaging, calendar or social tool is refused with a plan message | The workspace has no plan with messaging (Starter, self-hosted, or no active subscription or trial) | On Cloud, a member with **Edit** on **Company** chooses Pro or higher under **My Company → Subscription**. Self-hosted instances have no messaging; use Customermates Cloud for these tools |
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`, the **Members** page, `/company/members`, and the **Subscription** page, `/company/subscription` (cloud only). **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`, `nav-company-members` or `nav-company-subscription`. `profile-api-keys-generate` highlights **Add** on the API page (roles with **Manage** on **API & Webhooks**); the member rows are not highlight targets, so Mate names them; once a member row is open, `member-modal-status` highlights **Status** and `member-modal-save` highlights **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**), and `company-subscription-plan-picker` outlines the plan cards while the picker is shown.
+**Link:** the **API & Connectors** page, `/profile/api-keys`, the **Members** page, `/company/members`, and the **Subscription** page, `/company/subscription` (cloud only). **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`, `nav-company-members` or `nav-company-subscription`. `profile-api-keys-generate` highlights **Add** on the API page (roles with **Create** on **API & Webhooks**); the member rows are not highlight targets, so Mate names them; once a member row is open, `member-modal-status` highlights **Status** and `member-modal-save` highlights **Save** in the **User** dialog (roles with **Edit** on **Users & Roles**), and `company-subscription-plan-picker` outlines the plan cards while the picker is shown.
 
 ## On a free plan or in a CLI?
 

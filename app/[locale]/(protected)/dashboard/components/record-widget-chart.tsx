@@ -5,9 +5,10 @@ import type { CalculatedValue } from "@/features/records/record-model.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { ChartNoAxesColumn } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
-import { CHIP_COLORS } from "@/constants/chip-colors";
+import { toChipColor } from "@/constants/chip-colors";
 import { getChartColors } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
@@ -15,6 +16,10 @@ import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
+import { WidgetSubtitle } from "./widget-subtitle";
+import { AppCardHeader } from "@/components/card/app-card-header";
+import { TruncatedText } from "@/components/shared/truncated-text";
+import { AppCardBody } from "@/components/card/app-card-body";
 import {
   RANKED_TABLE_ROW_LIMIT,
   bucketQuarter,
@@ -31,7 +36,7 @@ import {
 export type RecordWidgetChartProps = Pick<
   RecordWidgetDto,
   "data" | "groupOptions" | "displayOptions" | "measure" | "status"
-> & { label?: string };
+> & { name: string };
 
 const MISSING_NUMBER = "—";
 
@@ -53,7 +58,7 @@ export function RecordWidgetChart({
   displayOptions,
   measure,
   status,
-  label,
+  name,
 }: RecordWidgetChartProps) {
   const t = useTranslations();
   const locale = useHydratedIntlStore().formattingLocale;
@@ -113,26 +118,56 @@ export function RecordWidgetChart({
     if (["text", "email", "phone", "url"].includes(value.kind) && "value" in value) return String(value.value);
     return t("RecordModel.missing");
   };
+  const infoNotes = [
+    ...(measure.groupBy && (measure.groupBy.path.length > 0 || measure.groupBy.fieldId === "system:assignedTo")
+      ? [t("RecordWidgets.attribution")]
+      : []),
+    ...(hasRecordMeasureGroupFilter(measure) ? [t("RecordWidgets.groupFilterSummary")] : []),
+  ];
+  const frame = (body: ReactNode, subtitle: string | null = null) => (
+    <>
+      <AppCardHeader className="flex-col items-start gap-0.5">
+        <h2 className="text-x-md w-full">
+          <TruncatedText>{name}</TruncatedText>
+        </h2>
+
+        <WidgetSubtitle notes={infoNotes} text={subtitle} />
+      </AppCardHeader>
+
+      <AppCardBody className="overflow-visible recharts-no-focus-outline">{body}</AppCardBody>
+    </>
+  );
   if (status === "unavailable" || !data) {
-    return (
+    return frame(
       <p className="text-sm text-muted-foreground" role="status">
         {t("RecordWidgets.unavailable")}
-      </p>
+      </p>,
     );
   }
   const displayType = displayOptions.displayType;
   const total = data.total.result;
   const currency = total.state === "value" && total.value.kind === "decimal" ? (total.value.currency ?? null) : null;
   if (displayType === DisplayType.number && !widgetDisplayTypeIssue(displayType, measure, null)) {
-    return (
+    return frame(
       <WidgetNumber
         caption={t("RecordWidgets.recordCount", { count: data.total.count })}
-        label={label}
         value={total.state === "missing" ? MISSING_NUMBER : format(total)}
-      />
+      />,
     );
   }
-  if (data.total.count === 0) return <p className="text-sm text-muted-foreground">{t("Diagrams.noData")}</p>;
+  const overall = displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null;
+  if (data.total.count === 0) {
+    return frame(
+      <div
+        className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center"
+        data-slot="widget-empty"
+      >
+        <ChartNoAxesColumn aria-hidden className="size-6 text-muted-foreground/60" />
+
+        <p className="text-sm text-muted-foreground">{t("Diagrams.noData")}</p>
+      </div>,
+    );
+  }
   const rows: ChartRow[] = data.groups.map((group) => {
     const optionId =
       group.label.state === "value" && group.label.value.kind === "select" ? String(group.label.value.value) : null;
@@ -158,7 +193,7 @@ export function RecordWidgetChart({
       count: group.count,
       optionId,
       bucketStart,
-      optionColor: CHIP_COLORS.includes(option?.color as ChipColor) ? (option?.color as ChipColor) : undefined,
+      optionColor: option?.color ? toChipColor(option.color) : undefined,
     };
   });
   const point = (row: ChartRow, extra: { detail?: string; formattedValue?: string; missing?: boolean } = {}) => ({
@@ -248,7 +283,7 @@ export function RecordWidgetChart({
         count: 0,
         optionId,
         bucketStart: null,
-        optionColor: CHIP_COLORS.includes(option?.color as ChipColor) ? (option?.color as ChipColor) : undefined,
+        optionColor: option?.color ? toChipColor(option.color) : undefined,
       };
     });
     fallback = steps.length === 0 || ordered.some((row) => row.value === null || row.value < 0) || fallback;
@@ -298,20 +333,8 @@ export function RecordWidgetChart({
       </div>
     );
   }
-  return (
+  return frame(
     <div className="flex h-full min-h-0 flex-col gap-2">
-      {displayOptions.showFilters !== false && (
-        <p className="text-xs text-muted-foreground">{t("RecordWidgets.overall", { value: format(total) })}</p>
-      )}
-
-      {measure.groupBy && (measure.groupBy.path.length > 0 || measure.groupBy.fieldId === "system:assignedTo") && (
-        <p className="text-xs text-muted-foreground">{t("RecordWidgets.attribution")}</p>
-      )}
-
-      {hasRecordMeasureGroupFilter(measure) && (
-        <p className="text-xs text-muted-foreground">{t("RecordWidgets.groupFilterSummary")}</p>
-      )}
-
       {useTable ? (
         <div className="min-h-0 overflow-auto">
           {signedUnsupported && <p className="mb-2 text-xs text-muted-foreground">{t("RecordWidgets.signedChart")}</p>}
@@ -353,6 +376,7 @@ export function RecordWidgetChart({
           )}
         </dl>
       )}
-    </div>
+    </div>,
+    overall,
   );
 }

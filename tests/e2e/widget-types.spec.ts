@@ -126,7 +126,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
     [secondUserId, companyId, role.rows[0].roleId, `second-${secondUserId}@example.test`],
   );
   const services = new Map<string, RecordRef>();
-  for (const [name, price] of Object.entries(SERVICES))
+  for (const [name, price] of Object.entries(SERVICES)) {
     services.set(
       name,
       await mutate(page, {
@@ -138,8 +138,9 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
         ],
       }),
     );
+  }
   const organizations = new Map<string, RecordRef>();
-  for (const name of ["Acme", "Beta", "Gamma"])
+  for (const name of ["Acme", "Beta", "Gamma"]) {
     organizations.set(
       name,
       await mutate(page, {
@@ -148,6 +149,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
         fields: [{ fieldId: id("organization.name"), value: { kind: "text", value: name } }],
       }),
     );
+  }
   for (const deal of DEALS) {
     const organization = deal.organization ? organizations.get(deal.organization) : undefined;
     const ref = await mutate(page, {
@@ -187,7 +189,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
     ["Check renewal", "open", [secondUserId]],
     ["Plan workshop", null, [userId]],
   ];
-  for (const [name, status, assignees] of tasks)
+  for (const [name, status, assignees] of tasks) {
     await mutate(page, {
       action: "create",
       typeId: id("task"),
@@ -197,6 +199,7 @@ async function seedPipeline(page: Page, database: Client, companyId: string, use
       ],
       assignedUserIds: assignees,
     });
+  }
   const values = await database.query(
     `SELECT name.\"textValue\" AS name, value.\"decimalValue\"::text AS value FROM "CrmRecord" deal
       JOIN "RecordValue" name ON name."companyId"=deal."companyId" AND name."recordId"=deal.id AND name."fieldId"=$2
@@ -243,6 +246,10 @@ async function readWidget(database: Client, companyId: string, name: string) {
 async function selectOption(page: Page, label: string, option: string) {
   await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
   await page.getByRole("option", { name: option, exact: true }).click();
+}
+
+async function showTab(page: Page, name: "Data" | "Appearance") {
+  await page.getByRole("dialog").getByRole("tab", { name, exact: true }).click();
 }
 
 async function startChart(page: Page, name: string, source: string) {
@@ -324,13 +331,16 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
     await page.getByRole("option", { name: "Value", exact: true }).click();
     const type = (displayType: string) => dialog.locator(`[id="display-type-${displayType}"]`);
+    await showTab(page, "Appearance");
     await expect(type("number")).toBeEnabled();
     for (const displayType of ["areaChart", "rankedTable", "funnelChart"])
       await expect(type(displayType)).toBeDisabled();
     await expect(dialog.locator('label[for="display-type-areaChart"]')).toContainText(
       "Group by a date field and choose a time interval.",
     );
+    await showTab(page, "Data");
     await selectOption(page, "Group by", "Stage");
+    await showTab(page, "Appearance");
     await expect(type("number")).toBeDisabled();
     await expect(dialog.locator('label[for="display-type-number"]')).toContainText(
       "Set Group by to No grouping to show one number.",
@@ -338,8 +348,10 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await expect(type("funnelChart")).toBeEnabled();
     await expect(type("rankedTable")).toBeEnabled();
     await expect(type("areaChart")).toBeDisabled();
+    await showTab(page, "Data");
     await expect(dialog.getByRole("combobox", { name: "Time interval", exact: true })).toHaveCount(0);
     await selectOption(page, "Group by", "No grouping");
+    await showTab(page, "Appearance");
     await type("number").check();
     await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
     await expect(dialog.locator('[data-slot="widget-number"]')).toContainText(money(total));
@@ -361,6 +373,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await startChart(page, "Deals closed", "Deals");
     await selectOption(page, "Group by", "Close date");
     await selectOption(page, "Time interval", "Month");
+    await showTab(page, "Appearance");
     await dialog.locator('[id="display-type-areaChart"]').check();
     await save(page);
     const saved = await readWidget(database, companyId, "Deals closed");
@@ -410,6 +423,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
     await page.getByRole("option", { name: "Value", exact: true }).click();
     await selectOption(page, "Group by", "Each record");
+    await showTab(page, "Appearance");
     await dialog.locator('[id="display-type-rankedTable"]').check();
     await save(page);
     expect((await readWidget(database, companyId, "Deal ranking")).displayOptions.displayType).toBe("rankedTable");
@@ -428,6 +442,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
   await test.step("order forward stage steps with conversion and keep the lost stage outside", async () => {
     await startChart(page, "Stage funnel", "Deals");
     await selectOption(page, "Group by", "Stage");
+    await showTab(page, "Appearance");
     await dialog.locator('[id="display-type-funnelChart"]').check();
     await save(page);
     const saved = await readWidget(database, companyId, "Stage funnel");
@@ -442,17 +457,15 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
         : `${counts[index]} (${percent(counts[index] / counts[index - 1])} of the previous step)`,
     ]);
     const widget = card(page, "Stage funnel");
-    await expect(widget.locator("svg.recharts-surface")).toBeVisible();
+    await expect(widget.locator('[data-slot="widget-funnel"]')).toBeVisible();
     await expect.poll(() => definitionList(widget)).toEqual(expected);
-    await expect(widget.locator(".recharts-yAxis-tick-labels text")).toContainText([
-      "New",
-      "Qualified",
-      "Proposal",
-      "Won",
-      String(counts[0]),
-      `${counts[1]} · ${percent(counts[1] / counts[0])}`,
+    const rows = widget.locator('[data-slot="widget-funnel-step"]');
+    await expect(rows).toHaveText([
+      `New${counts[0]}`,
+      `Qualified${counts[1]} · ${percent(counts[1] / counts[0])}`,
+      `Proposal${counts[2]} · ${percent(counts[2] / counts[1])}`,
+      `Won${counts[3]} · ${percent(counts[3] / counts[2])}`,
     ]);
-    expect(await widget.locator(".recharts-yAxis-tick-labels text").allTextContents()).not.toContain("Lost");
     await expect(widget.locator('[data-slot="widget-chart-notes"]')).toHaveText(
       `Lost: ${DEALS.filter((deal) => deal.stage === "lost").length}, a lost stage shown outside the funnel.`,
     );
@@ -484,17 +497,18 @@ test("adds every starter template resolved against the model and keeps them edit
   const wonTotal = won.reduce((sum, deal) => sum + dealValue(deal), 0);
 
   const templates = [
-    { key: "openPipeline", name: "Open pipeline", displayType: "number" },
-    { key: "dealsByStage", name: "Deals by stage", displayType: "funnelChart" },
-    { key: "wonValuePerMonth", name: "Won value per month", displayType: "areaChart" },
-    { key: "topOrganizationsByRevenue", name: "Top organizations by revenue", displayType: "rankedTable" },
-    { key: "openTasksPerAssignee", name: "Open tasks per assignee", displayType: "horizontalBarChart" },
+    { key: "openValueTotal", name: "Open Value", displayType: "number" },
+    { key: "stageFunnel", name: "Deals by Stage", displayType: "funnelChart" },
+    { key: "wonValueOverTime", name: "Won Value per month", displayType: "areaChart" },
+    { key: "topRelatedByWonValue", name: "Top Organizations by won Value", displayType: "rankedTable" },
+    { key: "openCountPerAssignee", name: "Open Tasks per assignee", displayType: "horizontalBarChart" },
   ];
   for (const template of templates) {
     await page.locator("#dashboard-add-widget").click();
-    await expect(dialog.locator("#widget-gallery-heading")).toHaveText("Starter widgets");
+    await expect(dialog.locator("#widget-gallery-heading")).toHaveText("Recommended for your data");
     await dialog.locator(`#widget-gallery-${template.key}`).click();
     await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(template.name);
+    await showTab(page, "Appearance");
     await expect(dialog.locator(`[id="display-type-${template.displayType}"]`)).toBeChecked();
     await save(page);
     expect((await readWidget(database, companyId, template.name)).displayOptions.displayType).toBe(
@@ -506,7 +520,7 @@ test("adds every starter template resolved against the model and keeps them edit
     value: null,
     values: values.map((value) => ({ kind: "select", value })),
   });
-  expect((await readWidget(database, companyId, "Open pipeline")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Open Value")).measure).toMatchObject({
     source: {
       typeId: id("deal"),
       filters: [{ fieldId: id("deal.stage"), ...select("notIn", [id("deal.stage.won"), id("deal.stage.lost")]) }],
@@ -515,27 +529,27 @@ test("adds every starter template resolved against the model and keeps them edit
     valueFieldId: id("deal.totalValue"),
     groupBy: null,
   });
-  expect((await readWidget(database, companyId, "Deals by stage")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Deals by Stage")).measure).toMatchObject({
     source: { filters: [{ fieldId: id("deal.stage"), ...select("notIn", [id("deal.stage.lost")]) }] },
     aggregation: "count",
     groupBy: { path: [], fieldId: id("deal.stage") },
   });
-  expect((await readWidget(database, companyId, "Won value per month")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Won Value per month")).measure).toMatchObject({
     source: { filters: [{ fieldId: id("deal.stage"), ...select("in", [id("deal.stage.won")]) }] },
     aggregation: "sum",
     groupBy: { path: [], fieldId: closeDateId, dateInterval: "month", timeZone: TIME_ZONE },
     groupLimit: 1000,
   });
-  expect((await readWidget(database, companyId, "Top organizations by revenue")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Top Organizations by won Value")).measure).toMatchObject({
     groupBy: { path: [{ relationId: id("deal.organizations"), direction: "outgoing" }], fieldId: null },
   });
-  expect((await readWidget(database, companyId, "Open tasks per assignee")).measure).toMatchObject({
+  expect((await readWidget(database, companyId, "Open Tasks per assignee")).measure).toMatchObject({
     source: { typeId: id("task"), filters: [{ fieldId: statusId, ...select("notIn", ["done", "archived"]) }] },
     aggregation: "count",
     groupBy: { path: [], fieldId: "system:assignedTo" },
   });
 
-  const pipeline = card(page, "Open pipeline");
+  const pipeline = card(page, "Open Value");
   await expect(pipeline.locator('[data-slot="widget-number"] p').first()).toHaveText(
     money(open.reduce((sum, deal) => sum + dealValue(deal), 0)),
   );
@@ -544,7 +558,7 @@ test("adds every starter template resolved against the model and keeps them edit
   const stages = ["new", "qualified", "proposal", "won"] as const;
   const stageCounts = stages.map((stage) => DEALS.filter((deal) => deal.stage === stage).length);
   await expect
-    .poll(() => definitionList(card(page, "Deals by stage")))
+    .poll(() => definitionList(card(page, "Deals by Stage")))
     .toEqual(
       stages.map((stage, index) => [
         STAGE_LABELS[stage],
@@ -561,24 +575,25 @@ test("adds every starter template resolved against the model and keeps them edit
     money(won.filter((deal) => deal.close?.startsWith(month)).reduce((sum, deal) => sum + dealValue(deal), 0)),
   ]);
   expect(monthly.map(([, value]) => value)).toEqual([money(2250.5), money(0), money(0), money(1501)]);
-  const series = card(page, "Won value per month");
+  const series = card(page, "Won Value per month");
   await expect.poll(() => definitionList(series)).toEqual(monthly);
   await expect(series.locator('[data-slot="widget-chart-notes"]')).toHaveText(
     `${won.filter((deal) => !deal.close).length} record has no date and is not shown.`,
   );
 
   const byOrganization = new Map<string, number>();
-  for (const deal of won)
+  for (const deal of won) {
     if (deal.organization)
       byOrganization.set(deal.organization, (byOrganization.get(deal.organization) ?? 0) + dealValue(deal));
+  }
   const ranked = [...byOrganization]
     .sort((left, right) => right[1] - left[1])
     .map(([name, value], index) => [String(index + 1), name, money(value), percent(value / wonTotal)]);
   expect(ranked.map((row) => row[1])).toEqual(["Acme", "Gamma", "Beta"]);
-  await expect.poll(() => rankedRows(card(page, "Top organizations by revenue"))).toEqual(ranked);
-  await expect(card(page, "Top organizations by revenue")).toContainText(`Overall: ${money(wonTotal)}`);
+  await expect.poll(() => rankedRows(card(page, "Top Organizations by won Value"))).toEqual(ranked);
+  await expect(card(page, "Top Organizations by won Value")).toContainText(`Overall: ${money(wonTotal)}`);
 
-  const tasks = card(page, "Open tasks per assignee");
+  const tasks = card(page, "Open Tasks per assignee");
   await expect(tasks.locator("svg.recharts-surface")).toBeVisible();
   await expect
     .poll(async () => Object.fromEntries(await definitionList(tasks)))
@@ -592,7 +607,7 @@ test("adds every starter template resolved against the model and keeps them edit
   await expect(tasks).toContainText("Overall: 5");
   await expect(tasks).toContainText("A record can appear in several groups.");
 
-  await openEditor(page, "Open pipeline");
+  await openEditor(page, "Open Value");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Open deal count");
   await selectOption(page, "Measure", "Count");
   await dialog.getByRole("button", { name: "Save changes", exact: true }).click();
@@ -607,10 +622,10 @@ test("adds every starter template resolved against the model and keeps them edit
   await page.reload();
   for (const name of [
     "Open deal count",
-    "Deals by stage",
-    "Won value per month",
-    "Top organizations by revenue",
-    "Open tasks per assignee",
+    "Deals by Stage",
+    "Won Value per month",
+    "Top Organizations by won Value",
+    "Open Tasks per assignee",
   ]) {
     const widget = card(page, name);
     await widget.scrollIntoViewIfNeeded();
@@ -625,7 +640,7 @@ test("adds every starter template resolved against the model and keeps them edit
   await keepShot(page, testInfo, "starter-widgets-light");
   await page.emulateMedia({ colorScheme: "dark" });
   await page.reload();
-  await expect(card(page, "Won value per month").locator("svg.recharts-surface")).toBeVisible();
+  await expect(card(page, "Won Value per month").locator("svg.recharts-surface")).toBeVisible();
   await keepShot(page, testInfo, "starter-widgets-dark");
   expect(errors).toEqual([]);
 });

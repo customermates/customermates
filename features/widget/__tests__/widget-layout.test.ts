@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { WidgetKind } from "@/generated/prisma";
 
-import { widgetLayoutGeometry } from "../widget-layout";
+import { widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 describe("widgetLayoutGeometry", () => {
   it("preserves chart defaults and persisted dimensions", () => {

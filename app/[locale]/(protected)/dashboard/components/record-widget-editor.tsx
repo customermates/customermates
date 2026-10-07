@@ -4,7 +4,6 @@ import { z } from "zod";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { X } from "lucide-react";
 import { omit } from "lodash";
 import type { RecordModel } from "@/features/records/record-model.schema";
@@ -30,7 +29,11 @@ import { getRecordModelAction } from "../../records/actions";
 import { discoverWidgetRecordTypesAction, previewRecordWidgetAction } from "../actions";
 import { isRecordWidgetForm } from "./record-widget-form";
 import { browserTimeZone } from "./widget-time-zone";
-import { RecordWidgetChart } from "./record-widget-chart";
+import { RecordWidgetCard } from "./record-widget-card";
+import { WidgetEditorColumns, WidgetPreviewSkeleton } from "./widget-editor-layout";
+import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
+import { WidgetPreviewFrame } from "./widget-preview-frame";
+import { cn } from "@/core/utils/cn";
 import { recordFilterFields } from "@/features/records/record-filter";
 import {
   RecordWidgetFieldFilters,
@@ -96,8 +99,10 @@ export const RecordWidgetEditor = observer(
     store,
     section,
     appearance,
+    settingsHeader,
   }: {
     store: WidgetModalStore;
+    settingsHeader?: ReactNode;
     appearance?: ReactNode | ((model: RecordModel | null | undefined) => ReactNode);
     section: "data" | "filters" | "preview" | "all";
   }) => {
@@ -218,59 +223,60 @@ export const RecordWidgetEditor = observer(
           {t("ErrorCard.retry")}
         </Button>
       ) : null;
+    const measureValid = RecordMeasureSchema.safeParse(measure).success;
+    const shownPreview = preview && preview.result.schemaRevision === model?.revision ? preview : null;
     const previewContent = (
-      <section className="min-w-0 space-y-3">
-        <h3 className="text-sm font-medium" id="widget-preview-heading">
-          {t("RecordWidgets.preview")}
-        </h3>
-
-        {form.id && (
-          <RecordAiAction
-            active={store.isOpen}
-            context={{ reference: { kind: "widget", widgetId: form.id }, label: form.name }}
-          />
-        )}
-
-        <p className="text-xs text-muted-foreground">{t("RecordWidgets.previewHelp")}</p>
-
-        <Button
-          disabled={loading || !model}
-          type="button"
-          variant="secondary"
-          onClick={() => runUserAction(() => runMeasurePreview(true))}
+      <div className="min-w-0 space-y-3">
+        <WidgetPreviewFrame
+          geometry={store.previewGeometry}
+          kind={form.kind}
+          loading={loading || (model === undefined && !shownPreview)}
+          refreshDisabled={!model || !measureValid}
+          refreshLabel={t("RecordWidgets.preview")}
+          onRefresh={() => runUserAction(() => runMeasurePreview(true))}
         >
-          {loading ? t("Loading.text") : t("RecordWidgets.preview")}
-        </Button>
+          {shownPreview ? (
+            <div
+              className={cn("h-full transition-opacity", preview?.key !== key && "opacity-50")}
+              data-preview-current={preview?.key === key}
+            >
+              <RecordWidgetCard
+                data={shownPreview.result}
+                displayOptions={form.displayOptions}
+                groupOptions={shownPreview.groupOptions}
+                measure={measure}
+                name={form.name.trim() || t("Dashboard.widgetEditor.preview.untitled")}
+                status="ready"
+              />
+            </div>
+          ) : (
+            <div className="flex h-full flex-col justify-center rounded-xl border border-dashed border-border p-6">
+              {!measureValid && model ? (
+                <p className="text-center text-sm text-muted-foreground">
+                  {t("Dashboard.widgetEditor.preview.incomplete")}
+                </p>
+              ) : (
+                <WidgetPreviewSkeleton />
+              )}
+            </div>
+          )}
+        </WidgetPreviewFrame>
 
         {previewError && (
           <p className="text-sm text-destructive" role="alert">
             {t("RecordWidgets.previewFailed")}
           </p>
         )}
-
-        {preview?.key === key && preview.result.schemaRevision === model?.revision && (
-          <div className="h-64" data-slot="widget-preview">
-            <RecordWidgetChart
-              data={preview.result}
-              displayOptions={form.displayOptions}
-              groupOptions={preview.groupOptions}
-              label={form.name}
-              measure={measure}
-              status="ready"
-            />
-          </div>
-        )}
-      </section>
+      </div>
     );
+    const filterCount =
+      measure.source.filters.length +
+      measure.source.relationships.length +
+      (measure.source.relatedFilters?.length ?? 0);
     const filtersContent = (
       <div className="space-y-4">
-        <h3 className="text-sm font-medium" id="widget-entity-filters-heading">
-          {t("Dashboard.widgetEditor.tabs.filtersLabel", {
-            count:
-              measure.source.filters.length +
-              measure.source.relationships.length +
-              (measure.source.relatedFilters?.length ?? 0),
-          })}
+        <h3 className="sr-only" id="widget-entity-filters-heading">
+          {t("Dashboard.widgetEditor.tabs.filtersLabel", { count: filterCount })}
         </h3>
 
         <FormInput id="measure.source.search" label={t("RecordWidgets.search")} />
@@ -357,7 +363,9 @@ export const RecordWidgetEditor = observer(
               "measure.valueFieldId",
               value === "count"
                 ? null
-                : (sourceFields.find((field) => ["number", "currency"].includes(field.valueType))?.id ?? null),
+                : (measure.valueFieldId ??
+                    sourceFields.find((field) => ["number", "currency"].includes(field.valueType))?.id ??
+                    null),
             );
           }}
         />
@@ -472,15 +480,47 @@ export const RecordWidgetEditor = observer(
     if (section === "filters") return filtersContent;
     if (section === "preview") return previewContent;
     return (
-      <div className="space-y-6">
-        {dataContent}
+      <WidgetEditorColumns
+        preview={<section id="widget-config-preview">{previewContent}</section>}
+        settings={
+          <EditorTabs
+            contentClassName="space-y-4 pt-4"
+            label={t("Dashboard.widgetEditor.settings")}
+            tabs={[
+              {
+                id: "data",
+                label: t("Dashboard.widgetEditor.tabs.data"),
+                fields: [
+                  "name",
+                  "measure.source.typeId",
+                  "measure.aggregation",
+                  "measure.valueFieldId",
+                  "measure.groupBy",
+                ],
+                content: (
+                  <>
+                    {settingsHeader}
 
-        <section id="widget-config-filters">{filtersContent}</section>
-
-        {typeof appearance === "function" ? appearance(model) : appearance}
-
-        <section id="widget-config-preview">{previewContent}</section>
-      </div>
+                    {dataContent}
+                  </>
+                ),
+              },
+              {
+                id: "filters",
+                label: t("Dashboard.widgetEditor.tabs.filtersLabel", { count: filterCount }),
+                fields: ["measure.source.filters", "measure.source.relatedFilters", "measure.groupBy.filter"],
+                content: <section id="widget-config-filters">{filtersContent}</section>,
+              },
+              {
+                id: "appearance",
+                label: t("Dashboard.widgetEditor.tabs.appearance"),
+                fields: ["displayOptions", "isTemplate"],
+                content: typeof appearance === "function" ? appearance(model) : appearance,
+              },
+            ]}
+          />
+        }
+      />
     );
   },
 );

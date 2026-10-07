@@ -77,7 +77,7 @@ describe("manage_routines activity", () => {
       expect(deletion.detail).toBeTruthy();
       const send = agentActivityCopy(describeInternalTool("send_email", { to: ["a@b.c"], subject: "s" }), t);
       expect(send.approval).not.toBe(send.running);
-      const read = agentActivityCopy(describeInternalTool("list_records", { entity: "deal" }), t);
+      const read = agentActivityCopy(describeInternalTool("query_crm_records", { typeId: "x" }), t);
       expect(read.approval).toBe(read.running);
     }
     expect(ROUTING_LOCALES.length).toBeGreaterThan(0);

@@ -25,7 +25,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
 
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
-import { GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
+import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
 import { WidgetCard } from "./widget-card";
 import {
   isInteractiveTarget,
@@ -199,9 +199,9 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
           draggableCancel={WIDGET_INTERACTIVE_SELECTOR}
           isDraggable={!isTouchDevice}
           layouts={layouts}
-          margin={[16, 16]}
+          margin={[DASHBOARD_GRID_MARGIN, DASHBOARD_GRID_MARGIN]}
           resizeHandles={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
-          rowHeight={124}
+          rowHeight={DASHBOARD_ROW_HEIGHT}
           onLayoutChange={(layout: Layout, nextLayouts: ResponsiveLayouts) =>
             widgetsStore.onLayoutChange(layout, nextLayouts)
           }

@@ -79,7 +79,7 @@ export const DOCS_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-records",
     anchors: ["app-records#what-is-special-about-each-record-type"],
     alternatives: ["concepts#which-five-record-types-exist"],
-    fact: "On the contact: a WhatsApp number is a contact channel identifier, and a plain phone number belongs in a Phone custom column on the contact.",
+    fact: "On the contact: a WhatsApp number is a contact channel identifier, and a plain phone number belongs in a phone field on the contact.",
   },
   {
     id: "dh-en-06",

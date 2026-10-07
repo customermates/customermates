@@ -28,6 +28,6 @@ const INTERACTIVE_SELECTOR = [
 ].join(",");
 
 export function isInteractiveClick(e: ReactMouseEvent<HTMLElement>): boolean {
-  const target = e.target as HTMLElement | null;
-  return Boolean(target?.closest(INTERACTIVE_SELECTOR));
+  const hit = (e.target as HTMLElement | null)?.closest(INTERACTIVE_SELECTOR);
+  return Boolean(hit && hit !== e.currentTarget);
 }

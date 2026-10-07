@@ -57,7 +57,22 @@ export function configureRow(page: Page, section: ConfigureSection, label: strin
     .getByRole("button", { name: new RegExp(`^${escapePattern(label)}(?:\\s|$)`) });
 }
 
+export async function openDrawerTab(page: Page, name: string) {
+  const tab = configureDrawer(page).getByRole("tab", { name, exact: true });
+  if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+}
+
+export async function openConfigureTab(page: Page, section: ConfigureSection | "General") {
+  const tab = page.locator("[data-configure-list-pane]").getByRole("tab", { name: section, exact: true });
+  await expect(async () => {
+    if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
+    await expect(tab).toHaveAttribute("aria-selected", "true", { timeout: 1000 });
+  }).toPass();
+}
+
 export async function openConfigureRow(page: Page, section: ConfigureSection, label: string) {
+  await openConfigureTab(page, section);
   await configureRow(page, section, label).click();
   await expect(configureDrawer(page)).toBeVisible();
 }

@@ -25,10 +25,6 @@ export const AGENT_ACTIVITY_KINDS = [
   "workspace.settings",
   "profile.configure",
   "customFields.read",
-  "customFields.create",
-  "customFields.update",
-  "customFields.delete",
-  "customFields.configure",
   "views.read",
   "views.configure",
   "views.delete",
@@ -46,7 +42,6 @@ export const AGENT_ACTIVITY_KINDS = [
   "records.update",
   "records.delete",
   "records.link",
-  "records.note",
   "messages.read",
   "messages.send",
   "messages.draft",
@@ -73,16 +68,7 @@ export const AGENT_ACTIVITY_KINDS = [
 
 export type AgentActivityKind = (typeof AGENT_ACTIVITY_KINDS)[number];
 
-export const AGENT_ACTIVITY_RESOURCES = [
-  "contacts",
-  "organizations",
-  "deals",
-  "services",
-  "tasks",
-  "widgets",
-  "messages",
-  "wiki",
-] as const;
+export const AGENT_ACTIVITY_RESOURCES = ["widgets", "messages", "wiki"] as const;
 
 export type AgentActivityResource = (typeof AGENT_ACTIVITY_RESOURCES)[number];
 export type AgentActivityRisk = "read" | "write" | "sensitive";
@@ -108,7 +94,6 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
   "routine.run",
   "routine.delete",
   "records.delete",
-  "records.link",
   "workspace.configure",
   "workspace.settings",
   "account.connect",
@@ -157,21 +142,8 @@ export const AgentActivityDescriptorSchema = z.preprocess(
 
 export type AgentActivityDescriptor = z.infer<typeof AgentActivityDescriptorSchema>;
 
-const ENTITY_RESOURCES = new Set<AgentActivityResource>(["contacts", "organizations", "deals", "services", "tasks"]);
-
 const TOOL_RESOURCE: Record<string, AgentActivityResource | undefined> = {
-  create_contacts: "contacts",
-  update_contacts: "contacts",
-  create_organizations: "organizations",
-  update_organizations: "organizations",
-  create_deals: "deals",
-  update_deals: "deals",
-  create_services: "services",
-  update_services: "services",
-  create_tasks: "tasks",
-  update_tasks: "tasks",
   manage_widgets: "widgets",
-  manage_custom_columns: undefined,
   get_messaging_threads: "messages",
   get_activities: "messages",
   get_calendars: "messages",
@@ -182,14 +154,6 @@ const TOOL_RESOURCE: Record<string, AgentActivityResource | undefined> = {
   update_messaging_thread: "messages",
   move_email_thread: "messages",
 };
-
-function entityResource(input: unknown): AgentActivityResource | undefined {
-  if (!input || typeof input !== "object") return undefined;
-  const record = input as Record<string, unknown>;
-  const value = record.entityType ?? record.entity;
-  const plural = typeof value === "string" ? `${value}s` : "";
-  return ENTITY_RESOURCES.has(plural as AgentActivityResource) ? (plural as AgentActivityResource) : undefined;
-}
 
 function descriptor(
   kind: AgentActivityKind,
@@ -233,11 +197,6 @@ function boundedCount(value: unknown) {
   return Array.isArray(value) ? Math.min(value.length, 100) : undefined;
 }
 
-function boundedMutationCount(input: unknown, resource: AgentActivityResource | undefined) {
-  const records = Array.isArray(input) ? input : resource ? inputRecord(input)[resource] : undefined;
-  return Array.isArray(records) && records.length > 0 ? Math.min(records.length, 100) : undefined;
-}
-
 function actionValue(input: Record<string, unknown>) {
   return typeof input.action === "string" ? input.action : undefined;
 }
@@ -245,17 +204,6 @@ function actionValue(input: Record<string, unknown>) {
 function isMultiplexedRead(toolName: string, details: Record<string, unknown>): boolean {
   const action = actionValue(details);
   return Boolean(action && readOnlyActionsForTool(internalToolIdentity(toolName))?.includes(action));
-}
-
-function analysisResource(details: Record<string, unknown>): AgentActivityResource | undefined {
-  const reads = Array.isArray(details.reads) ? details.reads : [];
-  const first = reads[0] as { input?: unknown } | undefined;
-  if (typeof first?.input !== "string") return entityResource(first?.input);
-  try {
-    return entityResource(JSON.parse(first.input));
-  } catch {
-    return undefined;
-  }
 }
 
 function multiplexedRisk(toolName: string, details: Record<string, unknown>): "write" | "sensitive" {
@@ -274,7 +222,7 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
   if (!isInternalToolIdentity(identity)) return descriptor("generic", undefined, "sensitive");
 
   const toolName = identity.name;
-  const resource = TOOL_RESOURCE[toolName] ?? entityResource(input);
+  const resource = TOOL_RESOURCE[toolName];
   const details = inputRecord(input);
   const recordRisk = recordToolRisk(toolName, input);
   if (recordRisk) {
@@ -301,11 +249,10 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
 
   if (toolName === "list_ui_targets") return descriptor("interface.inspect", undefined, "read");
   if (toolName === LOAD_TOOLSET_TOOL_NAME) return descriptor("tools.load", undefined, "read");
-  if (toolName === ANALYZE_RECORDS_TOOL_NAME) return descriptor("records.analyze", analysisResource(details), "read");
+  if (toolName === ANALYZE_RECORDS_TOOL_NAME) return descriptor("records.analyze", undefined, "read");
   if (toolName === "get_workspace_context") return descriptor("workspace.inspect", undefined, "read");
   if (toolName === "navigate" || toolName === "highlight_element")
     return descriptor("interface.navigate", undefined, "read");
-  if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "web_search") return descriptor("web.search", undefined, "read");
   if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return descriptor("records.create", "wiki", "write");
@@ -337,20 +284,6 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       subject: safeText(details.subject, 200),
       preview: safeText(details.body, 240),
     });
-  }
-  if (toolName === "manage_custom_columns") {
-    const action = actionValue(details);
-    const kind: AgentActivityKind =
-      action === "list"
-        ? "customFields.read"
-        : action === "delete"
-          ? "customFields.delete"
-          : action === "upsert" && details.intent === "update"
-            ? "customFields.update"
-            : action === "upsert" && (details.intent === "create" || (details.intent === undefined && !details.id))
-              ? "customFields.create"
-              : "customFields.configure";
-    return descriptor(kind, resource, action === "list" ? "read" : multiplexedRisk(toolName, details));
   }
   if (toolName === "manage_record_detail_layout") {
     const read = isMultiplexedRead(toolName, details);
@@ -534,45 +467,6 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
     });
   }
 
-  if (
-    toolName === "get_record_schema" ||
-    toolName === "list_records" ||
-    toolName === "search_records" ||
-    toolName === "get_records"
-  )
-    return descriptor("records.read", resource, "read");
-  if (toolName === "update_record_notes") return descriptor("records.note", resource, "write");
-  if (toolName.startsWith("create_")) {
-    const count = boundedMutationCount(input, resource);
-    return {
-      ...descriptor("records.create", resource, "write"),
-      ...(count ? { count } : {}),
-    };
-  }
-  if (toolName.startsWith("update_")) {
-    const count = boundedMutationCount(input, resource);
-    return {
-      ...descriptor("records.update", resource, "write"),
-      ...(count ? { count } : {}),
-    };
-  }
-  if (toolName === "delete_records") {
-    const count = boundedCount(details.ids);
-    return {
-      ...descriptor("records.delete", resource, "sensitive", resource ? [resource] : [], {
-        action: "records.delete",
-        count,
-      }),
-      ...(count ? { count } : {}),
-    };
-  }
-  if (toolName === "manage_record_links") {
-    return descriptor("records.link", resource, "write", resource ? [resource] : [], {
-      action: "records.link",
-      count: boundedCount(details.ids),
-      state: safeText(details.action, 80),
-    });
-  }
   return descriptor("generic", resource, "read");
 }
 
@@ -588,8 +482,6 @@ type ActivityCopy = {
 export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "generic",
   "records.delete",
-  "customFields.configure",
-  "customFields.delete",
   "widgets.configure",
   "widgets.delete",
   "support.escalate",
@@ -699,13 +591,6 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
         target: countedResourceCopy(count, activity.resource, t, resource),
       });
     }
-    case "records.link":
-      return compact([
-        consequence.state === "remove"
-          ? t("AgentChat.activity.consequence.recordsUnlink")
-          : t("AgentChat.activity.consequence.recordsLink"),
-        count === undefined ? undefined : String(count),
-      ]);
     case "workspace.configure":
     case "workspace.settings":
       return consequence.state;

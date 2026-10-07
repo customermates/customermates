@@ -32,10 +32,6 @@
   "AgentChat": {
     "activity": {
       "approval": {
-        "customFields": {
-          "configure": "Listo para cambiar los campos personalizados",
-          "delete": "Listo para eliminar de forma permanente un campo personalizado"
-        },
         "generic": "Listo para hacer un cambio que necesita tu aprobación",
         "messages": {
           "discard": "Listo para descartar el borrador",
@@ -85,8 +81,6 @@
         "emailSend": "Enviar un correo a los destinatarios seleccionados",
         "externalManage": "Cambiar datos en la cuenta externa conectada",
         "recordsDelete": "Esta acción no se puede deshacer.",
-        "recordsLink": "Vincular registros",
-        "recordsUnlink": "Eliminar vínculos",
         "roleDelete": "Eliminar el rol seleccionado",
         "roleSave": "Guardar el rol y su acceso a registros",
         "routineDelete": "Eliminar definitivamente la rutina seleccionada y su historial",
@@ -125,22 +119,12 @@
         "to": "Para"
       },
       "resource": {
-        "contacts": "contactos",
-        "deals": "oportunidades",
         "messages": "conversaciones",
-        "organizations": "organizaciones",
-        "services": "servicios",
-        "tasks": "tareas",
         "widgets": "widgets del Dashboard",
         "wiki": "páginas de la base de conocimientos"
       },
       "resourceSingular": {
-        "contacts": "contacto",
-        "deals": "oportunidad",
         "messages": "conversación",
-        "organizations": "organización",
-        "services": "servicio",
-        "tasks": "tarea",
         "widgets": "widget del dashboard",
         "wiki": "página de la base de conocimientos"
       },
@@ -153,30 +137,10 @@
           }
         },
         "customFields": {
-          "configure": {
-            "done": "Campos personalizados configurados",
-            "error": "No se pudieron configurar los campos personalizados",
-            "running": "Configurando campos personalizados"
-          },
-          "create": {
-            "done": "Campo personalizado creado",
-            "error": "No se pudo crear el campo personalizado",
-            "running": "Creando un campo personalizado"
-          },
-          "delete": {
-            "done": "Campo personalizado eliminado",
-            "error": "No se pudo eliminar el campo personalizado",
-            "running": "Eliminando un campo personalizado"
-          },
           "read": {
             "done": "Campos personalizados revisados",
             "error": "No se pudieron revisar los campos personalizados",
             "running": "Revisando campos personalizados"
-          },
-          "update": {
-            "done": "Campo personalizado actualizado",
-            "error": "No se pudo actualizar el campo personalizado",
-            "running": "Actualizando un campo personalizado"
           }
         },
         "docs": {
@@ -272,11 +236,6 @@
             "done": "Registros relacionados vinculados",
             "error": "No se pudieron vincular los registros",
             "running": "Vinculando registros relacionados"
-          },
-          "note": {
-            "done": "Notas actualizadas",
-            "error": "No se pudieron actualizar las notas",
-            "running": "Actualizando las notas"
           },
           "read": {
             "done": "Revisión de {resource} completada",
@@ -1018,9 +977,6 @@
     },
     "errors": {
       "activityDuplicateFilterField": "Cada campo de filtro de actividad solo se puede configurar una vez.",
-      "activityPageOutOfRange": "La cronología de actividad no puede retroceder tanto. Acota los filtros en su lugar.",
-      "activityScopeTooManyIds": "Un ámbito de actividad no puede seleccionar más de 50 registros de un mismo tipo.",
-      "activitySourcesUnavailable": "No tienes acceso a ninguna fuente de la cronología de actividad.",
       "agentApprovalUnavailable": "Esta solicitud de aprobación no está disponible o ha caducado.",
       "agentConversationNotFound": "No se encontró esta conversación o ya no es accesible.",
       "agentLimitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
@@ -1035,30 +991,14 @@
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
       "connectedAccountNotFound": "ID de canal no encontrado o no accesible.",
-      "contactNotFound": "ID de contacto no encontrado o no accesible.",
-      "contactRefRequired": "id debe ser un UUID de contacto, un correo o un teléfono, o bien 'provider:value' para un identificador (por ejemplo 'linkedin:jdoe').",
-      "customColumnIdNotFound": "ID de columna personalizada no encontrado o no accesible.",
-      "customColumnNotFound": "ID de columna personalizada no encontrado o no accesible. Columnas disponibles: {validValues}.",
-      "customColumnTypeMismatch": "Esta columna personalizada es de tipo {actualType}, no {expectedType}. Establece el tipo en {actualType} para actualizarla.",
-      "customColumnUsedByRoutineCannotDelete": "Esta columna personalizada se usa en uno o varios filtros de rutinas. Quítala de esas rutinas antes de eliminarla.",
-      "customFieldInvalidCurrency": "El valor de moneda no es válido. Debe ser un número válido.",
       "customFieldInvalidDate": "La fecha no es válida. Debe estar en formato ISO 8601 (por ejemplo 2024-01-15) o en formato fecha-hora ISO 8601 (por ejemplo 2024-01-15T00:00:00Z).",
-      "customFieldInvalidDateRange": "El intervalo de fechas no es válido. Debe contener dos fechas ISO 8601 separadas por una coma, con el inicio anterior o igual al fin (por ejemplo 2024-01-15,2024-01-22).",
-      "customFieldInvalidDateTime": "La fecha-hora no es válida. Debe estar en formato fecha-hora ISO 8601 con la hora (por ejemplo 2024-01-15T10:30:00Z).",
-      "customFieldInvalidDateTimeRange": "El intervalo de fecha-hora no es válido. Debe contener dos fechas-hora ISO 8601 separadas por una coma, con el inicio anterior o igual al fin (por ejemplo 2024-01-15T09:00:00Z,2024-01-15T17:00:00Z).",
-      "customFieldInvalidEmail": "La dirección de correo no es válida. Debe respetar el formato de una dirección de correo (por ejemplo user@example.com). Para varias direcciones, sepáralas con una coma (por ejemplo user1@example.com, user2@example.com).",
-      "customFieldInvalidPhone": "El número de teléfono no es válido. Debe estar en formato E.164 (por ejemplo +491234567890). Para varios números, sepáralos con una coma (por ejemplo +491234567890, +499876543210).",
-      "customFieldInvalidSingleSelect": "El valor de selección única no es válido. Debe ser una de las opciones permitidas: {validValues}.",
-      "customFieldInvalidUrl": "La URL no es válida. Debe respetar el formato de una URL (por ejemplo https://example.com). Para varias URL, sepáralas con una coma (por ejemplo https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "La vista Todas no se puede renombrar. Omite name y actualiza solo los ajustes solicitados en state. Consulta config para los ajustes compatibles y list para el estado actual antes de reintentar.",
       "dataViewNotFound": "No se encontró esta vista guardada.",
       "dataViewUpdateEmpty": "Indica un nombre o al menos un ajuste de vista para actualizar.",
-      "dealNotFound": "ID de oportunidad no encontrado o no accesible.",
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
       "draftThreadNotSent": "Este borrador aún no tiene conversación. Envíalo desde la bandeja de entrada.",
       "draftToRecipientsLocked": "Un mensaje nuevo guardado mantiene sus destinatarios en Para. Descarta el borrador y empieza un mensaje nuevo para escribir a otra persona.",
-      "duplicateChannel": "Este canal aparece más de una vez. Añade cada dirección de correo, número de teléfono o identificador una sola vez.",
       "duplicateOutboundSuppressed": "Hace un momento se envió un mensaje idéntico a esta conversación. Cambia el texto o espera un minuto antes de reintentar.",
       "duplicateWebhookEvents": "No se permiten eventos duplicados.",
       "duplicateWebhookHeaders": "No se permiten nombres de cabecera duplicados.",
@@ -1104,7 +1044,6 @@
       "operatorCreditPrecision": "Usa como máximo un decimal para el ajuste de créditos.",
       "operatorTrialEndRequired": "La fecha de fin de prueba no se puede quitar, solo mover. Borrarla dejaría el espacio de trabajo en una prueba que nunca caduca.",
       "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
-      "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener entre 8 y 128 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
       "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
@@ -1124,7 +1063,6 @@
       "recordValueInvalid": "Revisa los valores resaltados del registro.",
       "recordVersionChanged": "Este registro ha cambiado. Actualízalo antes de guardar.",
       "recordWritePaused": "El modelo de datos se está actualizando. Tu borrador se conserva; inténtalo cuando termine.",
-      "relationNotAllowed": "La relación '{relation}' no está permitida en {entity}. Relaciones permitidas: {allowed}.",
       "roleAccessPresetInUse": "Una plantilla de acceso utiliza este rol. Actualiza la plantilla antes de eliminar el rol.",
       "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
@@ -1135,7 +1073,6 @@
       "routineDeleteHasRunningRun": "Espera a que termine la ejecución activa antes de eliminar esta rutina.",
       "routineEditNotOwner": "Solo el propietario puede cambiar la configuración o activación de esta rutina.",
       "routineLimitReached": "Tu plan incluye {limit} rutinas por usuario. Cambia de plan para obtener un límite mayor.",
-      "routineNotFound": "ID de rutina no encontrado o no accesible.",
       "routineOwnerIneligible": "El propietario de la rutina debe ser un miembro activo de esta empresa.",
       "routineRunNotOwner": "Solo quien posee esta rutina puede ejecutarla, porque consume sus créditos de IA.",
       "routineRunNowRequiresSchedule": "Solo las rutinas programadas se pueden probar manualmente.",
@@ -1148,13 +1085,9 @@
       "salesNavigatorNotAvailable": "Esta cuenta de LinkedIn no tiene Sales Navigator conectado.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator requiere una cuenta de LinkedIn conectada, pero esta cuenta es {provider}.",
       "sendEmailTargetRequired": "Selecciona una conversación o una cuenta desde la que enviar.",
-      "serviceNotFound": "ID de servicio no encontrado o no accesible.",
       "socialActionRequiresSocialAccount": "Esta acción requiere una cuenta de LinkedIn o Instagram conectada, pero esta cuenta es {provider}.",
       "socialPostsRequireSocialAccount": "Las publicaciones sociales requieren una cuenta de LinkedIn o Instagram conectada, pero esta cuenta es {provider}.",
       "subjectRequired": "Añade un asunto.",
-      "taskNameCannotBeChangedForSystemTasks": "El nombre de las tareas del sistema no se puede cambiar.",
-      "taskNotFound": "ID de tarea no encontrado o no accesible.",
-      "taskOnlyCustomTasksCanBeDeleted": "Solo se pueden eliminar las tareas personalizadas.",
       "termsNotAgreed": "Debes aceptar los términos y condiciones.",
       "threadNotFound": "ID de conversación no encontrado o no accesible.",
       "unipileAccountRestricted": "El proveedor ha restringido este canal. Reconectarlo no lo soluciona; resuelve primero la restricción con el proveedor.",
@@ -1184,17 +1117,12 @@
       "webhookHeadersTooMany": "Demasiadas cabeceras.",
       "webhookHeaderValueInvalid": "Los valores de cabecera solo pueden contener texto Latin-1, sin saltos de línea ni caracteres de control.",
       "webhookNotFound": "ID de webhook no encontrado o no accesible.",
-      "widgetDealAggregationNotAllowedForTask": "Los tipos de agregación de oportunidades no están permitidos para el tipo de elemento Tarea.",
-      "widgetDealFiltersNotAllowedForDealEntityType": "Los filtros de oportunidad no están permitidos cuando el tipo de elemento es Oportunidad.",
-      "widgetDealQuantityOnlyForService": "La agregación de cantidad de oportunidades solo está permitida para el tipo de elemento Servicio.",
       "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
-      "widgetGroupByEntityTypeNotAllowedForCount": "No se permite agrupar por tipo de elemento cuando el tipo de agregación es el recuento.",
-      "widgetGroupByTypeMustMatchEntityType": "El tipo de agrupación debe coincidir con el tipo de elemento del gráfico.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
+      "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
+      "widgetLayoutTooSmall": "Este widget necesita al menos 2 columnas y 3 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
-      "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
-      "wikiHomepageSetupStartFailed": "Mate no pudo iniciar la configuración de la base de conocimientos. Inténtalo de nuevo.",
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
       "wikiPageConflict": "Esta página de la base de conocimientos cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
       "wikiPageNotFound": "Página de la base de conocimientos no encontrada o no accesible.",
@@ -1822,21 +1750,29 @@
       "kind": {
         "activityTimelineDescription": "Sigue en orden cronológico los cambios en registros, los mensajes y la actividad de cuentas y calendario.",
         "chartDescription": "Compara los datos del CRM en un gráfico.",
+        "description": "Elige un formato y selecciona tú mismo los datos.",
+        "scratchTitle": "Empezar desde cero",
         "title": "Elegir un widget"
       },
       "preview": {
-        "title": "Vista previa"
+        "incomplete": "Completa la configuración de datos para ver una vista previa.",
+        "live": "Vista previa en vivo",
+        "size": "Tamaño en el panel {w} × {h}",
+        "title": "Vista previa",
+        "untitled": "Widget sin título"
       },
       "save": "Guardar cambios",
+      "settings": "Configuración del widget",
       "sharing": {
         "template": "Compartir como plantilla"
       },
       "steps": {
-        "chooseDescription": "Elige un formato o parte de una configuración compartida en tu espacio de trabajo.",
+        "chooseDescription": "Empieza con una recomendación, un formato en blanco o una configuración compartida en tu espacio de trabajo.",
         "configureDescription": "Elige qué muestra este widget y qué aspecto tiene."
       },
       "tabs": {
         "appearance": "Apariencia",
+        "data": "Datos",
         "filtersLabel": "{count, plural, =0 {Filtros, ninguno activo} =1 {Filtros, 1 activo} other {Filtros, # activos}}"
       },
       "templates": {
@@ -1846,30 +1782,51 @@
       }
     },
     "widgetGallery": {
-      "description": "Widgets listos para tu modelo de datos actual. Puedes editarlo todo antes de guardar.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Oportunidades en cada etapa, en el orden de las etapas, con la conversión entre pasos.",
-          "name": "Oportunidades por etapa"
+      "creationDate": "fecha de creación",
+      "description": "Sugerencias creadas a partir de los tipos de registro y campos de tu espacio de trabajo. Puedes cambiarlo todo antes de guardar.",
+      "recipes": {
+        "countBySelect": {
+          "description": "Número de {type} por cada {group}.",
+          "name": "{type} por {group}"
         },
-        "openPipeline": {
-          "description": "Valor total de las oportunidades que no están ganadas ni perdidas.",
-          "name": "Pipeline abierto"
+        "countPerMember": {
+          "description": "Número de {type} por cada {group}.",
+          "name": "{type} por {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tareas que no están completadas ni archivadas, contadas por cada usuario asignado.",
-          "name": "Tareas abiertas por responsable"
+        "openCountPerAssignee": {
+          "description": "{type} que no están en un {group} cerrado, contados por cada usuario asignado.",
+          "name": "{type} abiertos por responsable"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Valor de las oportunidades ganadas por organización vinculada, clasificado con su parte del total.",
-          "name": "Principales organizaciones por ingresos"
+        "openValueTotal": {
+          "description": "Total de {field} de {type} que no están en un {group} cerrado.",
+          "name": "{field} abierto"
         },
-        "wonValuePerMonth": {
-          "description": "Valor de las oportunidades ganadas por mes, según el primer campo de fecha de la oportunidad o la fecha de creación.",
-          "name": "Valor ganado por mes"
+        "stageFunnel": {
+          "description": "{type} en cada {group}, en orden, con la conversión entre pasos.",
+          "name": "{type} por {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} ordenados por el {field} de sus {type} vinculados, con la parte de cada uno en el total.",
+          "name": "Principales {related} por {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} ordenados por el {field} de sus {type} ganados, con la parte de cada uno en el total.",
+          "name": "Principales {related} por {field} ganado"
+        },
+        "valueOverTime": {
+          "description": "{field} de {type} por mes, según {date}.",
+          "name": "{field} por mes"
+        },
+        "valueTotal": {
+          "description": "Suma de {field} en todos los {type}.",
+          "name": "{field} total"
+        },
+        "wonValueOverTime": {
+          "description": "{field} de {type} ganados por mes, según {date}.",
+          "name": "{field} ganado por mes"
         }
       },
-      "title": "Widgets iniciales"
+      "title": "Recomendado para tus datos"
     },
     "widgetKinds": {
       "activityTimeline": "Cronología de actividad",
@@ -1922,6 +1879,7 @@
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
+    "rowActions": "Acciones de fila",
     "selectAllRows": "Seleccionar todas las filas",
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
@@ -2039,6 +1997,9 @@
     "taskList": "Lista de tareas",
     "underline": "Subrayado",
     "urlPlaceholder": "Introduce una URL..."
+  },
+  "EditorTabs": {
+    "invalid": "Contiene errores"
   },
   "EmailLayout": {
     "tagline": "El CRM agéntico de código abierto"
@@ -2497,8 +2458,8 @@
     "admin": "Administración",
     "affiliate": "Programa de afiliados",
     "connectedAccounts": "Canales",
-    "crm": "CRM",
     "dashboard": "Panel",
+    "data": "Datos",
     "docs": "Documentación",
     "features": "Funciones",
     "inbox": "Bandeja de entrada",
@@ -3079,6 +3040,7 @@
     "disabled": "Desactivado",
     "edit": "Editar",
     "editField": "Editar campo",
+    "editValue": "Editar {field}",
     "empty": "Todavía no hay registros",
     "emptyDescription": "Crea tu primer registro para empezar.",
     "enableChannels": "Activar canales",
@@ -3090,6 +3052,9 @@
       "formula": "Fórmula",
       "lookup": "Valor de {list}",
       "rollup": "Total de {list}"
+    },
+    "fieldTabs": {
+      "calculation": "Cálculo"
     },
     "general": "General",
     "graph": {
@@ -3122,16 +3087,110 @@
     "hiddenList": "Oculta",
     "hideArchived": "Ocultar archivados",
     "icon": "Icono",
+    "iconChoose": "Elegir icono",
+    "iconNoMatch": "Ningún icono coincide",
     "icons": {
+      "alarm": "Recordatorio",
+      "alert": "Incidencia",
+      "award": "Premio",
+      "bag": "Compra",
+      "banknote": "Pago",
+      "barcode": "Código de barras",
+      "book": "Libro",
+      "box": "Producto",
+      "boxes": "Inventario",
       "briefcase": "Maletín",
+      "bug": "Error",
       "building": "Edificio",
+      "calendar": "Calendario",
+      "calendarCheck": "Cita",
+      "camera": "Foto",
+      "car": "Vehículo",
+      "cart": "Pedido",
+      "chart": "Gráfico",
       "check": "Marca de verificación",
+      "clipboard": "Lista de control",
+      "clock": "Tiempo",
+      "coins": "Monedas",
       "contact": "Personas",
+      "contactCard": "Tarjeta de contacto",
+      "contract": "Contrato",
+      "creditCard": "Tarjeta de crédito",
+      "database": "Base de datos",
+      "deal": "Apretón de manos",
+      "document": "Documento",
+      "factory": "Fábrica",
+      "files": "Archivos",
+      "filter": "Embudo",
+      "flag": "Bandera",
       "folder": "Carpeta",
+      "gavel": "Caso",
+      "gift": "Regalo",
+      "globe": "Sitio web",
+      "graduationCap": "Formación",
+      "hammer": "Herramienta",
       "handshake": "Crecimiento",
+      "hardDrive": "Almacenamiento",
+      "headset": "Centro de atención",
+      "heart": "Favorito",
+      "home": "Inmueble",
+      "hotel": "Hotel",
+      "idCard": "Documento de identidad",
+      "inbox": "Bandeja de entrada",
+      "kanban": "Tablero",
+      "key": "Llave",
+      "landmark": "Institución",
+      "laptop": "Portátil",
+      "layers": "Capas",
+      "leaf": "Naturaleza",
+      "lifeBuoy": "Soporte",
+      "lightbulb": "Idea",
+      "link": "Enlace",
       "list": "Lista",
-      "package": "Paquete"
+      "mail": "Correo",
+      "map": "Mapa",
+      "mapPin": "Ubicación",
+      "megaphone": "Campaña",
+      "message": "Mensaje",
+      "milestone": "Hito",
+      "music": "Música",
+      "network": "Red",
+      "newspaper": "Noticias",
+      "notebook": "Cuaderno",
+      "package": "Paquete",
+      "palette": "Diseño",
+      "percent": "Descuento",
+      "phone": "Llamada",
+      "piggyBank": "Ahorros",
+      "pill": "Medicamento",
+      "plane": "Viaje",
+      "receipt": "Factura",
+      "repeat": "Recurrente",
+      "rocket": "Lanzamiento",
+      "scale": "Legal",
+      "server": "Servidor",
+      "shield": "Política",
+      "signature": "Firma",
+      "smartphone": "Móvil",
+      "stamp": "Aprobación",
+      "star": "Estrella",
+      "stethoscope": "Salud",
+      "store": "Tienda",
+      "tag": "Etiqueta",
+      "target": "Objetivo",
+      "ticket": "Ticket",
+      "trophy": "Trofeo",
+      "truck": "Envío",
+      "user": "Persona",
+      "userCheck": "Persona aprobada",
+      "userPlus": "Nueva persona",
+      "usersRound": "Equipo",
+      "utensils": "Restaurante",
+      "wallet": "Cartera",
+      "warehouse": "Almacén",
+      "wrench": "Mantenimiento"
     },
+    "iconSearch": "Buscar iconos",
     "identityChannels": "Canales",
     "includeAudit": "Incluir cambios de registros",
     "includeMessages": "Incluir mensajes",
@@ -3154,6 +3213,7 @@
     "listUnavailable": "Esta lista no está disponible. Elige otra lista.",
     "member": "Miembro",
     "missing": "Sin valor",
+    "moreActions": "Más acciones para {name}",
     "moveDown": "Bajar {field}",
     "moveUp": "Subir {field}",
     "multipleValues": "Permitir varios valores",
@@ -3167,6 +3227,7 @@
     "onTargetDelete": "Al eliminar el registro vinculado",
     "openPage": "Abrir página",
     "openRecord": "Abrir {name}",
+    "openRecordDetails": "Abrir detalles de {name}",
     "operation": "Cálculo",
     "operationCancelled": "El cambio se canceló.",
     "operationFailed": "El cambio falló. El estado completo anterior sigue activo.",
@@ -3247,6 +3308,7 @@
     "relationshipChange": "{count} relaciones modificadas",
     "relationshipEditor": {
       "cardinality": "Cuántos registros se vinculan",
+      "onDelete": "Al eliminar",
       "otherList": "la lista vinculada",
       "shownOn": "Se muestra en los registros de {list}",
       "thisList": "Esta lista"
@@ -3376,6 +3438,7 @@
     "loadingSchema": "Cargando campos…",
     "measure": "Medida",
     "noRecordsInPeriod": "Sin registros",
+    "notes": "Sobre estas cifras",
     "operators": {
       "between": "Entre",
       "contains": "Contiene",
@@ -3396,7 +3459,6 @@
     "overall": "Total: {value}",
     "preview": "Vista previa de la medida",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
-    "previewHelp": "La vista previa usa los registros actuales y tus permisos.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
       "group": "Grupo",
@@ -3443,8 +3505,8 @@
     "create": "Crear",
     "delete": "Eliminar",
     "edit": "Editar",
+    "general": "General",
     "manageAccess": "Gestión",
-    "no": "No",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
     "readAccess": "Acceso de lectura",
     "readAll": "Todos",
@@ -3457,14 +3519,9 @@
       "api": "API y webhooks",
       "auditLog": "Registro de auditoría",
       "company": "Empresa",
-      "contacts": "Contactos",
       "dataModel": "Modelo de datos",
-      "deals": "Oportunidades",
       "inboxMessages": "Mensajes de la bandeja de entrada",
-      "organizations": "Organizaciones",
       "routines": "Rutinas",
-      "services": "Servicios",
-      "tasks": "Tareas",
       "users": "Usuarios y roles",
       "wiki": "Base de conocimientos del espacio de trabajo"
     },
@@ -3472,7 +3529,7 @@
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
     "systemName": "Administrador",
     "title": "Rol",
-    "yes": "Sí"
+    "workspacePermissions": "Espacio de trabajo"
   },
   "RolesCard": {
     "custom": "Personalizado",
@@ -3636,6 +3693,23 @@
     "thursday": "Jueves",
     "tuesday": "Martes",
     "wednesday": "Miércoles"
+  },
+  "SidebarCustomize": {
+    "deleteSection": "Eliminar sección",
+    "emptySection": "Arrastra elementos aquí",
+    "hide": "Ocultar de la barra lateral",
+    "itemActions": "Opciones de {item}",
+    "moveDown": "Bajar",
+    "moveToSection": "Mover a la sección",
+    "moveUp": "Subir",
+    "newSection": "Nueva sección",
+    "newSectionName": "Nueva sección",
+    "rename": "Cambiar nombre",
+    "reset": "Restablecer valores predeterminados",
+    "sectionActions": "Opciones de {section}",
+    "sectionName": "Nombre de la sección",
+    "show": "Mostrar {item}",
+    "title": "Personalizar barra lateral"
   },
   "SignInForm": {
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",

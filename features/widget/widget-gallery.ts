@@ -1,24 +1,45 @@
 import { z } from "zod";
 
-import type { RecordField, RecordModel } from "@/features/records/record-model.schema";
+import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
 
-import { presetId } from "@/features/records/crm-preset";
+import { expressionFieldDependencies } from "@/features/records/record-model-validation";
 import { RECORD_MEASURE_MAX_GROUP_LIMIT, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { ChartColor, DisplayType, WidgetDisplayOptionsSchema } from "./widget-display.schema";
 
-export const WIDGET_GALLERY_KEYS = [
-  "openPipeline",
-  "dealsByStage",
-  "wonValuePerMonth",
-  "topOrganizationsByRevenue",
-  "openTasksPerAssignee",
+export const WIDGET_STARTER_RECIPES = [
+  "openValueTotal",
+  "valueTotal",
+  "stageFunnel",
+  "openCountPerAssignee",
+  "wonValueOverTime",
+  "valueOverTime",
+  "topRelatedByWonValue",
+  "topRelatedByValue",
+  "countPerMember",
+  "countBySelect",
 ] as const;
-export type WidgetGalleryKey = (typeof WIDGET_GALLERY_KEYS)[number];
+export type WidgetStarterRecipe = (typeof WIDGET_STARTER_RECIPES)[number];
+
+export const WIDGET_GALLERY_LIMIT = 9;
+export const WIDGET_GALLERY_CREATED_AT_LABEL = "system:createdAt";
+
+export const WidgetGalleryLabelsSchema = z
+  .object({
+    type: z.string(),
+    field: z.string().optional(),
+    group: z.string().optional(),
+    related: z.string().optional(),
+    date: z.string().optional(),
+  })
+  .strict();
+export type WidgetGalleryLabels = z.infer<typeof WidgetGalleryLabelsSchema>;
 
 export const WidgetGalleryTemplateSchema = z
   .object({
-    key: z.enum(WIDGET_GALLERY_KEYS),
+    key: z.string().min(1).max(400),
+    recipe: z.enum(WIDGET_STARTER_RECIPES),
+    labels: WidgetGalleryLabelsSchema,
     measure: RecordMeasureSchema,
     displayOptions: WidgetDisplayOptionsSchema,
   })
@@ -49,21 +70,6 @@ function probability(option: RecordField["options"][number]): number | null {
     : null;
 }
 
-function referencedOptionFields(model: RecordModel, typeId: string): string[] {
-  const found: string[] = [];
-  const visit = (value: unknown) => {
-    if (!value || typeof value !== "object") return;
-    if (Array.isArray(value)) return value.forEach(visit);
-    const node = value as Record<string, unknown>;
-    if (node.kind === "optionAttribute" && node.attribute === "probability" && typeof node.fieldId === "string")
-      found.push(node.fieldId);
-    Object.values(node).forEach(visit);
-  };
-  for (const field of model.fields)
-    if (field.typeId === typeId && !field.archived && "expression" in field.behavior) visit(field.behavior.expression);
-  return found;
-}
-
 function selectFilter(field: RecordField, operator: "in" | "notIn", optionIds: string[]) {
   return {
     fieldId: field.id,
@@ -73,107 +79,193 @@ function selectFilter(field: RecordField, operator: "in" | "notIn", optionIds: s
   };
 }
 
-export function resolveWidgetGallery(
-  companyId: string,
-  model: RecordModel,
-  closedTaskLabels: string[],
-): WidgetGalleryTemplate[] {
-  const id = (key: string) => presetId(companyId, key);
-  const type = (key: string) => model.types.find((candidate) => candidate.id === id(key) && !candidate.archived);
-  const fieldsOf = (typeId: string) =>
-    model.fields
-      .filter((field) => field.typeId === typeId && !field.archived)
-      .sort((left, right) => left.position - right.position);
-  const isSelect = (field: RecordField | undefined): field is RecordField =>
-    Boolean(field && field.valueType === "select" && !field.multiple);
-  const templates: WidgetGalleryTemplate[] = [];
-  const template = (key: WidgetGalleryKey, measure: Omit<RecordMeasure, "groupLimit">, displayType: DisplayType) =>
-    templates.push({
-      key,
-      measure: { groupLimit: measure.groupBy?.dateInterval ? RECORD_MEASURE_MAX_GROUP_LIMIT : 100, ...measure },
-      displayOptions: display(displayType),
-    });
+const isSingleSelect = (field: RecordField) => field.valueType === "select" && !field.multiple;
+const isValue = (field: RecordField) => ["currency", "number"].includes(field.valueType) && !field.multiple;
+const isDate = (field: RecordField) => ["date", "dateTime"].includes(field.valueType) && !field.multiple;
+const isMember = (field: RecordField) => field.valueType === "member" && !field.multiple;
 
-  const deal = type("deal");
-  if (deal) {
-    const fields = fieldsOf(deal.id);
-    const value =
-      fields.find((field) => field.id === id("deal.totalValue") && field.valueType === "currency") ??
-      fields.find((field) => field.valueType === "currency");
-    const referenced = referencedOptionFields(model, deal.id);
-    const stage =
-      fields.find((field) => isSelect(field) && referenced.includes(field.id)) ??
-      fields.find((field) => isSelect(field) && field.id === id("deal.stage")) ??
-      fields.find((field) => isSelect(field) && field.options.some((option) => probability(option) !== null));
-    const won = stage?.options.filter((option) => probability(option) === 100).map((option) => option.id) ?? [];
-    const lost = stage?.options.filter((option) => probability(option) === 0).map((option) => option.id) ?? [];
-    const open = stage?.options.filter((option) => ![...won, ...lost].includes(option.id)) ?? [];
-    if (value && stage && won.length && lost.length && open.length) {
-      template(
-        "openPipeline",
-        {
-          source: { typeId: deal.id, filters: [selectFilter(stage, "notIn", [...won, ...lost])], relationships: [] },
-          aggregation: "sum",
-          valueFieldId: value.id,
-          groupBy: null,
-        },
-        DisplayType.number,
+function outcomes(field: RecordField, closedLabels: Set<string>) {
+  const won = field.options.filter((option) => probability(option) === 100).map((option) => option.id);
+  const lost = field.options.filter((option) => probability(option) === 0).map((option) => option.id);
+  const labelled = field.options
+    .filter((option) => closedLabels.has(option.label.trim().toLocaleLowerCase()))
+    .map((option) => option.id);
+  const closed = [...new Set([...won, ...lost, ...labelled])];
+  return { won, lost, closed, open: field.options.filter((option) => !closed.includes(option.id)) };
+}
+
+type TypeShape = {
+  type: RecordType;
+  value?: RecordField;
+  stage?: RecordField;
+  pipeline: boolean;
+  status?: RecordField;
+  date?: RecordField;
+  member?: RecordField;
+  relations: Array<{ relation: RecordRelationship; related: RecordType }>;
+};
+
+function calculationInputs(model: RecordModel, typeId: string): Set<string> {
+  return new Set(
+    model.fields.flatMap((field) =>
+      field.typeId === typeId && !field.archived && "expression" in field.behavior
+        ? [...expressionFieldDependencies(field.behavior.expression)]
+        : [],
+    ),
+  );
+}
+
+function describeType(model: RecordModel, type: RecordType, closedLabels: Set<string>): TypeShape {
+  const fields = model.fields
+    .filter((field) => field.typeId === type.id && !field.archived)
+    .sort((left, right) => left.position - right.position);
+  const selects = fields.filter((field) => isSingleSelect(field) && field.options.length >= 2);
+  const referenced = calculationInputs(model, type.id);
+  const pipeline =
+    selects.find((field) => referenced.has(field.id)) ??
+    selects.find((field) => field.options.some((option) => probability(option) !== null)) ??
+    selects.find((field) => field.id === type.defaults.groupBy);
+  const status = selects.find((field) => {
+    const { closed } = outcomes(field, closedLabels);
+    return closed.length > 0 && closed.length < field.options.length;
+  });
+  const inbound = (typeId: string) =>
+    model.relationships.filter((relation) => !relation.archived && relation.targetTypeId === typeId).length;
+  const relations = model.relationships
+    .filter(
+      (relation) => !relation.archived && (relation.sourceTypeId === type.id || relation.targetTypeId === type.id),
+    )
+    .flatMap((relation) => {
+      const relatedId = relation.sourceTypeId === type.id ? relation.targetTypeId : relation.sourceTypeId;
+      const related = model.types.find(
+        (candidate) => candidate.id === relatedId && !candidate.archived && !candidate.embedded,
       );
-    }
-    if (stage) {
-      template(
-        "dealsByStage",
-        {
-          source: {
-            typeId: deal.id,
-            filters: lost.length ? [selectFilter(stage, "notIn", lost)] : [],
-            relationships: [],
+      return related && related.id !== type.id && inbound(related.id) > 0 ? [{ relation, related }] : [];
+    })
+    .sort(
+      (left, right) =>
+        inbound(right.related.id) - inbound(left.related.id) || left.related.position - right.related.position,
+    );
+  return {
+    type,
+    value: fields.find((field) => field.valueType === "currency" && !field.multiple) ?? fields.find(isValue),
+    stage: pipeline ?? selects[0],
+    pipeline: Boolean(pipeline),
+    status,
+    date: fields.find(isDate),
+    member: fields.find(isMember),
+    relations,
+  };
+}
+
+export function resolveWidgetGallery(
+  model: RecordModel,
+  closedLabels: string[] = [],
+  accept: (template: WidgetGalleryTemplate) => boolean = () => true,
+): WidgetGalleryTemplate[] {
+  const closedSet = new Set(closedLabels.map((label) => label.trim().toLocaleLowerCase()));
+  const perType: WidgetGalleryTemplate[][] = [];
+  const types = model.types
+    .filter((type) => !type.archived && !type.embedded)
+    .sort((left, right) => left.position - right.position);
+
+  types.forEach((type) => {
+    const candidates: WidgetGalleryTemplate[] = [];
+    perType.push(candidates);
+    const shape = describeType(model, type, closedSet);
+    const add = (
+      recipe: WidgetStarterRecipe,
+      ingredients: string[],
+      labels: Omit<WidgetGalleryLabels, "type">,
+      measure: Omit<RecordMeasure, "groupLimit">,
+      displayType: DisplayType,
+    ) =>
+      candidates.push({
+        key: [recipe, type.id, ...ingredients].join(":"),
+        recipe,
+        labels: { type: type.pluralLabel, ...labels },
+        measure: { groupLimit: measure.groupBy?.dateInterval ? RECORD_MEASURE_MAX_GROUP_LIMIT : 100, ...measure },
+        displayOptions: display(displayType),
+      });
+    const source = (filters: RecordMeasure["source"]["filters"] = []) => ({
+      typeId: type.id,
+      filters,
+      relationships: [],
+    });
+    const stageOutcomes = shape.stage ? outcomes(shape.stage, closedSet) : null;
+
+    if (shape.value) {
+      const field = { field: shape.value.label };
+      if (shape.stage && stageOutcomes?.closed.length && stageOutcomes.open.length) {
+        add(
+          "openValueTotal",
+          [shape.value.id, shape.stage.id],
+          { ...field, group: shape.stage.label },
+          {
+            source: source([selectFilter(shape.stage, "notIn", stageOutcomes.closed)]),
+            aggregation: "sum",
+            valueFieldId: shape.value.id,
+            groupBy: null,
           },
+          DisplayType.number,
+        );
+      } else {
+        add(
+          "valueTotal",
+          [shape.value.id],
+          field,
+          { source: source(), aggregation: "sum", valueFieldId: shape.value.id, groupBy: null },
+          DisplayType.number,
+        );
+      }
+    }
+
+    if (shape.stage) {
+      const ordered = shape.pipeline && shape.stage.options.length - (stageOutcomes?.lost.length ?? 0) >= 3;
+      add(
+        ordered ? "stageFunnel" : "countBySelect",
+        [shape.stage.id],
+        { group: shape.stage.label },
+        {
+          source: source(stageOutcomes?.lost.length ? [selectFilter(shape.stage, "notIn", stageOutcomes.lost)] : []),
           aggregation: "count",
           valueFieldId: null,
-          groupBy: { path: [], fieldId: stage.id },
+          groupBy: { path: [], fieldId: shape.stage.id },
         },
-        DisplayType.funnelChart,
+        ordered ? DisplayType.funnelChart : DisplayType.verticalBarChart,
       );
     }
-    if (value && stage && won.length) {
-      const date = fields.find((field) => ["date", "dateTime"].includes(field.valueType) && !field.multiple);
-      template(
-        "wonValuePerMonth",
+
+    if (shape.value) {
+      const wonFilter =
+        shape.stage && stageOutcomes?.won.length ? [selectFilter(shape.stage, "in", stageOutcomes.won)] : null;
+      const dateFieldId = shape.date?.id ?? "system:createdAt";
+      add(
+        wonFilter ? "wonValueOverTime" : "valueOverTime",
+        [shape.value.id, dateFieldId],
+        { field: shape.value.label, date: shape.date?.label ?? WIDGET_GALLERY_CREATED_AT_LABEL },
         {
-          source: { typeId: deal.id, filters: [selectFilter(stage, "in", won)], relationships: [] },
+          source: source(wonFilter ?? []),
           aggregation: "sum",
-          valueFieldId: value.id,
-          groupBy: { path: [], fieldId: date?.id ?? "system:createdAt", dateInterval: "month" },
+          valueFieldId: shape.value.id,
+          groupBy: { path: [], fieldId: dateFieldId, dateInterval: "month" },
         },
         DisplayType.areaChart,
       );
-      const organization = type("organization");
-      const relations = model.relationships.filter((relation) => !relation.archived);
-      const relation = organization
-        ? (relations.find(
-            (relation) =>
-              relation.id === id("deal.organizations") &&
-              relation.sourceTypeId === deal.id &&
-              relation.targetTypeId === organization.id,
-          ) ??
-          relations.find(
-            (relation) =>
-              (relation.sourceTypeId === deal.id && relation.targetTypeId === organization.id) ||
-              (relation.sourceTypeId === organization.id && relation.targetTypeId === deal.id),
-          ))
-        : undefined;
-      if (relation) {
-        template(
-          "topOrganizationsByRevenue",
+
+      const target = shape.relations[0];
+      if (target) {
+        const outgoing = target.relation.sourceTypeId === type.id;
+        add(
+          wonFilter ? "topRelatedByWonValue" : "topRelatedByValue",
+          [shape.value.id, target.relation.id],
+          { field: shape.value.label, related: target.related.pluralLabel },
           {
-            source: { typeId: deal.id, filters: [selectFilter(stage, "in", won)], relationships: [] },
+            source: source(wonFilter ?? []),
             aggregation: "sum",
-            valueFieldId: value.id,
+            valueFieldId: shape.value.id,
             groupBy: {
-              path: [
-                { relationId: relation.id, direction: relation.sourceTypeId === deal.id ? "outgoing" : "incoming" },
-              ],
+              path: [{ relationId: target.relation.id, direction: outgoing ? "outgoing" : "incoming" }],
               fieldId: null,
             },
           },
@@ -181,26 +273,28 @@ export function resolveWidgetGallery(
         );
       }
     }
-  }
 
-  const task = type("task");
-  if (task) {
-    const closedIds = [id("task.status.done"), id("task.status.archived")];
-    const labels = new Set(closedTaskLabels.map((label) => label.trim().toLocaleLowerCase()));
-    const closed = (field: RecordField) =>
-      field.options
-        .filter((option) => closedIds.includes(option.id) || labels.has(option.label.trim().toLocaleLowerCase()))
-        .map((option) => option.id);
-    const candidates = fieldsOf(task.id).filter(isSelect);
-    const status =
-      candidates.find((field) => field.id === id("task.status")) ??
-      candidates.find((field) => closed(field).length > 0 && closed(field).length < field.options.length);
-    const done = status ? closed(status) : [];
-    if (status && done.length && done.length < status.options.length) {
-      template(
-        "openTasksPerAssignee",
+    if (shape.member) {
+      add(
+        "countPerMember",
+        [shape.member.id],
+        { group: shape.member.label },
         {
-          source: { typeId: task.id, filters: [selectFilter(status, "notIn", done)], relationships: [] },
+          source: source(),
+          aggregation: "count",
+          valueFieldId: null,
+          groupBy: { path: [], fieldId: shape.member.id },
+        },
+        DisplayType.horizontalBarChart,
+      );
+    } else if (shape.status && !shape.value) {
+      const { closed } = outcomes(shape.status, closedSet);
+      add(
+        "openCountPerAssignee",
+        [shape.status.id],
+        { group: shape.status.label },
+        {
+          source: source([selectFilter(shape.status, "notIn", closed)]),
           aggregation: "count",
           valueFieldId: null,
           groupBy: { path: [], fieldId: "system:assignedTo" },
@@ -208,6 +302,14 @@ export function resolveWidgetGallery(
         DisplayType.horizontalBarChart,
       );
     }
-  }
-  return templates;
+  });
+
+  const rank = (template: WidgetGalleryTemplate) => WIDGET_STARTER_RECIPES.indexOf(template.recipe);
+  const lists = perType
+    .map((list) => list.filter(accept).sort((left, right) => rank(left) - rank(right)))
+    .sort((left, right) => right.length - left.length);
+  const picked: WidgetGalleryTemplate[] = [];
+  for (let round = 0; picked.length < WIDGET_GALLERY_LIMIT && lists.some((list) => list[round]); round += 1)
+    for (const list of lists) if (list[round] && picked.length < WIDGET_GALLERY_LIMIT) picked.push(list[round]);
+  return picked;
 }
