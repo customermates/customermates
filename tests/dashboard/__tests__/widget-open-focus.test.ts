@@ -35,8 +35,7 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/activity-widget-card", 
     createElement("div", { "data-activity": widget.id }, widget.name),
 }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-widget-card", () => ({
-  RecordWidgetCard: ({ widget }: { widget: WidgetDto }) =>
-    createElement("div", { "data-record-chart": widget.id }, widget.name),
+  RecordWidgetCard: (widget: WidgetDto) => createElement("div", { "data-record-chart": widget.id }, widget.name),
 }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-activity-widget-card", () => ({
   RecordActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>

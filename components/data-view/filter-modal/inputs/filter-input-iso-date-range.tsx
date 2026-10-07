@@ -134,7 +134,6 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
         onOpenAutoFocus={focusCalendarDay}
       >
         <Calendar
-          autoFocus
           disabled={store?.isDisabled}
           mode="range"
           month={currentMonth}

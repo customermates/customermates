@@ -71,7 +71,15 @@ export function buildAppTopbarCrumbs(
       section: null,
     };
   }
-  if (first === "configure") return { crumbs: [{ label: t("RecordModel.configure") }], section: null };
+  if (first === "configure") {
+    const list = runtimeIdentity?.scope === "entity" && runtimeIdentity.key === "configure" ? runtimeIdentity : null;
+    return {
+      crumbs: list
+        ? [{ label: t("RecordModel.configure"), href: "/configure" }, { label: list.title }]
+        : [{ label: t("RecordModel.configure") }],
+      section: null,
+    };
+  }
   if (first === "operator" && !operatorConsoleVisible) return { crumbs: [], section: null };
 
   const entry = GROUP_MAP[first];

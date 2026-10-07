@@ -9,7 +9,7 @@ import { action, makeObservable, observable, reaction, runInAction, toJS } from 
 import { refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
 
 import { GRID_COLS } from "./grid.constants";
-import { widgetLayoutGeometry } from "./widget-layout";
+import { firstFreeSpot, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { BREAKPOINTS } from "@/constants/breakpoints";
@@ -83,7 +83,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
         let y = layoutItem?.y;
 
         if (x == null || y == null) {
-          const spot = this.findFirstAvailableSpot(layouts[breakpoint], cols, w, h);
+          const spot = firstFreeSpot(layouts[breakpoint], cols, w, h);
           x ??= spot.x;
           y ??= spot.y;
         }
@@ -257,31 +257,5 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
     });
 
     return payload;
-  }
-
-  private findFirstAvailableSpot(
-    layout: LayoutItem[],
-    cols: number,
-    itemW: number,
-    itemH: number,
-  ): { x: number; y: number } {
-    const occupied: Record<number, Array<[number, number]>> = {};
-    layout.forEach((item) => {
-      for (let y = item.y; y < item.y + item.h; y++) (occupied[y] ??= []).push([item.x, item.x + item.w]);
-    });
-
-    const maxX = Math.max(0, cols - itemW);
-    if (maxX < 0) return { x: 0, y: 0 };
-
-    for (let y = 0; ; y++) {
-      for (let x = 0; x <= maxX; x++) {
-        const fits = Array.from({ length: itemH }, (_, i) => y + i).every((yy) => {
-          const row = occupied[yy] || [];
-          return row.every(([sx, ex]) => ex <= x || sx >= x + itemW);
-        });
-
-        if (fits) return { x, y };
-      }
-    }
   }
 }

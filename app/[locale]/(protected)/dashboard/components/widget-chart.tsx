@@ -107,8 +107,6 @@ export const WidgetChart = observer(({ data, displayOptions, currency, integerVa
     currency,
     chartData,
     colors,
-    gridColor: "var(--border)",
-    textColor: "var(--muted-foreground)",
     reverseXAxis: displayOptions?.reverseXAxis,
     reverseYAxis: displayOptions?.reverseYAxis,
     allowDecimals: !integerValues,
@@ -117,7 +115,6 @@ export const WidgetChart = observer(({ data, displayOptions, currency, integerVa
     currency,
     chartData,
     colors,
-    textColor: "var(--muted-foreground)",
     reverseXAxis: displayOptions?.reverseXAxis,
     reverseYAxis: displayOptions?.reverseYAxis,
   };
@@ -132,7 +129,7 @@ export const WidgetChart = observer(({ data, displayOptions, currency, integerVa
         />
       );
     case DisplayType.funnelChart:
-      return <FunnelChart chartData={chartData} currency={currency} textColor="var(--muted-foreground)" />;
+      return <FunnelChart chartData={chartData} />;
     case DisplayType.horizontalBarChart:
       return <HorizontalBarChart {...commonProps} />;
     case DisplayType.verticalBarChartWithLabels:

@@ -1,7 +1,14 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { randomUUID } from "node:crypto";
-import { addFromConfigure, followConfigureLink, openConfigure, openListAction, saveDrawer, saveGeneral } from "./configure";
+import {
+  addFromConfigure,
+  followConfigureLink,
+  openConfigure,
+  openListAction,
+  saveDrawer,
+  saveGeneral,
+} from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 test("creates a custom list and field through the UI, then persists a decimal record across reloads", async ({
@@ -186,7 +193,8 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("option", { name: "Sum", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
-  await expect(dialog.getByRole("heading", { name: "Filters, none active", exact: true })).toBeVisible();
+  await dialog.getByRole("tab", { name: "Filters, none active", exact: true }).click();
+  await expect(dialog.getByRole("heading", { name: "Filters, none active", exact: true })).toBeAttached();
   await dialog.getByRole("combobox", { name: "Add filter", exact: true }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Condition", exact: true }).click();

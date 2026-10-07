@@ -27,7 +27,7 @@ import { CONFIGURATION_ACTIVITY_EVENTS } from "@/ee/messaging/activities/activit
 import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
-import { WIDGET_GALLERY_KEYS } from "@/features/widget/widget-gallery";
+import { WIDGET_STARTER_RECIPES } from "@/features/widget/widget-gallery";
 import { RecordFilterSchema } from "@/features/records/record-query.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
@@ -129,9 +129,9 @@ const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widg
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const WIDGET_GALLERY_NAME_KEYS = WIDGET_GALLERY_KEYS.map((key) => `Dashboard.widgetGallery.templates.${key}.name`);
-const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_GALLERY_KEYS.map(
-  (key) => `Dashboard.widgetGallery.templates.${key}.description`,
+const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map((recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`);
+const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_STARTER_RECIPES.map(
+  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.description`,
 );
 const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map((interval) => `RecordWidgets.intervals.${interval}`);
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
@@ -525,6 +525,10 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
   ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
+  [
+    "RecordModel.cardinality.${*}",
+    ["oneToOne", "oneToMany", "manyToOne", "manyToMany"].map((value) => `RecordModel.cardinality.${value}`),
+  ],
   ["RecordWidgets.operators.${*}", RECORD_FILTER_OPERATOR_KEYS],
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
@@ -552,8 +556,8 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["ConnectedAccountsCard.signatureTemplates.${*}", SIGNATURE_TEMPLATE_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
   ["Dashboard.displayTypeRequirements.${*}", WIDGET_DISPLAY_REQUIREMENT_KEYS],
-  ["Dashboard.widgetGallery.templates.${*}.name", WIDGET_GALLERY_NAME_KEYS],
-  ["Dashboard.widgetGallery.templates.${*}.description", WIDGET_GALLERY_DESCRIPTION_KEYS],
+  ["Dashboard.widgetGallery.recipes.${*}.name", WIDGET_GALLERY_NAME_KEYS],
+  ["Dashboard.widgetGallery.recipes.${*}.description", WIDGET_GALLERY_DESCRIPTION_KEYS],
   ["RecordWidgets.intervals.${*}", RECORD_MEASURE_INTERVAL_KEYS],
   ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
   ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
@@ -653,10 +657,14 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.reducers.${reducer}",
+  "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.cardinality.${edge.cardinality}",
+  "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${field.valueType}",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.types.${field.valueType}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: Common.colors.${color}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.types.${value}",
+  "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.cardinality.${value}",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.deletion.${value}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: Common.dateBuckets.${field.bucket}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${column.label}",
@@ -676,12 +684,10 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
   "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.name",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.templates.${template.key}.name",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.name",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${widget.kind}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",

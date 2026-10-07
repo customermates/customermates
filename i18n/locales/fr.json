@@ -1111,6 +1111,8 @@
       "webhookNotFound": "ID de webhook introuvable ou inaccessible.",
       "widgetDisplayTypeUnsupported": "Ce style de graphique ne correspond pas au regroupement choisi. Choisissez un autre style ou modifiez le regroupement.",
       "widgetKindImmutable": "Le type d'un widget ne peut pas être modifié après sa création.",
+      "widgetLayoutOverlap": "Cette position chevauche un autre widget. Choisissez un emplacement libre dans la grille de 12 colonnes ou omettez la disposition pour le placer automatiquement.",
+      "widgetLayoutTooSmall": "Ce widget nécessite au moins 2 colonnes et 3 lignes.",
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
       "wikiGuideExists": "Cette base de connaissances a déjà un guide opérationnel. Mettez à jour le guide existant.",
       "wikiNotEmpty": "Cette action nécessite une base de connaissances vide.",
@@ -1747,21 +1749,29 @@
       "kind": {
         "activityTimelineDescription": "Suivez les modifications d'enregistrements, les messages et l'activité des comptes ou agendas dans l'ordre chronologique.",
         "chartDescription": "Comparez vos données CRM dans un graphique.",
+        "description": "Choisissez un format et sélectionnez vous-même les données.",
+        "scratchTitle": "Partir de zéro",
         "title": "Choisir un widget"
       },
       "preview": {
-        "title": "Aperçu"
+        "incomplete": "Complétez les paramètres de données pour afficher un aperçu.",
+        "live": "Aperçu en direct",
+        "size": "Taille sur le tableau de bord {w} × {h}",
+        "title": "Aperçu",
+        "untitled": "Widget sans titre"
       },
       "save": "Enregistrer les modifications",
+      "settings": "Paramètres du widget",
       "sharing": {
         "template": "Partager comme modèle"
       },
       "steps": {
-        "chooseDescription": "Choisissez un format ou partez d'une configuration partagée dans votre espace de travail.",
+        "chooseDescription": "Commencez par une recommandation, un format vierge ou une configuration partagée dans votre espace de travail.",
         "configureDescription": "Choisissez ce que ce widget affiche et son apparence."
       },
       "tabs": {
         "appearance": "Apparence",
+        "data": "Données",
         "filtersLabel": "{count, plural, =0 {Filtres, aucun actif} =1 {Filtres, 1 actif} other {Filtres, # actifs}}"
       },
       "templates": {
@@ -1771,30 +1781,51 @@
       }
     },
     "widgetGallery": {
-      "description": "Des widgets prêts à l’emploi pour votre modèle de données actuel. Vous pouvez tout modifier avant d’enregistrer.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Les affaires de chaque étape, dans l’ordre des étapes, avec la conversion d’une étape à l’autre.",
-          "name": "Affaires par étape"
+      "creationDate": "date de création",
+      "description": "Suggestions créées à partir des types d’enregistrement et des champs de votre espace de travail. Vous pouvez tout modifier avant d’enregistrer.",
+      "recipes": {
+        "countBySelect": {
+          "description": "Nombre de {type} pour chaque {group}.",
+          "name": "{type} par {group}"
         },
-        "openPipeline": {
-          "description": "Valeur totale des affaires ni gagnées ni perdues.",
-          "name": "Pipeline ouvert"
+        "countPerMember": {
+          "description": "Nombre de {type} pour chaque {group}.",
+          "name": "{type} par {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tâches ni terminées ni archivées, comptées pour chaque utilisateur assigné.",
-          "name": "Tâches ouvertes par responsable"
+        "openCountPerAssignee": {
+          "description": "{type} qui ne sont pas dans un {group} clôturé, comptés pour chaque utilisateur assigné.",
+          "name": "{type} ouverts par responsable"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Valeur des affaires gagnées par organisation liée, classée avec sa part du total.",
-          "name": "Principales organisations par chiffre d’affaires"
+        "openValueTotal": {
+          "description": "Total de {field} des {type} qui ne sont pas dans un {group} clôturé.",
+          "name": "{field} en cours"
         },
-        "wonValuePerMonth": {
-          "description": "Valeur des affaires gagnées par mois, selon le premier champ de date de l’affaire ou la date de création.",
-          "name": "Valeur gagnée par mois"
+        "stageFunnel": {
+          "description": "{type} à chaque {group}, dans l’ordre, avec la conversion d’une étape à l’autre.",
+          "name": "{type} par {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} classés selon le {field} de leurs {type} liés, avec la part de chacun dans le total.",
+          "name": "Meilleurs {related} par {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} classés selon le {field} de leurs {type} gagnés, avec la part de chacun dans le total.",
+          "name": "Meilleurs {related} par {field} gagné"
+        },
+        "valueOverTime": {
+          "description": "{field} des {type} par mois, selon {date}.",
+          "name": "{field} par mois"
+        },
+        "valueTotal": {
+          "description": "Somme de {field} sur tous les {type}.",
+          "name": "{field} total"
+        },
+        "wonValueOverTime": {
+          "description": "{field} des {type} gagnés par mois, selon {date}.",
+          "name": "{field} gagné par mois"
         }
       },
-      "title": "Widgets de départ"
+      "title": "Recommandé pour vos données"
     },
     "widgetKinds": {
       "activityTimeline": "Chronologie des activités",
@@ -2927,7 +2958,6 @@
     "addPathStep": "Ajouter une étape de relation",
     "addProbability": "Ajouter une probabilité",
     "aggregation": "Agrégation",
-    "allLists": "Toutes les listes",
     "allowManualOverride": "Autoriser une valeur de remplacement manuelle",
     "apply": "Appliquer les modifications",
     "archiveActivityPath": "Archiver la connexion",
@@ -2964,13 +2994,18 @@
     "captureOnSaveField": "Capturer {field} à l’enregistrement",
     "captureValue": "Capturer la valeur",
     "captureValueField": "Capturer {field}",
+    "cardinality": {
+      "manyToMany": "Plusieurs à plusieurs",
+      "manyToOne": "Plusieurs à un",
+      "oneToMany": "Un à plusieurs",
+      "oneToOne": "Un à un"
+    },
     "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
     "color": "Couleur",
     "conditionIf": "Condition",
     "conditionOtherwise": "Sinon",
     "conditionThen": "Alors",
     "configure": "Configurer",
-    "configureViews": "Vues de configuration",
     "connectionType": "Connexion",
     "constant": "Valeur fixe",
     "createdAt": "Créé le",
@@ -3018,7 +3053,35 @@
       "lookup": "Valeur de {list}",
       "rollup": "Total de {list}"
     },
+    "fieldTabs": {
+      "calculation": "Calcul"
+    },
     "general": "Général",
+    "graph": {
+      "accountEdge": "Synchronise les conversations dans {list}",
+      "accounts": "Comptes connectés",
+      "accountUnit": "{count, plural, one {compte} other {comptes}}",
+      "addFieldTo": "Ajouter un champ à {list}",
+      "calculatedFrom": "à partir de {sources}",
+      "calculationEdge": "Calculé à partir de cette liste : {fields}",
+      "connectDescription": "Connectez Gmail, Outlook ou un autre canal pour intégrer les conversations à vos listes.",
+      "connectTitle": "Connecter e-mail et agenda",
+      "controls": "Commandes du graphique",
+      "fitView": "Ajuster à la vue",
+      "handle": "Point de connexion",
+      "help": "Sélectionnez une liste ou un champ pour le modifier, la pastille d’une ligne pour modifier une relation, ou faites glisser le point d’une liste vers une autre pour les relier.",
+      "helpReadOnly": "Sélectionnez une liste pour l’ouvrir. Les lignes montrent comment les listes sont liées et d’où viennent les valeurs calculées.",
+      "label": "Graphique des listes, champs et comptes connectés",
+      "manage": "Gérer",
+      "moreAccounts": "{count, plural, one {# autre compte} other {# autres comptes}}",
+      "moreFields": "{count, plural, one {# autre champ} other {# autres champs}}",
+      "partOf": "Fait partie de {list}",
+      "recordsRestricted": "Nombre d’enregistrements indisponible",
+      "recordUnit": "{count, plural, one {enregistrement} other {enregistrements}}",
+      "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière"
+    },
     "groupSummaries": "Synthèses de groupe",
     "groupSummariesDescription": "Affichez des totaux et d’autres indicateurs dans les groupes du tableau et les colonnes du kanban. Chaque enregistrement compte une fois par groupe, y compris ceux des pages suivantes.",
     "hiddenList": "Masquée",
@@ -3141,20 +3204,13 @@
     },
     "lineItem": "Ligne",
     "lineItems": "Lignes",
-    "linkedCount": "Fiches liées par fiche",
     "linkedRecordCount": "{count} enregistrements liés",
     "linkedRecords": "Fiches liées",
     "linkedType": "Lier à",
     "linkRecord": "Lier un enregistrement",
     "listActions": "Actions de la liste",
     "listCounts": "{fields, plural, one {# champ} other {# champs}} · {relationships, plural, one {# relation} other {# relations}} · {activity, plural, one {# connexion d’activité} other {# connexions d’activité}}",
-    "lists": "Listes",
     "listUnavailable": "Cette liste n’est pas disponible. Choisissez une autre liste.",
-    "many": "Plusieurs",
-    "map": "Carte",
-    "mapHelp": "Sélectionnez une liste pour l’ouvrir, une ligne pour modifier sa relation, ou faites glisser d’une liste vers une autre pour les relier.",
-    "mapHelpReadOnly": "Sélectionnez une liste pour l’ouvrir. Les lignes montrent les relations entre les listes.",
-    "mapLabel": "Carte des listes et des relations",
     "member": "Membre",
     "missing": "Aucune valeur",
     "moreActions": "Plus d’actions pour {name}",
@@ -3162,13 +3218,10 @@
     "moveUp": "Monter {field}",
     "multipleValues": "Autoriser plusieurs valeurs",
     "name": "Nom",
-    "newList": "Nouvelle liste",
     "newRecord": "Nouvelle fiche",
     "no": "Non",
     "noGrouping": "Aucun regroupement",
-    "noListsFound": "Aucune liste ne correspond à votre recherche.",
     "noneYet": "Aucun pour le moment",
-    "one": "Une seule",
     "onePerLine": "Saisissez une valeur par ligne.",
     "onSourceDelete": "À la suppression de cette fiche",
     "onTargetDelete": "À la suppression de la fiche liée",
@@ -3199,7 +3252,6 @@
       "trim": "Supprimer les espaces autour",
       "upper": "Majuscules"
     },
-    "oppositeCount": "Fiches par fiche liée",
     "oppositeLabel": "Libellé de l’autre côté",
     "option": "Option",
     "optionAttribute": "Attribut de l’option",
@@ -3236,6 +3288,13 @@
     },
     "relationship": "Relation",
     "relationshipChange": "{count} relations modifiées",
+    "relationshipEditor": {
+      "cardinality": "Nombre d’enregistrements liés",
+      "onDelete": "À la suppression",
+      "otherList": "la liste liée",
+      "shownOn": "Affiché sur les enregistrements de {list}",
+      "thisList": "Cette liste"
+    },
     "relationshipLabel": "Libellé de ce côté",
     "relationshipPath": "Via des fiches liées",
     "relationshipPathHelp": "Affiche les fiches accessibles via des relations existantes. Modifiez les liens sous-jacents pour changer ces fiches.",
@@ -3257,7 +3316,6 @@
     "saveBeforeEmbedded": "Enregistrez cet enregistrement avant de modifier les éléments liés.",
     "savedViewIncompatible": "Mettez à jour les vues enregistrées et les dispositions personnelles qui utilisent ce champ avant de le modifier.",
     "savingDetailLayout": "Enregistrement de la disposition…",
-    "searchLists": "Rechercher des listes",
     "setDefaultValue": "Définir une valeur par défaut",
     "sharedDefaults": "Valeurs par défaut partagées",
     "sharedDefaultsDescription": "Ces valeurs s’appliquent jusqu’à la personnalisation d’une vue. Les préférences personnelles existantes sont conservées.",
@@ -3362,6 +3420,7 @@
     "loadingSchema": "Chargement des champs…",
     "measure": "Mesure",
     "noRecordsInPeriod": "Aucun enregistrement",
+    "notes": "À propos de ces chiffres",
     "operators": {
       "between": "Entre",
       "contains": "Contient",
@@ -3382,7 +3441,6 @@
     "overall": "Total : {value}",
     "preview": "Aperçu de la mesure",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
-    "previewHelp": "L’aperçu utilise les enregistrements actuels et vos droits d’accès.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
       "group": "Groupe",

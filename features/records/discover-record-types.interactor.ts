@@ -39,6 +39,7 @@ export const DiscoveredRecordTypesSchema = z
           color: z.enum(CHIP_COLORS).optional(),
           embedded: z.boolean(),
           fieldCount: z.number().int(),
+          recordCount: z.number().int().nonnegative().nullable(),
           permittedActions: z.array(z.enum(["create", "readOwn", "readAll", "update", "delete"])),
         })
         .strict(),
@@ -80,6 +81,16 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
                 label.toLocaleLowerCase().includes(search),
               )),
         );
+        const page = types.slice((input.page - 1) * input.pageSize, input.page * input.pageSize);
+        const readable = page
+          .filter((type) => policy.allowed(type.id, "readOwn") || policy.allowed(type.id, "readAll"))
+          .map((type) => type.id);
+        const counts = new Map(
+          (await this.records.countReadableRecordsByType(policy.access(readable))).map((row) => [
+            row.typeId,
+            row.count,
+          ]),
+        );
         return {
           ok: true as const,
           data: {
@@ -87,7 +98,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
             canManageSchema: policy.canManageSchema,
             canPublishSummary: policy.isAdmin,
             total: types.length,
-            types: types.slice((input.page - 1) * input.pageSize, input.page * input.pageSize).map((type) => ({
+            types: page.map((type) => ({
               id: type.id,
               label: type.label,
               pluralLabel: type.pluralLabel,
@@ -96,6 +107,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
               ...(type.color ? { color: type.color } : {}),
               embedded: type.embedded,
               fieldCount: model.fields.filter((field) => field.typeId === type.id && !field.archived).length,
+              recordCount: readable.includes(type.id) ? (counts.get(type.id) ?? 0) : null,
               permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter((action) =>
                 policy.allowed(type.id, action),
               ),

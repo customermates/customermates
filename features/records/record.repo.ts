@@ -104,6 +104,7 @@ export interface RecordRepo {
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
   countRecordsCompanyWide(typeIds: string[]): Promise<number>;
+  countReadableRecordsByType(access: RecordAccessMap): Promise<Array<{ typeId: string; count: number }>>;
   validRecordRolesCompanyWide(roleIds: string[]): Promise<boolean>;
   validateRelationshipCardinality(model: RecordModel): Promise<string[]>;
   saveModel(model: RecordModel, actorId: string, change?: RecordRevisionChange): Promise<void>;

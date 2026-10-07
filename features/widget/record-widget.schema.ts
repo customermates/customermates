@@ -1,8 +1,10 @@
 import { RecordActivityWidgetDtoSchema, RecordActivityWidgetInputSchema } from "./record-activity-widget.schema";
 import { z } from "zod";
+import { WidgetPlacementSchema } from "./widget-grid";
 
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "@/features/records/record-measure.schema";
-import { WidgetDisplayOptionsSchema, WidgetLayoutSchema } from "./widget-display.schema";
+import { WidgetDisplayOptionsSchema, WidgetLayoutSchema, type WidgetLayout } from "./widget-display.schema";
+import type { WidgetPlacementRow } from "./widget-placement";
 
 export const RecordWidgetInputSchema = z
   .object({
@@ -14,6 +16,7 @@ export const RecordWidgetInputSchema = z
     measure: RecordMeasureSchema,
     displayOptions: WidgetDisplayOptionsSchema,
     isTemplate: z.boolean(),
+    layout: WidgetPlacementSchema.optional(),
   })
   .strict()
   .superRefine((value, context) => {
@@ -66,7 +69,8 @@ export interface RecordWidgetRepo {
   findOwned(id: string): Promise<StoredRecordWidget | null>;
   findReadable(id: string): Promise<StoredRecordWidget | null>;
   listOwned(): Promise<StoredRecordWidget[]>;
-  save(input: RecordWidgetInput, id: string): Promise<StoredRecordWidget>;
+  listPlacements(): Promise<WidgetPlacementRow[]>;
+  save(input: RecordWidgetInput, id: string, layout?: WidgetLayout): Promise<StoredRecordWidget>;
 }
 
 export const GenericRecordWidgetDtoSchema = z.discriminatedUnion("kind", [

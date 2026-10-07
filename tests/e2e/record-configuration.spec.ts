@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, configureRailLink, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
+import { openDrawerTab, addFromConfigure, configureListCard, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function applyConfiguration(page: Page) {
@@ -67,8 +67,9 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
   await expect(page.locator("#nav-assistant")).toBeVisible();
   await expect(configure).toHaveAttribute("href", "/en/configure");
   await configure.click();
-  await expect(page).toHaveURL(/\/en\/configure(?:\?typeId=[a-f0-9-]+)?$/);
-  await selectConfigureList(page, "Contacts");
+  await expect(page).toHaveURL(/\/en\/configure$/);
+  await page.locator("[data-configure-graph]").getByRole("button", { name: "Contacts", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Contacts", exact: true })).toBeVisible();
   const dialog = page.getByRole("dialog");
   const general = page.getByRole("region", { name: "General", exact: true });
   const channels = general.getByRole("switch", { name: "Enable channels", exact: true });
@@ -146,6 +147,7 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await page.getByRole("option", { name: "Number", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Value source", exact: true }).click();
   await page.getByRole("option", { name: "Calculated", exact: true }).click();
+  await openDrawerTab(page, "Calculation");
   const calculation = dialog.getByRole("region", { name: "Calculation", exact: true });
   await calculation.getByRole("combobox", { name: "Use", exact: true }).click();
   await page.getByRole("option", { name: "Calculation", exact: true }).click();
@@ -224,12 +226,10 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await applyConfiguration(page);
   await openListAction(page, "Archive list");
   await applyConfiguration(page);
-  await selectConfigureList(page, "Contacts");
-  if ((page.viewportSize()?.width ?? 0) < 1024) await page.getByRole("button", { name: "All lists", exact: true }).click();
-  await setShowArchived(page, false);
-  await expect(configureRailLink(page, name)).toHaveCount(0);
+  await openConfigure(page);
+  await expect(configureListCard(page, name)).toHaveCount(0);
   await setShowArchived(page, true);
-  await expect(configureRailLink(page, name)).toContainText("Archived");
+  await expect(configureListCard(page, name)).toContainText("Archived");
   await selectConfigureList(page, name);
   await openListAction(page, "Restore list");
   await applyConfiguration(page);

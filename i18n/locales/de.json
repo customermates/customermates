@@ -1111,6 +1111,8 @@
       "webhookNotFound": "Webhook-ID nicht gefunden oder nicht zugänglich.",
       "widgetDisplayTypeUnsupported": "Dieser Diagrammstil passt nicht zur gewählten Gruppierung. Wähle einen anderen Stil oder ändere die Gruppierung.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
+      "widgetLayoutOverlap": "Diese Position überschneidet sich mit einem anderen Widget. Wähle einen freien Platz im 12-Spalten-Raster oder lass das Layout weg, damit das Widget automatisch platziert wird.",
+      "widgetLayoutTooSmall": "Dieses Widget braucht mindestens 2 Spalten und 3 Zeilen.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "wikiGuideExists": "Diese Wissensdatenbank hat bereits einen Betriebsleitfaden. Aktualisiere stattdessen den vorhandenen Leitfaden.",
       "wikiNotEmpty": "Diese Aktion erfordert eine leere Wissensdatenbank.",
@@ -1747,21 +1749,29 @@
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
         "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
+        "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
+        "scratchTitle": "Von Grund auf neu",
         "title": "Widget auswählen"
       },
       "preview": {
-        "title": "Vorschau"
+        "incomplete": "Vervollständigen Sie die Dateneinstellungen, um eine Vorschau zu sehen.",
+        "live": "Live-Vorschau",
+        "size": "Dashboard-Größe {w} × {h}",
+        "title": "Vorschau",
+        "untitled": "Unbenanntes Widget"
       },
       "save": "Änderungen speichern",
+      "settings": "Widget-Einstellungen",
       "sharing": {
         "template": "Als Vorlage freigeben"
       },
       "steps": {
-        "chooseDescription": "Wähle ein Format oder starte mit einer geteilten Konfiguration aus deinem Workspace.",
+        "chooseDescription": "Starten Sie mit einer Empfehlung, einem leeren Format oder einer in Ihrem Workspace geteilten Vorlage.",
         "configureDescription": "Lege fest, welche Daten dieses Widget zeigt und wie es aussieht."
       },
       "tabs": {
         "appearance": "Darstellung",
+        "data": "Daten",
         "filtersLabel": "{count, plural, =0 {Filter, keine aktiv} =1 {Filter, 1 aktiv} other {Filter, # aktiv}}"
       },
       "templates": {
@@ -1771,30 +1781,51 @@
       }
     },
     "widgetGallery": {
-      "description": "Fertige Widgets für dein aktuelles Datenmodell. Du kannst vor dem Speichern alles anpassen.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Deals je Phase in Phasenreihenfolge, mit Umwandlung von Schritt zu Schritt.",
-          "name": "Deals nach Phase"
+      "creationDate": "Erstellungsdatum",
+      "description": "Vorschläge auf Basis der Datensatztypen und Felder in Ihrem Workspace. Vor dem Speichern können Sie alles anpassen.",
+      "recipes": {
+        "countBySelect": {
+          "description": "Anzahl der {type} je {group}.",
+          "name": "{type} nach {group}"
         },
-        "openPipeline": {
-          "description": "Gesamtwert der Deals, die weder gewonnen noch verloren sind.",
-          "name": "Offene Pipeline"
+        "countPerMember": {
+          "description": "Anzahl der {type} je {group}.",
+          "name": "{type} pro {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Aufgaben, die nicht erledigt oder archiviert sind, gezählt je zugewiesener Person.",
-          "name": "Offene Aufgaben pro zuständiger Person"
+        "openCountPerAssignee": {
+          "description": "{type}, die nicht in einem abgeschlossenen {group} sind, gezählt je zugewiesener Person.",
+          "name": "Offene {type} pro zugewiesener Person"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Gewonnener Dealwert je verknüpfter Organisation, als Rangliste mit Anteil an der Gesamtsumme.",
-          "name": "Top-Organisationen nach Umsatz"
+        "openValueTotal": {
+          "description": "Summe von {field} aller {type}, die nicht in einem abgeschlossenen {group} sind.",
+          "name": "Offener Wert: {field}"
         },
-        "wonValuePerMonth": {
-          "description": "Wert gewonnener Deals pro Monat, nach dem ersten Datumsfeld des Deals oder dem Erstellungsdatum.",
-          "name": "Gewonnener Wert pro Monat"
+        "stageFunnel": {
+          "description": "{type} je {group} in Reihenfolge, mit Umwandlung von Schritt zu Schritt.",
+          "name": "{type} nach {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related}, gereiht nach {field} ihrer verknüpften {type}, mit Anteil an der Summe.",
+          "name": "Top {related} nach {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related}, gereiht nach {field} ihrer gewonnenen {type}, mit Anteil an der Summe.",
+          "name": "Top {related} nach gewonnenem {field}"
+        },
+        "valueOverTime": {
+          "description": "{field} der {type} pro Monat, nach {date}.",
+          "name": "{field} pro Monat"
+        },
+        "valueTotal": {
+          "description": "Summe von {field} über alle {type}.",
+          "name": "Gesamt: {field}"
+        },
+        "wonValueOverTime": {
+          "description": "{field} gewonnener {type} pro Monat, nach {date}.",
+          "name": "Gewonnen pro Monat: {field}"
         }
       },
-      "title": "Startwidgets"
+      "title": "Empfohlen für Ihre Daten"
     },
     "widgetKinds": {
       "activityTimeline": "Aktivitätsverlauf",
@@ -2927,7 +2958,6 @@
     "addPathStep": "Beziehungsschritt hinzufügen",
     "addProbability": "Wahrscheinlichkeit hinzufügen",
     "aggregation": "Zusammenfassung",
-    "allLists": "Alle Listen",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
     "apply": "Änderungen anwenden",
     "archiveActivityPath": "Verbindung archivieren",
@@ -2964,13 +2994,18 @@
     "captureOnSaveField": "{field} beim Speichern erfassen",
     "captureValue": "Wert erfassen",
     "captureValueField": "{field} erfassen",
+    "cardinality": {
+      "manyToMany": "Viele zu viele",
+      "manyToOne": "Viele zu eins",
+      "oneToMany": "Eins zu viele",
+      "oneToOne": "Eins zu eins"
+    },
     "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
     "color": "Farbe",
     "conditionIf": "Bedingung",
     "conditionOtherwise": "Andernfalls",
     "conditionThen": "Dann",
     "configure": "Konfigurieren",
-    "configureViews": "Konfigurationsansichten",
     "connectionType": "Verbindung",
     "constant": "Fester Wert",
     "createdAt": "Erstellt am",
@@ -3018,7 +3053,35 @@
       "lookup": "Wert aus {list}",
       "rollup": "Summe aus {list}"
     },
+    "fieldTabs": {
+      "calculation": "Berechnung"
+    },
     "general": "Allgemein",
+    "graph": {
+      "accountEdge": "Synchronisiert Unterhaltungen in {list}",
+      "accounts": "Verbundene Konten",
+      "accountUnit": "{count, plural, one {Konto} other {Konten}}",
+      "addFieldTo": "Feld zu {list} hinzufügen",
+      "calculatedFrom": "aus {sources}",
+      "calculationEdge": "Aus dieser Liste berechnet: {fields}",
+      "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
+      "connectTitle": "E-Mail und Kalender verbinden",
+      "controls": "Grafiksteuerung",
+      "fitView": "Alles anzeigen",
+      "handle": "Verbindungspunkt",
+      "help": "Wählen Sie eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehen Sie vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
+      "helpReadOnly": "Wählen Sie eine Liste, um sie zu öffnen. Linien zeigen, wie Listen zusammenhängen und woher berechnete Werte stammen.",
+      "label": "Grafik der Listen, Felder und verbundenen Konten",
+      "manage": "Verwalten",
+      "moreAccounts": "{count, plural, one {# weiteres Konto} other {# weitere Konten}}",
+      "moreFields": "{count, plural, one {# weiteres Feld} other {# weitere Felder}}",
+      "partOf": "Teil von {list}",
+      "recordsRestricted": "Anzahl der Datensätze nicht verfügbar",
+      "recordUnit": "{count, plural, one {Datensatz} other {Datensätze}}",
+      "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern"
+    },
     "groupSummaries": "Gruppenübersichten",
     "groupSummariesDescription": "Summen und andere Kennzahlen in Tabellengruppen und Board-Spalten anzeigen. Jeder Datensatz wird pro Gruppe einmal gezählt, auch auf späteren Seiten.",
     "hiddenList": "Ausgeblendet",
@@ -3141,20 +3204,13 @@
     },
     "lineItem": "Position",
     "lineItems": "Positionen",
-    "linkedCount": "Verknüpfte Datensätze je Datensatz",
     "linkedRecordCount": "{count} verknüpfte Datensätze",
     "linkedRecords": "Verknüpfte Datensätze",
     "linkedType": "Verknüpfen mit",
     "linkRecord": "Datensatz verknüpfen",
     "listActions": "Listenaktionen",
     "listCounts": "{fields, plural, one {# Feld} other {# Felder}} · {relationships, plural, one {# Beziehung} other {# Beziehungen}} · {activity, plural, one {# Aktivitätsverbindung} other {# Aktivitätsverbindungen}}",
-    "lists": "Listen",
     "listUnavailable": "Diese Liste ist nicht verfügbar. Wählen Sie eine andere Liste.",
-    "many": "Mehrere",
-    "map": "Karte",
-    "mapHelp": "Wählen Sie eine Liste, um sie zu öffnen, eine Linie, um ihre Beziehung zu bearbeiten, oder ziehen Sie von einer Liste zur anderen, um sie zu verbinden.",
-    "mapHelpReadOnly": "Wählen Sie eine Liste, um sie zu öffnen. Linien zeigen die Beziehungen zwischen Listen.",
-    "mapLabel": "Karte der Listen und Beziehungen",
     "member": "Mitglied",
     "missing": "Kein Wert",
     "moreActions": "Weitere Aktionen für {name}",
@@ -3162,13 +3218,10 @@
     "moveUp": "{field} nach oben verschieben",
     "multipleValues": "Mehrere Werte erlauben",
     "name": "Name",
-    "newList": "Neue Liste",
     "newRecord": "Neuer Datensatz",
     "no": "Nein",
     "noGrouping": "Keine Gruppierung",
-    "noListsFound": "Keine Liste passt zu Ihrer Suche.",
     "noneYet": "Noch keine",
-    "one": "Einer",
     "onePerLine": "Einen Wert pro Zeile eingeben.",
     "onSourceDelete": "Beim Löschen dieses Datensatzes",
     "onTargetDelete": "Beim Löschen des verknüpften Datensatzes",
@@ -3199,7 +3252,6 @@
       "trim": "Umgebende Leerzeichen entfernen",
       "upper": "Großbuchstaben"
     },
-    "oppositeCount": "Datensätze je verknüpftem Datensatz",
     "oppositeLabel": "Bezeichnung auf der Gegenseite",
     "option": "Option",
     "optionAttribute": "Optionsattribut",
@@ -3236,6 +3288,13 @@
     },
     "relationship": "Verknüpfung",
     "relationshipChange": "{count} Verknüpfungen geändert",
+    "relationshipEditor": {
+      "cardinality": "Wie viele Datensätze verknüpft sind",
+      "onDelete": "Beim Löschen",
+      "otherList": "der verknüpften Liste",
+      "shownOn": "Wird bei Datensätzen in {list} angezeigt",
+      "thisList": "Diese Liste"
+    },
     "relationshipLabel": "Bezeichnung auf dieser Seite",
     "relationshipPath": "Über verknüpfte Datensätze",
     "relationshipPathHelp": "Zeige Datensätze über bestehende Beziehungen an. Bearbeite die zugrunde liegenden Verknüpfungen, um diese Datensätze zu ändern.",
@@ -3257,7 +3316,6 @@
     "saveBeforeEmbedded": "Speichere diesen Datensatz, bevor du verknüpfte Einträge änderst.",
     "savedViewIncompatible": "Aktualisiere vor dieser Änderung die gespeicherten Ansichten und persönlichen Layouts, die dieses Feld verwenden.",
     "savingDetailLayout": "Layout wird gespeichert…",
-    "searchLists": "Listen durchsuchen",
     "setDefaultValue": "Standardwert festlegen",
     "sharedDefaults": "Gemeinsame Vorgaben",
     "sharedDefaultsDescription": "Diese Vorgaben gelten, bis jemand seine eigene Ansicht anpasst. Bestehende persönliche Einstellungen bleiben erhalten.",
@@ -3362,6 +3420,7 @@
     "loadingSchema": "Felder werden geladen…",
     "measure": "Kennzahl",
     "noRecordsInPeriod": "Keine Datensätze",
+    "notes": "Zu diesen Zahlen",
     "operators": {
       "between": "Zwischen",
       "contains": "Enthält",
@@ -3382,7 +3441,6 @@
     "overall": "Insgesamt: {value}",
     "preview": "Kennzahl prüfen",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
-    "previewHelp": "Die Vorschau verwendet aktuelle Datensätze und deine Zugriffsrechte.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {
       "group": "Gruppe",

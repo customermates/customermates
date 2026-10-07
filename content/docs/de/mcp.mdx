@@ -564,9 +564,9 @@ Der Quelltyp legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden pa
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
 
-Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Löschen entfernt die Widget-Konfiguration, nicht ihre Quelldatensätze.
+Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Schreibvorgänge akzeptieren optional ein layout {x, y, w, h} im 12-Spalten-Raster, das im selben Aufruf gespeichert wird; ohne layout erhält ein neues Widget den ersten freien Platz und ein geändertes bleibt, wo es ist; überlappende Positionen werden abgelehnt. list liefert das aktuelle Layout jedes Widgets. Löschen entfernt die Widget-Konfiguration, nicht ihre Quelldatensätze.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`.
 {/* /mcp-catalog */}
 
 ### Routinen [#routines]

@@ -20,6 +20,8 @@ import { action, computed, makeObservable, observable, reaction, runInAction, to
 
 import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction, getWidgetGalleryAction } from "../actions";
 import { browserTimeZone } from "./widget-time-zone";
+import { GRID_COLS } from "./grid.constants";
+import { type WidgetLayoutGeometry, widgetDefaultSize, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
@@ -106,6 +108,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
       activeTimelineFiltersCount: computed,
       availableKinds: computed,
+      previewGeometry: computed,
     });
 
     reaction(
@@ -134,6 +137,15 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   get activeTimelineFiltersCount() {
     return isRecordActivityWidgetForm(this.form) ? recordActivityFilterCount(this.form.activityQuery) : 0;
   }
+  get previewGeometry(): WidgetLayoutGeometry {
+    if (this.form.id) {
+      const saved = this.rootStore.widgetsStore.layouts.lg?.find((item) => item.i === this.form.id);
+      return widgetLayoutGeometry(this.form.kind, GRID_COLS.lg, saved);
+    }
+    const displayType = isRecordWidgetForm(this.form) ? this.form.displayOptions.displayType : undefined;
+    return widgetLayoutGeometry(this.form.kind, GRID_COLS.lg, widgetDefaultSize(this.form.kind, displayType));
+  }
+
   get availableKinds() {
     const kinds: WidgetKind[] = [];
     if (

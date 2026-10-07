@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { z } from "zod";
 import { X } from "lucide-react";
 import type { RecordRef } from "@/features/records/record-model.schema";
-import type { RecordActivityFilter, RecordActivitiesResult } from "@/ee/messaging/activities/record-activities.schema";
+import type { RecordActivityFilter, RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import type { WidgetModalStore } from "./widget-modal.store";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { ACTIVITY_KINDS, isChangeActivityKind } from "@/ee/messaging/activities/activities.schema";
@@ -18,16 +16,21 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { useAppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
-import { ActivitiesList } from "@/features/messaging/activities/activities-list";
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { recordSearchLabel } from "@/features/records/record-search.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { getRecordActivitiesAction, getRecordChoicesAction, getRecordModelAction } from "../../records/actions";
+import { getRecordChoicesAction, getRecordModelAction } from "../../records/actions";
 import { resolveSearchReferencesAction } from "../../search/actions";
 import { getMessagingThreadsAction } from "../../inbox/actions";
 import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordActivityWidgetForm } from "./record-widget-form";
+import { WidgetEditorColumns } from "./widget-editor-layout";
+import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
+import { WidgetPreviewFrame } from "./widget-preview-frame";
+import { RecordActivityWidgetCard } from "./record-activity-widget-card";
+import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activity-timeline-skeleton";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+
+const PREVIEW_DELAY_MS = 600;
 
 type Choice = { id: string; label: string };
 const selectedIds = (value: string | string[] | undefined) =>
@@ -106,9 +109,11 @@ export const RecordActivityWidgetEditor = observer(
     store,
     section,
     appearance,
+    settingsHeader,
   }: {
     store: WidgetModalStore;
     appearance?: ReactNode;
+    settingsHeader?: ReactNode;
     section: "data" | "preview" | "all";
   }) => {
     const t = useTranslations();
@@ -116,20 +121,10 @@ export const RecordActivityWidgetEditor = observer(
     const formDisabled = useAppForm()?.isDisabled ?? false;
     const form = store.form;
     const [typeNames, setTypeNames] = useState<Array<{ id: string; pluralLabel: string }>>([]);
-    const [preview, setPreview] = useState<{ key: string; result: RecordActivitiesResult } | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [previewError, setPreviewError] = useState(false);
     const query = isRecordActivityWidgetForm(form) ? form.activityQuery : null;
-    const previewGeneration = useRef(0);
-    const previewKey = JSON.stringify(query);
-    useEffect(() => {
-      previewGeneration.current += 1;
-      setLoading(false);
-      setPreviewError(false);
-      return () => {
-        previewGeneration.current += 1;
-      };
-    }, [form, previewKey, store.isOpen]);
+    const [refreshes, setRefreshes] = useState(0);
+    const validQuery = query && RecordActivityQuerySchema.safeParse(query).success ? JSON.stringify(query) : null;
+    const previewQuery = useDebouncedValue(validQuery, PREVIEW_DELAY_MS);
     const typeIds = query
       ? [
           ...new Set(
@@ -161,7 +156,6 @@ export const RecordActivityWidgetEditor = observer(
       if (needsAccounts) void root.connectedAccountsStore.ensureLoaded().catch(() => undefined);
     }, [root, needsAccounts]);
     if (!isRecordActivityWidgetForm(form) || !query) return null;
-    const key = JSON.stringify(query);
     const sources = ACTIVITY_KINDS.map((id) => ({
       id,
       label: t(
@@ -209,61 +203,33 @@ export const RecordActivityWidgetEditor = observer(
       </FormAutocomplete>
     );
     const previewContent = (
-      <section className="min-w-0 space-y-3">
-        <h3 className="text-sm font-medium" id="widget-preview-heading">
-          {t("Dashboard.widgetEditor.preview.title")}
-        </h3>
-
-        {form.id && (
-          <RecordAiAction
-            active={store.isOpen}
-            context={{ reference: { kind: "widget", widgetId: form.id }, label: form.name }}
-          />
-        )}
-
-        <Button
-          disabled={formDisabled || loading}
-          type="button"
-          variant="secondary"
-          onClick={() => {
-            const parsed = RecordActivityQuerySchema.safeParse(query);
-            if (!parsed.success) {
-              toastZodErrorTree(z.treeifyError(parsed.error));
-              return;
-            }
-            const generation = ++previewGeneration.current;
-            const isCurrent = () => generation === previewGeneration.current;
-            setLoading(true);
-            setPreviewError(false);
-            runUserAction(() =>
-              store
-                .runPreview(() => getRecordActivitiesAction({ ...parsed.data, cursor: null, limit: 25 }))
-                .then((result) => {
-                  if (!result || !isCurrent()) return;
-                  if (result.ok) setPreview({ key, result: result.data });
-                  else {
-                    setPreviewError(true);
-                    toastZodErrorTree(result.error);
-                  }
-                })
-                .catch(() => {
-                  if (isCurrent()) setPreviewError(true);
-                })
-                .finally(() => {
-                  if (isCurrent()) setLoading(false);
-                }),
-            );
-          }}
+      <div className="min-w-0 space-y-3">
+        <WidgetPreviewFrame
+          geometry={store.previewGeometry}
+          kind={form.kind}
+          refreshDisabled={formDisabled || !previewQuery}
+          refreshLabel={t("Dashboard.widgetEditor.preview.title")}
+          onRefresh={() => setRefreshes((count) => count + 1)}
         >
-          {loading ? t("Loading.text") : t("Dashboard.widgetEditor.preview.title")}
-        </Button>
-
-        {previewError && <p role="alert">{t("Dashboard.activityWidget.error")}</p>}
-
-        {preview?.key === key && (
-          <ActivitiesList hasMore={false} items={preview.result.items} loading={false} onLoadOlder={() => undefined} />
-        )}
-      </section>
+          {previewQuery ? (
+            <div className="h-full" data-preview-current={previewQuery === validQuery}>
+              <RecordActivityWidgetCard
+                key={refreshes}
+                widget={{
+                  id: form.id ?? "",
+                  name: form.name.trim() || t("Dashboard.widgetEditor.preview.untitled"),
+                  activityQuery: JSON.parse(previewQuery) as RecordActivityQuery,
+                  displayOptions: form.displayOptions,
+                }}
+              />
+            </div>
+          ) : (
+            <div className="h-full rounded-xl border border-dashed border-border p-6">
+              <ActivityTimelineSkeleton animated={false} rows={4} />
+            </div>
+          )}
+        </WidgetPreviewFrame>
+      </div>
     );
     const filters = query.filters ?? [];
     const dataContent = (
@@ -444,13 +410,35 @@ export const RecordActivityWidgetEditor = observer(
     if (section === "data") return dataContent;
     if (section === "preview") return previewContent;
     return (
-      <div className="space-y-6">
-        {dataContent}
+      <WidgetEditorColumns
+        preview={<section id="widget-config-preview">{previewContent}</section>}
+        settings={
+          <EditorTabs
+            contentClassName="space-y-4 pt-4"
+            label={t("Dashboard.widgetEditor.settings")}
+            tabs={[
+              {
+                id: "data",
+                label: t("Dashboard.widgetEditor.tabs.data"),
+                fields: ["name", "activityQuery"],
+                content: (
+                  <>
+                    {settingsHeader}
 
-        {appearance}
-
-        <section id="widget-config-preview">{previewContent}</section>
-      </div>
+                    {dataContent}
+                  </>
+                ),
+              },
+              {
+                id: "appearance",
+                label: t("Dashboard.widgetEditor.tabs.appearance"),
+                fields: ["displayOptions", "isTemplate"],
+                content: appearance,
+              },
+            ]}
+          />
+        }
+      />
     );
   },
 );
