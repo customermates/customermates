@@ -1,10 +1,9 @@
-import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, parseSource, readSourceText, walkFiles } from "./walk";
 
 const SCANNED_DIRECTORIES = ["app", "components", "features", "ee"];
 
@@ -149,7 +148,7 @@ function customIdReferenceViolations(sources: { file: string; text: string }[]):
 
   for (const { file, text } of sources) {
     if (!REFERENCES.some((reference) => text.includes(`<${reference.owner}`))) continue;
-    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const source = parseSource(file, text, ts.ScriptKind.TSX);
 
     for (const reference of REFERENCES) {
       for (const owner of descendants(source, reference.owner)) {
@@ -184,7 +183,7 @@ function danglingTabControlViolations(sources: { file: string; text: string }[])
 
   for (const { file, text } of sources) {
     if (!text.includes("<TabsTrigger")) continue;
-    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const source = parseSource(file, text, ts.ScriptKind.TSX);
 
     for (const trigger of descendants(source, "TabsTrigger")) {
       if (renderedAttribute(trigger, "aria-controls", source) !== undefined) continue;
@@ -213,7 +212,7 @@ function cmdkIdViolations(sources: { file: string; text: string }[]): string[] {
 
   for (const { file, text } of sources) {
     if (!CMDK_PARTS_WITH_OWN_ID.some((part) => text.includes(`<${part}`))) continue;
-    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const source = parseSource(file, text, ts.ScriptKind.TSX);
 
     for (const part of CMDK_PARTS_WITH_OWN_ID) {
       for (const node of descendants(source, part)) {
@@ -230,7 +229,7 @@ function cmdkIdViolations(sources: { file: string; text: string }[]): string[] {
 function sourceFiles(): { file: string; text: string }[] {
   return SCANNED_DIRECTORIES.flatMap((directory) =>
     walkFiles(join(REPO_ROOT, directory), (path) => path.endsWith(".tsx")),
-  ).map((path) => ({ file: relative(REPO_ROOT, path), text: readFileSync(path, "utf8") }));
+  ).map((path) => ({ file: relative(REPO_ROOT, path), text: readSourceText(path) }));
 }
 
 describe("custom ids on Radix parts", () => {
@@ -241,7 +240,7 @@ describe("custom ids on Radix parts", () => {
       violations,
       `A custom id replaces the id Radix generated, so the part that referenced it must name the custom id:\n${violations.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("flags a tab panel, menu and dialog left pointing at the generated id", () => {
     const bad = [
@@ -283,7 +282,7 @@ describe("Radix tab triggers without a panel", () => {
       violations,
       `Radix sets aria-controls on every TabsTrigger to the generated id of its TabsContent. A trigger with no panel must pass its own aria-controls (undefined when nothing is controlled):\n${violations.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("flags a trigger-only tab list and accepts a rendered panel or an explicit aria-controls", () => {
     const bad = [
@@ -312,7 +311,7 @@ describe("custom ids on cmdk parts", () => {
       violations,
       `cmdk renders its own id on these parts, so a custom id never reaches the DOM; put it on a wrapper instead:\n${violations.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("flags an input, list or item carrying a custom id and accepts a wrapper", () => {
     const bad = [
