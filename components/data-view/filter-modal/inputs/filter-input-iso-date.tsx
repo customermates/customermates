@@ -108,7 +108,6 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
         onOpenAutoFocus={focusCalendarDay}
       >
         <Calendar
-          autoFocus
           disabled={store?.isDisabled}
           mode="single"
           month={currentMonth}
