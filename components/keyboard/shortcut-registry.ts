@@ -29,6 +29,7 @@ export type Shortcut = {
   group: ShortcutGroup;
   sequence: readonly KeyChord[];
   destination?: ShortcutDestination;
+  alternativeTo?: ShortcutId;
 };
 
 export const GO_PREFIX: KeyChord = { key: "g", codes: ["KeyG"] };
@@ -50,7 +51,7 @@ function goTo(id: ShortcutId, key: string, destination: ShortcutDestination): Sh
 
 export const SHORTCUTS: readonly Shortcut[] = [
   { id: "search", group: "general", sequence: [{ ...letter("k"), mod: true }] },
-  { id: "searchAlias", group: "general", sequence: [{ key: "/", codes: ["Slash"] }] },
+  { id: "searchAlias", group: "general", sequence: [{ key: "/", codes: ["Slash"] }], alternativeTo: "search" },
   { id: "askMate", group: "general", sequence: [{ ...letter("j"), mod: true }] },
   { id: "shortcuts", group: "general", sequence: [{ key: "?", codes: ["Slash"], shift: true }] },
   { id: "toggleSidebar", group: "general", sequence: [{ key: "\\", codes: ["Backslash"], mod: true }] },

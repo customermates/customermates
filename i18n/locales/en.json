@@ -2399,6 +2399,7 @@
       "navigation": "Navigation"
     },
     "noMatches": "No shortcut matches your search.",
+    "or": "or",
     "pendingGo": "Go to… press a letter or a list number",
     "searchLabel": "Search shortcuts",
     "searchPlaceholder": "Search shortcuts…",

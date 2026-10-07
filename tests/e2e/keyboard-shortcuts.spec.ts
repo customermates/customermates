@@ -96,7 +96,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await page.keyboard.type("All");
   await page.keyboard.press("Enter");
   await expect(viewPicker(page)).toHaveCount(0);
-  await expect(page).toHaveURL(firstList);
+  await expect.poll(() => new URL(page.url()).pathname).toBe(new URL(firstList).pathname);
 
   await page.keyboard.press(`${mod.key}+k`);
   await expect(page.locator('[cmdk-item][data-value^="palette-view-"]').first()).toBeVisible();

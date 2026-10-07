@@ -3,7 +3,7 @@
 import type { Shortcut } from "@/components/keyboard/shortcut-registry";
 import type { KeyboardShortcutsStore } from "./keyboard-shortcuts.store";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -67,15 +67,21 @@ export const KeyboardShortcutsDialog = observer(() => {
     if (!store.isOpen) setQuery("");
   }, [store.isOpen]);
   const needle = query.trim().toLocaleLowerCase();
+  const alternativesOf = (entry: Shortcut) => SHORTCUTS.filter((candidate) => candidate.alternativeTo === entry.id);
   const matches = (entry: Shortcut) =>
     !needle ||
-    [t(`KeyboardShortcuts.actions.${entry.id}`), ...shortcutKeyLabels(entry.id, platform)].some((text) =>
-      text.toLocaleLowerCase().includes(needle),
-    );
+    [
+      t(`KeyboardShortcuts.actions.${entry.id}`),
+      ...[entry, ...alternativesOf(entry)].flatMap((candidate) => shortcutKeyLabels(candidate.id, platform)),
+    ].some((text) => text.toLocaleLowerCase().includes(needle));
   const groups = SHORTCUT_GROUPS.map((group) => ({
     group,
     entries: SHORTCUTS.filter(
-      (entry) => entry.group === group && shortcutAvailable(entry, store, agentChatAvailable) && matches(entry),
+      (entry) =>
+        entry.group === group &&
+        !entry.alternativeTo &&
+        shortcutAvailable(entry, store, agentChatAvailable) &&
+        matches(entry),
     ),
   })).filter(({ entries }) => entries.length > 0);
 
@@ -97,7 +103,7 @@ export const KeyboardShortcutsDialog = observer(() => {
 
           {groups.length === 0 && <p className="text-sm text-muted-foreground">{t("KeyboardShortcuts.noMatches")}</p>}
 
-          <div className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+          <div className={cn("grid gap-x-8 gap-y-5", groups.length > 1 && "sm:grid-cols-2")}>
             {groups.map(({ group, entries }) => (
               <section key={group} aria-labelledby={`keyboard-shortcuts-${group}`} className="flex flex-col gap-1">
                 <h3 className="text-xs font-medium text-muted-foreground" id={`keyboard-shortcuts-${group}`}>
@@ -116,7 +122,17 @@ export const KeyboardShortcutsDialog = observer(() => {
                       >
                         <span className="min-w-0">{t(`KeyboardShortcuts.actions.${entry.id}`)}</span>
 
-                        <ShortcutKeys id={entry.id} />
+                        <span className="flex shrink-0 items-center gap-1.5">
+                          <ShortcutKeys id={entry.id} />
+
+                          {alternativesOf(entry).map((alternative) => (
+                            <Fragment key={alternative.id}>
+                              <span className="text-[11px] text-muted-foreground">{t("KeyboardShortcuts.or")}</span>
+
+                              <ShortcutKeys id={alternative.id} />
+                            </Fragment>
+                          ))}
+                        </span>
                       </li>
                     );
                   })}

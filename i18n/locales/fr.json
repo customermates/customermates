@@ -2399,6 +2399,7 @@
       "navigation": "Navigation"
     },
     "noMatches": "Aucun raccourci ne correspond à votre recherche.",
+    "or": "ou",
     "pendingGo": "Aller à… appuyez sur une lettre ou un numéro de liste",
     "searchLabel": "Rechercher des raccourcis",
     "searchPlaceholder": "Rechercher des raccourcis…",
