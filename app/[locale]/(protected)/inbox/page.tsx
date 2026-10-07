@@ -1,14 +1,13 @@
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { InboxList } from "./components/inbox-list";
 import { InboxSurface } from "./components/inbox-surface";
 import { ThreadPanel } from "./components/thread-panel";
 
 import {
+  getGetMessagingAccountsStateInteractor,
   getGetMessagingThreadInteractor,
   getGetMessagingThreadsInteractor,
-  getGetSubscriptionInteractor,
-  getUserService,
 } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
@@ -17,7 +16,6 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
-import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -32,12 +30,9 @@ export default async function InboxPage({ searchParams }: Props) {
 
   if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
-  const [subscriptionResult, canConnect] = await Promise.all([
-    getGetSubscriptionInteractor().invoke(),
-    getUserService().hasPermission(Resource.inboxMessages, Action.create),
-  ]);
-  const planLocked = !getEntitlements(subscriptionResult.data.plan).messaging;
-  const locked = planLocked || !isSubscriptionUsable(subscriptionResult.data);
+  const messaging = await unwrapValidated(getGetMessagingAccountsStateInteractor().invoke());
+  const locked = messaging.state !== "available";
+  const canConnect = messaging.state === "available" && messaging.canConnect;
 
   const { threadId: threadIdRaw, ...listParams } = await searchParams;
   const threadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
@@ -57,7 +52,7 @@ export default async function InboxPage({ searchParams }: Props) {
     <InboxSurface threads={threads}>
       <div className="flex min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
         <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
-          <InboxList canConnect={!locked && canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
+          <InboxList canConnect={canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
         </div>
 
         <div className={cn("min-h-0 min-w-0 flex-1", !threadId && "hidden lg:block")}>
@@ -77,7 +72,9 @@ export default async function InboxPage({ searchParams }: Props) {
         ctaHref={settingsHref("billing")}
         ctaLabel={t("MessagingUpsell.cta")}
         description={
-          planLocked ? t("MessagingUpsell.description") : t("ConnectedAccountsCard.paidSubscriptionRequired")
+          messaging.state === "locked" && messaging.reason === "subscription"
+            ? t("ConnectedAccountsCard.paidSubscriptionRequired")
+            : t("MessagingUpsell.description")
         }
         title={t("MessagingUpsell.title")}
       >

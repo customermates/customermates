@@ -39589,8 +39589,7 @@
                                   }
                                 },
                                 "required": [
-                                  "kind",
-                                  "expression"
+                                  "kind"
                                 ],
                                 "additionalProperties": false
                               },
@@ -39606,8 +39605,7 @@
                                   }
                                 },
                                 "required": [
-                                  "kind",
-                                  "expression"
+                                  "kind"
                                 ],
                                 "additionalProperties": false
                               },
@@ -39623,8 +39621,7 @@
                                   }
                                 },
                                 "required": [
-                                  "kind",
-                                  "expression"
+                                  "kind"
                                 ],
                                 "additionalProperties": false
                               },
@@ -39888,12 +39885,12 @@
                                 },
                                 "required": [
                                   "kind",
-                                  "expression",
                                   "capture"
                                 ],
                                 "additionalProperties": false
                               }
                             ],
+                            "description": "Calculated fields omit expression, triggerFieldId and triggerValue when the caller cannot read every input.",
                             "type": "object"
                           },
                           "required": {
@@ -42376,9 +42373,21 @@
                       ]
                     },
                     "affectedRecords": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Exact only when the caller reads every affected list fully; otherwise null."
+                    },
+                    "hiddenRecords": {
+                      "type": "boolean",
+                      "description": "True when the change touches records the caller cannot see; counts are then withheld."
                     },
                     "references": {
                       "type": "array",
@@ -42450,19 +42459,40 @@
                       "type": "object",
                       "properties": {
                         "records": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         },
                         "values": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         },
                         "links": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         },
                         "relationships": {
                           "type": "integer",
@@ -42480,14 +42510,28 @@
                           "maximum": 9007199254740991
                         },
                         "identifiers": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         },
                         "identifierRecords": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
                       "required": [
@@ -42510,6 +42554,7 @@
                     "execution",
                     "dataValidation",
                     "affectedRecords",
+                    "hiddenRecords",
                     "references",
                     "issues",
                     "calculations"

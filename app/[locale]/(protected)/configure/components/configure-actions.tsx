@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { RecordModel, RecordType } from "@/features/records/record-model.schema";
+import type { RecordModelView, RecordType } from "@/features/records/record-model.schema";
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
@@ -50,7 +50,7 @@ type Props = {
   onAdd: (kind: ConfigureAddKind) => void;
   onSharedDefaults: () => void;
   onArchive: () => void;
-  model: RecordModel;
+  model: RecordModelView;
   onDeleted: () => Promise<void>;
 };
 

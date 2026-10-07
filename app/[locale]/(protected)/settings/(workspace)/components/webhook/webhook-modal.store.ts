@@ -1,4 +1,4 @@
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import { getRecordModelAction } from "@/app/[locale]/(protected)/records/actions";
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
@@ -23,7 +23,7 @@ export type WebhookFormData = Omit<UpsertWebhookData, "headers" | "events"> & {
 
 export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
   showSecret = false;
-  recordModel: RecordModel | null = null;
+  recordModel: RecordModelView | null = null;
   modelLoading = false;
   modelLoadFailed = false;
   private modelRequest = 0;

@@ -282,7 +282,7 @@ For **Inbox messages**, **Create** connects accounts, sends emails and chat mess
 
 Saving a new webhook, routine or role needs **Create**; saving an existing one needs **Edit**. Roles that existed before these columns were migrated without gaining or losing rights: a row the role could manage before now has every offered checkbox ticked.
 
-A delegated data-model manager can use approved access presets when creating a type. Expanding grants requires **Users & Roles** **Edit**. On self-hosted installations, Inbox messages and Routines are hidden. Editing a role's name or its record grants preserves unchanged system permissions.
+A delegated data-model manager can apply an access preset only when creating a new type. **Users & Roles** **Edit** defines the presets, and a preset may include the creator's own role. Expanding grants on existing types requires **Users & Roles** **Edit**. On self-hosted installations, Inbox messages and Routines are hidden. Editing a role's name or its record grants preserves unchanged system permissions.
 
 **Link:** `/settings/roles`. **Mate:** `navigate` and `highlight_element` with `nav-settings-roles`, then `highlight_element` with `settings-roles-add` for a new role; once the editor is open, `role-modal-save` and `role-modal-reset` point at **Save** and **Reset**, and `role-modal-delete` at **Delete** where it is offered. The fields and the permission rows are not highlight targets, so Mate names them.
 
