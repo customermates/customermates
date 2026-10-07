@@ -2,8 +2,16 @@ import { z } from "zod";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import type { AgentUiTarget } from "./ui-targets";
 
-const controls = ["add", "search", "filter", "display-options", "layout-table", "layout-board", "configure"] as const;
-const ControlSchema = z.enum(controls);
+export const RECORD_LIST_CONTROLS = [
+  "add",
+  "search",
+  "filter",
+  "display-options",
+  "layout-table",
+  "layout-board",
+  "configure",
+] as const;
+const ControlSchema = z.enum(RECORD_LIST_CONTROLS);
 
 export function recordUiTarget(targetId: string): AgentUiTarget | null {
   const parts = targetId.split(":");
@@ -27,11 +35,9 @@ export function recordUiTargets(navigation: RecordNavigation): AgentUiTarget[] {
   return navigation.types.flatMap((type) => {
     const ids = [
       `nav-records:${type.id}`,
-      ...controls
-        .filter(
-          (control) => (control !== "add" || type.canCreate) && (control !== "configure" || navigation.canManageSchema),
-        )
-        .map((control) => `records:${type.id}:${control}`),
+      ...RECORD_LIST_CONTROLS.filter(
+        (control) => (control !== "add" || type.canCreate) && (control !== "configure" || navigation.canManageSchema),
+      ).map((control) => `records:${type.id}:${control}`),
     ];
     return ids.flatMap((id) => {
       const target = recordUiTarget(id);
