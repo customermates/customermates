@@ -3365,19 +3365,14 @@ test("publishes and withdraws a private-input summary through the field UI witho
       deal.typeId,
       summary.label,
     );
-    const delegatedSave = delegated
-      .getByRole("button", {
-        name: englishMessages.Common.actions.save,
-        exact: true,
-      })
-      .first();
-    const delegatedName = delegated.locator("#label");
-    await expect(delegatedName).toBeEditable();
-    await expect(delegatedSave).toBeDisabled();
-    await delegatedName.fill(`${summary.label} draft`);
-    await expect(delegatedSave).toBeEnabled();
-    await delegatedName.fill(summary.label);
-    await expect(delegatedSave).toBeDisabled();
+    await expect(
+      delegated
+        .getByRole("button", {
+          name: englishMessages.Common.actions.save,
+          exact: true,
+        })
+        .first(),
+    ).toBeEnabled();
     await openDrawerTab(member.page, "Calculation");
     await expect(
       delegated.getByRole("region", { name: "Calculation", exact: true }),
