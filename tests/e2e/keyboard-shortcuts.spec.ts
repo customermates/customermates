@@ -101,10 +101,12 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await page.keyboard.press(`${mod.key}+k`);
   await expect(page.locator('[cmdk-item][data-value^="palette-view-"]').first()).toBeVisible();
   await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 
   await page.keyboard.press("/");
   await expect(page.locator("#global-search-input")).toBeVisible();
   await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 
   await page.keyboard.press("g");
   await page.keyboard.press("d");
