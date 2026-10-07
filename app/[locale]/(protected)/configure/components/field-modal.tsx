@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import type { RootStore } from "@/core/stores/root.store";
 import type {
   RecordField,
-  RecordModel,
+  RecordModelView,
   CalculationExpression,
   RecordScalar,
 } from "@/features/records/record-model.schema";
@@ -32,6 +32,7 @@ import { ModelChangeSheet } from "./model-change-sheet";
 import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { useDefinitionDeletion } from "./use-definition-deletion";
 import { CalculationInput } from "./calculation-input";
+import { isResolvedField } from "./configure-model";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordInputValue } from "@/features/records/record-input-value";
 
@@ -79,10 +80,10 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   private publication: { signature: string; operations: ConfigurationChange["operations"] } | null = null;
   constructor(
     root: RootStore,
-    model: RecordModel,
+    model: RecordModelView,
     completed: (preview: ConfigurationPreview) => Promise<void>,
     canPublishSummary = false,
-    onModelRefreshed?: (model: RecordModel) => void,
+    onModelRefreshed?: (model: RecordModelView) => void,
   ) {
     super(root, initial(), model, completed, canPublishSummary, onModelRefreshed);
     makeObservable(this, {
@@ -97,7 +98,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return this.canRenewSummaries;
   }
   edit = (
-    model: RecordModel,
+    model: RecordModelView,
     typeId: string,
     field: RecordField | null,
     preset: Partial<Pick<ReturnType<typeof initial>, "behavior" | "valueType">> = {},
@@ -153,12 +154,12 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     );
     this.open();
   };
-  protected projectLatestModel(model: RecordModel) {
+  protected projectLatestModel(model: RecordModelView) {
     if (!model.types.some((type) => type.id === this.typeId)) return null;
     this.publication = null;
     if (!this.original) return toJS(this.savedState);
     const latest = model.fields.find((field) => field.id === this.original?.id);
-    if (!latest) return null;
+    if (!latest || !isResolvedField(latest)) return null;
     const projected = new FieldModalStore(this.rootStore, model, async () => {}, this.canPublishSummary);
     projected.edit(model, latest.typeId, latest);
     this.typeId = latest.typeId;
@@ -203,7 +204,8 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   }
   get triggerFields() {
     return this.model.fields.filter(
-      (field) => field.typeId === this.typeId && !field.archived && !field.multiple && field.behavior.kind === "input",
+      (field): field is RecordField =>
+        field.typeId === this.typeId && !field.archived && !field.multiple && field.behavior.kind === "input",
     );
   }
   get triggerField() {

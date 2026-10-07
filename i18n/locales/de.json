@@ -3276,7 +3276,7 @@
     "probability": "Wahrscheinlichkeit %",
     "progressUnavailable": "Fortschritt konnte nicht geladen werden. Dein Entwurf bleibt erhalten.",
     "publishSummary": "Zusammenfassung freigeben",
-    "publishSummaryHelp": "Mitglieder mit Leserechten für diesen Datensatz sehen diesen Wert auch bei privaten verknüpften Daten. Mit dem Speichern werden die Eingaben dieser Berechnung freigegeben.",
+    "publishSummaryHelp": "Mitglieder mit Leserechten für diesen Datensatz sehen diesen Wert auch bei privaten verknüpften Daten. Mit dem Speichern werden die Eingaben dieser Berechnung freigegeben. Eine Zusammenfassung eines einzelnen Werts oder eine Summe über einen Datensatz zeigt diesen Wert exakt.",
     "rangeEnd": "Bis",
     "rangeStart": "Von",
     "record": "Datensatz",

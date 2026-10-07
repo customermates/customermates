@@ -3276,7 +3276,7 @@
     "probability": "Probabilità %",
     "progressUnavailable": "Impossibile caricare l’avanzamento. La bozza viene conservata.",
     "publishSummary": "Pubblica riepilogo",
-    "publishSummaryHelp": "I membri che possono leggere questo record vedono questo valore anche se i dati collegati sono privati. Salvare approva i dati usati in questo calcolo.",
+    "publishSummaryHelp": "I membri che possono leggere questo record vedono questo valore anche se i dati collegati sono privati. Salvare approva i dati usati in questo calcolo. Un riepilogo di un singolo valore o un totale su un solo record mostra esattamente quel valore.",
     "rangeEnd": "A",
     "rangeStart": "Da",
     "record": "Record",

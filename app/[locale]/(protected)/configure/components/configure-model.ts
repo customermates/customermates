@@ -3,7 +3,8 @@ import { omit } from "lodash";
 import type {
   CalculationExpression,
   RecordField,
-  RecordModel,
+  RecordFieldView,
+  RecordModelView,
   RecordType,
 } from "@/features/records/record-model.schema";
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
@@ -16,14 +17,14 @@ export type ConfigureFieldSource =
 const byPosition = (left: RecordType, right: RecordType) =>
   left.position - right.position || compareRecordKey(left.id, right.id);
 
-export function configureParentId(model: RecordModel, type: RecordType): string | null {
+export function configureParentId(model: RecordModelView, type: RecordType): string | null {
   if (!type.parentRelationshipId) return null;
   const relation = model.relationships.find((candidate) => candidate.id === type.parentRelationshipId);
   if (!relation || relation.sourceTypeId !== type.id || relation.targetTypeId === type.id) return null;
   return model.types.some((candidate) => candidate.id === relation.targetTypeId) ? relation.targetTypeId : null;
 }
 
-export function configureLists(model: RecordModel, showArchived = false): RecordType[] {
+export function configureLists(model: RecordModelView, showArchived = false): RecordType[] {
   const children = new Map<string, RecordType[]>();
   const roots: RecordType[] = [];
   for (const type of [...model.types].sort(byPosition)) {
@@ -45,7 +46,7 @@ export function configureLists(model: RecordModel, showArchived = false): Record
   return lists;
 }
 
-export function configureCounts(model: RecordModel, typeId: string) {
+export function configureCounts(model: RecordModelView, typeId: string) {
   const type = model.types.find((candidate) => candidate.id === typeId);
   return {
     fields: model.fields.filter((field) => field.typeId === typeId && !field.archived).length,
@@ -57,7 +58,7 @@ export function configureCounts(model: RecordModel, typeId: string) {
   };
 }
 
-export function configureFieldOrder(model: RecordModel, typeId: string): string[] {
+export function configureFieldOrder(model: RecordModelView, typeId: string): string[] {
   return model.fields.filter((field) => field.typeId === typeId).map((field) => field.id);
 }
 
@@ -70,15 +71,19 @@ export function moveConfigureField(order: readonly string[], activeId: string, o
   return next;
 }
 
+export function isResolvedField(field: RecordFieldView): field is RecordField {
+  return field.behavior.kind === "input" || field.behavior.expression !== undefined;
+}
+
 export function reorderFieldOperations(
-  model: RecordModel,
+  model: RecordModelView,
   typeId: string,
   order: readonly string[],
 ): ConfigurationChange["operations"] {
   const current = configureFieldOrder(model, typeId);
   if (current.length !== order.length || current.every((id, index) => order[index] === id)) return [];
   const fields = order.flatMap((fieldId) =>
-    model.fields.filter((field) => field.id === fieldId && field.typeId === typeId),
+    model.fields.filter((field) => field.id === fieldId && field.typeId === typeId).filter(isResolvedField),
   );
   if (fields.length !== order.length) return [];
   const offset = fields.some((field, index) => field.position !== index) ? 0 : fields.length;
@@ -90,7 +95,7 @@ export function reorderFieldOperations(
 }
 
 export function archiveListOperations(
-  model: RecordModel,
+  model: RecordModelView,
   typeId: string,
   archived: boolean,
 ): ConfigurationChange["operations"] {
@@ -123,10 +128,10 @@ function relatedExpression(
   return null;
 }
 
-export function configureFieldSource(model: RecordModel, field: RecordField): ConfigureFieldSource {
+export function configureFieldSource(model: RecordModelView, field: RecordFieldView): ConfigureFieldSource {
   const behavior = field.behavior;
   if (behavior.kind !== "lookup" && behavior.kind !== "rollup") return { kind: behavior.kind };
-  const related = relatedExpression(behavior.expression);
+  const related = behavior.expression && relatedExpression(behavior.expression);
   const relation = related && model.relationships.find((candidate) => candidate.id === related.relationId);
   const listId = relation ? (related.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId) : null;
   return {
@@ -136,7 +141,7 @@ export function configureFieldSource(model: RecordModel, field: RecordField): Co
 }
 
 export function configurePathLists(
-  model: RecordModel,
+  model: RecordModelView,
   typeId: string,
   path: ReadonlyArray<{ relationId: string; direction: "incoming" | "outgoing" }>,
 ): string[] {

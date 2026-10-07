@@ -3276,7 +3276,7 @@
     "probability": "Probability %",
     "progressUnavailable": "Could not load progress. Your draft is retained.",
     "publishSummary": "Publish summary",
-    "publishSummaryHelp": "Members who can read this record can see this value even when linked inputs are private. Saving approves the inputs shown in this calculation.",
+    "publishSummaryHelp": "Members who can read this record can see this value even when linked inputs are private. Saving approves the inputs shown in this calculation. A summary of a single value or a total over one record shows that value exactly.",
     "rangeEnd": "Until",
     "rangeStart": "From",
     "record": "Record",

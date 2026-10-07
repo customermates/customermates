@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import type { RecordColumn } from "@/features/records/record-columns";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
 import type { RecordDto, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordLinkColors } from "@/features/records/record-presentation";
 
@@ -28,7 +29,7 @@ export function RecordCell({
   relativeTimestamp = false,
   avatarFieldId,
 }: {
-  column: RecordColumn;
+  column: RecordColumn<RecordFieldView>;
   linkColors: RecordLinkColors;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;

@@ -1,6 +1,6 @@
-import type { RecordModel } from "./record-model.schema";
+import type { RecordModelView } from "./record-model.schema";
 
-export function recordChannelsEnabled(model: RecordModel, typeId: string): boolean {
+export function recordChannelsEnabled(model: RecordModelView, typeId: string): boolean {
   return model.capabilities.some(
     (binding) => binding.kind === "channels" && binding.enabled !== false && binding.typeId === typeId,
   );

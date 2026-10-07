@@ -332,6 +332,38 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     );
   });
 
+  it("shows a calculation's definition only to callers who can read every input", async () => {
+    const behavior = (model: Awaited<ReturnType<typeof modelFor>>, key: string) =>
+      model.fields.find((field) => field.id === id(key))?.behavior;
+    const reader = await modelFor(actors.reader);
+    expect(behavior(reader, "contact.name")).toMatchObject({ kind: "formula", expression: expect.any(Object) });
+
+    const grants = await modelFor(actors.grants);
+    expect(behavior(grants, "contact.name")).toEqual({ kind: "formula" });
+    expect(behavior(grants, "lineItem.savedPrice")).toEqual({
+      kind: "snapshot",
+      capture: "whenChanged",
+      allowManualOverride: true,
+    });
+
+    const restricted = await modelFor(actors.restricted);
+    expect(behavior(restricted, "deal.totalValue")).toMatchObject({ kind: "rollup", expression: expect.any(Object) });
+    expect(behavior(restricted, "lineItem.savedPrice")).toEqual({
+      kind: "snapshot",
+      capture: "whenChanged",
+      allowManualOverride: true,
+    });
+    expect(behavior(restricted, "lineItem.effectivePrice")).toEqual({ kind: "formula" });
+
+    for (const actor of [actors.schema, actors.admin]) {
+      expect(behavior(await modelFor(actor), "lineItem.savedPrice")).toMatchObject({
+        expression: expect.any(Object),
+        triggerFieldId: id("lineItem.pricingMode"),
+        triggerValue: { kind: "select", value: "saved" },
+      });
+    }
+  });
+
   describe("previews and permanent deletion scoped to what the caller can read", () => {
     const configure = async (actor: TenantUser, operations: ConfigurationChange["operations"]) => {
       const expectedRevision = (await modelFor(actors.admin)).revision;

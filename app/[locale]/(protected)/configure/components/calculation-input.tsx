@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { ChevronRight, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
-import type { CalculationExpression, RecordModel, RecordScalar } from "@/features/records/record-model.schema";
+import type { CalculationExpression, RecordModelView, RecordScalar } from "@/features/records/record-model.schema";
 import { useAppForm } from "@/components/forms/form-context";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormLabel } from "@/components/forms/form-label";
@@ -39,7 +39,7 @@ export const CalculationInput = observer(function CalculationInput({
   literalOnly = false,
   currency,
 }: {
-  model: RecordModel;
+  model: RecordModelView;
   typeId: string;
   value: CalculationExpression;
   onChange: (value: CalculationExpression) => void;

@@ -1,4 +1,9 @@
-import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
+import type {
+  RecordFieldView,
+  RecordModelView,
+  RecordRelationship,
+  RecordType,
+} from "@/features/records/record-model.schema";
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 
 import { recordChannelsEnabled } from "@/features/records/record-channels";
@@ -26,7 +31,7 @@ export type ConfigureGraphSource = {
 };
 
 type ConfigureGraphField = {
-  field: RecordField;
+  field: RecordFieldView;
   calculated: boolean;
   sources: string[];
 };
@@ -64,8 +69,8 @@ export function configureCardinality(
   return `${left}To${right}`;
 }
 
-export function configureCalculationSources(model: RecordModel, field: RecordField) {
-  if (field.behavior.kind === "input") return { sources: [], lists: [] };
+export function configureCalculationSources(model: RecordModelView, field: RecordFieldView) {
+  if (field.behavior.kind === "input" || !field.behavior.expression) return { sources: [], lists: [] };
   const { expression } = field.behavior;
   const lists = new Set(
     [...expressionRelationshipDependencies(expression)].flatMap((relationId) => {
@@ -89,7 +94,7 @@ export function configureCalculationSources(model: RecordModel, field: RecordFie
 }
 
 export function configureGraphData(
-  model: RecordModel,
+  model: RecordModelView,
   catalog: ConfigureGraphCatalog,
   accounts: ConfigureGraphSource[],
   showArchived: boolean,

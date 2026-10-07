@@ -2,7 +2,13 @@
 
 import type { ReactNode } from "react";
 import type { DragEndEvent } from "@dnd-kit/core";
-import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
+import type {
+  RecordField,
+  RecordFieldView,
+  RecordModelView,
+  RecordRelationship,
+  RecordType,
+} from "@/features/records/record-model.schema";
 import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
 import type { TypeModalStore } from "./type-modal";
 
@@ -29,14 +35,14 @@ import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { cn } from "@/core/utils/cn";
 import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 
-import { configureCounts, configureFieldSource, configurePathLists } from "./configure-model";
+import { configureCounts, configureFieldSource, configurePathLists, isResolvedField } from "./configure-model";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { TypeSettingsFields } from "./type-modal";
 
-type ActivityPath = RecordModel["activityPaths"][number];
+type ActivityPath = RecordModelView["activityPaths"][number];
 
 type Props = {
-  model: RecordModel;
+  model: RecordModelView;
   selected: RecordType;
   general: TypeModalStore;
   generalFormId: string;
@@ -162,7 +168,7 @@ function SortableField({
   );
 }
 
-const GeneralSummary = observer(function GeneralSummary({ model, type }: { model: RecordModel; type: RecordType }) {
+const GeneralSummary = observer(function GeneralSummary({ model, type }: { model: RecordModelView; type: RecordType }) {
   const t = useTranslations();
   const rows: Array<[string, string]> = [
     [t("RecordModel.name"), type.label],
@@ -241,7 +247,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     : !selected.embedded && !selected.navigationVisible
       ? t("RecordModel.hiddenList")
       : null;
-  const fieldSource = (field: RecordField) => {
+  const fieldSource = (field: RecordFieldView) => {
     const source = configureFieldSource(model, field);
     switch (source.kind) {
       case "input":
@@ -320,7 +326,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                             label={field.label}
                             leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
                             status={field.archived ? t("RecordModel.archived") : null}
-                            onOpen={canManage ? () => onEditField(field) : undefined}
+                            onOpen={canManage && isResolvedField(field) ? () => onEditField(field) : undefined}
                           />
                         </SortableField>
                       ))}

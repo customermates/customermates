@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordModel, RecordType, RecordGroupSummaryDefinition } from "@/features/records/record-model.schema";
+import type { RecordModelView, RecordType, RecordGroupSummaryDefinition } from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
@@ -61,10 +61,10 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
   private channelBindingId = "";
   constructor(
     root: RootStore,
-    model: RecordModel,
+    model: RecordModelView,
     completed: (preview: ConfigurationPreview, isCurrentSession?: () => boolean) => Promise<void>,
     canRenewSummaries = false,
-    onModelRefreshed?: (model: RecordModel) => void,
+    onModelRefreshed?: (model: RecordModelView) => void,
   ) {
     super(root, initialType(), model, completed, canRenewSummaries, onModelRefreshed);
     makeObservable(this, {
@@ -74,7 +74,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
       moveField: action,
     });
   }
-  edit = (model: RecordModel, type: RecordType | null, section: TypeModalSection = "settings") => {
+  edit = (model: RecordModelView, type: RecordType | null, section: TypeModalSection = "settings") => {
     this.section = section;
     this.resetModel(model);
     this.original = type;
@@ -112,7 +112,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     );
     this.open();
   };
-  protected projectLatestModel(model: RecordModel) {
+  protected projectLatestModel(model: RecordModelView) {
     if (!this.original) return toJS(this.savedState);
     const latest = model.types.find((type) => type.id === this.original?.id);
     if (!latest) return null;

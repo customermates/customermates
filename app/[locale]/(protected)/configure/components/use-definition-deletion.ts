@@ -1,7 +1,7 @@
 "use client";
 
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
-import type { RecordField, RecordModel, RecordType } from "@/features/records/record-model.schema";
+import type { RecordField, RecordModelView, RecordType } from "@/features/records/record-model.schema";
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -17,7 +17,7 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
   const t = useTranslations();
   const { showConfirmation } = useDeleteConfirmation();
   const [isPreviewing, setIsPreviewing] = useState(false);
-  const requestDeletion = async (model: RecordModel, target: Target) => {
+  const requestDeletion = async (model: RecordModelView, target: Target) => {
     if (isPreviewing) return;
     const change: ConfigurationChange = {
       expectedRevision: model.revision,
