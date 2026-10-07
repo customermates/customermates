@@ -84,7 +84,6 @@ export const PROTECTED_ROUTES = [
   "/company/activity",
   "/company/members",
   "/company/roles",
-  "/company/settings",
   "/company/subscription",
   "/company/webhook-deliveries",
   "/company/webhooks",

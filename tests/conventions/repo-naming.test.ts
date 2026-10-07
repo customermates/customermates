@@ -13,7 +13,6 @@ const SCOPE_SUFFIX = /Unscoped|CompanyWide/;
 const OR_THROW_NAME = /OrThrow(Unscoped|CompanyWide)?$/;
 const NOT_FOUND_MESSAGE = /not found/i;
 const OR_THROW_ALLOWLIST = new Set([
-  "features/company/prisma-company.repository.ts#getDetails",
   "features/user/prisma-user.repository.ts#updateDetails",
   "features/user/prisma-user.repository.ts#createCompanyAndUser",
   "features/user/prisma-user.repository.ts#registerExistingCompany",

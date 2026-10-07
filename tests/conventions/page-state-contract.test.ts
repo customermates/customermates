@@ -40,7 +40,6 @@ const pureSkeletons = [
 
 const featureSkeletons = [
   "app/[locale]/(protected)/profile/components/profile-settings-page-skeleton.tsx",
-  "app/[locale]/(protected)/company/components/company-settings/company-settings-page-skeleton.tsx",
   "app/[locale]/(protected)/company/components/subscription/subscription-page-skeleton.tsx",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-page-skeleton.tsx",
 ] as const;

@@ -51,7 +51,7 @@ describeDatabase("configuration history labels", () => {
     const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
     const repo = new PrismaRecordRepo();
     await runWithTenant(admin, () =>
-      runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id, "EUR"), admin.id), { timeout: 30000 }),
+      runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),
     );
     const serviceTypeId = presetId(seed.company.id, "service");
     const before = await runWithTenant(admin, () => repo.getModel());

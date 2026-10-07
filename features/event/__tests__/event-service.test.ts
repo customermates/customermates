@@ -112,7 +112,7 @@ describe("EventService", () => {
     service = new EventService([listener as never], eventLog as never);
 
     await runWithTenant(mockUser, () =>
-      service.publish(DomainEvent.ROLE_DELETED, { entityId: ENTITY_ID, payload: { id: ENTITY_ID } as never }),
+      service.publish(DomainEvent.ROLE_DELETED, { entityId: ENTITY_ID, payload: { name: "Auditors" } as never }),
     );
     await service.publish(
       DomainEvent.CONNECTED_ACCOUNT_DELETED,

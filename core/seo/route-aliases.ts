@@ -24,7 +24,6 @@ const RETIRED_ROUTE_ALIASES = {
   "/compare/zoho-crm": "/compare/zoho-crm-alternative",
 
   "/docs/account-settings": "/docs/app-profile",
-  "/docs/company-settings": "/docs/app-company",
   "/docs/comparison": "/compare",
   "/docs/feature-guide-custom-columns": "/docs/app-records",
   "/docs/feature-guide-dashboard-widgets": "/docs/app-dashboard",

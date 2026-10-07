@@ -35,7 +35,7 @@ const ENFORCED: Array<[resource: string, action: string, load: () => Promise<Gua
   [
     "company",
     "update",
-    async () => (await import("@/features/company/update-company-settings.interactor")).UpdateCompanySettingsInteractor,
+    async () => (await import("@/ee/subscription/refresh-subscription.interactor")).RefreshSubscriptionInteractor,
   ],
   [
     "wiki",

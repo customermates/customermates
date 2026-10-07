@@ -70,8 +70,7 @@
           "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
         },
         "workspace": {
-          "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern",
-          "settings": "Bereit, Workspace-Einstellungen einschließlich der Datensatztyp-Namen zu ändern"
+          "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern"
         }
       },
       "cancelled": "Gestoppt",
@@ -379,11 +378,6 @@
             "done": "Workspace wurde geprüft",
             "error": "Workspace konnte nicht geprüft werden",
             "running": "Workspace wird geprüft"
-          },
-          "settings": {
-            "done": "Workspace-Einstellungen wurden aktualisiert",
-            "error": "Workspace-Einstellungen konnten nicht aktualisiert werden",
-            "running": "Workspace-Einstellungen werden aktualisiert"
           }
         }
       },
@@ -1128,9 +1122,6 @@
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
     "events": {
-      "company": {
-        "updated": "Unternehmen aktualisiert"
-      },
       "connected_account": {
         "created": "Konto verbunden",
         "deleted": "Konto getrennt",
@@ -1503,9 +1494,6 @@
     "generating": "Link wird generiert…",
     "label": "Einladungslink",
     "title": "Benutzer einladen"
-  },
-  "CompanySettings": {
-    "dataModelTitle": "Datenmodell"
   },
   "CompanyUserModal": {
     "activeUserWarning": "Du kannst dein eigenes Benutzerkonto in deinen <settingsLink>Einstellungen</settingsLink> bearbeiten.",

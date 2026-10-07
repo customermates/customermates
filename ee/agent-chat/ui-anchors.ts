@@ -50,11 +50,6 @@ export const FORM_PAGES: AnchorPage[] = [
     hiddenUntilDirty: true,
   },
   {
-    scope: "company-settings",
-    route: "/company/settings",
-    label: "company settings form (roles with company Manage only)",
-  },
-  {
     scope: "member-modal",
     route: "/company/members",
     label: "member dialog (roles with Manage only)",
@@ -98,20 +93,6 @@ export const CONTROL_PAGES: ControlPage[] = [
         description:
           "Widget type cards (chart or activity timeline) on step 1 of the add-widget dialog; picking one continues to the widget settings and their Save button",
         prerequisite: "dashboard-add-widget",
-      },
-    ],
-  },
-  {
-    scope: "company-settings",
-    route: "/company/settings",
-    controls: [
-      {
-        control: "currency",
-        description: "Company currency select for deal and service amounts",
-      },
-      {
-        control: "data-model",
-        description: "Link from company settings to the configurable record types, fields and calculations",
       },
     ],
   },
@@ -466,7 +447,7 @@ export const WORKSPACE_NAV_GROUPS: {
   },
   {
     section: "company",
-    route: "/company/settings",
+    route: "/company/members",
     description: "Sidebar group for company settings (admin)",
     labelKey: "UserAvatar.company",
   },

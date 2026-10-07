@@ -13,8 +13,8 @@ export class InitializeRecordModelService extends UserAccessor {
   initialize(): Promise<void> {
     return runInTransaction(async () => {
       if ((await this.records.getState())?.revision) return;
-      const [currency, translate] = await Promise.all([this.records.getWorkspaceCurrencyOrThrow(), getTranslations()]);
-      const model = createWorkspaceRecordPreset(this.companyId, currency, translate);
+      const translate = await getTranslations();
+      const model = createWorkspaceRecordPreset(this.companyId, translate);
       if (validateRecordModel(model).issues.length) throw new Error("The workspace record preset is invalid.");
       await this.records.saveModel(model, this.userId, {
         version: 1,

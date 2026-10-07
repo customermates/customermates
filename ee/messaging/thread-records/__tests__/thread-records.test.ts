@@ -18,7 +18,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 const threadId = "00000000-0000-4000-8000-000000000001";
-const model = createCrmPreset(user.companyId, "EUR");
+const model = createCrmPreset(user.companyId);
 const ref = { typeId: presetId(user.companyId, "deal"), recordId: "00000000-0000-4000-8000-000000000002" };
 const input = {
   action: "link" as const,

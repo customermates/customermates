@@ -5,12 +5,11 @@ import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 
-import type { CountryCode, Currency, MessagingProvider, Status } from "@/generated/prisma";
+import type { CountryCode, MessagingProvider, Status } from "@/generated/prisma";
 
 export enum DomainEvent {
   USER_REGISTERED = "user.registered",
   USER_UPDATED = "user.updated",
-  COMPANY_UPDATED = "company.updated",
   ROLE_CREATED = "role.created",
   ROLE_UPDATED = "role.updated",
   ROLE_DELETED = "role.deleted",
@@ -77,14 +76,6 @@ export type DomainEventMap = {
       status?: Status;
       avatarUrl: string | null;
       roleId?: string;
-    };
-  };
-  [DomainEvent.COMPANY_UPDATED]: {
-    userId: string;
-    companyId: string;
-    entityId: string;
-    payload: {
-      currency?: Currency;
     };
   };
   [DomainEvent.ROLE_CREATED]: {

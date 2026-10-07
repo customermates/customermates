@@ -9,7 +9,7 @@ describe("new workspace CRM templates", () => {
   it.each(APP_LOCALES)("seeds the existing defaults in %s", async (locale) => {
     const companyId = "860c8298-9054-4624-b5dc-87da2f2c6776";
     const translate = await getTranslator(locale);
-    const model = createWorkspaceRecordPreset(companyId, "EUR", translate);
+    const model = createWorkspaceRecordPreset(companyId, translate);
     const id = (key: string) => presetId(companyId, key);
     expect(validateRecordModel(model).issues).toEqual([]);
     expect(model.types.filter((type) => !type.embedded)).toHaveLength(5);
@@ -32,5 +32,18 @@ describe("new workspace CRM templates", () => {
     expect(model.fields.some((field) => field.publishedSummary)).toBe(false);
     expect(model.accessPresets).toEqual([]);
     expect(JSON.stringify(model)).not.toMatch(/RecordModel\.|Common\.|Terminology\./);
+  });
+
+  it("gives every starter money field its own currency and requires one", async () => {
+    const model = createWorkspaceRecordPreset("860c8298-9054-4624-b5dc-87da2f2c6776", await getTranslator("en"));
+    const money = model.fields.filter((field) => field.valueType === "currency");
+    expect(money).toHaveLength(6);
+    for (const field of money) expect(field.format?.currency, field.label).toBe("EUR");
+    const [first] = money;
+    const withoutCurrency = {
+      ...model,
+      fields: model.fields.map((field) => (field === first ? { ...field, format: {} } : field)),
+    };
+    expect(validateRecordModel(withoutCurrency).issues).toEqual([{ code: "missing_currency", fieldId: first.id }]);
   });
 });

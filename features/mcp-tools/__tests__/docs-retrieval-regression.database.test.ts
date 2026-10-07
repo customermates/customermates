@@ -37,8 +37,6 @@ const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["de", "URL der Services-Seite", "/records/<typeId>"],
   ["en", "webhooks route", "/company/webhooks"],
   ["de", "Route Webhooks", "/company/webhooks"],
-  ["de", "URL der Unternehmenseinstellungen-Seite", "/company/settings"],
-  ["de", "Link zur Unternehmenseinstellungen-Seite", "/company/settings"],
   ["de", "URL der Profileinstellungen-Seite", "/profile/settings"],
   ["de", "Link zur Profileinstellungen-Seite", "/profile/settings"],
   ["de", "URL der Abonnement-Seite", "/company/subscription"],
@@ -122,13 +120,13 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "/company/members",
   ],
   ["en", "how do I add a new column", "concepts#how-do-i-add-change-or-delete-a-custom-column", null],
-  ["de", "URL der Unternehmenseinstellungen-Seite", "app-company#settings-tab", "/company/settings"],
+  ["de", "Wo lege ich die Währung fest", "app-company#where-is-the-currency-set", "/configure"],
   ["de", "URL der Abonnement-Seite", "app-company#subscription-tab", "/company/subscription"],
   ["en", "link to the members page", "app-company#members-tab", "/company/members"],
   ["en", "link to the roles page", "app-company#roles-tab", "/company/roles"],
   ["en", "link to the subscription page", "app-company#subscription-tab", "/company/subscription"],
   ["en", "link to billing", "app-company#subscription-tab", "/company/subscription"],
-  ["en", "link to company settings", "app-company#settings-tab", "/company/settings"],
+  ["en", "where is the currency set", "app-company#where-is-the-currency-set", "/configure"],
   ["en", "link to the audit logs", "app-company#activity-tab", "/company/activity"],
   ["en", "link to the inbox", "app-inbox#what-is-the-inbox", "/inbox"],
   ["en", "link to my profile settings", "app-profile#settings-tab", "/profile/settings"],
@@ -213,7 +211,6 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "Can I search contacts by email address?", "app-search#what-does-global-search-find", null],
   ["en", "Should I use searchTerm or a filter?", "filter-syntax#free-text-search-or-a-filter", null],
   ["de", "Link zur Mitglieder-Seite", "app-company#members-tab", "/company/members"],
-  ["de", "Link zu den Unternehmenseinstellungen", "app-company#settings-tab", "/company/settings"],
   ["de", "Link zum Audit-Log", "app-company#activity-tab", "/company/activity"],
   ["de", "Link zum Posteingang", "app-inbox#what-is-the-inbox", "/inbox"],
   ["de", "Link zur Seite mit den API-Keys", "api-keys#how-do-i-create-an-api-key", "/profile/api-keys"],
@@ -818,7 +815,6 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       ["de", "Wie lade ich ein Mitglied ein", "/company/members"],
       ["en", "webhooks page URL", "/company/webhooks"],
       ["de", "URL der Webhooks-Seite", "/company/webhooks"],
-      ["de", "URL der Unternehmenseinstellungen-Seite", "/company/settings"],
     ] as const) {
       const excerpt = await excerptOf("app-company", query, locale);
       expect(firstLinkLine(excerpt), `${locale} "${query}"`).toContain(`\`${route}\``);
@@ -846,12 +842,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
 
   it("keeps the table row, or the sentence deep in a paragraph, that answers the query inside the bounded excerpt", async () => {
     for (const [slug, query, header, answer] of [
-      [
-        "app-company",
-        "does switching the currency convert amounts",
-        "| Field | What it does |",
-        "switching does not convert amounts",
-      ],
+      ["app-company", "does changing a field currency convert amounts", null, "does not convert stored amounts"],
       [
         "app-profile",
         "which setting decides the number and date format",
