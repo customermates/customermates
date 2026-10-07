@@ -2,6 +2,7 @@ import type { RecordField, RecordModel, RecordRelationship } from "./record-mode
 
 import type { RecordSystemColumnSchema } from "./record-column.schema";
 import { relationshipColumnKey, relationshipPathColumnKey } from "./record-column.schema";
+import { recordChannelsEnabled } from "./record-channels";
 import { resolveRecordPath } from "./record-relationship-path";
 import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 
@@ -70,7 +71,7 @@ export function recordColumns(typeId: string, model: RecordModel): RecordColumn[
       });
     }
   }
-  if (model.capabilities.some((binding) => binding.kind === "channels" && binding.typeId === typeId))
+  if (recordChannelsEnabled(model, typeId))
     columns.push({ kind: "identity", id: "system:channels", label: "channels", sortable: false });
   columns.push(
     { kind: "system", id: "system:assignedTo", label: "assignedTo", sortable: false },

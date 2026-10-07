@@ -6044,10 +6044,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       fields: [],
       enabled: true,
     };
-    const change = (revision: number, enabled: boolean): ConfigurationChange => ({
+    const change = (revision: number, enabled: boolean, lifecycle?: "delete" | "restore"): ConfigurationChange => ({
       expectedRevision: revision,
       idempotencyKey: randomUUID(),
-      operations: [{ operation: "putCapability", capability: { ...capability, enabled } }],
+      operations: lifecycle
+        ? [{ operation: lifecycle, target: { kind: "channels", id: capability.id } }]
+        : [{ operation: "putCapability", capability: { ...capability, enabled } }],
     });
     expect(await f.run(() => f.configure.invoke(change(1, true)), f.member)).toMatchObject({ ok: false });
     await runWithoutTenant(() =>
@@ -6091,7 +6093,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const resolve = (as = f.admin) =>
       f.run(() => reader.resolve([{ provider: "mail", value: "disabled@example.test" }]), as);
     expect((await resolve(f.member))[0].records).toEqual([]);
-    expect(await f.run(() => f.configure.invoke(change(2, false)), f.member)).toMatchObject({
+    expect(await f.run(() => f.configure.invoke(change(2, false, "delete")), f.member)).toMatchObject({
       ok: true,
       data: { schemaRevision: 3 },
     });
@@ -6116,7 +6118,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         3,
       ),
     ).toMatchObject({ ok: false });
-    expect(await f.run(() => f.configure.invoke(change(3, true)), f.member)).toMatchObject({
+    expect(await f.run(() => f.configure.invoke(change(3, true, "restore")), f.member)).toMatchObject({
       ok: true,
       data: { schemaRevision: 4 },
     });
