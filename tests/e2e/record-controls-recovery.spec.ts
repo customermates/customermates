@@ -242,7 +242,7 @@ test("paginates and retries record and widget history, restores a personal timel
     "aria-current",
     "page",
   );
-  await expect(linkedHistory.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(linkedHistory.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await expect(linkedHistory.locator("ol > li")).toHaveCount(0);
   await page.getByRole("button", { name, exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Service", exact: true });
@@ -264,7 +264,7 @@ test("paginates and retries record and widget history, restores a personal timel
     "aria-current",
     "page",
   );
-  await expect(drawerHistory.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(drawerHistory.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await expect(page).toHaveURL(parentUrl);
   expect(await drawerHistory.getByRole("link", { name: viewName, exact: true }).getAttribute("href")).toBe(copiedHref);
   await expect
