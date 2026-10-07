@@ -400,6 +400,8 @@ export function validateRecordModel(model: RecordModel): {
     if (!types.has(field.typeId)) issues.push({ code: "invalid_field_type", fieldId: field.id });
     if (new Set(field.options.map((option) => option.id)).size !== field.options.length)
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
+    if (field.valueType === "currency" && !field.format?.currency)
+      issues.push({ code: "missing_currency", fieldId: field.id });
     if (field.behavior.kind === "input") {
       if (
         field.behavior.defaultValue &&

@@ -227,7 +227,6 @@ export class ProviderAvatarService {
         const calculated = await new RecordCalculationService(journal.repository).recalculate(
           model,
           targets.map((target) => target.ref),
-          await this.records.getWorkspaceCurrencyOrThrow(),
         );
         await journal.persist();
         if (!calculated.complete) {
@@ -394,8 +393,7 @@ export class ProviderAvatarService {
             const refs = await journal.repository.getRecordRefsCompanyWide(field.typeId, cursor.afterId, BATCH);
             if (field.behavior.kind !== "snapshot") {
               const calculator = new RecordCalculationService(journal.repository);
-              const currency = await this.records.getWorkspaceCurrencyOrThrow();
-              for (const ref of refs) await calculator.calculateField(model, ref, field.id, currency, LIMIT);
+              for (const ref of refs) await calculator.calculateField(model, ref, field.id, LIMIT);
             }
             await journal.persist();
             await this.records.updateOperation(operationId, {

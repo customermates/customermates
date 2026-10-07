@@ -77,7 +77,6 @@ export const RecordWidgetFieldFilters = observer(
   }) => {
     const t = useTranslations();
     const formDisabled = useAppForm()?.isDisabled ?? false;
-    const { companyStore } = useRootStore();
     const defaults = (field: RecordFilterField): RecordScalar =>
       filterScalar(
         field.valueType === "boolean"
@@ -92,7 +91,6 @@ export const RecordWidgetFieldFilters = observer(
                   ? new Date().toISOString()
                   : "",
         field,
-        companyStore.company?.currency ?? "EUR",
       );
     return (
       <div className="space-y-3">

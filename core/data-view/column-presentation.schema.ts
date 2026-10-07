@@ -1,7 +1,6 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Currency } from "@/generated/prisma";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
@@ -77,7 +76,7 @@ export const LinkSchema = BaseSchema.extend({
 export const CurrencySchema = BaseSchema.extend({
   type: z.literal(CustomColumnType.currency),
   options: z.object({
-    currency: z.enum(Currency),
+    currency: z.string(),
   }),
 });
 

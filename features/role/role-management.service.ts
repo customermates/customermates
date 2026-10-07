@@ -139,7 +139,7 @@ export class RoleManagementService extends UserAccessor {
               previous ? policy : { ...policy, canManageRoles: true },
             );
             prepared.change.source = change.source;
-            await this.writer.apply(prepared, model, this.userId, await this.records.getWorkspaceCurrencyOrThrow());
+            await this.writer.apply(prepared, model, this.userId);
           } else await this.records.saveModel({ ...model, revision: model.revision + 1 }, this.userId, change);
           const role = await this.roles.getRoleByIdOrThrow(saved.id);
           if (previous) {

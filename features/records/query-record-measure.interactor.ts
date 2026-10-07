@@ -1,3 +1,4 @@
+import { recordInvariant } from "./record-invariant";
 import Decimal from "decimal.js";
 
 import type { RecordRepo } from "./record.repo";
@@ -24,7 +25,6 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
   constructor(
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
-    private company: { getDetails(): Promise<{ currency: string }> },
   ) {
     super();
   }
@@ -32,11 +32,7 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
   async invoke(measure: RecordMeasure): Validated<RecordMeasureResult> {
     return runInTransaction(
       async () => {
-        const [model, policy, company] = await Promise.all([
-          this.records.getModel(),
-          this.policy.load(),
-          this.company.getDetails(),
-        ]);
+        const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         if (
           !model.types.some((type) => type.id === measure.source.typeId && !type.archived) ||
@@ -50,7 +46,6 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
             measure,
             model,
             policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
-            company.currency,
           );
           if (rows.length > measure.groupLimit) return fail(CustomErrorCode.recordCalculationBudget);
           const mapRow = (row: (typeof rows)[number]): RecordMeasureResult["groups"][number] => {
@@ -104,7 +99,7 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
                       value: "0",
                       currency:
                         measure.aggregation !== "count" && value?.valueType === "currency"
-                          ? company.currency.toUpperCase()
+                          ? recordInvariant(value.format?.currency)
                           : null,
                     },
                   }
@@ -118,7 +113,6 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
                   { ...measure, groupBy: null },
                   model,
                   policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
-                  company.currency,
                 )
               ).map(mapRow)[0] ?? emptyGroup())
             : groups[0];

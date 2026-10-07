@@ -9,7 +9,7 @@ import { RecordSuggestionSignals } from "../record-suggestion-signals";
 describe("record suggestion signals", () => {
   it("uses stable starter IDs and the caller's generic record access", async () => {
     const user = createMockUserWithPermissions([]);
-    const model = createCrmPreset(user.companyId, "EUR");
+    const model = createCrmPreset(user.companyId);
     const contactId = presetId(user.companyId, "contact");
     const dealId = presetId(user.companyId, "deal");
     const contactType = model.types.find((type) => type.id === contactId);

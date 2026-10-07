@@ -14,6 +14,7 @@ export function fieldValueDefinition(field: RecordField | undefined): string {
     required: field.required,
     archived: field.archived,
     publishedSummary: field.publishedSummary,
+    currency: field.valueType === "currency" ? (field.format?.currency ?? null) : null,
     behavior: field.behavior,
     options: field.options
       .map(({ id, attributes }) => ({ id, attributes }))

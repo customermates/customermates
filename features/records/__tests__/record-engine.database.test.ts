@@ -192,13 +192,11 @@ async function fixture() {
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
-  const company = { getDetails: () => Promise.resolve({ currency: "EUR" }) };
   const background = { dispatch: () => Promise.resolve() };
   const mutate = new MutateRecordInteractor(
     repo,
     policy,
     new RecordWriteService(repo, policy, calculations),
-    company,
     background,
   );
   const read = new GetRecordInteractor(repo, policy);
@@ -217,7 +215,7 @@ async function fixture() {
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
-  const measure = new QueryRecordMeasureInteractor(repo, policy, company);
+  const measure = new QueryRecordMeasureInteractor(repo, policy);
   const widgets = new PrismaRecordWidgetRepo();
   const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const writeWidget = new UpsertRecordWidgetInteractor(widgets, repo, policy, measure, widgetReader);
@@ -228,10 +226,9 @@ async function fixture() {
     policy,
     configurations,
     new RecordConfigurationWriter(repo, calculations),
-    company,
     background,
   );
-  const model = createCrmPreset(seed.company.id, "EUR");
+  const model = createCrmPreset(seed.company.id);
   await runWithTenant(admin, () => runInTransaction(() => repo.saveModel(model, admin.id), { timeout: 30000 }));
   const id = (key: string) => presetId(seed.company.id, key);
   const run = <T>(fn: () => Promise<T>, as = admin) => runWithTenant(as, fn);
@@ -274,7 +271,7 @@ async function fixture() {
       expectedVersion: (await readRecord(ref)).version,
       fields: values.map(([key, value]) => ({ fieldId: id(key), value })),
     });
-  const worker = () => new RecordOperationService(repo, policy, configurations, company);
+  const worker = () => new RecordOperationService(repo, policy, configurations);
   const activities = new GetRecordActivitiesInteractor(
     new PrismaRecordActivitiesRepo(new PermissionService()),
     repo,
@@ -866,7 +863,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.repo,
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
-      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const exported = await f.run(() =>
       exporter.invoke({
@@ -968,7 +964,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.repo,
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
-      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const exported = await f.run(() =>
       exporter.invoke({
@@ -1128,7 +1123,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.repo,
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
-      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const before = await f.run(() =>
       exporter.invoke({ typeId: source.typeId, filters: [], relationships: [], sort: [] }),
@@ -1240,7 +1234,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.repo,
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
-      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const exported = await f.run(() =>
       exporter.invoke({
@@ -3805,6 +3798,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               typeId,
               label: "Double price",
               valueType: "currency",
+              format: { currency: "EUR" },
               required: false,
               archived: false,
               options: [],
@@ -11911,6 +11905,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             typeId: "$projects",
             label: "Budget",
             valueType: "currency",
+            format: { currency: "EUR" },
             behavior: { kind: "input" },
             required: false,
             archived: false,
@@ -12589,6 +12584,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               typeId: "$source",
               label: "Private amount",
               valueType: "currency",
+              format: { currency: "EUR" },
               required: false,
               archived: false,
               options: [],
@@ -12603,6 +12599,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               typeId: "$summary",
               label: "Retained total",
               valueType: "currency",
+              format: { currency: "EUR" },
               required: false,
               archived: false,
               options: [],
@@ -14744,6 +14741,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                 id: pipelineId,
                 label: "Pipeline",
                 valueType: "currency",
+                format: { currency: "EUR" },
                 behavior: {
                   kind: "rollup",
                   expression: nested(
@@ -15069,7 +15067,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.repo,
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
-      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const exporter = new ExportRecordsInteractor(f.repo, f.policy);
     const exportAll = async (type: string) => {
@@ -15218,7 +15215,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.repo,
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
-      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const exporter = new ExportRecordsInteractor(f.repo, f.policy);
     const exportAll = async (type: string) => {
@@ -15302,7 +15298,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.repo,
         f.policy,
         new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
-        { getDetails: () => Promise.resolve({ currency: "EUR" }) },
       ).invoke({ document: exported.data, mode: "update", idempotencyKey: randomUUID() }),
     );
     expect(imported, JSON.stringify(imported)).toMatchObject({ ok: true, data: { updated: 3 } });
@@ -15345,7 +15340,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.repo,
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
-      { getDetails: () => Promise.resolve({ currency: "EUR" }) },
     );
     const reused = await f.run(() =>
       importer.invoke({ document: exported.data, mode: "create", idempotencyKey: randomUUID() }),

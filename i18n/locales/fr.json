@@ -67,8 +67,7 @@
           "delete": "Prêt à supprimer définitivement un widget du tableau de bord"
         },
         "workspace": {
-          "configure": "Prêt à modifier le modèle de données de l’espace de travail",
-          "settings": "Prêt à modifier les paramètres de l’espace de travail, y compris les noms des types d’enregistrement"
+          "configure": "Prêt à modifier le modèle de données de l’espace de travail"
         }
       },
       "cancelled": "Arrêté",
@@ -376,11 +375,6 @@
             "done": "Espace de travail vérifié",
             "error": "Impossible de consulter votre espace de travail",
             "running": "Vérification de votre espace de travail"
-          },
-          "settings": {
-            "done": "Paramètres de l’espace de travail mis à jour",
-            "error": "Impossible de mettre à jour les paramètres de l’espace de travail",
-            "running": "Mise à jour des paramètres de l’espace de travail"
           }
         }
       },
@@ -895,7 +889,6 @@
       "success": "Vert",
       "warning": "Jaune"
     },
-    "company": "Entreprise",
     "creditsBelowMinimum": "< {amount}",
     "dateBuckets": {
       "day": "Jour",
@@ -1132,9 +1125,6 @@
       "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser."
     },
     "events": {
-      "company": {
-        "updated": "Entreprise mise à jour"
-      },
       "connected_account": {
         "created": "Compte connecté",
         "deleted": "Compte déconnecté",
@@ -1503,9 +1493,6 @@
     "generating": "Génération du lien...",
     "label": "Lien d'invitation",
     "title": "Inviter un utilisateur"
-  },
-  "CompanySettings": {
-    "dataModelTitle": "Modèle de données"
   },
   "CompanyUserModal": {
     "activeUserWarning": "Vous pouvez modifier votre propre compte dans vos <settingsLink>paramètres</settingsLink>.",

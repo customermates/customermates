@@ -67,8 +67,7 @@
           "delete": "Pronto a eliminare definitivamente un widget della dashboard"
         },
         "workspace": {
-          "configure": "Pronto a modificare il modello dati dell’area di lavoro",
-          "settings": "Pronto a modificare le impostazioni dell’area di lavoro, compresi i nomi dei tipi di record"
+          "configure": "Pronto a modificare il modello dati dell’area di lavoro"
         }
       },
       "cancelled": "Interrotto",
@@ -376,11 +375,6 @@
             "done": "Spazio di lavoro verificato",
             "error": "Impossibile controllare lo spazio di lavoro",
             "running": "Controllo dell’area di lavoro"
-          },
-          "settings": {
-            "done": "Impostazioni dell’area di lavoro aggiornate",
-            "error": "Impossibile aggiornare le impostazioni dell’area di lavoro",
-            "running": "Aggiornamento delle impostazioni dell’area di lavoro"
           }
         }
       },
@@ -895,7 +889,6 @@
       "success": "Verde",
       "warning": "Giallo"
     },
-    "company": "Azienda",
     "creditsBelowMinimum": "<{amount}",
     "dateBuckets": {
       "day": "Giorno",
@@ -1132,9 +1125,6 @@
       "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla."
     },
     "events": {
-      "company": {
-        "updated": "Azienda aggiornata"
-      },
       "connected_account": {
         "created": "Account collegato",
         "deleted": "Account scollegato",
@@ -1503,9 +1493,6 @@
     "generating": "Generazione del link...",
     "label": "Link di invito",
     "title": "Invita un utente"
-  },
-  "CompanySettings": {
-    "dataModelTitle": "Modello di dati"
   },
   "CompanyUserModal": {
     "activeUserWarning": "Puoi modificare il tuo account nelle tue <settingsLink>impostazioni</settingsLink>.",

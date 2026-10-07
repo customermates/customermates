@@ -207,7 +207,6 @@ export class RecordWriteService {
     mutation: RecordMutation,
     model: RecordModel,
     policy: Policy,
-    currency: string,
     limit = SYNCHRONOUS_RECORD_LIMIT,
     options: {
       skipCalculations?: boolean;
@@ -237,7 +236,6 @@ export class RecordWriteService {
           },
           model,
           policy,
-          currency,
           limit,
           { skipCalculations: true, skipTouches: true },
         );
@@ -252,7 +250,7 @@ export class RecordWriteService {
         if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
       }
       if (!options.skipCalculations) {
-        const result = await this.calculations.recalculate(model, [...seeds.values()], currency, captures, limit);
+        const result = await this.calculations.recalculate(model, [...seeds.values()], captures, limit);
         if (!result.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
         for (const ref of result.changed) seeds.set(recordKey(ref), ref);
         if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
@@ -503,7 +501,7 @@ export class RecordWriteService {
 
     const recalculated = options.skipCalculations
       ? { complete: true, changed: [] }
-      : await this.calculations.recalculate(model, [...seeds.values()], currency, captures, limit);
+      : await this.calculations.recalculate(model, [...seeds.values()], captures, limit);
     if (!recalculated.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) addSeed(ref);
     if (!options.skipTouches)

@@ -1008,10 +1008,6 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     evidence: OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE,
   },
   {
-    file: "features/event/entity-name.utils.ts",
-    keys: ["Common.company"],
-  },
-  {
     file: "app/[locale]/(protected)/dashboard/components/widget-label.ts",
     keys: DIAGRAM_SYSTEM_KEYS,
     evidence: Object.fromEntries(

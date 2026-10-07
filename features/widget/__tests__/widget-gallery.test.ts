@@ -12,7 +12,7 @@ import { WIDGET_GALLERY_CREATED_AT_LABEL, WIDGET_GALLERY_LIMIT, resolveWidgetGal
 function crmModel() {
   const companyId = randomUUID();
   const id = (key: string) => presetId(companyId, key);
-  const model = createCrmPreset(companyId, "EUR");
+  const model = createCrmPreset(companyId);
   const status: RecordField = {
     id: randomUUID(),
     typeId: id("task"),

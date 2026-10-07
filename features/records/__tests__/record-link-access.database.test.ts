@@ -67,20 +67,16 @@ async function fixture() {
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
-  const mutate = new MutateRecordInteractor(
-    repo,
-    policy,
-    new RecordWriteService(repo, policy, calculations),
-    { getDetails: () => Promise.resolve({ currency: "EUR" }) },
-    { dispatch: () => Promise.resolve() },
-  );
+  const mutate = new MutateRecordInteractor(repo, policy, new RecordWriteService(repo, policy, calculations), {
+    dispatch: () => Promise.resolve(),
+  });
   const read = new GetRecordInteractor(repo, policy);
   const query = new QueryRecordsInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);
   await runWithTenant(admin, () =>
     runInTransaction(
       async () => {
-        await repo.saveModel(createCrmPreset(seed.company.id, "EUR"), admin.id);
+        await repo.saveModel(createCrmPreset(seed.company.id), admin.id);
         await repo.setGrants(id("deal"), [{ roleId: seed.memberRole.id, actions: ["readAll", "update"] }]);
         await repo.setGrants(id("contact"), [{ roleId: seed.memberRole.id, actions: ["readOwn"] }]);
       },

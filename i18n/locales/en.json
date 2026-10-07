@@ -67,8 +67,7 @@
           "delete": "Ready to permanently delete a dashboard widget"
         },
         "workspace": {
-          "configure": "Ready to change the workspace data model",
-          "settings": "Ready to change workspace settings, including record type names"
+          "configure": "Ready to change the workspace data model"
         }
       },
       "cancelled": "Stopped",
@@ -376,11 +375,6 @@
             "done": "Checked your workspace",
             "error": "Couldn’t check your workspace",
             "running": "Checking your workspace"
-          },
-          "settings": {
-            "done": "Updated workspace settings",
-            "error": "Couldn’t update workspace settings",
-            "running": "Updating workspace settings"
           }
         }
       },
@@ -895,7 +889,6 @@
       "success": "Green",
       "warning": "Yellow"
     },
-    "company": "Company",
     "creditsBelowMinimum": "<{amount}",
     "dateBuckets": {
       "day": "Day",
@@ -1132,9 +1125,6 @@
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
     "events": {
-      "company": {
-        "updated": "Company Updated"
-      },
       "connected_account": {
         "created": "Account Connected",
         "deleted": "Account Disconnected",
@@ -1503,9 +1493,6 @@
     "generating": "Generating link...",
     "label": "Invitation link",
     "title": "Invite User"
-  },
-  "CompanySettings": {
-    "dataModelTitle": "Data model"
   },
   "CompanyUserModal": {
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
