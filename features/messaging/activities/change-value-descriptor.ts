@@ -40,6 +40,8 @@ export type ChangeValueLabels = {
   currency: (code: string) => string;
   date: (value: string) => string;
   grant: (action: string) => string;
+  resource: (code: string) => string;
+  formerMember: string;
 };
 
 const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
@@ -121,7 +123,7 @@ export function auditValueDescriptor(
       return choices(
         [value],
         labels.userStatus,
-        (status) => USER_STATUS_COLORS_MAP[status as keyof typeof USER_STATUS_COLORS_MAP] ?? "default",
+        (status) => USER_STATUS_COLORS_MAP[status as keyof typeof USER_STATUS_COLORS_MAP] ?? "secondary",
       );
     case "country":
       return choices([value], labels.country);
@@ -133,7 +135,38 @@ export function auditValueDescriptor(
       return choices([value], labels.provider);
     case "removalReason":
       return choices([value], labels.removalReason);
+    case "owner":
+      if (typeof value === "object" && value !== null && "firstName" in value) {
+        const owner = value as Partial<ActivityMemberDto> & { firstName: string };
+        return {
+          kind: "members",
+          members: [
+            {
+              id: owner.id ?? owner.firstName,
+              firstName: owner.firstName,
+              lastName: owner.lastName ?? "",
+              avatarUrl: owner.avatarUrl ?? null,
+            },
+          ],
+        };
+      }
+      break;
+    case "permissions":
+      if (
+        Array.isArray(value) &&
+        value.every((item) => typeof item === "object" && item !== null && "resource" in item)
+      ) {
+        return {
+          kind: "choices",
+          choices: (value as Array<{ resource: string; action: string }>).map((permission) => ({
+            id: `${permission.resource}:${permission.action}`,
+            label: `${labels.resource(permission.resource)} · ${labels.grant(permission.action)}`,
+          })),
+        };
+      }
+      break;
     case "events":
+    case "triggerEvents":
       return choices(Array.isArray(value) ? value : [value], labels.event);
     case "grants":
       return choices(Array.isArray(value) ? value : [value], labels.grant);
@@ -160,17 +193,19 @@ export function auditValueDescriptor(
   return { kind: "structured", value };
 }
 
+function memberOrFormer(id: string, members: readonly ActivityMemberDto[], formerMember: string): ActivityMemberDto {
+  return members.find((member) => member.id === id) ?? { id, firstName: formerMember, lastName: "", avatarUrl: null };
+}
+
 export function recordValueDescriptor(
   side: RecordHistoryDisplayValue | null,
   typeId: string,
   members: readonly ActivityMemberDto[],
+  formerMember: string,
 ): ChangeValueDescriptor {
   if (!side || side.value.state === "missing") return EMPTY;
-  if (side.value.state === "value" && side.value.value.kind === "member") {
-    const memberId = side.value.value.value;
-    const member = members.find((candidate) => candidate.id === memberId);
-    return member ? { kind: "members", members: [member] } : EMPTY;
-  }
+  if (side.value.state === "value" && side.value.value.kind === "member")
+    return { kind: "members", members: [memberOrFormer(side.value.value.value, members, formerMember)] };
   if (side.value.state === "value" && side.value.value.kind === "richText") {
     let markdown = "";
     try {
@@ -192,9 +227,9 @@ export function recordValueDescriptor(
 export function membersDescriptor(
   ids: readonly string[],
   members: readonly ActivityMemberDto[],
+  formerMember: string,
 ): ChangeValueDescriptor {
-  const found = ids.flatMap((id) => members.filter((member) => member.id === id));
-  return found.length ? { kind: "members", members: found } : EMPTY;
+  return ids.length ? { kind: "members", members: ids.map((id) => memberOrFormer(id, members, formerMember)) } : EMPTY;
 }
 
 export function recordsDescriptor(

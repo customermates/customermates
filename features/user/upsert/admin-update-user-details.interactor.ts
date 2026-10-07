@@ -105,22 +105,19 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       data.roleId === targetUser.roleId
         ? previousRole
         : ((await this.roleRepo.findRoleById(data.roleId))?.name ?? null);
+    const changes = calculateChanges(
+      {
+        firstName: targetUser.firstName,
+        lastName: targetUser.lastName,
+        country: targetUser.country,
+        status: targetUser.status,
+        role: previousRole,
+      },
+      { firstName: data.firstName, lastName: data.lastName, country: data.country, status: data.status, role },
+    );
     try {
-      await this.eventService.publish(DomainEvent.USER_UPDATED, {
-        entityId: targetUserId,
-        payload: {
-          changes: calculateChanges(
-            {
-              firstName: targetUser.firstName,
-              lastName: targetUser.lastName,
-              country: targetUser.country,
-              status: targetUser.status,
-              role: previousRole,
-            },
-            { firstName: data.firstName, lastName: data.lastName, country: data.country, status: data.status, role },
-          ),
-        },
-      });
+      if (Object.keys(changes).length)
+        await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: targetUserId, payload: { changes } });
     } catch (error) {
       return recordWriteFailure(error);
     }

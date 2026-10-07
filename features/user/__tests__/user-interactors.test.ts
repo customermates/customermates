@@ -729,6 +729,14 @@ describe("UpdateUserDetailsInteractor", () => {
     );
   });
 
+  it("publishes nothing when the saved profile keeps its name and country", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User", country: "de" });
+    const result: any = await createInteractor().invoke({ theme: "dark" } as never);
+
+    expect(result.ok).toBe(true);
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+  });
+
   it("returns { ok: true, data: details }", async () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke(detailsData);

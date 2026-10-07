@@ -19,6 +19,8 @@ const labels: ChangeValueLabels = {
   currency: (code) => `currency:${code}`,
   date: (value) => `date:${value}`,
   grant: (action) => `grant:${action}`,
+  resource: (code) => `resource:${code}`,
+  formerMember: "Member",
 };
 const MEMBER = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -80,6 +82,27 @@ describe("audit value descriptors", () => {
     expect(auditValueDescriptor(key, value, labels)).toEqual(expected);
   });
 
+  it("renders routine trigger events, owners and role permissions with the shared renderers", () => {
+    expect(auditValueDescriptor("triggerEvents", ["record.updated"], labels)).toEqual({
+      kind: "choices",
+      choices: [{ id: "record.updated", label: "t:Common.events.record.updated" }],
+    });
+    expect(
+      auditValueDescriptor(
+        "owner",
+        { id: MEMBER.id, firstName: "Elena", lastName: "Hoffmann", avatarUrl: null },
+        labels,
+      ),
+    ).toEqual({
+      kind: "members",
+      members: [MEMBER],
+    });
+    expect(auditValueDescriptor("permissions", [{ id: "p1", resource: "users", action: "readAll" }], labels)).toEqual({
+      kind: "choices",
+      choices: [{ id: "users:readAll", label: "resource:users · grant:readAll" }],
+    });
+  });
+
   it("renders members as avatar chips and identifiers as provider chips", () => {
     expect(auditValueDescriptor("users", [MEMBER], labels)).toEqual({ kind: "members", members: [MEMBER] });
     expect(auditValueDescriptor("identifiers", [{ provider: "gmail", value: "elena@example.test" }], labels)).toEqual({
@@ -135,6 +158,7 @@ describe("record value descriptors", () => {
         side("select", { state: "value", value: { kind: "select", value: "open" } }, options),
         "type-1",
         [],
+        "Member",
       ),
     ).toMatchObject({
       kind: "field",
@@ -145,26 +169,44 @@ describe("record value descriptors", () => {
         side("currency", { state: "value", value: { kind: "decimal", value: "12", currency: "EUR" } }),
         "type-1",
         [],
+        "Member",
       ),
     ).toMatchObject({ kind: "field", field: { valueType: "currency" } });
   });
 
   it("renders a member value as an avatar chip and a missing value as empty", () => {
     expect(
-      recordValueDescriptor(side("member", { state: "value", value: { kind: "member", value: MEMBER.id } }), "t", [
-        MEMBER,
-      ]),
+      recordValueDescriptor(
+        side("member", { state: "value", value: { kind: "member", value: MEMBER.id } }),
+        "t",
+        [MEMBER],
+        "Member",
+      ),
     ).toEqual({
       kind: "members",
       members: [MEMBER],
     });
-    expect(recordValueDescriptor(null, "t", [])).toEqual({ kind: "empty" });
-    expect(recordValueDescriptor(side("text", { state: "missing" }), "t", [])).toEqual({ kind: "empty" });
+    expect(recordValueDescriptor(null, "t", [], "Member")).toEqual({ kind: "empty" });
+    expect(recordValueDescriptor(side("text", { state: "missing" }), "t", [], "Member")).toEqual({ kind: "empty" });
+    expect(
+      recordValueDescriptor(
+        side("member", { state: "value", value: { kind: "member", value: "gone" } }),
+        "t",
+        [],
+        "Member",
+      ),
+    ).toEqual({
+      kind: "members",
+      members: [{ id: "gone", firstName: "Member", lastName: "", avatarUrl: null }],
+    });
   });
 
   it("renders assignments as avatar chips and linked records as record chips with the list icon and color", () => {
-    expect(membersDescriptor([MEMBER.id], [MEMBER])).toEqual({ kind: "members", members: [MEMBER] });
-    expect(membersDescriptor([], [MEMBER])).toEqual({ kind: "empty" });
+    expect(membersDescriptor([MEMBER.id, "gone"], [MEMBER], "Member")).toEqual({
+      kind: "members",
+      members: [MEMBER, { id: "gone", firstName: "Member", lastName: "", avatarUrl: null }],
+    });
+    expect(membersDescriptor([], [MEMBER], "Member")).toEqual({ kind: "empty" });
     expect(
       recordsDescriptor([{ ref: { typeId: "deals", recordId: "d1" }, title: "Renewal" }], {
         deals: { icon: "handshake", color: "info" },

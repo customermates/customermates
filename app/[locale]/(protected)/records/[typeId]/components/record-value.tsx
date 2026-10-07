@@ -16,9 +16,11 @@ export function EmptyValue() {
 export const RecordValue = observer(function RecordValue({
   result,
   field,
+  wrap = false,
 }: {
   result?: CalculatedValue;
   field: RecordField;
+  wrap?: boolean;
 }) {
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;
@@ -72,5 +74,5 @@ export const RecordValue = observer(function RecordValue({
   }
   if (value.kind === "richText") return null;
   if (value.kind === "member") return <span>{t("RecordModel.member")}</span>;
-  return <span className="truncate">{value.value}</span>;
+  return <span className={wrap ? "whitespace-pre-wrap break-words" : "truncate"}>{value.value}</span>;
 });

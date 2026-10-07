@@ -112,6 +112,8 @@ export function useChangeValueLabels(): ChangeValueLabels {
           action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create",
         );
       },
+      resource: (code: string) => (t.has(`RoleModal.resources.${code}`) ? t(`RoleModal.resources.${code}`) : code),
+      formerMember: t("RecordModel.member"),
     }),
     [intl, locale, t],
   );
@@ -123,10 +125,10 @@ export function ChangeValue({ value }: { value: ChangeValueDescriptor }) {
     case "empty":
       return <EmptyValue />;
     case "field":
-      return <RecordValue field={value.field} result={value.result} />;
+      return <RecordValue wrap field={value.field} result={value.result} />;
     case "choices":
       if (value.choices.length === 1 && !value.choices[0].provider)
-        return <AppChip variant={value.choices[0].color ?? "default"}>{value.choices[0].label}</AppChip>;
+        return <AppChip variant={value.choices[0].color ?? "secondary"}>{value.choices[0].label}</AppChip>;
       return (
         <AppChipStack
           items={value.choices.map((choice) => {

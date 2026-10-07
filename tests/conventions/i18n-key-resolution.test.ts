@@ -836,6 +836,8 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/change-value.tsx :: t :: Common.userStatuses.${code}",
   "features/messaging/activities/change-value.tsx :: t :: LegalDocumentNotice.documents.${code}",
   "features/messaging/activities/change-value.tsx :: t :: Wiki.kind.${code}",
+  "features/messaging/activities/change-value.tsx :: t :: RoleModal.resources.${code}",
+  "features/messaging/activities/change-value.tsx :: t.has :: RoleModal.resources.${code}",
   "features/messaging/activities/change-value.tsx :: t.has :: AccountRemovalReason.${code}",
   "features/messaging/activities/change-value.tsx :: t.has :: Common.events.${code}",
   "features/messaging/activities/change-value.tsx :: t.has :: Common.providers.${code}",

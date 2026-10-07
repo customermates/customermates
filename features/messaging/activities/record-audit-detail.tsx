@@ -30,7 +30,10 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
   const category = auditCategory(entry.event);
   const identities = entry.changes.identities;
   const typeId = entry.changes.ref.typeId;
-  const field = (side: FieldSide) => <ChangeValue value={recordValueDescriptor(side, typeId, entry.members)} />;
+  const formerMember = t("RecordModel.member");
+  const field = (side: FieldSide) => (
+    <ChangeValue value={recordValueDescriptor(side, typeId, entry.members, formerMember)} />
+  );
   const identityChips = (side: NonNullable<typeof identities>["before"]) => (
     <ChangeValue
       value={
@@ -90,8 +93,12 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
         {entry.changes.assignments && (
           <ChangeRow label={t("RecordModel.assignedTo")}>
             <InlineChange
-              current={<ChangeValue value={membersDescriptor(entry.changes.assignments.after, entry.members)} />}
-              previous={<ChangeValue value={membersDescriptor(entry.changes.assignments.before, entry.members)} />}
+              current={
+                <ChangeValue value={membersDescriptor(entry.changes.assignments.after, entry.members, formerMember)} />
+              }
+              previous={
+                <ChangeValue value={membersDescriptor(entry.changes.assignments.before, entry.members, formerMember)} />
+              }
             />
           </ChangeRow>
         )}

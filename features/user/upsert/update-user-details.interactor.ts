@@ -69,16 +69,13 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
       formattingLocale: normalizeStoredFormattingLocale(storedProfile.formattingLocale),
     };
 
-    await this.eventService.publish(DomainEvent.USER_UPDATED, {
-      entityId: this.userId,
-      payload: {
-        changes: calculateChanges(previous, {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-          country: profile.country,
-        }),
-      },
+    const changes = calculateChanges(previous, {
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      country: profile.country,
     });
+    if (Object.keys(changes).length)
+      await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: this.userId, payload: { changes } });
 
     return { ok: true as const, data: profile };
   }
