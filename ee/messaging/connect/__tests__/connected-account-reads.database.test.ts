@@ -68,7 +68,7 @@ const asOwner = (permissions: Array<{ resource: Resource; action: Action }>) => 
 
 const withoutInbox = () =>
   asOwner([
-    { resource: Resource.contacts, action: Action.readAll },
+    { resource: Resource.wiki, action: Action.readAll },
     { resource: Resource.users, action: Action.readOwn },
     { resource: Resource.company, action: Action.readOwn },
   ]);

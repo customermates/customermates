@@ -1,11 +1,10 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
+import type { ConnectedAccountDto } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
-import type { EmailSettings } from "../email-settings";
 
 import { z } from "zod";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 import { ConnectedAccountEmailSchema } from "../email-settings";
@@ -15,21 +14,14 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import type { SetConnectedAccountSignatureRepo } from "./set-connected-account-signature.repo";
 
 const Schema = ConnectedAccountEmailSchema.extend({
   id: z.uuid(),
 });
 export type SetConnectedAccountSignatureData = Data<typeof Schema>;
 
-export abstract class SetConnectedAccountSignatureRepo {
-  abstract setAccountSignatureOrThrow(args: {
-    id: string;
-    signature: string | null;
-    settings: EmailSettings;
-  }): Promise<ConnectedAccountRecord>;
-}
-
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class SetConnectedAccountSignatureInteractor extends AuthenticatedInteractor<
   SetConnectedAccountSignatureData,
   ConnectedAccountDto

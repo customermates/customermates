@@ -137,11 +137,11 @@ describe("AgentUiControlStore.navigate", () => {
 
   it("refuses records and Cloud pages the sidebar hides for the role or installation", async () => {
     const navigate = vi.fn().mockResolvedValue("navigated");
-    const withoutDeals = controlStore({ readable: Object.values(Resource).filter((r) => r !== Resource.deals) });
-    withoutDeals.registerNavigate(navigate);
+    const withoutRecord = controlStore();
+    withoutRecord.registerNavigate(navigate);
     vi.mocked(getRecordAction).mockResolvedValueOnce({ ok: false, error: {} } as never);
     await expect(
-      withoutDeals.navigate({ typeId: RECORD_TYPES[0], recordId: "00000000-0000-4000-8000-000000000001" }),
+      withoutRecord.navigate({ typeId: RECORD_TYPES[0], recordId: "00000000-0000-4000-8000-000000000001" }),
     ).resolves.toMatchObject({ ok: false });
 
     const selfHosted = controlStore({ appMode: "self-hosted" });

@@ -4,7 +4,15 @@ import { describe, expect, it } from "vitest";
 import type { RecordField } from "../record-model.schema";
 
 import { createCrmPreset, presetId } from "../crm-preset";
-import { presentationQuery, recordColumnPresentation, recordFilterableFields } from "../record-presentation";
+import {
+  presentationQuery,
+  recordColumnPresentation,
+  recordFilterableFields,
+  recordLinkColor,
+  recordLinkColors,
+} from "../record-presentation";
+import { RecordModelSchema } from "../record-model.schema";
+import { canonicalRecordJson } from "../record-json";
 import { invalidRecordQueryPart } from "../record-query-validation";
 import { RecordQuerySchema } from "../record-query.schema";
 import { recordViewStateIsValid } from "../record-view-state";
@@ -157,5 +165,26 @@ describe("generic record presentation filters", () => {
         (field) => field.field === window.id,
       )?.operators,
     ).toContain(Operator.between);
+  });
+});
+
+describe("record list colors", () => {
+  it("colors links by their target list and stays neutral when the list has no color", () => {
+    const model = createCrmPreset("workspace");
+    const organizationId = presetId("workspace", "organization");
+    const types = model.types.map((type) => (type.id === organizationId ? { ...type, color: "info" as const } : type));
+    const colors = recordLinkColors(types, model.relationships);
+    expect(colors).toEqual({ [organizationId]: "info" });
+    expect(recordLinkColor(colors, organizationId)).toBe("info");
+    expect(recordLinkColor(colors, presetId("workspace", "deal"))).toBe("secondary");
+  });
+
+  it("keeps a list color through JSON storage and rejects colors outside the chip palette", () => {
+    const model = createCrmPreset("workspace");
+    model.types[0].color = "success";
+    expect(RecordModelSchema.parse(JSON.parse(canonicalRecordJson(model))).types[0]?.color).toBe("success");
+    const invalid = JSON.parse(canonicalRecordJson(model));
+    invalid.types[0].color = "purple";
+    expect(RecordModelSchema.safeParse(invalid).success).toBe(false);
   });
 });

@@ -1110,6 +1110,8 @@
       "webhookNotFound": "ID de webhook no encontrado o no accesible.",
       "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
+      "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
+      "widgetLayoutTooSmall": "Este widget necesita al menos 2 columnas y 3 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
@@ -1733,21 +1735,29 @@
       "kind": {
         "activityTimelineDescription": "Sigue en orden cronológico los cambios en registros, los mensajes y la actividad de cuentas y calendario.",
         "chartDescription": "Compara los datos del CRM en un gráfico.",
+        "description": "Elige un formato y selecciona tú mismo los datos.",
+        "scratchTitle": "Empezar desde cero",
         "title": "Elegir un widget"
       },
       "preview": {
-        "title": "Vista previa"
+        "incomplete": "Completa la configuración de datos para ver una vista previa.",
+        "live": "Vista previa en vivo",
+        "size": "Tamaño en el panel {w} × {h}",
+        "title": "Vista previa",
+        "untitled": "Widget sin título"
       },
       "save": "Guardar cambios",
+      "settings": "Configuración del widget",
       "sharing": {
         "template": "Compartir como plantilla"
       },
       "steps": {
-        "chooseDescription": "Elige un formato o parte de una configuración compartida en tu espacio de trabajo.",
+        "chooseDescription": "Empieza con una recomendación, un formato en blanco o una configuración compartida en tu espacio de trabajo.",
         "configureDescription": "Elige qué muestra este widget y qué aspecto tiene."
       },
       "tabs": {
         "appearance": "Apariencia",
+        "data": "Datos",
         "filtersLabel": "{count, plural, =0 {Filtros, ninguno activo} =1 {Filtros, 1 activo} other {Filtros, # activos}}"
       },
       "templates": {
@@ -1757,30 +1767,51 @@
       }
     },
     "widgetGallery": {
-      "description": "Widgets listos para tu modelo de datos actual. Puedes editarlo todo antes de guardar.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Oportunidades en cada etapa, en el orden de las etapas, con la conversión entre pasos.",
-          "name": "Oportunidades por etapa"
+      "creationDate": "fecha de creación",
+      "description": "Sugerencias creadas a partir de los tipos de registro y campos de tu espacio de trabajo. Puedes cambiarlo todo antes de guardar.",
+      "recipes": {
+        "countBySelect": {
+          "description": "Número de {type} por cada {group}.",
+          "name": "{type} por {group}"
         },
-        "openPipeline": {
-          "description": "Valor total de las oportunidades que no están ganadas ni perdidas.",
-          "name": "Pipeline abierto"
+        "countPerMember": {
+          "description": "Número de {type} por cada {group}.",
+          "name": "{type} por {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tareas que no están completadas ni archivadas, contadas por cada usuario asignado.",
-          "name": "Tareas abiertas por responsable"
+        "openCountPerAssignee": {
+          "description": "{type} que no están en un {group} cerrado, contados por cada usuario asignado.",
+          "name": "{type} abiertos por responsable"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Valor de las oportunidades ganadas por organización vinculada, clasificado con su parte del total.",
-          "name": "Principales organizaciones por ingresos"
+        "openValueTotal": {
+          "description": "Total de {field} de {type} que no están en un {group} cerrado.",
+          "name": "{field} abierto"
         },
-        "wonValuePerMonth": {
-          "description": "Valor de las oportunidades ganadas por mes, según el primer campo de fecha de la oportunidad o la fecha de creación.",
-          "name": "Valor ganado por mes"
+        "stageFunnel": {
+          "description": "{type} en cada {group}, en orden, con la conversión entre pasos.",
+          "name": "{type} por {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} ordenados por el {field} de sus {type} vinculados, con la parte de cada uno en el total.",
+          "name": "Principales {related} por {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} ordenados por el {field} de sus {type} ganados, con la parte de cada uno en el total.",
+          "name": "Principales {related} por {field} ganado"
+        },
+        "valueOverTime": {
+          "description": "{field} de {type} por mes, según {date}.",
+          "name": "{field} por mes"
+        },
+        "valueTotal": {
+          "description": "Suma de {field} en todos los {type}.",
+          "name": "{field} total"
+        },
+        "wonValueOverTime": {
+          "description": "{field} de {type} ganados por mes, según {date}.",
+          "name": "{field} ganado por mes"
         }
       },
-      "title": "Widgets iniciales"
+      "title": "Recomendado para tus datos"
     },
     "widgetKinds": {
       "activityTimeline": "Cronología de actividad",
@@ -1833,6 +1864,7 @@
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
+    "rowActions": "Acciones de fila",
     "selectAllRows": "Seleccionar todas las filas",
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
@@ -1950,6 +1982,9 @@
     "taskList": "Lista de tareas",
     "underline": "Subrayado",
     "urlPlaceholder": "Introduce una URL..."
+  },
+  "EditorTabs": {
+    "invalid": "Contiene errores"
   },
   "EmailLayout": {
     "tagline": "El CRM agéntico de código abierto"
@@ -2408,8 +2443,8 @@
     "admin": "Administración",
     "affiliate": "Programa de afiliados",
     "connectedAccounts": "Canales",
-    "crm": "CRM",
     "dashboard": "Panel",
+    "data": "Datos",
     "docs": "Documentación",
     "features": "Funciones",
     "inbox": "Bandeja de entrada",
@@ -2907,7 +2942,6 @@
     "addPathStep": "Añadir un paso de relación",
     "addProbability": "Añadir probabilidad",
     "aggregation": "Agregación",
-    "allLists": "Todas las listas",
     "allowManualOverride": "Permitir un valor de reemplazo manual",
     "apply": "Aplicar cambios",
     "archiveActivityPath": "Archivar conexión",
@@ -2944,13 +2978,18 @@
     "captureOnSaveField": "Capturar {field} al guardar",
     "captureValue": "Capturar valor",
     "captureValueField": "Capturar {field}",
+    "cardinality": {
+      "manyToMany": "Varios a varios",
+      "manyToOne": "Varios a uno",
+      "oneToMany": "Uno a varios",
+      "oneToOne": "Uno a uno"
+    },
     "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
     "color": "Color",
     "conditionIf": "Condición",
     "conditionOtherwise": "Si no",
     "conditionThen": "Entonces",
     "configure": "Configurar",
-    "configureViews": "Vistas de configuración",
     "connectionType": "Conexión",
     "constant": "Valor fijo",
     "createdAt": "Creado el",
@@ -2986,6 +3025,7 @@
     "disabled": "Desactivado",
     "edit": "Editar",
     "editField": "Editar campo",
+    "editValue": "Editar {field}",
     "empty": "Todavía no hay registros",
     "emptyDescription": "Crea tu primer registro para empezar.",
     "enableChannels": "Activar canales",
@@ -2998,22 +3038,144 @@
       "lookup": "Valor de {list}",
       "rollup": "Total de {list}"
     },
+    "fieldTabs": {
+      "calculation": "Cálculo"
+    },
     "general": "General",
+    "graph": {
+      "accountEdge": "Sincroniza conversaciones en {list}",
+      "accounts": "Cuentas conectadas",
+      "accountUnit": "{count, plural, one {cuenta} other {cuentas}}",
+      "addFieldTo": "Añadir campo a {list}",
+      "calculatedFrom": "a partir de {sources}",
+      "calculationEdge": "Calculado a partir de esta lista: {fields}",
+      "connectDescription": "Conecta Gmail, Outlook u otro canal para traer las conversaciones a tus listas.",
+      "connectTitle": "Conectar correo y calendario",
+      "controls": "Controles del gráfico",
+      "fitView": "Ajustar a la vista",
+      "handle": "Punto de conexión",
+      "help": "Selecciona una lista o un campo para editarlo, el chip de una línea para editar una relación o arrastra desde el punto de una lista a otra para conectarlas.",
+      "helpReadOnly": "Selecciona una lista para abrirla. Las líneas muestran cómo se relacionan las listas y de dónde salen los valores calculados.",
+      "label": "Gráfico de listas, campos y cuentas conectadas",
+      "manage": "Gestionar",
+      "moreAccounts": "{count, plural, one {# cuenta más} other {# cuentas más}}",
+      "moreFields": "{count, plural, one {# campo más} other {# campos más}}",
+      "partOf": "Parte de {list}",
+      "recordsRestricted": "Número de registros no disponible",
+      "recordUnit": "{count, plural, one {registro} other {registros}}",
+      "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
+      "zoomIn": "Acercar",
+      "zoomOut": "Alejar"
+    },
     "groupSummaries": "Resúmenes de grupo",
     "groupSummariesDescription": "Muestra totales y otras métricas en los grupos de tabla y las columnas del tablero. Cada registro contribuye una vez por grupo, incluidos los de páginas posteriores.",
     "hiddenList": "Oculta",
     "hideArchived": "Ocultar archivados",
     "icon": "Icono",
+    "iconChoose": "Elegir icono",
+    "iconNoMatch": "Ningún icono coincide",
     "icons": {
+      "alarm": "Recordatorio",
+      "alert": "Incidencia",
+      "award": "Premio",
+      "bag": "Compra",
+      "banknote": "Pago",
+      "barcode": "Código de barras",
+      "book": "Libro",
+      "box": "Producto",
+      "boxes": "Inventario",
       "briefcase": "Maletín",
+      "bug": "Error",
       "building": "Edificio",
+      "calendar": "Calendario",
+      "calendarCheck": "Cita",
+      "camera": "Foto",
+      "car": "Vehículo",
+      "cart": "Pedido",
+      "chart": "Gráfico",
       "check": "Marca de verificación",
+      "clipboard": "Lista de control",
+      "clock": "Tiempo",
+      "coins": "Monedas",
       "contact": "Personas",
+      "contactCard": "Tarjeta de contacto",
+      "contract": "Contrato",
+      "creditCard": "Tarjeta de crédito",
+      "database": "Base de datos",
+      "deal": "Apretón de manos",
+      "document": "Documento",
+      "factory": "Fábrica",
+      "files": "Archivos",
+      "filter": "Embudo",
+      "flag": "Bandera",
       "folder": "Carpeta",
+      "gavel": "Caso",
+      "gift": "Regalo",
+      "globe": "Sitio web",
+      "graduationCap": "Formación",
+      "hammer": "Herramienta",
       "handshake": "Crecimiento",
+      "hardDrive": "Almacenamiento",
+      "headset": "Centro de atención",
+      "heart": "Favorito",
+      "home": "Inmueble",
+      "hotel": "Hotel",
+      "idCard": "Documento de identidad",
+      "inbox": "Bandeja de entrada",
+      "kanban": "Tablero",
+      "key": "Llave",
+      "landmark": "Institución",
+      "laptop": "Portátil",
+      "layers": "Capas",
+      "leaf": "Naturaleza",
+      "lifeBuoy": "Soporte",
+      "lightbulb": "Idea",
+      "link": "Enlace",
       "list": "Lista",
-      "package": "Paquete"
+      "mail": "Correo",
+      "map": "Mapa",
+      "mapPin": "Ubicación",
+      "megaphone": "Campaña",
+      "message": "Mensaje",
+      "milestone": "Hito",
+      "music": "Música",
+      "network": "Red",
+      "newspaper": "Noticias",
+      "notebook": "Cuaderno",
+      "package": "Paquete",
+      "palette": "Diseño",
+      "percent": "Descuento",
+      "phone": "Llamada",
+      "piggyBank": "Ahorros",
+      "pill": "Medicamento",
+      "plane": "Viaje",
+      "receipt": "Factura",
+      "repeat": "Recurrente",
+      "rocket": "Lanzamiento",
+      "scale": "Legal",
+      "server": "Servidor",
+      "shield": "Política",
+      "signature": "Firma",
+      "smartphone": "Móvil",
+      "stamp": "Aprobación",
+      "star": "Estrella",
+      "stethoscope": "Salud",
+      "store": "Tienda",
+      "tag": "Etiqueta",
+      "target": "Objetivo",
+      "ticket": "Ticket",
+      "trophy": "Trofeo",
+      "truck": "Envío",
+      "user": "Persona",
+      "userCheck": "Persona aprobada",
+      "userPlus": "Nueva persona",
+      "usersRound": "Equipo",
+      "utensils": "Restaurante",
+      "wallet": "Cartera",
+      "warehouse": "Almacén",
+      "wrench": "Mantenimiento"
     },
+    "iconSearch": "Buscar iconos",
     "identityChannels": "Canales",
     "includeAudit": "Incluir cambios de registros",
     "includeMessages": "Incluir mensajes",
@@ -3027,38 +3189,30 @@
     },
     "lineItem": "Partida",
     "lineItems": "Partidas",
-    "linkedCount": "Registros vinculados por registro",
     "linkedRecordCount": "{count} registros vinculados",
     "linkedRecords": "Registros vinculados",
     "linkedType": "Vincular a",
     "linkRecord": "Vincular un registro",
     "listActions": "Acciones de la lista",
     "listCounts": "{fields, plural, one {# campo} other {# campos}} · {relationships, plural, one {# relación} other {# relaciones}} · {activity, plural, one {# conexión de actividad} other {# conexiones de actividad}}",
-    "lists": "Listas",
     "listUnavailable": "Esta lista no está disponible. Elige otra lista.",
-    "many": "Varios",
-    "map": "Mapa",
-    "mapHelp": "Selecciona una lista para abrirla, una línea para editar su relación o arrastra de una lista a otra para conectarlas.",
-    "mapHelpReadOnly": "Selecciona una lista para abrirla. Las líneas muestran las relaciones entre listas.",
-    "mapLabel": "Mapa de listas y relaciones",
     "member": "Miembro",
     "missing": "Sin valor",
+    "moreActions": "Más acciones para {name}",
     "moveDown": "Bajar {field}",
     "moveUp": "Subir {field}",
     "multipleValues": "Permitir varios valores",
     "name": "Nombre",
-    "newList": "Nueva lista",
     "newRecord": "Nuevo registro",
     "no": "No",
     "noGrouping": "Sin agrupación",
-    "noListsFound": "Ninguna lista coincide con tu búsqueda.",
     "noneYet": "Todavía ninguno",
-    "one": "Uno",
     "onePerLine": "Introduce un valor por línea.",
     "onSourceDelete": "Al eliminar este registro",
     "onTargetDelete": "Al eliminar el registro vinculado",
     "openPage": "Abrir página",
     "openRecord": "Abrir {name}",
+    "openRecordDetails": "Abrir detalles de {name}",
     "operation": "Cálculo",
     "operationCancelled": "El cambio se canceló.",
     "operationFailed": "El cambio falló. El estado completo anterior sigue activo.",
@@ -3083,7 +3237,6 @@
       "trim": "Eliminar espacios al principio y al final",
       "upper": "Mayúsculas"
     },
-    "oppositeCount": "Registros por registro vinculado",
     "oppositeLabel": "Etiqueta en el otro lado",
     "option": "Opción",
     "optionAttribute": "Atributo de la opción",
@@ -3121,6 +3274,13 @@
     },
     "relationship": "Relación",
     "relationshipChange": "{count} relaciones modificadas",
+    "relationshipEditor": {
+      "cardinality": "Cuántos registros se vinculan",
+      "onDelete": "Al eliminar",
+      "otherList": "la lista vinculada",
+      "shownOn": "Se muestra en los registros de {list}",
+      "thisList": "Esta lista"
+    },
     "relationshipLabel": "Etiqueta en este lado",
     "relationshipPath": "A través de registros vinculados",
     "relationshipPathHelp": "Muestra registros a través de relaciones existentes. Edita los vínculos originales para cambiar estos registros.",
@@ -3142,7 +3302,6 @@
     "saveBeforeEmbedded": "Guarda este registro antes de modificar los elementos vinculados.",
     "savedViewIncompatible": "Actualiza las vistas guardadas y los diseños personales que usan este campo antes de cambiarlo.",
     "savingDetailLayout": "Guardando diseño…",
-    "searchLists": "Buscar listas",
     "setDefaultValue": "Definir un valor predeterminado",
     "sharedDefaults": "Valores predeterminados compartidos",
     "sharedDefaultsDescription": "Estos valores se aplican hasta que alguien personaliza su vista. Se conservan las preferencias personales existentes.",
@@ -3247,6 +3406,7 @@
     "loadingSchema": "Cargando campos…",
     "measure": "Medida",
     "noRecordsInPeriod": "Sin registros",
+    "notes": "Sobre estas cifras",
     "operators": {
       "between": "Entre",
       "contains": "Contiene",
@@ -3267,7 +3427,6 @@
     "overall": "Total: {value}",
     "preview": "Vista previa de la medida",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
-    "previewHelp": "La vista previa usa los registros actuales y tus permisos.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
       "group": "Grupo",
@@ -3314,8 +3473,8 @@
     "create": "Crear",
     "delete": "Eliminar",
     "edit": "Editar",
+    "general": "General",
     "manageAccess": "Gestión",
-    "no": "No",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
     "readAccess": "Acceso de lectura",
     "readAll": "Todos",
@@ -3328,14 +3487,9 @@
       "api": "API y webhooks",
       "auditLog": "Registro de auditoría",
       "company": "Empresa",
-      "contacts": "Contactos",
       "dataModel": "Modelo de datos",
-      "deals": "Oportunidades",
       "inboxMessages": "Mensajes de la bandeja de entrada",
-      "organizations": "Organizaciones",
       "routines": "Rutinas",
-      "services": "Servicios",
-      "tasks": "Tareas",
       "users": "Usuarios y roles",
       "wiki": "Base de conocimientos del espacio de trabajo"
     },
@@ -3343,7 +3497,7 @@
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
     "systemName": "Administrador",
     "title": "Rol",
-    "yes": "Sí"
+    "workspacePermissions": "Espacio de trabajo"
   },
   "RolesCard": {
     "custom": "Personalizado",
@@ -3507,6 +3661,23 @@
     "thursday": "Jueves",
     "tuesday": "Martes",
     "wednesday": "Miércoles"
+  },
+  "SidebarCustomize": {
+    "deleteSection": "Eliminar sección",
+    "emptySection": "Arrastra elementos aquí",
+    "hide": "Ocultar de la barra lateral",
+    "itemActions": "Opciones de {item}",
+    "moveDown": "Bajar",
+    "moveToSection": "Mover a la sección",
+    "moveUp": "Subir",
+    "newSection": "Nueva sección",
+    "newSectionName": "Nueva sección",
+    "rename": "Cambiar nombre",
+    "reset": "Restablecer valores predeterminados",
+    "sectionActions": "Opciones de {section}",
+    "sectionName": "Nombre de la sección",
+    "show": "Mostrar {item}",
+    "title": "Personalizar barra lateral"
   },
   "SignInForm": {
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",

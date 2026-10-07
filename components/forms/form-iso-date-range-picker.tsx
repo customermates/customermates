@@ -182,7 +182,6 @@ export const FormIsoDateRangePicker = observer(
             onOpenAutoFocus={focusCalendarDay}
           >
             <Calendar
-              autoFocus
               disabled={isLoading}
               mode="range"
               month={currentMonth}

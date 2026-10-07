@@ -10,6 +10,7 @@ import { toSidebarUser } from "./sidebar-user";
 
 import {
   getGetRecordNavigationInteractor,
+  getGetP13nInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
@@ -23,6 +24,7 @@ import { RootStoreProvider } from "@/core/stores/root-store.provider";
 import { DEFAULT_LOCALE, isRoutingLocale } from "@/i18n/locale-registry";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { ForbiddenError } from "@/core/errors/app-errors";
+import { SIDEBAR_P13N_ID } from "@/features/p13n/sidebar-layout.schema";
 
 type Props = {
   children: React.ReactNode;
@@ -38,6 +40,8 @@ export async function AppShell({ children, displayLanguage }: Props) {
   ]);
   const navigation = await loadNavigationData(account.state, {
     records: () => unwrapValidated(getGetRecordNavigationInteractor().invoke()),
+    sidebarLayout: async () =>
+      (await getGetP13nInteractor().invoke({ p13nId: SIDEBAR_P13N_ID })).data?.settings ?? null,
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
     systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
     unreadThreadCount: async () => {
@@ -78,6 +82,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           legalStatus={accountAllowed ? account.legalStatus : null}
           operatorConsoleVisible={operatorConsoleVisible}
           recordNavigation={navigation.records}
+          sidebarLayout={navigation.sidebarLayout}
           sidebarUser={toSidebarUser(account.user)}
           subscription={navigation.subscription}
           systemTaskCount={navigation.systemTaskCount}

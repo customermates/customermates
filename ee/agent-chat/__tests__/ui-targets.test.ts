@@ -115,7 +115,7 @@ describe("agent interface targets", () => {
     expect(agentRouteVisible("/profile/api-keys", "cloud", reads(Resource.users))).toBe(false);
     expect(agentRouteVisible("/profile/settings", "cloud", reads())).toBe(true);
     expect(agentRouteVisible("/dashboard", "cloud", reads())).toBe(true);
-    expect(agentRouteVisible("/routines", "cloud", reads(Resource.contacts))).toBe(false);
+    expect(agentRouteVisible("/routines", "cloud", reads(Resource.wiki))).toBe(false);
     expect(agentRouteVisible("/routines", "cloud", reads(Resource.routines))).toBe(true);
     expect(agentRouteVisible("/inbox", "cloud", everything)).toBe(true);
     for (const path of ["/inbox", "/routines", "/profile/connected-accounts", "/company/subscription"])

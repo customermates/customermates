@@ -12,7 +12,7 @@ import {
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
 
-const FIELD_CURRENCY_MIGRATION = "20261006140000_field_currency";
+const FIELD_CURRENCY_MIGRATION = "20261007000000_field_currency";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];

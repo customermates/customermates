@@ -15,7 +15,6 @@ import { randomUUID } from "node:crypto";
 import { Prisma } from "@/generated/prisma";
 
 import type { Action } from "@/generated/prisma";
-import type { AppPrismaClient } from "@/prisma/db";
 import type { RecordRepo } from "./record.repo";
 import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
@@ -37,13 +36,11 @@ import type { RecordMeasure } from "./record-measure.schema";
 import { RecordMeasureSchema } from "./record-measure.schema";
 import type { MeasureRow } from "./record-measure";
 
-import { UserAccessor } from "@/core/base/user-accessor";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import { prisma } from "@/prisma/db";
 import { CalculatedValueSchema, RecordModelSchema } from "./record-model.schema";
 import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
 import { compileRecordMeasure } from "./record-measure";
@@ -56,7 +53,7 @@ import { RecordQuerySchema } from "./record-query.schema";
 import { RecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layout.schema";
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 
-export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
+export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   constructor(
     private readonly scopedCompanyId?: string,
     private readonly background?: Pick<BackgroundTaskService, "dispatch">,
@@ -481,9 +478,6 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
       { companyId: input.companyId },
     );
   }
-  private get prisma() {
-    return getTransactionClient<AppPrismaClient>() ?? prisma;
-  }
 
   async getState() {
     return this.prisma.recordSchemaState.findUnique({
@@ -583,6 +577,20 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     });
   }
 
+  async countReadableRecordsByType(access: RecordAccessMap): Promise<Array<{ typeId: string; count: number }>> {
+    if (!access.size) return [];
+    const record = Prisma.raw('"record"');
+    const readable = [...access].map(
+      ([typeId, scope]) =>
+        Prisma.sql`(${record}."typeId" = ${typeId} AND ${recordReadPredicate(this.companyId, scope, record)})`,
+    );
+    return this.prisma.$queryRaw<Array<{ typeId: string; count: number }>>(Prisma.sql`
+      SELECT ${record}."typeId" AS "typeId", COUNT(*)::integer AS count FROM "CrmRecord" ${record}
+      WHERE ${record}."companyId" = ${this.companyId} AND ${record}."typeId" IN (${Prisma.join([...access.keys()])})
+        AND (${Prisma.join(readable, " OR ")})
+      GROUP BY ${record}."typeId"`);
+  }
+
   async validRecordRolesCompanyWide(roleIds: string[]): Promise<boolean> {
     return (
       (await this.prisma.userRole.count({
@@ -668,7 +676,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     }
     await this.prisma.recordSchemaState.upsert({
       where: { companyId },
-      create: { companyId, revision: model.revision, storageMode: "generic" },
+      create: { companyId, revision: model.revision },
       update: { companyId, revision: model.revision },
     });
     await this.prisma.recordSchemaRevision.create({

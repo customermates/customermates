@@ -35,6 +35,11 @@ describe("app topbar crumbs", () => {
       crumbs: [{ label: "RecordModel.configure" }],
       section: null,
     });
+    const list = { scope: "entity" as const, key: "configure", title: "Deals", pictureUrl: null, avatarKind: null };
+    expect(buildAppTopbarCrumbs("/en/configure", translate, list, "cloud", canAccess).crumbs).toEqual([
+      { label: "RecordModel.configure", href: "/configure" },
+      { label: "Deals" },
+    ]);
   });
 
   it.each([

@@ -26,7 +26,12 @@ const discovery = {
   total: model.types.length,
   types: model.types
     .filter((type) => !type.embedded)
-    .map((type) => ({ ...type, fieldCount: 3, permittedActions: ["readAll" as const] })),
+    .map((type) => ({
+      ...type,
+      fieldCount: 3,
+      recordCount: 0,
+      permittedActions: ["readAll" as const],
+    })),
 };
 const displayOptions = {
   barColors: [ChartColor.primary1],
@@ -422,7 +427,9 @@ describe("starter widget gallery", () => {
   const deal = model.types.find((type) => type.label === "Deal");
   const stage = model.fields.find((field) => field.typeId === deal?.id && field.valueType === "select");
   const template = (displayType: DisplayType, groupBy: object | null) => ({
-    key: displayType === DisplayType.areaChart ? ("wonValuePerMonth" as const) : ("dealsByStage" as const),
+    key: `starter:${displayType}`,
+    recipe: displayType === DisplayType.areaChart ? ("valueOverTime" as const) : ("stageFunnel" as const),
+    labels: { type: "Deals", group: "Stage" },
     measure: {
       source: { typeId: deal?.id ?? "", filters: [], relationships: [] },
       aggregation: "count" as const,

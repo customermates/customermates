@@ -36,7 +36,7 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         if (
           !model.types.some((type) => type.id === measure.source.typeId && !type.archived) ||
-          (!policy.allowed(measure.source.typeId, "readAll") && !policy.allowed(measure.source.typeId, "readOwn"))
+          !policy.canReadType(measure.source.typeId)
         )
           return failNotFound(CustomErrorCode.recordTypeNotFound);
         const issue = recordMeasureIssue(measure, model);

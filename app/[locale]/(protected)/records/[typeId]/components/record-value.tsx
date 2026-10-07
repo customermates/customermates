@@ -5,10 +5,9 @@ import { observer } from "mobx-react-lite";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import type { CalculatedValue, RecordField } from "@/features/records/record-model.schema";
-import type { ChipColor } from "@/constants/chip-colors";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { CHIP_COLORS } from "@/constants/chip-colors";
+import { toChipColor } from "@/constants/chip-colors";
 
 export const RecordValue = observer(function RecordValue({
   result,
@@ -28,9 +27,7 @@ export const RecordValue = observer(function RecordValue({
   if (value.kind === "select") {
     const option = field.options.find((option) => option.id === value.value);
     return (
-      <AppChip variant={CHIP_COLORS.includes(option?.color as ChipColor) ? (option?.color as ChipColor) : "secondary"}>
-        {option?.label ?? t("RecordModel.unavailableOption")}
-      </AppChip>
+      <AppChip variant={toChipColor(option?.color)}>{option?.label ?? t("RecordModel.unavailableOption")}</AppChip>
     );
   }
   if (value.kind === "boolean") return <span>{value.value ? t("RecordModel.yes") : t("RecordModel.no")}</span>;

@@ -611,9 +611,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     } else await route.fallback();
   });
   await select(page, '[id="measure.source.typeId"]', "Services");
-  const schemaRetry = dialog
-    .locator("#widget-config-filters")
-    .getByRole("button", { name: english.ErrorCard.retry, exact: true });
+  const schemaRetry = dialog.getByRole("button", { name: english.ErrorCard.retry, exact: true });
   await expect(schemaRetry).toBeVisible();
   await schemaRetry.click();
   await expect(schemaRetry).toHaveCount(0);
@@ -622,6 +620,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   await select(page, "#widget-group-path", "Line items");
   await select(page, "#widget-group-path", "Deal");
   await select(page, "#widget-group-field", "Stage");
+  await dialog.getByRole("tab", { name: english.Dashboard.widgetEditor.tabs.appearance, exact: true }).click();
   await expect(
     dialog.getByRole("switch", {
       name: english.Common.inputs.displayOptions.useGroupColors,
@@ -671,6 +670,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     .check();
   await expect.poll(fills).toHaveLength(2);
   await expect(dialog.getByRole("alert")).toHaveCount(0);
+  await dialog.getByRole("tab", { name: english.Dashboard.widgetEditor.tabs.data, exact: true }).click();
   await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers.min);
   await chartPreview(page, "€5.00", { New: "€5.00", Won: "€5.00" });
   await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers.max);
@@ -820,7 +820,7 @@ async function activityPreview(page: Page, present: string[], absent: string[]) 
   await expect(
     dialog.getByRole("button", { name: english.Dashboard.widgetEditor.preview.title, exact: true }),
   ).toBeEnabled();
-  await expect(dialog.locator("#widget-preview-heading").locator("..").locator("ol")).toHaveCount(1);
+  if (present.length) await expect(dialog.locator('[data-slot="widget-preview"] ol')).toHaveCount(1);
   for (const body of present) await expect(dialog.getByText(body, { exact: true })).toBeVisible();
   for (const body of absent) await expect(dialog.getByText(body, { exact: true })).toHaveCount(0);
 }
@@ -893,7 +893,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
     [],
     entries.map((entry) => entry.body),
   );
-  await expect(dialog.locator("#widget-preview-heading").locator("..").locator("ol > li")).toHaveCount(0);
+  await expect(dialog.locator('[data-slot="widget-preview"] ol > li')).toHaveCount(0);
   await toggleMultiple(page, `#activity-scope-${id("contact")}`, entries[0].name);
   await activityPreview(page, [entries[1].body], [entries[0].body]);
   await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.in);
@@ -1292,10 +1292,11 @@ test("retains readable list content after a failed refresh and retries the empty
   expect(completedSave.eof).toBeGreaterThan(0);
   expect(
     (
-      await database.query(
-        'SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
-        [companyId, workspace.userId, surfaceKey],
-      )
+      await database.query('SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
+        companyId,
+        workspace.userId,
+        surfaceKey,
+      ])
     ).rows,
   ).toEqual([{ searchTerm: name }]);
   await page.unrouteAll({ behavior: "wait" });

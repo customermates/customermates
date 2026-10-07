@@ -20,24 +20,16 @@ export class RecordViewPolicy implements DataViewPolicy {
   async list() {
     const [model, policy] = await Promise.all([this.records.getModel(), this.access.load()]);
     return model.types
-      .filter(
-        (type) =>
-          !type.archived &&
-          !type.embedded &&
-          (policy.allowed(type.id, "readOwn") || policy.allowed(type.id, "readAll")),
-      )
+      .filter((type) => !type.archived && !type.embedded && policy.canReadType(type.id))
       .map((type) => ({ surfaceKey: recordSurfaceKey(type.id), label: type.pluralLabel, path: `/records/${type.id}` }));
   }
   async describe(surfaceKey: string) {
     const typeId = surfaceKey.slice(8);
     const [model, policy] = await Promise.all([this.records.getModel(), this.access.load()]);
     const type = model.types.find((type) => type.id === typeId && !type.archived);
-    if (!type || !policy.actor || (!policy.allowed(typeId, "readOwn") && !policy.allowed(typeId, "readAll")))
-      return null;
+    if (!type || !policy.actor || !policy.canReadType(typeId)) return null;
     const relationships = model.relationships.filter(
-      (relation) =>
-        (policy.allowed(relation.sourceTypeId, "readAll") || policy.allowed(relation.sourceTypeId, "readOwn")) &&
-        (policy.allowed(relation.targetTypeId, "readAll") || policy.allowed(relation.targetTypeId, "readOwn")),
+      (relation) => policy.canReadType(relation.sourceTypeId) && policy.canReadType(relation.targetTypeId),
     );
     return {
       type: {
@@ -66,8 +58,7 @@ export class RecordViewPolicy implements DataViewPolicy {
     const typeId = surfaceKey.slice(8);
     const [model, policy] = await Promise.all([this.records.getModel(), this.access.load()]);
     if (!model.types.some((type) => type.id === typeId && !type.archived)) return CustomErrorCode.recordTypeNotFound;
-    if (!policy.actor || (!policy.allowed(typeId, "readOwn") && !policy.allowed(typeId, "readAll")))
-      return CustomErrorCode.permissionDenied;
+    if (!policy.actor || !policy.canReadType(typeId)) return CustomErrorCode.permissionDenied;
     if (!state) return null;
     return recordViewStateIsValid(typeId, state, model) ? null : CustomErrorCode.recordValueInvalid;
   }

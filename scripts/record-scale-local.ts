@@ -5,6 +5,7 @@ import { performance } from "node:perf_hooks";
 import { Client } from "pg";
 
 import { assertLocalDatabaseEnvironment } from "./local-database-safety";
+import { presetId } from "../features/records/crm-preset";
 import { RecordModelSchema, type RecordModel } from "../features/records/record-model.schema";
 import { validateRecordModel } from "../features/records/record-model-validation";
 import { RecordQuerySchema } from "../features/records/record-query.schema";
@@ -39,12 +40,11 @@ function requireValue<T>(value: T | undefined | null, message: string): T {
 async function workspace() {
   const company = await client.query<{ id: string }>('SELECT id FROM "Company" ORDER BY id LIMIT 1');
   const companyId = requireValue(company.rows[0]?.id, "Seed the disposable scale database first");
-  const state = await client.query<{ revision: number; storageMode: string }>(
-    'SELECT revision, "storageMode" FROM "RecordSchemaState" WHERE "companyId" = $1',
+  const state = await client.query<{ revision: number }>(
+    'SELECT revision FROM "RecordSchemaState" WHERE "companyId" = $1',
     [companyId],
   );
   const current = requireValue(state.rows[0], "Record migration has not been finalized");
-  if (current.storageMode !== "generic") throw new Error("Finalize the synthetic workspace before scaling it");
   const revision = await client.query<{ snapshot: unknown; actorId: string }>(
     'SELECT snapshot, "actorId" FROM "RecordSchemaRevision" WHERE "companyId" = $1 AND revision = $2',
     [companyId, current.revision],
@@ -64,11 +64,12 @@ async function seed() {
     [companyId, JSON.stringify({ benchmark: true })],
   );
   if (prior.rowCount) throw new Error("The scale fixture already exists");
-  const typeRows = await client.query<{ id: string; presetKey: string }>(
-    'SELECT id, "presetKey" FROM "RecordTypeDefinition" WHERE "companyId" = $1 AND "presetKey" = ANY($2::text[])',
-    [companyId, TYPES],
+  const typeIds = new Map(
+    TYPES.flatMap((key) => {
+      const id = presetId(companyId, key);
+      return model.types.some((type) => type.id === id) ? [[key, id] as const] : [];
+    }),
   );
-  const typeIds = new Map(typeRows.rows.map((row) => [row.presetKey, row.id]));
   if (typeIds.size !== TYPES.length) throw new Error("The five starter types are required");
   const fields = [];
   for (const key of TYPES) {
@@ -227,12 +228,8 @@ async function seed() {
 
 async function measure() {
   const { companyId, model } = await workspace();
-  const contactRow = await client.query<{ id: string }>(
-    'SELECT id FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND "presetKey"=$2',
-    [companyId, "contact"],
-  );
   const contact = requireValue(
-    model.types.find((type) => type.id === contactRow.rows[0]?.id),
+    model.types.find((type) => type.id === presetId(companyId, "contact")),
     "Missing contact type",
   );
   const bucket = requireValue(

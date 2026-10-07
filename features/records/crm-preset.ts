@@ -16,8 +16,8 @@ export function deterministicId(companyId: string, key: string): string {
   return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-8${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
 }
 
-export function presetId(companyId: string, presetKey: string): string {
-  return deterministicId(companyId, presetKey);
+export function presetId(companyId: string, key: string): string {
+  return deterministicId(companyId, key);
 }
 
 export function createCrmPreset(companyId: string): RecordModel {

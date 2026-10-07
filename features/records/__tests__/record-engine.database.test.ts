@@ -749,12 +749,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(order(f.id("lineItem"), saved.fields)).toEqual(order(f.id("lineItem")));
   });
 
-  it("marks a newly initialized workspace as generic storage", async () => {
-    const f = await fixture();
-    const state = await f.run(() => f.repo.getState());
-    expect(state?.storageMode).toBe("generic");
-  });
-
   it("exports filtered generic records and omits links to inaccessible records", async () => {
     const f = await fixture();
     const organization = await f.create("organization", "Private Organization");
@@ -2284,13 +2278,70 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("lets an update-only API role add record events to its existing webhook", async () => {
+    const f = await fixture();
+    const grant = async (actions: Array<"create" | "readAll" | "update">) => {
+      await f.run(async () => {
+        await prisma.rolePermission.deleteMany({ where: { companyId: f.company.id, roleId: f.memberRole.id } });
+        await prisma.rolePermission.createMany({
+          data: actions.map((action) => ({
+            companyId: f.company.id,
+            roleId: f.memberRole.id,
+            resource: "api",
+            action,
+          })),
+        });
+      });
+      return createMockUser({
+        ...f.member,
+        role: {
+          ...f.memberRole,
+          permissions: actions.map((action) => ({ id: randomUUID(), resource: "api", action })),
+        },
+      });
+    };
+    const creator = await grant(["create", "readAll"]);
+    const created = await f.run(
+      () =>
+        getUpsertWebhookInteractor().invoke({
+          url: "https://receiver.example.test/member",
+          events: ["messaging.message.received"],
+        }),
+      creator,
+    );
+    if (!created.ok) throw new Error("Member webhook fixture failed");
+    const editor = await grant(["readAll", "update"]);
+    expect(
+      await f.run(
+        () =>
+          getUpsertWebhookInteractor().invoke({
+            id: created.data.id,
+            events: ["record.created"],
+            expectedSchemaRevision: 1,
+          }),
+        editor,
+      ),
+    ).toMatchObject({ ok: true, data: { events: ["record.created"] } });
+    await expect(
+      f.run(
+        () =>
+          getUpsertWebhookInteractor().invoke({
+            url: "https://receiver.example.test/second",
+            events: ["record.created"],
+            expectedSchemaRevision: 1,
+          }),
+        editor,
+      ),
+    ).rejects.toThrow("create on api");
+  });
+
   it("enforces record webhook ownership and current API grants inside the write transaction", async () => {
     const f = await fixture();
-    const permissions = ["readAll", "update", "delete"].map((action) => ({
+    const permissions = ["create", "readAll", "update", "delete"].map((action) => ({
       companyId: f.company.id,
       roleId: f.memberRole.id,
       resource: "api" as const,
-      action: action as "readAll" | "update" | "delete",
+      action: action as "create" | "readAll" | "update" | "delete",
     }));
     await f.run(() => prisma.rolePermission.createMany({ data: permissions }));
     const member = createMockUser({
@@ -3188,15 +3239,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expectedRevision: 1,
       idempotencyKey: randomUUID(),
       recordGrants: [],
-      permissions: {
-        users: { canManage: "no", readAccess: "own" },
-        company: { canManage: "no" },
-        dataModel: { canManage: "no" },
-        api: { canManage: "no", readAccess: "none" },
-        inboxMessages: { canManage: "no", readAccess: "none" },
-        auditLog: { readAccess: "none" },
-        routines: { canManage: "no", readAccess: "none" },
-      },
+      permissions: [
+        { resource: "users", actions: ["readOwn"] },
+        { resource: "company", actions: [] },
+        { resource: "dataModel", actions: [] },
+        { resource: "api", actions: [] },
+        { resource: "inboxMessages", actions: [] },
+        { resource: "auditLog", actions: [] },
+        { resource: "routines", actions: [] },
+      ],
       ...overrides,
     });
 
@@ -3977,7 +4028,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const initial = roleInput({
       id: f.memberRole.id,
-      permissions: {},
+      permissions: [],
       recordGrants: [
         { typeId: f.id("contact"), actions: ["readOwn"] },
         { typeId: f.id("deal"), actions: ["readAll"] },
@@ -4009,7 +4060,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           ...initial,
           idempotencyKey: randomUUID(),
           expectedRevision: 2,
-          permissions: { company: {} },
+          permissions: [],
           recordGrants: [{ typeId: f.id("contact"), actions: [] }],
         }),
       ),
@@ -4283,6 +4334,58 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: false });
     expect(await f.run(() => f.repo.getState())).toMatchObject({ revision: 1 });
+  });
+
+  it("role management requires the specific Users & Roles action for create, edit and delete", async () => {
+    const f = await fixture();
+    const target = await f.run(() => getUpsertRoleInteractor().invoke(roleInput({ name: "Target" })));
+    if (!target.ok) throw target.error;
+    const grantOnly = (action: "create" | "update" | "delete") =>
+      f.run(async () => {
+        await prisma.rolePermission.deleteMany({ where: { companyId: f.company.id, roleId: f.memberRole.id } });
+        await prisma.rolePermission.create({
+          data: { companyId: f.company.id, roleId: f.memberRole.id, resource: "users", action },
+        });
+      });
+    const revision = async () => (await f.run(() => f.repo.getState()))?.revision ?? 0;
+    const edit = async () =>
+      f.run(
+        async () =>
+          getUpsertRoleInteractor().invoke(
+            roleInput({ id: target.data.role.id, name: `Target ${randomUUID()}`, expectedRevision: await revision() }),
+          ),
+        f.member,
+      );
+    const create = async () =>
+      f.run(
+        async () =>
+          getUpsertRoleInteractor().invoke(
+            roleInput({ name: `New ${randomUUID()}`, expectedRevision: await revision() }),
+          ),
+        f.member,
+      );
+    const remove = async (id: string) =>
+      f.run(
+        async () =>
+          getDeleteRoleInteractor().invoke({ id, expectedRevision: await revision(), idempotencyKey: randomUUID() }),
+        f.member,
+      );
+
+    await grantOnly("create");
+    const created = await create();
+    expect(created).toMatchObject({ ok: true });
+    expect(await edit()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: false });
+
+    await grantOnly("update");
+    expect(await edit()).toMatchObject({ ok: true });
+    expect(await create()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: false });
+
+    await grantOnly("delete");
+    expect(await create()).toMatchObject({ ok: false });
+    expect(await edit()).toMatchObject({ ok: false });
+    expect(await remove(target.data.role.id)).toMatchObject({ ok: true });
   });
 
   it("role management prevents preset dangling references and deletes with retry protection", async () => {
@@ -13920,7 +14023,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       version: 2,
       layout: { lg: layouts.lg[0] },
     });
-    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({ version: 1, layout: null });
+    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({
+      version: 1,
+      layout: foreign.data.layout,
+    });
     expect(await f.run(() => f.widgets.findOwned(untouchedId))).toMatchObject({
       version: 1,
       layout: { lg: untouchedPosition },

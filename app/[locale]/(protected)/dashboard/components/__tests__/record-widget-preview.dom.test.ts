@@ -20,6 +20,14 @@ vi.mock("@/components/forms/form-autocomplete", () => ({ FormAutocomplete: () =>
 vi.mock("@/components/forms/form-autocomplete-item", () => ({ FormAutocompleteItem: () => null }));
 vi.mock("@/components/forms/form-input", () => ({ FormInput: () => null }));
 vi.mock("@/components/forms/form-select", () => ({ FormSelect: () => null }));
+vi.mock("@/components/editor-tabs/editor-tabs", () => ({
+  EditorTabs: ({ tabs }: { tabs: Array<{ id: string; content: unknown }> }) =>
+    createElement(
+      "div",
+      null,
+      tabs.map((tab) => createElement("div", { key: tab.id }, tab.content as never)),
+    ),
+}));
 vi.mock("../record-widget-chart", () => ({ RecordWidgetChart: () => createElement("div", { "data-chart": "" }) }));
 vi.mock("../record-widget-filters", () => ({
   RecordWidgetFieldFilters: () => null,
@@ -77,9 +85,7 @@ function readyPreview(revision = model.revision) {
   return { ok: true, data: { result: { schemaRevision: revision, groups: [], total: 0 }, groupOptions: [] } };
 }
 async function requestPreview() {
-  const button = [...container.querySelectorAll("button")].find(
-    (element) => element.textContent === "RecordWidgets.preview",
-  );
+  const button = container.querySelector<HTMLButtonElement>('button[aria-label="RecordWidgets.preview"]');
   if (!button) throw new Error("Expected the preview control");
   expect(button.disabled).toBe(false);
   await act(async () => {
@@ -89,7 +95,13 @@ async function requestPreview() {
 }
 
 beforeEach(() => {
-  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  Object.assign(globalThis, {
+    IS_REACT_ACT_ENVIRONMENT: true,
+    ResizeObserver: class {
+      observe() {}
+      disconnect() {}
+    },
+  });
   vi.useFakeTimers();
   mocks.getRecordModelAction.mockResolvedValue(model);
   mocks.previewRecordWidgetAction.mockResolvedValue(readyPreview());

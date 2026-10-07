@@ -85,7 +85,7 @@ const ACCEPTED_TODAY: [string, unknown][] = [
         id: UUID,
         name: "Sales",
         description: "Project access",
-        permissions: {},
+        permissions: [{ resource: "company", actions: ["update"] }],
         recordGrants: [{ typeId: UUID, actions: ["create", "readOwn"] }],
         expectedRevision: 2,
         idempotencyKey: "role-provider-contract",
@@ -628,7 +628,7 @@ describe("the shipped tool catalog on the Google wire", () => {
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
       "$schema:removed": 52,
-      "additionalProperties:removed": 210,
+      "additionalProperties:removed": 203,
       "anyOf:collapsed": 178,
       "anyOf:merged": 30,
       "const:removed": 5,
@@ -640,7 +640,7 @@ describe("the shipped tool catalog on the Google wire", () => {
       "oneOf:rewritten": 10,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 210,
+      "additionalProperties:removed": 203,
       "const:removed": 5,
       "enum:removed": 18,
       "propertyNames:removed": 4,

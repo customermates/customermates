@@ -100,7 +100,7 @@ function DelayedBoundary({ children }: { children: ReactNode }) {
 function InitialStateProbe() {
   const rootStore = useRootStore();
   const values = [
-    rootStore.userStore.can(Resource.contacts, Action.readAll) ? "allowed" : "blocked",
+    rootStore.userStore.can(Resource.routines, Action.readAll) ? "allowed" : "blocked",
     rootStore.subscriptionStore.subscription?.plan,
     rootStore.intlStore.formatNumber(1234.5),
   ];

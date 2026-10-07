@@ -1,17 +1,17 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
 import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine-subscription.repo";
-import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.interactor";
+import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.repo";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
-import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-portal-url.interactor";
-import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
-import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.interactor";
+import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-portal-url.repo";
+import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.repo";
+import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
-import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.interactor";
+import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
 import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 

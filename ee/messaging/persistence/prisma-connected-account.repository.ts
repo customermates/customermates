@@ -1,16 +1,16 @@
 import type { PermissionService } from "@/core/base/permission.service";
 import type { MessagingProvider, Prisma } from "@/generated/prisma";
 
-import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
+import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.repo";
 import type { CountChannelsNeedingActionRepo } from "../connect/count-channels-needing-action.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-hosted-auth-link.repo";
 import type { ThreadAccountOwnersRepo } from "../inbox/thread-account-owners.repo";
 import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread-account.repo";
-import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-account.interactor";
-import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.interactor";
+import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-account.repo";
+import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.repo";
 import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.repo";
-import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.interactor";
-import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.interactor";
+import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.repo";
+import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.repo";
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
 import type { ConnectedAccountRecord } from "../messaging.schema";
@@ -28,7 +28,7 @@ import type { DeleteConnectedAccountsForExpiredTrialsRepo } from "@/ee/lifecycle
 import type { DeleteConnectedAccountsForInactiveOwnersRepo } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import type { DeleteOrphanedUnipileAccountsRepo } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
 import type { RefreshInboxRepo } from "../inbox/refresh-inbox.repo";
-import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.interactor";
+import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.repo";
 import type { FindConnectedAccountsByIdsRepo } from "../find-connected-accounts-by-ids.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { MessagingFilterOptionsRepo } from "../inbox/messaging-filter-options.repo";

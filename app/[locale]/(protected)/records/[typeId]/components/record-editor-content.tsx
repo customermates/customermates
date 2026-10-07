@@ -1,28 +1,30 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { SURFACE } from "@/core/data-view/data-view-keys";
-import { Maximize2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
-import { RecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { AppForm } from "@/components/forms/form-context";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { IntlLink, usePathname, useRouter } from "@/i18n/navigation";
+import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { RecordDetailPersonalization, RecordDetailLayoutControls } from "./record-detail-personalization";
+import {
+  RecordDetailLayoutStatus,
+  RecordDetailPersonalization,
+  useRecordDetailLayout,
+} from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
 import { RecordDetailSummary } from "./record-detail-summary";
 import { RecordEditorFields } from "./record-editor-fields";
-import { RecordEditorActions, RecordPageActions } from "./record-editor-actions";
+import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./record-editor-actions";
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
 import { useRecordDeletion } from "./use-record-deletion";
 import { RecordActivitiesPanel } from "@/features/messaging/activities/record-activities-panel";
@@ -107,18 +109,12 @@ const RecordEditorBody = observer(function RecordEditorBody({
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [panel, setPanel] = useState("details");
+  const detailLayout = useRecordDetailLayout();
   const id = useId();
   const deletion = useRecordDeletion({
     sessionKey: store.sessionKey,
     captureSession: store.captureSession,
-    canDelete: () =>
-      store.presentation.permittedActions.includes("delete") &&
-      !store.isLoading &&
-      !store.pendingOperationId &&
-      !store.refreshRequired &&
-      !store.hasRelatedDraft &&
-      !store.hasUnsavedChanges,
+    canDelete: () => store.presentation.permittedActions.includes("delete") && !store.isBusy,
     onMutating: store.setIsLoading,
     onInvalidated: store.rootStore.recordWorkspaceStore.invalidate,
     onDeleted: store.deletionCompleted,
@@ -226,103 +222,92 @@ const RecordEditorBody = observer(function RecordEditorBody({
   return (
     <AppForm id={id} store={store}>
       <AppCard className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none">
-        <AppCardHeader className="pb-4">
-          <h2 className="text-lg font-semibold truncate">
-            {store.record ? name : t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") })}
-          </h2>
-        </AppCardHeader>
+        <div className="flex shrink-0 items-start pr-[3.125rem]">
+          <AppCardHeader className="min-w-0 flex-1 pr-4! pb-4">
+            <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">
+              {store.record ? name : t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") })}
+            </h2>
+          </AppCardHeader>
 
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-6 pb-3">
-          <RecordAiAction
-            registerContext
-            active={store.isOpen}
-            context={{
-              reference: store.record
-                ? { kind: "record", typeId: store.record.ref.typeId, recordId: store.record.ref.recordId }
-                : { kind: "recordType", typeId: store.presentation.typeId },
-              label: name,
+          <RecordHeaderActions
+            className="mt-1.5"
+            deletion={deletion}
+            layout={detailLayout}
+            name={name}
+            store={store}
+            onOpenPage={(event) => {
+              if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              store.runAfterChannelDraft(openPage);
             }}
           />
-
-          <RecordDetailLayoutControls />
-
-          {store.record && (
-            <Button asChild size="sm" variant="ghost">
-              <IntlLink
-                data-navigation-guard-handled=""
-                href={`/records/${store.record.ref.typeId}/${store.record.ref.recordId}`}
-                onClick={(event) => {
-                  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                  event.preventDefault();
-                  store.runAfterChannelDraft(openPage);
-                }}
-              >
-                <Maximize2 className="size-4" />
-
-                {t("RecordModel.openPage")}
-              </IntlLink>
-            </Button>
-          )}
         </div>
+
+        {detailLayout && <RecordDetailLayoutStatus {...detailLayout} className="shrink-0 px-6 pb-3" />}
 
         {notices}
 
         <RecordDetailSummary store={store} />
 
-        <Tabs
-          className="flex min-h-0 flex-1 flex-col gap-0"
-          value={hasNotes || store.record ? panel : "details"}
-          onValueChange={(next) => store.runAfterChannelDraft(() => setPanel(next))}
-        >
-          {(hasNotes || store.record) && (
-            <TabsList
-              aria-label={t("EntityDetail.overview")}
-              className="h-13 w-full shrink-0 justify-stretch gap-0 rounded-none border-b p-0 group-data-[orientation=horizontal]/tabs:h-13"
-              variant="line"
-            >
-              <TabsTrigger className="h-full rounded-none px-4" value="details">
-                {t("EntityDetail.overview")}
-              </TabsTrigger>
+        <EditorTabs
+          className="flex flex-col"
+          contentClassName="flex min-h-0 flex-1 flex-col"
+          guardChange={store.runAfterChannelDraft}
+          label={t("EntityDetail.overview")}
+          rememberAs="record-drawer"
+          tabs={[
+            {
+              id: "details",
+              label: t("EntityDetail.overview"),
+              fields: [
+                ...store.fields.filter((field) => field.valueType !== "richText").map((field) => `values.${field.id}`),
+                "assignedUserIds",
+                "identities",
+              ],
+              content: (
+                <AppCardBody className="space-y-4 overflow-y-auto overscroll-contain">
+                  <RecordDetailOverview renderEditor={renderEditor} store={store} />
+                </AppCardBody>
+              ),
+            },
+            ...(hasNotes
+              ? [
+                  {
+                    id: "notes",
+                    label: t("EntityDetail.sections.notes"),
+                    fields: store.fields
+                      .filter((field) => field.valueType === "richText")
+                      .map((field) => `values.${field.id}`),
+                    content: (
+                      <AppCardBody className="overflow-y-auto overscroll-contain">
+                        <RecordEditorFields notes store={store} />
+                      </AppCardBody>
+                    ),
+                  },
+                ]
+              : []),
+            ...(store.record
+              ? [
+                  {
+                    id: "activities",
+                    label: t("Common.actions.labelHistory"),
+                    content: (
+                      <AppCardBody className="overflow-y-auto overscroll-contain">
+                        <RecordActivitiesPanel
+                          key={`${store.record.ref.typeId}:${store.record.ref.recordId}`}
+                          record={store.record.ref}
+                        />
+                      </AppCardBody>
+                    ),
+                  },
+                ]
+              : []),
+          ]}
+        />
 
-              {hasNotes && (
-                <TabsTrigger className="h-full rounded-none px-4" value="notes">
-                  {t("EntityDetail.sections.notes")}
-                </TabsTrigger>
-              )}
-
-              {store.record && (
-                <TabsTrigger className="h-full rounded-none px-4" value="activities">
-                  {t("Common.actions.labelHistory")}
-                </TabsTrigger>
-              )}
-            </TabsList>
-          )}
-
-          <AppCardBody className="overflow-y-auto overscroll-contain">
-            <TabsContent className="m-0 space-y-4" value="details">
-              <RecordDetailOverview renderEditor={renderEditor} store={store} />
-            </TabsContent>
-
-            {hasNotes && (
-              <TabsContent className="m-0" value="notes">
-                <RecordEditorFields notes store={store} />
-              </TabsContent>
-            )}
-
-            {store.record && (
-              <TabsContent className="m-0" value="activities">
-                <RecordActivitiesPanel
-                  key={`${store.record.ref.typeId}:${store.record.ref.recordId}`}
-                  record={store.record.ref}
-                />
-              </TabsContent>
-            )}
-          </AppCardBody>
-        </Tabs>
-
-        {(!store.isReadOnly || (store.record && store.presentation.permittedActions.includes("delete"))) && (
+        {!store.isReadOnly && (
           <AppCardFooter>
-            <RecordEditorActions deletion={deletion} formId={id} name={name} store={store} />
+            <RecordEditorActions formId={id} store={store} />
           </AppCardFooter>
         )}
       </AppCard>

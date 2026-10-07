@@ -19,93 +19,140 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormActions } from "@/components/card/form-actions";
+import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormTextarea } from "@/components/forms/form-textarea";
-import { FormRadioGroup, type FormRadioGroupOption } from "@/components/forms/form-radio-group";
+import { FormRadioGroup } from "@/components/forms/form-radio-group";
+import {
+  MANAGE_ACTIONS,
+  manageImpliesReadAll,
+  RECORD_TYPE_ACCESS,
+  RESOURCE_ACCESS,
+  type ManageAction,
+  type ReadAccess,
+} from "@/features/role/resource-access";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 
 type Props = {
   store: RoleModalStore;
 };
 
+const SYSTEM_RESOURCE_ORDER = [
+  Resource.api,
+  Resource.users,
+  Resource.company,
+  Resource.dataModel,
+  Resource.wiki,
+  Resource.auditLog,
+  Resource.inboxMessages,
+  Resource.routines,
+];
+const CLOUD_RESOURCES = new Set<Resource>([Resource.inboxMessages, Resource.routines]);
+
 export const RoleModal = observer(({ store }: Props) => {
   const t = useTranslations();
   const { form, isDisabledOrSystemRole, isLoading, canDeleteRole, isSystemRole, isOwnRole, canManage } = store;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
-  function renderResourcePermissions(resource: keyof typeof form.permissions) {
-    const permission = form.permissions[resource];
-    if (!permission) return null;
+  const manageLabels = { create: t("RoleModal.create"), update: t("RoleModal.edit"), delete: t("RoleModal.delete") };
+  const readLabels = { all: t("RoleModal.readAll"), own: t("RoleModal.readOwn"), none: t("RoleModal.readNone") };
+  const dash = <span className="text-sm text-muted-foreground">—</span>;
 
-    const hasReadAccess = "readAccess" in permission;
-    const hasCanManage = "canManage" in permission;
-    const manageImpliesRead = resource === Resource.wiki && hasCanManage && permission.canManage === "yes";
-
-    const canManageOptions: FormRadioGroupOption[] = [
-      { value: "yes", label: t("RoleModal.yes") },
-      { value: "no", label: t("RoleModal.no") },
-    ];
-
-    const readAccessOptions: FormRadioGroupOption[] = [
-      {
-        value: "all",
-        label: t("RoleModal.readAll"),
-        disabled: manageImpliesRead,
-      },
-      ...(resource !== Resource.api &&
-      resource !== Resource.auditLog &&
-      resource !== Resource.inboxMessages &&
-      resource !== Resource.wiki
-        ? [
-            {
-              value: "own",
-              label: t("RoleModal.readOwn"),
-            },
-          ]
-        : []),
-      ...(resource !== Resource.company
-        ? [
-            {
-              value: "none",
-              label: t("RoleModal.readNone"),
-              disabled: manageImpliesRead,
-            },
-          ]
-        : []),
-    ];
-
+  function renderAccessRow(row: {
+    key: string;
+    label: string;
+    path: string;
+    access: { manage: readonly ManageAction[]; read: readonly ReadAccess[] };
+    note?: string;
+    lockedRead?: boolean;
+    data: Record<string, string>;
+  }) {
     return (
-      <div key={resource} className="grid grid-cols-subgrid col-span-3 py-3 items-center">
-        <h3 className="text-sm font-medium">{t(`RoleModal.resources.${resource}`)}</h3>
+      <div
+        key={row.key}
+        className="grid gap-y-3 py-3 sm:col-span-5 sm:grid-cols-subgrid sm:items-center sm:gap-y-0"
+        {...row.data}
+      >
+        <h3 className="min-w-0 break-words text-sm font-medium">
+          {row.label}
 
-        <div>
-          {hasCanManage ? (
-            <FormRadioGroup
-              ariaLabel={`${t(`RoleModal.resources.${resource}`)} — ${t("RoleModal.manageAccess")}`}
-              id={`permissions.${resource}.canManage`}
-              options={canManageOptions}
-            />
-          ) : (
-            <span className="text-muted-foreground text-sm">—</span>
+          {row.note && <span className="block text-xs font-normal text-muted-foreground">{row.note}</span>}
+        </h3>
+
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:contents">
+          <p className="w-full text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">
+            {t("RoleModal.manageAccess")}
+          </p>
+
+          {MANAGE_ACTIONS.map((action) =>
+            row.access.manage.includes(action) ? (
+              <FormCheckbox
+                key={action}
+                id={`${row.path}.${action}`}
+                label={<span className="sm:sr-only">{manageLabels[action]}</span>}
+              />
+            ) : (
+              <span key={action} aria-hidden="true" className="hidden sm:inline">
+                {dash}
+              </span>
+            ),
           )}
+
+          {row.access.manage.length === 0 && <span className="sm:hidden">{dash}</span>}
         </div>
 
-        <div>
-          {hasReadAccess ? (
+        <div className="space-y-2 sm:space-y-0">
+          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">
+            {t("RoleModal.readAccess")}
+          </p>
+
+          {row.access.read.length ? (
             <FormRadioGroup
-              ariaLabel={`${t(`RoleModal.resources.${resource}`)} — ${t("RoleModal.readAccess")}`}
-              id={`permissions.${resource}.readAccess`}
-              options={readAccessOptions}
+              ariaLabel={`${row.label} — ${t("RoleModal.readAccess")}`}
+              className="gap-3"
+              id={`${row.path}.readAccess`}
+              options={row.access.read.map((value) => ({
+                value,
+                label: readLabels[value],
+                disabled: row.lockedRead && value !== "all",
+              }))}
             />
           ) : (
-            <span className="text-muted-foreground text-sm">—</span>
+            dash
           )}
         </div>
       </div>
     );
   }
+
+  function renderResource(resource: Resource) {
+    const label = t(`RoleModal.resources.${resource}`);
+    const access = form.permissions[resource];
+    return renderAccessRow({
+      key: resource,
+      label,
+      path: `permissions.${resource}`,
+      access: RESOURCE_ACCESS[resource],
+      lockedRead: manageImpliesReadAll(resource) && MANAGE_ACTIONS.some((action) => access[action]),
+      data: { "data-resource-permission": resource },
+    });
+  }
+
+  const header = (title: string) => (
+    <div className="hidden py-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:col-span-5 sm:grid sm:grid-cols-subgrid">
+      <span>{title}</span>
+
+      {MANAGE_ACTIONS.map((action) => (
+        <span key={action}>{manageLabels[action]}</span>
+      ))}
+
+      <span>{t("RoleModal.readAccess")}</span>
+    </div>
+  );
+  const tableClass =
+    "grid grid-cols-1 divide-y divide-border border-y border-border sm:grid-cols-[minmax(7rem,1fr)_repeat(3,minmax(3.5rem,auto))_auto] sm:gap-x-4";
 
   return (
     <AppModal
@@ -134,132 +181,98 @@ export const RoleModal = observer(({ store }: Props) => {
             <h2 className="grow truncate text-base font-semibold">{t("RoleModal.title")}</h2>
           </AppCardHeader>
 
-          <AppCardBody>
-            {store.loadFailed && (
-              <Alert color="danger" description={t("ErrorCard.title")}>
-                <Button size="sm" variant="secondary" onClick={() => runUserAction(store.loadContext)}>
-                  {t("ErrorCard.retry")}
-                </Button>
-              </Alert>
-            )}
+          <EditorTabs
+            className="flex flex-col"
+            contentClassName="flex min-h-0 flex-1 flex-col"
+            label={t("RoleModal.title")}
+            tabs={[
+              {
+                id: "general",
+                label: t("RoleModal.general"),
+                fields: ["name", "description"],
+                content: (
+                  <AppCardBody>
+                    {store.loadFailed && (
+                      <Alert color="danger" description={t("ErrorCard.title")}>
+                        <Button size="sm" variant="secondary" onClick={() => runUserAction(store.loadContext)}>
+                          {t("ErrorCard.retry")}
+                        </Button>
+                      </Alert>
+                    )}
 
-            {isSystemRole && <Alert color="primary" description={t("RoleModal.systemAlert")} />}
+                    {isSystemRole && <Alert color="primary" description={t("RoleModal.systemAlert")} />}
 
-            {!isSystemRole && isOwnRole && canManage && (
-              <Alert color="warning" description={t("RoleModal.ownRoleAlert")} />
-            )}
+                    {!isSystemRole && isOwnRole && canManage && (
+                      <Alert color="warning" description={t("RoleModal.ownRoleAlert")} />
+                    )}
 
-            {isSystemRole ? (
-              <div className="space-y-1.5">
-                <FormLabel htmlFor="name">{t("Common.inputs.name")}</FormLabel>
+                    {isSystemRole ? (
+                      <div className="space-y-1.5">
+                        <FormLabel htmlFor="name">{t("Common.inputs.name")}</FormLabel>
 
-                <Input readOnly id="name" value={t("RoleModal.systemName")} />
-              </div>
-            ) : (
-              <FormInput required id="name" />
-            )}
+                        <Input readOnly id="name" value={t("RoleModal.systemName")} />
+                      </div>
+                    ) : (
+                      <FormInput required id="name" />
+                    )}
 
-            {isSystemRole ? (
-              <div className="space-y-1.5">
-                <FormLabel htmlFor="description">{t("Common.inputs.description")}</FormLabel>
+                    {isSystemRole ? (
+                      <div className="space-y-1.5">
+                        <FormLabel htmlFor="description">{t("Common.inputs.description")}</FormLabel>
 
-                <Textarea readOnly id="description" value={t("RoleModal.systemDescription")} />
-              </div>
-            ) : (
-              <FormTextarea required id="description" />
-            )}
+                        <Textarea readOnly id="description" value={t("RoleModal.systemDescription")} />
+                      </div>
+                    ) : (
+                      <FormTextarea required id="description" />
+                    )}
+                  </AppCardBody>
+                ),
+              },
+              {
+                id: "workspace",
+                label: t("RoleModal.workspacePermissions"),
+                fields: ["permissions"],
+                content: (
+                  <AppCardBody>
+                    <div className={tableClass}>
+                      {header(t("RoleModal.resourceHeader"))}
 
-            <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 divide-y divide-border border-y border-border sm:gap-x-8">
-              <div className="grid grid-cols-subgrid col-span-3 py-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-[11px]">
-                <span>{t("RoleModal.resourceHeader")}</span>
+                      {SYSTEM_RESOURCE_ORDER.filter(
+                        (resource) => store.rootStore.appMode !== "self-hosted" || !CLOUD_RESOURCES.has(resource),
+                      ).map(renderResource)}
+                    </div>
+                  </AppCardBody>
+                ),
+              },
+              {
+                id: "record-types",
+                label: t("RoleModal.recordTypes"),
+                fields: ["recordGrants"],
+                content: (
+                  <AppCardBody>
+                    <div className="space-y-3">
+                      <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
 
-                <span>{t("RoleModal.manageAccess")}</span>
+                      <div className={tableClass}>
+                        {header(t("RoleModal.recordTypes"))}
 
-                <span>{t("RoleModal.readAccess")}</span>
-              </div>
-
-              {renderResourcePermissions(Resource.api)}
-
-              {renderResourcePermissions(Resource.users)}
-
-              {renderResourcePermissions(Resource.company)}
-
-              {renderResourcePermissions(Resource.dataModel)}
-
-              {renderResourcePermissions(Resource.wiki)}
-
-              {renderResourcePermissions(Resource.auditLog)}
-
-              {store.rootStore.appMode !== "self-hosted" && renderResourcePermissions(Resource.inboxMessages)}
-
-              {store.rootStore.appMode !== "self-hosted" && renderResourcePermissions(Resource.routines)}
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">{t("RoleModal.recordTypes")}</h3>
-
-              <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
-
-              <div className="grid grid-cols-2 gap-x-3 divide-y divide-border border-y border-border sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-6">
-                <div className="hidden py-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:col-span-3 sm:grid sm:grid-cols-subgrid">
-                  <span>{t("RoleModal.recordTypes")}</span>
-
-                  <span>{t("RoleModal.manageAccess")}</span>
-
-                  <span>{t("RoleModal.readAccess")}</span>
-                </div>
-
-                {store.context?.types.map((type, index) => (
-                  <div
-                    key={type.id}
-                    className="col-span-2 grid grid-cols-subgrid items-start gap-y-3 py-3 sm:col-span-3 sm:items-center sm:gap-y-0"
-                    data-record-permission={type.id}
-                  >
-                    <h3 className="col-span-2 min-w-0 break-words text-sm font-medium sm:col-span-1">
-                      {type.label}
-
-                      {type.archived && (
-                        <span className="block text-xs font-normal text-muted-foreground">
-                          {t("RoleModal.archived")}
-                        </span>
-                      )}
-                    </h3>
-
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">
-                        {t("RoleModal.manageAccess")}
-                      </p>
-
-                      <div className="flex max-w-48 flex-wrap gap-x-3 gap-y-2">
-                        <FormCheckbox id={`recordGrants.${index}.create`} label={t("RoleModal.create")} />
-
-                        <FormCheckbox id={`recordGrants.${index}.update`} label={t("RoleModal.edit")} />
-
-                        <FormCheckbox id={`recordGrants.${index}.delete`} label={t("RoleModal.delete")} />
+                        {store.context?.types.map((type, index) =>
+                          renderAccessRow({
+                            key: type.id,
+                            label: type.label,
+                            note: type.archived ? t("RoleModal.archived") : undefined,
+                            path: `recordGrants.${index}`,
+                            access: RECORD_TYPE_ACCESS,
+                            data: { "data-record-permission": type.id },
+                          }),
+                        )}
                       </div>
                     </div>
-
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">
-                        {t("RoleModal.readAccess")}
-                      </p>
-
-                      <FormRadioGroup
-                        ariaLabel={`${type.label} — ${t("RoleModal.readAccess")}`}
-                        className="gap-3"
-                        id={`recordGrants.${index}.readAccess`}
-                        options={[
-                          { value: "all", label: t("RoleModal.readAll") },
-                          { value: "own", label: t("RoleModal.readOwn") },
-                          { value: "none", label: t("RoleModal.readNone") },
-                        ]}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </AppCardBody>
+                  </AppCardBody>
+                ),
+              },
+            ]}
+          />
 
           <FormActions showInitially anchorScope="role-modal" overrideDisabled={isDisabledOrSystemRole} store={store} />
         </AppCard>

@@ -273,13 +273,12 @@ describeDatabase("operator user administration against a real database", { timeo
         data: {
           companyId,
           id: taskType.id,
-          presetKey: "task",
           label: taskType.label,
           pluralLabel: taskType.pluralLabel,
           definition: taskType,
         },
       });
-      await prisma.recordSchemaState.create({ data: { companyId, revision: 1, storageMode: "generic" } });
+      await prisma.recordSchemaState.create({ data: { companyId, revision: 1 } });
       return prisma.crmRecord.create({
         data: {
           companyId,

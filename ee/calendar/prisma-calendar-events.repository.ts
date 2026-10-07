@@ -8,7 +8,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 import { calendarEventAccessWhere } from "@/ee/messaging/messaging-access";
 import type { CalendarAttendee, CalendarEventDto } from "./calendar.schema";
 import type { GetCalendarEventsRepo } from "@/ee/calendar/get-calendar-events.repo";
-import type { GetCalendarEventByIdRepo } from "./get-calendar-event-by-id.interactor";
+import type { GetCalendarEventByIdRepo } from "./get-calendar-event-by-id.repo";
 
 export class PrismaCalendarEventsRepo
   extends QueryRepository<Prisma.CalendarEventWhereInput>

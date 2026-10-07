@@ -748,13 +748,13 @@ describe("canonical webhook secret permissions", () => {
     {
       locale: "en" as const,
       query: "Who can see saved webhook secrets?",
-      visibility: "only to the Admin role or roles with Manage Yes on API & Webhooks",
+      visibility: "only to the Admin role or roles with Edit on API & Webhooks",
       readOnly: "Read access All alone shows ********",
     },
     {
       locale: "de" as const,
       query: "Wer kann gespeicherte Webhook-Secrets sehen?",
-      visibility: "nur die Rolle Admin oder Rollen mit Verwalten Ja bei API & Webhooks",
+      visibility: "nur die Rolle Admin oder Rollen mit Bearbeiten bei API & Webhooks",
       readOnly: "Lesen Alle allein zeigt ********",
     },
   ])("keeps the complete $locale grant and read-only boundary", ({ locale, query, visibility, readOnly }) => {

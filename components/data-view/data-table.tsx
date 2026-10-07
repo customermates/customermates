@@ -39,6 +39,7 @@ type Props<E extends HasId> = {
   columns: ColumnDef<E>[];
   className?: string;
   onRowClick?: (item: E) => void;
+  rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
 };
 
@@ -53,6 +54,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   columns,
   className,
   onRowClick,
+  rowActions,
   onRowHref,
 }: Props<E>) {
   const t = useTranslations();
@@ -233,9 +235,22 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   );
 
   const canBulkAct = store.supportsSelection;
+  const actionsColumn = useMemo<ColumnDef<E> | null>(
+    () =>
+      rowActions
+        ? {
+            id: "__actions",
+            header: () => <span className="sr-only">{t("DataView.rowActions")}</span>,
+            enableSorting: false,
+            enableResizing: false,
+            cell: ({ row }) => rowActions(row.original),
+          }
+        : null,
+    [rowActions, t],
+  );
   const allColumns = useMemo(
-    () => (canBulkAct ? [selectionColumn, ...columns] : columns),
-    [canBulkAct, selectionColumn, columns],
+    () => [...(canBulkAct ? [selectionColumn] : []), ...columns, ...(actionsColumn ? [actionsColumn] : [])],
+    [canBulkAct, selectionColumn, columns, actionsColumn],
   );
 
   const table = useReactTable<E>({
@@ -263,7 +278,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     return (
       <TableRow
         key={row.id}
-        className={cn((onRowClick || onRowHref) && "cursor-pointer")}
+        className={cn("group/row", (onRowClick || onRowHref) && "cursor-pointer")}
         data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
         onClick={(e) => {
           if (isInteractiveClick(e)) return;
@@ -282,7 +297,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       >
         {row.getVisibleCells().map((cell) => {
           const columnId = cell.column.id;
-          const isSelectionCell = columnId === "__select";
+          const isSelectionCell = columnId === "__select" || columnId === "__actions";
           const isNameCell = columnId === (store.primaryColumnId ?? store.columnsDefinition[0]?.uid);
           const liveWidth = getColumnWidth(columnId);
           const content = flexRender(cell.column.columnDef.cell, cell.getContext());
@@ -331,7 +346,13 @@ export const DataTable = observer(function DataTable<E extends HasId>({
           return (
             <TableCell
               key={cell.id}
-              className={isSelectionCell ? "w-10" : undefined}
+              className={
+                columnId === "__actions"
+                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:bg-background focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
+                  : isSelectionCell
+                    ? "w-10"
+                    : undefined
+              }
               style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
             >
               {liveWidth != null && !isSelectionCell ? (
@@ -360,7 +381,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               const columnId = header.column.id;
-              const isSelectionCol = columnId === "__select";
+              const isSelectionCol = columnId === "__select" || columnId === "__actions";
               const canSort = header.column.getCanSort() && !isSelectionCol;
               const canResize = header.column.getCanResize() && !isSelectionCol;
               const sorted = header.column.getIsSorted();

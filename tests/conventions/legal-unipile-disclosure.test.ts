@@ -601,8 +601,8 @@ describe("registration legal copy covers the DPA", () => {
     expect(routeGuard).toContain('state: "legal"');
     expect(accountState).toContain('legal: "/legal-update"');
     expect(sidebar).toContain("<LegalUpdateAlert");
-    expect(sidebar).toContain("<NavMain");
-    expect(sidebar.indexOf("<LegalUpdateAlert")).toBeLessThan(sidebar.indexOf("<NavMain"));
+    expect(sidebar).toContain("<NavSections");
+    expect(sidebar.indexOf("<LegalUpdateAlert")).toBeLessThan(sidebar.indexOf("<NavSections"));
     expect(alert).toContain('href="/legal-update"');
     expect(alert).toContain("aria-label");
     expect(alert).not.toContain("useEffect");

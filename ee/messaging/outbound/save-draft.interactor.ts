@@ -7,7 +7,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { fail } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -95,7 +95,7 @@ function draftRecipient(identifier: string): MessagingAttendee {
   return { ...EMPTY_ATTENDEE, attendeeId: identifier, identifier };
 }
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, MessagingMessageDto> {
   constructor(
     private repo: SaveDraftRepo,

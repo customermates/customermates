@@ -18,8 +18,12 @@ import { FormSwitch } from "@/components/forms/form-switch";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
+import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
+import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { RelationshipPathInput } from "@/components/records/relationship-path-input";
 import { recordInvariant } from "@/features/records/record-invariant";
+import { recordTypeIcon } from "@/components/records/record-type-icon";
+import { configureCardinality } from "./configure-graph-model";
 
 const empty = () => ({
   mode: "direct" as "direct" | "path",
@@ -119,10 +123,102 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
     ];
   }
 }
+const CARDINALITIES = ["oneToOne", "oneToMany", "manyToOne", "manyToMany"] as const;
+
+const DirectRelationshipFields = observer(function DirectRelationshipFields({
+  store,
+}: {
+  store: RelationshipModalStore;
+}) {
+  const t = useTranslations();
+  const types = store.model.types;
+  const source = types.find((type) => type.id === store.sourceTypeId);
+  const target = types.find((type) => type.id === store.form.targetTypeId);
+  const SourceIcon = recordTypeIcon(source?.icon ?? "");
+  const cardinality = configureCardinality(store.form);
+  const listLabel = (type: typeof source) => type?.pluralLabel ?? t("RecordModel.relationshipEditor.otherList");
+  return (
+    <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-0">
+      <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="source">
+        <FormSelect
+          readOnly
+          id="sourceTypeId"
+          items={[
+            {
+              value: store.sourceTypeId,
+              label: listLabel(source),
+              startContent: <SourceIcon aria-hidden className="size-4 text-muted-foreground" />,
+            },
+          ]}
+          label={t("RecordModel.relationshipEditor.thisList")}
+          value={store.sourceTypeId}
+        />
+
+        <FormInput
+          required
+          description={t("RecordModel.relationshipEditor.shownOn", { list: listLabel(source) })}
+          id="sourceLabel"
+          label={t("RecordModel.relationshipLabel")}
+        />
+      </div>
+
+      <div className="flex items-center justify-center">
+        <span aria-hidden className="hidden h-px w-3 bg-border sm:block" />
+
+        <FormSelect
+          ariaLabel={t("RecordModel.relationshipEditor.cardinality")}
+          containerClassName="w-40"
+          id="cardinality"
+          items={CARDINALITIES.map((value) => ({ value, label: t(`RecordModel.cardinality.${value}`) }))}
+          label={null}
+          value={cardinality}
+          onValueChange={(value) => {
+            const [left, right] = value.split("To");
+            store.onChange("targetCardinality", left === "one" ? "one" : "many");
+            store.onChange("sourceCardinality", right === "One" ? "one" : "many");
+          }}
+        />
+
+        <span aria-hidden className="hidden h-px w-3 bg-border sm:block" />
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="target">
+        <FormSelect
+          id="targetTypeId"
+          items={types
+            .filter((type) => !type.archived)
+            .map((type) => {
+              const Icon = recordTypeIcon(type.icon);
+              return {
+                value: type.id,
+                label: type.pluralLabel,
+                startContent: <Icon aria-hidden className="size-4 text-muted-foreground" />,
+              };
+            })}
+          label={t("RecordModel.linkedType")}
+        />
+
+        <FormInput
+          required
+          description={t("RecordModel.relationshipEditor.shownOn", { list: listLabel(target) })}
+          id="targetLabel"
+          label={t("RecordModel.oppositeLabel")}
+        />
+      </div>
+    </div>
+  );
+});
+
 export const RelationshipModal = observer(function RelationshipModal({ store }: { store: RelationshipModalStore }) {
   const t = useTranslations();
+  const source = store.model.types.find((type) => type.id === store.sourceTypeId);
+  const askAi = useRecordAiAction({
+    registerContext: true,
+    active: store.isOpen && Boolean(source),
+    context: { reference: { kind: "recordType", typeId: store.sourceTypeId }, label: source?.pluralLabel ?? "" },
+  });
   return (
-    <ModelChangeSheet store={store} title={t("RecordModel.relationship")}>
+    <ModelChangeSheet actions={askAi ? [askAi] : []} store={store} title={t("RecordModel.relationship")}>
       <AppForm store={store}>
         <div className="space-y-4">
           <ModelChangeRecovery store={store} />
@@ -135,91 +231,90 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
             />
           )}
 
-          <div className="space-y-4">
-            <FormSelect
-              disabled={Boolean(store.form.id)}
-              id="mode"
-              items={[
-                { value: "direct", label: t("RecordModel.directRelationship") },
-                { value: "path", label: t("RecordModel.relationshipPath") },
-              ]}
-              label={t("RecordModel.connectionType")}
-            />
+          <EditorTabs
+            className="-mx-6"
+            contentClassName="space-y-4 px-6 pt-5"
+            label={t("RecordModel.relationship")}
+            tabs={[
+              {
+                id: "relationship",
+                label: t("RecordModel.relationship"),
+                fields: ["mode", "targetTypeId", "sourceLabel", "targetLabel", "path", "archived"],
+                content: (
+                  <>
+                    {!store.form.id && (
+                      <FormSelect
+                        id="mode"
+                        items={[
+                          { value: "direct", label: t("RecordModel.directRelationship") },
+                          { value: "path", label: t("RecordModel.relationshipPath") },
+                        ]}
+                        label={t("RecordModel.connectionType")}
+                      />
+                    )}
 
-            {store.form.mode === "path" ? (
-              <>
-                <p className="text-sm text-muted-foreground">{t("RecordModel.relationshipPathHelp")}</p>
+                    {store.form.mode === "path" ? (
+                      <>
+                        <p className="text-sm text-muted-foreground">{t("RecordModel.relationshipPathHelp")}</p>
 
-                <FormInput required id="sourceLabel" label={t("RecordModel.name")} />
+                        <FormInput required id="sourceLabel" label={t("RecordModel.name")} />
 
-                <RelationshipPathInput
-                  disabled={store.isLoading || Boolean(store.pendingOperationId)}
-                  model={store.model}
-                  typeId={store.sourceTypeId}
-                  value={store.form.path}
-                  onChange={(path) => store.onChange("path", path)}
-                />
+                        <RelationshipPathInput
+                          disabled={store.isLoading || Boolean(store.pendingOperationId)}
+                          model={store.model}
+                          typeId={store.sourceTypeId}
+                          value={store.form.path}
+                          onChange={(path) => store.onChange("path", path)}
+                        />
 
-                {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationshipPath")} />}
-              </>
-            ) : (
-              <>
-                <FormSelect
-                  id="targetTypeId"
-                  items={store.model.types
-                    .filter((type) => !type.archived)
-                    .map((type) => ({ value: type.id, label: type.pluralLabel }))}
-                  label={t("RecordModel.linkedType")}
-                />
+                        {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationshipPath")} />}
+                      </>
+                    ) : (
+                      <>
+                        <DirectRelationshipFields store={store} />
 
-                <FormInput required id="sourceLabel" label={t("RecordModel.relationshipLabel")} />
+                        {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationship")} />}
+                      </>
+                    )}
+                  </>
+                ),
+              },
+              ...(store.form.mode === "path"
+                ? []
+                : [
+                    {
+                      id: "deletion",
+                      label: t("RecordModel.relationshipEditor.onDelete"),
+                      fields: ["onSourceDelete", "onTargetDelete"],
+                      content: (
+                        <>
+                          <FormSelect
+                            id="onSourceDelete"
+                            items={["unlink", "restrict", "cascade"].map((value) => ({
+                              value,
+                              label: t(`RecordModel.deletion.${value}`),
+                            }))}
+                            label={t("RecordModel.onSourceDelete")}
+                          />
 
-                <FormInput required id="targetLabel" label={t("RecordModel.oppositeLabel")} />
+                          <FormSelect
+                            id="onTargetDelete"
+                            items={["unlink", "restrict", "cascade"].map((value) => ({
+                              value,
+                              label: t(`RecordModel.deletion.${value}`),
+                            }))}
+                            label={t("RecordModel.onTargetDelete")}
+                          />
+                        </>
+                      ),
+                    },
+                  ]),
+            ]}
+          />
 
-                <FormSelect
-                  id="sourceCardinality"
-                  items={[
-                    { value: "one", label: t("RecordModel.one") },
-                    { value: "many", label: t("RecordModel.many") },
-                  ]}
-                  label={t("RecordModel.linkedCount")}
-                />
-
-                <FormSelect
-                  id="targetCardinality"
-                  items={[
-                    { value: "one", label: t("RecordModel.one") },
-                    { value: "many", label: t("RecordModel.many") },
-                  ]}
-                  label={t("RecordModel.oppositeCount")}
-                />
-
-                <FormSelect
-                  id="onSourceDelete"
-                  items={["unlink", "restrict", "cascade"].map((value) => ({
-                    value,
-                    label: t(`RecordModel.deletion.${value}`),
-                  }))}
-                  label={t("RecordModel.onSourceDelete")}
-                />
-
-                <FormSelect
-                  id="onTargetDelete"
-                  items={["unlink", "restrict", "cascade"].map((value) => ({
-                    value,
-                    label: t(`RecordModel.deletion.${value}`),
-                  }))}
-                  label={t("RecordModel.onTargetDelete")}
-                />
-
-                {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationship")} />}
-              </>
-            )}
-
-            {store.preview && (
-              <RecordConfigurationPreview model={store.model} preview={store.preview} renewal={store.summaryRenewal} />
-            )}
-          </div>
+          {store.preview && (
+            <RecordConfigurationPreview model={store.model} preview={store.preview} renewal={store.summaryRenewal} />
+          )}
         </div>
       </AppForm>
     </ModelChangeSheet>

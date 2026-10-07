@@ -5,6 +5,7 @@ import { AuditLogModalStore } from "@/app/[locale]/(protected)/company/component
 import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs.store";
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/company/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/company/components/company-invite/invite-by-email.store";
+import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { RoleModalStore } from "@/app/[locale]/(protected)/company/components/role/role-modal.store";
 import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/roles.store";
@@ -87,6 +88,7 @@ export class RootStore {
   private _operatorUsersStore?: OperatorUsersStore;
   private _operatorAuditStore?: OperatorAuditStore;
   private _operatorWorkspacesStore?: OperatorWorkspacesStore;
+  private _sidebarLayoutStore?: SidebarLayoutStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
   private _verifyEmailStore?: VerifyEmailStore;
   private _mcpConsentStore?: McpConsentStore;
@@ -253,6 +255,10 @@ export class RootStore {
 
   get signUpStore() {
     return (this._signUpStore ??= new SignUpStore(this));
+  }
+
+  get sidebarLayoutStore() {
+    return (this._sidebarLayoutStore ??= new SidebarLayoutStore(this));
   }
 
   get forgotPasswordStore() {

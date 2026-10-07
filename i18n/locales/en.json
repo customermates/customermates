@@ -1110,6 +1110,8 @@
       "webhookNotFound": "Webhook ID not found or not accessible.",
       "widgetDisplayTypeUnsupported": "This chart style does not fit the selected grouping. Choose another style or change the grouping.",
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
+      "widgetLayoutOverlap": "This position overlaps another widget. Choose a free spot on the 12-column grid or leave the layout out to place the widget automatically.",
+      "widgetLayoutTooSmall": "This widget needs at least 2 columns and 3 rows.",
       "widgetNotFound": "Widget ID not found or not accessible.",
       "wikiGuideExists": "This Knowledge Base already has an Operating Guide. Update the existing guide instead.",
       "wikiNotEmpty": "This action requires an empty Knowledge Base.",
@@ -1733,21 +1735,29 @@
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
         "chartDescription": "Compare CRM data in a visual chart.",
+        "description": "Pick a format and choose the data yourself.",
+        "scratchTitle": "Start from scratch",
         "title": "Choose a Widget"
       },
       "preview": {
-        "title": "Preview"
+        "incomplete": "Complete the data settings to see a preview.",
+        "live": "Live preview",
+        "size": "Dashboard size {w} × {h}",
+        "title": "Preview",
+        "untitled": "Untitled widget"
       },
       "save": "Save changes",
+      "settings": "Widget settings",
       "sharing": {
         "template": "Share as a template"
       },
       "steps": {
-        "chooseDescription": "Choose a format or start from a setup shared in your workspace.",
+        "chooseDescription": "Start from a recommendation, a blank format, or a setup shared in your workspace.",
         "configureDescription": "Choose what this widget shows and how it looks."
       },
       "tabs": {
         "appearance": "Appearance",
+        "data": "Data",
         "filtersLabel": "{count, plural, =0 {Filters, none active} =1 {Filters, 1 active} other {Filters, # active}}"
       },
       "templates": {
@@ -1757,30 +1767,51 @@
       }
     },
     "widgetGallery": {
-      "description": "Ready-made widgets for your current data model. You can edit everything before saving.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Deals in each stage, in stage order, with step-to-step conversion.",
-          "name": "Deals by stage"
+      "creationDate": "creation date",
+      "description": "Suggestions built from the record types and fields in your workspace. You can change everything before saving.",
+      "recipes": {
+        "countBySelect": {
+          "description": "Number of {type} for each {group}.",
+          "name": "{type} by {group}"
         },
-        "openPipeline": {
-          "description": "Total value of deals that are neither won nor lost.",
-          "name": "Open pipeline"
+        "countPerMember": {
+          "description": "Number of {type} for each {group}.",
+          "name": "{type} per {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tasks that are not done or archived, counted for each assigned user.",
-          "name": "Open tasks per assignee"
+        "openCountPerAssignee": {
+          "description": "{type} that are not in a closed {group}, counted for each assigned user.",
+          "name": "Open {type} per assignee"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Won deal value per linked organization, ranked with each share of the total.",
-          "name": "Top organizations by revenue"
+        "openValueTotal": {
+          "description": "Total {field} of {type} that are not in a closed {group}.",
+          "name": "Open {field}"
         },
-        "wonValuePerMonth": {
-          "description": "Value of won deals per month, by the first deal date field or the creation date.",
-          "name": "Won value per month"
+        "stageFunnel": {
+          "description": "{type} in each {group}, in order, with step-to-step conversion.",
+          "name": "{type} by {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} ranked by the {field} of their linked {type}, with each share of the total.",
+          "name": "Top {related} by {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} ranked by the {field} of their won {type}, with each share of the total.",
+          "name": "Top {related} by won {field}"
+        },
+        "valueOverTime": {
+          "description": "{field} of {type} per month, by {date}.",
+          "name": "{field} per month"
+        },
+        "valueTotal": {
+          "description": "Sum of {field} across all {type}.",
+          "name": "Total {field}"
+        },
+        "wonValueOverTime": {
+          "description": "{field} of won {type} per month, by {date}.",
+          "name": "Won {field} per month"
         }
       },
-      "title": "Starter widgets"
+      "title": "Recommended for your data"
     },
     "widgetKinds": {
       "activityTimeline": "Activity timeline",
@@ -1833,6 +1864,7 @@
     "noValue": "No value",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
+    "rowActions": "Row actions",
     "selectAllRows": "Select all rows",
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
@@ -1950,6 +1982,9 @@
     "taskList": "Task List",
     "underline": "Underline",
     "urlPlaceholder": "Enter URL..."
+  },
+  "EditorTabs": {
+    "invalid": "Contains errors"
   },
   "EmailLayout": {
     "tagline": "The agentic, open-source CRM"
@@ -2408,8 +2443,8 @@
     "admin": "Admin",
     "affiliate": "Affiliate Program",
     "connectedAccounts": "Channels",
-    "crm": "CRM",
     "dashboard": "Dashboard",
+    "data": "Data",
     "docs": "Documentation",
     "features": "Features",
     "inbox": "Inbox",
@@ -2907,7 +2942,6 @@
     "addPathStep": "Add a relationship step",
     "addProbability": "Add probability",
     "aggregation": "Aggregation",
-    "allLists": "All lists",
     "allowManualOverride": "Allow a manually entered replacement value",
     "apply": "Apply changes",
     "archiveActivityPath": "Archive connection",
@@ -2944,13 +2978,18 @@
     "captureOnSaveField": "Capture {field} on save",
     "captureValue": "Capture value",
     "captureValueField": "Capture {field}",
+    "cardinality": {
+      "manyToMany": "Many to many",
+      "manyToOne": "Many to one",
+      "oneToMany": "One to many",
+      "oneToOne": "One to one"
+    },
     "channelsHelp": "Add email addresses, phone numbers, and social accounts to records in this list. An identifier can link to several records.",
     "color": "Color",
     "conditionIf": "Condition",
     "conditionOtherwise": "Otherwise",
     "conditionThen": "Then",
     "configure": "Configure",
-    "configureViews": "Configure views",
     "connectionType": "Connection",
     "constant": "Fixed value",
     "createdAt": "Created at",
@@ -2986,6 +3025,7 @@
     "disabled": "Off",
     "edit": "Edit",
     "editField": "Edit field",
+    "editValue": "Edit {field}",
     "empty": "No records yet",
     "emptyDescription": "Create your first record to get started.",
     "enableChannels": "Enable channels",
@@ -2998,22 +3038,144 @@
       "lookup": "Value from {list}",
       "rollup": "Total from {list}"
     },
+    "fieldTabs": {
+      "calculation": "Calculation"
+    },
     "general": "General",
+    "graph": {
+      "accountEdge": "Syncs conversations into {list}",
+      "accounts": "Connected accounts",
+      "accountUnit": "{count, plural, one {account} other {accounts}}",
+      "addFieldTo": "Add field to {list}",
+      "calculatedFrom": "from {sources}",
+      "calculationEdge": "Calculated from this list: {fields}",
+      "connectDescription": "Connect Gmail, Outlook or another channel to bring conversations into your lists.",
+      "connectTitle": "Connect email and calendar",
+      "controls": "Graph controls",
+      "fitView": "Fit view",
+      "handle": "Connection point",
+      "help": "Select a list or field to edit it, select the chip on a line to edit a relationship, or drag from the dot on one list to another to connect them.",
+      "helpReadOnly": "Select a list to open it. Lines show how lists are related and where calculated values come from.",
+      "label": "Graph of lists, fields and connected accounts",
+      "manage": "Manage",
+      "moreAccounts": "{count, plural, one {# more account} other {# more accounts}}",
+      "moreFields": "{count, plural, one {# more field} other {# more fields}}",
+      "partOf": "Part of {list}",
+      "recordsRestricted": "Record count not available",
+      "recordUnit": "{count, plural, one {record} other {records}}",
+      "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
+    },
     "groupSummaries": "Group summaries",
     "groupSummariesDescription": "Show totals and other measures in table groups and board columns. Each record contributes once per group, including records on later pages.",
     "hiddenList": "Hidden",
     "hideArchived": "Hide archived",
     "icon": "Icon",
+    "iconChoose": "Choose icon",
+    "iconNoMatch": "No icons match",
     "icons": {
+      "alarm": "Reminder",
+      "alert": "Incident",
+      "award": "Award",
+      "bag": "Purchase",
+      "banknote": "Payment",
+      "barcode": "Barcode",
+      "book": "Book",
+      "box": "Product",
+      "boxes": "Inventory",
       "briefcase": "Briefcase",
+      "bug": "Bug",
       "building": "Building",
+      "calendar": "Calendar",
+      "calendarCheck": "Appointment",
+      "camera": "Photo",
+      "car": "Vehicle",
+      "cart": "Order",
+      "chart": "Chart",
       "check": "Check mark",
+      "clipboard": "Checklist",
+      "clock": "Time",
+      "coins": "Coins",
       "contact": "People",
+      "contactCard": "Contact card",
+      "contract": "Contract",
+      "creditCard": "Credit card",
+      "database": "Database",
+      "deal": "Handshake",
+      "document": "Document",
+      "factory": "Factory",
+      "files": "Files",
+      "filter": "Funnel",
+      "flag": "Flag",
       "folder": "Folder",
+      "gavel": "Case",
+      "gift": "Gift",
+      "globe": "Website",
+      "graduationCap": "Education",
+      "hammer": "Tool",
       "handshake": "Growth",
+      "hardDrive": "Storage",
+      "headset": "Service desk",
+      "heart": "Favorite",
+      "home": "Property",
+      "hotel": "Hotel",
+      "idCard": "ID card",
+      "inbox": "Inbox",
+      "kanban": "Board",
+      "key": "Key",
+      "landmark": "Institution",
+      "laptop": "Laptop",
+      "layers": "Layers",
+      "leaf": "Nature",
+      "lifeBuoy": "Support",
+      "lightbulb": "Idea",
+      "link": "Link",
       "list": "List",
-      "package": "Package"
+      "mail": "Email",
+      "map": "Map",
+      "mapPin": "Location",
+      "megaphone": "Campaign",
+      "message": "Message",
+      "milestone": "Milestone",
+      "music": "Music",
+      "network": "Network",
+      "newspaper": "News",
+      "notebook": "Notebook",
+      "package": "Package",
+      "palette": "Design",
+      "percent": "Discount",
+      "phone": "Call",
+      "piggyBank": "Savings",
+      "pill": "Medication",
+      "plane": "Travel",
+      "receipt": "Invoice",
+      "repeat": "Recurring",
+      "rocket": "Launch",
+      "scale": "Legal",
+      "server": "Server",
+      "shield": "Policy",
+      "signature": "Signature",
+      "smartphone": "Phone device",
+      "stamp": "Approval",
+      "star": "Star",
+      "stethoscope": "Health",
+      "store": "Store",
+      "tag": "Tag",
+      "target": "Target",
+      "ticket": "Ticket",
+      "trophy": "Trophy",
+      "truck": "Shipment",
+      "user": "Person",
+      "userCheck": "Approved person",
+      "userPlus": "New person",
+      "usersRound": "Team",
+      "utensils": "Restaurant",
+      "wallet": "Wallet",
+      "warehouse": "Warehouse",
+      "wrench": "Maintenance"
     },
+    "iconSearch": "Search icons",
     "identityChannels": "Channels",
     "includeAudit": "Include record changes",
     "includeMessages": "Include messages",
@@ -3027,38 +3189,30 @@
     },
     "lineItem": "Line item",
     "lineItems": "Line items",
-    "linkedCount": "Linked records per record",
     "linkedRecordCount": "{count} linked records",
     "linkedRecords": "Linked records",
     "linkedType": "Link to",
     "linkRecord": "Link a record",
     "listActions": "List actions",
     "listCounts": "{fields, plural, one {# field} other {# fields}} · {relationships, plural, one {# relationship} other {# relationships}} · {activity, plural, one {# activity connection} other {# activity connections}}",
-    "lists": "Lists",
     "listUnavailable": "This list is not available. Choose another list.",
-    "many": "Several",
-    "map": "Map",
-    "mapHelp": "Select a list to open it, select a line to edit its relationship, or drag from one list to another to connect them.",
-    "mapHelpReadOnly": "Select a list to open it. Lines show the relationships between lists.",
-    "mapLabel": "Map of lists and relationships",
     "member": "Member",
     "missing": "No value",
+    "moreActions": "More actions for {name}",
     "moveDown": "Move {field} down",
     "moveUp": "Move {field} up",
     "multipleValues": "Allow several values",
     "name": "Name",
-    "newList": "New list",
     "newRecord": "New record",
     "no": "No",
     "noGrouping": "No grouping",
-    "noListsFound": "No lists match your search.",
     "noneYet": "None yet",
-    "one": "One",
     "onePerLine": "Enter one value per line.",
     "onSourceDelete": "When this record is deleted",
     "onTargetDelete": "When the linked record is deleted",
     "openPage": "Open page",
     "openRecord": "Open {name}",
+    "openRecordDetails": "Open details for {name}",
     "operation": "Calculation",
     "operationCancelled": "The change was cancelled.",
     "operationFailed": "The change failed. The previous complete state is still active.",
@@ -3083,7 +3237,6 @@
       "trim": "Remove surrounding spaces",
       "upper": "Uppercase"
     },
-    "oppositeCount": "Records per linked record",
     "oppositeLabel": "Label on the other side",
     "option": "Option",
     "optionAttribute": "Option attribute",
@@ -3121,6 +3274,13 @@
     },
     "relationship": "Relationship",
     "relationshipChange": "{count} relationships changed",
+    "relationshipEditor": {
+      "cardinality": "How many records link",
+      "onDelete": "When deleted",
+      "otherList": "the linked list",
+      "shownOn": "Shown on records in {list}",
+      "thisList": "This list"
+    },
     "relationshipLabel": "Label on this side",
     "relationshipPath": "Through linked records",
     "relationshipPathHelp": "Show records reached through existing relationships. Edit the underlying links to change these records.",
@@ -3142,7 +3302,6 @@
     "saveBeforeEmbedded": "Save this record before changing linked items.",
     "savedViewIncompatible": "Update the saved views and personal layouts that reference this field before changing it.",
     "savingDetailLayout": "Saving layout…",
-    "searchLists": "Search lists",
     "setDefaultValue": "Set a default value",
     "sharedDefaults": "Shared defaults",
     "sharedDefaultsDescription": "These defaults apply until someone customizes their own view. Existing personal choices stay unchanged.",
@@ -3247,6 +3406,7 @@
     "loadingSchema": "Loading fields…",
     "measure": "Measure",
     "noRecordsInPeriod": "No records",
+    "notes": "About these numbers",
     "operators": {
       "between": "Between",
       "contains": "Contains",
@@ -3267,7 +3427,6 @@
     "overall": "Overall: {value}",
     "preview": "Preview measure",
     "previewFailed": "The preview could not be loaded. Try again.",
-    "previewHelp": "Preview uses current records and your access.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {
       "group": "Group",
@@ -3314,8 +3473,8 @@
     "create": "Create",
     "delete": "Delete",
     "edit": "Edit",
+    "general": "General",
     "manageAccess": "Manage",
-    "no": "No",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
     "readAccess": "Read access",
     "readAll": "All",
@@ -3328,14 +3487,9 @@
       "api": "API & Webhooks",
       "auditLog": "Audit Log",
       "company": "Company",
-      "contacts": "Contacts",
       "dataModel": "Data model",
-      "deals": "Deals",
       "inboxMessages": "Inbox messages",
-      "organizations": "Organizations",
       "routines": "Routines",
-      "services": "Services",
-      "tasks": "Tasks",
       "users": "Users & Roles",
       "wiki": "Knowledge Base"
     },
@@ -3343,7 +3497,7 @@
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
     "systemName": "Admin",
     "title": "Role",
-    "yes": "Yes"
+    "workspacePermissions": "Workspace"
   },
   "RolesCard": {
     "custom": "Custom",
@@ -3507,6 +3661,23 @@
     "thursday": "Thursday",
     "tuesday": "Tuesday",
     "wednesday": "Wednesday"
+  },
+  "SidebarCustomize": {
+    "deleteSection": "Delete section",
+    "emptySection": "Drag items here",
+    "hide": "Hide from sidebar",
+    "itemActions": "Options for {item}",
+    "moveDown": "Move down",
+    "moveToSection": "Move to section",
+    "moveUp": "Move up",
+    "newSection": "New section",
+    "newSectionName": "New section",
+    "rename": "Rename",
+    "reset": "Reset to default",
+    "sectionActions": "Options for {section}",
+    "sectionName": "Section name",
+    "show": "Show {item}",
+    "title": "Customize sidebar"
   },
   "SignInForm": {
     "agreeToTerms": "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",

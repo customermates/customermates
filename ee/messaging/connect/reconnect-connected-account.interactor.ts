@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -27,7 +27,7 @@ const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 const Schema = z.object({ id: z.uuid() });
 type ReconnectConnectedAccountData = Data<typeof Schema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class ReconnectConnectedAccountInteractor extends UserAccessor {
   constructor(
     private repo: ReconnectConnectedAccountRepo,

@@ -23,6 +23,7 @@ const root = {
 } as unknown as RootStore;
 const context = (type: string): RecordEditorContext => ({
   model,
+  linkColors: {},
   typeId: id(type),
   permittedActions: ["create", "readAll", "update", "delete"],
   canManageSchema: true,

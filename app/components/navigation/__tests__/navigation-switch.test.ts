@@ -44,6 +44,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     closeAllModals: state.closeAllModals,
     subscriptionStore: { setSubscription: state.setSubscription },
     recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
+    sidebarLayoutStore: { setLayout: () => undefined },
     userStore: {
       get user() {
         return state.currentUser;

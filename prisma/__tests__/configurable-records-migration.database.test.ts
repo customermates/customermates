@@ -594,12 +594,10 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       await rows(client, 'SELECT revision, "actorId" FROM "RecordSchemaRevision" WHERE "companyId"=$1', [f.companyId]),
     ).toEqual([{ revision: 1, actorId: "system:configurable-records-upgrade" }]);
     expect(
-      await rows(
-        client,
-        'SELECT revision, "storageMode", "activeOperationId" FROM "RecordSchemaState" WHERE "companyId"=$1',
-        [f.companyId],
-      ),
-    ).toEqual([{ revision: 1, storageMode: "generic", activeOperationId: null }]);
+      await rows(client, 'SELECT revision, "activeOperationId" FROM "RecordSchemaState" WHERE "companyId"=$1', [
+        f.companyId,
+      ]),
+    ).toEqual([{ revision: 1, activeOperationId: null }]);
     const [revision] = await rows<{ snapshot: unknown }>(
       client,
       'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1',
@@ -1064,10 +1062,8 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       })),
     );
     expect(
-      await rows(production.client, 'SELECT "storageMode" FROM "RecordSchemaState" WHERE "companyId"=$1', [
-        f.companyId,
-      ]),
-    ).toEqual([{ storageMode: "generic" }]);
+      await rows(production.client, 'SELECT resource::text FROM "RolePermission" WHERE "roleId"=$1', [f.memberRole.id]),
+    ).toEqual([]);
     await expectSchemaMatchesModel(production.url);
   });
 

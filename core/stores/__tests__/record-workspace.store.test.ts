@@ -37,6 +37,7 @@ function fixture() {
   const model = createCrmPreset(companyId);
   const context: RecordEditorResult = {
     model,
+    linkColors: {},
     typeId: model.types[0].id,
     record: null,
     canManageSchema: true,

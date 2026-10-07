@@ -40,6 +40,8 @@ function fixture() {
   const access = {
     actor: user,
     allowedSystem: vi.fn().mockReturnValue(true),
+    canReadSystem: vi.fn().mockReturnValue(true),
+    canReadType: vi.fn().mockReturnValue(true),
     allowed: vi.fn().mockReturnValue(true),
     canRead: vi.fn().mockResolvedValue(true),
     access: vi.fn().mockReturnValue(new Map()),
@@ -82,7 +84,7 @@ describe("conversation record authorization and atomic mutation", () => {
 
   it.each(["inbox", "update", "record"])("rejects missing %s permission before writing", async (denial) => {
     const f = fixture();
-    if (denial === "inbox") f.access.allowedSystem.mockReturnValue(false);
+    if (denial === "inbox") f.access.canReadSystem.mockReturnValue(false);
     if (denial === "update") f.access.allowed.mockReturnValue(false);
     if (denial === "record") f.access.canRead.mockResolvedValue(false);
     expect(await f.mutate.invoke(input)).toMatchObject({ ok: false });

@@ -56,6 +56,7 @@ function render(props: Partial<RecordWidgetChartProps> & Pick<RecordWidgetChartP
   act(() =>
     root.render(
       createElement(RecordWidgetChart, {
+        name: "Widget",
         status: "ready",
         groupOptions: [],
         displayOptions: { displayType: DisplayType.verticalBarChart, barColors: [ChartColor.primary1] },
@@ -102,10 +103,11 @@ describe("record widget display types", () => {
       displayOptions: number,
       measure: measure(null),
       data: result({ count: 3, result: euro("12345678901234567890.12") }, []),
-      label: "Open pipeline",
+      name: "Open pipeline",
     });
+    expect(view.querySelector("h2")?.textContent).toBe("Open pipeline");
     expect(view.querySelector('[data-slot="widget-number"]')?.textContent).toBe(
-      'Open pipeline€12,345,678,901,234,567,890.12RecordWidgets.recordCount{"count":3}',
+      '€12,345,678,901,234,567,890.12RecordWidgets.recordCount{"count":3}',
     );
     render({ displayOptions: number, measure: measure(null), data: result({ count: 0, result: euro("0") }, []) });
     expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("€0.00");
