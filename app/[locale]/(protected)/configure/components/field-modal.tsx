@@ -694,20 +694,22 @@ export const FieldModal = observer(function FieldModal({
                                 </div>
                               ))}
 
-                              <Button
-                                disabled={store.isDisabled}
-                                size="sm"
-                                type="button"
-                                variant="ghost"
-                                onClick={() =>
-                                  store.onChange(`options.${index}.attributes`, [
-                                    ...option.attributes,
-                                    { key: "", value: { kind: "decimal", value: "0", currency: null } },
-                                  ])
-                                }
-                              >
-                                {t("RecordModel.addAttribute")}
-                              </Button>
+                              {!store.form.multiple && (
+                                <Button
+                                  disabled={store.isDisabled}
+                                  size="sm"
+                                  type="button"
+                                  variant="ghost"
+                                  onClick={() =>
+                                    store.onChange(`options.${index}.attributes`, [
+                                      ...option.attributes,
+                                      { key: "", value: { kind: "decimal", value: "0", currency: null } },
+                                    ])
+                                  }
+                                >
+                                  {t("RecordModel.addAttribute")}
+                                </Button>
+                              )}
                             </div>
                           ))}
 
@@ -723,7 +725,7 @@ export const FieldModal = observer(function FieldModal({
                             {t("RecordModel.addOption")}
                           </Button>
 
-                          {!optionMetadata && (
+                          {!optionMetadata && !store.form.multiple && (
                             <Button
                               disabled={store.isDisabled}
                               size="sm"
