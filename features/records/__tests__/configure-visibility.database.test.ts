@@ -52,7 +52,6 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
-  const company = { getDetails: () => Promise.resolve({ currency: "EUR" }) };
   const background = { dispatch: () => Promise.resolve() };
   const configurations = new RecordConfigurationService(repo);
   const getModel = new GetRecordModelInteractor(repo, policy);
@@ -63,14 +62,12 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     policy,
     configurations,
     new RecordConfigurationWriter(repo, calculations),
-    company,
     background,
   );
   const mutate = new MutateRecordInteractor(
     repo,
     policy,
     new RecordWriteService(repo, policy, calculations),
-    company,
     background,
   );
 
@@ -82,7 +79,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
         operation: "putField",
         field: {
           ...omit(
-            createCrmPreset(companyId, "EUR").fields.find((field) => field.id === id("contact.notes")),
+            createCrmPreset(companyId).fields.find((field) => field.id === id("contact.notes")),
             ["publishedSummary"],
           ),
           label: `Notes ${randomUUID()}`,
@@ -147,7 +144,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
         role: { ...seed.roles[key], permissions: [] },
       });
     }
-    const model = createCrmPreset(companyId, "EUR");
+    const model = createCrmPreset(companyId);
     await runWithTenant(actors.admin, () =>
       runInTransaction(() => repo.saveModel(model, actors.admin.id), { timeout: 30_000 }),
     );
