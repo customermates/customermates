@@ -37,6 +37,7 @@ import { RecordWidgetReadSchema } from "@/features/widget/get-record-widgets.int
 import { RecordModelSchema, RecordDtoSchema } from "./record-model.schema";
 import { GetModelSchema } from "./configure-records.interactor";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
+import { ReadRecentlyDeletedSchema, RecentlyDeletedSchema } from "./get-recently-deleted.interactor";
 import {
   RecordQuerySchema,
   MutateRecordSchema,
@@ -212,6 +213,14 @@ export const recordApiPaths = {
       "Discover record types and their configuration",
       GetModelSchema,
       RecordModelSchema,
+    ),
+  },
+  "/v1/model/deleted": {
+    post: operation(
+      "readRecentlyDeletedConfiguration",
+      "Read lists, fields, relationships and activity connections in Recently deleted",
+      ReadRecentlyDeletedSchema,
+      RecentlyDeletedSchema,
     ),
   },
   "/v1/model/preview": {

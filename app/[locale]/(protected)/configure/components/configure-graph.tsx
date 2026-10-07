@@ -62,7 +62,7 @@ type Props = {
   model: RecordModel;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
-  showArchived: boolean;
+  focusedListId?: string | null;
   canManage: boolean;
   disabled: boolean;
   onSelectList: (typeId: string) => void;
@@ -125,11 +125,9 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   const hidden = list.fields.length - visible.length;
   return (
     <div
-      className={cn(
-        "w-[22rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm",
-        list.type.archived && "border-dashed opacity-75",
-      )}
+      className="w-[22rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm"
       data-configure-node={list.type.id}
+      data-focus-target={`list:${list.type.id}`}
     >
       <NodeHandles connectable={canManage && !disabled} />
 
@@ -154,9 +152,9 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
           )}
         </span>
 
-        {(list.type.archived || (!list.type.navigationVisible && !list.type.embedded)) && (
+        {!list.type.navigationVisible && !list.type.embedded && (
           <AppChip className="shrink-0" variant="secondary">
-            {list.type.archived ? t("RecordModel.archived") : t("RecordModel.hiddenList")}
+            {t("RecordModel.hiddenList")}
           </AppChip>
         )}
       </button>
@@ -199,9 +197,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
                     )}
 
                     <span className="min-w-0 flex-1 truncate">
-                      <span className={cn("font-medium", field.archived && "text-muted-foreground line-through")}>
-                        {field.label}
-                      </span>
+                      <span className="font-medium">{field.label}</span>
 
                       {detail && <span className="text-muted-foreground">{` ${detail}`}</span>}
                     </span>
@@ -392,10 +388,7 @@ function GraphEdgeView({ data }: EdgeProps<GraphEdge>) {
     return (
       <>
         <BaseEdge
-          className={cn(
-            edge.parent ? "!stroke-primary/60" : "!stroke-muted-foreground/45",
-            relation.archived && "[stroke-dasharray:4_4]",
-          )}
+          className={edge.parent ? "!stroke-primary/60" : "!stroke-muted-foreground/45"}
           path={path}
           style={{ strokeWidth: edge.parent ? 2 : 1.5 }}
         />
@@ -462,7 +455,7 @@ function ConfigureGraphCanvas({
   model,
   catalog,
   accounts,
-  showArchived,
+  focusedListId,
   canManage,
   disabled,
   onSelectList,
@@ -494,7 +487,7 @@ function ConfigureGraphCanvas({
   const [measured, setMeasured] = useState<ReadonlyMap<string, { width: number; height: number }>>(new Map());
   const { nodes, edges, positions } = useMemo(() => {
     const sources = accounts.state === "available" ? accounts.accounts : [];
-    const data = configureGraphData(model, catalog, sources, showArchived, connectPrompt);
+    const data = configureGraphData(model, catalog, sources, connectPrompt);
     const layout = configureGraphLayout(data, canManage, connectPrompt, measured, direction ?? "TB");
     const at = (id: string) => {
       const position = layout.positions.get(id);
@@ -528,7 +521,7 @@ function ConfigureGraphCanvas({
       ];
     });
     return { nodes, edges, positions: layout.positions };
-  }, [model, catalog, accounts, showArchived, connectPrompt, canManage, measured, direction]);
+  }, [model, catalog, accounts, connectPrompt, canManage, measured, direction]);
   const [flowNodes, setFlowNodes] = useState<Node[]>(nodes);
   useEffect(
     () =>
@@ -563,6 +556,17 @@ function ConfigureGraphCanvas({
       .setViewport(configureGraphViewport(positions, element.clientWidth, element.clientHeight))
       .catch(reportApplicationError);
   }, [ready, flow, measured, flowNodes, positions, direction]);
+  useEffect(() => {
+    if (!ready || !focusedListId || !placed.current) return;
+    void flow
+      .fitView({
+        nodes: [{ id: focusedListId }],
+        padding: 0.4,
+        maxZoom: 1,
+        duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 300,
+      })
+      .catch(reportApplicationError);
+  }, [ready, flow, focusedListId, measured]);
   const listIds = useMemo(() => new Set(model.types.map((type) => type.id)), [model.types]);
   const actions = useMemo<GraphActions>(
     () => ({

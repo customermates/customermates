@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { ConfirmationSentenceView } from "./confirmation-sentence";
 import { Label } from "@/components/ui/label";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -63,8 +64,10 @@ export const DeleteConfirmationModal = observer(() => {
 
             {form.details?.length ? (
               <ul className="mt-3 list-disc space-y-1 ps-5 text-sm" data-delete-confirmation-details="">
-                {form.details.map((detail) => (
-                  <li key={detail}>{detail}</li>
+                {form.details.map((detail, index) => (
+                  <li key={index}>
+                    <ConfirmationSentenceView sentence={detail} onNavigate={close} />
+                  </li>
                 ))}
               </ul>
             ) : null}
@@ -74,8 +77,10 @@ export const DeleteConfirmationModal = observer(() => {
                 <p className="font-medium text-destructive">{t("Common.deleteConfirmation.blocked")}</p>
 
                 <ul className="list-disc space-y-1 ps-5">
-                  {form.blockers.map((blocker) => (
-                    <li key={blocker}>{blocker}</li>
+                  {form.blockers.map((blocker, index) => (
+                    <li key={index}>
+                      <ConfirmationSentenceView sentence={blocker} onNavigate={close} />
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -98,20 +103,22 @@ export const DeleteConfirmationModal = observer(() => {
 
           <AppCardFooter>
             <AlertDialogCancel disabled={isLoading} id="confirm-delete-cancel">
-              {t("Common.actions.cancel")}
+              {form.blockers?.length ? t("Common.actions.close") : t("Common.actions.cancel")}
             </AlertDialogCancel>
 
-            <AlertDialogAction
-              disabled={isLoading || blocked}
-              id="confirm-delete"
-              variant={form.confirmVariant || "destructive"}
-              onClick={(event) => {
-                event.preventDefault();
-                runUserAction(() => store.onSubmit());
-              }}
-            >
-              {form.confirmLabel || t("Common.actions.delete")}
-            </AlertDialogAction>
+            {!form.blockers?.length && (
+              <AlertDialogAction
+                disabled={isLoading || blocked}
+                id="confirm-delete"
+                variant={form.confirmVariant || "destructive"}
+                onClick={(event) => {
+                  event.preventDefault();
+                  runUserAction(() => store.onSubmit());
+                }}
+              >
+                {form.confirmLabel || t("Common.actions.delete")}
+              </AlertDialogAction>
+            )}
           </AppCardFooter>
         </AppCard>
       </AlertDialogContent>

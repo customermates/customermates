@@ -30,7 +30,7 @@ import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
 import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
-import { useDefinitionDeletion } from "./use-definition-deletion";
+import { useConfigurationDeletion } from "./use-configuration-deletion";
 import { CalculationInput } from "./calculation-input";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordInputValue } from "@/features/records/record-input-value";
@@ -50,7 +50,6 @@ const initial = () => ({
   behavior: "input" as RecordField["behavior"]["kind"],
   required: false,
   multiple: false,
-  archived: false,
   currency: "eur",
   decimalPlaces: "",
   expression: {
@@ -117,7 +116,6 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             behavior: field.behavior.kind,
             required: field.required,
             multiple: field.multiple ?? false,
-            archived: field.archived,
             publishedSummary: field.publishedSummary,
             decimalPlaces: field.format?.decimalPlaces?.toString() ?? "",
             currency: field.format?.currency?.toLowerCase() ?? initial().currency,
@@ -294,7 +292,6 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       behavior,
       required: form.required,
       multiple: ["text", "email", "phone", "url"].includes(form.valueType) && form.multiple,
-      archived: form.archived,
       position:
         this.original?.position ??
         Math.max(
@@ -344,8 +341,8 @@ export const FieldModal = observer(function FieldModal({
   onDeleted: () => Promise<void>;
 }) {
   const t = useTranslations();
-  const deletion = useDefinitionDeletion(onDeleted);
-  const archived = store.original?.archived ? store.original : null;
+  const deletion = useConfigurationDeletion(onDeleted);
+  const original = store.original;
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
   const askAi = useRecordAiAction({
@@ -362,16 +359,16 @@ export const FieldModal = observer(function FieldModal({
     <ModelChangeSheet
       actions={[
         ...(askAi ? [askAi] : []),
-        ...(archived
+        ...(original
           ? [
               {
                 id: "delete-field",
                 icon: Trash2,
-                label: t("RecordModel.permanentDeletion.deleteField"),
+                label: t("RecordModel.configurationDeletion.deleteField"),
                 variant: "destructive" as const,
-                busy: deletion.isPreviewing,
+                busy: deletion.isBusy,
                 disabled: store.isLoading || store.isReadOnly,
-                onClick: () => deletion.requestDeletion(store.model, { field: archived }),
+                onClick: () => deletion.requestDelete(store.model, { kind: "field", id: original.id }, original.label),
               },
             ]
           : []),
@@ -408,7 +405,6 @@ export const FieldModal = observer(function FieldModal({
                   "defaultValue",
                   "required",
                   "multiple",
-                  "archived",
                 ],
                 content: (
                   <>
@@ -504,8 +500,6 @@ export const FieldModal = observer(function FieldModal({
                     {["text", "email", "phone", "url"].includes(store.form.valueType) && (
                       <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
                     )}
-
-                    {store.original && <FormSwitch id="archived" label={t("RecordModel.archiveField")} />}
                   </>
                 ),
               },

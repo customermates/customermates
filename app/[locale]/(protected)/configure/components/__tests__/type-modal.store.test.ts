@@ -76,37 +76,4 @@ describe("list configuration", () => {
     expect(store.form.fieldOrder).toEqual(order);
     expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
   });
-  it("archives and restores a list with its activity connections and relationships", () => {
-    const model = createCrmPreset(company);
-    const type = model.types[0];
-    const store = new TypeModalStore(root, model, vi.fn());
-    store.edit(model, type, "archive");
-    store.onChange("archived", true);
-    expect(store.section).toBe("archive");
-    const touches = (relation: (typeof model.relationships)[number]) =>
-      relation.sourceTypeId === type.id || relation.targetTypeId === type.id;
-    const operations = store.operations();
-    expect(operations[0]).toMatchObject({ operation: "putType", type: { id: type.id, archived: true } });
-    expect(operations.slice(1)).toEqual([
-      ...model.activityPaths
-        .filter((path) => path.typeId === type.id)
-        .map((path) => ({ operation: "putActivityPath", activityPath: { ...path, archived: true } })),
-      ...model.relationships
-        .filter(touches)
-        .map((relation) => ({ operation: "putRelationship", relationship: { ...relation, archived: true } })),
-    ]);
-    expect(operations.length).toBeGreaterThan(1);
-
-    const archivedModel = {
-      ...model,
-      types: model.types.map((item) => (item.id === type.id ? { ...item, archived: true } : item)),
-      activityPaths: model.activityPaths.map((path) => (path.typeId === type.id ? { ...path, archived: true } : path)),
-      relationships: model.relationships.map((relation) =>
-        touches(relation) ? { ...relation, archived: true } : relation,
-      ),
-    };
-    store.edit(archivedModel, recordInvariant(archivedModel.types.find((item) => item.id === type.id)), "archive");
-    store.onChange("archived", false);
-    expect(store.operations().slice(1)).toHaveLength(operations.length - 1);
-  });
 });

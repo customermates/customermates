@@ -3,6 +3,7 @@
 import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { RecordModel } from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
@@ -15,6 +16,8 @@ import { RecordOperationProgress } from "@/components/records/record-operation-p
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
+import { activityPathDefinition } from "./configure-model";
+import { useConfigurationDeletion } from "./use-configuration-deletion";
 
 type ActivityPath = RecordModel["activityPaths"][number];
 const empty = () => ({
@@ -23,7 +26,6 @@ const empty = () => ({
   path: [] as ActivityPath["path"],
   includeMessages: true,
   includeAudit: true,
-  archived: false,
 });
 export class ActivityPathModalStore extends ModelChangeStore<ReturnType<typeof empty>> {
   typeId = "";
@@ -40,7 +42,7 @@ export class ActivityPathModalStore extends ModelChangeStore<ReturnType<typeof e
   edit = (model: RecordModel, typeId: string, definition?: ActivityPath) => {
     this.resetModel(model);
     this.typeId = typeId;
-    this.onInitOrRefresh(definition ? { ...empty(), ...definition } : empty());
+    this.onInitOrRefresh(definition ? { ...empty(), ...activityPathDefinition(definition) } : empty());
     this.open();
   };
   protected projectLatestModel(model: RecordModel) {
@@ -62,10 +64,36 @@ export class ActivityPathModalStore extends ModelChangeStore<ReturnType<typeof e
     ];
   }
 }
-export const ActivityPathModal = observer(function ActivityPathModal({ store }: { store: ActivityPathModalStore }) {
+export const ActivityPathModal = observer(function ActivityPathModal({
+  store,
+  onDeleted,
+}: {
+  store: ActivityPathModalStore;
+  onDeleted: () => Promise<void>;
+}) {
   const t = useTranslations();
+  const deletion = useConfigurationDeletion(onDeleted);
+  const id = store.form.id;
   return (
-    <ModelChangeSheet store={store} title={t("RecordModel.activityConnections")}>
+    <ModelChangeSheet
+      actions={
+        id
+          ? [
+              {
+                id: "delete-activity-path",
+                icon: Trash2,
+                label: t("RecordModel.configurationDeletion.deleteActivityPath"),
+                variant: "destructive",
+                busy: deletion.isBusy,
+                disabled: store.isLoading || store.isReadOnly,
+                onClick: () => deletion.requestDelete(store.model, { kind: "activityPath", id }, store.form.label),
+              },
+            ]
+          : []
+      }
+      store={store}
+      title={t("RecordModel.activityConnections")}
+    >
       <AppForm store={store}>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">{t("RecordModel.activityConnectionsHelp")}</p>
@@ -93,8 +121,6 @@ export const ActivityPathModal = observer(function ActivityPathModal({ store }: 
           <FormSwitch id="includeMessages" label={t("RecordModel.includeMessages")} />
 
           <FormSwitch id="includeAudit" label={t("RecordModel.includeAudit")} />
-
-          {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveActivityPath")} />}
 
           {store.preview && (
             <RecordConfigurationPreview model={store.model} preview={store.preview} renewal={store.summaryRenewal} />

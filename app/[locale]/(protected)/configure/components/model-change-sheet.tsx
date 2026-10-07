@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
+import type { ConfigurationPreview } from "@/features/records/configuration.schema";
+import type { RecordModel } from "@/features/records/record-model.schema";
 
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
@@ -14,8 +16,11 @@ import { AppModalActionRail, type AppModalActionProps } from "@/components/modal
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { usePreviewBlockers } from "./use-preview-blockers";
 
 type SheetStore = BaseModalStore & {
+  preview: ConfigurationPreview | null;
+  model: RecordModel;
   isReadOnly: boolean;
   previewReady: boolean;
   onSubmit: () => Promise<void>;
@@ -53,6 +58,7 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   children: ReactNode;
 }) {
   const t = useTranslations();
+  usePreviewBlockers(store.isOpen ? store.preview : null, store.model);
   const navigationGuard = store.rootStore.navigationGuard;
   const focusReturn = useOverlayFocusReturn(store.isOpen, store.focusReturnTarget, store.focusReturnFallback);
   useEffect(() => {

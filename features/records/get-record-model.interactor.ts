@@ -8,6 +8,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { liveRecordModel } from "./record-model-snapshot";
 import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { resolveRecordPath } from "./record-relationship-path";
@@ -26,7 +27,8 @@ export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<ty
   async invoke(input: z.infer<typeof GetModelSchema>): Validated<RecordModel> {
     return runInTransaction(
       async () => {
-        const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
+        const [stored, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
+        const model = liveRecordModel(stored);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const accessible = new Set(
           model.types

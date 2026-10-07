@@ -19,42 +19,12 @@ export function RecordConfigurationPreview({
   const t = useTranslations();
   return (
     <div className="space-y-2 text-sm" role="status">
-      <p className={preview.valid ? "font-medium" : "font-medium text-destructive"}>
-        {preview.valid
-          ? t("RecordModel.previewReady", { count: preview.affectedRecords })
-          : t("RecordModel.invalidConfiguration")}
-      </p>
+      {preview.valid && (
+        <p className="font-medium">{t("RecordModel.previewReady", { count: preview.affectedRecords })}</p>
+      )}
 
       {preview.dataValidation === "staged" && (
         <p className="text-muted-foreground">{t("RecordModel.stagedValidation")}</p>
-      )}
-
-      {preview.issues.length > 0 && (
-        <ul className="space-y-1">
-          {preview.issues.map((issue, index) => {
-            const label =
-              model.fields.find((field) => field.id === issue.fieldId)?.label ??
-              model.relationships.find((relation) => relation.id === issue.relationId)?.sourceLabel ??
-              model.types.find((type) => type.id === issue.typeId)?.pluralLabel;
-            return (
-              <li key={index}>
-                {label && <span className="font-medium">{label}: </span>}
-
-                {t(
-                  issue.code === "existing_values_incompatible"
-                    ? "RecordModel.existingValuesIncompatible"
-                    : issue.code === "saved_view_incompatible"
-                      ? "RecordModel.savedViewIncompatible"
-                      : issue.code === "detail_layout_incompatible"
-                        ? "RecordModel.detailLayoutIncompatible"
-                        : issue.code === "summary_approval_required"
-                          ? "RecordModel.summaryApprovalRequired"
-                          : "RecordModel.dependencyHelp",
-                )}
-              </li>
-            );
-          })}
-        </ul>
       )}
 
       {renewal && (

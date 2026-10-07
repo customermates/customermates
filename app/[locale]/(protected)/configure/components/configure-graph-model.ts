@@ -92,11 +92,10 @@ export function configureGraphData(
   model: RecordModel,
   catalog: ConfigureGraphCatalog,
   accounts: ConfigureGraphSource[],
-  showArchived: boolean,
   connectPrompt = false,
 ): ConfigureGraphData {
   const counts = new Map(catalog.map((type) => [type.id, type]));
-  const types = configureLists(model, showArchived);
+  const types = configureLists(model);
   const visible = new Set(types.map((type) => type.id));
   const calculations = new Map<string, { source: string; target: string; fields: string[] }>();
   const lists = types.map((type) => ({
@@ -104,7 +103,7 @@ export function configureGraphData(
     recordCount: counts.get(type.id)?.recordCount,
     parentId: configureParentId(model, type),
     fields: model.fields
-      .filter((field) => field.typeId === type.id && (!field.archived || showArchived))
+      .filter((field) => field.typeId === type.id)
       .sort((left, right) => left.position - right.position)
       .map((field) => {
         const calculated = field.behavior.kind !== "input";
@@ -120,12 +119,7 @@ export function configureGraphData(
       }),
   }));
   const relationships: ConfigureGraphEdge[] = model.relationships
-    .filter(
-      (relation) =>
-        (!relation.archived || showArchived) &&
-        visible.has(relation.sourceTypeId) &&
-        visible.has(relation.targetTypeId),
-    )
+    .filter((relation) => visible.has(relation.sourceTypeId) && visible.has(relation.targetTypeId))
     .map((relation) => ({
       kind: "relationship",
       id: `relationship:${relation.id}`,
@@ -145,13 +139,11 @@ export function configureGraphData(
     carrier.calculatedFields.push(...entry.fields);
     return false;
   });
-  const channelLists = types.filter((type) => !type.archived && recordChannelsEnabled(model, type.id));
-  const calendarLists = types.filter(
-    (type) =>
-      !type.archived &&
-      model.capabilities.some(
-        (binding) => binding.kind === "calendar" && binding.enabled !== false && binding.typeId === type.id,
-      ),
+  const channelLists = types.filter((type) => recordChannelsEnabled(model, type.id));
+  const calendarLists = types.filter((type) =>
+    model.capabilities.some(
+      (binding) => binding.kind === "calendar" && binding.enabled !== false && binding.typeId === type.id,
+    ),
   );
   const targets = new Set(
     accounts.length

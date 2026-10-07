@@ -15,6 +15,54 @@ import {
   RecordGroupSummaryDefinitionSchema,
 } from "./record-model.schema";
 
+export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship", "activityPath"] as const;
+export const ConfigurationTargetSchema = z.object({ kind: z.enum(CONFIGURATION_TARGET_KINDS), id: z.uuid() }).strict();
+export type ConfigurationTarget = z.infer<typeof ConfigurationTargetSchema>;
+export const DeletionReferenceSchema = z
+  .object({
+    kind: z.enum([
+      ...CONFIGURATION_TARGET_KINDS,
+      "routine",
+      "webhook",
+      "widget",
+      "view",
+      "personalLayout",
+      "detailLayout",
+    ]),
+    id: z.string(),
+    typeId: z.uuid().optional(),
+    label: z.string(),
+  })
+  .strict();
+export type DeletionReference = z.infer<typeof DeletionReferenceSchema>;
+export const DeletionBlockerSchema = z
+  .object({
+    reason: z.enum([
+      "calculation",
+      "snapshotTrigger",
+      "parentAccess",
+      "binding",
+      "primaryField",
+      "protected",
+      "routine",
+      "webhook",
+      "widget",
+      "requiresRestore",
+    ]),
+    source: DeletionReferenceSchema,
+    target: DeletionReferenceSchema,
+  })
+  .strict();
+export type DeletionBlocker = z.infer<typeof DeletionBlockerSchema>;
+export const DeletionCleanupSchema = z
+  .object({ consumer: DeletionReferenceSchema, target: DeletionReferenceSchema })
+  .strict();
+export type DeletionCleanup = z.infer<typeof DeletionCleanupSchema>;
+const LiveDefinitionSchema = z
+  .boolean()
+  .optional()
+  .refine((archived): boolean => archived !== true, "Use the delete operation to move an item to Recently deleted.")
+  .describe("Always false. Use the delete operation to move an item to Recently deleted.");
 export const ConfigurationReferenceSchema = z.union([z.uuid(), z.string().regex(/^\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$/)]);
 const ConfigurationColumnKeySchema = z.union([
   RecordColumnKeySchema,
@@ -181,12 +229,14 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({
                 operation: z.literal("putType"),
                 type: RecordTypeSchema.extend({
+                  archived: LiveDefinitionSchema,
                   id: ConfigurationReferenceSchema,
                   primaryFieldId: ConfigurationReferenceSchema,
                   parentRelationshipId: ConfigurationReferenceSchema.nullable().default(null),
                   relationshipPaths: z
                     .array(
                       RecordRelationshipPathSchema.extend({
+                        archived: LiveDefinitionSchema,
                         id: ConfigurationReferenceSchema,
                         path: z
                           .array(RecordPathStepSchema.extend({ relationId: ConfigurationReferenceSchema }))
@@ -216,6 +266,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                 field: RecordFieldSchema.omit({
                   publishedSummary: true,
                 }).extend({
+                  archived: LiveDefinitionSchema,
                   id: ConfigurationReferenceSchema,
                   typeId: ConfigurationReferenceSchema,
                   behavior: BehaviorSchema,
@@ -226,6 +277,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({
                 operation: z.literal("putRelationship"),
                 relationship: RecordRelationshipSchema.extend({
+                  archived: LiveDefinitionSchema,
                   id: ConfigurationReferenceSchema,
                   sourceTypeId: ConfigurationReferenceSchema,
                   targetTypeId: ConfigurationReferenceSchema,
@@ -261,6 +313,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({
                 operation: z.literal("putActivityPath"),
                 activityPath: RecordActivityPathSchema.extend({
+                  archived: LiveDefinitionSchema,
                   id: ConfigurationReferenceSchema,
                   typeId: ConfigurationReferenceSchema,
                   path: z
@@ -285,19 +338,21 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               })
               .strict(),
             z
-              .object({
-                operation: z.literal("deleteType"),
-                typeId: z.uuid(),
-              })
+              .object({ operation: z.literal("delete"), target: ConfigurationTargetSchema })
               .strict()
-              .describe("Permanently delete an archived type with its fields, records, links and relationships."),
+              .describe(
+                "Move a list, field, relationship or activity connection to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+              ),
             z
-              .object({
-                operation: z.literal("deleteField"),
-                fieldId: z.uuid(),
-              })
+              .object({ operation: z.literal("restore"), target: ConfigurationTargetSchema })
               .strict()
-              .describe("Permanently delete an archived field and its values."),
+              .describe("Restore an item from Recently deleted together with what was deleted with it."),
+            z
+              .object({ operation: z.literal("deletePermanently"), target: ConfigurationTargetSchema })
+              .strict()
+              .describe(
+                "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships.",
+              ),
             z
               .object({
                 operation: z.literal("setTypeGrants"),
@@ -337,12 +392,19 @@ export const ConfigurationPreviewSchema = z
     calculations: z.array(z.object({ fieldId: z.uuid(), dependencyHash: z.string() }).strict()),
     deletion: z
       .object({
-        records: z.number().int(),
-        values: z.number().int(),
-        links: z.number().int(),
-        relationships: z.number().int(),
-        views: z.number().int(),
-        grants: z.number().int(),
+        blockers: z.array(DeletionBlockerSchema),
+        cleaned: z.array(DeletionCleanupSchema),
+        removed: z
+          .object({
+            records: z.number().int(),
+            values: z.number().int(),
+            links: z.number().int(),
+            relationships: z.number().int(),
+            views: z.number().int(),
+            grants: z.number().int(),
+          })
+          .strict()
+          .nullable(),
       })
       .strict()
       .optional(),

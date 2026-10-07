@@ -23,6 +23,7 @@ import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
 import { cn } from "@/core/utils/cn";
 
 import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
@@ -51,6 +52,8 @@ function isPlainClick(event: MouseEvent<HTMLAnchorElement>): boolean {
   );
 }
 
+const VIEW_FOCUS_KINDS: FocusKind[] = ["view"];
+
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
   joinsTopBar = false,
   detailParam,
@@ -67,6 +70,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const owningRail = useRef<{ element: HTMLElement; store: BaseDataViewStore<E> } | null>(null);
   const ai = useViewAi(store);
   const offersViews = Boolean(store.p13nId);
+  useFocusTarget(VIEW_FOCUS_KINDS, () => true, store.isReady);
 
   const commands = useViewCommands({
     closeMeta: () => setMeta(null),
@@ -183,6 +187,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               return (
                 <ViewChip
                   key={chip.view.id}
+                  focusKey={`view:${chip.view.id}`}
                   href={viewHref(
                     store.viewPathname ?? pathname,
                     chip.view.id,

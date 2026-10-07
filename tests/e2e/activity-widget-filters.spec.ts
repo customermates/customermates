@@ -10,7 +10,14 @@ import {
 } from "../../features/records/record-query.schema";
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { addFromConfigure, openConfigure, openConfigureRow, saveDrawer, setShowArchivedParts } from "./configure";
+import {
+  addFromConfigure,
+  deleteFromDrawer,
+  openConfigure,
+  openConfigureRow,
+  restoreRecentlyDeleted,
+  saveDrawer,
+} from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const labels = englishMessages.RecordModel;
@@ -110,8 +117,7 @@ test("configures an activity path and applies provider, channel, conversation an
   );
   if (!seededPath) throw new Error("Expected preset contact activity path");
   await openConfigureRow(page, "Activity connections", seededPath.label);
-  await dialog.locator("#archived").check();
-  await applyPath(page);
+  await deleteFromDrawer(page, "Delete activity connection");
   const pathName = "Configured client conversations";
   await addFromConfigure(page, "Activity connection");
   await dialog.locator("#label").fill(pathName);
@@ -342,8 +348,9 @@ test("configures an activity path and applies provider, channel, conversation an
   await openConfigureRow(page, "Activity connections", pathName);
   await dialog.locator("#includeMessages").uncheck();
   await dialog.locator("#includeAudit").check();
-  await dialog.locator("#archived").check();
   await applyPath(page);
+  await openConfigureRow(page, "Activity connections", pathName);
+  await deleteFromDrawer(page, "Delete activity connection");
   expect((await model(database, companyId)).activityPaths.find((path) => path.id === configured.id)).toMatchObject({
     includeMessages: false,
     includeAudit: true,
@@ -352,10 +359,9 @@ test("configures an activity path and applies provider, channel, conversation an
   await page.goto("/en/dashboard");
   await expect(card.getByText(englishMessages.Dashboard.activityWidget.noMatches, { exact: true })).toBeVisible();
   await expect(card.getByText(selectedBody, { exact: true })).toHaveCount(0);
+  await restoreRecentlyDeleted(page, pathName);
   await openConfigure(page, organizationTypeId);
-  await setShowArchivedParts(page, true);
   await openConfigureRow(page, "Activity connections", pathName);
-  await expect(dialog.locator("#archived")).not.toBeChecked();
   await expect(dialog.locator("#includeMessages")).not.toBeChecked();
   await expect(dialog.locator("#includeAudit")).toBeChecked();
   await dialog.locator("#includeMessages").check();

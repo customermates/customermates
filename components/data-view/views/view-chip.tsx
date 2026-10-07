@@ -27,15 +27,17 @@ type Props = {
   tabIndex: 0 | -1;
   onKeyDown?: KeyboardEventHandler<HTMLAnchorElement>;
   onSelect?: MouseEventHandler<HTMLAnchorElement>;
+  focusKey?: string;
 };
 
-export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDown, onSelect }: Props) {
+export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDown, onSelect, focusKey }: Props) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <a
           aria-current={isActive ? "page" : undefined}
           className={cn(VIEW_TAB_CLASS, isActive && VIEW_TAB_ACTIVE_CLASS)}
+          data-focus-target={focusKey}
           data-view-chip=""
           href={href}
           id={id}

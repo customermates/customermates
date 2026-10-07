@@ -4,6 +4,7 @@ import type {
   CalculationExpression,
   RecordField,
   RecordModel,
+  RecordRelationship,
   RecordType,
 } from "@/features/records/record-model.schema";
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
@@ -23,7 +24,7 @@ export function configureParentId(model: RecordModel, type: RecordType): string 
   return model.types.some((candidate) => candidate.id === relation.targetTypeId) ? relation.targetTypeId : null;
 }
 
-export function configureLists(model: RecordModel, showArchived = false): RecordType[] {
+export function configureLists(model: RecordModel): RecordType[] {
   const children = new Map<string, RecordType[]>();
   const roots: RecordType[] = [];
   for (const type of [...model.types].sort(byPosition)) {
@@ -36,7 +37,6 @@ export function configureLists(model: RecordModel, showArchived = false): Record
   const visit = (type: RecordType) => {
     if (visited.has(type.id)) return;
     visited.add(type.id);
-    if (type.archived && !showArchived) return;
     lists.push(type);
     for (const child of children.get(type.id) ?? []) visit(child);
   };
@@ -48,12 +48,11 @@ export function configureLists(model: RecordModel, showArchived = false): Record
 export function configureCounts(model: RecordModel, typeId: string) {
   const type = model.types.find((candidate) => candidate.id === typeId);
   return {
-    fields: model.fields.filter((field) => field.typeId === typeId && !field.archived).length,
+    fields: model.fields.filter((field) => field.typeId === typeId).length,
     relationships:
-      model.relationships.filter(
-        (relation) => !relation.archived && (relation.sourceTypeId === typeId || relation.targetTypeId === typeId),
-      ).length + (type?.relationshipPaths ?? []).filter((path) => !path.archived).length,
-    activity: model.activityPaths.filter((path) => path.typeId === typeId && !path.archived).length,
+      model.relationships.filter((relation) => relation.sourceTypeId === typeId || relation.targetTypeId === typeId)
+        .length + (type?.relationshipPaths ?? []).length,
+    activity: model.activityPaths.filter((path) => path.typeId === typeId).length,
   };
 }
 
@@ -85,30 +84,27 @@ export function reorderFieldOperations(
   return fields.flatMap((field, index) =>
     field.position === index + offset
       ? []
-      : [{ operation: "putField" as const, field: { ...omit(field, "publishedSummary"), position: index + offset } }],
+      : [{ operation: "putField" as const, field: { ...fieldDefinition(field), position: index + offset } }],
   );
 }
 
-export function archiveListOperations(
-  model: RecordModel,
-  typeId: string,
-  archived: boolean,
-): ConfigurationChange["operations"] {
-  const archivedTypes = new Set(model.types.filter((type) => type.archived).map((type) => type.id));
-  return [
-    ...model.activityPaths
-      .filter((path) => path.typeId === typeId && path.archived !== archived)
-      .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived } })),
-    ...model.relationships
-      .filter(
-        (relation) =>
-          (relation.sourceTypeId === typeId || relation.targetTypeId === typeId) &&
-          relation.archived !== archived &&
-          (archived ||
-            [relation.sourceTypeId, relation.targetTypeId].every((id) => id === typeId || !archivedTypes.has(id))),
-      )
-      .map((relation) => ({ operation: "putRelationship" as const, relationship: { ...relation, archived } })),
-  ];
+export function typeDefinition(type: RecordType) {
+  return {
+    ...omit(type, "archived", "relationshipPaths"),
+    relationshipPaths: type.relationshipPaths?.map((path) => omit(path, "archived")),
+  };
+}
+
+export function fieldDefinition(field: RecordField) {
+  return omit(field, "archived", "publishedSummary");
+}
+
+export function relationshipDefinition(relation: RecordRelationship) {
+  return omit(relation, "archived");
+}
+
+export function activityPathDefinition(path: RecordModel["activityPaths"][number]) {
+  return omit(path, "archived");
 }
 
 function relatedExpression(

@@ -13,3 +13,27 @@ export function readRecordModelSnapshot(snapshot: unknown): RecordModel {
     ),
   });
 }
+
+export function liveRecordModel(model: RecordModel): RecordModel {
+  const types = new Set(model.types.filter((type) => !type.archived).map((type) => type.id));
+  const relationships = model.relationships.filter(
+    (relation) => !relation.archived && types.has(relation.sourceTypeId) && types.has(relation.targetTypeId),
+  );
+  const relationIds = new Set(relationships.map((relation) => relation.id));
+  return {
+    ...model,
+    types: model.types
+      .filter((type) => types.has(type.id))
+      .map((type) =>
+        type.relationshipPaths
+          ? { ...type, relationshipPaths: type.relationshipPaths.filter((path) => !path.archived) }
+          : type,
+      ),
+    fields: model.fields.filter((field) => !field.archived && types.has(field.typeId)),
+    relationships,
+    capabilities: model.capabilities.filter((binding) => types.has(binding.typeId)),
+    activityPaths: model.activityPaths.filter(
+      (path) => !path.archived && types.has(path.typeId) && path.path.every((step) => relationIds.has(step.relationId)),
+    ),
+  };
+}

@@ -29,9 +29,14 @@ import type { RecordIdentity, RecordIdentityInput } from "./record-identity.sche
 import type { RecordDetailLayout } from "./record-detail-layout.schema";
 import type { RecordRevisionChange } from "./record-revision.schema";
 import type { RecordEventSubscriptionDefinition } from "./record-event-subscription.schema";
-import type { ConfigurationPreview } from "./configuration.schema";
+import type { ConfigurationPreview, ConfigurationTarget } from "./configuration.schema";
+import type { ConfigurationDeletionRecord } from "./configuration-lifecycle";
 
 export type RecordDefinitionDeletion = { typeIds: string[]; fieldIds: string[]; relationIds: string[] };
+export type ConfigurationConsumerCleanup =
+  | { kind: "view" | "personalLayout"; id: string; state: DataViewState }
+  | { kind: "detailLayout"; id: string; layout: RecordDetailLayout }
+  | { kind: "widget"; id: string; measure: RecordMeasure };
 
 export type StoredRecord = CrmRecord & {
   values: RecordValue[];
@@ -95,18 +100,27 @@ export interface RecordRepo {
   getViewStatesCompanyWide(
     typeIds: string[],
     afterKey?: string,
-  ): Promise<Array<{ key: string; typeId: string; state: DataViewState }>>;
+  ): Promise<Array<{ key: string; typeId: string; name: string | null; state: DataViewState }>>;
   getDetailLayoutsCompanyWide(
     typeIds: string[],
     afterId?: string,
   ): Promise<Array<{ id: string; typeId: string; layout: RecordDetailLayout }>>;
-  getActivityWidgetQueriesCompanyWide(afterId?: string): Promise<Array<{ id: string; query: RecordActivityQuery }>>;
-  getEventSubscriptionsCompanyWide(afterId?: string): Promise<RecordEventSubscriptionDefinition[]>;
-  getWidgetMeasuresCompanyWide(afterId?: string): Promise<Array<{ id: string; measure: RecordMeasure }>>;
+  getActivityWidgetQueriesCompanyWide(
+    afterId?: string,
+  ): Promise<Array<{ id: string; name: string; query: RecordActivityQuery }>>;
+  getEventSubscriptionsCompanyWide(
+    afterId?: string,
+  ): Promise<Array<RecordEventSubscriptionDefinition & { label: string }>>;
+  getWidgetMeasuresCompanyWide(afterId?: string): Promise<Array<{ id: string; name: string; measure: RecordMeasure }>>;
+  getConfigurationDeletions(targets?: ConfigurationTarget[]): Promise<Map<string, ConfigurationDeletionRecord>>;
+  applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<void>;
+  getUserNamesCompanyWide(userIds: string[]): Promise<Map<string, string>>;
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
   countRecordsCompanyWide(typeIds: string[]): Promise<number>;
-  countDefinitionDeletion(deletion: RecordDefinitionDeletion): Promise<NonNullable<ConfigurationPreview["deletion"]>>;
+  countDefinitionDeletion(
+    deletion: RecordDefinitionDeletion,
+  ): Promise<NonNullable<NonNullable<ConfigurationPreview["deletion"]>["removed"]>>;
   deleteDefinitions(deletion: RecordDefinitionDeletion): Promise<void>;
   countReadableRecordsByType(access: RecordAccessMap): Promise<Array<{ typeId: string; count: number }>>;
   validRecordRolesCompanyWide(roleIds: string[]): Promise<boolean>;

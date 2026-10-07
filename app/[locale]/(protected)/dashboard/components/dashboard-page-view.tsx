@@ -35,6 +35,7 @@ import {
 } from "./widget-interaction";
 import { WidgetModal } from "./widget-modal";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
 
 const ResponsiveGridLayout = dynamic(
   () =>
@@ -49,6 +50,8 @@ type Props = {
   recordTypes?: DiscoveredRecordTypes;
   widgets: WidgetDto[];
 };
+
+const WIDGET_FOCUS_KINDS: FocusKind[] = ["widget"];
 
 const DashboardPageViewContent = observer(function DashboardPageView({ gallery, recordTypes, widgets }: Props) {
   const { widgetModalStore, widgetsStore } = useRootStore();
@@ -110,6 +113,14 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
     };
   }, []);
   const pageState = resolveResourcePageState(widgetsStore.dataRequest, items.length);
+  useFocusTarget(
+    WIDGET_FOCUS_KINDS,
+    (target) => {
+      runUserAction(() => openWidgetEditor(widgetModalStore, target.id));
+      return true;
+    },
+    pageState === "content",
+  );
   const topBarActions = useMemo(
     () =>
       pageState !== "loading" && pageState !== "error" && canAddWidget ? (
@@ -207,7 +218,11 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
           }
         >
           {items.map((widget) => (
-            <div key={widget.id} onPointerDown={(event) => handlePointerDown(widget.id, event)}>
+            <div
+              key={widget.id}
+              data-focus-target={`widget:${widget.id}`}
+              onPointerDown={(event) => handlePointerDown(widget.id, event)}
+            >
               <WidgetCard widget={widget} />
             </div>
           ))}

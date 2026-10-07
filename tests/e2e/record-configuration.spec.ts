@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { openDrawerTab, addFromConfigure, configureListCard, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
+import { openDrawerTab, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openListAction, restoreRecentlyDeleted, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function applyConfiguration(page: Page) {
@@ -125,7 +125,7 @@ test("opens Sidebar Configure and preserves channel binding choices for seeded a
   expect(errors).toEqual([]);
 });
 
-test("edits a linear calculation and restores archived fields, activity connections and a list", async ({
+test("edits a linear calculation and restores deleted fields, activity connections and a list", async ({
   page,
   database,
   companyId,
@@ -195,25 +195,18 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await expect(page.getByRole("button", { name: "Pilot research", exact: true })).toBeVisible();
   await followConfigureLink(page);
   await openConfigureRow(page, "Fields", "Double budget");
-  await dialog.getByRole("switch", { name: "Archive field", exact: true }).check();
-  await applyConfiguration(page);
+  await deleteFromDrawer(page, "Delete field");
   await expect(configureRow(page, "Fields", "Double budget")).toHaveCount(0);
-  await setShowArchivedParts(page, true);
-  await expect(configureRow(page, "Fields", "Double budget")).toContainText("Archived");
-  await openConfigureRow(page, "Fields", "Double budget");
-  await expect(dialog.getByRole("switch", { name: "Archive field", exact: true })).not.toBeChecked();
-  await applyConfiguration(page);
+  await restoreRecentlyDeleted(page, "Double budget");
   expect((await readModel(database, companyId)).fields.find((field) => field.id === doubled?.id)).toMatchObject({
     archived: false,
     behavior: doubled?.behavior,
   });
+  await openConfigure(page, typeId);
   await openConfigureRow(page, "Activity connections", name);
-  await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
-  await applyConfiguration(page);
-  await expect(configureRow(page, "Activity connections", name)).toContainText("Archived");
-  await openConfigureRow(page, "Activity connections", name);
-  await expect(dialog.getByRole("switch", { name: "Archive connection", exact: true })).not.toBeChecked();
-  await applyConfiguration(page);
+  await deleteFromDrawer(page, "Delete activity connection");
+  await expect(configureRow(page, "Activity connections", name)).toHaveCount(0);
+  await restoreRecentlyDeleted(page, name);
   expect((await readModel(database, companyId)).activityPaths.find((path) => path.typeId === typeId)).toMatchObject({
     label: name,
     archived: false,
@@ -221,18 +214,11 @@ test("edits a linear calculation and restores archived fields, activity connecti
     includeAudit: true,
     includeMessages: false,
   });
-  await openConfigureRow(page, "Activity connections", name);
-  await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
-  await applyConfiguration(page);
-  await openListAction(page, "Archive list");
-  await applyConfiguration(page);
   await openConfigure(page);
-  await expect(configureListCard(page, name)).toHaveCount(0);
-  await setShowArchived(page, true);
-  await expect(configureListCard(page, name)).toContainText("Archived");
   await selectConfigureList(page, name);
-  await openListAction(page, "Restore list");
-  await applyConfiguration(page);
+  await deleteSelectedList(page);
+  await expect(configureListCard(page, name)).toHaveCount(0);
+  await restoreRecentlyDeleted(page, name);
   expect((await readModel(database, companyId)).types.find((type) => type.id === typeId)).toMatchObject({
     archived: false,
     pluralLabel: name,

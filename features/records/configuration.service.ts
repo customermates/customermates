@@ -5,18 +5,18 @@ import { compareRecordKey } from "./record-json";
 import type { Action } from "@/generated/prisma";
 import type { ConfigurationChange, ConfigurationPreview } from "./configuration.schema";
 import type { RecordField, RecordModel } from "./record-model.schema";
-import type { RecordDefinitionDeletion, RecordRepo } from "./record.repo";
+import type { ConfigurationConsumerCleanup, RecordDefinitionDeletion, RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
 
-import { recordMeasureIsValid } from "./record-measure-validation";
-import { recordViewStateIsValid } from "./record-view-state";
-import { recordDetailLayoutIsValid } from "./record-detail-layout";
+import { cleanRecordMeasure, recordMeasureIsValid } from "./record-measure-validation";
+import { cleanRecordViewState, recordViewStateIsValid } from "./record-view-state";
+import { cleanRecordDetailLayout, recordDetailLayoutIsValid } from "./record-detail-layout";
+import { applyConfigurationLifecycle, deletionReference, isLifecycleOperation } from "./configuration-lifecycle";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordWriteError, normalizeRecordScalar } from "./record-write.service";
 import { RecordModelSchema } from "./record-model.schema";
 import {
-  type ModelIssue,
   expressionFieldDependencies,
   expressionRelationshipDependencies,
   validateRecordModel,
@@ -74,64 +74,12 @@ export function calculationDependencyHash(field: RecordField, model: RecordModel
     .digest("hex");
 }
 
-function removeArchivedDefinitions(
-  model: RecordModel,
-  operations: ConfigurationChange["operations"],
-): { deletion: RecordDefinitionDeletion; issues: ModelIssue[] } {
-  const typeIds = new Set<string>();
-  const fieldIds = new Set<string>();
-  for (const operation of operations) {
-    if (operation.operation === "deleteType") {
-      if (!model.types.some((type) => type.id === operation.typeId && type.archived))
-        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
-      typeIds.add(operation.typeId);
-    } else if (operation.operation === "deleteField") {
-      if (!model.fields.some((field) => field.id === operation.fieldId && field.archived))
-        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
-      fieldIds.add(operation.fieldId);
-    } else throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
-  }
-  for (const field of model.fields) if (typeIds.has(field.typeId)) fieldIds.add(field.id);
-  const relationIds = new Set(
-    model.relationships
-      .filter((relation) => typeIds.has(relation.sourceTypeId) || typeIds.has(relation.targetTypeId))
-      .map((relation) => relation.id),
-  );
-  const crosses = (path: Array<{ relationId: string }>) => path.some((step) => relationIds.has(step.relationId));
-  model.types = model.types
-    .filter((type) => !typeIds.has(type.id))
-    .map((type) =>
-      type.relationshipPaths?.some((path) => crosses(path.path))
-        ? { ...type, relationshipPaths: type.relationshipPaths.filter((path) => !crosses(path.path)) }
-        : type,
-    );
-  model.fields = model.fields.filter((field) => !fieldIds.has(field.id));
-  model.relationships = model.relationships.filter((relation) => !relationIds.has(relation.id));
-  model.capabilities = model.capabilities.filter((binding) => !typeIds.has(binding.typeId));
-  model.activityPaths = model.activityPaths.filter((path) => !typeIds.has(path.typeId) && !crosses(path.path));
-  const issues: ModelIssue[] = [];
-  for (const field of model.fields) {
-    if (field.behavior.kind === "input") continue;
-    const fields = expressionFieldDependencies(field.behavior.expression);
-    if (field.behavior.kind === "snapshot" && field.behavior.triggerFieldId) fields.add(field.behavior.triggerFieldId);
-    if (
-      [...fields].some((id) => fieldIds.has(id)) ||
-      [...expressionRelationshipDependencies(field.behavior.expression)].some((id) => relationIds.has(id))
-    )
-      issues.push({ code: "deletion_dependency", fieldId: field.id, typeId: field.typeId });
-  }
-  for (const type of model.types) {
-    if (type.parentRelationshipId && relationIds.has(type.parentRelationshipId))
-      issues.push({ code: "deletion_dependency", typeId: type.id });
-  }
-  return { deletion: { typeIds: [...typeIds], fieldIds: [...fieldIds], relationIds: [...relationIds] }, issues };
-}
-
 export type PreparedConfiguration = {
   change: RecordRevisionChange;
   model: RecordModel;
   preview: ConfigurationPreview;
   deletion: RecordDefinitionDeletion | null;
+  cleanups: ConfigurationConsumerCleanup[];
   grants: Array<{
     typeId: string;
     grants: Array<{ roleId: string; actions: Action[] }>;
@@ -330,15 +278,28 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
       if (operation.operation === "putType") {
-        const type = resolveDefinition(operation.type) as RecordModel["types"][number];
-        const existing = current.types.find((candidate) => candidate.id === type.id);
+        const input = resolveDefinition(operation.type) as Omit<RecordModel["types"][number], "archived">;
+        const existing = current.types.find((candidate) => candidate.id === input.id);
+        const type = {
+          ...input,
+          archived: existing?.archived ?? false,
+          ...(input.relationshipPaths
+            ? {
+                relationshipPaths: input.relationshipPaths.map((path) => ({
+                  ...path,
+                  archived: existing?.relationshipPaths?.find((before) => before.id === path.id)?.archived ?? false,
+                })),
+              }
+            : {}),
+        } as RecordModel["types"][number];
         if ((existing?.parentRelationshipId ?? null) !== type.parentRelationshipId && !policy.canManageRoles)
           throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
         upsert(model.types, type);
       }
       if (operation.operation === "putField") {
-        const field = resolveDefinition(operation.field) as Omit<RecordField, "publishedSummary">;
-        const existing = current.fields.find((candidate) => candidate.id === field.id);
+        const input = resolveDefinition(operation.field) as Omit<RecordField, "publishedSummary" | "archived">;
+        const existing = current.fields.find((candidate) => candidate.id === input.id);
+        const field = { ...input, archived: existing?.archived ?? false };
         if (existing && existing.typeId !== field.typeId)
           throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
         if (existing && existing.position !== field.position) reorderedTypes.add(field.typeId);
@@ -348,8 +309,12 @@ export class RecordConfigurationService extends UserAccessor {
         });
       }
       if (operation.operation === "putRelationship") {
-        const relation = resolveDefinition(operation.relationship) as RecordModel["relationships"][number];
-        const existing = current.relationships.find((candidate) => candidate.id === relation.id);
+        const input = resolveDefinition(operation.relationship) as Omit<
+          RecordModel["relationships"][number],
+          "archived"
+        >;
+        const existing = current.relationships.find((candidate) => candidate.id === input.id);
+        const relation = { ...input, archived: existing?.archived ?? false };
         if (
           existing &&
           (existing.sourceTypeId !== relation.sourceTypeId || existing.targetTypeId !== relation.targetTypeId)
@@ -408,16 +373,35 @@ export class RecordConfigurationService extends UserAccessor {
           }
         }
       }
-      if (operation.operation === "putActivityPath")
-        upsert(model.activityPaths, resolveDefinition(operation.activityPath) as RecordModel["activityPaths"][number]);
+      if (operation.operation === "putActivityPath") {
+        const path = resolveDefinition(operation.activityPath) as Omit<
+          RecordModel["activityPaths"][number],
+          "archived"
+        >;
+        upsert(model.activityPaths, {
+          ...path,
+          archived: current.activityPaths.find((before) => before.id === path.id)?.archived ?? false,
+        });
+      }
     }
-    const removed = input.operations.some(
-      (operation) => operation.operation === "deleteType" || operation.operation === "deleteField",
-    )
-      ? removeArchivedDefinitions(model, input.operations)
+    const lifecycle = input.operations.some(isLifecycleOperation)
+      ? applyConfigurationLifecycle(
+          model,
+          input.operations,
+          await this.records.getConfigurationDeletions(
+            input.operations.flatMap((operation) => (isLifecycleOperation(operation) ? [operation.target] : [])),
+          ),
+        )
       : null;
-    if (removed?.deletion.typeIds.length && !policy.canManageRoles)
+    if (lifecycle?.removed?.typeIds.length && !policy.canManageRoles)
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+    const deletedTypeIds = new Set(
+      lifecycle?.deletedTargets.filter((target) => target.kind === "type").map((target) => target.id),
+    );
+    const cause = lifecycle?.deletions[0] ? deletionReference(current, lifecycle.deletions[0].target) : null;
+    const blockers = [...(lifecycle?.blockers ?? [])];
+    const cleaned = [...(lifecycle?.cleaned ?? [])];
+    const cleanups: ConfigurationConsumerCleanup[] = [];
     for (const typeId of reorderedTypes) {
       const slots = model.fields.flatMap((field, index) => (field.typeId === typeId ? [index] : []));
       const ordered = slots.map((index) => model.fields[index]).sort((left, right) => left.position - right.position);
@@ -428,7 +412,6 @@ export class RecordConfigurationService extends UserAccessor {
     if (!RecordModelSchema.safeParse(model).success)
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
-    validation.issues.push(...(removed?.issues ?? []));
     const approvals = new Map(
       input.operations
         .filter((operation) => operation.operation === "publishSummary")
@@ -520,7 +503,21 @@ export class RecordConfigurationService extends UserAccessor {
       for (;;) {
         const layouts = await this.records.getDetailLayoutsCompanyWide([...viewTypes], layoutCursor);
         for (const entry of layouts) {
-          if (!blockedLayouts.has(entry.typeId) && !recordDetailLayoutIsValid(entry.typeId, entry.layout, model)) {
+          if (deletedTypeIds.has(entry.typeId) || recordDetailLayoutIsValid(entry.typeId, entry.layout, model))
+            continue;
+          const layout =
+            cause && recordDetailLayoutIsValid(entry.typeId, entry.layout, current)
+              ? cleanRecordDetailLayout(entry.typeId, entry.layout, model)
+              : null;
+          if (cause && layout) {
+            cleanups.push({ kind: "detailLayout", id: entry.id, layout });
+            cleaned.push({
+              consumer: { kind: "detailLayout", id: entry.id, typeId: entry.typeId, label: "" },
+              target: cause,
+            });
+            continue;
+          }
+          if (!blockedLayouts.has(entry.typeId)) {
             blockedLayouts.add(entry.typeId);
             validation.issues.push({
               code: "detail_layout_incompatible",
@@ -537,8 +534,24 @@ export class RecordConfigurationService extends UserAccessor {
       for (;;) {
         const consumers = await this.records.getViewStatesCompanyWide([...viewTypes], cursor);
         for (const consumer of consumers) {
+          if (deletedTypeIds.has(consumer.typeId) || recordViewStateIsValid(consumer.typeId, consumer.state, model))
+            continue;
+          const state =
+            cause && recordViewStateIsValid(consumer.typeId, consumer.state, current)
+              ? cleanRecordViewState(consumer.typeId, consumer.state, model)
+              : null;
+          if (cause && state) {
+            const kind = consumer.key.startsWith("view:") ? "view" : "personalLayout";
+            const id = consumer.key.slice(consumer.key.indexOf(":") + 1);
+            cleanups.push({ kind, id, state });
+            cleaned.push({
+              consumer: { kind, id, typeId: consumer.typeId, label: consumer.name ?? "" },
+              target: cause,
+            });
+            continue;
+          }
           if (blockedTypes.has(consumer.typeId)) continue;
-          if (!recordViewStateIsValid(consumer.typeId, consumer.state, model)) {
+          {
             blockedTypes.add(consumer.typeId);
             validation.issues.push({
               code: "saved_view_incompatible",
@@ -555,7 +568,17 @@ export class RecordConfigurationService extends UserAccessor {
     for (;;) {
       const widgets = await this.records.getWidgetMeasuresCompanyWide(widgetCursor);
       for (const widget of widgets) {
-        if (!recordMeasureIsValid(widget.measure, model)) {
+        if (recordMeasureIsValid(widget.measure, model)) continue;
+        if (cause && recordMeasureIsValid(widget.measure, current)) {
+          const measure = cleanRecordMeasure(widget.measure, model);
+          const consumer = { kind: "widget" as const, id: widget.id, label: widget.name };
+          if (measure) {
+            cleanups.push({ kind: "widget", id: widget.id, measure });
+            cleaned.push({ consumer, target: cause });
+          } else blockers.push({ reason: "widget", source: consumer, target: cause });
+          continue;
+        }
+        {
           validation.issues.push({
             code: "widget_incompatible",
             typeId: widget.measure.source.typeId,
@@ -569,15 +592,17 @@ export class RecordConfigurationService extends UserAccessor {
     let activityWidgetCursor = "";
     for (;;) {
       const widgets = await this.records.getActivityWidgetQueriesCompanyWide(activityWidgetCursor);
-      for (const { query } of widgets) {
+      for (const { id, name, query } of widgets) {
         const typeIds = [
           ...query.scope.typeIds,
           ...query.scope.records.map((ref) => ref.typeId),
           ...(query.filters ?? []).flatMap((filter) => (filter.kind === "record" ? [filter.typeId] : [])),
         ];
         for (const typeId of new Set(typeIds)) {
-          if (!model.types.some((type) => type.id === typeId && !type.archived))
-            validation.issues.push({ code: "widget_incompatible", typeId });
+          if (model.types.some((type) => type.id === typeId && !type.archived)) continue;
+          if (cause && deletedTypeIds.has(typeId))
+            blockers.push({ reason: "widget", source: { kind: "widget", id, label: name }, target: cause });
+          else validation.issues.push({ code: "widget_incompatible", typeId });
         }
       }
       const last = widgets.at(-1);
@@ -588,7 +613,16 @@ export class RecordConfigurationService extends UserAccessor {
     for (;;) {
       const subscriptions = await this.records.getEventSubscriptionsCompanyWide(subscriptionCursor);
       for (const subscription of subscriptions) {
-        if (!recordEventSubscriptionIsValid(subscription, model)) {
+        if (recordEventSubscriptionIsValid(subscription, model)) continue;
+        if (cause && recordEventSubscriptionIsValid(subscription, current)) {
+          blockers.push({
+            reason: subscription.kind,
+            source: { kind: subscription.kind, id: subscription.id, label: subscription.label },
+            target: cause,
+          });
+          continue;
+        }
+        {
           validation.issues.push({
             code: "event_subscription_incompatible",
             typeId: subscription.typeId ?? undefined,
@@ -638,6 +672,7 @@ export class RecordConfigurationService extends UserAccessor {
         causeId: input.idempotencyKey,
         expectedRevision: current.revision,
         configuration: input,
+        ...(lifecycle?.deletions.length ? { deletions: lifecycle.deletions } : {}),
         references: [...references].map(([reference, id]) => ({
           reference,
           id,
@@ -652,12 +687,13 @@ export class RecordConfigurationService extends UserAccessor {
       },
       model,
       grants,
-      deletion: removed?.deletion ?? null,
+      deletion: lifecycle?.removed ?? null,
+      cleanups,
       affectedTypeIds: [...changedTypes],
       preview: {
         expectedRevision: current.revision,
         nextRevision: model.revision,
-        valid: !validation.issues.length,
+        valid: !validation.issues.length && !blockers.length,
         execution: affectedRecords > SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
         dataValidation,
         affectedRecords,
@@ -672,7 +708,15 @@ export class RecordConfigurationService extends UserAccessor {
             fieldId: field.id,
             dependencyHash: calculationDependencyHash(field, model),
           })),
-        ...(removed ? { deletion: await this.records.countDefinitionDeletion(removed.deletion) } : {}),
+        ...(lifecycle
+          ? {
+              deletion: {
+                blockers,
+                cleaned,
+                removed: lifecycle.removed ? await this.records.countDefinitionDeletion(lifecycle.removed) : null,
+              },
+            }
+          : {}),
       },
     };
   }

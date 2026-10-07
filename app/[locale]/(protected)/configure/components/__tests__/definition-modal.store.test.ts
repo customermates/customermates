@@ -1,3 +1,4 @@
+import { omit } from "lodash";
 import { describe, expect, it, vi } from "vitest";
 import type { RootStore } from "@/core/stores/root.store";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
@@ -23,54 +24,47 @@ function validate(operations: unknown) {
 }
 
 describe("configuration modal contracts", () => {
-  it("restores archived types and fields through ordinary preview operations without replacing definitions", () => {
+  it("sends edited definitions without a lifecycle flag and keeps their ids", () => {
     const model = createCrmPreset(company);
     const type = recordInvariant(model.types.find((type) => type.id === id("organization")));
     const field = recordInvariant(
       model.fields.find((field) => field.typeId === type.id && field.id !== type.primaryFieldId),
     );
-    type.archived = true;
-    field.archived = true;
     const typeStore = new TypeModalStore(root, model, vi.fn());
     typeStore.edit(model, type);
-    typeStore.onChange("archived", false);
+    typeStore.onChange("name", "Company");
     const typeOperation = validate(typeStore.operations()).operations[0];
     expect(typeOperation.operation === "putType" && typeOperation.type).toMatchObject({
       id: type.id,
-      archived: false,
+      label: "Company",
     });
+    expect(typeOperation.operation === "putType" && "archived" in typeOperation.type).toBe(false);
     const fieldStore = new FieldModalStore(root, model, vi.fn());
     fieldStore.edit(model, type.id, field);
-    fieldStore.onChange("archived", false);
+    fieldStore.onChange("label", "Renamed");
     const fieldOperation = validate(fieldStore.operations()).operations[0];
     expect(fieldOperation.operation === "putField" && fieldOperation.field).toMatchObject({
       id: field.id,
-      archived: false,
+      label: "Renamed",
       behavior: field.behavior,
     });
-  });
-  it("restores archived relationships and activity paths with stable ids and endpoint metadata", () => {
-    const model = createCrmPreset(company);
+    expect(fieldOperation.operation === "putField" && "archived" in fieldOperation.field).toBe(false);
     const relation = recordInvariant(model.relationships[0]);
-    relation.archived = true;
     const relationStore = new RelationshipModalStore(root, model, vi.fn());
     relationStore.edit(model, relation.sourceTypeId, relation);
-    relationStore.onChange("archived", false);
     const relationOperation = validate(relationStore.operations()).operations[0];
-    expect(relationOperation.operation === "putRelationship" && relationOperation.relationship).toEqual({
-      ...relation,
-      archived: false,
-    });
+    const relationDefinition = omit(relation, "archived");
+    expect(relationOperation.operation === "putRelationship" && relationOperation.relationship).toEqual(
+      relationDefinition,
+    );
     const activity = recordInvariant(model.activityPaths[0]);
-    activity.archived = true;
     const activityStore = new ActivityPathModalStore(root, model, vi.fn());
     activityStore.edit(model, activity.typeId, activity);
-    activityStore.onChange("archived", false);
     const activityOperation = validate(activityStore.operations()).operations[0];
-    expect(activityOperation.operation === "putActivityPath" && activityOperation.activityPath).toEqual({
-      ...activity,
-      archived: false,
-    });
+    const activityDefinition = omit(activity, "archived");
+    expect(activityOperation.operation === "putActivityPath" && activityOperation.activityPath).toEqual(
+      activityDefinition,
+    );
   });
   it("preserves and edits generic option metadata while retaining explicit zero probability", () => {
     const model = createCrmPreset(company);
@@ -111,8 +105,9 @@ describe("configuration modal contracts", () => {
     store.edit(model, id("organization"), path);
     store.onChange("includeMessages", false);
     const operation = validate(store.operations()).operations[0];
+    const definition = omit(path, "archived");
     expect(operation.operation === "putActivityPath" && operation.activityPath).toEqual({
-      ...path,
+      ...definition,
       includeMessages: false,
     });
   });
@@ -129,7 +124,6 @@ describe("configuration modal contracts", () => {
       path: [],
       includeMessages: true,
       includeAudit: true,
-      archived: false,
     });
   });
 });
