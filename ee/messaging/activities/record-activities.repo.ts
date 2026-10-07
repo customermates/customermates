@@ -23,7 +23,7 @@ export interface RecordActivitiesRepo {
       createdAt: Date;
       change: RecordRevisionChange;
       actor: RecordActivityActor;
-      previousModel: RecordModel | null;
+      models: RecordModel[];
     }>;
     roleNames: Map<string, string>;
   }>;

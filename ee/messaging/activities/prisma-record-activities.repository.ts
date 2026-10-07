@@ -65,43 +65,38 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
   }
 
   async configurationsCompanyWide(ids: string[]) {
-    const revisions = ids.length
+    const requested = ids.map(Number);
+    const rows = requested.length
       ? await this.prisma.recordSchemaRevision.findMany({
-          where: { companyId: this.companyId, revision: { in: ids.map(Number) }, change: { not: Prisma.DbNull } },
-          select: { revision: true, createdAt: true, actorId: true, change: true },
+          where: {
+            companyId: this.companyId,
+            revision: { in: [...new Set(requested.flatMap((revision) => [revision, revision - 1]))] },
+          },
+          select: { revision: true, createdAt: true, actorId: true, change: true, snapshot: true },
         })
       : [];
-    const parsed = revisions.flatMap(({ change, ...revision }) => {
-      const result = RecordRevisionChangeSchema.safeParse(change);
-      return result.success ? [{ ...revision, change: result.data }] : [];
+    const snapshots = new Map(rows.map((row) => [row.revision, readRecordModelSnapshot(row.snapshot)]));
+    const parsed = rows.flatMap((row) => {
+      if (!requested.includes(row.revision)) return [];
+      const result = RecordRevisionChangeSchema.safeParse(row.change);
+      return result.success
+        ? [{ revision: row.revision, createdAt: row.createdAt, actorId: row.actorId, change: result.data }]
+        : [];
     });
-    const deletions = parsed
-      .filter(({ change }) =>
-        change.configuration?.operations.some(
-          (operation) => operation.operation === "deleteType" || operation.operation === "deleteField",
-        ),
-      )
-      .map(({ revision }) => revision - 1);
-    const [actor, roles, previous] = await Promise.all([
+    const [actor, roles] = await Promise.all([
       this.actorsCompanyWide(parsed.map((revision) => revision.actorId)),
       parsed.length
         ? this.prisma.userRole.findMany({ where: { companyId: this.companyId }, select: { id: true, name: true } })
         : [],
-      deletions.length
-        ? this.prisma.recordSchemaRevision.findMany({
-            where: { companyId: this.companyId, revision: { in: deletions } },
-            select: { revision: true, snapshot: true },
-          })
-        : [],
     ]);
-    const previousModels = new Map(
-      previous.map(({ revision, snapshot }) => [revision + 1, readRecordModelSnapshot(snapshot)]),
-    );
     return {
       revisions: parsed.map(({ actorId, ...revision }) => ({
         ...revision,
         actor: actor(actorId),
-        previousModel: previousModels.get(revision.revision) ?? null,
+        models: [revision.revision, revision.revision - 1].flatMap((key) => {
+          const model = snapshots.get(key);
+          return model ? [model] : [];
+        }),
       })),
       roleNames: new Map(roles.map((role) => [role.id, role.name])),
     };
