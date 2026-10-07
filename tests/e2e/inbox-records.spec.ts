@@ -107,6 +107,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   ]);
   expect(relinked.rows).toEqual([{ recordId: stored.rows[0].recordId, value: email }]);
   await page.keyboard.press("Escape");
+  await page.waitForLoadState("networkidle");
   await page.reload();
   await settingsControl.click();
   await expect(settings.getByRole("button", { name: "Unlink record: Inbox Person", exact: true })).toBeVisible();
@@ -119,6 +120,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
     'INSERT INTO "MessagingThreadParticipant" (id,"companyId","messagingThreadId",provider,"providerUserId",identifier,"identityLookupValue","displayName","updatedAt") VALUES ($1,$2,$3,\'mail\',$4,$4,$4,\'Suggested Channel\',NOW())',
     [randomUUID(), companyId, threadId, "suggested-channel@example.test"],
   );
+  await page.waitForLoadState("networkidle");
   await page.goto(`/en/records/${stored.rows[0].typeId}/${stored.rows[0].recordId}`);
   const channelInput = page.getByRole("combobox", { name: "Add channel", exact: true });
   await channelInput.click();
@@ -139,6 +141,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
         ).rows,
     )
     .toEqual([{ value: "suggested-channel@example.test", displayName: "Suggested Channel" }]);
+  await page.waitForLoadState("networkidle");
   await page.reload();
   await expect(page.getByText("suggested-channel@example.test", { exact: true }).first()).toBeVisible();
   expect(errors).toEqual([]);

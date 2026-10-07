@@ -23,13 +23,16 @@ export type NavSecondaryItem = {
 
 type Props = {
   items: NavSecondaryItem[];
+  leading?: React.ReactNode;
 } & ComponentPropsWithoutRef<typeof SidebarGroup>;
 
-export function NavSecondary({ items, ...props }: Props) {
+export function NavSecondary({ items, leading, ...props }: Props) {
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
+          {leading}
+
           {items.map((item) => (
             <SidebarMenuItem key={item.key}>
               {item.href ? (

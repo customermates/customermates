@@ -18,10 +18,6 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     recordWorkspaceStore: { open: harness.openEntity },
   }),
 }));
-vi.mock("@/components/records/use-record-href", () => ({
-  useOpenPresetRecord: () => harness.openEntity,
-}));
-
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
 
 const ALEXEJ = recordSearchHit("contact", "10000000-0000-4000-8000-000000000001", "Alexej Sofr");

@@ -22,6 +22,7 @@ const spies = vi.hoisted(() => ({
   getWebhooks: vi.fn(),
   getWebhookDeliveries: vi.fn(),
   queryMeasure: vi.fn(),
+  resolveIdentities: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -37,6 +38,7 @@ vi.mock("@/core/di", () => ({
   getGetWebhooksApiInteractor: () => ({ invoke: spies.getWebhooks }),
   getGetWebhookDeliveriesApiInteractor: () => ({ invoke: spies.getWebhookDeliveries }),
   getQueryRecordMeasureInteractor: () => ({ invoke: spies.queryMeasure }),
+  getResolveRecordIdentitiesInteractor: () => ({ invoke: spies.resolveIdentities }),
 }));
 
 import { executeMcpTool, type McpTool } from "../mcp-tool";
@@ -45,7 +47,7 @@ import { listUsersTool } from "../workspace.mcp-tools";
 import { getCalendarsTool, getMessagingThreadsTool } from "../messaging.mcp-tools";
 import { manageRoutinesTool } from "../routine.mcp-tools";
 import { manageWebhooksTool } from "../webhook.mcp-tools";
-import { queryRecordMeasureV2Tool } from "../record-model.mcp-tools";
+import { queryRecordMeasureV2Tool, resolveRecordIdentifiersV2Tool } from "../record-model.mcp-tools";
 
 const ada = "00000000-0000-4000-8000-00000000000a";
 const threadId = "00000000-0000-4000-8000-000000000071";
@@ -214,6 +216,41 @@ describe("tool results pass the MCP SDK output validation on the server and in t
     expect(outcome.structuredContent).toMatchObject({ page: 1, pageSize: "pageSize" in args ? args.pageSize : 25 });
     expect(outcome.structuredContent).not.toHaveProperty("requestedPageSize");
     expect(outcome.structuredContent).not.toHaveProperty("pageSizeNote");
+  });
+
+  it("publishes record versions and the schema revision for an identifier batch update", async () => {
+    const reference = { ...participant.records[0], identityId: "00000000-0000-4000-8000-000000000076", version: 4 };
+    const identifiers = [
+      { provider: "mail", value: "jane@example.com" },
+      { provider: "linkedin", value: "jane-doe" },
+    ];
+    spies.resolveIdentities.mockResolvedValue({
+      ok: true,
+      data: {
+        schemaRevision: 7,
+        matches: identifiers.map((identifier) => ({ ...identifier, records: [reference] })),
+      },
+    });
+    const outcome = await sdkOutputViolations(resolveRecordIdentifiersV2Tool as McpTool, { identifiers });
+    expect({ server: outcome.server, client: outcome.client }).toEqual({ server: null, client: null });
+    expect(outcome.structuredContent).toMatchObject({
+      schemaRevision: 7,
+      matches: [{ records: [{ ref: reference.ref, version: 4 }] }, { records: [{ ref: reference.ref, version: 4 }] }],
+    });
+    spies.resolveIdentities.mockResolvedValue({
+      ok: true,
+      data: { matches: [{ ...identifiers[0], records: [participant.records[0]] }] },
+    });
+    const unversioned = await sdkOutputViolations(resolveRecordIdentifiersV2Tool as McpTool, { identifiers });
+    expect(unversioned.server).not.toBeNull();
+    expect(unversioned.client).not.toBeNull();
+    expect(resolveRecordIdentifiersV2Tool.description).toMatch(/deduplicate by ref/);
+    expect(resolveRecordIdentifiersV2Tool.description).toMatch(/updateMany/);
+    expect(() =>
+      resolveRecordIdentifiersV2Tool.inputSchema.parse({
+        identifiers: Array.from({ length: 1001 }, () => identifiers[0]),
+      }),
+    ).toThrow();
   });
 
   it("validates time-series and assignee measure results against the published schema", async () => {

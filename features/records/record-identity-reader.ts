@@ -14,6 +14,11 @@ export type IdentityMatch = IdentityLookup & {
   records: RecordIdentityReference[];
   moreRecords?: true;
 };
+type VersionedIdentityReference = RecordIdentityReference & { version: number };
+export type VersionedIdentityMatch = IdentityLookup & {
+  records: VersionedIdentityReference[];
+  moreRecords?: true;
+};
 
 export const IDENTITY_MATCH_DISPLAY_LIMIT = 20;
 
@@ -47,14 +52,36 @@ export class RecordIdentityReader {
     options: { complete?: boolean } = {},
   ): Promise<IdentityMatch[]> {
     if (!identifiers.length) return [];
+    return (await this.lookup(identifiers, typeIds, options)).matches.map((match) => ({
+      ...match,
+      records: match.records.map(({ version: _version, ...record }) => record),
+    }));
+  }
+
+  async resolveForUpdate(
+    identifiers: IdentityLookup[],
+    typeIds?: string[],
+  ): Promise<{ schemaRevision: number; matches: VersionedIdentityMatch[] }> {
+    const { revision, matches } = await this.lookup(identifiers, typeIds, { complete: true });
+    return { schemaRevision: revision, matches };
+  }
+
+  private async lookup(
+    identifiers: IdentityLookup[],
+    typeIds: string[] | undefined,
+    options: { complete?: boolean },
+  ): Promise<{ revision: number; matches: VersionedIdentityMatch[] }> {
     return runInTransaction(
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) {
-          return identifiers.map((identifier) => ({
-            ...identifier,
-            records: [],
-          }));
+          return {
+            revision: model.revision,
+            matches: identifiers.map((identifier) => ({
+              ...identifier,
+              records: [],
+            })),
+          };
         }
         const bound = new Set(
           model.capabilities
@@ -68,7 +95,7 @@ export class RecordIdentityReader {
             .map((binding) => binding.typeId),
         );
         const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
-        const matches: IdentityMatch[] = [];
+        const matches: VersionedIdentityMatch[] = [];
         for (let offset = 0; offset < identifiers.length; offset += 500) {
           const batch = identifiers.slice(offset, offset + 500);
           const keys = batch.map((input) => ({
@@ -95,14 +122,18 @@ export class RecordIdentityReader {
             const rows = await this.records.searchRecords({ refs: refs.slice(index, index + 100) }, model, access);
             for (const row of rows) readable.set(recordKey(row), row);
           }
-          const byKey = new Map<string, RecordIdentityReference[]>();
+          const byKey = new Map<string, VersionedIdentityReference[]>();
           for (const owner of owners) {
             const row = readable.get(recordKey(owner.ref));
             if (!row) continue;
             const key = JSON.stringify([owner.channelClass, owner.value]);
             const records = byKey.get(key) ?? [];
-            if (!records.some((record) => recordKey(record.ref) === recordKey(owner.ref)))
-              records.push(identityReference(row, model, policy.allowed(row.typeId, "update"), owner.identityId));
+            if (!records.some((record) => recordKey(record.ref) === recordKey(owner.ref))) {
+              records.push({
+                ...identityReference(row, model, policy.allowed(row.typeId, "update"), owner.identityId),
+                version: row.version,
+              });
+            }
             byKey.set(key, records);
           }
           batch.forEach((identifier, index) => {
@@ -113,7 +144,7 @@ export class RecordIdentityReader {
             matches.push({ ...identifier, records, ...(truncated.has(key) ? { moreRecords: true as const } : {}) });
           });
         }
-        return matches;
+        return { revision: model.revision, matches };
       },
       { readOnly: true },
     );

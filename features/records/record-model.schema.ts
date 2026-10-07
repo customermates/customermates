@@ -1,6 +1,7 @@
 import { recordInvariant } from "./record-invariant";
 
 import { z } from "zod";
+import { CHIP_COLORS } from "@/constants/chip-colors";
 import { RecordIdentitySchema } from "./record-identity.schema";
 import { RecordColumnKeySchema, RecordFieldKeySchema } from "./record-column.schema";
 import { RecordRelationshipPathSchema } from "./record-relationship-path.schema";
@@ -339,6 +340,7 @@ export const RecordTypeSchema = z
     pluralLabel: z.string().trim().min(1).max(200),
     description: z.string().max(4000),
     icon: z.string().max(64),
+    color: z.enum(CHIP_COLORS).optional().describe("Chip color for links to records of this list; neutral when unset."),
     primaryFieldId: z.uuid(),
     parentRelationshipId: z.uuid().nullable().default(null),
     embedded: z.boolean(),

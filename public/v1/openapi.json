@@ -734,7 +734,8 @@
                         "value"
                       ],
                       "additionalProperties": false
-                    }
+                    },
+                    "description": "Up to 1,000 exact channel identifiers. Each input, including a repeated one, returns its own match."
                   },
                   "typeIds": {
                     "maxItems": 100,
@@ -762,6 +763,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "schemaRevision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991,
+                      "description": "Workspace schema revision for expectedRevision in a following record mutation."
+                    },
                     "matches": {
                       "type": "array",
                       "items": {
@@ -835,6 +842,12 @@
                                 },
                                 "canEdit": {
                                   "type": "boolean"
+                                },
+                                "version": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 9007199254740991,
+                                  "description": "Current record version for expectedVersion in an updateMany target."
                                 }
                               },
                               "required": [
@@ -843,7 +856,8 @@
                                 "typePluralLabel",
                                 "title",
                                 "avatarUrl",
-                                "canEdit"
+                                "canEdit",
+                                "version"
                               ],
                               "additionalProperties": false
                             }
@@ -859,9 +873,11 @@
                     }
                   },
                   "required": [
+                    "schemaRevision",
                     "matches"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "matches follow the input order. A record linked through several identifiers appears under each of them: deduplicate by typeId and recordId before building updateMany targets. Resolve every input with more than one record before updating; never pick one arbitrarily."
                 }
               }
             }
@@ -38156,6 +38172,18 @@
                             "type": "string",
                             "maxLength": 64
                           },
+                          "color": {
+                            "description": "Chip color for links to records of this list; neutral when unset.",
+                            "type": "string",
+                            "enum": [
+                              "default",
+                              "secondary",
+                              "destructive",
+                              "success",
+                              "warning",
+                              "info"
+                            ]
+                          },
                           "primaryFieldId": {
                             "type": "string",
                             "format": "uuid",
@@ -39981,6 +40009,18 @@
                                 "icon": {
                                   "type": "string",
                                   "maxLength": 64
+                                },
+                                "color": {
+                                  "description": "Chip color for links to records of this list; neutral when unset.",
+                                  "type": "string",
+                                  "enum": [
+                                    "default",
+                                    "secondary",
+                                    "destructive",
+                                    "success",
+                                    "warning",
+                                    "info"
+                                  ]
                                 },
                                 "primaryFieldId": {
                                   "anyOf": [
@@ -41822,6 +41862,18 @@
                                 "icon": {
                                   "type": "string",
                                   "maxLength": 64
+                                },
+                                "color": {
+                                  "description": "Chip color for links to records of this list; neutral when unset.",
+                                  "type": "string",
+                                  "enum": [
+                                    "default",
+                                    "secondary",
+                                    "destructive",
+                                    "success",
+                                    "warning",
+                                    "info"
+                                  ]
                                 },
                                 "primaryFieldId": {
                                   "anyOf": [
@@ -78978,44 +79030,16 @@
                         "legalNoticeNotDelivered",
                         "termsNotAgreed",
                         "privacyAcknowledgementRequired",
-                        "customColumnNotFound",
-                        "customColumnIdNotFound",
-                        "customColumnTypeMismatch",
-                        "customColumnUsedByRoutineCannotDelete",
                         "invalidChannelValue",
                         "channelAlreadyLinked",
-                        "duplicateChannel",
-                        "contactRefRequired",
-                        "relationNotAllowed",
-                        "customFieldInvalidEmail",
-                        "customFieldInvalidPhone",
-                        "customFieldInvalidUrl",
-                        "customFieldInvalidCurrency",
                         "customFieldInvalidDate",
-                        "customFieldInvalidDateTime",
-                        "customFieldInvalidDateRange",
-                        "customFieldInvalidDateTimeRange",
-                        "customFieldInvalidSingleSelect",
-                        "widgetDealQuantityOnlyForService",
-                        "widgetWeightedValueNotAllowedForService",
-                        "widgetGroupByEntityTypeNotAllowedForCount",
-                        "widgetGroupByTypeMustMatchEntityType",
-                        "widgetDealFiltersNotAllowedForDealEntityType",
-                        "widgetDealAggregationNotAllowedForTask",
                         "widgetKindImmutable",
                         "widgetDisplayTypeUnsupported",
                         "widgetLayoutOverlap",
                         "widgetLayoutTooSmall",
-                        "taskOnlyCustomTasksCanBeDeleted",
-                        "taskNameCannotBeChangedForSystemTasks",
-                        "organizationNotFound",
                         "userNotFound",
                         "userSelfAdminUpdateForbidden",
                         "userPlatformOperatorStatusForbidden",
-                        "dealNotFound",
-                        "serviceNotFound",
-                        "contactNotFound",
-                        "taskNotFound",
                         "widgetNotFound",
                         "webhookNotFound",
                         "webhookDeliveryNotFound",
@@ -79027,7 +79051,6 @@
                         "wikiWhenToUseRequired",
                         "wikiPageUpdateEmpty",
                         "wikiProcedureNeedsSteps",
-                        "wikiHomepageSetupStartFailed",
                         "threadNotFound",
                         "messageNotFound",
                         "emailFolderNotFound",
@@ -79040,7 +79063,6 @@
                         "roleSelfEditForbidden",
                         "roleSystemImmutable",
                         "roleAccessPresetInUse",
-                        "routineNotFound",
                         "routineAdminRequired",
                         "routineDeleteHasRunningRun",
                         "routineEditNotOwner",
@@ -79073,10 +79095,7 @@
                         "webhookHeadersTooLarge",
                         "webhookBodyTemplateInvalid",
                         "webhookHeadersRequireHttps",
-                        "activityScopeTooManyIds",
-                        "activitySourcesUnavailable",
                         "activityDuplicateFilterField",
-                        "activityPageOutOfRange",
                         "messageContentRequired",
                         "sendEmailTargetRequired",
                         "emailRecipientsRequired",

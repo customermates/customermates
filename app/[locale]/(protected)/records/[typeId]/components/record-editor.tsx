@@ -44,7 +44,7 @@ export const RecordEditor = observer(function RecordEditorDrawer({ store }: { st
       >
         <SheetContent
           aria-describedby={undefined}
-          className="w-full gap-0 sm:max-w-[640px]"
+          className="w-full gap-0 bg-background sm:max-w-[640px]"
           side="left"
           onBlur={releaseFocusToAssistantSurface}
           onEscapeKeyDown={keepOpenForAssistantSurface}

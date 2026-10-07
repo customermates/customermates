@@ -1029,8 +1029,8 @@ describe("AgentChatStore", () => {
       id: "item-activity",
       activity: {
         kind: "records.read",
-        resource: "deals",
-        affectedResources: ["deals"],
+        resource: "widgets",
+        affectedResources: ["widgets"],
         risk: "read",
       },
       status: "running",
@@ -1230,8 +1230,8 @@ describe("AgentChatStore", () => {
       id: "stable-read",
       activity: {
         kind: "records.read",
-        resource: "contacts",
-        affectedResources: ["contacts"],
+        resource: "wiki",
+        affectedResources: ["wiki"],
         risk: "read",
       },
     });
@@ -1246,8 +1246,8 @@ describe("AgentChatStore", () => {
       id: "discarded-read",
       activity: {
         kind: "records.read",
-        resource: "deals",
-        affectedResources: ["deals"],
+        resource: "widgets",
+        affectedResources: ["widgets"],
         risk: "read",
       },
     });
@@ -1283,8 +1283,8 @@ describe("AgentChatStore", () => {
         requestId: "request-continuing",
         activity: {
           kind: "records.delete",
-          resource: "contacts",
-          affectedResources: ["contacts"],
+          resource: "wiki",
+          affectedResources: ["wiki"],
           risk: "sensitive",
         },
         pendingDecision: null,
@@ -1869,8 +1869,8 @@ describe("AgentChatStore", () => {
     };
     const approvalActivity = {
       kind: "records.update",
-      resource: "contacts",
-      affectedResources: ["contacts"],
+      resource: "wiki",
+      affectedResources: ["wiki"],
       risk: "write",
     };
     actionsMock.getAgentConversationAction
@@ -1930,7 +1930,7 @@ describe("AgentChatStore", () => {
             terminalCode: "completed",
             stopReason: null,
             assistantMessageId: "approval-reload-assistant",
-            affectedResources: ["contacts"],
+            affectedResources: ["wiki"],
           })}`,
           "",
         ].join("\n\n"),
@@ -3030,9 +3030,9 @@ describe("AgentChatStore", () => {
       requestId: "request-1",
       activity: {
         kind: "records.create" as const,
-        resource: "contacts" as const,
+        resource: "wiki" as const,
         risk: "write" as const,
-        affectedResources: ["contacts" as const],
+        affectedResources: ["wiki" as const],
       },
       pendingDecision: null,
       submittedDecision: null,
@@ -3068,9 +3068,9 @@ describe("AgentChatStore", () => {
       requestId: "request-1",
       activity: {
         kind: "records.delete",
-        resource: "contacts",
+        resource: "wiki",
         risk: "sensitive",
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
       },
     });
     const approval = store.items.find(
@@ -3124,9 +3124,9 @@ describe("AgentChatStore", () => {
       requestId: "hung-approval-request",
       activity: {
         kind: "records.update",
-        resource: "contacts",
+        resource: "wiki",
         risk: "write",
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
       },
     });
     const approval = store.items.find(
@@ -3184,9 +3184,9 @@ describe("AgentChatStore", () => {
       requestId: "request-retry",
       activity: {
         kind: "records.delete",
-        resource: "contacts",
+        resource: "wiki",
         risk: "sensitive",
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
       },
     });
     const approval = store.items.find(
@@ -4078,7 +4078,7 @@ describe("AgentChatStore", () => {
       id: "read-1",
       activity: {
         kind: "records.read",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "read",
       },
@@ -4095,7 +4095,7 @@ describe("AgentChatStore", () => {
       id: "write-error",
       activity: {
         kind: "records.update",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "write",
       },
@@ -4112,7 +4112,7 @@ describe("AgentChatStore", () => {
       id: "write-cancelled",
       activity: {
         kind: "records.update",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "write",
       },
@@ -4142,7 +4142,7 @@ describe("AgentChatStore", () => {
       seq: 1,
       type: "turn_done",
       assistantMessageId: "assistant-fallback",
-      affectedResources: ["contacts"],
+      affectedResources: ["wiki"],
     });
 
     expect(store.routeRefreshRevision).toBe(1);
@@ -4186,7 +4186,7 @@ describe("AgentChatStore", () => {
       id: "activity-with-missed-result",
       activity: {
         kind: "records.read",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "read",
       },
@@ -4227,8 +4227,8 @@ describe("AgentChatStore", () => {
       requestId: "approval-with-missed-resolution",
       activity: {
         kind: "records.delete",
-        resource: "contacts",
-        affectedResources: ["contacts"],
+        resource: "wiki",
+        affectedResources: ["wiki"],
         risk: "sensitive",
       },
     });
@@ -4660,14 +4660,14 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000059";
     const canonicalActivity = {
       kind: "records.update",
-      resource: "contacts",
-      affectedResources: ["contacts"],
+      resource: "wiki",
+      affectedResources: ["wiki"],
       risk: "write",
     };
     const canonicalApproval = {
       kind: "records.delete",
-      resource: "contacts",
-      affectedResources: ["contacts"],
+      resource: "wiki",
+      affectedResources: ["wiki"],
       risk: "sensitive",
     };
     actionsMock.getAgentConversationAction.mockResolvedValue({
@@ -4708,7 +4708,7 @@ describe("AgentChatStore", () => {
             terminalCode: "completed",
             stopReason: null,
             assistantMessageId: "assistant-authoritative-parts",
-            affectedResources: ["contacts"],
+            affectedResources: ["wiki"],
           })}`,
           "",
         ].join("\n\n"),
@@ -4916,8 +4916,8 @@ describe("AgentChatStore", () => {
               id: "snapshot-failure-write",
               activity: {
                 kind: "records.update",
-                resource: "contacts",
-                affectedResources: ["contacts"],
+                resource: "wiki",
+                affectedResources: ["wiki"],
                 risk: "write",
               },
             })}`,
@@ -5161,7 +5161,7 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000052";
     const descriptor = {
       kind: "records.update",
-      resource: "contacts",
+      resource: "wiki",
       affectedResources: [],
       risk: "write",
     };
@@ -5269,7 +5269,7 @@ describe("AgentChatStore", () => {
         id: "write-before-eof",
         activity: {
           kind: "records.update",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "write",
         },
@@ -5314,7 +5314,7 @@ describe("AgentChatStore", () => {
                       id: "write-before-stop",
                       activity: {
                         kind: "records.update",
-                        resource: "contacts",
+                        resource: "wiki",
                         affectedResources: [],
                         risk: "write",
                       },
@@ -5376,7 +5376,7 @@ describe("AgentChatStore", () => {
         id: "reattached-write",
         activity: {
           kind: "records.create",
-          resource: "tasks",
+          resource: "messages",
           affectedResources: [],
           risk: "write",
         },
@@ -5447,7 +5447,7 @@ describe("AgentChatStore", () => {
     ).handleEvent;
     const descriptor = {
       kind: "records.create",
-      resource: "contacts",
+      resource: "wiki",
       affectedResources: [],
       risk: "write",
     };
@@ -5477,7 +5477,7 @@ describe("AgentChatStore", () => {
       id: "tool-1",
       activity: {
         kind: "records.read",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "read",
       },
@@ -5497,7 +5497,7 @@ describe("AgentChatStore", () => {
         status: "done",
         activity: expect.objectContaining({
           kind: "records.read",
-          resource: "contacts",
+          resource: "wiki",
         }),
       }),
     );
@@ -5513,7 +5513,7 @@ describe("AgentChatStore", () => {
         turnKey: "message-old",
         activity: {
           kind: "records.read",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "read",
         },
@@ -5532,7 +5532,7 @@ describe("AgentChatStore", () => {
       id: "tool-1",
       activity: {
         kind: "records.read",
-        resource: "deals",
+        resource: "widgets",
         affectedResources: [],
         risk: "read",
       },
@@ -6039,7 +6039,7 @@ describe("AgentChatStore", () => {
         providerCallId: "tool-1",
         activity: {
           kind: "records.read",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "read",
         },
@@ -6073,7 +6073,7 @@ describe("AgentChatStore", () => {
         turnKey: "stream-0",
         activity: {
           kind: "records.update",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "write",
         },
@@ -6109,8 +6109,8 @@ describe("AgentChatStore", () => {
         requestId: "request-stop-race",
         activity: {
           kind: "records.delete",
-          resource: "contacts",
-          affectedResources: ["contacts"],
+          resource: "wiki",
+          affectedResources: ["wiki"],
           risk: "sensitive",
         },
         pendingDecision: null,
@@ -6213,7 +6213,7 @@ describe("AgentChatStore", () => {
         providerCallId: "tool-1",
         activity: {
           kind: "records.read",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "read",
         },
@@ -6330,8 +6330,8 @@ describe("AgentChatStore", () => {
             {
               type: "tool_use",
               id: "tool-1",
-              name: "list_records",
-              input: { entity: "contact" },
+              name: "query_crm_records",
+              input: { typeId: "contact-type" },
               status: "done",
               resultPreview: "Found 12 contacts.",
             },
