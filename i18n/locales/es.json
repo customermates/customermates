@@ -678,7 +678,6 @@
       "archivedChats": "Chats archivados",
       "assistantWorking": "Mate está respondiendo",
       "back": "Volver al chat",
-      "cancel": "Cancelar",
       "chats": "Chats",
       "copyCode": "Copiar código",
       "copyLink": "Copiar enlace",
@@ -1889,6 +1888,7 @@
       "moveRight": "Mover a la derecha",
       "name": "Nombre",
       "namePlaceholder": "Nombre de la vista",
+      "nameRequired": "Introduce un nombre para la vista.",
       "railLabel": "Vistas guardadas",
       "recordCount": "{count, plural, one {# registro} other {# registros}}"
     }

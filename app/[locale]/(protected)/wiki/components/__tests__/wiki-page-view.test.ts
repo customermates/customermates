@@ -434,7 +434,7 @@ describe("Wiki document view", () => {
       expect(store.hasUnsavedChanges).toBe(false);
       expect(navigationGuard.isGuarding).toBe(false);
       expect(container.querySelector('[aria-label="Common.actions.reset"]')).toBeNull();
-      expect(container.querySelector('[aria-label="Common.actions.save"]')).toBeNull();
+      expect(container.querySelector<HTMLButtonElement>('[aria-label="Common.actions.save"]')?.disabled).toBe(true);
     },
   );
 
@@ -943,14 +943,13 @@ describe("Wiki document view", () => {
       ]),
     );
     const save = () => container.querySelector<HTMLButtonElement>('header [aria-label="Common.actions.save"]');
-    expect(save()).toBeNull();
+    expect(save()?.disabled).toBe(true);
     expect(
       container
         .querySelector("header")
         ?.querySelectorAll("button")
-        .item((container.querySelector("header")?.querySelectorAll("button").length ?? 0) - 1)
-        ?.getAttribute("aria-label"),
-    ).toBe("Wiki.newPage");
+        .item((container.querySelector("header")?.querySelectorAll("button").length ?? 0) - 1),
+    ).toBe(save());
     expect(container.querySelector('header [aria-label="Wiki.newPage"]')?.getAttribute("data-variant")).toBe("default");
     expect(harness.toolbarRenders).toBeLessThan(10);
     const settledRenders = harness.toolbarRenders;
@@ -971,7 +970,7 @@ describe("Wiki document view", () => {
     expect(container.querySelector('header [aria-label="Wiki.pageActions"]')).toBeNull();
     expect(container.querySelector('header [aria-label="Common.actions.reset"]')).not.toBeNull();
     expect(container.querySelector('header [aria-label="Common.actions.reset"]')?.getAttribute("data-variant")).toBe(
-      "secondary",
+      "ghost",
     );
     expect(harness.toolbarRenders).toBe(settledRenders);
 

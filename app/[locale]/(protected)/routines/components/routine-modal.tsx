@@ -14,7 +14,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
 import { AgentRouteReloadBridge } from "@/app/components/agent-chat/agent-route-reload";
-import { FormActions } from "@/components/card/form-actions";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppForm } from "@/components/forms/form-context";
 import { AppModal } from "@/components/modal";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -194,7 +194,7 @@ export const RoutineModal = observer(() => {
               </AppCardBody>
             )}
 
-            {!openRun && <FormActions showInitially anchorScope="routine-modal" store={routineModalStore} />}
+            {!openRun && <FormFooterActions anchorScope="routine-modal" store={routineModalStore} />}
           </AppCard>
         </AppForm>
       </AppModal>

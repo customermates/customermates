@@ -7,6 +7,10 @@ export type AnchorPage = {
   route: string;
   label: string;
   opener?: string;
+};
+
+export type FormAnchorPage = AnchorPage & {
+  discard: "reset" | "cancel";
   resetOpener?: string;
   hiddenUntilDirty?: boolean;
 };
@@ -47,30 +51,34 @@ export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
   },
 ];
 
-export const FORM_PAGES: AnchorPage[] = [
+export const FORM_PAGES: FormAnchorPage[] = [
   {
     scope: "profile-settings",
     route: "/profile/settings",
     label: "profile settings form",
     hiddenUntilDirty: true,
+    discard: "reset",
   },
   {
     scope: "member-modal",
     route: "/company/members",
     label: "member dialog (roles with Manage only)",
     opener: "a member row",
+    discard: "reset",
   },
   {
     scope: "webhook-modal",
     route: "/company/webhooks",
     label: "webhook dialog (roles with API Manage only; open it first)",
     opener: "company-webhooks-add",
+    discard: "reset",
   },
   {
     scope: "role-modal",
     route: "/company/roles",
     label: "role dialog (roles with Manage only; disabled for the system role and your own role; open it first)",
     opener: "company-roles-add",
+    discard: "reset",
   },
   {
     scope: "widget-modal",
@@ -79,12 +87,14 @@ export const FORM_PAGES: AnchorPage[] = [
       "dashboard widget dialog (a new widget shows Save after you pick its type, and Reset exists only when editing a widget)",
     opener: "widget-modal-kind",
     resetOpener: "a widget card",
+    discard: "reset",
   },
   {
     scope: "routine-modal",
     route: "/routines",
     label: "routine dialog (open it first)",
     opener: "routines-add",
+    discard: "cancel",
   },
 ];
 
@@ -489,6 +499,10 @@ export const SCOPES_WITHOUT_SEARCH = new Set(["company-roles"]);
 export const TOOLBAR_SCOPES_WITH_ADD = TOOLBAR_PAGES_WITH_ADD.map((page) => page.scope);
 export const TOOLBAR_SCOPES_WITHOUT_ADD = TOOLBAR_PAGES_WITHOUT_ADD.map((page) => page.scope);
 export const FORM_SCOPES = FORM_PAGES.map((page) => page.scope);
+
+export function formDiscardSuffix(page: FormAnchorPage) {
+  return page.discard === "cancel" ? "-cancel" : "-reset";
+}
 
 export const NAV_KEYS = [
   ...PRIMARY_NAV_PAGES.map((page) => page.key),

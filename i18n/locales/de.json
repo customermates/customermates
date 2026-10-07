@@ -678,7 +678,6 @@
       "archivedChats": "Archivierte Chats",
       "assistantWorking": "Mate antwortet",
       "back": "Zurück zum Chat",
-      "cancel": "Abbrechen",
       "chats": "Chats",
       "copyCode": "Code kopieren",
       "copyLink": "Link kopieren",
@@ -1889,6 +1888,7 @@
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
+      "nameRequired": "Geben Sie einen Namen für die Ansicht ein.",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
     }

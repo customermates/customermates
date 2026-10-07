@@ -53,7 +53,7 @@ describe("routine modal accessibility contract", () => {
     expect(modal).toContain('data-routine-layout="wide"');
     expect(modal).toContain("gap-6 lg:min-h-[36rem] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.9fr)]");
     expect(modal).toContain('data-routine-layout="run"');
-    expect(modal).toContain("{!openRun && <FormActions");
+    expect(modal).toContain("{!openRun && <FormFooterActions");
     expect(modal.split(bodyTag)).toHaveLength(5);
     expect(modal).not.toContain("border-l");
     expect(modal).not.toContain("overflow-y-hidden!");

@@ -678,7 +678,6 @@
       "archivedChats": "Archived chats",
       "assistantWorking": "Mate is responding",
       "back": "Back to chat",
-      "cancel": "Cancel",
       "chats": "Chats",
       "copyCode": "Copy code",
       "copyLink": "Copy link",
@@ -1889,6 +1888,7 @@
       "moveRight": "Move right",
       "name": "Name",
       "namePlaceholder": "View name",
+      "nameRequired": "Enter a name for the view.",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}"
     }

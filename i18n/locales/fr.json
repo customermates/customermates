@@ -678,7 +678,6 @@
       "archivedChats": "Discussions archivées",
       "assistantWorking": "Mate répond",
       "back": "Retour au chat",
-      "cancel": "Annuler",
       "chats": "Discussions",
       "copyCode": "Copier le code",
       "copyLink": "Copier le lien",
@@ -1889,6 +1888,7 @@
       "moveRight": "Déplacer vers la droite",
       "name": "Nom",
       "namePlaceholder": "Nom de la vue",
+      "nameRequired": "Saisissez un nom pour la vue.",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}"
     }

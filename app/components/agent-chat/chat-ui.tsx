@@ -34,7 +34,6 @@ export function chatUiCopy(t: ChatTranslator) {
     archivedChats: t("AgentChat.ui.archivedChats"),
     assistantWorking: t("AgentChat.ui.assistantWorking"),
     back: t("AgentChat.ui.back"),
-    cancel: t("AgentChat.ui.cancel"),
     chats: t("AgentChat.ui.chats"),
     deleteChat: t("AgentChat.ui.deleteChat"),
     deleteChatBody: t("AgentChat.ui.deleteChatBody"),

@@ -14,12 +14,8 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
-import { AppCardHeader } from "@/components/card/app-card-header";
-import { AppModal } from "@/components/modal/app-modal";
-import { OVERLAY_SCROLL_REGION, OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
+import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
@@ -336,35 +332,15 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
         )}
       </div>
 
-      <AppModal
-        layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}
+      <ConfirmDialog
+        busy={deletePending}
+        confirmLabel={copy.deletePermanently}
+        description={copy.deleteChatBody}
         open={Boolean(deleteCandidate)}
-        size="sm"
         title={copy.deleteChatTitle}
-        onClose={() => !deletePending && setDeleteCandidate(null)}
-      >
-        <AppCard>
-          <AppCardHeader>
-            <h2 className="text-base font-semibold">{copy.deleteChatTitle}</h2>
-          </AppCardHeader>
-
-          <AppCardBody>
-            <p className="text-sm">{copy.deleteChatBody}</p>
-          </AppCardBody>
-
-          <AppCardFooter>
-            <Button disabled={deletePending} variant="secondary" onClick={() => setDeleteCandidate(null)}>
-              {copy.cancel}
-            </Button>
-
-            <Button disabled={deletePending} variant="destructive" onClick={() => runUserAction(deletePermanently)}>
-              {deletePending && <Loader2 className="size-3.5 animate-spin" />}
-
-              {copy.deletePermanently}
-            </Button>
-          </AppCardFooter>
-        </AppCard>
-      </AppModal>
+        onCancel={() => setDeleteCandidate(null)}
+        onConfirm={deletePermanently}
+      />
     </details>
   );
 });
