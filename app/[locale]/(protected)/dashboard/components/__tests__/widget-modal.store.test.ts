@@ -26,7 +26,12 @@ const discovery = {
   total: model.types.length,
   types: model.types
     .filter((type) => !type.embedded)
-    .map((type) => ({ ...type, fieldCount: 3, permittedActions: ["readAll" as const] })),
+    .map((type) => ({
+      ...type,
+      fieldCount: 3,
+      recordCount: 0,
+      permittedActions: ["readAll" as const],
+    })),
 };
 const displayOptions = {
   barColors: [ChartColor.primary1],
