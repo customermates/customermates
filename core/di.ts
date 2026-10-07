@@ -212,6 +212,7 @@ import { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-a
 import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
 import { GetMyConnectedAccountsApiInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-api.interactor";
 import { GetMyConnectedAccountsContextInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-context.interactor";
+import { GetMessagingAccountsStateInteractor } from "@/ee/messaging/connect/get-messaging-accounts-state.interactor";
 import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
@@ -862,6 +863,8 @@ export const getCreateAuthLinkInteractor = () =>
 
 export const getGetMyConnectedAccountsInteractor = () =>
   new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
+export const getGetMessagingAccountsStateInteractor = () =>
+  new GetMessagingAccountsStateInteractor(getConnectedAccountRepo(), getPermissionService(), getEntitlementService());
 
 export const getCountChannelsNeedingActionInteractor = () =>
   new CountChannelsNeedingActionInteractor(getConnectedAccountRepo());
