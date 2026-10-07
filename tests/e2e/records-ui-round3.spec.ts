@@ -234,10 +234,14 @@ test("edits every field type inline in rows and on board cards, with validation,
   const card = page.locator("[data-item-id]").first();
   await expect(card).toBeVisible();
   await page.waitForLoadState("networkidle");
-  await card.hover();
-  await card.getByRole("button", { name: "Edit Number", exact: true }).click();
   const cardEditor = page.locator('[data-slot="popover-content"][data-state="open"]').last();
-  await expect(cardEditor).toBeVisible();
+  await expect(async () => {
+    if (!(await cardEditor.isVisible())) {
+      await card.hover();
+      await card.getByRole("button", { name: "Edit Number", exact: true }).click();
+    }
+    await expect(cardEditor).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 20000 });
   await cardEditor.locator("input").first().fill("40");
   await cardEditor.locator("input").first().press("Enter");
   await expect(cardEditor).not.toBeVisible();

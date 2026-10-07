@@ -48,7 +48,7 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
-  await page.getByRole("button", { name: "Apply to selected", exact: true }).click();
+  await page.getByRole("dialog", { name: "Update", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-record-mass-actions]")).not.toBeVisible();
   const prices = () =>
     database.query(
@@ -127,7 +127,7 @@ test("shows a conflict and leaves every selected record unchanged when another t
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("50");
-  await page.getByRole("button", { name: "Apply to selected", exact: true }).click();
+  await page.getByRole("dialog", { name: "Update", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-sonner-toast]")).toContainText("changed");
   await expect(page.locator("[data-record-mass-actions]")).toContainText("2 items selected");
   const prices = await database.query(
