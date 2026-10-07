@@ -774,6 +774,8 @@
       "cronExpression": "Programación",
       "currency": "Moneda",
       "debounceSeconds": "Retardo",
+      "deleteField": "Campo eliminado",
+      "deleteType": "Tipo eliminado",
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
@@ -947,9 +949,11 @@
       }
     },
     "deleteConfirmation": {
+      "blocked": "Resuelve esto primero:",
       "message": "¿Seguro que quieres eliminar este elemento? Esta acción no se puede deshacer.",
       "messageWithName": "¿Seguro que quieres eliminar \"{name}\"? Esta acción no se puede deshacer.",
-      "title": "Confirmar la eliminación"
+      "title": "Confirmar la eliminación",
+      "typeToConfirm": "Escribe {name} para confirmar"
     },
     "details": "Detalles",
     "email": "Correo electrónico",
@@ -3256,6 +3260,23 @@
     "option": "Opción",
     "optionAttribute": "Atributo de la opción",
     "options": "Opciones",
+    "permanentDeletion": {
+      "deleteField": "Eliminar campo definitivamente",
+      "deleteList": "Eliminar lista definitivamente",
+      "dependentField": "{field} en {list} todavía depende de esto. Elimina o cambia ese campo primero.",
+      "dependentList": "{list} todavía depende de esto. Elimina o cambia esa lista primero.",
+      "fieldMessage": "Esto elimina definitivamente el campo y todos sus valores guardados. No se puede deshacer.",
+      "fieldTitle": "¿Eliminar {name} definitivamente?",
+      "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
+      "links": "{count, plural, one {# vínculo entre registros} other {# vínculos entre registros}}",
+      "listMessage": "Esto elimina definitivamente la lista con sus campos, registros, vínculos, relaciones, vistas guardadas y permisos de rol. No se puede deshacer.",
+      "listTitle": "¿Eliminar {name} definitivamente?",
+      "nothingStored": "Ningún dato guardado lo usa.",
+      "records": "{count, plural, one {# registro} other {# registros}}",
+      "relationships": "{count, plural, one {# relación} other {# relaciones}}",
+      "values": "{count, plural, one {# valor guardado} other {# valores guardados}}",
+      "views": "{count, plural, one {# vista guardada o diseño personal} other {# vistas guardadas o diseños personales}}"
+    },
     "pinnedFields": "Campos de detalle fijados",
     "pluralDescription": "El nombre mostrado en la navegación. Déjalo vacío para usar el nombre de la lista.",
     "pluralName": "Etiqueta de navegación",

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { RecordType } from "@/features/records/record-model.schema";
+import type { RecordModel, RecordType } from "@/features/records/record-model.schema";
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
@@ -16,10 +16,12 @@ import {
   MoreHorizontal,
   Plus,
   TextCursorInput,
+  Trash2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { FormActions } from "@/components/card/form-actions";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -28,6 +30,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import { useDefinitionDeletion } from "./use-definition-deletion";
 
 export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "activity";
 
@@ -44,6 +48,8 @@ type Props = {
   onAdd: (kind: ConfigureAddKind) => void;
   onSharedDefaults: () => void;
   onArchive: () => void;
+  model: RecordModel;
+  onDeleted: () => Promise<void>;
 };
 
 export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
@@ -59,8 +65,11 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   onAdd,
   onSharedDefaults,
   onArchive,
+  model,
+  onDeleted,
 }: Props) {
   const t = useTranslations();
+  const deletion = useDefinitionDeletion(onDeleted);
   if (!canManage) return <div className="flex shrink-0 items-center gap-1">{ai}</div>;
   if (selected && general.original?.id === selected.id && general.hasUnsavedChanges) {
     return (
@@ -116,6 +125,18 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
 
               {selected.archived ? t("RecordModel.unarchiveList") : t("RecordModel.archiveList")}
             </DropdownMenuItem>
+
+            {selected.archived && (
+              <DropdownMenuItem
+                disabled={deletion.isPreviewing}
+                variant="destructive"
+                onSelect={() => runUserAction(() => deletion.requestDeletion(model, { type: selected }))}
+              >
+                <Trash2 aria-hidden="true" />
+
+                {t("RecordModel.permanentDeletion.deleteList")}
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

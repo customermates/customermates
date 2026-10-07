@@ -18,7 +18,13 @@ export interface RecordActivitiesRepo {
   ): Promise<RecordActivityIndexRow[]>;
   eventsCompanyWide(ids: string[]): Promise<Array<EventLog & { actor: RecordActivityActor }>>;
   configurationsCompanyWide(ids: string[]): Promise<{
-    revisions: Array<{ revision: number; createdAt: Date; change: RecordRevisionChange; actor: RecordActivityActor }>;
+    revisions: Array<{
+      revision: number;
+      createdAt: Date;
+      change: RecordRevisionChange;
+      actor: RecordActivityActor;
+      previousModel: RecordModel | null;
+    }>;
     roleNames: Map<string, string>;
   }>;
   hasHistoryCompanyWide(ref: RecordRef): Promise<boolean>;

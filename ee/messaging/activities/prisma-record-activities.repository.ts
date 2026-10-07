@@ -18,6 +18,7 @@ import { formatChannelIdentifier, threadCounterpart } from "../thread-display";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
+import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 
 export class PrismaRecordActivitiesRepo extends TenantRepository implements RecordActivitiesRepo {
   constructor(private readonly permissions: PermissionService) {
@@ -70,17 +71,38 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
           select: { revision: true, createdAt: true, actorId: true, change: true },
         })
       : [];
-    const [actor, roles] = await Promise.all([
-      this.actorsCompanyWide(revisions.map((revision) => revision.actorId)),
-      revisions.length
+    const parsed = revisions.flatMap(({ change, ...revision }) => {
+      const result = RecordRevisionChangeSchema.safeParse(change);
+      return result.success ? [{ ...revision, change: result.data }] : [];
+    });
+    const deletions = parsed
+      .filter(({ change }) =>
+        change.configuration?.operations.some(
+          (operation) => operation.operation === "deleteType" || operation.operation === "deleteField",
+        ),
+      )
+      .map(({ revision }) => revision - 1);
+    const [actor, roles, previous] = await Promise.all([
+      this.actorsCompanyWide(parsed.map((revision) => revision.actorId)),
+      parsed.length
         ? this.prisma.userRole.findMany({ where: { companyId: this.companyId }, select: { id: true, name: true } })
         : [],
+      deletions.length
+        ? this.prisma.recordSchemaRevision.findMany({
+            where: { companyId: this.companyId, revision: { in: deletions } },
+            select: { revision: true, snapshot: true },
+          })
+        : [],
     ]);
+    const previousModels = new Map(
+      previous.map(({ revision, snapshot }) => [revision + 1, readRecordModelSnapshot(snapshot)]),
+    );
     return {
-      revisions: revisions.flatMap(({ actorId, change, ...revision }) => {
-        const parsed = RecordRevisionChangeSchema.safeParse(change);
-        return parsed.success ? [{ ...revision, change: parsed.data, actor: actor(actorId) }] : [];
-      }),
+      revisions: parsed.map(({ actorId, ...revision }) => ({
+        ...revision,
+        actor: actor(actorId),
+        previousModel: previousModels.get(revision.revision) ?? null,
+      })),
       roleNames: new Map(roles.map((role) => [role.id, role.name])),
     };
   }

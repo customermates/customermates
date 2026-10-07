@@ -12,15 +12,15 @@ const EVENTS = {
 
 export function configurationActivity(
   change: RecordRevisionChange,
-  model: RecordModel,
+  models: RecordModel[],
   roleNames: ReadonlyMap<string, string>,
 ): { event: (typeof EVENTS)[keyof typeof EVENTS]; changes: AuditChange[] } {
   const ids = new Map(change.references.map((entry) => [entry.reference, entry.id]));
   const resolve = (reference: string) => ids.get(reference) ?? reference;
   const typeLabel = (reference: string) =>
-    model.types.find((type) => type.id === resolve(reference))?.pluralLabel ?? reference;
+    models.flatMap((model) => model.types).find((type) => type.id === resolve(reference))?.pluralLabel ?? reference;
   const fieldLabel = (reference: string) =>
-    model.fields.find((field) => field.id === resolve(reference))?.label ?? reference;
+    models.flatMap((model) => model.fields).find((field) => field.id === resolve(reference))?.label ?? reference;
   const name = (operation: Operation): string => {
     switch (operation.operation) {
       case "createType":
@@ -40,7 +40,12 @@ export function configurationActivity(
       case "publishSummary":
         return fieldLabel(operation.fieldId);
       case "setTypeGrants":
+      case "deleteType":
         return typeLabel(operation.typeId);
+      case "deleteField": {
+        const field = models.flatMap((model) => model.fields).find((field) => field.id === resolve(operation.fieldId));
+        return field ? `${typeLabel(field.typeId)} · ${field.label}` : operation.fieldId;
+      }
     }
   };
   const source = change.source;

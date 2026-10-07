@@ -89,6 +89,28 @@ export function reorderFieldOperations(
   );
 }
 
+export function archiveListOperations(
+  model: RecordModel,
+  typeId: string,
+  archived: boolean,
+): ConfigurationChange["operations"] {
+  const archivedTypes = new Set(model.types.filter((type) => type.archived).map((type) => type.id));
+  return [
+    ...model.activityPaths
+      .filter((path) => path.typeId === typeId && path.archived !== archived)
+      .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived } })),
+    ...model.relationships
+      .filter(
+        (relation) =>
+          (relation.sourceTypeId === typeId || relation.targetTypeId === typeId) &&
+          relation.archived !== archived &&
+          (archived ||
+            [relation.sourceTypeId, relation.targetTypeId].every((id) => id === typeId || !archivedTypes.has(id))),
+      )
+      .map((relation) => ({ operation: "putRelationship" as const, relationship: { ...relation, archived } })),
+  ];
+}
+
 function relatedExpression(
   expression: CalculationExpression,
 ): Extract<CalculationExpression, { kind: "related" }> | null {

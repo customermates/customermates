@@ -223,6 +223,8 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.cronExpression",
   "AuditLogModal.fields.currency",
   "AuditLogModal.fields.debounceSeconds",
+  "AuditLogModal.fields.deleteField",
+  "AuditLogModal.fields.deleteType",
   "AuditLogModal.fields.disabledReason",
   "AuditLogModal.fields.effectiveAt",
   "AuditLogModal.fields.emails",

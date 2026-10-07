@@ -197,7 +197,11 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
               id: String(revision.revision),
               at: revision.createdAt,
               actor: revision.actor,
-              ...configurationActivity(revision.change, model, configurations.roleNames),
+              ...configurationActivity(
+                revision.change,
+                revision.previousModel ? [model, revision.previousModel] : [model],
+                configurations.roleNames,
+              ),
               records: context("configuration", String(revision.revision)),
             });
           }

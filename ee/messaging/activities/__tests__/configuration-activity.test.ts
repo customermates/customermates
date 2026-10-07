@@ -36,7 +36,7 @@ describe("configurationActivity", () => {
           { roleId: "role-new", actions: ["readAll"] },
         ],
       ),
-      MODEL,
+      [MODEL],
       ROLES,
     );
 
@@ -45,6 +45,33 @@ describe("configurationActivity", () => {
       { field: "grants", label: "Contacts · Sales", previous: ["readAll"], current: ["readAll", "update"] },
       { field: "grants", label: "Contacts · Auditors", previous: ["readOwn"], current: [] },
       { field: "grants", label: "Contacts · role-new", previous: [], current: ["readAll"] },
+    ]);
+  });
+
+  it("names a permanently deleted type and field from the model before the deletion", () => {
+    const before = {
+      types: [{ id: "type-projects", pluralLabel: "Projects" }],
+      fields: [{ id: "field-budget", typeId: "type-contacts", label: "Budget" }],
+    } as unknown as RecordModel;
+    const deletion = {
+      references: [],
+      source: { kind: "configuration" },
+      configuration: {
+        operations: [
+          { operation: "deleteType", typeId: "type-projects" },
+          { operation: "deleteField", fieldId: "field-budget" },
+        ],
+      },
+      grants: [],
+    } as unknown as RecordRevisionChange;
+
+    expect(configurationActivity(deletion, [MODEL, before], ROLES).changes).toEqual([
+      { field: "deleteType", snapshot: true, previous: undefined, current: "Projects" },
+      { field: "deleteField", snapshot: true, previous: undefined, current: "Contacts · Budget" },
+    ]);
+    expect(configurationActivity(deletion, [MODEL], ROLES).changes.map((change) => change.current)).toEqual([
+      "type-projects",
+      "field-budget",
     ]);
   });
 });
