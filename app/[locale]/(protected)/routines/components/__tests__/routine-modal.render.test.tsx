@@ -73,8 +73,8 @@ vi.mock("@/components/card/app-card-body", () => ({
     </div>
   ),
 }));
-vi.mock("@/components/card/form-actions", () => ({
-  FormActions: ({ store }: { store: { canManage: boolean } }) =>
+vi.mock("@/components/forms/form-footer-actions", () => ({
+  FormFooterActions: ({ store }: { store: { canManage: boolean } }) =>
     store.canManage ? (
       <div data-form-actions>
         <button id="routine-modal-save" type="submit">
