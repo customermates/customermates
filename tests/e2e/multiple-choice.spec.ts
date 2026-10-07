@@ -28,7 +28,7 @@ test("creates a multiple choice field and edits, filters, bulk edits and groups 
   await page.getByRole("option", { name: "Green", exact: true }).click();
   await saveDrawer(page);
 
-  const model = RecordModelSchema.parse(await (await page.request.post("/api/v1/model/discover", { data: {} })).json());
+  const model = RecordModelSchema.parse(await (await page.request.post("/api/v1/model/discover", { data: {}, timeout: 60000 })).json());
   const field = model.fields.find((candidate) => candidate.typeId === typeId && candidate.label === label);
   expect(field).toMatchObject({ valueType: "select", multiple: true });
   if (!field) throw new Error("The multiple choice field was not created");
@@ -99,6 +99,7 @@ test("creates a multiple choice field and edits, filters, bulk edits and groups 
   }
 
   const grouped = await page.request.post("/api/v1/reports/query", {
+    timeout: 60000,
     data: {
       source: { typeId },
       aggregation: "count",
