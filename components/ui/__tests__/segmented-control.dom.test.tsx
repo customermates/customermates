@@ -95,3 +95,29 @@ describe("CollapsibleSection", () => {
     expect(container.textContent).toContain("Body");
   });
 });
+
+describe("SegmentedControl without an id prefix", () => {
+  it("keeps Radix's own trigger and panel id pairing", () => {
+    act(() =>
+      root.render(
+        <SegmentedControl
+          items={[
+            { value: "a", label: "First" },
+            { value: "b", label: "Second" },
+          ]}
+          label="Views"
+          value="a"
+          onValueChange={() => undefined}
+        >
+          <SegmentedControlPanel value="a">First body</SegmentedControlPanel>
+
+          <SegmentedControlPanel value="b">Second body</SegmentedControlPanel>
+        </SegmentedControl>,
+      ),
+    );
+    const panel = document.querySelector('[role="tabpanel"]');
+    const labelledBy = panel?.getAttribute("aria-labelledby");
+    expect(labelledBy).toBeTruthy();
+    expect(document.getElementById(labelledBy ?? "")?.textContent).toBe("First");
+  });
+});

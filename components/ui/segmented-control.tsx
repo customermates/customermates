@@ -59,11 +59,11 @@ export function SegmentedControl<Value extends string>({
                 "inline-flex min-w-0 items-center justify-center gap-1.5 rounded-md px-2 text-sm font-medium whitespace-nowrap transition-colors outline-none",
                 "hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset disabled:pointer-events-none disabled:opacity-50",
                 "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-                "dark:data-[state=active]:bg-card",
+                "dark:data-[state=active]:bg-accent",
               )}
               data-invalid={item.invalid || undefined}
               data-slot="segmented-control-item"
-              id={segmentId(idPrefix, item.value)}
+              {...(idPrefix ? { id: segmentId(idPrefix, item.value) } : {})}
               value={item.value}
             >
               <span className="truncate">{item.label}</span>
@@ -87,8 +87,8 @@ export function SegmentedControl<Value extends string>({
 
 const SegmentIdPrefixContext = createContext<string | undefined>(undefined);
 
-function segmentId(idPrefix: string | undefined, value: string) {
-  return idPrefix ? `${idPrefix}-tab-${value}` : undefined;
+function segmentId(idPrefix: string, value: string) {
+  return `${idPrefix}-tab-${value}`;
 }
 
 export function SegmentedControlPanel({
@@ -103,7 +103,7 @@ export function SegmentedControlPanel({
   const idPrefix = useContext(SegmentIdPrefixContext);
   return (
     <TabsPrimitive.Content
-      aria-labelledby={segmentId(idPrefix, value)}
+      {...(idPrefix ? { "aria-labelledby": segmentId(idPrefix, value) } : {})}
       className={cn("min-h-0 flex-1 outline-none", className)}
       data-slot="segmented-control-panel"
       value={value}

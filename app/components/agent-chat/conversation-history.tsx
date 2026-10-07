@@ -371,7 +371,7 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
         description={copy.deleteChatBody}
         open={Boolean(deleteCandidate)}
         title={copy.deleteChatTitle}
-        onCancel={() => setDeleteCandidate(null)}
+        onCancel={() => !deletePending && setDeleteCandidate(null)}
         onConfirm={deletePermanently}
       />
     </details>

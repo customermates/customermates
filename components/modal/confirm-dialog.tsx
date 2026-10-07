@@ -82,7 +82,7 @@ export function ConfirmDialog({
     <AlertDialog
       open={open}
       onOpenChange={(next) => {
-        if (!next && !busy) onCancel();
+        if (!next) onCancel();
       }}
     >
       <AlertDialogContent
