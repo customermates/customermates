@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { Action } from "@/generated/prisma";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo } from "./record.repo";
-import type { RecordDto, RecordModel } from "./record-model.schema";
+import type { RecordDto, RecordModelView } from "./record-model.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -15,13 +15,14 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordWriteFailure } from "./mutate-record.interactor";
 import { recordDto, withMemberUsers } from "./query-records.interactor";
 import { resolveRecordPath } from "./record-relationship-path";
+import { visibleFormulaFields } from "./record-formula-visibility";
 import { recordLinkColors, recordLinkIcons, type RecordLinkColors, type RecordLinkIcons } from "./record-presentation";
 import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
 import type { RecordDetailLayoutResult } from "./record-detail-layout.schema";
 
 export const GetRecordEditorSchema = z.object({ typeId: z.uuid(), recordId: z.uuid().optional() }).strict();
 export type RecordEditorContext = {
-  model: RecordModel;
+  model: RecordModelView;
   typeId: string;
   permittedActions: Action[];
   canManageSchema: boolean;
@@ -133,7 +134,11 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
               model: {
                 ...model,
                 types,
-                fields: model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
+                fields: visibleFormulaFields(
+                  model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
+                  model,
+                  policy,
+                ),
                 relationships,
                 capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
                 activityPaths: model.activityPaths.filter(

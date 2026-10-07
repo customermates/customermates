@@ -2,7 +2,14 @@ import { recordInvariant } from "./record-invariant";
 import type { Filter, FilterableField, GetQueryParams } from "@/core/base/base-get.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { RecordDto, RecordField, RecordRelationship, RecordScalar, RecordType } from "./record-model.schema";
+import type {
+  RecordDto,
+  RecordField,
+  RecordFieldView,
+  RecordRelationship,
+  RecordScalar,
+  RecordType,
+} from "./record-model.schema";
 import type { RecordQuery } from "./record-query.schema";
 
 import { toChipColor, type ChipColor } from "@/constants/chip-colors";
@@ -21,7 +28,7 @@ import { RecordQuerySchema } from "./record-query.schema";
 import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 
 export type RecordRow = RecordDto & { id: string };
-export function recordColumnPresentation(field: RecordField): ColumnPresentation {
+export function recordColumnPresentation(field: RecordFieldView): ColumnPresentation {
   const base = { id: field.id, label: field.label };
   if (field.valueType === "select") {
     return {

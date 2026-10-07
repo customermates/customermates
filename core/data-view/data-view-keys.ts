@@ -12,6 +12,7 @@ export const SURFACE = Object.freeze({
   operatorWorkspaces: "operator-workspaces",
   operatorAudit: "operator-audit",
   routines: "routines-card-store",
+  dashboard: "dashboard",
 } as const);
 
 export const DATA_VIEW_SURFACE_KEYS = [
@@ -26,6 +27,7 @@ export const DATA_VIEW_SURFACE_KEYS = [
   SURFACE.operatorWorkspaces,
   SURFACE.operatorAudit,
   SURFACE.routines,
+  SURFACE.dashboard,
 ] as const;
 
 export type BuiltinDataViewSurfaceKey = (typeof DATA_VIEW_SURFACE_KEYS)[number];

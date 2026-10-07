@@ -1,6 +1,6 @@
 "use client";
 
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { ConfigureGraphLayout } from "@/features/p13n/p13n-settings.schema";
 import type { ConfigureAddKind } from "./configure-actions";
 import type { ConfigureGraphAccounts } from "./configure-graph";
@@ -59,7 +59,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   canManage,
   canPublishSummary = false,
 }: {
-  initialModel: RecordModel;
+  initialModel: RecordModelView;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
   savedLayout: ConfigureGraphLayout | null;

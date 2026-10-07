@@ -1706,6 +1706,7 @@
       "title": "Activité récente"
     },
     "addCard": "Ajouter un widget",
+    "deleteView": "Supprimer « {name} » ? {count, plural, =0 {Elle ne contient aucun widget.} one {Son widget passe dans {main} :} other {Ses # widgets passent dans {main} :}}",
     "displayTypeRequirements": {
       "grouping": "Choisissez un regroupement pour classer les groupes.",
       "noGrouping": "Réglez Regrouper par sur Aucun regroupement pour afficher un nombre.",
@@ -1724,6 +1725,7 @@
       "verticalBarChart": "Histogramme vertical",
       "verticalBarChartWithLabels": "Histogramme vertical avec étiquettes"
     },
+    "mainView": "Principal",
     "widgetEditor": {
       "addTitle": "Ajouter un widget",
       "appearance": {
@@ -3031,6 +3033,7 @@
     "configure": "Configurer",
     "connectionType": "Connexion",
     "constant": "Valeur fixe",
+    "contactFullName": "Nom complet",
     "createdAt": "Créé le",
     "createList": "Créer une liste",
     "currency": "Devise",
@@ -3052,6 +3055,7 @@
     "deletionCalculations": "Calculs pouvant être affectés : {fields}.",
     "deletionLinks": "Liens supprimés : {count}.",
     "deletionRecords": "Seront supprimés : {records}.",
+    "deletionRequiresReadAll": "La suppression définitive nécessite un accès en lecture à tous ses enregistrements. Demandez à une personne qui peut lire tous les enregistrements ou à un administrateur.",
     "deletionRestrictedLinks": "Le nombre de liens est masqué car certains enregistrements liés ont un accès restreint.",
     "dependencyHelp": "Résolvez les dépendances concernées avant d’appliquer cette modification.",
     "descending": "Décroissant",
@@ -3061,6 +3065,10 @@
     "detailLayoutSaveFailed": "Impossible d’enregistrer les modifications de la disposition.",
     "directRelationship": "Relation directe",
     "disabled": "Désactivé",
+    "duplicateFieldName": "Un autre champ de cette liste utilise déjà ce nom, y compris les champs supprimés récemment. Choisissez un autre nom.",
+    "duplicateListName": "Une autre liste utilise déjà ce nom. Les noms de liste doivent être uniques, sans tenir compte de la casse, des accents ni des espaces superflus.",
+    "duplicateOptionLabel": "Deux options de ce champ ont le même libellé. Les libellés d'option doivent être uniques.",
+    "duplicateRelationshipLabel": "Une autre relation de cette liste utilise déjà ce libellé. Choisissez un autre libellé.",
     "edit": "Modifier",
     "editField": "Modifier le champ",
     "editValue": "Modifier {field}",
@@ -3290,6 +3298,7 @@
       "fieldMessage": "Cela supprime définitivement le champ et toutes ses valeurs enregistrées. Cette action est irréversible.",
       "fieldTitle": "Supprimer {name} définitivement ?",
       "grants": "{count, plural, one {# droit de rôle} other {# droits de rôle}}",
+      "hiddenRecords": "Contient des fiches que vous ne pouvez pas voir.",
       "identifiers": "{count, plural, one {# identifiant} other {# identifiants}} sur {records, plural, one {# fiche} other {# fiches}}",
       "links": "{count, plural, one {# lien entre enregistrements} other {# liens entre enregistrements}}",
       "listMessage": "Cela supprime définitivement la liste avec ses champs, enregistrements, liens, relations, vues enregistrées et droits de rôle. Cette action est irréversible.",
@@ -3297,6 +3306,7 @@
       "nothingStored": "Aucune donnée enregistrée ne l’utilise.",
       "records": "{count, plural, one {# enregistrement} other {# enregistrements}}",
       "relationships": "{count, plural, one {# relation} other {# relations}}",
+      "requiresReadAll": "{name} contient encore des fiches que vous ne pouvez pas voir. Seule une personne pouvant lire toutes ses fiches, ou un administrateur, peut le supprimer définitivement.",
       "values": "{count, plural, one {# valeur enregistrée} other {# valeurs enregistrées}}",
       "views": "{count, plural, one {# vue enregistrée ou mise en page personnelle} other {# vues enregistrées ou mises en page personnelles}}"
     },
@@ -3304,6 +3314,7 @@
     "pluralDescription": "Affiché dans la navigation et les titres de liste. Proposé à partir du nom jusqu’à ce que vous le modifiiez.",
     "pluralName": "Nom au pluriel",
     "previewReady": "Prêt à appliquer. {count} fiches seront vérifiées.",
+    "previewReadyHidden": "Prêt à appliquer. Cela inclut des fiches que vous ne pouvez pas voir.",
     "priceModes": {
       "live": "Prix actuel",
       "saved": "Prix enregistré"
@@ -3312,7 +3323,7 @@
     "probability": "Probabilité %",
     "progressUnavailable": "Impossible de charger la progression. Votre brouillon est conservé.",
     "publishSummary": "Publier le résumé",
-    "publishSummaryHelp": "Les membres qui peuvent lire cette fiche voient cette valeur même si les données liées sont privées. Enregistrer approuve les données utilisées dans ce calcul.",
+    "publishSummaryHelp": "Les membres qui peuvent lire cette fiche voient cette valeur même si les données liées sont privées. Enregistrer approuve les données utilisées dans ce calcul. Un résumé d'une seule valeur ou un total sur un seul enregistrement affiche cette valeur exactement.",
     "rangeEnd": "Au",
     "rangeStart": "Du",
     "record": "Fiche",

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { RecordField, RecordRelationship, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordRelationship, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordsStore } from "./records.store";
@@ -37,14 +37,14 @@ const INLINE_HINT_CLASS =
   "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 outline-none transition-opacity focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/70 group-hover/row:opacity-100 group-hover/card:opacity-100 data-[state=open]:opacity-100 any-pointer-coarse:opacity-100";
 const INLINE_AFFORDANCE_CLASS = `${INLINE_HINT_CLASS} hover:bg-accent hover:text-accent-foreground`;
 
-export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordField) {
+export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
   if (field.id === store.type?.primaryFieldId || field.valueType === "richText") return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
   return result?.state !== "restricted" && result?.state !== "error";
 }
 
-export function isCalculatedForEditor(store: RecordsStore, record: RecordRow, field: RecordField) {
+export function isCalculatedForEditor(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   return store.canUpdateRecord(record) && !isRecordFieldWritable(field) && field.id !== store.type?.primaryFieldId;
 }
 
@@ -59,7 +59,7 @@ export function hasInlineRelationshipEditor(records: RecordsStore, record: Recor
   );
 }
 
-function useInlineSave(records: RecordsStore, record: RecordRow, field: RecordField) {
+function useInlineSave(records: RecordsStore, record: RecordRow, field: RecordFieldView) {
   const [busy, setBusy] = useState(false);
   const save = (value: RecordScalar | null) =>
     runUserAction(async () => {
@@ -82,7 +82,7 @@ const InlineFieldForm = observer(function InlineFieldForm({
 }: {
   records: RecordsStore;
   record: RecordRow;
-  field: RecordField;
+  field: RecordFieldView;
   onDone: () => void;
 }) {
   const t = useTranslations();
@@ -107,7 +107,7 @@ const InlineSelect = observer(function InlineSelect({
 }: {
   records: RecordsStore;
   record: RecordRow;
-  field: RecordField;
+  field: RecordFieldView;
   children: ReactNode;
 }) {
   const t = useTranslations();
@@ -165,7 +165,7 @@ const InlineBoolean = observer(function InlineBoolean({
 }: {
   records: RecordsStore;
   record: RecordRow;
-  field: RecordField;
+  field: RecordFieldView;
 }) {
   const t = useTranslations();
   const { busy, save } = useInlineSave(records, record, field);
@@ -191,7 +191,7 @@ export const RecordInlineField = observer(function RecordInlineField({
 }: {
   records: RecordsStore;
   record: RecordRow;
-  field: RecordField;
+  field: RecordFieldView;
   children: ReactNode;
 }) {
   const t = useTranslations();
@@ -228,7 +228,7 @@ export const RecordInlineField = observer(function RecordInlineField({
   );
 });
 
-export function RecordCalculatedCell({ field, children }: { field: RecordField; children: ReactNode }) {
+export function RecordCalculatedCell({ field, children }: { field: RecordFieldView; children: ReactNode }) {
   const t = useTranslations();
   const label = t("RecordModel.calculatedReadOnly", { field: field.label });
   return (

@@ -3361,14 +3361,14 @@ test("publishes and withdraws a private-input summary through the field UI witho
       deal.typeId,
       summary.label,
     );
-    await expect(
-      delegated
-        .getByRole("button", {
-          name: englishMessages.Common.actions.save,
-          exact: true,
-        })
-        .first(),
-    ).toBeEnabled();
+    const delegatedSave = delegated
+      .getByRole("button", {
+        name: englishMessages.Common.actions.save,
+        exact: true,
+      })
+      .first();
+    await expect(delegatedSave).toBeVisible();
+    await expect(delegatedSave).toBeDisabled();
     await openDrawerTab(member.page, "Calculation");
     await expect(
       delegated.getByRole("region", { name: "Calculation", exact: true }),

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { ChevronDown, ChevronLeft, ChevronRight, Search, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { RecordField } from "@/features/records/record-model.schema";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ const BulkFieldEditor = observer(function BulkFieldEditor({
   onApplied,
 }: {
   records: RecordsStore;
-  field: RecordField;
+  field: RecordFieldView;
   onApplied: () => void;
 }) {
   const t = useTranslations();

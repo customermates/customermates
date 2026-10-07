@@ -1,7 +1,7 @@
 "use client";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordField, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordScalar } from "@/features/records/record-model.schema";
 
 import { observer } from "mobx-react-lite";
 import { toJS } from "mobx";
@@ -23,7 +23,7 @@ export type RecordFieldSaveOutcome = { saved: boolean; invalid?: string[] };
 export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
   constructor(
     rootStore: RootStore,
-    readonly field: RecordField,
+    readonly field: RecordFieldView,
     initialValue: unknown,
     private readonly save: (value: RecordScalar | null) => Promise<RecordFieldSaveOutcome>,
     private readonly done: () => void,
