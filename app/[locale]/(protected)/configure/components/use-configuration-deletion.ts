@@ -178,7 +178,21 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
       const deletion = result.data.deletion ?? { blockers: [], cleaned: [], removed: null };
       const blockers = [
         ...deletionBlockerSentences(t, deletion, model),
-        ...(result.data.valid ? [] : issueSentences(t, result.data, model)),
+        ...(result.data.valid
+          ? []
+          : issueSentences(
+              t,
+              {
+                ...result.data,
+                issues: result.data.issues.filter(
+                  (issue) =>
+                    !deletion.blockers.some((blocker) =>
+                      [issue.fieldId, issue.typeId, issue.relationId].includes(blocker.source.id),
+                    ),
+                ),
+              },
+              model,
+            )),
       ];
       if (operation === "restore" && !blockers.length) {
         await apply();

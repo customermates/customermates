@@ -53,7 +53,7 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Code");
   await saveDrawer(page);
   await addFromConfigure(page, "Calculation");
-  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Code upper");
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Uppercase code");
   await dialog.getByRole("combobox", { name: "Value type", exact: true }).click();
   await page.getByRole("option", { name: "Text", exact: true }).click();
   await openDrawerTab(page, "Calculation");
@@ -65,7 +65,7 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   await saveDrawer(page);
   const model = await readModel(database, companyId);
   const code = model.fields.find((field) => field.typeId === typeId && field.label === "Code");
-  const upper = model.fields.find((field) => field.typeId === typeId && field.label === "Code upper");
+  const upper = model.fields.find((field) => field.typeId === typeId && field.label === "Uppercase code");
   if (!code || !upper) throw new Error("Expected the configured fields");
   const viewId = randomUUID();
   await database.query(
@@ -84,15 +84,15 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   await openConfigureRow(page, "Fields", "Code");
   await dialog.getByRole("button", { name: "Delete field", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");
-  await expect(confirmation).toContainText("Code upper calculates from Code.");
+  await expect(confirmation).toContainText("Uppercase code calculates from Code.");
   await expect(confirmation.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
-  await confirmation.locator("[data-confirmation-chip]").filter({ hasText: "Code upper" }).click();
+  await confirmation.locator("[data-confirmation-chip]").filter({ hasText: "Uppercase code" }).click();
   await expect(page).toHaveURL(new RegExp(`typeId=${typeId}`));
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Code upper");
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Uppercase code");
   await expect(page.locator(`[data-focus-target="field:${upper.id}"]`)).toHaveAttribute("data-focus-highlight", "");
   await deleteFromDrawer(page, "Delete field");
-  await expect(configureRow(page, "Fields", "Code upper")).toHaveCount(0);
+  await expect(configureRow(page, "Fields", "Uppercase code")).toHaveCount(0);
 
   await openConfigureRow(page, "Fields", "Code");
   await dialog.getByRole("button", { name: "Delete field", exact: true }).click();
@@ -107,19 +107,19 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   await openRecentlyDeleted(page);
   const list = page.locator("[data-recently-deleted]");
   await expect(list.getByRole("button", { name: "Code", exact: true })).toBeVisible();
-  await expect(list.getByRole("button", { name: "Code upper", exact: true })).toBeVisible();
+  await expect(list.getByRole("button", { name: "Uppercase code", exact: true })).toBeVisible();
   await restoreRecentlyDeleted(page, "Code");
-  await restoreRecentlyDeleted(page, "Code upper");
+  await restoreRecentlyDeleted(page, "Uppercase code");
   const restored = await readModel(database, companyId);
   expect(restored.fields.find((field) => field.id === code.id)?.archived).toBe(false);
   expect(restored.fields.find((field) => field.id === upper.id)?.archived).toBe(false);
 
   await openConfigure(page, typeId);
-  await openConfigureRow(page, "Fields", "Code upper");
+  await openConfigureRow(page, "Fields", "Uppercase code");
   await deleteFromDrawer(page, "Delete field");
   await openConfigureRow(page, "Fields", "Code");
   await deleteFromDrawer(page, "Delete field");
-  await deleteRecentlyDeletedPermanently(page, "Code upper");
+  await deleteRecentlyDeletedPermanently(page, "Uppercase code");
   await deleteRecentlyDeletedPermanently(page, "Code");
   const definitions = await database.query(
     'SELECT count(*)::int AS count FROM "RecordFieldDefinition" WHERE "companyId"=$1 AND id = ANY($2::text[])',

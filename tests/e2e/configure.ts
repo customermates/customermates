@@ -140,10 +140,18 @@ export async function openRecentlyDeleted(page: Page) {
   await expect(page.locator("[data-recently-deleted]")).toBeVisible();
 }
 
-export async function restoreRecentlyDeleted(page: Page, label: string) {
+async function openRecentlyDeletedItem(page: Page, label: string) {
   await openRecentlyDeleted(page);
-  await page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }).click();
   const detail = page.getByRole("dialog");
+  await expect(async () => {
+    await page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }).click();
+    await expect(detail).toBeVisible({ timeout: 1000 });
+  }).toPass();
+  return detail;
+}
+
+export async function restoreRecentlyDeleted(page: Page, label: string) {
+  const detail = await openRecentlyDeletedItem(page, label);
   await detail.getByRole("button", { name: "Restore", exact: true }).click();
   await expect(detail).not.toBeVisible();
   await expect(
@@ -152,9 +160,8 @@ export async function restoreRecentlyDeleted(page: Page, label: string) {
 }
 
 export async function deleteRecentlyDeletedPermanently(page: Page, label: string) {
-  await openRecentlyDeleted(page);
-  await page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Delete permanently", exact: true }).click();
+  const detail = await openRecentlyDeletedItem(page, label);
+  await detail.getByRole("button", { name: "Delete permanently", exact: true }).click();
   await confirmDeletion(page, label);
   await expect(
     page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }),
