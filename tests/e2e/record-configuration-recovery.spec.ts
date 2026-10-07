@@ -57,6 +57,10 @@ function general(page: Page) {
   return page.getByRole("region", { name: labels.general, exact: true });
 }
 
+function listPane(page: Page) {
+  return page.locator("[data-configure-list-pane]");
+}
+
 function generalControl(page: Page, id: string) {
   return page.locator(`#configure-general-${id}`);
 }
@@ -203,21 +207,21 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
           exact: true,
         });
         await save.click();
-        await expect(general(page).getByText(recovery.required, { exact: true })).toBeVisible();
+        await expect(listPane(page).getByText(recovery.required, { exact: true })).toBeVisible();
         await expect(generalControl(page, "name")).toHaveValue(localName);
         await expect(generalControl(page, "name")).toHaveAttribute("readonly", "");
         await expect(save).toBeDisabled();
-        await general(page).getByRole("button", { name: recovery.refresh, exact: true }).click();
-        await expect(general(page).getByText(recovery.required, { exact: true })).not.toBeVisible();
-        await expect(general(page).getByText(recovery.conflict, { exact: true })).toBeVisible();
+        await listPane(page).getByRole("button", { name: recovery.refresh, exact: true }).click();
+        await expect(listPane(page).getByText(recovery.required, { exact: true })).not.toBeVisible();
+        await expect(listPane(page).getByText(recovery.conflict, { exact: true })).toBeVisible();
         await expect(generalControl(page, "name")).toHaveValue(localName);
         await expect(generalControl(page, "description")).toHaveValue(localDescription);
         await expect(generalControl(page, "icon")).toContainText(scenario.iconLabel);
         await expect(save).toBeDisabled();
-        await expect(general(page).getByRole("button", { name: recovery.keep, exact: true })).toBeVisible();
-        await expect(general(page).getByRole("button", { name: recovery.latest, exact: true })).toBeVisible();
-        await general(page).getByRole("button", { name: scenario.choice, exact: true }).click();
-        await expect(general(page).getByText(recovery.conflict, { exact: true })).not.toBeVisible();
+        await expect(listPane(page).getByRole("button", { name: recovery.keep, exact: true })).toBeVisible();
+        await expect(listPane(page).getByRole("button", { name: recovery.latest, exact: true })).toBeVisible();
+        await listPane(page).getByRole("button", { name: scenario.choice, exact: true }).click();
+        await expect(listPane(page).getByText(recovery.conflict, { exact: true })).not.toBeVisible();
         const expectedName = scenario.keepLocal ? localName : remoteName;
         await expect(generalControl(page, "name")).toHaveValue(expectedName);
         await expect(generalControl(page, "description")).toHaveValue(localDescription);
