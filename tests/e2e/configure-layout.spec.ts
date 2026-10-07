@@ -125,9 +125,10 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   await expect(page.getByRole("menuitem")).toHaveText([
     "List",
     "Field",
-    "Calculation",
+    "Calculated field",
     "Relationship",
     "Channels",
+    "Sub-list",
     "Activity connection",
   ]);
   await page.keyboard.press("Escape");
