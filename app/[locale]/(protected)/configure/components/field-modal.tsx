@@ -782,11 +782,10 @@ export const FieldModal = observer(function FieldModal({
 
                                 <Button
                                   aria-label={t("RecordModel.removeOption")}
-                                  className="text-destructive hover:text-destructive"
                                   disabled={store.isDisabled}
                                   size="icon"
                                   type="button"
-                                  variant="ghost"
+                                  variant="ghostDestructive"
                                   onClick={() => store.removeOption(option.id)}
                                 >
                                   <Trash2 aria-hidden className="size-4" />
@@ -804,11 +803,10 @@ export const FieldModal = observer(function FieldModal({
 
                                     <Button
                                       aria-label={t("RecordModel.removeInput")}
-                                      className="text-destructive hover:text-destructive"
                                       disabled={store.isDisabled}
                                       size="icon"
                                       type="button"
-                                      variant="ghost"
+                                      variant="ghostDestructive"
                                       onClick={() =>
                                         store.onChange(
                                           `options.${index}.attributes`,

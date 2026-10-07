@@ -177,10 +177,6 @@ function destructiveActionFindings(sources: SourceFile[]) {
 }
 
 const DESTRUCTIVE_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/configure/components/field-modal.tsx": "I1 r4: option and input trash buttons",
-  "app/[locale]/(protected)/records/[typeId]/components/record-embedded-records.tsx": "I2 r3: sub-list row delete",
-  "app/[locale]/(protected)/records/[typeId]/components/record-mass-actions.tsx": "I2 r3: mass delete button",
-  "app/[locale]/(protected)/records/[typeId]/components/record-row-actions.tsx": "I2 r3: row delete action",
   "app/components/agent-chat/conversation-history.tsx": "I25 phase 2: delete chat button",
   "app/[locale]/(protected)/inbox/components/message-item.tsx": "I25 phase 2: email draft discard is neutral grey",
 };
