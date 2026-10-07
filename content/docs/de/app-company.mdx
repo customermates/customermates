@@ -329,7 +329,7 @@ Die Seite **Letzte Zustellungen** ist das Zustellprotokoll der Webhooks. Route `
 
 **Link:** der Link zur Seite **Letzte Zustellungen**, `/company/webhook-deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhook-deliveries`; `highlight_element` nimmt außerdem die Toolbar-Ids aus dieser Tabelle an und `webhook-delivery-modal-resend` für **Erneut senden**, sobald eine Zustellungszeile geöffnet ist. Zeilen und der Rest von **Ereignis-Details** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-## Seite Aktivität: Wo finde ich das Audit-Log, wer hat was wann geändert? [#activity-tab]
+## Seite Aktivität: Wo finde ich das Audit-Log und den Änderungsverlauf, wer hat was wann geändert? [#activity-tab]
 
 Die Seite **Aktivität** ist der Änderungsverlauf des Workspace: wer welchen Datensatz, welche Einstellung oder welche Konfiguration wann geändert hat. Route `/company/activity`, Sidebar-Id `#nav-company-activity` (**Aktivität**). Es ist derselbe Aktivitäts-Feed wie auf Datensatzseiten, mit dem ganzen Workspace als Bereich, neueste Einträge zuerst. Jeder Eintrag hat eine Art, nach der Sie filtern können:
 
@@ -339,7 +339,7 @@ Die Seite **Aktivität** ist der Änderungsverlauf des Workspace: wer welchen Da
 
 Zum Lesen braucht Ihre Rolle Leserecht **Alle** auf **Audit-Log** oder die Rolle **Admin**; dieselbe Berechtigung zeigt den Änderungsverlauf auf Datensatzseiten. Datensatzänderungen folgen den Datensatzrechten der lesenden Person, ein Datensatz, den die Rolle nicht lesen darf, erscheint also nicht, und Wissensdatenbank-Einträge brauchen Leserecht auf die Wissensdatenbank. Ein Klick auf einen Eintrag öffnet seine Details. Gespeicherte Ansichten und der Filter liegen in der oberen Leiste, wie bei Datensatzlisten. Einträge werden nicht zeitgesteuert gelöscht, und Messaging-Events erscheinen hier nie. Der Verlauf beginnt mit dem Upgrade auf konfigurierbare Datensätze; aus der Zeit davor wurden nur Nachweise zu Rechtsdokumenten und Ereignisse verbundener Konten übernommen. Verfügbar in jedem Tarif und selbstgehostet.
 
-**Link:** die Seite **Aktivität**, `/company/activity`. **Mate:** `navigate` und `highlight_element` mit `nav-company-activity`; die Einträge sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** der Link zum Audit-Log, der Seite **Aktivität**, `/company/activity`. **Mate:** `navigate` und `highlight_element` mit `nav-company-activity`; die Einträge sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Tipps für Agents [#tips-for-agents]
 
