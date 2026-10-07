@@ -3246,6 +3246,7 @@
     "no": "No",
     "noGrouping": "No grouping",
     "noneYet": "None yet",
+    "noOptions": "No options yet. Add the first option to choose from.",
     "onePerLine": "Enter one value per line.",
     "onSourceDelete": "When this record is deleted",
     "onTargetDelete": "When the linked record is deleted",

@@ -3246,6 +3246,7 @@
     "no": "No",
     "noGrouping": "Sin agrupación",
     "noneYet": "Todavía ninguno",
+    "noOptions": "Todavía no hay opciones. Añade la primera opción para elegir.",
     "onePerLine": "Introduce un valor por línea.",
     "onSourceDelete": "Al eliminar este registro",
     "onTargetDelete": "Al eliminar el registro vinculado",

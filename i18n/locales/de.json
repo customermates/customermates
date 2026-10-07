@@ -3246,6 +3246,7 @@
     "no": "Nein",
     "noGrouping": "Keine Gruppierung",
     "noneYet": "Noch keine",
+    "noOptions": "Noch keine Optionen. Füge die erste Option zur Auswahl hinzu.",
     "onePerLine": "Einen Wert pro Zeile eingeben.",
     "onSourceDelete": "Beim Löschen dieses Datensatzes",
     "onTargetDelete": "Beim Löschen des verknüpften Datensatzes",

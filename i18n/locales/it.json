@@ -3246,6 +3246,7 @@
     "no": "No",
     "noGrouping": "Nessun raggruppamento",
     "noneYet": "Ancora nessuno",
+    "noOptions": "Nessuna opzione ancora. Aggiungi la prima opzione da scegliere.",
     "onePerLine": "Inserisci un valore per riga.",
     "onSourceDelete": "Quando questo record viene eliminato",
     "onTargetDelete": "Quando il record collegato viene eliminato",

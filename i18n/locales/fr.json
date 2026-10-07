@@ -3246,6 +3246,7 @@
     "no": "Non",
     "noGrouping": "Aucun regroupement",
     "noneYet": "Aucun pour le moment",
+    "noOptions": "Aucune option pour l’instant. Ajoutez la première option à proposer.",
     "onePerLine": "Saisissez une valeur par ligne.",
     "onSourceDelete": "À la suppression de cette fiche",
     "onTargetDelete": "À la suppression de la fiche liée",
