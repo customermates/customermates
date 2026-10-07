@@ -26,7 +26,12 @@ import { recordColumns } from "@/features/records/record-columns";
 import { recordGroupableFields, resolveRecordGrouping } from "@/features/records/record-grouping";
 import { encodeGroupingToken, decodeGroupingToken } from "@/core/base/grouping/grouping.schema";
 import { FormRecordTypeIcon } from "@/components/records/form-record-type-icon";
-import { configureFieldOrder, moveConfigureField, reorderFieldOperations } from "./configure-model";
+import {
+  archiveListOperations,
+  configureFieldOrder,
+  moveConfigureField,
+  reorderFieldOperations,
+} from "./configure-model";
 import { ModelChangeSheet } from "./model-change-sheet";
 
 const initialType = () => ({
@@ -193,6 +198,9 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
           },
         },
         ...reorderFieldOperations(this.model, this.original.id, this.form.fieldOrder),
+        ...(this.form.archived === this.original.archived
+          ? []
+          : archiveListOperations(this.model, this.original.id, this.form.archived)),
         ...(this.form.channelsEnabled !== recordChannelsEnabled(this.model, this.original.id) ||
         this.form.providerAvatar !==
           (this.model.capabilities.find((binding) => binding.id === this.channelBindingId)?.providerAvatar ?? false)

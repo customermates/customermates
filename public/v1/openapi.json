@@ -41442,6 +41442,46 @@
                           "properties": {
                             "operation": {
                               "type": "string",
+                              "const": "deleteType"
+                            },
+                            "typeId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          },
+                          "required": [
+                            "operation",
+                            "typeId"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Permanently delete an archived type with its fields, records, links and relationships."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "operation": {
+                              "type": "string",
+                              "const": "deleteField"
+                            },
+                            "fieldId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          },
+                          "required": [
+                            "operation",
+                            "fieldId"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Permanently delete an archived field and its values."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "operation": {
+                              "type": "string",
                               "const": "setTypeGrants"
                             },
                             "typeId": {
@@ -41616,6 +41656,50 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "deletion": {
+                      "type": "object",
+                      "properties": {
+                        "records": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "values": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "links": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "relationships": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "views": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "grants": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "records",
+                        "values",
+                        "links",
+                        "relationships",
+                        "views",
+                        "grants"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
@@ -43289,6 +43373,46 @@
                             "dependencyHash"
                           ],
                           "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "operation": {
+                              "type": "string",
+                              "const": "deleteType"
+                            },
+                            "typeId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          },
+                          "required": [
+                            "operation",
+                            "typeId"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Permanently delete an archived type with its fields, records, links and relationships."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "operation": {
+                              "type": "string",
+                              "const": "deleteField"
+                            },
+                            "fieldId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          },
+                          "required": [
+                            "operation",
+                            "fieldId"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Permanently delete an archived field and its values."
                         },
                         {
                           "type": "object",

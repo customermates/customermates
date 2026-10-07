@@ -953,9 +953,11 @@
       }
     },
     "deleteConfirmation": {
+      "blocked": "Résolvez d’abord ces points :",
       "message": "Voulez-vous vraiment supprimer cet élément ? Cette action est irréversible.",
       "messageWithName": "Voulez-vous vraiment supprimer \"{name}\" ? Cette action est irréversible.",
-      "title": "Confirmer la suppression"
+      "title": "Confirmer la suppression",
+      "typeToConfirm": "Saisissez {name} pour confirmer"
     },
     "details": "Détails",
     "email": "E-mail",
@@ -3255,6 +3257,23 @@
     "option": "Option",
     "optionAttribute": "Attribut de l’option",
     "options": "Options",
+    "permanentDeletion": {
+      "deleteField": "Supprimer le champ définitivement",
+      "deleteList": "Supprimer la liste définitivement",
+      "dependentField": "{field} dans {list} en dépend encore. Supprimez ou modifiez d’abord ce champ.",
+      "dependentList": "{list} en dépend encore. Supprimez ou modifiez d’abord cette liste.",
+      "fieldMessage": "Cela supprime définitivement le champ et toutes ses valeurs enregistrées. Cette action est irréversible.",
+      "fieldTitle": "Supprimer {name} définitivement ?",
+      "grants": "{count, plural, one {# droit de rôle} other {# droits de rôle}}",
+      "links": "{count, plural, one {# lien entre enregistrements} other {# liens entre enregistrements}}",
+      "listMessage": "Cela supprime définitivement la liste avec ses champs, enregistrements, liens, relations, vues enregistrées et droits de rôle. Cette action est irréversible.",
+      "listTitle": "Supprimer {name} définitivement ?",
+      "nothingStored": "Aucune donnée enregistrée ne l’utilise.",
+      "records": "{count, plural, one {# enregistrement} other {# enregistrements}}",
+      "relationships": "{count, plural, one {# relation} other {# relations}}",
+      "values": "{count, plural, one {# valeur enregistrée} other {# valeurs enregistrées}}",
+      "views": "{count, plural, one {# vue enregistrée ou mise en page personnelle} other {# vues enregistrées ou mises en page personnelles}}"
+    },
     "pinnedFields": "Champs de détail épinglés",
     "pluralDescription": "Le nom affiché dans la navigation. Laissez vide pour utiliser le nom de la liste.",
     "pluralName": "Libellé de navigation",

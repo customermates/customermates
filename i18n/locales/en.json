@@ -953,9 +953,11 @@
       }
     },
     "deleteConfirmation": {
+      "blocked": "Resolve these first:",
       "message": "Are you sure you want to delete this item? This action cannot be undone.",
       "messageWithName": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
-      "title": "Confirm Deletion"
+      "title": "Confirm Deletion",
+      "typeToConfirm": "Type {name} to confirm"
     },
     "details": "Details",
     "email": "Email",
@@ -3255,6 +3257,23 @@
     "option": "Option",
     "optionAttribute": "Option attribute",
     "options": "Options",
+    "permanentDeletion": {
+      "deleteField": "Delete field permanently",
+      "deleteList": "Delete list permanently",
+      "dependentField": "{field} in {list} still depends on it. Delete or change that field first.",
+      "dependentList": "{list} still depends on it. Delete or change that list first.",
+      "fieldMessage": "This permanently deletes the field and all of its stored values. This cannot be undone.",
+      "fieldTitle": "Delete {name} permanently?",
+      "grants": "{count, plural, one {# role grant} other {# role grants}}",
+      "links": "{count, plural, one {# link between records} other {# links between records}}",
+      "listMessage": "This permanently deletes the list with its fields, records, links, relationships, saved views and role grants. This cannot be undone.",
+      "listTitle": "Delete {name} permanently?",
+      "nothingStored": "No stored data uses it.",
+      "records": "{count, plural, one {# record} other {# records}}",
+      "relationships": "{count, plural, one {# relationship} other {# relationships}}",
+      "values": "{count, plural, one {# stored value} other {# stored values}}",
+      "views": "{count, plural, one {# saved view or personal layout} other {# saved views or personal layouts}}"
+    },
     "pinnedFields": "Pinned detail fields",
     "pluralDescription": "The name shown in navigation. Leave empty to use the list name.",
     "pluralName": "Navigation label",
