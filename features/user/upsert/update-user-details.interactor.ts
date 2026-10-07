@@ -1,5 +1,6 @@
 import type { Data } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
+import type { UpdateUserDetailsRepo } from "./update-user-details.repo";
 
 import { z } from "zod";
 import type { Locale } from "@/generated/prisma";
@@ -11,6 +12,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
+import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import {
   StoredDisplayLanguageSchema,
@@ -41,14 +43,10 @@ const OutputSchema = z.object({
 });
 export type UserProfileData = Data<typeof OutputSchema>;
 
-type StoredUserProfileData = Omit<UserProfileData, "displayLanguage" | "formattingLocale"> & {
+export type StoredUserProfileData = Omit<UserProfileData, "displayLanguage" | "formattingLocale"> & {
   displayLanguage: Locale;
   formattingLocale: Locale;
 };
-
-export abstract class UpdateUserDetailsRepo {
-  abstract updateDetails(args: UpdateUserDetailsData): Promise<StoredUserProfileData>;
-}
 
 @TenantInteractor()
 export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateUserDetailsData, UserProfileData> {
@@ -63,6 +61,7 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
   @Transaction
   @ValidateOutput(OutputSchema)
   async invoke(data: UpdateUserDetailsData): Validated<UserProfileData> {
+    const previous = { firstName: this.user.firstName, lastName: this.user.lastName, country: this.user.country };
     const storedProfile = await this.repo.updateDetails(data);
     const profile = {
       ...storedProfile,
@@ -73,10 +72,11 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
     await this.eventService.publish(DomainEvent.USER_UPDATED, {
       entityId: this.userId,
       payload: {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        country: profile.country,
-        avatarUrl: profile.avatarUrl,
+        changes: calculateChanges(previous, {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          country: profile.country,
+        }),
       },
     });
 

@@ -698,11 +698,12 @@ describe("UpdateUserDetailsInteractor", () => {
       DomainEvent.USER_UPDATED,
       expect.objectContaining({
         entityId: USER_ID,
-        payload: expect.objectContaining({
-          firstName: "Janet",
-          lastName: "Doe",
-          country: "de",
-        }),
+        payload: {
+          changes: {
+            firstName: { previous: "Test", current: "Janet" },
+            lastName: { previous: "User", current: "Doe" },
+          },
+        },
       }),
     );
   });
@@ -723,7 +724,7 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(mockEventService.publish).toHaveBeenCalledWith(
       DomainEvent.USER_UPDATED,
       expect.objectContaining({
-        payload: expect.objectContaining({ firstName: "Janet" }),
+        payload: { changes: expect.objectContaining({ firstName: { previous: "Test", current: "Janet" } }) },
       }),
     );
   });

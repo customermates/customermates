@@ -7,6 +7,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
 import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
@@ -99,16 +100,25 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     if (leavingActive)
       await this.releaseOwnerRoutines.invoke({ companyId: this.user.companyId, ownerUserId: targetUserId });
 
+    const previousRole = targetUser.role?.name ?? null;
+    const role =
+      data.roleId === targetUser.roleId
+        ? previousRole
+        : ((await this.roleRepo.findRoleById(data.roleId))?.name ?? null);
     try {
       await this.eventService.publish(DomainEvent.USER_UPDATED, {
         entityId: targetUserId,
         payload: {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          country: data.country,
-          status: data.status,
-          avatarUrl: data.avatarUrl,
-          roleId: data.roleId,
+          changes: calculateChanges(
+            {
+              firstName: targetUser.firstName,
+              lastName: targetUser.lastName,
+              country: targetUser.country,
+              status: targetUser.status,
+              role: previousRole,
+            },
+            { firstName: data.firstName, lastName: data.lastName, country: data.country, status: data.status, role },
+          ),
         },
       });
     } catch (error) {
