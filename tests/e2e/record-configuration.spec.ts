@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, configureListCard, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
+import { openDrawerTab, addFromConfigure, configureListCard, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function applyConfiguration(page: Page) {
@@ -147,6 +147,7 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await page.getByRole("option", { name: "Number", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Value source", exact: true }).click();
   await page.getByRole("option", { name: "Calculated", exact: true }).click();
+  await openDrawerTab(page, "Calculation");
   const calculation = dialog.getByRole("region", { name: "Calculation", exact: true });
   await calculation.getByRole("combobox", { name: "Use", exact: true }).click();
   await page.getByRole("option", { name: "Calculation", exact: true }).click();

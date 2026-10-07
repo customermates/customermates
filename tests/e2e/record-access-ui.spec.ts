@@ -14,7 +14,7 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import { RecordMeasureResultSchema } from "../../features/records/record-measure.schema";
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
-import { addFromConfigure, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, setShowArchivedParts } from "./configure";
+import { addFromConfigure, configureRow, openDrawerTab, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openListAction, saveDrawer, setShowArchivedParts } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
@@ -294,6 +294,8 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect(
       member.page.getByRole("region", { name: "General", exact: true }).getByRole("textbox"),
     ).toHaveCount(0);
+    await openConfigureTab(member.page, "Fields");
+    await expect(member.page.getByRole("region", { name: "Fields", exact: true }).getByRole("listitem").first()).toBeVisible();
     await expect(member.page.getByRole("region", { name: "Fields", exact: true }).getByRole("button")).toHaveCount(0);
     const unauthorized = {
       expectedRevision: (await readModel(page)).revision,
@@ -928,6 +930,8 @@ async function relationshipApplyUi(page: Page) {
 }
 
 async function relationshipOptionUi(page: Page, id: string, label: string) {
+  if (id === "onSourceDelete" || id === "onTargetDelete")
+    await openDrawerTab(page, englishMessages.RecordModel.relationshipEditor.onDelete);
   await page
     .getByRole("dialog", { name: englishMessages.RecordModel.relationship, exact: true })
     .locator(`[id="${id}"]`)
@@ -2002,9 +2006,12 @@ test("keeps retained values restricted after a delegated manager converts fields
     };
     for (const field of [total, memo]) {
       const dialog = await summaryFieldEditorUi(manager.page, summaryType.id, field.label);
+      await openDrawerTab(manager.page, "Calculation");
+      await expect(dialog.getByText(englishMessages.RecordModel.summaryApprovalRequired, { exact: true })).toBeVisible();
       await expect(
         dialog.getByRole("switch", { name: englishMessages.RecordModel.publishSummary, exact: true }),
       ).toHaveCount(0);
+      await openDrawerTab(manager.page, "General");
       await dialog.locator("#behavior").click();
       await manager.page.getByRole("option", { name: "Entered manually", exact: true }).click();
       await applyUi();
@@ -2136,6 +2143,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
   };
   const applyPublication = async (next: boolean) => {
     const dialog = await summaryFieldEditorUi(page, deal.typeId, summary.label);
+    await openDrawerTab(page, "Calculation");
     const toggle = dialog.getByRole("switch", { name: englishMessages.RecordModel.publishSummary, exact: true });
     if (next) await toggle.check();
     else await toggle.uncheck();

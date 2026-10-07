@@ -3020,6 +3020,9 @@
       "lookup": "Wert aus {list}",
       "rollup": "Summe aus {list}"
     },
+    "fieldTabs": {
+      "calculation": "Berechnung"
+    },
     "general": "Allgemein",
     "graph": {
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",
@@ -3255,6 +3258,7 @@
     "relationshipChange": "{count} Verknüpfungen geändert",
     "relationshipEditor": {
       "cardinality": "Wie viele Datensätze verknüpft sind",
+      "onDelete": "Beim Löschen",
       "otherList": "der verknüpften Liste",
       "shownOn": "Wird bei Datensätzen in {list} angezeigt",
       "thisList": "Diese Liste"

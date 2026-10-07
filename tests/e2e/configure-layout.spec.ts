@@ -2,7 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, backToConfigureGraph, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived } from "./configure";
+import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function readModel(database: Client, companyId: string) {
@@ -53,7 +53,14 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   const pane = page.locator("[data-configure-list-pane]");
   const general = page.getByRole("region", { name: "General", exact: true });
   await expect(pane).toContainText(/\d+ fields · \d+ relationships · \d+ activity connections/);
-  await expect(general.getByRole("combobox", { name: "Icon", exact: true })).toContainText("Growth");
+  const icon = general.getByRole("button", { name: "Icon", exact: true });
+  await expect(icon).toContainText("Growth");
+  await icon.click();
+  await expect(page.getByRole("toolbar", { name: "Choose icon", exact: true }).getByRole("button", { name: "Growth", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.keyboard.press("Escape");
   await expect(general).not.toContainText("Selection unavailable");
   await expect(configureTopBar(page).getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
 
@@ -146,6 +153,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
     await expect(dialog).not.toBeVisible();
   }
 
+  await openConfigureTab(page, "Fields");
   const fields = page.getByRole("region", { name: "Fields", exact: true });
   await expect(configureRow(page, "Fields", "Notes")).toContainText("Formatted text · Entered manually");
   await expect(fields).toContainText("Money · Total from Line items");

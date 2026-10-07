@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
-import { addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
+import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function choose(page: Page, label: string, option: string) {
@@ -31,6 +31,8 @@ async function addField(page: Page, name: string, valueType: string, behavior?: 
   await page.getByRole("dialog").getByRole("textbox", { name: "Name", exact: false }).fill(name);
   await choose(page, "Value type", valueType);
   if (behavior) await choose(page, "Value source", behavior);
+  if (behavior && behavior !== "Entered manually") await openDrawerTab(page, "Calculation");
+  else if (valueType === "Single choice") await openDrawerTab(page, "Options");
 }
 
 async function list(page: Page, typeId: string) {

@@ -3020,6 +3020,9 @@
       "lookup": "Valor de {list}",
       "rollup": "Total de {list}"
     },
+    "fieldTabs": {
+      "calculation": "Cálculo"
+    },
     "general": "General",
     "graph": {
       "accountEdge": "Sincroniza conversaciones en {list}",
@@ -3255,6 +3258,7 @@
     "relationshipChange": "{count} relaciones modificadas",
     "relationshipEditor": {
       "cardinality": "Cuántos registros se vinculan",
+      "onDelete": "Al eliminar",
       "otherList": "la lista vinculada",
       "shownOn": "Se muestra en los registros de {list}",
       "thisList": "Esta lista"
