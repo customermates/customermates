@@ -4,7 +4,7 @@ import { join, relative } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const SCANNED_DIRECTORIES = ["app", "components", "core", "features"];
 const HYDRATION_SENSITIVE_INTL_MEMBER =
@@ -73,7 +73,7 @@ describe("hydration-safe Intl rendering", () => {
       .sort();
 
     expect(violations, violations.join("\n")).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("distinguishes unsafe direct formatters from the shared boundary", () => {
     expect(usesHydrationSensitiveIntl("intlStore.formatTime(value)")).toBe(true);
