@@ -19,6 +19,7 @@ import { isReadOnlyAgentToolCall } from "@/ee/agent-chat/gated-tools";
 import { AGENT_UI_TARGET_IDS } from "@/ee/agent-chat/ui-targets";
 import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { presetId } from "@/features/records/crm-preset";
+import { grantableActions, RESOURCE_ACCESS } from "@/features/role/resource-access";
 import type { Action,Prisma,PrismaClient,Resource } from "@/generated/prisma";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 import de from "@/i18n/locales/de.json";
@@ -648,7 +649,7 @@ export async function seedBenchmarkCase(
   if (await prisma.company.count({ where: { id: { in: [companyId, sentinelCompanyId] } } }))
     throw new Error("Fixture namespace already exists; use a new run key, never overwrite fixtures");
   const { Action: Actions, Resource: Resources } = await import("@/generated/prisma");
-  const rolePermissions = (roleId: string, actions: Action[]) => Object.values(Resources).flatMap((resource: Resource) => actions.map((action) => ({ id: id(roleId + ":" + resource + ":" + action), companyId, roleId, resource, action })));
+  const rolePermissions = (roleId: string, actions: Action[]) => Object.values(Resources).flatMap((resource: Resource) => actions.filter((action) => grantableActions(RESOURCE_ACCESS[resource]).includes(action)).map((action) => ({ id: id(roleId + ":" + resource + ":" + action), companyId, roleId, resource, action })));
   const actorKey = definition.actor;
   const actorEmail = actorKey + "+" + id(actorKey) + "@example.invalid";
 

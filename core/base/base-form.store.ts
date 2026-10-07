@@ -9,6 +9,7 @@ import { cloneDeep } from "lodash";
 import { Action } from "@/generated/prisma";
 
 import type { Resource } from "@/generated/prisma";
+import type { ManageAction } from "@/features/role/resource-access";
 
 import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
@@ -100,11 +101,19 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
     return this.rootStore.userStore.can(this.resource, Action.readOwn);
   }
 
-  get canManage(): boolean {
+  protected get manageAction(): ManageAction {
+    return (this.form as { id?: unknown }).id ? Action.update : Action.create;
+  }
+
+  allows(action: ManageAction): boolean {
     if (!this.resource) return true;
 
     void this.rootStore.userStore.user;
-    return this.rootStore.userStore.canManage(this.resource);
+    return this.rootStore.userStore.can(this.resource, action);
+  }
+
+  get canManage(): boolean {
+    return this.allows(this.manageAction);
   }
 
   get isReadOnly(): boolean {
@@ -112,7 +121,7 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
 
     if (!this.rootStore.userStore.user) return false;
 
-    return !this.rootStore.userStore.canManage(this.resource);
+    return !this.allows(this.manageAction);
   }
 
   get isDisabled(): boolean {

@@ -9,7 +9,8 @@ import {
 } from "@/core/di";
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
-import { WidgetDisplayOptionsSchema, isRecordWidget } from "@/features/widget/widget.schema";
+import { WidgetDisplayOptionsSchema, isRecordWidget, type WidgetLayout } from "@/features/widget/widget.schema";
+import { WidgetPlacementSchema, occupiedGrid } from "@/features/widget/widget-grid";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -59,8 +60,16 @@ const ManageWidgetsSchema = z
       .boolean()
       .optional()
       .describe("Activity timeline appearance only. Chart options belong in displayOptions."),
+    layout: WidgetPlacementSchema.optional(),
   })
   .strict();
+
+function placementOf(layout: WidgetLayout | null | undefined) {
+  const large = layout?.lg;
+  return large && large.y !== null && large.y !== undefined
+    ? { layout: { x: large.x, y: large.y, w: large.w, h: large.h } }
+    : {};
+}
 
 const ActivityChangeSchema = ManageWidgetsSchema.pick({
   action: true,
@@ -73,6 +82,7 @@ const ActivityChangeSchema = ManageWidgetsSchema.pick({
   expectedRevision: true,
   idempotencyKey: true,
   showFilters: true,
+  layout: true,
 });
 const ChartChangeSchema = ManageWidgetsSchema.omit({ activityQuery: true, showFilters: true, ids: true });
 
@@ -80,7 +90,7 @@ export const manageWidgetsTool = {
   name: "manage_widgets",
   title: "Manage widgets",
   description:
-    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead. Dashboard widgets. list returns IDs and names; get (ids) returns saved configuration and access-filtered results. Create a chart with name, measure, displayOptions, expectedRevision and idempotencyKey. Discover type and field IDs first. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. Update a chart with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. isTemplate controls sharing of configuration; viewers still need access to the underlying data. Delete requires id and permanently removes the widget configuration, not its source records.",
+    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead. Dashboard widgets. list returns IDs, names and each widget's current layout; get (ids) returns saved configuration and access-filtered results. Create a chart with name, measure, displayOptions, expectedRevision and idempotencyKey. Discover type and field IDs first. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. Update a chart with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. isTemplate controls sharing of configuration; viewers still need access to the underlying data. Position and size: layout {x, y, w, h} on the 12-column desktop grid (rows of 124 px) is optional on create and update; omit it to auto-place a new widget in the first free spot with a size that fits its display type, or to keep an existing widget where it is. A layout that overlaps another widget is refused, widgets float up into empty rows above them, and the result returns the saved layout. To build a dashboard, list or get the existing widgets first and place new ones beside them. Delete requires id and permanently removes the widget configuration, not its source records.",
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageWidgetsSchema,
   outputSchema: z.looseObject({
@@ -89,6 +99,7 @@ export const manageWidgetsTool = {
     kind: z.string().optional(),
     name: z.string().optional(),
     version: z.number().optional(),
+    layout: z.looseObject({ x: z.number(), y: z.number(), w: z.number(), h: z.number() }).optional(),
     deleted: z.boolean().optional(),
   }),
   execute: async (input: unknown) => {
@@ -102,15 +113,20 @@ export const manageWidgetsTool = {
         .safeParse(params);
       if (!valid.success) return mcpValidationFailure(valid.error);
       const result = await getGetWidgetsInteractor().invoke();
+      const grid = occupiedGrid(result.data);
       return toonResult({
         total: result.data.length,
-        items: result.data.map((widget) => ({
-          id: widget.id,
-          name: widget.name,
-          kind: widget.kind,
-          contractVersion: 2,
-          version: widget.version,
-        })),
+        items: result.data.map((widget) => {
+          const rect = grid.find((placed) => placed.id === widget.id);
+          return {
+            id: widget.id,
+            name: widget.name,
+            kind: widget.kind,
+            contractVersion: 2,
+            version: widget.version,
+            ...(rect ? { layout: { x: rect.x, y: rect.y, w: rect.w, h: rect.h } } : {}),
+          };
+        }),
       });
     }
     if (params.action === "get") {
@@ -163,6 +179,7 @@ export const manageWidgetsTool = {
         activityQuery: params.activityQuery ?? widget?.activityQuery,
         displayOptions: { showFilters: params.showFilters ?? widget?.displayOptions.showFilters ?? true },
         isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
+        layout: params.layout,
       });
       if (!change.success) return mcpValidationFailure(change.error);
       const result = await getUpsertRecordActivityWidgetInteractor().invoke(change.data);
@@ -172,6 +189,7 @@ export const manageWidgetsTool = {
             kind: result.data.kind,
             name: result.data.name,
             version: result.data.version,
+            ...placementOf(result.data.layout),
             contractVersion: 2,
           })
         : mcpInteractorFailure(result.error);
@@ -188,6 +206,7 @@ export const manageWidgetsTool = {
       measure: params.measure ?? chart?.measure,
       displayOptions: params.displayOptions ?? widget?.displayOptions,
       isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
+      layout: params.layout,
     });
     if (!change.success) return mcpValidationFailure(change.error);
     const result = await getUpsertRecordWidgetInteractor().invoke(change.data);
@@ -197,6 +216,7 @@ export const manageWidgetsTool = {
           kind: result.data.kind,
           name: result.data.name,
           version: result.data.version,
+          ...placementOf(result.data.layout),
           contractVersion: 2,
         })
       : mcpInteractorFailure(result.error);

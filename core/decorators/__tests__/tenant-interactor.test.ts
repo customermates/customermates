@@ -11,11 +11,25 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/env", () => ({ env: { APP_MODE: "self-hosted", BASE_URL: "http://localhost:4000" } }));
 
 const { TenantInteractor } = await import("../tenant-interactor.decorator");
-const { AllowInDemoMode } = await import("../allow-in-demo-mode.decorator");
+const { AllowInDemoMode, isAllowedInDemoMode } = await import("../allow-in-demo-mode.decorator");
 const { getTenantUser } = await import("../tenant-context");
 
-function makeUser(overrides: Record<string, unknown> = {}) {
-  return {
+type Requirement = Parameters<typeof TenantInteractor>[0];
+
+function probe(run: () => unknown = () => "done") {
+  return class {
+    invoke(_input?: { id?: string }) {
+      return Promise.resolve({ ok: true as const, data: run() });
+    }
+  };
+}
+
+function guarded(requirement: Requirement, run?: () => unknown) {
+  return new (TenantInteractor<ReturnType<typeof probe>>(requirement)(probe(run)))();
+}
+
+function signIn(permissions: Array<{ resource: string; action: string }>, isSystemRole = false) {
+  const user = {
     id: "user-1",
     email: "test@test.com",
     companyId: "company-1",
@@ -23,192 +37,106 @@ function makeUser(overrides: Record<string, unknown> = {}) {
     role: {
       id: "role-1",
       name: "Custom",
-      isSystemRole: false,
+      isSystemRole,
       companyId: "company-1",
-      permissions: [],
+      permissions: permissions.map((permission, index) => ({ id: `p${index}`, roleId: "role-1", ...permission })),
     },
-    ...overrides,
   };
+  mockGetActiveUserOrThrow.mockResolvedValue(user);
+  return user;
 }
 
 beforeEach(() => vi.clearAllMocks());
 
 describe("TenantInteractor", () => {
-  it("blocks user without required permission", async () => {
-    const user = makeUser({ role: { ...makeUser().role, permissions: [] } });
-    mockGetActiveUserOrThrow.mockResolvedValue(user);
+  it("blocks a user without the required manage action and names it", async () => {
+    signIn([]);
 
-    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
-    class TestInteractor {
-      invoke() {
-        return Promise.resolve({ ok: true as const, data: "done" });
-      }
-    }
-
-    const interactor = new TestInteractor();
-    await expect(interactor.invoke()).rejects.toThrow(ForbiddenError);
+    await expect(guarded({ resource: "routines", manage: "create" }).invoke()).rejects.toThrow(ForbiddenError);
+    await expect(guarded({ resource: "routines", manage: "create" }).invoke()).rejects.toThrow("create on routines");
   });
 
-  it("allows user with exact matching permission", async () => {
-    const user = makeUser({
-      role: {
-        ...makeUser().role,
-        permissions: [{ id: "p1", roleId: "role-1", resource: "contacts", action: "create" }],
-      },
+  it.each(["create", "update", "delete"] as const)("allows exactly the declared %s action", async (action) => {
+    signIn([{ resource: "routines", action }]);
+
+    await expect(guarded({ resource: "routines", manage: action }).invoke()).resolves.toEqual({
+      ok: true,
+      data: "done",
     });
-    mockGetActiveUserOrThrow.mockResolvedValue(user);
-
-    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
-    class TestInteractor {
-      invoke() {
-        return Promise.resolve({ ok: true as const, data: "done" });
-      }
-    }
-
-    const result = await new TestInteractor().invoke();
-    expect(result).toEqual({ ok: true, data: "done" });
+    for (const other of (["create", "update", "delete"] as const).filter((candidate) => candidate !== action))
+      await expect(guarded({ resource: "routines", manage: other }).invoke()).rejects.toThrow(`${other} on routines`);
   });
 
-  it("blocks user missing one permission in AND condition", async () => {
-    const user = makeUser({
-      role: {
-        ...makeUser().role,
-        permissions: [{ id: "p1", roleId: "role-1", resource: "contacts", action: "readAll" }],
-      },
-    });
-    mockGetActiveUserOrThrow.mockResolvedValue(user);
+  it("requires both parts of a combined read and manage requirement", async () => {
+    signIn([{ resource: "users", action: "readAll" }]);
 
-    @TenantInteractor({
-      permissions: [
-        { resource: "contacts" as any, action: "readAll" as any },
-        { resource: "contacts" as any, action: "create" as any },
-      ],
-      condition: "AND",
-    })
-    class TestInteractor {
-      invoke() {
-        return Promise.resolve({ ok: true as const, data: "done" });
-      }
-    }
-
-    await expect(new TestInteractor().invoke()).rejects.toThrow(ForbiddenError);
+    await expect(guarded({ resource: "users", read: "all", manage: "update" }).invoke()).rejects.toThrow(
+      "update on users",
+    );
   });
 
-  it("allows user with any matching permission in OR condition", async () => {
-    const user = makeUser({
-      role: {
-        ...makeUser().role,
-        permissions: [{ id: "p1", roleId: "role-1", resource: "contacts", action: "readOwn" }],
-      },
-    });
-    mockGetActiveUserOrThrow.mockResolvedValue(user);
+  it.each(["readAll", "readOwn"])("allows a read requirement for a role with %s", async (action) => {
+    signIn([{ resource: "routines", action }]);
 
-    @TenantInteractor({
-      permissions: [
-        { resource: "contacts" as any, action: "readAll" as any },
-        { resource: "contacts" as any, action: "readOwn" as any },
-      ],
-      condition: "OR",
-    })
-    class TestInteractor {
-      invoke() {
-        return Promise.resolve({ ok: true as const, data: "done" });
-      }
-    }
-
-    const result = await new TestInteractor().invoke();
-    expect(result).toEqual({ ok: true, data: "done" });
+    await expect(guarded({ resource: "routines", read: true }).invoke()).resolves.toEqual({ ok: true, data: "done" });
   });
 
-  it("bypasses permission check for system role", async () => {
-    const user = makeUser({
-      role: { ...makeUser().role, isSystemRole: true, permissions: [] },
+  it("blocks a read requirement when the role only manages the resource", async () => {
+    signIn([
+      { resource: "routines", action: "create" },
+      { resource: "users", action: "readAll" },
+    ]);
+
+    await expect(guarded({ resource: "routines", read: true }).invoke()).rejects.toThrow("read on routines");
+  });
+
+  it("requires readAll for a read-all requirement", async () => {
+    signIn([{ resource: "users", action: "readOwn" }]);
+
+    await expect(guarded({ resource: "users", read: "all" }).invoke()).rejects.toThrow("readAll on users");
+  });
+
+  it.each([
+    [undefined, "create", true],
+    [undefined, "update", false],
+    ["routine-1", "update", true],
+    ["routine-1", "create", false],
+  ])("requires the matching upsert action for id %s with %s", async (id, action, allowed) => {
+    signIn([{ resource: "routines", action }]);
+
+    const result = guarded({ resource: "routines", manage: "upsert" }).invoke({ id });
+
+    if (allowed) await expect(result).resolves.toEqual({ ok: true, data: "done" });
+    else await expect(result).rejects.toThrow(`${id ? "update" : "create"} on routines`);
+  });
+
+  it("bypasses permission checks for a system role", async () => {
+    signIn([], true);
+
+    await expect(guarded({ resource: "routines", manage: "delete" }).invoke()).resolves.toEqual({
+      ok: true,
+      data: "done",
     });
-    mockGetActiveUserOrThrow.mockResolvedValue(user);
-
-    @TenantInteractor({ resource: "contacts" as any, action: "delete" as any })
-    class TestInteractor {
-      invoke() {
-        return Promise.resolve({ ok: true as const, data: "done" });
-      }
-    }
-
-    const result = await new TestInteractor().invoke();
-    expect(result).toEqual({ ok: true, data: "done" });
   });
 
   it("allows any authenticated user when no permission requirement", async () => {
-    const user = makeUser({ role: { ...makeUser().role, permissions: [] } });
-    mockGetActiveUserOrThrow.mockResolvedValue(user);
+    signIn([]);
 
-    @TenantInteractor()
-    class TestInteractor {
-      invoke() {
-        return Promise.resolve({ ok: true as const, data: "done" });
-      }
-    }
-
-    const result = await new TestInteractor().invoke();
-    expect(result).toEqual({ ok: true, data: "done" });
+    await expect(guarded(undefined).invoke()).resolves.toEqual({ ok: true, data: "done" });
   });
 
   it("sets tenant context so getTenantUser returns the authenticated user", async () => {
-    const user = makeUser();
-    mockGetActiveUserOrThrow.mockResolvedValue(user);
+    const user = signIn([]);
 
-    let capturedUser: unknown = null;
-
-    @TenantInteractor()
-    class TestInteractor {
-      invoke() {
-        capturedUser = getTenantUser();
-        return Promise.resolve({ ok: true as const, data: "done" });
-      }
-    }
-
-    await new TestInteractor().invoke();
-    expect(capturedUser).toEqual(user);
-  });
-
-  it("includes permission names in ForbiddenError message", async () => {
-    const user = makeUser({ role: { ...makeUser().role, permissions: [] } });
-    mockGetActiveUserOrThrow.mockResolvedValue(user);
-
-    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
-    class TestInteractor {
-      invoke() {
-        return Promise.resolve({ ok: true as const, data: "done" });
-      }
-    }
-
-    try {
-      await new TestInteractor().invoke();
-      expect.unreachable("should have thrown");
-    } catch (e) {
-      expect(e).toBeInstanceOf(ForbiddenError);
-      expect((e as ForbiddenError).message).toContain("create on contacts");
-    }
+    await expect(guarded(undefined, () => getTenantUser()).invoke()).resolves.toEqual({ ok: true, data: user });
   });
 });
 
 describe("AllowInDemoMode decorator", () => {
-  it("marks class as allowed in demo mode", async () => {
-    const { isAllowedInDemoMode } = await import("@/core/decorators/allow-in-demo-mode.decorator");
+  it("marks class as allowed in demo mode", () => {
+    const allowed = AllowInDemoMode(probe());
 
-    @AllowInDemoMode
-    class AllowedInteractor {
-      invoke() {
-        return { ok: true };
-      }
-    }
-
-    class NotAllowedInteractor {
-      invoke() {
-        return { ok: true };
-      }
-    }
-
-    expect(isAllowedInDemoMode(AllowedInteractor)).toBe(true);
-    expect(isAllowedInDemoMode(NotAllowedInteractor)).toBe(false);
+    expect(isAllowedInDemoMode(allowed)).toBe(true);
+    expect(isAllowedInDemoMode(probe())).toBe(false);
   });
 });

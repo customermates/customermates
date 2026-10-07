@@ -9,7 +9,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Resource, Action, MessagingProvider } from "@/generated/prisma";
+import { Resource, MessagingProvider } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -27,13 +27,7 @@ export const LinkedinBrowseSalesListSchema = z.object({
 });
 type LinkedinBrowseSalesListData = Data<typeof LinkedinBrowseSalesListSchema>;
 
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class LinkedinBrowseSalesListInteractor extends AuthenticatedInteractor<
   LinkedinBrowseSalesListData,
   SalesListItemPage

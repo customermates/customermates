@@ -1117,6 +1117,8 @@
       "webhookNotFound": "Webhook ID not found or not accessible.",
       "widgetDisplayTypeUnsupported": "This chart style does not fit the selected grouping. Choose another style or change the grouping.",
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
+      "widgetLayoutOverlap": "This position overlaps another widget. Choose a free spot on the 12-column grid or leave the layout out to place the widget automatically.",
+      "widgetLayoutTooSmall": "This widget needs at least 2 columns and 3 rows.",
       "widgetNotFound": "Widget ID not found or not accessible.",
       "wikiGuideExists": "This Knowledge Base already has an Operating Guide. Update the existing guide instead.",
       "wikiNotEmpty": "This action requires an empty Knowledge Base.",
@@ -1746,21 +1748,29 @@
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
         "chartDescription": "Compare CRM data in a visual chart.",
+        "description": "Pick a format and choose the data yourself.",
+        "scratchTitle": "Start from scratch",
         "title": "Choose a Widget"
       },
       "preview": {
-        "title": "Preview"
+        "incomplete": "Complete the data settings to see a preview.",
+        "live": "Live preview",
+        "size": "Dashboard size {w} × {h}",
+        "title": "Preview",
+        "untitled": "Untitled widget"
       },
       "save": "Save changes",
+      "settings": "Widget settings",
       "sharing": {
         "template": "Share as a template"
       },
       "steps": {
-        "chooseDescription": "Choose a format or start from a setup shared in your workspace.",
+        "chooseDescription": "Start from a recommendation, a blank format, or a setup shared in your workspace.",
         "configureDescription": "Choose what this widget shows and how it looks."
       },
       "tabs": {
         "appearance": "Appearance",
+        "data": "Data",
         "filtersLabel": "{count, plural, =0 {Filters, none active} =1 {Filters, 1 active} other {Filters, # active}}"
       },
       "templates": {
@@ -1770,30 +1780,51 @@
       }
     },
     "widgetGallery": {
-      "description": "Ready-made widgets for your current data model. You can edit everything before saving.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Deals in each stage, in stage order, with step-to-step conversion.",
-          "name": "Deals by stage"
+      "creationDate": "creation date",
+      "description": "Suggestions built from the record types and fields in your workspace. You can change everything before saving.",
+      "recipes": {
+        "countBySelect": {
+          "description": "Number of {type} for each {group}.",
+          "name": "{type} by {group}"
         },
-        "openPipeline": {
-          "description": "Total value of deals that are neither won nor lost.",
-          "name": "Open pipeline"
+        "countPerMember": {
+          "description": "Number of {type} for each {group}.",
+          "name": "{type} per {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tasks that are not done or archived, counted for each assigned user.",
-          "name": "Open tasks per assignee"
+        "openCountPerAssignee": {
+          "description": "{type} that are not in a closed {group}, counted for each assigned user.",
+          "name": "Open {type} per assignee"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Won deal value per linked organization, ranked with each share of the total.",
-          "name": "Top organizations by revenue"
+        "openValueTotal": {
+          "description": "Total {field} of {type} that are not in a closed {group}.",
+          "name": "Open {field}"
         },
-        "wonValuePerMonth": {
-          "description": "Value of won deals per month, by the first deal date field or the creation date.",
-          "name": "Won value per month"
+        "stageFunnel": {
+          "description": "{type} in each {group}, in order, with step-to-step conversion.",
+          "name": "{type} by {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} ranked by the {field} of their linked {type}, with each share of the total.",
+          "name": "Top {related} by {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} ranked by the {field} of their won {type}, with each share of the total.",
+          "name": "Top {related} by won {field}"
+        },
+        "valueOverTime": {
+          "description": "{field} of {type} per month, by {date}.",
+          "name": "{field} per month"
+        },
+        "valueTotal": {
+          "description": "Sum of {field} across all {type}.",
+          "name": "Total {field}"
+        },
+        "wonValueOverTime": {
+          "description": "{field} of won {type} per month, by {date}.",
+          "name": "Won {field} per month"
         }
       },
-      "title": "Starter widgets"
+      "title": "Recommended for your data"
     },
     "widgetKinds": {
       "activityTimeline": "Activity timeline",
@@ -3388,6 +3419,7 @@
     "loadingSchema": "Loading fields…",
     "measure": "Measure",
     "noRecordsInPeriod": "No records",
+    "notes": "About these numbers",
     "operators": {
       "between": "Between",
       "contains": "Contains",
@@ -3408,7 +3440,6 @@
     "overall": "Overall: {value}",
     "preview": "Preview measure",
     "previewFailed": "The preview could not be loaded. Try again.",
-    "previewHelp": "Preview uses current records and your access.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {
       "group": "Group",
@@ -3455,8 +3486,8 @@
     "create": "Create",
     "delete": "Delete",
     "edit": "Edit",
+    "general": "General",
     "manageAccess": "Manage",
-    "no": "No",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
     "readAccess": "Read access",
     "readAll": "All",
@@ -3469,14 +3500,9 @@
       "api": "API & Webhooks",
       "auditLog": "Audit Log",
       "company": "Company",
-      "contacts": "Contacts",
       "dataModel": "Data model",
-      "deals": "Deals",
       "inboxMessages": "Inbox messages",
-      "organizations": "Organizations",
       "routines": "Routines",
-      "services": "Services",
-      "tasks": "Tasks",
       "users": "Users & Roles",
       "wiki": "Knowledge Base"
     },
@@ -3484,7 +3510,7 @@
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
     "systemName": "Admin",
     "title": "Role",
-    "yes": "Yes"
+    "workspacePermissions": "Workspace"
   },
   "RolesCard": {
     "custom": "Custom",

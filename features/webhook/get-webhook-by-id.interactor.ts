@@ -2,7 +2,7 @@ import type { WebhookDto } from "./webhook.schema";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { WebhookDtoSchema } from "./webhook.schema";
 
@@ -11,17 +11,14 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import type { GetWebhookByIdRepo } from "./get-webhook-by-id.repo";
 
 const Schema = z.object({
   id: z.uuid(),
 });
 type GetWebhookByIdData = Data<typeof Schema>;
 
-export abstract class GetWebhookByIdRepo {
-  abstract getWebhookById(id: string): Promise<WebhookDto | null>;
-}
-
-@TenantInteractor({ resource: Resource.api, action: Action.readAll })
+@TenantInteractor({ resource: Resource.api, read: "all" })
 export class GetWebhookByIdInteractor extends AuthenticatedInteractor<GetWebhookByIdData, WebhookDto | null> {
   constructor(private repo: GetWebhookByIdRepo) {
     super();

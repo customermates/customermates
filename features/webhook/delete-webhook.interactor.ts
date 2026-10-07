@@ -6,7 +6,7 @@ import type { ValidateWebhookIdsInteractor } from "@/core/validation/validators/
 
 import { toWebhookEventPayload } from "./webhook-event-payload";
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -21,7 +21,7 @@ const Schema = z.object({
 });
 export type DeleteWebhookData = Data<typeof Schema>;
 
-@TenantInteractor({ resource: Resource.api, action: Action.delete })
+@TenantInteractor({ resource: Resource.api, manage: "delete" })
 export class DeleteWebhookInteractor extends AuthenticatedInteractor<DeleteWebhookData, string> {
   constructor(
     private repo: DeleteWebhookRepo,

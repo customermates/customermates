@@ -1117,6 +1117,8 @@
       "webhookNotFound": "ID de webhook introuvable ou inaccessible.",
       "widgetDisplayTypeUnsupported": "Ce style de graphique ne correspond pas au regroupement choisi. Choisissez un autre style ou modifiez le regroupement.",
       "widgetKindImmutable": "Le type d'un widget ne peut pas être modifié après sa création.",
+      "widgetLayoutOverlap": "Cette position chevauche un autre widget. Choisissez un emplacement libre dans la grille de 12 colonnes ou omettez la disposition pour le placer automatiquement.",
+      "widgetLayoutTooSmall": "Ce widget nécessite au moins 2 colonnes et 3 lignes.",
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
       "wikiGuideExists": "Cette base de connaissances a déjà un guide opérationnel. Mettez à jour le guide existant.",
       "wikiNotEmpty": "Cette action nécessite une base de connaissances vide.",
@@ -1746,21 +1748,29 @@
       "kind": {
         "activityTimelineDescription": "Suivez les modifications d'enregistrements, les messages et l'activité des comptes ou agendas dans l'ordre chronologique.",
         "chartDescription": "Comparez vos données CRM dans un graphique.",
+        "description": "Choisissez un format et sélectionnez vous-même les données.",
+        "scratchTitle": "Partir de zéro",
         "title": "Choisir un widget"
       },
       "preview": {
-        "title": "Aperçu"
+        "incomplete": "Complétez les paramètres de données pour afficher un aperçu.",
+        "live": "Aperçu en direct",
+        "size": "Taille sur le tableau de bord {w} × {h}",
+        "title": "Aperçu",
+        "untitled": "Widget sans titre"
       },
       "save": "Enregistrer les modifications",
+      "settings": "Paramètres du widget",
       "sharing": {
         "template": "Partager comme modèle"
       },
       "steps": {
-        "chooseDescription": "Choisissez un format ou partez d'une configuration partagée dans votre espace de travail.",
+        "chooseDescription": "Commencez par une recommandation, un format vierge ou une configuration partagée dans votre espace de travail.",
         "configureDescription": "Choisissez ce que ce widget affiche et son apparence."
       },
       "tabs": {
         "appearance": "Apparence",
+        "data": "Données",
         "filtersLabel": "{count, plural, =0 {Filtres, aucun actif} =1 {Filtres, 1 actif} other {Filtres, # actifs}}"
       },
       "templates": {
@@ -1770,30 +1780,51 @@
       }
     },
     "widgetGallery": {
-      "description": "Des widgets prêts à l’emploi pour votre modèle de données actuel. Vous pouvez tout modifier avant d’enregistrer.",
-      "templates": {
-        "dealsByStage": {
-          "description": "Les affaires de chaque étape, dans l’ordre des étapes, avec la conversion d’une étape à l’autre.",
-          "name": "Affaires par étape"
+      "creationDate": "date de création",
+      "description": "Suggestions créées à partir des types d’enregistrement et des champs de votre espace de travail. Vous pouvez tout modifier avant d’enregistrer.",
+      "recipes": {
+        "countBySelect": {
+          "description": "Nombre de {type} pour chaque {group}.",
+          "name": "{type} par {group}"
         },
-        "openPipeline": {
-          "description": "Valeur totale des affaires ni gagnées ni perdues.",
-          "name": "Pipeline ouvert"
+        "countPerMember": {
+          "description": "Nombre de {type} pour chaque {group}.",
+          "name": "{type} par {group}"
         },
-        "openTasksPerAssignee": {
-          "description": "Tâches ni terminées ni archivées, comptées pour chaque utilisateur assigné.",
-          "name": "Tâches ouvertes par responsable"
+        "openCountPerAssignee": {
+          "description": "{type} qui ne sont pas dans un {group} clôturé, comptés pour chaque utilisateur assigné.",
+          "name": "{type} ouverts par responsable"
         },
-        "topOrganizationsByRevenue": {
-          "description": "Valeur des affaires gagnées par organisation liée, classée avec sa part du total.",
-          "name": "Principales organisations par chiffre d’affaires"
+        "openValueTotal": {
+          "description": "Total de {field} des {type} qui ne sont pas dans un {group} clôturé.",
+          "name": "{field} en cours"
         },
-        "wonValuePerMonth": {
-          "description": "Valeur des affaires gagnées par mois, selon le premier champ de date de l’affaire ou la date de création.",
-          "name": "Valeur gagnée par mois"
+        "stageFunnel": {
+          "description": "{type} à chaque {group}, dans l’ordre, avec la conversion d’une étape à l’autre.",
+          "name": "{type} par {group}"
+        },
+        "topRelatedByValue": {
+          "description": "{related} classés selon le {field} de leurs {type} liés, avec la part de chacun dans le total.",
+          "name": "Meilleurs {related} par {field}"
+        },
+        "topRelatedByWonValue": {
+          "description": "{related} classés selon le {field} de leurs {type} gagnés, avec la part de chacun dans le total.",
+          "name": "Meilleurs {related} par {field} gagné"
+        },
+        "valueOverTime": {
+          "description": "{field} des {type} par mois, selon {date}.",
+          "name": "{field} par mois"
+        },
+        "valueTotal": {
+          "description": "Somme de {field} sur tous les {type}.",
+          "name": "{field} total"
+        },
+        "wonValueOverTime": {
+          "description": "{field} des {type} gagnés par mois, selon {date}.",
+          "name": "{field} gagné par mois"
         }
       },
-      "title": "Widgets de départ"
+      "title": "Recommandé pour vos données"
     },
     "widgetKinds": {
       "activityTimeline": "Chronologie des activités",
@@ -3388,6 +3419,7 @@
     "loadingSchema": "Chargement des champs…",
     "measure": "Mesure",
     "noRecordsInPeriod": "Aucun enregistrement",
+    "notes": "À propos de ces chiffres",
     "operators": {
       "between": "Entre",
       "contains": "Contient",
@@ -3408,7 +3440,6 @@
     "overall": "Total : {value}",
     "preview": "Aperçu de la mesure",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
-    "previewHelp": "L’aperçu utilise les enregistrements actuels et vos droits d’accès.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
       "group": "Groupe",
@@ -3455,8 +3486,8 @@
     "create": "Créer",
     "delete": "Supprimer",
     "edit": "Modifier",
+    "general": "Général",
     "manageAccess": "Gérer",
-    "no": "Non",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
     "readAccess": "Accès en lecture",
     "readAll": "Tous",
@@ -3469,14 +3500,9 @@
       "api": "API et webhooks",
       "auditLog": "Journal d'audit",
       "company": "Entreprise",
-      "contacts": "Contacts",
       "dataModel": "Modèle de données",
-      "deals": "Affaires",
       "inboxMessages": "Messages de la boîte de réception",
-      "organizations": "Organisations",
       "routines": "Routines",
-      "services": "Services",
-      "tasks": "Tâches",
       "users": "Utilisateurs et rôles",
       "wiki": "Base de connaissances de l’espace de travail"
     },
@@ -3484,7 +3510,7 @@
     "systemDescription": "Accès complet à toutes les fonctionnalités et à tous les paramètres. Ne peut être ni modifié ni supprimé.",
     "systemName": "Administrateur",
     "title": "Rôle",
-    "yes": "Oui"
+    "workspacePermissions": "Espace de travail"
   },
   "RolesCard": {
     "custom": "Personnalisé",

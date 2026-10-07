@@ -21,7 +21,7 @@ For conversational CRM work, use [MCP](/docs/mcp) alongside or instead.
 Copy the URL it generates.
 </Step>
 <Step title="Subscribe in Customermates">
-Go to **My Company → Webhooks**, click **Add**, and paste the URL. Select `record.created`, `record.updated`, or `record.deleted`, then choose the record types and optional filters to watch. Add a signing secret and save. Creating a webhook needs **Manage** on **API & Webhooks**.
+Go to **My Company → Webhooks**, click **Add**, and paste the URL. Select `record.created`, `record.updated`, or `record.deleted`, then choose the record types and optional filters to watch. Add a signing secret and save. Creating a webhook needs **Create** on **API & Webhooks**.
 </Step>
 <Step title="Handle the payload">
 Verify the signature, then use the event ID and stable `typeId`/`recordId` reference from the record event payload in downstream steps.
@@ -67,7 +67,7 @@ n8n's schedule trigger plus the record API can find records matching a saved que
 
 Create an API key under **My Profile → API & Connectors**. Store it as an n8n **Header Auth** credential named `x-api-key` and reuse that credential across nodes. The key inherits its owner's permissions. A wrong, expired, or deleted key receives an authentication failure; an inactive owner cannot act. See [API keys](/docs/api-keys).
 
-**Link:** `/profile/api-keys`. **Mate:** open **API & Connectors** and create a **Standard API key** if the role can manage it.
+**Link:** `/profile/api-keys`. **Mate:** open **API & Connectors** and create a **Standard API key** if the role has **Create** on **API & Webhooks**.
 
 ## What are the common gotchas?
 

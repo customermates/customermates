@@ -2,7 +2,7 @@ import type { UpdateCompanySettingsRepo } from "./update-company-settings.repo";
 import type { Data } from "@/core/validation/validation.utils";
 import type { EventService } from "../event/event.service";
 
-import { Action, Currency, Resource } from "@/generated/prisma";
+import { Currency, Resource } from "@/generated/prisma";
 import { z } from "zod";
 
 import { DomainEvent } from "../event/domain-events";
@@ -18,7 +18,7 @@ export const UpdateCompanySettingsSchema = z.strictObject({ currency: z.enum(Cur
 
 export type UpdateCompanySettingsData = Data<typeof UpdateCompanySettingsSchema>;
 
-@TenantInteractor({ resource: Resource.company, action: Action.update })
+@TenantInteractor({ resource: Resource.company, manage: "update" })
 export class UpdateCompanySettingsInteractor extends AuthenticatedInteractor<
   UpdateCompanySettingsData,
   UpdateCompanySettingsData

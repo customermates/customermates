@@ -24,7 +24,6 @@ export class UserStore extends BaseStore {
       permissions: observable,
       setUser: action,
       can: action,
-      canManage: action,
       canAccess: action,
       updateTheme: action,
     });
@@ -54,11 +53,6 @@ export class UserStore extends BaseStore {
     const key = `${resource}:${action}`;
 
     return this.permissions.get(key) ?? false;
-  };
-
-  canManage = (resource: Resource): boolean => {
-    void this.user;
-    return this.can(resource, Action.create) && this.can(resource, Action.update) && this.can(resource, Action.delete);
   };
 
   canAccess = (resource: Resource): boolean => {

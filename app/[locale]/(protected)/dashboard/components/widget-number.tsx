@@ -1,31 +1,27 @@
-import { cn } from "@/core/utils/cn";
+import { Rows3 } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
 
 type Props = {
   caption: string;
-  label?: string;
   value: string;
 };
 
-function valueSize(value: string) {
-  if (value.length <= 8) return "text-5xl";
-  if (value.length <= 11) return "text-4xl";
-  if (value.length <= 15) return "text-3xl";
-  return "text-2xl [overflow-wrap:anywhere]";
-}
-
-export function WidgetNumber({ caption, label, value }: Props) {
+export function WidgetNumber({ caption, value }: Props) {
   return (
-    <div
-      className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1 text-center"
-      data-slot="widget-number"
-    >
-      {label && <p className="max-w-full truncate text-sm text-muted-foreground">{label}</p>}
-
-      <p className={cn("max-w-full font-semibold leading-tight tracking-tight tabular-nums", valueSize(value))}>
+    <div className="@container flex min-h-0 flex-1 flex-col justify-center gap-2" data-slot="widget-number">
+      <p
+        className="max-w-full truncate font-semibold leading-none tracking-tight tabular-nums"
+        style={{ fontSize: `min(3.5rem, ${(140 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
+      >
         {value}
       </p>
 
-      <p className="text-xs text-muted-foreground">{caption}</p>
+      <Badge className="gap-1 self-start font-normal tabular-nums" variant="secondary">
+        <Rows3 aria-hidden className="size-3" />
+
+        {caption}
+      </Badge>
     </div>
   );
 }

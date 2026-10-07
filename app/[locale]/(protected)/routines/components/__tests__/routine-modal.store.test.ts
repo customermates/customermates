@@ -133,7 +133,7 @@ function makeStore(
         id: options.userId ?? OWNER_ID,
         role: { isSystemRole: options.admin ?? false },
       },
-      canManage: vi.fn(() => options.canManage ?? true),
+      can: vi.fn(() => options.canManage ?? true),
     },
     routinesStore: options.routinesStore ?? {
       upsertItem: vi.fn(() => Promise.resolve()),

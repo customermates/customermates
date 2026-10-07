@@ -4,7 +4,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { WikiPageDto } from "./wiki.schema";
 
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -26,7 +26,7 @@ export type DeleteWikiPageRepoResult =
   | { status: "not-found" }
   | { status: "conflict" };
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.delete })
+@TenantInteractor({ resource: Resource.wiki, manage: "delete" })
 export class DeleteWikiPageInteractor extends AuthenticatedInteractor<DeleteWikiPageData, WikiPageDto> {
   constructor(
     private repo: DeleteWikiPageRepo,

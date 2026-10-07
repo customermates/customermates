@@ -5,7 +5,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { WikiWebsiteCrawlMode } from "./wiki-crawl-mode.schema";
 
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { APP_LOCALES, appLocaleOrDefault } from "@/i18n/locale-registry";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -47,7 +47,7 @@ export type WikiWebsiteCrawlStart = {
   extraHosts: string[];
 };
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.create })
+@TenantInteractor({ resource: Resource.wiki, manage: "create" })
 export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
   StartWikiHomepageSetupData,
   StartedWikiHomepageSetup

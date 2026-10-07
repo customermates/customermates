@@ -4,6 +4,7 @@ export abstract class RecordEventSubscriptionRepo {
   abstract findCompanyWide(companyId: string, ids: string[]): Promise<RecordEventSubscriptionDefinition[]>;
   abstract save(
     definition: Omit<RecordEventSubscriptionDefinition, "revision">,
+    action: "create" | "update",
     expectedSchemaRevision?: number,
   ): Promise<void>;
   abstract remove(id: string): Promise<void>;

@@ -48,6 +48,7 @@ import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalizatio
 import { useWikiPages } from "./use-wiki-pages";
 import { WikiPageKindSchema, WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { Action } from "@/generated/prisma";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 
@@ -192,7 +193,7 @@ const WikiPageViewContent = observer(function WikiPageView({
   const pageList = (
     <WikiPageRail
       busy={railBusy}
-      canManage={canManage}
+      canManage={store.allows(Action.update)}
       currentPageId={store.creating ? null : store.form.id}
       pages={pages}
       pinnedPage={pinnedRailPage}
@@ -230,7 +231,7 @@ const WikiPageViewContent = observer(function WikiPageView({
           action={
             <AgentStarterActions
               fallback={
-                canManage ? (
+                store.allows(Action.create) ? (
                   <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
                     <Plus aria-hidden="true" />
 
@@ -244,7 +245,7 @@ const WikiPageViewContent = observer(function WikiPageView({
             />
           }
           background={<WikiPageSkeleton documentOnly animated={false} />}
-          description={canManage ? t("Wiki.emptyBody") : t("Wiki.emptyBodyReadOnly")}
+          description={store.allows(Action.create) ? t("Wiki.emptyBody") : t("Wiki.emptyBodyReadOnly")}
           icon={BookOpen}
           state="empty"
           title={t("Wiki.emptyTitle")}
@@ -402,7 +403,7 @@ const WikiPageViewContent = observer(function WikiPageView({
             </SheetContent>
           </Sheet>
 
-          {((canManage && initialSetupState.status === "failed") || (setupActive && hasDocument)) && (
+          {((store.allows(Action.create) && initialSetupState.status === "failed") || (setupActive && hasDocument)) && (
             <div className="mx-auto w-full max-w-6xl px-6 py-3 md:px-10">
               {initialSetupState.status === "failed" ? (
                 <Alert color="danger" description={setupFailedBody} />
