@@ -52,7 +52,6 @@ function RowAction({
   );
 }
 
-/** Trailing per-row actions for record tables: open, delete and a more menu. Shown on row hover or keyboard focus. */
 export const RecordRowActions = observer(function RecordRowActions({
   store,
   record,

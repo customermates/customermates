@@ -31,7 +31,6 @@ type Props<E extends HasId> = {
   showDisplayOptions?: boolean;
   anchorScope?: string;
   addLabel?: string;
-  /** Secondary actions rendered before the primary add action so it stays rightmost. */
   actions?: ReactNode;
 };
 

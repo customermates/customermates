@@ -16,7 +16,6 @@ import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { recordInputValue } from "@/features/records/record-input-value";
 import { RecordInputField } from "./record-input-field";
 
-/** Edits one field value outside the record editor (bulk update, inline table cell) and hands it to `save`. */
 export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
   constructor(
     rootStore: RootStore,

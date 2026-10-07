@@ -153,7 +153,6 @@ function harness(readOnly = false) {
     ),
   );
   const button = (label: string) => {
-    // A disabled header action keeps its name on the wrapper and hides the inner button.
     const disabledAction = container.querySelector<HTMLElement>(
       `[data-slot="app-modal-action-disabled-trigger"][aria-label="${label}"]`,
     );

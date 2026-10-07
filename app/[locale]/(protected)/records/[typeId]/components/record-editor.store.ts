@@ -133,11 +133,9 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.refreshGeneration += 1;
     return true;
   }
-  /** True while a save, background operation or refresh is in flight; layout controls must wait for it. */
   get isTransactionBusy() {
     return this.isLoading || Boolean(this.pendingOperationId) || this.refreshRequired;
   }
-  /** Transaction busy, or holding unsaved edits or a related draft; destructive actions must wait. */
   get isBusy() {
     return this.isTransactionBusy || this.hasRelatedDraft || this.hasUnsavedChanges;
   }
@@ -457,7 +455,6 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   };
   onSubmit = async () => {
     if (!this.isOpen || this.isReadOnly || this.isLoading || this.pendingOperationId) return;
-    // Mirrors the server: new records need every required input; updates only check the fields being changed.
     const missing = this.fields.filter((field) => {
       if (!field.required || field.behavior.kind !== "input" || this.record?.protectedKind) return false;
       if (this.record?.fields.find((value) => value.fieldId === field.id)?.result.state === "restricted") return false;

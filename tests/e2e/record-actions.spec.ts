@@ -10,7 +10,6 @@ async function api(page: Page, path: string, data: unknown) {
   return response.json();
 }
 
-/** Gives a list a chip color through the public configuration API. */
 async function setListColor(page: Page, typeId: string, color: string) {
   const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
   const type = model.types.find((candidate) => candidate.id === typeId);
@@ -138,7 +137,6 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(organization).not.toBeVisible();
 
   const actions = row.locator("[data-record-row-actions]");
-  // Touch screens have no hover, so row actions stay visible there.
   await expect(actions).toHaveCSS("opacity", testInfo.project.name === "mobile" ? "1" : "0");
   await row.getByRole("button", { name: `Open details for ${name}`, exact: true }).focus();
   await expect(actions).toHaveCSS("opacity", "1");

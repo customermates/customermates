@@ -16,10 +16,6 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 export type AppModalActionVariant = "neutral" | "destructive";
 
-/**
- * Where an action sits in the header rail. The rail always renders, left to right:
- * assistant (Ask AI), customize, other, destructive (Delete), navigate (Open page), then the overlay's Close.
- */
 export type AppModalActionKind = "assistant" | "customize" | "other" | "destructive" | "navigate";
 
 const ACTION_KIND_ORDER: Record<AppModalActionKind, number> = {
@@ -32,7 +28,6 @@ const ACTION_KIND_ORDER: Record<AppModalActionKind, number> = {
 
 type SharedActionProps = {
   id: string;
-  /** Defaults to "destructive" for destructive actions, "navigate" for links and "other" otherwise. */
   kind?: AppModalActionKind;
   anchorId?: string;
   icon: LucideIcon;
@@ -44,7 +39,6 @@ type SharedActionProps = {
 export type AppModalButtonActionProps = SharedActionProps & {
   busy?: boolean;
   disabled?: boolean;
-  /** Marks a toggle action; announced as pressed when true. */
   pressed?: boolean;
   external?: never;
   href?: never;
@@ -57,7 +51,6 @@ type LinkActionProps = SharedActionProps & {
   pressed?: never;
   external?: boolean;
   href: string;
-  /** Intercepts in-app navigation, e.g. to hand off an open draft before leaving. */
   onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
   onClick?: never;
 };
@@ -163,16 +156,10 @@ function actionKind(action: AppModalActionProps): AppModalActionKind {
   );
 }
 
-/** Sorts header actions into the fixed rail order; stable within a kind. */
 export function orderAppModalActions(actions: readonly AppModalActionProps[]) {
   return [...actions].sort((a, b) => ACTION_KIND_ORDER[actionKind(a)] - ACTION_KIND_ORDER[actionKind(b)]);
 }
 
-/**
- * The one overlay header action rail: icon-only actions styled like Close, each with the app tooltip,
- * in the fixed order of {@link AppModalActionKind}. AppModal places it beside Close with
- * APP_MODAL_ACTION_RAIL_CLASS; sheet editors put it last in their header row.
- */
 export function AppModalActionRail({
   actions,
   className,

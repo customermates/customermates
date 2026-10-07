@@ -49,7 +49,6 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   store: SheetStore;
   title: string;
   submitLabel?: string;
-  /** Icon-only header actions beside Close, in the shared rail order. */
   actions?: readonly AppModalActionProps[];
   children: ReactNode;
 }) {
