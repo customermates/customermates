@@ -11,7 +11,7 @@ import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story
 import { acquisitionPageSchema } from "@/core/fumadocs/schemas/common";
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const loadModule = createRequire(import.meta.url);
 const { JSDOM } = loadModule("jsdom") as {
@@ -762,7 +762,7 @@ describe("public acquisition UI contract", () => {
         expect(visibleText).not.toContain(brief.depiction.statement);
       }
     }
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("binds dense acquisition scenes to declared fixture-backed subjects", () => {
     const visual = source("components/marketing/acquisition-story-visual.tsx");
