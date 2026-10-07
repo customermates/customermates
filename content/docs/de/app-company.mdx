@@ -262,25 +262,25 @@ Die Seite **Rollen** listet die Rollen des Workspace. Route `/company/roles`, Si
 
 Der Editor **Rolle** hat drei Tabs: **Allgemein** mit **Name** (Pflichtfeld, bis 255 Zeichen) und **Beschreibung** (Pflichtfeld, bis 500 Zeichen), **Workspace** mit den Workspace-Berechtigungen in der Spalte **Ressource** und **Datensatztypen** mit einer Zeile je Datensatztyp. Ein Tab mit einem ungültigen Feld zeigt einen roten Punkt.
 
-Jede Zeile hat dieselben Spalten: die Checkboxen **Erstellen**, **Bearbeiten** und **Löschen** sowie **Lesen** mit **Alle**, **Zugewiesen** und **Keine**. Eine Zelle, die für eine Zeile nicht gilt, zeigt einen Strich (`—`). Auf schmalen Bildschirmen steht über den drei Checkboxen die Beschriftung **Verwalten**. **Lesen** bedeutet:
+Jeder Datensatztyp hat getrennte Schalter **Erstellen**, **Bearbeiten** und **Löschen** sowie **Lesen**, und jede Workspace-Zeile hat dieselben Spalten:
 
 - **Alle** erlaubt das Lesen von allem, was die Zeile abdeckt, bei einem Datensatztyp aller Datensätze dieses Typs im Workspace.
-- **Zugewiesen** erlaubt nur das Lesen dessen, was dem Mitglied zugewiesen ist: eigene Datensätze, die eigene Mitgliederzeile oder eigene Routinen.
+- **Zugewiesen** erlaubt das Lesen der dem Mitglied zugewiesenen Datensätze, bei einer Workspace-Zeile der eigenen Mitgliederzeile oder der eigenen Routinen.
 - **Keine** gewährt kein Leserecht.
 
-Jeder Datensatztyp bietet alle vier Spalten. Bearbeiten und Löschen eines Datensatzes erfordern zusätzlich Zugriff auf den jeweiligen Datensatz. Die Liste enthält eigene Typen und verwendet deren aktuelle Namen. Eine Umbenennung von Projekte zu Initiativen erhält die Rechte. Archivierte Typen bleiben gekennzeichnet. Neue Rollen haben zunächst keinen Datensatzzugriff. Eingebettete Einträge wie Deal-Positionen übernehmen den Zugriff ihres übergeordneten Datensatzes und haben keine eigene Zeile.
+Eine Zelle, die für eine Zeile nicht gilt, zeigt einen Strich (`—`). Auf schmalen Bildschirmen steht über den drei Checkboxen die Beschriftung **Verwalten**. Bearbeiten und Löschen eines Datensatzes erfordern zusätzlich Zugriff auf den jeweiligen Datensatz. Die Liste enthält eigene Typen und verwendet deren aktuelle Namen. Eine Umbenennung von Projekte zu Initiativen erhält die Rechte. Archivierte Typen bleiben gekennzeichnet. Neue Rollen haben zunächst keinen Datensatzzugriff. Eingebettete Einträge wie Deal-Positionen übernehmen den Zugriff ihres übergeordneten Datensatzes und haben keine eigene Zeile.
 
 Die Zeilen der Workspace-Berechtigungen bieten diese Zellen an; jede andere Zelle zeigt den Strich:
 
 | Zeile | Erstellen | Bearbeiten | Löschen | Lesen | Was sie steuert |
 |---|---|---|---|---|---|
 | **API & Webhooks** | Angeboten | Angeboten | Angeboten | Alle, Keine | **Erstellen** legt API-Keys und Webhooks an und stellt eine Webhook-Zustellung erneut zu. **Bearbeiten** bearbeitet Webhooks und zeigt ihr gespeichertes Secret. **Löschen** löscht API-Keys und Webhooks. **Alle** zeigt Keys, Webhooks und Zustellungen. Bestehende Keys nutzen die aktuellen Datensatzrechte ihres Besitzers. |
-| **Benutzer & Rollen** | Angeboten | Angeboten | Angeboten | Alle, Zugewiesen, Keine | Mitglieder und Rollen; siehe unten. |
+| **Benutzer & Rollen** | Angeboten | Angeboten | Angeboten | Alle, Zugewiesen, Keine | Mitglieder und Rollen; **Zugewiesen** beschränkt die Mitgliederliste auf die eigene Zeile. Details unten. |
 | **Unternehmen** | Strich | Angeboten | Strich | Strich | **Bearbeiten** ändert die Workspace-Einstellungen und nutzt die Abrechnung: Tarifauswahl und Checkout, **Verwalten mit Lemon Squeezy** und **Aktualisieren**. |
 | **Datenmodell** | Strich | Angeboten | Strich | Strich | **Bearbeiten** konfiguriert Typen, Felder, Beziehungen und Berechnungen. Dies gewährt weder Datensatzzugriff noch Rollenverwaltung. |
 | **Wissensdatenbank** | Angeboten | Angeboten | Angeboten | Alle, Keine | **Erstellen** legt Seiten an, auch die Einrichtung über die Homepage. **Bearbeiten** bearbeitet und verschiebt Seiten. **Löschen** löscht Seiten. Jede dieser Checkboxen erzwingt **Lesen** **Alle**. |
 | **Audit-Log** | Strich | Strich | Strich | Alle, Keine | Audit-Seiten und erlaubter Datensatzverlauf; nur lesend. |
-| **Inbox-Nachrichten** (nur Cloud) | Angeboten | Angeboten | Angeboten | Alle, Keine | Messaging; siehe unten. Zusätzlich abhängig von Tarif und Konto- und Inbox-Zugriff. |
+| **Inbox-Nachrichten** (nur Cloud) | Angeboten | Angeboten | Angeboten | Alle, Keine | Verbundene Konten, Senden und Änderungen an Konversationen; Details unten. Zusätzlich abhängig von Tarif und Konto- und Inbox-Zugriff. |
 | **Routinen** (nur Cloud) | Angeboten | Angeboten | Angeboten | Alle, Zugewiesen, Keine | **Erstellen** legt Routinen an. **Bearbeiten** bearbeitet Routinen und führt sie sofort oder als Test aus. **Löschen** löscht Routinen; in der App erfordert das Löschen einer Routine oder das Pausieren einer fremden weiterhin die Rolle **Admin**. **Alle** zeigt jede Routine, **Zugewiesen** die eigenen. |
 
 Bei **Benutzer & Rollen** lädt **Erstellen** Mitglieder ein, per Einladungslink oder E-Mail, und legt Rollen an. **Bearbeiten** bearbeitet Mitglieder (Angaben, Status und Rolle sowie die Freigabeaufgaben für neue Mitglieder) und Rollen, einschließlich ihres Zugriffs auf Datensatztypen und der Zugriffsvorlagen. **Löschen** löscht Rollen. **Lesen** **Alle** zeigt das gesamte Mitgliederverzeichnis und die Rollen, **Zugewiesen** nur Ihre eigene Mitgliederzeile, und **Keine** blendet beide Seiten aus. **Erstellen** umfasst auch den Datensatzzugriff, mit dem eine neue Rolle startet; den Datensatzzugriff einer bestehenden Rolle zu ändern erfordert **Bearbeiten**.

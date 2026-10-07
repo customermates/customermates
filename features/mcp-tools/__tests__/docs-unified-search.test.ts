@@ -839,9 +839,9 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-does-the-role-editor-work",
       query: "Leserecht nur für zugewiesene Datensätze",
       facts: [
-        "**Zugewiesen** erlaubt nur das Lesen dessen, was dem Mitglied zugewiesen ist",
+        "**Zugewiesen** erlaubt das Lesen der dem Mitglied zugewiesenen Datensätze",
         "**Keine** gewährt kein Leserecht.",
-        "Jeder Datensatztyp bietet alle vier Spalten.",
+        "Jeder Datensatztyp hat getrennte Schalter",
         "`/company/roles`",
       ],
     },

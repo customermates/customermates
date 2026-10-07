@@ -266,25 +266,25 @@ The **Roles** page lists the roles of the workspace. Route `/company/roles`, sid
 
 The **Role** editor has three tabs: **General** with **Name** (required, up to 255 characters) and **Description** (required, up to 500 characters), **Workspace** with the workspace permissions in the **Resource** column, and **Record types** with one row per record type. A tab with an invalid field shows a red dot.
 
-Every row has the same columns: **Create**, **Edit** and **Delete** checkboxes, and **Read access** with **All**, **Assigned** and **None**. A cell that does not apply to a row shows a dash (`—`). On narrow screens a **Manage** caption sits above the three checkboxes. **Read access** means:
+Each record type has separate **Create**, **Edit** and **Delete** switches plus **Read access**, and every workspace row has the same columns:
 
 - **All** allows reading everything the row covers, for a record type every record of that type in the workspace.
-- **Assigned** allows reading only what is assigned to the member: their own records, their own member row or their own routines.
+- **Assigned** allows reading records assigned to the member, and for a workspace row the member's own member row or own routines.
 - **None** grants no read access.
 
-Each record type offers all four columns. Editing or deleting a record also requires access to that individual record. The list includes customer-created types and uses their current names. Renaming Projects to Initiatives keeps its grants. Archived types remain labeled in the editor. New roles start without record access; grant only the types they need. Embedded entries, such as deal line items, inherit access from their parent and have no separate row.
+A cell that does not apply to a row shows a dash (`—`). On narrow screens a **Manage** caption sits above the three checkboxes. Editing or deleting a record also requires access to that individual record. The list includes customer-created types and uses their current names. Renaming Projects to Initiatives keeps its grants. Archived types remain labeled in the editor. New roles start without record access; grant only the types they need. Embedded entries, such as deal line items, inherit access from their parent and have no separate row.
 
 The workspace permission rows offer these cells; every other cell shows the dash:
 
 | Row | Create | Edit | Delete | Read access | What it controls |
 |---|---|---|---|---|---|
 | **API & Webhooks** | Offered | Offered | Offered | All, None | **Create** creates API keys and webhooks and resends a webhook delivery. **Edit** edits webhooks and shows their stored secret. **Delete** deletes API keys and webhooks. **All** shows keys, webhooks and deliveries. Existing keys continue to use their owner's current record permissions. |
-| **Users & Roles** | Offered | Offered | Offered | All, Assigned, None | Members and roles; see below. |
+| **Users & Roles** | Offered | Offered | Offered | All, Assigned, None | Members and roles; **Assigned** limits the member list to your own row. Details below. |
 | **Company** | Dash | Offered | Dash | Dash | **Edit** changes the workspace settings and uses billing: the plan picker and checkout, **Manage with Lemon Squeezy** and **Refresh**. |
 | **Data model** | Dash | Offered | Dash | Dash | **Edit** configures types, fields, relationships and calculations. It does not grant record access or role administration. |
 | **Knowledge Base** | Offered | Offered | Offered | All, None | **Create** creates pages, including the homepage setup. **Edit** edits and moves pages. **Delete** deletes pages. Ticking any of them forces **Read access** **All**. |
 | **Audit Log** | Dash | Dash | Dash | All, None | Audit pages and permitted record history; read only. |
-| **Inbox messages** (Cloud only) | Offered | Offered | Offered | All, None | Messaging; see below. Also subject to the plan and to inbox and account access. |
+| **Inbox messages** (Cloud only) | Offered | Offered | Offered | All, None | Connected accounts, sending and conversation changes; details below. Also subject to the plan and to inbox and account access. |
 | **Routines** (Cloud only) | Offered | Offered | Offered | All, Assigned, None | **Create** creates routines. **Edit** edits routines and runs or tests them now. **Delete** deletes routines; in the app, deleting a routine or pausing someone else's still requires the **Admin** role. **All** shows every routine, **Assigned** the member's own. |
 
 For **Users & Roles**, **Create** invites members, with the invite link or by email, and creates roles. **Edit** edits members (their details, status and role, and the approval tasks for new members) and edits roles, including their record-type access and access presets. **Delete** deletes roles. **Read access** **All** shows the whole member directory and the roles, **Assigned** only your own member row, and **None** hides both pages. **Create** also covers the record access a new role starts with; changing the record access of an existing role needs **Edit**.
