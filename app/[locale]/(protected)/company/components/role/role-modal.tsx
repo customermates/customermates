@@ -152,7 +152,7 @@ export const RoleModal = observer(({ store }: Props) => {
     </div>
   );
   const tableClass =
-    "grid grid-cols-1 divide-y divide-border border-y border-border sm:grid-cols-[minmax(0,1fr)_repeat(3,minmax(3.5rem,auto))_auto] sm:gap-x-4";
+    "grid grid-cols-1 divide-y divide-border border-y border-border sm:grid-cols-[minmax(7rem,1fr)_repeat(3,minmax(3.5rem,auto))_auto] sm:gap-x-4";
 
   return (
     <AppModal
