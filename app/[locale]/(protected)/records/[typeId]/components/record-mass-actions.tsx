@@ -168,12 +168,12 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
           id="mass-delete"
           size="sm"
           type="button"
-          variant="secondary"
+          variant="destructiveOutline"
           onClick={() =>
             runUserAction(() => deletion.requestMany(store.selectionTargets, store.presentation.model.revision))
           }
         >
-          <Trash2 className="size-4 text-destructive" />
+          <Trash2 className="size-4" />
 
           {t("MassActions.delete")}
         </Button>

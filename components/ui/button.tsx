@@ -21,6 +21,7 @@ const buttonVariants = cva(
         softDestructive: "bg-destructive/20 text-destructive hover:bg-destructive/35",
         destructiveOutline:
           "border border-destructive/40 bg-input-background text-destructive shadow-xs hover:bg-destructive/10 hover:border-destructive",
+        destructiveGhost: "text-destructive hover:bg-destructive/10 hover:text-destructive",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
