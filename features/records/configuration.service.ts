@@ -347,7 +347,7 @@ export class RecordConfigurationService extends UserAccessor {
         const existing = current.capabilities.find((candidate) => candidate.id === input.id);
         const binding =
           input.kind === "channels" && existing?.kind === "channels"
-            ? { ...input, enabled: existing.enabled }
+            ? { ...input, enabled: existing.enabled !== false }
             : input.kind === "channels"
               ? { ...input, enabled: true }
               : input;

@@ -42,6 +42,14 @@ async function post(page: Page, path: string, data: unknown): Promise<unknown> {
   return response.json();
 }
 
+async function storedModel(database: Client, companyId: string) {
+  const result = await database.query(
+    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
+    [companyId],
+  );
+  return RecordModelSchema.parse(result.rows[0]?.snapshot);
+}
+
 async function readModel(page: Page) {
   return RecordModelSchema.parse(
     await post(page, "/api/v1/model/discover", {}),
@@ -1710,7 +1718,7 @@ test("configures self-type singular and many relationships, edits from both ends
   await relationshipEditUi(page, type.id, related.sourceLabel);
   await deleteFromDrawer(page, "Delete relationship");
   expect(
-    (await readModel(page)).relationships.find(
+    (await storedModel(database, companyId)).relationships.find(
       (relation) => relation.id === related.id,
     )?.archived,
   ).toBe(true);
@@ -1727,7 +1735,7 @@ test("configures self-type singular and many relationships, edits from both ends
   await relationshipCloseRecordUi(page, type.label);
   await restoreRecentlyDeleted(page, `${type.pluralLabel} → ${type.pluralLabel}`);
   expect(
-    (await readModel(page)).relationships.find(
+    (await storedModel(database, companyId)).relationships.find(
       (relation) => relation.id === related.id,
     )?.archived,
   ).toBe(false);
@@ -3124,7 +3132,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     await assertRestricted();
     await openConfigure(manager.page, sourceType.id);
     await deleteSelectedList(manager.page);
-    model = await readModel(page);
+    model = await storedModel(database, companyId);
     expect(
       model.types.find((type) => type.id === sourceType.id)?.archived,
     ).toBe(true);
