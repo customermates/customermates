@@ -82,7 +82,7 @@ export const RecordRowActions = observer(function RecordRowActions({
 
       {canDelete && (
         <RowAction
-          className="hover:bg-destructive/10 hover:text-destructive"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           icon={<Trash2 aria-hidden />}
           label={t("RecordModel.deleteRecord", { name })}
           onClick={() => runUserAction(() => deletion.requestDeletion(record, store.presentation.model.revision, name))}

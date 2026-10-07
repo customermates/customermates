@@ -220,7 +220,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
                               variant="ghost"
                               onClick={() => remove(record, name)}
                             >
-                              <Trash2 className="size-4" />
+                              <Trash2 className="size-4 text-destructive" />
                             </Button>
                           )}
                         </div>
