@@ -15724,6 +15724,130 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toEqual([0, 0, 0, 0, 0]);
     expect((await f.readRecord(organization)).ref).toEqual(organization);
   });
+
+  it("permanently deletes a deleted Channels field with the list's identifiers and keeps shared identifiers", async () => {
+    const f = await fixture();
+    const contactTypeId = f.id("contact");
+    const organizationTypeId = f.id("organization");
+    const revision = async () => (await f.run(() => f.repo.getModel())).revision;
+    const change = async (operations: ConfigurationChange["operations"]): Promise<ConfigurationChange> => ({
+      expectedRevision: await revision(),
+      idempotencyKey: randomUUID(),
+      operations,
+    });
+    const organizationChannels = {
+      id: randomUUID(),
+      kind: "channels" as const,
+      typeId: organizationTypeId,
+      fields: [],
+      enabled: true,
+    };
+    expect(
+      await f.run(async () =>
+        f.configure.invoke(await change([{ operation: "putCapability", capability: organizationChannels }])),
+      ),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(
+      await f.run(async () =>
+        f.preview.invoke(
+          await change([{ operation: "putCapability", capability: { ...organizationChannels, id: randomUUID() } }]),
+        ),
+      ),
+    ).toMatchObject({ ok: true, data: { valid: false, issues: [{ code: "duplicate_channels_capability" }] } });
+    expect(
+      await f.mutation(
+        {
+          action: "create",
+          typeId: contactTypeId,
+          assignedUserIds: [f.admin.id],
+          fields: [{ fieldId: f.id("contact.firstName"), value: textValue("Ada") }],
+          identities: [
+            { provider: "mail", value: "ada@example.test" },
+            { provider: "mail", value: "shared@example.test" },
+          ],
+        },
+        f.admin,
+        randomUUID(),
+        await revision(),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(
+      await f.mutation(
+        {
+          action: "create",
+          typeId: organizationTypeId,
+          assignedUserIds: [f.admin.id],
+          fields: [{ fieldId: f.id("organization.name"), value: textValue("Analytical Engines") }],
+          identities: [{ provider: "mail", value: "shared@example.test" }],
+        },
+        f.admin,
+        randomUUID(),
+        await revision(),
+      ),
+    ).toMatchObject({ ok: true });
+    const contactChannels = recordInvariant(
+      (await f.run(() => f.repo.getModel())).capabilities.find(
+        (binding) => binding.kind === "channels" && binding.typeId === contactTypeId,
+      ),
+    );
+    const deletion = { operation: "deleteCapability" as const, capabilityId: contactChannels.id };
+    expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({ ok: false });
+    expect(
+      await f.run(async () =>
+        f.configure.invoke(
+          await change([{ operation: "putCapability", capability: { ...contactChannels, enabled: false } }]),
+        ),
+      ),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(
+      await f.run(() =>
+        executeMcpTool(manageDataViewsTool, [
+          {
+            action: "create",
+            surfaceKey: `records:${contactTypeId}`,
+            name: "With channels",
+            state: { columnOrder: [f.id("contact.name"), "system:channels"] },
+          },
+        ]),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({
+      ok: true,
+      data: {
+        valid: false,
+        issues: expect.arrayContaining([{ code: "saved_view_incompatible", typeId: contactTypeId }]),
+      },
+    });
+    await f.run(() =>
+      prisma.dataView.deleteMany({ where: { companyId: f.company.id, surfaceKey: `records:${contactTypeId}` } }),
+    );
+    expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({
+      ok: true,
+      data: {
+        valid: true,
+        deletion: { records: 0, values: 0, links: 0, identifiers: 2, identifierRecords: 1 },
+      },
+    });
+    expect(await f.run(async () => f.configure.invoke(await change([deletion])))).toMatchObject({
+      ok: true,
+      data: { status: "completed" },
+    });
+    const after = await f.run(() => f.repo.getModel());
+    expect(after.capabilities.some((binding) => binding.id === contactChannels.id)).toBe(false);
+    expect(recordInvariant(after.types.find((type) => type.id === contactTypeId)).defaults.columns).not.toContain(
+      "system:channels",
+    );
+    expect(
+      await f.run(() =>
+        Promise.all([
+          prisma.recordIdentityLink.count({ where: { companyId: f.company.id, typeId: contactTypeId } }),
+          prisma.recordIdentityKey.count({ where: { companyId: f.company.id, value: "ada@example.test" } }),
+          prisma.recordIdentityKey.count({ where: { companyId: f.company.id, value: "shared@example.test" } }),
+          prisma.recordIdentityLink.count({ where: { companyId: f.company.id, typeId: organizationTypeId } }),
+        ]),
+      ),
+    ).toEqual([0, 0, 1, 1]);
+  });
 });
 
 describeDatabase("provider avatar updates through the generic engine", { timeout: 30000 }, () => {

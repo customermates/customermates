@@ -3013,6 +3013,14 @@
       "oneToMany": "Uno a varios",
       "oneToOne": "Uno a uno"
     },
+    "channelsField": {
+      "deleted": "Eliminado",
+      "deleteMessage": "Los mensajes dejarán de asociarse con los registros de esta lista. Las direcciones de correo, los números de teléfono y las cuentas sociales se conservan: restaura el campo Canales para volver a asociarlos o elimínalo de forma permanente.",
+      "deleteTitle": "¿Eliminar el campo Canales?",
+      "detail": "Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con los registros",
+      "restore": "Restaurar",
+      "short": "Correo, teléfono, redes"
+    },
     "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
     "color": "Color",
     "conditionIf": "Condición",
@@ -3062,7 +3070,6 @@
     "editValue": "Editar {field}",
     "empty": "Todavía no hay registros",
     "emptyDescription": "Crea tu primer registro para empezar.",
-    "enableChannels": "Activar canales",
     "enabled": "Activado",
     "existingValuesIncompatible": "Los valores existentes no encajan con esta definición. Mantén un tipo compatible o actualiza primero esos valores.",
     "field": "Campo",
@@ -3277,6 +3284,7 @@
     "optionAttribute": "Atributo de la opción",
     "options": "Opciones",
     "permanentDeletion": {
+      "channelsMessage": "Esto elimina de forma permanente el campo Canales y todas las direcciones de correo, números de teléfono y cuentas sociales guardados en los registros de esta lista. Los mensajes dejarán de asociarse con estos registros. No se puede deshacer.",
       "deleteField": "Eliminar campo definitivamente",
       "deleteList": "Eliminar lista definitivamente",
       "dependentField": "{field} en {list} todavía depende de esto. Elimina o cambia ese campo primero.",
@@ -3285,6 +3293,7 @@
       "fieldTitle": "¿Eliminar {name} definitivamente?",
       "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
       "hiddenRecords": "Contiene registros que no puede ver.",
+      "identifiers": "{count, plural, one {# identificador} other {# identificadores}} en {records, plural, one {# registro} other {# registros}}",
       "links": "{count, plural, one {# vínculo entre registros} other {# vínculos entre registros}}",
       "listMessage": "Esto elimina definitivamente la lista con sus campos, registros, vínculos, relaciones, vistas guardadas y permisos de rol. No se puede deshacer.",
       "listTitle": "¿Eliminar {name} definitivamente?",
