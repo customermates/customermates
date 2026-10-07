@@ -266,6 +266,155 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   };
   const empty = <p className="px-4 py-3 text-sm text-muted-foreground">{t("RecordModel.noneYet")}</p>;
 
+  const tabs = (
+    <EditorTabs
+      syncUrl
+      className="flex flex-col"
+      contentClassName="flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6"
+      label={selected.pluralLabel}
+      tabs={[
+        {
+          id: "general",
+          label: t("RecordModel.general"),
+          content: (
+            <>
+              <ConfigureGroup framed={!editingGeneral} title={t("RecordModel.general")}>
+                {editingGeneral ? (
+                  <TypeSettingsFields idPrefix="configure-general" store={general} />
+                ) : (
+                  <GeneralSummary model={model} type={selected} />
+                )}
+              </ConfigureGroup>
+
+              {editingGeneral && (
+                <FormActions
+                  formId={generalFormId}
+                  primaryButtonLabel={
+                    general.previewReady && !general.isLoading ? "RecordModel.apply" : "Common.actions.save"
+                  }
+                  store={general}
+                />
+              )}
+            </>
+          ),
+        },
+        {
+          id: "fields",
+          label: t("RecordModel.fields"),
+          content: (
+            <ConfigureGroup title={t("RecordModel.fields")}>
+              {fields.length ? (
+                <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
+                  <SortableContext items={fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
+                    <ul className="divide-y divide-border">
+                      {fields.map((field) => (
+                        <SortableField
+                          key={field.id}
+                          enabled={reorderEnabled && !field.archived}
+                          id={field.id}
+                          label={field.label}
+                        >
+                          <ConfigureRow
+                            detail={`${t(`RecordModel.types.${field.valueType}`)} · ${fieldSource(field)}`}
+                            interactive={interactive}
+                            label={field.label}
+                            leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
+                            status={field.archived ? t("RecordModel.archived") : null}
+                            onOpen={canManage ? () => onEditField(field) : undefined}
+                          />
+                        </SortableField>
+                      ))}
+                    </ul>
+                  </SortableContext>
+                </DndContext>
+              ) : (
+                empty
+              )}
+            </ConfigureGroup>
+          ),
+        },
+        {
+          id: "relationships",
+          label: t("RecordModel.relationships"),
+          content: (
+            <ConfigureGroup title={t("RecordModel.relationships")}>
+              {relations.length || paths.length ? (
+                <ul className="divide-y divide-border">
+                  {relations.map((relation) => {
+                    const outgoing = relation.sourceTypeId === selected.id;
+                    const other = model.types.find(
+                      (type) => type.id === (outgoing ? relation.targetTypeId : relation.sourceTypeId),
+                    );
+                    return (
+                      <li key={relation.id} data-configure-relationship-row={relation.id}>
+                        <ConfigureRow
+                          detail={other?.pluralLabel}
+                          interactive={interactive}
+                          label={outgoing ? relation.sourceLabel : relation.targetLabel}
+                          status={relation.archived ? t("RecordModel.archived") : null}
+                          onOpen={canManage ? () => onEditRelationship(relation) : undefined}
+                        />
+                      </li>
+                    );
+                  })}
+
+                  {paths.map((path) => (
+                    <li key={path.id}>
+                      <ConfigureRow
+                        detail={[
+                          t("RecordModel.relationshipPath"),
+                          configurePathLists(model, selected.id, path.path).join(" → "),
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                        interactive={interactive}
+                        label={path.label}
+                        status={path.archived ? t("RecordModel.archived") : null}
+                        onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                empty
+              )}
+            </ConfigureGroup>
+          ),
+        },
+        {
+          id: "activity",
+          label: t("RecordModel.activityConnections"),
+          content: (
+            <ConfigureGroup
+              description={t("RecordModel.activityConnectionsHelp")}
+              title={t("RecordModel.activityConnections")}
+            >
+              {activity.length ? (
+                <ul className="divide-y divide-border">
+                  {activity.map((path) => (
+                    <li key={path.id}>
+                      <ConfigureRow
+                        detail={
+                          configurePathLists(model, selected.id, path.path).join(" → ") || t("RecordModel.thisList")
+                        }
+                        interactive={interactive}
+                        label={path.label}
+                        status={path.archived ? t("RecordModel.archived") : null}
+                        onOpen={canManage ? () => onEditActivity(path) : undefined}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                empty
+              )}
+            </ConfigureGroup>
+          ),
+        },
+      ]}
+    />
+  );
+
   return (
     <div className="animate-page-result-in flex w-full flex-col motion-reduce:animate-none" data-configure-list-pane="">
       <div className="flex w-full max-w-3xl items-center justify-between gap-4 p-4 md:p-6">
@@ -292,174 +441,35 @@ export const ConfigureListPane = observer(function ConfigureListPane({
         )}
       </div>
 
-      <EditorTabs
-        syncUrl
-        className="flex flex-col"
-        contentClassName="flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6"
-        label={selected.pluralLabel}
-        tabs={[
-          {
-            id: "general",
-            label: t("RecordModel.general"),
-            content: (
-              <>
-                <ConfigureGroup framed={!editingGeneral} title={t("RecordModel.general")}>
-                  {editingGeneral ? (
-                    <AppForm id={generalFormId} store={general}>
-                      <div className="flex flex-col gap-4">
-                        <ModelChangeRecovery store={general} />
+      {editingGeneral && (
+        <div className="flex w-full max-w-3xl flex-col gap-4 px-4 empty:hidden md:px-6">
+          <ModelChangeRecovery store={general} />
 
-                        {general.pendingOperationId && (
-                          <RecordOperationProgress
-                            operationId={general.pendingOperationId}
-                            onCompleted={general.operationCompleted}
-                            onStopped={general.operationStopped}
-                          />
-                        )}
+          {general.pendingOperationId && (
+            <RecordOperationProgress
+              operationId={general.pendingOperationId}
+              onCompleted={general.operationCompleted}
+              onStopped={general.operationStopped}
+            />
+          )}
 
-                        <TypeSettingsFields idPrefix="configure-general" store={general} />
+          {general.preview && general.hasUnsavedChanges && (
+            <RecordConfigurationPreview
+              model={general.model}
+              preview={general.preview}
+              renewal={general.summaryRenewal}
+            />
+          )}
+        </div>
+      )}
 
-                        {general.preview && general.hasUnsavedChanges && (
-                          <RecordConfigurationPreview
-                            model={general.model}
-                            preview={general.preview}
-                            renewal={general.summaryRenewal}
-                          />
-                        )}
-                      </div>
-                    </AppForm>
-                  ) : (
-                    <GeneralSummary model={model} type={selected} />
-                  )}
-                </ConfigureGroup>
-
-                {editingGeneral && (
-                  <FormActions
-                    formId={generalFormId}
-                    primaryButtonLabel={
-                      general.previewReady && !general.isLoading ? "RecordModel.apply" : "Common.actions.save"
-                    }
-                    store={general}
-                  />
-                )}
-              </>
-            ),
-          },
-          {
-            id: "fields",
-            label: t("RecordModel.fields"),
-            content: (
-              <ConfigureGroup title={t("RecordModel.fields")}>
-                {fields.length ? (
-                  <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
-                    <SortableContext items={fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
-                      <ul className="divide-y divide-border">
-                        {fields.map((field) => (
-                          <SortableField
-                            key={field.id}
-                            enabled={reorderEnabled && !field.archived}
-                            id={field.id}
-                            label={field.label}
-                          >
-                            <ConfigureRow
-                              detail={`${t(`RecordModel.types.${field.valueType}`)} · ${fieldSource(field)}`}
-                              interactive={interactive}
-                              label={field.label}
-                              leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
-                              status={field.archived ? t("RecordModel.archived") : null}
-                              onOpen={canManage ? () => onEditField(field) : undefined}
-                            />
-                          </SortableField>
-                        ))}
-                      </ul>
-                    </SortableContext>
-                  </DndContext>
-                ) : (
-                  empty
-                )}
-              </ConfigureGroup>
-            ),
-          },
-          {
-            id: "relationships",
-            label: t("RecordModel.relationships"),
-            content: (
-              <ConfigureGroup title={t("RecordModel.relationships")}>
-                {relations.length || paths.length ? (
-                  <ul className="divide-y divide-border">
-                    {relations.map((relation) => {
-                      const outgoing = relation.sourceTypeId === selected.id;
-                      const other = model.types.find(
-                        (type) => type.id === (outgoing ? relation.targetTypeId : relation.sourceTypeId),
-                      );
-                      return (
-                        <li key={relation.id} data-configure-relationship-row={relation.id}>
-                          <ConfigureRow
-                            detail={other?.pluralLabel}
-                            interactive={interactive}
-                            label={outgoing ? relation.sourceLabel : relation.targetLabel}
-                            status={relation.archived ? t("RecordModel.archived") : null}
-                            onOpen={canManage ? () => onEditRelationship(relation) : undefined}
-                          />
-                        </li>
-                      );
-                    })}
-
-                    {paths.map((path) => (
-                      <li key={path.id}>
-                        <ConfigureRow
-                          detail={[
-                            t("RecordModel.relationshipPath"),
-                            configurePathLists(model, selected.id, path.path).join(" → "),
-                          ]
-                            .filter(Boolean)
-                            .join(" · ")}
-                          interactive={interactive}
-                          label={path.label}
-                          status={path.archived ? t("RecordModel.archived") : null}
-                          onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  empty
-                )}
-              </ConfigureGroup>
-            ),
-          },
-          {
-            id: "activity",
-            label: t("RecordModel.activityConnections"),
-            content: (
-              <ConfigureGroup
-                description={t("RecordModel.activityConnectionsHelp")}
-                title={t("RecordModel.activityConnections")}
-              >
-                {activity.length ? (
-                  <ul className="divide-y divide-border">
-                    {activity.map((path) => (
-                      <li key={path.id}>
-                        <ConfigureRow
-                          detail={
-                            configurePathLists(model, selected.id, path.path).join(" → ") || t("RecordModel.thisList")
-                          }
-                          interactive={interactive}
-                          label={path.label}
-                          status={path.archived ? t("RecordModel.archived") : null}
-                          onOpen={canManage ? () => onEditActivity(path) : undefined}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  empty
-                )}
-              </ConfigureGroup>
-            ),
-          },
-        ]}
-      />
+      {editingGeneral ? (
+        <AppForm id={generalFormId} store={general}>
+          {tabs}
+        </AppForm>
+      ) : (
+        tabs
+      )}
     </div>
   );
 });
