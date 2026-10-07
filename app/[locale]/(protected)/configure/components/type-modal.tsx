@@ -59,7 +59,6 @@ export type TypeModalSection = "settings" | "appearance" | "archive";
 export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialType>> {
   original: RecordType | null = null;
   section: TypeModalSection = "settings";
-  pluralSuggested = true;
   private channelBindingId = "";
   constructor(
     root: RootStore,
@@ -72,9 +71,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     makeObservable(this, {
       original: observable.ref,
       section: observable,
-      pluralSuggested: observable,
       renameList: action,
-      setPluralName: action,
       edit: action,
       moveField: action,
     });
@@ -87,7 +84,6 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
       model.capabilities.find((binding) => binding.kind === "channels" && binding.typeId === type?.id)?.id ??
       crypto.randomUUID();
     this.immediateApply = !type;
-    this.pluralSuggested = !type || type.pluralLabel === this.suggestPlural(type.label);
     const columns = type ? recordColumns(type.id, model) : [];
     const grouping = type?.defaults.groupBy
       ? resolveRecordGrouping(type.id, { field: type.defaults.groupBy, bucket: type.defaults.groupBucket }, model)
@@ -132,12 +128,10 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     return suggestListPlural(name, this.rootStore.localeStore.locale);
   }
   renameList = (name: string) => {
+    const plural = this.form.pluralName.trim();
+    const following = !plural || plural === this.suggestPlural(this.form.name);
     this.onChange("name", name);
-    if (this.pluralSuggested) this.onChange("pluralName", this.suggestPlural(name));
-  };
-  setPluralName = (pluralName: string) => {
-    this.pluralSuggested = !pluralName.trim();
-    this.onChange("pluralName", pluralName);
+    if (following) this.onChange("pluralName", this.suggestPlural(name));
   };
   moveField = (activeId: string, overId: string) => {
     this.onChange("fieldOrder", moveConfigureField(this.form.fieldOrder, activeId, overId));
@@ -294,7 +288,6 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
           id="pluralName"
           inputId={inputId("pluralName")}
           label={t("RecordModel.pluralName")}
-          onValueChange={store.setPluralName}
         />
       </div>
 

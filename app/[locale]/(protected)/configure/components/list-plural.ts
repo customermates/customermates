@@ -3,12 +3,14 @@ function withEnding(word: string, ending: string) {
 }
 
 function englishPlural(word: string) {
+  if (/[^su]s$/i.test(word) && !/is$/i.test(word)) return word;
   if (/[^aeiou]y$/i.test(word)) return withEnding(word.slice(0, -1), "ies");
   if (/(s|x|z|ch|sh)$/i.test(word)) return withEnding(word, "es");
   return withEnding(word, "s");
 }
 
 function germanPlural(word: string) {
+  if (/(en|s)$/i.test(word)) return word;
   if (/(ung|heit|keit|schaft|ion|tät|ei)$/i.test(word)) return withEnding(word, "en");
   if (/(er|el|en|chen|lein)$/i.test(word)) return word;
   if (/e$/i.test(word)) return withEnding(word, "n");

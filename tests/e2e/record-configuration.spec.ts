@@ -163,7 +163,7 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await calculation.getByRole("button", { name: /^Input 2\b/ }).click();
   await calculation.getByRole("textbox", { name: "Fixed value", exact: true }).fill("2");
   await calculation.getByRole("button", { name: "Result", exact: true }).click();
-  await expect(calculation).toContainText("Budget × 2");
+  await expect(page.getByRole("dialog").locator("[data-calculation-sentence]")).toContainText("Budget × 2");
   await page.screenshot({ path: testInfo.outputPath("linear-calculation-editor.png"), animations: "disabled" });
   await applyConfiguration(page);
   const model = await readModel(database, companyId);

@@ -19,6 +19,10 @@ describe("list plural suggestions", () => {
     ["Bureau", "fr", "Bureaux"],
     ["Contatto", "it", "Contatti"],
     ["Azienda", "it", "Aziende"],
+    ["Projects", "en", "Projects"],
+    ["Delegated records", "en", "Delegated records"],
+    ["Process", "en", "Processes"],
+    ["Firmen", "de", "Firmen"],
   ])("suggests %s → %s in %s", (name, locale, plural) => {
     expect(suggestListPlural(name, locale)).toBe(plural);
   });

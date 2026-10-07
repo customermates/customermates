@@ -40,7 +40,7 @@ test("moves graph lists, keeps the layout per person and resets it", async ({ pa
   const reset = graph.getByRole("button", { name: "Reset layout", exact: true });
   await expect(deal).toBeVisible();
   await expect(reset).toBeDisabled();
-  await expect(graph.getByText(/drag from the dot/i)).toBeHidden();
+  await expect(graph.getByText(/drag from the dot/i).filter({ visible: true })).toHaveCount(0);
   const header = deal.getByRole("button", { name: "Deals", exact: true });
   await expect(header.locator("svg").first()).toBeVisible();
   await expect(deal.locator(".bg-primary\\/15")).toHaveCount(0);
@@ -70,6 +70,12 @@ test("moves graph lists, keeps the layout per person and resets it", async ({ pa
   const moved = await transformOf(deal);
   await expect(reset).toBeEnabled();
 
+  await header.click();
+  await expect(page).toHaveURL(new RegExp(`typeId=${dealId}`));
+  await page.goBack();
+  await expect(deal).toBeVisible();
+  await expect.poll(() => transformOf(deal)).toBe(moved);
+
   await page.reload();
   await expect(deal).toBeVisible();
   await expect.poll(() => transformOf(deal)).toBe(moved);
@@ -84,6 +90,10 @@ test("moves graph lists, keeps the layout per person and resets it", async ({ pa
   await expect.poll(() => savedLayout(database, companyId)).toBeNull();
   await expect.poll(() => transformOf(deal)).toBe(original);
   await expect(reset).toBeDisabled();
+  await header.click();
+  await page.goBack();
+  await expect(deal).toBeVisible();
+  await expect.poll(() => transformOf(deal)).toBe(original);
   expect(errors).toEqual([]);
 });
 
@@ -110,7 +120,7 @@ test("shows a live calculation path at the top of the Calculation tab", async ({
 
   await dialog.getByRole("combobox", { name: "Relationship", exact: true }).click();
   const relationshipOption = page.getByRole("option", { name: "Line items", exact: true });
-  await expect(relationshipOption.locator("svg")).toHaveCount(1);
+  await expect(relationshipOption.locator("span > svg").first()).toBeVisible();
   await page.keyboard.press("Escape");
   await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();

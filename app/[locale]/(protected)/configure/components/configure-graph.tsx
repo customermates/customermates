@@ -68,7 +68,8 @@ type Props = {
   model: RecordModel;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
-  savedLayout: ConfigureGraphLayout | null;
+  layout: ConfigureGraphLayout["positions"] | null;
+  onLayoutChange: (layout: ConfigureGraphLayout["positions"] | null) => void;
   showArchived: boolean;
   canManage: boolean;
   disabled: boolean;
@@ -507,7 +508,13 @@ function edgeLanes(edges: readonly { id: string; source: string; target: string 
     groups.set(key, [...(groups.get(key) ?? []), edge.id]);
   }
   const lanes = new Map<string, number>();
-  for (const ids of groups.values()) ids.forEach((id, index) => lanes.set(id, index - (ids.length - 1) / 2));
+  const reversed = new Set(edges.filter((edge) => edge.source > edge.target).map((edge) => edge.id));
+  for (const ids of groups.values()) {
+    ids.forEach((id, index) => {
+      const lane = index - (ids.length - 1) / 2;
+      lanes.set(id, reversed.has(id) ? -lane : lane);
+    });
+  }
   return lanes;
 }
 
@@ -518,7 +525,8 @@ function ConfigureGraphCanvas({
   model,
   catalog,
   accounts,
-  savedLayout,
+  layout: saved,
+  onLayoutChange,
   showArchived,
   canManage,
   disabled,
@@ -533,7 +541,6 @@ function ConfigureGraphCanvas({
   const locale = useLocale();
   const connectPrompt = accounts.state !== "unavailable";
   const coarsePointer = useCoarsePointer();
-  const [saved, setSaved] = useState(savedLayout?.positions ?? null);
   const help = canManage ? t("RecordModel.graph.help") : t("RecordModel.graph.helpReadOnly");
   const container = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState<"TB" | "LR" | null>(null);
@@ -634,12 +641,12 @@ function ConfigureGraphCanvas({
       );
       for (const node of flow.getNodes())
         positions[node.id] = { x: Math.round(node.position.x), y: Math.round(node.position.y) };
-      setSaved(positions);
+      onLayoutChange(positions);
       await saveGraphLayout({ positions });
     });
   const resetLayout = async () => {
     placed.current = null;
-    setSaved(null);
+    onLayoutChange(null);
     await saveGraphLayout(null);
   };
   const actions = useMemo<GraphActions>(

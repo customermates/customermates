@@ -29,7 +29,7 @@ const settingsSchemas: Record<string, z.ZodType<P13nSettings>> = {
 };
 
 export function p13nSettingsSchema(p13nId: string) {
-  return settingsSchemas[p13nId];
+  return Object.hasOwn(settingsSchemas, p13nId) ? settingsSchemas[p13nId] : undefined;
 }
 
 export function readP13nSettings(p13nId: string, value: unknown) {

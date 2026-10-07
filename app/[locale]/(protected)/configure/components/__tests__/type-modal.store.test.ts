@@ -18,10 +18,10 @@ describe("list configuration", () => {
     store.edit(model, null);
     store.renameList("Project");
     expect(store.form.pluralName).toBe("Projects");
-    store.setPluralName("Programmes");
+    store.onChange("pluralName", "Programmes");
     store.renameList("Programme");
     expect(store.form.pluralName).toBe("Programmes");
-    store.setPluralName("");
+    store.onChange("pluralName", "");
     store.renameList("Initiative");
     expect(store.form.pluralName).toBe("Initiatives");
   });

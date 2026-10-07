@@ -72,7 +72,7 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
       </Button>
 
       <Button
-        disabled={store.isLoading || !(creating || store.hasUnsavedChanges || store.previewReady)}
+        disabled={store.isLoading || store.isReadOnly || !(creating || store.hasUnsavedChanges || store.previewReady)}
         size="sm"
         type="button"
         onClick={() => runUserAction(store.onSubmit)}
@@ -114,7 +114,7 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
 
           <SheetBody className="px-6 py-5">{children}</SheetBody>
 
-          {!store.isReadOnly && <SheetFooter className="px-6">{footer}</SheetFooter>}
+          <SheetFooter className="px-6">{footer}</SheetFooter>
         </SheetContent>
       </Sheet>
 

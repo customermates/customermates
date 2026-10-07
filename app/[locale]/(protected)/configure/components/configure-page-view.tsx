@@ -76,6 +76,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const t = useTranslations();
   const generalFormId = useId();
   const [store] = useState(() => new DataModelStore(initialModel));
+  const [graphLayout, setGraphLayout] = useState(savedLayout?.positions ?? null);
   const [showArchived, setShowArchived] = useState(false);
   const authoritative = useRef(initialModel);
   useEffect(() => {
@@ -333,8 +334,8 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             canManage={canManage}
             catalog={catalog}
             disabled={!interactive}
+            layout={graphLayout}
             model={model}
-            savedLayout={savedLayout}
             showArchived={showArchived}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
@@ -346,6 +347,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
               relationModal.edit(model, relation.sourceTypeId, relation);
               if (relation.archived) relationModal.onChange("archived", false);
             }}
+            onLayoutChange={setGraphLayout}
             onSelectList={selectList}
           />
         </div>
