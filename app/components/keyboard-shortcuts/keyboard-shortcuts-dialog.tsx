@@ -67,11 +67,12 @@ export const KeyboardShortcutsDialog = observer(() => {
     if (!store.isOpen) setQuery("");
   }, [store.isOpen]);
   const needle = query.trim().toLocaleLowerCase();
+  const label = (entry: Shortcut) => t(`KeyboardShortcuts.actions.${entry.id}`);
   const alternativesOf = (entry: Shortcut) => SHORTCUTS.filter((candidate) => candidate.alternativeTo === entry.id);
   const matches = (entry: Shortcut) =>
     !needle ||
     [
-      t(`KeyboardShortcuts.actions.${entry.id}`),
+      label(entry),
       ...[entry, ...alternativesOf(entry)].map((candidate) =>
         shortcutKeyLabels(candidate.id, platform).join(` ${t("KeyboardShortcuts.then")} `),
       ),
@@ -125,7 +126,7 @@ export const KeyboardShortcutsDialog = observer(() => {
                         )}
                         data-shortcut-row={entry.id}
                       >
-                        <span className="min-w-0">{t(`KeyboardShortcuts.actions.${entry.id}`)}</span>
+                        <span className="min-w-0">{label(entry)}</span>
 
                         <span className="flex shrink-0 items-center gap-1.5">
                           <ShortcutKeys id={entry.id} />

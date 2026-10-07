@@ -152,7 +152,7 @@ describe("FormFooterActions (design rule 31)", () => {
     expect(harness.tryNavigate).toHaveBeenCalledExactlyOnceWith(onCancel);
   });
 
-  it("saves with Cmd/Ctrl+Enter only while Save is enabled", async () => {
+  it("saves with the platform Save shortcut (Ctrl+Enter outside a Mac) only while Save is enabled", async () => {
     const store = fakeStore();
     render(inForm(store, createElement(FormFooterActions, { anchorScope: "f" }), vi.fn()));
     const input = document.getElementById("test-input") as HTMLInputElement;
@@ -163,6 +163,10 @@ describe("FormFooterActions (design rule 31)", () => {
     markDirty(store);
     act(() => {
       input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", metaKey: true, bubbles: true }));
+    });
+    expect(store.onSubmit).not.toHaveBeenCalled();
+    act(() => {
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true }));
     });
     await vi.waitFor(() => expect(store.onSubmit).toHaveBeenCalledOnce());
   });
