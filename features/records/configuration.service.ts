@@ -5,7 +5,7 @@ import { compareRecordKey } from "./record-json";
 import type { Action } from "@/generated/prisma";
 import type { ConfigurationChange, ConfigurationPreview } from "./configuration.schema";
 import type { RecordField, RecordModel } from "./record-model.schema";
-import type { RecordRepo } from "./record.repo";
+import type { RecordDefinitionDeletion, RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
 
 import { recordMeasureIsValid } from "./record-measure-validation";
@@ -16,6 +16,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordWriteError, normalizeRecordScalar } from "./record-write.service";
 import { RecordModelSchema } from "./record-model.schema";
 import {
+  type ModelIssue,
   expressionFieldDependencies,
   expressionRelationshipDependencies,
   validateRecordModel,
@@ -73,10 +74,64 @@ export function calculationDependencyHash(field: RecordField, model: RecordModel
     .digest("hex");
 }
 
+function removeArchivedDefinitions(
+  model: RecordModel,
+  operations: ConfigurationChange["operations"],
+): { deletion: RecordDefinitionDeletion; issues: ModelIssue[] } {
+  const typeIds = new Set<string>();
+  const fieldIds = new Set<string>();
+  for (const operation of operations) {
+    if (operation.operation === "deleteType") {
+      if (!model.types.some((type) => type.id === operation.typeId && type.archived))
+        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      typeIds.add(operation.typeId);
+    } else if (operation.operation === "deleteField") {
+      if (!model.fields.some((field) => field.id === operation.fieldId && field.archived))
+        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      fieldIds.add(operation.fieldId);
+    } else throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+  }
+  for (const field of model.fields) if (typeIds.has(field.typeId)) fieldIds.add(field.id);
+  const relationIds = new Set(
+    model.relationships
+      .filter((relation) => typeIds.has(relation.sourceTypeId) || typeIds.has(relation.targetTypeId))
+      .map((relation) => relation.id),
+  );
+  const crosses = (path: Array<{ relationId: string }>) => path.some((step) => relationIds.has(step.relationId));
+  model.types = model.types
+    .filter((type) => !typeIds.has(type.id))
+    .map((type) =>
+      type.relationshipPaths?.some((path) => crosses(path.path))
+        ? { ...type, relationshipPaths: type.relationshipPaths.filter((path) => !crosses(path.path)) }
+        : type,
+    );
+  model.fields = model.fields.filter((field) => !fieldIds.has(field.id));
+  model.relationships = model.relationships.filter((relation) => !relationIds.has(relation.id));
+  model.capabilities = model.capabilities.filter((binding) => !typeIds.has(binding.typeId));
+  model.activityPaths = model.activityPaths.filter((path) => !typeIds.has(path.typeId) && !crosses(path.path));
+  const issues: ModelIssue[] = [];
+  for (const field of model.fields) {
+    if (field.behavior.kind === "input") continue;
+    const fields = expressionFieldDependencies(field.behavior.expression);
+    if (field.behavior.kind === "snapshot" && field.behavior.triggerFieldId) fields.add(field.behavior.triggerFieldId);
+    if (
+      [...fields].some((id) => fieldIds.has(id)) ||
+      [...expressionRelationshipDependencies(field.behavior.expression)].some((id) => relationIds.has(id))
+    )
+      issues.push({ code: "deletion_dependency", fieldId: field.id, typeId: field.typeId });
+  }
+  for (const type of model.types) {
+    if (type.parentRelationshipId && relationIds.has(type.parentRelationshipId))
+      issues.push({ code: "deletion_dependency", typeId: type.id });
+  }
+  return { deletion: { typeIds: [...typeIds], fieldIds: [...fieldIds], relationIds: [...relationIds] }, issues };
+}
+
 export type PreparedConfiguration = {
   change: RecordRevisionChange;
   model: RecordModel;
   preview: ConfigurationPreview;
+  deletion: RecordDefinitionDeletion | null;
   grants: Array<{
     typeId: string;
     grants: Array<{ roleId: string; actions: Action[] }>;
@@ -227,7 +282,7 @@ export class RecordConfigurationService extends UserAccessor {
           embedded: operation.embedded,
           navigationVisible: operation.navigationVisible ?? !operation.embedded,
           archived: false,
-          position: model.types.length,
+          position: Math.max(-1, ...model.types.map((type) => type.position)) + 1,
           primaryFieldId: nameId,
           parentRelationshipId: null,
           defaults: {
@@ -356,6 +411,13 @@ export class RecordConfigurationService extends UserAccessor {
       if (operation.operation === "putActivityPath")
         upsert(model.activityPaths, resolveDefinition(operation.activityPath) as RecordModel["activityPaths"][number]);
     }
+    const removed = input.operations.some(
+      (operation) => operation.operation === "deleteType" || operation.operation === "deleteField",
+    )
+      ? removeArchivedDefinitions(model, input.operations)
+      : null;
+    if (removed?.deletion.typeIds.length && !policy.canManageRoles)
+      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
     for (const typeId of reorderedTypes) {
       const slots = model.fields.flatMap((field, index) => (field.typeId === typeId ? [index] : []));
       const ordered = slots.map((index) => model.fields[index]).sort((left, right) => left.position - right.position);
@@ -366,6 +428,7 @@ export class RecordConfigurationService extends UserAccessor {
     if (!RecordModelSchema.safeParse(model).success)
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
+    validation.issues.push(...(removed?.issues ?? []));
     const approvals = new Map(
       input.operations
         .filter((operation) => operation.operation === "publishSummary")
@@ -589,6 +652,7 @@ export class RecordConfigurationService extends UserAccessor {
       },
       model,
       grants,
+      deletion: removed?.deletion ?? null,
       affectedTypeIds: [...changedTypes],
       preview: {
         expectedRevision: current.revision,
@@ -608,6 +672,7 @@ export class RecordConfigurationService extends UserAccessor {
             fieldId: field.id,
             dependencyHash: calculationDependencyHash(field, model),
           })),
+        ...(removed ? { deletion: await this.records.countDefinitionDeletion(removed.deletion) } : {}),
       },
     };
   }

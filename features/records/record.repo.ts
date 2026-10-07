@@ -29,6 +29,9 @@ import type { RecordIdentity, RecordIdentityInput } from "./record-identity.sche
 import type { RecordDetailLayout } from "./record-detail-layout.schema";
 import type { RecordRevisionChange } from "./record-revision.schema";
 import type { RecordEventSubscriptionDefinition } from "./record-event-subscription.schema";
+import type { ConfigurationPreview } from "./configuration.schema";
+
+export type RecordDefinitionDeletion = { typeIds: string[]; fieldIds: string[]; relationIds: string[] };
 
 export type StoredRecord = CrmRecord & {
   values: RecordValue[];
@@ -103,6 +106,8 @@ export interface RecordRepo {
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
   countRecordsCompanyWide(typeIds: string[]): Promise<number>;
+  countDefinitionDeletion(deletion: RecordDefinitionDeletion): Promise<NonNullable<ConfigurationPreview["deletion"]>>;
+  deleteDefinitions(deletion: RecordDefinitionDeletion): Promise<void>;
   countReadableRecordsByType(access: RecordAccessMap): Promise<Array<{ typeId: string; count: number }>>;
   validRecordRolesCompanyWide(roleIds: string[]): Promise<boolean>;
   validateRelationshipCardinality(model: RecordModel): Promise<string[]>;

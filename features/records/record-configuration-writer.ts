@@ -68,6 +68,7 @@ export class RecordConfigurationWriter {
     }
 
     await this.records.saveModel(prepared.model, userId, prepared.change);
+    if (prepared.deletion) await this.records.deleteDefinitions(prepared.deletion);
     for (const ref of refs) await this.initializeRecord(ref, prepared, previous, limit);
     for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
     const recalculated = await this.calculations.recalculate(prepared.model, refs, new Map(), limit);
