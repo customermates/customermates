@@ -252,7 +252,7 @@ export function presentationQuery(
               ? "notIn"
               : "in",
         value: null,
-        values: filter.value.map((value) => filterScalar(value, field, currency)),
+        values: filter.value.map((value) => filterScalar(value, field)),
       });
     } else if (
       filter.operator === FilterOperatorKey.in ||

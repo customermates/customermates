@@ -28,7 +28,7 @@ const tags: RecordField = {
   options: ["alpha", "beta"].map((id) => ({ id, label: id, color: "info", attributes: [] })),
 };
 const model = (): RecordModel => {
-  const preset = createCrmPreset(workspace, "EUR");
+  const preset = createCrmPreset(workspace);
   return { ...preset, fields: [...preset.fields, tags] };
 };
 
@@ -66,8 +66,8 @@ describe("multiple choice fields", () => {
   });
 
   it("convert form input to option lists and back", () => {
-    expect(recordInputValue(["beta", "alpha"], tags, "EUR")).toEqual({ kind: "selectList", value: ["beta", "alpha"] });
-    expect(recordInputValue([], tags, "EUR")).toBeNull();
+    expect(recordInputValue(["beta", "alpha"], tags)).toEqual({ kind: "selectList", value: ["beta", "alpha"] });
+    expect(recordInputValue([], tags)).toBeNull();
     expect(recordDraftValue({ kind: "selectList", value: ["alpha"] })).toEqual(["alpha"]);
     expect(recordFieldTypeKey(tags)).toBe("multiSelect");
     expect(recordFieldTypeKey({ valueType: "select", multiple: false })).toBe("select");
@@ -82,18 +82,13 @@ describe("multiple choice fields", () => {
       FilterOperatorKey.isNull,
       FilterOperatorKey.isNotNull,
     ]);
-    const query = presentationQuery(
-      typeId,
-      fields,
-      {
-        filters: [
-          { field: tags.id, operator: FilterOperatorKey.hasAnyOf, value: ["alpha"] },
-          { field: tags.id, operator: FilterOperatorKey.hasAllOf, value: ["alpha", "beta"] },
-          { field: tags.id, operator: FilterOperatorKey.hasNoneOf, value: ["beta"] },
-        ],
-      },
-      "EUR",
-    );
+    const query = presentationQuery(typeId, fields, {
+      filters: [
+        { field: tags.id, operator: FilterOperatorKey.hasAnyOf, value: ["alpha"] },
+        { field: tags.id, operator: FilterOperatorKey.hasAllOf, value: ["alpha", "beta"] },
+        { field: tags.id, operator: FilterOperatorKey.hasNoneOf, value: ["beta"] },
+      ],
+    });
     expect(query.filters.map(({ operator, values }) => [operator, values])).toEqual([
       ["in", [{ kind: "select", value: "alpha" }]],
       [

@@ -75,16 +75,24 @@ test("creates a multiple choice field and edits, filters, bulk edits and groups 
   await page.keyboard.press("Escape");
   await expect(row(`Both ${suffix}`)).toBeVisible();
   await expect(row(`Inline ${suffix}`)).toHaveCount(0);
-  await page.goto(`/en/records/${typeId}`);
+  await page.getByRole("button", { name: "Filters", exact: true }).click();
+  await page.getByRole("button", { name: "Remove filter", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await expect(row(`Inline ${suffix}`)).toBeVisible();
 
-  for (const name of [`Both ${suffix}`, `Inline ${suffix}`])
-    await row(name).getByRole("checkbox", { name: /^Select row/ }).check();
+  for (const name of [`Both ${suffix}`, `Inline ${suffix}`]) {
+    const box = row(name).getByRole("checkbox", { name: /^Select row/ });
+    await expect(async () => {
+      await box.check();
+      await expect(box).toBeChecked();
+    }).toPass();
+  }
   await page.getByRole("button", { name: "Update", exact: true }).click();
   await page.getByRole("button", { name: label, exact: true }).click();
   await page.getByRole("combobox", { name: label, exact: true }).click();
   await page.getByRole("option", { name: "Gamma", exact: true }).click();
   await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "Apply", exact: true }).click();
+  await page.getByRole("button", { name: "Apply to selected", exact: true }).click();
   for (const name of [`Both ${suffix}`, `Inline ${suffix}`]) {
     await expect(chips(name).filter({ hasText: "Gamma" }).first()).toBeVisible();
     await expect(chips(name).filter({ hasText: "Alpha" })).toHaveCount(0);
