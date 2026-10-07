@@ -89,8 +89,7 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
 const CONTROLLED_FOCUS_RETURN_SURFACES = [
   "components/modal/app-modal.tsx",
   "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx",
-  "components/modal/unsaved-changes-guard.tsx",
-  "components/modal/delete-confirmation-modal.tsx",
+  "components/modal/confirm-dialog.tsx",
   "components/ui/command.tsx",
 ];
 
@@ -185,7 +184,7 @@ const OVERLAY_FOOTER_BLOCK = /<AppCardFooter\b[^>]*>[\s\S]*?<\/AppCardFooter>/g;
  * Components that render their own AppCardFooter. Wrapping one in a second footer doubles the
  * padding and the safe-area inset, and neither is visible in a static read of the call site.
  */
-const SELF_FOOTERING_COMPONENTS = /<FormActions\b/;
+const SELF_FOOTERING_COMPONENTS = /<(?:FormActions|FormFooterActions)\b/;
 
 function nestedOverlayFooterViolations(sources: { file: string; text: string }[]) {
   const found: string[] = [];

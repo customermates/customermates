@@ -38,7 +38,6 @@ function importFindings(sources: SourceFile[], modulePattern: RegExp) {
 const TABS_OWNERS = new Set(["components/ui/tabs.tsx"]);
 
 const TABS_ALLOWLIST: Allowlist = {
-  "components/editor-tabs/editor-tabs.tsx": "I20: replaced by the shared CollapsibleSection, then deleted",
   "components/entity-detail/entity-detail-panels.tsx": "I2 r3: record page Overview / Notes / Activities segments",
   "components/data-view/header/display-options.tsx": "I2 r3: view layout picker as SegmentedControl",
   "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx": "I2 r3: record drawer segments",
@@ -50,7 +49,6 @@ const TABS_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/company/components/role/role-modal.tsx": "I19: role drawer as one form with sections",
   "app/[locale]/(protected)/company/components/company-invite/company-invite-modal.tsx": "I19: invite dialog",
   "app/[locale]/(protected)/profile/components/connected-account-modal.tsx": "I19: channel account drawer",
-  "app/[locale]/(protected)/routines/components/routine-modal.tsx": "I25 phase 2: routine drawer",
   "app/[locale]/(protected)/onboarding/wizard/components/step-invite.tsx": "I25 phase 2: onboarding invite step",
 };
 
@@ -178,7 +176,6 @@ function destructiveActionFindings(sources: SourceFile[]) {
 
 const DESTRUCTIVE_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/configure/components/field-modal.tsx": "I1 r4: option and input trash buttons",
-  "app/components/agent-chat/conversation-history.tsx": "I25 phase 2: delete chat button",
   "app/[locale]/(protected)/inbox/components/message-item.tsx": "I25 phase 2: email draft discard is neutral grey",
 };
 

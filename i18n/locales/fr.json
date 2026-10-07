@@ -681,7 +681,6 @@
       "archivedChats": "Discussions archivées",
       "assistantWorking": "Mate répond",
       "back": "Retour au chat",
-      "cancel": "Annuler",
       "chats": "Discussions",
       "copyCode": "Copier le code",
       "copyLink": "Copier le lien",
@@ -706,6 +705,7 @@
       "loadingOlderMessages": "Chargement des messages plus anciens",
       "loadMoreChats": "Charger plus de chats",
       "loadOlderMessages": "Charger les messages précédents",
+      "moreActions": "Plus d’actions pour {name}",
       "newChat": "Nouvelle discussion",
       "noChats": "Aucun chat pour l’instant",
       "noChatsBody": "Démarrez une discussion pour retrouver plus tard vos questions et le travail effectué.",
@@ -1896,6 +1896,7 @@
       "moveRight": "Déplacer vers la droite",
       "name": "Nom",
       "namePlaceholder": "Nom de la vue",
+      "nameRequired": "Saisissez un nom pour la vue.",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}"
     }
@@ -2724,6 +2725,7 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "Définir l'allocation Enterprise de {name} à {value} crédits par utilisateur ? Cela s'applique à tout l'espace de travail.",
+      "changes": "Enregistrer ces modifications pour {name} ? Elles s'appliquent à tout l'espace de travail.",
       "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
       "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
       "tags": "Définir les étiquettes de {name} sur {value} ? Cela s'applique à tout l'espace de travail.",
@@ -2849,11 +2851,8 @@
     },
     "delete": {
       "action": "Supprimer l'espace de travail",
-      "confirmLabel": "Saisissez {name} pour confirmer",
-      "confirmMessage": "{name} et {members, plural, =1 {son unique compte membre} other {ses # comptes membres}} seront définitivement supprimés. Cette action est irréversible.",
       "confirmTitle": "Supprimer définitivement cet espace de travail",
       "reasonLabel": "Motif",
-      "title": "Supprimer cet espace de travail",
       "warningDescription": "La suppression de {name} retire définitivement l'espace de travail et {members, plural, =1 {son unique compte membre} other {ses # comptes membres}}, ainsi que leurs contacts, affaires, messages, identifiants de connexion et données de facturation. Cette action est irréversible."
     },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",

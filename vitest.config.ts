@@ -13,6 +13,9 @@ const testEnvironment = {
   BETTER_AUTH_SECRET: "vitest-secret",
 };
 const domTestFiles = [
+  "components/ui/__tests__/segmented-control.dom.test.tsx",
+  "components/forms/__tests__/form-footer-actions.dom.test.ts",
+  "components/modal/__tests__/confirm-dialog.dom.test.ts",
   "app/**/records/**/components/__tests__/use-record-deletion.dom.test.ts",
   "app/**/records/**/components/__tests__/record-import-dialog.dom.test.ts",
   "app/**/configure/components/__tests__/calculation-input.dom.test.ts",
