@@ -3019,6 +3019,7 @@
     "conditionOtherwise": "Altrimenti",
     "conditionThen": "Allora",
     "configurationDeletion": {
+      "blockedMessage": "{name} non può essere eliminato finché altre parti della tua configurazione lo usano.",
       "blockers": {
         "binding": "{source} usa {target} nelle sue impostazioni.",
         "calculation": "{source} viene calcolato da {target}.",
@@ -3032,10 +3033,10 @@
         "widget": "Il widget {source} misura {target}."
       },
       "cleaned": {
-        "listDefaults": "{target} viene rimosso dal layout predefinito di {consumer}.",
+        "listDefaults": "{target} viene rimosso dal layout predefinito di {consumers}.",
         "personalLayouts": "{target} viene rimosso da {count, plural, one {# layout personale} other {# layout personali}}.",
-        "view": "{target} viene rimosso dalla vista {consumer}.",
-        "widget": "{target} viene rimosso dai filtri o dal raggruppamento del widget {consumer}."
+        "view": "{count, plural, one {{target} viene rimosso dalla vista {consumers}.} other {{target} viene rimosso da # viste: {consumers}.}}",
+        "widget": "{count, plural, one {{target} viene rimosso dai filtri o dal raggruppamento del widget {consumers}.} other {{target} viene rimosso dai filtri o dal raggruppamento di # widget: {consumers}.}}"
       },
       "configureActions": "Azioni di Configura",
       "deleteActivityPath": "Elimina collegamento di attività",
@@ -3070,9 +3071,10 @@
       "list": "Lista",
       "moved": "Spostato in Eliminati di recente",
       "noAccess": "Solo chi gestisce il modello di dati vede Eliminati di recente.",
+      "openConfigure": "Apri Configura",
       "recentlyDeleted": "Eliminati di recente",
-      "recentlyDeletedEmpty": "Non è stato eliminato nulla.",
-      "recentlyDeletedHelp": "Liste, campi, relazioni e collegamenti di attività eliminati restano qui finché non li ripristini o li elimini definitivamente.",
+      "recentlyDeletedEmpty": "Non è stato eliminato nulla",
+      "recentlyDeletedHelp": "Liste, campi, relazioni, collegamenti di attività e campi dei canali eliminati restano qui finché non li ripristini o li elimini definitivamente.",
       "removed": {
         "grants": "{count, plural, one {# permesso di ruolo} other {# permessi di ruolo}}",
         "hidden": "Contiene record che non puoi vedere.",

@@ -3019,6 +3019,7 @@
     "conditionOtherwise": "Si no",
     "conditionThen": "Entonces",
     "configurationDeletion": {
+      "blockedMessage": "{name} no se puede eliminar mientras otras partes de tu configuración lo sigan usando.",
       "blockers": {
         "binding": "{source} usa {target} en su configuración.",
         "calculation": "{source} se calcula a partir de {target}.",
@@ -3032,10 +3033,10 @@
         "widget": "El widget {source} mide {target}."
       },
       "cleaned": {
-        "listDefaults": "{target} se quita del diseño predeterminado de {consumer}.",
+        "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
         "personalLayouts": "{target} se quita de {count, plural, one {# diseño personal} other {# diseños personales}}.",
-        "view": "{target} se quita de la vista {consumer}.",
-        "widget": "{target} se quita de los filtros o la agrupación del widget {consumer}."
+        "view": "{count, plural, one {{target} se quita de la vista {consumers}.} other {{target} se quita de # vistas: {consumers}.}}",
+        "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}"
       },
       "configureActions": "Acciones de Configurar",
       "deleteActivityPath": "Eliminar conexión de actividad",
@@ -3070,9 +3071,10 @@
       "list": "Lista",
       "moved": "Movido a Eliminados recientemente",
       "noAccess": "Solo quienes gestionan el modelo de datos pueden ver Eliminados recientemente.",
+      "openConfigure": "Abrir Configurar",
       "recentlyDeleted": "Eliminados recientemente",
-      "recentlyDeletedEmpty": "No se ha eliminado nada.",
-      "recentlyDeletedHelp": "Las listas, campos, relaciones y conexiones de actividad eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
+      "recentlyDeletedEmpty": "No se ha eliminado nada",
+      "recentlyDeletedHelp": "Las listas, campos, relaciones, conexiones de actividad y campos de canales eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
       "removed": {
         "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
         "hidden": "Contiene registros que no puede ver.",

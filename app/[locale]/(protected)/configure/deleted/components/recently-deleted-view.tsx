@@ -4,14 +4,17 @@ import type { RecentlyDeleted } from "@/features/records/get-recently-deleted.in
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Activity, AtSign, Link2, List, RotateCcw, TextCursorInput, Trash2 } from "lucide-react";
+import { Activity, AtSign, History, Link2, List, RotateCcw, TextCursorInput, Trash2 } from "lucide-react";
 
 import { AppModal } from "@/components/modal";
+import { PageState } from "@/components/page-state/page-state";
+import { Button } from "@/components/ui/button";
 import { InfoRow } from "@/components/shared/info-row";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { useRouter } from "@/i18n/navigation";
+import { IntlLink, useRouter } from "@/i18n/navigation";
 
 import { useConfigurationDeletion } from "../../components/use-configuration-deletion";
+import { RecentlyDeletedSkeleton } from "./recently-deleted-skeleton";
 
 type Item = RecentlyDeleted["items"][number];
 
@@ -45,13 +48,7 @@ export function RecentlyDeletedView({ initial }: { initial: RecentlyDeleted | nu
       .join(" · ");
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-4" data-recently-deleted="">
-      <div>
-        <h1 className="text-lg font-semibold">{t("RecordModel.configurationDeletion.recentlyDeleted")}</h1>
-
-        <p className="text-sm text-muted-foreground">{t("RecordModel.configurationDeletion.recentlyDeletedHelp")}</p>
-      </div>
-
+    <div className="flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-4" data-recently-deleted="">
       {initial.items.length ? (
         <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {initial.items.map((item) => {
@@ -82,9 +79,18 @@ export function RecentlyDeletedView({ initial }: { initial: RecentlyDeleted | nu
           })}
         </ul>
       ) : (
-        <p className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-          {t("RecordModel.configurationDeletion.recentlyDeletedEmpty")}
-        </p>
+        <PageState
+          action={
+            <Button asChild size="sm" variant="secondary">
+              <IntlLink href="/configure">{t("RecordModel.configurationDeletion.openConfigure")}</IntlLink>
+            </Button>
+          }
+          background={<RecentlyDeletedSkeleton animated={false} />}
+          description={t("RecordModel.configurationDeletion.recentlyDeletedHelp")}
+          icon={History}
+          state="empty"
+          title={t("RecordModel.configurationDeletion.recentlyDeletedEmpty")}
+        />
       )}
 
       <AppModal

@@ -77,32 +77,33 @@ export function deletionBlockerSentences(t: Translate, deletion: Deletion, model
 }
 
 function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelView | null): ConfirmationSentence[] {
-  const personal = deletion.cleaned.filter(
-    (entry) => entry.consumer.kind === "personalLayout" || entry.consumer.kind === "detailLayout",
-  );
-  const shared = deletion.cleaned.filter((entry) => !personal.includes(entry));
-  return [
-    ...shared.map((entry) =>
-      confirmationSentence(
-        (values) =>
-          entry.consumer.kind === "view"
-            ? t("RecordModel.configurationDeletion.cleaned.view", values)
-            : entry.consumer.kind === "widget"
-              ? t("RecordModel.configurationDeletion.cleaned.widget", values)
-              : t("RecordModel.configurationDeletion.cleaned.listDefaults", values),
-        { consumer: referenceChip(entry.consumer, model), target: referenceChip(entry.target, model) },
-      ),
+  const groups = new Map<string, { key: string; target: DeletionReference; consumers: DeletionReference[] }>();
+  for (const entry of deletion.cleaned) {
+    const key =
+      entry.consumer.kind === "personalLayout" || entry.consumer.kind === "detailLayout"
+        ? "personalLayouts"
+        : entry.consumer.kind === "view"
+          ? "view"
+          : entry.consumer.kind === "widget"
+            ? "widget"
+            : "listDefaults";
+    const id = `${key}:${entry.target.kind}:${entry.target.id}`;
+    const group = groups.get(id) ?? { key, target: entry.target, consumers: [] };
+    if (!group.consumers.some((consumer) => consumer.kind === entry.consumer.kind && consumer.id === entry.consumer.id))
+      group.consumers.push(entry.consumer);
+    groups.set(id, group);
+  }
+  return [...groups.values()].map(({ key, target, consumers }) =>
+    confirmationSentence(
+      (values) => t(`RecordModel.configurationDeletion.cleaned.${key}`, { ...values, count: consumers.length }),
+      key === "personalLayouts"
+        ? { target: referenceChip(target, model) }
+        : {
+            target: referenceChip(target, model),
+            consumers: consumers.map((consumer) => referenceChip(consumer, model)),
+          },
     ),
-    ...(personal.length
-      ? [
-          confirmationSentence(
-            (values) =>
-              t("RecordModel.configurationDeletion.cleaned.personalLayouts", { ...values, count: personal.length }),
-            { target: referenceChip(personal[0].target, model) },
-          ),
-        ]
-      : []),
-  ];
+  );
 }
 
 export function issueSentences(
@@ -231,12 +232,18 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
               ? t("RecordModel.configurationDeletion.restoreTitle", { name })
               : t("RecordModel.configurationDeletion.deletePermanentlyTitle", { name }),
         message:
-          operation === "delete"
-            ? t("RecordModel.configurationDeletion.deleteMessage", { name })
-            : operation === "restore"
-              ? t("RecordModel.configurationDeletion.restoreMessage", { name })
-              : t("RecordModel.configurationDeletion.deletePermanentlyMessage", { name }),
-        details: operation === "delete" ? cleanedSentences(t, deletion, model) : removedSentences(t, deletion),
+          blockers.length && operation !== "restore"
+            ? t("RecordModel.configurationDeletion.blockedMessage", { name })
+            : operation === "delete"
+              ? t("RecordModel.configurationDeletion.deleteMessage", { name })
+              : operation === "restore"
+                ? t("RecordModel.configurationDeletion.restoreMessage", { name })
+                : t("RecordModel.configurationDeletion.deletePermanentlyMessage", { name }),
+        details: blockers.length
+          ? []
+          : operation === "delete"
+            ? cleanedSentences(t, deletion, model)
+            : removedSentences(t, deletion),
         blockers,
         ...(operation === "deletePermanently"
           ? { confirmationText: name, confirmLabel: t("RecordModel.configurationDeletion.deletePermanently") }

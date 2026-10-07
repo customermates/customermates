@@ -531,6 +531,12 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
     DeletionBlockerSchema.shape.reason.options.map((reason) => `RecordModel.configurationDeletion.blockers.${reason}`),
   ],
   [
+    "RecordModel.configurationDeletion.cleaned.${*}",
+    ["listDefaults", "personalLayouts", "view", "widget"].map(
+      (key) => `RecordModel.configurationDeletion.cleaned.${key}`,
+    ),
+  ],
+  [
     "RecordModel.configurationDeletion.issues.${*}",
     ["existingValues", "savedView", "detailLayout", "summaryApproval", "readAll", "dependency"].map(
       (key) => `RecordModel.configurationDeletion.issues.${key}`,
@@ -689,6 +695,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.cardinality.${value}",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.deletion.${value}",
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.blockers.${blocker.reason}",
+  "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.cleaned.${key}",
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.issues.${key}",
   "app/[locale]/(protected)/configure/deleted/components/recently-deleted-view.tsx :: t :: RecordModel.configurationDeletion.kinds.${item.target.kind}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: Common.dateBuckets.${field.bucket}",

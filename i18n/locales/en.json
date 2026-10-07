@@ -3019,6 +3019,7 @@
     "conditionOtherwise": "Otherwise",
     "conditionThen": "Then",
     "configurationDeletion": {
+      "blockedMessage": "{name} can't be deleted while other parts of your setup still use it.",
       "blockers": {
         "binding": "{source} uses {target} in its settings.",
         "calculation": "{source} calculates from {target}.",
@@ -3032,10 +3033,10 @@
         "widget": "The widget {source} measures {target}."
       },
       "cleaned": {
-        "listDefaults": "{target} is removed from the default layout of {consumer}.",
+        "listDefaults": "{target} is removed from the default layout of {consumers}.",
         "personalLayouts": "{target} is removed from {count, plural, one {# personal layout} other {# personal layouts}}.",
-        "view": "{target} is removed from the view {consumer}.",
-        "widget": "{target} is removed from the filters or grouping of the widget {consumer}."
+        "view": "{count, plural, one {{target} is removed from the view {consumers}.} other {{target} is removed from # views: {consumers}.}}",
+        "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}"
       },
       "configureActions": "Configure actions",
       "deleteActivityPath": "Delete activity connection",
@@ -3070,9 +3071,10 @@
       "list": "List",
       "moved": "Moved to Recently deleted",
       "noAccess": "Only people who manage the data model can see Recently deleted.",
+      "openConfigure": "Open Configure",
       "recentlyDeleted": "Recently deleted",
-      "recentlyDeletedEmpty": "Nothing has been deleted.",
-      "recentlyDeletedHelp": "Deleted lists, fields, relationships and activity connections stay here until you restore them or delete them permanently.",
+      "recentlyDeletedEmpty": "Nothing has been deleted",
+      "recentlyDeletedHelp": "Deleted lists, fields, relationships, activity connections and Channels fields stay here until you restore them or delete them permanently.",
       "removed": {
         "grants": "{count, plural, one {# role grant} other {# role grants}}",
         "hidden": "It contains records you can't see.",

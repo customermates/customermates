@@ -30,13 +30,17 @@ const TOKEN = "\u0000";
 
 export function confirmationSentence(
   translate: (values: Record<string, string>) => string,
-  chips: Record<string, ConfirmationChip>,
+  chips: Record<string, ConfirmationChip | ConfirmationChip[]>,
 ): ConfirmationSentence {
   const names = Object.keys(chips);
   const text = translate(Object.fromEntries(names.map((name, index) => [name, `${TOKEN}${index}${TOKEN}`])));
   return text
     .split(TOKEN)
-    .map((part, index) => (index % 2 === 1 ? chips[names[Number(part)]] : part))
+    .flatMap((part, index) => {
+      if (index % 2 === 0) return [part];
+      const chip = chips[names[Number(part)]];
+      return Array.isArray(chip) ? chip.flatMap((item, position) => (position ? [", ", item] : [item])) : [chip];
+    })
     .filter((part) => part !== "");
 }
 

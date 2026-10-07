@@ -3019,6 +3019,7 @@
     "conditionOtherwise": "Sinon",
     "conditionThen": "Alors",
     "configurationDeletion": {
+      "blockedMessage": "{name} ne peut pas être supprimé tant que d’autres éléments de votre configuration l’utilisent.",
       "blockers": {
         "binding": "{source} utilise {target} dans ses paramètres.",
         "calculation": "{source} est calculé à partir de {target}.",
@@ -3032,10 +3033,10 @@
         "widget": "Le widget {source} mesure {target}."
       },
       "cleaned": {
-        "listDefaults": "{target} est retiré de la mise en page par défaut de {consumer}.",
+        "listDefaults": "{target} est retiré de la mise en page par défaut de {consumers}.",
         "personalLayouts": "{target} est retiré de {count, plural, one {# mise en page personnelle} other {# mises en page personnelles}}.",
-        "view": "{target} est retiré de la vue {consumer}.",
-        "widget": "{target} est retiré des filtres ou du regroupement du widget {consumer}."
+        "view": "{count, plural, one {{target} est retiré de la vue {consumers}.} other {{target} est retiré de # vues : {consumers}.}}",
+        "widget": "{count, plural, one {{target} est retiré des filtres ou du regroupement du widget {consumers}.} other {{target} est retiré des filtres ou du regroupement de # widgets : {consumers}.}}"
       },
       "configureActions": "Actions de Configurer",
       "deleteActivityPath": "Supprimer la connexion d’activité",
@@ -3070,9 +3071,10 @@
       "list": "Liste",
       "moved": "Déplacé dans Supprimés récemment",
       "noAccess": "Seules les personnes qui gèrent le modèle de données voient Supprimés récemment.",
+      "openConfigure": "Ouvrir Configurer",
       "recentlyDeleted": "Supprimés récemment",
-      "recentlyDeletedEmpty": "Rien n’a été supprimé.",
-      "recentlyDeletedHelp": "Les listes, champs, relations et connexions d’activité supprimés restent ici jusqu’à ce que vous les restauriez ou les supprimiez définitivement.",
+      "recentlyDeletedEmpty": "Rien n’a été supprimé",
+      "recentlyDeletedHelp": "Les listes, champs, relations, connexions d’activité et champs des canaux supprimés restent ici jusqu’à ce que vous les restauriez ou les supprimiez définitivement.",
       "removed": {
         "grants": "{count, plural, one {# droit de rôle} other {# droits de rôle}}",
         "hidden": "Contient des fiches que vous ne pouvez pas voir.",
