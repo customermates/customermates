@@ -3,7 +3,7 @@ import { join, relative, sep } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 type UnitKind =
   | "frontmatter"
@@ -821,5 +821,5 @@ describe("retired claims stay retired", () => {
       return findViolationsInSource(file, readFileSync(path, "utf8"));
     });
     expect(violations, violations.join("\n")).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 });
