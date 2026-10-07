@@ -52,7 +52,7 @@ Einen AI-Client mit dem Workspace zu verbinden sind immer dieselben drei Schritt
 Dem Client `POST <BASE_URL>/api/v1/mcp` mit dem `x-api-key`-Header aus dem vorherigen Schritt geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides pro Client in der Tabelle unten enthalten die genaue Konfiguration.
 </Step>
 <Step title="Prüfen, ob die Tools ankommen">
-Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen, und `get_workspace_context` ist der natürliche erste Aufruf: er liefert User, die Workspace-Währung und die Bezeichnungen der Datensatztypen, Rollen und verbundene Accounts auf einmal.
+Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen, und `get_workspace_context` ist der natürliche erste Aufruf: er liefert User, Unternehmen, Rollen, verbundene Accounts und die Wissensdatenbank auf einmal; die Bezeichnungen der Datensatztypen liefert `discover_record_types`.
 </Step>
 </Steps>
 
@@ -88,7 +88,7 @@ Eine leere Wissensdatenbank bietet **Neue Seite** für manuelles Schreiben und *
 
 Über die Link-Funktion des Editors finden Sie andere Wissensdatenbank-Seiten. Alternativ wählen Sie **Seitenlink kopieren** unter **Seitenaktionen**. Es sind gewöhnliche Markdown-Links; beim Umbenennen bleibt die Adresse erhalten. Ein separater Index oder zusätzliche Verknüpfungsmetadaten sind nicht nötig.
 
-Wissensdatenbank-Leserechte erlauben das Anzeigen von Seiten. Die Wissensdatenbank-Rechte Erstellen, Bearbeiten und Löschen erlauben das Anlegen, das Bearbeiten und Verschieben oder das Löschen von Seiten, und jedes schließt Leserechte ein. Ändert eine andere Person oder ein Agent die Seite vor Ihrem Speichern, wird Ihr veralteter Speicherstand abgelehnt. Ihre Änderungen bleiben sichtbar, damit Sie sie mit der aktuellen Seite abgleichen können. Löschen ist endgültig. Änderungen erscheinen in den normalen Audit-Logs; ihre Wissensdatenbank-Inhalte benötigen sowohl Audit-Log-Zugriff als auch Wissensdatenbank-Leserechte. Das Audit-Log bietet keine Wiederherstellung.
+Wissensdatenbank-Leserechte erlauben das Anzeigen von Seiten. Die Wissensdatenbank-Rechte Erstellen, Bearbeiten und Löschen erlauben das Anlegen, das Bearbeiten und Verschieben oder das Löschen von Seiten, und jedes schließt Leserechte ein. Ändert eine andere Person oder ein Agent die Seite vor Ihrem Speichern, wird Ihr veralteter Speicherstand abgelehnt. Ihre Änderungen bleiben sichtbar, damit Sie sie mit der aktuellen Seite abgleichen können. Löschen ist endgültig. Änderungen erscheinen auf der normalen Seite **Aktivität**; ihre Wissensdatenbank-Inhalte benötigen sowohl Audit-Log-Zugriff als auch Wissensdatenbank-Leserechte. Das Audit-Log bietet keine Wiederherstellung.
 
 Der Betriebsleitfaden bleibt in der Seitenliste an erster Stelle angeheftet. Personen mit dem Wissensdatenbank-Recht Bearbeiten können die übrigen Seiten durch Ziehen umordnen. Die gespeicherte Reihenfolge gilt für den gesamten Workspace.
 
@@ -174,7 +174,7 @@ Jede Datensatzreferenz enthält `typeId` und `recordId`. Abfrage, Suche und Aggr
 {/* mcp-catalog:records */}
 #### `discover_record_types`
 
-Zugängliche Datensatztypen anhand von Namen oder stabilen Typ-IDs finden. Das Ergebnis enthält contractVersion, schemaRevision, erlaubte Aktionen und ob Sie das Datenmodell bearbeiten dürfen. Mit page und pageSize weiterblättern; includeEmbedded zeigt auch eingebettete Typen wie Positionen.
+Zugängliche Datensatztypen anhand von Namen oder stabilen Typ-IDs finden. Das Ergebnis enthält schemaRevision, erlaubte Aktionen und ob Sie das Datenmodell bearbeiten dürfen. Mit page und pageSize weiterblättern; includeEmbedded zeigt auch eingebettete Typen wie Positionen.
 
 **Nur lesend.** Optional: `typeIds`, `search`, `includeEmbedded`, `page`, `pageSize`.
 
@@ -299,7 +299,7 @@ Die Änderung gilt atomar für alle Ziele; eine große Neuberechnung kann `statu
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Aktuellen Nutzer, Workspace-Währung, Rollenkatalog mit Berechtigungen, zugängliche verbundene Nachrichtenkonten sowie den Betriebsleitfaden der Wissensdatenbank, ihr Verzeichnis der Abläufe mit ihrem Einsatzfall und eine zugriffsgefilterte Liste der Wissensseiten (`wikiPage` blättert weiter; fehlt ohne Wissensdatenbank-Leserechte) in einem Call lesen. Der natürliche erste Call einer Session. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
+Aktuellen Nutzer, Unternehmen, Rollenkatalog mit Berechtigungen, zugängliche verbundene Nachrichtenkonten sowie den Betriebsleitfaden der Wissensdatenbank, ihr Verzeichnis der Abläufe mit ihrem Einsatzfall und eine zugriffsgefilterte Liste der Wissensseiten (`wikiPage` blättert weiter; fehlt ohne Wissensdatenbank-Leserechte) in einem Call lesen. Der natürliche erste Call einer Session. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
 
 **Nur lesend.** Optional: `wikiPage`.
 
@@ -529,7 +529,7 @@ Lädt einen Treffer aus `search` über seine unveränderte ID: `wiki:<uuid>` ode
 
 ### Datenmodell [#record-model]
 
-Typen, Felder, Beziehungen, Berechnungen und gemeinsame Standards über ein Konfigurationspaket anlegen oder ändern. **Datenmodell** **Bearbeiten** ist von **Bearbeiten** bei einem Datensatztyp getrennt. Neue Typen sind zunächst nur für Administratoren zugänglich. Delegierte Schema-Verwalter können genehmigte Zugriffsvorlagen wählen, ohne Rollen verwalten zu dürfen.
+Typen, Felder, Beziehungen, Berechnungen und gemeinsame Standards über ein Konfigurationspaket anlegen oder ändern. **Datenmodell** **Bearbeiten** ist von **Bearbeiten** bei einem Datensatztyp getrennt. Neue Typen sind zunächst nur für Administratoren zugänglich. Delegierte Schema-Verwalter können eine Zugriffsvorlage, die auch ihre eigene Rolle enthalten darf, nur beim Anlegen eines Typs anwenden, ohne Rollen verwalten zu dürfen.
 
 Das relevante Modell lesen, das Paket prüfen, Abhängigkeiten und Rechtefolgen ansehen und anschließend dasselbe Paket mit erwarteter Revision und idempotencyKey anwenden. Temporäre `$client`-Referenzen verbinden neue Definitionen innerhalb des Pakets. Formeln bestehen aus typisierten Knoten in Abhängigkeitsreihenfolge und einem Wurzelknoten. Sie führen weder JavaScript noch SQL aus. Das Backend lehnt Zyklen, ungültige Typen, unzulässige Währungskombinationen und inkompatible Abhängigkeiten ab.
 
@@ -564,9 +564,9 @@ Der Quelltyp legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden pa
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
 
-Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Schreibvorgänge akzeptieren optional ein layout {x, y, w, h} im 12-Spalten-Raster, das im selben Aufruf gespeichert wird; ohne layout erhält ein neues Widget den ersten freien Platz und ein geändertes bleibt, wo es ist; überlappende Positionen werden abgelehnt. list liefert das aktuelle Layout jedes Widgets. Löschen entfernt die Widget-Konfiguration, nicht ihre Quelldatensätze.
+Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Schreibvorgänge akzeptieren optional ein layout `{x, y, w, h}` im 12-Spalten-Raster, das im selben Aufruf gespeichert wird; ohne layout erhält ein neues Widget den ersten freien Platz und ein geändertes bleibt, wo es ist; überlappende Positionen werden abgelehnt. list liefert das aktuelle Layout jedes Widgets. viewId legt ein Widget auf einer Dashboard-Ansicht ab (gespeicherte Ansicht der manage_data_views-Oberfläche dashboard); ohne viewId landet ein neues Widget in der aktuellen Dashboard-Ansicht. Löschen entfernt die Widget-Konfiguration, nicht ihre Quelldatensätze.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`, `viewId`.
 {/* /mcp-catalog */}
 
 ### Routinen [#routines]
@@ -594,9 +594,9 @@ Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Deli
 {/* mcp-catalog:admin */}
 #### `update_workspace_settings`
 
-target profile ändert den eigenen Namen, das Land und den Avatar. target company ändert die Workspace-Währung und benötigt Bearbeiten auf Unternehmen. Datensatztypen über configure_record_model umbenennen und konfigurieren; ihre Namen sind keine Workspace-Terminologieeinstellungen mehr.
+Ändert den eigenen Namen, das Land und den Avatar. Geldfelder haben ihre eigene Währung: Diese ändern und Datensatztypen umbenennen Sie über configure_record_model.
 
-Pflicht: `target`. Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `currency`.
+Optional: `firstName`, `lastName`, `country`, `avatarUrl`.
 
 #### `manage_team`
 

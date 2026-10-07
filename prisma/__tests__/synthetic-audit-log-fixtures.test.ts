@@ -3,7 +3,8 @@ import type { PrismaClient } from "@/generated/prisma";
 import { describe, expect, it, vi } from "vitest";
 
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
-import { AUDIT_LOG_EXCLUDED_EVENTS, DomainEvent } from "@/features/event/domain-events";
+import { DomainEvent } from "@/features/event/domain-events";
+import { subjectKindOf } from "@/features/event/event-envelope";
 
 import {
   buildSyntheticAuditLogFixtures,
@@ -97,16 +98,12 @@ function buildFixtures(snapshot = syntheticSnapshot()): SyntheticAuditFixture[] 
   });
 }
 
-function eventData(fixture: SyntheticAuditFixture): Record<string, unknown> {
-  return fixture.eventData as unknown as Record<string, unknown>;
-}
-
 function eventPayload(fixture: SyntheticAuditFixture): Record<string, unknown> {
-  return eventData(fixture).payload as Record<string, unknown>;
+  return fixture.payload as Record<string, unknown>;
 }
 
 function fixturesFor(fixtures: SyntheticAuditFixture[], event: DomainEvent): SyntheticAuditFixture[] {
-  return fixtures.filter((fixture) => fixture.event === event);
+  return fixtures.filter((fixture) => fixture.kind === event);
 }
 
 function fixtureForEntity(
@@ -114,7 +111,7 @@ function fixtureForEntity(
   event: DomainEvent,
   entityId: string,
 ): SyntheticAuditFixture {
-  const fixture = fixtures.find((candidate) => candidate.event === event && candidate.entityId === entityId);
+  const fixture = fixtures.find((candidate) => candidate.kind === event && candidate.subjectId === entityId);
   if (!fixture) throw new Error(`Missing ${event} fixture for ${entityId}`);
   return fixture;
 }
@@ -139,18 +136,11 @@ describe("synthetic audit-log fixtures", () => {
     expect(fixtures).toHaveLength(expectedAuditLogCount);
     expect(new Set(fixtures.map(({ id }) => id))).toHaveLength(fixtures.length);
     expect(fixtures.every(({ id }) => id.startsWith(`${SYNTHETIC_AUDIT_LOG_ID_PREFIX}-`))).toBe(true);
-    expect(fixtures.every(({ event }) => !AUDIT_LOG_EXCLUDED_EVENTS.has(event))).toBe(true);
-    expect(fixtures.some(({ event }) => event.startsWith("messaging."))).toBe(false);
+    expect(fixtures.some(({ kind }) => kind.startsWith("messaging."))).toBe(false);
     expect(buildFixtures(snapshot)).toEqual(fixtures);
     expect(Math.max(...fixtures.map(({ createdAt }) => createdAt.getTime()))).toBeLessThan(messagingSyncAt.getTime());
 
-    for (const fixture of fixtures) {
-      expect(eventData(fixture)).toMatchObject({
-        companyId: fixture.companyId,
-        entityId: fixture.entityId,
-        userId: fixture.userId,
-      });
-    }
+    for (const fixture of fixtures) expect(fixture.subjectKind).toBe(subjectKindOf(fixture.kind));
 
     expect(fixturesFor(fixtures, DomainEvent.USER_REGISTERED)).toHaveLength(snapshot.users.length);
     expect(fixturesFor(fixtures, DomainEvent.ROLE_CREATED)).toHaveLength(snapshot.roles.length);
@@ -168,7 +158,7 @@ describe("synthetic audit-log fixtures", () => {
     const pendingRegistration = fixtureForEntity(registrations, DomainEvent.USER_REGISTERED, SEED_IDS.sofiaRossiUser);
     const activeRegistration = fixtureForEntity(registrations, DomainEvent.USER_REGISTERED, SEED_IDS.elenaHoffmannUser);
 
-    expect(primaryRegistration).toMatchObject({ userId: SEED_IDS.user });
+    expect(primaryRegistration).toMatchObject({ actorId: SEED_IDS.user });
     expect(eventPayload(primaryRegistration)).toMatchObject({
       isNewCompany: true,
       status: "active",
@@ -185,9 +175,9 @@ describe("synthetic audit-log fixtures", () => {
       roleId: null,
     });
     expect(updates).toHaveLength(2);
-    expect(updates.map(({ entityId, userId }) => ({ entityId, userId }))).toEqual([
-      { entityId: SEED_IDS.sofiaRossiUser, userId: SEED_IDS.user },
-      { entityId: SEED_IDS.elenaHoffmannUser, userId: SEED_IDS.user },
+    expect(updates.map(({ subjectId, actorId }) => ({ subjectId, actorId }))).toEqual([
+      { subjectId: SEED_IDS.sofiaRossiUser, actorId: SEED_IDS.user },
+      { subjectId: SEED_IDS.elenaHoffmannUser, actorId: SEED_IDS.user },
     ]);
     expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, SEED_IDS.sofiaRossiUser))).toMatchObject({
       status: "active",
@@ -240,9 +230,9 @@ describe("synthetic audit-log fixtures", () => {
       ],
     ]);
     const prisma = {
-      auditLog: {
-        upsert: vi.fn((input: { create: SyntheticAuditFixture; where: { id: string } }) => {
-          rows.set(input.where.id, input.create);
+      eventLog: {
+        upsert: vi.fn((input: { create: SyntheticAuditFixture; where: { companyId_id: { id: string } } }) => {
+          rows.set(input.where.companyId_id.id, input.create);
           return Promise.resolve(input.create);
         }),
         deleteMany: vi.fn((input: { where: { companyId: string; id: { startsWith: string; notIn: string[] } } }) => {
@@ -257,7 +247,7 @@ describe("synthetic audit-log fixtures", () => {
           return Promise.resolve({ count });
         }),
       },
-    } as unknown as Pick<PrismaClient, "auditLog">;
+    } as unknown as Pick<PrismaClient, "eventLog">;
 
     await persistSyntheticAuditLogFixtures(prisma, SEED_IDS.company, fixtures);
     await persistSyntheticAuditLogFixtures(prisma, SEED_IDS.company, fixtures);

@@ -5,12 +5,11 @@ import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 
-import type { CountryCode, Currency, MessagingProvider, Status } from "@/generated/prisma";
+import type { CountryCode, MessagingProvider, Status } from "@/generated/prisma";
 
 export enum DomainEvent {
   USER_REGISTERED = "user.registered",
   USER_UPDATED = "user.updated",
-  COMPANY_UPDATED = "company.updated",
   ROLE_CREATED = "role.created",
   ROLE_UPDATED = "role.updated",
   ROLE_DELETED = "role.deleted",
@@ -77,14 +76,6 @@ export type DomainEventMap = {
       status?: Status;
       avatarUrl: string | null;
       roleId?: string;
-    };
-  };
-  [DomainEvent.COMPANY_UPDATED]: {
-    userId: string;
-    companyId: string;
-    entityId: string;
-    payload: {
-      currency?: Currency;
     };
   };
   [DomainEvent.ROLE_CREATED]: {
@@ -347,17 +338,3 @@ export type DomainEventMap = {
     };
   };
 };
-
-export const AUDIT_LOG_EXCLUDED_EVENTS: ReadonlySet<DomainEvent> = new Set([
-  DomainEvent.MESSAGING_MESSAGE_RECEIVED,
-  DomainEvent.MESSAGING_MESSAGE_UPDATED,
-  DomainEvent.MESSAGING_MESSAGE_DELETED,
-  DomainEvent.MESSAGING_MESSAGE_REACTION,
-  DomainEvent.MESSAGING_EMAIL_RECEIVED,
-  DomainEvent.MESSAGING_EMAIL_DELETED,
-  DomainEvent.MESSAGING_CHAT_UPDATED,
-  DomainEvent.MESSAGING_CHAT_DELETED,
-  DomainEvent.MESSAGING_CALENDAR_CHANGED,
-  DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED,
-  DomainEvent.MESSAGING_RELATION_CREATED,
-]);

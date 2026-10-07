@@ -101,7 +101,7 @@ async function createWorkspace() {
   const id = (key: string) => presetId(seed.company.id, key);
   await runWithTenant(admin, () =>
     runInTransaction(async () => {
-      await repo.saveModel(createCrmPreset(seed.company.id, "EUR"), admin.id);
+      await repo.saveModel(createCrmPreset(seed.company.id), admin.id);
       await repo.setGrants(id("service"), [{ roleId: seed.memberRole.id, actions: ["readAll"] }]);
       await repo.setGrants(id("deal"), [{ roleId: seed.memberRole.id, actions: ["readOwn"] }]);
       await repo.setGrants(id("contact"), [{ roleId: seed.memberRole.id, actions: ["readOwn"] }]);
@@ -198,7 +198,7 @@ async function queryActivity(user: TenantUser) {
       const policy = await new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), workspace.repo).load();
       const model = await workspace.repo.getModel();
       const available: ActivityKind[] = [];
-      if (policy.allowedSystem("auditLog", "readAll")) available.push("audit");
+      if (policy.allowedSystem("auditLog", "readAll")) available.push("record", "audit", "configuration");
       if (policy.canReadSystem("inboxMessages")) available.push("message", "activity", "calendar_event");
       return { policy, model, available, access: policy.access(model.types.map((type) => type.id)) };
     }),
@@ -206,7 +206,7 @@ async function queryActivity(user: TenantUser) {
   expect(context.policy.actor?.id).toBe(user.id);
   const input = RecordActivitiesInputSchema.parse({
     scope: { records: [{ typeId: workspace.id("service"), recordId: serviceId }], typeIds: [] },
-    kinds: ["audit", "message", "activity", "calendar_event"],
+    kinds: ["record", "audit", "message", "activity", "calendar_event"],
     limit: 100,
   });
   const scope = await boundedQuery<{
@@ -274,11 +274,12 @@ describeDatabase("record activity with 600 matching line items", { timeout: 3000
             },
           ]),
         });
-        const event = await fixtureClient().recordEvent.create({
+        const event = await fixtureClient().eventLog.create({
           data: {
             companyId: workspace.companyId,
-            typeId: workspace.id("service"),
-            recordId: serviceId,
+            subjectKind: "record",
+            subjectTypeId: workspace.id("service"),
+            subjectId: serviceId,
             actorId: workspace.admin.id,
             causeId: randomUUID(),
             kind: "record.created",

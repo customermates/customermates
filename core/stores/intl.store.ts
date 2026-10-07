@@ -8,7 +8,6 @@ import en from "timeago.js/lib/lang/en_US";
 import es from "timeago.js/lib/lang/es";
 import fr from "timeago.js/lib/lang/fr";
 import it from "timeago.js/lib/lang/it";
-import { Currency } from "@/generated/prisma";
 
 import type { AppLocale } from "@/i18n/locale-registry";
 
@@ -39,10 +38,6 @@ export class IntlStore {
 
   get rendersZonedValues(): boolean {
     return this.clientHydrated;
-  }
-
-  get companyCurrency() {
-    return this.rootStore.companyStore.company?.currency;
   }
 
   get formattingLocale() {
@@ -83,21 +78,6 @@ export class IntlStore {
       descriptiveLong: (date) => this.formatDescriptiveLongDateTime(date),
       relative: (date) => this.formatRelativeTime(date),
     };
-  }
-
-  formatCurrency(
-    amount: number | undefined,
-    currency?: string,
-    options?: { minimumFractionDigits?: number; maximumFractionDigits?: number },
-  ): string {
-    if (amount === undefined) return "";
-
-    return new Intl.NumberFormat(this.formattingLocale, {
-      style: "currency",
-      currency: currency || this.companyCurrency || Currency.eur,
-      minimumFractionDigits: options?.minimumFractionDigits,
-      maximumFractionDigits: options?.maximumFractionDigits,
-    }).format(amount);
   }
 
   formatNumber(value: number | undefined, options?: { useGrouping?: boolean; maximumFractionDigits?: number }): string {

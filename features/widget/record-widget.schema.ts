@@ -17,6 +17,13 @@ export const RecordWidgetInputSchema = z
     displayOptions: WidgetDisplayOptionsSchema,
     isTemplate: z.boolean(),
     layout: WidgetPlacementSchema.optional(),
+    viewId: z
+      .uuid()
+      .nullable()
+      .optional()
+      .describe(
+        "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
+      ),
   })
   .strict()
   .superRefine((value, context) => {
@@ -34,7 +41,6 @@ export const RecordWidgetDtoSchema = z
   .object({
     id: z.uuid(),
     kind: z.literal("chart"),
-    contractVersion: z.literal(2),
     version: z.number().int().positive(),
     userId: z.string(),
     companyId: z.string(),
@@ -42,6 +48,7 @@ export const RecordWidgetDtoSchema = z
     measure: RecordMeasureSchema,
     displayOptions: WidgetDisplayOptionsSchema,
     layout: WidgetLayoutSchema.nullable(),
+    viewId: z.uuid().nullable(),
     isTemplate: z.boolean(),
     createdAt: z.date(),
     updatedAt: z.date(),
@@ -70,8 +77,8 @@ export interface RecordWidgetRepo {
   findOwned(id: string): Promise<StoredRecordWidget | null>;
   findReadable(id: string): Promise<StoredRecordWidget | null>;
   listOwned(): Promise<StoredRecordWidget[]>;
-  listPlacements(): Promise<WidgetPlacementRow[]>;
-  save(input: RecordWidgetInput, id: string, layout?: WidgetLayout): Promise<StoredRecordWidget>;
+  listPlacements(viewId: string | null): Promise<WidgetPlacementRow[]>;
+  save(input: RecordWidgetInput, id: string, viewId: string | null, layout?: WidgetLayout): Promise<StoredRecordWidget>;
 }
 
 export const GenericRecordWidgetDtoSchema = z.discriminatedUnion("kind", [

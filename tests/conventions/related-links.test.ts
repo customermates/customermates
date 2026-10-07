@@ -14,7 +14,7 @@ import { relatedHrefsSchema } from "@/core/fumadocs/schemas/common";
 import { RELATED_LINK_COUNT } from "@/core/seo/related-selection";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const OUTBOUND_PER_PAGE = 4;
 const EXPLICIT_BLOG_CLUSTERS = [
@@ -201,7 +201,7 @@ describe("related links", () => {
         expect(problems, problems.join("\n")).toEqual([]);
       }
     }
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("validates explicitly authored blog links against published non-self targets", () => {
     for (const locale of CONTENT_LOCALES) {
@@ -337,7 +337,7 @@ describe("related links", () => {
 
       expect(orphans, orphans.join("\n")).toEqual([]);
     }
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("keeps the link graph identical across locales", () => {
     for (const collection of Object.keys(COLLECTIONS)) {
@@ -354,5 +354,5 @@ describe("related links", () => {
           `${collection} differs between ${reference.locale} and ${other.locale}`,
         ).toEqual(reference.graph);
     }
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 });

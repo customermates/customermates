@@ -122,7 +122,7 @@ describe("AgentUiControlStore.navigate", () => {
     for (const [targetId, route] of [
       ["nav-company-webhooks", "/company/webhooks"],
       ["nav-profile-api-keys", "/profile/api-keys"],
-      ["nav-company-audit-logs", "/company/audit-logs"],
+      ["nav-company-activity", "/company/activity"],
     ]) {
       await expect(store.navigate({ targetId })).resolves.toEqual({
         ok: false,
@@ -246,17 +246,17 @@ describe("AgentUiControlStore.highlight", () => {
   });
 
   it("waits for a target of the current page that renders after the address changed", async () => {
-    const currency = element(1);
+    const filter = element(1);
     let lookups = 0;
-    onPage("/company/settings", (id) => (id === "company-settings-currency" && ++lookups > 5 ? currency : null));
+    onPage("/company/webhooks", (id) => (id === "company-webhooks-filter" && ++lookups > 5 ? filter : null));
     const store = controlStore();
 
-    await expect(settled(store.highlight("company-settings-currency"))).resolves.toEqual({
+    await expect(settled(store.highlight("company-webhooks-filter"))).resolves.toEqual({
       ok: true,
-      result: "Highlighted company-settings-currency.",
+      result: "Highlighted company-webhooks-filter.",
     });
-    expect(store.active?.targetId).toBe("company-settings-currency");
-    expect(currency.scrollIntoView).toHaveBeenCalled();
+    expect(store.active?.targetId).toBe("company-webhooks-filter");
+    expect(filter.scrollIntoView).toHaveBeenCalled();
   });
 
   it("names the collapsed sidebar group of a sub-entry instead of asking to navigate", async () => {
@@ -271,7 +271,7 @@ describe("AgentUiControlStore.highlight", () => {
 
   it("highlights a sub-entry of a group that is already open without asking for the group toggle", async () => {
     const members = element(1);
-    onSidebarPage("/company/settings", { "nav-company": element(1), "nav-company-members": members });
+    onSidebarPage("/company/roles", { "nav-company": element(1), "nav-company-members": members });
     const store = controlStore();
 
     await expect(store.highlight("nav-company-members")).resolves.toEqual({
@@ -282,7 +282,7 @@ describe("AgentUiControlStore.highlight", () => {
   });
 
   it("asks to expand the icon rail instead of toggling the group that hides the entry", async () => {
-    onSidebarPage("/company/settings", {
+    onSidebarPage("/company/roles", {
       "nav-company": element(1, { rail: true }),
       "nav-company-members": element(0),
     });
@@ -306,7 +306,7 @@ describe("AgentUiControlStore.highlight", () => {
       "Target nav-dashboard is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then highlight it again.",
     );
 
-    onSidebarPage("/en/company/settings", {});
+    onSidebarPage("/en/company/roles", {});
     expect((await settled(controlStore().highlight("nav-company-roles"))).result).toBe(
       "Target nav-company-roles is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then highlight it again.",
     );
@@ -347,31 +347,31 @@ describe("AgentUiControlStore.highlight", () => {
   });
 
   it("keeps waiting for a target of the current page while the page still shows its loading state", async () => {
-    const currency = element(1);
+    const filter = element(1);
     let rendered = false;
     onPage(
-      "/company/settings",
-      (id) => (id === "company-settings-currency" && rendered ? currency : null),
+      "/company/webhooks",
+      (id) => (id === "company-webhooks-filter" && rendered ? filter : null),
       () => !rendered,
     );
     setTimeout(() => {
       rendered = true;
     }, 3200);
 
-    const highlighted = controlStore().highlight("company-settings-currency");
+    const highlighted = controlStore().highlight("company-webhooks-filter");
     await vi.advanceTimersByTimeAsync(3500);
 
-    await expect(highlighted).resolves.toEqual({ ok: true, result: "Highlighted company-settings-currency." });
+    await expect(highlighted).resolves.toEqual({ ok: true, result: "Highlighted company-webhooks-filter." });
   });
 
   it("stops waiting for a target of a page that never finishes loading", async () => {
     onPage(
-      "/company/settings",
+      "/company/webhooks",
       () => null,
       () => true,
     );
 
-    const highlighted = controlStore().highlight("company-settings-currency");
+    const highlighted = controlStore().highlight("company-webhooks-filter");
     await vi.advanceTimersByTimeAsync(8100);
 
     await expect(highlighted).resolves.toMatchObject({ ok: false });

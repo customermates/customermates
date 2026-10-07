@@ -15,7 +15,7 @@ import {
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 
 const companyId = "6487f9fb-7b10-439a-b783-9d3da8184b14";
-const model = createCrmPreset(companyId, "EUR");
+const model = createCrmPreset(companyId);
 const id = (key: string) => presetId(companyId, key);
 const labels = {
   createdAt: "Created",
@@ -111,7 +111,7 @@ describe("record filter target", () => {
         operator: FilterOperatorKey.hasNone,
       },
     ]);
-    expect(paletteFiltersToRecordQuery(palette.filters, palette.retained, model, "EUR")).toEqual(query);
+    expect(paletteFiltersToRecordQuery(palette.filters, palette.retained, model)).toEqual(query);
   });
 
   it("groups linked-field conditions on one path into one linked-record filter", () => {
@@ -132,7 +132,7 @@ describe("record filter target", () => {
         value: [id("organization")],
       },
     ];
-    const query = paletteFiltersToRecordQuery(filters, [], model, "EUR");
+    const query = paletteFiltersToRecordQuery(filters, [], model);
     expect(query.relatedFilters).toEqual([
       {
         path: [toDeal],
@@ -204,6 +204,6 @@ describe("record filter target", () => {
       relatedFilters: [searched, negated],
     });
     expect(palette).toEqual({ filters: [], retained: [searched, negated] });
-    expect(paletteFiltersToRecordQuery([], palette.retained, model, "EUR").relatedFilters).toEqual([searched, negated]);
+    expect(paletteFiltersToRecordQuery([], palette.retained, model).relatedFilters).toEqual([searched, negated]);
   });
 });

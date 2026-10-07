@@ -29,6 +29,9 @@
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"
   },
+  "ActivityPage": {
+    "title": "Actividad"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -67,8 +70,7 @@
           "delete": "Listo para eliminar de forma permanente un widget del panel"
         },
         "workspace": {
-          "configure": "Listo para cambiar el modelo de datos del espacio de trabajo",
-          "settings": "Listo para cambiar la configuración del espacio de trabajo, incluidos los nombres de los tipos de registro"
+          "configure": "Listo para cambiar el modelo de datos del espacio de trabajo"
         }
       },
       "cancelled": "Detenido",
@@ -376,11 +378,6 @@
             "done": "Espacio de trabajo revisado",
             "error": "No se pudo comprobar su espacio de trabajo",
             "running": "Revisando el espacio de trabajo"
-          },
-          "settings": {
-            "done": "Configuración del espacio de trabajo actualizada",
-            "error": "No se pudo actualizar la configuración del espacio de trabajo",
-            "running": "Actualizando la configuración del espacio de trabajo"
           }
         }
       },
@@ -759,12 +756,7 @@
     "unnamed": "Sin nombre"
   },
   "AuditLogModal": {
-    "createdAt": "Creado el",
-    "entity": "Elemento",
-    "entityId": "ID del elemento",
-    "event": "Evento",
     "eventAt": "{event} el {date}",
-    "eventData": "Datos del evento",
     "fields": {
       "acceptanceType": "Tipo de aceptación",
       "acceptingEmail": "Aceptado por",
@@ -772,11 +764,12 @@
       "changedFields": "Campos vigilados",
       "city": "Ciudad",
       "country": "País",
+      "createType": "Nuevo tipo",
       "cronExpression": "Programación",
       "currency": "Moneda",
-      "dealStageWeights": "Probabilidades de etapa",
-      "dealWeightingColumnId": "Campo de etapa",
       "debounceSeconds": "Retardo",
+      "deleteField": "Campo eliminado definitivamente",
+      "deleteType": "Tipo eliminado definitivamente",
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
@@ -785,10 +778,16 @@
       "markdown": "Markdown",
       "postalCode": "Código postal",
       "prompt": "Instrucciones",
+      "publishSummary": "Resumen publicado",
+      "putAccessPreset": "Plantilla de acceso",
+      "putActivityPath": "Ruta de actividad",
+      "putCapability": "Funcionalidad",
+      "putField": "Campo",
+      "putRelationship": "Relación",
+      "putType": "Tipo",
       "recipientEmail": "Enviado a",
       "removalReason": "Motivo de eliminación",
       "street": "Calle",
-      "terminology": "Nombres de registros",
       "timezone": "Zona horaria",
       "triggerEvents": "Eventos del disparador",
       "triggerFilters": "Filtros del disparador",
@@ -799,15 +798,7 @@
     "noValue": "Sin valor",
     "relationsAdded": "Elementos añadidos en {field}",
     "relationsDeleted": "Elementos eliminados de {field}",
-    "title": "Detalles del registro de auditoría",
-    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}",
-    "userId": "Usuario"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Los cambios del espacio de trabajo se registran aquí a medida que ocurren.",
-    "emptyTitle": "Aún no hay actividad",
-    "searchTooltip": "Buscar por ID de elemento",
-    "title": "Registros de auditoría"
+    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
@@ -895,7 +886,6 @@
       "success": "Verde",
       "warning": "Amarillo"
     },
-    "company": "Empresa",
     "creditsBelowMinimum": "<{amount}",
     "dateBuckets": {
       "day": "Día",
@@ -1132,9 +1122,6 @@
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
     "events": {
-      "company": {
-        "updated": "Empresa actualizada"
-      },
       "connected_account": {
         "created": "Cuenta conectada",
         "deleted": "Cuenta desconectada",
@@ -1175,6 +1162,13 @@
         "created": "Registro creado",
         "deleted": "Registro eliminado",
         "updated": "Registro actualizado"
+      },
+      "record_grants": {
+        "updated": "Acceso a registros cambiado"
+      },
+      "record_model": {
+        "initialized": "Modelo de datos configurado",
+        "updated": "Modelo de datos cambiado"
       },
       "records": {
         "exported": "Registros exportados"
@@ -1501,9 +1495,6 @@
     "label": "Enlace de invitación",
     "title": "Invitar a un usuario"
   },
-  "CompanySettings": {
-    "dataModelTitle": "Modelo de datos"
-  },
   "CompanyUserModal": {
     "activeUserWarning": "Puedes editar tu propia cuenta en tus <settingsLink>ajustes</settingsLink>.",
     "title": "Usuario"
@@ -1715,6 +1706,7 @@
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
+    "deleteView": "¿Eliminar «{name}»? {count, plural, =0 {No tiene widgets.} one {Su widget pasa a {main}:} other {Sus # widgets pasan a {main}:}}",
     "displayTypeRequirements": {
       "grouping": "Elige una agrupación para clasificar los grupos.",
       "noGrouping": "Establece Agrupar por en Sin agrupación para mostrar un número.",
@@ -1733,6 +1725,7 @@
       "verticalBarChart": "Gráfico de barras vertical",
       "verticalBarChartWithLabels": "Gráfico de barras vertical con etiquetas"
     },
+    "mainView": "Principal",
     "widgetEditor": {
       "addTitle": "Añadir widget",
       "appearance": {
@@ -2057,8 +2050,10 @@
     "noFurtherDetail": "No se registraron más detalles para este evento.",
     "types": {
       "activities": "Actividades",
-      "changes": "Cambios",
-      "messages": "Mensajes"
+      "audit": "Administración y sistema",
+      "configuration": "Configuración",
+      "messages": "Mensajes",
+      "record": "Cambios de registros"
     }
   },
   "ErrorCard": {
@@ -2955,7 +2950,6 @@
     "addProbability": "Añadir probabilidad",
     "aggregation": "Agregación",
     "allowManualOverride": "Permitir un valor de reemplazo manual",
-    "apply": "Aplicar cambios",
     "archiveActivityPath": "Archivar conexión",
     "archived": "Archivado",
     "archiveField": "Archivar campo",
@@ -2964,8 +2958,8 @@
     "archiveRelationship": "Archivar relación",
     "archiveRelationshipPath": "Archivar esta columna de registros relacionados",
     "ascending": "Ascendente",
+    "assignedMembers": "Miembros asignados",
     "assignedTo": "Asignado a",
-    "assignmentChange": "Miembros asignados: {before} → {after}",
     "attribute": "Nombre del atributo",
     "behavior": "Origen del valor",
     "behaviors": {
@@ -2979,6 +2973,28 @@
     "calculationError": "Cálculo no disponible",
     "calculationInput": "Entrada {number}",
     "calculationNavigation": "Navegación del cálculo",
+    "calculationPath": {
+      "captureChanged": "se guarda cuando cambia {field}",
+      "captureChangedTo": "se guarda cuando {field} cambia a {value}",
+      "captureCreate": "se guarda al crear el registro",
+      "captureExplicit": "se guarda a petición",
+      "count": "{field} = el número de {list} vinculados",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = {value} del registro vinculado de {list}",
+      "manual": "se puede sobrescribir manualmente",
+      "reducers": {
+        "average": "el promedio",
+        "max": "el máximo",
+        "min": "el mínimo",
+        "sum": "la suma"
+      },
+      "rollup": "{field} = {reducer} de {value} en los {list} vinculados",
+      "sentence": "{clauses}.",
+      "steps": "Ruta de cálculo",
+      "thisField": "Este campo",
+      "title": "Cómo se calcula el valor",
+      "via": "a través de {relationship} ({cardinality})"
+    },
     "calculationResult": "Resultado",
     "calculationSource": "Usar",
     "cancelOperation": "Cancelar cambio",
@@ -2996,6 +3012,14 @@
       "oneToMany": "Uno a varios",
       "oneToOne": "Uno a uno"
     },
+    "channelsField": {
+      "deleted": "Eliminado",
+      "deleteMessage": "Los mensajes dejarán de asociarse con los registros de esta lista. Las direcciones de correo, los números de teléfono y las cuentas sociales se conservan: restaura el campo Canales para volver a asociarlos o elimínalo de forma permanente.",
+      "deleteTitle": "¿Eliminar el campo Canales?",
+      "detail": "Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con los registros",
+      "restore": "Restaurar",
+      "short": "Correo, teléfono, redes"
+    },
     "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
     "color": "Color",
     "conditionIf": "Condición",
@@ -3004,10 +3028,10 @@
     "configure": "Configurar",
     "connectionType": "Conexión",
     "constant": "Valor fijo",
+    "contactFullName": "Nombre completo",
     "createdAt": "Creado el",
     "createList": "Crear lista",
     "currency": "Moneda",
-    "currentValue": "Valor actual",
     "decimalPlaces": "Decimales",
     "decimalPlacesHelp": "Déjalo vacío para usar el formato predeterminado. Solo cambia cómo se muestran los valores, no su cálculo.",
     "defaultColumns": "Columnas predeterminadas",
@@ -3026,6 +3050,7 @@
     "deletionCalculations": "Cálculos que pueden verse afectados: {fields}.",
     "deletionLinks": "Enlaces eliminados: {count}.",
     "deletionRecords": "Se eliminarán: {records}.",
+    "deletionRequiresReadAll": "Eliminarlo definitivamente requiere acceso de lectura a todos sus registros. Pídeselo a alguien que pueda leer todos los registros o a un administrador.",
     "deletionRestrictedLinks": "La cantidad de enlaces está oculta porque algunos registros vinculados tienen acceso restringido.",
     "dependencyHelp": "Resuelve las dependencias afectadas antes de aplicar este cambio.",
     "descending": "Descendente",
@@ -3035,12 +3060,15 @@
     "detailLayoutSaveFailed": "No se pudieron guardar los cambios de diseño.",
     "directRelationship": "Relación directa",
     "disabled": "Desactivado",
+    "duplicateFieldName": "Otro campo de esta lista ya usa este nombre, incluidos los campos eliminados recientemente. Elige otro nombre.",
+    "duplicateListName": "Otra lista ya usa este nombre. Los nombres de lista deben ser únicos, sin distinguir mayúsculas, acentos ni espacios adicionales.",
+    "duplicateOptionLabel": "Dos opciones de este campo tienen la misma etiqueta. Las etiquetas de opción deben ser únicas.",
+    "duplicateRelationshipLabel": "Otra relación de esta lista ya usa esta etiqueta. Elige otra etiqueta.",
     "edit": "Editar",
     "editField": "Editar campo",
     "editValue": "Editar {field}",
     "empty": "Todavía no hay registros",
     "emptyDescription": "Crea tu primer registro para empezar.",
-    "enableChannels": "Activar canales",
     "enabled": "Activado",
     "existingValuesIncompatible": "Los valores existentes no encajan con esta definición. Mantén un tipo compatible o actualiza primero esos valores.",
     "field": "Campo",
@@ -3076,6 +3104,7 @@
       "recordsRestricted": "Número de registros no disponible",
       "recordUnit": "{count, plural, one {registro} other {registros}}",
       "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
+      "resetLayout": "Restablecer diseño",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar"
     },
@@ -3254,6 +3283,7 @@
     "optionAttribute": "Atributo de la opción",
     "options": "Opciones",
     "permanentDeletion": {
+      "channelsMessage": "Esto elimina de forma permanente el campo Canales y todas las direcciones de correo, números de teléfono y cuentas sociales guardados en los registros de esta lista. Los mensajes dejarán de asociarse con estos registros. No se puede deshacer.",
       "deleteField": "Eliminar campo definitivamente",
       "deleteList": "Eliminar lista definitivamente",
       "dependentField": "{field} en {list} todavía depende de esto. Elimina o cambia ese campo primero.",
@@ -3261,20 +3291,23 @@
       "fieldMessage": "Esto elimina definitivamente el campo y todos sus valores guardados. No se puede deshacer.",
       "fieldTitle": "¿Eliminar {name} definitivamente?",
       "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
+      "hiddenRecords": "Contiene registros que no puede ver.",
+      "identifiers": "{count, plural, one {# identificador} other {# identificadores}} en {records, plural, one {# registro} other {# registros}}",
       "links": "{count, plural, one {# vínculo entre registros} other {# vínculos entre registros}}",
       "listMessage": "Esto elimina definitivamente la lista con sus campos, registros, vínculos, relaciones, vistas guardadas y permisos de rol. No se puede deshacer.",
       "listTitle": "¿Eliminar {name} definitivamente?",
       "nothingStored": "Ningún dato guardado lo usa.",
       "records": "{count, plural, one {# registro} other {# registros}}",
       "relationships": "{count, plural, one {# relación} other {# relaciones}}",
+      "requiresReadAll": "{name} todavía contiene registros que no puede ver. Solo quien puede leer todos sus registros, o un administrador, puede eliminarlo definitivamente.",
       "values": "{count, plural, one {# valor guardado} other {# valores guardados}}",
       "views": "{count, plural, one {# vista guardada o diseño personal} other {# vistas guardadas o diseños personales}}"
     },
     "pinnedFields": "Campos de detalle fijados",
-    "pluralDescription": "El nombre mostrado en la navegación. Déjalo vacío para usar el nombre de la lista.",
-    "pluralName": "Etiqueta de navegación",
+    "pluralDescription": "Se muestra en la navegación y en los títulos de lista. Se sugiere a partir del nombre hasta que lo cambies.",
+    "pluralName": "Nombre en plural",
     "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
-    "previousValue": "Valor anterior",
+    "previewReadyHidden": "Listo para aplicar. Incluye registros que no puede ver.",
     "priceModes": {
       "live": "Precio actual",
       "saved": "Precio guardado"
@@ -3283,7 +3316,7 @@
     "probability": "Probabilidad %",
     "progressUnavailable": "No se pudo cargar el progreso. Tu borrador se conserva.",
     "publishSummary": "Publicar resumen",
-    "publishSummaryHelp": "Los miembros que pueden leer este registro ven este valor aunque los datos vinculados sean privados. Guardar aprueba los datos usados en este cálculo.",
+    "publishSummaryHelp": "Los miembros que pueden leer este registro ven este valor aunque los datos vinculados sean privados. Guardar aprueba los datos usados en este cálculo. Un resumen de un solo valor o un total sobre un solo registro muestra ese valor exactamente.",
     "rangeEnd": "Hasta",
     "rangeStart": "Desde",
     "record": "Registro",

@@ -22,7 +22,7 @@ test("creates a custom-type activity widget, previews history, edits it and pres
   await openConfigure(page);
   await addFromConfigure(page, "List");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Tenders");
-  await dialog.getByRole("button", { name: "Create list", exact: true }).first().click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   await expect(dialog).not.toBeVisible();
   const typeId = new URL(page.url()).pathname.split("/").at(-1);

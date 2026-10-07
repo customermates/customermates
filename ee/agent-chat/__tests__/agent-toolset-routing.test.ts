@@ -114,7 +114,7 @@ describe("toolsetsForRequest", () => {
     expect(route("Ajoute un graphique au tableau de bord")).toEqual(["widgets"]);
     expect(route("Aggiungi un grafico al cruscotto")).toEqual(["widgets"]);
     expect(route("Invita a Ana como miembro del equipo")).toEqual(["admin"]);
-    expect(route("Change la devise de l'espace de travail")).toEqual(["admin"]);
+    expect(route("Change la devise du champ Montant")).toEqual(["record-model"]);
     expect(route("Cambia il ruolo di Marco")).toEqual(["admin"]);
     expect(route("Muestra el perfil de LinkedIn de Ana")).toEqual(["social"]);
   });
@@ -170,7 +170,7 @@ describe("toolsetsFromActivities", () => {
   it("re-enables the sets a conversation already used", () => {
     const toolsets = toolsetsFromActivities([
       { kind: "messages.read" },
-      { kind: "workspace.settings" },
+      { kind: "team.manage" },
       { kind: "views.configure" },
       { kind: "records.read" },
       { kind: "generic", consequence: { action: "salesList.save" } },

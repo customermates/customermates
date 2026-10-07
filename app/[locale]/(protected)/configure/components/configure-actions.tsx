@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { RecordModel, RecordType } from "@/features/records/record-model.schema";
+import type { RecordModelView, RecordType } from "@/features/records/record-model.schema";
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
@@ -9,6 +9,7 @@ import {
   Activity,
   Archive,
   ArchiveRestore,
+  AtSign,
   Calculator,
   LayoutList,
   Link2,
@@ -31,9 +32,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { recordChannelsBinding } from "@/features/records/record-channels";
 import { useDefinitionDeletion } from "./use-definition-deletion";
 
-export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "activity";
+export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "channels" | "activity";
 
 type Props = {
   ai: ReactNode;
@@ -48,7 +50,7 @@ type Props = {
   onAdd: (kind: ConfigureAddKind) => void;
   onSharedDefaults: () => void;
   onArchive: () => void;
-  model: RecordModel;
+  model: RecordModelView;
   onDeleted: () => Promise<void>;
 };
 
@@ -71,16 +73,9 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   const t = useTranslations();
   const deletion = useDefinitionDeletion(onDeleted);
   if (!canManage) return <div className="flex shrink-0 items-center gap-1">{ai}</div>;
-  if (selected && general.original?.id === selected.id && general.hasUnsavedChanges) {
-    return (
-      <FormActions
-        formId={generalFormId}
-        primaryButtonLabel={general.previewReady && !general.isLoading ? "RecordModel.apply" : "Common.actions.save"}
-        store={general}
-        variant="topbar"
-      />
-    );
-  }
+  if (selected && general.original?.id === selected.id && general.hasUnsavedChanges)
+    return <FormActions formId={generalFormId} store={general} variant="topbar" />;
+
   return (
     <div className="flex shrink-0 items-center gap-1">
       {ai}
@@ -177,6 +172,14 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
 
               {t("RecordModel.addMenu.relationship")}
             </DropdownMenuItem>
+
+            {!recordChannelsBinding(model, selected.id) && (
+              <DropdownMenuItem onSelect={() => onAdd("channels")}>
+                <AtSign aria-hidden="true" />
+
+                {t("EntityChannels.heading")}
+              </DropdownMenuItem>
+            )}
 
             <DropdownMenuItem onSelect={() => onAdd("activity")}>
               <Activity aria-hidden="true" />

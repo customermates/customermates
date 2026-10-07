@@ -35,7 +35,7 @@ const ENFORCED: Array<[resource: string, action: string, load: () => Promise<Gua
   [
     "company",
     "update",
-    async () => (await import("@/features/company/update-company-settings.interactor")).UpdateCompanySettingsInteractor,
+    async () => (await import("@/ee/subscription/refresh-subscription.interactor")).RefreshSubscriptionInteractor,
   ],
   [
     "wiki",
@@ -53,11 +53,6 @@ const ENFORCED: Array<[resource: string, action: string, load: () => Promise<Gua
     async () => (await import("@/features/wiki/delete-wiki-page.interactor")).DeleteWikiPageInteractor,
   ],
   ["wiki", "readAll", async () => (await import("@/features/wiki/get-wiki-pages.interactor")).GetWikiPagesInteractor],
-  [
-    "auditLog",
-    "readAll",
-    async () => (await import("@/features/audit-log/get/get-audit-logs.interactor")).GetAuditLogsInteractor,
-  ],
   [
     "inboxMessages",
     "create",

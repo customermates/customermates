@@ -85,14 +85,15 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
     .poll(async () => (await readModel(database, companyId)).types.find((type) => type.id === id("deal"))?.description)
     .toBe("Open opportunities");
 
-  await general.getByRole("textbox", { name: "Navigation label", exact: true }).fill("Opportunities");
-  await pane.getByRole("button", { name: "Save", exact: true }).click();
-  const apply = pane.getByRole("button", { name: "Apply changes", exact: true });
+  await general.getByRole("textbox", { name: "Plural name", exact: true }).fill("Opportunities");
+  const paneSave = pane.getByRole("button", { name: "Save", exact: true });
   const paneReset = pane.getByRole("button", { name: "Reset", exact: true });
+  const ready = pane.getByRole("status").filter({ hasText: "Ready to apply" });
+  await paneSave.click();
   await expect
-    .poll(async () => ((await apply.isVisible()) && (await apply.isEnabled())) || !(await paneReset.isVisible()))
+    .poll(async () => ((await ready.isVisible()) && (await paneSave.isEnabled())) || !(await paneReset.isVisible()))
     .toBe(true);
-  if (await paneReset.isVisible()) await apply.click();
+  if (await paneReset.isVisible()) await paneSave.click();
   await expect(page.getByRole("heading", { level: 1, name: "Opportunities", exact: true })).toBeVisible();
   expect((await readModel(database, companyId)).types.find((type) => type.id === id("deal"))).toMatchObject({
     pluralLabel: "Opportunities",
@@ -126,6 +127,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
     "Field",
     "Calculation",
     "Relationship",
+    "Channels",
     "Activity connection",
   ]);
   await page.keyboard.press("Escape");

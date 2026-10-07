@@ -1,6 +1,7 @@
 import type { RecordModel, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordAccessMap } from "@/features/records/record-query.schema";
-import type { RecordEvent, AuditLog } from "@/generated/prisma";
+import type { EventLog } from "@/generated/prisma";
+import type { RecordRevisionChange } from "@/features/records/record-revision.schema";
 import type { MessagingMessage } from "../messaging.schema";
 import type { RecordActivitiesInput } from "./record-activities.schema";
 import type { ActivityKind, ActivityThreadRef, ActivityCalendarEvent } from "./activities.schema";
@@ -15,8 +16,17 @@ export interface RecordActivitiesRepo {
     access: RecordAccessMap,
     available: ActivityKind[],
   ): Promise<RecordActivityIndexRow[]>;
-  eventsCompanyWide(ids: string[]): Promise<Array<RecordEvent & { actor: RecordActivityActor }>>;
-  auditLogsCompanyWide(ids: string[]): Promise<Array<AuditLog & { actor: RecordActivityActor }>>;
+  eventsCompanyWide(ids: string[]): Promise<Array<EventLog & { actor: RecordActivityActor }>>;
+  configurationsCompanyWide(ids: string[]): Promise<{
+    revisions: Array<{
+      revision: number;
+      createdAt: Date;
+      change: RecordRevisionChange;
+      actor: RecordActivityActor;
+      models: RecordModel[];
+    }>;
+    roleNames: Map<string, string>;
+  }>;
   hasHistoryCompanyWide(ref: RecordRef): Promise<boolean>;
   messagesCompanyWide(ids: string[]): Promise<RecordActivityMessage[]>;
   activitiesCompanyWide(ids: string[]): Promise<

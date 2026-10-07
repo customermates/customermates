@@ -52,7 +52,7 @@ Getting an AI client onto your workspace is the same three moves every time:
 Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
 </Step>
 <Step title="Confirm the tools arrived">
-Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear, and `get_workspace_context` is the natural first call: it returns your user, the workspace currency and record-type labels, roles, and connected accounts in one go.
+Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear, and `get_workspace_context` is the natural first call: it returns your user, company, roles, connected accounts and the Knowledge Base in one go; record-type labels come from `discover_record_types`.
 </Step>
 </Steps>
 
@@ -90,7 +90,7 @@ An empty Knowledge Base offers **New page** for manual writing and **Build from 
 
 Use the editor's link control to find another Knowledge Base page, or choose **Copy page link** in **Page actions**. These are ordinary Markdown links; renaming a page does not change its address. You do not need to maintain a separate index or linking metadata.
 
-Knowledge Base Read lets you view pages. Knowledge Base Create, Edit and Delete let you create, edit and move, or delete pages, and each of them includes Read. If another person or agent changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them with the latest page. Deletion is permanent. Changes use the normal Audit Logs; viewing their Knowledge Base content requires both Audit Log access and Knowledge Base Read. The audit log is not a restore feature.
+Knowledge Base Read lets you view pages. Knowledge Base Create, Edit and Delete let you create, edit and move, or delete pages, and each of them includes Read. If another person or agent changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them with the latest page. Deletion is permanent. Changes appear on the normal **Activity** page; viewing their Knowledge Base content requires both Audit Log access and Knowledge Base Read. The audit log is not a restore feature.
 
 ### Operating Guide, procedures, and knowledge [#page-types]
 
@@ -172,7 +172,7 @@ Every record reference contains both `typeId` and `recordId`. Query and search a
 {/* mcp-catalog:records */}
 #### `discover_record_types`
 
-Find accessible record types by name or stable type IDs. Results include contractVersion, schemaRevision, permitted actions and whether you may edit the data model. Use page and pageSize to continue; includeEmbedded reveals types such as line items.
+Find accessible record types by name or stable type IDs. Results include schemaRevision, permitted actions and whether you may edit the data model. Use page and pageSize to continue; includeEmbedded reveals types such as line items.
 
 **Read-only.** Optional: `typeIds`, `search`, `includeEmbedded`, `page`, `pageSize`.
 
@@ -297,7 +297,7 @@ The patch applies to every target atomically; a large recalculation can return `
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Read the current user, workspace currency, role catalog with permissions, accessible connected messaging accounts, and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
+Read the current user, company, role catalog with permissions, accessible connected messaging accounts, and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
 
 **Read-only.** Optional: `wikiPage`.
 
@@ -527,7 +527,7 @@ Read a result from `search` by its unchanged id: `wiki:<uuid>` or the exact retu
 
 ### Record model [#record-model]
 
-Create or update types, fields, relationships, calculations and shared defaults through a configuration bundle. **Data model** **Edit** is separate from **Edit** on a record type. New types default to administrator-only access; delegated schema managers can select approved access presets without acquiring role-administration rights.
+Create or update types, fields, relationships, calculations and shared defaults through a configuration bundle. **Data model** **Edit** is separate from **Edit** on a record type. New types default to administrator-only access; delegated schema managers can apply an access preset, which may include their own role, only when creating a type, without acquiring role-administration rights.
 
 Read the relevant model, preview the bundle, inspect dependencies and permission effects, then apply the same bundle with its expected revision and idempotency key. `$client` references let new definitions refer to one another in the bundle. Formula programs contain typed nodes ordered before their dependents and a root node. They cannot execute JavaScript or SQL. Backend validation rejects cycles, invalid types, unsafe currency combinations and incompatible dependencies.
 
@@ -562,9 +562,9 @@ The source determines the aggregation grain. Deal reporting counts each matching
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
 
-List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout {x, y, w, h} on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. Delete removes the widget configuration, not its source records.
+List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout `{x, y, w, h}` on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. viewId places a widget on a dashboard view (a saved view of manage_data_views surface dashboard); without it a new widget goes to the caller’s current dashboard view. Delete removes the widget configuration, not its source records.
 
-**Can delete data.** Required: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`.
+**Can delete data.** Required: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`, `viewId`.
 {/* /mcp-catalog */}
 
 ### Routines
@@ -592,9 +592,9 @@ One tool with an `action` switch: list, get, create, update, delete, plus the de
 {/* mcp-catalog:admin */}
 #### `update_workspace_settings`
 
-target profile changes your own name, country and avatar. target company changes workspace currency and needs Edit on Company. Rename or configure record types through configure_record_model; type names are no longer workspace terminology settings.
+Changes your own name, country and avatar. Money fields carry their own currency: change it, or rename record types, through configure_record_model.
 
-Required: `target`. Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `currency`.
+Optional: `firstName`, `lastName`, `country`, `avatarUrl`.
 
 #### `manage_team`
 

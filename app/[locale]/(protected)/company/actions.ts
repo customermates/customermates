@@ -6,7 +6,6 @@ import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-up
 import type { GetUserByIdData } from "@/features/user/get/get-user-by-id.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { SendFeedbackData } from "@/features/feedback/send-feedback.schema";
-import type { UpdateCompanySettingsData } from "@/features/company/update-company-settings.interactor";
 import type { DeleteRoleData } from "@/features/role/delete-role.interactor";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
 import type { UpsertWebhookData } from "@/features/webhook/upsert-webhook.interactor";
@@ -21,8 +20,6 @@ import {
   getGetUsersInteractor,
   getGetUserByIdInteractor,
   getAdminUpdateUserDetailsInteractor,
-  getGetCompanySettingsInteractor,
-  getUpdateCompanySettingsInteractor,
   getGetOrCreateInviteTokenInteractor,
   getInviteUsersByEmailInteractor,
   getSendFeedbackInteractor,
@@ -39,7 +36,6 @@ import {
   getDeleteWebhookInteractor,
   getGetWebhookDeliveriesInteractor,
   getResendWebhookDeliveryInteractor,
-  getGetAuditLogsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -66,10 +62,6 @@ export async function getBillingPortalUrlAction() {
   return { ok: false as const, error: z.treeifyError(result.error) };
 }
 
-export async function updateCompanyAction(data: UpdateCompanySettingsData) {
-  return serializeResult(getUpdateCompanySettingsInteractor().invoke(data));
-}
-
 export async function sendFeedbackAction(data: SendFeedbackData) {
   return serializeResult(getSendFeedbackInteractor().invoke(data));
 }
@@ -85,11 +77,6 @@ export async function getOrCreateInviteTokenAction() {
 
 export async function inviteUsersByEmailAction(data: InviteUsersByEmailData) {
   return serializeResult(getInviteUsersByEmailInteractor().invoke(data));
-}
-
-export async function getCompanyDetailsAction() {
-  const result = await getGetCompanySettingsInteractor().invoke();
-  return result.data;
 }
 
 export async function getRolesAction(params?: GetQueryParams) {
@@ -115,10 +102,6 @@ export async function getUsersAction(params?: GetQueryParams) {
 export async function getUserByIdAction(data: GetUserByIdData) {
   const result = await getGetUserByIdInteractor().invoke(data);
   return result.ok ? result.data : { user: null };
-}
-
-export async function getAuditLogsAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetAuditLogsInteractor().invoke(params));
 }
 
 export async function upsertWebhookAction(data: UpsertWebhookData) {

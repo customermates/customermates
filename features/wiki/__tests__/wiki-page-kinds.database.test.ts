@@ -47,23 +47,10 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
   const foreignUser: TenantUser = createMockUser({ id: randomUUID(), companyId: foreignCompanyId });
 
   const eventService = () =>
-    new EventService(
-      [],
-      { getWebhooksForEvent: () => Promise.resolve([]), getWebhooksForEventUnscoped: () => Promise.resolve([]) },
-      { create: () => Promise.resolve([]), createUnscoped: () => Promise.resolve([]) },
-      { log: () => Promise.resolve(), logUnscoped: () => Promise.resolve() },
-      { dispatch: () => Promise.resolve() } as never,
-      {
-        findEventRoutinesUnscoped: () => Promise.resolve([]),
-        admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
-      },
-      {
-        matchesCurrentUser: () => Promise.resolve(true),
-        currentUserTrigger: () => Promise.resolve(null),
-        matchesUserUnscoped: () => Promise.resolve(true),
-        canUserAccessUnscoped: () => Promise.resolve(true),
-      },
-    );
+    new EventService([], {
+      appendUnscoped: () => Promise.resolve(),
+      hasSubscribersUnscoped: () => Promise.resolve(false),
+    });
   const create = (pages: PageInput[], tenant = user) =>
     runWithTenant(tenant, () =>
       new CreateWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()).invoke({

@@ -18,9 +18,8 @@ const mocks = vi.hoisted(() => ({
   getWidgetGalleryAction: vi.fn(),
 }));
 vi.mock("../../actions", () => mocks);
-const model = createCrmPreset(randomUUID(), "EUR");
+const model = createCrmPreset(randomUUID());
 const discovery = {
-  contractVersion: 2 as const,
   schemaRevision: model.revision,
   canManageSchema: true,
   total: model.types.length,
@@ -49,7 +48,6 @@ function chart(name = "Value", id = randomUUID()) {
     companyId: "company",
     userId: "member",
     kind: "chart",
-    contractVersion: 2,
     version: 2,
     measure: {
       source: { typeId: model.types[0].id, filters: [], relationships: [] },
@@ -60,6 +58,7 @@ function chart(name = "Value", id = randomUUID()) {
     },
     displayOptions,
     layout: null,
+    viewId: null,
     isTemplate: false,
     createdAt: new Date(0),
     updatedAt: new Date(0),
@@ -84,7 +83,7 @@ function setup() {
   } as unknown as RootStore;
   const store = new WidgetModalStore(root);
   store.setRecordTypes(discovery);
-  return { store, refresh, removeItem, items };
+  return { store, root, refresh, removeItem, items };
 }
 function start(store: WidgetModalStore) {
   store.add();
@@ -114,7 +113,6 @@ describe("generic widget modal", () => {
       data: RecordActivityWidgetDtoSchema.parse({
         id: randomUUID(),
         kind: "activityTimeline",
-        contractVersion: 2,
         version: 1,
         userId: "member",
         companyId: "company",
@@ -122,6 +120,7 @@ describe("generic widget modal", () => {
         activityQuery: { scope: { typeIds: [], records: [] }, kinds: ["audit"], filters: [] },
         displayOptions: { showFilters: true },
         layout: null,
+        viewId: null,
         isTemplate: false,
         createdAt: new Date(0),
         updatedAt: new Date(0),
@@ -280,6 +279,33 @@ describe("generic widget modal", () => {
       mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
     );
   });
+  it("starts a new idempotency key when the same widget is created again after reopening", async () => {
+    const { store } = setup();
+    mocks.upsertRecordWidgetAction.mockResolvedValue({ ok: true, data: chart("Pipeline") });
+    start(store);
+    await store.onSubmit();
+    expect(store.isOpen).toBe(false);
+    start(store);
+    await store.onSubmit();
+    expect(mocks.upsertRecordWidgetAction).toHaveBeenCalledTimes(2);
+    expect(mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey).not.toBe(
+      mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
+    );
+  });
+  it("changes the retry key when the target dashboard view changes", async () => {
+    const { store, root } = setup();
+    start(store);
+    mocks.upsertRecordWidgetAction
+      .mockRejectedValueOnce(new Error("connection lost"))
+      .mockResolvedValueOnce({ ok: true, data: chart("Pipeline") });
+    await expect(store.onSubmit()).rejects.toThrow();
+    Object.assign(root.widgetsStore, { activeViewKey: randomUUID() });
+    await store.onSubmit();
+    expect(mocks.upsertRecordWidgetAction.mock.calls[1][0].viewId).toBe(root.widgetsStore.activeViewKey);
+    expect(mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey).not.toBe(
+      mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
+    );
+  });
   it("retains the persisted version if refresh fails after save", async () => {
     const { store, refresh } = setup(),
       saved = chart("Pipeline");
@@ -341,7 +367,6 @@ describe("generic widget modal", () => {
     expect(store.form).toMatchObject({
       kind: "activityTimeline",
       name: "Recent activity",
-      contractVersion: 2,
       activityQuery: { scope: { typeIds: [], records: [] }, filters: [] },
     });
   });

@@ -1,7 +1,7 @@
-import type { RecordField, RecordScalar } from "./record-model.schema";
+import type { RecordScalar, RecordFieldView } from "./record-model.schema";
 import { filterScalar } from "./record-presentation";
 
-export function recordInputValue(raw: unknown, field: RecordField, currency: string): RecordScalar | null {
+export function recordInputValue(raw: unknown, field: RecordFieldView): RecordScalar | null {
   if (raw === undefined || raw === null || raw === "") return null;
   if (field.valueType === "richText") return { kind: "richText", documentJson: JSON.stringify(raw) };
   if (field.valueType === "boolean") return { kind: "boolean", value: Boolean(raw) };
@@ -10,7 +10,7 @@ export function recordInputValue(raw: unknown, field: RecordField, currency: str
     const [start, end] = String(raw).split(",");
     return { kind: "range", start: start || null, end: end || null };
   }
-  return filterScalar(String(raw), field, currency);
+  return filterScalar(String(raw), field);
 }
 
 export function recordDraftValue(value: RecordScalar | null | undefined): unknown {
@@ -21,7 +21,7 @@ export function recordDraftValue(value: RecordScalar | null | undefined): unknow
   return value.value;
 }
 
-export function isRecordFieldWritable(field: RecordField) {
+export function isRecordFieldWritable(field: RecordFieldView) {
   return (
     field.behavior.kind === "input" ||
     (field.behavior.kind === "snapshot" && Boolean(field.behavior.allowManualOverride))

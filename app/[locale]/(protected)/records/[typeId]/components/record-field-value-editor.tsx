@@ -1,7 +1,7 @@
 "use client";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordField, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordScalar } from "@/features/records/record-model.schema";
 
 import { observer } from "mobx-react-lite";
 import { toJS } from "mobx";
@@ -19,7 +19,7 @@ import { RecordInputField } from "./record-input-field";
 export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
   constructor(
     rootStore: RootStore,
-    readonly field: RecordField,
+    readonly field: RecordFieldView,
     initialValue: unknown,
     private readonly save: (value: RecordScalar | null) => Promise<boolean>,
     private readonly done: () => void,
@@ -29,9 +29,7 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
   onSubmit = async () => this.apply(false);
   apply = async (clear: boolean) => {
     if (this.isReadOnly || this.isLoading) return;
-    const value = clear
-      ? null
-      : recordInputValue(toJS(this.form.value), this.field, this.rootStore.companyStore.company?.currency ?? "EUR");
+    const value = clear ? null : recordInputValue(toJS(this.form.value), this.field);
     if (value !== null) {
       const parsed = RecordScalarSchema.safeParse(value);
       if (!parsed.success) {

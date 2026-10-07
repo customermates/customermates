@@ -39,7 +39,7 @@ import type { MeasureRow } from "./record-measure";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { transactionStorage } from "@/core/decorators/transaction-context";
+import { wakeEventOutbox } from "@/features/event/event-outbox.repo";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { CalculatedValueSchema, RecordModelSchema } from "./record-model.schema";
 import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
@@ -62,12 +62,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   private async wakeRecordEvents(): Promise<void> {
-    if (!this.background) return;
-    const companyId = this.companyId;
-    const store = transactionStorage.getStore();
-    if (store?.recordEventWakeups.has(companyId)) return;
-    store?.recordEventWakeups.add(companyId);
-    await this.background.dispatch("process-record-events", { companyId });
+    if (this.background) await wakeEventOutbox(this.background, this.companyId);
   }
 
   override get companyId(): string {
@@ -343,8 +338,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         ),
       )}) AS target("typeId", "recordId", "fieldId")
       CROSS JOIN LATERAL (
-        SELECT event."actorId" FROM "RecordEvent" event
-        WHERE event."companyId" = ${this.companyId} AND event."typeId" = target."typeId" AND event."recordId" = target."recordId"
+        SELECT event."actorId" FROM "EventLog" event
+        WHERE event."companyId" = ${this.companyId} AND event."subjectKind" = 'record' AND event."subjectTypeId" = target."typeId" AND event."subjectId" = target."recordId"
           AND event.payload->'changedFieldIds' @> jsonb_build_array(target."fieldId")
         ORDER BY event."createdAt" DESC, event.id DESC
         LIMIT 1
@@ -453,13 +448,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
     return rows.map(({ companyId: _companyId, ...row }) => RecordEventSubscriptionSchema.parse(row));
   }
-  async measure(
-    measure: RecordMeasure,
-    model: RecordModel,
-    access: RecordAccessMap,
-    currency: string,
-  ): Promise<MeasureRow[]> {
-    return this.prisma.$queryRaw<MeasureRow[]>(compileRecordMeasure(this.companyId, measure, model, access, currency));
+  async measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]> {
+    return this.prisma.$queryRaw<MeasureRow[]>(compileRecordMeasure(this.companyId, measure, model, access));
   }
   @BypassTenantGuard
   async failOperationUnscoped(input: { companyId: string; userId: string; operationId: string }): Promise<void> {
@@ -510,14 +500,6 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       },
     });
     return RecordModelSchema.parse(recordInvariant(revision).snapshot);
-  }
-
-  async getWorkspaceCurrencyOrThrow(): Promise<string> {
-    const company = await this.prisma.company.findUniqueOrThrow({
-      where: { id: this.companyId },
-      select: { currency: true },
-    });
-    return company.currency;
   }
 
   async getDetailLayoutsCompanyWide(typeIds: string[], afterId?: string) {
@@ -590,10 +572,10 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
   }
 
-  async countDefinitionDeletion({ typeIds, fieldIds, relationIds }: RecordDefinitionDeletion) {
+  async countDefinitionDeletion({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion) {
     const companyId = this.companyId;
     const surfaces = typeIds.map(recordSurfaceKey);
-    const [records, values, links, relationships, views, personalizations, grants] = await Promise.all([
+    const [records, values, links, relationships, views, personalizations, grants, identityLinks] = await Promise.all([
       this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
       this.prisma.recordValue.count({
         where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
@@ -605,11 +587,30 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
       }),
       this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
+      this.countIdentityLinks(channelTypeIds),
     ]);
-    return { records, values, links, relationships, views: views + personalizations, grants };
+    return {
+      records,
+      values,
+      links,
+      relationships,
+      views: views + personalizations,
+      grants,
+      ...identityLinks,
+    };
   }
 
-  async deleteDefinitions({ typeIds, fieldIds, relationIds }: RecordDefinitionDeletion): Promise<void> {
+  private async countIdentityLinks(typeIds: string[]) {
+    if (!typeIds.length) return { identifiers: 0, identifierRecords: 0 };
+    const [row] = await this.prisma.$queryRaw<Array<{ identifiers: number; identifierRecords: number }>>(Prisma.sql`
+      SELECT COUNT(DISTINCT link."identityId")::integer AS identifiers,
+        COUNT(DISTINCT (link."typeId", link."recordId"))::integer AS "identifierRecords"
+      FROM "RecordIdentityLink" link
+      WHERE link."companyId" = ${this.companyId} AND link."typeId" IN (${Prisma.join(typeIds)})`);
+    return { identifiers: row?.identifiers ?? 0, identifierRecords: row?.identifierRecords ?? 0 };
+  }
+
+  async deleteDefinitions({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion): Promise<void> {
     const companyId = this.companyId;
     const surfaces = typeIds.map(recordSurfaceKey);
     await this.prisma.dataView.deleteMany({ where: { companyId, surfaceKey: { in: surfaces } } });
@@ -618,9 +619,10 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
     await this.prisma.recordValueDependency.deleteMany({ where: { companyId, sourceTypeId: { in: typeIds } } });
     const identities = await this.prisma.recordIdentityLink.findMany({
-      where: { companyId, typeId: { in: typeIds } },
+      where: { companyId, typeId: { in: [...typeIds, ...channelTypeIds] } },
       select: { identityId: true },
     });
+    await this.prisma.recordIdentityLink.deleteMany({ where: { companyId, typeId: { in: channelTypeIds } } });
     await this.prisma.recordRelationshipDefinition.deleteMany({ where: { companyId, id: { in: relationIds } } });
     await this.prisma.recordFieldDefinition.deleteMany({ where: { companyId, id: { in: fieldIds } } });
     await this.prisma.recordTypeDefinition.deleteMany({ where: { companyId, id: { in: typeIds } } });
@@ -870,14 +872,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const resolved = query.grouping && resolveRecordGrouping(query.typeId, query.grouping, model);
     if (!resolved) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
     const rows = await this.prisma.$queryRaw<RecordGroupRow[]>(
-      compileRecordGroups(
-        this.companyId,
-        query,
-        model,
-        access,
-        memberScope,
-        query.groupSummaries?.length ? await this.getWorkspaceCurrencyOrThrow() : "",
-      ),
+      compileRecordGroups(this.companyId, query, model, access, memberScope),
     );
     if (rows.some((row) => row.restricted)) throw new RecordWriteError(CustomErrorCode.permissionDenied);
     if (rows.some((row) => row.overflowWithRecords))
@@ -1062,17 +1057,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean> {
-    const [event, audit] = await Promise.all([
-      this.prisma.recordEvent.findFirst({
-        where: { companyId: this.companyId, typeId: ref.typeId, recordId: ref.recordId },
-        select: { id: true },
-      }),
-      this.prisma.auditLog.findFirst({
-        where: { companyId: this.companyId, entityId: ref.recordId },
-        select: { id: true },
-      }),
-    ]);
-    return Boolean(event || audit);
+    const event = await this.prisma.eventLog.findFirst({
+      where: { companyId: this.companyId, subjectKind: "record", subjectTypeId: ref.typeId, subjectId: ref.recordId },
+      select: { id: true },
+    });
+    return Boolean(event);
   }
 
   async delete(ref: RecordRef): Promise<void> {
@@ -1437,12 +1426,13 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     beforeDeletion = false,
   ): Promise<void> {
     const id = randomUUID();
-    await this.prisma.recordEvent.create({
+    await this.prisma.eventLog.create({
       data: {
         companyId: this.companyId,
         id,
-        typeId: ref.typeId,
-        recordId: ref.recordId,
+        subjectKind: "record",
+        subjectTypeId: ref.typeId,
+        subjectId: ref.recordId,
         actorId,
         causeId,
         kind,
@@ -1615,8 +1605,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const stage = (kind: string) =>
       Prisma.sql`stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = ${kind}`;
     await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "RecordEvent" ("companyId", id, "typeId", "recordId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
-      SELECT ${companyId}, stage.payload->>'id', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
+      INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectTypeId", "subjectId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
+      SELECT ${companyId}, stage.payload->>'id', 'record', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
         stage.payload->>'actorId', stage.payload->>'causeId', stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
       FROM "RecordStageRow" stage WHERE ${stage("event")}
     `);

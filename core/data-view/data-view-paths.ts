@@ -6,13 +6,14 @@ export const DATA_VIEW_PATHS: Readonly<Record<BuiltinDataViewSurfaceKey, string 
   [SURFACE.roles]: "/company/roles",
   [SURFACE.webhooks]: "/company/webhooks",
   [SURFACE.webhookDeliveries]: "/company/webhook-deliveries",
-  [SURFACE.auditLogs]: "/company/audit-logs",
   [SURFACE.messagingThreads]: "/inbox",
   [SURFACE.entityTimeline]: null,
+  [SURFACE.activity]: "/company/activity",
   [SURFACE.operatorUsers]: "/operator/users",
   [SURFACE.operatorWorkspaces]: "/operator/workspaces",
   [SURFACE.operatorAudit]: "/operator/audit",
   [SURFACE.routines]: "/routines",
+  [SURFACE.dashboard]: "/dashboard",
 });
 
 export function dataViewPath(surface: DataViewSurfaceKey): string | null {

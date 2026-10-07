@@ -22,7 +22,6 @@ const collectionViews = [
   "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
   "app/[locale]/(protected)/company/components/user/members-page-view.tsx",
   "app/[locale]/(protected)/company/components/role/roles-page-view.tsx",
-  "app/[locale]/(protected)/company/components/audit-log/audit-logs-page-view.tsx",
   "app/[locale]/(protected)/routines/components/routines-page-view.tsx",
   "app/[locale]/(protected)/company/components/webhook/webhooks-page-view.tsx",
   "app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view.tsx",
@@ -41,7 +40,6 @@ const pureSkeletons = [
 
 const featureSkeletons = [
   "app/[locale]/(protected)/profile/components/profile-settings-page-skeleton.tsx",
-  "app/[locale]/(protected)/company/components/company-settings/company-settings-page-skeleton.tsx",
   "app/[locale]/(protected)/company/components/subscription/subscription-page-skeleton.tsx",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-page-skeleton.tsx",
 ] as const;

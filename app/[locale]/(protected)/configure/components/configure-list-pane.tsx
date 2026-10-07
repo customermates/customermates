@@ -2,7 +2,13 @@
 
 import type { ReactNode } from "react";
 import type { DragEndEvent } from "@dnd-kit/core";
-import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
+import type {
+  RecordField,
+  RecordFieldView,
+  RecordModelView,
+  RecordRelationship,
+  RecordType,
+} from "@/features/records/record-model.schema";
 import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
 import type { TypeModalStore } from "./type-modal";
 
@@ -25,18 +31,23 @@ import { RecordConfigurationPreview } from "@/components/records/record-configur
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
-import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { cn } from "@/core/utils/cn";
 import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 
-import { configureCounts, configureFieldSource, configurePathLists } from "./configure-model";
+import {
+  configureChannelsField,
+  configureCounts,
+  configureFieldSource,
+  configurePathLists,
+  isResolvedField,
+} from "./configure-model";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { TypeSettingsFields } from "./type-modal";
 
-type ActivityPath = RecordModel["activityPaths"][number];
+type ActivityPath = RecordModelView["activityPaths"][number];
 
 type Props = {
-  model: RecordModel;
+  model: RecordModelView;
   selected: RecordType;
   general: TypeModalStore;
   generalFormId: string;
@@ -45,6 +56,7 @@ type Props = {
   showArchived: boolean;
   onToggleArchived: () => void;
   onEditField: (field: RecordField) => void;
+  onEditChannels: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onEditRelationshipPath: (path: RecordRelationshipPath) => void;
   onEditActivity: (path: ActivityPath) => void;
@@ -162,16 +174,12 @@ function SortableField({
   );
 }
 
-const GeneralSummary = observer(function GeneralSummary({ model, type }: { model: RecordModel; type: RecordType }) {
+const GeneralSummary = observer(function GeneralSummary({ type }: { type: RecordType }) {
   const t = useTranslations();
   const rows: Array<[string, string]> = [
     [t("RecordModel.name"), type.label],
     [t("RecordModel.pluralName"), type.pluralLabel],
     ...(type.description ? ([[t("RecordModel.description"), type.description]] as Array<[string, string]>) : []),
-    [
-      t("RecordModel.enableChannels"),
-      recordChannelsEnabled(model, type.id) ? t("RecordModel.enabled") : t("RecordModel.disabled"),
-    ],
     [t("RecordModel.showInNavigation"), type.navigationVisible ? t("RecordModel.enabled") : t("RecordModel.disabled")],
   ];
   return (
@@ -197,6 +205,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   showArchived,
   onToggleArchived,
   onEditField,
+  onEditChannels,
   onEditRelationship,
   onEditRelationshipPath,
   onEditActivity,
@@ -218,6 +227,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
       (field) => field.id === id && field.typeId === selected.id && (!field.archived || showArchived),
     ),
   );
+  const channels = configureChannelsField(model, selected.id, showArchived);
   const reorderEnabled = editingGeneral && interactive && !general.isDisabled;
   const relations = model.relationships.filter(
     (relation) =>
@@ -230,6 +240,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   );
   const hasArchivedParts =
     model.fields.some((field) => field.typeId === selected.id && field.archived) ||
+    configureChannelsField(model, selected.id, true)?.deleted === true ||
     model.relationships.some(
       (relation) =>
         relation.archived && (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
@@ -241,7 +252,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     : !selected.embedded && !selected.navigationVisible
       ? t("RecordModel.hiddenList")
       : null;
-  const fieldSource = (field: RecordField) => {
+  const fieldSource = (field: RecordFieldView) => {
     const source = configureFieldSource(model, field);
     switch (source.kind) {
       case "input":
@@ -282,19 +293,11 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 {editingGeneral ? (
                   <TypeSettingsFields idPrefix="configure-general" store={general} />
                 ) : (
-                  <GeneralSummary model={model} type={selected} />
+                  <GeneralSummary type={selected} />
                 )}
               </ConfigureGroup>
 
-              {editingGeneral && (
-                <FormActions
-                  formId={generalFormId}
-                  primaryButtonLabel={
-                    general.previewReady && !general.isLoading ? "RecordModel.apply" : "Common.actions.save"
-                  }
-                  store={general}
-                />
-              )}
+              {editingGeneral && <FormActions formId={generalFormId} store={general} />}
             </>
           ),
         },
@@ -303,7 +306,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
           label: t("RecordModel.fields"),
           content: (
             <ConfigureGroup title={t("RecordModel.fields")}>
-              {fields.length ? (
+              {fields.length || channels ? (
                 <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
                   <SortableContext items={fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
                     <ul className="divide-y divide-border">
@@ -320,10 +323,23 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                             label={field.label}
                             leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
                             status={field.archived ? t("RecordModel.archived") : null}
-                            onOpen={canManage ? () => onEditField(field) : undefined}
+                            onOpen={canManage && isResolvedField(field) ? () => onEditField(field) : undefined}
                           />
                         </SortableField>
                       ))}
+
+                      {channels && (
+                        <li data-configure-channels-row="">
+                          <ConfigureRow
+                            detail={`${t("EntityChannels.heading")} · ${t("RecordModel.channelsField.detail")}`}
+                            interactive={interactive}
+                            label={t("EntityChannels.heading")}
+                            leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
+                            status={channels.deleted ? t("RecordModel.channelsField.deleted") : null}
+                            onOpen={canManage ? onEditChannels : undefined}
+                          />
+                        </li>
+                      )}
                     </ul>
                   </SortableContext>
                 </DndContext>
@@ -419,9 +435,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     <div className="animate-page-result-in flex w-full flex-col motion-reduce:animate-none" data-configure-list-pane="">
       <div className="flex w-full max-w-3xl items-center justify-between gap-4 p-4 md:p-6">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <Icon aria-hidden="true" className="size-4" />
-          </span>
+          <Icon aria-hidden="true" className="size-5 shrink-0" />
 
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">{selected.pluralLabel}</h1>

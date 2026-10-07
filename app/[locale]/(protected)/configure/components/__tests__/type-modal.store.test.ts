@@ -9,50 +9,53 @@ vi.mock("../../../records/actions", () => ({
 import { TypeModalStore } from "../type-modal";
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
-const root = { registerModalStore: vi.fn() } as unknown as RootStore;
+const root = { registerModalStore: vi.fn(), localeStore: { locale: "en" } } as unknown as RootStore;
 
 describe("list configuration", () => {
-  it("preserves channel binding identity, naming hints, and avatar setting on disable", () => {
-    const model = createCrmPreset(company, "EUR");
-    model.capabilities = model.capabilities.filter((binding) => binding.kind !== "channels");
-    const binding = {
-      id: id("identity"),
-      typeId: id("contact"),
-      kind: "channels" as const,
-      enabled: true,
-      providerAvatar: true,
-      fields: [{ role: "firstName", fieldId: id("contact.firstName") }],
-    };
-    model.capabilities.push(binding);
+  it("suggests the plural name from the name until the plural is edited", () => {
+    const model = createCrmPreset(company);
+    const store = new TypeModalStore(root, model, vi.fn());
+    store.edit(model, null);
+    store.renameList("Project");
+    expect(store.form.pluralName).toBe("Projects");
+    store.onChange("pluralName", "Programmes");
+    store.renameList("Programme");
+    expect(store.form.pluralName).toBe("Programmes");
+    store.onChange("pluralName", "");
+    store.renameList("Initiative");
+    expect(store.form.pluralName).toBe("Initiatives");
+  });
+  it("keeps a custom plural of an existing list when it is renamed", () => {
+    const model = createCrmPreset(company);
+    const store = new TypeModalStore(root, model, vi.fn());
+    const deal = recordInvariant(model.types.find((type) => type.id === id("deal")));
+    store.edit(model, { ...deal, label: "Deal", pluralLabel: "Pipeline" });
+    store.renameList("Opportunity");
+    expect(store.form.pluralName).toBe("Pipeline");
+    store.edit(model, { ...deal, label: "Deal", pluralLabel: "Deals" });
+    store.renameList("Opportunity");
+    expect(store.form.pluralName).toBe("Opportunities");
+  });
+  it("leaves the Channels field out of list settings", () => {
+    const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, recordInvariant(model.types.find((type) => type.id === id("contact"))));
-    store.onChange("channelsEnabled", false);
-    const operation = store.operations().find((operation) => operation.operation === "putCapability");
-    expect(operation?.operation === "putCapability" && operation.capability).toEqual({ ...binding, enabled: false });
+    store.onChange("description", "People we talk to");
+    expect(store.operations().some((operation) => operation.operation === "putCapability")).toBe(false);
+    store.edit(model, null);
+    store.onChange("name", "Applicants");
+    expect(store.operations().map((operation) => operation.operation)).toEqual(["createType"]);
   });
   it("does not rewrite channel configuration when appearance alone changes", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, model.types[0], "appearance");
     store.onChange("layout", "board");
     expect(store.section).toBe("appearance");
     expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
   });
-  it("creates enabled channels atomically and uses one stable id across preview and apply", () => {
-    const model = createCrmPreset(company, "EUR");
-    const store = new TypeModalStore(root, model, vi.fn());
-    store.edit(model, null);
-    store.onChange("name", "Applicants");
-    store.onChange("channelsEnabled", true);
-    const first = store.operations();
-    const second = store.operations();
-    expect(first).toEqual(second);
-    expect(first.map((operation) => operation.operation)).toEqual(["createType", "putCapability"]);
-    const channels = first[1];
-    expect(channels.operation === "putCapability" && channels.capability.typeId).toBe("$type");
-  });
   it("saves a dragged field order with the General settings and resets it with the form", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const deal = recordInvariant(model.types.find((type) => type.id === id("deal")));
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, deal);
@@ -77,7 +80,7 @@ describe("list configuration", () => {
     expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
   });
   it("archives and restores a list with its activity connections and relationships", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const type = model.types[0];
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, type, "archive");

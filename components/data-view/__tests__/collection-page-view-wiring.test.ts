@@ -6,8 +6,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
-  auditInit: vi.fn(),
-  auditOpen: vi.fn(),
   contentProps: vi.fn(),
   generateInvite: vi.fn(),
   getRootStore: vi.fn(),
@@ -98,9 +96,6 @@ vi.mock("@/app/[locale]/(protected)/company/components/user/use-member-columns",
 vi.mock("@/app/[locale]/(protected)/company/components/role/use-role-columns", () => ({
   useRoleColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns", () => ({
-  useAuditLogColumns: () => [],
-}));
 vi.mock("@/app/[locale]/(protected)/company/components/webhook/use-webhook-columns", () => ({
   useWebhookColumns: () => [],
 }));
@@ -115,7 +110,6 @@ vi.mock("@/app/[locale]/(protected)/company/components/role/role-modal", () => (
   RoleModal: () => createElement("div", { "data-role-modal": true }),
 }));
 
-import { AuditLogsPageView } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs-page-view";
 import { RolesPageView } from "@/app/[locale]/(protected)/company/components/role/roles-page-view";
 import { MembersPageView } from "@/app/[locale]/(protected)/company/components/user/members-page-view";
 import { WebhookDeliveriesPageView } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view";
@@ -194,10 +188,6 @@ function result(items: Array<Record<string, unknown>>): Result {
 
 function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}) {
   const root = {
-    auditLogModalStore: {
-      onInitOrRefresh: harness.auditInit,
-      open: harness.auditOpen,
-    },
     companyInviteModalStore: {
       generateInviteLink: harness.generateInvite,
       open: harness.inviteOpen,
@@ -257,25 +247,6 @@ const fixtures: Fixture[] = [
       expect(harness.roleEdit).toHaveBeenCalledExactlyOnceWith(role);
     },
     verifySync: () => expect(harness.sync).not.toHaveBeenCalled(),
-  },
-  {
-    creator: false,
-    name: "Audit Logs",
-    render: (value, initial) => {
-      setRoot("auditLogsStore", value);
-      return renderToStaticMarkup(
-        createElement(AuditLogsPageView, {
-          initialAuditLogs: initial as never,
-        }),
-      );
-    },
-    verifyRow: (props) => {
-      const item = { id: "row" };
-      (props.onRowClick as (value: typeof item) => void)(item);
-      expect(harness.auditInit).toHaveBeenCalledWith(item);
-      expect(harness.auditOpen).toHaveBeenCalledTimes(1);
-    },
-    verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),
   },
   {
     creator: true,

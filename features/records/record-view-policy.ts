@@ -5,7 +5,7 @@ import type { RecordAccessPolicy } from "./record-access";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordSurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
-import { SURFACE } from "@/core/data-view/data-view-keys";
+import { isActivitySurface } from "@/core/data-view/data-view-keys";
 import { activityViewStateValid, activityViewFilters } from "@/ee/messaging/activities/record-activity-view";
 import { recordViewStateIsValid } from "./record-view-state";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
@@ -16,7 +16,6 @@ export class RecordViewPolicy implements DataViewPolicy {
   constructor(
     private records: RecordRepo,
     private access: RecordAccessPolicy,
-    private company: { getDetails(): Promise<{ currency: string }> },
   ) {}
   async list() {
     const [model, policy] = await Promise.all([this.records.getModel(), this.access.load()]);
@@ -44,7 +43,7 @@ export class RecordViewPolicy implements DataViewPolicy {
     };
   }
   async validate(surfaceKey: string, state?: DataViewState): Promise<CustomErrorCode | null> {
-    if (surfaceKey === SURFACE.entityTimeline) {
+    if (isActivitySurface(surfaceKey)) {
       if (!state) return null;
       if (!activityViewStateValid(state)) return CustomErrorCode.recordValueInvalid;
       for (const filter of activityViewFilters(state.filters ?? [])) {
@@ -61,7 +60,6 @@ export class RecordViewPolicy implements DataViewPolicy {
     if (!model.types.some((type) => type.id === typeId && !type.archived)) return CustomErrorCode.recordTypeNotFound;
     if (!policy.actor || !policy.canReadType(typeId)) return CustomErrorCode.permissionDenied;
     if (!state) return null;
-    const company = await this.company.getDetails();
-    return recordViewStateIsValid(typeId, state, model, company.currency) ? null : CustomErrorCode.recordValueInvalid;
+    return recordViewStateIsValid(typeId, state, model) ? null : CustomErrorCode.recordValueInvalid;
   }
 }

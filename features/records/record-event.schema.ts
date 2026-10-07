@@ -63,7 +63,6 @@ export const RecordJournalEntrySchema = z
 
 export const RecordEventPayloadSchema = z
   .object({
-    version: z.literal(2),
     ref: RecordRefSchema,
     schemaRevision: z.number().int().positive(),
     cause: z

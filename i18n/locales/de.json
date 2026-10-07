@@ -29,6 +29,9 @@
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
   },
+  "ActivityPage": {
+    "title": "Aktivität"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -67,8 +70,7 @@
           "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
         },
         "workspace": {
-          "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern",
-          "settings": "Bereit, Workspace-Einstellungen einschließlich der Datensatztyp-Namen zu ändern"
+          "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern"
         }
       },
       "cancelled": "Gestoppt",
@@ -376,11 +378,6 @@
             "done": "Workspace wurde geprüft",
             "error": "Workspace konnte nicht geprüft werden",
             "running": "Workspace wird geprüft"
-          },
-          "settings": {
-            "done": "Workspace-Einstellungen wurden aktualisiert",
-            "error": "Workspace-Einstellungen konnten nicht aktualisiert werden",
-            "running": "Workspace-Einstellungen werden aktualisiert"
           }
         }
       },
@@ -759,12 +756,7 @@
     "unnamed": "Unbenannt"
   },
   "AuditLogModal": {
-    "createdAt": "Erstellt am",
-    "entity": "Element",
-    "entityId": "Element-ID",
-    "event": "Ereignis",
     "eventAt": "{event} am {date}",
-    "eventData": "Ereignisdaten",
     "fields": {
       "acceptanceType": "Art der Zustimmung",
       "acceptingEmail": "Zugestimmt von",
@@ -772,11 +764,12 @@
       "changedFields": "Überwachte Felder",
       "city": "Stadt",
       "country": "Land",
+      "createType": "Neuer Typ",
       "cronExpression": "Zeitplan",
       "currency": "Währung",
-      "dealStageWeights": "Phasenwahrscheinlichkeiten",
-      "dealWeightingColumnId": "Phasenfeld",
       "debounceSeconds": "Verzögerung",
+      "deleteField": "Endgültig gelöschtes Feld",
+      "deleteType": "Endgültig gelöschter Typ",
       "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",
       "emails": "E-Mail-Adressen",
@@ -785,10 +778,16 @@
       "markdown": "Markdown",
       "postalCode": "Postleitzahl",
       "prompt": "Anweisungen",
+      "publishSummary": "Veröffentlichte Zusammenfassung",
+      "putAccessPreset": "Zugriffsvorlage",
+      "putActivityPath": "Aktivitätspfad",
+      "putCapability": "Funktion",
+      "putField": "Feld",
+      "putRelationship": "Beziehung",
+      "putType": "Typ",
       "recipientEmail": "Gesendet an",
       "removalReason": "Entfernungsgrund",
       "street": "Straße",
-      "terminology": "Datensatzbenennung",
       "timezone": "Zeitzone",
       "triggerEvents": "Auslöser-Ereignisse",
       "triggerFilters": "Auslöser-Filter",
@@ -799,15 +798,7 @@
     "noValue": "Kein Wert",
     "relationsAdded": "{field} hinzugefügt",
     "relationsDeleted": "{field} entfernt",
-    "title": "Audit-Log-Details",
-    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}",
-    "userId": "Benutzer"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Änderungen im Workspace werden hier protokolliert.",
-    "emptyTitle": "Noch keine Aktivität",
-    "searchTooltip": "Nach Element-ID suchen",
-    "title": "Audit-Logs"
+    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
@@ -895,7 +886,6 @@
       "success": "Grün",
       "warning": "Gelb"
     },
-    "company": "Unternehmen",
     "creditsBelowMinimum": "<{amount}",
     "dateBuckets": {
       "day": "Tag",
@@ -1132,9 +1122,6 @@
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
     "events": {
-      "company": {
-        "updated": "Unternehmen aktualisiert"
-      },
       "connected_account": {
         "created": "Konto verbunden",
         "deleted": "Konto getrennt",
@@ -1175,6 +1162,13 @@
         "created": "Datensatz erstellt",
         "deleted": "Datensatz gelöscht",
         "updated": "Datensatz aktualisiert"
+      },
+      "record_grants": {
+        "updated": "Datensatzzugriff geändert"
+      },
+      "record_model": {
+        "initialized": "Datenmodell eingerichtet",
+        "updated": "Datenmodell geändert"
       },
       "records": {
         "exported": "Datensätze exportiert"
@@ -1501,9 +1495,6 @@
     "label": "Einladungslink",
     "title": "Benutzer einladen"
   },
-  "CompanySettings": {
-    "dataModelTitle": "Datenmodell"
-  },
   "CompanyUserModal": {
     "activeUserWarning": "Du kannst dein eigenes Benutzerkonto in deinen <settingsLink>Einstellungen</settingsLink> bearbeiten.",
     "title": "Benutzer"
@@ -1715,6 +1706,7 @@
       "title": "Letzte Aktivität"
     },
     "addCard": "Widget hinzufügen",
+    "deleteView": "„{name}“ löschen? {count, plural, =0 {Die Ansicht hat keine Widgets.} one {Ihr Widget wird nach {main} verschoben:} other {Ihre # Widgets werden nach {main} verschoben:}}",
     "displayTypeRequirements": {
       "grouping": "Wähle eine Gruppierung, um Gruppen zu ranken.",
       "noGrouping": "Setze Gruppieren nach auf Keine Gruppierung, um eine Zahl anzuzeigen.",
@@ -1733,6 +1725,7 @@
       "verticalBarChart": "Vertikales Balkendiagramm",
       "verticalBarChartWithLabels": "Vertikales Balkendiagramm mit Beschriftungen"
     },
+    "mainView": "Haupt-Dashboard",
     "widgetEditor": {
       "addTitle": "Widget hinzufügen",
       "appearance": {
@@ -2057,8 +2050,10 @@
     "noFurtherDetail": "Für dieses Ereignis wurden keine weiteren Details gespeichert.",
     "types": {
       "activities": "Aktivitäten",
-      "changes": "Änderungen",
-      "messages": "Nachrichten"
+      "audit": "Verwaltung und System",
+      "configuration": "Konfiguration",
+      "messages": "Nachrichten",
+      "record": "Datensatzänderungen"
     }
   },
   "ErrorCard": {
@@ -2955,7 +2950,6 @@
     "addProbability": "Wahrscheinlichkeit hinzufügen",
     "aggregation": "Zusammenfassung",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
-    "apply": "Änderungen anwenden",
     "archiveActivityPath": "Verbindung archivieren",
     "archived": "Archiviert",
     "archiveField": "Feld archivieren",
@@ -2964,8 +2958,8 @@
     "archiveRelationship": "Verknüpfung archivieren",
     "archiveRelationshipPath": "Diese Spalte mit verknüpften Datensätzen archivieren",
     "ascending": "Aufsteigend",
+    "assignedMembers": "Zugewiesene Mitglieder",
     "assignedTo": "Zugewiesen an",
-    "assignmentChange": "Zugewiesene Mitglieder: {before} → {after}",
     "attribute": "Attributname",
     "behavior": "Wertquelle",
     "behaviors": {
@@ -2979,6 +2973,28 @@
     "calculationError": "Berechnung nicht verfügbar",
     "calculationInput": "Eingabe {number}",
     "calculationNavigation": "Berechnungsnavigation",
+    "calculationPath": {
+      "captureChanged": "wird gespeichert, wenn sich {field} ändert",
+      "captureChangedTo": "wird gespeichert, wenn sich {field} zu {value} ändert",
+      "captureCreate": "wird beim Anlegen des Eintrags gespeichert",
+      "captureExplicit": "wird auf Anforderung gespeichert",
+      "count": "{field} = Anzahl der verknüpften {list}",
+      "formula": "{field} = {formula}",
+      "lookup": "{field} = {value} des verknüpften Eintrags in {list}",
+      "manual": "kann manuell überschrieben werden",
+      "reducers": {
+        "average": "Durchschnitt",
+        "max": "Maximum",
+        "min": "Minimum",
+        "sum": "Summe"
+      },
+      "rollup": "{field} = {reducer} von {value} über die verknüpften {list}",
+      "sentence": "{clauses}.",
+      "steps": "Berechnungsweg",
+      "thisField": "Dieses Feld",
+      "title": "So wird der Wert berechnet",
+      "via": "über {relationship} ({cardinality})"
+    },
     "calculationResult": "Ergebnis",
     "calculationSource": "Verwenden",
     "cancelOperation": "Änderung abbrechen",
@@ -2996,6 +3012,14 @@
       "oneToMany": "Eins zu viele",
       "oneToOne": "Eins zu eins"
     },
+    "channelsField": {
+      "deleted": "Gelöscht",
+      "deleteMessage": "Nachrichten werden den Datensätzen dieser Liste nicht mehr zugeordnet. E-Mail-Adressen, Telefonnummern und soziale Konten bleiben erhalten: Stelle das Kanäle-Feld wieder her, um sie erneut zuzuordnen, oder lösche es endgültig.",
+      "deleteTitle": "Kanäle-Feld löschen?",
+      "detail": "E-Mail-Adressen, Telefonnummern und soziale Konten, über die Nachrichten Datensätzen zugeordnet werden",
+      "restore": "Wiederherstellen",
+      "short": "E-Mail, Telefon, Social"
+    },
     "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
     "color": "Farbe",
     "conditionIf": "Bedingung",
@@ -3004,10 +3028,10 @@
     "configure": "Konfigurieren",
     "connectionType": "Verbindung",
     "constant": "Fester Wert",
+    "contactFullName": "Name",
     "createdAt": "Erstellt am",
     "createList": "Liste erstellen",
     "currency": "Währung",
-    "currentValue": "Aktueller Wert",
     "decimalPlaces": "Dezimalstellen",
     "decimalPlacesHelp": "Für die Standardeinstellung leer lassen. Dies ändert die Anzeige der Werte, nicht ihre Berechnung.",
     "defaultColumns": "Standardspalten",
@@ -3026,6 +3050,7 @@
     "deletionCalculations": "Möglicherweise betroffene Berechnungen: {fields}.",
     "deletionLinks": "Entfernte Verknüpfungen: {count}.",
     "deletionRecords": "Dabei werden entfernt: {records}.",
+    "deletionRequiresReadAll": "Zum endgültigen Löschen ist Lesezugriff auf alle zugehörigen Datensätze nötig. Bitte jemanden mit Zugriff auf alle Datensätze oder eine Administratorin bzw. einen Administrator.",
     "deletionRestrictedLinks": "Die Anzahl der Verknüpfungen ist ausgeblendet, da einige verknüpfte Datensätze geschützt sind.",
     "dependencyHelp": "Löse die betroffenen Abhängigkeiten, bevor du diese Änderung anwendest.",
     "descending": "Absteigend",
@@ -3035,12 +3060,15 @@
     "detailLayoutSaveFailed": "Layoutänderungen konnten nicht gespeichert werden.",
     "directRelationship": "Direkte Beziehung",
     "disabled": "Aus",
+    "duplicateFieldName": "Ein anderes Feld dieser Liste verwendet diesen Namen bereits, auch kürzlich gelöschte Felder. Wähle einen anderen Namen.",
+    "duplicateListName": "Eine andere Liste verwendet diesen Namen bereits. Listennamen müssen eindeutig sein, unabhängig von Groß- und Kleinschreibung, Akzenten und zusätzlichen Leerzeichen.",
+    "duplicateOptionLabel": "Zwei Optionen dieses Felds haben dieselbe Bezeichnung. Optionsbezeichnungen müssen eindeutig sein.",
+    "duplicateRelationshipLabel": "Eine andere Beziehung dieser Liste verwendet diese Bezeichnung bereits. Wähle eine andere Bezeichnung.",
     "edit": "Bearbeiten",
     "editField": "Feld bearbeiten",
     "editValue": "{field} bearbeiten",
     "empty": "Noch keine Datensätze",
     "emptyDescription": "Erstelle deinen ersten Datensatz.",
-    "enableChannels": "Kanäle aktivieren",
     "enabled": "An",
     "existingValuesIncompatible": "Vorhandene Werte passen nicht zu dieser Definition. Behalte einen kompatiblen Typ oder aktualisiere zuerst diese Werte.",
     "field": "Feld",
@@ -3076,6 +3104,7 @@
       "recordsRestricted": "Anzahl der Datensätze nicht verfügbar",
       "recordUnit": "{count, plural, one {Datensatz} other {Datensätze}}",
       "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
+      "resetLayout": "Layout zurücksetzen",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern"
     },
@@ -3254,6 +3283,7 @@
     "optionAttribute": "Optionsattribut",
     "options": "Optionen",
     "permanentDeletion": {
+      "channelsMessage": "Dadurch werden das Kanäle-Feld und alle E-Mail-Adressen, Telefonnummern und sozialen Konten der Datensätze dieser Liste endgültig gelöscht. Nachrichten werden diesen Datensätzen nicht mehr zugeordnet. Das kann nicht rückgängig gemacht werden.",
       "deleteField": "Feld endgültig löschen",
       "deleteList": "Liste endgültig löschen",
       "dependentField": "{field} in {list} hängt noch davon ab. Lösche oder ändere zuerst dieses Feld.",
@@ -3261,20 +3291,23 @@
       "fieldMessage": "Dadurch werden das Feld und alle gespeicherten Werte endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
       "fieldTitle": "{name} endgültig löschen?",
       "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
+      "hiddenRecords": "Enthält Datensätze, die Sie nicht sehen können.",
+      "identifiers": "{count, plural, one {# Kennung} other {# Kennungen}} an {records, plural, one {# Datensatz} other {# Datensätzen}}",
       "links": "{count, plural, one {# Verknüpfung zwischen Datensätzen} other {# Verknüpfungen zwischen Datensätzen}}",
       "listMessage": "Dadurch werden die Liste mit ihren Feldern, Datensätzen, Verknüpfungen, Beziehungen, gespeicherten Ansichten und Rollenrechten endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
       "listTitle": "{name} endgültig löschen?",
       "nothingStored": "Keine gespeicherten Daten verwenden es.",
       "records": "{count, plural, one {# Datensatz} other {# Datensätze}}",
       "relationships": "{count, plural, one {# Beziehung} other {# Beziehungen}}",
+      "requiresReadAll": "{name} enthält noch Datensätze, die Sie nicht sehen können. Endgültig löschen kann nur, wer alle Datensätze lesen darf, oder ein Admin.",
       "values": "{count, plural, one {# gespeicherter Wert} other {# gespeicherte Werte}}",
       "views": "{count, plural, one {# gespeicherte Ansicht oder persönliches Layout} other {# gespeicherte Ansichten oder persönliche Layouts}}"
     },
     "pinnedFields": "Angeheftete Detailfelder",
-    "pluralDescription": "Der Name in der Navigation. Leer lassen, um den Listennamen zu verwenden.",
-    "pluralName": "Navigationsbezeichnung",
+    "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis Sie ihn ändern.",
+    "pluralName": "Pluralname",
     "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
-    "previousValue": "Vorheriger Wert",
+    "previewReadyHidden": "Bereit zum Anwenden. Die Änderung betrifft auch Datensätze, die Sie nicht sehen können.",
     "priceModes": {
       "live": "Aktueller Preis",
       "saved": "Gespeicherter Preis"
@@ -3283,7 +3316,7 @@
     "probability": "Wahrscheinlichkeit %",
     "progressUnavailable": "Fortschritt konnte nicht geladen werden. Dein Entwurf bleibt erhalten.",
     "publishSummary": "Zusammenfassung freigeben",
-    "publishSummaryHelp": "Mitglieder mit Leserechten für diesen Datensatz sehen diesen Wert auch bei privaten verknüpften Daten. Mit dem Speichern werden die Eingaben dieser Berechnung freigegeben.",
+    "publishSummaryHelp": "Mitglieder mit Leserechten für diesen Datensatz sehen diesen Wert auch bei privaten verknüpften Daten. Mit dem Speichern werden die Eingaben dieser Berechnung freigegeben. Eine Zusammenfassung eines einzelnen Werts oder eine Summe über einen Datensatz zeigt diesen Wert exakt.",
     "rangeEnd": "Bis",
     "rangeStart": "Von",
     "record": "Datensatz",

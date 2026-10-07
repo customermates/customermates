@@ -21,6 +21,7 @@ import {
   createLegacyMigrationDatabase,
   deployMigrations,
   LEGACY_CRM_TABLES,
+  migrationNames,
   prismaCli,
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
@@ -61,6 +62,7 @@ async function legacySnapshot(client: Client) {
 
   for (const table of [
     "Company",
+    "AuditLog",
     "DataView",
     "P13n",
     "Widget",
@@ -659,9 +661,33 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       { id: f.inbox.preference },
     ]);
     expect(await rows(client, 'SELECT id FROM "Widget" WHERE "companyId"=$1', [f.companyId])).toEqual([]);
+    // The audit log is dropped; only the legal-consent evidence and the connected account history move into the
+    // event log, unchanged.
+    expect(await rows(client, "SELECT to_regclass('\"AuditLog\"') AS table")).toEqual([{ table: null }]);
     expect(
-      await rows(client, 'SELECT event FROM "AuditLog" WHERE "companyId"=$1 ORDER BY event', [f.companyId]),
-    ).toEqual([{ event: "webhook.created" }]);
+      await rows(
+        client,
+        `SELECT id, "subjectKind", "subjectTypeId", "subjectId", "actorId", "causeId", kind, payload, "createdAt",
+          "deliveredAt", attempts, "nextAttemptAt", "lastFailureCode" FROM "EventLog" WHERE "companyId"=$1 ORDER BY "createdAt"`,
+        [f.companyId],
+      ),
+    ).toEqual(
+      [f.legal.accepted, f.legal.notice, f.channels.created, f.channels.deleted].map((row) => ({
+        id: row.id,
+        subjectKind: row.event.split(".")[0],
+        subjectTypeId: null,
+        subjectId: row.entityId,
+        actorId: row.userId,
+        causeId: null,
+        kind: row.event,
+        payload: (row.eventData as { payload: unknown }).payload,
+        createdAt: row.createdAt,
+        deliveredAt: row.createdAt,
+        attempts: 0,
+        nextAttemptAt: row.createdAt,
+        lastFailureCode: null,
+      })),
+    );
 
     // Automations: webhooks and event routines are disabled without legacy events; nothing subscribes.
     expect(
@@ -688,10 +714,15 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     ).toEqual([{ triggerEvent: null, triggerEntityId: null, triggerPayload: null }]);
     expect(await rows(client, 'SELECT count(*)::int AS count FROM "RecordEventSubscription"')).toEqual([{ count: 0 }]);
     // Completed deliveries are never replayed; no record events (and so no deliveries) were emitted.
-    expect(await rows(client, 'SELECT "nextAttemptAt" FROM "WebhookDelivery" WHERE id=$1', [f.delivery])).toEqual([
-      { nextAttemptAt: null },
-    ]);
-    expect(await rows(client, 'SELECT count(*)::int AS count FROM "RecordEvent"')).toEqual([{ count: 0 }]);
+    expect(
+      await rows(client, 'SELECT "nextAttemptAt", "eventId" FROM "WebhookDelivery" WHERE id=$1', [f.delivery]),
+    ).toEqual([{ nextAttemptAt: null, eventId: null }]);
+    expect(
+      await rows(
+        client,
+        `SELECT count(*)::int AS count FROM "EventLog" WHERE "subjectKind" NOT IN ('legal', 'connected_account') OR "deliveredAt" IS NULL`,
+      ),
+    ).toEqual([{ count: 0 }]);
 
     // Legacy storage, enums and helpers are gone.
     expect(
@@ -767,7 +798,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     });
   });
 
-  it("keeps Knowledge Base pages, their permissions and audit history", async () => {
+  it("keeps Knowledge Base pages and their permissions without their audit history", async () => {
     const { client } = await legacyDatabase();
     const f = await populateLegacyWorkspace(client);
     const pageId = randomUUID();
@@ -792,7 +823,6 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         'SELECT resource::text, action::text FROM "RolePermission" WHERE "roleId"=$1 AND resource::text=$2 ORDER BY action',
         [f.memberRole.id, "wiki"],
       ),
-      audit: await rows(client, 'SELECT to_jsonb(a) AS row FROM "AuditLog" a WHERE "entityId"=$1', [pageId]),
     });
     const before = await mateState();
     expect(before.permissions).toHaveLength(2);
@@ -800,6 +830,9 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     await applyConfigurableRecordsMigration(client);
 
     expect(await mateState()).toEqual(before);
+    expect(await rows(client, 'SELECT count(*)::int AS count FROM "EventLog" WHERE "subjectId"=$1', [pageId])).toEqual([
+      { count: 0 },
+    ]);
   });
 
   it("reports an unexpected failure as an internal error, never as a data issue", async () => {
@@ -1055,11 +1088,11 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         "SELECT migration_name FROM \"_prisma_migrations\" WHERE started_at > NOW() - interval '10 minutes' AND migration_name >= $1 ORDER BY migration_name",
         [CONFIGURABLE_RECORDS_MIGRATION],
       ),
-    ).toEqual([
-      { migration_name: CONFIGURABLE_RECORDS_MIGRATION },
-      { migration_name: "20261006130000_remove_legacy_record_permissions" },
-      { migration_name: "20261006200000_p13n_settings" },
-    ]);
+    ).toEqual(
+      (await migrationNames((name) => name >= CONFIGURABLE_RECORDS_MIGRATION)).map((name) => ({
+        migration_name: name,
+      })),
+    );
     expect(
       await rows(production.client, 'SELECT resource::text FROM "RolePermission" WHERE "roleId"=$1', [f.memberRole.id]),
     ).toEqual([]);

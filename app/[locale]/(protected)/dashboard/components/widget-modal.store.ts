@@ -20,6 +20,7 @@ import { action, computed, makeObservable, observable, reaction, runInAction, to
 
 import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction, getWidgetGalleryAction } from "../actions";
 import { browserTimeZone } from "./widget-time-zone";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { GRID_COLS } from "./grid.constants";
 import { type WidgetLayoutGeometry, widgetDefaultSize, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
@@ -67,7 +68,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   constructor(rootStore: RootStore) {
     super(rootStore, {
       kind: "chart",
-      contractVersion: 2,
       name: "",
       isTemplate: false,
       expectedRevision: 0,
@@ -373,6 +373,18 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.activityFilterableFields = filterableFields;
   };
 
+  private submissionKey(input: object) {
+    const payload = JSON.stringify(input);
+    if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
+    return this.recordSubmission.key;
+  }
+
+  private targetView(id: string | undefined) {
+    if (id) return {};
+    const viewKey = this.rootStore.widgetsStore.activeViewKey;
+    return { viewId: viewKey === ALL_VIEW_KEY ? null : viewKey };
+  }
+
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     if (this.isLoading || !this.form.name.trim()) return;
@@ -382,12 +394,10 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     const form = toJS(this.form);
     if (isRecordActivityWidgetForm(form)) {
       try {
-        const input = omit(form, ["kind", "contractVersion", "idempotencyKey"]);
-        const payload = JSON.stringify(input);
-        if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
+        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
         const parsed = RecordActivityWidgetInputSchema.safeParse({
           ...input,
-          idempotencyKey: this.recordSubmission.key,
+          idempotencyKey: this.submissionKey(input),
         });
         if (!parsed.success) {
           this.setError(z.treeifyError(parsed.error));
@@ -408,10 +418,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
     if (isRecordWidgetForm(form)) {
       try {
-        const input = omit(form, ["kind", "contractVersion", "idempotencyKey"]);
-        const payload = JSON.stringify(input);
-        if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
-        const parsed = RecordWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.recordSubmission.key });
+        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
+        const parsed = RecordWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.submissionKey(input) });
         if (!parsed.success) {
           this.setError(z.treeifyError(parsed.error));
           return;
@@ -462,7 +470,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   private buildNewForm = (kind: WidgetKind, defaultActivityName?: string): WidgetModalForm => {
     const common = {
-      contractVersion: 2 as const,
       name: "",
       isTemplate: false,
       expectedRevision: this.recordTypes?.schemaRevision ?? 0,
@@ -505,7 +512,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       return {
         form: {
           kind: "activityTimeline",
-          contractVersion: 2,
           ...common,
           name: widget.name,
           isTemplate: common.isTemplate ?? false,
@@ -521,7 +527,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       return {
         form: {
           kind: "chart",
-          contractVersion: 2,
           ...common,
           name: widget.name,
           isTemplate: common.isTemplate ?? false,
@@ -582,6 +587,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   private advanceSession = () => {
     this.sessionGeneration += 1;
+    this.recordSubmission = null;
     this.companyWidgetsGeneration += 1;
     this.invalidateLoads();
   };

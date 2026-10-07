@@ -91,7 +91,7 @@ const newRoutine = {
 };
 
 const auditRows = () =>
-  runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company }, orderBy: { createdAt: "asc" } }));
+  runWithoutTenant(() => prisma.eventLog.findMany({ where: { companyId: company }, orderBy: { createdAt: "asc" } }));
 
 const createRoutine = async () => {
   const result = await getUpsertRoutineInteractor().invoke(newRoutine);
@@ -125,7 +125,7 @@ describeDatabase("a routine change leaves an audit trail in a real database", { 
   beforeEach(async () => {
     await runWithoutTenant(async () => {
       await prisma.routine.deleteMany({ where: { companyId: company } });
-      await prisma.auditLog.deleteMany({ where: { companyId: company } });
+      await prisma.eventLog.deleteMany({ where: { companyId: company } });
     });
   });
 
@@ -140,15 +140,15 @@ describeDatabase("a routine change leaves an audit trail in a real database", { 
     const rows = await auditRows();
 
     expect(rows).toHaveLength(1);
-    expect(rows[0].event).toBe("routine.created");
-    expect(rows[0].userId).toBe(actor);
+    expect(rows[0].kind).toBe("routine.created");
+    expect(rows[0].actorId).toBe(actor);
     expect(rows[0].companyId).toBe(company);
-    expect(rows[0].entityId).toBe(routine.id);
-    expect(rows[0].eventData).toMatchObject({
-      entityId: routine.id,
-      userId: actor,
-      companyId: company,
-      payload: { id: routine.id, name: "Daily deal digest", ownerUserId: actor, triggerKind: "schedule" },
+    expect(rows[0].subjectId).toBe(routine.id);
+    expect(rows[0].payload).toMatchObject({
+      id: routine.id,
+      name: "Daily deal digest",
+      ownerUserId: actor,
+      triggerKind: "schedule",
     });
   });
 
@@ -163,18 +163,16 @@ describeDatabase("a routine change leaves an audit trail in a real database", { 
     expect(updated.ok).toBe(true);
 
     const rows = await auditRows();
-    const update = rows.find((row) => row.event === "routine.updated");
+    const update = rows.find((row) => row.kind === "routine.updated");
 
     expect(rows).toHaveLength(2);
-    expect(update?.entityId).toBe(routine.id);
-    expect(update?.eventData).toMatchObject({
-      payload: {
-        routine: { id: routine.id },
-        changes: {
-          prompt: {
-            previous: "Summarise the open pipeline.",
-            current: "Summarise the open pipeline and flag stalled deals.",
-          },
+    expect(update?.subjectId).toBe(routine.id);
+    expect(update?.payload).toMatchObject({
+      routine: { id: routine.id },
+      changes: {
+        prompt: {
+          previous: "Summarise the open pipeline.",
+          current: "Summarise the open pipeline and flag stalled deals.",
         },
       },
     });
@@ -183,7 +181,10 @@ describeDatabase("a routine change leaves an audit trail in a real database", { 
   it("writes no row for a save that changes nothing", async () => {
     await createRoutine();
 
-    const unchanged = await getUpsertRoutineInteractor().invoke({ ...newRoutine, id: (await auditRows())[0].entityId });
+    const unchanged = await getUpsertRoutineInteractor().invoke({
+      ...newRoutine,
+      id: (await auditRows())[0].subjectId,
+    });
 
     expect(unchanged.ok).toBe(true);
     expect(await auditRows()).toHaveLength(1);
@@ -197,11 +198,9 @@ describeDatabase("a routine change leaves an audit trail in a real database", { 
     expect(paused.ok).toBe(true);
 
     const rows = await auditRows();
-    const update = rows.find((row) => row.event === "routine.updated");
+    const update = rows.find((row) => row.kind === "routine.updated");
 
-    expect(update?.eventData).toMatchObject({
-      payload: { changes: { enabled: { previous: true, current: false } } },
-    });
+    expect(update?.payload).toMatchObject({ changes: { enabled: { previous: true, current: false } } });
   });
 
   it("keeps the routine.deleted row after the routine and its runs are gone", async () => {
@@ -215,8 +214,8 @@ describeDatabase("a routine change leaves an audit trail in a real database", { 
     const remaining = await runWithoutTenant(() => prisma.routine.count({ where: { id: routine.id } }));
 
     expect(remaining).toBe(0);
-    expect(rows.map((row) => row.event)).toEqual(["routine.created", "routine.deleted"]);
-    expect(rows[1].entityId).toBe(routine.id);
-    expect(rows[1].eventData).toMatchObject({ payload: { id: routine.id, name: "Daily deal digest" } });
+    expect(rows.map((row) => row.kind)).toEqual(["routine.created", "routine.deleted"]);
+    expect(rows[1].subjectId).toBe(routine.id);
+    expect(rows[1].payload).toMatchObject({ id: routine.id, name: "Daily deal digest" });
   });
 });

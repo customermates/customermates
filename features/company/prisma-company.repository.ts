@@ -11,9 +11,8 @@ import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
-import type { GetCompanySettingsRepo } from "./get-company-settings.repo";
+import type { GetCompanyRepo } from "./get-company.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
-import type { UpdateCompanySettingsRepo } from "./update-company-settings.repo";
 
 import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 
@@ -24,8 +23,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 export class PrismaCompanyRepo
   extends TenantRepository
   implements
-    GetCompanySettingsRepo,
-    UpdateCompanySettingsRepo,
+    GetCompanyRepo,
     GetOrCreateInviteTokenRepo,
     InviteTokenRepo,
     SubscriptionRepo,
@@ -40,19 +38,12 @@ export class PrismaCompanyRepo
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo
 {
-  @Transaction
-  async updateDetails(args: RepoArgs<UpdateCompanySettingsRepo, "updateDetails">) {
+  async findCompanyOrThrow() {
     const { companyId } = this.user;
-
-    await this.prisma.company.update({
-      data: { ...args, id: companyId },
+    return await this.prisma.company.findUniqueOrThrow({
       where: { id: companyId },
+      select: { id: true, createdAt: true, updatedAt: true },
     });
-  }
-
-  async getDetails() {
-    const { companyId } = this.user;
-    return await this.prisma.company.findUniqueOrThrow({ where: { id: companyId } });
   }
 
   @Transaction

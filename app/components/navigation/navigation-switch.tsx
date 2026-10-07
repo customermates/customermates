@@ -1,7 +1,6 @@
 "use client";
 
 import type { TenantUser } from "@/features/user/user.schema";
-import type { Company } from "@/generated/prisma";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { AccountState } from "@/features/auth/account-state";
@@ -39,7 +38,6 @@ type NavigationSwitchProps = {
   sidebarUser: SidebarUser | null;
   appUser: TenantUser | null;
   userDisplayLanguage: unknown;
-  company: Company | null;
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   systemTaskCount: number;
@@ -59,7 +57,6 @@ export function NavigationSwitch({
   sidebarUser,
   appUser,
   userDisplayLanguage,
-  company,
   subscription,
   trialDaysLeft,
   systemTaskCount,
@@ -91,7 +88,7 @@ export function NavigationSwitch({
     isRegistered,
   });
   const rootStore = useRootStore();
-  const { userStore, companyStore, subscriptionStore, navigationGuard } = rootStore;
+  const { userStore, subscriptionStore, navigationGuard } = rootStore;
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
   const identifiedUser = accountAllowed ? appUser : null;
@@ -123,13 +120,11 @@ export function NavigationSwitch({
     userStore.setUser(identifiedUser);
     rootStore.recordWorkspaceStore.setNavigation(accountAllowed ? recordNavigation : null);
     rootStore.sidebarLayoutStore.setLayout(accountAllowed ? sidebarLayout : null);
-    companyStore.setCompany(accountAllowed ? company : null);
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
 
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
   }, [
     accountAllowed,
-    company,
     identifiedUser,
     protectedEnhancementsAllowed,
     rootStore,

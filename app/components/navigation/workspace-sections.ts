@@ -33,19 +33,14 @@ export const WORKSPACE_SECTIONS: Record<WorkspaceSection, WorkspaceSubroute[]> =
       cloudOnly: true,
     },
     {
-      slug: "settings",
-      labelKey: "NavigationBar.settings",
-      resource: Resource.company,
-    },
-    {
       slug: "members",
       labelKey: "NavigationBar.members",
       resource: Resource.users,
     },
     { slug: "roles", labelKey: "RolesCard.title", resource: Resource.users },
     {
-      slug: "audit-logs",
-      labelKey: "AuditLogsCard.title",
+      slug: "activity",
+      labelKey: "ActivityPage.title",
       resource: Resource.auditLog,
     },
     {

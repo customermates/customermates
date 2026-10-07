@@ -83,21 +83,18 @@ vi.mock("@/components/forms/form-autocomplete-avatar", () => ({ FormAutocomplete
 vi.mock("@/components/forms/form-iso-date-picker", () => ({ FormIsoDatePicker: () => null }));
 vi.mock("@/app/[locale]/(protected)/company/actions", () => ({ getUsersAction: vi.fn() }));
 vi.mock("next/dynamic", () => ({ default: () => () => null }));
-vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ companyStore: { company: { currency: "usd" } } }),
-}));
 import { CalculationInput } from "../calculation-input";
 
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
-const model = createCrmPreset(company, "EUR");
+const model = createCrmPreset(company);
 let root: Root;
 let container: HTMLElement;
 let latest: CalculationExpression;
 function Harness({ initial, typeId }: { initial: CalculationExpression; typeId: string }) {
   const [value, setValue] = useState(initial);
   latest = value;
-  return createElement(CalculationInput, { model, typeId, value, onChange: setValue });
+  return createElement(CalculationInput, { model, typeId, value, onChange: setValue, currency: "usd" });
 }
 function mount(element: ReactElement) {
   container = document.createElement("div");
@@ -215,7 +212,7 @@ describe("calculation literal defaults", () => {
     process.env.TZ = originalTimeZone;
   });
 
-  it("seeds a currency literal with the workspace currency", async () => {
+  it("seeds a currency literal with the field currency", async () => {
     mount(createElement(Harness, { typeId: id("deal"), initial: { kind: "literal", value: null } }));
     await choose("expression.literalKind", "currency");
     expect(latest).toEqual({ kind: "literal", value: { kind: "decimal", value: "0", currency: "USD" } });

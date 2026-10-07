@@ -3,10 +3,11 @@
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordPathStep } from "@/features/records/record-relationship-path.schema";
 
 import { Button } from "@/components/ui/button";
+import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { resolveRecordPath } from "@/features/records/record-relationship-path";
 
@@ -17,7 +18,7 @@ export function RelationshipPathInput({
   onChange,
   disabled = false,
 }: {
-  model: RecordModel;
+  model: RecordModelView;
   typeId: string;
   value: RecordPathStep[];
   onChange: (value: RecordPathStep[]) => void;
@@ -26,6 +27,7 @@ export function RelationshipPathInput({
   const t = useTranslations();
   const resolved = resolveRecordPath(typeId, value, model);
   const currentTypeId = resolved?.at(-1)?.typeId ?? typeId;
+  const iconOf = (listId: string) => model.types.find((type) => type.id === listId)?.icon;
   const options = model.relationships
     .filter((relation) => !relation.archived)
     .flatMap((relation) =>
@@ -35,6 +37,7 @@ export function RelationshipPathInput({
               {
                 value: `${relation.id}:${direction}`,
                 label: direction === "outgoing" ? relation.sourceLabel : relation.targetLabel,
+                icon: iconOf(direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId),
               },
             ]
           : [],
@@ -60,6 +63,12 @@ export function RelationshipPathInput({
               variant="secondary"
               onClick={() => onChange(value.slice(0, index))}
             >
+              {relation && (
+                <RecordTypeGlyph
+                  icon={iconOf(step.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId)}
+                />
+              )}
+
               {label}
 
               <X className="size-3" />
@@ -82,8 +91,12 @@ export function RelationshipPathInput({
 
         <SelectContent>
           {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
+            <SelectItem key={option.value} textValue={option.label} value={option.value}>
+              <span className="flex items-center gap-2">
+                <RecordTypeGlyph icon={option.icon} />
+
+                {option.label}
+              </span>
             </SelectItem>
           ))}
         </SelectContent>

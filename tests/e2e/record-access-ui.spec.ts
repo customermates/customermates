@@ -492,7 +492,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .first()
       .fill("Delegated records");
     await creation
-      .getByRole("button", { name: "Create list", exact: true })
+      .getByRole("button", { name: "Save", exact: true })
       .first()
       .click();
     await expect(creation).not.toBeVisible();
@@ -583,7 +583,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .getByRole("option", { name: "Approved assigned writers", exact: true })
       .click();
     await creation
-      .getByRole("button", { name: "Create list", exact: true })
+      .getByRole("button", { name: "Save", exact: true })
       .first()
       .click();
     await expect(creation).not.toBeVisible();
@@ -1303,7 +1303,7 @@ async function relationshipCreateTypeUi(page: Page, name: string) {
     .first()
     .fill(name);
   await dialog
-    .getByRole("button", { name: "Create list", exact: true })
+    .getByRole("button", { name: "Save", exact: true })
     .first()
     .click();
   await expect(dialog).not.toBeVisible();
@@ -2770,6 +2770,7 @@ test("keeps retained values restricted after a delegated manager converts fields
           typeId: "$source",
           label: "Private amount",
           valueType: "currency",
+          format: { currency: "EUR" },
           required: false,
           archived: false,
           options: [],
@@ -2784,6 +2785,7 @@ test("keeps retained values restricted after a delegated manager converts fields
           typeId: "$summary",
           label: "Retained total",
           valueType: "currency",
+          format: { currency: "EUR" },
           required: false,
           archived: false,
           options: [],
@@ -3363,14 +3365,14 @@ test("publishes and withdraws a private-input summary through the field UI witho
       deal.typeId,
       summary.label,
     );
-    await expect(
-      delegated
-        .getByRole("button", {
-          name: englishMessages.Common.actions.save,
-          exact: true,
-        })
-        .first(),
-    ).toBeEnabled();
+    const delegatedSave = delegated
+      .getByRole("button", {
+        name: englishMessages.Common.actions.save,
+        exact: true,
+      })
+      .first();
+    await expect(delegatedSave).toBeVisible();
+    await expect(delegatedSave).toBeDisabled();
     await openDrawerTab(member.page, "Calculation");
     await expect(
       delegated.getByRole("region", { name: "Calculation", exact: true }),
@@ -3464,14 +3466,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     await expect(
       delegatedSource.locator("#renew-published-summaries"),
     ).toHaveCount(0);
-    await expect(
-      delegatedSource
-        .getByRole("button", {
-          name: englishMessages.RecordModel.apply,
-          exact: true,
-        })
-        .first(),
-    ).toHaveCount(0);
+    await expect(delegatedSource.getByRole("status").filter({ hasText: "Ready to apply" })).toHaveCount(0);
     await member.page.keyboard.press("Escape");
     await member.page
       .getByRole("alertdialog")

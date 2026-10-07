@@ -1,6 +1,6 @@
 import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
-import type { RecordField, RecordModel, RecordRelationship } from "./record-model.schema";
+import type { RecordField, RecordRelationship, RecordModelView, RecordFieldView } from "./record-model.schema";
 
 import { DATE_BUCKETS, DEFAULT_DATE_BUCKET } from "@/core/base/grouping/grouping.schema";
 import { parseRelationshipColumnKey, parseRelationshipPathColumnKey } from "./record-column.schema";
@@ -8,17 +8,17 @@ import { recordColumns } from "./record-columns";
 import { resolveRecordPath } from "./record-relationship-path";
 import type { RecordPathStep } from "./record-relationship-path.schema";
 
-export type RecordGroupingSource =
-  | { kind: "field"; field: RecordField }
+export type RecordGroupingSource<F extends RecordFieldView = RecordField> =
+  | { kind: "field"; field: F }
   | { kind: "system"; field: "system:assignedTo" | "system:createdAt" | "system:updatedAt" }
   | { kind: "relationshipPath"; path: RecordPathStep[]; targetTypeId: string }
   | { kind: "relationship"; relation: RecordRelationship; direction: "incoming" | "outgoing" };
 
-export function resolveRecordGrouping(
+export function resolveRecordGrouping<F extends RecordFieldView = RecordField>(
   typeId: string,
   grouping: Grouping,
-  model: RecordModel,
-): { source: RecordGroupingSource; grouping: Grouping; kind: GroupableFieldDto["kind"] } | null {
+  model: Omit<RecordModelView, "fields"> & { fields: F[] },
+): { source: RecordGroupingSource<F>; grouping: Grouping; kind: GroupableFieldDto["kind"] } | null {
   const pathId = parseRelationshipPathColumnKey(grouping.field);
   if (pathId) {
     const definition = model.types
@@ -77,7 +77,7 @@ export function resolveRecordGrouping(
   return kind ? { source: { kind: "field", field }, grouping, kind } : null;
 }
 
-export function recordGroupableFields(typeId: string, model: RecordModel, canUpdate = false): GroupableFieldDto[] {
+export function recordGroupableFields(typeId: string, model: RecordModelView, canUpdate = false): GroupableFieldDto[] {
   return recordColumns(typeId, model).flatMap((column) => {
     const resolved = resolveRecordGrouping(typeId, { field: column.id }, model);
     if (!resolved) return [];

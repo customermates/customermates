@@ -7,7 +7,6 @@ const widget = () => ({
   companyId: "workspace",
   userId: "owner",
   kind: "chart",
-  contractVersion: 2,
   version: 1,
   name: "Forecast",
   measure: {
@@ -22,6 +21,7 @@ const widget = () => ({
   status: "unavailable",
   groupOptions: [],
   layout: null,
+  viewId: null,
   isTemplate: false,
   createdAt: new Date(0),
   updatedAt: new Date(0),
@@ -35,7 +35,6 @@ describe("generic widget contracts", () => {
     expect(
       WidgetDtoSchema.safeParse({
         ...widget(),
-        contractVersion: undefined,
         entityType: "deal",
         aggregationType: "dealValue",
       }).success,

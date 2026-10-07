@@ -24,7 +24,6 @@ export const DiscoverRecordTypesSchema = z
   .strict();
 export const DiscoveredRecordTypesSchema = z
   .object({
-    contractVersion: z.literal(2),
     schemaRevision: z.number().int(),
     canManageSchema: z.boolean(),
     canPublishSummary: z.boolean().optional(),
@@ -83,9 +82,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
               )),
         );
         const page = types.slice((input.page - 1) * input.pageSize, input.page * input.pageSize);
-        const readable = page
-          .filter((type) => policy.allowed(type.id, "readOwn") || policy.allowed(type.id, "readAll"))
-          .map((type) => type.id);
+        const readable = page.filter((type) => policy.canReadType(type.id)).map((type) => type.id);
         const counts = new Map(
           (await this.records.countReadableRecordsByType(policy.access(readable))).map((row) => [
             row.typeId,
@@ -95,7 +92,6 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
         return {
           ok: true as const,
           data: {
-            contractVersion: 2 as const,
             schemaRevision: model.revision,
             canManageSchema: policy.canManageSchema,
             canPublishSummary: policy.isAdmin,

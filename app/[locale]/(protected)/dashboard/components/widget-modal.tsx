@@ -34,7 +34,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import type { ChartColor } from "@/features/widget/widget.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { WidgetDisplayRequirement } from "@/features/widget/widget-display-rules";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 
@@ -130,7 +130,7 @@ export const WidgetModal = observer(() => {
     requestAnimationFrame(() => document.getElementById(`widget-kind-${selectedKind}`)?.focus());
   }
   function renderDataSettings() {
-    const appearance = (model?: RecordModel | null) => (
+    const appearance = (model?: RecordModelView | null) => (
       <section
         aria-label={t("Dashboard.widgetEditor.tabs.appearance")}
         className="space-y-4"
@@ -233,7 +233,7 @@ export const WidgetModal = observer(() => {
     );
   }
 
-  function renderChartAppearance(model?: RecordModel | null) {
+  function renderChartAppearance(model?: RecordModelView | null) {
     if (form.kind !== WidgetKind.chart) return null;
     const measure = form.measure;
     const displayType = form.displayOptions?.displayType ?? DisplayType.verticalBarChart;
@@ -280,7 +280,7 @@ export const WidgetModal = observer(() => {
     );
   }
 
-  function renderAppearanceSettings(model?: RecordModel | null) {
+  function renderAppearanceSettings(model?: RecordModelView | null) {
     return (
       <div className="flex min-w-0 flex-col gap-6">
         {renderChartAppearance(model)}

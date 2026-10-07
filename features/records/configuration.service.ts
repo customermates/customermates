@@ -25,6 +25,7 @@ import { deterministicId } from "./crm-preset";
 import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { configurationInputFields, configurationInputValue, fieldValueDefinition } from "./record-configuration-values";
 import { canonicalRecordJson } from "./record-json";
+import { duplicateNameIssues } from "./record-names";
 import { recordEventSubscriptionIsValid } from "./record-event-subscription-validation";
 
 export function calculationDependencyHash(field: RecordField, model: RecordModel): string {
@@ -80,6 +81,7 @@ function removeArchivedDefinitions(
 ): { deletion: RecordDefinitionDeletion; issues: ModelIssue[] } {
   const typeIds = new Set<string>();
   const fieldIds = new Set<string>();
+  const channelTypeIds = new Set<string>();
   for (const operation of operations) {
     if (operation.operation === "deleteType") {
       if (!model.types.some((type) => type.id === operation.typeId && type.archived))
@@ -89,6 +91,11 @@ function removeArchivedDefinitions(
       if (!model.fields.some((field) => field.id === operation.fieldId && field.archived))
         throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
       fieldIds.add(operation.fieldId);
+    } else if (operation.operation === "deleteCapability") {
+      const binding = model.capabilities.find((candidate) => candidate.id === operation.capabilityId);
+      if (binding?.kind !== "channels" || binding.enabled !== false)
+        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      channelTypeIds.add(binding.typeId);
     } else throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
   }
   for (const field of model.fields) if (typeIds.has(field.typeId)) fieldIds.add(field.id);
@@ -107,7 +114,23 @@ function removeArchivedDefinitions(
     );
   model.fields = model.fields.filter((field) => !fieldIds.has(field.id));
   model.relationships = model.relationships.filter((relation) => !relationIds.has(relation.id));
-  model.capabilities = model.capabilities.filter((binding) => !typeIds.has(binding.typeId));
+  model.capabilities = model.capabilities.filter(
+    (binding) => !typeIds.has(binding.typeId) && !(binding.kind === "channels" && channelTypeIds.has(binding.typeId)),
+  );
+  const withoutChannels = (columns: string[]) => columns.filter((column) => column !== "system:channels");
+  model.types = model.types.map((type) =>
+    channelTypeIds.has(type.id)
+      ? {
+          ...type,
+          defaults: {
+            ...type.defaults,
+            columns: withoutChannels(type.defaults.columns),
+            hiddenColumns: withoutChannels(type.defaults.hiddenColumns),
+            pinnedFields: withoutChannels(type.defaults.pinnedFields),
+          },
+        }
+      : type,
+  );
   model.activityPaths = model.activityPaths.filter((path) => !typeIds.has(path.typeId) && !crosses(path.path));
   const issues: ModelIssue[] = [];
   for (const field of model.fields) {
@@ -124,7 +147,15 @@ function removeArchivedDefinitions(
     if (type.parentRelationshipId && relationIds.has(type.parentRelationshipId))
       issues.push({ code: "deletion_dependency", typeId: type.id });
   }
-  return { deletion: { typeIds: [...typeIds], fieldIds: [...fieldIds], relationIds: [...relationIds] }, issues };
+  return {
+    deletion: {
+      typeIds: [...typeIds],
+      fieldIds: [...fieldIds],
+      relationIds: [...relationIds],
+      channelTypeIds: [...channelTypeIds].filter((typeId) => !typeIds.has(typeId)),
+    },
+    issues,
+  };
 }
 
 export type PreparedConfiguration = {
@@ -412,11 +443,16 @@ export class RecordConfigurationService extends UserAccessor {
         upsert(model.activityPaths, resolveDefinition(operation.activityPath) as RecordModel["activityPaths"][number]);
     }
     const removed = input.operations.some(
-      (operation) => operation.operation === "deleteType" || operation.operation === "deleteField",
+      (operation) =>
+        operation.operation === "deleteType" ||
+        operation.operation === "deleteField" ||
+        operation.operation === "deleteCapability",
     )
       ? removeArchivedDefinitions(model, input.operations)
       : null;
     if (removed?.deletion.typeIds.length && !policy.canManageRoles)
+      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+    if (removed?.deletion.channelTypeIds.some((typeId) => !policy.isAdmin && !policy.allowed(typeId, "readAll")))
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
     for (const typeId of reorderedTypes) {
       const slots = model.fields.flatMap((field, index) => (field.typeId === typeId ? [index] : []));
@@ -428,7 +464,37 @@ export class RecordConfigurationService extends UserAccessor {
     if (!RecordModelSchema.safeParse(model).success)
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
-    validation.issues.push(...(removed?.issues ?? []));
+    validation.issues.push(...(removed?.issues ?? []), ...duplicateNameIssues(model, current));
+    const readsFully = (typeId: string) =>
+      policy.isAdmin || !current.types.some((type) => type.id === typeId) || policy.readScope(typeId) === "all";
+    if (removed) {
+      for (const typeId of removed.deletion.typeIds) {
+        if (!readsFully(typeId) && (await this.records.countRecordsCompanyWide([typeId])) > 0)
+          validation.issues.push({ code: "deletion_requires_read_all", typeId });
+      }
+      for (const fieldId of removed.deletion.fieldIds) {
+        const field = current.fields.find((candidate) => candidate.id === fieldId);
+        if (!field || removed.deletion.typeIds.includes(field.typeId) || readsFully(field.typeId)) continue;
+        const stored = await this.records.countDefinitionDeletion({
+          typeIds: [],
+          fieldIds: [fieldId],
+          relationIds: [],
+          channelTypeIds: [],
+        });
+        if (stored.values)
+          validation.issues.push({ code: "deletion_requires_read_all", fieldId, typeId: field.typeId });
+      }
+      for (const typeId of removed.deletion.channelTypeIds) {
+        if (removed.deletion.typeIds.includes(typeId) || readsFully(typeId)) continue;
+        const stored = await this.records.countDefinitionDeletion({
+          typeIds: [],
+          fieldIds: [],
+          relationIds: [],
+          channelTypeIds: [typeId],
+        });
+        if (stored.identifiers) validation.issues.push({ code: "deletion_requires_read_all", typeId });
+      }
+    }
     const approvals = new Map(
       input.operations
         .filter((operation) => operation.operation === "publishSummary")
@@ -489,7 +555,7 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
-    const viewTypes = new Set(changedTypes);
+    const viewTypes = new Set([...changedTypes, ...(removed?.deletion.channelTypeIds ?? [])]);
     const changedRelations = new Set(
       [...current.relationships, ...model.relationships]
         .filter(
@@ -532,14 +598,13 @@ export class RecordConfigurationService extends UserAccessor {
         if (!last || layouts.length < 200) break;
         layoutCursor = last.id;
       }
-      const currency = await this.records.getWorkspaceCurrencyOrThrow();
       let cursor = "";
       const blockedTypes = new Set<string>();
       for (;;) {
         const consumers = await this.records.getViewStatesCompanyWide([...viewTypes], cursor);
         for (const consumer of consumers) {
           if (blockedTypes.has(consumer.typeId)) continue;
-          if (!recordViewStateIsValid(consumer.typeId, consumer.state, model, currency)) {
+          if (!recordViewStateIsValid(consumer.typeId, consumer.state, model)) {
             blockedTypes.add(consumer.typeId);
             validation.issues.push({
               code: "saved_view_incompatible",
@@ -601,13 +666,16 @@ export class RecordConfigurationService extends UserAccessor {
       subscriptionCursor = last.id;
     }
     const affectedRecords = await this.records.countRecordsCompanyWide([...changedTypes]);
+    const affectedReadable = [...changedTypes].every(readsFully);
     const inputs = configurationInputFields(current, model);
     const inputTypes = [...new Set(inputs.map((field) => field.typeId))];
-    const validationCount = await this.records.countRecordsCompanyWide(inputTypes);
-    const dataValidation = validationCount > SYNCHRONOUS_RECORD_LIMIT ? "staged" : "complete";
-    if (dataValidation === "complete") {
+    const checkedTypes = inputTypes.filter(readsFully);
+    const validationCount = await this.records.countRecordsCompanyWide(checkedTypes);
+    const dataValidation =
+      checkedTypes.length < inputTypes.length || validationCount > SYNCHRONOUS_RECORD_LIMIT ? "staged" : "complete";
+    if (validationCount <= SYNCHRONOUS_RECORD_LIMIT) {
       const invalid = new Set<string>();
-      for (const typeId of inputTypes) {
+      for (const typeId of checkedTypes) {
         const refs = await this.records.getRecordRefsCompanyWide(typeId, undefined, SYNCHRONOUS_RECORD_LIMIT + 1);
         const rows = await this.records.getRecordsCompanyWide(refs);
         for (const row of rows) {
@@ -632,6 +700,30 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
+    const deletionCounts = removed ? await this.records.countDefinitionDeletion(removed.deletion) : null;
+    const deletionReadable =
+      !removed ||
+      [
+        ...removed.deletion.typeIds,
+        ...removed.deletion.channelTypeIds,
+        ...removed.deletion.fieldIds.flatMap(
+          (fieldId) => current.fields.find((field) => field.id === fieldId)?.typeId ?? [],
+        ),
+        ...removed.deletion.relationIds.flatMap((relationId) => {
+          const relation = current.relationships.find((candidate) => candidate.id === relationId);
+          return relation ? [relation.sourceTypeId, relation.targetTypeId] : [];
+        }),
+      ].every(readsFully);
+    const hiddenDeletion =
+      !deletionReadable &&
+      Boolean(
+        deletionCounts &&
+          (deletionCounts.records || deletionCounts.values || deletionCounts.links || deletionCounts.identifiers),
+      );
+    const deletion =
+      deletionCounts && hiddenDeletion
+        ? { ...deletionCounts, records: null, values: null, links: null, identifiers: null, identifierRecords: null }
+        : deletionCounts;
     return {
       change: {
         version: 1,
@@ -661,7 +753,8 @@ export class RecordConfigurationService extends UserAccessor {
         valid: !validation.issues.length,
         execution: affectedRecords > SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
         dataValidation,
-        affectedRecords,
+        affectedRecords: affectedReadable || affectedRecords === 0 ? affectedRecords : null,
+        hiddenRecords: (!affectedReadable && affectedRecords > 0) || hiddenDeletion,
         references: [...references].map(([reference, id]) => ({
           reference,
           id,
@@ -673,7 +766,7 @@ export class RecordConfigurationService extends UserAccessor {
             fieldId: field.id,
             dependencyHash: calculationDependencyHash(field, model),
           })),
-        ...(removed ? { deletion: await this.records.countDefinitionDeletion(removed.deletion) } : {}),
+        ...(deletion ? { deletion } : {}),
       },
     };
   }

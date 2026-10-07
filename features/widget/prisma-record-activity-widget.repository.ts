@@ -19,7 +19,7 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
         activityQuery: { not: Prisma.AnyNull },
       },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row ? StoredSchema.parse({ ...row, viewId: row.userId === this.userId ? row.viewId : null }) : null;
   }
 
   async findReadable(id: string) {
@@ -32,7 +32,7 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
         activityQuery: { not: Prisma.AnyNull },
       },
     });
-    return row ? StoredSchema.parse({ ...row, contractVersion: 2 }) : null;
+    return row ? StoredSchema.parse({ ...row, viewId: row.userId === this.userId ? row.viewId : null }) : null;
   }
   async listOwned() {
     const rows = await this.prisma.widget.findMany({
@@ -44,18 +44,19 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
       },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
-    return rows.map((row) => StoredSchema.parse({ ...row, contractVersion: 2 }));
+    return rows.map((row) => StoredSchema.parse(row));
   }
-  async listPlacements() {
-    return listWidgetPlacements(this.prisma, this.companyId, this.userId);
+  async listPlacements(viewId: string | null) {
+    return listWidgetPlacements(this.prisma, this.companyId, this.userId, viewId);
   }
-  async save(input: RecordActivityWidgetInput, id: string, layout?: WidgetLayout) {
+  async save(input: RecordActivityWidgetInput, id: string, viewId: string | null, layout?: WidgetLayout) {
     const data = {
       name: input.name,
       kind: "activityTimeline" as const,
       activityQuery: recordJson(input.activityQuery),
       displayOptions: recordJson(input.displayOptions),
       isTemplate: input.isTemplate,
+      viewId,
       ...(layout ? { layout: recordJson(layout) } : {}),
     };
     const row = input.id
@@ -64,6 +65,6 @@ export class PrismaRecordActivityWidgetRepo extends TenantRepository implements 
           data: { ...data, version: { increment: 1 } },
         })
       : await this.prisma.widget.create({ data: { ...data, id, companyId: this.companyId, userId: this.userId } });
-    return StoredSchema.parse({ ...row, contractVersion: 2 });
+    return StoredSchema.parse(row);
   }
 }

@@ -149,7 +149,7 @@ describe("RoutineModalStore", () => {
   it("keeps a dynamic trigger and draft through reloads and clears incompatible fields on a type change", async () => {
     const store = makeStore();
     await store.openForCreate();
-    const model = createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR");
+    const model = createCrmPreset("30000000-0000-4000-8000-000000000040");
     runInAction(() => {
       store.recordModel = model;
     });
@@ -193,7 +193,7 @@ describe("RoutineModalStore", () => {
     vi.useRealTimers();
     vi.resetAllMocks();
     routineActions.getRoutineFilterFieldsAction.mockResolvedValue({
-      recordModel: createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR"),
+      recordModel: createCrmPreset("30000000-0000-4000-8000-000000000040"),
     });
     routineActions.getRoutineRunsAction.mockResolvedValue({
       runs: [],
@@ -397,7 +397,7 @@ describe("RoutineModalStore", () => {
   it("refreshes the configured record metadata whenever the editor is opened", async () => {
     const store = makeStore();
     await store.openForCreate();
-    const revised = createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR");
+    const revised = createCrmPreset("30000000-0000-4000-8000-000000000040");
     revised.revision = 9;
     revised.fields[0].label = "Renamed field";
     routineActions.getRoutineFilterFieldsAction.mockResolvedValue({ recordModel: revised });
@@ -424,7 +424,7 @@ describe("RoutineModalStore", () => {
 
   it("preserves unavailable stable references until the owner explicitly changes the source type", async () => {
     const fieldId = "40000000-0000-4000-8000-000000000099";
-    const model = createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR");
+    const model = createCrmPreset("30000000-0000-4000-8000-000000000040");
     const query = {
       typeId: model.types[0].id,
       filters: [{ fieldId, operator: "eq" as const, value: { kind: "text" as const, value: "enterprise" } }],

@@ -329,10 +329,10 @@ function fieldShape(model: RecordModel, fieldId: string): Pick<RecordField, "val
   return field ? { valueType: field.valueType, format: field.format } : null;
 }
 
-function toRecordFilter(filter: Filter, fieldId: string, model: RecordModel, currency: string): RecordFilter | null {
+function toRecordFilter(filter: Filter, fieldId: string, model: RecordModel): RecordFilter | null {
   const shape = fieldShape(model, fieldId);
   if (!shape) return null;
-  const scalar = (raw: string) => filterScalar(raw, shape as RecordField, currency);
+  const scalar = (raw: string) => filterScalar(raw, shape as RecordField);
   switch (filter.operator) {
     case FilterOperatorKey.isNull:
     case FilterOperatorKey.hasNone:
@@ -384,7 +384,6 @@ export function paletteFiltersToRecordQuery(
   filters: Filter[],
   retained: RecordRelatedFilter[],
   model: RecordModel,
-  currency: string,
 ): QueryFilters {
   const query: Required<QueryFilters> = {
     filters: [],
@@ -416,7 +415,7 @@ export function paletteFiltersToRecordQuery(
     }
     const related = parseRelatedFieldKey(filter.field);
     if (related) {
-      const converted = toRecordFilter(filter, related.fieldId, model, currency);
+      const converted = toRecordFilter(filter, related.fieldId, model);
       if (!converted) continue;
       const key = encodePath(related.path);
       const entry = relatedByPath.get(key) ?? {
@@ -432,7 +431,7 @@ export function paletteFiltersToRecordQuery(
       }
       continue;
     }
-    const converted = toRecordFilter(filter, filter.field, model, currency);
+    const converted = toRecordFilter(filter, filter.field, model);
     if (converted) query.filters.push(converted);
   }
   query.relatedFilters.push(...retained);

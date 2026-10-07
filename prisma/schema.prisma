@@ -166,7 +166,6 @@ model User {
   status                          Status                    @default(pendingAuthorization)
   displayLanguage                 Locale                    @default(system)
   formattingLocale                Locale                    @default(system)
-  auditLogs                       AuditLog[]
   theme                           Theme                     @default(system)
   country                         CountryCode               @default(de)
   avatarUrl                       String?
@@ -205,7 +204,6 @@ model User {
 
 model Company {
   id                          String                         @id @default(uuid())
-  currency                    Currency                       @default(eur)
   createdAt                   DateTime                       @default(now())
   updatedAt                   DateTime                       @updatedAt
   tags                        String[]                       @default([])
@@ -213,7 +211,6 @@ model Company {
   adAttributions              AdAttribution[]
   conversionEvents            ConversionEvent[]
   inviteTokens                InviteToken[]
-  auditLogs                   AuditLog[]
   widgets                     Widget[]
   userRoles                   UserRole[]
   rolePermissions             RolePermission[]
@@ -254,7 +251,7 @@ model Company {
   recordOperations            RecordOperation[]
   recordStageRows             RecordStageRow[]
   recordMutationReceipts      RecordMutationReceipt[]
-  recordEvents                RecordEvent[]
+  events                      EventLog[]
   recordEventSubscriptions    RecordEventSubscription[]
   recordEventMatches          RecordEventMatch[]
   recordIdentities            RecordIdentity[]
@@ -466,6 +463,7 @@ model DataView {
   updatedAt        DateTime @updatedAt
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  widgets          Widget[]
 
   @@index([companyId])
   @@index([userId])
@@ -488,23 +486,6 @@ model InviteToken {
   @@index([expiresAt])
 }
 
-model AuditLog {
-  id        String   @id @default(uuid())
-  event     String
-  eventData Json
-  createdAt DateTime @default(now())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  entityId  String
-
-  @@index([event])
-  @@index([companyId])
-  @@index([userId])
-  @@index([entityId])
-}
-
 model Widget {
   activityQuery  Json?
   measure        Json?
@@ -517,15 +498,18 @@ model Widget {
   displayOptions Json?
   layout         Json?
   isTemplate     Boolean    @default(false)
+  viewId         String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  view      DataView? @relation(fields: [viewId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([companyId])
   @@index([companyId, isTemplate])
+  @@index([viewId])
 }
 
 model UserRole {
@@ -598,7 +582,7 @@ model WebhookDelivery {
   event                String
   requestBody          Json
   webhookId            String?
-  recordEventId        String?
+  eventId              String?
   admissionKey         String?
   subscriptionRevision Int?
   attempts             Int                   @default(0)
@@ -606,7 +590,7 @@ model WebhookDelivery {
   leaseToken           String?
   leaseExpiresAt       DateTime?
   webhook              Webhook?              @relation(fields: [companyId, webhookId], references: [companyId, id], onDelete: NoAction)
-  recordEvent          RecordEvent?          @relation(fields: [companyId, recordEventId], references: [companyId, id], onDelete: Cascade)
+  eventLog             EventLog?             @relation(fields: [companyId, eventId], references: [companyId, id], onDelete: Cascade)
   statusCode           Int?
   responseMessage      String?
   success              Boolean               @default(false)
@@ -619,7 +603,7 @@ model WebhookDelivery {
   @@index([createdAt])
   @@index([companyId, createdAt])
   @@index([companyId, webhookId, createdAt])
-  @@index([companyId, recordEventId])
+  @@index([companyId, eventId])
   @@index([nextAttemptAt, status])
 }
 
@@ -923,164 +907,6 @@ enum CountryCode {
   za
   zm
   zw
-}
-
-enum Currency {
-  eur
-  usd
-  gbp
-  jpy
-  cny
-  inr
-  brl
-  cad
-  aud
-  chf
-  sek
-  nok
-  dkk
-  pln
-  czk
-  huf
-  try
-  twd
-  zar
-  mxn
-  krw
-  hkd
-  sgd
-  nzd
-  aed
-  sar
-  ils
-  afn
-  all
-  amd
-  aoa
-  ars
-  awg
-  azn
-  bam
-  bbd
-  bdt
-  bhd
-  bif
-  bmd
-  bnd
-  bob
-  bsd
-  btn
-  bwp
-  byn
-  bzd
-  cdf
-  clp
-  cop
-  crc
-  cup
-  cve
-  djf
-  dop
-  dzd
-  egp
-  ern
-  etb
-  fjd
-  fkp
-  gel
-  ghs
-  gip
-  gmd
-  gnf
-  gtq
-  gyd
-  hnl
-  htg
-  idr
-  iqd
-  irr
-  isk
-  jmd
-  jod
-  kes
-  kgs
-  khr
-  kmf
-  kpw
-  kwd
-  kyd
-  kzt
-  lak
-  lbp
-  lkr
-  lrd
-  lsl
-  lyd
-  mad
-  mdl
-  mga
-  mkd
-  mmk
-  mnt
-  mop
-  mru
-  mur
-  mvr
-  mwk
-  myr
-  mzn
-  nad
-  ngn
-  nio
-  npr
-  omr
-  pab
-  pen
-  pgk
-  php
-  pkr
-  pyg
-  qar
-  ron
-  rsd
-  rub
-  rwf
-  sbd
-  scr
-  sdg
-  shp
-  sle
-  sos
-  srd
-  ssp
-  stn
-  svc
-  syp
-  szl
-  thb
-  tjs
-  tmt
-  tnd
-  top
-  ttd
-  tzs
-  uah
-  ugx
-  uyu
-  uzs
-  ved
-  ves
-  vnd
-  vuv
-  wst
-  xaf
-  xcd
-  xcg
-  xof
-  xpf
-  yer
-  zmw
-  zwg
 }
 
 enum WidgetKind {
@@ -2081,13 +1907,17 @@ model RecordMutationReceipt {
   @@id([companyId, userId, idempotencyKey])
 }
 
-model RecordEvent {
+// One log for record history, administrative events and the webhook/routine outbox. subjectKind is the
+// prefix of kind ("record", "role", "messaging", ...); subjectTypeId is the record type of record events.
+// actorId is not a foreign key so history outlives its users; null is the system.
+model EventLog {
   companyId         String
   id                String             @default(uuid())
-  typeId            String
-  recordId          String
-  actorId           String
-  causeId           String
+  subjectKind       String
+  subjectTypeId     String?
+  subjectId         String
+  actorId           String?
+  causeId           String?
   kind              String
   payload           Json
   createdAt         DateTime           @default(now())
@@ -2100,7 +1930,9 @@ model RecordEvent {
   lastFailureCode   String?
 
   @@id([companyId, id])
-  @@index([companyId, typeId, recordId, createdAt])
+  @@index([companyId, subjectKind, subjectTypeId, subjectId, createdAt], map: "EventLog_subject_idx")
+  @@index([companyId, kind, createdAt])
+  @@index([subjectKind, createdAt])
   @@index([deliveredAt, nextAttemptAt])
 }
 
@@ -2134,7 +1966,7 @@ model RecordEventMatch {
   subscriptionId       String
   subscriptionRevision Int
   company              Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  event                RecordEvent             @relation(fields: [companyId, eventId], references: [companyId, id], onDelete: Cascade)
+  event                EventLog                @relation(fields: [companyId, eventId], references: [companyId, id], onDelete: Cascade)
   subscription         RecordEventSubscription @relation(fields: [companyId, subscriptionId], references: [companyId, id], onDelete: Cascade)
 
   @@id([companyId, eventId, subscriptionId])

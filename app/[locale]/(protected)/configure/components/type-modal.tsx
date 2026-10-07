@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordModel, RecordType, RecordGroupSummaryDefinition } from "@/features/records/record-model.schema";
+import type { RecordModelView, RecordType, RecordGroupSummaryDefinition } from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
@@ -21,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
-import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordGroupableFields, resolveRecordGrouping } from "@/features/records/record-grouping";
 import { encodeGroupingToken, decodeGroupingToken } from "@/core/base/grouping/grouping.schema";
@@ -33,6 +32,7 @@ import {
   reorderFieldOperations,
 } from "./configure-model";
 import { ModelChangeSheet } from "./model-change-sheet";
+import { suggestListPlural } from "./list-plural";
 
 const initialType = () => ({
   name: "",
@@ -41,8 +41,6 @@ const initialType = () => ({
   icon: "folder",
   accessPresetId: "private",
   archived: false,
-  channelsEnabled: false,
-  providerAvatar: false,
   navigationVisible: true,
   layout: "table" as RecordType["defaults"]["layout"],
   groupBy: "none",
@@ -58,29 +56,26 @@ export type TypeModalSection = "settings" | "appearance" | "archive";
 export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialType>> {
   original: RecordType | null = null;
   section: TypeModalSection = "settings";
-  private channelBindingId = "";
   constructor(
     root: RootStore,
-    model: RecordModel,
+    model: RecordModelView,
     completed: (preview: ConfigurationPreview, isCurrentSession?: () => boolean) => Promise<void>,
     canRenewSummaries = false,
-    onModelRefreshed?: (model: RecordModel) => void,
+    onModelRefreshed?: (model: RecordModelView) => void,
   ) {
     super(root, initialType(), model, completed, canRenewSummaries, onModelRefreshed);
     makeObservable(this, {
       original: observable.ref,
       section: observable,
+      renameList: action,
       edit: action,
       moveField: action,
     });
   }
-  edit = (model: RecordModel, type: RecordType | null, section: TypeModalSection = "settings") => {
+  edit = (model: RecordModelView, type: RecordType | null, section: TypeModalSection = "settings") => {
     this.section = section;
     this.resetModel(model);
     this.original = type;
-    this.channelBindingId =
-      model.capabilities.find((binding) => binding.kind === "channels" && binding.typeId === type?.id)?.id ??
-      crypto.randomUUID();
     this.immediateApply = !type;
     const columns = type ? recordColumns(type.id, model) : [];
     const grouping = type?.defaults.groupBy
@@ -92,10 +87,6 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
         ? {
             ...initialType(),
             name: type.label,
-            channelsEnabled: recordChannelsEnabled(model, type.id),
-            providerAvatar:
-              model.capabilities.find((binding) => binding.kind === "channels" && binding.typeId === type.id)
-                ?.providerAvatar ?? false,
             pluralName: type.pluralLabel,
             description: type.description,
             icon: type.icon,
@@ -112,16 +103,24 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     );
     this.open();
   };
-  protected projectLatestModel(model: RecordModel) {
+  protected projectLatestModel(model: RecordModelView) {
     if (!this.original) return toJS(this.savedState);
     const latest = model.types.find((type) => type.id === this.original?.id);
     if (!latest) return null;
     const projected = new TypeModalStore(this.rootStore, model, async () => {});
     projected.edit(model, latest, this.section);
     this.original = latest;
-    this.channelBindingId = projected.channelBindingId;
     return toJS(projected.form);
   }
+  private suggestPlural(name: string) {
+    return suggestListPlural(name, this.rootStore.localeStore.locale);
+  }
+  renameList = (name: string) => {
+    const plural = this.form.pluralName.trim();
+    const following = !plural || plural === this.suggestPlural(this.form.name);
+    this.onChange("name", name);
+    if (following) this.onChange("pluralName", this.suggestPlural(name));
+  };
   moveField = (activeId: string, overId: string) => {
     this.onChange("fieldOrder", moveConfigureField(this.form.fieldOrder, activeId, overId));
   };
@@ -178,7 +177,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
           type: {
             ...this.original,
             label: this.form.name,
-            pluralLabel: this.form.pluralName || this.form.name,
+            pluralLabel: this.form.pluralName.trim() || this.suggestPlural(this.form.name),
             description: this.form.description,
             icon: this.form.icon,
             archived: this.form.archived,
@@ -201,25 +200,6 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
         ...(this.form.archived === this.original.archived
           ? []
           : archiveListOperations(this.model, this.original.id, this.form.archived)),
-        ...(this.form.channelsEnabled !== recordChannelsEnabled(this.model, this.original.id) ||
-        this.form.providerAvatar !==
-          (this.model.capabilities.find((binding) => binding.id === this.channelBindingId)?.providerAvatar ?? false)
-          ? [
-              {
-                operation: "putCapability" as const,
-                capability: {
-                  ...(this.model.capabilities.find((binding) => binding.id === this.channelBindingId) ?? {
-                    id: this.channelBindingId,
-                    fields: [],
-                  }),
-                  kind: "channels" as const,
-                  typeId: this.original.id,
-                  enabled: this.form.channelsEnabled,
-                  providerAvatar: this.form.providerAvatar,
-                },
-              },
-            ]
-          : []),
       ];
     }
     return [
@@ -227,27 +207,12 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
         operation: "createType",
         reference: "$type",
         label: this.form.name,
-        pluralLabel: this.form.pluralName || this.form.name,
+        pluralLabel: this.form.pluralName.trim() || this.suggestPlural(this.form.name),
         description: this.form.description,
         icon: this.form.icon,
         embedded: false,
         accessPresetId: this.form.accessPresetId === "private" ? null : this.form.accessPresetId,
       },
-      ...(this.form.channelsEnabled
-        ? [
-            {
-              operation: "putCapability" as const,
-              capability: {
-                id: this.channelBindingId,
-                kind: "channels" as const,
-                typeId: "$type",
-                fields: [],
-                enabled: true,
-                providerAvatar: this.form.providerAvatar,
-              },
-            },
-          ]
-        : []),
     ];
   }
 }
@@ -262,10 +227,17 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
   const inputId = (id: string) => (idPrefix ? `${idPrefix}-${id}` : undefined);
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormInput required id="name" inputId={inputId("name")} label={t("RecordModel.name")} />
+      <div className="space-y-3">
+        <FormInput
+          required
+          id="name"
+          inputId={inputId("name")}
+          label={t("RecordModel.name")}
+          onValueChange={store.renameList}
+        />
 
         <FormInput
+          containerClassName="sm:max-w-xs"
           description={t("RecordModel.pluralDescription")}
           id="pluralName"
           inputId={inputId("pluralName")}
@@ -293,23 +265,6 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
           />
         )}
       </div>
-
-      <div className="space-y-1">
-        <FormSwitch id="channelsEnabled" inputId={inputId("channelsEnabled")} label={t("RecordModel.enableChannels")} />
-
-        <p className="text-xs text-muted-foreground">{t("RecordModel.channelsHelp")}</p>
-      </div>
-
-      {store.form.channelsEnabled &&
-        store.model.capabilities.some(
-          (binding) => binding.kind === "avatar" && binding.typeId === store.original?.id,
-        ) && (
-          <FormSwitch
-            id="providerAvatar"
-            inputId={inputId("providerAvatar")}
-            label={t("RecordModel.useChannelAvatar")}
-          />
-        )}
 
       {store.original && (
         <FormSwitch
@@ -347,11 +302,7 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
           : t("RecordModel.unarchiveList")
         : t("RecordModel.typeSettings");
   return (
-    <ModelChangeSheet
-      store={store}
-      submitLabel={store.original ? undefined : t("RecordModel.createList")}
-      title={title}
-    >
+    <ModelChangeSheet creating={!store.original} store={store} title={title}>
       <AppForm store={store}>
         <div className="space-y-4">
           <ModelChangeRecovery store={store} />

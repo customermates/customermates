@@ -13,7 +13,7 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 import { ModelChangeStore } from "../model-change.store";
 
-const model = createCrmPreset("6487f9fb-7b10-439a-b783-9d3da8184b14", "EUR");
+const model = createCrmPreset("6487f9fb-7b10-439a-b783-9d3da8184b14");
 const preview = (count = 1): ConfigurationPreview => ({
   expectedRevision: model.revision,
   nextRevision: model.revision + 1,
@@ -21,6 +21,7 @@ const preview = (count = 1): ConfigurationPreview => ({
   execution: "synchronous",
   dataValidation: "complete",
   affectedRecords: count,
+  hiddenRecords: false,
   references: [],
   issues: [],
   calculations: [],

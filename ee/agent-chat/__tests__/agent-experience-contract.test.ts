@@ -72,7 +72,7 @@ describe("agent experience contract", () => {
       true,
     );
     expect(agentActionPageFromPathname("/en/dashboard")).toBe("dashboard");
-    expect(agentActionPageFromPathname("/en/company/audit-logs")).toBeNull();
+    expect(agentActionPageFromPathname("/en/company/activity")).toBeNull();
   });
 
   it("describes work without retaining tool payloads or identifiers", () => {
@@ -213,8 +213,7 @@ describe("agent experience contract", () => {
       ["manage_widgets", { action: "create", name: "Private widget" }, "widgets.create"],
       ["manage_widgets", { action: "update", id: privateId, name: "Private widget" }, "widgets.update"],
       ["manage_widgets", { action: "delete", id: privateId }, "widgets.delete"],
-      ["update_workspace_settings", { target: "company", currency: "EUR" }, "workspace.settings"],
-      ["update_workspace_settings", { target: "profile", firstName: "Private name" }, "profile.configure"],
+      ["update_workspace_settings", { firstName: "Private name" }, "profile.configure"],
     ] as const;
     const activities = tools.map(([toolName, input, kind]) => {
       const activity = describeInternalTool(toolName, input);
@@ -229,7 +228,6 @@ describe("agent experience contract", () => {
         "Dashboard-Widget wurde erstellt · Private widget",
         "Dashboard-Widget wurde aktualisiert · Private widget",
         "Dashboard-Widget wurde entfernt",
-        "Workspace-Einstellungen wurden aktualisiert",
         "Profil wurde aktualisiert",
       ],
       en: [
@@ -238,7 +236,6 @@ describe("agent experience contract", () => {
         "Created a dashboard widget · Private widget",
         "Updated a dashboard widget · Private widget",
         "Removed a dashboard widget",
-        "Updated workspace settings",
         "Updated your profile",
       ],
       es: [
@@ -247,7 +244,6 @@ describe("agent experience contract", () => {
         "Widget del panel creado · Private widget",
         "Widget del panel actualizado · Private widget",
         "Widget del panel eliminado",
-        "Configuración del espacio de trabajo actualizada",
         "Perfil actualizado",
       ],
       fr: [
@@ -256,7 +252,6 @@ describe("agent experience contract", () => {
         "Widget du tableau de bord créé · Private widget",
         "Widget du tableau de bord mis à jour · Private widget",
         "Widget du tableau de bord supprimé",
-        "Paramètres de l’espace de travail mis à jour",
         "Profil mis à jour",
       ],
       it: [
@@ -265,7 +260,6 @@ describe("agent experience contract", () => {
         "Widget della dashboard creato · Private widget",
         "Widget della dashboard aggiornato · Private widget",
         "Widget della dashboard rimosso",
-        "Impostazioni dell’area di lavoro aggiornate",
         "Profilo aggiornato",
       ],
     } as const;

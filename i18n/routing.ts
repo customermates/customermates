@@ -81,10 +81,9 @@ export const PROTECTED_ROUTES = [
   "/records/:typeId",
   "/records/:typeId/:recordId",
   "/auth/mcp-consent",
-  "/company/audit-logs",
+  "/company/activity",
   "/company/members",
   "/company/roles",
-  "/company/settings",
   "/company/subscription",
   "/company/webhook-deliveries",
   "/company/webhooks",
@@ -95,6 +94,7 @@ export const PROTECTED_ROUTES = [
   "/onboarding",
   "/onboarding/join",
   "/onboarding/wizard",
+  "/open/:area/:preset",
   "/operator/audit",
   "/operator/overview",
   "/operator/users",
@@ -187,7 +187,7 @@ function decodePathname(pathname: string): string | null {
   }
 }
 
-function escapeRegExp(value: string): string {
+export function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 

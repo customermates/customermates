@@ -37,8 +37,6 @@ const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["de", "URL der Services-Seite", "/records/<typeId>"],
   ["en", "webhooks route", "/company/webhooks"],
   ["de", "Route Webhooks", "/company/webhooks"],
-  ["de", "URL der Unternehmenseinstellungen-Seite", "/company/settings"],
-  ["de", "Link zur Unternehmenseinstellungen-Seite", "/company/settings"],
   ["de", "URL der Profileinstellungen-Seite", "/profile/settings"],
   ["de", "Link zur Profileinstellungen-Seite", "/profile/settings"],
   ["de", "URL der Abonnement-Seite", "/company/subscription"],
@@ -83,7 +81,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-company#how-do-i-rename-record-types-in-the-data-model",
     "/configure",
   ],
-  ["en", "where do I see who changed what in the workspace", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["en", "where do I see who changed what in the workspace", "app-company#activity-tab", "/company/activity"],
   [
     "en",
     "Where do I resend the verification email?",
@@ -122,14 +120,14 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "/company/members",
   ],
   ["en", "how do I add a new column", "concepts#how-do-i-add-change-or-delete-a-custom-column", null],
-  ["de", "URL der Unternehmenseinstellungen-Seite", "app-company#settings-tab", "/company/settings"],
+  ["de", "Wo lege ich die Währung fest", "app-company#where-is-the-currency-set", "/configure"],
   ["de", "URL der Abonnement-Seite", "app-company#subscription-tab", "/company/subscription"],
   ["en", "link to the members page", "app-company#members-tab", "/company/members"],
   ["en", "link to the roles page", "app-company#roles-tab", "/company/roles"],
   ["en", "link to the subscription page", "app-company#subscription-tab", "/company/subscription"],
   ["en", "link to billing", "app-company#subscription-tab", "/company/subscription"],
-  ["en", "link to company settings", "app-company#settings-tab", "/company/settings"],
-  ["en", "link to the audit logs", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["en", "where is the currency set", "app-company#where-is-the-currency-set", "/configure"],
+  ["en", "link to the audit logs", "app-company#activity-tab", "/company/activity"],
   ["en", "link to the inbox", "app-inbox#what-is-the-inbox", "/inbox"],
   ["en", "link to my profile settings", "app-profile#settings-tab", "/profile/settings"],
   ["en", "link to the routines page", "app-routines#which-ids-does-the-page-have", "/routines"],
@@ -213,8 +211,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "Can I search contacts by email address?", "app-search#what-does-global-search-find", null],
   ["en", "Should I use searchTerm or a filter?", "filter-syntax#free-text-search-or-a-filter", null],
   ["de", "Link zur Mitglieder-Seite", "app-company#members-tab", "/company/members"],
-  ["de", "Link zu den Unternehmenseinstellungen", "app-company#settings-tab", "/company/settings"],
-  ["de", "Link zum Audit-Log", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["de", "Link zum Audit-Log", "app-company#activity-tab", "/company/activity"],
   ["de", "Link zum Posteingang", "app-inbox#what-is-the-inbox", "/inbox"],
   ["de", "Link zur Seite mit den API-Keys", "api-keys#how-do-i-create-an-api-key", "/profile/api-keys"],
   ["de", "Link zur Routinen-Seite", "app-routines#which-ids-does-the-page-have", "/routines"],
@@ -523,11 +520,11 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
         await Promise.all(
           (
             [
-              ["en", "where do I find the audit log", "app-company#audit-logs-tab", "/company/audit-logs"],
+              ["en", "where do I find the audit log", "app-company#activity-tab", "/company/activity"],
               ["en", "Where can I find the roles?", "app-company#roles-tab", "/company/roles"],
               ["en", "take me to the webhooks page", "app-company#webhooks-tab", "/company/webhooks"],
               ["de", "Wo ist die Seite Kanäle?", "app-profile#channels-tab", "/profile/connected-accounts"],
-              ["de", "Wo finde ich das Audit-Log?", "app-company#audit-logs-tab", "/company/audit-logs"],
+              ["de", "Wo finde ich das Audit-Log?", "app-company#activity-tab", "/company/activity"],
             ] as const
           ).map(async ([locale, query, expected, route]) => {
             const [best] = await searchHits(query, locale);
@@ -549,7 +546,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
           (
             [
               ["en", "can I share an email inbox with my colleagues", "app-profile#private-or-shared"],
-              ["en", "who edited this contact, is there a history", "app-company#audit-logs-tab"],
+              ["en", "who edited this contact, is there a history", "app-company#activity-tab"],
               [
                 "en",
                 "what happens once the free trial expires",
@@ -622,7 +619,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     const [logs] = await searchHits("Where are the logs of my self-hosted instance?");
     expect(logs?.slug).toBe("self-hosting");
     const [history] = await searchHits("Wo sehe ich den Änderungsverlauf eines Kontakts?", "de");
-    expect(`${history?.slug}#${history?.anchor}`).toBe("app-company#audit-logs-tab");
+    expect(`${history?.slug}#${history?.anchor}`).toBe("app-company#activity-tab");
   });
 
   itHosted(
@@ -818,7 +815,6 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       ["de", "Wie lade ich ein Mitglied ein", "/company/members"],
       ["en", "webhooks page URL", "/company/webhooks"],
       ["de", "URL der Webhooks-Seite", "/company/webhooks"],
-      ["de", "URL der Unternehmenseinstellungen-Seite", "/company/settings"],
     ] as const) {
       const excerpt = await excerptOf("app-company", query, locale);
       expect(firstLinkLine(excerpt), `${locale} "${query}"`).toContain(`\`${route}\``);
@@ -846,12 +842,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
 
   it("keeps the table row, or the sentence deep in a paragraph, that answers the query inside the bounded excerpt", async () => {
     for (const [slug, query, header, answer] of [
-      [
-        "app-company",
-        "does switching the currency convert amounts",
-        "| Field | What it does |",
-        "switching does not convert amounts",
-      ],
+      ["app-company", "does changing a field currency convert amounts", null, "does not convert stored amounts"],
       [
         "app-profile",
         "which setting decides the number and date format",

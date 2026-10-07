@@ -6,11 +6,7 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT } from "./walk";
 
 describe("currency picker catalog", () => {
-  it("uses the shared searchable currency autocomplete on both picker surfaces", () => {
-    const companySettings = readFileSync(
-      join(REPO_ROOT, "app/[locale]/(protected)/company/components/company-settings/company-settings-form.tsx"),
-      "utf8",
-    );
+  it("uses the shared searchable currency autocomplete on the field picker", () => {
     const customColumn = readFileSync(
       join(REPO_ROOT, "app/[locale]/(protected)/configure/components/field-modal.tsx"),
       "utf8",
@@ -20,9 +16,6 @@ describe("currency picker catalog", () => {
       "utf8",
     );
 
-    expect(companySettings).toContain(
-      '<FormAutocompleteCurrency required id="currency" inputId="company-settings-currency" />',
-    );
     expect(customColumn).toContain("<FormAutocompleteCurrency");
     expect(customColumn).toContain('id="currency"');
     expect(currencyAutocomplete).toContain("items={CURRENCIES}");

@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import type { RecordField } from "@/features/records/record-model.schema";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
 import { useAppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormDecimalInput } from "@/components/forms/form-decimal-input";
@@ -23,7 +23,7 @@ export const RecordInputField = observer(function RecordInputField({
   inputId,
   label = field.label,
 }: {
-  field: RecordField;
+  field: RecordFieldView;
   id: string;
   inputId?: string;
   label?: string | null;
@@ -80,11 +80,7 @@ export const RecordInputField = observer(function RecordInputField({
     return (
       <FormDecimalInput
         {...shared}
-        endContent={
-          field.valueType === "currency"
-            ? (field.format?.currency ?? root.companyStore.company?.currency ?? "").toUpperCase() || undefined
-            : undefined
-        }
+        endContent={field.valueType === "currency" ? (field.format?.currency ?? undefined) : undefined}
       />
     );
   }

@@ -3,7 +3,7 @@ import { action, makeObservable, observable, runInAction, toJS } from "mobx";
 import { cloneDeep } from "lodash";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 import { ConfigurationChangeSchema } from "@/features/records/configuration.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -19,7 +19,7 @@ import {
 } from "../../records/actions";
 
 export abstract class ModelChangeStore<Form extends object> extends BaseModalStore<Form> {
-  model: RecordModel;
+  model: RecordModelView;
   preview: ConfigurationPreview | null = null;
   pendingOperationId: string | null = null;
   refreshRequired = false;
@@ -37,10 +37,10 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
   constructor(
     root: RootStore,
     initial: Form,
-    model: RecordModel,
+    model: RecordModelView,
     private completed: (preview: ConfigurationPreview, isCurrentSession?: () => boolean) => Promise<void>,
     canRenewSummaries = false,
-    private onModelRefreshed?: (model: RecordModel) => void,
+    private onModelRefreshed?: (model: RecordModelView) => void,
   ) {
     super(root, initial, undefined, { register: false });
     this.model = model;
@@ -67,7 +67,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
     });
   }
   abstract operations(): ConfigurationChange["operations"];
-  protected abstract projectLatestModel(model: RecordModel): Form | null;
+  protected abstract projectLatestModel(model: RecordModelView): Form | null;
   protected enrichPreviewChange(change: ConfigurationChange, _preview: ConfigurationPreview): ConfigurationChange {
     return change;
   }
@@ -88,7 +88,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
     this.sessionGeneration += 1;
     return true;
   }
-  resetModel = (model: RecordModel) => {
+  resetModel = (model: RecordModelView) => {
     this.sessionGeneration += 1;
     this.model = model;
     this.preview = null;
@@ -204,7 +204,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
     this.conflicts = [];
     this.setPreview(null);
   };
-  private adoptLatest(latest: RecordModel) {
+  private adoptLatest(latest: RecordModelView) {
     const projected = this.projectLatestModel(latest);
     this.model = latest;
     this.setPreview(null);
@@ -221,7 +221,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
     this.targetMissing = false;
     this.refreshRequired = false;
   }
-  rebaseDraft = (latest: RecordModel) => {
+  rebaseDraft = (latest: RecordModelView) => {
     if (latest.revision <= this.model.revision || this.isLoading || this.pendingOperationId) return;
     this.adoptLatest(latest);
   };

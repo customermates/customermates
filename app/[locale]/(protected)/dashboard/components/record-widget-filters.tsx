@@ -3,7 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
-import type { RecordModel, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordModelView, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordQuery } from "@/features/records/record-query.schema";
 import type { RecordFilterField } from "@/features/records/record-filter";
 import { recordFilterFields, recordFilterOperators } from "@/features/records/record-filter";
@@ -77,7 +77,6 @@ export const RecordWidgetFieldFilters = observer(
   }) => {
     const t = useTranslations();
     const formDisabled = useAppForm()?.isDisabled ?? false;
-    const { companyStore } = useRootStore();
     const defaults = (field: RecordFilterField): RecordScalar =>
       filterScalar(
         field.valueType === "boolean"
@@ -92,7 +91,6 @@ export const RecordWidgetFieldFilters = observer(
                   ? new Date().toISOString()
                   : "",
         field,
-        companyStore.company?.currency ?? "EUR",
       );
     return (
       <div className="space-y-3">
@@ -225,7 +223,7 @@ export const RecordWidgetFieldFilters = observer(
   },
 );
 
-export function widgetRelationshipChoices(model: RecordModel | undefined | null, typeId: string) {
+export function widgetRelationshipChoices(model: RecordModelView | undefined | null, typeId: string) {
   return (
     model?.relationships
       .filter((relation) => !relation.archived)
@@ -249,7 +247,7 @@ export const RecordWidgetRelatedFilters = observer(
     filters: relatedFilters,
   }: {
     store: { onChange: (id: string, value: unknown) => void };
-    model: RecordModel | undefined | null;
+    model: RecordModelView | undefined | null;
     typeId: string;
     id: string;
     filters: NonNullable<RecordQuery["relatedFilters"]>;
