@@ -300,6 +300,15 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .describe("Permanently delete an archived field and its values."),
             z
               .object({
+                operation: z.literal("deleteCapability"),
+                capabilityId: z.uuid(),
+              })
+              .strict()
+              .describe(
+                "Permanently delete a deleted Channels field (a channels capability with enabled false) and the list's channel identifiers.",
+              ),
+            z
+              .object({
                 operation: z.literal("setTypeGrants"),
                 typeId: ConfigurationReferenceSchema,
                 grants: z.array(RecordGrantSchema),
@@ -343,6 +352,8 @@ export const ConfigurationPreviewSchema = z
         relationships: z.number().int(),
         views: z.number().int(),
         grants: z.number().int(),
+        identifiers: z.number().int(),
+        identifierRecords: z.number().int(),
       })
       .strict()
       .optional(),
