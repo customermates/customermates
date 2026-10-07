@@ -18,6 +18,7 @@ vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/dashboard",
 }));
 vi.mock("@/components/ui/tooltip", () => ({
+  TooltipProvider: ({ children }: { children: ReactNode }) => children,
   Tooltip: ({ children }: { children: ReactNode }) => children,
   TooltipContent: ({ children }: { children: ReactNode }) => children,
   TooltipTrigger: ({ children }: { children: ReactNode }) => children,
