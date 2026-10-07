@@ -305,9 +305,7 @@ test("admits an assigned-record writer and separately delegates schema configura
         )
       ).rows.map((row: { userId: string }) => row.userId);
     await page.goto(`/en/records/${type.id}`);
-    await page
-      .getByRole("button", { name: "Other member project", exact: true })
-      .click();
+    await openRecordDetails(page, "Other member project");
     const administratorEditor = page.getByRole("dialog", {
       name: "Project",
       exact: true,
@@ -351,9 +349,7 @@ test("admits an assigned-record writer and separately delegates schema configura
         })
       ).status(),
     ).toBe(200);
-    await page
-      .getByRole("button", { name: "Other member project", exact: true })
-      .click();
+    await openRecordDetails(page, "Other member project");
     const assignmentField = administratorEditor.locator(
       '[data-entity-field="system:assignedTo"]',
     );

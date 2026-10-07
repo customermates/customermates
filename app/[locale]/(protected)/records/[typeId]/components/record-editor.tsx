@@ -47,9 +47,9 @@ export const RecordEditor = observer(function RecordEditorDrawer({ store }: { st
           className="w-full gap-0 bg-background sm:max-w-[640px]"
           side="left"
           onBlur={releaseFocusToAssistantSurface}
-          onCloseAutoFocus={focusReturn.onCloseAutoFocus}
           onEscapeKeyDown={keepOpenForAssistantSurface}
           onInteractOutside={keepOpenForAssistantSurface}
+          {...focusReturn}
           onOpenAutoFocus={(event) => {
             focusReturn.onOpenAutoFocus();
             event.preventDefault();

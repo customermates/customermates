@@ -237,7 +237,7 @@ export function RecordCalculatedCell({ field, children }: { field: RecordField; 
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <span aria-label={label} className={INLINE_HINT_CLASS} data-read-only-field={field.id} role="img">
+          <span aria-hidden className={INLINE_HINT_CLASS} data-read-only-field={field.id}>
             <Lock aria-hidden className="size-3.5" />
           </span>
         </TooltipTrigger>
