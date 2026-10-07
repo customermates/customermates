@@ -622,9 +622,15 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
     await this.prisma.p13n.deleteMany({
       where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
     });
+    await this.prisma.recordValueDependency.deleteMany({ where: { companyId, sourceTypeId: { in: typeIds } } });
+    const identities = await this.prisma.recordIdentityLink.findMany({
+      where: { companyId, typeId: { in: typeIds } },
+      select: { identityId: true },
+    });
     await this.prisma.recordRelationshipDefinition.deleteMany({ where: { companyId, id: { in: relationIds } } });
     await this.prisma.recordFieldDefinition.deleteMany({ where: { companyId, id: { in: fieldIds } } });
     await this.prisma.recordTypeDefinition.deleteMany({ where: { companyId, id: { in: typeIds } } });
+    await this.deleteOrphanedIdentities(identities.map((row) => row.identityId));
   }
 
   async countReadableRecordsByType(access: RecordAccessMap): Promise<Array<{ typeId: string; count: number }>> {

@@ -282,7 +282,7 @@ export class RecordConfigurationService extends UserAccessor {
           embedded: operation.embedded,
           navigationVisible: operation.navigationVisible ?? !operation.embedded,
           archived: false,
-          position: model.types.length,
+          position: Math.max(-1, ...model.types.map((type) => type.position)) + 1,
           primaryFieldId: nameId,
           parentRelationshipId: null,
           defaults: {
@@ -416,6 +416,8 @@ export class RecordConfigurationService extends UserAccessor {
     )
       ? removeArchivedDefinitions(model, input.operations)
       : null;
+    if (removed?.deletion.typeIds.length && !policy.canManageRoles)
+      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
     for (const typeId of reorderedTypes) {
       const slots = model.fields.flatMap((field, index) => (field.typeId === typeId ? [index] : []));
       const ordered = slots.map((index) => model.fields[index]).sort((left, right) => left.position - right.position);

@@ -301,7 +301,12 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       required: form.required,
       multiple: ["text", "email", "phone", "url"].includes(form.valueType) && form.multiple,
       archived: form.archived,
-      position: this.original?.position ?? this.model.fields.filter((field) => field.typeId === this.typeId).length,
+      position:
+        this.original?.position ??
+        Math.max(
+          -1,
+          ...this.model.fields.filter((field) => field.typeId === this.typeId).map((field) => field.position),
+        ) + 1,
       format: {
         ...this.original?.format,
         currency: form.valueType === "currency" ? form.currency.toUpperCase() : null,
@@ -359,7 +364,7 @@ export const FieldModal = observer(function FieldModal({
               label: t("RecordModel.permanentDeletion.deleteField"),
               variant: "destructive",
               busy: deletion.isPreviewing,
-              disabled: store.isLoading,
+              disabled: store.isLoading || store.isReadOnly,
               onClick: () => deletion.requestDeletion(store.model, { field: archived }),
             }
           : undefined
