@@ -14,11 +14,11 @@ import { RecordOperationProgress } from "@/components/records/record-operation-p
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
-import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { RelationshipPathInput } from "@/components/records/relationship-path-input";
 import { recordInvariant } from "@/features/records/record-invariant";
@@ -232,86 +232,66 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
             />
           )}
 
-          <EditorTabs
-            className="-mx-6"
-            contentClassName="space-y-4 px-6 pt-5"
-            label={t("RecordModel.relationship")}
-            tabs={[
-              {
-                id: "relationship",
-                label: t("RecordModel.relationship"),
-                fields: ["mode", "targetTypeId", "sourceLabel", "targetLabel", "path", "archived"],
-                content: (
-                  <>
-                    {!store.form.id && (
-                      <FormSelect
-                        id="mode"
-                        items={[
-                          { value: "direct", label: t("RecordModel.directRelationship") },
-                          { value: "path", label: t("RecordModel.relationshipPath") },
-                        ]}
-                        label={t("RecordModel.connectionType")}
-                      />
-                    )}
+          {!store.form.id && (
+            <FormSelect
+              id="mode"
+              items={[
+                { value: "direct", label: t("RecordModel.directRelationship") },
+                { value: "path", label: t("RecordModel.relationshipPath") },
+              ]}
+              label={t("RecordModel.connectionType")}
+            />
+          )}
 
-                    {store.form.mode === "path" ? (
-                      <>
-                        <p className="text-sm text-muted-foreground">{t("RecordModel.relationshipPathHelp")}</p>
+          {store.form.mode === "path" ? (
+            <>
+              <p className="text-sm text-muted-foreground">{t("RecordModel.relationshipPathHelp")}</p>
 
-                        <FormInput required id="sourceLabel" label={t("RecordModel.name")} />
+              <FormInput required id="sourceLabel" label={t("RecordModel.name")} />
 
-                        <RelationshipPathInput
-                          disabled={store.isLoading || Boolean(store.pendingOperationId)}
-                          model={store.model}
-                          typeId={store.sourceTypeId}
-                          value={store.form.path}
-                          onChange={(path) => store.onChange("path", path)}
-                        />
+              <RelationshipPathInput
+                disabled={store.isLoading || Boolean(store.pendingOperationId)}
+                model={store.model}
+                typeId={store.sourceTypeId}
+                value={store.form.path}
+                onChange={(path) => store.onChange("path", path)}
+              />
 
-                        {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationshipPath")} />}
-                      </>
-                    ) : (
-                      <>
-                        <DirectRelationshipFields store={store} />
+              {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationshipPath")} />}
+            </>
+          ) : (
+            <>
+              <DirectRelationshipFields store={store} />
 
-                        {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationship")} />}
-                      </>
-                    )}
-                  </>
-                ),
-              },
-              ...(store.form.mode === "path"
-                ? []
-                : [
-                    {
-                      id: "deletion",
-                      label: t("RecordModel.relationshipEditor.onDelete"),
-                      fields: ["onSourceDelete", "onTargetDelete"],
-                      content: (
-                        <>
-                          <FormSelect
-                            id="onSourceDelete"
-                            items={["unlink", "restrict", "cascade"].map((value) => ({
-                              value,
-                              label: t(`RecordModel.deletion.${value}`),
-                            }))}
-                            label={t("RecordModel.onSourceDelete")}
-                          />
+              {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationship")} />}
 
-                          <FormSelect
-                            id="onTargetDelete"
-                            items={["unlink", "restrict", "cascade"].map((value) => ({
-                              value,
-                              label: t(`RecordModel.deletion.${value}`),
-                            }))}
-                            label={t("RecordModel.onTargetDelete")}
-                          />
-                        </>
-                      ),
-                    },
-                  ]),
-            ]}
-          />
+              <CollapsibleSection
+                id="relationship-deletion"
+                summary={[store.form.onSourceDelete, store.form.onTargetDelete]
+                  .map((value) => t(`RecordModel.deletion.${value}`))
+                  .join(" · ")}
+                title={t("RecordModel.relationshipEditor.onDelete")}
+              >
+                <FormSelect
+                  id="onSourceDelete"
+                  items={["unlink", "restrict", "cascade"].map((value) => ({
+                    value,
+                    label: t(`RecordModel.deletion.${value}`),
+                  }))}
+                  label={t("RecordModel.onSourceDelete")}
+                />
+
+                <FormSelect
+                  id="onTargetDelete"
+                  items={["unlink", "restrict", "cascade"].map((value) => ({
+                    value,
+                    label: t(`RecordModel.deletion.${value}`),
+                  }))}
+                  label={t("RecordModel.onTargetDelete")}
+                />
+              </CollapsibleSection>
+            </>
+          )}
 
           {store.preview && (
             <RecordConfigurationPreview model={store.model} preview={store.preview} renewal={store.summaryRenewal} />

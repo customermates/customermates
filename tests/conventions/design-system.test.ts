@@ -42,7 +42,6 @@ const TABS_ALLOWLIST: Allowlist = {
   "components/data-view/header/display-options.tsx": "I2 r3: view layout picker as SegmentedControl",
   "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx": "I2 r3: record drawer segments",
   "app/[locale]/(protected)/configure/components/field-modal.tsx": "I1 r4: field drawer as one form with sections",
-  "app/[locale]/(protected)/configure/components/relationship-modal.tsx": "I1 r4: relationship drawer sections",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": "I1 r4: list page sidebar list",
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx": "I3 r3: Data / Appearance segments",
   "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx": "I3 r3: widget editor segments",

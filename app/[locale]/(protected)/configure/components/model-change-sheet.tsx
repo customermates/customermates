@@ -5,16 +5,14 @@ import type { BaseModalStore } from "@/core/base/base-modal.store";
 
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetBody, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
+import { AppModalCloseContext } from "@/components/modal/app-modal-close-context";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
-import { runUserAction } from "@/core/errors/report-application-error";
 
 type SheetStore = BaseModalStore & {
   isReadOnly: boolean;
@@ -53,7 +51,6 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   actions?: readonly AppModalActionProps[];
   children: ReactNode;
 }) {
-  const t = useTranslations();
   const navigationGuard = store.rootStore.navigationGuard;
   const focusReturn = useOverlayFocusReturn(store.isOpen, store.focusReturnTarget, store.focusReturnFallback);
   useEffect(() => {
@@ -65,24 +62,7 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
     if (store.withUnsavedChangesGuard && store.hasUnsavedChanges) store.setIsClosingWithGuard(true);
     else store.close();
   };
-  const footer = (
-    <div className="flex shrink-0 items-center justify-end gap-2 max-sm:flex-col-reverse max-sm:items-stretch">
-      <Button disabled={store.isLoading} size="sm" type="button" variant="secondary" onClick={requestClose}>
-        {t("Common.actions.cancel")}
-      </Button>
-
-      <Button
-        disabled={store.isLoading || store.isReadOnly || !(creating || store.hasUnsavedChanges || store.previewReady)}
-        size="sm"
-        type="button"
-        onClick={() => runUserAction(store.onSubmit)}
-      >
-        {store.isLoading && <Loader2 aria-hidden className="animate-spin" />}
-
-        {t("Common.actions.save")}
-      </Button>
-    </div>
-  );
+  const modalClose = { requestClose, guardsUnsavedChanges: true };
   return (
     <>
       <Sheet
@@ -106,15 +86,27 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
             focusFirstBodyControl(event);
           }}
         >
-          <SheetHeader className="flex-row items-start gap-3 px-6 pt-[calc(1.5rem+var(--safe-top))] pr-[calc(3.125rem+var(--safe-right))] pb-4">
-            <SheetTitle className="min-w-0 flex-1 truncate text-lg">{title}</SheetTitle>
+          <AppModalCloseContext.Provider value={modalClose}>
+            <SheetHeader className="flex-row items-start gap-3 px-6 pt-[calc(1.5rem+var(--safe-top))] pr-[calc(3.125rem+var(--safe-right))] pb-4">
+              <SheetTitle className="min-w-0 flex-1 truncate text-lg">{title}</SheetTitle>
 
-            <AppModalActionRail actions={actions} className="-mt-4.5" />
-          </SheetHeader>
+              <AppModalActionRail actions={actions} className="-mt-4.5" />
+            </SheetHeader>
 
-          <SheetBody className="px-6 py-5">{children}</SheetBody>
+            <SheetBody className="px-6 py-5">{children}</SheetBody>
 
-          <SheetFooter className="px-6">{footer}</SheetFooter>
+            <SheetFooter className="px-6">
+              <div className="flex shrink-0 items-center justify-end gap-2 max-sm:flex-col-reverse max-sm:items-stretch">
+                <FormFooterActions
+                  editable
+                  dirty={!store.isReadOnly && (creating || store.hasUnsavedChanges || store.previewReady)}
+                  placement="overlay"
+                  saving={store.isLoading}
+                  onSave={store.onSubmit}
+                />
+              </div>
+            </SheetFooter>
+          </AppModalCloseContext.Provider>
         </SheetContent>
       </Sheet>
 

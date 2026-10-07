@@ -70,6 +70,13 @@ export async function openDrawerTab(page: Page, name: string) {
   await expect(tab).toHaveAttribute("aria-selected", "true");
 }
 
+export async function openDrawerSection(page: Page, name: string) {
+  const trigger = configureDrawer(page).locator("[data-slot=collapsible-section-trigger]").filter({ hasText: name });
+  const section = configureDrawer(page).locator("[data-slot=collapsible-section]").filter({ has: trigger });
+  if ((await section.getAttribute("data-state")) !== "open") await trigger.click();
+  await expect(section).toHaveAttribute("data-state", "open");
+}
+
 export async function openConfigureTab(page: Page, section: ConfigureSection | "General") {
   const tab = page.locator("[data-configure-list-pane]").getByRole("tab", { name: section, exact: true });
   await expect(async () => {
