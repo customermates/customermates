@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordColumn } from "@/features/records/record-columns";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import { recordColumns } from "@/features/records/record-columns";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
@@ -105,7 +106,7 @@ const SummaryValue = observer(function SummaryValue({
   column,
 }: {
   store: RecordEditorStore;
-  column: RecordColumn;
+  column: RecordColumn<RecordFieldView>;
 }) {
   const t = useTranslations();
   const copy = useCopyToClipboard();
