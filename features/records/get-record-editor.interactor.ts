@@ -99,9 +99,9 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
           const layout = await this.layouts.read(type.id, model, policy);
           if (!layout.ok) return layout;
           const visible = ref
-            ? await this.records.getVisibleFields(ref, model, policy.access([...accessible]))
+            ? await this.records.getVisibleFields(ref, storedModel, policy.access([...accessible]))
             : new Set<string>();
-          const record = stored ? recordDto(stored, model, visible, policy.memberScope) : null;
+          const record = stored ? recordDto(stored, storedModel, visible, policy.memberScope) : null;
           if (record && recordChannelsEnabled(model, type.id))
             record.identities = await this.records.getIdentitiesCompanyWide(record.ref);
           return {

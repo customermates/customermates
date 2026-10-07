@@ -17,6 +17,7 @@ export function RecordConfigurationPreview({
   renewal?: { fieldIds: string[]; approved: boolean; disabled: boolean; onChange: (approved: boolean) => void };
 }) {
   const t = useTranslations();
+  const approvals = preview.issues.filter((issue) => issue.code === "summary_approval_required");
   return (
     <div className="space-y-2 text-sm" role="status">
       {preview.valid && (
@@ -26,6 +27,17 @@ export function RecordConfigurationPreview({
             : t("RecordModel.previewReady", { count: preview.affectedRecords })}
         </p>
       )}
+
+      {approvals.map((issue, index) => {
+        const label = model.fields.find((field) => field.id === issue.fieldId)?.label;
+        return (
+          <p key={index}>
+            {label && <span className="font-medium">{label}: </span>}
+
+            {t("RecordModel.summaryApprovalRequired")}
+          </p>
+        );
+      })}
 
       {preview.dataValidation === "staged" && (
         <p className="text-muted-foreground">{t("RecordModel.stagedValidation")}</p>

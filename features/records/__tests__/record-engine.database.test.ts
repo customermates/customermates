@@ -10065,6 +10065,77 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(JSON.stringify(result)).not.toContain("Private source");
   });
 
+  it("keeps retained values restricted in the record editor after their source list is deleted", async () => {
+    const f = await fixture();
+    const deal = await f.create("deal", "Confidential derived title");
+    const definition: ConfigurationChange = {
+      expectedRevision: 1,
+      idempotencyKey: randomUUID(),
+      operations: [
+        {
+          operation: "createType",
+          reference: "$privateSources",
+          label: "Private source",
+          pluralLabel: "Private sources",
+          description: "",
+          icon: "list",
+          embedded: false,
+          accessPresetId: null,
+        },
+      ],
+    };
+    const preview = await f.run(() => f.preview.invoke(definition));
+    if (!preview.ok) throw preview.error;
+    const refId = (reference: string) =>
+      recordInvariant(preview.data.references.find((item) => item.reference === reference)).id;
+    expect(await f.run(() => f.configure.invoke(definition))).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
+    const created = await f.mutation(
+      {
+        action: "create",
+        typeId: refId("$privateSources"),
+        fields: [{ fieldId: refId("$privateSources.name"), value: textValue("Private source") }],
+      },
+      f.admin,
+      randomUUID(),
+      2,
+    );
+    if (!created.ok || created.data.status !== "completed") throw new Error("Private source fixture failed");
+    const privateSource = recordInvariant(created.data.refs[0]);
+    await f.run(() =>
+      runInTransaction(async () => {
+        for (const type of (await f.repo.getModel()).types) {
+          if (type.id !== privateSource.typeId && !type.embedded)
+            await f.repo.setGrants(type.id, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
+        }
+        await f.repo.setValueDependencies(deal, f.id("deal.name"), [privateSource]);
+      }),
+    );
+    const restricted = async () => {
+      const result = await f.run(() => f.editor.invoke(deal), f.member);
+      expect(result).toMatchObject({
+        ok: true,
+        data: {
+          record: {
+            fields: expect.arrayContaining([{ fieldId: f.id("deal.name"), result: { state: "restricted" } }]),
+          },
+        },
+      });
+      expect(JSON.stringify(result)).not.toContain("Confidential derived title");
+    };
+    await restricted();
+    const model = await f.run(() => f.repo.getModel());
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: model.revision,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "delete", target: { kind: "type", id: privateSource.typeId } }],
+        }),
+      ),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    await restricted();
+  });
+
   it("filters assignments and orders timestamps in PostgreSQL through the shared query and view contracts", async () => {
     const f = await fixture();
     const first = await f.create("organization", "First");
