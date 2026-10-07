@@ -363,7 +363,9 @@ export const RecordWidgetEditor = observer(
               "measure.valueFieldId",
               value === "count"
                 ? null
-                : (sourceFields.find((field) => ["number", "currency"].includes(field.valueType))?.id ?? null),
+                : (measure.valueFieldId ??
+                    sourceFields.find((field) => ["number", "currency"].includes(field.valueType))?.id ??
+                    null),
             );
           }}
         />

@@ -641,7 +641,6 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     })
     .check();
   await expect(dialog.getByRole("button", { name: "Colors", exact: true })).toHaveCount(0);
-  await dialog.getByRole("tab", { name: english.Dashboard.widgetEditor.tabs.data, exact: true }).click();
   await expectChartPreview(page, "€10.00", { New: "€5.00", Won: "€12.50" });
   await expect(dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true })).toBeEnabled();
   previewFault = true;
@@ -671,6 +670,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     .check();
   await expect.poll(fills).toHaveLength(2);
   await expect(dialog.getByRole("alert")).toHaveCount(0);
+  await dialog.getByRole("tab", { name: english.Dashboard.widgetEditor.tabs.data, exact: true }).click();
   await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers.min);
   await chartPreview(page, "€5.00", { New: "€5.00", Won: "€5.00" });
   await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers.max);
