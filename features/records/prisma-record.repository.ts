@@ -590,6 +590,20 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
   }
 
+  async countReadableRecordsByType(access: RecordAccessMap): Promise<Array<{ typeId: string; count: number }>> {
+    if (!access.size) return [];
+    const record = Prisma.raw('"record"');
+    const readable = [...access].map(
+      ([typeId, scope]) =>
+        Prisma.sql`(${record}."typeId" = ${typeId} AND ${recordReadPredicate(this.companyId, scope, record)})`,
+    );
+    return this.prisma.$queryRaw<Array<{ typeId: string; count: number }>>(Prisma.sql`
+      SELECT ${record}."typeId" AS "typeId", COUNT(*)::integer AS count FROM "CrmRecord" ${record}
+      WHERE ${record}."companyId" = ${this.companyId} AND ${record}."typeId" IN (${Prisma.join([...access.keys()])})
+        AND (${Prisma.join(readable, " OR ")})
+      GROUP BY ${record}."typeId"`);
+  }
+
   async validRecordRolesCompanyWide(roleIds: string[]): Promise<boolean> {
     return (
       (await this.prisma.userRole.count({

@@ -2,7 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, configureDrawer, configureRailLink, configureRow, configureTopBar, createConfiguredList, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived } from "./configure";
+import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function readModel(database: Client, companyId: string) {
@@ -24,7 +24,6 @@ function captureErrors(page: Page) {
   return errors;
 }
 
-const isWide = (page: Page) => (page.viewportSize()?.width ?? 0) >= 1024;
 const typeIdInUrl = (page: Page) => new URL(page.url()).searchParams.get("typeId");
 
 async function center(locator: Locator) {
@@ -43,81 +42,6 @@ async function dragBetween(page: Page, from: { x: number; y: number }, to: { x: 
   await page.mouse.up();
 }
 
-test("lists every list flat with embedded lists under their parent, searches and remembers the last list", async ({
-  page,
-  companyId,
-}) => {
-  const errors = captureErrors(page);
-  const id = (key: string) => presetId(companyId, key);
-
-  await test.step("Configure opens the list named in its parameters", async () => {
-    await page.goto(`/en/configure?typeId=${id("service")}`);
-    await expect(page.getByRole("heading", { level: 1, name: "Services", exact: true })).toBeVisible();
-  });
-
-  await test.step("the page has a plain title and no section breadcrumb", async () => {
-    const topBar = configureTopBar(page);
-    await expect(topBar.getByText("Configure", { exact: true })).toBeVisible();
-    await expect(topBar.getByRole("link", { name: "My Company" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "All lists", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Configure views", exact: true })).toBeVisible();
-  });
-
-  await test.step("the rail is one flat list with Line items under Deals", async () => {
-    if (!isWide(page)) await page.getByRole("button", { name: "All lists", exact: true }).click();
-    const rail = page.locator("[data-configure-rail]");
-    await expect(rail).toBeVisible();
-    await expect(rail.locator("[data-configure-list]")).toHaveCount(6);
-    const order = await rail
-      .locator("[data-configure-list]")
-      .evaluateAll((links) => links.map((link) => link.getAttribute("data-configure-list")));
-    expect(order).toEqual(
-      ["contact", "organization", "deal", "lineItem", "service", "task"].map((key) => id(key)),
-    );
-    const indent = async (key: string) =>
-      (await rail.locator(`[data-configure-list="${id(key)}"]`).boundingBox())?.x ?? 0;
-    const lineItemIcon = rail.locator(`[data-configure-list="${id("lineItem")}"] svg`);
-    const dealIcon = rail.locator(`[data-configure-list="${id("deal")}"] svg`);
-    expect(((await lineItemIcon.boundingBox())?.x ?? 0) - ((await dealIcon.boundingBox())?.x ?? 0)).toBeGreaterThan(8);
-    expect(await indent("lineItem")).toBe(await indent("deal"));
-    await expect(rail.getByText("Starter", { exact: false })).toHaveCount(0);
-    await expect(rail.getByText("Custom", { exact: false })).toHaveCount(0);
-    await expect(rail.getByRole("button", { name: "New list", exact: true })).toBeVisible();
-  });
-
-  await test.step("search narrows the rail", async () => {
-    const search = page.getByRole("searchbox", { name: "Search lists", exact: true });
-    await search.fill("line");
-    await expect(page.locator("[data-configure-rail] [data-configure-list]")).toHaveCount(1);
-    await expect(configureRailLink(page, "Line items")).toBeVisible();
-    await search.fill("no such list");
-    await expect(page.locator("[data-configure-rail]")).toContainText("No lists match your search.");
-    await search.fill("");
-    await expect(page.locator("[data-configure-rail] [data-configure-list]")).toHaveCount(6);
-  });
-
-  await test.step("selection lives in the URL and the last opened list is restored", async () => {
-    await selectConfigureList(page, "Deals");
-    expect(typeIdInUrl(page)).toBe(id("deal"));
-    await page.goto("/en/configure");
-    if (isWide(page)) {
-      await expect.poll(() => typeIdInUrl(page)).toBe(id("deal"));
-      await expect(page.getByRole("heading", { level: 1, name: "Deals", exact: true })).toBeVisible();
-    } else {
-      await expect(page.locator("[data-configure-rail]")).toBeVisible();
-      expect(typeIdInUrl(page)).toBeNull();
-      await selectConfigureList(page, "Deals");
-      await page.getByRole("button", { name: "All lists", exact: true }).click();
-      await expect(page.locator("[data-configure-rail]")).toBeVisible();
-      expect(typeIdInUrl(page)).toBeNull();
-    }
-    await page.goBack();
-    await expect.poll(() => typeIdInUrl(page)).toBe(id("deal"));
-    await expect(page.getByRole("heading", { level: 1, name: "Deals", exact: true })).toBeVisible();
-  });
-  expect(errors).toEqual([]);
-});
-
 test("edits General in place, guards unsaved edits and saves from the top bar and the bottom", async ({
   page,
   database,
@@ -129,7 +53,14 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   const pane = page.locator("[data-configure-list-pane]");
   const general = page.getByRole("region", { name: "General", exact: true });
   await expect(pane).toContainText(/\d+ fields · \d+ relationships · \d+ activity connections/);
-  await expect(general.getByRole("combobox", { name: "Icon", exact: true })).toContainText("Growth");
+  const icon = general.getByRole("button", { name: "Icon", exact: true });
+  await expect(icon).toContainText("Growth");
+  await icon.click();
+  await expect(page.getByRole("toolbar", { name: "Choose icon", exact: true }).getByRole("button", { name: "Growth", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.keyboard.press("Escape");
   await expect(general).not.toContainText("Selection unavailable");
   await expect(configureTopBar(page).getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
 
@@ -139,10 +70,7 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   await expect(pane.getByRole("button", { name: "Save", exact: true })).toBeVisible();
   await expect(pane.getByRole("button", { name: "Reset", exact: true })).toBeVisible();
 
-  const leaveDeals = async () => {
-    if (isWide(page)) await configureRailLink(page, "Contacts").click();
-    else await page.getByRole("button", { name: "All lists", exact: true }).click();
-  };
+  const leaveDeals = () => configureTopBar(page).getByRole("link", { name: "Configure", exact: true }).click();
   await leaveDeals();
   const guard = page.getByRole("alertdialog");
   await expect(guard).toBeVisible();
@@ -174,13 +102,8 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   await general.getByRole("textbox", { name: "Description", exact: true }).fill("Discarded draft");
   await leaveDeals();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
-  if (isWide(page)) {
-    await expect(page.getByRole("heading", { level: 1, name: "Contacts", exact: true })).toBeVisible();
-    expect(typeIdInUrl(page)).toBe(id("contact"));
-  } else {
-    await expect(page.locator("[data-configure-rail]")).toBeVisible();
-    await expect.poll(() => typeIdInUrl(page)).toBeNull();
-  }
+  await expect(page.locator("[data-configure-graph]")).toBeVisible();
+  await expect.poll(() => typeIdInUrl(page)).toBeNull();
   expect((await readModel(database, companyId)).types.find((type) => type.id === id("deal"))?.description).toBe(
     "Open opportunities",
   );
@@ -212,6 +135,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   await expect(dialog.getByRole("combobox", { name: "Value source", exact: true })).toContainText("Calculated");
   await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(1);
   await expect(dialog.getByRole("button", { name: "Cancel", exact: true })).toHaveCount(1);
+  await expect(dialog.locator("[data-slot='sheet-header']").getByRole("button", { name: "Save" })).toHaveCount(0);
   await expect(dialog.getByRole("button", { name: "Close", exact: true })).toHaveCount(1);
   await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(dialog).not.toBeVisible();
@@ -229,6 +153,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
     await expect(dialog).not.toBeVisible();
   }
 
+  await openConfigureTab(page, "Fields");
   const fields = page.getByRole("region", { name: "Fields", exact: true });
   await expect(configureRow(page, "Fields", "Notes")).toContainText("Formatted text · Entered manually");
   await expect(fields).toContainText("Money · Total from Line items");
@@ -290,9 +215,9 @@ test("archives and restores a list from the list actions and labels hidden and a
   expect((await readModel(database, companyId)).types.find((type) => type.id === id("task"))?.navigationVisible).toBe(
     false,
   );
-  if (!isWide(page)) await page.getByRole("button", { name: "All lists", exact: true }).click();
-  await expect(configureRailLink(page, "Tasks")).toContainText("Hidden");
-  await expect(configureRailLink(page, "Line items")).not.toContainText("Hidden");
+  await openConfigure(page);
+  await expect(configureListCard(page, "Tasks")).toContainText("Hidden");
+  await expect(configureListCard(page, "Line items")).not.toContainText("Hidden");
 
   const tripsId = await createConfiguredList(page, "Field trips");
   await openConfigure(page, tripsId);
@@ -307,20 +232,17 @@ test("archives and restores a list from the list actions and labels hidden and a
   await saveDrawer(page);
   expect((await readModel(database, companyId)).types.find((type) => type.id === tripsId)?.archived).toBe(true);
   await expect(page.locator("[data-configure-list-pane]")).toContainText("Archived");
-  if (isWide(page)) await expect(configureRailLink(page, "Field trips")).toContainText("Archived");
 
-  await selectConfigureList(page, "Contacts");
-  if (!isWide(page)) await page.getByRole("button", { name: "All lists", exact: true }).click();
-  await expect(configureRailLink(page, "Field trips")).toHaveCount(0);
+  await openConfigure(page);
+  await expect(configureListCard(page, "Field trips")).toHaveCount(0);
   await setShowArchived(page, true);
-  await expect(configureRailLink(page, "Field trips")).toContainText("Archived");
+  await expect(configureListCard(page, "Field trips")).toContainText("Archived");
   await selectConfigureList(page, "Field trips");
   await openListAction(page, "Restore list");
   await saveDrawer(page);
   expect((await readModel(database, companyId)).types.find((type) => type.id === tripsId)?.archived).toBe(false);
-  await setShowArchived(page, false);
-  if (!isWide(page)) await page.getByRole("button", { name: "All lists", exact: true }).click();
-  await expect(configureRailLink(page, "Field trips")).not.toContainText("Archived");
+  await openConfigure(page);
+  await expect(configureListCard(page, "Field trips")).not.toContainText("Archived");
 
   await selectConfigureList(page, "Services");
   await openListAction(page, "Shared defaults");
@@ -330,7 +252,7 @@ test("archives and restores a list from the list actions and labels hidden and a
   expect(errors).toEqual([]);
 });
 
-test("opens lists and relationships from the map and connects two lists by dragging", async ({
+test("shows the data model graph and edits lists, fields and relationships from it", async ({
   page,
   database,
   companyId,
@@ -338,65 +260,102 @@ test("opens lists and relationships from the map and connects two lists by dragg
   const errors = captureErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const dialog = configureDrawer(page);
-  await openConfigure(page, id("contact"));
-  await page.getByRole("navigation", { name: "Configure views", exact: true }).getByRole("link", { name: "Map" }).click();
-  await expect.poll(() => new URL(page.url()).searchParams.get("view")).toBe("map");
-  const map = page.locator("[data-configure-map]");
-  await expect(map).toBeVisible();
-  await expect(map.locator("[data-configure-node]")).toHaveCount(6);
-  const model = await readModel(database, companyId);
-  await expect(map.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length);
+  const graph = page.locator("[data-configure-graph]");
+  const fitView = () => graph.getByRole("button", { name: "Fit view", exact: true }).click();
+  const openGraph = async () => {
+    await backToConfigureGraph(page);
+    await expect(graph.locator("[data-configure-node]")).toHaveCount(6);
+    await fitView();
+  };
 
-  await map.getByRole("button", { name: "Organizations", exact: true }).click();
-  await expect.poll(() => new URL(page.url()).searchParams.get("view")).toBeNull();
-  expect(typeIdInUrl(page)).toBe(id("organization"));
-  await expect(page.getByRole("heading", { level: 1, name: "Organizations", exact: true })).toBeVisible();
-
-  await page.getByRole("navigation", { name: "Configure views", exact: true }).getByRole("link", { name: "Map" }).click();
-  await expect(map).toBeVisible();
-  await map.getByRole("button", { name: "Deals", exact: true }).focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("heading", { level: 1, name: "Deals", exact: true })).toBeVisible();
-
-  await page.getByRole("navigation", { name: "Configure views", exact: true }).getByRole("link", { name: "Map" }).click();
-  const relation = model.relationships.find(
-    (candidate) => candidate.sourceTypeId === id("deal") && candidate.targetTypeId === id("organization"),
-  );
-  if (!relation) throw new Error("The preset deal organization relationship is missing");
-  const edge = map.locator(`[data-configure-relationship="${relation.id}"]`);
-  await edge.scrollIntoViewIfNeeded();
-  const point = await edge.locator("path").first().evaluate((path: SVGPathElement) => {
-    const middle = path.getPointAtLength(path.getTotalLength() / 2);
-    const matrix = path.getScreenCTM();
-    if (!matrix) throw new Error("The relationship line is not rendered");
-    const screen = new DOMPoint(middle.x, middle.y).matrixTransform(matrix);
-    return { x: screen.x, y: screen.y };
+  await test.step("the graph is the default view with list cards, counts, fields and relationships", async () => {
+    await page.goto("/en/configure");
+    await expect(page.locator("[data-configure-page]")).toBeVisible();
+    await expect(graph.locator("[data-configure-node]")).toHaveCount(6);
+    const model = await readModel(database, companyId);
+    await expect(graph.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length);
+    const deals = graph.locator(`[data-configure-node="${id("deal")}"]`);
+    const dealCount = await database.query('SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [
+      companyId,
+      id("deal"),
+    ]);
+    await expect(deals.locator("[data-configure-node-count]")).toHaveText(
+      new RegExp(`^${dealCount.rows[0].count}\\s*records?$`),
+    );
+    await expect(deals.locator(`[data-configure-graph-field="${id("deal.name")}"]`)).toContainText("Name");
+    await expect(graph.locator(`[data-configure-node="${id("lineItem")}"]`)).toContainText("Part of Deals");
+    await expect(graph.locator("[data-configure-source]")).toHaveCount(1);
+    await fitView();
+    for (const node of await graph.locator("[data-configure-node]").all()) await expect(node).toBeInViewport();
   });
-  await page.mouse.move(point.x, point.y);
-  await expect(edge.locator("text")).toHaveText(relation.sourceLabel);
-  await page.mouse.click(point.x, point.y);
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("textbox", { name: "Label on this side", exact: false })).toHaveValue(
-    relation.sourceLabel,
-  );
-  await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
-  await expect(dialog).not.toBeVisible();
 
-  const services = map.getByRole("button", { name: "Services", exact: true });
-  const tasks = map.getByRole("button", { name: "Tasks", exact: true });
-  await tasks.scrollIntoViewIfNeeded();
-  await services.scrollIntoViewIfNeeded();
-  await dragBetween(page, await center(services), await center(tasks));
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("combobox", { name: "Link to", exact: true })).toContainText("Tasks");
-  await dialog.getByRole("textbox", { name: "Label on this side", exact: false }).fill("Follow-up task");
-  await dialog.getByRole("textbox", { name: "Label on the other side", exact: false }).fill("Related service");
-  await saveDrawer(page);
-  await expect
-    .poll(async () =>
-      (await readModel(database, companyId)).relationships.find((candidate) => candidate.sourceLabel === "Follow-up task"),
-    )
-    .toMatchObject({ sourceTypeId: id("service"), targetTypeId: id("task"), targetLabel: "Related service" });
-  await expect(map.locator("[data-configure-relationship]")).toHaveCount(model.relationships.length + 1);
+  await test.step("selecting a list card opens it in the list view", async () => {
+    await graph.getByRole("button", { name: "Organizations", exact: true }).click();
+    await expect.poll(() => typeIdInUrl(page)).toBe(id("organization"));
+    await expect(page.getByRole("heading", { level: 1, name: "Organizations", exact: true })).toBeVisible();
+  });
+
+  await test.step("a field row opens the field editor", async () => {
+    await openGraph();
+    await graph.locator(`[data-configure-graph-field="${id("deal.notes")}"]`).click();
+    await expect(dialog.getByText("Edit field", { exact: true })).toBeVisible();
+    await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Notes");
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await expect(dialog).not.toBeVisible();
+  });
+
+  await test.step("a relationship chip opens the relationship editor", async () => {
+    const model = await readModel(database, companyId);
+    const relation = model.relationships.find(
+      (candidate) => candidate.sourceTypeId === id("deal") && candidate.targetTypeId === id("organization"),
+    );
+    if (!relation) throw new Error("The preset deal organization relationship is missing");
+    const chip = graph.locator(`[data-configure-relationship="${relation.id}"]`);
+    await expect(chip).toHaveAttribute("aria-label", new RegExp(`^${relation.sourceLabel}: Deals to Organizations, `));
+    await chip.click();
+    await expect(dialog.getByRole("textbox", { name: "Label on this side", exact: false })).toHaveValue(
+      relation.sourceLabel,
+    );
+    const cardinality = dialog.getByRole("combobox", { name: "How many records link", exact: true });
+    await expect(cardinality).toContainText(
+      `${relation.targetCardinality === "one" ? "One" : "Many"} to ${relation.sourceCardinality}`,
+    );
+    await cardinality.click();
+    await page.getByRole("option", { name: "One to one", exact: true }).click();
+    await expect(cardinality).toContainText("One to one");
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
+    await expect(dialog).not.toBeVisible();
+  });
+
+  await test.step("dragging from one list's handle to another creates a relationship", async () => {
+    const before = (await readModel(database, companyId)).relationships.length;
+    const services = graph.locator(`[data-configure-node="${id("service")}"]`);
+    const tasks = graph.locator(`[data-configure-node="${id("task")}"]`);
+    const handle = services.locator(".react-flow__handle-bottom");
+    await dragBetween(page, await center(handle), await center(tasks.getByRole("button", { name: "Tasks", exact: true })));
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("combobox", { name: "Link to", exact: true })).toContainText("Tasks");
+    await dialog.getByRole("textbox", { name: "Label on this side", exact: false }).fill("Follow-up task");
+    await dialog.getByRole("textbox", { name: "Label on the other side", exact: false }).fill("Related service");
+    await saveDrawer(page);
+    await expect
+      .poll(async () =>
+        (await readModel(database, companyId)).relationships.find((candidate) => candidate.sourceLabel === "Follow-up task"),
+      )
+      .toMatchObject({ sourceTypeId: id("service"), targetTypeId: id("task"), targetLabel: "Related service" });
+    await expect(graph.locator("[data-configure-relationship]")).toHaveCount(before + 1);
+  });
+
+  await test.step("add field starts from a card and a new list from the top bar", async () => {
+    await graph.getByRole("button", { name: "Add field to Services", exact: true }).click();
+    await expect(dialog.getByText("Add field", { exact: true })).toBeVisible();
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await expect(dialog).not.toBeVisible();
+    await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
+    await expect(dialog.getByText("Create list", { exact: true }).first()).toBeVisible();
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
+    await expect(dialog).not.toBeVisible();
+  });
   expect(errors).toEqual([]);
 });

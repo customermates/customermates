@@ -19,26 +19,29 @@ export async function openConfigure(page: Page, typeId?: string) {
   await page.goto(typeId ? `/en/configure?typeId=${typeId}` : "/en/configure");
   await expect(page.locator("[data-configure-page]")).toBeVisible();
   if (typeId) await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
+  else await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
 }
 
-export function configureRailLink(page: Page, label: string) {
-  return page
-    .locator("[data-configure-rail]")
-    .getByRole("link", { name: new RegExp(`^${escapePattern(label)}(?: (?:Hidden|Archived))?$`) });
+export function configureListCard(page: Page, label: string) {
+  return page.locator("[data-configure-graph]").getByRole("button", { name: label, exact: true });
+}
+
+export async function backToConfigureGraph(page: Page) {
+  await configureTopBar(page).getByRole("link", { name: "Configure", exact: true }).click();
+  await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
 }
 
 export async function selectConfigureList(page: Page, label: string) {
   await expect(page.locator("[data-configure-page]")).toBeVisible();
-  const link = configureRailLink(page, label);
-  const back = page.getByRole("button", { name: "All lists", exact: true });
-  if ((page.viewportSize()?.width ?? 0) < 1024 && (await back.isVisible())) await back.click();
-  await link.click();
+  if (await page.locator("[data-configure-list-pane]").isVisible()) await backToConfigureGraph(page);
+  await configureListCard(page, label).dispatchEvent("click");
   await expect(page.getByRole("heading", { level: 1, name: label, exact: true })).toBeVisible();
 }
 
 export async function addFromConfigure(page: Page, item: ConfigureAddItem) {
   await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
-  await page.getByRole("menuitem", { name: item, exact: true }).click();
+  const onGraph = item === "List" && !(await page.locator("[data-configure-list-pane]").isVisible());
+  if (!onGraph) await page.getByRole("menuitem", { name: item, exact: true }).click();
   await expect(configureDrawer(page)).toBeVisible();
 }
 
@@ -54,7 +57,22 @@ export function configureRow(page: Page, section: ConfigureSection, label: strin
     .getByRole("button", { name: new RegExp(`^${escapePattern(label)}(?:\\s|$)`) });
 }
 
+export async function openDrawerTab(page: Page, name: string) {
+  const tab = configureDrawer(page).getByRole("tab", { name, exact: true });
+  if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+}
+
+export async function openConfigureTab(page: Page, section: ConfigureSection | "General") {
+  const tab = page.locator("[data-configure-list-pane]").getByRole("tab", { name: section, exact: true });
+  await expect(async () => {
+    if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
+    await expect(tab).toHaveAttribute("aria-selected", "true", { timeout: 1000 });
+  }).toPass();
+}
+
 export async function openConfigureRow(page: Page, section: ConfigureSection, label: string) {
+  await openConfigureTab(page, section);
   await configureRow(page, section, label).click();
   await expect(configureDrawer(page)).toBeVisible();
 }
@@ -94,11 +112,12 @@ export async function saveGeneral(page: Page) {
 }
 
 export async function setShowArchived(page: Page, visible: boolean) {
-  const toggle = page.locator("[data-configure-rail]").getByRole("button", {
-    name: visible ? "Show archived" : "Hide archived",
-    exact: true,
-  });
-  if (await toggle.isVisible()) await toggle.click();
+  await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
+  await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
+  const item = page.getByRole("menuitem", { name: visible ? "Show archived" : "Hide archived", exact: true });
+  await expect(item.or(page.getByRole("menuitem", { name: visible ? "Hide archived" : "Show archived" }))).toBeVisible();
+  if (await item.isVisible()) await item.click();
+  else await page.keyboard.press("Escape");
 }
 
 export async function setShowArchivedParts(page: Page, visible: boolean) {
