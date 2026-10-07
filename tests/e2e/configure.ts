@@ -121,17 +121,12 @@ export async function setShowArchived(page: Page, visible: boolean) {
 }
 
 export async function setShowArchivedParts(page: Page, visible: boolean) {
-  const toggle = page.locator("[data-configure-list-pane]").getByRole("button", {
-    name: visible ? "Show archived" : "Hide archived",
-    exact: true,
-  });
+  const pane = page.locator("[data-configure-list-pane]");
+  const toggle = pane.getByRole("button", { name: visible ? "Show archived" : "Hide archived", exact: true });
+  const done = pane.getByRole("button", { name: visible ? "Hide archived" : "Show archived", exact: true });
+  await expect(toggle.or(done)).toBeVisible();
   if (await toggle.isVisible()) await toggle.click();
-  await expect(
-    page.locator("[data-configure-list-pane]").getByRole("button", {
-      name: visible ? "Hide archived" : "Show archived",
-      exact: true,
-    }),
-  ).toBeVisible();
+  await expect(done).toBeVisible();
 }
 
 export async function createConfiguredList(page: Page, name: string, { channels = false } = {}) {
