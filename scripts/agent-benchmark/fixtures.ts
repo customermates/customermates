@@ -717,7 +717,7 @@ export async function seedBenchmarkCase(
     };
     const dealContactLink = async (key: string, contactKey: string) => tx.dealContact.create({ data: { id: id("deal-contact:" + key), companyId, dealId: id(key), contactId: id(contactKey) } });
     const dealOrganizationLink = async (key: string, organizationKey: string) => tx.dealOrganization.create({ data: { id: id("deal-org:" + key), companyId, dealId: id(key), organizationId: id(organizationKey) } });
-    const auditNote = async (key: string, text: string, at: string) => tx.auditLog.create({ data: { id: id("audit:" + key), companyId, userId: id("sofia"), entityId: id(key), event: "deal.updated", createdAt: new Date(at), eventData: { companyId, userId: id("sofia"), entityId: id(key), payload: { changes: { notes: { previous: "No update recorded", current: text } } } } } });
+    const auditNote = async (key: string, text: string, at: string) => tx.recordHistory.create({ data: { id: id("audit:" + key), companyId, kind: "deal", recordId: id(key), actorId: id("sofia"), at: new Date(at), before: { notes: parseMarkdownToJSON("No update recorded") }, after: { notes: parseMarkdownToJSON(text) } } });
     const task = async (key: string, name: string, dealKey: string | null, due: string, owner: string, status = "Open") => {
       await tx.task.create({ data: { id: id(key), companyId, name, type: "custom", createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED } });
       await tx.taskUser.create({ data: { id: id("task-user:" + key), companyId, taskId: id(key), userId: id(owner) } });
