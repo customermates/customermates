@@ -47,7 +47,8 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
   let companyId = "";
   let archivedTypeId = "";
   const id = (key: string) => presetId(companyId, key);
-  const actors: Record<"admin" | "schema" | "reader" | "restricted", TenantUser> = {} as never;
+  const actors: Record<"admin" | "schema" | "grants" | "reader" | "restricted", TenantUser> = {} as never;
+  const roleIds: Record<string, string> = {};
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
@@ -98,12 +99,19 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
       const roles = {
         admin: await role("Administrator", true),
         schema: await role("Schema manager"),
+        grants: await role("Grant manager"),
         reader: await role("Assigned reader"),
         restricted: await role("Restricted"),
       };
       await prisma.rolePermission.createMany({
         data: [
           { companyId: created.id, roleId: roles.schema.id, resource: "dataModel", action: "update" },
+          ...(["update", "readAll"] as const).map((action) => ({
+            companyId: created.id,
+            roleId: roles.grants.id,
+            resource: "users" as const,
+            action,
+          })),
           ...(["readOwn", "readAll"] as const).map((action) => ({
             companyId: created.id,
             roleId: roles.schema.id,
@@ -133,6 +141,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     });
     companyId = seed.company.id;
     for (const key of Object.keys(seed.roles) as Array<keyof typeof seed.roles>) {
+      roleIds[key] = seed.roles[key].id;
       actors[key] = createMockUser({
         ...(await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: seed.users[key].id } }))),
         role: { ...seed.roles[key], permissions: [] },
@@ -221,10 +230,12 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
   it("gives the assigned reader only the readable list, its fields and no access presets", async () => {
     const model = await modelFor(actors.reader);
     expect(model.types.map((type) => type.id)).toEqual([id("contact")]);
+    expect(model.fields.map((field) => field.id)).toContain(id("contact.firstName"));
     expect(model.fields.every((field) => field.typeId === id("contact"))).toBe(true);
     expect(model.relationships).toEqual([]);
     expect(model.accessPresets).toEqual([]);
     expect(model.activityPaths.every((path) => path.typeId === id("contact"))).toBe(true);
+    expect(model.capabilities.every((binding) => binding.typeId === id("contact"))).toBe(true);
   });
 
   it("gives the restricted role no lists at all", async () => {
@@ -235,9 +246,10 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     expect((await catalogFor(actors.restricted)).types).toEqual([]);
   });
 
-  it("gives the schema manager and the admin the whole model", async () => {
+  it("gives the schema manager, the grant manager and the admin the whole model", async () => {
     const all = (await modelFor(actors.admin)).types.map((type) => type.id).sort();
     expect((await modelFor(actors.schema)).types.map((type) => type.id).sort()).toEqual(all);
+    expect((await modelFor(actors.grants)).types.map((type) => type.id).sort()).toEqual(all);
     expect(all).toContain(id("deal"));
   });
 
@@ -276,5 +288,40 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
       ok: true,
       data: { status: "completed" },
     });
+  });
+
+  it("lets the grant manager change only grants and keeps grants and summaries away from the schema manager", async () => {
+    const grantDeal = (expectedRevision: number): ConfigurationChange => ({
+      expectedRevision,
+      idempotencyKey: randomUUID(),
+      operations: [
+        {
+          operation: "setTypeGrants",
+          typeId: id("deal"),
+          grants: [{ roleId: roleIds.restricted, actions: ["readAll"] }],
+        },
+      ],
+    });
+    const denied = async (actor: TenantUser, change: ConfigurationChange) => {
+      const result = await runWithTenant(actor, () => apply.invoke(change));
+      expect(!result.ok && interactorFailureStatus(result.error), JSON.stringify(result)).toBe(403);
+    };
+    const revision = async () => (await modelFor(actors.admin)).revision;
+
+    await denied(actors.grants, rename(await revision()));
+    await denied(actors.schema, grantDeal(await revision()));
+    await denied(actors.schema, {
+      expectedRevision: await revision(),
+      idempotencyKey: randomUUID(),
+      operations: [
+        { operation: "publishSummary", fieldId: id("contact.name"), published: true, dependencyHash: "0".repeat(64) },
+      ],
+    });
+
+    const granted = await runWithTenant(actors.grants, async () => apply.invoke(grantDeal(await revision())));
+    expect(granted, JSON.stringify(granted)).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect((await modelFor(actors.restricted)).types.map((type) => type.id).sort()).toEqual(
+      [id("deal"), id("lineItem")].sort(),
+    );
   });
 });
