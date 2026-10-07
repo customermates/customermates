@@ -22,11 +22,13 @@ export const RecordInputField = observer(function RecordInputField({
   id,
   inputId,
   label = field.label,
+  onDatePicked,
 }: {
   field: RecordField;
   id: string;
   inputId?: string;
   label?: string | null;
+  onDatePicked?: () => void;
 }) {
   const t = useTranslations();
   const store = useAppForm();
@@ -70,7 +72,7 @@ export const RecordInputField = observer(function RecordInputField({
     );
   }
   if (field.valueType === "date" || field.valueType === "dateTime")
-    return <FormIsoDatePicker {...shared} dateOnly={field.valueType === "date"} />;
+    return <FormIsoDatePicker {...shared} dateOnly={field.valueType === "date"} onPicked={onDatePicked} />;
 
   if (field.valueType === "dateRange" || field.valueType === "dateTimeRange")
     return <FormIsoDateRangePicker {...shared} dateOnly={field.valueType === "dateRange"} />;

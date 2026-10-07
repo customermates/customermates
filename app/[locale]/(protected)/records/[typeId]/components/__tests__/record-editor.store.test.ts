@@ -45,6 +45,7 @@ const record = (version = 1): RecordDto => ({
   ],
   assignedUserIds: [],
   assignedUsers: [],
+  memberUsers: [],
   relationships: [],
 });
 

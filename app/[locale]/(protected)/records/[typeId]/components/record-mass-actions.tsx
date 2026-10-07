@@ -30,7 +30,7 @@ const BulkFieldEditor = observer(function BulkFieldEditor({
         records.rootStore,
         field,
         undefined,
-        (value) => records.bulkUpdateField(field.id, value),
+        async (value) => ({ saved: await records.bulkUpdateField(field.id, value) }),
         onApplied,
       ),
   );

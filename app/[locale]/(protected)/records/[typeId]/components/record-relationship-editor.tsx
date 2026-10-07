@@ -26,6 +26,10 @@ import { getRecordChoicesAction } from "../../actions";
 import { RecordDetailField } from "./record-detail-field";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 
+export const RECORD_LINK_FRAME_CLASS =
+  "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm";
+export const RECORD_LINK_FRAME_READ_ONLY_CLASS = "border-border bg-background";
+
 export function useRecordChoices(input: RecordChoicesInput, enabled: boolean, attempt: number) {
   const key = enabled ? JSON.stringify([input, attempt]) : null;
   const [state, setState] = useState<{ key: string; data: RecordChoicesResult | null; failed: boolean } | null>(null);
@@ -148,9 +152,9 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
               ref={chips}
               aria-busy={linked.loading || undefined}
               className={cn(
-                "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm",
+                RECORD_LINK_FRAME_CLASS,
                 store.isReadOnly
-                  ? "border-border bg-background"
+                  ? RECORD_LINK_FRAME_READ_ONLY_CLASS
                   : "border-input bg-input-background shadow-xs focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
                 !store.isReadOnly && !editable && "bg-background",
               )}

@@ -110,7 +110,11 @@ const SummaryValue = observer(function SummaryValue({
   const t = useTranslations();
   const copy = useCopyToClipboard();
   const { previewFieldValues } = useEntityDetailPersonalization();
-  if (column.kind === "field") return <RecordValue field={column.field} result={store.previewValue(column.field)} />;
+  if (column.kind === "field") {
+    return (
+      <RecordValue field={column.field} members={store.record?.memberUsers} result={store.previewValue(column.field)} />
+    );
+  }
   if (column.kind === "relationship" || column.kind === "relationshipPath")
     return <RelatedSummary column={column} store={store} />;
   if (column.kind === "identity") {

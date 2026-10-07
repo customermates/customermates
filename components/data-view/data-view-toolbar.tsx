@@ -2,19 +2,14 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
-import { ArrowDownToLine, ArrowUpFromLine, Plus } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { TopBarAddButton, TopBarMenuButton } from "@/components/shared/top-bar-action-buttons";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DataViewDisplayOptions } from "./header/display-options";
@@ -73,55 +68,38 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
         )}
 
         {(onExport || onImport) && store.canExport && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                aria-label={t("DataTransfer.menu")}
-                className="h-8"
-                data-transfer-menu=""
-                id={anchorScope ? `${anchorScope}-transfer` : undefined}
-                size="icon-sm"
-                variant="secondary"
-              >
+          <TopBarMenuButton
+            anchorId={anchorScope ? `${anchorScope}-transfer` : undefined}
+            data-transfer-menu=""
+            icon={ArrowDownToLine}
+            label={t("DataTransfer.menu")}
+          >
+            {onExport && (
+              <DropdownMenuItem onSelect={() => runUserAction(() => onExport())}>
                 <ArrowDownToLine className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" aria-labelledby={anchorScope ? `${anchorScope}-transfer` : undefined}>
-              {onExport && (
-                <DropdownMenuItem onSelect={() => runUserAction(() => onExport())}>
-                  <ArrowDownToLine className="size-4" />
+                {t("DataTransfer.export.action")}
+              </DropdownMenuItem>
+            )}
 
-                  {t("DataTransfer.export.action")}
-                </DropdownMenuItem>
-              )}
+            {onImport && !store.isDisabled && (
+              <DropdownMenuItem onSelect={() => onImport()}>
+                <ArrowUpFromLine className="size-4" />
 
-              {onImport && !store.isDisabled && (
-                <DropdownMenuItem onSelect={() => onImport()}>
-                  <ArrowUpFromLine className="size-4" />
-
-                  {t("DataTransfer.import.action")}
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {t("DataTransfer.import.action")}
+              </DropdownMenuItem>
+            )}
+          </TopBarMenuButton>
         )}
 
         {actions}
 
         {onAdd && !store.isDisabled && (
-          <Button
-            aria-label={addLabel ?? t("Common.actions.add")}
-            className="h-8"
-            id={anchorScope ? `${anchorScope}-add` : undefined}
-            size="sm"
-            variant="default"
+          <TopBarAddButton
+            anchorId={anchorScope ? `${anchorScope}-add` : undefined}
+            label={addLabel ?? t("Common.actions.add")}
             onClick={onAdd}
-          >
-            <Plus className="size-3.5" />
-
-            <span className="hidden sm:inline">{addLabel ?? t("Common.actions.add")}</span>
-          </Button>
+          />
         )}
       </div>
     </div>

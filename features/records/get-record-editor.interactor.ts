@@ -13,7 +13,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordWriteFailure } from "./mutate-record.interactor";
-import { recordDto } from "./query-records.interactor";
+import { recordDto, withMemberUsers } from "./query-records.interactor";
 import { resolveRecordPath } from "./record-relationship-path";
 import { recordLinkColors, type RecordLinkColors } from "./record-presentation";
 import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
@@ -98,7 +98,15 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
           const visible = ref
             ? await this.records.getVisibleFields(ref, model, policy.access([...accessible]))
             : new Set<string>();
-          const record = stored ? recordDto(stored, model, visible, policy.memberScope) : null;
+          const record = stored
+            ? (
+                await withMemberUsers(
+                  [recordDto(stored, model, visible, policy.memberScope)],
+                  this.records,
+                  policy.memberScope,
+                )
+              )[0]
+            : null;
           if (record && recordChannelsEnabled(model, type.id))
             record.identities = await this.records.getIdentitiesCompanyWide(record.ref);
           return {

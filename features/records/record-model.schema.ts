@@ -470,6 +470,7 @@ export const RecordDtoSchema = z
     fields: z.array(z.object({ fieldId: z.uuid(), result: CalculatedValueSchema }).strict()),
     assignedUserIds: z.array(z.uuid()),
     assignedUsers: z.array(RecordMemberSchema).default([]),
+    memberUsers: z.array(RecordMemberSchema).default([]),
     relationships: z.array(RecordRelationshipSummarySchema).default([]),
     relationshipPaths: z.array(RecordPathSummarySchema).optional(),
     identities: z.array(RecordIdentitySchema).optional(),

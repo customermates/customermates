@@ -218,6 +218,7 @@ describe("record draft handoff", () => {
       ],
       assignedUserIds: [],
       assignedUsers: [],
+      memberUsers: [],
       relationships: [],
     });
     const page = new RecordEditorStore(f.root, f.context, async () => {}, true);

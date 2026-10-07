@@ -66,11 +66,11 @@ export function RecordCell({
             src={image?.state === "value" && image.value.kind === "text" ? image.value.value : null}
           />
 
-          <RecordValue field={column.field} result={result} />
+          <RecordValue field={column.field} members={record.memberUsers} result={result} />
         </span>
       );
     }
-    return <RecordValue field={column.field} result={result} />;
+    return <RecordValue field={column.field} members={record.memberUsers} result={result} />;
   }
   if (column.kind === "system") {
     if (column.id === "system:assignedTo")

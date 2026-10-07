@@ -56,6 +56,7 @@ const item: RecordRow = {
   fields: [],
   assignedUserIds: [],
   assignedUsers: [],
+  memberUsers: [],
   relationships: [],
 };
 const params = {

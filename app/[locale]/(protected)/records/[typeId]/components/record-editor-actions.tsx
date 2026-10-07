@@ -10,8 +10,7 @@ import { Button } from "@/components/ui/button";
 import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { cn } from "@/core/utils/cn";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
-import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import {
   RecordDetailLayoutStatus,
@@ -94,18 +93,9 @@ export const RecordHeaderActions = observer(function RecordHeaderActions({
 });
 
 const RecordTopBarActions = observer(function RecordTopBarActions(props: HeaderActionProps) {
-  const actions = useRecordHeaderActions(props);
-  const askAi = actions.find((action) => action.kind === "assistant");
   return (
     <>
-      {askAi && "onClick" in askAi && askAi.onClick && (
-        <ViewAiAction
-          className="[&>span]:hidden sm:[&>span]:inline"
-          onClick={() => runUserAction(() => askAi.onClick?.())}
-        />
-      )}
-
-      <AppModalActionRail actions={actions.filter((action) => action !== askAi)} className="min-h-8 self-center" />
+      <TopBarActionButtons actions={useRecordHeaderActions(props)} />
 
       {props.layout && <RecordDetailLayoutStatus {...props.layout} />}
     </>
