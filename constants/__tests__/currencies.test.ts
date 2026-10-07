@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { Currency } from "@/generated/prisma";
-
 import { CURRENCIES, getCurrencyLabel } from "../currencies";
 
 const CURRENT_CIRCULATING_ISO_CURRENCIES = `
@@ -16,13 +14,12 @@ const CURRENT_CIRCULATING_ISO_CURRENCIES = `
   .split(/\s+/);
 
 describe("currency catalog", () => {
-  it("matches the vetted 155-code current circulating ISO catalog and the generated Prisma enum", () => {
+  it("matches the vetted 155-code current circulating ISO catalog", () => {
     const catalog = CURRENCIES.map(({ key }) => String(key));
 
     expect(catalog).toEqual(CURRENT_CIRCULATING_ISO_CURRENCIES);
-    expect([...Object.values(Currency)].sort()).toEqual(CURRENT_CIRCULATING_ISO_CURRENCIES);
     expect(new Set(catalog).size).toBe(155);
-    expect(catalog).toContain(Currency.idr);
+    expect(catalog).toContain("idr");
   });
 
   it.each(["bov", "usn", "xau", "xxx"])("excludes the non-circulating special code %s", (code) => {
@@ -30,8 +27,8 @@ describe("currency catalog", () => {
   });
 
   it("localizes IDR while keeping its searchable uppercase code visible", () => {
-    const english = getCurrencyLabel(Currency.idr, "en");
-    const german = getCurrencyLabel(Currency.idr, "de");
+    const english = getCurrencyLabel("idr", "en");
+    const german = getCurrencyLabel("idr", "de");
 
     expect(english).not.toBe("IDR");
     expect(english).toMatch(/\(IDR\)$/);
@@ -40,6 +37,6 @@ describe("currency catalog", () => {
   });
 
   it("falls back to the uppercase code when the locale is unsupported", () => {
-    expect(getCurrencyLabel(Currency.idr, "not_a_locale")).toBe("IDR");
+    expect(getCurrencyLabel("idr", "not_a_locale")).toBe("IDR");
   });
 });

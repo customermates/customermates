@@ -33,7 +33,6 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
     private policy: RecordAccessPolicy,
     private configurations: RecordConfigurationService,
     private writer: RecordConfigurationWriter,
-    private company: { getDetails(): Promise<{ currency: string }> },
     private background: Pick<BackgroundTaskService, "dispatch">,
   ) {
     super();
@@ -85,11 +84,8 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
               schemaRevision: current.revision,
             };
           } else {
-            const company = await this.company.getDetails();
             const journal = new RecordJournal(this.records, current);
-            await this.writer
-              .withRepository(journal.repository)
-              .apply(prepared, current, this.userId, company.currency);
+            await this.writer.withRepository(journal.repository).apply(prepared, current, this.userId);
             await journal.flush(prepared.model, this.userId, input.idempotencyKey, {
               kind: "configuration",
               routineDepth: currentRoutineContext()?.causationDepth,

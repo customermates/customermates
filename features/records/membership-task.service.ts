@@ -104,12 +104,7 @@ export class MembershipTaskService extends UserAccessor {
         seeds.set(recordKey(ref), ref);
         await records.delete(ref);
       }
-      const calculated = await new RecordCalculationService(records).recalculate(
-        model,
-        [...seeds.values()],
-        await records.getWorkspaceCurrencyOrThrow(),
-        captures,
-      );
+      const calculated = await new RecordCalculationService(records).recalculate(model, [...seeds.values()], captures);
       if (!calculated.complete) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
       const deleted = new Set((remove ? existing : []).map(recordKey));
       for (const ref of calculated.changed) seeds.set(recordKey(ref), ref);

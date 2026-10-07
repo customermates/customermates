@@ -1,3 +1,4 @@
+import { recordInvariant } from "./record-invariant";
 import { Prisma } from "@/generated/prisma";
 
 import type { RecordModel, RecordField } from "./record-model.schema";
@@ -44,7 +45,6 @@ export function compileRecordMeasure(
   measure: RecordMeasure,
   model: RecordModel,
   access: RecordAccessMap,
-  currency: string,
 ): Prisma.Sql {
   const query = RecordQuerySchema.parse(measure.source);
   const eligible = compileRecordQuery(companyId, query, model, access).matching;
@@ -169,6 +169,6 @@ export function compileRecordMeasure(
   ) SELECT "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue", COUNT(*)::integer AS count,
     CASE WHEN BOOL_OR(state = 'restricted') THEN 'restricted' WHEN BOOL_OR(state = 'error') THEN 'error' WHEN COUNT(DISTINCT currency) > 1 THEN 'currency_mismatch' WHEN COUNT(value) = 0 THEN 'missing' ELSE 'value' END AS "resultState",
     ${["sum", "count"].includes(measure.aggregation) ? Prisma.sql`COALESCE(${aggregate}, 0)::text` : Prisma.sql`${aggregate}::text`} AS "resultValue",
-    ${field?.valueType === "currency" && measure.aggregation !== "count" ? Prisma.sql`COALESCE(MAX(currency), ${currency.toUpperCase()})` : Prisma.sql`NULL::text`} AS "resultCurrency"
+    ${field?.valueType === "currency" && measure.aggregation !== "count" ? Prisma.sql`COALESCE(MAX(currency), ${recordInvariant(field.format?.currency)})` : Prisma.sql`NULL::text`} AS "resultCurrency"
     FROM contributions GROUP BY "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue" ORDER BY "groupValue"::text NULLS LAST, "groupRecordId" NULLS LAST LIMIT ${measure.groupLimit + 1}`;
 }

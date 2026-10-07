@@ -129,7 +129,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             archived: field.archived,
             publishedSummary: field.publishedSummary,
             decimalPlaces: field.format?.decimalPlaces?.toString() ?? "",
-            currency: (field.format?.currency ?? this.rootStore.companyStore.company?.currency ?? "EUR").toLowerCase(),
+            currency: field.format?.currency?.toLowerCase() ?? initial().currency,
             ...(field.behavior.kind === "input"
               ? {
                   hasDefaultValue: field.behavior.defaultValue !== undefined && field.behavior.defaultValue !== null,
@@ -158,7 +158,6 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         : {
             ...initial(),
             ...preset,
-            currency: this.rootStore.companyStore.company?.currency?.toLowerCase() ?? "eur",
           },
     );
     this.open();
@@ -305,20 +304,14 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     const form = this.form;
     if (form.valueType === "channels") return channelsFieldOperations(this.model, this.typeId, form, this.definitionId);
     const trigger = this.triggerField;
-    const triggerValue = trigger
-      ? recordInputValue(form.triggerValue, trigger, this.rootStore.companyStore.company?.currency ?? "EUR")
-      : null;
+    const triggerValue = trigger ? recordInputValue(form.triggerValue, trigger) : null;
     const behavior: RecordField["behavior"] =
       form.behavior === "input"
         ? {
             kind: "input",
             ...(form.hasDefaultValue
               ? {
-                  defaultValue: recordInputValue(
-                    form.defaultValue,
-                    this.inputDefinition,
-                    this.rootStore.companyStore.company?.currency ?? "EUR",
-                  ),
+                  defaultValue: recordInputValue(form.defaultValue, this.inputDefinition),
                 }
               : {}),
           }
@@ -629,6 +622,7 @@ export const FieldModal = observer(function FieldModal({
                         <>
                           <CalculationInput
                             behavior={store.form.behavior}
+                            currency={store.form.currency}
                             model={store.model}
                             typeId={store.typeId}
                             value={store.form.expression}
@@ -768,6 +762,7 @@ export const FieldModal = observer(function FieldModal({
 
                                   <CalculationInput
                                     literalOnly
+                                    currency={store.form.currency}
                                     model={store.model}
                                     path={`options.${index}.attributes.${offset}`}
                                     typeId={store.typeId}

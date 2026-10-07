@@ -41391,7 +41391,7 @@
                             "capabilityId"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently delete an archived Channels field (a channels capability with enabled false) and the list's channel identifiers."
+                          "description": "Permanently delete a deleted Channels field (a channels capability with enabled false) and the list's channel identifiers."
                         },
                         {
                           "type": "object",
@@ -43360,7 +43360,7 @@
                             "capabilityId"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently delete an archived Channels field (a channels capability with enabled false) and the list's channel identifiers."
+                          "description": "Permanently delete a deleted Channels field (a channels capability with enabled false) and the list's channel identifiers."
                         },
                         {
                           "type": "object",

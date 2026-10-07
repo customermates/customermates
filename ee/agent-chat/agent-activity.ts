@@ -22,7 +22,6 @@ export type AgentTranslator = (key: string, values?: Record<string, string | num
 export const AGENT_ACTIVITY_KINDS = [
   "workspace.read",
   "workspace.inspect",
-  "workspace.settings",
   "profile.configure",
   "customFields.read",
   "views.read",
@@ -95,7 +94,6 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
   "routine.delete",
   "records.delete",
   "workspace.configure",
-  "workspace.settings",
   "account.connect",
   "social.invite",
   "social.accept",
@@ -353,8 +351,7 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       : descriptor(kind, undefined, risk);
   }
   if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
-  if (toolName === "update_workspace_settings")
-    return descriptor(details.target === "profile" ? "profile.configure" : "workspace.settings", undefined, "write");
+  if (toolName === "update_workspace_settings") return descriptor("profile.configure", undefined, "write");
 
   if (toolName === "manage_roles") {
     const action = actionValue(details);
@@ -497,7 +494,6 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "routines.delete",
   "views.configure",
   "views.delete",
-  "workspace.settings",
   "workspace.configure",
 ];
 
@@ -592,7 +588,6 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
       });
     }
     case "workspace.configure":
-    case "workspace.settings":
       return consequence.state;
     case "account.connect":
       return consequence.target

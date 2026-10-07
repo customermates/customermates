@@ -66,17 +66,13 @@ describe("gated-tools", () => {
     expect(approvalNeeded(routines, {})).toBe(true);
   });
 
-  it("keeps workspace and profile settings immediate", () => {
+  it("keeps profile settings immediate", () => {
     const settings = toolByName("update_workspace_settings");
 
-    expect(approvalNeeded(settings, { target: "company", currency: "EUR" })).toBe(false);
-    expect(approvalNeeded(settings, { target: "profile", firstName: "Ada" })).toBe(false);
-    expect(describeInternalTool("update_workspace_settings", { target: "company", currency: "EUR" })).toMatchObject({
-      kind: "workspace.settings",
-      risk: "write",
-    });
-    expect(describeInternalTool("update_workspace_settings", { target: "profile", firstName: "Ada" })).toMatchObject({
+    expect(approvalNeeded(settings, { firstName: "Ada" })).toBe(false);
+    expect(describeInternalTool("update_workspace_settings", { firstName: "Ada" })).toMatchObject({
       kind: "profile.configure",
+      risk: "write",
     });
   });
 

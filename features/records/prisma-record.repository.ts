@@ -453,13 +453,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
     return rows.map(({ companyId: _companyId, ...row }) => RecordEventSubscriptionSchema.parse(row));
   }
-  async measure(
-    measure: RecordMeasure,
-    model: RecordModel,
-    access: RecordAccessMap,
-    currency: string,
-  ): Promise<MeasureRow[]> {
-    return this.prisma.$queryRaw<MeasureRow[]>(compileRecordMeasure(this.companyId, measure, model, access, currency));
+  async measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]> {
+    return this.prisma.$queryRaw<MeasureRow[]>(compileRecordMeasure(this.companyId, measure, model, access));
   }
   @BypassTenantGuard
   async failOperationUnscoped(input: { companyId: string; userId: string; operationId: string }): Promise<void> {
@@ -510,14 +505,6 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       },
     });
     return RecordModelSchema.parse(recordInvariant(revision).snapshot);
-  }
-
-  async getWorkspaceCurrencyOrThrow(): Promise<string> {
-    const company = await this.prisma.company.findUniqueOrThrow({
-      where: { id: this.companyId },
-      select: { currency: true },
-    });
-    return company.currency;
   }
 
   async getDetailLayoutsCompanyWide(typeIds: string[], afterId?: string) {
@@ -888,14 +875,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const resolved = query.grouping && resolveRecordGrouping(query.typeId, query.grouping, model);
     if (!resolved) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
     const rows = await this.prisma.$queryRaw<RecordGroupRow[]>(
-      compileRecordGroups(
-        this.companyId,
-        query,
-        model,
-        access,
-        memberScope,
-        query.groupSummaries?.length ? await this.getWorkspaceCurrencyOrThrow() : "",
-      ),
+      compileRecordGroups(this.companyId, query, model, access, memberScope),
     );
     if (rows.some((row) => row.restricted)) throw new RecordWriteError(CustomErrorCode.permissionDenied);
     if (rows.some((row) => row.overflowWithRecords))

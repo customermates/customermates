@@ -19,7 +19,7 @@ const id = (key: string) => presetId(company, key);
 
 describe("configure lists", () => {
   it("orders lists by position with embedded lists directly after their parent", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     expect(configureLists(model).map((type) => type.pluralLabel)).toEqual([
       "Contacts",
       "Organizations",
@@ -31,7 +31,7 @@ describe("configure lists", () => {
   });
 
   it("hides archived lists unless requested", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     recordInvariant(model.types.find((type) => type.id === id("service"))).archived = true;
     expect(configureLists(model).some((type) => type.id === id("service"))).toBe(false);
     expect(configureLists(model, true).some((type) => type.id === id("service"))).toBe(true);
@@ -40,7 +40,7 @@ describe("configure lists", () => {
 
 describe("configure list details", () => {
   it("counts active fields, relationships and activity connections", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const counts = configureCounts(model, id("deal"));
     expect(counts.fields).toBe(model.fields.filter((field) => field.typeId === id("deal")).length);
     const deal = model.types.find((type) => type.id === id("deal"));
@@ -52,7 +52,7 @@ describe("configure list details", () => {
   });
 
   it("describes calculated fields by their source list", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const sources = model.fields
       .filter((field) => field.typeId === id("deal"))
       .map((field) => configureFieldSource(model, field));
@@ -61,7 +61,7 @@ describe("configure list details", () => {
   });
 
   it("names the lists an activity path passes through", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const path = model.activityPaths.find((path) => path.typeId === id("organization") && path.path.length > 0);
     if (path) expect(configurePathLists(model, id("organization"), path.path).length).toBe(path.path.length);
     expect(configurePathLists(model, id("deal"), [])).toEqual([]);
@@ -70,7 +70,7 @@ describe("configure list details", () => {
 
 describe("field reordering", () => {
   it("moves a field and saves only changed positions as valid field operations", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const order = configureFieldOrder(model, id("deal"));
     const moved = moveConfigureField(order, order[2], order[0]);
     expect(moved).toEqual([order[2], order[0], order[1], ...order.slice(3)]);
@@ -93,7 +93,7 @@ describe("field reordering", () => {
   });
 
   it("renumbers every field when stored positions already match the requested order", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const fields = model.fields.filter((field) => field.typeId === id("contact"));
     const order = fields.map((field) => field.id);
     fields[0].position = 1;
@@ -119,7 +119,7 @@ describe("configure graph", () => {
   };
 
   it("places every visible list once without overlap and draws each relationship", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const data = configureGraphData(model, [], [account], false);
     const layout = configureGraphLayout(data, true, true);
     expect(layout.positions.size).toBe(model.types.length + 1);
@@ -143,7 +143,7 @@ describe("configure graph", () => {
   });
 
   it("nests child lists, links accounts to channel lists and shows calculation sources", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const data = configureGraphData(model, [], [account], false);
     const lineItems = recordInvariant(data.lists.find((list) => list.type.id === id("lineItem")));
     expect(lineItems.parentId).toBe(id("deal"));
@@ -172,7 +172,7 @@ describe("configure graph", () => {
   });
 
   it("names cardinality from the source side and prompts for a connection without accounts", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const relation = recordInvariant(model.relationships[0]);
     expect(configureCardinality({ ...relation, sourceCardinality: "one", targetCardinality: "many" })).toBe(
       "manyToOne",
@@ -190,7 +190,7 @@ describe("configure graph", () => {
   });
 
   it("uses discovered counts and omits archived lists unless shown", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     recordInvariant(model.types.find((type) => type.id === id("task"))).archived = true;
     const catalog = model.types.map((type) => ({ id: type.id, recordCount: 7 }));
     const data = configureGraphData(model, catalog, [], false);

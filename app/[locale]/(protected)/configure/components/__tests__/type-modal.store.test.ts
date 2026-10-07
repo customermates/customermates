@@ -13,7 +13,7 @@ const root = { registerModalStore: vi.fn() } as unknown as RootStore;
 
 describe("list configuration", () => {
   it("leaves the Channels field out of list settings", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, recordInvariant(model.types.find((type) => type.id === id("contact"))));
     store.onChange("description", "People we talk to");
@@ -23,7 +23,7 @@ describe("list configuration", () => {
     expect(store.operations().map((operation) => operation.operation)).toEqual(["createType"]);
   });
   it("does not rewrite channel configuration when appearance alone changes", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, model.types[0], "appearance");
     store.onChange("layout", "board");
@@ -31,7 +31,7 @@ describe("list configuration", () => {
     expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
   });
   it("saves a dragged field order with the General settings and resets it with the form", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const deal = recordInvariant(model.types.find((type) => type.id === id("deal")));
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, deal);
@@ -56,7 +56,7 @@ describe("list configuration", () => {
     expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
   });
   it("archives and restores a list with its activity connections and relationships", () => {
-    const model = createCrmPreset(company, "EUR");
+    const model = createCrmPreset(company);
     const type = model.types[0];
     const store = new TypeModalStore(root, model, vi.fn());
     store.edit(model, type, "archive");
