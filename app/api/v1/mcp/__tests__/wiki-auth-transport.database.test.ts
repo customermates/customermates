@@ -456,7 +456,7 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     expect(foreignFetch.text).not.toContain("foreign-tenant-only-phrase");
 
     const auditRows = await client.query<{ event: string; entityId: string }>(
-      'SELECT "event", "entityId" FROM "AuditLog" WHERE "companyId" = $1 AND "entityId" = ANY($2)',
+      'SELECT kind AS "event", "subjectId" AS "entityId" FROM "EventLog" WHERE "companyId" = $1 AND "subjectKind" = \'wiki_page\' AND "subjectId" = ANY($2)',
       [companyId, [target.id, source.id]],
     );
     expect(auditRows.rows).toEqual(
