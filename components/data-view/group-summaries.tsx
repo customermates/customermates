@@ -8,6 +8,7 @@ import type { RecordGroupSummaryResult } from "@/features/records/record-groupin
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { cn } from "@/core/utils/cn";
+import { formatRecordDecimal } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
 
 export const GroupSummaries = observer(function GroupSummaries({
   summaries,
@@ -32,13 +33,10 @@ export const GroupSummaries = observer(function GroupSummaries({
         const decimal = result.state === "value" && result.value.kind === "decimal" ? result.value : undefined;
         const format = (notation: "standard" | "compact") =>
           decimal
-            ? new Intl.NumberFormat(intl.formattingLocale, {
-                style: decimal.currency ? "currency" : "decimal",
-                ...(decimal.currency ? { currency: decimal.currency } : {}),
+            ? formatRecordDecimal(intl.formattingLocale, decimal, {
+                decimalPlaces: summary.decimalPlaces ?? undefined,
                 notation,
-                maximumFractionDigits:
-                  notation === "compact" ? 1 : (summary.decimalPlaces ?? (decimal.currency ? 2 : 10)),
-              }).format(decimal.value as unknown as number)
+              })
             : undefined;
         const full = format("standard");
         const content =

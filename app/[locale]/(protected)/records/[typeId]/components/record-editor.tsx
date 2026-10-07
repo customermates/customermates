@@ -6,7 +6,7 @@ import { VisuallyHidden } from "radix-ui";
 import type { RecordEditorStore } from "./record-editor.store";
 import { Sheet, SheetBody, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
-import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
+import { DiscardChangesDialog } from "@/components/modal/confirm-dialog";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { RecordEditorContent } from "./record-editor-content";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -66,7 +66,7 @@ export const RecordEditor = observer(function RecordEditorDrawer({ store }: { st
         </SheetContent>
       </Sheet>
 
-      <UnsavedChangesGuard
+      <DiscardChangesDialog
         open={store.isClosingWithGuard}
         onCancel={() => store.setIsClosingWithGuard(false)}
         onConfirm={() => {

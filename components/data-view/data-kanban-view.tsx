@@ -112,7 +112,7 @@ function KanbanCard({
       className={cn(
         "group/card gap-2 py-3 touch-none select-none relative",
         (onClick || href) && !isDragging && "interactive-surface",
-        isDragging && "z-50 cursor-grabbing shadow-lg shadow-black/20 ring-1 ring-border/60",
+        isDragging && "z-50 cursor-grabbing shadow-lg ring-1 ring-border/60",
         className,
       )}
       data-item-id={itemId}

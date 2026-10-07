@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { recordInputValue } from "@/features/records/record-input-value";
@@ -71,16 +72,17 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
 
 export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
   store,
-  submitLabel,
   busy = false,
   saveOnDatePick = false,
+  onCancel,
 }: {
   store: RecordFieldValueStore;
-  submitLabel: string;
   busy?: boolean;
   saveOnDatePick?: boolean;
+  onCancel: () => void;
 }) {
   const t = useTranslations();
+  const value = store.form.value;
   return (
     <AppForm store={store}>
       <div className="space-y-3">
@@ -103,19 +105,14 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
 
           <div className="grow" />
 
-          <Button
-            disabled={
-              store.isLoading ||
-              busy ||
-              !store.hasUnsavedChanges ||
-              store.form.value === undefined ||
-              store.form.value === ""
-            }
-            size="sm"
-            type="submit"
-          >
-            {submitLabel}
-          </Button>
+          <FormFooterActions
+            dirty={store.hasUnsavedChanges && value !== undefined && value !== ""}
+            placement="overlay"
+            saving={store.isLoading || busy}
+            store={store}
+            onCancel={onCancel}
+            onSave={() => store.apply(false)}
+          />
         </div>
       </div>
     </AppForm>

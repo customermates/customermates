@@ -18,12 +18,13 @@ const BulkFieldEditor = observer(function BulkFieldEditor({
   records,
   field,
   onApplied,
+  onCancel,
 }: {
   records: RecordsStore;
   field: RecordFieldView;
   onApplied: () => void;
+  onCancel: () => void;
 }) {
-  const t = useTranslations();
   const [store] = useState(
     () =>
       new RecordFieldValueStore(
@@ -36,7 +37,7 @@ const BulkFieldEditor = observer(function BulkFieldEditor({
   );
   return (
     <div className="px-3 py-2.5">
-      <RecordFieldValueEditor busy={records.isBulkMutating} store={store} submitLabel={t("MassActions.apply")} />
+      <RecordFieldValueEditor busy={records.isBulkMutating} store={store} onCancel={onCancel} />
     </div>
   );
 });
@@ -122,7 +123,13 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
           }}
         >
           {active ? (
-            <BulkFieldEditor key={active.id} field={active} records={store} onApplied={close} />
+            <BulkFieldEditor
+              key={active.id}
+              field={active}
+              records={store}
+              onApplied={close}
+              onCancel={() => setActiveId(null)}
+            />
           ) : (
             <div className="flex flex-col divide-y divide-border">
               {fields.length > 6 && (

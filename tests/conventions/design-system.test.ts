@@ -38,9 +38,6 @@ function importFindings(sources: SourceFile[], modulePattern: RegExp) {
 const TABS_OWNERS = new Set(["components/ui/tabs.tsx"]);
 
 const TABS_ALLOWLIST: Allowlist = {
-  "components/entity-detail/entity-detail-panels.tsx": "I2 r3: record page Overview / Notes / Activities segments",
-  "components/data-view/header/display-options.tsx": "I2 r3: view layout picker as SegmentedControl",
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx": "I2 r3: record drawer segments",
   "app/[locale]/(protected)/configure/components/field-modal.tsx": "I1 r4: field drawer as one form with sections",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx": "I1 r4: relationship drawer sections",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": "I1 r4: list page sidebar list",
@@ -267,7 +264,6 @@ const TOP_BAR_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/profile/components/api-keys-page-view.tsx": "I19: API keys Add through the shared top-bar action buttons",
   "app/[locale]/(protected)/inbox/components/inbox-list.tsx": "I25 phase 2: refresh and connect through I2's top-bar action buttons",
   "app/[locale]/(protected)/inbox/components/thread-topbar.tsx": "I25 phase 2: resync through I2's top-bar action buttons",
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor-actions.tsx": "I2 r3: record page top-bar actions",
   "app/[locale]/(protected)/configure/components/configure-page-view.tsx": "I1 r4: ConfigureTopBarActions buttons",
   "app/[locale]/(protected)/profile/components/profile-settings-form.tsx": "I19: VerifyEmailAction button",
   "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx": "I19: ConnectAction button",
@@ -300,7 +296,6 @@ const VALUE_RENDERER_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx": "I3 r3: widget values through the shared formatters",
   "app/[locale]/(protected)/dashboard/components/use-chart-formatter.ts": "I3 r3: widget values through the shared formatters",
   "components/chart/chart-tooltip.tsx": "I3 r3: chart tooltip values through the shared formatters",
-  "components/data-view/group-summaries.tsx": "I2 r3: group totals through the shared formatters",
   "app/[locale]/(protected)/legal-update/components/legal-update-view.tsx": "I25 phase 2: effective date",
   "app/[locale]/(protected)/operator/overview/page.tsx": "I25 phase 2: operator metrics",
 };
@@ -356,7 +351,6 @@ function stringLiteralFindings(sources: SourceFile[], pattern: RegExp) {
 
 const COLOR_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": "I1 r4 / I5 r2: scrim token",
-  "components/data-view/data-kanban-view.tsx": "I2 r3: drag shadow token",
   "app/[locale]/(protected)/inbox/components/attachment-classify.ts": "I25 phase 2: file type colors from tokens",
   "app/components/agent-chat/agent-chat.tsx": "I25 phase 2: Mate panel shadow token",
   "app/components/agent-chat/agent-tour-overlay.tsx": "I25 phase 2: tour scrim token",

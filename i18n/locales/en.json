@@ -870,9 +870,7 @@
       "hidePassword": "Hide password",
       "selectOption": "Select an option",
       "showPassword": "Show password",
-      "switchToBoardView": "Switch to board view",
       "switchToBoardViewDisabled": "This list has no field to group by",
-      "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
       "tooltipFields": "Appearance",
       "tooltipFilters": "Filters"
@@ -2416,7 +2414,6 @@
     "text": "Loading..."
   },
   "MassActions": {
-    "apply": "Apply to selected",
     "clearField": "Clear field",
     "delete": "Delete selected",
     "keepInView": "Keep only rows in view",

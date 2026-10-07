@@ -10,6 +10,20 @@ import { AppChip } from "@/components/chip/app-chip";
 import { MemberChip } from "@/components/chip/member-chip";
 import { toChipColor } from "@/constants/chip-colors";
 
+export function formatRecordDecimal(
+  locale: string,
+  value: { value: string; currency?: string | null },
+  options: { decimalPlaces?: number; notation?: "standard" | "compact" } = {},
+) {
+  const notation = options.notation ?? "standard";
+  return new Intl.NumberFormat(locale, {
+    style: value.currency ? "currency" : "decimal",
+    ...(value.currency ? { currency: value.currency } : {}),
+    notation,
+    maximumFractionDigits: notation === "compact" ? 1 : (options.decimalPlaces ?? (value.currency ? 2 : 10)),
+  }).format(value.value as unknown as number);
+}
+
 export const RecordValue = observer(function RecordValue({
   result,
   field,
@@ -38,11 +52,7 @@ export const RecordValue = observer(function RecordValue({
   if (value.kind === "decimal") {
     return (
       <span className="font-mono tabular-nums">
-        {new Intl.NumberFormat(locale, {
-          style: value.currency ? "currency" : "decimal",
-          ...(value.currency ? { currency: value.currency } : {}),
-          maximumFractionDigits: field.format?.decimalPlaces ?? (value.currency ? 2 : 10),
-        }).format(value.value as unknown as number)}
+        {formatRecordDecimal(locale, value, { decimalPlaces: field.format?.decimalPlaces ?? undefined })}
       </span>
     );
   }

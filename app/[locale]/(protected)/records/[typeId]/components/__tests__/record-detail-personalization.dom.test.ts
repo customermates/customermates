@@ -22,6 +22,9 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => mocks);
 vi.mock("@/app/actions", () => ({}));
+vi.mock("@/core/utils/background-task.service", () => ({}));
+const rootHolder = vi.hoisted(() => ({ current: undefined as unknown }));
+vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => rootHolder.current }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
 vi.mock("@/core/errors/sentry-client", () => ({ captureError: mocks.report }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
@@ -90,6 +93,7 @@ function harness(readOnly = false) {
     navigationGuard,
     threadComposeStore: compose,
   } as unknown as RootStore;
+  rootHolder.current = root;
   const context: RecordEditorContext = {
     model: createCrmPreset(companyId),
     linkColors: {},

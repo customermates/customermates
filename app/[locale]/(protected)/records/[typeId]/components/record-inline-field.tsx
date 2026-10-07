@@ -85,7 +85,6 @@ const InlineFieldForm = observer(function InlineFieldForm({
   field: RecordFieldView;
   onDone: () => void;
 }) {
-  const t = useTranslations();
   const [store] = useState(() => {
     const result = record.fields.find((value) => value.fieldId === field.id)?.result;
     return new RecordFieldValueStore(
@@ -96,7 +95,7 @@ const InlineFieldForm = observer(function InlineFieldForm({
       onDone,
     );
   });
-  return <RecordFieldValueEditor saveOnDatePick store={store} submitLabel={t("Common.actions.save")} />;
+  return <RecordFieldValueEditor saveOnDatePick store={store} onCancel={onDone} />;
 });
 
 const InlineSelect = observer(function InlineSelect({
