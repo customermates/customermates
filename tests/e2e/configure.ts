@@ -71,10 +71,9 @@ export async function openDrawerTab(page: Page, name: string) {
 }
 
 export async function openDrawerSection(page: Page, name: string) {
-  const trigger = configureDrawer(page).locator("[data-slot=collapsible-section-trigger]").filter({ hasText: name });
-  const section = configureDrawer(page).locator("[data-slot=collapsible-section]").filter({ has: trigger });
-  if ((await section.getAttribute("data-state")) !== "open") await trigger.click();
-  await expect(section).toHaveAttribute("data-state", "open");
+  const trigger = configureDrawer(page).getByRole("button", { name: new RegExp(`^${escapePattern(name)}`) });
+  if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
 }
 
 export async function openConfigureTab(page: Page, section: ConfigureSection | "General") {
