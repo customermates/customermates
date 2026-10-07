@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { dirname, join, normalize, relative } from "node:path";
 
 import ts from "typescript";
 
@@ -12,7 +12,6 @@ const NON_PRODUCT_PREFIXES = [
   "app/[locale]/(public)/",
   "app/[locale]/(protected)/test/",
   "app/api/",
-  "app/.well-known/",
   "components/marketing/",
   "components/emails/",
   "components/acquisition/",
@@ -60,20 +59,26 @@ export function visit(node: ts.Node, callback: (node: ts.Node) => void) {
 }
 
 export function patternFindings(sources: SourceFile[], pattern: RegExp): Finding[] {
+  const flags = `${pattern.flags.replace(/[gy]/g, "")}g`;
   return sources.flatMap((source) =>
-    [...source.text.matchAll(new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`))].map(
-      (match) => finding(source, match.index ?? 0, match[0]),
+    [...source.text.matchAll(new RegExp(pattern.source, flags))].map((match) =>
+      finding(source, match.index ?? 0, match[0]),
     ),
   );
 }
 
-export function importsFrom(source: SourceFile, modulePattern: RegExp) {
-  return source.ast.statements.some(
-    (statement) =>
-      ts.isImportDeclaration(statement) &&
-      ts.isStringLiteral(statement.moduleSpecifier) &&
-      modulePattern.test(statement.moduleSpecifier.text),
-  );
+export function resolvedSpecifier(source: SourceFile, specifier: string) {
+  if (!specifier.startsWith(".")) return specifier;
+  return `@/${normalize(join(dirname(source.file), specifier)).split("\\").join("/")}`;
+}
+
+export function moduleReferences(source: SourceFile) {
+  return source.ast.statements.flatMap((statement) => {
+    if (!ts.isImportDeclaration(statement) && !ts.isExportDeclaration(statement)) return [];
+    const specifier = statement.moduleSpecifier;
+    if (!specifier || !ts.isStringLiteral(specifier)) return [];
+    return [{ position: statement.getStart(source.ast), specifier: resolvedSpecifier(source, specifier.text) }];
+  });
 }
 
 export function tagNameOf(node: ts.Node) {
@@ -85,14 +90,6 @@ export function tagNameOf(node: ts.Node) {
 export function attributesOf(node: ts.JsxElement | ts.JsxSelfClosingElement) {
   const opening = ts.isJsxElement(node) ? node.openingElement : node;
   return opening.attributes;
-}
-
-export function attributeText(node: ts.JsxElement | ts.JsxSelfClosingElement, name: string) {
-  const attribute = attributesOf(node).properties.find(
-    (property) => ts.isJsxAttribute(property) && property.name.getText() === name,
-  );
-  if (!attribute || !ts.isJsxAttribute(attribute)) return undefined;
-  return attribute.initializer?.getText() ?? "true";
 }
 
 export function formatFindings(findings: Finding[]) {

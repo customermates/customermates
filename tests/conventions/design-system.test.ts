@@ -5,11 +5,12 @@ import {
   PRODUCT_SOURCES,
   type Finding,
   type SourceFile,
-  attributeText,
+  attributesOf,
   finding,
-  importsFrom,
+  moduleReferences,
   outsideAllowlist,
   patternFindings,
+  resolvedSpecifier,
   staleAllowlistEntries,
   tagNameOf,
   visit,
@@ -27,7 +28,11 @@ function enforce(findings: Finding[], allowlist: Allowlist) {
 }
 
 function importFindings(sources: SourceFile[], modulePattern: RegExp) {
-  return sources.filter((source) => importsFrom(source, modulePattern)).map((source) => finding(source, 0, "import"));
+  return sources.flatMap((source) =>
+    moduleReferences(source)
+      .filter(({ specifier }) => modulePattern.test(specifier))
+      .map(({ position, specifier }) => finding(source, position, `import ${specifier}`)),
+  );
 }
 
 const TABS_OWNERS = new Set(["components/ui/tabs.tsx"]);
@@ -52,12 +57,7 @@ const TABS_ALLOWLIST: Allowlist = {
 describe("rule 57: sections and segments instead of tab bars", () => {
   it("renders the Tabs primitive and the tabbed editor only through the shared segmented control", () => {
     const sources = sourcesExcept(TABS_OWNERS);
-    const findings = [
-      ...importFindings(sources, /\/components\/(?:ui\/tabs|editor-tabs\/editor-tabs)$/),
-      ...patternFindings(sources, /<TabsList\b[^>]*\bvariant="line"/),
-    ];
-
-    enforce(findings, TABS_ALLOWLIST);
+    enforce(importFindings(sources, /\/components\/(?:ui\/tabs|editor-tabs\/editor-tabs)$/), TABS_ALLOWLIST);
   });
 });
 
@@ -128,11 +128,30 @@ function objectProperty(node: ts.ObjectLiteralExpression, name: string) {
   );
 }
 
-function hasDestructiveVariant(node: ts.Node) {
-  if (isActionElement(node)) return DESTRUCTIVE_VARIANT.test(attributeText(node, "variant") ?? "");
-  if (!ts.isObjectLiteralExpression(node)) return false;
+function isAlwaysDestructive(expression: ts.Expression | undefined): boolean {
+  if (!expression) return false;
+  if (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression))
+    return isAlwaysDestructive(expression.expression);
+  if (ts.isConditionalExpression(expression))
+    return isAlwaysDestructive(expression.whenTrue) && isAlwaysDestructive(expression.whenFalse);
+  return ts.isStringLiteralLike(expression) && DESTRUCTIVE_VARIANT.test(expression.text);
+}
+
+function variantExpression(node: ts.Node) {
+  if (isActionElement(node)) {
+    const attribute = attributesOf(node).properties.find(
+      (property) => ts.isJsxAttribute(property) && property.name.getText() === "variant",
+    );
+    if (!attribute || !ts.isJsxAttribute(attribute) || !attribute.initializer) return undefined;
+    return ts.isJsxExpression(attribute.initializer) ? attribute.initializer.expression : attribute.initializer;
+  }
+  if (!ts.isObjectLiteralExpression(node)) return undefined;
   const variant = objectProperty(node, "variant");
-  return variant !== undefined && DESTRUCTIVE_VARIANT.test(variant.getText());
+  return variant && ts.isPropertyAssignment(variant) ? variant.initializer : undefined;
+}
+
+function hasDestructiveVariant(node: ts.Node) {
+  return isAlwaysDestructive(variantExpression(node));
 }
 
 function isActionDescriptor(node: ts.Node): node is ts.ObjectLiteralExpression {
@@ -163,25 +182,73 @@ const DESTRUCTIVE_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/records/[typeId]/components/record-mass-actions.tsx": "I2 r3: mass delete button",
   "app/[locale]/(protected)/records/[typeId]/components/record-row-actions.tsx": "I2 r3: row delete action",
   "app/components/agent-chat/conversation-history.tsx": "I25 phase 2: delete chat button",
+  "app/[locale]/(protected)/inbox/components/message-item.tsx": "I25 phase 2: email draft discard is neutral grey",
 };
 
-describe("rule 54: delete and remove actions use the destructive variant", () => {
-  it("marks every delete or remove button, menu item and header action as destructive", () => {
-    enforce(destructiveActionFindings(PRODUCT_SOURCES), DESTRUCTIVE_ALLOWLIST);
+const DESTRUCTIVE_EXEMPTIONS: Allowlist = {
+  "components/modal/delete-confirmation-modal.tsx": "the shared confirm dialog; each caller sets its confirm variant",
+};
+
+describe("rule 54: delete actions use the destructive variant", () => {
+  it("marks every delete button, menu item and header action as destructive", () => {
+    enforce(destructiveActionFindings(sourcesExcept(new Set(), DESTRUCTIVE_EXEMPTIONS)), DESTRUCTIVE_ALLOWLIST);
   });
 });
 
 const TOP_BAR_HOOKS = new Set(["useSetTopBarActions", "useSetTopBarActionsOverride"]);
 const RAW_TOP_BAR_CONTROL = /<(?:Button|button|IconButton)\b/;
+const PAGE_COMPONENT_SPECIFIER = /^@\/app\/\[locale\]\//;
 
-function topBarNodeText(source: SourceFile, argument: ts.Expression) {
-  if (!ts.isIdentifier(argument)) return argument.getText(source.ast);
-  let initializer = "";
-  visit(source.ast, (node) => {
-    if (ts.isVariableDeclaration(node) && node.name.getText(source.ast) === argument.text && node.initializer)
-      initializer = node.initializer.getText(source.ast);
+function declaredInitializer(scope: ts.Node, name: string): ts.Expression | undefined {
+  const statements = ts.isSourceFile(scope) || ts.isBlock(scope) ? scope.statements : [];
+  for (const statement of statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations)
+      if (ts.isIdentifier(declaration.name) && declaration.name.text === name) return declaration.initializer;
+  }
+  return undefined;
+}
+
+function resolvedTopBarNode(argument: ts.Expression): ts.Expression | undefined {
+  if (!ts.isIdentifier(argument)) return argument;
+  for (let scope: ts.Node | undefined = argument.parent; scope; scope = scope.parent) {
+    const initializer = declaredInitializer(scope, argument.text);
+    if (initializer) return initializer;
+  }
+  return undefined;
+}
+
+function sourceOfFile(file: string) {
+  return PRODUCT_SOURCES.find((candidate) => candidate.file === file);
+}
+
+function pageComponentSource(source: SourceFile, tag: string): string | undefined {
+  for (const statement of source.ast.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name?.text === tag) return statement.getText(source.ast);
+    if (ts.isVariableStatement(statement) && statement.declarationList.declarations.some((d) => d.name.getText(source.ast) === tag))
+      return statement.getText(source.ast);
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+    const bindings = statement.importClause?.namedBindings;
+    if (!bindings || !ts.isNamedImports(bindings) || !bindings.elements.some((element) => element.name.text === tag))
+      continue;
+    const specifier = resolvedSpecifier(source, statement.moduleSpecifier.text);
+    if (!PAGE_COMPONENT_SPECIFIER.test(specifier)) return undefined;
+    const base = specifier.slice(2);
+    return (sourceOfFile(`${base}.tsx`) ?? sourceOfFile(`${base}.ts`))?.text;
+  }
+  return undefined;
+}
+
+function rendersRawTopBarControl(source: SourceFile, node: ts.Expression) {
+  if (RAW_TOP_BAR_CONTROL.test(node.getText(source.ast))) return true;
+  let found = false;
+  visit(node, (child) => {
+    const tag = tagNameOf(child);
+    if (!tag || !/^[A-Z]/.test(tag) || found) return;
+    const component = pageComponentSource(source, tag);
+    if (component && RAW_TOP_BAR_CONTROL.test(component)) found = true;
   });
-  return initializer;
+  return found;
 }
 
 function topBarFindings(sources: SourceFile[]) {
@@ -191,7 +258,9 @@ function topBarFindings(sources: SourceFile[]) {
     visit(source.ast, (node) => {
       if (!ts.isCallExpression(node) || !TOP_BAR_HOOKS.has(node.expression.getText(source.ast))) return;
       const [argument] = node.arguments;
-      if (argument && RAW_TOP_BAR_CONTROL.test(topBarNodeText(source, argument)))
+      if (!argument) return;
+      const resolved = resolvedTopBarNode(argument);
+      if (!resolved || rendersRawTopBarControl(source, resolved))
         findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
     });
 
@@ -205,6 +274,11 @@ const TOP_BAR_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/profile/components/api-keys-page-view.tsx": "I19: API keys Add through the shared top-bar action buttons",
   "app/[locale]/(protected)/inbox/components/inbox-list.tsx": "I25 phase 2: refresh and connect through I2's top-bar action buttons",
   "app/[locale]/(protected)/inbox/components/thread-topbar.tsx": "I25 phase 2: resync through I2's top-bar action buttons",
+  "app/[locale]/(protected)/records/[typeId]/components/record-editor-actions.tsx": "I2 r3: record page top-bar actions",
+  "app/[locale]/(protected)/configure/components/configure-page-view.tsx": "I1 r4: ConfigureTopBarActions buttons",
+  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx": "I19: VerifyEmailAction button",
+  "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx": "I19: ConnectAction button",
+  "app/[locale]/(protected)/wiki/components/wiki-page-view.tsx": "I25 phase 2: wiki page actions",
 };
 
 describe("rules 5, 6 and 58: top-bar actions and view chips through their shared components", () => {
@@ -253,7 +327,7 @@ describe("rule 47: one value renderer per data type", () => {
 
 const PALETTE_COLOR =
   /\b(?:text|bg|border|ring|fill|stroke|from|to|via|outline|decoration|shadow|divide|accent|caret|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|black|white)(?:-\d{2,3})?(?:\/\d+)?\b/;
-const LITERAL_COLOR = /(?<![&\w])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])|\b(?:rgba?|hsla?|oklch)\(/;
+const LITERAL_COLOR = /(?<=^|[[(:,\s=])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])|\b(?:rgba?|hsla?|oklch)\(/;
 
 const COLOR_OWNERS = new Set([
   "components/ui/button.tsx",
@@ -280,7 +354,7 @@ function stringLiteralFindings(sources: SourceFile[], pattern: RegExp) {
     visit(source.ast, (node) => {
       if (!(ts.isStringLiteralLike(node) || ts.isTemplateLiteralToken(node) || ts.isJsxText(node))) return;
       const text = ts.isJsxText(node) ? node.getText(source.ast) : node.text;
-      const match = pattern.exec(text);
+      const match = new RegExp(pattern.source, pattern.flags.replace(/[gy]/g, "")).exec(text);
       if (match) findings.push(finding(source, node.getStart(source.ast), match[0]));
     });
 
@@ -341,7 +415,7 @@ describe("rule 52: key hints only through the shared key caps", () => {
   });
 });
 
-const NATIVE_TITLE_HOSTS = new Set(["DropdownMenuItem", "CommandItem", "SelectItem", "DropdownMenuSubTrigger"]);
+const NATIVE_TITLE_HOSTS = new Set(["Button", "DropdownMenuItem", "CommandItem", "SelectItem", "DropdownMenuSubTrigger"]);
 const TITLE_EXEMPT_TAGS = new Set(["iframe", "title", "svg"]);
 
 function nativeTitleFindings(sources: SourceFile[]) {
