@@ -180,12 +180,12 @@ export function ChangeValue({ value }: { value: ChangeValueDescriptor }) {
 
 export function InlineChange({ previous, current }: { previous: ReactNode; current: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="min-w-0 text-subdued">{previous}</div>
+    <div className="flex items-start gap-2">
+      <div className="min-w-0 max-w-[45%] text-subdued">{previous}</div>
 
-      <Icon className="text-subdued shrink-0 self-center" icon={ArrowRight} size="sm" />
+      <Icon className="text-subdued mt-1 shrink-0" icon={ArrowRight} size="sm" />
 
-      <div className="min-w-0">{current}</div>
+      <div className="min-w-0 flex-1">{current}</div>
     </div>
   );
 }
