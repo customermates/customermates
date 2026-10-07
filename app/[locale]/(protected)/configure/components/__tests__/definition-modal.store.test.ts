@@ -219,6 +219,7 @@ describe("field summary publication previews", () => {
         execution: "synchronous" as const,
         dataValidation: "complete" as const,
         affectedRecords: 0,
+        hiddenRecords: false,
         references: [],
         issues: [],
         calculations: [{ fieldId, dependencyHash: hash }],

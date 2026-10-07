@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { RecordEditorStore } from "./record-editor.store";
-import type { RecordField } from "@/features/records/record-model.schema";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { RecordValue } from "./record-value";
 import { RecordDetailField } from "./record-detail-field";
@@ -18,7 +18,7 @@ export const RecordEditorField = observer(function RecordEditorField({
   field,
 }: {
   store: RecordEditorStore;
-  field: RecordField;
+  field: RecordFieldView;
 }) {
   const t = useTranslations();
   const id = `values.${field.id}`;

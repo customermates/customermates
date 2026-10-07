@@ -529,7 +529,7 @@ Lädt einen Treffer aus `search` über seine unveränderte ID: `wiki:<uuid>` ode
 
 ### Datenmodell [#record-model]
 
-Typen, Felder, Beziehungen, Berechnungen und gemeinsame Standards über ein Konfigurationspaket anlegen oder ändern. **Datenmodell** **Bearbeiten** ist von **Bearbeiten** bei einem Datensatztyp getrennt. Neue Typen sind zunächst nur für Administratoren zugänglich. Delegierte Schema-Verwalter können genehmigte Zugriffsvorlagen wählen, ohne Rollen verwalten zu dürfen.
+Typen, Felder, Beziehungen, Berechnungen und gemeinsame Standards über ein Konfigurationspaket anlegen oder ändern. **Datenmodell** **Bearbeiten** ist von **Bearbeiten** bei einem Datensatztyp getrennt. Neue Typen sind zunächst nur für Administratoren zugänglich. Delegierte Schema-Verwalter können eine Zugriffsvorlage, die auch ihre eigene Rolle enthalten darf, nur beim Anlegen eines Typs anwenden, ohne Rollen verwalten zu dürfen.
 
 Das relevante Modell lesen, das Paket prüfen, Abhängigkeiten und Rechtefolgen ansehen und anschließend dasselbe Paket mit erwarteter Revision und idempotencyKey anwenden. Temporäre `$client`-Referenzen verbinden neue Definitionen innerhalb des Pakets. Formeln bestehen aus typisierten Knoten in Abhängigkeitsreihenfolge und einem Wurzelknoten. Sie führen weder JavaScript noch SQL aus. Das Backend lehnt Zyklen, ungültige Typen, unzulässige Währungskombinationen und inkompatible Abhängigkeiten ab.
 

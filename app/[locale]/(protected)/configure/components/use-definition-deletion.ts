@@ -1,7 +1,7 @@
 "use client";
 
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
-import type { RecordField, RecordModel, RecordType } from "@/features/records/record-model.schema";
+import type { RecordField, RecordModelView, RecordType } from "@/features/records/record-model.schema";
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -11,7 +11,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import { applyRecordConfigurationAction, previewRecordConfigurationAction } from "../../records/actions";
 
-type ChannelsBinding = RecordModel["capabilities"][number];
+type ChannelsBinding = RecordModelView["capabilities"][number];
 type Target =
   | { type: RecordType; field?: never; channels?: never }
   | { field: RecordField; type?: never; channels?: never }
@@ -22,7 +22,7 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
   const { showConfirmation } = useDeleteConfirmation();
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [isUpdatingChannels, setIsUpdatingChannels] = useState(false);
-  const requestDeletion = async (model: RecordModel, target: Target) => {
+  const requestDeletion = async (model: RecordModelView, target: Target) => {
     if (isPreviewing) return;
     const change: ConfigurationChange = {
       expectedRevision: model.revision,
@@ -46,17 +46,18 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
       const impact = preview.deletion;
       const details = impact
         ? [
-            impact.records > 0 && t("RecordModel.permanentDeletion.records", { count: impact.records }),
-            impact.values > 0 && t("RecordModel.permanentDeletion.values", { count: impact.values }),
-            impact.links > 0 && t("RecordModel.permanentDeletion.links", { count: impact.links }),
+            preview.hiddenRecords && t("RecordModel.permanentDeletion.hiddenRecords"),
+            impact.records && t("RecordModel.permanentDeletion.records", { count: impact.records }),
+            impact.values && t("RecordModel.permanentDeletion.values", { count: impact.values }),
+            impact.links && t("RecordModel.permanentDeletion.links", { count: impact.links }),
             impact.relationships > 0 &&
               t("RecordModel.permanentDeletion.relationships", { count: impact.relationships }),
             impact.views > 0 && t("RecordModel.permanentDeletion.views", { count: impact.views }),
             impact.grants > 0 && t("RecordModel.permanentDeletion.grants", { count: impact.grants }),
-            impact.identifiers > 0 &&
+            impact.identifiers &&
               t("RecordModel.permanentDeletion.identifiers", {
                 count: impact.identifiers,
-                records: impact.identifierRecords,
+                records: impact.identifierRecords ?? 0,
               }),
           ].filter((line): line is string => Boolean(line))
         : [];
@@ -69,6 +70,8 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
             : t("RecordModel.permanentDeletion.dependentList", { list: listLabel(issue.typeId) });
         }
         const label = field?.label ?? listLabel(issue.typeId);
+        if (issue.code === "deletion_requires_read_all")
+          return t("RecordModel.permanentDeletion.requiresReadAll", { name: label });
         return label ? `${label}: ${t("RecordModel.dependencyHelp")}` : t("RecordModel.dependencyHelp");
       });
       const name = target.type
@@ -102,7 +105,7 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
       setIsPreviewing(false);
     }
   };
-  const setChannelsEnabled = async (model: RecordModel, binding: ChannelsBinding, enabled: boolean) => {
+  const setChannelsEnabled = async (model: RecordModelView, binding: ChannelsBinding, enabled: boolean) => {
     if (isUpdatingChannels) return false;
     setIsUpdatingChannels(true);
     try {
@@ -121,13 +124,13 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
       setIsUpdatingChannels(false);
     }
   };
-  const requestChannelsRemoval = (model: RecordModel, binding: ChannelsBinding) =>
+  const requestChannelsRemoval = (model: RecordModelView, binding: ChannelsBinding) =>
     showConfirmation({
       title: t("RecordModel.channelsField.deleteTitle"),
       message: t("RecordModel.channelsField.deleteMessage"),
       onConfirm: () => setChannelsEnabled(model, binding, false),
     });
-  const restoreChannels = async (model: RecordModel, binding: ChannelsBinding) => {
+  const restoreChannels = async (model: RecordModelView, binding: ChannelsBinding) => {
     await setChannelsEnabled(model, binding, true);
   };
   return { requestDeletion, requestChannelsRemoval, restoreChannels, isPreviewing, isUpdatingChannels };

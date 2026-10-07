@@ -414,6 +414,23 @@ export const RecordModelSchema = z
   .strict();
 export type RecordModel = z.infer<typeof RecordModelSchema>;
 
+const withoutFormula = { expression: CalculationExpressionSchema.optional() };
+export const FieldBehaviorViewSchema = z.discriminatedUnion("kind", [
+  FieldBehaviorSchema.options[0],
+  FieldBehaviorSchema.options[1].extend(withoutFormula),
+  FieldBehaviorSchema.options[2].extend(withoutFormula),
+  FieldBehaviorSchema.options[3].extend(withoutFormula),
+  FieldBehaviorSchema.options[4].extend(withoutFormula),
+]);
+export const RecordFieldViewSchema = RecordFieldSchema.extend({
+  behavior: FieldBehaviorViewSchema.describe(
+    "Calculated fields omit expression, triggerFieldId and triggerValue when the caller cannot read every input.",
+  ),
+});
+export type RecordFieldView = z.infer<typeof RecordFieldViewSchema>;
+export const RecordModelViewSchema = RecordModelSchema.extend({ fields: z.array(RecordFieldViewSchema) });
+export type RecordModelView = z.infer<typeof RecordModelViewSchema>;
+
 export const RecordFieldAssignmentSchema = z
   .object({ fieldId: z.uuid(), value: RecordScalarSchema.nullable() })
   .strict();
