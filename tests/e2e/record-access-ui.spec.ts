@@ -712,11 +712,17 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
       ],
     );
     const readIdentities = async (actorPage: Page) =>
-      z.object({ matches: z.array(z.object({ records: z.array(RecordIdentityReferenceSchema) })) }).parse(
-        await post(actorPage, "/api/v1/records/identities/resolve", {
-          identifiers: [{ provider: "mail", value: email.toUpperCase() }],
-        }),
-      );
+      z
+        .object({
+          matches: z.array(
+            z.object({ records: z.array(RecordIdentityReferenceSchema.extend({ version: z.number().int() })) }),
+          ),
+        })
+        .parse(
+          await post(actorPage, "/api/v1/records/identities/resolve", {
+            identifiers: [{ provider: "mail", value: email.toUpperCase() }],
+          }),
+        );
     expect((await readIdentities(noAccess.page)).matches[0]?.records).toEqual([]);
     expect((await readIdentities(reader.page)).matches[0]?.records.map((record) => record.ref)).toEqual([contact]);
     expect(
