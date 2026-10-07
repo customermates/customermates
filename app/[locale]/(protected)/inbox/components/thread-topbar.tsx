@@ -8,11 +8,11 @@ import { Action, Resource } from "@/generated/prisma";
 
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { deriveThreadDisplay } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActionsOverride } from "@/app/components/topbar-actions-context";
+import { TopBarAction } from "@/app/components/top-bar-action";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ThreadFolderMenu } from "./thread-folder-menu";
@@ -51,21 +51,12 @@ export const ThreadTopBar = observer(({ thread }: Props) => {
           <ThreadFolderMenu />
 
           {canUpdate && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  aria-label={t("Inbox.resyncThread")}
-                  size="icon-sm"
-                  type="button"
-                  variant="secondary"
-                  onClick={() => runUserAction(() => store.resyncThread())}
-                >
-                  <RefreshCw className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-
-              <TooltipContent>{t("Inbox.resyncThread")}</TooltipContent>
-            </Tooltip>
+            <TopBarAction
+              iconOnly
+              icon={RefreshCw}
+              label={t("Inbox.resyncThread")}
+              onClick={() => runUserAction(() => store.resyncThread())}
+            />
           )}
 
           <ThreadSettings
