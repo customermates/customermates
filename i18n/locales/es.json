@@ -3280,6 +3280,7 @@
     "option": "Opción",
     "optionAttribute": "Atributo de la opción",
     "options": "Opciones",
+    "optionsEmpty": "Aún no hay opciones. Añade las opciones que se pueden elegir.",
     "permanentDeletion": {
       "channelsMessage": "Esto elimina de forma permanente el campo Canales y todas las direcciones de correo, números de teléfono y cuentas sociales guardados en los registros de esta lista. Los mensajes dejarán de asociarse con estos registros. No se puede deshacer.",
       "deleteField": "Eliminar campo definitivamente",

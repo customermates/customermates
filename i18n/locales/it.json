@@ -3280,6 +3280,7 @@
     "option": "Opzione",
     "optionAttribute": "Attributo dell’opzione",
     "options": "Opzioni",
+    "optionsEmpty": "Nessuna opzione. Aggiungi le scelte disponibili.",
     "permanentDeletion": {
       "channelsMessage": "Questa operazione elimina definitivamente il campo Canali e tutti gli indirizzi e-mail, i numeri di telefono e gli account social salvati nei record di questa lista. I messaggi non verranno più associati a questi record. L’operazione non può essere annullata.",
       "deleteField": "Elimina campo definitivamente",

@@ -3280,6 +3280,7 @@
     "option": "Option",
     "optionAttribute": "Attribut de l’option",
     "options": "Options",
+    "optionsEmpty": "Aucune option pour l’instant. Ajoutez les choix proposés.",
     "permanentDeletion": {
       "channelsMessage": "Cela supprime définitivement le champ Canaux et toutes les adresses e-mail, numéros de téléphone et comptes sociaux enregistrés sur les fiches de cette liste. Les messages ne seront plus associés à ces fiches. Cette action est irréversible.",
       "deleteField": "Supprimer le champ définitivement",
