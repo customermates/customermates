@@ -953,9 +953,11 @@
       }
     },
     "deleteConfirmation": {
+      "blocked": "Löse zuerst diese Punkte:",
       "message": "Möchtest du dieses Element wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "messageWithName": "Möchtest du \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "title": "Löschung bestätigen"
+      "title": "Löschung bestätigen",
+      "typeToConfirm": "Gib {name} ein, um zu bestätigen"
     },
     "details": "Details",
     "email": "E-Mail",
@@ -3254,6 +3256,23 @@
     "option": "Option",
     "optionAttribute": "Optionsattribut",
     "options": "Optionen",
+    "permanentDeletion": {
+      "deleteField": "Feld endgültig löschen",
+      "deleteList": "Liste endgültig löschen",
+      "dependentField": "{field} in {list} hängt noch davon ab. Lösche oder ändere zuerst dieses Feld.",
+      "dependentList": "{list} hängt noch davon ab. Lösche oder ändere zuerst diese Liste.",
+      "fieldMessage": "Dadurch werden das Feld und alle gespeicherten Werte endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
+      "fieldTitle": "{name} endgültig löschen?",
+      "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
+      "links": "{count, plural, one {# Verknüpfung zwischen Datensätzen} other {# Verknüpfungen zwischen Datensätzen}}",
+      "listMessage": "Dadurch werden die Liste mit ihren Feldern, Datensätzen, Verknüpfungen, Beziehungen, gespeicherten Ansichten und Rollenrechten endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
+      "listTitle": "{name} endgültig löschen?",
+      "nothingStored": "Keine gespeicherten Daten verwenden es.",
+      "records": "{count, plural, one {# Datensatz} other {# Datensätze}}",
+      "relationships": "{count, plural, one {# Beziehung} other {# Beziehungen}}",
+      "values": "{count, plural, one {# gespeicherter Wert} other {# gespeicherte Werte}}",
+      "views": "{count, plural, one {# gespeicherte Ansicht oder persönliches Layout} other {# gespeicherte Ansichten oder persönliche Layouts}}"
+    },
     "pinnedFields": "Angeheftete Detailfelder",
     "pluralDescription": "Der Name in der Navigation. Leer lassen, um den Listennamen zu verwenden.",
     "pluralName": "Navigationsbezeichnung",

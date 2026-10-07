@@ -9,6 +9,9 @@ export interface DeleteConfirmationData {
   entityName?: string;
   confirmLabel?: string;
   confirmVariant?: "default" | "destructive";
+  details?: string[];
+  blockers?: string[];
+  confirmationText?: string;
   successKey?: string;
   focusAfterConfirm?: () => boolean;
   onConfirm: () => Promise<boolean>;
