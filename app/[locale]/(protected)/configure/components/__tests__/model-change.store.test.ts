@@ -21,6 +21,7 @@ const preview = (count = 1): ConfigurationPreview => ({
   execution: "synchronous",
   dataValidation: "complete",
   affectedRecords: count,
+  hiddenRecords: false,
   references: [],
   issues: [],
   calculations: [],

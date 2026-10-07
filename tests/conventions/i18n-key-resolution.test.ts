@@ -898,7 +898,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
-    'components/records/record-configuration-preview.tsx :: t :: issue.code === "existing_values_incompatible" ? "RecordModel.existingValuesIncompatible" : issue.code === "saved_view_incompatible" ? "RecordModel.savedViewIncompatible" : issue.code === "detail_layout_incompatible" ? "RecordModel.detailLayoutIncompatible" : issue.code === "summary_approval_required" ? "RecordModel.summaryApprovalRequired" : "RecordModel.dependencyHelp"',
+    'components/records/record-configuration-preview.tsx :: t :: ISSUE_MESSAGES[issue.code as keyof typeof ISSUE_MESSAGES] ?? "RecordModel.dependencyHelp"',
     1,
   ],
   [
@@ -974,6 +974,11 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "RecordModel.savedViewIncompatible",
       "RecordModel.detailLayoutIncompatible",
       "RecordModel.summaryApprovalRequired",
+      "RecordModel.deletionRequiresReadAll",
+      "RecordModel.duplicateListName",
+      "RecordModel.duplicateFieldName",
+      "RecordModel.duplicateOptionLabel",
+      "RecordModel.duplicateRelationshipLabel",
       "RecordModel.dependencyHelp",
     ],
   },
@@ -995,6 +1000,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "RecordModel.lineFields.savedPrice",
       "RecordModel.lineFields.effectivePrice",
       "RecordModel.lineFields.amount",
+      "RecordModel.contactFullName",
       "RecordModel.priceModes.live",
       "RecordModel.priceModes.saved",
     ],
