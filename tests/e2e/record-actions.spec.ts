@@ -237,6 +237,6 @@ test("record drawer tabs remember the last tab and flag invalid fields on other 
   await page.getByRole("button", { name: "Example organization", exact: true }).click();
   await expect(drawer.getByRole("tab", { name: "Notes" })).toHaveAttribute("data-state", "active");
   await page.setViewportSize({ width: 360, height: 800 });
-  const list = drawer.locator("[data-editor-tabs]");
-  expect(await list.evaluate((element) => getComputedStyle(element).overflowX)).toBe("auto");
+  const list = drawer.locator('[data-slot="segmented-control-list"]');
+  expect(await list.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 });

@@ -3,10 +3,11 @@
 import type { WikiPageStore } from "./wiki-page.store";
 
 import { observer } from "mobx-react-lite";
-import { Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
+import { Link, MoreHorizontal, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,35 +39,6 @@ export const WikiPageActions = observer((props: Props) => {
 
   return (
     <div className="flex items-center gap-1">
-      {store.creating && (
-        <Button
-          aria-label={t("Common.actions.cancel")}
-          disabled={store.isLoading}
-          size="sm"
-          variant="secondary"
-          onClick={onCancelCreate}
-        >
-          <X aria-hidden="true" className="size-4 sm:hidden" />
-
-          <span className="hidden sm:inline">{t("Common.actions.cancel")}</span>
-        </Button>
-      )}
-
-      {hasDocument && store.form.id && store.hasUnsavedChanges && (
-        <Button
-          aria-label={t("Common.actions.reset")}
-          disabled={store.isLoading}
-          size="sm"
-          type="button"
-          variant="secondary"
-          onClick={store.resetDocument}
-        >
-          <RotateCcw aria-hidden="true" className="size-4 sm:hidden" />
-
-          <span className="hidden sm:inline">{t("Common.actions.reset")}</span>
-        </Button>
-      )}
-
       {hasDocument && store.form.id && !store.hasUnsavedChanges && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -120,12 +92,15 @@ export const WikiPageActions = observer((props: Props) => {
         </Button>
       )}
 
-      {hasDocument && canManage && store.hasUnsavedChanges && (
-        <Button aria-label={t("Common.actions.save")} disabled={store.isLoading} form={formId} size="sm" type="submit">
-          <Save aria-hidden="true" className="size-4 sm:hidden" />
-
-          <span className="hidden sm:inline">{t("Common.actions.save")}</span>
-        </Button>
+      {hasDocument && (
+        <FormFooterActions
+          editable={canManage}
+          formId={formId}
+          placement="topbar"
+          reset={store.creating ? undefined : { differs: store.hasUnsavedChanges, onReset: store.resetDocument }}
+          store={store}
+          onCancel={store.creating ? onCancelCreate : undefined}
+        />
       )}
     </div>
   );

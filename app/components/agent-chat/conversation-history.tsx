@@ -1,11 +1,12 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { AgentChatStore } from "./agent-chat.store";
 
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Archive, History, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Archive, Ellipsis, History, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
 
 import { type AgentConversationSummary } from "@/ee/agent-chat/agent-chat.schema";
 
@@ -14,11 +15,13 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
-import { AppCardHeader } from "@/components/card/app-card-header";
-import { AppModal } from "@/components/modal/app-modal";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { OVERLAY_SCROLL_REGION, OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 
@@ -28,6 +31,41 @@ function historyLocked(
   store: Pick<AgentChatStore, "isWorking" | "conversationLoadPendingId" | "historyMutationPending">,
 ) {
   return store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending);
+}
+
+function ConversationRowMenu({
+  label,
+  disabled,
+  triggerId,
+  children,
+}: {
+  label: string;
+  disabled: boolean;
+  triggerId?: string;
+  children: ReactNode;
+}) {
+  return (
+    <DropdownMenu modal={false}>
+      <ActionTooltip label={label}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            aria-label={label}
+            className="mr-1 size-8 shrink-0 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+            disabled={disabled}
+            id={triggerId}
+            size="icon"
+            variant="ghost"
+          >
+            <Ellipsis aria-hidden className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+      </ActionTooltip>
+
+      <DropdownMenuContent align="end" aria-labelledby={triggerId} className={OVERLAY_TOPMOST_LAYER_CLASS}>
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
 export const ConversationHistory = observer(function ConversationHistory() {
@@ -142,18 +180,16 @@ export const ConversationHistory = observer(function ConversationHistory() {
                 </span>
               </Button>
 
-              <ActionTooltip label={copy.archive}>
-                <Button
-                  aria-label={`${copy.archive}: ${conversation.title || copy.untitled}`}
-                  className="mr-1 size-8 shrink-0 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                  disabled={historyActionsDisabled}
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => runUserAction(() => archive(conversation.id, index))}
-                >
-                  <Archive className="size-4" />
-                </Button>
-              </ActionTooltip>
+              <ConversationRowMenu
+                disabled={historyActionsDisabled}
+                label={copy.moreActions(conversation.title || copy.untitled)}
+              >
+                <DropdownMenuItem onSelect={() => runUserAction(() => archive(conversation.id, index))}>
+                  <Archive aria-hidden className="size-4" />
+
+                  {copy.archive}
+                </DropdownMenuItem>
+              </ConversationRowMenu>
             </div>
           );
         })}
@@ -282,7 +318,7 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
 
       <div className="mt-1 space-y-1" role="list">
         {conversations.map((conversation) => (
-          <div key={conversation.id} className="flex items-center gap-2 rounded-md px-2 py-1.5" role="listitem">
+          <div key={conversation.id} className="group flex items-center gap-2 rounded-md px-2 py-1.5" role="listitem">
             <span className="min-w-0 flex-1">
               <span className="block truncate font-medium">{conversation.title || copy.untitled}</span>
 
@@ -291,32 +327,25 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
               )}
             </span>
 
-            <ActionTooltip label={copy.restore}>
-              <Button
-                aria-label={`${copy.restore}: ${conversation.title || copy.untitled}`}
-                className="size-7 shrink-0"
-                disabled={historyActionsDisabled}
-                id={`agent-archived-${conversation.id}`}
-                size="icon"
-                variant="ghost"
-                onClick={() => runUserAction(() => store.restoreArchivedConversation(conversation.id))}
+            <ConversationRowMenu
+              disabled={historyActionsDisabled}
+              label={copy.moreActions(conversation.title || copy.untitled)}
+              triggerId={`agent-archived-${conversation.id}`}
+            >
+              <DropdownMenuItem
+                onSelect={() => runUserAction(() => store.restoreArchivedConversation(conversation.id))}
               >
-                <RotateCcw className="size-3.5" />
-              </Button>
-            </ActionTooltip>
+                <RotateCcw aria-hidden className="size-4" />
 
-            <ActionTooltip label={copy.deleteChat}>
-              <Button
-                aria-label={`${copy.deleteChat}: ${conversation.title || copy.untitled}`}
-                className="size-7 shrink-0 text-destructive hover:text-destructive"
-                disabled={historyActionsDisabled}
-                size="icon"
-                variant="ghost"
-                onClick={() => setDeleteCandidate(conversation)}
-              >
-                <Trash2 className="size-3.5" />
-              </Button>
-            </ActionTooltip>
+                {copy.restore}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem variant="destructive" onSelect={() => setDeleteCandidate(conversation)}>
+                <Trash2 aria-hidden className="size-4" />
+
+                {copy.deleteChat}
+              </DropdownMenuItem>
+            </ConversationRowMenu>
           </div>
         ))}
 
@@ -336,35 +365,15 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
         )}
       </div>
 
-      <AppModal
-        layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}
+      <ConfirmDialog
+        busy={deletePending}
+        confirmLabel={copy.deletePermanently}
+        description={copy.deleteChatBody}
         open={Boolean(deleteCandidate)}
-        size="sm"
         title={copy.deleteChatTitle}
-        onClose={() => !deletePending && setDeleteCandidate(null)}
-      >
-        <AppCard>
-          <AppCardHeader>
-            <h2 className="text-base font-semibold">{copy.deleteChatTitle}</h2>
-          </AppCardHeader>
-
-          <AppCardBody>
-            <p className="text-sm">{copy.deleteChatBody}</p>
-          </AppCardBody>
-
-          <AppCardFooter>
-            <Button disabled={deletePending} variant="secondary" onClick={() => setDeleteCandidate(null)}>
-              {copy.cancel}
-            </Button>
-
-            <Button disabled={deletePending} variant="destructive" onClick={() => runUserAction(deletePermanently)}>
-              {deletePending && <Loader2 className="size-3.5 animate-spin" />}
-
-              {copy.deletePermanently}
-            </Button>
-          </AppCardFooter>
-        </AppCard>
-      </AppModal>
+        onCancel={() => !deletePending && setDeleteCandidate(null)}
+        onConfirm={deletePermanently}
+      />
     </details>
   );
 });

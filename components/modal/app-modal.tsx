@@ -16,7 +16,9 @@ import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 import { useClientReady } from "@/hooks/use-client-ready";
 
-import { UnsavedChangesGuard } from "./unsaved-changes-guard";
+import { DiscardChangesDialog } from "./confirm-dialog";
+import { AppModalCloseContext } from "./app-modal-close-context";
+import { OverlayDismissGuardContext, useOwnOverlayDismissGuard } from "./overlay-dismiss-guard";
 import { AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
@@ -119,8 +121,11 @@ export const AppModal = observer((props: Props) => {
     else props.onClose();
   }
 
+  const dismissGuard = useOwnOverlayDismissGuard();
+  const modalClose = { requestClose, guardsUnsavedChanges: Boolean(store?.withUnsavedChangesGuard) };
+
   function handleOpenChange(next: boolean) {
-    if (!next) requestClose();
+    if (!next && !dismissGuard.shouldKeepOpen()) requestClose();
   }
 
   return (
@@ -152,7 +157,9 @@ export const AppModal = observer((props: Props) => {
 
             <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
-            {children}
+            <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+              <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
+            </OverlayDismissGuardContext.Provider>
           </DialogContent>
         </Dialog>
       ) : (
@@ -178,13 +185,15 @@ export const AppModal = observer((props: Props) => {
 
             <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
-            {children}
+            <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+              <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
+            </OverlayDismissGuardContext.Provider>
           </DrawerContent>
         </Drawer>
       )}
 
       {store && (
-        <UnsavedChangesGuard
+        <DiscardChangesDialog
           open={store.isClosingWithGuard}
           onCancel={() => store.setIsClosingWithGuard(false)}
           onConfirm={() => store.close()}
