@@ -19,6 +19,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormActions } from "@/components/card/form-actions";
+import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormLabel } from "@/components/forms/form-label";
@@ -180,70 +181,98 @@ export const RoleModal = observer(({ store }: Props) => {
             <h2 className="grow truncate text-base font-semibold">{t("RoleModal.title")}</h2>
           </AppCardHeader>
 
-          <AppCardBody>
-            {store.loadFailed && (
-              <Alert color="danger" description={t("ErrorCard.title")}>
-                <Button size="sm" variant="secondary" onClick={() => runUserAction(store.loadContext)}>
-                  {t("ErrorCard.retry")}
-                </Button>
-              </Alert>
-            )}
+          <EditorTabs
+            className="flex flex-col"
+            contentClassName="flex min-h-0 flex-1 flex-col"
+            label={t("RoleModal.title")}
+            tabs={[
+              {
+                id: "general",
+                label: t("RoleModal.general"),
+                fields: ["name", "description"],
+                content: (
+                  <AppCardBody>
+                    {store.loadFailed && (
+                      <Alert color="danger" description={t("ErrorCard.title")}>
+                        <Button size="sm" variant="secondary" onClick={() => runUserAction(store.loadContext)}>
+                          {t("ErrorCard.retry")}
+                        </Button>
+                      </Alert>
+                    )}
 
-            {isSystemRole && <Alert color="primary" description={t("RoleModal.systemAlert")} />}
+                    {isSystemRole && <Alert color="primary" description={t("RoleModal.systemAlert")} />}
 
-            {!isSystemRole && isOwnRole && canManage && (
-              <Alert color="warning" description={t("RoleModal.ownRoleAlert")} />
-            )}
+                    {!isSystemRole && isOwnRole && canManage && (
+                      <Alert color="warning" description={t("RoleModal.ownRoleAlert")} />
+                    )}
 
-            {isSystemRole ? (
-              <div className="space-y-1.5">
-                <FormLabel htmlFor="name">{t("Common.inputs.name")}</FormLabel>
+                    {isSystemRole ? (
+                      <div className="space-y-1.5">
+                        <FormLabel htmlFor="name">{t("Common.inputs.name")}</FormLabel>
 
-                <Input readOnly id="name" value={t("RoleModal.systemName")} />
-              </div>
-            ) : (
-              <FormInput required id="name" />
-            )}
+                        <Input readOnly id="name" value={t("RoleModal.systemName")} />
+                      </div>
+                    ) : (
+                      <FormInput required id="name" />
+                    )}
 
-            {isSystemRole ? (
-              <div className="space-y-1.5">
-                <FormLabel htmlFor="description">{t("Common.inputs.description")}</FormLabel>
+                    {isSystemRole ? (
+                      <div className="space-y-1.5">
+                        <FormLabel htmlFor="description">{t("Common.inputs.description")}</FormLabel>
 
-                <Textarea readOnly id="description" value={t("RoleModal.systemDescription")} />
-              </div>
-            ) : (
-              <FormTextarea required id="description" />
-            )}
+                        <Textarea readOnly id="description" value={t("RoleModal.systemDescription")} />
+                      </div>
+                    ) : (
+                      <FormTextarea required id="description" />
+                    )}
+                  </AppCardBody>
+                ),
+              },
+              {
+                id: "workspace",
+                label: t("RoleModal.workspacePermissions"),
+                fields: ["permissions"],
+                content: (
+                  <AppCardBody>
+                    <div className={tableClass}>
+                      {header(t("RoleModal.resourceHeader"))}
 
-            <div className={tableClass}>
-              {header(t("RoleModal.resourceHeader"))}
+                      {SYSTEM_RESOURCE_ORDER.filter(
+                        (resource) => store.rootStore.appMode !== "self-hosted" || !CLOUD_RESOURCES.has(resource),
+                      ).map(renderResource)}
+                    </div>
+                  </AppCardBody>
+                ),
+              },
+              {
+                id: "record-types",
+                label: t("RoleModal.recordTypes"),
+                fields: ["recordGrants"],
+                content: (
+                  <AppCardBody>
+                    <div className="space-y-3">
+                      <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
 
-              {SYSTEM_RESOURCE_ORDER.filter(
-                (resource) => store.rootStore.appMode !== "self-hosted" || !CLOUD_RESOURCES.has(resource),
-              ).map(renderResource)}
-            </div>
+                      <div className={tableClass}>
+                        {header(t("RoleModal.recordTypes"))}
 
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">{t("RoleModal.recordTypes")}</h3>
-
-              <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
-
-              <div className={tableClass}>
-                {header(t("RoleModal.recordTypes"))}
-
-                {store.context?.types.map((type, index) =>
-                  renderAccessRow({
-                    key: type.id,
-                    label: type.label,
-                    note: type.archived ? t("RoleModal.archived") : undefined,
-                    path: `recordGrants.${index}`,
-                    access: RECORD_TYPE_ACCESS,
-                    data: { "data-record-permission": type.id },
-                  }),
-                )}
-              </div>
-            </div>
-          </AppCardBody>
+                        {store.context?.types.map((type, index) =>
+                          renderAccessRow({
+                            key: type.id,
+                            label: type.label,
+                            note: type.archived ? t("RoleModal.archived") : undefined,
+                            path: `recordGrants.${index}`,
+                            access: RECORD_TYPE_ACCESS,
+                            data: { "data-record-permission": type.id },
+                          }),
+                        )}
+                      </div>
+                    </div>
+                  </AppCardBody>
+                ),
+              },
+            ]}
+          />
 
           <FormActions showInitially anchorScope="role-modal" overrideDisabled={isDisabledOrSystemRole} store={store} />
         </AppCard>

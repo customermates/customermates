@@ -3428,6 +3428,7 @@
     "create": "Créer",
     "delete": "Supprimer",
     "edit": "Modifier",
+    "general": "Général",
     "manageAccess": "Gérer",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
     "readAccess": "Accès en lecture",
@@ -3450,7 +3451,8 @@
     "systemAlert": "Il s'agit d'un rôle système qui ne peut être ni modifié ni supprimé.",
     "systemDescription": "Accès complet à toutes les fonctionnalités et à tous les paramètres. Ne peut être ni modifié ni supprimé.",
     "systemName": "Administrateur",
-    "title": "Rôle"
+    "title": "Rôle",
+    "workspacePermissions": "Espace de travail"
   },
   "RolesCard": {
     "custom": "Personnalisé",

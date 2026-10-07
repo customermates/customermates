@@ -609,7 +609,7 @@ Read, create or edit roles with system permissions and access to any configured 
 **Can delete data.** Required: `action`. Optional: `roleId`, `typeIds`, `role`, `deletion`.
 {/* /mcp-catalog */}
 
-No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates, edits or deletes roles or API keys; `get_workspace_context` returns no plan or trial data either. Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as it does in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). The subscription, roles and API keys are managed in the app: **My Company → Subscription**, **My Company → Roles** and **My Profile → API & Connectors**.
+No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; roles are managed with `manage_roles`; `get_workspace_context` returns no plan or trial data either. Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as it does in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). The subscription and API keys are managed in the app, under **My Company → Subscription** and **My Profile → API & Connectors**; roles can also be edited under **My Company → Roles**.
 
 **Link:** the **Subscription** page, `/company/subscription` (cloud only), the **Roles** page, `/company/roles`, and the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, `nav-company-roles` or `nav-profile-api-keys`, and `highlight_element` with `company-roles-add` for **Add** on **Roles**.
 
