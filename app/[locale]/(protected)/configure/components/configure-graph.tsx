@@ -2,7 +2,8 @@
 
 import "@xyflow/react/dist/style.css";
 
-import type { Edge, EdgeProps, Node, NodeProps } from "@xyflow/react";
+import type { ReactNode } from "react";
+import type { Edge, EdgeProps, Node, NodeChange, NodeProps } from "@xyflow/react";
 import type { RecordField, RecordModel, RecordRelationship } from "@/features/records/record-model.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 import type {
@@ -13,8 +14,19 @@ import type {
 } from "./configure-graph-model";
 import type { ConfigureGraphPosition, ConfigureGraphRoute } from "./configure-graph-layout";
 import type { ConfigureGraphLayout } from "@/features/p13n/p13n-settings.schema";
+import type { ConfigureListAddKind } from "./configure-add-menu";
 
-import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import {
@@ -40,6 +52,8 @@ import { AppLink } from "@/components/shared/app-link";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -58,6 +72,7 @@ import {
   GRAPH_VISIBLE_FIELDS,
 } from "./configure-graph-layout";
 import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
+import { ConfigureListAddItems } from "./configure-add-menu";
 
 export type ConfigureGraphAccounts =
   | { state: "available"; accounts: ConfigureGraphSource[] }
@@ -68,22 +83,30 @@ type Props = {
   model: RecordModel;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
-  layout: ConfigureGraphLayout["positions"] | null;
-  onLayoutChange: (layout: ConfigureGraphLayout["positions"] | null) => void;
+  layout: ConfigureGraphLayout | null;
+  onLayoutChange: (layout: ConfigureGraphLayout | null) => void;
   showArchived: boolean;
   canManage: boolean;
+  canAddSublist: boolean;
   disabled: boolean;
   onSelectList: (typeId: string) => void;
   onEditField: (typeId: string, field: RecordField) => void;
-  onAddField: (typeId: string) => void;
+  onAdd: (typeId: string, kind: ConfigureListAddKind) => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onConnect: (sourceTypeId: string, targetTypeId: string) => void;
 };
 
 type GraphActions = Pick<
   Props,
-  "canManage" | "disabled" | "onSelectList" | "onEditField" | "onAddField" | "onEditRelationship"
-> & { labelOf: (typeId: string) => string; listOf: (items: string[]) => string };
+  "canManage" | "canAddSublist" | "disabled" | "onSelectList" | "onEditField" | "onAdd" | "onEditRelationship"
+> & {
+  labelOf: (typeId: string) => string;
+  singularOf: (typeId: string) => string;
+  listOf: (items: string[]) => string;
+  hasChannels: (typeId: string) => boolean;
+  isExpanded: (nodeId: string) => boolean;
+  toggleExpanded: (nodeId: string) => void;
+};
 
 const GraphActionsContext = createContext<GraphActions | null>(null);
 
@@ -126,13 +149,60 @@ type ListNode = Node<{ list: ConfigureGraphList }, "list">;
 type AccountsNode = Node<{ accounts: ConfigureGraphSource[] }, "accounts">;
 type PromptNode = Node<{ state: "available" | "locked" }, "prompt">;
 
+function MoreToggle({ nodeId, label }: { nodeId: string; label: string }) {
+  const t = useTranslations();
+  const { isExpanded, toggleExpanded } = useGraphActions();
+  const open = isExpanded(nodeId);
+  return (
+    <li>
+      <button
+        aria-expanded={open}
+        className="nodrag flex h-9 w-full items-center px-3.5 ps-[2.375rem] text-left text-sm text-muted-foreground outline-none hover:bg-accent/50 hover:text-foreground focus-visible:bg-accent/60"
+        data-configure-more={nodeId}
+        type="button"
+        onClick={() => toggleExpanded(nodeId)}
+      >
+        {open ? t("RecordModel.graph.showFewer") : label}
+      </button>
+    </li>
+  );
+}
+
+function NodeFooter({ children }: { children: ReactNode }) {
+  return <div className="border-t border-border px-3.5 py-2 text-sm text-muted-foreground">{children}</div>;
+}
+
+function CountLabel({ count, unit }: { count: number; unit: string }) {
+  const intlStore = useHydratedIntlStore();
+  return (
+    <span className="flex items-baseline gap-1">
+      <span className="text-base font-semibold text-foreground tabular-nums">{intlStore.formatNumber(count)}</span>
+
+      <span>{unit}</span>
+    </span>
+  );
+}
+
 function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   const t = useTranslations();
-  const intlStore = useHydratedIntlStore();
-  const { canManage, disabled, labelOf, listOf, onSelectList, onEditField, onAddField } = useGraphActions();
+  const {
+    canManage,
+    canAddSublist,
+    disabled,
+    labelOf,
+    singularOf,
+    listOf,
+    hasChannels,
+    isExpanded,
+    onSelectList,
+    onEditField,
+    onAdd,
+  } = useGraphActions();
   const Icon = recordTypeIcon(list.type.icon);
-  const visible = list.fields.slice(0, GRAPH_VISIBLE_FIELDS);
-  const hidden = list.fields.length - visible.length;
+  const open = isExpanded(list.type.id);
+  const visible = open ? list.fields : list.fields.slice(0, GRAPH_VISIBLE_FIELDS);
+  const hidden = list.fields.length - GRAPH_VISIBLE_FIELDS;
+  const addLabel = t("RecordModel.graph.addTo", { list: list.type.pluralLabel });
   return (
     <div
       className={cn(
@@ -143,49 +213,65 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
     >
       <NodeHandles connectable={canManage && !disabled} />
 
-      <button
-        aria-label={list.type.pluralLabel}
-        className="flex w-full items-center gap-2.5 rounded-t-xl px-3.5 pt-3 pb-2.5 text-left outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:pointer-events-none"
-        disabled={disabled}
-        type="button"
-        onClick={() => onSelectList(list.type.id)}
-      >
-        <Icon aria-hidden className="size-4 shrink-0" />
+      <div className="flex items-center gap-1 rounded-t-xl pe-2">
+        <button
+          aria-label={list.type.pluralLabel}
+          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-tl-xl px-3.5 pt-3 pb-2.5 text-left outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:pointer-events-none"
+          disabled={disabled}
+          type="button"
+          onClick={() => onSelectList(list.type.id)}
+        >
+          <Icon aria-hidden className="size-4 shrink-0" />
 
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-base font-semibold">{list.type.pluralLabel}</span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-base font-semibold">{list.type.pluralLabel}</span>
 
-          {list.parentId && (
-            <span className="block truncate text-sm text-muted-foreground">
-              {t("RecordModel.graph.partOf", { list: labelOf(list.parentId) })}
-            </span>
-          )}
-        </span>
-
-        {(list.type.archived || (!list.type.navigationVisible && !list.type.embedded)) && (
-          <AppChip className="shrink-0" variant="secondary">
-            {list.type.archived ? t("RecordModel.archived") : t("RecordModel.hiddenList")}
-          </AppChip>
-        )}
-      </button>
-
-      {list.recordCount !== undefined && (
-        <div className="border-y border-border px-3.5 py-2 text-sm text-muted-foreground" data-configure-node-count="">
-          {list.recordCount === null ? (
-            t("RecordModel.graph.recordsRestricted")
-          ) : (
-            <span className="flex items-baseline gap-1">
-              <span className="text-base font-semibold text-foreground tabular-nums">
-                {intlStore.formatNumber(list.recordCount)}
+            {list.parentId && (
+              <span className="block truncate text-sm text-muted-foreground">
+                {t("RecordModel.graph.sublistOf", { list: labelOf(list.parentId) })}
               </span>
+            )}
+          </span>
 
-              <span>{t("RecordModel.graph.recordUnit", { count: list.recordCount })}</span>
-            </span>
+          {(list.type.archived || (!list.type.navigationVisible && !list.type.embedded)) && (
+            <AppChip className="shrink-0" variant="secondary">
+              {list.type.archived ? t("RecordModel.archived") : t("RecordModel.hiddenList")}
+            </AppChip>
           )}
-        </div>
+        </button>
+
+        {canManage && !list.type.archived && (
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button aria-label={addLabel} className="nodrag" disabled={disabled} size="icon-sm" variant="ghost">
+                    <Plus aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+
+              <TooltipContent>{addLabel}</TooltipContent>
+            </Tooltip>
+
+            <DropdownMenuContent align="end">
+              <ConfigureListAddItems
+                channels={!list.type.embedded && !hasChannels(list.type.id)}
+                sublist={canAddSublist && !list.type.embedded}
+                onAdd={(kind) => onAdd(list.type.id, kind)}
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+
+      {list.parentId && (
+        <p className="px-3.5 pb-2 text-xs text-muted-foreground" data-configure-sublist-explanation="">
+          {t("RecordModel.sublistExplanation", { parent: singularOf(list.parentId) })}
+        </p>
       )}
 
-      <ul aria-label={t("RecordModel.fields")} className="py-1">
+      <ul aria-label={t("RecordModel.fields")} className="border-t border-border py-1">
         {visible.map(({ field, calculated, sources }) => {
           const detail =
             calculated && sources.length ? t("RecordModel.graph.calculatedFrom", { sources: listOf(sources) }) : null;
@@ -229,43 +315,45 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         })}
 
         {hidden > 0 && (
-          <li>
-            <button
-              className="nodrag flex h-9 w-full items-center px-3.5 ps-[2.375rem] text-left text-sm text-muted-foreground outline-none hover:bg-accent/50 hover:text-foreground focus-visible:bg-accent/60 disabled:pointer-events-none"
-              disabled={disabled}
-              type="button"
-              onClick={() => onSelectList(list.type.id)}
-            >
-              {t("RecordModel.graph.moreFields", { count: hidden })}
-            </button>
-          </li>
-        )}
-
-        {canManage && (
-          <li>
-            <button
-              aria-label={t("RecordModel.graph.addFieldTo", { list: list.type.pluralLabel })}
-              className="nodrag flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm text-primary outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none disabled:opacity-60"
-              disabled={disabled}
-              type="button"
-              onClick={() => onAddField(list.type.id)}
-            >
-              <Plus aria-hidden className="size-3.5" />
-
-              {t("RecordModel.addField")}
-            </button>
-          </li>
+          <MoreToggle label={t("RecordModel.graph.moreFields", { count: hidden })} nodeId={list.type.id} />
         )}
       </ul>
+
+      {list.recordCount !== undefined && (
+        <NodeFooter>
+          {list.recordCount === null ? (
+            t("RecordModel.graph.recordsRestricted")
+          ) : list.type.embedded ? (
+            <CountLabel
+              count={list.recordCount}
+              unit={t("RecordModel.graph.recordUnit", { count: list.recordCount })}
+            />
+          ) : (
+            <AppLink
+              appearance="unstyled"
+              className="nodrag inline-flex rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+              data-configure-node-count=""
+              draggable={false}
+              href={`/records/${list.type.id}`}
+            >
+              <CountLabel
+                count={list.recordCount}
+                unit={t("RecordModel.graph.recordUnit", { count: list.recordCount })}
+              />
+            </AppLink>
+          )}
+        </NodeFooter>
+      )}
     </div>
   );
 }
 
 function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
   const t = useTranslations();
-  const intlStore = useHydratedIntlStore();
-  const visible = accounts.slice(0, GRAPH_VISIBLE_ACCOUNTS);
-  const hidden = accounts.length - visible.length;
+  const { isExpanded } = useGraphActions();
+  const open = isExpanded(ACCOUNTS_NODE_ID);
+  const visible = open ? accounts : accounts.slice(0, GRAPH_VISIBLE_ACCOUNTS);
+  const hidden = accounts.length - GRAPH_VISIBLE_ACCOUNTS;
   return (
     <div
       className="w-[22rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm"
@@ -273,15 +361,16 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
     >
       <NodeHandles connectable={false} />
 
-      <div className="flex items-center gap-2.5 px-3.5 pt-3 pb-2.5">
+      <AppLink
+        appearance="unstyled"
+        className="flex items-center gap-2.5 rounded-t-xl px-3.5 pt-3 pb-2.5 outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        draggable={false}
+        href={CONNECTED_ACCOUNTS_HREF}
+      >
         <Cable aria-hidden className="size-4 shrink-0" />
 
         <span className="min-w-0 flex-1 truncate text-base font-semibold">{t("RecordModel.graph.accounts")}</span>
-
-        <AppLink className="nodrag shrink-0 text-sm" href={CONNECTED_ACCOUNTS_HREF}>
-          {t("RecordModel.graph.manage")}
-        </AppLink>
-      </div>
+      </AppLink>
 
       <ul aria-label={t("RecordModel.graph.accounts")} className="border-t border-border py-1">
         {visible.map((account) => {
@@ -307,25 +396,20 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
         })}
 
         {hidden > 0 && (
-          <li>
-            <AppLink
-              appearance="unstyled"
-              className="nodrag flex h-12 w-full items-center px-3.5 ps-[2.625rem] text-sm text-muted-foreground outline-none hover:bg-accent/50 hover:text-foreground focus-visible:bg-accent/60"
-              href={CONNECTED_ACCOUNTS_HREF}
-            >
-              {t("RecordModel.graph.moreAccounts", { count: hidden })}
-            </AppLink>
-          </li>
+          <MoreToggle label={t("RecordModel.graph.moreAccounts", { count: hidden })} nodeId={ACCOUNTS_NODE_ID} />
         )}
       </ul>
 
-      <div className="flex items-baseline gap-1 border-t border-border px-3.5 py-2 text-sm text-muted-foreground">
-        <span className="text-base font-semibold text-foreground tabular-nums">
-          {intlStore.formatNumber(accounts.length)}
-        </span>
-
-        <span>{t("RecordModel.graph.accountUnit", { count: accounts.length })}</span>
-      </div>
+      <NodeFooter>
+        <AppLink
+          appearance="unstyled"
+          className="nodrag inline-flex rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+          draggable={false}
+          href={CONNECTED_ACCOUNTS_HREF}
+        >
+          <CountLabel count={accounts.length} unit={t("RecordModel.graph.accountUnit", { count: accounts.length })} />
+        </AppLink>
+      </NodeFooter>
     </div>
   );
 }
@@ -518,24 +602,44 @@ function edgeLanes(edges: readonly { id: string; source: string; target: string 
   return lanes;
 }
 
-const nodeTypes = { list: ListNodeView, accounts: AccountsNodeView, prompt: PromptNodeView };
+function SublistGroupView() {
+  return (
+    <div
+      aria-hidden
+      className="size-full rounded-2xl border border-dashed border-border bg-muted/40"
+      data-configure-sublist-group=""
+    />
+  );
+}
+
+const GROUP_PADDING = 12;
+const SUBLIST_GROUP_PREFIX = "sublists:";
+
+const nodeTypes = {
+  list: ListNodeView,
+  accounts: AccountsNodeView,
+  prompt: PromptNodeView,
+  sublists: SublistGroupView,
+};
 const edgeTypes = { graph: GraphEdgeView };
 
 function ConfigureGraphCanvas({
   model,
   catalog,
   accounts,
-  layout: saved,
+  layout,
   onLayoutChange,
   showArchived,
   canManage,
+  canAddSublist,
   disabled,
   onSelectList,
   onEditField,
-  onAddField,
+  onAdd,
   onEditRelationship,
   onConnect,
 }: Props) {
+  const saved = layout && Object.keys(layout.positions).length ? layout.positions : null;
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
@@ -558,7 +662,7 @@ function ConfigureGraphCanvas({
   const flow = useReactFlow<Node, GraphEdge>();
   const [ready, setReady] = useState(false);
   const [measured, setMeasured] = useState<ReadonlyMap<string, { width: number; height: number }>>(new Map());
-  const { nodes, edges, positions } = useMemo(() => {
+  const { nodes, edges, positions, sublists } = useMemo(() => {
     const sources = accounts.state === "available" ? accounts.accounts : [];
     const data = configureGraphData(model, catalog, sources, showArchived, connectPrompt);
     const layout = configureGraphLayout(data, canManage, connectPrompt, measured, direction ?? "TB");
@@ -597,7 +701,12 @@ function ConfigureGraphCanvas({
       targetHandle: "top",
       data: { edge, route, anchors, lane: lanes.get(id) ?? 0 },
     }));
-    return { nodes, edges, positions: placement };
+    const sublists = new Map<string, string[]>();
+    for (const list of data.lists) {
+      if (list.parentId && placement.has(list.parentId))
+        sublists.set(list.parentId, [...(sublists.get(list.parentId) ?? []), list.type.id]);
+    }
+    return { nodes, edges, positions: placement, sublists };
   }, [model, catalog, accounts, showArchived, connectPrompt, canManage, measured, direction, saved]);
   const [flowNodes, setFlowNodes] = useState<Node[]>(nodes);
   useEffect(
@@ -634,33 +743,119 @@ function ConfigureGraphCanvas({
       .catch(reportApplicationError);
   }, [ready, flow, measured, flowNodes, positions, direction]);
   const listIds = useMemo(() => new Set(model.types.map((type) => type.id)), [model.types]);
+  const groups = useMemo<Node[]>(
+    () =>
+      [...sublists].flatMap(([parentId, childIds]) => {
+        const members = [parentId, ...childIds].flatMap((id) => flowNodes.filter((node) => node.id === id));
+        if (members.length < 2 || members.some((node) => !node.measured?.width || !node.measured.height)) return [];
+        const left = Math.min(...members.map((node) => node.position.x)) - GROUP_PADDING;
+        const top = Math.min(...members.map((node) => node.position.y)) - GROUP_PADDING;
+        const right = Math.max(...members.map((node) => node.position.x + (node.measured?.width ?? 0))) + GROUP_PADDING;
+        const bottom =
+          Math.max(...members.map((node) => node.position.y + (node.measured?.height ?? 0))) + GROUP_PADDING;
+        const size = { width: right - left, height: bottom - top };
+        return [
+          {
+            id: `${SUBLIST_GROUP_PREFIX}${parentId}`,
+            type: "sublists",
+            position: { x: left, y: top },
+            ...size,
+            measured: size,
+            data: {},
+            className: "!pointer-events-none",
+            draggable: false,
+            selectable: false,
+            focusable: false,
+            zIndex: -1,
+          },
+        ];
+      }),
+    [flowNodes, sublists],
+  );
+  const displayNodes = useMemo(() => [...groups, ...flowNodes], [groups, flowNodes]);
+  const withSublists = (changes: NodeChange[], current: Node[]) => {
+    const moved = new Set(changes.flatMap((change) => (change.type === "position" ? [change.id] : [])));
+    const followers = changes.flatMap((change): NodeChange[] => {
+      if (change.type !== "position" || !change.position) return [];
+      const before = current.find((node) => node.id === change.id);
+      if (!before) return [];
+      const dx = change.position.x - before.position.x;
+      const dy = change.position.y - before.position.y;
+      return (sublists.get(change.id) ?? []).flatMap((childId) => {
+        const child = current.find((node) => node.id === childId);
+        return child && !moved.has(childId)
+          ? [
+              {
+                type: "position" as const,
+                id: childId,
+                position: { x: child.position.x + dx, y: child.position.y + dy },
+                dragging: change.dragging,
+              },
+            ]
+          : [];
+      });
+    });
+    return [
+      ...changes.filter((change) => !("id" in change) || !change.id.startsWith(SUBLIST_GROUP_PREFIX)),
+      ...followers,
+    ];
+  };
+  const persistLayout = useCallback(
+    async (next: ConfigureGraphLayout | null) => {
+      onLayoutChange(next);
+      await saveGraphLayout(next);
+    },
+    [onLayoutChange],
+  );
   const keepLayout = () =>
     runUserAction(async () => {
       const positions = Object.fromEntries(
         Object.entries(saved ?? {}).filter(([id]) => listIds.has(id) || id === ACCOUNTS_NODE_ID),
       );
-      for (const node of flow.getNodes())
-        positions[node.id] = { x: Math.round(node.position.x), y: Math.round(node.position.y) };
-      onLayoutChange(positions);
-      await saveGraphLayout({ positions });
+      for (const node of flow.getNodes()) {
+        if (listIds.has(node.id) || node.id === ACCOUNTS_NODE_ID)
+          positions[node.id] = { x: Math.round(node.position.x), y: Math.round(node.position.y) };
+      }
+      await persistLayout({ positions, expanded: layout?.expanded });
     });
   const resetLayout = async () => {
     placed.current = null;
-    onLayoutChange(null);
-    await saveGraphLayout(null);
+    await persistLayout(null);
   };
   const actions = useMemo<GraphActions>(
     () => ({
       canManage,
+      canAddSublist,
       disabled,
       labelOf: (typeId) => model.types.find((type) => type.id === typeId)?.pluralLabel ?? "",
+      singularOf: (typeId) => model.types.find((type) => type.id === typeId)?.label ?? "",
       listOf: (items) => new Intl.ListFormat(locale, { style: "short", type: "unit" }).format(items),
+      hasChannels: (typeId) => recordChannelsEnabled(model, typeId),
+      isExpanded: (nodeId) => layout?.expanded?.includes(nodeId) ?? false,
+      toggleExpanded: (nodeId) =>
+        runUserAction(async () => {
+          const current = layout?.expanded ?? [];
+          const expanded = current.includes(nodeId) ? current.filter((id) => id !== nodeId) : [...current, nodeId];
+          await persistLayout({ positions: layout?.positions ?? {}, expanded });
+        }),
       onSelectList,
       onEditField,
-      onAddField,
+      onAdd,
       onEditRelationship,
     }),
-    [canManage, disabled, locale, model.types, onSelectList, onEditField, onAddField, onEditRelationship],
+    [
+      canManage,
+      canAddSublist,
+      disabled,
+      layout,
+      locale,
+      model,
+      onSelectList,
+      onEditField,
+      onAdd,
+      onEditRelationship,
+      persistLayout,
+    ],
   );
   return (
     <GraphActionsContext.Provider value={actions}>
@@ -690,7 +885,7 @@ function ConfigureGraphCanvas({
           maxZoom={1.5}
           minZoom={0.2}
           nodeTypes={nodeTypes}
-          nodes={flowNodes}
+          nodes={displayNodes}
           nodesConnectable={canManage && !disabled}
           nodesDraggable={!disabled && !coarsePointer}
           nodesFocusable={false}
@@ -711,7 +906,9 @@ function ConfigureGraphCanvas({
           }}
           onInit={() => setReady(true)}
           onNodeDragStop={keepLayout}
-          onNodesChange={(changes) => setFlowNodes((current) => applyNodeChanges(changes, current))}
+          onNodesChange={(changes) =>
+            setFlowNodes((current) => applyNodeChanges(withSublists(changes, current), current))
+          }
         >
           <Background
             className="!bg-background"
@@ -731,7 +928,12 @@ function ConfigureGraphCanvas({
               { label: t("RecordModel.graph.zoomIn"), icon: ZoomIn, run: () => flow.zoomIn(), off: false },
               { label: t("RecordModel.graph.zoomOut"), icon: ZoomOut, run: () => flow.zoomOut(), off: false },
               { label: t("RecordModel.graph.fitView"), icon: Maximize, run: () => flow.fitView(FIT_VIEW), off: false },
-              { label: t("RecordModel.graph.resetLayout"), icon: RotateCcw, run: resetLayout, off: !saved || disabled },
+              {
+                label: t("RecordModel.graph.resetLayout"),
+                icon: RotateCcw,
+                run: resetLayout,
+                off: !layout || disabled,
+              },
             ].map(({ label, icon: Icon, run, off }) => (
               <Tooltip key={label}>
                 <TooltipTrigger asChild>

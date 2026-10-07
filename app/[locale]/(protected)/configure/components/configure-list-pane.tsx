@@ -29,8 +29,9 @@ import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { cn } from "@/core/utils/cn";
 import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 
-import { configureCounts, configureFieldSource, configurePathLists } from "./configure-model";
+import { configureCounts, configureFieldSource, configureParentId, configurePathLists } from "./configure-model";
 import { ModelChangeRecovery } from "./model-change-recovery";
+import { configureCardinality } from "./configure-graph-model";
 import { TypeSettingsFields } from "./type-modal";
 
 type ActivityPath = RecordModel["activityPaths"][number];
@@ -142,7 +143,10 @@ function SortableField({
       ref={sortable.setNodeRef}
       className={cn("group relative bg-card", sortable.isDragging && "z-10 shadow-md")}
       data-configure-field={id}
-      style={{ transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
+      style={{
+        transform: CSS.Translate.toString(sortable.transform),
+        transition: sortable.transition,
+      }}
     >
       {enabled && (
         <button
@@ -205,10 +209,14 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   const dndId = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
   const Icon = recordTypeIcon(selected.icon);
   const counts = configureCounts(model, selected.id);
+  const parentId = configureParentId(model, selected);
+  const parent = parentId ? model.types.find((type) => type.id === parentId) : undefined;
   const editingGeneral = canManage && general.original?.id === selected.id;
   const order = editingGeneral
     ? general.form.fieldOrder
@@ -338,11 +346,26 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                       (type) => type.id === (outgoing ? relation.targetTypeId : relation.sourceTypeId),
                     );
                     return (
-                      <li key={relation.id} data-configure-relationship-row={relation.id}>
+                      <li key={relation.id} className="bg-card" data-configure-relationship-row={relation.id}>
                         <ConfigureRow
-                          detail={other?.pluralLabel}
+                          detail={[
+                            t(
+                              `RecordModel.cardinality.${configureCardinality(
+                                outgoing
+                                  ? relation
+                                  : {
+                                      sourceCardinality: relation.targetCardinality,
+                                      targetCardinality: relation.sourceCardinality,
+                                    },
+                              )}`,
+                            ),
+                            other?.pluralLabel,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
                           interactive={interactive}
                           label={outgoing ? relation.sourceLabel : relation.targetLabel}
+                          leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
                           status={relation.archived ? t("RecordModel.archived") : null}
                           onOpen={canManage ? () => onEditRelationship(relation) : undefined}
                         />
@@ -351,7 +374,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                   })}
 
                   {paths.map((path) => (
-                    <li key={path.id}>
+                    <li key={path.id} className="bg-card">
                       <ConfigureRow
                         detail={[
                           t("RecordModel.relationshipPath"),
@@ -361,6 +384,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                           .join(" · ")}
                         interactive={interactive}
                         label={path.label}
+                        leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
                         status={path.archived ? t("RecordModel.archived") : null}
                         onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
                       />
@@ -415,6 +439,12 @@ export const ConfigureListPane = observer(function ConfigureListPane({
 
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">{selected.pluralLabel}</h1>
+
+            {parent && (
+              <p className="text-sm text-muted-foreground" data-configure-sublist-explanation="">
+                {`${t("RecordModel.graph.sublistOf", { list: parent.pluralLabel })} · ${t("RecordModel.sublistExplanation", { parent: parent.label })}`}
+              </p>
+            )}
 
             <p className="text-sm text-muted-foreground">
               {t("RecordModel.listCounts", counts)}

@@ -2941,10 +2941,12 @@
     "addInput": "Eingabe hinzufügen",
     "addMenu": {
       "activityConnection": "Aktivitätsverbindung",
-      "calculation": "Berechnung",
+      "calculation": "Berechnetes Feld",
+      "channels": "Kanäle",
       "field": "Feld",
       "list": "Liste",
-      "relationship": "Verknüpfung"
+      "relationship": "Verknüpfung",
+      "sublist": "Unterliste"
     },
     "addOption": "Option hinzufügen",
     "addPathStep": "Beziehungsschritt hinzufügen",
@@ -3023,6 +3025,7 @@
     "constant": "Fester Wert",
     "createdAt": "Erstellt am",
     "createList": "Liste erstellen",
+    "createSublist": "Neue Unterliste von {list}",
     "currency": "Währung",
     "decimalPlaces": "Dezimalstellen",
     "decimalPlacesHelp": "Für die Standardeinstellung leer lassen. Dies ändert die Anzeige der Werte, nicht ihre Berechnung.",
@@ -3074,7 +3077,7 @@
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",
       "accounts": "Verbundene Konten",
       "accountUnit": "{count, plural, one {Konto} other {Konten}}",
-      "addFieldTo": "Feld zu {list} hinzufügen",
+      "addTo": "Zu {list} hinzufügen",
       "calculatedFrom": "aus {sources}",
       "calculationEdge": "Aus dieser Liste berechnet: {fields}",
       "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
@@ -3085,14 +3088,14 @@
       "help": "Wählen Sie eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehen Sie vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
       "helpReadOnly": "Wählen Sie eine Liste, um sie zu öffnen. Linien zeigen, wie Listen zusammenhängen und woher berechnete Werte stammen.",
       "label": "Grafik der Listen, Felder und verbundenen Konten",
-      "manage": "Verwalten",
       "moreAccounts": "{count, plural, one {# weiteres Konto} other {# weitere Konten}}",
       "moreFields": "{count, plural, one {# weiteres Feld} other {# weitere Felder}}",
-      "partOf": "Teil von {list}",
       "recordsRestricted": "Anzahl der Datensätze nicht verfügbar",
       "recordUnit": "{count, plural, one {Datensatz} other {Datensätze}}",
       "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
       "resetLayout": "Layout zurücksetzen",
+      "showFewer": "Weniger anzeigen",
+      "sublistOf": "Unterliste von {list}",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern"
     },
@@ -3383,6 +3386,7 @@
         "singular": "Aufgabe"
       }
     },
+    "sublistExplanation": "Jeder Eintrag gehört zu genau einem Datensatz in {parent}, wird darin bearbeitet, teilt dessen Zugriff und wird mit ihm gelöscht.",
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
     "summaryField": "Feld für die Übersicht",

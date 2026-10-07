@@ -5,19 +5,7 @@ import type { RecordModel, RecordType } from "@/features/records/record-model.sc
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
-import {
-  Activity,
-  Archive,
-  ArchiveRestore,
-  Calculator,
-  LayoutList,
-  Link2,
-  List,
-  MoreHorizontal,
-  Plus,
-  TextCursorInput,
-  Trash2,
-} from "lucide-react";
+import { Activity, Archive, ArchiveRestore, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { FormActions } from "@/components/card/form-actions";
@@ -31,9 +19,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useDefinitionDeletion } from "./use-definition-deletion";
+import { recordChannelsEnabled } from "@/features/records/record-channels";
 
-export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "activity";
+import { useDefinitionDeletion } from "./use-definition-deletion";
+import { ConfigureListAddItems, type ConfigureListAddKind } from "./configure-add-menu";
+
+export type ConfigureAddKind = "list" | "activity" | ConfigureListAddKind;
 
 type Props = {
   ai: ReactNode;
@@ -43,6 +34,7 @@ type Props = {
   generalFormId: string;
   selected?: RecordType;
   hasArchived: boolean;
+  canAddSublist: boolean;
   showArchived: boolean;
   onToggleArchived: () => void;
   onAdd: (kind: ConfigureAddKind) => void;
@@ -60,6 +52,7 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   generalFormId,
   selected,
   hasArchived,
+  canAddSublist,
   showArchived,
   onToggleArchived,
   onAdd,
@@ -153,23 +146,11 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onSelect={() => onAdd("field")}>
-              <TextCursorInput aria-hidden="true" />
-
-              {t("RecordModel.addMenu.field")}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem onSelect={() => onAdd("calculation")}>
-              <Calculator aria-hidden="true" />
-
-              {t("RecordModel.addMenu.calculation")}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem onSelect={() => onAdd("relationship")}>
-              <Link2 aria-hidden="true" />
-
-              {t("RecordModel.addMenu.relationship")}
-            </DropdownMenuItem>
+            <ConfigureListAddItems
+              channels={!recordChannelsEnabled(model, selected.id)}
+              sublist={canAddSublist && !selected.embedded}
+              onAdd={onAdd}
+            />
 
             <DropdownMenuItem onSelect={() => onAdd("activity")}>
               <Activity aria-hidden="true" />

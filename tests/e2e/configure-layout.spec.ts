@@ -131,7 +131,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   ]);
   await page.keyboard.press("Escape");
 
-  await addFromConfigure(page, "Calculation");
+  await addFromConfigure(page, "Calculated field");
   await expect(dialog.getByText("Add field", { exact: true })).toBeVisible();
   await expect(dialog.getByRole("combobox", { name: "Value source", exact: true })).toContainText("Calculated");
   await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(1);
@@ -284,7 +284,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
       new RegExp(`^${dealCount.rows[0].count}\\s*records?$`),
     );
     await expect(deals.locator(`[data-configure-graph-field="${id("deal.name")}"]`)).toContainText("Name");
-    await expect(graph.locator(`[data-configure-node="${id("lineItem")}"]`)).toContainText("Part of Deals");
+    await expect(graph.locator(`[data-configure-node="${id("lineItem")}"]`)).toContainText("Sub-list of Deals");
     await expect(graph.locator("[data-configure-source]")).toHaveCount(1);
     await fitView();
     for (const node of await graph.locator("[data-configure-node]").all()) await expect(node).toBeInViewport();
@@ -349,7 +349,8 @@ test("shows the data model graph and edits lists, fields and relationships from 
   });
 
   await test.step("add field starts from a card and a new list from the top bar", async () => {
-    await graph.getByRole("button", { name: "Add field to Services", exact: true }).click();
+    await graph.getByRole("button", { name: "Add to Services", exact: true }).click();
+    await page.getByRole("menuitem", { name: "Field", exact: true }).click();
     await expect(dialog.getByText("Add field", { exact: true })).toBeVisible();
     await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
     await expect(dialog).not.toBeVisible();

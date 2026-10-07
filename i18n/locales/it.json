@@ -2941,10 +2941,12 @@
     "addInput": "Aggiungi input",
     "addMenu": {
       "activityConnection": "Collegamento attività",
-      "calculation": "Calcolo",
+      "calculation": "Campo calcolato",
+      "channels": "Canali",
       "field": "Campo",
       "list": "Lista",
-      "relationship": "Relazione"
+      "relationship": "Relazione",
+      "sublist": "Sottoelenco"
     },
     "addOption": "Aggiungi opzione",
     "addPathStep": "Aggiungi un passaggio di relazione",
@@ -3023,6 +3025,7 @@
     "constant": "Valore fisso",
     "createdAt": "Creato il",
     "createList": "Crea elenco",
+    "createSublist": "Nuovo sottoelenco di {list}",
     "currency": "Valuta",
     "decimalPlaces": "Cifre decimali",
     "decimalPlacesHelp": "Lascia vuoto per usare il formato predefinito. Cambia la visualizzazione dei valori, non il loro calcolo.",
@@ -3074,7 +3077,7 @@
       "accountEdge": "Sincronizza le conversazioni in {list}",
       "accounts": "Account collegati",
       "accountUnit": "{count, plural, one {account} other {account}}",
-      "addFieldTo": "Aggiungi campo a {list}",
+      "addTo": "Aggiungi a {list}",
       "calculatedFrom": "da {sources}",
       "calculationEdge": "Calcolato da questa lista: {fields}",
       "connectDescription": "Collega Gmail, Outlook o un altro canale per portare le conversazioni nelle tue liste.",
@@ -3085,14 +3088,14 @@
       "help": "Seleziona una lista o un campo per modificarlo, il chip su una linea per modificare una relazione oppure trascina dal punto di una lista a un’altra per collegarle.",
       "helpReadOnly": "Seleziona una lista per aprirla. Le linee mostrano come sono collegate le liste e da dove provengono i valori calcolati.",
       "label": "Grafico di liste, campi e account collegati",
-      "manage": "Gestisci",
       "moreAccounts": "{count, plural, one {# altro account} other {altri # account}}",
       "moreFields": "{count, plural, one {# altro campo} other {altri # campi}}",
-      "partOf": "Parte di {list}",
       "recordsRestricted": "Numero di record non disponibile",
       "recordUnit": "{count, plural, one {record} other {record}}",
       "relationshipLabel": "{label}: {source} verso {target}, {cardinality}",
       "resetLayout": "Ripristina layout",
+      "showFewer": "Mostra meno",
+      "sublistOf": "Sottoelenco di {list}",
       "zoomIn": "Ingrandisci",
       "zoomOut": "Riduci"
     },
@@ -3383,6 +3386,7 @@
         "singular": "Attività"
       }
     },
+    "sublistExplanation": "Ogni voce appartiene a un record di {parent}, si modifica al suo interno, ne condivide l’accesso e viene eliminata con esso.",
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",
     "summaryField": "Campo del riepilogo",

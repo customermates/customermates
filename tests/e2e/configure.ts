@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
 
-export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Activity connection";
+export type ConfigureAddItem = "List" | "Field" | "Calculated field" | "Sub-list" | "Relationship" | "Activity connection";
 export type ConfigureSection = "Fields" | "Relationships" | "Activity connections";
 
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
