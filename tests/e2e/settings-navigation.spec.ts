@@ -24,6 +24,7 @@ async function openSidebar(page: Page) {
       return element !== null && Object.keys(element).some((key) => key.startsWith("__reactProps"));
     }),
   );
+  await page.waitForFunction(() => !document.querySelector('[data-mobile="true"][data-state="closed"]'));
   if (!(await page.locator("#nav-workspace-menu").isVisible())) await page.locator("#sidebar-trigger").click();
   await expect(page.locator("#nav-workspace-menu")).toBeVisible();
 }
@@ -47,7 +48,13 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await openSidebar(page);
     for (const removed of ["Workspace", "Admin"])
       await expect(page.locator(`[data-sidebar-section-label="${removed}"]`)).toHaveCount(0);
-    for (const removed of ["#nav-profile", "#nav-company", "#nav-documentation", "#nav-feedback", "#nav-customize-sidebar"])
+    for (const removed of [
+      "#nav-profile",
+      "#nav-company",
+      "#nav-documentation",
+      "#nav-feedback",
+      "#nav-customize-sidebar",
+    ])
       await expect(page.locator(removed)).toHaveCount(0);
   });
 
@@ -91,32 +98,42 @@ test("settings live in one area reached from the workspace menu, with Back to th
   expect(errors).toEqual([]);
 });
 
-test("the personal menu holds profile, theme, docs, feedback and customize", async ({
-  page,
-  database,
-  workspace,
-}) => {
+test("the personal menu holds profile, theme, docs, feedback and customize", async ({ page, database, workspace }) => {
   const errors = collectErrors(page);
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
 
   let menu = await openMenu(page, "#nav-personal-menu");
-  for (const item of ["Profile & preferences", "Keyboard shortcuts", "Documentation", "Send feedback", "Customize sidebar", "Sign Out"])
+  for (const item of [
+    "Profile & preferences",
+    "Keyboard shortcuts",
+    "Documentation",
+    "Send feedback",
+    "Customize sidebar",
+    "Sign Out",
+  ])
     await expect(menu.getByRole("menuitem", { name: item, exact: true })).toBeVisible();
 
   await menu.getByRole("menuitem", { name: "Theme", exact: true }).click();
   await page.getByRole("menuitemradio", { name: "Dark", exact: true }).click();
   await expect(page.locator("html")).toHaveClass(/\bdark\b/);
   await expect
-    .poll(async () => (await database.query<{ theme: string }>('SELECT theme FROM "User" WHERE id=$1', [workspace.userId])).rows[0]?.theme)
+    .poll(
+      async () =>
+        (await database.query<{ theme: string }>('SELECT theme FROM "User" WHERE id=$1', [workspace.userId])).rows[0]
+          ?.theme,
+    )
     .toBe("dark");
-  await page.keyboard.press("Escape");
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator("html")).toHaveClass(/\bdark\b/);
 
   menu = await openMenu(page, "#nav-personal-menu");
   await menu.getByRole("menuitem", { name: "Send feedback", exact: true }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
+  const feedback = page.getByRole("dialog", { name: "Share Your Feedback" });
+  await expect(feedback).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(feedback).toHaveCount(0);
 
   menu = await openMenu(page, "#nav-personal-menu");
   await menu.getByRole("menuitem", { name: "Profile & preferences", exact: true }).click();
