@@ -282,12 +282,12 @@ describe("proxy locale routing", () => {
   });
 
   it("negotiates an unprefixed application path into any routing locale", async () => {
-    const subscription = await call("/company/subscription", "fr-FR,fr;q=0.9");
+    const subscription = await call("/settings/plan", "fr-FR,fr;q=0.9");
     expect(subscription.status).toBe(307);
     expect(
       subscription.location,
       "an application page exists in every routing locale, so the reader keeps their own language",
-    ).toContain("/fr/company/subscription");
+    ).toContain("/fr/settings/plan");
     expect(subscription.response.headers.get("vary")).toBe("accept-language, cookie");
 
     const contact = await call("/contact", "fr-FR,fr;q=0.9");

@@ -18,6 +18,7 @@ import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
 import { failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const Schema = z.object({
   plan: z.enum([SubscriptionPlan.starter, SubscriptionPlan.pro, SubscriptionPlan.business]),
@@ -47,7 +48,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
 
     const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
     const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
-    const redirectUrl = `${baseUrl}/company/subscription`;
+    const redirectUrl = `${baseUrl}${settingsHref("plan")}`;
     const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
       offer,
       quantity: activeUsersCount,

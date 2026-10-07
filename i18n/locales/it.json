@@ -749,7 +749,6 @@
     "title": "Crea una chiave API"
   },
   "ApiKeysCard": {
-    "title": "API e connettori",
     "unnamed": "Senza nome"
   },
   "AuditLogModal": {
@@ -800,8 +799,7 @@
   "AuditLogsCard": {
     "emptyBody": "Le modifiche allo spazio di lavoro vengono registrate qui man mano che avvengono.",
     "emptyTitle": "Ancora nessuna attività",
-    "searchTooltip": "Cerca per ID elemento",
-    "title": "Registri di controllo"
+    "searchTooltip": "Cerca per ID elemento"
   },
   "AuthSocialErrors": {
     "accessDenied": "L'accesso è stato annullato presso il provider.",
@@ -2442,15 +2440,12 @@
     "addEntity": "Aggiungi {entity}",
     "addPickerDescription": "Scegli il tipo di record che vuoi creare.",
     "addPickerTitle": "Crea nuovo…",
-    "admin": "Amministrazione",
     "affiliate": "Programma di affiliazione",
-    "connectedAccounts": "Canali",
     "dashboard": "Dashboard",
     "data": "Dati",
     "docs": "Documentazione",
     "features": "Funzionalità",
     "inbox": "Posta in arrivo",
-    "members": "Membri",
     "operator": "Console operatore",
     "overview": "Panoramica",
     "pricing": "Prezzi",
@@ -2504,9 +2499,7 @@
     "routines": "Routine",
     "search": "Cerca",
     "settings": "Impostazioni",
-    "subscription": "Abbonamento",
-    "wiki": "Base di conoscenza",
-    "workspace": "Area di lavoro"
+    "wiki": "Base di conoscenza"
   },
   "NotFoundPage": {
     "body": "Siamo stati avvisati automaticamente che questa pagina è andata in vacanza. La rintracceremo e la riporteremo presto qui!",
@@ -3520,8 +3513,7 @@
   },
   "RolesCard": {
     "custom": "Personalizzato",
-    "system": "Sistema",
-    "title": "Ruoli"
+    "system": "Sistema"
   },
   "RoutineAdministration": {
     "help": "Come amministratore aziendale, puoi sospendere o eliminare questa routine, ma non puoi modificarla, testarla né eseguirla.",
@@ -3680,6 +3672,20 @@
     "thursday": "Giovedì",
     "tuesday": "Martedì",
     "wednesday": "Mercoledì"
+  },
+  "SettingsNav": {
+    "account": "Account",
+    "activity": "Attività",
+    "apiKeys": "Chiavi API",
+    "back": "Indietro",
+    "channels": "Canali",
+    "deliveries": "Consegne",
+    "members": "Membri",
+    "plan": "Piano",
+    "profile": "Profilo e preferenze",
+    "roles": "Ruoli",
+    "webhooks": "Webhook",
+    "workspace": "Workspace"
   },
   "SidebarCustomize": {
     "deleteSection": "Elimina sezione",
@@ -3849,13 +3855,13 @@
   },
   "UserAvatar": {
     "company": "La mia azienda",
-    "darkMode": "Tema scuro",
     "documentation": "Documentazione",
     "home": "Home",
-    "lightMode": "Tema chiaro",
-    "profile": "Il mio profilo",
-    "settings": "Impostazioni",
-    "signOut": "Esci"
+    "keyboardShortcuts": "Scorciatoie da tastiera",
+    "menu": "Menu personale",
+    "sendFeedback": "Invia feedback",
+    "signOut": "Esci",
+    "theme": "Tema"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Definisce la lingua dell'interfaccia: etichette, pulsanti e così via.",
@@ -3882,8 +3888,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "I tentativi di consegna appariranno qui quando viene attivato un webhook.",
-    "emptyTitle": "Ancora nessuna consegna",
-    "title": "Invii recenti"
+    "emptyTitle": "Ancora nessuna consegna"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Creato il",
@@ -3917,8 +3922,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Aggiungi un webhook per inviare gli eventi dello spazio di lavoro ai tuoi sistemi.",
-    "emptyTitle": "Ancora nessun webhook",
-    "title": "Webhook"
+    "emptyTitle": "Ancora nessun webhook"
   },
   "Wiki": {
     "conflict": "Questa pagina è cambiata. Le tue modifiche sono ancora qui. Ricarica per usare l’ultima versione.",
@@ -4028,5 +4032,9 @@
     },
     "tryAnother": "Prova un altro sito",
     "unavailable": "La configurazione con Mate non è disponibile al momento. Potrai creare pagine in seguito dalla base di conoscenza."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Invita membri",
+    "label": "Menu del workspace"
   }
 }

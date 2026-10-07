@@ -13,7 +13,10 @@ import remarkGfm from "remark-gfm";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
-import { hasNotesDiff, NotesDiff } from "@/app/[locale]/(protected)/company/components/audit-log/notes-diff";
+import {
+  hasNotesDiff,
+  NotesDiff,
+} from "@/app/[locale]/(protected)/settings/(workspace)/components/audit-log/notes-diff";
 import { isEmpty, partitionRelationIds } from "@/features/audit-log/audit-log-changes";
 
 import { AppCard } from "@/components/card/app-card";

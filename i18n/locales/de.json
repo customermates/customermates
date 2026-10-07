@@ -749,7 +749,6 @@
     "title": "API-Schlüssel erstellen"
   },
   "ApiKeysCard": {
-    "title": "API & Konnektoren",
     "unnamed": "Unbenannt"
   },
   "AuditLogModal": {
@@ -800,8 +799,7 @@
   "AuditLogsCard": {
     "emptyBody": "Änderungen im Workspace werden hier protokolliert.",
     "emptyTitle": "Noch keine Aktivität",
-    "searchTooltip": "Nach Element-ID suchen",
-    "title": "Audit-Logs"
+    "searchTooltip": "Nach Element-ID suchen"
   },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
@@ -2442,15 +2440,12 @@
     "addEntity": "{entity} hinzufügen",
     "addPickerDescription": "Wähle den Typ des Datensatzes, den du anlegen möchtest.",
     "addPickerTitle": "Neu anlegen…",
-    "admin": "Administration",
     "affiliate": "Affiliate-Programm",
-    "connectedAccounts": "Kanäle",
     "dashboard": "Dashboard",
     "data": "Daten",
     "docs": "Dokumentation",
     "features": "Features",
     "inbox": "Posteingang",
-    "members": "Mitglieder",
     "operator": "Operator-Konsole",
     "overview": "Übersicht",
     "pricing": "Preise",
@@ -2504,9 +2499,7 @@
     "routines": "Routinen",
     "search": "Suchen",
     "settings": "Einstellungen",
-    "subscription": "Abonnement",
-    "wiki": "Wissensdatenbank",
-    "workspace": "Workspace"
+    "wiki": "Wissensdatenbank"
   },
   "NotFoundPage": {
     "body": "Wir wurden automatisch benachrichtigt, dass diese Seite in den Urlaub gefahren ist. Wir werden sie finden und bald zurückbringen!",
@@ -3520,8 +3513,7 @@
   },
   "RolesCard": {
     "custom": "Benutzerdefiniert",
-    "system": "System",
-    "title": "Rollen"
+    "system": "System"
   },
   "RoutineAdministration": {
     "help": "Als Unternehmensadmin kannst du diese Routine pausieren oder löschen, aber nicht bearbeiten, testen oder ausführen.",
@@ -3680,6 +3672,20 @@
     "thursday": "Donnerstag",
     "tuesday": "Dienstag",
     "wednesday": "Mittwoch"
+  },
+  "SettingsNav": {
+    "account": "Konto",
+    "activity": "Aktivität",
+    "apiKeys": "API-Schlüssel",
+    "back": "Zurück",
+    "channels": "Kanäle",
+    "deliveries": "Zustellungen",
+    "members": "Mitglieder",
+    "plan": "Tarif",
+    "profile": "Profil & Einstellungen",
+    "roles": "Rollen",
+    "webhooks": "Webhooks",
+    "workspace": "Workspace"
   },
   "SidebarCustomize": {
     "deleteSection": "Abschnitt löschen",
@@ -3849,13 +3855,13 @@
   },
   "UserAvatar": {
     "company": "Mein Unternehmen",
-    "darkMode": "Dunkler Modus",
     "documentation": "Dokumentation",
     "home": "Startseite",
-    "lightMode": "Heller Modus",
-    "profile": "Mein Profil",
-    "settings": "Einstellungen",
-    "signOut": "Abmelden"
+    "keyboardShortcuts": "Tastenkürzel",
+    "menu": "Persönliches Menü",
+    "sendFeedback": "Feedback senden",
+    "signOut": "Abmelden",
+    "theme": "Design"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Steuert die UI-Sprache: Beschriftungen, Schaltflächen, etc.",
@@ -3882,8 +3888,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",
-    "emptyTitle": "Noch keine Zustellungen",
-    "title": "Letzte Zustellungen"
+    "emptyTitle": "Noch keine Zustellungen"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Erstellt am",
@@ -3917,8 +3922,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Füge einen Webhook hinzu, um Workspace-Ereignisse an deine Systeme zu senden.",
-    "emptyTitle": "Noch keine Webhooks",
-    "title": "Webhooks"
+    "emptyTitle": "Noch keine Webhooks"
   },
   "Wiki": {
     "conflict": "Diese Seite wurde geändert. Deine Änderungen sind noch vorhanden. Lade die neueste Version, um fortzufahren.",
@@ -4028,5 +4032,9 @@
     },
     "tryAnother": "Andere Website versuchen",
     "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Mitglieder einladen",
+    "label": "Workspace-Menü"
   }
 }

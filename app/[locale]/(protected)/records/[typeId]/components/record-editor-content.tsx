@@ -30,6 +30,7 @@ import { useRecordDeletion } from "./use-record-deletion";
 import { RecordActivitiesPanel } from "@/features/messaging/activities/record-activities-panel";
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const RecordEditorRecovery = observer(function RecordEditorRecovery({ store }: { store: RecordEditorStore }) {
   const t = useTranslations();
@@ -156,7 +157,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
               {t.rich("Common.systemTasks.userPendingAuthorization.alert", {
                 link: (chunks) =>
                   store.presentation.systemActions?.includes("manageMembership") ? (
-                    <AppLink inheritSize appearance="inline" href="/company/members">
+                    <AppLink inheritSize appearance="inline" href={settingsHref("members")}>
                       {chunks}
                     </AppLink>
                   ) : (

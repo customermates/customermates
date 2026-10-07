@@ -18,7 +18,7 @@ import {
   findAgentUiTarget,
   isToolbarSearchTarget,
 } from "../ui-targets";
-import { WORKSPACE_SECTIONS } from "@/app/components/navigation/workspace-sections";
+import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
 
 function componentSource(): string {
   return [
@@ -83,17 +83,17 @@ describe("agent interface targets", () => {
     }
   });
 
-  it("knows the sidebar group of every workspace entry without claiming the group must be opened first", () => {
+  it("reaches every settings entry through the workspace menu without claiming it must be opened first", () => {
     for (const target of AGENT_UI_TARGETS.filter((candidate) => candidate.id.startsWith("nav-")))
       expect(target.prerequisite, target.id).toBeUndefined();
-    for (const section of ["profile", "company"] as const) {
-      expect(agentSidebarGroupId(`nav-${section}`), section).toBeNull();
-      for (const subroute of WORKSPACE_SECTIONS[section])
-        expect(agentSidebarGroupId(`nav-${section}-${subroute.slug}`), subroute.slug).toBe(`nav-${section}`);
+    for (const section of ["account", "workspace"] as const) {
+      for (const subroute of SETTINGS_SECTIONS[section])
+        expect(agentSidebarGroupId(`nav-settings-${subroute.slug}`), subroute.slug).toBe("nav-workspace-menu");
     }
+    expect(agentSidebarGroupId("nav-workspace-menu")).toBeNull();
     expect(agentSidebarGroupId("nav-dashboard")).toBeNull();
     expect(agentSidebarGroupId("company-members-add")).toBeNull();
-    expect(agentSidebarGroupId("nav-company-unknown")).toBeNull();
+    expect(agentSidebarGroupId("nav-settings-unknown")).toBeNull();
   });
 
   it("recognises the toolbar search boxes that narrow screens collapse", () => {
@@ -110,22 +110,23 @@ describe("agent interface targets", () => {
         resources.includes(resource);
     const everything = () => true;
 
-    expect(agentRouteVisible("/company/webhooks", "cloud", reads(Resource.users))).toBe(false);
-    expect(agentRouteVisible("/company/members", "cloud", reads(Resource.users))).toBe(true);
-    expect(agentRouteVisible("/profile/api-keys", "cloud", reads(Resource.users))).toBe(false);
-    expect(agentRouteVisible("/profile/settings", "cloud", reads())).toBe(true);
+    expect(agentRouteVisible("/settings/webhooks", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/members", "cloud", reads(Resource.users))).toBe(true);
+    expect(agentRouteVisible("/settings/api-keys", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/settings/profile", "cloud", reads())).toBe(true);
     expect(agentRouteVisible("/dashboard", "cloud", reads())).toBe(true);
     expect(agentRouteVisible("/routines", "cloud", reads(Resource.wiki))).toBe(false);
     expect(agentRouteVisible("/routines", "cloud", reads(Resource.routines))).toBe(true);
     expect(agentRouteVisible("/inbox", "cloud", everything)).toBe(true);
-    for (const path of ["/inbox", "/routines", "/profile/connected-accounts", "/company/subscription"])
+    for (const path of ["/inbox", "/routines", "/settings/channels", "/settings/plan"])
       expect(agentRouteVisible(path, "self-hosted", everything), path).toBe(false);
     expect(agentRouteVisible("*", "cloud", reads())).toBe(true);
   });
 
   it("names every routable target's page with the label keys the sidebar can show", () => {
-    expect(agentUiPageLabelKeys("/company/members")).toEqual(["NavigationBar.members"]);
-    expect(agentUiPageLabelKeys("/profile/api-keys")).toEqual(["ApiKeysCard.title"]);
+    expect(agentUiPageLabelKeys("/settings/members")).toEqual(["SettingsNav.members"]);
+    expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys"]);
+    expect(agentUiPageLabelKeys("/settings/webhooks/deliveries")).toEqual(["SettingsNav.webhooks"]);
     expect(agentUiPageLabelKeys("/inbox")).toEqual(["NavigationBar.inbox"]);
     expect(agentUiPageLabelKeys("/routines")).toEqual(["NavigationBar.routines"]);
     expect(agentUiPageLabelKeys("*")).toEqual([]);
@@ -134,11 +135,11 @@ describe("agent interface targets", () => {
   });
 
   it("names every sidebar entry whose label is not its page's label with the key the sidebar shows", () => {
-    expect(findAgentUiTarget("nav-company")?.labelKey).toBe("UserAvatar.company");
-    expect(findAgentUiTarget("nav-profile")?.labelKey).toBe("UserAvatar.profile");
+    expect(findAgentUiTarget("nav-workspace-menu")?.labelKey).toBe("WorkspaceMenu.label");
+    expect(findAgentUiTarget("nav-personal-menu")?.labelKey).toBe("UserAvatar.menu");
     expect(findAgentUiTarget("nav-search")?.labelKey).toBe("NavigationBar.search");
-    expect(findAgentUiTarget("nav-documentation")?.labelKey).toBe("UserAvatar.documentation");
-    expect(findAgentUiTarget("nav-feedback")?.labelKey).toBe("Common.inputs.feedback");
+    for (const removed of ["nav-company", "nav-profile", "nav-documentation", "nav-feedback"])
+      expect(findAgentUiTarget(removed), removed).toBeNull();
     const sidebar = readFileSync(join(REPO_ROOT, "app", "components", "app-sidebar.tsx"), "utf8");
     for (const target of AGENT_UI_TARGETS.filter((candidate) => candidate.id.startsWith("nav-"))) {
       expect(Boolean(target.labelKey) || agentUiPageLabelKeys(target.route).length > 0, target.id).toBe(true);
@@ -188,7 +189,7 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("nav-company-data-model")).toBeNull();
     expect(findAgentUiTarget("nav-company-settings")).toBeNull();
     expect(findAgentUiTarget("company-settings-currency")).toBeNull();
-    expect(findAgentUiTarget("nav-company")?.route).toBe("/company/members");
+    expect(findAgentUiTarget("nav-settings-members")?.route).toBe("/settings/members");
   });
 
   it("points dialog field targets at the control that opens their dialog or tab", () => {

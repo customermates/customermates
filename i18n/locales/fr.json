@@ -749,7 +749,6 @@
     "title": "Créer une clé API"
   },
   "ApiKeysCard": {
-    "title": "API et connecteurs",
     "unnamed": "Sans nom"
   },
   "AuditLogModal": {
@@ -800,8 +799,7 @@
   "AuditLogsCard": {
     "emptyBody": "Les modifications de l’espace de travail sont enregistrées ici au fur et à mesure.",
     "emptyTitle": "Aucune activité pour le moment",
-    "searchTooltip": "Rechercher par ID d'élément",
-    "title": "Journaux d'audit"
+    "searchTooltip": "Rechercher par ID d'élément"
   },
   "AuthSocialErrors": {
     "accessDenied": "La connexion a été annulée chez le fournisseur.",
@@ -2442,15 +2440,12 @@
     "addEntity": "Ajouter {entity}",
     "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
     "addPickerTitle": "Créer…",
-    "admin": "Administration",
     "affiliate": "Programme d'affiliation",
-    "connectedAccounts": "Canaux",
     "dashboard": "Tableau de bord",
     "data": "Données",
     "docs": "Documentation",
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
-    "members": "Membres",
     "operator": "Console opérateur",
     "overview": "Aperçu",
     "pricing": "Tarifs",
@@ -2504,9 +2499,7 @@
     "routines": "Routines",
     "search": "Rechercher",
     "settings": "Paramètres",
-    "subscription": "Abonnement",
-    "wiki": "Base de connaissances",
-    "workspace": "Espace de travail"
+    "wiki": "Base de connaissances"
   },
   "NotFoundPage": {
     "body": "Nous avons été automatiquement informés que cette page est partie en vacances. Nous allons la retrouver et la ramener bientôt.",
@@ -3520,8 +3513,7 @@
   },
   "RolesCard": {
     "custom": "Personnalisé",
-    "system": "Système",
-    "title": "Rôles"
+    "system": "Système"
   },
   "RoutineAdministration": {
     "help": "En tant qu’administrateur de l’entreprise, vous pouvez suspendre ou supprimer cette routine, mais vous ne pouvez pas la modifier, la tester ni l’exécuter.",
@@ -3680,6 +3672,20 @@
     "thursday": "Jeudi",
     "tuesday": "Mardi",
     "wednesday": "Mercredi"
+  },
+  "SettingsNav": {
+    "account": "Compte",
+    "activity": "Activité",
+    "apiKeys": "Clés API",
+    "back": "Retour",
+    "channels": "Canaux",
+    "deliveries": "Livraisons",
+    "members": "Membres",
+    "plan": "Forfait",
+    "profile": "Profil et préférences",
+    "roles": "Rôles",
+    "webhooks": "Webhooks",
+    "workspace": "Espace de travail"
   },
   "SidebarCustomize": {
     "deleteSection": "Supprimer la section",
@@ -3849,13 +3855,13 @@
   },
   "UserAvatar": {
     "company": "Mon entreprise",
-    "darkMode": "Mode sombre",
     "documentation": "Documentation",
     "home": "Accueil",
-    "lightMode": "Mode clair",
-    "profile": "Mon profil",
-    "settings": "Paramètres",
-    "signOut": "Se déconnecter"
+    "keyboardShortcuts": "Raccourcis clavier",
+    "menu": "Menu personnel",
+    "sendFeedback": "Envoyer un avis",
+    "signOut": "Se déconnecter",
+    "theme": "Thème"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Détermine la langue de l'interface : libellés, boutons, etc.",
@@ -3882,8 +3888,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Les tentatives de livraison apparaîtront ici dès qu’un webhook sera déclenché.",
-    "emptyTitle": "Aucune livraison pour le moment",
-    "title": "Livraisons récentes"
+    "emptyTitle": "Aucune livraison pour le moment"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Créé le",
@@ -3917,8 +3922,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Ajoutez un webhook pour envoyer les événements de l’espace de travail à vos systèmes.",
-    "emptyTitle": "Aucun webhook pour le moment",
-    "title": "Webhooks"
+    "emptyTitle": "Aucun webhook pour le moment"
   },
   "Wiki": {
     "conflict": "Cette page a changé. Vos modifications sont toujours là. Rechargez pour utiliser la dernière version.",
@@ -4028,5 +4032,9 @@
     },
     "tryAnother": "Essayer un autre site",
     "unavailable": "La configuration avec Mate n’est pas disponible pour le moment. Vous pourrez créer des pages plus tard depuis la base de connaissances."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Inviter des membres",
+    "label": "Menu de l'espace de travail"
   }
 }

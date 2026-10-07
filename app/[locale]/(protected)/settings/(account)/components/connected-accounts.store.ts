@@ -18,7 +18,7 @@ import {
   setSelectedFoldersAction,
   startConnectAccountAction,
   startReconnectAccountAction,
-} from "../connected-accounts/actions";
+} from "../channels/actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 

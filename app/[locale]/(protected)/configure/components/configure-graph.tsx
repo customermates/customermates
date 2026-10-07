@@ -43,7 +43,10 @@ import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
-import { accountStatusChipColor, getProviderDisplayLabel } from "../../profile/components/account-status-color";
+import {
+  accountStatusChipColor,
+  getProviderDisplayLabel,
+} from "@/app/[locale]/(protected)/settings/(account)/components/account-status-color";
 import {
   configureGraphLayout,
   configureGraphViewport,
@@ -52,6 +55,7 @@ import {
   GRAPH_VISIBLE_FIELDS,
 } from "./configure-graph-layout";
 import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export type ConfigureGraphAccounts =
   | { state: "available"; accounts: ConfigureGraphSource[] }
@@ -272,7 +276,7 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
 
         <span className="min-w-0 flex-1 truncate text-base font-semibold">{t("RecordModel.graph.accounts")}</span>
 
-        <AppLink className="nodrag shrink-0 text-sm" href="/profile/connected-accounts">
+        <AppLink className="nodrag shrink-0 text-sm" href={settingsHref("channels")}>
           {t("RecordModel.graph.manage")}
         </AppLink>
       </div>
@@ -339,10 +343,7 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
 
       <div className="px-3.5 pt-2 pb-3">
         <Button asChild className="nodrag" size="xs" variant="secondary">
-          <AppLink
-            appearance="unstyled"
-            href={state === "locked" ? "/company/subscription" : "/profile/connected-accounts"}
-          >
+          <AppLink appearance="unstyled" href={state === "locked" ? settingsHref("plan") : settingsHref("channels")}>
             {state === "locked" ? t("MessagingUpsell.cta") : t("ConnectedAccountsCard.connectAccount")}
           </AppLink>
         </Button>

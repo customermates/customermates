@@ -874,7 +874,7 @@ describe("agent tools", () => {
         .split("\n")
         .find((line) => line.startsWith(`${id}|`));
 
-    expect(await lineOf("member-modal-role")).toBe("member-modal-role|/company/members|nh|>a member row");
+    expect(await lineOf("member-modal-role")).toBe("member-modal-role|/settings/members|nh|>a member row");
     expect(await lineOf("member-modal-save")).toContain("|>a member row");
     expect(await lineOf("webhook-modal-delete")).toContain("|>a webhook row");
     expect(await lineOf("role-modal-delete")).toContain("|>a role row");
@@ -884,8 +884,8 @@ describe("agent tools", () => {
     expect(await lineOf("connected-account-signature")).toContain("|>connected-account-tab-email");
     expect(await lineOf("widget-modal-save")).toBe("widget-modal-save|/dashboard|nh|>widget-modal-kind");
     expect(await lineOf("widget-modal-kind")).toBe("widget-modal-kind|/dashboard|nh|>dashboard-add-widget");
-    expect(await lineOf("nav-company-members")).toBe("nav-company-members|/company/members|nh");
-    expect(await lineOf("nav-profile-api-keys")).toBe("nav-profile-api-keys|/profile/api-keys|nh");
+    expect(await lineOf("nav-settings-members")).toBe("nav-settings-members|/settings/members|nh");
+    expect(await lineOf("nav-settings-api-keys")).toBe("nav-settings-api-keys|/settings/api-keys|nh");
     expect(await lineOf("widget-modal-reset")).toContain("|>a widget card");
     expect(await lineOf("webhook-modal-url")).toContain("|>company-webhooks-add");
   });
@@ -921,7 +921,7 @@ describe("agent tools", () => {
     expect(result).toContain(`nav-records:${contactId}`);
     expect(result).toContain(`nav-records:${dealId}`);
     expect(result).toContain("nav-dashboard");
-    expect(result).not.toContain("nav-company-webhooks");
+    expect(result).not.toContain("nav-settings-webhooks");
     expect(result).not.toContain("nav-contacts|");
     recordNavigationHarness.types = [];
   });
@@ -954,7 +954,7 @@ describe("agent tools", () => {
     const tasks = String(await execute(tools.list_ui_targets, { query: "Aufgaben" }));
 
     expect(invite).not.toContain("No interface target matches");
-    for (const id of ["nav-company-members", "company-members-add", "invite-modal-tab-email", "invite-modal-send"])
+    for (const id of ["nav-settings-members", "company-members-add", "invite-modal-tab-email", "invite-modal-send"])
       expect(invite, id).toContain(`${id}|`);
     expect(invite).not.toContain("nav-deals|");
     expect(inbox).toContain("nav-inbox|/inbox|nh");
@@ -964,21 +964,19 @@ describe("agent tools", () => {
   });
 
   it.each([
-    ["Mein Unternehmen", "nav-company"],
-    ["Dokumentation", "nav-documentation"],
+    ["Workspace-Menü", "nav-workspace-menu"],
+    ["Persönliches Menü", "nav-personal-menu"],
     ["Suchen", "nav-search"],
-    ["perfil", "nav-profile"],
-    ["empresa", "nav-company"],
-    ["entreprise", "nav-company"],
-    ["profilo", "nav-profile"],
-    ["azienda", "nav-company"],
+    ["perfil", "nav-settings-profile"],
+    ["Miembros", "nav-settings-members"],
+    ["Forfait", "nav-settings-plan"],
+    ["profilo", "nav-settings-profile"],
+    ["Kanäle", "nav-settings-channels"],
     ["Buscar", "nav-search"],
     ["Rechercher", "nav-search"],
     ["Cerca", "nav-search"],
-    ["Documentación", "nav-documentation"],
-    ["Documentazione", "nav-documentation"],
-    ["Comentarios", "nav-feedback"],
-    ["Commentaires", "nav-feedback"],
+    ["Menú personal", "nav-personal-menu"],
+    ["Menu personnel", "nav-personal-menu"],
   ])("matches the localized sidebar name %s of a group or utility entry", async (query, id) => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
     const result = String(await execute(tools.list_ui_targets, { query }));
@@ -1019,10 +1017,10 @@ describe("agent tools", () => {
     ["Bandeja de entrada", "nav-inbox"],
     ["Boîte de réception", "nav-inbox"],
     ["Tableau de bord", "nav-dashboard"],
-    ["Registros de auditoría", "nav-company-audit-logs"],
-    ["Registri di controllo", "nav-company-audit-logs"],
-    ["API et connecteurs", "nav-profile-api-keys"],
-    ["La mia azienda", "nav-company"],
+    ["Menú personal", "nav-personal-menu"],
+    ["Chiavi API", "nav-settings-api-keys"],
+    ["Clés API", "nav-settings-api-keys"],
+    ["Menu del workspace", "nav-workspace-menu"],
   ])("answers the multi-word page name %s with that page instead of most of the catalog", async (query, id) => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
     const result = String(await execute(tools.list_ui_targets, { query }));
@@ -1034,20 +1032,19 @@ describe("agent tools", () => {
 
   it("lists an exact id first and still lists the targets it prefixes", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
-    const lines = String(await execute(tools.list_ui_targets, { query: "nav-company" }))
+    const lines = String(await execute(tools.list_ui_targets, { query: "nav-settings-webhooks" }))
       .split("\n")
       .filter((line) => line.includes("|"))
       .map((line) => line.split("|")[0]);
-    const prefixed = String(await execute(tools.list_ui_targets, { query: "nav-company-" }))
+    const prefixed = String(await execute(tools.list_ui_targets, { query: "nav-settings-" }))
       .split("\n")
       .filter((line) => line.includes("|"))
       .map((line) => line.split("|")[0]);
-    const subLinks = AGENT_UI_TARGETS.filter((target) => target.id.startsWith("nav-company-")).map(
+    const subLinks = AGENT_UI_TARGETS.filter((target) => target.id.startsWith("nav-settings-")).map(
       (target) => target.id,
     );
 
-    expect(lines[0]).toBe("nav-company");
-    expect(lines.slice(1)).toEqual(subLinks);
+    expect(lines[0]).toBe("nav-settings-webhooks");
     expect(prefixed).toEqual(subLinks);
 
     recordNavigationHarness.types = [
@@ -1073,7 +1070,7 @@ describe("agent tools", () => {
     const workflow = String(await execute(tools.list_ui_targets, { query: "connected accounts" }));
     const provider = String(await execute(tools.list_ui_targets, { query: "WhatsApp" }));
 
-    expect(workflow).toContain("nav-profile-connected-accounts");
+    expect(workflow).toContain("nav-settings-channels");
     expect(workflow).toContain("profile-connected-accounts-connect");
     expect(workflow).toMatch(/\n(?:end|nextCursor=\d+;total=\d+)$/);
     expect(provider).toContain("profile-connected-accounts-connect");
@@ -1122,7 +1119,7 @@ describe("agent tools", () => {
     await expect(
       execute(tools.start_tour, {
         steps: [
-          { targetId: "nav-company-webhooks", note: "Open webhooks." },
+          { targetId: "nav-settings-webhooks", note: "Open webhooks." },
           { targetId: "company-webhooks-layout-board", note: "Switch to the board." },
         ],
       }),
@@ -1297,7 +1294,7 @@ describe("agent tools", () => {
 
   it("keeps the head of a documentation result inside the admitted 512-character tool result", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
-    const excerpt = `## How do I connect a channel?\nOpen #nav-profile-connected-accounts, then #profile-connected-accounts-connect and choose WhatsApp.\n${"More detail. ".repeat(80)}`;
+    const excerpt = `## How do I connect a channel?\nOpen #nav-settings-channels, then #profile-connected-accounts-connect and choose WhatsApp.\n${"More detail. ".repeat(80)}`;
     vi.spyOn(searchDocsTool, "execute").mockResolvedValueOnce({
       text: `matches:\ndocs:app-profile#how-do-i-connect-a-channel\ndocs:app-inbox#do-i-need-a-connected-channel\ntotal=2\nbest=http://localhost:4000/en/docs/app-profile\nexcerpt=\n${excerpt}`,
       structuredContent: { results: [], total: 2 },
@@ -1333,7 +1330,7 @@ describe("agent tools", () => {
     expect(searchResult.result).toContain("app-profile");
     expect(pageResult).toMatchObject({ ok: true });
     expect(pageResult.result.length).toBeLessThanOrEqual(512);
-    expect(pageResult.result).toContain("nav-profile-connected-accounts");
+    expect(pageResult.result).toContain("nav-settings-channels");
     expect(pageResult.result).toContain("profile-connected-accounts-connect");
     expect(pageResult.result).toContain("WhatsApp");
   });

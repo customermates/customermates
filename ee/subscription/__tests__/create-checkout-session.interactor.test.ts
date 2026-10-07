@@ -81,7 +81,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       offer: expect.objectContaining({ id: "business:monthly" }),
       quantity: 4,
       custom: { company_id: COMPANY_ID },
-      redirectUrl: "https://feat-inbox.customermates.com/company/subscription",
+      redirectUrl: "https://feat-inbox.customermates.com/settings/plan",
     });
   });
 
@@ -97,7 +97,7 @@ describe("CreateCheckoutSessionInteractor", () => {
     await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
 
     expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
-      "https://customermates-git-feat-inbox-customermates.vercel.app/company/subscription",
+      "https://customermates-git-feat-inbox-customermates.vercel.app/settings/plan",
     );
   });
 

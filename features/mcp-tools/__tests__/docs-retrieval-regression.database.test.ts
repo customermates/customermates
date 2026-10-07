@@ -15,11 +15,11 @@ import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
 const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
-  ["en", "roles page URL", "/company/roles"],
-  ["en", "link to the roles page", "/company/roles"],
-  ["en", "link to the subscription page", "/company/subscription"],
-  ["en", "webhooks page URL", "/company/webhooks"],
-  ["en", "API keys page URL", "/profile/api-keys"],
+  ["en", "roles page URL", "/settings/roles"],
+  ["en", "link to the roles page", "/settings/roles"],
+  ["en", "link to the subscription page", "/settings/plan"],
+  ["en", "webhooks page URL", "/settings/webhooks"],
+  ["en", "API keys page URL", "/settings/api-keys"],
   ["en", "routines page URL", "/routines"],
   ["en", "URL of the routines page", "/routines"],
   ["en", "contacts page URL", "/records/<typeId>"],
@@ -27,41 +27,41 @@ const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["en", "tasks page URL", "/records/<typeId>"],
   ["en", "organizations page URL", "/records/<typeId>"],
   ["en", "link to the services page", "/records/<typeId>"],
-  ["de", "URL der Rollen-Seite", "/company/roles"],
-  ["de", "URL der Webhooks-Seite", "/company/webhooks"],
-  ["de", "URL der API-Keys-Seite", "/profile/api-keys"],
+  ["de", "URL der Rollen-Seite", "/settings/roles"],
+  ["de", "URL der Webhooks-Seite", "/settings/webhooks"],
+  ["de", "URL der API-Keys-Seite", "/settings/api-keys"],
   ["de", "Link zur Routinen-Seite", "/routines"],
   ["de", "URL der Kontakte-Seite", "/records/<typeId>"],
   ["de", "Link zur Aufgaben-Seite", "/records/<typeId>"],
   ["de", "URL der Organisationen-Seite", "/records/<typeId>"],
   ["de", "URL der Services-Seite", "/records/<typeId>"],
-  ["en", "webhooks route", "/company/webhooks"],
-  ["de", "Route Webhooks", "/company/webhooks"],
-  ["de", "URL der Profileinstellungen-Seite", "/profile/settings"],
-  ["de", "Link zur Profileinstellungen-Seite", "/profile/settings"],
-  ["de", "URL der Abonnement-Seite", "/company/subscription"],
+  ["en", "webhooks route", "/settings/webhooks"],
+  ["de", "Route Webhooks", "/settings/webhooks"],
+  ["de", "URL der Profileinstellungen-Seite", "/settings/profile"],
+  ["de", "Link zur Profileinstellungen-Seite", "/settings/profile"],
+  ["de", "URL der Abonnement-Seite", "/settings/plan"],
 ];
 
 const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
-  ["en", "how do I create a webhook", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
-  ["en", "create a webhook", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
-  ["en", "how do I add a webhook", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
-  ["de", "Wie lege ich einen Webhook an", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
-  ["de", "Wie füge ich einen Webhook hinzu", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
-  ["de", "Wo trage ich die Webhook-URL ein", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
-  ["de", "Webhook pausieren ohne ihn zu löschen", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
-  ["en", "webhooks route", "app-company#webhooks-tab", "/company/webhooks"],
-  ["de", "Route Webhooks", "app-company#webhooks-tab", "/company/webhooks"],
+  ["en", "how do I create a webhook", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
+  ["en", "create a webhook", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
+  ["en", "how do I add a webhook", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
+  ["de", "Wie lege ich einen Webhook an", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
+  ["de", "Wie füge ich einen Webhook hinzu", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
+  ["de", "Wo trage ich die Webhook-URL ein", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
+  ["de", "Webhook pausieren ohne ihn zu löschen", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
+  ["en", "webhooks route", "app-company#webhooks-tab", "/settings/webhooks"],
+  ["de", "Route Webhooks", "app-company#webhooks-tab", "/settings/webhooks"],
   ["en", "query_crm_records page size", "mcp#records", null],
-  ["en", "who can create API keys", "api-keys#who-can-create-and-see-api-keys", "/profile/api-keys"],
-  ["en", "how long do quick connection keys last", "api-keys#do-keys-expire", "/profile/api-keys"],
-  ["en", "API key name length", "api-keys#what-is-the-key-format", "/profile/api-keys"],
-  ["en", "who can see webhook secrets", "webhooks#who-can-see-and-change-webhooks", "/company/webhooks"],
-  ["en", "how do I debug a webhook delivery", "webhooks#how-do-i-debug-a-delivery", "/company/webhook-deliveries"],
-  ["de", "Laufen API-Keys ab", "api-keys#do-keys-expire", "/profile/api-keys"],
-  ["de", "Wie lang darf ein Key-Name sein", "api-keys#what-is-the-key-format", "/profile/api-keys"],
-  ["de", "Wer kann Webhooks sehen und ändern", "webhooks#who-can-see-and-change-webhooks", "/company/webhooks"],
-  ["de", "Wie debugge ich eine Delivery", "webhooks#how-do-i-debug-a-delivery", "/company/webhook-deliveries"],
+  ["en", "who can create API keys", "api-keys#who-can-create-and-see-api-keys", "/settings/api-keys"],
+  ["en", "how long do quick connection keys last", "api-keys#do-keys-expire", "/settings/api-keys"],
+  ["en", "API key name length", "api-keys#what-is-the-key-format", "/settings/api-keys"],
+  ["en", "who can see webhook secrets", "webhooks#who-can-see-and-change-webhooks", "/settings/webhooks"],
+  ["en", "how do I debug a webhook delivery", "webhooks#how-do-i-debug-a-delivery", "/settings/webhooks/deliveries"],
+  ["de", "Laufen API-Keys ab", "api-keys#do-keys-expire", "/settings/api-keys"],
+  ["de", "Wie lang darf ein Key-Name sein", "api-keys#what-is-the-key-format", "/settings/api-keys"],
+  ["de", "Wer kann Webhooks sehen und ändern", "webhooks#who-can-see-and-change-webhooks", "/settings/webhooks"],
+  ["de", "Wie debugge ich eine Delivery", "webhooks#how-do-i-debug-a-delivery", "/settings/webhooks/deliveries"],
   ["en", "where do I add a new contact", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
   ["en", "where do I see a list of all tasks", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
   ["en", "where do I see my services", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
@@ -81,68 +81,68 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-company#how-do-i-rename-record-types-in-the-data-model",
     "/configure",
   ],
-  ["en", "where do I see who changed what in the workspace", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["en", "where do I see who changed what in the workspace", "app-company#audit-logs-tab", "/settings/activity"],
   [
     "en",
     "Where do I resend the verification email?",
     "app-profile#how-do-i-verify-my-email-address",
-    "/profile/settings",
+    "/settings/profile",
   ],
-  ["en", "resend verification email", "app-profile#how-do-i-verify-my-email-address", "/profile/settings"],
+  ["en", "resend verification email", "app-profile#how-do-i-verify-my-email-address", "/settings/profile"],
   [
     "en",
     "Where is the Resend verification email button?",
     "app-profile#how-do-i-verify-my-email-address",
-    "/profile/settings",
+    "/settings/profile",
   ],
-  ["de", "Bestätigungs-E-Mail erneut senden", "app-profile#how-do-i-verify-my-email-address", "/profile/settings"],
+  ["de", "Bestätigungs-E-Mail erneut senden", "app-profile#how-do-i-verify-my-email-address", "/settings/profile"],
   [
     "de",
     "Wo sende ich die Verifizierungs-E-Mail erneut?",
     "app-profile#how-do-i-verify-my-email-address",
-    "/profile/settings",
+    "/settings/profile",
   ],
   ["en", "set up email with resend", "self-hosting#how-do-i-set-up-email-with-resend-and-can-i-use-smtp", null],
-  ["de", "Wo lade ich Mitglieder ein?", "app-company#how-do-invitations-work", "/company/members"],
-  ["de", "Wie lade ich Mitglieder ein?", "app-company#how-do-invitations-work", "/company/members"],
+  ["de", "Wo lade ich Mitglieder ein?", "app-company#how-do-invitations-work", "/settings/members"],
+  ["de", "Wie lade ich Mitglieder ein?", "app-company#how-do-invitations-work", "/settings/members"],
   [
     "de",
     "Wie entferne ich ein Mitglied",
     "app-company#how-do-i-approve-deactivate-or-edit-a-member",
-    "/company/members",
+    "/settings/members",
   ],
-  ["de", "Mitglied löschen", "app-company#how-do-i-approve-deactivate-or-edit-a-member", "/company/members"],
-  ["en", "how do I remove a member", "app-company#how-do-i-approve-deactivate-or-edit-a-member", "/company/members"],
+  ["de", "Mitglied löschen", "app-company#how-do-i-approve-deactivate-or-edit-a-member", "/settings/members"],
+  ["en", "how do I remove a member", "app-company#how-do-i-approve-deactivate-or-edit-a-member", "/settings/members"],
   [
     "en",
     "remove a user from my workspace",
     "app-company#how-do-i-approve-deactivate-or-edit-a-member",
-    "/company/members",
+    "/settings/members",
   ],
   ["en", "how do I add a new column", "concepts#how-do-i-add-change-or-delete-a-custom-column", null],
   ["de", "Wo lege ich die Währung fest", "app-company#where-is-the-currency-set", "/configure"],
-  ["de", "URL der Abonnement-Seite", "app-company#subscription-tab", "/company/subscription"],
-  ["en", "link to the members page", "app-company#members-tab", "/company/members"],
-  ["en", "link to the roles page", "app-company#roles-tab", "/company/roles"],
-  ["en", "link to the subscription page", "app-company#subscription-tab", "/company/subscription"],
-  ["en", "link to billing", "app-company#subscription-tab", "/company/subscription"],
+  ["de", "URL der Abonnement-Seite", "app-company#subscription-tab", "/settings/plan"],
+  ["en", "link to the members page", "app-company#members-tab", "/settings/members"],
+  ["en", "link to the roles page", "app-company#roles-tab", "/settings/roles"],
+  ["en", "link to the subscription page", "app-company#subscription-tab", "/settings/plan"],
+  ["en", "link to billing", "app-company#subscription-tab", "/settings/plan"],
   ["en", "where is the currency set", "app-company#where-is-the-currency-set", "/configure"],
-  ["en", "link to the audit logs", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["en", "link to the audit logs", "app-company#audit-logs-tab", "/settings/activity"],
   ["en", "link to the inbox", "app-inbox#what-is-the-inbox", "/inbox"],
-  ["en", "link to my profile settings", "app-profile#settings-tab", "/profile/settings"],
+  ["en", "link to my profile settings", "app-profile#settings-tab", "/settings/profile"],
   ["en", "link to the routines page", "app-routines#which-ids-does-the-page-have", "/routines"],
   ["en", "link to the onboarding wizard", "app-onboarding#what-are-the-three-steps", "/onboarding/wizard"],
-  ["en", "link to the API keys page", "api-keys#how-do-i-create-an-api-key", "/profile/api-keys"],
-  ["en", "Where is the Recent Deliveries page?", "app-company#deliveries-tab", "/company/webhook-deliveries"],
-  ["en", "Who can manage billing?", "app-company#who-can-manage-billing", "/company/subscription"],
+  ["en", "link to the API keys page", "api-keys#how-do-i-create-an-api-key", "/settings/api-keys"],
+  ["en", "Where is the Recent Deliveries page?", "app-company#deliveries-tab", "/settings/webhooks/deliveries"],
+  ["en", "Who can manage billing?", "app-company#who-can-manage-billing", "/settings/plan"],
   ["en", "Where do I set stage probabilities?", "app-company#how-do-stage-probabilities-and-totals-work", "/configure"],
   [
     "en",
     "What happens to my connected accounts if we switch to Starter?",
     "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
-    "/company/subscription",
+    "/settings/plan",
   ],
-  ["en", "create a custom role", "app-company#how-does-the-role-editor-work", "/company/roles"],
+  ["en", "create a custom role", "app-company#how-does-the-role-editor-work", "/settings/roles"],
   [
     "en",
     "Can I name contacts anything I want?",
@@ -183,21 +183,11 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-records#what-is-the-shared-layout-of-a-record-type",
     "/records/<typeId>",
   ],
-  [
-    "en",
-    "change the font of my outgoing emails",
-    "app-profile#email-appearance-and-signature",
-    "/profile/connected-accounts",
-  ],
-  ["en", "make a channel visible to teammates", "app-profile#private-or-shared", "/profile/connected-accounts"],
-  ["en", "change my password", "app-profile#what-can-i-not-change-here", "/profile/settings"],
+  ["en", "change the font of my outgoing emails", "app-profile#email-appearance-and-signature", "/settings/channels"],
+  ["en", "make a channel visible to teammates", "app-profile#private-or-shared", "/settings/channels"],
+  ["en", "change my password", "app-profile#what-can-i-not-change-here", "/settings/profile"],
   ["en", "Why is the inbox locked on Starter?", "app-inbox#who-can-use-the-inbox", "/inbox"],
-  [
-    "en",
-    "Can an admin read my private conversations?",
-    "app-inbox#which-conversations-do-i-see",
-    "/profile/connected-accounts",
-  ],
+  ["en", "Can an admin read my private conversations?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
   [
     "en",
     "write a new email to a contact",
@@ -210,12 +200,12 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "Can I skip onboarding?", "app-onboarding#can-i-skip-parts-of-the-onboarding", "/onboarding/wizard"],
   ["en", "Can I search contacts by email address?", "app-search#what-does-global-search-find", null],
   ["en", "Should I use searchTerm or a filter?", "filter-syntax#free-text-search-or-a-filter", null],
-  ["de", "Link zur Mitglieder-Seite", "app-company#members-tab", "/company/members"],
-  ["de", "Link zum Audit-Log", "app-company#audit-logs-tab", "/company/audit-logs"],
+  ["de", "Link zur Mitglieder-Seite", "app-company#members-tab", "/settings/members"],
+  ["de", "Link zum Audit-Log", "app-company#audit-logs-tab", "/settings/activity"],
   ["de", "Link zum Posteingang", "app-inbox#what-is-the-inbox", "/inbox"],
-  ["de", "Link zur Seite mit den API-Keys", "api-keys#how-do-i-create-an-api-key", "/profile/api-keys"],
+  ["de", "Link zur Seite mit den API-Keys", "api-keys#how-do-i-create-an-api-key", "/settings/api-keys"],
   ["de", "Link zur Routinen-Seite", "app-routines#which-ids-does-the-page-have", "/routines"],
-  ["de", "Webhook anlegen", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
+  ["de", "Webhook anlegen", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
   ["de", "Kommen Webhooks in der richtigen Reihenfolge an?", "webhooks#are-deliveries-ordered", null],
   ["de", "Kann ich Filter mit ODER verknüpfen?", "filter-syntax#what-does-a-filter-rule-look-like", null],
   ["de", "Kontakte ohne Organisation finden", "filter-syntax#which-relationship-operators-exist", null],
@@ -226,20 +216,15 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "/records/<typeId>",
   ],
   ["de", "Wie lege ich eine Automatisierung an?", "app-routines#how-do-i-create-a-routine", "/routines"],
-  ["de", "Kanal für Kollegen sichtbar machen", "app-profile#private-or-shared", "/profile/connected-accounts"],
+  ["de", "Kanal für Kollegen sichtbar machen", "app-profile#private-or-shared", "/settings/channels"],
   [
     "de",
     "Spam-Ordner im Posteingang ausblenden",
     "app-profile#what-does-the-folders-tab-control",
-    "/profile/connected-accounts",
+    "/settings/channels",
   ],
-  [
-    "de",
-    "Sieht der Admin meine privaten Chats?",
-    "app-inbox#which-conversations-do-i-see",
-    "/profile/connected-accounts",
-  ],
-  ["de", "Eigene Rolle anlegen", "app-company#how-does-the-role-editor-work", "/company/roles"],
+  ["de", "Sieht der Admin meine privaten Chats?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
+  ["de", "Eigene Rolle anlegen", "app-company#how-does-the-role-editor-work", "/settings/roles"],
   [
     "de",
     "Deals in Opportunities umbenennen",
@@ -259,39 +244,24 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-company#how-do-stage-probabilities-and-totals-work",
     "/configure",
   ],
-  [
-    "en",
-    "My Gmail channel says Reconnect needed",
-    "app-profile#what-does-each-status-mean",
-    "/profile/connected-accounts",
-  ],
-  [
-    "en",
-    "My Outlook channel shows Permission issue",
-    "app-profile#what-does-each-status-mean",
-    "/profile/connected-accounts",
-  ],
+  ["en", "My Gmail channel says Reconnect needed", "app-profile#what-does-each-status-mean", "/settings/channels"],
+  ["en", "My Outlook channel shows Permission issue", "app-profile#what-does-each-status-mean", "/settings/channels"],
   [
     "de",
     "Mein Gmail-Kanal zeigt Erneute Verbindung nötig",
     "app-profile#how-do-i-reactivate-resync-or-disconnect-a-channel",
-    "/profile/connected-accounts",
+    "/settings/channels",
   ],
   [
     "de",
     "Mein Outlook-Kanal zeigt Berechtigungsproblem",
     "app-profile#how-do-i-reactivate-resync-or-disconnect-a-channel",
-    "/profile/connected-accounts",
+    "/settings/channels",
   ],
-  ["en", "how do I connect Gmail", "app-profile#how-do-i-connect-a-channel", "/profile/connected-accounts"],
-  ["de", "Gmail verbinden", "app-profile#how-do-i-connect-a-channel", "/profile/connected-accounts"],
-  ["en", "Error connecting my Gmail channel", "app-profile#how-do-i-connect-a-channel", "/profile/connected-accounts"],
-  [
-    "de",
-    "Fehler beim Verbinden des Gmail-Kanals",
-    "app-profile#how-do-i-connect-a-channel",
-    "/profile/connected-accounts",
-  ],
+  ["en", "how do I connect Gmail", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
+  ["de", "Gmail verbinden", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
+  ["en", "Error connecting my Gmail channel", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
+  ["de", "Fehler beim Verbinden des Gmail-Kanals", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
   [
     "en",
     "LinkedIn rate limit error",
@@ -520,11 +490,11 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
         await Promise.all(
           (
             [
-              ["en", "where do I find the audit log", "app-company#audit-logs-tab", "/company/audit-logs"],
-              ["en", "Where can I find the roles?", "app-company#roles-tab", "/company/roles"],
-              ["en", "take me to the webhooks page", "app-company#webhooks-tab", "/company/webhooks"],
-              ["de", "Wo ist die Seite Kanäle?", "app-profile#channels-tab", "/profile/connected-accounts"],
-              ["de", "Wo finde ich das Audit-Log?", "app-company#audit-logs-tab", "/company/audit-logs"],
+              ["en", "where do I find the audit log", "app-company#audit-logs-tab", "/settings/activity"],
+              ["en", "Where can I find the roles?", "app-company#roles-tab", "/settings/roles"],
+              ["en", "take me to the webhooks page", "app-company#webhooks-tab", "/settings/webhooks"],
+              ["de", "Wo ist die Seite Kanäle?", "app-profile#channels-tab", "/settings/channels"],
+              ["de", "Wo finde ich das Audit-Log?", "app-company#audit-logs-tab", "/settings/activity"],
             ] as const
           ).map(async ([locale, query, expected, route]) => {
             const [best] = await searchHits(query, locale);
@@ -715,8 +685,8 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
 
   itHosted("answers a page-address question with a German page compound through that page's link line", async () => {
     for (const [query, route] of [
-      ["Link zur Mitgliederseite", "/company/members"],
-      ["Wo ist die Webhookseite?", "/company/webhooks"],
+      ["Link zur Mitgliederseite", "/settings/members"],
+      ["Wo ist die Webhookseite?", "/settings/webhooks"],
     ] as const) {
       const [best] = await searchHits(query, "de");
       expect(best, query).toBeDefined();
@@ -803,18 +773,18 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       query: "Walk me through connecting WhatsApp to the Customermates inbox.",
     });
     const bounded = result.slice(0, 512);
-    expect(bounded).toContain("nav-profile-connected-accounts");
+    expect(bounded).toContain("nav-settings-channels");
     expect(bounded).toContain("profile-connected-accounts-connect");
     expect(bounded).toContain("WhatsApp");
   });
 
   itHosted("excerpts the section search_docs names, with that section's own link line", async () => {
     for (const [locale, query, route] of [
-      ["en", "roles page URL", "/company/roles"],
-      ["de", "URL der Rollen-Seite", "/company/roles"],
-      ["de", "Wie lade ich ein Mitglied ein", "/company/members"],
-      ["en", "webhooks page URL", "/company/webhooks"],
-      ["de", "URL der Webhooks-Seite", "/company/webhooks"],
+      ["en", "roles page URL", "/settings/roles"],
+      ["de", "URL der Rollen-Seite", "/settings/roles"],
+      ["de", "Wie lade ich ein Mitglied ein", "/settings/members"],
+      ["en", "webhooks page URL", "/settings/webhooks"],
+      ["de", "URL der Webhooks-Seite", "/settings/webhooks"],
     ] as const) {
       const excerpt = await excerptOf("app-company", query, locale);
       expect(firstLinkLine(excerpt), `${locale} "${query}"`).toContain(`\`${route}\``);
@@ -825,11 +795,11 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
 
   it("puts the section a query names first and keeps its link line, steps included", async () => {
     for (const [locale, slug, heading, route] of [
-      ["en", "connect-custom-connector", "Can ChatGPT use an API key instead of OAuth?", "/profile/api-keys"],
-      ["de", "connect-custom-connector", "Kann ChatGPT statt OAuth einen API-Key nutzen?", "/profile/api-keys"],
-      ["en", "mcp", "Connect a client", "/profile/api-keys"],
-      ["en", "architecture-security", "How are webhook secrets and destinations secured?", "/company/webhooks"],
-      ["en", "app-profile", "Profile settings page", "/profile/settings"],
+      ["en", "connect-custom-connector", "Can ChatGPT use an API key instead of OAuth?", "/settings/api-keys"],
+      ["de", "connect-custom-connector", "Kann ChatGPT statt OAuth einen API-Key nutzen?", "/settings/api-keys"],
+      ["en", "mcp", "Connect a client", "/settings/api-keys"],
+      ["en", "architecture-security", "How are webhook secrets and destinations secured?", "/settings/webhooks"],
+      ["en", "app-profile", "Profile settings page", "/settings/profile"],
     ] as const) {
       const excerpt = await excerptOf(slug, heading, locale);
       const [firstLine] = excerpt.split("\n");
@@ -863,7 +833,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   it("keeps the step that answers a question in the words of that step, not a row that shares one word", async () => {
     const excerpt = await excerptOf("webhooks", "Wo trage ich die Webhook-URL ein", "de");
     expect(excerpt).toContain("**UI:** Um einen Webhook anzulegen");
-    expect(firstLinkLine(excerpt)).toContain("`/company/webhooks`");
+    expect(firstLinkLine(excerpt)).toContain("`/settings/webhooks`");
   });
 
   itHosted("answers a channel status question with the instruction to reactivate the channel", async () => {
@@ -873,7 +843,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("app-profile", query, locale);
       expect(excerpt, query).toContain(action);
-      expect(firstLinkLine(excerpt), query).toContain("`/profile/connected-accounts`");
+      expect(firstLinkLine(excerpt), query).toContain("`/settings/channels`");
     }
   });
 

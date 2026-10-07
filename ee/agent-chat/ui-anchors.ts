@@ -1,6 +1,7 @@
 import { Resource } from "@/generated/prisma";
 
-import { WORKSPACE_SECTIONS, type WorkspaceSection } from "@/app/components/navigation/workspace-sections";
+import { SETTINGS_SECTIONS, type SettingsSection } from "@/app/components/navigation/settings-sections";
+import { type SettingsSlug, settingsHref, WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
 
 export type AnchorPage = {
   scope: string;
@@ -27,22 +28,22 @@ export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
   { scope: "routines", route: "/routines", label: "routines" },
   {
     scope: "company-members",
-    route: "/company/members",
+    route: settingsHref("members"),
     label: "team members",
   },
-  { scope: "company-webhooks", route: "/company/webhooks", label: "webhooks" },
-  { scope: "company-roles", route: "/company/roles", label: "roles" },
+  { scope: "company-webhooks", route: settingsHref("webhooks"), label: "webhooks" },
+  { scope: "company-roles", route: settingsHref("roles"), label: "roles" },
 ];
 
 export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
   {
     scope: "company-audit-logs",
-    route: "/company/audit-logs",
+    route: settingsHref("activity"),
     label: "audit log entries",
   },
   {
     scope: "company-webhook-deliveries",
-    route: "/company/webhook-deliveries",
+    route: WEBHOOK_DELIVERIES_HREF,
     label: "webhook deliveries",
   },
 ];
@@ -50,25 +51,25 @@ export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
 export const FORM_PAGES: AnchorPage[] = [
   {
     scope: "profile-settings",
-    route: "/profile/settings",
+    route: settingsHref("profile"),
     label: "profile settings form",
     hiddenUntilDirty: true,
   },
   {
     scope: "member-modal",
-    route: "/company/members",
+    route: settingsHref("members"),
     label: "member dialog (roles with Manage only)",
     opener: "a member row",
   },
   {
     scope: "webhook-modal",
-    route: "/company/webhooks",
+    route: settingsHref("webhooks"),
     label: "webhook dialog (roles with API Manage only; open it first)",
     opener: "company-webhooks-add",
   },
   {
     scope: "role-modal",
-    route: "/company/roles",
+    route: settingsHref("roles"),
     label: "role dialog (roles with Manage only; disabled for the system role and your own role; open it first)",
     opener: "company-roles-add",
   },
@@ -103,7 +104,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "company-subscription",
-    route: "/company/subscription",
+    route: settingsHref("plan"),
     controls: [
       {
         control: "manage",
@@ -124,7 +125,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "profile-settings",
-    route: "/profile/settings",
+    route: settingsHref("profile"),
     controls: [
       {
         control: "verify-email",
@@ -153,7 +154,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "member-modal",
-    route: "/company/members",
+    route: settingsHref("members"),
     controls: [
       {
         control: "email",
@@ -196,7 +197,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "invite-modal",
-    route: "/company/members",
+    route: settingsHref("members"),
     controls: [
       {
         control: "tab-link",
@@ -232,7 +233,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "webhook-modal",
-    route: "/company/webhooks",
+    route: settingsHref("webhooks"),
     controls: [
       {
         control: "url",
@@ -278,7 +279,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "role-modal",
-    route: "/company/roles",
+    route: settingsHref("roles"),
     controls: [
       {
         control: "delete",
@@ -290,7 +291,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "webhook-delivery-modal",
-    route: "/company/webhook-deliveries",
+    route: WEBHOOK_DELIVERIES_HREF,
     controls: [
       {
         control: "resend",
@@ -302,7 +303,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "profile-api-keys",
-    route: "/profile/api-keys",
+    route: settingsHref("api-keys"),
     controls: [
       {
         control: "generate",
@@ -312,7 +313,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "api-key",
-    route: "/profile/api-keys",
+    route: settingsHref("api-keys"),
     controls: [
       {
         control: "option-standard",
@@ -343,7 +344,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "connected-account",
-    route: "/profile/connected-accounts",
+    route: settingsHref("channels"),
     controls: [
       {
         control: "tab-details",
@@ -438,48 +439,38 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
   },
 ];
 
-export const WORKSPACE_NAV_GROUPS: {
-  section: WorkspaceSection;
-  route: string;
-  description: string;
-  labelKey: string;
-}[] = [
-  {
-    section: "profile",
-    route: "/profile/settings",
-    description: "Sidebar group for personal settings",
-    labelKey: "UserAvatar.profile",
-  },
-  {
-    section: "company",
-    route: "/company/members",
-    description: "Sidebar group for company settings (admin)",
-    labelKey: "UserAvatar.company",
-  },
-];
-
-export const STATIC_NAV_PAGES: {
+export const MENU_NAV_TARGETS: {
   key: string;
-  route: string;
   description: string;
   labelKey: string;
 }[] = [
   {
-    key: "documentation",
-    route: "*",
-    description: "Sidebar link that opens the product documentation",
-    labelKey: "UserAvatar.documentation",
+    key: "workspace-menu",
+    description:
+      "Workspace menu on the workspace name at the top of the sidebar: Settings, Invite members, Plan and, for operators, the Operator console",
+    labelKey: "WorkspaceMenu.label",
   },
   {
-    key: "feedback",
-    route: "*",
-    description: "Sidebar link that opens the feedback dialog",
-    labelKey: "Common.inputs.feedback",
+    key: "personal-menu",
+    description:
+      "Personal menu on the avatar at the bottom of the sidebar: Profile & preferences, Theme, Keyboard shortcuts, Documentation, Send feedback, Customize sidebar and Sign out",
+    labelKey: "UserAvatar.menu",
   },
 ];
 
-export function workspaceNavKeys(section: WorkspaceSection): string[] {
-  return WORKSPACE_SECTIONS[section].map((subroute) => `${section}-${subroute.slug}`);
+export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
+  profile: "Settings link to Profile & preferences: name, avatar, language, theme and email verification",
+  channels: "Settings link to Channels, the connected accounts for email, LinkedIn, WhatsApp, Instagram and Telegram",
+  "api-keys": "Settings link to API keys for the REST API, MCP clients and connectors",
+  members: "Settings link to Members, the team members of the workspace and their roles",
+  roles: "Settings link to Roles and their permissions",
+  plan: "Settings link to Plan, the subscription, trial status and billing",
+  activity: "Settings link to Activity, the audit log of changes in the workspace",
+  webhooks: "Settings link to Webhooks, with a Deliveries tab for sent webhook deliveries",
+};
+
+export function settingsNavKeys(section: SettingsSection): string[] {
+  return SETTINGS_SECTIONS[section].map((subroute) => `settings-${subroute.slug}`);
 }
 
 export const SCOPES_WITHOUT_FILTER = new Set(["company-roles"]);
@@ -492,6 +483,6 @@ export const FORM_SCOPES = FORM_PAGES.map((page) => page.scope);
 
 export const NAV_KEYS = [
   ...PRIMARY_NAV_PAGES.map((page) => page.key),
-  ...WORKSPACE_NAV_GROUPS.flatMap((group) => [group.section, ...workspaceNavKeys(group.section)]),
-  ...STATIC_NAV_PAGES.map((page) => page.key),
+  ...MENU_NAV_TARGETS.map((menu) => menu.key),
+  ...(Object.keys(SETTINGS_SECTIONS) as SettingsSection[]).flatMap(settingsNavKeys),
 ];

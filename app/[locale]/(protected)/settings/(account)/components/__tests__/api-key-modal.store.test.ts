@@ -7,7 +7,7 @@ const profileActions = vi.hoisted(() => ({
   createApiKeyAction: vi.fn(),
 }));
 
-vi.mock("@/app/[locale]/(protected)/profile/actions", () => profileActions);
+vi.mock("@/app/[locale]/(protected)/settings/(account)/actions", () => profileActions);
 
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: "a",

@@ -223,7 +223,7 @@ describe("complete answer blocks in retrieval excerpts", () => {
       "| **Tasks**, **Contacts**, **Organizations**, **Deals**, **Services** | Yes, No | All, Assigned, None | No, Assigned | Read decides whether the sidebar entry appears and which records the member sees. Manage creates, edits and deletes them. |",
       "| **Routines** | Yes, No | All, Assigned, None | No, Assigned | All shows every routine, Assigned only the member's own. |",
       "",
-      "**Link:** `/company/roles`. **Mate:** " + "Additional navigation guidance. ".repeat(12),
+      "**Link:** `/settings/roles`. **Mate:** " + "Additional navigation guidance. ".repeat(12),
     ].join("\n");
     const excerpt = retrievalExcerpt({
       markdown,
@@ -235,7 +235,7 @@ describe("complete answer blocks in retrieval excerpts", () => {
     expect(excerpt).toContain(definition);
     expect(excerpt).toContain("- **Manage**:");
     expect(excerpt).toContain("- **Read access**:");
-    expect(excerpt).toContain("**Link:** `/company/roles`.");
+    expect(excerpt).toContain("**Link:** `/settings/roles`.");
     expect(excerpt.length).toBeLessThanOrEqual(1_400);
   });
 

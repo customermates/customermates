@@ -629,8 +629,8 @@ describe("real small sibling evidence", () => {
     const option = docsRankSpec(candidates, "docs", "Can users only see their own contacts?").questions[0].options.s119;
     const evidence = optionEvidence(option);
     expect(evidence).toMatch(/assigned|member|records/iu);
-    expect(evidence).toContain("Link: /company/roles");
-    expect(evidence).not.toBe("Link: /company/roles");
+    expect(evidence).toContain("Link: /settings/roles");
+    expect(evidence).not.toBe("Link: /settings/roles");
     expect(evidence.length).toBeLessThanOrEqual(80);
   });
 });
@@ -673,7 +673,7 @@ describe("initial channel errors and existing channel recovery evidence", () => 
       const evidence = optionEvidence(options.s0);
       expect(evidence).toMatch(initialAction);
       expect(evidence).toMatch(existingAction);
-      expect(evidence).toContain("Link: /profile/connected-accounts");
+      expect(evidence).toContain("Link: /settings/channels");
       expect(evidence.length).toBeLessThanOrEqual(400);
       let totalEvidenceChars = 0;
       for (const candidate of candidates) {
@@ -771,7 +771,7 @@ describe("canonical webhook secret permissions", () => {
     const evidence = optionEvidence(question.options.s0);
     expect(evidence).toContain(visibility);
     expect(evidence).toContain(readOnly);
-    expect(evidence).toContain("Link: /company/webhooks");
+    expect(evidence).toContain("Link: /settings/webhooks");
     expect(evidence.length).toBeLessThanOrEqual(400);
     expect(Object.keys(question.options)).toHaveLength(121);
     let characters = 0;
@@ -1015,7 +1015,7 @@ describe("matching opening instructions in a full classifier pool", () => {
     expect(evidence).toContain("Zum Anlegen eines API-Keys öffnen Sie Mein Profil");
     expect(evidence).toContain("erfolgreich erstellt");
     expect(evidence.indexOf("Zum Anlegen")).toBeLessThan(evidence.indexOf("erfolgreich erstellt"));
-    expect(evidence).toContain("Link: /profile/api-keys");
+    expect(evidence).toContain("Link: /settings/api-keys");
     expect(Object.keys(question.options)).toHaveLength(121);
     let characters = 0;
     for (const candidate of candidates) {

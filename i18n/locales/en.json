@@ -749,7 +749,6 @@
     "title": "Create API Key"
   },
   "ApiKeysCard": {
-    "title": "API & Connectors",
     "unnamed": "Unnamed"
   },
   "AuditLogModal": {
@@ -800,8 +799,7 @@
   "AuditLogsCard": {
     "emptyBody": "Workspace changes are recorded here as they happen.",
     "emptyTitle": "No activity yet",
-    "searchTooltip": "Search by element id",
-    "title": "Audit Logs"
+    "searchTooltip": "Search by element id"
   },
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
@@ -2442,15 +2440,12 @@
     "addEntity": "Add {entity}",
     "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
-    "admin": "Admin",
     "affiliate": "Affiliate Program",
-    "connectedAccounts": "Channels",
     "dashboard": "Dashboard",
     "data": "Data",
     "docs": "Documentation",
     "features": "Features",
     "inbox": "Inbox",
-    "members": "Members",
     "operator": "Operator Console",
     "overview": "Overview",
     "pricing": "Pricing",
@@ -2504,9 +2499,7 @@
     "routines": "Routines",
     "search": "Search",
     "settings": "Settings",
-    "subscription": "Subscription",
-    "wiki": "Knowledge Base",
-    "workspace": "Workspace"
+    "wiki": "Knowledge Base"
   },
   "NotFoundPage": {
     "body": "We've been automatically notified that this page went on vacation. We'll track it down and bring it back soon!",
@@ -3520,8 +3513,7 @@
   },
   "RolesCard": {
     "custom": "Custom",
-    "system": "System",
-    "title": "Roles"
+    "system": "System"
   },
   "RoutineAdministration": {
     "help": "As a company administrator, you can pause or delete this routine, but you cannot edit, test, or run it.",
@@ -3680,6 +3672,20 @@
     "thursday": "Thursday",
     "tuesday": "Tuesday",
     "wednesday": "Wednesday"
+  },
+  "SettingsNav": {
+    "account": "Account",
+    "activity": "Activity",
+    "apiKeys": "API keys",
+    "back": "Back",
+    "channels": "Channels",
+    "deliveries": "Deliveries",
+    "members": "Members",
+    "plan": "Plan",
+    "profile": "Profile & preferences",
+    "roles": "Roles",
+    "webhooks": "Webhooks",
+    "workspace": "Workspace"
   },
   "SidebarCustomize": {
     "deleteSection": "Delete section",
@@ -3849,13 +3855,13 @@
   },
   "UserAvatar": {
     "company": "My Company",
-    "darkMode": "Dark Mode",
     "documentation": "Documentation",
     "home": "Home",
-    "lightMode": "Light Mode",
-    "profile": "My Profile",
-    "settings": "Settings",
-    "signOut": "Sign Out"
+    "keyboardShortcuts": "Keyboard shortcuts",
+    "menu": "Personal menu",
+    "sendFeedback": "Send feedback",
+    "signOut": "Sign Out",
+    "theme": "Theme"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Controls the UI language: labels, buttons, etc.",
@@ -3882,8 +3888,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Delivery attempts appear here once a webhook fires.",
-    "emptyTitle": "No deliveries yet",
-    "title": "Recent Deliveries"
+    "emptyTitle": "No deliveries yet"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Created At",
@@ -3917,8 +3922,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Add a webhook to send workspace events to your systems.",
-    "emptyTitle": "No webhooks yet",
-    "title": "Webhooks"
+    "emptyTitle": "No webhooks yet"
   },
   "Wiki": {
     "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",
@@ -4028,5 +4032,9 @@
     },
     "tryAnother": "Try another website",
     "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Invite members",
+    "label": "Workspace menu"
   }
 }

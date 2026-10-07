@@ -10,7 +10,7 @@ import { CopyableCode } from "@/components/shared/copyable-code";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
-import { InviteByEmailForm } from "../../../company/components/company-invite/invite-by-email-form";
+import { InviteByEmailForm } from "@/app/[locale]/(protected)/settings/(workspace)/components/company-invite/invite-by-email-form";
 
 const InviteLink = observer(() => {
   const t = useTranslations();

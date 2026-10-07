@@ -4,13 +4,13 @@ import { describe, expect, it } from "vitest";
 
 import { DashboardPageSkeleton } from "@/app/[locale]/(protected)/dashboard/components/dashboard-page-skeleton";
 import { InboxPageSkeleton } from "@/app/[locale]/(protected)/inbox/components/inbox-page-skeleton";
-import { SubscriptionPageSkeleton } from "@/app/[locale]/(protected)/company/components/subscription/subscription-page-skeleton";
+import { SubscriptionPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-page-skeleton";
 import { OnboardingPageSkeleton } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-page-skeleton";
 import {
   ApiKeysPageSkeleton,
   ConnectedAccountsPageSkeleton,
-} from "@/app/[locale]/(protected)/profile/components/profile-resource-page-skeleton";
-import { ProfileSettingsPageSkeleton } from "@/app/[locale]/(protected)/profile/components/profile-settings-page-skeleton";
+} from "@/app/[locale]/(protected)/settings/(account)/components/profile-resource-page-skeleton";
+import { ProfileSettingsPageSkeleton } from "@/app/[locale]/(protected)/settings/(account)/components/profile-settings-page-skeleton";
 import {
   EntityDetailDrawerSkeleton,
   EntityDetailPageSkeleton,

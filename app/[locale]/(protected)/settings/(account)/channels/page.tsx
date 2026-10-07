@@ -13,6 +13,7 @@ import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 import { unwrapValidated } from "@/core/validation/validation.utils";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export default async function ConnectedAccountsPage() {
   await requireAccess({ resource: Resource.inboxMessages });
@@ -39,7 +40,7 @@ export default async function ConnectedAccountsPage() {
   return (
     <PageContainer padded={false}>
       <LockedFeatureOverlay
-        ctaHref="/company/subscription"
+        ctaHref={settingsHref("plan")}
         ctaLabel={t("MessagingUpsell.cta")}
         description={t("MessagingUpsell.description")}
         title={t("MessagingUpsell.title")}

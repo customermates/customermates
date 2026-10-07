@@ -30,6 +30,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { ThreadRow } from "./thread-row";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 type Props = {
   canConnect: boolean;
@@ -106,7 +107,7 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
 
           {canConnect && (
             <Button asChild className="h-8" size="sm" variant="default">
-              <Link aria-label={t("ConnectedAccountsCard.title")} href="/profile/connected-accounts">
+              <Link aria-label={t("ConnectedAccountsCard.title")} href={settingsHref("channels")}>
                 <Cable className="size-3.5" />
 
                 <span className="hidden sm:inline">{t("ConnectedAccountsCard.title")}</span>
@@ -213,7 +214,7 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
               fallback={
                 canConnect ? (
                   <Button asChild size="sm" variant="secondary">
-                    <Link href="/profile/connected-accounts">
+                    <Link href={settingsHref("channels")}>
                       <Cable className="size-3.5" />
 
                       {t("ConnectedAccountsCard.title")}

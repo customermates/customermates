@@ -17,7 +17,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("../../connected-accounts/actions", () => ({
+vi.mock("../../channels/actions", () => ({
   disconnectConnectedAccountAction: vi.fn(),
   refreshConnectedAccountsAction: harness.refreshConnectedAccountsAction,
   resyncConnectedAccountAction: vi.fn(),

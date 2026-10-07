@@ -10,7 +10,7 @@ import { BaseFormStore } from "@/core/base/base-form.store";
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 import { Action, Resource } from "@/generated/prisma";
 
-import { setConnectedAccountSignatureAction } from "../connected-accounts/actions";
+import { setConnectedAccountSignatureAction } from "../channels/actions";
 
 type AccountSignatureForm = Omit<SetConnectedAccountSignatureData, "id">;
 

@@ -20,13 +20,13 @@ Alle vier Bedingungen müssen erfüllt sein; fehlt eine, etwa im Starter-Tarif, 
 - **Ein nutzbares Abonnement:** der Status **Aktiv** oder eine noch nicht abgelaufene Testphase. Solange der Status **Überfällig** oder **Gekündigt** ist, ist die Seite ebenso gesperrt, mit dem Text „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“
 - **Ihre Rolle:** die Zeile **Inbox-Nachrichten** mit **Lesen** auf **Alle**. Bei **Keine** ist der Seitenleisten-Eintrag ausgeblendet, und wer `/inbox` öffnet, landet wieder auf dem Dashboard. Die Rolle **Admin** hat immer Zugriff.
 
-**Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Abonnement** für **Tarif upgraden**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, oder `nav-company-subscription` und danach `company-subscription-plan-picker` für die Tarifkarten (sichtbar bis zum ersten Checkout) oder `company-subscription-manage` für **Verwalten mit Lemon Squeezy** (um einen laufenden Tarif zu wechseln), beide nur für Rollen mit **Bearbeiten** bei **Unternehmen**; **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Abonnement** für **Tarif upgraden**, `/settings/plan`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, oder `nav-settings-plan` und danach `company-subscription-plan-picker` für die Tarifkarten (sichtbar bis zum ersten Checkout) oder `company-subscription-manage` für **Verwalten mit Lemon Squeezy** (um einen laufenden Tarif zu wechseln), beide nur für Rollen mit **Bearbeiten** bei **Unternehmen**; **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen.
 
 ## Brauche ich einen verbundenen Kanal? [#do-i-need-a-connected-channel]
 
 Nicht zum Öffnen des Posteingangs: Ohne eigenen Kanal sehen Sie trotzdem, was Teammitglieder teilen. Um über Ihre eigenen Konten zu senden und zu empfangen, brauchen Sie einen. Ist die Liste leer, zeigt sie **Noch nichts vorhanden** und „Noch keine Nachrichten.“ mit dem Hinweis, einen Kanal im Profil zu verbinden. Darunter erhalten Mitglieder mit **Erstellen** bei **Inbox-Nachrichten** einen Button **Kanäle**, der **Mein Profil › Kanäle** öffnet; ist der Assistent verfügbar, erscheinen dort stattdessen Startvorschläge des Assistenten. Unter **Mein Profil › Kanäle** fügt **Kanal verbinden** mit derselben Berechtigung ein E-Mail-, LinkedIn-, WhatsApp-, Instagram- oder Telegram-Konto hinzu, siehe [Wie verbinde ich einen Kanal?](/docs/app-profile#how-do-i-connect-a-channel). Kanäle pro Mitglied: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; eine Testphase zählt als Pro.
 
-**Link:** die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect` (**Kanal verbinden**); der Button **Kanäle** im leeren Posteingang hat keine Id, deshalb nennt Mate ihn beim Namen.
+**Link:** die Seite **Kanäle**, `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`, danach `highlight_element` mit `profile-connected-accounts-connect` (**Kanal verbinden**); der Button **Kanäle** im leeren Posteingang hat keine Id, deshalb nennt Mate ihn beim Namen.
 
 ## Welche Konversationen sehe ich, und sieht ein Admin meine privaten Chats? [#which-conversations-do-i-see]
 
@@ -34,7 +34,7 @@ Die Liste vereint drei Quellen: die Kanäle, die Sie selbst verbunden haben, Kan
 
 Bei E-Mail-Konten erscheinen nur Nachrichten aus den Ordnern, die auf dem Tab **Ordner** des Kontos unter **Mein Profil › Kanäle** eingeschaltet sind. Standardmäßig ist jeder Ordner eingeschaltet außer Papierkorb, Junk oder Spam, Entwürfe und dem Ordner mit allen E-Mails; fehlen E-Mails aus einem anderen Ordner, zum Beispiel einem Archiv, prüfen Sie, ob dessen Schalter eingeschaltet ist. Eine Konversation ohne jede Nachricht erscheint nur, solange sie einen gespeicherten Entwurf enthält.
 
-**Link:** die Seite **Kanäle**, `/profile/connected-accounts`, für die Ordner; der Posteingang ist `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts` oder `nav-inbox`; hat die Person das Konto über seine Karte geöffnet, hebt `connected-account-tab-folders` den Tab **Ordner** hervor (nur bei Konten mit Ordnern); die Ordner-Schalter sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Kanäle**, `/settings/channels`, für die Ordner; der Posteingang ist `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels` oder `nav-inbox`; hat die Person das Konto über seine Karte geöffnet, hebt `connected-account-tab-folders` den Tab **Ordner** hervor (nur bei Konten mit Ordnern); die Ordner-Schalter sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche Berechtigungen braucht der Posteingang? [#which-permissions-does-the-inbox-need]
 
@@ -52,7 +52,7 @@ Rollen bearbeiten Sie unter **Mein Unternehmen › Rollen**. Der Posteingang nut
 
 Ohne **Erstellen** bei **Inbox-Nachrichten** ist das Antwortfeld ausgeblendet. Ohne **Bearbeiten** ist die Aktion zum Verschieben ausgeblendet, der Status erscheint als schreibgeschützter Chip, und eine ungelesene Konversation bleibt beim Öffnen **Ungelesen**. Jede E-Mail zeigt ihre Ordner oder Labels weiterhin unter den Empfängerfeldern. Eine einzelne Konversation zu teilen setzt außerdem voraus, dass Ihnen ihr Kanal gehört.
 
-**Link:** **Mein Unternehmen › Rollen**, `/company/roles`; der Posteingang ist `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles` oder `nav-inbox`; die Rollenzeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** **Mein Unternehmen › Rollen**, `/settings/roles`; der Posteingang ist `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-roles` oder `nav-inbox`; die Rollenzeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie durchsuche, filtere oder aktualisiere ich den Posteingang? [#how-do-i-search-filter-or-refresh-the-inbox]
 
@@ -124,7 +124,7 @@ Um eine einzelne Konversation mit dem Team zu teilen, klicken Sie in der Kopflei
 
 Um jede Konversation eines Kanals zu teilen, teilen Sie den Kanal: **Sichtbarkeit** auf seinem Tab **Details** unter **Mein Profil › Kanäle**, in Business oder Enterprise. Der Schalter pro Konversation bleibt dann eingeschaltet und gesperrt, mit dem Hinweis, dass das Konto mit dem Team geteilt ist und daher alle Konversationen sichtbar sind.
 
-**Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox` oder `nav-profile-connected-accounts`; der Chip und der Schalter der Konversation sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; hat der Besitzer den Kanal unter **Kanäle** geöffnet, hebt `connected-account-visibility` seinen Schalter **Sichtbarkeit** hervor.
+**Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Kanäle**, `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox` oder `nav-settings-channels`; der Chip und der Schalter der Konversation sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; hat der Besitzer den Kanal unter **Kanäle** geöffnet, hebt `connected-account-visibility` seinen Schalter **Sichtbarkeit** hervor.
 
 ## Wie verknüpfe ich Teilnehmer und Datensätze? [#how-do-i-link-a-participant]
 
@@ -160,7 +160,7 @@ Der Posteingang hat keinen Button für eine neue Konversation. Starten Sie sie b
 
 Die Signatur gehört zu jedem E-Mail-Konto, das Ihnen gehört, nicht zum Posteingang: Öffnen Sie **Mein Profil › Kanäle**, wählen Sie das Gmail-, Outlook- oder IMAP-Konto und nutzen Sie dessen Tab **E-Mail**. Dort setzen Sie Schriftart, Schriftgröße, Linkfarbe und Linkstil, schalten **Signatur hinzufügen** ein, wählen ein Layout mit oder ohne Logo und schreiben den Text in Markdown. Solange sie eingeschaltet ist, wird die Signatur unter jede E-Mail gesetzt, die von diesem Konto gesendet wird, ob aus dem Posteingang, über die REST-API oder MCP; fügen Sie sie daher nicht in die Nachricht ein. Der Composer zeigt sie als Vorschau unter Ihrem Text. Alle Felder stehen unter [E-Mail-Darstellung und Signatur](/docs/app-profile#email-appearance-and-signature).
 
-**Link:** die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; hat die Person das Konto über seine Karte geöffnet, hebt `connected-account-tab-email` den Tab **E-Mail** hervor, und bei geöffnetem Tab heben `connected-account-signature` **Signatur hinzufügen** und `connected-account-email-save` **E-Mail-Einstellungen speichern** hervor. Die Felder für Darstellung und Layout sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Kanäle**, `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`; hat die Person das Konto über seine Karte geöffnet, hebt `connected-account-tab-email` den Tab **E-Mail** hervor, und bei geöffnetem Tab heben `connected-account-signature` **Signatur hinzufügen** und `connected-account-email-save` **E-Mail-Einstellungen speichern** hervor. Die Felder für Darstellung und Layout sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche Ids hat der Posteingang? [#which-ids-does-the-inbox-have]
 

@@ -6377,7 +6377,7 @@ describe("AgentUiControlStore", () => {
 
   it("self-navigates the connected-account walkthrough and reaches its connect control", async () => {
     const elements = new Map([
-      ["nav-profile-connected-accounts", new FakeHTMLElement()],
+      ["nav-settings-channels", new FakeHTMLElement()],
       ["profile-connected-accounts-connect", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
@@ -6398,7 +6398,7 @@ describe("AgentUiControlStore", () => {
       await expect(
         store.startGuidedTour([
           {
-            targetId: "nav-profile-connected-accounts",
+            targetId: "nav-settings-channels",
             note: "Open connected accounts.",
           },
           {
@@ -6407,12 +6407,12 @@ describe("AgentUiControlStore", () => {
           },
         ]),
       ).resolves.toMatchObject({ ok: true });
-      expect(navigate).toHaveBeenCalledWith("/profile/connected-accounts");
-      expect(store.active?.targetId).toBe("nav-profile-connected-accounts");
+      expect(navigate).toHaveBeenCalledWith("/settings/channels");
+      expect(store.active?.targetId).toBe("nav-settings-channels");
 
       store.nextStep();
       await vi.waitFor(() => expect(store.active?.targetId).toBe("profile-connected-accounts-connect"));
-      expect(navigate).toHaveBeenLastCalledWith("/profile/connected-accounts");
+      expect(navigate).toHaveBeenLastCalledWith("/settings/channels");
     } finally {
       vi.unstubAllGlobals();
     }
@@ -6558,8 +6558,8 @@ describe("AgentUiControlStore", () => {
     });
     const navigate = vi.fn((path: string) => {
       setTimeout(() => {
-        if (path === "/company/members") rendered.add("company-members-add");
-        if (path === "/company/roles") rendered.add("company-roles-add");
+        if (path === "/settings/members") rendered.add("company-members-add");
+        if (path === "/settings/roles") rendered.add("company-roles-add");
       }, 700);
       return Promise.resolve("navigated" as const);
     });
@@ -6577,7 +6577,7 @@ describe("AgentUiControlStore", () => {
     store.nextStep();
     await vi.advanceTimersByTimeAsync(1000);
     expect(store.active?.targetId).toBe("company-members-add");
-    expect(navigate).toHaveBeenLastCalledWith("/company/members");
+    expect(navigate).toHaveBeenLastCalledWith("/settings/members");
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(1000);
@@ -6617,14 +6617,14 @@ describe("AgentUiControlStore", () => {
     store.nextStep();
     await vi.advanceTimersByTimeAsync(0);
     expect(store.active?.targetId).toBe("company-members-add");
-    expect(navigate).not.toHaveBeenCalledWith("/company/webhooks");
+    expect(navigate).not.toHaveBeenCalledWith("/settings/webhooks");
   });
 
   it("skips a tour stop that is mounted but has no layout", async () => {
     vi.useFakeTimers();
 
     const elements = new Map([
-      ["nav-profile-connected-accounts", new FakeHTMLElement(1)],
+      ["nav-settings-channels", new FakeHTMLElement(1)],
       ["connected-account-signature", new FakeHTMLElement(0)],
       ["profile-connected-accounts-connect", new FakeHTMLElement(1)],
     ]);
@@ -6643,7 +6643,7 @@ describe("AgentUiControlStore", () => {
 
     await expect(
       store.startGuidedTour([
-        { targetId: "nav-profile-connected-accounts", note: "Open channels." },
+        { targetId: "nav-settings-channels", note: "Open channels." },
         { targetId: "connected-account-signature", note: "Turn on the signature." },
         { targetId: "profile-connected-accounts-connect", note: "Connect one." },
       ]),

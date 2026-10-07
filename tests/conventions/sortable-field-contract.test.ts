@@ -10,13 +10,13 @@ const read = (path: string) => readFileSync(join(REPO_ROOT, path), "utf8");
 
 const STORE_REPOSITORY: Record<string, string> = {
   "app/[locale]/(protected)/routines/components/routines.store.ts": "ee/routines/prisma-routine.repository.ts",
-  "app/[locale]/(protected)/company/components/user/users.store.ts": "features/user/prisma-user.repository.ts",
-  "app/[locale]/(protected)/company/components/role/roles.store.tsx": "features/role/prisma-role.repository.ts",
-  "app/[locale]/(protected)/company/components/webhook/webhooks.store.ts":
+  "app/[locale]/(protected)/settings/(workspace)/components/user/users.store.ts": "features/user/prisma-user.repository.ts",
+  "app/[locale]/(protected)/settings/(workspace)/components/role/roles.store.tsx": "features/role/prisma-role.repository.ts",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks.store.ts":
     "features/webhook/prisma-webhook.repository.ts",
-  "app/[locale]/(protected)/company/components/webhook/webhook-deliveries.store.ts":
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries.store.ts":
     "features/webhook/prisma-webhook-delivery.repository.ts",
-  "app/[locale]/(protected)/company/components/audit-log/audit-logs.store.ts":
+  "app/[locale]/(protected)/settings/(workspace)/components/audit-log/audit-logs.store.ts":
     "features/audit-log/prisma-audit-log.repository.ts",
   "app/[locale]/(protected)/operator/components/users/operator-users.store.ts":
     "ee/operator/prisma-operator-users.repository.ts",
@@ -29,16 +29,16 @@ const STORE_REPOSITORY: Record<string, string> = {
 const COLUMN_HOOK_STORE: Record<string, string> = {
   "app/[locale]/(protected)/routines/components/use-routine-columns.tsx":
     "app/[locale]/(protected)/routines/components/routines.store.ts",
-  "app/[locale]/(protected)/company/components/user/use-member-columns.tsx":
-    "app/[locale]/(protected)/company/components/user/users.store.ts",
-  "app/[locale]/(protected)/company/components/role/use-role-columns.tsx":
-    "app/[locale]/(protected)/company/components/role/roles.store.tsx",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-columns.tsx":
-    "app/[locale]/(protected)/company/components/webhook/webhooks.store.ts",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns.tsx":
-    "app/[locale]/(protected)/company/components/webhook/webhook-deliveries.store.ts",
-  "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx":
-    "app/[locale]/(protected)/company/components/audit-log/audit-logs.store.ts",
+  "app/[locale]/(protected)/settings/(workspace)/components/user/use-member-columns.tsx":
+    "app/[locale]/(protected)/settings/(workspace)/components/user/users.store.ts",
+  "app/[locale]/(protected)/settings/(workspace)/components/role/use-role-columns.tsx":
+    "app/[locale]/(protected)/settings/(workspace)/components/role/roles.store.tsx",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-columns.tsx":
+    "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks.store.ts",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns.tsx":
+    "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries.store.ts",
+  "app/[locale]/(protected)/settings/(workspace)/components/audit-log/use-audit-log-columns.tsx":
+    "app/[locale]/(protected)/settings/(workspace)/components/audit-log/audit-logs.store.ts",
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx":
     "app/[locale]/(protected)/operator/components/users/operator-users.store.ts",
   "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx":

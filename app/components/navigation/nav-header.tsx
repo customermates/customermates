@@ -2,17 +2,17 @@
 
 import type { ReactNode } from "react";
 
-import { Loader2, Plus, Search, Sparkles } from "lucide-react";
+import { ChevronsUpDown, Loader2, Plus, Search, Sparkles } from "lucide-react";
 
 import { AppImage } from "@/components/shared/app-image";
-import { AppLink } from "@/components/shared/app-link";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-
-import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
 
 type Props = {
   overlaysDisabled?: boolean;
-  homeHref: string;
+  quickActions: boolean;
+  workspaceMenu: ReactNode | null;
+  workspaceMenuLabel: string;
   brandName: string;
   brandSubtitle?: ReactNode;
   logoAlt: string;
@@ -29,7 +29,9 @@ type Props = {
 
 export function NavHeader({
   overlaysDisabled = false,
-  homeHref,
+  quickActions,
+  workspaceMenu,
+  workspaceMenuLabel,
   brandName,
   brandSubtitle,
   logoAlt,
@@ -43,95 +45,127 @@ export function NavHeader({
   onSearch,
   onAdd,
 }: Props) {
+  const brand = (
+    <>
+      <AppImage
+        alt={logoAlt}
+        className="size-8 shrink-0 rounded-lg shadow-[0_0_10px_0] shadow-primary/10 dark:shadow-primary/20"
+        height={32}
+        loading="eager"
+        src="customermates-square.svg"
+        width={32}
+      />
+
+      <span className="flex flex-col min-w-0 flex-1 leading-tight">
+        <span className="truncate font-semibold text-sm">{brandName}</span>
+
+        {brandSubtitle && (
+          <span className="flex items-center gap-1 min-h-[18px] min-w-0 max-w-full text-xs text-muted-foreground animate-fade-in group-data-[collapsible=icon]:hidden">
+            {brandSubtitle}
+          </span>
+        )}
+      </span>
+    </>
+  );
+
   return (
     <SidebarHeader>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild size="lg">
-            <AppLink appearance="unstyled" href={homeHref}>
-              <AppImage
-                alt={logoAlt}
-                className="size-8 shrink-0 rounded-lg shadow-[0_0_10px_0] shadow-primary/10 dark:shadow-primary/20"
-                height={32}
-                loading="eager"
-                src="customermates-square.svg"
-                width={32}
-              />
+          {workspaceMenu ? (
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  aria-label={`${brandName}, ${workspaceMenuLabel}`}
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  id="nav-workspace-menu"
+                  size="lg"
+                  tooltip={brandName}
+                >
+                  {brand}
 
-              <span className="flex flex-col min-w-0 flex-1 leading-tight">
-                <span className="truncate font-semibold text-sm">{brandName}</span>
+                  <ChevronsUpDown className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
 
-                {brandSubtitle && (
-                  <span className="flex items-center gap-1 min-h-[18px] min-w-0 max-w-full text-xs text-muted-foreground animate-fade-in group-data-[collapsible=icon]:hidden">
-                    {brandSubtitle}
-                  </span>
-                )}
-              </span>
-
-              <NavLinkPendingIndicator />
-            </AppLink>
-          </SidebarMenuButton>
+              <DropdownMenuContent
+                align="start"
+                aria-labelledby="nav-workspace-menu"
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                side="bottom"
+                sideOffset={4}
+              >
+                {workspaceMenu}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <SidebarMenuButton asChild size="lg">
+              <div>{brand}</div>
+            </SidebarMenuButton>
+          )}
         </SidebarMenuItem>
       </SidebarMenu>
 
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            aria-disabled={overlaysDisabled}
-            id="nav-search"
-            tooltip={searchLabel}
-            onClick={(event) => {
-              if (!overlaysDisabled) onSearch(event.currentTarget);
-            }}
-          >
-            <Search />
-
-            <span>{searchLabel}</span>
-
-            <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
-              &#8984;K
-            </kbd>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-
-        {assistantLabel && onAssistant && (
+      {quickActions && (
+        <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               aria-disabled={overlaysDisabled}
-              id="nav-assistant"
-              tooltip={assistantBusy ? (assistantBusyLabel ?? assistantLabel) : assistantLabel}
+              id="nav-search"
+              tooltip={searchLabel}
               onClick={(event) => {
-                if (!overlaysDisabled) onAssistant(event.currentTarget);
+                if (!overlaysDisabled) onSearch(event.currentTarget);
               }}
             >
-              {assistantBusy ? <Loader2 aria-label={assistantBusyLabel} className="animate-spin" /> : <Sparkles />}
+              <Search />
 
-              <span>{assistantLabel}</span>
+              <span>{searchLabel}</span>
 
-              {assistantShortcut && (
-                <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
-                  {assistantShortcut}
-                </kbd>
-              )}
+              <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
+                &#8984;K
+              </kbd>
             </SidebarMenuButton>
           </SidebarMenuItem>
-        )}
 
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            aria-disabled={overlaysDisabled}
-            id="nav-add"
-            tooltip={addLabel}
-            onClick={(event) => {
-              if (!overlaysDisabled) onAdd(event.currentTarget);
-            }}
-          >
-            <Plus />
+          {assistantLabel && onAssistant && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                aria-disabled={overlaysDisabled}
+                id="nav-assistant"
+                tooltip={assistantBusy ? (assistantBusyLabel ?? assistantLabel) : assistantLabel}
+                onClick={(event) => {
+                  if (!overlaysDisabled) onAssistant(event.currentTarget);
+                }}
+              >
+                {assistantBusy ? <Loader2 aria-label={assistantBusyLabel} className="animate-spin" /> : <Sparkles />}
 
-            <span>{addLabel}</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
+                <span>{assistantLabel}</span>
+
+                {assistantShortcut && (
+                  <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
+                    {assistantShortcut}
+                  </kbd>
+                )}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              aria-disabled={overlaysDisabled}
+              id="nav-add"
+              tooltip={addLabel}
+              onClick={(event) => {
+                if (!overlaysDisabled) onAdd(event.currentTarget);
+              }}
+            >
+              <Plus />
+
+              <span>{addLabel}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      )}
     </SidebarHeader>
   );
 }

@@ -12,6 +12,12 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/core/utils/cn";
 
+export const EDITOR_TAB_LIST_CLASS =
+  "h-13 w-full shrink-0 justify-start gap-0 overflow-x-auto overflow-y-hidden rounded-none border-b p-0 group-data-[orientation=horizontal]/tabs:h-13";
+
+export const EDITOR_TAB_TRIGGER_CLASS =
+  "h-full min-w-max shrink-0 rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:bottom-0";
+
 export type EditorTab = {
   id: string;
   label: ReactNode;
@@ -83,12 +89,7 @@ export const EditorTabs = observer(function EditorTabs({
 
   return (
     <Tabs className={cn("min-h-0 flex-1 gap-0", className)} value={active} onValueChange={select}>
-      <TabsList
-        aria-label={label}
-        className="h-13 w-full shrink-0 justify-start gap-0 overflow-x-auto overflow-y-hidden rounded-none border-b p-0 group-data-[orientation=horizontal]/tabs:h-13"
-        data-editor-tabs=""
-        variant="line"
-      >
+      <TabsList aria-label={label} className={EDITOR_TAB_LIST_CLASS} data-editor-tabs="" variant="line">
         {tabs.map((tab) => {
           const invalid = tab.fields?.some((field) => {
             const errors = form?.getError(field);
@@ -97,7 +98,7 @@ export const EditorTabs = observer(function EditorTabs({
           return (
             <TabsTrigger
               key={tab.id}
-              className="h-full min-w-max shrink-0 rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:bottom-0"
+              className={EDITOR_TAB_TRIGGER_CLASS}
               data-invalid={invalid || undefined}
               value={tab.id}
             >

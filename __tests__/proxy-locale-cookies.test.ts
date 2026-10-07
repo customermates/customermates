@@ -52,13 +52,13 @@ describe("proxy locale preference cookies", () => {
   });
 
   it("uses an explicit app preference ahead of the browser for locale-less app routes", async () => {
-    const result = await call("/company/subscription?tab=billing", {
+    const result = await call("/settings/plan?tab=billing", {
       acceptLanguage: "en-US,en;q=0.9",
       cookie: `${APP_LOCALE_COOKIE_NAME}=it`,
     });
 
     expect(result.status).toBe(307);
-    expect(result.location).toBe("http://localhost:4000/it/company/subscription?tab=billing");
+    expect(result.location).toBe("http://localhost:4000/it/settings/plan?tab=billing");
     expect(result.response.headers.get("vary")).toBe("accept-language, cookie");
   });
 
@@ -75,19 +75,19 @@ describe("proxy locale preference cookies", () => {
     const contentRoot = await call("/de", { acceptLanguage: "de-DE,de;q=0.9", cookie });
     expect(contentRoot.location).toBe("http://localhost:4000/it/dashboard");
 
-    const protectedRoute = await call("/de/company/settings?tab=general", {
+    const protectedRoute = await call("/de/settings/members?tab=general", {
       acceptLanguage: "de-DE,de;q=0.9",
       cookie,
     });
-    expect(protectedRoute.location).toBe("http://localhost:4000/it/company/settings?tab=general");
+    expect(protectedRoute.location).toBe("http://localhost:4000/it/settings/members?tab=general");
   });
 
   it("renegotiates System from the current browser language instead of sticking", async () => {
-    const spanish = await call("/profile/settings", { acceptLanguage: "es-ES,es;q=0.9" });
-    const french = await call("/profile/settings", { acceptLanguage: "fr-FR,fr;q=0.9" });
+    const spanish = await call("/settings/profile", { acceptLanguage: "es-ES,es;q=0.9" });
+    const french = await call("/settings/profile", { acceptLanguage: "fr-FR,fr;q=0.9" });
 
-    expect(spanish.location).toBe("http://localhost:4000/es/profile/settings");
-    expect(french.location).toBe("http://localhost:4000/fr/profile/settings");
+    expect(spanish.location).toBe("http://localhost:4000/es/settings/profile");
+    expect(french.location).toBe("http://localhost:4000/fr/settings/profile");
   });
 
   it("sets no cookie on a content page response, so the edge can cache it", async () => {

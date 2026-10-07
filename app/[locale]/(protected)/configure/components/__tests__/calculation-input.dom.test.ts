@@ -81,7 +81,7 @@ vi.mock("@/components/forms/form-autocomplete-currency", async () => {
 });
 vi.mock("@/components/forms/form-autocomplete-avatar", () => ({ FormAutocompleteAvatar: () => null }));
 vi.mock("@/components/forms/form-iso-date-picker", () => ({ FormIsoDatePicker: () => null }));
-vi.mock("@/app/[locale]/(protected)/company/actions", () => ({ getUsersAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/actions", () => ({ getUsersAction: vi.fn() }));
 vi.mock("next/dynamic", () => ({ default: () => () => null }));
 import { CalculationInput } from "../calculation-input";
 

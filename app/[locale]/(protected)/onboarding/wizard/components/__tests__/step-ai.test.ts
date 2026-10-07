@@ -39,7 +39,7 @@ vi.mock("next-intl", () => ({
     ),
 }));
 
-vi.mock("../../../../profile/actions", () => ({
+vi.mock("../../../../settings/(account)/actions", () => ({
   createApiKeyAction: vi.fn(),
 }));
 

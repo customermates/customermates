@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Status } from "@/generated/prisma";
 
-import { UserDetailsAvatar } from "../../../profile/components/user-details-avatar";
+import { UserDetailsAvatar } from "@/app/[locale]/(protected)/settings/(account)/components/user-details-avatar";
 
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
@@ -21,6 +21,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLink } from "@/components/shared/app-link";
 import { Alert } from "@/components/shared/alert";
 import { roleDisplayName } from "@/features/role/role-display-name";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export const CompanyUserModal = observer(() => {
   const t = useTranslations();
@@ -47,7 +48,7 @@ export const CompanyUserModal = observer(() => {
                 <p className="text-x-sm">
                   {t.rich("CompanyUserModal.activeUserWarning", {
                     settingsLink: (chunks) => (
-                      <AppLink inheritSize appearance="inline" href="/profile/settings">
+                      <AppLink inheritSize appearance="inline" href={settingsHref("profile")}>
                         {chunks}
                       </AppLink>
                     ),

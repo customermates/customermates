@@ -2,15 +2,15 @@ import { getTranslations } from "next-intl/server";
 
 import { PageState } from "@/components/page-state/page-state";
 import { PageContainer } from "@/components/shared/page-container";
-import { WebhooksPageSkeleton } from "../components/webhook/webhooks-page-skeleton";
+import { WebhookDeliveriesPageSkeleton } from "../../components/webhook/webhook-deliveries-page-skeleton";
 
 export default async function Loading() {
   const t = await getTranslations("PageState");
   return (
     <PageContainer padded={false}>
       <PageState
-        background={<WebhooksPageSkeleton />}
-        className="h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)]"
+        background={<WebhookDeliveriesPageSkeleton />}
+        className="h-[calc(100svh-7.25rem)] md:h-[calc(100svh-8.25rem)]"
         label={t("loading")}
         state="loading"
       />

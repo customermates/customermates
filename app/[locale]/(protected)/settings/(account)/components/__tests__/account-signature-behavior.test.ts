@@ -23,7 +23,7 @@ const harness = vi.hoisted(() => ({
   upsertItem: vi.fn(),
 }));
 
-vi.mock("../../connected-accounts/actions", () => ({
+vi.mock("../../channels/actions", () => ({
   setConnectedAccountSignatureAction: harness.saveAction,
 }));
 vi.mock("@/components/modal/use-navigation-guard", () => ({

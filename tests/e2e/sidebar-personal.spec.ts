@@ -20,12 +20,21 @@ function collectErrors(page: Page) {
 }
 
 async function openSidebar(page: Page) {
-  await page.waitForFunction(() => {
-    const trigger = document.getElementById("sidebar-trigger");
-    return trigger !== null && Object.keys(trigger).some((key) => key.startsWith("__reactProps"));
-  });
+  await page.waitForFunction(() =>
+    ["sidebar-trigger", "scroll-container"].every((id) => {
+      const element = document.getElementById(id);
+      return element !== null && Object.keys(element).some((key) => key.startsWith("__reactProps"));
+    }),
+  );
   if (!(await page.locator("#nav-add").isVisible())) await page.locator("#sidebar-trigger").click();
   await expect(page.locator("#nav-add")).toBeVisible();
+}
+
+async function openCustomize(page: Page) {
+  await openSidebar(page);
+  await page.locator("#nav-personal-menu").click();
+  await page.getByRole("menuitem", { name: "Customize sidebar", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Customize sidebar" })).toBeVisible();
 }
 
 async function sidebarOrder(page: Page) {
@@ -150,7 +159,9 @@ test("each person customizes their own sidebar and others keep the default", asy
   await page.waitForLoadState("networkidle");
   await openSidebar(page);
   const initial = await sidebarOrder(page);
-  expect(initial).toEqual(expect.arrayContaining(["#Overview", "Dashboard", "#Workspace"]));
+  expect(initial).toEqual(expect.arrayContaining(["#Overview", "Dashboard"]));
+  expect(initial).not.toContain("#Workspace");
+  expect(initial).not.toContain("#Admin");
   expect(initial.slice(initial.indexOf("#Data"), initial.indexOf("#Data") + DEFAULT_DATA.length)).toEqual(DEFAULT_DATA);
   expect(initial).not.toContain("#CRM");
 
@@ -194,8 +205,7 @@ test("each person customizes their own sidebar and others keep the default", asy
   await expect(sidebarItem(page, "Contacts")).toBeHidden();
   await expect(sidebarItem(page, "Inbox")).toHaveCount(0);
 
-  await openSidebar(page);
-  await page.locator("#nav-customize-sidebar").click();
+  await openCustomize(page);
   await page.getByRole("switch", { name: "Show Inbox" }).click();
   await page.keyboard.press("Escape");
   await openSidebar(page);
@@ -217,7 +227,7 @@ test("each person customizes their own sidebar and others keep the default", asy
     await other.close();
   }
 
-  await page.locator("#nav-customize-sidebar").click();
+  await openCustomize(page);
   await page.getByRole("button", { name: "Reset to default", exact: true }).click();
   await openSidebar(page);
   await expect.poll(() => sidebarOrder(page)).toEqual(initial);

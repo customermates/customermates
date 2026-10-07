@@ -4,11 +4,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { AuditLogsPageSkeleton } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs-page-skeleton";
-import { RolesPageSkeleton } from "@/app/[locale]/(protected)/company/components/role/roles-page-skeleton";
-import { MembersPageSkeleton } from "@/app/[locale]/(protected)/company/components/user/members-page-skeleton";
-import { WebhookDeliveriesPageSkeleton } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-skeleton";
-import { WebhooksPageSkeleton } from "@/app/[locale]/(protected)/company/components/webhook/webhooks-page-skeleton";
+import { AuditLogsPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/audit-log/audit-logs-page-skeleton";
+import { RolesPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/role/roles-page-skeleton";
+import { MembersPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/user/members-page-skeleton";
+import { WebhookDeliveriesPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-skeleton";
+import { WebhooksPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-skeleton";
 import { RoutinesPageSkeleton } from "@/app/[locale]/(protected)/routines/components/routines-page-skeleton";
 
 import { RecordsPageSkeleton } from "@/app/[locale]/(protected)/records/[typeId]/components/records-page-skeleton";

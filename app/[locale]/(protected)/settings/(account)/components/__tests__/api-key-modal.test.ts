@@ -13,7 +13,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => testContext.rootStore,
 }));
 
-vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(account)/actions", () => ({
   createApiKeyAction: vi.fn(),
 }));
 
@@ -63,7 +63,7 @@ vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
 
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, ...props }: { children: ReactNode }) => createElement("a", props, children),
-  usePathname: () => "/profile/api-keys",
+  usePathname: () => "/settings/api-keys",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 

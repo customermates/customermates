@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toLocalIso } from "@/components/forms/iso-date-values";
-import { getUsersAction } from "../../company/actions";
+import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import {
   expressionAt,
   expressionTypeId,

@@ -127,17 +127,19 @@ describe("app-guide anchor id fidelity", () => {
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("declares every nav key and scope it expands", () => {
-    const sidebar = readFileSync(join(REPO_ROOT, "app", "components", "app-sidebar.tsx"), "utf8");
-    const workspaceSections = readFileSync(
-      join(REPO_ROOT, "app", "components", "navigation", "workspace-sections.ts"),
+    const sidebar = ["app-sidebar.tsx", "navigation/nav-header.tsx", "navigation/nav-user.tsx"]
+      .map((file) => readFileSync(join(REPO_ROOT, "app", "components", file), "utf8"))
+      .join("\n");
+    const settingsSections = readFileSync(
+      join(REPO_ROOT, "app", "components", "navigation", "settings-sections.ts"),
       "utf8",
     );
     for (const key of NAV_KEYS) {
-      const sectionMatch = /^(profile|company)-(.+)$/.exec(key);
+      const sectionMatch = /^settings-(.+)$/.exec(key);
       const declared = sectionMatch
-        ? workspaceSections.includes(`slug: "${sectionMatch[2]}"`)
-        : sidebar.includes(`"${key}"`);
-      expect(declared, `nav key ${key} missing from app-sidebar.tsx / workspace-sections.ts`).toBe(true);
+        ? settingsSections.includes(`slug: "${sectionMatch[1]}"`)
+        : sidebar.includes(`"${key}"`) || sidebar.includes(`"nav-${key}"`);
+      expect(declared, `nav key ${key} missing from the sidebar sources / settings-sections.ts`).toBe(true);
     }
 
     const allSource = sourceFiles()

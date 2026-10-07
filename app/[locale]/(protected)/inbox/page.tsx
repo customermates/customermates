@@ -21,6 +21,7 @@ import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitle
 import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
 import { unwrapValidated } from "@/core/validation/validation.utils";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -73,7 +74,7 @@ export default async function InboxPage({ searchParams }: Props) {
   return (
     <PageContainer padded={false}>
       <LockedFeatureOverlay
-        ctaHref="/company/subscription"
+        ctaHref={settingsHref("plan")}
         ctaLabel={t("MessagingUpsell.cta")}
         description={
           planLocked ? t("MessagingUpsell.description") : t("ConnectedAccountsCard.paidSubscriptionRequired")

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/modal";
 import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export const ConnectUpsellModal = observer(() => {
   const t = useTranslations();
@@ -35,7 +36,7 @@ export const ConnectUpsellModal = observer(() => {
             {t("Common.actions.cancel")}
           </Button>
 
-          <AppLink href="/company/subscription" onClick={close}>
+          <AppLink href={settingsHref("plan")} onClick={close}>
             <Button type="button">{t("ConnectedAccountsCard.viewPlansCta")}</Button>
           </AppLink>
         </AppCardFooter>

@@ -21,6 +21,7 @@ import { unipileErrorCode } from "../messaging.service";
 import { UnipileRequestError } from "../unipile-request-error";
 import { env } from "@/env";
 import type { ReconnectConnectedAccountRepo } from "./reconnect-connected-account.repo";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
@@ -53,7 +54,7 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
     try {
       link = await this.messagingService.createReconnectAuthLink({
         accountId: account.unipileAccountId,
-        redirectUri: `${baseUrl}/profile/connected-accounts`,
+        redirectUri: `${baseUrl}${settingsHref("channels")}`,
         expiresOn,
         state,
       });

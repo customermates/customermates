@@ -118,7 +118,7 @@ const CONVERSATION_ID = "10000000-0000-4000-8000-000000000001";
 const USER_MESSAGE_ID = "10000000-0000-4000-8000-000000000002";
 const ASSISTANT_MESSAGE_ID = "10000000-0000-4000-8000-000000000003";
 const TOOL_CALL_ID = "view-call";
-const VIEW_ROUTE = `/en/company/members?view=__all__&viewSurface=${SURFACE.users}&viewAction=update`;
+const VIEW_ROUTE = `/en/settings/members?view=__all__&viewSurface=${SURFACE.users}&viewAction=update`;
 const VIEW_CONTEXT = {
   reference: {
     kind: "dataView",
@@ -134,7 +134,7 @@ const TOOL_INPUT = {
   viewKey: "__all__",
   state: { viewMode: "card" },
 } as const;
-const VIEW_HREF = "/company/members?view=__all__";
+const VIEW_HREF = "/settings/members?view=__all__";
 
 type StoredMessage = {
   id: string;

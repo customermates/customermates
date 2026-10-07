@@ -44,7 +44,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     );
     expect(field.rows).toHaveLength(1);
 
-    await page.goto("/en/company/webhooks");
+    await page.goto("/en/settings/webhooks");
     await page.locator("#company-webhooks-add").click();
     const webhook = page.getByRole("dialog");
     await webhook.locator("#webhook-modal-url").fill(receiverUrl);
@@ -92,7 +92,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
         }),
       ]);
 
-    await page.goto("/en/company/webhook-deliveries");
+    await page.goto("/en/settings/webhooks/deliveries");
     await expect(page.getByText(receiverUrl).first()).toBeVisible();
     await expect(page.getByText("Delivered", { exact: true }).first()).toBeVisible();
     expect(errors).toEqual([]);
@@ -156,7 +156,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       projects.set(title, persisted.rows[0].recordId);
     }
 
-    await page.goto("/en/company/webhooks");
+    await page.goto("/en/settings/webhooks");
     await page.locator("#company-webhooks-add").click();
     await dialog.locator("#webhook-modal-url").fill(receiverUrl);
     await dialog.locator("#webhook-modal-events").click();
@@ -227,7 +227,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       typeId,
     ]);
     expect(remaining.rows).toEqual([]);
-    await page.goto("/en/company/webhook-deliveries");
+    await page.goto("/en/settings/webhooks/deliveries");
     await expect(page.getByText(receiverUrl).first()).toBeVisible();
     await expect(page.getByText("Delivered", { exact: true }).first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("filtered-deletion-delivery.png"), animations: "disabled" });

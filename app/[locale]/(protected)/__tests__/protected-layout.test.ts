@@ -39,34 +39,34 @@ vi.mock("@/app/components/navigation/protected-enhancements-context", () => ({
   useProtectedEnhancementsAllowed: () => state.protectedEnhancementsAllowed,
 }));
 
-vi.mock("../company/components/feedback/feedback-modal", () => ({
+vi.mock("../settings/(workspace)/components/feedback/feedback-modal", () => ({
   FeedbackModal: () => "feedback-modal",
 }));
-vi.mock("../company/components/user/user-modal", () => ({
+vi.mock("../settings/(workspace)/components/user/user-modal", () => ({
   CompanyUserModal: () => "company-user-modal",
 }));
-vi.mock("../company/components/company-invite/company-invite-modal", () => ({
+vi.mock("../settings/(workspace)/components/company-invite/company-invite-modal", () => ({
   CompanyInviteModal: () => "company-invite-modal",
 }));
-vi.mock("../company/components/audit-log/audit-log-modal", () => ({
+vi.mock("../settings/(workspace)/components/audit-log/audit-log-modal", () => ({
   AuditLogModal: () => "audit-log-modal",
 }));
-vi.mock("../company/components/webhook/webhook-delivery-modal", () => ({
+vi.mock("../settings/(workspace)/components/webhook/webhook-delivery-modal", () => ({
   WebhookDeliveryModal: () => "webhook-delivery-modal",
 }));
 vi.mock("../routines/components/routine-modal", () => ({
   RoutineModal: () => "routine-modal",
 }));
-vi.mock("../company/components/webhook/webhook-modal", () => ({
+vi.mock("../settings/(workspace)/components/webhook/webhook-modal", () => ({
   WebhookModal: () => "webhook-modal",
 }));
-vi.mock("../profile/components/api-key-modal", () => ({
+vi.mock("../settings/(account)/components/api-key-modal", () => ({
   ApiKeyModal: () => "api-key-modal",
 }));
-vi.mock("../profile/components/connected-account-modal", () => ({
+vi.mock("../settings/(account)/components/connected-account-modal", () => ({
   ConnectedAccountModal: () => "connected-account-modal",
 }));
-vi.mock("../profile/components/connect-upsell-modal", () => ({
+vi.mock("../settings/(account)/components/connect-upsell-modal", () => ({
   ConnectUpsellModal: () => "upsell-modal",
 }));
 vi.mock("@/components/ui/sonner", () => ({ Toaster: () => "toaster" }));

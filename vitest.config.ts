@@ -99,7 +99,7 @@ const domTestFiles = [
   "core/stores/__tests__/root-store-provider.test.ts",
   "core/stores/__tests__/use-hydrated-intl-store.test.ts",
   "features/messaging/__tests__/message-presentation.test.ts",
-  "app/[locale]/(protected)/profile/components/__tests__/account-signature-behavior.test.ts",
+  "app/[locale]/(protected)/settings/(account)/components/__tests__/account-signature-behavior.test.ts",
   "app/[locale]/(protected)/routines/components/__tests__/routine-modal.render.test.tsx",
   "app/[locale]/(protected)/routines/components/__tests__/routine-runs-pane.render.test.tsx",
   "features/messaging/__tests__/email-frame.test.ts",

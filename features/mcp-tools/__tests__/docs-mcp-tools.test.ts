@@ -18,9 +18,7 @@ function getPage(args: { slug: string; locale?: ContentLocale; source?: "docs" |
 
 describe("search_docs", () => {
   it("tells agents how to complete the relative app routes it returns", () => {
-    expect(searchDocsTool.description).toMatch(
-      /App routes in a snippet, such as `\/company\/subscription`, are relative/,
-    );
+    expect(searchDocsTool.description).toMatch(/App routes in a snippet, such as `\/settings\/plan`, are relative/);
   });
 
   it("describes its text result", () => {
@@ -73,9 +71,7 @@ describe("get_docs_page", () => {
   });
 
   it("tells agents how to complete the relative app routes in the markdown", () => {
-    expect(getDocsPageTool.description).toMatch(
-      /App routes in the markdown, such as `\/company\/subscription`, are relative/,
-    );
+    expect(getDocsPageTool.description).toMatch(/App routes in the markdown, such as `\/settings\/plan`, are relative/);
   });
 
   it("names every widget editor target of the Dashboard page in its tips for agents", () => {
@@ -95,10 +91,10 @@ describe("get_docs_page", () => {
     }
   });
 
-  it("describes the My Company sidebar entry as a toggle in its tips for agents", () => {
+  it("describes the workspace menu as the way into the settings pages in its tips for agents", () => {
     for (const [locale, toggle] of [
-      ["en", "`#nav-company` only expands or collapses the sidebar group"],
-      ["de", "`#nav-company` klappt die Sidebar-Gruppe nur auf oder zu"],
+      ["en", "`#nav-workspace-menu` opens the workspace menu; it is not a navigation target"],
+      ["de", "`#nav-workspace-menu` öffnet das Workspace-Menü und ist kein Navigationsziel"],
     ] as const) {
       const { markdown } = (
         docsPageResult({ slug: "app-company", locale, source: "docs" }) as {
@@ -122,10 +118,10 @@ describe("search and fetch", () => {
 
   it("tell deep-research connectors how to complete the relative app routes in fetched docs", () => {
     expect(description("fetch")).toMatch(
-      /app routes in text, such as `\/company\/subscription`, are relative: for a full link, put the route after the origin of url/,
+      /app routes in text, such as `\/settings\/plan`, are relative: for a full link, put the route after the origin of url/,
     );
     expect(description("search")).toMatch(
-      /App routes in the docs text that fetch returns, such as `\/company\/subscription`, are relative/,
+      /App routes in the docs text that fetch returns, such as `\/settings\/plan`, are relative/,
     );
   });
 
@@ -135,7 +131,7 @@ describe("search and fetch", () => {
         readFileSync(join(process.cwd(), "content", "docs", locale, "mcp-catalog-summaries.json"), "utf8"),
       ) as Record<string, string>;
       for (const tool of ["search_docs", "get_docs_page", "search", "fetch"]) {
-        expect(summaries[tool], `${tool} (${locale})`).toContain("`/company/subscription`");
+        expect(summaries[tool], `${tool} (${locale})`).toContain("`/settings/plan`");
         expect(summaries[tool], `${tool} (${locale})`).toContain("`BASE_URL`");
       }
     }
