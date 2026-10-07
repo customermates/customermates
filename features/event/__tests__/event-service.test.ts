@@ -393,9 +393,9 @@ describe("EventService routine triggers", () => {
 
   it("ignores events that are not part of the subscribable set", async () => {
     await runWithTenant(mockUser, () =>
-      service.publish(DomainEvent.COMPANY_UPDATED, {
+      service.publish(DomainEvent.ROLE_DELETED, {
         entityId: CONTACT_ID,
-        payload: { changes: { name: { from: "A", to: "B" } } } as never,
+        payload: { name: "Auditors" } as never,
       }),
     );
 

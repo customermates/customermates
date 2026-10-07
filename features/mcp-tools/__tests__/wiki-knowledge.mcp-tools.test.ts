@@ -32,11 +32,11 @@ vi.mock("@/core/di", () => ({
   getGetUserDetailsInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { id: "user" } }),
   }),
-  getGetCompanySettingsInteractor: () => ({
+  getGetCompanyInteractor: () => ({
     invoke: () =>
       Promise.resolve({
         ok: true,
-        data: { id: "company", terminology: { labels: {} } },
+        data: { id: "company" },
       }),
   }),
   getGetRolesApiInteractor: () => ({

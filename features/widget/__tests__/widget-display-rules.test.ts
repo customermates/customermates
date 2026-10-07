@@ -10,7 +10,7 @@ import { widgetDisplayRequirement, widgetDisplayTypeIssue } from "../widget-disp
 
 const companyId = randomUUID();
 const id = (key: string) => presetId(companyId, key);
-const model = createCrmPreset(companyId, "EUR");
+const model = createCrmPreset(companyId);
 const measure = (groupBy: RecordMeasure["groupBy"], typeId = id("deal")) =>
   RecordMeasureSchema.parse({ source: { typeId }, aggregation: "count", valueFieldId: null, groupBy });
 const stage = measure({ path: [], fieldId: id("deal.stage") });

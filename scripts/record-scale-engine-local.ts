@@ -97,14 +97,7 @@ try {
   const policy = new access.RecordAccessPolicy(new users.PrismaUserRepo(new PermissionService()), repo);
   const calculator = new calculations.RecordCalculationService(repo);
   const writer = new writes.RecordWriteService(repo, policy, calculator);
-  const company = {
-    getDetails: async () => ({
-      currency: (
-        await client.query('SELECT currency FROM "Company" WHERE id=$1', [companyId])
-      ).rows[0].currency.toUpperCase() as string,
-    }),
-  };
-  const mutate = new mutations.MutateRecordInteractor(repo, policy, writer, company, {
+  const mutate = new mutations.MutateRecordInteractor(repo, policy, writer, {
     dispatch: () => {
       throw new Error("Ordinary scale writes unexpectedly require background execution");
     },
@@ -112,10 +105,10 @@ try {
   const query = new queries.QueryRecordsInteractor(repo, policy);
   const { GetRecordInteractor } = await import("../features/records/get-record.interactor");
   const read = new GetRecordInteractor(repo, policy);
-  const measure = new measures.QueryRecordMeasureInteractor(repo, policy, company);
+  const measure = new measures.QueryRecordMeasureInteractor(repo, policy);
   const search = new searches.SearchRecordsInteractor(repo, policy);
   const exporter = new exports.ExportRecordsInteractor(repo, policy);
-  const importer = new imports.ImportRecordsInteractor(repo, policy, writer, company);
+  const importer = new imports.ImportRecordsInteractor(repo, policy, writer);
   const model = await run(() => repo.getModel());
   const { presetId } = await import("../features/records/crm-preset");
   const typeId = presetId(companyId, "contact");
@@ -260,7 +253,6 @@ try {
       policy,
       configurations,
       new RecordConfigurationWriter(repo, calculator),
-      company,
       {
         dispatch: () => {
           throw new Error("Creating empty benchmark types unexpectedly required staging");
@@ -352,7 +344,7 @@ try {
     const targetType = configuredModel.types.find((type) => type.label === targetLabel);
     if (!sourceType || !targetType) throw new Error("Benchmark types are missing");
     const background = { dispatch: async () => {} };
-    const stagedMutate = new mutations.MutateRecordInteractor(repo, policy, writer, company, background);
+    const stagedMutate = new mutations.MutateRecordInteractor(repo, policy, writer, background);
     const source = unwrap(
       await run(() =>
         stagedMutate.invoke({
@@ -440,7 +432,7 @@ try {
     for (; advances < 1000; advances += 1) {
       await assertValues("10");
       const step = await run(() =>
-        new RecordOperationService(repo, policy, configurations, company).advance(pending.operationId),
+        new RecordOperationService(repo, policy, configurations).advance(pending.operationId),
       );
       if (step.done) break;
     }

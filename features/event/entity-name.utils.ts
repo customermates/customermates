@@ -22,7 +22,6 @@ function connectedAccountName(
 const entityNameExtractors: {
   [K in DomainEvent]: (eventData: DomainEventMap[K], translate?: (key: string) => string) => string;
 } = {
-  [DomainEvent.COMPANY_UPDATED]: (_eventData, translate) => translate?.("Common.company") ?? "Company",
   [DomainEvent.USER_UPDATED]: (eventData) => `${eventData.payload.firstName} ${eventData.payload.lastName}`.trim(),
   [DomainEvent.USER_REGISTERED]: (eventData) => `${eventData.payload.firstName} ${eventData.payload.lastName}`.trim(),
   [DomainEvent.ROLE_CREATED]: (eventData) => eventData.payload.name,

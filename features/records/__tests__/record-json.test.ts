@@ -16,7 +16,7 @@ describe("record configuration fingerprints", () => {
   });
 
   it("keeps approval fingerprints stable through schema parsing, JSON storage and option reordering", () => {
-    const model = createCrmPreset("workspace", "EUR");
+    const model = createCrmPreset("workspace");
     const fieldId = presetId("workspace", "deal.weightedValue");
     const field = recordInvariant(model.fields.find((field) => field.id === fieldId));
     const hash = calculationDependencyHash(field, model);
@@ -35,8 +35,13 @@ describe("record configuration fingerprints", () => {
 
   it("recalculates visibility dependencies when summary publication changes", () => {
     const field = recordInvariant(
-      createCrmPreset("workspace", "EUR").fields.find((field) => field.behavior.kind === "rollup"),
+      createCrmPreset("workspace").fields.find((field) => field.behavior.kind === "rollup"),
     );
     expect(fieldValueDefinition(field)).not.toBe(fieldValueDefinition({ ...field, publishedSummary: true }));
+  });
+
+  it("recalculates a money field when its currency changes", () => {
+    const field = recordInvariant(createCrmPreset("workspace").fields.find((field) => field.valueType === "currency"));
+    expect(fieldValueDefinition(field)).not.toBe(fieldValueDefinition({ ...field, format: { currency: "CHF" } }));
   });
 });

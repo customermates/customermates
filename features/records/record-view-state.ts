@@ -6,12 +6,7 @@ import { invalidRecordQueryPart } from "./record-query-validation";
 import { recordColumns } from "./record-columns";
 import { resolveRecordGrouping } from "./record-grouping";
 
-export function recordViewStateIsValid(
-  typeId: string,
-  state: DataViewState,
-  model: RecordModel,
-  currency: string,
-): boolean {
+export function recordViewStateIsValid(typeId: string, state: DataViewState, model: RecordModel): boolean {
   if (!model.types.some((type) => type.id === typeId && !type.archived)) return false;
   const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
   const paths = model.types.find((type) => type.id === typeId)?.relationshipPaths;
@@ -29,7 +24,6 @@ export function recordViewStateIsValid(
       typeId,
       fields,
       { ...state, sortDescriptor: state.sortDescriptor ?? undefined },
-      currency,
       model.relationships,
       paths,
     );

@@ -8,7 +8,7 @@ export async function createBrowserWorkspace(database: Client) {
   const authUserId = randomUUID();
   const roleId = randomUUID();
   const email = `browser-${userId}@example.test`;
-  const model = createCrmPreset(companyId, "EUR");
+  const model = createCrmPreset(companyId);
   await database.query("BEGIN");
   try {
     await database.query('INSERT INTO "Company" (id,"updatedAt") VALUES ($1,NOW())', [companyId]);

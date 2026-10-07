@@ -85,13 +85,12 @@ function harness(readOnly = false) {
   navigationGuard.register(compose);
   const root = {
     userStore: { user: { id: "actor" } },
-    companyStore: { company: { currency: "EUR" } },
     recordWorkspaceStore: { getDetailLayout: () => layout },
     navigationGuard,
     threadComposeStore: compose,
   } as unknown as RootStore;
   const context: RecordEditorContext = {
-    model: createCrmPreset(companyId, "EUR"),
+    model: createCrmPreset(companyId),
     linkColors: {},
     typeId,
     permittedActions: readOnly ? ["readAll"] : ["readAll", "update", "delete"],

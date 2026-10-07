@@ -19,7 +19,7 @@ import { RecordsStore } from "../records.store";
 
 const companyId = randomUUID();
 const id = (key: string) => presetId(companyId, key);
-const model = createCrmPreset(companyId, "EUR");
+const model = createCrmPreset(companyId);
 const root = {
   recordWorkspaceStore: { invalidate: mocks.invalidate },
   localeStore: { getTranslation: (key: string) => key },
