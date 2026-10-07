@@ -189,7 +189,11 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
         await generalControl(page, "description").fill(localDescription);
         await generalControl(other, "name").fill(remoteName);
         await generalControl(other, "icon").click();
-        await other.getByRole("option", { name: scenario.iconLabel, exact: true }).click();
+        await other
+          .getByRole("toolbar", { name: labels.iconChoose, exact: true })
+          .getByRole("button", { name: scenario.iconLabel, exact: true })
+          .click();
+        await expect(generalControl(other, "icon")).toContainText(scenario.iconLabel);
         await saveGeneral(other);
         const remote = await model(database, companyId);
         expect(remote.revision).toBe(before.revision + 1);
