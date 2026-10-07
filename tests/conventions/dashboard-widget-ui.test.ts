@@ -66,11 +66,11 @@ describe("generic dashboard widget UI", () => {
   it("previews both widget kinds as their real dashboard cards, keyed to the current draft", () => {
     const chart = component("record-widget-editor.tsx");
     const activity = component("record-activity-widget-editor.tsx");
-    expect(chart).toContain('t("RecordWidgets.preview")');
+    expect(chart).not.toContain("onRefresh");
     expect(chart).toContain("await store.runPreview(() => previewRecordWidgetAction(parsed.data))");
     expect(chart).toContain("<RecordWidgetCard");
     expect(chart).toContain("preview?.key === key");
-    expect(activity).toContain('t("Dashboard.widgetEditor.preview.title")');
+    expect(activity).not.toContain("onRefresh");
     expect(activity).toContain("<RecordActivityWidgetCard");
   });
   it("keeps activity loading and empty states on the shared skeleton", () => {

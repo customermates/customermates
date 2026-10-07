@@ -61,7 +61,7 @@ test("creates a custom-type activity widget, previews history, edits it and pres
   await expect(page.getByTestId("agent-composer-contexts").getByText("Tender history", { exact: true })).toBeVisible();
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Tender history");
   await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
-  await dialog.getByRole("button", { name: "Save changes", exact: true }).click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   const updated = await database.query(
     'SELECT name,version,"activityQuery" FROM "Widget" WHERE "companyId"=$1 AND id=$2',

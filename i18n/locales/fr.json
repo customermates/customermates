@@ -1742,7 +1742,6 @@
         "showFilters": "Afficher le nombre d'activités et les filtres",
         "showMetricAndFilters": "Afficher l'indicateur et les filtres"
       },
-      "create": "Créer le widget",
       "danger": {
         "deleteLabel": "Supprimer le widget {name}"
       },
@@ -1758,10 +1757,8 @@
         "incomplete": "Complétez les paramètres de données pour afficher un aperçu.",
         "live": "Aperçu en direct",
         "size": "Taille sur le tableau de bord {w} × {h}",
-        "title": "Aperçu",
         "untitled": "Widget sans titre"
       },
-      "save": "Enregistrer les modifications",
       "settings": "Paramètres du widget",
       "sharing": {
         "template": "Partager comme modèle"
@@ -3457,7 +3454,6 @@
       "startsWith": "Commence par"
     },
     "overall": "Total : {value}",
-    "preview": "Aperçu de la mesure",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {

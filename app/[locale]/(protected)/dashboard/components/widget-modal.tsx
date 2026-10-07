@@ -100,7 +100,6 @@ export const WidgetModal = observer(() => {
     ...(askAction ? [askAction] : []),
     ...(deleteAction ? [deleteAction] : []),
   ];
-  const saveDisabled = isDisabled || !form.name.trim() || (!isCreate && !widgetModalStore.hasUnsavedChanges);
 
   useEffect(() => {
     if (
@@ -347,19 +346,13 @@ export const WidgetModal = observer(() => {
                   {t("Common.actions.back")}
                 </Button>
 
-                <Button disabled={saveDisabled} id="widget-modal-save" type="submit">
-                  {t("Dashboard.widgetEditor.create")}
+                <Button disabled={isDisabled} id="widget-modal-save" type="submit">
+                  {t("Common.actions.save")}
                 </Button>
               </AppCardFooter>
             )
           ) : (
-            <FormActions
-              showInitially
-              anchorScope="widget-modal"
-              overrideDisabled={!form.name.trim()}
-              primaryButtonLabel="Dashboard.widgetEditor.save"
-              store={widgetModalStore}
-            />
+            <FormActions showInitially anchorScope="widget-modal" store={widgetModalStore} />
           )}
         </AppCard>
       </AppForm>

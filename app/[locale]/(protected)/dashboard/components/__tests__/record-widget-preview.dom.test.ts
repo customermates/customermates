@@ -84,10 +84,18 @@ const wait = (ms: number) =>
 function readyPreview(revision = model.revision) {
   return { ok: true, data: { result: { schemaRevision: revision, groups: [], total: 0 }, groupOptions: [] } };
 }
-async function requestPreview() {
-  const button = container.querySelector<HTMLButtonElement>('button[aria-label="RecordWidgets.preview"]');
-  if (!button) throw new Error("Expected the preview control");
-  expect(button.disabled).toBe(false);
+function setGroupLimit(store: WidgetModalStore, groupLimit: number) {
+  act(() =>
+    runInAction(() => {
+      Object.assign(store.form, { measure: { ...(store.form as { measure: object }).measure, groupLimit } });
+    }),
+  );
+}
+async function retryPreview() {
+  const button = [...container.querySelectorAll<HTMLButtonElement>("[data-preview-error] button")].find(
+    (candidate) => candidate.textContent === "ErrorCard.retry",
+  );
+  if (!button) throw new Error("Expected the inline preview retry");
   await act(async () => {
     button.click();
     await vi.advanceTimersByTimeAsync(0);
@@ -150,122 +158,90 @@ describe("record widget preview", () => {
     expect(mocks.previewRecordWidgetAction).not.toHaveBeenCalled();
   });
 
-  it.each([false, true])(
-    "preserves a failed manual preview when queued auto preview reaches its deadline (pending=%s)",
-    async (pending) => {
-      let reject: (error: Error) => void = (_error) => {
-        throw new Error("Expected the manual preview request");
-      };
-      const failure = new TypeError("Failed to fetch");
-      const manual = new Promise<ReturnType<typeof readyPreview>>((_, fail) => {
-        reject = fail;
-      });
-      mocks.previewRecordWidgetAction.mockReturnValueOnce(manual);
-      await mount(widgetStore(), "preview");
-      await wait(300);
-      await requestPreview();
-      if (pending) await wait(300);
-      await act(async () => {
-        reject(failure);
-        await vi.advanceTimersByTimeAsync(0);
-      });
-      await wait(pending ? 1 : 300);
-      expect(mocks.previewRecordWidgetAction).toHaveBeenCalledOnce();
-      expect(container.querySelector('[role="alert"]')?.textContent).toBe("RecordWidgets.previewFailed");
-      expect(container.querySelector("[data-chart]")).toBeNull();
-      await wait(1200);
-      expect(mocks.previewRecordWidgetAction).toHaveBeenCalledOnce();
-      expect(container.querySelector('[role="alert"]')?.textContent).toBe("RecordWidgets.previewFailed");
+  it("offers no manual preview control", async () => {
+    await mount(widgetStore(), "preview");
+    await wait(600);
+    expect(container.querySelector('button[aria-label="RecordWidgets.preview"]')).toBeNull();
+    expect(container.querySelector("[data-preview-error]")).toBeNull();
+  });
 
-      await requestPreview();
-      expect(mocks.previewRecordWidgetAction).toHaveBeenCalledTimes(2);
-      expect(container.querySelector('[role="alert"]')).toBeNull();
-      expect(container.querySelector("[data-chart]")).not.toBeNull();
-    },
-  );
+  it("shows a failed automatic preview inside the preview and retries it from there", async () => {
+    mocks.previewRecordWidgetAction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    await mount(widgetStore(), "preview");
+    await wait(600);
+    expect(mocks.previewRecordWidgetAction).toHaveBeenCalledOnce();
+    expect(container.querySelector('[data-preview-error] [role="alert"]')?.textContent).toBe(
+      "RecordWidgets.previewFailed",
+    );
+    expect(container.querySelector("[data-chart]")).toBeNull();
+    await wait(1200);
+    expect(mocks.previewRecordWidgetAction).toHaveBeenCalledOnce();
 
-  it("automatically previews a changed measure after manual failure and previews the original measure when selected again", async () => {
+    await retryPreview();
+    expect(mocks.previewRecordWidgetAction).toHaveBeenCalledTimes(2);
+    expect(container.querySelector("[data-preview-error]")).toBeNull();
+    expect(container.querySelector("[data-chart]")).not.toBeNull();
+  });
+
+  it("automatically previews a changed measure after a failure and the original measure when selected again", async () => {
     mocks.previewRecordWidgetAction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
     const store = widgetStore();
     await mount(store, "preview");
-    await wait(300);
-    await requestPreview();
+    await wait(600);
     expect(container.querySelector('[role="alert"]')?.textContent).toBe("RecordWidgets.previewFailed");
-    act(() =>
-      runInAction(() => {
-        Object.assign(store.form, { measure: { ...(store.form as { measure: object }).measure, groupLimit: 20 } });
-      }),
-    );
+    setGroupLimit(store, 20);
     await wait(599);
     expect(mocks.previewRecordWidgetAction).toHaveBeenCalledOnce();
     await wait(1);
     expect(mocks.previewRecordWidgetAction).toHaveBeenCalledTimes(2);
     expect(mocks.previewRecordWidgetAction.mock.calls[1][0]).toMatchObject({ groupLimit: 20 });
     expect(container.querySelector("[data-chart]")).not.toBeNull();
-    act(() =>
-      runInAction(() => {
-        Object.assign(store.form, { measure: { ...(store.form as { measure: object }).measure, groupLimit: 100 } });
-      }),
-    );
+    setGroupLimit(store, 100);
     await wait(600);
     expect(mocks.previewRecordWidgetAction).toHaveBeenCalledTimes(3);
     expect(mocks.previewRecordWidgetAction.mock.calls[2][0]).toMatchObject({ groupLimit: 100 });
   });
 
-  it("automatically previews the refreshed schema after an explicit preview reports a newer revision", async () => {
+  it("automatically previews the refreshed schema after a preview reports a newer revision", async () => {
     const revision = model.revision + 1;
     mocks.getRecordModelAction.mockResolvedValueOnce(model).mockResolvedValue({ ...model, revision });
     mocks.previewRecordWidgetAction.mockResolvedValue(readyPreview(revision));
     await mount(widgetStore(), "preview");
-    await wait(300);
-    await requestPreview();
+    await wait(600);
     expect(mocks.getRecordModelAction).toHaveBeenCalledTimes(2);
-    expect(container.querySelector("[data-chart]")).toBeNull();
     await wait(600);
     expect(mocks.previewRecordWidgetAction).toHaveBeenCalledTimes(2);
     expect(container.querySelector("[data-chart]")).not.toBeNull();
   });
 
-  it("releases manual preview ownership when a different form has the same measure", async () => {
-    mocks.previewRecordWidgetAction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+  it("keeps the previous render, marked stale, until the next preview arrives", async () => {
     const store = widgetStore();
     await mount(store, "preview");
-    await wait(300);
-    await requestPreview();
-    act(() =>
-      runInAction(() => {
-        store.form = { ...store.form, name: "A different widget form" };
+    await wait(600);
+    expect(container.querySelector('[data-preview-current="true"] [data-chart]')).not.toBeNull();
+    let resolve: (value: ReturnType<typeof readyPreview>) => void = () => {
+      throw new Error("Expected the second preview request");
+    };
+    mocks.previewRecordWidgetAction.mockReturnValueOnce(
+      new Promise((done) => {
+        resolve = done;
       }),
     );
-    await wait(300);
+    setGroupLimit(store, 20);
+    await wait(600);
     expect(mocks.previewRecordWidgetAction).toHaveBeenCalledTimes(2);
-    expect(container.querySelector('[role="alert"]')).toBeNull();
-    expect(container.querySelector("[data-chart]")).not.toBeNull();
+    expect(container.querySelector('[data-preview-current="false"] [data-chart]')).not.toBeNull();
+    expect(container.querySelector('[role="status"]')).not.toBeNull();
+    await act(async () => {
+      resolve(readyPreview());
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(container.querySelector('[data-preview-current="true"] [data-chart]')).not.toBeNull();
   });
 
-  it("automatically previews a different same-measure form after the debounce has already settled", async () => {
-    mocks.previewRecordWidgetAction.mockRejectedValueOnce(new TypeError("Failed to fetch"));
-    const store = widgetStore();
-    await mount(store, "preview");
-    await wait(300);
-    await requestPreview();
-    await wait(900);
-    expect(mocks.previewRecordWidgetAction).toHaveBeenCalledOnce();
-    expect(container.querySelector('[role="alert"]')?.textContent).toBe("RecordWidgets.previewFailed");
-    act(() =>
-      runInAction(() => {
-        store.form = { ...store.form, name: "A different settled widget form" };
-      }),
-    );
-    await wait(0);
-    expect(mocks.previewRecordWidgetAction).toHaveBeenCalledTimes(2);
-    expect(container.querySelector('[role="alert"]')).toBeNull();
-    expect(container.querySelector("[data-chart]")).not.toBeNull();
-  });
-
-  it("previews a reopened widget and ignores the previous manual request's failure", async () => {
+  it("previews a reopened widget and ignores the previous request's failure", async () => {
     let reject: (error: Error) => void = (_error) => {
-      throw new Error("Expected the previous manual preview request");
+      throw new Error("Expected the previous preview request");
     };
     mocks.previewRecordWidgetAction.mockReturnValueOnce(
       new Promise<ReturnType<typeof readyPreview>>((_, fail) => {
@@ -274,8 +250,7 @@ describe("record widget preview", () => {
     );
     const store = widgetStore();
     await mount(store, "preview");
-    await wait(300);
-    await requestPreview();
+    await wait(600);
     act(() =>
       runInAction(() => {
         store.isOpen = false;

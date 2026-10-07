@@ -49,7 +49,6 @@ test("keeps source totals separate from filtered widget groups across save and r
   await groupFilters.getByRole("combobox", { name: "Condition", exact: true }).click();
   await page.getByRole("option", { name: "Equals", exact: true }).click();
   await groupFilters.getByLabel("Value", { exact: true }).fill("Shown service");
-  await dialogs.getByRole("button", { name: "Preview measure", exact: true }).click();
   await expect(dialogs.getByText("Overall: €100.00", { exact: true })).toBeVisible();
   await expect(dialogs.locator("dt").filter({ hasText: "Shown service" })).toHaveCount(1);
   await expect(dialogs.locator("dt").filter({ hasText: "Other service" })).toHaveCount(0);

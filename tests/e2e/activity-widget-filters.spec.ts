@@ -66,7 +66,7 @@ async function addFilter(page: Page, kind: "provider" | "account" | "thread", in
 
 async function previewMessages(page: Page, present: string[], absent: string[] = []) {
   const dialog = page.locator(':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"])[role="dialog"]');
-  await dialog.getByRole("button", { name: englishMessages.Dashboard.widgetEditor.preview.title, exact: true }).click();
+  await expect(dialog.locator('[data-preview-current="true"]')).toHaveCount(1);
   for (const body of present) await expect(dialog.getByText(body, { exact: true })).toBeVisible();
   for (const body of absent) await expect(dialog.getByText(body, { exact: true })).toHaveCount(0);
 }

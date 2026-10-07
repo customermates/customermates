@@ -278,7 +278,6 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await expect(dialog.getByRole("region", { name: "Appearance", exact: true })).toBeAttached();
     await dialog.getByRole("textbox", { name: "Name", exact: false }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-settings.png"), animations: "disabled" });
-    await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
     await expect(dialog.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-preview.png"), animations: "disabled" });
     await dialog.locator("#widget-modal-save").click();

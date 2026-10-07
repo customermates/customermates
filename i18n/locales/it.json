@@ -1742,7 +1742,6 @@
         "showFilters": "Mostra il numero di attività e i filtri",
         "showMetricAndFilters": "Mostra la metrica e i filtri"
       },
-      "create": "Crea widget",
       "danger": {
         "deleteLabel": "Elimina il widget {name}"
       },
@@ -1758,10 +1757,8 @@
         "incomplete": "Completa le impostazioni dei dati per vedere un’anteprima.",
         "live": "Anteprima dal vivo",
         "size": "Dimensione nella dashboard {w} × {h}",
-        "title": "Anteprima",
         "untitled": "Widget senza titolo"
       },
-      "save": "Salva le modifiche",
       "settings": "Impostazioni del widget",
       "sharing": {
         "template": "Condividi come modello"
@@ -3457,7 +3454,6 @@
       "startsWith": "Inizia con"
     },
     "overall": "Totale: {value}",
-    "preview": "Anteprima della misura",
     "previewFailed": "Impossibile caricare l’anteprima. Riprova.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {

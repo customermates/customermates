@@ -122,7 +122,6 @@ export const RecordActivityWidgetEditor = observer(
     const form = store.form;
     const [typeNames, setTypeNames] = useState<Array<{ id: string; pluralLabel: string }>>([]);
     const query = isRecordActivityWidgetForm(form) ? form.activityQuery : null;
-    const [refreshes, setRefreshes] = useState(0);
     const validQuery = query && RecordActivityQuerySchema.safeParse(query).success ? JSON.stringify(query) : null;
     const previewQuery = useDebouncedValue(validQuery, PREVIEW_DELAY_MS);
     const typeIds = query
@@ -207,14 +206,11 @@ export const RecordActivityWidgetEditor = observer(
         <WidgetPreviewFrame
           geometry={store.previewGeometry}
           kind={form.kind}
-          refreshDisabled={formDisabled || !previewQuery}
-          refreshLabel={t("Dashboard.widgetEditor.preview.title")}
-          onRefresh={() => setRefreshes((count) => count + 1)}
+          loading={Boolean(validQuery) && previewQuery !== validQuery}
         >
           {previewQuery ? (
             <div className="h-full" data-preview-current={previewQuery === validQuery}>
               <RecordActivityWidgetCard
-                key={refreshes}
                 widget={{
                   id: form.id ?? "",
                   name: form.name.trim() || t("Dashboard.widgetEditor.preview.untitled"),

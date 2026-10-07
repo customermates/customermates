@@ -204,7 +204,6 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("option", { name: "Client organization", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Linked records", exact: true }).click();
   await page.getByRole("option", { name: "No accessible linked records match", exact: true }).click();
-  await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
   await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.125/)).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
