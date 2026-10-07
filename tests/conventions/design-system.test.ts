@@ -199,14 +199,16 @@ function topBarFindings(sources: SourceFile[]) {
 }
 
 const TOP_BAR_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx": "I2 r3: Configure button as TopBarAction",
-  "app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx": "I3 r3: Add widget as TopBarAction",
+  "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx": "I2 r3: Configure button through the shared top-bar action buttons",
+  "app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx": "I3 r3: Add widget through the shared top-bar action buttons",
   "app/[locale]/(protected)/company/components/subscription/subscription-view.tsx": "I19: billing page actions",
-  "app/[locale]/(protected)/profile/components/api-keys-page-view.tsx": "I19: API keys Add as TopBarAction",
+  "app/[locale]/(protected)/profile/components/api-keys-page-view.tsx": "I19: API keys Add through the shared top-bar action buttons",
+  "app/[locale]/(protected)/inbox/components/inbox-list.tsx": "I25 phase 2: refresh and connect through I2's top-bar action buttons",
+  "app/[locale]/(protected)/inbox/components/thread-topbar.tsx": "I25 phase 2: resync through I2's top-bar action buttons",
 };
 
 describe("rules 5, 6 and 58: top-bar actions and view chips through their shared components", () => {
-  it("builds every top-bar action node from DataViewToolbar or TopBarAction", () => {
+  it("builds every top-bar action node from DataViewToolbar or the shared top-bar action buttons", () => {
     enforce(topBarFindings(PRODUCT_SOURCES), TOP_BAR_ALLOWLIST);
   });
 

@@ -22,7 +22,6 @@ import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
-import { TopBarAction } from "@/app/components/top-bar-action";
 import { PageState } from "@/components/page-state/page-state";
 import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
 import { resolveDataViewPageState, type DataViewPageState } from "@/components/data-view/data-view-state";
@@ -91,29 +90,34 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
           />
 
           {canUpdate && (
-            <TopBarAction
+            <Button
+              aria-label={t("Inbox.refresh")}
+              className="h-8"
               disabled={isRefreshing}
-              icon={RefreshCw}
-              label={t("Inbox.refresh")}
-              spinning={isRefreshing}
+              size="sm"
+              variant="secondary"
               onClick={() => runUserAction(() => messagingThreadsStore.refreshInbox())}
-            />
+            >
+              <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
+
+              <span className="hidden sm:inline">{t("Inbox.refresh")}</span>
+            </Button>
           )}
 
           {canConnect && (
-            <TopBarAction
-              emphasis="primary"
-              endContent={
-                channelsNeedingAction > 0 && (
+            <Button asChild className="h-8" size="sm" variant="default">
+              <Link aria-label={t("ConnectedAccountsCard.title")} href="/profile/connected-accounts">
+                <Cable className="size-3.5" />
+
+                <span className="hidden sm:inline">{t("ConnectedAccountsCard.title")}</span>
+
+                {channelsNeedingAction > 0 && (
                   <span className="bg-warning/25 text-warning inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md px-1.5 text-[11px] font-medium tabular-nums">
                     {channelsNeedingAction}
                   </span>
-                )
-              }
-              href="/profile/connected-accounts"
-              icon={Cable}
-              label={t("ConnectedAccountsCard.title")}
-            />
+                )}
+              </Link>
+            </Button>
           )}
         </div>
       ),
