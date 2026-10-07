@@ -29,6 +29,9 @@
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
   },
+  "ActivityPage": {
+    "title": "Aktivität"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -753,12 +756,7 @@
     "unnamed": "Unbenannt"
   },
   "AuditLogModal": {
-    "createdAt": "Erstellt am",
-    "entity": "Element",
-    "entityId": "Element-ID",
-    "event": "Ereignis",
     "eventAt": "{event} am {date}",
-    "eventData": "Ereignisdaten",
     "fields": {
       "acceptanceType": "Art der Zustimmung",
       "acceptingEmail": "Zugestimmt von",
@@ -766,11 +764,12 @@
       "changedFields": "Überwachte Felder",
       "city": "Stadt",
       "country": "Land",
+      "createType": "Neuer Typ",
       "cronExpression": "Zeitplan",
       "currency": "Währung",
-      "dealStageWeights": "Phasenwahrscheinlichkeiten",
-      "dealWeightingColumnId": "Phasenfeld",
       "debounceSeconds": "Verzögerung",
+      "deleteField": "Endgültig gelöschtes Feld",
+      "deleteType": "Endgültig gelöschter Typ",
       "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",
       "emails": "E-Mail-Adressen",
@@ -779,10 +778,16 @@
       "markdown": "Markdown",
       "postalCode": "Postleitzahl",
       "prompt": "Anweisungen",
+      "publishSummary": "Veröffentlichte Zusammenfassung",
+      "putAccessPreset": "Zugriffsvorlage",
+      "putActivityPath": "Aktivitätspfad",
+      "putCapability": "Funktion",
+      "putField": "Feld",
+      "putRelationship": "Beziehung",
+      "putType": "Typ",
       "recipientEmail": "Gesendet an",
       "removalReason": "Entfernungsgrund",
       "street": "Straße",
-      "terminology": "Datensatzbenennung",
       "timezone": "Zeitzone",
       "triggerEvents": "Auslöser-Ereignisse",
       "triggerFilters": "Auslöser-Filter",
@@ -793,15 +798,7 @@
     "noValue": "Kein Wert",
     "relationsAdded": "{field} hinzugefügt",
     "relationsDeleted": "{field} entfernt",
-    "title": "Audit-Log-Details",
-    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}",
-    "userId": "Benutzer"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Änderungen im Workspace werden hier protokolliert.",
-    "emptyTitle": "Noch keine Aktivität",
-    "searchTooltip": "Nach Element-ID suchen",
-    "title": "Audit-Logs"
+    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
@@ -1165,6 +1162,13 @@
         "created": "Datensatz erstellt",
         "deleted": "Datensatz gelöscht",
         "updated": "Datensatz aktualisiert"
+      },
+      "record_grants": {
+        "updated": "Datensatzzugriff geändert"
+      },
+      "record_model": {
+        "initialized": "Datenmodell eingerichtet",
+        "updated": "Datenmodell geändert"
       },
       "records": {
         "exported": "Datensätze exportiert"
@@ -2047,8 +2051,10 @@
     "noFurtherDetail": "Für dieses Ereignis wurden keine weiteren Details gespeichert.",
     "types": {
       "activities": "Aktivitäten",
-      "changes": "Änderungen",
-      "messages": "Nachrichten"
+      "audit": "Verwaltung und System",
+      "configuration": "Konfiguration",
+      "messages": "Nachrichten",
+      "record": "Datensatzänderungen"
     }
   },
   "ErrorCard": {
@@ -2954,8 +2960,8 @@
     "archiveRelationship": "Verknüpfung archivieren",
     "archiveRelationshipPath": "Diese Spalte mit verknüpften Datensätzen archivieren",
     "ascending": "Aufsteigend",
+    "assignedMembers": "Zugewiesene Mitglieder",
     "assignedTo": "Zugewiesen an",
-    "assignmentChange": "Zugewiesene Mitglieder: {before} → {after}",
     "attribute": "Attributname",
     "behavior": "Wertquelle",
     "behaviors": {
@@ -2997,7 +3003,6 @@
     "createdAt": "Erstellt am",
     "createList": "Liste erstellen",
     "currency": "Währung",
-    "currentValue": "Aktueller Wert",
     "decimalPlaces": "Dezimalstellen",
     "decimalPlacesHelp": "Für die Standardeinstellung leer lassen. Dies ändert die Anzeige der Werte, nicht ihre Berechnung.",
     "defaultColumns": "Standardspalten",
@@ -3264,7 +3269,6 @@
     "pluralDescription": "Der Name in der Navigation. Leer lassen, um den Listennamen zu verwenden.",
     "pluralName": "Navigationsbezeichnung",
     "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
-    "previousValue": "Vorheriger Wert",
     "priceModes": {
       "live": "Aktueller Preis",
       "saved": "Gespeicherter Preis"

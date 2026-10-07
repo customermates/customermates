@@ -277,8 +277,9 @@ export async function seedRecordHistory(context: SeedContext, entities: Relation
     if (!change) throw new Error(`Synthetic ${entry.type} history ${entry.recordId} carries no change`);
     const data = {
       companyId,
-      typeId: ref.typeId,
-      recordId: ref.recordId,
+      subjectKind: "record",
+      subjectTypeId: ref.typeId,
+      subjectId: ref.recordId,
       actorId: entry.actorId,
       causeId: entry.id,
       kind: change.kind,
@@ -289,7 +290,7 @@ export async function seedRecordHistory(context: SeedContext, entities: Relation
       attempts: 0,
       lastFailureCode: null,
     };
-    await prisma.recordEvent.upsert({
+    await prisma.eventLog.upsert({
       where: { companyId_id: { companyId, id: entry.id } },
       create: { id: entry.id, ...data },
       update: data,
@@ -302,7 +303,7 @@ export async function seedRecordHistory(context: SeedContext, entities: Relation
       data: { version: 2, updatedAt: row.updatedAt },
     });
   }
-  await prisma.recordEvent.deleteMany({
+  await prisma.eventLog.deleteMany({
     where: {
       companyId,
       id: { startsWith: `${SYNTHETIC_RECORD_EVENT_ID_PREFIX}-`, notIn: entries.map(({ id }) => id) },

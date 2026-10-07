@@ -48,7 +48,6 @@ function widgetStore() {
       hasUnsavedChanges: false,
       form: {
         kind: "chart",
-        contractVersion: 2,
         name: "Deals",
         expectedRevision: model.revision,
         displayOptions: {},

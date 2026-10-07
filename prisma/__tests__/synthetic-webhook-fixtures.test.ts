@@ -20,8 +20,8 @@ const PREFIX = { contact: "60000000", deal: "80000000", organization: "70000000"
 function recordEvents() {
   return SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map((definition, index) => ({
     id: fixtureId("3a000000", index + 1),
-    typeId: presetId(SEED_IDS.company, definition.entityType),
-    recordId: fixtureId(PREFIX[definition.entityType], definition.entityIndex + 1),
+    subjectTypeId: presetId(SEED_IDS.company, definition.entityType),
+    subjectId: fixtureId(PREFIX[definition.entityType], definition.entityIndex + 1),
     kind: definition.event,
   }));
 }
@@ -40,7 +40,7 @@ async function seed() {
       }),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
-    recordEvent: { findMany: vi.fn().mockResolvedValue(recordEvents()) },
+    eventLog: { findMany: vi.fn().mockResolvedValue(recordEvents()) },
     webhook: {
       upsert: vi.fn((input: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
         calls.webhook.push(input);
@@ -108,11 +108,11 @@ describe("synthetic webhook fixtures", () => {
       expect(create).toMatchObject({
         id: fixtureId("23000000", index + 1),
         webhookId: SYNTHETIC_WEBHOOK_ID,
-        recordEventId: event.id,
+        eventId: event.id,
         subscriptionRevision: 1,
         admissionKey: `${SYNTHETIC_WEBHOOK_ID}:${event.id}`,
         event: definition.event,
-        requestBody: { version: 2, eventId: event.id },
+        requestBody: { eventId: event.id },
         status: definition.status,
         statusCode: definition.statusCode,
         success: definition.status === "success",

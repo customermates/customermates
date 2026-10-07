@@ -48,7 +48,7 @@ export class RecordRecipientReader {
               },
             },
           }),
-          client.recordEvent.findFirst({ where: { companyId, id: eventId } }),
+          client.eventLog.findFirst({ where: { companyId, id: eventId, subjectKind: "record" } }),
           records.getModel(),
           records.getGrants(),
         ]);
@@ -71,7 +71,7 @@ export class RecordRecipientReader {
           subscription = RecordEventSubscriptionSchema.parse(storedSubscription);
         }
         const payload = RecordEventPayloadSchema.parse(event.payload);
-        if (payload.ref.typeId !== event.typeId || payload.ref.recordId !== event.recordId) return null;
+        if (payload.ref.typeId !== event.subjectTypeId || payload.ref.recordId !== event.subjectId) return null;
         const policy = recordAccessForActor({ actor, model, grants, records, companyId, userId });
         const record = await new RecordHistoryReader(records).redact(payload, model, policy, "delivery");
         if (!record) return null;
@@ -79,7 +79,8 @@ export class RecordRecipientReader {
           const sourceQueries = subscription?.sources?.length
             ? subscription.sources
                 .filter(
-                  (source) => source.query.typeId === event.typeId && source.events.some((kind) => kind === event.kind),
+                  (source) =>
+                    source.query.typeId === event.subjectTypeId && source.events.some((kind) => kind === event.kind),
                 )
                 .map((source) => source.query)
             : subscription?.query
@@ -90,10 +91,10 @@ export class RecordRecipientReader {
             raw: NonNullable<RecordEventSubscriptionDefinition["query"]>,
           ): Promise<boolean> => {
             const query = RecordQuerySchema.parse(raw);
-            if (query.typeId !== event.typeId || invalidRecordQueryPart(query, model)) return false;
+            if (query.typeId !== event.subjectTypeId || invalidRecordQueryPart(query, model)) return false;
             const sql = compileRecordQuery(companyId, query, model, policy.access(model.types.map((type) => type.id)));
             const matched = await client.$queryRaw<Array<{ matches: boolean }>>(
-              Prisma.sql`SELECT EXISTS (SELECT 1 FROM (${sql.matching}) matching WHERE matching.id = ${event.recordId}) AS matches`,
+              Prisma.sql`SELECT EXISTS (SELECT 1 FROM (${sql.matching}) matching WHERE matching.id = ${event.subjectId}) AS matches`,
             );
             return Boolean(matched[0]?.matches);
           };
@@ -105,15 +106,12 @@ export class RecordRecipientReader {
           }
         }
         return RecordDeliveryEnvelopeSchema.parse({
-          version: 2,
-          id: event.id,
-          companyId,
           event: event.kind,
+          id: event.id,
           timestamp: event.createdAt.toISOString(),
+          companyId,
           actorId: event.actorId,
-          causeId: event.causeId,
-          cause: payload.cause,
-          record,
+          data: { causeId: event.causeId, cause: payload.cause, record },
         });
       },
       { companyId: input.companyId, readOnly: true },

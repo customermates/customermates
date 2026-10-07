@@ -105,7 +105,7 @@ describe("generic MCP research records", () => {
     expect(calls.schema).toHaveBeenCalledWith({ typeIds: [TOOL_TYPE_ID] });
     expect(result).toMatchObject({
       ok: true,
-      structuredContent: { title: "Project Mercury", metadata: { contractVersion: "2", typeId: TOOL_TYPE_ID } },
+      structuredContent: { title: "Project Mercury", metadata: { typeId: TOOL_TYPE_ID } },
     });
     if (!result.ok) throw new Error("Expected a record document");
     const text = String(result.structuredContent?.text);

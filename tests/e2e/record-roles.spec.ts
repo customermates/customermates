@@ -117,7 +117,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   expect(
     (
       await database.query(
-        'SELECT COUNT(*)::integer AS count FROM "AuditLog" WHERE "companyId"=$1 AND "entityId"=$2 AND event=\'role.deleted\'',
+        'SELECT COUNT(*)::integer AS count FROM "EventLog" WHERE "companyId"=$1 AND "subjectId"=$2 AND kind=\'role.deleted\'',
         [companyId, roleId],
       )
     ).rows[0].count,

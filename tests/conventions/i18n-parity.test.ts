@@ -74,6 +74,8 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   // German dashboards abbreviate quarters with Q, as in English.
   "de:RecordWidgets.quarterLabel",
+  // "Configuration" is the French word as well.
+  "fr:EntityTimeline.types.configuration",
   // The board count is pure ICU plural syntax around user-defined record type labels.
   "de:DataView.kanbanCount",
   "es:DataView.kanbanCount",

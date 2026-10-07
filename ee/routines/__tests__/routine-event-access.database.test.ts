@@ -113,9 +113,13 @@ describeDatabase("routine event access against PostgreSQL", () => {
       event,
       entityId,
       triggerPayload: {
+        event,
+        id: randomUUID(),
+        timestamp: new Date().toISOString(),
         companyId,
-        entityId,
-        payload: {
+        actorId: null,
+        data: {
+          entityId,
           connectedAccountId,
           provider: "google",
           providerMessageId: `provider-${entityId}`,

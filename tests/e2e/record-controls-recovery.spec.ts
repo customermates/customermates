@@ -108,7 +108,7 @@ test("paginates and retries record and widget history, restores a personal timel
   const journal = async () =>
     (
       await database.query(
-        'SELECT id,kind,payload,"createdAt" FROM "RecordEvent" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 ORDER BY "createdAt",id',
+        'SELECT id,kind,payload,"createdAt" FROM "EventLog" WHERE "companyId"=$1 AND "subjectTypeId"=$2 AND "subjectId"=$3 ORDER BY "createdAt",id',
         [companyId, ref.typeId, ref.recordId],
       )
     ).rows;
@@ -878,7 +878,9 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await toggleMultiple(page, "#activity-scope-types", "Contacts");
   await toggleMultiple(page, `#activity-scope-${id("contact")}`, entries[0].name);
   for (const kind of [
-    english.EntityTimeline.types.changes,
+    english.EntityTimeline.types.record,
+    english.EntityTimeline.types.audit,
+    english.EntityTimeline.types.configuration,
     english.EntityTimeline.types.activities,
     english.ContactHistory.calendarMeeting,
   ])
@@ -901,7 +903,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await activityPreview(page, [entries[0].body], [entries[1].body]);
   await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.notIn);
   await activityPreview(page, [entries[1].body], [entries[0].body]);
-  await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.changes);
+  await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.record);
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.messages);
   await activityPreview(
     page,
@@ -910,7 +912,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   );
   await expect(dialog.getByText(entries[1].name, { exact: true })).toBeVisible();
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.messages);
-  await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.changes);
+  await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.record);
   await dialog
     .getByRole("button", {
       name: english.RecordWidgets.removeFilter,

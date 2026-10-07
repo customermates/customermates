@@ -1,16 +1,16 @@
-import { getProcessDueRecordEventsInteractor } from "@/core/di";
+import { getProcessDueEventsInteractor } from "@/core/di";
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
 import type { WorkflowTenant } from "./workflow-tenant";
 
-export type ProcessRecordEventsWorkflowPayload = { companyId: string; tenant?: WorkflowTenant };
+export type ProcessEventsWorkflowPayload = { companyId: string; tenant?: WorkflowTenant };
 
 async function processBatch(payload: { companyId: string }): Promise<{ hasMore: boolean }> {
   "use step";
-  return getProcessDueRecordEventsInteractor().invoke(payload);
+  return getProcessDueEventsInteractor().invoke(payload);
 }
 processBatch.maxRetries = 3;
 
-export async function processRecordEvents(payload: ProcessRecordEventsWorkflowPayload): Promise<void> {
+export async function processEvents(payload: ProcessEventsWorkflowPayload): Promise<void> {
   "use workflow";
   const { tenant, ...input } = payload;
   try {
@@ -19,7 +19,7 @@ export async function processRecordEvents(payload: ProcessRecordEventsWorkflowPa
       if (!result.hasMore) return;
     }
   } catch (error) {
-    await reportFailure("process-record-events", toWorkflowFailure(error), tenant);
+    await reportFailure("process-events", toWorkflowFailure(error), tenant);
     throw error;
   }
 }

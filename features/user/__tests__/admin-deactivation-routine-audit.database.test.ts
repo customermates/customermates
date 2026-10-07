@@ -165,9 +165,10 @@ describeDatabase("deactivating a teammate and the routines it disables", { timeo
     expect(routines.map((routine) => routine.disabledReason)).toEqual(["ownerUnavailable", "ownerUnavailable"]);
     expect(routines.map((routine) => routine.nextRunAt)).toEqual([null, null]);
 
-    const rows = await runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company } }));
+    const rows = await runWithoutTenant(() => prisma.eventLog.findMany({ where: { companyId: company } }));
 
-    expect(rows.map((row) => row.event)).toEqual(["user.updated"]);
-    expect(rows[0].eventData).toMatchObject({ userId: admin, payload: { status: Status.inactive } });
+    expect(rows.map((row) => row.kind)).toEqual(["user.updated"]);
+    expect(rows[0].actorId).toBe(admin);
+    expect(rows[0].payload).toMatchObject({ status: Status.inactive });
   });
 });

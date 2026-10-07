@@ -48,23 +48,14 @@ export async function runInTransaction<T>(
       return await transactionStorage.run(
         {
           client: tx,
-          auditLogBatch: [],
-          webhookDeliveryBatch: [],
           afterCommit: [],
-          recordEventWakeups: new Set(),
-          enabledWebhooks: null,
+          eventWakeups: new Set(),
         },
         async () => {
           const callResult = await fn();
           if (isInteractorFailure(callResult)) throw new InteractorFailureRollback(callResult);
 
-          const inner = transactionStorage.getStore();
-          txStore.value = inner;
-
-          const { auditLogBatch, webhookDeliveryBatch } = inner ?? {};
-
-          if (auditLogBatch?.length) await tx.auditLog.createMany({ data: auditLogBatch });
-          if (webhookDeliveryBatch?.length) await tx.webhookDelivery.createMany({ data: webhookDeliveryBatch });
+          txStore.value = transactionStorage.getStore();
 
           return callResult;
         },

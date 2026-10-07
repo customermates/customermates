@@ -46,11 +46,8 @@ describe("BackgroundTaskService.dispatch", () => {
     await transactionStorage.run(
       {
         client: {} as never,
-        auditLogBatch: [],
-        webhookDeliveryBatch: [],
         afterCommit: [],
-        recordEventWakeups: new Set(),
-        enabledWebhooks: null,
+        eventWakeups: new Set(),
       },
       async () => {
         const result = await service.dispatch("some-task" as never, { foo: "bar" } as never);
@@ -73,11 +70,8 @@ describe("BackgroundTaskService.dispatch", () => {
     await transactionStorage.run(
       {
         client: {} as never,
-        auditLogBatch: [],
-        webhookDeliveryBatch: [],
         afterCommit: captured,
-        recordEventWakeups: new Set(),
-        enabledWebhooks: null,
+        eventWakeups: new Set(),
       },
       async () => {
         await service.dispatch("some-task" as never, { foo: "bar" } as never);

@@ -72,7 +72,7 @@ describe("agent experience contract", () => {
       true,
     );
     expect(agentActionPageFromPathname("/en/dashboard")).toBe("dashboard");
-    expect(agentActionPageFromPathname("/en/company/audit-logs")).toBeNull();
+    expect(agentActionPageFromPathname("/en/company/activity")).toBeNull();
   });
 
   it("describes work without retaining tool payloads or identifiers", () => {

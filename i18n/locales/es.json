@@ -29,6 +29,9 @@
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"
   },
+  "ActivityPage": {
+    "title": "Actividad"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -753,12 +756,7 @@
     "unnamed": "Sin nombre"
   },
   "AuditLogModal": {
-    "createdAt": "Creado el",
-    "entity": "Elemento",
-    "entityId": "ID del elemento",
-    "event": "Evento",
     "eventAt": "{event} el {date}",
-    "eventData": "Datos del evento",
     "fields": {
       "acceptanceType": "Tipo de aceptación",
       "acceptingEmail": "Aceptado por",
@@ -766,11 +764,12 @@
       "changedFields": "Campos vigilados",
       "city": "Ciudad",
       "country": "País",
+      "createType": "Nuevo tipo",
       "cronExpression": "Programación",
       "currency": "Moneda",
-      "dealStageWeights": "Probabilidades de etapa",
-      "dealWeightingColumnId": "Campo de etapa",
       "debounceSeconds": "Retardo",
+      "deleteField": "Campo eliminado definitivamente",
+      "deleteType": "Tipo eliminado definitivamente",
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
@@ -779,10 +778,16 @@
       "markdown": "Markdown",
       "postalCode": "Código postal",
       "prompt": "Instrucciones",
+      "publishSummary": "Resumen publicado",
+      "putAccessPreset": "Plantilla de acceso",
+      "putActivityPath": "Ruta de actividad",
+      "putCapability": "Funcionalidad",
+      "putField": "Campo",
+      "putRelationship": "Relación",
+      "putType": "Tipo",
       "recipientEmail": "Enviado a",
       "removalReason": "Motivo de eliminación",
       "street": "Calle",
-      "terminology": "Nombres de registros",
       "timezone": "Zona horaria",
       "triggerEvents": "Eventos del disparador",
       "triggerFilters": "Filtros del disparador",
@@ -793,15 +798,7 @@
     "noValue": "Sin valor",
     "relationsAdded": "Elementos añadidos en {field}",
     "relationsDeleted": "Elementos eliminados de {field}",
-    "title": "Detalles del registro de auditoría",
-    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}",
-    "userId": "Usuario"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Los cambios del espacio de trabajo se registran aquí a medida que ocurren.",
-    "emptyTitle": "Aún no hay actividad",
-    "searchTooltip": "Buscar por ID de elemento",
-    "title": "Registros de auditoría"
+    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
@@ -1165,6 +1162,13 @@
         "created": "Registro creado",
         "deleted": "Registro eliminado",
         "updated": "Registro actualizado"
+      },
+      "record_grants": {
+        "updated": "Acceso a registros cambiado"
+      },
+      "record_model": {
+        "initialized": "Modelo de datos configurado",
+        "updated": "Modelo de datos cambiado"
       },
       "records": {
         "exported": "Registros exportados"
@@ -2047,8 +2051,10 @@
     "noFurtherDetail": "No se registraron más detalles para este evento.",
     "types": {
       "activities": "Actividades",
-      "changes": "Cambios",
-      "messages": "Mensajes"
+      "audit": "Administración y sistema",
+      "configuration": "Configuración",
+      "messages": "Mensajes",
+      "record": "Cambios de registros"
     }
   },
   "ErrorCard": {
@@ -2954,8 +2960,8 @@
     "archiveRelationship": "Archivar relación",
     "archiveRelationshipPath": "Archivar esta columna de registros relacionados",
     "ascending": "Ascendente",
+    "assignedMembers": "Miembros asignados",
     "assignedTo": "Asignado a",
-    "assignmentChange": "Miembros asignados: {before} → {after}",
     "attribute": "Nombre del atributo",
     "behavior": "Origen del valor",
     "behaviors": {
@@ -2997,7 +3003,6 @@
     "createdAt": "Creado el",
     "createList": "Crear lista",
     "currency": "Moneda",
-    "currentValue": "Valor actual",
     "decimalPlaces": "Decimales",
     "decimalPlacesHelp": "Déjalo vacío para usar el formato predeterminado. Solo cambia cómo se muestran los valores, no su cálculo.",
     "defaultColumns": "Columnas predeterminadas",
@@ -3264,7 +3269,6 @@
     "pluralDescription": "El nombre mostrado en la navegación. Déjalo vacío para usar el nombre de la lista.",
     "pluralName": "Etiqueta de navegación",
     "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
-    "previousValue": "Valor anterior",
     "priceModes": {
       "live": "Precio actual",
       "saved": "Precio guardado"

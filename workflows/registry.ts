@@ -8,7 +8,7 @@ import { reconcileRoutineRuns } from "./reconcile-routine-runs";
 import { runRoutine } from "./run-routine";
 import { providerAvatarOperation } from "./provider-avatar-operation";
 import { recordOperation } from "./record-operation";
-import { processRecordEvents } from "./process-record-events";
+import { processEvents } from "./process-events";
 import { triggerTestError } from "./trigger-test-error";
 
 export const WORKFLOW_REGISTRY = {
@@ -22,7 +22,7 @@ export const WORKFLOW_REGISTRY = {
   "run-routine": runRoutine,
   "record-operation": recordOperation,
   "provider-avatar-operation": providerAvatarOperation,
-  "process-record-events": processRecordEvents,
+  "process-events": processEvents,
   "trigger-test-error": triggerTestError,
 } as const;
 

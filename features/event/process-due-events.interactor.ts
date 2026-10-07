@@ -1,17 +1,17 @@
 import { z } from "zod";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
-import type { RecordEventOutboxRepo } from "./record-event-outbox.repo";
-import type { ProcessRecordEventInteractor } from "./process-record-event.interactor";
+import type { EventOutboxRepo } from "./event-outbox.repo";
+import type { ProcessEventInteractor } from "./process-event.interactor";
 
 const Schema = z.object({ companyId: z.uuid() }).strict();
 const BATCH_SIZE = 100;
 
 @SystemInteractor
-export class ProcessDueRecordEventsInteractor {
+export class ProcessDueEventsInteractor {
   constructor(
-    private readonly outbox: RecordEventOutboxRepo,
-    private readonly process: ProcessRecordEventInteractor,
+    private readonly outbox: EventOutboxRepo,
+    private readonly process: ProcessEventInteractor,
   ) {}
 
   @Enforce(Schema)

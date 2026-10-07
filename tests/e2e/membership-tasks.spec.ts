@@ -81,7 +81,7 @@ test("resolves a protected task through member approval and rejects ordinary rec
   expect(
     (
       await database.query(
-        'SELECT COUNT(*)::integer AS count FROM "RecordEvent" WHERE "companyId"=$1 AND "recordId"=$2 AND kind=\'record.deleted\'',
+        'SELECT COUNT(*)::integer AS count FROM "EventLog" WHERE "companyId"=$1 AND "subjectId"=$2 AND kind=\'record.deleted\'',
         [companyId, recordId],
       )
     ).rows[0].count,

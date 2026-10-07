@@ -8,7 +8,7 @@ import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function importState(database: Client, companyId: string, typeId: string, recordIds: string[]) {
   const result = await database.query(
-    'SELECT (SELECT COUNT(*)::integer FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=ANY($3::text[])) AS records, (SELECT COUNT(*)::integer FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=ANY($3::text[])) AS values, (SELECT COUNT(*)::integer FROM "RecordEvent" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=ANY($3::text[])) AS events, (SELECT COUNT(*)::integer FROM "RecordMutationReceipt" WHERE "companyId"=$1) AS receipts',
+    'SELECT (SELECT COUNT(*)::integer FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=ANY($3::text[])) AS records, (SELECT COUNT(*)::integer FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=ANY($3::text[])) AS values, (SELECT COUNT(*)::integer FROM "EventLog" WHERE "companyId"=$1 AND "subjectTypeId"=$2 AND "subjectId"=ANY($3::text[])) AS events, (SELECT COUNT(*)::integer FROM "RecordMutationReceipt" WHERE "companyId"=$1) AS receipts',
     [companyId, typeId, recordIds],
   );
   return result.rows[0];

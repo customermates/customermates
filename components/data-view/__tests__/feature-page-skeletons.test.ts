@@ -4,7 +4,6 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { AuditLogsPageSkeleton } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs-page-skeleton";
 import { RolesPageSkeleton } from "@/app/[locale]/(protected)/company/components/role/roles-page-skeleton";
 import { MembersPageSkeleton } from "@/app/[locale]/(protected)/company/components/user/members-page-skeleton";
 import { WebhookDeliveriesPageSkeleton } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-skeleton";
@@ -20,7 +19,6 @@ const CASES: Array<[string, Skeleton, string, string]> = [
   ["records", RecordsPageSkeleton, "entity", "text"],
   ["members", MembersPageSkeleton, "member", "avatar"],
   ["roles", RolesPageSkeleton, "plain", "text"],
-  ["audit-logs", AuditLogsPageSkeleton, "plain", "text"],
   ["webhooks", WebhooksPageSkeleton, "plain", "text"],
   ["webhook-deliveries", WebhookDeliveriesPageSkeleton, "plain", "text"],
   ["routines", RoutinesPageSkeleton, "plain", "text"],

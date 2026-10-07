@@ -72,7 +72,7 @@ test("persists a routine for a customer-created type and matches only its config
   await record.getByRole("button", { name: "Save", exact: true }).click();
   await expect(record).not.toBeVisible();
   const matches = await database.query(
-    'SELECT e.kind,e."typeId" FROM "RecordEventMatch" m JOIN "RecordEvent" e ON e."companyId"=m."companyId" AND e.id=m."eventId" WHERE m."companyId"=$1 AND m."subscriptionId"=$2',
+    'SELECT e.kind,e."subjectTypeId" AS "typeId" FROM "RecordEventMatch" m JOIN "EventLog" e ON e."companyId"=m."companyId" AND e.id=m."eventId" WHERE m."companyId"=$1 AND m."subscriptionId"=$2',
     [companyId, saved.rows[0].id],
   );
   expect(matches.rows).toEqual([{ kind: "record.updated", typeId }]);

@@ -2058,7 +2058,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, reco
         "timeline-state-updated",
         timeline?.activeViewKey === ALL_VIEW_KEY &&
           same(timeline?.filters, [
-            { field: "timelineKind", operator: "in", value: ["changes"] },
+            { field: "timelineKind", operator: "in", value: ["record"] },
           ]) &&
           same(timeline?.sortDescriptor, { field: "at", direction: "desc" }),
       );
@@ -2442,7 +2442,6 @@ export async function cleanupBenchmarkFixture(db: BenchmarkDb, fixture: Fixture)
   if (await prisma.agentTurnRequest.count({ where: { companyId: { in: companyIds }, status: { in: ["running", "waitingBudget", "needsAttention"] } } }))
     throw new Error("Fixture still has a nonterminal turn; refusing cleanup");
   await prisma.$transaction(async (tx) => {
-    await tx.auditLog.deleteMany({ where: { companyId: { in: companyIds } } });
     await tx.authUser.deleteMany({ where: { id: fixture.actorUserId, companyId: fixture.companyId } });
     await tx.company.deleteMany({ where: { id: { in: companyIds }, tags: { has: FIXTURE_VERSION } } });
   });
