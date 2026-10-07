@@ -1058,6 +1058,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     ).toEqual([
       { migration_name: CONFIGURABLE_RECORDS_MIGRATION },
       { migration_name: "20261006130000_remove_legacy_record_permissions" },
+      { migration_name: "20261006200000_p13n_settings" },
     ]);
     expect(
       await rows(production.client, 'SELECT resource::text FROM "RolePermission" WHERE "roleId"=$1', [f.memberRole.id]),
