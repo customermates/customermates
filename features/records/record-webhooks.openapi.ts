@@ -15,16 +15,7 @@ export const recordWebhookOperations = Object.fromEntries(
         requestBody: {
           content: {
             "application/json": {
-              schema: z.object({
-                event: z.literal(event),
-                data: z.object({
-                  userId: z.uuid(),
-                  companyId: z.uuid(),
-                  entityId: z.uuid(),
-                  payload: RecordDeliveryEnvelopeSchema.extend({ event: z.literal(event) }),
-                }),
-                timestamp: z.iso.datetime(),
-              }),
+              schema: RecordDeliveryEnvelopeSchema.extend({ event: z.literal(event) }),
             },
           },
         },

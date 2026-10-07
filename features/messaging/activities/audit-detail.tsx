@@ -13,8 +13,8 @@ import remarkGfm from "remark-gfm";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
-import { hasNotesDiff, NotesDiff } from "@/app/[locale]/(protected)/company/components/audit-log/notes-diff";
-import { isEmpty, partitionRelationIds } from "@/features/audit-log/audit-log-changes";
+import { hasNotesDiff, NotesDiff } from "./notes-diff";
+import { isEmpty, partitionRelationIds } from "@/features/event/audit-changes";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -30,6 +30,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import type { AppLocale } from "@/i18n/locale-registry";
 import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
+import { auditEventTone } from "@/components/entity-detail/audit-event-tone";
 import { WikiPageKindSchema } from "@/features/wiki/wiki.schema";
 
 type AvatarItem = {
@@ -111,7 +112,19 @@ function formatUnknownValue(value: unknown): string {
   return JSON.stringify(value) ?? "";
 }
 
-function ChangeRow({ label, children }: { label: string; children: ReactNode }) {
+export function InlineChange({ previous, current }: { previous: ReactNode; current: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="min-w-0 text-subdued">{previous}</div>
+
+      <Icon className="text-subdued shrink-0 self-center" icon={ArrowRight} size="sm" />
+
+      <div className="min-w-0">{current}</div>
+    </div>
+  );
+}
+
+export function ChangeRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
       <span className="text-muted-foreground text-xs">{label}</span>
@@ -122,7 +135,7 @@ function ChangeRow({ label, children }: { label: string; children: ReactNode }) 
 }
 
 type Props = {
-  entry: Extract<ActivityEntryDto, { kind: "audit" }>;
+  entry: Extract<ActivityEntryDto, { kind: "audit" | "configuration" }>;
 };
 
 export const AuditDetail = observer(({ entry }: Props) => {
@@ -137,6 +150,12 @@ export const AuditDetail = observer(({ entry }: Props) => {
     if (isWikiEvent && field === "kind") return t("Wiki.kind.label");
     if (isWikiEvent && field === "whenToUse") return t("Wiki.whenToUse.label");
     return columnLabel(field);
+  }
+
+  function grantActionLabel(action: string): string {
+    if (action === "readOwn") return `${t("RoleModal.readAccess")}: ${t("RoleModal.readOwn")}`;
+    if (action === "readAll") return `${t("RoleModal.readAccess")}: ${t("RoleModal.readAll")}`;
+    return t(action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create");
   }
 
   function legalDocumentLabel(document: string): string {
@@ -208,6 +227,8 @@ export const AuditDetail = observer(({ entry }: Props) => {
         return countryLabelForLocale(String(value), locale);
       case "currency":
         return getCurrencyLabel(String(value), locale);
+      case "grants":
+        return (value as string[]).map(grantActionLabel).join(", ");
       case "changedDocuments":
         return (value as string[]).map((document) => legalDocumentLabel(document)).join(", ");
       case "versions":
@@ -239,29 +260,32 @@ export const AuditDetail = observer(({ entry }: Props) => {
     }
   }
 
-  const authorName = `${entry.actor.firstName} ${entry.actor.lastName}`.trim();
+  const authorName =
+    `${entry.actor.firstName} ${entry.actor.lastName}`.trim() || entry.actor.email || t("RecordModel.systemActor");
+  const tone = auditEventTone(entry.event);
+  const removal = tone === "deleted";
+  const plainSnapshot = entry.kind === "configuration" || (tone !== "created" && tone !== "deleted");
   const changes = entry.changes.map((change) => ({
     key: change.field,
-    field: fieldLabel(change.field),
-    previous: change.previous,
-    current: change.current,
+    field: change.label ?? fieldLabel(change.field),
+    previous: change.snapshot && removal ? change.current : change.previous,
+    current: change.snapshot && removal ? undefined : change.current,
+    value: change.current,
     snapshot: change.snapshot === true,
   }));
 
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {
-    if (change.snapshot) return <div className="min-w-0 break-words">{renderValue(change.key, change.current)}</div>;
+    if (change.snapshot && (plainSnapshot || change.key === "notes" || change.key === "markdown"))
+      return <div className="min-w-0 break-words">{renderValue(change.key, change.value)}</div>;
 
     if (change.key === "notes" || change.key === "markdown")
       return <NotesDiff current={change.current} previous={change.previous} />;
 
     return (
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="min-w-0 text-subdued">{renderValue(change.key, change.previous)}</div>
-
-        <Icon className="text-subdued shrink-0 self-center" icon={ArrowRight} size="sm" />
-
-        <div className="min-w-0">{renderValue(change.key, change.current)}</div>
-      </div>
+      <InlineChange
+        current={renderValue(change.key, change.current)}
+        previous={renderValue(change.key, change.previous)}
+      />
     );
   }
 

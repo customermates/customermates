@@ -122,7 +122,7 @@ describe("AgentUiControlStore.navigate", () => {
     for (const [targetId, route] of [
       ["nav-company-webhooks", "/company/webhooks"],
       ["nav-profile-api-keys", "/profile/api-keys"],
-      ["nav-company-audit-logs", "/company/audit-logs"],
+      ["nav-company-activity", "/company/activity"],
     ]) {
       await expect(store.navigate({ targetId })).resolves.toEqual({
         ok: false,

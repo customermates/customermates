@@ -1,36 +1,23 @@
 import type { GetWebhookDeliveriesRepo } from "@/features/webhook/get-webhook-deliveries.repo";
 import type { GetWebhookDeliveryByIdRepo } from "./get-webhook-delivery-by-id.repo";
 import type { FindWebhookDeliveriesByIdsRepo } from "./find-webhook-deliveries-by-ids.repo";
-import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
-import type { RepoArgs } from "@/core/utils/types";
 
 import { WebhookDeliveryStatus } from "@/generated/prisma";
 
-import type { Prisma } from "@/generated/prisma";
+import type { EventLog, Prisma } from "@/generated/prisma";
 
 import { type WebhookDeliveryDto } from "./get-webhook-deliveries.interactor";
 
-import { transactionStorage } from "@/core/decorators/transaction-context";
 import { QueryRepository } from "@/core/base/query-repository";
-import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-
-function storedMessagingBody(event: string, requestBody: Prisma.JsonValue): Record<string, unknown> | null {
-  if (!event.startsWith("messaging.")) return null;
-  if (!requestBody || typeof requestBody !== "object" || Array.isArray(requestBody)) return null;
-  return requestBody as Record<string, unknown>;
-}
+import { eventEnvelope, type EventEnvelope } from "@/features/event/event-envelope";
 
 export class PrismaWebhookDeliveryRepo
   extends QueryRepository<Prisma.WebhookDeliveryWhereInput>
-  implements
-    GetWebhookDeliveriesRepo,
-    GetWebhookDeliveryByIdRepo,
-    CreateWebhookDeliveryRepo,
-    FindWebhookDeliveriesByIdsRepo
+  implements GetWebhookDeliveriesRepo, GetWebhookDeliveryByIdRepo, FindWebhookDeliveriesByIdsRepo
 {
   constructor(private readonly recordReader: RecordRecipientReader) {
     super();
@@ -41,8 +28,7 @@ export class PrismaWebhookDeliveryRepo
       id: true,
       url: true,
       event: true,
-      requestBody: true,
-      recordEventId: true,
+      eventLog: true,
       nextAttemptAt: true,
       statusCode: true,
       responseMessage: true,
@@ -84,8 +70,7 @@ export class PrismaWebhookDeliveryRepo
     id: string;
     url: string;
     event: string;
-    recordEventId: string | null;
-    requestBody: Prisma.JsonValue;
+    eventLog: EventLog | null;
     nextAttemptAt: Date | null;
     statusCode: number | null;
     responseMessage: string | null;
@@ -94,28 +79,12 @@ export class PrismaWebhookDeliveryRepo
     deliveredAt: Date | null;
     createdAt: Date;
   }): Promise<WebhookDeliveryDto> {
-    let requestBody: Record<string, unknown> | null = delivery.recordEventId
+    const event = delivery.eventLog;
+    const requestBody: EventEnvelope | null = !event
       ? null
-      : storedMessagingBody(delivery.event, delivery.requestBody);
-    if (delivery.recordEventId) {
-      const envelope = await this.recordReader.readEvent({
-        companyId: this.companyId,
-        userId: this.userId,
-        eventId: delivery.recordEventId,
-      });
-      if (envelope) {
-        requestBody = {
-          event: envelope.event,
-          data: {
-            userId: envelope.actorId,
-            companyId: envelope.companyId,
-            entityId: envelope.record.ref.recordId,
-            payload: envelope,
-          },
-          timestamp: envelope.timestamp,
-        };
-      }
-    }
+      : event.subjectKind === "record"
+        ? await this.recordReader.readEvent({ companyId: this.companyId, userId: this.userId, eventId: event.id })
+        : eventEnvelope(event);
     return {
       id: delivery.id,
       url: delivery.url,
@@ -149,22 +118,21 @@ export class PrismaWebhookDeliveryRepo
     if (!original.webhookId) return { status: "unavailable" };
     const webhook = await this.prisma.webhook.findFirst({ where: { companyId, id: original.webhookId } });
     if (!webhook?.enabled || !webhook.events.includes(original.event)) return { status: "unavailable" };
-    if (!original.recordEventId) {
-      const storedBody = storedMessagingBody(original.event, original.requestBody);
-      if (!storedBody) return { status: "unavailable" };
+    if (!original.eventId) return { status: "unavailable" };
+    if (!original.subscriptionRevision) {
       const retry = await this.prisma.webhookDelivery.create({
         data: {
           companyId,
           webhookId: webhook.id,
+          eventId: original.eventId,
           url: webhook.url,
           event: original.event,
-          requestBody: storedBody as Prisma.InputJsonValue,
+          requestBody: { eventId: original.eventId },
         },
         select: { id: true },
       });
       return { status: "created", id: retry.id };
     }
-    if (!original.subscriptionRevision) return { status: "unavailable" };
     const subscription = await this.prisma.recordEventSubscription.findFirst({
       where: { companyId, id: webhook.id, kind: "webhook", enabled: true },
     });
@@ -175,11 +143,11 @@ export class PrismaWebhookDeliveryRepo
       data: {
         companyId,
         webhookId: webhook.id,
-        recordEventId: original.recordEventId,
+        eventId: original.eventId,
         subscriptionRevision: original.subscriptionRevision,
         url: webhook.url,
         event: original.event,
-        requestBody: { version: 2, eventId: original.recordEventId },
+        requestBody: { eventId: original.eventId },
       },
       select: { id: true },
     });
@@ -197,50 +165,5 @@ export class PrismaWebhookDeliveryRepo
     });
 
     return new Set(deliveries.map((delivery) => delivery.id));
-  }
-
-  async create(args: RepoArgs<CreateWebhookDeliveryRepo, "create">) {
-    if (args.length === 0) return [];
-
-    const { companyId } = this.user;
-
-    const data = args.map((it) => ({
-      id: crypto.randomUUID(),
-      ...it,
-      companyId,
-      requestBody: it.requestBody as Prisma.InputJsonValue,
-      status: WebhookDeliveryStatus.pending,
-      success: false,
-    }));
-
-    const store = transactionStorage.getStore();
-
-    if (store) {
-      store.webhookDeliveryBatch.push(...data);
-      return data.map((d) => d.id);
-    }
-
-    await this.prisma.webhookDelivery.createMany({ data });
-    return data.map((d) => d.id);
-  }
-
-  @BypassTenantGuard
-  async createUnscoped(
-    companyId: string,
-    args: { webhookId?: string; url: string; event: string; requestBody: Record<string, unknown> }[],
-  ) {
-    if (args.length === 0) return [];
-
-    const data = args.map((it) => ({
-      id: crypto.randomUUID(),
-      ...it,
-      companyId,
-      requestBody: it.requestBody as Prisma.InputJsonValue,
-      status: WebhookDeliveryStatus.pending,
-      success: false,
-    }));
-
-    await this.prisma.webhookDelivery.createMany({ data });
-    return data.map((d) => d.id);
   }
 }

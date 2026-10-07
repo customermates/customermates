@@ -42,9 +42,6 @@ vi.mock("../company/components/user/user-modal", () => ({
 vi.mock("../company/components/company-invite/company-invite-modal", () => ({
   CompanyInviteModal: () => "company-invite-modal",
 }));
-vi.mock("../company/components/audit-log/audit-log-modal", () => ({
-  AuditLogModal: () => "audit-log-modal",
-}));
 vi.mock("../company/components/webhook/webhook-delivery-modal", () => ({
   WebhookDeliveryModal: () => "webhook-delivery-modal",
 }));

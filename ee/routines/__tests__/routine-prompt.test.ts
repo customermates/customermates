@@ -12,29 +12,41 @@ function fieldId(index: number) {
 
 function envelope(labels: string[]) {
   return {
-    version: 2,
-    id: "30000000-0000-4000-8000-000000000043",
-    companyId: COMPANY_ID,
     event: "record.updated",
+    id: "30000000-0000-4000-8000-000000000043",
     timestamp: "2026-01-01T00:00:00.000Z",
+    companyId: COMPANY_ID,
     actorId: "30000000-0000-4000-8000-000000000044",
-    causeId: "cause-1",
-    cause: { kind: "mutation" },
-    record: {
-      ref: { typeId: TYPE_ID, recordId: RECORD_ID },
-      schemaRevision: 1,
-      beforeVersion: 1,
-      afterVersion: 2,
-      assignments: null,
-      identities: null,
-      links: [],
-      related: [],
-      fields: labels.map((label, index) => ({
-        fieldId: fieldId(index),
-        before: null,
-        after: { fieldId: fieldId(index), label, valueType: "text", options: [], value: { state: "restricted" } },
-      })),
+    data: {
+      causeId: "cause-1",
+      cause: { kind: "mutation" },
+      record: {
+        ref: { typeId: TYPE_ID, recordId: RECORD_ID },
+        schemaRevision: 1,
+        beforeVersion: 1,
+        afterVersion: 2,
+        assignments: null,
+        identities: null,
+        links: [],
+        related: [],
+        fields: labels.map((label, index) => ({
+          fieldId: fieldId(index),
+          before: null,
+          after: { fieldId: fieldId(index), label, valueType: "text", options: [], value: { state: "restricted" } },
+        })),
+      },
     },
+  };
+}
+
+function messagingEnvelope(data: Record<string, unknown>) {
+  return {
+    event: "messaging.message.received",
+    id: "30000000-0000-4000-8000-000000000045",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    companyId: COMPANY_ID,
+    actorId: null,
+    data,
   };
 }
 
@@ -87,7 +99,7 @@ describe("routine prompt composition", () => {
         routineName: "Inbox watch",
         triggerEvent: "messaging.message.received",
         triggerEntityId: "message-1",
-        triggerPayload: { payload: { threadId: "thread-9" } },
+        triggerPayload: messagingEnvelope({ entityId: "message-1", threadId: "thread-9" }),
       }),
     ).toBe(
       '<routine_trigger event="messaging.message.received" entity="message" entityId="message-1" threadId="thread-9" />\nReply',
@@ -123,7 +135,7 @@ describe("routine trigger block stripping", () => {
         routineName: "R",
         triggerEvent: "deal.updated",
         triggerEntityId: "abc-123",
-        triggerPayload: { payload: { changes: { name: {} } } },
+        triggerPayload: messagingEnvelope({ changes: { name: {} } }),
       },
     ],
     [
@@ -132,7 +144,7 @@ describe("routine trigger block stripping", () => {
         routineName: "R",
         triggerEvent: "messaging.message.received",
         triggerEntityId: "m-1",
-        triggerPayload: { payload: { threadId: "t-1" } },
+        triggerPayload: messagingEnvelope({ threadId: "t-1" }),
       },
     ],
   ])("round-trips back to the author's instructions for %s", (_label, context) => {

@@ -3,7 +3,7 @@ import { SURFACE } from "@/core/data-view/data-view-keys";
 import { GetRecordActivitiesInteractor } from "@/ee/messaging/activities/get-record-activities.interactor";
 import { PrismaRecordActivitiesRepo } from "@/ee/messaging/activities/prisma-record-activities.repository";
 import { SearchChannelCandidatesInteractor } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
-import { RecordRoutineAdmission } from "@/ee/routines/record-routine-admission";
+import { RoutineAdmission } from "@/ee/routines/routine-admission";
 import { ManageDataViewsInteractor } from "@/features/data-view/manage-data-views.interactor";
 import { ResetDataViewStateInteractor } from "@/features/data-view/reset-data-view-state.interactor";
 import { CountSystemTasksInteractor } from "@/features/records/count-system-tasks.interactor";
@@ -11,14 +11,14 @@ import { CheckRecordIdentityInteractor } from "@/features/records/check-record-i
 import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-identity-record-choices.interactor";
 import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
 import { GetRecordPresentationInteractor } from "@/features/records/get-record-presentation.interactor";
-import { PrismaRecordEventOutboxRepo } from "@/features/records/prisma-record-event-outbox.repository";
+import { PrismaEventOutboxRepo } from "@/features/event/prisma-event-outbox.repository";
 import { PrismaRecordOperationQueueRepo } from "@/features/records/prisma-record-operation-queue.repository";
 import { PrismaRecordEventSubscriptionRepo } from "@/features/records/prisma-record-event-subscription.repository";
-import { ProcessDueRecordEventsInteractor } from "@/features/records/process-due-record-events.interactor";
-import { ProcessRecordEventInteractor } from "@/features/records/process-record-event.interactor";
+import { ProcessDueEventsInteractor } from "@/features/event/process-due-events.interactor";
+import { ProcessEventInteractor } from "@/features/event/process-event.interactor";
 import { ProviderAvatarService } from "@/features/records/provider-avatar.service";
-import { RecordEventAdmissionGroup } from "@/features/records/record-event-admission-group";
-import type { RecordEventAdmission } from "@/features/records/record-event-admission";
+import { EventAdmissionGroup } from "@/features/event/event-admission-group";
+import type { EventAdmission } from "@/features/event/event-admission";
 import { RecordHistoryReader } from "@/features/records/record-history-reader";
 import { RecordIdentityReader } from "@/features/records/record-identity-reader";
 import { RecordRecipientReader } from "@/features/records/record-recipient-reader";
@@ -27,7 +27,7 @@ import { ResolveRecordIdentitiesInteractor } from "@/features/records/resolve-re
 import { StartChatRecordChannelRepo } from "@/features/records/start-chat-record-channel.repository";
 import { SweepRecordDeliveriesInteractor } from "@/features/records/sweep-record-deliveries.interactor";
 import { PrismaWebhookDeliveryQueueRepo } from "@/features/webhook/prisma-webhook-delivery-queue.repository";
-import { RecordWebhookAdmission } from "@/features/webhook/record-webhook-admission";
+import { WebhookAdmission } from "@/features/webhook/webhook-admission";
 import { WebhookTransport } from "@/features/webhook/webhook-transport.service";
 import { GetRecordWidgetsInteractor } from "@/features/widget/get-record-widgets.interactor";
 import { GetRecordWidgetInteractor } from "@/features/widget/get-record-widget.interactor";
@@ -85,7 +85,7 @@ import { RunRoutineNowInteractor } from "@/ee/routines/run-routine-now.interacto
 import { StartRoutineRunInteractor } from "@/ee/routines/start-routine-run.interactor";
 import { SweepDueRoutinesInteractor } from "@/ee/routines/sweep-due-routines.interactor";
 import { UpsertRoutineInteractor } from "@/ee/routines/upsert-routine.interactor";
-import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
+import { PrismaEventLogRepo } from "@/features/event/prisma-event-log.repository";
 import { PrismaCompanyRepo } from "@/features/company/prisma-company.repository";
 import { PrismaDataViewRepo } from "@/features/data-view/prisma-data-view.repository";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
@@ -381,7 +381,6 @@ import { UpdateOperatorSubscriptionTermsInteractor } from "@/ee/operator/update-
 import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { UpdateOperatorUserStatusInteractor } from "@/ee/operator/update-operator-user-status.interactor";
 import { UpdateOperatorWorkspaceTagsInteractor } from "@/ee/operator/update-operator-workspace-tags.interactor";
-import { GetAuditLogsInteractor } from "@/features/audit-log/get/get-audit-logs.interactor";
 import { FeedbackCreator } from "@/features/feedback/feedback.creator";
 import { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
@@ -506,21 +505,17 @@ export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscrip
 
 export const getRecordRecipientReader = () => new RecordRecipientReader((companyId) => new PrismaRecordRepo(companyId));
 export const getRecordEventSubscriptionRepo = () => new PrismaRecordEventSubscriptionRepo(getRecordRepo());
-export const getRecordRoutineAdmission = () =>
-  new RecordRoutineAdmission(getRoutineRepo(), getBackgroundTaskService(), getRecordRecipientReader());
-export const getRecordWebhookAdmission = () =>
-  new RecordWebhookAdmission(getRecordRecipientReader(), getBackgroundTaskService());
-export const getProcessRecordEventInteractor = (
-  admission: RecordEventAdmission = new RecordEventAdmissionGroup([
-    getRecordWebhookAdmission(),
-    getRecordRoutineAdmission(),
-  ]),
-) => new ProcessRecordEventInteractor(new PrismaRecordEventOutboxRepo(), admission);
-export const getProcessDueRecordEventsInteractor = () =>
-  new ProcessDueRecordEventsInteractor(new PrismaRecordEventOutboxRepo(), getProcessRecordEventInteractor());
+export const getRoutineAdmission = () =>
+  new RoutineAdmission(getRoutineRepo(), getBackgroundTaskService(), getRecordRecipientReader());
+export const getWebhookAdmission = () => new WebhookAdmission(getRecordRecipientReader(), getBackgroundTaskService());
+export const getProcessEventInteractor = (
+  admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
+) => new ProcessEventInteractor(new PrismaEventOutboxRepo(), admission);
+export const getProcessDueEventsInteractor = () =>
+  new ProcessDueEventsInteractor(new PrismaEventOutboxRepo(), getProcessEventInteractor());
 export const getSweepRecordDeliveriesInteractor = () =>
   new SweepRecordDeliveriesInteractor(
-    new PrismaRecordEventOutboxRepo(),
+    new PrismaEventOutboxRepo(),
     new PrismaWebhookDeliveryQueueRepo(),
     new PrismaRecordOperationQueueRepo(),
     getBackgroundTaskService(),
@@ -530,7 +525,7 @@ export const getRoutineRepo = () =>
 
 export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRecordRecipientReader());
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
-export const getAuditLogRepo = () => new PrismaAuditLogRepo(getPermissionService());
+export const getEventLogRepo = () => new PrismaEventLogRepo(getBackgroundTaskService());
 export const getWikiPageRepo = () => new PrismaWikiPageRepo(getPermissionService());
 export const getMessagingRepo = () => new PrismaMessagingRepo();
 export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo(getPermissionService());
@@ -607,15 +602,7 @@ export const getEventService = () => {
     return listener;
   });
 
-  return new EventService(
-    listeners,
-    getWebhookRepo(),
-    getWebhookDeliveryRepo(),
-    getAuditLogRepo(),
-    getBackgroundTaskService(),
-    getRoutineRepo(),
-    getRoutineEventAccess(),
-  );
+  return new EventService(listeners, getEventLogRepo());
 };
 export const getSubscriptionService = () => new SubscriptionService(getCompanyRepo());
 export const getEntitlementService = () => new EntitlementService(getCompanyRepo());
@@ -1287,8 +1274,6 @@ export const getRefreshSubscriptionInteractor = () =>
 
 // --- Audit log ---
 
-export const getGetAuditLogsInteractor = () => new GetAuditLogsInteractor(getAuditLogRepo(), getDataViewStateRepo());
-
 // --- EE Lifecycle (workflow cron) ---
 
 export const getSendWelcomeAndDemoInteractor = () => new SendWelcomeAndDemoInteractor(getUserRepo(), getEmailService());
@@ -1326,16 +1311,16 @@ export const getDeleteOrphanedUnipileAccountsInteractor = () =>
   new DeleteOrphanedUnipileAccountsInteractor(getConnectedAccountRepo(), getMessagingService());
 
 export const getSendLegalDocumentNoticesInteractor = () =>
-  new SendLegalDocumentNoticesInteractor(getUserRepo(), getAuditLogRepo(), getEmailService(), getEventService());
+  new SendLegalDocumentNoticesInteractor(getUserRepo(), getEventLogRepo(), getEmailService(), getEventService());
 
 export const getExpireAdAttributionInteractor = () => new ExpireAdAttributionInteractor(getUserRepo());
 
 // --- Legal ---
 
-export const getGetLegalStatusInteractor = () => new GetLegalStatusInteractor(getAuditLogRepo());
+export const getGetLegalStatusInteractor = () => new GetLegalStatusInteractor(getEventLogRepo());
 
 export const getAcceptLegalDocumentsInteractor = () =>
-  new AcceptLegalDocumentsInteractor(getAuditLogRepo(), getEventService());
+  new AcceptLegalDocumentsInteractor(getEventLogRepo(), getEventService());
 
 // --- Webhook delivery (workflow task) ---
 
@@ -1565,7 +1550,6 @@ export const getManageDataViewsInteractor = () =>
       [SURFACE.roles]: getRoleRepo(),
       [SURFACE.webhooks]: getWebhookRepo(),
       [SURFACE.webhookDeliveries]: getWebhookDeliveryRepo(),
-      [SURFACE.auditLogs]: getAuditLogRepo(),
       [SURFACE.messagingThreads]: getMessagingRepo(),
       [SURFACE.routines]: getRoutineRepo(),
     },

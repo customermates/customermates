@@ -65,7 +65,7 @@ export class ActivityPathModalStore extends ModelChangeStore<ReturnType<typeof e
 export const ActivityPathModal = observer(function ActivityPathModal({ store }: { store: ActivityPathModalStore }) {
   const t = useTranslations();
   return (
-    <ModelChangeSheet store={store} title={t("RecordModel.activityConnections")}>
+    <ModelChangeSheet creating={!store.form.id} store={store} title={t("RecordModel.activityConnections")}>
       <AppForm store={store}>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">{t("RecordModel.activityConnectionsHelp")}</p>

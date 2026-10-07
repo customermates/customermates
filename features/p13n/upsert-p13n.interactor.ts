@@ -40,7 +40,7 @@ const Schema = z
     if (data.settings === undefined) return;
     const schema = p13nSettingsSchema(data.p13nId);
     if (!schema) {
-      ctx.addIssue({ code: "custom", path: ["settings"], message: "No settings are stored for this surface" });
+      ctx.addIssue({ code: "custom", path: ["settings"], message: "Settings are not stored for this view" });
       return;
     }
     if (data.settings === null) return;

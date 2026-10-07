@@ -491,28 +491,29 @@ function startFixtures(
 
 function recordTriggerEnvelope(fields: Array<{ fieldId: string; label: string }>) {
   return {
-    version: 2,
     id: "00000000-0000-4000-8000-0000000000e1",
     companyId: mockUser.companyId,
     event: "record.updated",
     timestamp: "2026-01-01T00:00:00.000Z",
     actorId: mockUser.id,
-    causeId: "cause-1",
-    cause: { kind: "mutation" },
-    record: {
-      ref: { typeId: "00000000-0000-4000-8000-0000000000e2", recordId: "00000000-0000-4000-8000-0000000000e3" },
-      schemaRevision: 1,
-      beforeVersion: 1,
-      afterVersion: 2,
-      assignments: null,
-      identities: null,
-      links: [],
-      related: [],
-      fields: fields.map(({ fieldId, label }) => ({
-        fieldId,
-        before: null,
-        after: { fieldId, label, valueType: "text", options: [], value: { state: "restricted" } },
-      })),
+    data: {
+      causeId: "cause-1",
+      cause: { kind: "mutation" },
+      record: {
+        ref: { typeId: "00000000-0000-4000-8000-0000000000e2", recordId: "00000000-0000-4000-8000-0000000000e3" },
+        schemaRevision: 1,
+        beforeVersion: 1,
+        afterVersion: 2,
+        assignments: null,
+        identities: null,
+        links: [],
+        related: [],
+        fields: fields.map(({ fieldId, label }) => ({
+          fieldId,
+          before: null,
+          after: { fieldId, label, valueType: "text", options: [], value: { state: "restricted" } },
+        })),
+      },
     },
   };
 }
@@ -528,7 +529,7 @@ describe("StartRoutineRunInteractor", () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
       run: {
         triggerEvent: "record.updated",
-        triggerEntityId: admitted.record.ref.recordId,
+        triggerEntityId: admitted.data.record.ref.recordId,
         triggerPayload: admitted,
       },
     });

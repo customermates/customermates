@@ -5,16 +5,12 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import type { WebhookDeliveryQueueRepo } from "./webhook-delivery-queue.repo";
 import type { WebhookTransport, WebhookTransportResult } from "./webhook-transport.service";
+import { eventEnvelope, type EventEnvelope } from "@/features/event/event-envelope";
 import { parseStoredWebhookHeaders } from "./webhook-headers";
 
 export { WEBHOOK_PREFLIGHT_FAILURE_STATUS } from "./webhook-transport.service";
 
-const Schema = z.object({
-  deliveryId: z.uuid(),
-  companyId: z.uuid(),
-  url: z.url().optional(),
-  requestBody: z.record(z.string(), z.unknown()).optional(),
-});
+const Schema = z.object({ deliveryId: z.uuid(), companyId: z.uuid() });
 export type DeliverWebhookPayload = z.infer<typeof Schema>;
 export type DeliveryOutcome = {
   status: "success" | "failed" | "pending" | "missing";
@@ -51,39 +47,34 @@ export class DeliverWebhookInteractor {
       async () => {
         const state = await this.queue.contextUnscoped(input.companyId, input.deliveryId, claim.token);
         if (!state) return null;
-        const { delivery, webhook, subscription } = state;
-        if (!webhook || !webhook.enabled || webhook.url !== delivery.url || !webhook.events.includes(delivery.event))
+        const { delivery, webhook, event, subscription } = state;
+        if (
+          !webhook ||
+          !event ||
+          !webhook.enabled ||
+          webhook.url !== delivery.url ||
+          !webhook.events.includes(delivery.event)
+        )
           return null;
-        let requestBody = delivery.requestBody;
-        if (delivery.recordEventId) {
+        let requestBody: EventEnvelope | null = eventEnvelope(event);
+        if (event.subjectKind === "record") {
           if (!subscription || !subscription.enabled || subscription.revision !== delivery.subscriptionRevision)
             return null;
-          const envelope = await this.reader.readEvent({
+          requestBody = await this.reader.readEvent({
             companyId: input.companyId,
             userId: subscription.ownerUserId,
-            eventId: delivery.recordEventId,
+            eventId: event.id,
             subscriptionId: webhook.id,
           });
-          if (!envelope) return null;
-          requestBody = {
-            event: envelope.event,
-            data: {
-              userId: envelope.actorId,
-              companyId: envelope.companyId,
-              entityId: envelope.record.ref.recordId,
-              payload: envelope,
-            },
-            timestamp: envelope.timestamp,
-          };
         }
-        if (!requestBody || typeof requestBody !== "object" || Array.isArray(requestBody)) return null;
+        if (!requestBody) return null;
         return {
           deliveryId: delivery.id,
           url: webhook.url,
           secret: webhook.secret,
           headers: parseStoredWebhookHeaders(webhook.headers),
           bodyTemplate: webhook.bodyTemplate,
-          requestBody: requestBody as Record<string, unknown>,
+          requestBody,
         };
       },
       { companyId: input.companyId, readOnly: true, timeout: 30000 },
