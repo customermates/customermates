@@ -24,7 +24,6 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 
-/** Whether a table cell may edit this field in place; the server re-checks every write. */
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordField) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
   if (field.id === store.type?.primaryFieldId || field.valueType === "richText") return false;
@@ -125,7 +124,6 @@ const InlineSelect = observer(function InlineSelect({
   );
 });
 
-/** Wraps a table cell value with in-place editing: a chip menu for selects, a small form popover otherwise. */
 export const RecordInlineField = observer(function RecordInlineField({
   records,
   record,

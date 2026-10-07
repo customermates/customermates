@@ -27,7 +27,6 @@ const INTERACTIVE_SELECTOR = [
   "[data-slot='tooltip-trigger']",
 ].join(",");
 
-/** Whether the click landed on interactive content inside the clicked surface (not on the surface itself). */
 export function isInteractiveClick(e: ReactMouseEvent<HTMLElement>): boolean {
   const hit = (e.target as HTMLElement | null)?.closest(INTERACTIVE_SELECTOR);
   return Boolean(hit && hit !== e.currentTarget);

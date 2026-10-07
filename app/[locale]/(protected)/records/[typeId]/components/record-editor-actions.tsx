@@ -11,6 +11,7 @@ import { AppModalActionRail, type AppModalActionProps } from "@/components/modal
 import { cn } from "@/core/utils/cn";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
 import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import {
   RecordDetailLayoutStatus,
@@ -25,12 +26,7 @@ type Props = {
   deletion: ReturnType<typeof useRecordDeletion>;
 };
 
-/**
- * Record header actions in the shared rail order: Ask AI, Customize, Delete, then Open page when `onOpenPage`
- * is given (drawer only). Used by the record drawer header and the record page top bar.
- */
 type HeaderActionProps = Omit<Props, "formId"> & {
-  /** From useRecordDetailLayout() in the editor tree; the page top bar renders outside that provider. */
   layout: RecordDetailLayoutState | null;
   onOpenPage?: (event: MouseEvent<HTMLAnchorElement>) => void;
 };
@@ -97,14 +93,16 @@ export const RecordHeaderActions = observer(function RecordHeaderActions({
   return <AppModalActionRail actions={useRecordHeaderActions(props)} className={className} />;
 });
 
-/** Record page top bar: the labeled Ask AI of the list pages, the other header actions as icons, then status. */
 const RecordTopBarActions = observer(function RecordTopBarActions(props: HeaderActionProps) {
   const actions = useRecordHeaderActions(props);
   const askAi = actions.find((action) => action.kind === "assistant");
   return (
     <>
       {askAi && "onClick" in askAi && askAi.onClick && (
-        <ViewAiAction className="[&>span]:hidden sm:[&>span]:inline" onClick={() => void askAi.onClick?.()} />
+        <ViewAiAction
+          className="[&>span]:hidden sm:[&>span]:inline"
+          onClick={() => runUserAction(() => askAi.onClick?.())}
+        />
       )}
 
       <AppModalActionRail actions={actions.filter((action) => action !== askAi)} className="min-h-8 self-center" />

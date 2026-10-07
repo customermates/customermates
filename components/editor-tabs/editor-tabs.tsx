@@ -15,20 +15,15 @@ import { cn } from "@/core/utils/cn";
 export type EditorTab = {
   id: string;
   label: ReactNode;
-  /** Form field ids shown on this tab; the tab shows an error dot while any of them is invalid. */
   fields?: readonly string[];
   content: ReactNode;
 };
 
 type Props = {
   tabs: readonly EditorTab[];
-  /** Accessible name of the tab bar. */
   label?: string;
-  /** Pages: keep the active tab in the `?tab=` URL parameter. */
   syncUrl?: boolean;
-  /** Drawers and modals: remember the last tab per editor kind under this key. */
   rememberAs?: string;
-  /** Runs before a tab switch and calls `apply` when the switch may happen (e.g. after a draft prompt). */
   guardChange?: (apply: () => void) => void;
   className?: string;
   contentClassName?: string;
@@ -49,25 +44,9 @@ function remember(key: string | undefined, tab: string) {
   if (!key) return;
   try {
     window.localStorage.setItem(STORAGE_PREFIX + key, tab);
-  } catch {
-    // Remembering the tab is a convenience; private windows may refuse storage.
-  }
+  } catch {}
 }
 
-/**
- * EditorTabs is the one tabbed editor pattern for the whole app.
- *
- * - Any editor with two or more logical groups uses tabs instead of divider-separated sections;
- *   with a single tab it renders the content plainly, without a tab bar.
- * - Pages place it as the second tab bar under the top bar (like the entity detail pages) and pass `syncUrl`
- *   so the active tab lives in `?tab=`.
- * - Drawers and app modals place it directly under the header and pass `rememberAs` (one key per editor kind)
- *   so the editor reopens on the last tab.
- * - Editors with a live preview wrap only their settings column in it; the preview stays visible.
- * - A tab whose `fields` contain an invalid form field shows an error dot. Saving validates the whole form,
- *   so errors on hidden tabs are never skipped.
- * - On small screens the tab bar scrolls horizontally.
- */
 export const EditorTabs = observer(function EditorTabs({
   tabs,
   label,

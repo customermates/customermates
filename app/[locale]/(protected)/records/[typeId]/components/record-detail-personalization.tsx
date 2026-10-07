@@ -105,7 +105,6 @@ export type RecordDetailLayoutState = {
   setIsPersonalizing: (value: boolean) => void;
 };
 
-/** The personal detail layout of the surrounding record editor, or null when the type has none. */
 export function useRecordDetailLayout(): RecordDetailLayoutState | null {
   const context = useContext(LayoutContext);
   const { enabled, isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
@@ -115,7 +114,6 @@ export function useRecordDetailLayout(): RecordDetailLayoutState | null {
   );
 }
 
-/** Reset and save status for the layout while customizing; renders nothing otherwise. */
 export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStatus({
   layout,
   editor,

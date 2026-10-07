@@ -39,7 +39,6 @@ type Props<E extends HasId> = {
   columns: ColumnDef<E>[];
   className?: string;
   onRowClick?: (item: E) => void;
-  /** Trailing per-row actions rendered in a fixed utility column after the data columns. */
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
 };

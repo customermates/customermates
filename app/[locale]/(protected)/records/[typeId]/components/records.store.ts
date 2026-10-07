@@ -152,7 +152,6 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       targets: this.selectionTargets,
       fields: [{ fieldId, value }],
     });
-  /** Whether a row may be edited in place now: update permission and no bulk or board write in flight. */
   canUpdateRecord(record: RecordRow) {
     return (
       this.presentation.permittedActions.includes("update") &&
@@ -162,7 +161,6 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       !this.pendingBoardOperation
     );
   }
-  /** Inline table edit of one field on one record; returns whether the change was accepted. */
   updateRecordField = async (record: RecordRow, fieldId: string, value: RecordScalar | null): Promise<boolean> => {
     if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return false;
     this.movingRecords.add(record.id);

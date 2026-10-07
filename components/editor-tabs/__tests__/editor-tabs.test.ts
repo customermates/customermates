@@ -1,5 +1,3 @@
-// @vitest-environment jsdom
-
 import type { Root } from "react-dom/client";
 import type { EditorTab } from "../editor-tabs";
 

@@ -17,7 +17,6 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { Avatar } from "@/components/ui/avatar";
 
-/** Linked chips beyond this width collapse into a +N stack so every row keeps one line. */
 const LINKED_CHIPS_MAX_WIDTH = 240;
 
 export function RecordCell({

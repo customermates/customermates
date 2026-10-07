@@ -44,10 +44,8 @@ type AppChipProps = ComponentProps<typeof AppChip>;
 
 type Props<T extends ChipStackItem> = {
   items: T[];
-  /** `trigger` is the clicked chip, or the +N button for items picked from its menu (for focus return). */
   onChipClick?: (item: T, trigger: HTMLElement | null) => void;
   chipHref?: (item: T) => string | undefined;
-  /** Accessible name for a chip's link or button, e.g. "Open {name}". */
   chipLabel?: (item: T) => string;
   size?: AppChipProps["size"];
   variant?: AppChipProps["variant"];

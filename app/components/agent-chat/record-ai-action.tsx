@@ -9,6 +9,7 @@ import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import { agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
+import { runUserAction } from "@/core/errors/report-application-error";
 import type { AppModalButtonActionProps } from "@/components/modal/app-modal-action";
 
 type Props = {
@@ -17,10 +18,6 @@ type Props = {
   registerContext?: boolean;
 };
 
-/**
- * Registers the record context for the assistant and returns the Ask AI header action,
- * or null when the assistant is unavailable.
- */
 export function useRecordAiAction({
   context,
   active = true,
@@ -52,5 +49,5 @@ export const RecordAiAction = observer(function RecordAiAction({
   ...props
 }: Props & { className?: string }) {
   const askAi = useRecordAiAction(props);
-  return askAi ? <ViewAiAction className={className} onClick={() => void askAi.onClick()} /> : null;
+  return askAi ? <ViewAiAction className={className} onClick={() => runUserAction(askAi.onClick)} /> : null;
 });

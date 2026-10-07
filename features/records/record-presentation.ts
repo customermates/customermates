@@ -283,13 +283,11 @@ export function presentationFiltersAreValid(
   );
 }
 
-/** Colors of the lists at either end of these relationships, for lists that have one. */
 export function recordLinkColors(types: RecordType[], relationships: RecordRelationship[]): RecordLinkColors {
   const ids = new Set(relationships.flatMap((relation) => [relation.sourceTypeId, relation.targetTypeId]));
   return Object.fromEntries(types.flatMap((type) => (ids.has(type.id) && type.color ? [[type.id, type.color]] : [])));
 }
 
-/** Chip color for links to records of a list: the list's color, neutral when unset. */
 export function recordLinkColor(colors: RecordLinkColors, typeId: string) {
   return toChipColor(colors[typeId]);
 }
