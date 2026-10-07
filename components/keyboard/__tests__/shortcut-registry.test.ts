@@ -126,6 +126,11 @@ describe("G sequences", () => {
     expect(goSequenceTarget(press("0", "Digit0"), "other")).toBeNull();
   });
 
+  it("ignores numpad navigation keys when NumLock is off", () => {
+    expect(goSequenceTarget(press("End", "Numpad1"), "other")).toBeNull();
+    expect(goSequenceTarget(press("ArrowDown", "Numpad2"), "other")).toBeNull();
+  });
+
   it("reads list digits by position on AZERTY and letters by key on Cyrillic", () => {
     expect(goSequenceTarget(press("&", "Digit1"), "other")).toEqual({
       listPosition: 0,

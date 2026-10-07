@@ -1,6 +1,6 @@
 import type { KeyChord, KeyPress, KeyboardPlatform } from "./key-matching";
 
-import { chordLabel, chordMatches } from "./key-matching";
+import { chordLabel, chordMatches, detectKeyboardPlatform } from "./key-matching";
 
 export type ShortcutGroup = "general" | "navigation" | "forms";
 
@@ -108,6 +108,10 @@ export function isSingleKeyShortcut(entry: Shortcut): boolean {
 export function matchesShortcut(event: KeyPress, id: ShortcutId, platform: KeyboardPlatform): boolean {
   const { sequence } = shortcut(id);
   return sequence.length === 1 && chordMatches(event, sequence[0], platform);
+}
+
+export function isShortcutPress(event: KeyPress, id: ShortcutId): boolean {
+  return matchesShortcut(event, id, detectKeyboardPlatform(typeof navigator === "undefined" ? undefined : navigator));
 }
 
 export function shortcutKeyLabels(id: ShortcutId, platform: KeyboardPlatform): string[] {

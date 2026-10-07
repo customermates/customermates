@@ -36,6 +36,7 @@ export function GlobalKeyboardShortcuts() {
     const platform = detectKeyboardPlatform(navigator);
     let goTimer: ReturnType<typeof setTimeout> | undefined;
     let hintTimer: ReturnType<typeof setTimeout> | undefined;
+    let pendingGo = false;
 
     const routeReady = () => rootStore.recordWorkspaceStore.routeReady(stripLocalePrefix(pathname));
 
@@ -43,12 +44,12 @@ export function GlobalKeyboardShortcuts() {
       clearTimeout(goTimer);
       clearTimeout(hintTimer);
       toast.dismiss(PENDING_GO_TOAST_ID);
-      store.setPendingGo(false);
+      pendingGo = false;
     }
 
     function startGo() {
       endGo();
-      store.setPendingGo(true);
+      pendingGo = true;
       goTimer = setTimeout(endGo, SHORTCUT_SEQUENCE_TIMEOUT_MS);
       hintTimer = setTimeout(
         () =>
@@ -89,13 +90,16 @@ export function GlobalKeyboardShortcuts() {
 
     function handleSingleKey(event: KeyboardEvent) {
       if (event.defaultPrevented || event.repeat || MODIFIER_KEYS.has(event.key)) return;
-      if (!store.singleKeyShortcutsEnabled) return;
+      if (!store.singleKeyShortcutsEnabled) {
+        if (pendingGo) endGo();
+        return;
+      }
 
-      const pendingGo = store.pendingGo;
-      if (pendingGo) endGo();
+      const continuesGo = pendingGo;
+      if (continuesGo) endGo();
       if (!routeReady() || singleKeyShortcutBlocked(event, document)) return;
 
-      if (pendingGo) {
+      if (continuesGo) {
         const href = goTargetHref(event);
         if (!href) return;
         event.preventDefault();
@@ -105,7 +109,7 @@ export function GlobalKeyboardShortcuts() {
 
       if (matchesShortcut(event, "add", platform)) {
         event.preventDefault();
-        addPickerStore.openFrom(focusOrigin(), document.getElementById("sidebar-trigger"));
+        addPickerStore.openFrom(focusOrigin());
         return;
       }
 

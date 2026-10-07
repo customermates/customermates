@@ -6,7 +6,6 @@ const state = vi.hoisted(() => ({
   agentChatEnabled: true,
   agentConfigEnabled: true as boolean | null,
   singleKeyShortcutsEnabled: true,
-  pendingGo: false,
   routeReady: true,
   openSearch: vi.fn(),
   toggleAgent: vi.fn(),
@@ -30,12 +29,6 @@ vi.mock("@/core/stores/root-store.provider", () => {
   const keyboardShortcutsStore = {
     get singleKeyShortcutsEnabled() {
       return state.singleKeyShortcutsEnabled;
-    },
-    get pendingGo() {
-      return state.pendingGo;
-    },
-    setPendingGo: (pending: boolean) => {
-      state.pendingGo = pending;
     },
     destinations: {
       pages: {
@@ -89,7 +82,6 @@ beforeEach(() => {
     agentChatEnabled: true,
     agentConfigEnabled: true,
     singleKeyShortcutsEnabled: true,
-    pendingGo: false,
     routeReady: true,
   });
   for (const mock of [state.openSearch, state.toggleAgent, state.openAdd, state.openShortcuts, state.push, state.toast])
@@ -177,17 +169,18 @@ describe("global keyboard shortcuts", () => {
       document.body.dispatchEvent(claimed);
     });
 
+    press("d");
     expect(state.openAdd).not.toHaveBeenCalled();
-    expect(state.pendingGo).toBe(false);
+    expect(state.push).not.toHaveBeenCalled();
   });
 
   it("navigates with G then a letter or list position through the navigation guard", () => {
     press("g");
-    expect(state.pendingGo).toBe(true);
     press("d");
     expect(state.tryNavigate).toHaveBeenCalledOnce();
     expect(state.push).toHaveBeenLastCalledWith("/dashboard");
-    expect(state.pendingGo).toBe(false);
+    press("d");
+    expect(state.push).toHaveBeenCalledOnce();
 
     press("g");
     press("2");
@@ -214,7 +207,6 @@ describe("global keyboard shortcuts", () => {
     act(() => {
       vi.advanceTimersByTime(700);
     });
-    expect(state.pendingGo).toBe(false);
     press("d");
     expect(state.push).not.toHaveBeenCalled();
   });

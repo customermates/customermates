@@ -1,3 +1,5 @@
+import { ASSISTANT_SURFACE_SELECTOR } from "@/components/modal/assistant-surface";
+
 export type KeyboardPlatform = "mac" | "other";
 
 export type KeyChord = {
@@ -47,8 +49,6 @@ const BLOCKING_OVERLAY_SELECTOR = [
   '[role="menu"]:not([data-state="closed"])',
 ].join(",");
 
-const ASSISTANT_SURFACE_SELECTOR = "[data-agent-surface]";
-
 export function detectKeyboardPlatform(
   navigatorLike:
     | {
@@ -82,9 +82,9 @@ function matchesByKey(event: KeyPress, chord: KeyChord): boolean {
 }
 
 function matchesByCode(event: KeyPress, chord: KeyChord): boolean {
-  if (!chord.codes.includes(event.code)) return false;
+  if (!chord.codes.includes(event.code) || event.key.length !== 1) return false;
   const positional = DIGIT.test(chord.key);
-  const nonLatinLayout = event.key.length === 1 && !PRINTABLE_ASCII.test(event.key);
+  const nonLatinLayout = !PRINTABLE_ASCII.test(event.key);
   if (!positional && !nonLatinLayout) return false;
   return event.shiftKey === Boolean(chord.shift);
 }

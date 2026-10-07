@@ -14,7 +14,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
@@ -89,7 +88,6 @@ export const NavUser = observer(({ user, theme, labels, onThemeChange, onKeyboar
 
               {onKeyboardShortcuts && (
                 <DropdownMenuItem
-                  className="pointer-coarse:hidden"
                   onSelect={() => {
                     handingOffFocusRef.current = true;
                     onKeyboardShortcuts(triggerRef.current);
@@ -99,9 +97,7 @@ export const NavUser = observer(({ user, theme, labels, onThemeChange, onKeyboar
 
                   <span>{labels.keyboardShortcuts}</span>
 
-                  <DropdownMenuShortcut>
-                    <ActiveShortcutKeys id="shortcuts" />
-                  </DropdownMenuShortcut>
+                  <ActiveShortcutKeys className="ml-auto" id="shortcuts" />
                 </DropdownMenuItem>
               )}
             </DropdownMenuGroup>

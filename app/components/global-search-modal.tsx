@@ -10,6 +10,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
+import { Kbd } from "@/components/keyboard/shortcut-keys";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -216,9 +217,7 @@ function ResultRow({
 function Hint({ label, symbol }: { label: string; symbol: ReactNode }) {
   return (
     <div className="flex items-center gap-1.5">
-      <kbd className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded border border-border bg-muted px-1 text-[10px] font-medium text-muted-foreground">
-        {symbol}
-      </kbd>
+      <Kbd>{symbol}</Kbd>
 
       <span>{label}</span>
     </div>
