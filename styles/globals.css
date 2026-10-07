@@ -115,11 +115,6 @@
   --animate-page-loading-in: page-loading-in 160ms ease-out 180ms both;
 }
 
-/* tw-animate-css's enter/exit keyframes also animate `filter: blur(0)`, which ends at `filter: none`.
-   WebKit's Skia compositor crashes the page on an accelerated filter animation at `none`
-   (https://bugs.webkit.org/show_bug.cgi?id=323720), so every overlay open or close could crash it.
-   Nothing uses blur-in/blur-out; keep the keyframes without filter. This @theme follows the tw-animate
-   import, so these keyframes are emitted later and win. */
 @theme inline {
   @keyframes enter {
     from {
