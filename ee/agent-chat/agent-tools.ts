@@ -64,6 +64,9 @@ import { env } from "@/env";
 import { getAgentWebSearchTool } from "./agent-web-search";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
+import { localizeAppLinks } from "@/features/docs/app-links";
+import { presetId } from "@/features/records/crm-preset";
+import { UserAccessor } from "@/core/base/user-accessor";
 import { hostedSectionRankers } from "./docs-rerank";
 
 export type AgentToolOptions = {
@@ -173,14 +176,19 @@ function contextualAgentToolNavigation(
   return href ? { kind: "saved-view" as const, href } : null;
 }
 
+function localizeAgentAppLinks(text: string) {
+  return localizeAppLinks(text, env.BASE_URL, {
+    listId: (preset) => presetId(new UserAccessor().companyId, preset),
+  });
+}
+
 function agentToolResult(
   outcome: McpToolExecutionResult,
   maxChars: number,
   context: { toolName?: string; pageRoute?: string | null } = {},
 ) {
-  const text = localizeWikiPageUrls(
-    contextualAgentToolResultText(context.toolName, outcome, context.pageRoute),
-    env.BASE_URL,
+  const text = localizeAgentAppLinks(
+    localizeWikiPageUrls(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), env.BASE_URL),
   );
   if (!outcome.ok) return boundedAgentToolFailure({ result: text, failure: outcome.failure }, maxChars);
   const navigation = contextualAgentToolNavigation(context.toolName, outcome, context.pageRoute);
@@ -444,7 +452,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
     }),
     navigate: tool({
       description:
-        "Open an app area by its target id from list_ui_targets, or open one existing record's page by passing typeId and recordId after query_crm_records or search_crm_records found the stable reference. Records always open on their page, never in the drawer; to add a record, highlight the matching add control instead.",
+        "Open an app area by its target id from list_ui_targets, open an app link from a docs result by passing it as href, or open one existing record's page by passing typeId and recordId after query_crm_records or search_crm_records found the stable reference. Records always open on their page, never in the drawer; to add a record, highlight the matching add control instead.",
       inputSchema: providerSafeSchema(NavigateInputSchema),
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "navigate", panelInput("navigate", input)), deps.resultMaxChars),

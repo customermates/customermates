@@ -6,6 +6,9 @@ import { z } from "zod";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { presetId } from "@/features/records/crm-preset";
+import { resolvePublicAppLinks } from "@/features/docs/app-links";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
@@ -1334,6 +1337,33 @@ describe("agent tools", () => {
     expect(pageResult.result).toContain("nav-profile-connected-accounts");
     expect(pageResult.result).toContain("profile-connected-accounts-connect");
     expect(pageResult.result).toContain("WhatsApp");
+  });
+
+  it("hands Mate docs app links as paths into the reader's own workspace", async () => {
+    const tools = getAgentAiTools(deps({ runInCallerContext: (run) => runWithTenant(mockUser, run) }));
+    const markdown = resolvePublicAppLinks(
+      "To add a contact, open [Contacts](app:records/contact) and click [Add](app:records/contact?focus=add).",
+      "http://localhost:4000",
+    );
+    vi.spyOn(getDocsPageTool, "execute").mockResolvedValueOnce({
+      text: markdown,
+      structuredContent: {
+        title: "Records",
+        url: "http://localhost:4000/en/docs/app-records",
+        markdown,
+        excerpt: true,
+      },
+    });
+    const contacts = presetId(mockUser.companyId, "contact");
+
+    const result = (await execute(tools.get_docs_page, { slug: "app-records", locale: "en", source: "docs" })) as {
+      ok: boolean;
+      result: string;
+    };
+
+    expect(result.result).toBe(
+      `To add a contact, open [Contacts](/records/${contacts}) and click [Add](/records/${contacts}?focus=control:records:${contacts}:add).`,
+    );
   });
 
   it("keeps runtime validation for sanitized CRM schemas", async () => {

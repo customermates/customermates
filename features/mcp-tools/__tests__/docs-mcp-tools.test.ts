@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { docsCorpusSections } from "../docs-manifest";
+import { docsCorpusSections, pageMarkdown } from "../docs-manifest";
 
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
@@ -29,6 +29,19 @@ describe("search_docs", () => {
 });
 
 describe("get_docs_page", () => {
+  it("serves app links as absolute links an outside reader can open", () => {
+    const markdown = pageMarkdown("docs", "en", "app-link-fixture", {
+      title: "Fixture",
+      description: "",
+      content:
+        "---\ntitle: Fixture\n---\nOpen [Contacts](app:records/contact) or [Roles](app:company/roles?focus=add).",
+    });
+
+    expect(markdown).toBe(
+      "Open [Contacts](http://localhost:4000/open/records/contact) or [Roles](http://localhost:4000/company/roles?focus=control:company-roles-add).",
+    );
+  });
+
   it("returns markdown with title, canonical url, and no frontmatter", () => {
     const result = getPage({ slug: "webhooks" });
     expect(result.startsWith("# ")).toBe(true);
