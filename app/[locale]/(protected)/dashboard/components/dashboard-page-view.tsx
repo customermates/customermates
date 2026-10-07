@@ -10,14 +10,14 @@ import { BarChart3, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import "@/styles/react-grid-layout.css";
 
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
-import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
+import { connectDataViewUrlSync } from "@/components/data-view/data-view-url-sync";
 import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
 import { Icon } from "@/components/shared/icon";
@@ -69,7 +69,8 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   } | null>(null);
   const t = useTranslations();
 
-  useDataViewSync(widgetsStore, dashboard);
+  useLayoutEffect(() => widgetsStore.setItems(dashboard), [dashboard, widgetsStore]);
+  useEffect(() => connectDataViewUrlSync(widgetsStore), [widgetsStore]);
 
   useEffect(() => {
     if (typeof window === "undefined" || items.length === 0) return;

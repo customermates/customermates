@@ -19,7 +19,7 @@ const harness = vi.hoisted(() => ({
 }));
 
 vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
-vi.mock("@/components/data-view/use-data-view-sync", () => ({ useDataViewSync: () => undefined }));
+vi.mock("@/components/data-view/data-view-url-sync", () => ({ connectDataViewUrlSync: () => () => undefined }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
