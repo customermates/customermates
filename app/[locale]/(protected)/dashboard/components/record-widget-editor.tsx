@@ -507,7 +507,7 @@ export const RecordWidgetEditor = observer(
                 </CollapsibleSection>
 
                 <CollapsibleSection
-                  defaultOpen={Boolean(measure.groupBy)}
+                  defaultOpen
                   id="widget-config-grouping"
                   summary={groupSummary}
                   title={t("Dashboard.widgetEditor.sections.grouping")}

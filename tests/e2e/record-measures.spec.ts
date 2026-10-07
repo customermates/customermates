@@ -41,8 +41,6 @@ test("keeps source totals separate from filtered widget groups across save and r
   await page.getByRole("option", { name: "Price", exact: true }).click();
   await dialogs.getByRole("combobox", { name: "Group by", exact: true }).click();
   await page.getByRole("option", { name: "Each record", exact: true }).click();
-  await dialogs.getByRole("tab", { name: "Filters, none active", exact: true }).click();
-  await expect(dialogs.getByRole("heading", { name: "Filters, none active", exact: true })).toBeAttached();
   const groupFilters = dialogs.getByRole("region", { name: "Group filters", exact: true });
   await groupFilters.getByRole("combobox", { name: "Add filter", exact: true }).click();
   await page.getByRole("option", { name: "Name", exact: true }).click();

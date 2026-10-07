@@ -273,9 +273,9 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
     await page.getByRole("option", { name: "Weighted value", exact: true }).click();
     await selectOption(page, "Group by", "No grouping");
-    await expect(dialog.getByRole("tablist")).toHaveCount(0);
-    await expect(dialog.getByRole("heading", { name: "Filters, none active", exact: true })).toBeAttached();
-    await expect(dialog.getByRole("region", { name: "Appearance", exact: true })).toBeAttached();
+    await expect(dialog.getByRole("tablist", { name: "Widget settings", exact: true })).toHaveCount(1);
+    await expect(dialog.locator("#widget-config-filters")).toBeVisible();
+    await expect(dialog.getByRole("tab", { name: "Appearance", exact: true })).toBeVisible();
     await dialog.getByRole("textbox", { name: "Name", exact: false }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-settings.png"), animations: "disabled" });
     await expect(dialog.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();

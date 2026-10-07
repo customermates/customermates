@@ -38,7 +38,7 @@ test("creates a custom-type activity widget, previews history, edits it and pres
   await page.locator('[data-slot="popover-content"]').getByRole("combobox").fill("Tenders");
   await page.getByRole("option", { name: "Tenders", exact: true }).click();
   await page.keyboard.press("Escape");
-  await dialog.getByRole("button", { name: "Preview", exact: true }).click();
+  await expect(dialog.locator('[data-preview-current="true"]')).toHaveCount(1);
   await expect(dialog.getByText("Harbour renewal", { exact: true })).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();

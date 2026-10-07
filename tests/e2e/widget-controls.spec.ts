@@ -34,7 +34,9 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-kind-chart").click();
-  await dialog.getByRole("button", { name: englishMessages.Common.actions.back, exact: true }).click();
+  await dialog
+    .getByRole("button", { name: englishMessages.Dashboard.widgetEditor.kind.change, exact: true })
+    .click();
   await expect(dialog.locator("#widget-modal-kind")).toBeVisible();
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
   await expect(dialog.locator("#widget-kind-chart")).toBeFocused();
