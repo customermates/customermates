@@ -2361,6 +2361,35 @@
     "subtitle": "A workspace administrator needs to invite {email}.",
     "title": "Join an existing workspace"
   },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Add",
+      "askMate": "Ask Mate",
+      "close": "Close the topmost dialog or drawer",
+      "goConfigure": "Configure",
+      "goDashboard": "Dashboard",
+      "goInbox": "Inbox",
+      "goKnowledgeBase": "Knowledge Base",
+      "goList": "Lists by their position in your sidebar",
+      "goRoutines": "Routines",
+      "goSettings": "Settings",
+      "save": "Save",
+      "search": "Search",
+      "shortcuts": "Show keyboard shortcuts",
+      "toggleSidebar": "Show or hide the sidebar"
+    },
+    "groups": {
+      "forms": "Forms and dialogs",
+      "general": "General",
+      "navigation": "Go to"
+    },
+    "pendingGo": "Go to… press a letter or a list number",
+    "singleKey": {
+      "description": "C, ? and the G sequences. Turn them off if you use speech input or press keys by accident.",
+      "label": "Single-key shortcuts"
+    },
+    "title": "Keyboard shortcuts"
+  },
   "LegalDocumentNotice": {
     "contractBody": "We updated the legal documents listed below. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
     "contractDeadlineLabel": "Objection and acceptance deadline",

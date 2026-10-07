@@ -13,7 +13,7 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilterInput } from "@/core/base/filter-value";
 import { EntityDetailOptionsSchema, type EntityDetailOptions } from "./p13n.schema";
-import { SidebarLayoutSchema, type SidebarLayout } from "./sidebar-layout.schema";
+import { p13nSettingsSchema, type P13nSettings } from "./p13n-settings.schema";
 
 export interface P13nEntry {
   p13nId: string;
@@ -28,7 +28,7 @@ export interface P13nEntry {
   viewMode?: ViewMode;
   grouping?: Grouping | null;
   detailOptions?: EntityDetailOptions;
-  settings?: SidebarLayout;
+  settings?: P13nSettings;
 }
 
 function normalizeStoredFilters(value: unknown): Filter[] | undefined {
@@ -87,7 +87,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       viewMode: (viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(grouping),
       detailOptions: normalizeDetailOptions(detailOptions),
-      settings: SidebarLayoutSchema.safeParse(settings).data,
+      settings: p13nSettingsSchema(p13nId)?.safeParse(settings).data,
       ...(Array.isArray(res.viewStateKeys) ? this.explicitViewState(res) : {}),
     };
   }
@@ -192,7 +192,7 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       viewMode: (row.viewMode as ViewMode | null) ?? undefined,
       grouping: readStoredGrouping(row.grouping),
       detailOptions: normalizeDetailOptions(row.detailOptions),
-      settings: SidebarLayoutSchema.safeParse(row.settings).data,
+      settings: p13nSettingsSchema(row.p13nId)?.safeParse(row.settings).data,
       ...(Array.isArray(row.viewStateKeys) ? this.explicitViewState(row) : {}),
     };
   }

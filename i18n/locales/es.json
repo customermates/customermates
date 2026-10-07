@@ -2361,6 +2361,35 @@
     "subtitle": "Un administrador del espacio de trabajo debe invitar a {email}.",
     "title": "Unirte a un espacio de trabajo existente"
   },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Añadir",
+      "askMate": "Preguntar a Mate",
+      "close": "Cerrar el diálogo o panel superior",
+      "goConfigure": "Configurar",
+      "goDashboard": "Panel",
+      "goInbox": "Bandeja de entrada",
+      "goKnowledgeBase": "Base de conocimientos",
+      "goList": "Listas según su posición en tu barra lateral",
+      "goRoutines": "Rutinas",
+      "goSettings": "Ajustes",
+      "save": "Guardar",
+      "search": "Buscar",
+      "shortcuts": "Mostrar atajos de teclado",
+      "toggleSidebar": "Mostrar u ocultar la barra lateral"
+    },
+    "groups": {
+      "forms": "Formularios y diálogos",
+      "general": "General",
+      "navigation": "Ir a"
+    },
+    "pendingGo": "Ir a… pulsa una letra o un número de lista",
+    "singleKey": {
+      "description": "C, ? y las secuencias G. Desactívalos si usas entrada por voz o pulsas teclas por error.",
+      "label": "Atajos de una tecla"
+    },
+    "title": "Atajos de teclado"
+  },
   "LegalDocumentNotice": {
     "contractBody": "Hemos actualizado los documentos legales que se indican a continuación. Revísalos en nombre del cliente empresarial y organiza su aceptación electrónica por parte de un administrador del sistema autorizado.",
     "contractDeadlineLabel": "Fecha límite de objeción y aceptación",

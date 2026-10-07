@@ -12,7 +12,7 @@ import { FilterSchema, SortDescriptorSchema, PaginationRequestSchema } from "@/c
 import { ViewMode } from "@/core/base/base-query-builder";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
-import { SIDEBAR_P13N_ID, SidebarLayoutSchema } from "./sidebar-layout.schema";
+import { P13nSettingsSchema, p13nSettingsSchema } from "./p13n-settings.schema";
 
 const Schema = z
   .object({
@@ -34,11 +34,24 @@ const Schema = z
     viewMode: z.enum(ViewMode).nullish(),
     grouping: GroupingSchema.nullish(),
     detailOptions: EntityDetailOptionsSchema.nullish(),
-    settings: SidebarLayoutSchema.nullish(),
+    settings: P13nSettingsSchema.nullish(),
   })
-  .refine((data) => data.settings === undefined || data.p13nId === SIDEBAR_P13N_ID, {
-    path: ["settings"],
-    message: "Settings are only stored for the sidebar",
+  .superRefine((data, ctx) => {
+    if (data.settings === undefined) return;
+    const schema = p13nSettingsSchema(data.p13nId);
+    if (!schema) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["settings"],
+        message: "No settings are stored for this surface",
+      });
+    } else if (data.settings !== null && !schema.safeParse(data.settings).success) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["settings"],
+        message: "Settings do not match this surface",
+      });
+    }
   });
 export type UpsertP13nData = Data<typeof Schema>;
 

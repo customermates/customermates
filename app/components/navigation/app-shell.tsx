@@ -25,6 +25,8 @@ import { DEFAULT_LOCALE, isRoutingLocale } from "@/i18n/locale-registry";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { SIDEBAR_P13N_ID } from "@/features/p13n/sidebar-layout.schema";
+import { KEYBOARD_P13N_ID } from "@/features/p13n/keyboard-preferences.schema";
+import { readP13nSettings } from "@/features/p13n/p13n-settings.schema";
 
 type Props = {
   children: React.ReactNode;
@@ -41,7 +43,15 @@ export async function AppShell({ children, displayLanguage }: Props) {
   const navigation = await loadNavigationData(account.state, {
     records: () => unwrapValidated(getGetRecordNavigationInteractor().invoke()),
     sidebarLayout: async () =>
-      (await getGetP13nInteractor().invoke({ p13nId: SIDEBAR_P13N_ID })).data?.settings ?? null,
+      readP13nSettings(
+        SIDEBAR_P13N_ID,
+        (await getGetP13nInteractor().invoke({ p13nId: SIDEBAR_P13N_ID })).data?.settings,
+      ),
+    keyboardPreferences: async () =>
+      readP13nSettings(
+        KEYBOARD_P13N_ID,
+        (await getGetP13nInteractor().invoke({ p13nId: KEYBOARD_P13N_ID })).data?.settings,
+      ),
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
     systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
     unreadThreadCount: async () => {
@@ -79,6 +89,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           channelsNeedingActionCount={navigation.channelsNeedingActionCount}
           defaultSidebarOpen={initialSidebarOpen}
           emailVerified={accountAllowed ? account.emailVerified : null}
+          keyboardPreferences={navigation.keyboardPreferences}
           legalStatus={accountAllowed ? account.legalStatus : null}
           operatorConsoleVisible={operatorConsoleVisible}
           recordNavigation={navigation.records}

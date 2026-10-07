@@ -2361,6 +2361,35 @@
     "subtitle": "Un amministratore dello spazio di lavoro deve invitare {email}.",
     "title": "Entra in uno spazio di lavoro esistente"
   },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Aggiungi",
+      "askMate": "Chiedi a Mate",
+      "close": "Chiudi la finestra o il pannello in primo piano",
+      "goConfigure": "Configura",
+      "goDashboard": "Dashboard",
+      "goInbox": "Posta in arrivo",
+      "goKnowledgeBase": "Base di conoscenza",
+      "goList": "Elenchi in base alla posizione nella barra laterale",
+      "goRoutines": "Routine",
+      "goSettings": "Impostazioni",
+      "save": "Salva",
+      "search": "Cerca",
+      "shortcuts": "Mostra scorciatoie da tastiera",
+      "toggleSidebar": "Mostra o nascondi la barra laterale"
+    },
+    "groups": {
+      "forms": "Moduli e finestre di dialogo",
+      "general": "Generale",
+      "navigation": "Vai a"
+    },
+    "pendingGo": "Vai a… premi una lettera o il numero di un elenco",
+    "singleKey": {
+      "description": "C, ? e le sequenze G. Disattivale se usi l'input vocale o premi tasti per errore.",
+      "label": "Scorciatoie a tasto singolo"
+    },
+    "title": "Scorciatoie da tastiera"
+  },
   "LegalDocumentNotice": {
     "contractBody": "Abbiamo aggiornato i documenti legali elencati di seguito. Esaminali per il cliente aziendale e fai in modo che un amministratore di sistema autorizzato li accetti elettronicamente.",
     "contractDeadlineLabel": "Termine per l’opposizione e l’accettazione",

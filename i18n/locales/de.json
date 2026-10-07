@@ -2361,6 +2361,35 @@
     "subtitle": "Ein Workspace-Administrator muss {email} einladen.",
     "title": "Bestehendem Workspace beitreten"
   },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Hinzufügen",
+      "askMate": "Mate fragen",
+      "close": "Obersten Dialog oder Drawer schließen",
+      "goConfigure": "Konfigurieren",
+      "goDashboard": "Dashboard",
+      "goInbox": "Posteingang",
+      "goKnowledgeBase": "Wissensdatenbank",
+      "goList": "Listen nach ihrer Position in Ihrer Seitenleiste",
+      "goRoutines": "Routinen",
+      "goSettings": "Einstellungen",
+      "save": "Speichern",
+      "search": "Suchen",
+      "shortcuts": "Tastenkürzel anzeigen",
+      "toggleSidebar": "Seitenleiste ein- oder ausblenden"
+    },
+    "groups": {
+      "forms": "Formulare und Dialoge",
+      "general": "Allgemein",
+      "navigation": "Gehe zu"
+    },
+    "pendingGo": "Gehe zu … Buchstaben oder Listennummer drücken",
+    "singleKey": {
+      "description": "C, ? und die G-Folgen. Schalten Sie sie aus, wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken.",
+      "label": "Einzeltasten-Kürzel"
+    },
+    "title": "Tastenkürzel"
+  },
   "LegalDocumentNotice": {
     "contractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Bitte prüfen Sie diese für den Geschäftskunden und veranlassen Sie die elektronische Annahme durch einen berechtigten Systemadministrator.",
     "contractDeadlineLabel": "Widerspruchs- und Annahmefrist",

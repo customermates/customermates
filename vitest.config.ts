@@ -107,6 +107,8 @@ const domTestFiles = [
   "app/[locale]/(protected)/inbox/components/__tests__/email-message-header.test.ts",
   "app/components/navigation/__tests__/use-marketing-account-state.test.ts",
   "components/ui/__tests__/tooltip.dom.test.ts",
+  "components/keyboard/__tests__/key-matching-context.dom.test.ts",
+  "app/components/keyboard-shortcuts/__tests__/global-keyboard-shortcuts.dom.test.ts",
   "components/ui/__tests__/overlay-focus-return.dom.test.ts",
 ];
 

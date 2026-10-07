@@ -6,6 +6,8 @@ import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/au
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/company/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/company/components/company-invite/invite-by-email.store";
 import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
+import { AddPickerStore } from "@/app/components/navigation/add-picker.store";
+import { KeyboardShortcutsStore } from "@/app/components/keyboard-shortcuts/keyboard-shortcuts.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { RoleModalStore } from "@/app/[locale]/(protected)/company/components/role/role-modal.store";
 import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/roles.store";
@@ -89,6 +91,8 @@ export class RootStore {
   private _operatorAuditStore?: OperatorAuditStore;
   private _operatorWorkspacesStore?: OperatorWorkspacesStore;
   private _sidebarLayoutStore?: SidebarLayoutStore;
+  private _addPickerStore?: AddPickerStore;
+  private _keyboardShortcutsStore?: KeyboardShortcutsStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
   private _verifyEmailStore?: VerifyEmailStore;
   private _mcpConsentStore?: McpConsentStore;
@@ -259,6 +263,14 @@ export class RootStore {
 
   get sidebarLayoutStore() {
     return (this._sidebarLayoutStore ??= new SidebarLayoutStore(this));
+  }
+
+  get addPickerStore() {
+    return (this._addPickerStore ??= new AddPickerStore(this));
+  }
+
+  get keyboardShortcutsStore() {
+    return (this._keyboardShortcutsStore ??= new KeyboardShortcutsStore(this));
   }
 
   get forgotPasswordStore() {

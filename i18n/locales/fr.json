@@ -2361,6 +2361,35 @@
     "subtitle": "Un administrateur de l'espace de travail doit inviter {email}.",
     "title": "Rejoindre un espace de travail existant"
   },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Ajouter",
+      "askMate": "Demander à Mate",
+      "close": "Fermer la boîte de dialogue ou le panneau du dessus",
+      "goConfigure": "Configurer",
+      "goDashboard": "Tableau de bord",
+      "goInbox": "Boîte de réception",
+      "goKnowledgeBase": "Base de connaissances",
+      "goList": "Listes selon leur position dans votre barre latérale",
+      "goRoutines": "Routines",
+      "goSettings": "Paramètres",
+      "save": "Enregistrer",
+      "search": "Rechercher",
+      "shortcuts": "Afficher les raccourcis clavier",
+      "toggleSidebar": "Afficher ou masquer la barre latérale"
+    },
+    "groups": {
+      "forms": "Formulaires et boîtes de dialogue",
+      "general": "Général",
+      "navigation": "Aller à"
+    },
+    "pendingGo": "Aller à… appuyez sur une lettre ou un numéro de liste",
+    "singleKey": {
+      "description": "C, ? et les séquences G. Désactivez-les si vous utilisez la saisie vocale ou appuyez sur des touches par erreur.",
+      "label": "Raccourcis à une touche"
+    },
+    "title": "Raccourcis clavier"
+  },
   "LegalDocumentNotice": {
     "contractBody": "Nous avons mis à jour les documents juridiques indiqués ci-dessous. Veuillez les examiner pour le client professionnel et faire procéder à leur acceptation électronique par un administrateur système habilité.",
     "contractDeadlineLabel": "Date limite d’opposition et d’acceptation",
