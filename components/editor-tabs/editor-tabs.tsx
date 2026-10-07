@@ -97,7 +97,7 @@ export const EditorTabs = observer(function EditorTabs({
           return (
             <TabsTrigger
               key={tab.id}
-              className="h-full min-w-max shrink-0 rounded-none px-4"
+              className="h-full min-w-max shrink-0 rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:bottom-0"
               data-invalid={invalid || undefined}
               value={tab.id}
             >
