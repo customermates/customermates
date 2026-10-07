@@ -12337,6 +12337,19 @@
                         ],
                         "additionalProperties": false,
                         "description": "Optional position and size on the 12-column desktop grid. Omit it to keep the current position on update or to place a new widget in the first free spot. It must not overlap another widget."
+                      },
+                      "viewId": {
+                        "description": "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -12720,6 +12733,19 @@
                         ],
                         "additionalProperties": false,
                         "description": "Optional position and size on the 12-column desktop grid. Omit it to keep the current position on update or to place a new widget in the first free spot. It must not overlap another widget."
+                      },
+                      "viewId": {
+                        "description": "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -15655,6 +15681,18 @@
                             }
                           ]
                         },
+                        "viewId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "isTemplate": {
                           "type": "boolean"
                         },
@@ -16749,6 +16787,7 @@
                         "measure",
                         "displayOptions",
                         "layout",
+                        "viewId",
                         "isTemplate",
                         "createdAt",
                         "updatedAt",
@@ -17288,6 +17327,18 @@
                                 }
                               },
                               "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "viewId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             {
                               "type": "null"
@@ -21083,6 +21134,7 @@
                         "activityQuery",
                         "displayOptions",
                         "layout",
+                        "viewId",
                         "isTemplate",
                         "createdAt",
                         "updatedAt",
@@ -24113,6 +24165,18 @@
                             }
                           ]
                         },
+                        "viewId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "isTemplate": {
                           "type": "boolean"
                         },
@@ -25207,6 +25271,7 @@
                         "measure",
                         "displayOptions",
                         "layout",
+                        "viewId",
                         "isTemplate",
                         "createdAt",
                         "updatedAt",
@@ -25746,6 +25811,18 @@
                                 }
                               },
                               "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "viewId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             {
                               "type": "null"
@@ -29541,6 +29618,7 @@
                         "activityQuery",
                         "displayOptions",
                         "layout",
+                        "viewId",
                         "isTemplate",
                         "createdAt",
                         "updatedAt",
@@ -32567,6 +32645,18 @@
                                   }
                                 ]
                               },
+                              "viewId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
                               "isTemplate": {
                                 "type": "boolean"
                               },
@@ -33661,6 +33751,7 @@
                               "measure",
                               "displayOptions",
                               "layout",
+                              "viewId",
                               "isTemplate",
                               "createdAt",
                               "updatedAt",
@@ -34200,6 +34291,18 @@
                                       }
                                     },
                                     "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "viewId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                   },
                                   {
                                     "type": "null"
@@ -37995,6 +38098,7 @@
                               "activityQuery",
                               "displayOptions",
                               "layout",
+                              "viewId",
                               "isTemplate",
                               "createdAt",
                               "updatedAt",

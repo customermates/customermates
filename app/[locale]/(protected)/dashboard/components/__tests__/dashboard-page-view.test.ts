@@ -18,6 +18,8 @@ const harness = vi.hoisted(() => ({
   setTopBarActions: vi.fn(),
 }));
 
+vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
+vi.mock("@/components/data-view/use-data-view-sync", () => ({ useDataViewSync: () => undefined }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
@@ -104,7 +106,14 @@ function renderDashboard(
 
   return renderToStaticMarkup(
     createElement(DashboardPageView, {
-      widgets: items,
+      dashboard: {
+        p13nId: "dashboard",
+        items,
+        views: [],
+        activeViewKey: "__all__",
+        allState: {},
+        viewPersistable: true,
+      },
     }),
   );
 }

@@ -22,6 +22,7 @@ const widget = () => ({
   status: "unavailable",
   groupOptions: [],
   layout: null,
+  viewId: null,
   isTemplate: false,
   createdAt: new Date(0),
   updatedAt: new Date(0),

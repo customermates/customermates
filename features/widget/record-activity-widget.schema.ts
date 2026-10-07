@@ -19,6 +19,13 @@ export const RecordActivityWidgetInputSchema = z
     displayOptions: z.object({ showFilters: z.boolean() }).strict(),
     isTemplate: z.boolean(),
     layout: WidgetPlacementSchema.optional(),
+    viewId: z
+      .uuid()
+      .nullable()
+      .optional()
+      .describe(
+        "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
+      ),
   })
   .strict()
   .superRefine((value, context) => {
@@ -43,6 +50,7 @@ export const RecordActivityWidgetDtoSchema = z
     activityQuery: RecordActivityQuerySchema,
     displayOptions: z.object({ showFilters: z.boolean() }).strict(),
     layout: WidgetLayoutSchema.nullable(),
+    viewId: z.uuid().nullable(),
     isTemplate: z.boolean(),
     createdAt: z.date(),
     updatedAt: z.date(),
@@ -60,6 +68,11 @@ export interface RecordActivityWidgetRepo {
   findReadable(id: string): Promise<StoredRecordActivityWidget | null>;
   listOwned(): Promise<StoredRecordActivityWidget[]>;
   findOwned(id: string): Promise<StoredRecordActivityWidget | null>;
-  listPlacements(): Promise<WidgetPlacementRow[]>;
-  save(input: RecordActivityWidgetInput, id: string, layout?: WidgetLayout): Promise<StoredRecordActivityWidget>;
+  listPlacements(viewId: string | null): Promise<WidgetPlacementRow[]>;
+  save(
+    input: RecordActivityWidgetInput,
+    id: string,
+    viewId: string | null,
+    layout?: WidgetLayout,
+  ): Promise<StoredRecordActivityWidget>;
 }

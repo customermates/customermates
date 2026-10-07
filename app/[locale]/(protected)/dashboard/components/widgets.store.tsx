@@ -2,6 +2,7 @@ import type { Layout, LayoutItem, ResponsiveLayouts } from "react-grid-layout/le
 import type { SavedWidgetLayout, UpdateWidgetLayoutsData } from "@/features/widget/update-widget-layouts.interactor";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
+import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
@@ -244,9 +245,8 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
     });
   }
 
-  protected async refreshAction() {
-    const widgets = await refreshWidgetsAction();
-    return { items: widgets };
+  protected async refreshAction(params?: GetQueryParams) {
+    return refreshWidgetsAction(params?.viewId ?? this.activeViewKey);
   }
 
   private normalizeLayouts(layouts: ResponsiveLayouts): UpdateWidgetLayoutsData["layouts"] {

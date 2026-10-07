@@ -50,6 +50,7 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   version: 2,
   displayOptions: { displayType: "verticalBarChart", showFilters: false },
   layout: null,
+  viewId: null,
   isTemplate: false,
   createdAt: new Date(0),
   updatedAt: new Date(0),

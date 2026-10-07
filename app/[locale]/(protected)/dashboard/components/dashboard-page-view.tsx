@@ -2,7 +2,7 @@
 
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 import type { WidgetGallery } from "@/features/widget/widget-gallery";
-import type { WidgetDto } from "@/features/widget/widget.schema";
+import type { DashboardWidgets } from "@/features/widget/get-widgets.interactor";
 import type { ComponentType, ReactNode } from "react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout/legacy";
 
@@ -10,13 +10,15 @@ import { BarChart3, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import "@/styles/react-grid-layout.css";
 
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
+import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
+import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
 import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
@@ -45,12 +47,12 @@ const ResponsiveGridLayout = dynamic(
 );
 
 type Props = {
+  dashboard: DashboardWidgets;
   gallery?: WidgetGallery;
   recordTypes?: DiscoveredRecordTypes;
-  widgets: WidgetDto[];
 };
 
-const DashboardPageViewContent = observer(function DashboardPageView({ gallery, recordTypes, widgets }: Props) {
+const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, gallery, recordTypes }: Props) {
   const { widgetModalStore, widgetsStore } = useRootStore();
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableKinds.length > 0;
@@ -67,7 +69,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
   } | null>(null);
   const t = useTranslations();
 
-  useLayoutEffect(() => widgetsStore.setItems({ items: widgets }), [widgets, widgetsStore]);
+  useDataViewSync(widgetsStore, dashboard);
 
   useEffect(() => {
     if (typeof window === "undefined" || items.length === 0) return;
@@ -222,7 +224,9 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
 
   return (
     <>
-      {body}
+      <DataViewViewsRail joinsTopBar store={widgetsStore} />
+
+      <div className="relative flex min-h-0 w-full flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">{body}</div>
 
       <WidgetModal />
     </>

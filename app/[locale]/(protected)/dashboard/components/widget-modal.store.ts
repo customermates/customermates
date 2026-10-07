@@ -20,6 +20,7 @@ import { action, computed, makeObservable, observable, reaction, runInAction, to
 
 import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction, getWidgetGalleryAction } from "../actions";
 import { browserTimeZone } from "./widget-time-zone";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { GRID_COLS } from "./grid.constants";
 import { type WidgetLayoutGeometry, widgetDefaultSize, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
@@ -373,6 +374,12 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.activityFilterableFields = filterableFields;
   };
 
+  private targetView(id: string | undefined) {
+    if (id) return {};
+    const viewKey = this.rootStore.widgetsStore.activeViewKey;
+    return { viewId: viewKey === ALL_VIEW_KEY ? null : viewKey };
+  }
+
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     if (this.isLoading || !this.form.name.trim()) return;
@@ -387,6 +394,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
         const parsed = RecordActivityWidgetInputSchema.safeParse({
           ...input,
+          ...this.targetView(input.id),
           idempotencyKey: this.recordSubmission.key,
         });
         if (!parsed.success) {
@@ -411,7 +419,11 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         const input = omit(form, ["kind", "contractVersion", "idempotencyKey"]);
         const payload = JSON.stringify(input);
         if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
-        const parsed = RecordWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.recordSubmission.key });
+        const parsed = RecordWidgetInputSchema.safeParse({
+          ...input,
+          ...this.targetView(input.id),
+          idempotencyKey: this.recordSubmission.key,
+        });
         if (!parsed.success) {
           this.setError(z.treeifyError(parsed.error));
           return;

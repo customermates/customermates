@@ -125,6 +125,7 @@ const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
 const { manageRecordDetailLayoutV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 
+const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
@@ -218,7 +219,14 @@ async function fixture() {
   const measure = new QueryRecordMeasureInteractor(repo, policy, company);
   const widgets = new PrismaRecordWidgetRepo();
   const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
-  const writeWidget = new UpsertRecordWidgetInteractor(widgets, repo, policy, measure, widgetReader);
+  const writeWidget = new UpsertRecordWidgetInteractor(
+    widgets,
+    repo,
+    policy,
+    measure,
+    widgetReader,
+    new PrismaDataViewRepo(),
+  );
   const configurations = new RecordConfigurationService(repo);
   const preview = new PreviewRecordConfigurationInteractor(repo, policy, configurations);
   const configure = new ApplyRecordConfigurationInteractor(
@@ -289,6 +297,7 @@ async function fixture() {
     policy,
     activities,
     activityWidgetReader,
+    new PrismaDataViewRepo(),
   );
   const timeline = (input: Partial<RecordActivitiesInput>, as = admin) =>
     run(
@@ -13753,7 +13762,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       version: 2,
       layout: { lg: layouts.lg[0] },
     });
-    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({ version: 1, layout: null });
+    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({
+      version: 1,
+      layout: foreign.data.layout,
+    });
     expect(await f.run(() => f.widgets.findOwned(untouchedId))).toMatchObject({
       version: 1,
       layout: { lg: untouchedPosition },

@@ -61,6 +61,13 @@ const ManageWidgetsSchema = z
       .optional()
       .describe("Activity timeline appearance only. Chart options belong in displayOptions."),
     layout: WidgetPlacementSchema.optional(),
+    viewId: z
+      .uuid()
+      .nullable()
+      .optional()
+      .describe(
+        "Dashboard view (manage_data_views surfaceKey dashboard) that holds the widget, or null for the main dashboard. Omit it to use the caller's current dashboard view on create or to keep the widget's view on update.",
+      ),
   })
   .strict();
 
@@ -83,6 +90,7 @@ const ActivityChangeSchema = ManageWidgetsSchema.pick({
   idempotencyKey: true,
   showFilters: true,
   layout: true,
+  viewId: true,
 });
 const ChartChangeSchema = ManageWidgetsSchema.omit({ activityQuery: true, showFilters: true, ids: true });
 
@@ -90,7 +98,7 @@ export const manageWidgetsTool = {
   name: "manage_widgets",
   title: "Manage widgets",
   description:
-    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead. Dashboard widgets. list returns IDs, names and each widget's current layout; get (ids) returns saved configuration and access-filtered results. Create a chart with name, measure, displayOptions, expectedRevision and idempotencyKey. Discover type and field IDs first. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. Update a chart with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. isTemplate controls sharing of configuration; viewers still need access to the underlying data. Position and size: layout {x, y, w, h} on the 12-column desktop grid (rows of 124 px) is optional on create and update; omit it to auto-place a new widget in the first free spot with a size that fits its display type, or to keep an existing widget where it is. A layout that overlaps another widget is refused, widgets float up into empty rows above them, and the result returns the saved layout. To build a dashboard, list or get the existing widgets first and place new ones beside them. Delete requires id and permanently removes the widget configuration, not its source records.",
+    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead. Dashboard widgets. list returns IDs, names, each widget's dashboard view (viewId, null for the main dashboard) and its current layout within that view; get (ids) returns saved configuration and access-filtered results. Create a chart with name, measure, displayOptions, expectedRevision and idempotencyKey. Discover type and field IDs first. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. Update a chart with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. isTemplate controls sharing of configuration; viewers still need access to the underlying data. Position and size: layout {x, y, w, h} on the 12-column desktop grid (rows of 124 px) is optional on create and update; omit it to auto-place a new widget in the first free spot with a size that fits its display type, or to keep an existing widget where it is. A layout that overlaps another widget is refused, widgets float up into empty rows above them, and the result returns the saved layout. Dashboard views are saved views of manage_data_views surface dashboard; viewId puts a widget on one (default: the caller's current view on create, unchanged on update) and layouts are per view. To build a dashboard, list or get the existing widgets first and place new ones beside them. Delete requires id and permanently removes the widget configuration, not its source records.",
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageWidgetsSchema,
   outputSchema: z.looseObject({
@@ -112,18 +120,22 @@ export const manageWidgetsTool = {
         .strict()
         .safeParse(params);
       if (!valid.success) return mcpValidationFailure(valid.error);
-      const result = await getGetWidgetsInteractor().invoke();
-      const grid = occupiedGrid(result.data);
+      const result = await getGetWidgetsInteractor().invoke({ allViews: true });
+      const widgets = result.data.items;
+      const grids = new Map<string | null, ReturnType<typeof occupiedGrid>>();
+      for (const viewId of new Set(widgets.map((widget) => widget.viewId)))
+        grids.set(viewId, occupiedGrid(widgets.filter((widget) => widget.viewId === viewId)));
       return toonResult({
-        total: result.data.length,
-        items: result.data.map((widget) => {
-          const rect = grid.find((placed) => placed.id === widget.id);
+        total: widgets.length,
+        items: widgets.map((widget) => {
+          const rect = grids.get(widget.viewId)?.find((placed) => placed.id === widget.id);
           return {
             id: widget.id,
             name: widget.name,
             kind: widget.kind,
             contractVersion: 2,
             version: widget.version,
+            viewId: widget.viewId,
             ...(rect ? { layout: { x: rect.x, y: rect.y, w: rect.w, h: rect.h } } : {}),
           };
         }),
@@ -180,6 +192,7 @@ export const manageWidgetsTool = {
         displayOptions: { showFilters: params.showFilters ?? widget?.displayOptions.showFilters ?? true },
         isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
         layout: params.layout,
+        viewId: params.viewId,
       });
       if (!change.success) return mcpValidationFailure(change.error);
       const result = await getUpsertRecordActivityWidgetInteractor().invoke(change.data);
@@ -207,6 +220,7 @@ export const manageWidgetsTool = {
       displayOptions: params.displayOptions ?? widget?.displayOptions,
       isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
       layout: params.layout,
+      viewId: params.viewId,
     });
     if (!change.success) return mcpValidationFailure(change.error);
     const result = await getUpsertRecordWidgetInteractor().invoke(change.data);

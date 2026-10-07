@@ -4,15 +4,17 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { act,createElement } from "react";
+import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach,beforeEach,describe,expect,it,vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   focusedAtOpen: null as Element | null,
   loadById: vi.fn(),
 }));
 
+vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
+vi.mock("@/components/data-view/use-data-view-sync", () => ({ useDataViewSync: () => undefined }));
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: { name?: string }) => (values?.name ? `${key}:${values.name}` : key),
@@ -35,8 +37,7 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/activity-widget-card", 
     createElement("div", { "data-activity": widget.id }, widget.name),
 }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-widget-card", () => ({
-  RecordWidgetCard: ({ widget }: { widget: WidgetDto }) =>
-    createElement("div", { "data-record-chart": widget.id }, widget.name),
+  RecordWidgetCard: (widget: WidgetDto) => createElement("div", { "data-record-chart": widget.id }, widget.name),
 }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/record-activity-widget-card", () => ({
   RecordActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>
@@ -92,11 +93,20 @@ describe("DashboardPageView widget opening", () => {
     act(() =>
       reactRoot.render(
         createElement(DashboardPageView, {
-          widgets: [],
+          dashboard: {
+            p13nId: "dashboard",
+            items: [],
+            views: [],
+            activeViewKey: "__all__",
+            allState: {},
+            viewPersistable: true,
+          },
         }),
       ),
     );
-    const chart = container.querySelector<HTMLElement>('[data-record-chart="widget-1"], [data-record-activity="widget-1"]');
+    const chart = container.querySelector<HTMLElement>(
+      '[data-record-chart="widget-1"], [data-record-activity="widget-1"]',
+    );
     const editButton = container.querySelector<HTMLElement>('[data-slot="widget-card-open"]');
     if (!chart || !editButton) throw new Error("Expected the widget card and its edit button");
 

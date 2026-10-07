@@ -33,16 +33,22 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
     });
     return rows.map((row) => StoredSchema.parse({ ...row, contractVersion: 2 }));
   }
-  async listPlacements() {
-    return listWidgetPlacements(this.prisma, this.companyId, this.userId);
+  async listPlacements(viewId: string | null) {
+    return listWidgetPlacements(this.prisma, this.companyId, this.userId, viewId);
   }
-  async save(input: RecordWidgetInput, id: string, layout?: WidgetLayout): Promise<StoredRecordWidget> {
+  async save(
+    input: RecordWidgetInput,
+    id: string,
+    viewId: string | null,
+    layout?: WidgetLayout,
+  ): Promise<StoredRecordWidget> {
     const data = {
       name: input.name,
       kind: "chart" as const,
       measure: recordJson(input.measure),
       displayOptions: recordJson(input.displayOptions),
       isTemplate: input.isTemplate,
+      viewId,
       ...(layout ? { layout: recordJson(layout) } : {}),
     };
     const row = input.id

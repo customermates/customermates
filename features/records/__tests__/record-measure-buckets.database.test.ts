@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { DisplayType } from "@/features/widget/widget-display.schema";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -36,6 +37,9 @@ const { QueryRecordMeasureInteractor } = await import("../query-record-measure.i
 const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createWorkspaceRecordPreset } = await import("../workspace-record-preset");
+const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
+const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
+const { GetWidgetsInteractor } = await import("@/features/widget/get-widgets.interactor");
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
@@ -81,7 +85,14 @@ async function fixture(preset: Preset = "crm") {
   );
   const measure = new QueryRecordMeasureInteractor(repo, policy, company);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
-  const widgets = new UpsertRecordWidgetInteractor(new PrismaRecordWidgetRepo(), repo, policy, measure, reader);
+  const widgets = new UpsertRecordWidgetInteractor(
+    new PrismaRecordWidgetRepo(),
+    repo,
+    policy,
+    measure,
+    reader,
+    new PrismaDataViewRepo(),
+  );
   const gallery = new GetWidgetGalleryInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);
   const model =
@@ -747,6 +758,90 @@ describeDatabase("time-bucketed record measures", () => {
     expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 2 });
     const stored = await runWithoutTenant(() => prisma.widget.count({ where: { companyId: f.company.id } }));
     expect(stored).toBe(3);
+  }, 120_000);
+
+  it("keeps widgets and their grid positions per dashboard view", async () => {
+    const f = await fixture();
+    const view = (name: string) =>
+      runWithoutTenant(() =>
+        prisma.dataView.create({
+          data: { companyId: f.company.id, userId: f.admin.id, surfaceKey: SURFACE.dashboard, name },
+        }),
+      );
+    const sales = await view("Sales");
+    const support = await view("Support");
+    const save = async (name: string, extra: Record<string, unknown> = {}) =>
+      f.run(async () =>
+        f.widgets.invoke({
+          expectedRevision: await f.revision(),
+          idempotencyKey: randomUUID(),
+          name,
+          isTemplate: false,
+          measure: RecordMeasureSchema.parse({
+            source: { typeId: f.deal },
+            aggregation: "count",
+            valueFieldId: null,
+            groupBy: null,
+          }),
+          displayOptions: { displayType: DisplayType.number },
+          ...extra,
+        } as Parameters<typeof f.widgets.invoke>[0]),
+      );
+    const main = await save("Main");
+    expect(main.ok && main.data).toMatchObject({ viewId: null, layout: { lg: { x: 0, y: 0 } } });
+    const onSales = await save("Sales total", { viewId: sales.id });
+    expect(onSales.ok && onSales.data).toMatchObject({ viewId: sales.id, layout: { lg: { x: 0, y: 0 } } });
+    const missing = await save("Elsewhere", { viewId: randomUUID() });
+    expect(missing.ok).toBe(false);
+    if (!missing.ok) expect(JSON.stringify(missing.error)).toContain(CustomErrorCode.dataViewNotFound);
+
+    await runWithoutTenant(() =>
+      prisma.p13n.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          p13nId: SURFACE.dashboard,
+          activeViewKey: support.id,
+          columnOrder: [],
+          hiddenColumns: [],
+        },
+      }),
+    );
+    const current = await save("Current view");
+    expect(current.ok && current.data.viewId).toBe(support.id);
+
+    if (!onSales.ok) return;
+    const moved = await f.run(async () =>
+      f.widgets.invoke({
+        id: onSales.data.id,
+        expectedVersion: onSales.data.version,
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+        name: "Sales total",
+        isTemplate: false,
+        measure: onSales.data.measure,
+        displayOptions: onSales.data.displayOptions,
+        viewId: support.id,
+      }),
+    );
+    expect(moved.ok && moved.data).toMatchObject({ viewId: support.id, layout: { lg: { x: 3, y: 0 } } });
+
+    const read = (viewId?: string, allViews?: boolean) =>
+      f.run(() =>
+        new GetWidgetsInteractor(new PrismaWidgetRepo(), new PrismaDataViewRepo()).invoke({ viewId, allViews }),
+      );
+    const supportView = await read(support.id);
+    expect(supportView.data).toMatchObject({ p13nId: SURFACE.dashboard, activeViewKey: support.id });
+    expect(supportView.data.items.map((widget) => widget.name).sort()).toEqual(["Current view", "Sales total"]);
+    expect((await read(ALL_VIEW_KEY)).data.items.map((widget) => widget.name)).toEqual(["Main"]);
+    expect((await read(undefined, true)).data.items).toHaveLength(3);
+
+    await runWithoutTenant(() => prisma.dataView.delete({ where: { id: support.id } }));
+    expect((await read(ALL_VIEW_KEY)).data.items.map((widget) => widget.name).sort()).toEqual([
+      "Current view",
+      "Main",
+      "Sales total",
+    ]);
   }, 120_000);
 
   it("resolves gallery templates against the preset model and hides what the model or access cannot support", async () => {

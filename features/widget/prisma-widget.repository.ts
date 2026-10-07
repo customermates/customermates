@@ -6,7 +6,7 @@ import type { DeleteWidgetRepo } from "./delete-widget.interactor";
 import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
-import type { GetWidgetsRepo } from "./get-widgets.interactor";
+import type { GetWidgetsRepo } from "./get-widgets.repo";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.repo";
@@ -42,6 +42,7 @@ export class PrismaWidgetRepo
       version: true,
       displayOptions: true,
       layout: true,
+      viewId: true,
       isTemplate: true,
       createdAt: true,
       updatedAt: true,
@@ -69,7 +70,7 @@ export class PrismaWidgetRepo
     throw new Error(`Widget ${row.id} has no record definition`);
   }
 
-  async getWidgets() {
+  async getWidgets(viewId?: string | null) {
     return runInTransaction(
       async () => {
         const { id: userId, companyId } = this.user;
@@ -78,6 +79,7 @@ export class PrismaWidgetRepo
           where: {
             userId,
             companyId,
+            ...(viewId === undefined ? {} : { viewId }),
           },
           select: this.dtoSelect,
           orderBy: [{ createdAt: "asc" }, { id: "asc" }],
