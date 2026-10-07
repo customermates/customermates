@@ -1,45 +1,14 @@
-import type { Page } from "@playwright/test";
-
 import { presetId } from "../../features/records/crm-preset";
-import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
+import { expect, test } from "./fixtures";
+import { collectErrors, openMenu, openSidebar } from "./sidebar";
 
 const COUNTRY_FLAG_ORIGIN = "https://flagcdn.com/";
-
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message) && !message.location().url.startsWith(COUNTRY_FLAG_ORIGIN))
-      errors.push(message.text());
-  });
-  return errors;
-}
-
-async function openSidebar(page: Page) {
-  await page.waitForFunction(() =>
-    ["sidebar-trigger", "scroll-container"].every((id) => {
-      const element = document.getElementById(id);
-      return element !== null && Object.keys(element).some((key) => key.startsWith("__reactProps"));
-    }),
-  );
-  await page.waitForFunction(() => !document.querySelector('[data-mobile="true"][data-state="closed"]'));
-  if (!(await page.locator("#nav-workspace-menu").isVisible())) await page.locator("#sidebar-trigger").click();
-  await expect(page.locator("#nav-workspace-menu")).toBeVisible();
-}
-
-async function openMenu(page: Page, trigger: "#nav-workspace-menu" | "#nav-personal-menu") {
-  await openSidebar(page);
-  await page.locator(trigger).click();
-  return page.getByRole("menu");
-}
 
 test("settings live in one area reached from the workspace menu, with Back to the work page", async ({
   page,
   companyId,
 }) => {
-  const errors = collectErrors(page);
+  const errors = collectErrors(page, [COUNTRY_FLAG_ORIGIN]);
   const deals = `/en/records/${presetId(companyId, "deal")}`;
   await page.goto(deals);
   await page.waitForLoadState("networkidle");
@@ -99,7 +68,7 @@ test("settings live in one area reached from the workspace menu, with Back to th
 });
 
 test("the personal menu holds profile, theme, docs, feedback and customize", async ({ page, database, workspace }) => {
-  const errors = collectErrors(page);
+  const errors = collectErrors(page, [COUNTRY_FLAG_ORIGIN]);
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
 

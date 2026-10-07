@@ -6,65 +6,8 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { openConfigure, saveGeneral } from "./configure";
 import { localE2eEnvironment } from "./local-environment";
-import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
-
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
-async function openSidebar(page: Page) {
-  await page.waitForFunction(() =>
-    ["sidebar-trigger", "scroll-container"].every((id) => {
-      const element = document.getElementById(id);
-      return element !== null && Object.keys(element).some((key) => key.startsWith("__reactProps"));
-    }),
-  );
-  if (!(await page.locator("#nav-add").isVisible())) await page.locator("#sidebar-trigger").click();
-  await expect(page.locator("#nav-add")).toBeVisible();
-}
-
-async function openCustomize(page: Page) {
-  await openSidebar(page);
-  await page.locator("#nav-personal-menu").click();
-  await page.getByRole("menuitem", { name: "Customize sidebar", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "Customize sidebar" })).toBeVisible();
-}
-
-async function sidebarOrder(page: Page) {
-  return page.locator("[data-sidebar-section]").evaluateAll((sections) =>
-    sections.flatMap((section) => [
-      `#${section.getAttribute("data-sidebar-section-label")}`,
-      ...[...section.querySelectorAll<HTMLElement>("[data-sidebar-item]")]
-        .filter((item) => item.offsetParent !== null)
-        .map((item) => item.querySelector("span.truncate")?.textContent?.trim() ?? ""),
-    ]),
-  );
-}
-
-function sidebarItem(page: Page, label: string) {
-  return page.locator("[data-sidebar-item]").filter({ has: page.getByText(label, { exact: true }) });
-}
-
-async function itemMenu(page: Page, label: string) {
-  const item = sidebarItem(page, label);
-  await item.hover();
-  await item.getByRole("button", { name: `Options for ${label}`, exact: true }).click();
-  return page.getByRole("menu");
-}
-
-async function sectionMenu(page: Page, label: string) {
-  const section = page.locator(`[data-sidebar-section-label="${label}"]`);
-  await section.hover();
-  await section.getByRole("button", { name: `Options for ${label}`, exact: true }).click();
-  return page.getByRole("menu");
-}
+import { expect, test } from "./fixtures";
+import { collectErrors, itemMenu, openCustomize, openSidebar, sectionMenu, sidebarItem, sidebarOrder } from "./sidebar";
 
 async function dragOnto(page: Page, source: Locator, target: Locator) {
   const from = await source.boundingBox();
@@ -94,10 +37,10 @@ async function secondUser(browser: Browser, database: Client, companyId: string,
   const userId = randomUUID();
   const authUserId = randomUUID();
   const email = `member-${userId}@example.test`;
-  await database.query('INSERT INTO "UserRole" (id,"companyId",name,"isSystemRole","updatedAt") VALUES ($1,$2,\'Second admin\',true,NOW())', [
-    roleId,
-    companyId,
-  ]);
+  await database.query(
+    'INSERT INTO "UserRole" (id,"companyId",name,"isSystemRole","updatedAt") VALUES ($1,$2,\'Second admin\',true,NOW())',
+    [roleId, companyId],
+  );
   await database.query(
     'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","displayLanguage","formattingLocale","updatedAt") VALUES ($1,$2,$3,$4,\'Second\',\'Person\',\'active\',true,NOW(),\'en\',\'en\',NOW())',
     [userId, companyId, roleId, email],
@@ -192,7 +135,10 @@ test("each person customizes their own sidebar and others keep the default", asy
     })
     .toEqual(["#Accounts", "Organizations", "Contacts"]);
 
-  await page.locator('[data-sidebar-section-label="Accounts"]').getByRole("button", { name: "Accounts", exact: true }).click();
+  await page
+    .locator('[data-sidebar-section-label="Accounts"]')
+    .getByRole("button", { name: "Accounts", exact: true })
+    .click();
   await expect(sidebarItem(page, "Contacts")).toBeHidden();
   await (await itemMenu(page, "Inbox")).getByRole("menuitem", { name: "Hide from sidebar", exact: true }).click();
   await expect(sidebarItem(page, "Inbox")).toHaveCount(0);
@@ -212,6 +158,10 @@ test("each person customizes their own sidebar and others keep the default", asy
   await expect(sidebarItem(page, "Inbox")).toBeVisible();
 
   await (await sectionMenu(page, "Accounts")).getByRole("menuitem", { name: "Delete section", exact: true }).click();
+  const confirm = page.getByRole("alertdialog");
+  await expect(confirm).toContainText("Organizations moves back to Data");
+  await expect(confirm).toContainText("Contacts moves back to Data");
+  await confirm.getByRole("button", { name: "Delete section", exact: true }).click();
   await expect(page.locator('[data-sidebar-section-label="Accounts"]')).toHaveCount(0);
   await expect(sidebarItem(page, "Contacts")).toBeVisible();
   await expect(sidebarItem(page, "Organizations")).toBeVisible();
@@ -229,6 +179,7 @@ test("each person customizes their own sidebar and others keep the default", asy
 
   await openCustomize(page);
   await page.getByRole("button", { name: "Reset to default", exact: true }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Reset to default", exact: true }).click();
   await openSidebar(page);
   await expect.poll(() => sidebarOrder(page)).toEqual(initial);
   await expect.poll(() => storedLayout(database, workspace.userId)).toBeNull();
