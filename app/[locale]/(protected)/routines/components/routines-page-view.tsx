@@ -20,12 +20,15 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
 
 import { useRoutineColumns } from "./use-routine-columns";
 import { RoutinesPageSkeleton } from "./routines-page-skeleton";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialRoutines: GetResult<RoutineDto> };
+
+const ROUTINE_FOCUS_KINDS: FocusKind[] = ["routine"];
 
 const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRoutines }: Props) {
   const { routineModalStore, routinesStore } = useRootStore();
@@ -56,6 +59,15 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
     [handleAdd, pageState, t, routinesStore],
   );
   useSetTopBarActions(topBarNode);
+  useFocusTarget(
+    ROUTINE_FOCUS_KINDS,
+    (target) => {
+      const item = routinesStore.items.find((routine) => routine.id === target.id);
+      if (item) runUserAction(() => routineModalStore.openForEdit(item));
+      return true;
+    },
+    pageState !== "loading",
+  );
 
   let body: ReactNode;
   switch (pageState) {

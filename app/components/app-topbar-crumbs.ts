@@ -71,6 +71,15 @@ export function buildAppTopbarCrumbs(
       section: null,
     };
   }
+  if (first === "configure" && parts[1] === "deleted") {
+    return {
+      crumbs: [
+        { label: t("RecordModel.configure"), href: "/configure" },
+        { label: t("RecordModel.configurationDeletion.recentlyDeleted") },
+      ],
+      section: null,
+    };
+  }
   if (first === "configure") {
     const list = runtimeIdentity?.scope === "entity" && runtimeIdentity.key === "configure" ? runtimeIdentity : null;
     return {

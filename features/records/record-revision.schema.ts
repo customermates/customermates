@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { ConfigurationChangeSchema, ConfigurationPreviewSchema } from "./configuration.schema";
+import {
+  ConfigurationChangeSchema,
+  ConfigurationPreviewSchema,
+  ConfigurationTargetSchema,
+} from "./configuration.schema";
 import { RecordGrantSchema } from "./record-model.schema";
 
 export const RecordRevisionChangeSchema = z
@@ -13,6 +17,9 @@ export const RecordRevisionChangeSchema = z
     causeId: z.string().min(1).max(200),
     expectedRevision: z.number().int().nonnegative(),
     configuration: ConfigurationChangeSchema.optional(),
+    deletions: z
+      .array(z.object({ target: ConfigurationTargetSchema, cascade: z.array(ConfigurationTargetSchema) }).strict())
+      .optional(),
     references: ConfigurationPreviewSchema.shape.references,
     grants: z.array(
       z

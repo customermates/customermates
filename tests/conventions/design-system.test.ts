@@ -97,6 +97,7 @@ const ACTION_TAGS = new Set([
 
 const DELETE_LABEL = /\bt\(\s*["'`][\w.]*\.(?:\w*D|d)elete\w*["'`]/;
 const TRASH_ICON = /<Trash\w*\b|\bicon[:=]\s*\{?\s*Trash\w*\b/;
+const NAVIGATION = /\bhref=/;
 const DESTRUCTIVE_VARIANT = /[dD]estructive/;
 
 function isDeleteAction(text: string) {
@@ -167,7 +168,8 @@ function destructiveActionFindings(sources: SourceFile[]) {
     visit(source.ast, (node) => {
       if (!isActionElement(node) && !isActionDescriptor(node)) return;
       const text = node.getText(source.ast);
-      if (!isDeleteAction(text) || hasDestructiveVariant(node) || containsNestedDeleteAction(source, node)) return;
+      if (!isDeleteAction(text) || NAVIGATION.test(text)) return;
+      if (hasDestructiveVariant(node) || containsNestedDeleteAction(source, node)) return;
       findings.push(finding(source, node.getStart(source.ast), text));
     });
 

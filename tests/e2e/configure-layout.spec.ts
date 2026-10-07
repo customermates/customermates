@@ -2,7 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived } from "./configure";
+import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, deleteSelectedList, openConfigure, openConfigureRow, openListAction, restoreRecentlyDeleted, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function readModel(database: Client, companyId: string) {
@@ -202,7 +202,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   expect(errors).toEqual([]);
 });
 
-test("archives and restores a list from the list actions and labels hidden and archived lists", async ({
+test("deletes and restores a list from the list actions and labels hidden lists", async ({
   page,
   database,
   companyId,
@@ -223,28 +223,16 @@ test("archives and restores a list from the list actions and labels hidden and a
 
   const tripsId = await createConfiguredList(page, "Field trips");
   await openConfigure(page, tripsId);
-  await openConfigureRow(page, "Activity connections", "Field trips");
-  await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
-  await saveDrawer(page);
   await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Shared defaults", "Archive list"]);
+  await expect(page.getByRole("menuitem")).toHaveText(["Shared defaults", "Recently deleted", "Delete list"]);
   await page.keyboard.press("Escape");
-  await openListAction(page, "Archive list");
-  await expect(dialog).toContainText("Archiving hides this list");
-  await saveDrawer(page);
+  await deleteSelectedList(page);
   expect((await readModel(database, companyId)).types.find((type) => type.id === tripsId)?.archived).toBe(true);
-  await expect(page.locator("[data-configure-list-pane]")).toContainText("Archived");
-
-  await openConfigure(page);
   await expect(configureListCard(page, "Field trips")).toHaveCount(0);
-  await setShowArchived(page, true);
-  await expect(configureListCard(page, "Field trips")).toContainText("Archived");
-  await selectConfigureList(page, "Field trips");
-  await openListAction(page, "Restore list");
-  await saveDrawer(page);
+  await restoreRecentlyDeleted(page, "Field trips");
   expect((await readModel(database, companyId)).types.find((type) => type.id === tripsId)?.archived).toBe(false);
   await openConfigure(page);
-  await expect(configureListCard(page, "Field trips")).not.toContainText("Archived");
+  await expect(configureListCard(page, "Field trips")).toBeVisible();
 
   await selectConfigureList(page, "Services");
   await openListAction(page, "Shared defaults");
