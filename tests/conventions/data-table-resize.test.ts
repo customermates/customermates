@@ -26,7 +26,7 @@ describe("shared data-table resize contract", () => {
     expect(handleSource).toContain("any-pointer-coarse:w-6 any-pointer-coarse:opacity-100");
     expect(handleSource).not.toContain("resize-handle:bg-primary");
     expect(handleSource).not.toContain("ring-primary");
-    expect(handleSource).toContain('aria-keyshortcuts="ArrowLeft ArrowRight Home Enter Space"');
+    expect(handleSource).toContain('aria-keyshortcuts="ArrowLeft ArrowRight Home End Enter Space"');
     expect(handleSource).toContain("event.detail === 0");
     expect(handleSource).toContain("keyboardColumnWidth(renderedWidth, event.key, event.shiftKey, bounds)");
     expect(dataTableSource).toContain("const canResize = header.column.getCanResize() && !isSelectionCol;");

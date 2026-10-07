@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { Check, Lock, Pencil } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import {
   DropdownMenu,
@@ -47,13 +48,25 @@ export function isCalculatedForEditor(store: RecordsStore, record: RecordRow, fi
   return store.canUpdateRecord(record) && !isRecordFieldWritable(field);
 }
 
+function latestRow(records: RecordsStore, record: RecordRow) {
+  return records.items.find((item) => item.id === record.id) ?? record;
+}
+
+export function hasInlineRelationshipEditor(records: RecordsStore, record: RecordRow, relation: RecordRelationship) {
+  return (
+    records.canUpdateRecord(record) &&
+    !records.presentation.model.types.some((type) => type.embedded && type.parentRelationshipId === relation.id)
+  );
+}
+
 function useInlineSave(records: RecordsStore, record: RecordRow, field: RecordField) {
   const [busy, setBusy] = useState(false);
   const save = (value: RecordScalar | null) =>
     runUserAction(async () => {
       setBusy(true);
       try {
-        await records.updateRecordField(record, field.id, value);
+        const outcome = await records.updateRecordField(latestRow(records, record), field.id, value);
+        if (outcome.invalid?.length) toastZodErrorTree({ errors: outcome.invalid });
       } finally {
         setBusy(false);
       }
@@ -79,7 +92,7 @@ const InlineFieldForm = observer(function InlineFieldForm({
       records.rootStore,
       field,
       recordDraftValue(result?.state === "value" ? result.value : null),
-      (value) => records.updateRecordField(record, field.id, value),
+      (value) => records.updateRecordField(latestRow(records, record), field.id, value),
       onDone,
     );
   });
@@ -195,7 +208,7 @@ export const RecordInlineField = observer(function RecordInlineField({
     <span className="flex min-w-0 items-center gap-1">
       <span className="min-w-0 truncate">{children}</span>
 
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover modal open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             aria-label={t("RecordModel.editValue", { field: field.label })}
@@ -262,6 +275,7 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
 }) {
   const t = useTranslations();
   const [search, setSearch] = useState("");
+  const [attempt, setAttempt] = useState(0);
   const [busy, setBusy] = useState(false);
   const debounced = useDebouncedValue(search);
   const typeId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
@@ -269,9 +283,9 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
   const linked = useRecordChoices(
     { typeId, page: 1, pageSize: 100, linkedTo: { ref: record.ref, relationId: relation.id, direction } },
     true,
-    0,
+    attempt,
   );
-  const options = useRecordChoices({ typeId, page: 1, pageSize: 25, search: debounced }, true, 0);
+  const options = useRecordChoices({ typeId, page: 1, pageSize: 25, search: debounced }, true, attempt);
   const linkedIds = new Set(linked.data?.records.map((entry) => entry.ref.recordId) ?? []);
   const toggle = (choice: RecordChoice) =>
     runUserAction(async () => {
@@ -292,7 +306,7 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
           ];
       setBusy(true);
       try {
-        const outcome = await records.updateRecordLinks(record, changes);
+        const outcome = await records.updateRecordLinks(latestRow(records, record), changes);
         if (outcome.saved) onDone();
         else if (outcome.invalid?.length) toastZodErrorTree({ errors: outcome.invalid });
       } finally {
@@ -306,6 +320,14 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
       <CommandList>
         {options.loading || linked.loading ? (
           <SelectionOptionsSkeleton label={t("Loading.text")} />
+        ) : options.failed || linked.failed ? (
+          <div className="flex items-center gap-2 p-3 text-sm" role="alert">
+            <span>{t("Common.notifications.unexpectedError")}</span>
+
+            <Button size="sm" type="button" variant="secondary" onClick={() => setAttempt((value) => value + 1)}>
+              {t("ErrorCard.retry")}
+            </Button>
+          </div>
         ) : (
           <>
             <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
@@ -356,7 +378,7 @@ export const RecordInlineRelationship = observer(function RecordInlineRelationsh
     <span className="flex min-w-0 items-center gap-1">
       <span className="min-w-0">{children}</span>
 
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover modal open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             aria-label={t("RecordModel.editValue", { field: label })}

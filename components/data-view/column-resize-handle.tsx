@@ -80,6 +80,7 @@ export function ColumnResizeHandle({
 
   function onPointerDown(event: PointerEvent<HTMLButtonElement>) {
     if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+    cancel();
     const renderedWidth = measure(event.currentTarget);
     if (renderedWidth === undefined) return;
 
@@ -153,7 +154,7 @@ export function ColumnResizeHandle({
     <Tooltip delayDuration={500}>
       <TooltipTrigger asChild>
         <button
-          aria-keyshortcuts="ArrowLeft ArrowRight Home Enter Space"
+          aria-keyshortcuts="ArrowLeft ArrowRight Home End Enter Space"
           aria-label={label}
           className={cn(
             "group/resize-handle absolute inset-y-0 right-0 z-10 flex w-3 translate-x-1/2 cursor-col-resize touch-none select-none justify-center border-0 bg-transparent p-0 opacity-0 outline-none group-hover/resize-header:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-1 focus-visible:ring-offset-background data-[state=resizing]:opacity-100 any-pointer-coarse:w-6 any-pointer-coarse:opacity-100",

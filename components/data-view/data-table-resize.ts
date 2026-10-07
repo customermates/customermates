@@ -6,7 +6,7 @@ export type ColumnWidthBounds = { minWidth: number; maxWidth: number };
 
 const TABLE_COLUMN_BOUNDS: ColumnWidthBounds = { minWidth: MIN_COLUMN_WIDTH, maxWidth: Number.POSITIVE_INFINITY };
 
-function clampWidth(width: number, bounds: ColumnWidthBounds) {
+export function clampWidth(width: number, bounds: ColumnWidthBounds) {
   return roundWidth(Math.min(bounds.maxWidth, Math.max(bounds.minWidth, width)));
 }
 

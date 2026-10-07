@@ -3,7 +3,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Plus } from "lucide-react";
+import { LoaderCircle, Plus } from "lucide-react";
 
 import { orderAppModalActions, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { Button } from "@/components/ui/button";
@@ -12,34 +12,45 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { runUserAction } from "@/core/errors/report-application-error";
 import { IntlLink } from "@/i18n/navigation";
 
-export function TopBarActionButton({ action }: { action: AppModalActionProps }) {
-  const { icon: Icon, label, tooltip } = action;
+function TopBarActionButton({ action }: { action: AppModalActionProps }) {
+  const { label, tooltip } = action;
+  const busy = action.busy === true;
+  const Icon = busy ? LoaderCircle : action.icon;
   const withLabel = action.kind === "assistant";
   const variant = action.variant === "destructive" ? "destructiveOutline" : "secondary";
   const size = withLabel ? "sm" : "icon-sm";
   const content = withLabel ? (
     <>
-      <Icon aria-hidden className="size-4" />
+      <Icon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />
 
       <span className="hidden sm:inline">{label}</span>
     </>
   ) : (
-    <Icon aria-hidden className="size-4" />
+    <Icon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />
   );
-  const disabled = !action.href && (action.disabled === true || action.busy === true);
+  const disabled = !action.href && (action.disabled === true || busy);
   const control = action.href ? (
-    <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size={size} variant={variant}>
-      <IntlLink
-        data-navigation-guard-handled={action.onNavigate ? "" : undefined}
-        href={action.href}
-        id={action.anchorId}
-        onClick={action.onNavigate}
-      >
-        {content}
-      </IntlLink>
-    </Button>
+    action.external ? (
+      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size={size} variant={variant}>
+        <a href={action.href} id={action.anchorId} rel="noreferrer" target="_blank">
+          {content}
+        </a>
+      </Button>
+    ) : (
+      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size={size} variant={variant}>
+        <IntlLink
+          data-navigation-guard-handled={action.onNavigate ? "" : undefined}
+          href={action.href}
+          id={action.anchorId}
+          onClick={action.onNavigate}
+        >
+          {content}
+        </IntlLink>
+      </Button>
+    )
   ) : (
     <Button
+      aria-hidden={disabled || undefined}
       aria-label={label}
       aria-pressed={action.pressed}
       className="h-8"

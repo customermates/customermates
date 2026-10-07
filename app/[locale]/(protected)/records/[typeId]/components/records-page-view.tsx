@@ -31,6 +31,7 @@ import {
   RecordInlineRelationship,
   canEditInline,
   isCalculatedForEditor,
+  hasInlineRelationshipEditor,
 } from "./record-inline-field";
 import { RecordRowActions } from "./record-row-actions";
 import { useRecordDeletion } from "./use-record-deletion";
@@ -110,7 +111,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
               onOpen={openRelated}
             />
           );
-          if (column.kind === "relationship" && store.canUpdateRecord(row.original)) {
+          if (column.kind === "relationship" && hasInlineRelationshipEditor(store, row.original, column.relation)) {
             return (
               <RecordInlineRelationship
                 direction={column.direction}

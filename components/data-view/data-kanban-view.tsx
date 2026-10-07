@@ -36,7 +36,7 @@ import { isInteractiveClick } from "./is-interactive-click";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 import { BoardGroupingPrompt } from "./board-grouping-prompt";
 import { ColumnResizeHandle } from "./column-resize-handle";
-import { withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
+import { clampWidth, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
 import { BOARD_LANE_WIDTH_KEY } from "@/core/data-view/data-view-state.schema";
 import { DataCardBody } from "./data-card-body";
 import {
@@ -294,7 +294,10 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
   const writeBackColumnId = store.groupingResult?.columnId;
   const [laneResize, setLaneResize] = useState<ColumnResizeSession>();
-  const laneWidth = laneResize?.currentWidth ?? store.columnWidths[BOARD_LANE_WIDTH_KEY];
+  const storedLaneWidth = store.columnWidths[BOARD_LANE_WIDTH_KEY];
+  const laneWidth =
+    laneResize?.currentWidth ??
+    (storedLaneWidth === undefined ? undefined : clampWidth(storedLaneWidth, DATA_KANBAN_LANE_WIDTH_BOUNDS));
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 4 },
