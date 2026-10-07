@@ -429,6 +429,24 @@ export class RecordConfigurationService extends UserAccessor {
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
     validation.issues.push(...(removed?.issues ?? []));
+    const readsFully = (typeId: string) => policy.isAdmin || policy.readScope(typeId) === "all";
+    if (removed) {
+      for (const typeId of removed.deletion.typeIds) {
+        if (!readsFully(typeId) && (await this.records.countRecordsCompanyWide([typeId])) > 0)
+          validation.issues.push({ code: "deletion_requires_read_all", typeId });
+      }
+      for (const fieldId of removed.deletion.fieldIds) {
+        const field = current.fields.find((candidate) => candidate.id === fieldId);
+        if (!field || removed.deletion.typeIds.includes(field.typeId) || readsFully(field.typeId)) continue;
+        const stored = await this.records.countDefinitionDeletion({
+          typeIds: [],
+          fieldIds: [fieldId],
+          relationIds: [],
+        });
+        if (stored.values)
+          validation.issues.push({ code: "deletion_requires_read_all", fieldId, typeId: field.typeId });
+      }
+    }
     const approvals = new Map(
       input.operations
         .filter((operation) => operation.operation === "publishSummary")
@@ -600,6 +618,7 @@ export class RecordConfigurationService extends UserAccessor {
       subscriptionCursor = last.id;
     }
     const affectedRecords = await this.records.countRecordsCompanyWide([...changedTypes]);
+    const affectedReadable = [...changedTypes].every(readsFully);
     const inputs = configurationInputFields(current, model);
     const inputTypes = [...new Set(inputs.map((field) => field.typeId))];
     const validationCount = await this.records.countRecordsCompanyWide(inputTypes);
@@ -631,6 +650,26 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
+    const deletionCounts = removed ? await this.records.countDefinitionDeletion(removed.deletion) : null;
+    const deletionReadable =
+      !removed ||
+      [
+        ...removed.deletion.typeIds,
+        ...removed.deletion.fieldIds.flatMap(
+          (fieldId) => current.fields.find((field) => field.id === fieldId)?.typeId ?? [],
+        ),
+        ...removed.deletion.relationIds.flatMap((relationId) => {
+          const relation = current.relationships.find((candidate) => candidate.id === relationId);
+          return relation ? [relation.sourceTypeId, relation.targetTypeId] : [];
+        }),
+      ].every(readsFully);
+    const hiddenDeletion =
+      !deletionReadable &&
+      Boolean(deletionCounts && (deletionCounts.records || deletionCounts.values || deletionCounts.links));
+    const deletion =
+      deletionCounts && !deletionReadable
+        ? { ...deletionCounts, records: null, values: null, links: null }
+        : deletionCounts;
     return {
       change: {
         version: 1,
@@ -660,7 +699,8 @@ export class RecordConfigurationService extends UserAccessor {
         valid: !validation.issues.length,
         execution: affectedRecords > SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
         dataValidation,
-        affectedRecords,
+        affectedRecords: affectedReadable ? affectedRecords : null,
+        hiddenRecords: (!affectedReadable && affectedRecords > 0) || hiddenDeletion,
         references: [...references].map(([reference, id]) => ({
           reference,
           id,
@@ -672,7 +712,7 @@ export class RecordConfigurationService extends UserAccessor {
             fieldId: field.id,
             dependencyHash: calculationDependencyHash(field, model),
           })),
-        ...(removed ? { deletion: await this.records.countDefinitionDeletion(removed.deletion) } : {}),
+        ...(deletion ? { deletion } : {}),
       },
     };
   }

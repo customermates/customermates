@@ -136,6 +136,7 @@ export function recordAccessForActor({
     memberScope: { userId: userId, access: roleReadScope(role, "users") } as RecordReadScope,
     canManageRoles: resourceAllowed("users", "update"),
     access: (typeIds: string[]): RecordAccessMap => new Map(typeIds.map((typeId) => [typeId, scopeFor(typeId)])),
+    readScope,
     canReadType,
     canRead,
   };

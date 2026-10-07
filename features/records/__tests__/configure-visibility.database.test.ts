@@ -47,7 +47,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
   let companyId = "";
   let archivedTypeId = "";
   const id = (key: string) => presetId(companyId, key);
-  const actors: Record<"admin" | "schema" | "grants" | "reader" | "restricted", TenantUser> = {} as never;
+  const actors: Record<"admin" | "schema" | "grants" | "steward" | "reader" | "restricted", TenantUser> = {} as never;
   const roleIds: Record<string, string> = {};
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
@@ -97,6 +97,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
         admin: await role("Administrator", true),
         schema: await role("Schema manager"),
         grants: await role("Grant manager"),
+        steward: await role("Data steward"),
         reader: await role("Assigned reader"),
         restricted: await role("Restricted"),
       };
@@ -109,6 +110,15 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
             resource: "users" as const,
             action,
           })),
+          ...(
+            [
+              ["dataModel", "update"],
+              ["dataModel", "readOwn"],
+              ["dataModel", "readAll"],
+              ["users", "update"],
+              ["users", "readAll"],
+            ] as const
+          ).map(([resource, action]) => ({ companyId: created.id, roleId: roles.steward.id, resource, action })),
           ...(["readOwn", "readAll"] as const).map((action) => ({
             companyId: created.id,
             roleId: roles.schema.id,
@@ -320,5 +330,142 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     expect((await modelFor(actors.restricted)).types.map((type) => type.id).sort()).toEqual(
       [id("deal"), id("lineItem")].sort(),
     );
+  });
+
+  describe("previews and permanent deletion scoped to what the caller can read", () => {
+    const configure = async (actor: TenantUser, operations: ConfigurationChange["operations"]) => {
+      const expectedRevision = (await modelFor(actors.admin)).revision;
+      return runWithTenant(actor, () => apply.invoke({ expectedRevision, idempotencyKey: randomUUID(), operations }));
+    };
+    const previewAs = async (actor: TenantUser, operations: ConfigurationChange["operations"]) => {
+      const expectedRevision = (await modelFor(actors.admin)).revision;
+      const result = await runWithTenant(actor, () =>
+        preview.invoke({ expectedRevision, idempotencyKey: randomUUID(), operations }),
+      );
+      if (!result.ok) throw new Error(JSON.stringify(result.error));
+      return result.data;
+    };
+    let leadsId = "";
+    let scoreId = "";
+
+    beforeAll(async () => {
+      expect(
+        await configure(actors.admin, [
+          {
+            operation: "createType",
+            reference: "$leads",
+            label: "Lead",
+            pluralLabel: "Leads",
+            description: "",
+            icon: "list",
+            embedded: false,
+            accessPresetId: null,
+          },
+        ]),
+      ).toMatchObject({ ok: true });
+      const model = await modelFor(actors.admin);
+      const leads = model.types.find((type) => type.label === "Lead");
+      if (!leads) throw new Error("The leads fixture is missing");
+      leadsId = leads.id;
+      const template = omit(
+        model.fields.find((field) => field.id === id("contact.firstName")),
+        ["publishedSummary"],
+      );
+      expect(
+        await configure(actors.admin, [
+          {
+            operation: "putField",
+            field: { ...template, id: "$score", typeId: leadsId, label: "Score", position: 50 } as never,
+          },
+        ]),
+      ).toMatchObject({ ok: true });
+      const withScore = await modelFor(actors.admin);
+      scoreId = withScore.fields.find((field) => field.typeId === leadsId && field.label === "Score")?.id ?? "";
+      const created = await runWithTenant(actors.admin, async () =>
+        mutate.invoke({
+          expectedRevision: (await repo.getModel()).revision,
+          idempotencyKey: randomUUID(),
+          mutation: {
+            action: "create",
+            typeId: leadsId,
+            fields: [
+              { fieldId: leads.primaryFieldId, value: { kind: "text", value: "Hidden lead" } },
+              { fieldId: scoreId, value: { kind: "text", value: "high" } },
+            ],
+          },
+        }),
+      );
+      expect(created, JSON.stringify(created)).toMatchObject({ ok: true });
+    });
+
+    it("withholds affected-record counts from a schema manager who cannot read the list", async () => {
+      const operations: ConfigurationChange["operations"] = [
+        {
+          operation: "putField",
+          field: {
+            ...omit(
+              (await modelFor(actors.admin)).fields.find((field) => field.id === scoreId),
+              ["publishedSummary"],
+            ),
+            required: true,
+          } as never,
+        },
+      ];
+      const hidden = await previewAs(actors.schema, operations);
+      expect(hidden).toMatchObject({ affectedRecords: null, hiddenRecords: true });
+      const exact = await previewAs(actors.admin, operations);
+      expect(exact).toMatchObject({ affectedRecords: 1, hiddenRecords: false });
+    });
+
+    it("blocks permanently deleting a field with values the caller cannot read, and hides its counts", async () => {
+      const field = (await modelFor(actors.admin)).fields.find((candidate) => candidate.id === scoreId);
+      expect(
+        await configure(actors.admin, [
+          { operation: "putField", field: { ...omit(field, ["publishedSummary"]), archived: true } as never },
+        ]),
+      ).toMatchObject({ ok: true });
+      const operations: ConfigurationChange["operations"] = [{ operation: "deleteField", fieldId: scoreId }];
+      const steward = await previewAs(actors.steward, operations);
+      expect(steward.valid).toBe(false);
+      expect(steward.issues).toContainEqual(
+        expect.objectContaining({ code: "deletion_requires_read_all", fieldId: scoreId }),
+      );
+      expect(steward).toMatchObject({ hiddenRecords: true, deletion: { values: null, records: null } });
+      const refused = await configure(actors.steward, operations);
+      expect(refused.ok).toBe(false);
+      const admin = await previewAs(actors.admin, operations);
+      expect(admin).toMatchObject({ valid: true, hiddenRecords: false, deletion: { values: 1 } });
+    });
+
+    it("blocks permanently deleting a non-empty list for a caller without read-all and lets the admin do it", async () => {
+      const model = await modelFor(actors.admin);
+      const leads = model.types.find((type) => type.id === leadsId);
+      if (!leads) throw new Error("The leads fixture is missing");
+      expect(
+        await configure(actors.admin, [
+          { operation: "putType", type: { ...leads, archived: true } },
+          ...model.capabilities
+            .filter((binding) => binding.kind === "channels" && binding.typeId === leadsId)
+            .map((binding) => ({ operation: "putCapability" as const, capability: { ...binding, enabled: false } })),
+          ...model.activityPaths
+            .filter((path) => path.typeId === leadsId)
+            .map((path) => ({ operation: "putActivityPath" as const, activityPath: { ...path, archived: true } })),
+        ]),
+      ).toMatchObject({ ok: true });
+      const operations: ConfigurationChange["operations"] = [{ operation: "deleteType", typeId: leadsId }];
+      const steward = await previewAs(actors.steward, operations);
+      expect(steward.issues).toContainEqual(
+        expect.objectContaining({ code: "deletion_requires_read_all", typeId: leadsId }),
+      );
+      expect(steward).toMatchObject({ valid: false, hiddenRecords: true, deletion: { records: null } });
+      expect((await configure(actors.steward, operations)).ok).toBe(false);
+
+      const empty = await previewAs(actors.steward, [{ operation: "deleteType", typeId: archivedTypeId }]);
+      expect(empty.issues.some((issue) => issue.code === "deletion_requires_read_all")).toBe(false);
+
+      const admin = await previewAs(actors.admin, operations);
+      expect(admin).toMatchObject({ valid: true, hiddenRecords: false, deletion: { records: 1 } });
+      expect(await configure(actors.admin, operations)).toMatchObject({ ok: true });
+    });
   });
 });

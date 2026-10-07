@@ -39,9 +39,10 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
       const impact = preview.deletion;
       const details = impact
         ? [
-            impact.records > 0 && t("RecordModel.permanentDeletion.records", { count: impact.records }),
-            impact.values > 0 && t("RecordModel.permanentDeletion.values", { count: impact.values }),
-            impact.links > 0 && t("RecordModel.permanentDeletion.links", { count: impact.links }),
+            preview.hiddenRecords && t("RecordModel.permanentDeletion.hiddenRecords"),
+            impact.records && t("RecordModel.permanentDeletion.records", { count: impact.records }),
+            impact.values && t("RecordModel.permanentDeletion.values", { count: impact.values }),
+            impact.links && t("RecordModel.permanentDeletion.links", { count: impact.links }),
             impact.relationships > 0 &&
               t("RecordModel.permanentDeletion.relationships", { count: impact.relationships }),
             impact.views > 0 && t("RecordModel.permanentDeletion.views", { count: impact.views }),
@@ -57,6 +58,8 @@ export function useDefinitionDeletion(onDeleted: () => Promise<void>) {
             : t("RecordModel.permanentDeletion.dependentList", { list: listLabel(issue.typeId) });
         }
         const label = field?.label ?? listLabel(issue.typeId);
+        if (issue.code === "deletion_requires_read_all")
+          return t("RecordModel.permanentDeletion.requiresReadAll", { name: label });
         return label ? `${label}: ${t("RecordModel.dependencyHelp")}` : t("RecordModel.dependencyHelp");
       });
       const name = target.type ? target.type.pluralLabel : target.field.label;

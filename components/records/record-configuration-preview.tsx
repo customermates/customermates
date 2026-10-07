@@ -20,9 +20,11 @@ export function RecordConfigurationPreview({
   return (
     <div className="space-y-2 text-sm" role="status">
       <p className={preview.valid ? "font-medium" : "font-medium text-destructive"}>
-        {preview.valid
-          ? t("RecordModel.previewReady", { count: preview.affectedRecords })
-          : t("RecordModel.invalidConfiguration")}
+        {!preview.valid
+          ? t("RecordModel.invalidConfiguration")
+          : preview.affectedRecords === null
+            ? t("RecordModel.previewReadyHidden")
+            : t("RecordModel.previewReady", { count: preview.affectedRecords })}
       </p>
 
       {preview.dataValidation === "staged" && (

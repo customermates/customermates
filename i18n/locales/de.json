@@ -3251,12 +3251,14 @@
       "fieldMessage": "Dadurch werden das Feld und alle gespeicherten Werte endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
       "fieldTitle": "{name} endgültig löschen?",
       "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
+      "hiddenRecords": "Enthält Datensätze, die Sie nicht sehen können.",
       "links": "{count, plural, one {# Verknüpfung zwischen Datensätzen} other {# Verknüpfungen zwischen Datensätzen}}",
       "listMessage": "Dadurch werden die Liste mit ihren Feldern, Datensätzen, Verknüpfungen, Beziehungen, gespeicherten Ansichten und Rollenrechten endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
       "listTitle": "{name} endgültig löschen?",
       "nothingStored": "Keine gespeicherten Daten verwenden es.",
       "records": "{count, plural, one {# Datensatz} other {# Datensätze}}",
       "relationships": "{count, plural, one {# Beziehung} other {# Beziehungen}}",
+      "requiresReadAll": "{name} enthält noch Datensätze, die Sie nicht sehen können. Endgültig löschen kann nur, wer alle Datensätze lesen darf, oder ein Admin.",
       "values": "{count, plural, one {# gespeicherter Wert} other {# gespeicherte Werte}}",
       "views": "{count, plural, one {# gespeicherte Ansicht oder persönliches Layout} other {# gespeicherte Ansichten oder persönliche Layouts}}"
     },
@@ -3264,6 +3266,7 @@
     "pluralDescription": "Der Name in der Navigation. Leer lassen, um den Listennamen zu verwenden.",
     "pluralName": "Navigationsbezeichnung",
     "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
+    "previewReadyHidden": "Bereit zum Anwenden. Die Änderung betrifft auch Datensätze, die Sie nicht sehen können.",
     "previousValue": "Vorheriger Wert",
     "priceModes": {
       "live": "Aktueller Preis",

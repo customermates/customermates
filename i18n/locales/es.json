@@ -3251,12 +3251,14 @@
       "fieldMessage": "Esto elimina definitivamente el campo y todos sus valores guardados. No se puede deshacer.",
       "fieldTitle": "¿Eliminar {name} definitivamente?",
       "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
+      "hiddenRecords": "Contiene registros que no puede ver.",
       "links": "{count, plural, one {# vínculo entre registros} other {# vínculos entre registros}}",
       "listMessage": "Esto elimina definitivamente la lista con sus campos, registros, vínculos, relaciones, vistas guardadas y permisos de rol. No se puede deshacer.",
       "listTitle": "¿Eliminar {name} definitivamente?",
       "nothingStored": "Ningún dato guardado lo usa.",
       "records": "{count, plural, one {# registro} other {# registros}}",
       "relationships": "{count, plural, one {# relación} other {# relaciones}}",
+      "requiresReadAll": "{name} todavía contiene registros que no puede ver. Solo quien puede leer todos sus registros, o un administrador, puede eliminarlo definitivamente.",
       "values": "{count, plural, one {# valor guardado} other {# valores guardados}}",
       "views": "{count, plural, one {# vista guardada o diseño personal} other {# vistas guardadas o diseños personales}}"
     },
@@ -3264,6 +3266,7 @@
     "pluralDescription": "El nombre mostrado en la navegación. Déjalo vacío para usar el nombre de la lista.",
     "pluralName": "Etiqueta de navegación",
     "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
+    "previewReadyHidden": "Listo para aplicar. Incluye registros que no puede ver.",
     "previousValue": "Valor anterior",
     "priceModes": {
       "live": "Precio actual",
