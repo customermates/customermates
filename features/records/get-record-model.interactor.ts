@@ -30,13 +30,7 @@ export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<ty
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const accessible = new Set(
           model.types
-            .filter(
-              (type) =>
-                policy.canManageSchema ||
-                policy.canManageRoles ||
-                policy.allowed(type.id, "readOwn") ||
-                policy.allowed(type.id, "readAll"),
-            )
+            .filter((type) => policy.canManageSchema || policy.canManageRoles || policy.canReadType(type.id))
             .map((type) => type.id),
         );
         const types = model.types

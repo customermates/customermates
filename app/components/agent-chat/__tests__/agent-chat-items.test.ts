@@ -27,8 +27,8 @@ const failedRead = {
   providerCallId: "call-1",
   activity: {
     kind: "records.read" as const,
-    resource: "contacts" as const,
-    affectedResources: ["contacts" as const],
+    resource: "wiki" as const,
+    affectedResources: ["wiki" as const],
     risk: "read" as const,
   },
   status: "error" as const,

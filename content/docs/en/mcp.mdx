@@ -44,9 +44,9 @@ Getting an AI client onto your workspace is the same three moves every time:
 
 <Steps>
 <Step title="Create an API key">
-**My Profile → API & Connectors → Add**. Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor, or Gemini, or **Standard API key** for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Manage** set to **Yes** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
+**My Profile → API & Connectors → Add**. Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor, or Gemini, or **Standard API key** for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
 </Step>
 <Step title="Point the client at the endpoint">
 Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
@@ -84,13 +84,13 @@ Keep your CRM processes, company voice, product knowledge, and support answers i
 
 Choose **New page**, enter a title, and write directly in the visual editor. It uses the same formatting as CRM Notes. Choose **Save** when you are ready; changes are not saved automatically. **Reset** discards unsaved edits. Use the page list to switch documents or search their titles and content.
 
-The Operating Guide stays pinned first in the page list. People with Knowledge Base Manage can drag the other pages into order; everyone in the workspace sees the same saved order.
+The Operating Guide stays pinned first in the page list. People with Knowledge Base Edit can drag the other pages into order; everyone in the workspace sees the same saved order.
 
 An empty Knowledge Base offers **New page** for manual writing and **Build from my website** to ask Mate to import a website when hosted Mate is available. Give each page a clear, specific title so people and agents can find it.
 
 Use the editor's link control to find another Knowledge Base page, or choose **Copy page link** in **Page actions**. These are ordinary Markdown links; renaming a page does not change its address. You do not need to maintain a separate index or linking metadata.
 
-Knowledge Base Read lets you view pages. Knowledge Base Manage lets you create, edit, and delete them and includes Read. If another person or agent changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them with the latest page. Deletion is permanent. Changes use the normal Audit Logs; viewing their Knowledge Base content requires both Audit Log access and Knowledge Base Read. The audit log is not a restore feature.
+Knowledge Base Read lets you view pages. Knowledge Base Create, Edit and Delete let you create, edit and move, or delete pages, and each of them includes Read. If another person or agent changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them with the latest page. Deletion is permanent. Changes use the normal Audit Logs; viewing their Knowledge Base content requires both Audit Log access and Knowledge Base Read. The audit log is not a restore feature.
 
 ### Operating Guide, procedures, and knowledge [#page-types]
 
@@ -114,7 +114,7 @@ Pages that require sign-in or depend on browser scripts may not be readable. Rev
 
 Your connected AI clients read the same current pages through this MCP endpoint. Start with `get_workspace_context`: on its first page `wiki.guide` contains the Operating Guide (about its first 2,400 bytes and a `nextOffset` for the rest), `wiki.procedures` lists procedures with their `whenToUse`, and `wiki.items` contains ten knowledge page titles, stable URLs, and short opening excerpts. Pass `wiki.nextPage` as `wikiPage` to continue. The `customermates://wiki/catalog?page=1` resource returns the same content.
 
-Use the standard read-only `search` tool to find relevant content, then `fetch` with either the returned `wiki:<uuid>` ID or its exact URL. Knowledge Base Markdown is returned in bounded chunks with a canonical source URL; repeat `fetch` with `nextOffset` as `offset` until it is null. An offset belongs to the tool that returned it, so continue a `fetch` read with `fetch` and a `manage_wiki_pages` read with `manage_wiki_pages`; if `updatedAt` changes between chunks, restart at offset 0. Links between Knowledge Base pages are absolute and can be passed directly back to `fetch`. Clients with MCP resource support can also discover the paginated catalog and page templates with `resources/list` and `resources/templates/list`. Each Knowledge Base result from `search` also carries a highlighted `snippet`, the heading path of the matched `section`, and an `offset`: pass that `offset` to `fetch` to open the page at the answer, and use offset 0 or the returned `outline` for earlier context. Knowledge Base search matches the words of the query in full text, including inflected forms in English, German, Spanish, French, and Italian. When your account has AI credits, it also matches by meaning, so a question worded differently from the page, or asked in another language, still finds it; a query embedding is charged only when a search uses it, to the person whose search started it, even if a colleague’s simultaneous identical search is the one that consumes it. Knowledge Base indexing is paid from the workspace’s combined allowance; public documentation indexing is paid by Customermates. External clients pay their own model provider separately from these server-side retrieval costs. Without credits, and on self-hosted instances, it is full text only. In both modes a page containing a queried code or identifier, such as `E-4012` or `OPS-1182`, comes first, regardless of separators or case, and a misspelled word that matches no Knowledge Base page is corrected from the words of your Knowledge Base: the results come from the corrected query, which `search` returns in `didYouMean`. `manage_wiki_pages` with `action: "search"` returns the same fields plus `retrieval` (`semantic` or `keyword`), with offsets for its own `get`; `action: "get"` uses the same read-only continuation pattern. Separate `create` and `update` actions create or edit pages when your role has Knowledge Base Manage. Reads require Knowledge Base Read, and every change uses the ordinary audit log.
+Use the standard read-only `search` tool to find relevant content, then `fetch` with either the returned `wiki:<uuid>` ID or its exact URL. Knowledge Base Markdown is returned in bounded chunks with a canonical source URL; repeat `fetch` with `nextOffset` as `offset` until it is null. An offset belongs to the tool that returned it, so continue a `fetch` read with `fetch` and a `manage_wiki_pages` read with `manage_wiki_pages`; if `updatedAt` changes between chunks, restart at offset 0. Links between Knowledge Base pages are absolute and can be passed directly back to `fetch`. Clients with MCP resource support can also discover the paginated catalog and page templates with `resources/list` and `resources/templates/list`. Each Knowledge Base result from `search` also carries a highlighted `snippet`, the heading path of the matched `section`, and an `offset`: pass that `offset` to `fetch` to open the page at the answer, and use offset 0 or the returned `outline` for earlier context. Knowledge Base search matches the words of the query in full text, including inflected forms in English, German, Spanish, French, and Italian. When your account has AI credits, it also matches by meaning, so a question worded differently from the page, or asked in another language, still finds it; a query embedding is charged only when a search uses it, to the person whose search started it, even if a colleague’s simultaneous identical search is the one that consumes it. Knowledge Base indexing is paid from the workspace’s combined allowance; public documentation indexing is paid by Customermates. External clients pay their own model provider separately from these server-side retrieval costs. Without credits, and on self-hosted instances, it is full text only. In both modes a page containing a queried code or identifier, such as `E-4012` or `OPS-1182`, comes first, regardless of separators or case, and a misspelled word that matches no Knowledge Base page is corrected from the words of your Knowledge Base: the results come from the corrected query, which `search` returns in `didYouMean`. `manage_wiki_pages` with `action: "search"` returns the same fields plus `retrieval` (`semantic` or `keyword`), with offsets for its own `get`; `action: "get"` uses the same read-only continuation pattern. Separate `create` and `update` actions create or edit pages when your role has Knowledge Base Create or Edit. Reads require Knowledge Base Read, and every change uses the ordinary audit log.
 
 The server instructions first tell connected agents to call `get_workspace_context`, follow the Operating Guide, and read a procedure whose `whenToUse` matches before acting. They also tell agents to search and read relevant Knowledge Base pages before using company facts, processes, voice, product, or support guidance, follow useful links, and cite the exact returned URLs; `search` and `fetch` mark procedure and guide pages with their `kind`. MCP clients decide whether they expose resources and server instructions to their model, so no server can force every arbitrary client to perform those reads. If your client ignores that guidance, add the same retrieval instruction to the client's persistent instructions. Keep the documentation itself in the CRM so every supported client retrieves the current authoritative copy.
 
@@ -172,7 +172,7 @@ Every record reference contains both `typeId` and `recordId`. Query and search a
 {/* mcp-catalog:records */}
 #### `discover_record_types`
 
-Find accessible record types by name or stable type IDs. Results include contractVersion, schemaRevision, permitted actions and schema-management permission. Use page and pageSize to continue; includeEmbedded reveals types such as line items.
+Find accessible record types by name or stable type IDs. Results include contractVersion, schemaRevision, permitted actions and whether you may edit the data model. Use page and pageSize to continue; includeEmbedded reveals types such as line items.
 
 **Read-only.** Optional: `typeIds`, `search`, `includeEmbedded`, `page`, `pageSize`.
 
@@ -196,7 +196,7 @@ Search accessible configured types, including customer-created types. includeEmb
 
 #### `resolve_record_identifiers`
 
-Resolve exact email, phone or supported profile identifiers through the indexed channel registry. Each input returns every accessible linked record, including its type label. Optional typeIds limit the lists. Empty records arrays mean no accessible match; clarify ambiguity before changing a record.
+Resolve up to 1,000 exact email, phone or supported profile identifiers through the indexed channel registry. Each input returns every accessible linked record with its type label and current version, plus the workspace schemaRevision, so matches feed updateMany directly. Optional typeIds limit the lists. Empty records arrays mean no accessible match; deduplicate records matched through several identifiers and clarify ambiguity before changing a record.
 
 **Read-only.** Required: `identifiers`. Optional: `typeIds`.
 
@@ -230,6 +230,67 @@ Read a durable operation by operationId until it completes, fails or is cancelle
 
 **Read-only.** Required: `operationId`.
 {/* /mcp-catalog */}
+
+### Batch update by channel identifiers [#batch-identifier-update]
+
+Two calls update records you know only by email addresses or profile identifiers. No record reads sit between them.
+
+1. Call `resolve_record_identifiers` (REST: `POST /api/v1/records/identities/resolve`) with up to 1,000 identifiers:
+
+   ```json
+   {
+     "identifiers": [
+       { "provider": "mail", "value": "ada@example.com" },
+       { "provider": "linkedin", "value": "ada-lovelace" },
+       { "provider": "mail", "value": "team@example.com" }
+     ]
+   }
+   ```
+
+   The response keeps the input order and returns every accessible linked record per identifier, each with its current `version`, plus the workspace `schemaRevision`:
+
+   ```json
+   {
+     "schemaRevision": 12,
+     "matches": [
+       {
+         "provider": "mail",
+         "value": "ada@example.com",
+         "records": [
+           {
+             "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
+             "identityId": "<identityId>",
+             "typeLabel": "Contact",
+             "typePluralLabel": "Contacts",
+             "title": "Ada Lovelace",
+             "avatarUrl": null,
+             "canEdit": true,
+             "version": 4
+           }
+         ]
+       },
+       { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
+       { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
+     ]
+   }
+   ```
+
+2. Build the targets. A record linked through several identifiers, like Ada above, appears under each of them: keep one target per `typeId` and `recordId`. An identifier with several records, like `team@example.com`, is ambiguous: decide with the user or type context, never pick one arbitrarily. An empty `records` array means no accessible match; records you cannot read are never revealed.
+3. Call `mutate_crm_record` (REST: `POST /api/v1/records/mutate`) once per batch of up to 100 targets, with `schemaRevision` as `expectedRevision`:
+
+   ```json
+   {
+     "expectedRevision": 12,
+     "idempotencyKey": "segment-update-2026-10-06",
+     "mutation": {
+       "action": "updateMany",
+       "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
+       "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
+     }
+   }
+   ```
+
+The patch applies to every target atomically; a large recalculation can return `status: "pending"` with an operationId to read through `read_crm_operation`. If any target changed after the lookup, or the schema changed, the whole batch is rejected with a `conflict` and nothing is written; resolve again and retry with a new idempotency key. Retrying the identical request with the same idempotency key returns the original result without writing twice.
 
 ### Workspace
 
@@ -277,7 +338,7 @@ List, search, read, create, update, or permanently delete Knowledge Base pages, 
 
 Messaging-backed tools need a plan with messaging: Pro or higher, in the cloud only; Starter and self-hosted instances refuse them. `get_activities` can still return audit-log changes without it when the caller's role has **Read access** **All** on the **Audit Log** row. Its message, connected-account and calendar sources need **Read access** on the **Inbox messages** row plus a plan with messaging.
 
-`connect_messaging_account` also needs **Manage** **Yes** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
+`connect_messaging_account` also needs **Create** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
 {/* mcp-catalog:messaging */}
 #### `get_messaging_threads`
@@ -342,7 +403,7 @@ Required: `action`, `threadId`. Optional: `ref`, `expectedRevision`, `idempotenc
 
 #### `connect_messaging_account`
 
-Generate a link the user opens in a browser to connect a channel: Gmail (google), Outlook, IMAP email, WhatsApp, LinkedIn Classic, Sales Navigator or Recruiter, Instagram, or Telegram. You return the link; the user finishes auth there. The link is for the requesting user only and expires in 30 minutes. Needs Manage on Inbox messages, a plan with messaging, and a free connected-account slot on that plan.
+Generate a link the user opens in a browser to connect a channel: Gmail (google), Outlook, IMAP email, WhatsApp, LinkedIn Classic, Sales Navigator or Recruiter, Instagram, or Telegram. You return the link; the user finishes auth there. The link is for the requesting user only and expires in 30 minutes. Needs Create on Inbox messages, a plan with messaging, and a free connected-account slot on that plan.
 
 Required: `channel`.
 {/* /mcp-catalog */}
@@ -466,7 +527,7 @@ Read a result from `search` by its unchanged id: `wiki:<uuid>` or the exact retu
 
 ### Record model [#record-model]
 
-Create or update types, fields, relationships, calculations and shared defaults through a configuration bundle. Schema-management permission is separate from record-edit permission. New types default to administrator-only access; delegated schema managers can select approved access presets without acquiring role-administration rights.
+Create or update types, fields, relationships, calculations and shared defaults through a configuration bundle. **Data model** **Edit** is separate from **Edit** on a record type. New types default to administrator-only access; delegated schema managers can select approved access presets without acquiring role-administration rights.
 
 Read the relevant model, preview the bundle, inspect dependencies and permission effects, then apply the same bundle with its expected revision and idempotency key. `$client` references let new definitions refer to one another in the bundle. Formula programs contain typed nodes ordered before their dependents and a root node. They cannot execute JavaScript or SQL. Backend validation rejects cycles, invalid types, unsafe currency combinations and incompatible dependencies.
 
@@ -521,7 +582,7 @@ One tool with an `action` switch: list, runs, create, update, pause, run_now, de
 {/* mcp-catalog:webhooks */}
 #### `manage_webhooks`
 
-One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). Reads need API & Webhooks read access All; every change and resend needs Manage on API & Webhooks.
+One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). Reads need API & Webhooks read access All; create and resend_delivery need Create, update needs Edit and delete needs Delete on API & Webhooks.
 
 **Can delete data.** Required: `action`. Optional: `recordTrigger`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
@@ -531,24 +592,24 @@ One tool with an `action` switch: list, get, create, update, delete, plus the de
 {/* mcp-catalog:admin */}
 #### `update_workspace_settings`
 
-target profile changes your own name, country and avatar. target company changes workspace currency and needs Manage on Company. Rename or configure record types through configure_record_model; type names are no longer workspace terminology settings.
+target profile changes your own name, country and avatar. target company changes workspace currency and needs Edit on Company. Rename or configure record types through configure_record_model; type names are no longer workspace terminology settings.
 
 Required: `target`. Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `currency`.
 
 #### `manage_team`
 
-Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). invite needs Manage on Users & Roles; update_member needs Manage and read access All on Users & Roles.
+Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). invite needs Create on Users & Roles; update_member needs Edit and read access All on Users & Roles.
 
 Required: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 
 #### `manage_roles`
 
-Read, create or edit roles with system permissions and access to any configured record type. Read the editor context first, preserve unrelated grants, and supply a revision and retry key when saving or deleting. Deletion is blocked for assigned roles and roles used by access presets.
+Read, create or edit roles with system permissions and access to any configured record type. System permissions (resource plus actions) and record grants (typeId plus actions) share the actions create, update, delete, readAll and readOwn; each listed entry replaces its actions, omitted ones keep theirs and an empty list removes access. Read the editor context first, preserve unrelated grants, and supply a revision and retry key when saving or deleting. Deletion is blocked for assigned roles and roles used by access presets.
 
 **Can delete data.** Required: `action`. Optional: `roleId`, `typeIds`, `role`, `deletion`.
 {/* /mcp-catalog */}
 
-No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates, edits or deletes roles or API keys; `get_workspace_context` returns no plan or trial data either. Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as it does in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). The subscription, roles and API keys are managed in the app: **My Company → Subscription**, **My Company → Roles** and **My Profile → API & Connectors**.
+No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; roles are managed with `manage_roles`; `get_workspace_context` returns no plan or trial data either. Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as it does in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). The subscription and API keys are managed in the app, under **My Company → Subscription** and **My Profile → API & Connectors**; roles can also be edited under **My Company → Roles**.
 
 **Link:** the **Subscription** page, `/company/subscription` (cloud only), the **Roles** page, `/company/roles`, and the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, `nav-company-roles` or `nav-profile-api-keys`, and `highlight_element` with `company-roles-add` for **Add** on **Roles**.
 
@@ -596,7 +657,7 @@ Only a `validation` refusal's text starts with `Validation error:`; the other ki
 - **validation**: the arguments were wrong. Read `issues[].path`, fix that field, and call again. Read `get_record_model` for the relevant type and compare the request with the live tool schema.
 - **authorization**: the caller's role does not permit it. Retrying never helps; say what was refused and which permission it needs. Roles are workspace-defined, so read `get_workspace_context.roles` rather than assuming a fixed set. A key or connection whose owner was set to **Inactive** also lands here, with "Your user account is inactive. Contact a workspace administrator."
 - **not_found**: the id does not exist, or belongs to another workspace. Every call is tenant-scoped, so an id from elsewhere reads as missing rather than forbidden. A recipient, profile or thread that the messaging provider cannot find or show also returns `not_found`, with `customCode` `unipileResourceNotFound`; your own record ids are fine in that case.
-- **conflict**: the state changed or a resource is already claimed. For `recordSchemaChanged` or `recordVersionChanged`, read current state and preview again. `recordIdempotencyConflict` means a retry key was reused with different payloads. `channelAlreadyLinked` means an identity key belongs to another record. A duplicate channel in one identities array is a `validation` refusal with `duplicateChannel`.
+- **conflict**: the state changed or a resource is already claimed. For `recordSchemaChanged` or `recordVersionChanged`, read current state and preview again. `recordIdempotencyConflict` means a retry key was reused with different payloads. `channelAlreadyLinked` means an identity key belongs to another record.
 - **rate_limit** and **unavailable**: transient or capacity-bound. Back off, and surface `unavailable` as a provider problem rather than a user mistake. A messaging channel that hit its provider limit returns `rate_limit` with `customCode` `unipileRateLimit`, and its message says when to try again ([messaging rate limits](/docs/messaging-rate-limits)). A provider outage or timeout returns `unavailable`; after a timeout the action may still have completed, so check before retrying.
 - **authentication**: the key is wrong, truncated, expired or deleted, and every call that reads or changes workspace data says "Sign in to use this action." Only the documentation tools still answer. The user must create a new key. A request with no key and no valid OAuth token gets HTTP `401` before any tool runs.
 

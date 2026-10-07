@@ -26,7 +26,7 @@ class ReadUsersProbe {
 
 const GuardedProbe = TenantInteractor<typeof ReadUsersProbe>({
   resource: Resource.users,
-  action: Action.readAll,
+  read: "all",
 })(ReadUsersProbe);
 
 describeDatabase("background tenant context on PostgreSQL", () => {

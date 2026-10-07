@@ -30,6 +30,7 @@ vi.mock("@/components/ui/use-overlay-focus-return", () => ({ useOverlayFocusRetu
 vi.mock("@/components/modal/app-modal-action", () => ({
   APP_MODAL_ACTION_RAIL_CLASS: "",
   AppModalAction: () => null,
+  AppModalActionRail: () => null,
 }));
 vi.mock("@/components/ui/dialog", () => ({
   Dialog: ({ children }: { children: ReactNode }) => createElement("section", null, children),
@@ -147,7 +148,7 @@ describe("agent route reload integration", () => {
         seq: 1,
         type: "activity",
         id: "write-integration",
-        activity: { kind: "records.update", resource: "contacts", affectedResources: [], risk: "write" },
+        activity: { kind: "records.update", resource: "wiki", affectedResources: [], risk: "write" },
       });
       internalStore.handleEvent({
         seq: 2,

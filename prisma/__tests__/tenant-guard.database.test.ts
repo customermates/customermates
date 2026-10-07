@@ -83,7 +83,7 @@ describeDatabase("prisma tenant guard on PostgreSQL", () => {
     await asTenant(() =>
       prisma.recordSchemaState.upsert({
         where: { companyId },
-        create: { companyId, revision: 1, storageMode: "generic" },
+        create: { companyId, revision: 1 },
         update: { companyId, revision: 2 },
       }),
     );

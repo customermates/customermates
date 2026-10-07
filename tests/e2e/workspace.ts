@@ -46,10 +46,9 @@ export async function createBrowserWorkspace(database: Client) {
         [companyId, relation.id, relation.sourceTypeId, relation.targetTypeId, JSON.stringify(relation)],
       );
     }
-    await database.query('INSERT INTO "RecordSchemaState" ("companyId",revision,"storageMode") VALUES ($1,$2,$3)', [
+    await database.query('INSERT INTO "RecordSchemaState" ("companyId",revision) VALUES ($1,$2)', [
       companyId,
       model.revision,
-      "generic",
     ]);
     await database.query(
       'INSERT INTO "RecordSchemaRevision" ("companyId",revision,"actorId",snapshot) VALUES ($1,$2,$3,$4)',

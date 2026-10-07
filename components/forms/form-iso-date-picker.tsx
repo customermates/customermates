@@ -165,7 +165,6 @@ export const FormIsoDatePicker = observer(
             onOpenAutoFocus={focusCalendarDay}
           >
             <Calendar
-              autoFocus
               disabled={isLoading}
               mode="single"
               month={currentMonth}

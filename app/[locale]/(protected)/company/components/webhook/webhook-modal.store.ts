@@ -50,6 +50,7 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
       modelLoadFailed: observable,
       usesRecordTrigger: computed,
       watchesRecordChanges: computed,
+      ownsRecordAccess: computed,
       canManage: override,
       isReadOnly: override,
       isDisabled: override,
@@ -70,14 +71,17 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
     return this.form.events?.includes("record.updated") ?? false;
   }
 
-  override get canManage() {
+  get ownsRecordAccess() {
     const user = this.rootStore.userStore.user;
     return (
-      super.canManage &&
-      (!this.savedState.recordOwnerUserId ||
-        this.savedState.recordOwnerUserId === user?.id ||
-        Boolean(user?.role?.isSystemRole))
+      !this.savedState.recordOwnerUserId ||
+      this.savedState.recordOwnerUserId === user?.id ||
+      Boolean(user?.role?.isSystemRole)
     );
+  }
+
+  override get canManage() {
+    return super.canManage && this.ownsRecordAccess;
   }
 
   override get isReadOnly() {

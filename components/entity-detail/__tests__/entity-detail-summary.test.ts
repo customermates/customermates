@@ -51,17 +51,6 @@ vi.mock("@/components/ui/tooltip", () => ({
   TooltipTrigger: ({ children }: { children?: ReactNode }) =>
     createElement("span", { "data-slot": "tooltip-trigger" }, children),
 }));
-vi.mock("@/components/data-view/custom-columns/custom-field-value", () => ({
-  CustomFieldValue: ({ column, showOverflowTooltip }: { column: { id: string }; showOverflowTooltip?: boolean }) =>
-    createElement(
-      "span",
-      {
-        "data-custom-value": column.id,
-        "data-overflow-tooltip": showOverflowTooltip || undefined,
-      },
-      `Value for ${column.id}`,
-    ),
-}));
 vi.mock("@/core/utils/use-is-truncated", () => ({
   useIsTruncated: () => harness.isTruncated,
 }));

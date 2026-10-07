@@ -1,5 +1,5 @@
 import type { GetCompanySettingsRepo } from "./get-company-settings.repo";
-import { Action, Currency, Resource } from "@/generated/prisma";
+import { Currency, Resource } from "@/generated/prisma";
 import { z } from "zod";
 import type { Company } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -11,7 +11,7 @@ const OutputSchema = z.object({ id: z.string(), currency: z.enum(Currency), crea
 export type CompanySettings = Company;
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.company, action: Action.readOwn })
+@TenantInteractor({ resource: Resource.company, read: true })
 export class GetCompanySettingsInteractor extends AuthenticatedInteractor<void, CompanySettings> {
   constructor(private repo: GetCompanySettingsRepo) {
     super();

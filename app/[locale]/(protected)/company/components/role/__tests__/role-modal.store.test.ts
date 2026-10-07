@@ -46,7 +46,7 @@ function makeStore(role: RoleDto, signedInRoleId: string | null = null): RoleMod
     rolesStore,
     userStore: {
       user: signedInRoleId ? { roleId: signedInRoleId } : null,
-      canManage: vi.fn().mockReturnValue(true),
+      can: vi.fn().mockReturnValue(true),
     },
   } as unknown as RootStore;
   const store = new RoleModalStore(rootStore);
@@ -304,7 +304,7 @@ it("does not expand partial system permissions when only the role name changes",
   store.onChange("name", "Renamed role");
   companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: { role, schemaRevision: 2 } });
   await store.onSubmit();
-  expect(companyActions.upsertRoleAction).toHaveBeenCalledWith(expect.objectContaining({ permissions: {} }));
+  expect(companyActions.upsertRoleAction).toHaveBeenCalledWith(expect.objectContaining({ permissions: [] }));
 });
 
 describe("RoleModalStore Wiki permissions", () => {
@@ -313,16 +313,16 @@ describe("RoleModalStore Wiki permissions", () => {
 
     store.add();
 
-    expect(store.form.permissions.wiki).toEqual({ canManage: "no", readAccess: "all" });
+    expect(store.form.permissions.wiki).toEqual({ create: false, update: false, delete: false, readAccess: "all" });
   });
 
   it("makes Wiki Read all when Manage is granted", () => {
     const store = makeStore(makeRole());
 
     store.onChange("permissions.wiki.readAccess", "none");
-    store.onChange("permissions.wiki.canManage", "yes");
+    store.onChange("permissions.wiki.update", true);
 
-    expect(store.form.permissions.wiki).toEqual({ canManage: "yes", readAccess: "all" });
+    expect(store.form.permissions.wiki).toEqual({ create: false, update: true, delete: false, readAccess: "all" });
   });
 
   it("normalizes a persisted Wiki manager to Read even if the stored grants are inconsistent", () => {
@@ -336,6 +336,48 @@ describe("RoleModalStore Wiki permissions", () => {
       }),
     );
 
-    expect(store.form.permissions.wiki).toEqual({ canManage: "yes", readAccess: "all" });
+    expect(store.form.permissions.wiki).toEqual({ create: true, update: true, delete: true, readAccess: "all" });
+  });
+});
+
+describe("RoleModalStore unified system permissions", () => {
+  it("loads each manage action separately and submits only the changed resource in the shared vocabulary", async () => {
+    const role = makeRole({
+      permissions: [
+        { id: "api-create", resource: Resource.api, action: Action.create },
+        { id: "api-read", resource: Resource.api, action: Action.readAll },
+        { id: "company-update", resource: Resource.company, action: Action.update },
+        { id: "company-read", resource: Resource.company, action: Action.readOwn },
+      ],
+    });
+    const store = makeStore(role);
+    expect(store.form.permissions.api).toEqual({ create: true, update: false, delete: false, readAccess: "all" });
+    expect(store.form.permissions.company).toMatchObject({ create: false, update: true, delete: false });
+
+    store.onChange("permissions.api.delete", true);
+    companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: { role, schemaRevision: 2 } });
+    await store.onSubmit();
+
+    expect(companyActions.upsertRoleAction).toHaveBeenCalledWith(
+      expect.objectContaining({ permissions: [{ resource: "api", actions: ["create", "delete", "readAll"] }] }),
+    );
+  });
+
+  it("sends every resource with only its applicable actions for a new role", async () => {
+    const store = makeStore(makeRole());
+    store.add();
+    await vi.waitFor(() => expect(store.isLoading).toBe(false));
+    store.onChange("name", "Support");
+    store.onChange("description", "Support desk");
+    store.onChange("permissions.company.update", true);
+    store.onChange("permissions.auditLog.readAccess", "all");
+    companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: { role: makeRole(), schemaRevision: 2 } });
+    await store.onSubmit();
+
+    const permissions = companyActions.upsertRoleAction.mock.calls[0]?.[0].permissions;
+    expect(permissions).toContainEqual({ resource: "company", actions: ["update"] });
+    expect(permissions).toContainEqual({ resource: "auditLog", actions: ["readAll"] });
+    expect(permissions).toContainEqual({ resource: "users", actions: ["readOwn"] });
+    expect(permissions).toHaveLength(8);
   });
 });

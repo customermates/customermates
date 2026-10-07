@@ -7,7 +7,7 @@ import type { FindUsableAccountRepo } from "../persistence/find-usable-account.r
 
 import { z } from "zod";
 
-import { Action, MessagingProvider, Resource } from "@/generated/prisma";
+import { MessagingProvider, Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -32,7 +32,7 @@ const OutputSchema = z.object({
 });
 type ResolvedProviderProfile = Data<typeof OutputSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class ResolveProviderProfileInteractor extends AuthenticatedInteractor<
   ResolveProviderProfileData,
   ResolvedProviderProfile

@@ -43,7 +43,7 @@ export class CheckRecordIdentityInteractor extends AuthenticatedInteractor<
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
-        if (!policy.actor || !type || (!policy.allowed(type.id, "readAll") && !policy.allowed(type.id, "readOwn")))
+        if (!policy.actor || !type || !policy.canReadType(type.id))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
         if (!recordChannelsEnabled(model, type.id)) return failAuthorization(CustomErrorCode.recordProtected);
         const ref = input.recordId ? { typeId: type.id, recordId: input.recordId } : null;

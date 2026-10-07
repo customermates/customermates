@@ -44,7 +44,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     loadingOverlayStore: { isLoading: false },
     subscriptionStore,
-    userStore: { canManage: () => harness.userCanManage },
+    userStore: { can: () => harness.userCanManage },
   }),
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({

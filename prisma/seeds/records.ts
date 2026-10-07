@@ -10,6 +10,7 @@ import type { SeedContext } from "./context";
 import type { SyntheticSeedData } from "./run";
 import type { CustomFieldSeedData, SyntheticRecordType } from "./custom-fields";
 import { SYNTHETIC_CUSTOM_FIELD_IDS } from "./custom-fields";
+import { SYNTHETIC_CUSTOM_ROLES } from "./roles";
 
 export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: CustomFieldSeedData): RecordModel {
   const companyId = context.ids.company;
@@ -73,8 +74,6 @@ async function initialize(
 ): Promise<RecordModel> {
   const current = await prisma.recordSchemaState.findUnique({ where: { companyId } });
   if (current?.activeOperationId) throw new Error("Cannot seed records while a CRM operation is active");
-  if (current && current.storageMode !== "generic")
-    throw new Error("Complete the legacy upgrade before seeding generic records");
   if (current) {
     const revision = await prisma.recordSchemaRevision.findUniqueOrThrow({
       where: { companyId_revision: { companyId, revision: current.revision } },
@@ -82,15 +81,10 @@ async function initialize(
     return readRecordModelSnapshot(revision.snapshot);
   }
   for (const type of proposed.types) {
-    const presetKey =
-      ["contact", "organization", "deal", "service", "task", "lineItem"].find(
-        (kind) => presetId(companyId, kind) === type.id,
-      ) ?? null;
     await prisma.recordTypeDefinition.create({
       data: {
         companyId,
         id: type.id,
-        presetKey,
         label: type.label,
         pluralLabel: type.pluralLabel,
         archived: type.archived,
@@ -125,21 +119,14 @@ async function initialize(
       },
     });
   }
-  await prisma.recordSchemaState.create({ data: { companyId, revision: proposed.revision, storageMode: "generic" } });
+  await prisma.recordSchemaState.create({ data: { companyId, revision: proposed.revision } });
   await prisma.recordSchemaRevision.create({
     data: { companyId, revision: proposed.revision, actorId: "system:synthetic-seed", snapshot: recordJson(proposed) },
   });
-  const permissions = await prisma.rolePermission.findMany({ where: { companyId } });
-  for (const kind of ["contact", "organization", "deal", "service", "task"] as const) {
-    const byRole = new Map<string, typeof permissions>();
-    for (const permission of permissions.filter((entry) => entry.resource === `${kind}s`)) {
-      const entries = byRole.get(permission.roleId) ?? [];
-      entries.push(permission);
-      byRole.set(permission.roleId, entries);
-    }
-    for (const [roleId, entries] of byRole) {
+  for (const role of SYNTHETIC_CUSTOM_ROLES.filter((entry) => entry.companyId === companyId)) {
+    for (const [kind, actions] of role.recordGrants) {
       await prisma.recordTypeGrant.create({
-        data: { companyId, typeId: presetId(companyId, kind), roleId, actions: entries.map((entry) => entry.action) },
+        data: { companyId, typeId: presetId(companyId, kind), roleId: role.id, actions: [...actions] },
       });
     }
   }

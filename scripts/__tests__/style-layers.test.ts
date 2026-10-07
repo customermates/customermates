@@ -17,7 +17,7 @@ beforeAll(async () => {
         .readFileSync(file, "utf8")
         .replace(/@import "\.\/\.generated\/[^"]+";/g, "")
         .replace(/@source "[^"]+";/g, "") +
-      '\n@source inline("prose dark:prose-invert animate-spin animate-bounce w-3xs hidden xl:flex");';
+      '\n@source inline("prose dark:prose-invert animate-spin animate-bounce animate-in animate-out w-3xs hidden xl:flex");';
     // Tailwind and the app pin different compatible PostCSS 8 minor versions.
     compiled[name] = (
       await postcss([tailwind({ optimize: true }) as unknown as AcceptedPlugin]).process(css, { from: file })
@@ -64,6 +64,23 @@ describe("route stylesheet behavior", () => {
         { selector: ".hidden", layer: "utilities" },
         { selector: ".xl\\:flex", layer: "utilities" },
       ]);
+    }
+  });
+
+  it("opens and closes overlays without animating a filter", () => {
+    // WebKit's Skia compositor crashes on an accelerated filter animation that reaches `none`,
+    // so styles/globals.css replaces tw-animate-css's enter/exit keyframes. The last rule wins.
+    for (const css of [compiled.public, compiled.application]) {
+      const effective = new Map<string, string[]>();
+      postcss.parse(css).walkAtRules("keyframes", (rule) => {
+        if (!["enter", "exit"].includes(rule.params)) return;
+        const properties: string[] = [];
+        rule.walkDecls((declaration) => {
+          properties.push(declaration.prop);
+        });
+        effective.set(rule.params, properties);
+      });
+      expect(Object.fromEntries(effective)).toEqual({ enter: ["opacity", "transform"], exit: ["opacity", "transform"] });
     }
   });
 

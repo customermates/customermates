@@ -1,12 +1,11 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
-import type { EmailFolder } from "../email-folders";
+import type { ConnectedAccountDto } from "../messaging.schema";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 import { toConnectedAccountDto } from "./connected-account-dto";
@@ -16,6 +15,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import type { SetSelectedFoldersRepo } from "./set-selected-folders.repo";
 
 const Schema = z.object({
   id: z.uuid(),
@@ -23,21 +23,7 @@ const Schema = z.object({
 });
 type SetSelectedFoldersData = Data<typeof Schema>;
 
-export abstract class SetSelectedFoldersRepo {
-  abstract getAccountFolderContextOrThrow(id: string): Promise<{
-    id: string;
-    unipileAccountId: string;
-    folders: EmailFolder[];
-    selectedFolderIds: string[];
-    sentFolderIds: string[];
-  }>;
-  abstract setSelectedFoldersOrThrow(args: {
-    id: string;
-    selectedFolderIds: string[];
-  }): Promise<ConnectedAccountRecord>;
-}
-
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class SetSelectedFoldersInteractor extends AuthenticatedInteractor<SetSelectedFoldersData, ConnectedAccountDto> {
   constructor(
     private repo: SetSelectedFoldersRepo,

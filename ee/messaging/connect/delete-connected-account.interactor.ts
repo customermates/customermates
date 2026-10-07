@@ -1,26 +1,21 @@
-import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
+import type { DeleteConnectedAccountRepo } from "./delete-connected-account.repo";
 
 const Schema = z.object({ id: z.uuid() });
 type DeleteConnectedAccountData = Data<typeof Schema>;
 
-export abstract class DeleteConnectedAccountRepo {
-  abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
-  abstract deleteAccount(id: string): Promise<void>;
-}
-
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.delete })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "delete" })
 export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<DeleteConnectedAccountData, null> {
   constructor(
     private repo: DeleteConnectedAccountRepo,

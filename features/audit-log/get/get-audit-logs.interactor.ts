@@ -1,7 +1,7 @@
 import type { GetAuditLogsRepo } from "./get-audit-logs.repo";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { type AuditLogDto } from "@/features/audit-log/audit-log.dto";
 
@@ -28,7 +28,7 @@ const AuditLogDtoSchema = z.object({
 });
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.auditLog, action: Action.readAll })
+@TenantInteractor({ resource: Resource.auditLog, read: "all" })
 export class GetAuditLogsInteractor extends BaseGetInteractor<AuditLogDto> {
   constructor(repo: GetAuditLogsRepo, viewStateRepo: DataViewStateRepo) {
     super(repo, viewStateRepo, "interactive", {

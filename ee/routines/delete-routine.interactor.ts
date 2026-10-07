@@ -1,8 +1,7 @@
-import type { RoutineDto } from "./routine.schema";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { z } from "zod";
 
@@ -12,17 +11,13 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import type { DeleteRoutineRepo } from "./delete-routine.repo";
 
 const Schema = z.object({ id: z.uuid() });
 
 export type DeleteRoutineData = Data<typeof Schema>;
 
-export abstract class DeleteRoutineRepo {
-  abstract isActiveSystemAdministrator(userId: string): Promise<boolean>;
-  abstract deleteRoutineOrThrow(id: string): Promise<RoutineDto | null>;
-}
-
-@TenantInteractor({ resource: Resource.routines, action: Action.delete })
+@TenantInteractor({ resource: Resource.routines, manage: "delete" })
 export class DeleteRoutineInteractor extends AuthenticatedInteractor<DeleteRoutineData, string> {
   constructor(
     private repo: DeleteRoutineRepo,

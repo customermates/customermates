@@ -82,12 +82,8 @@ export function buildMcpServerInstructions(toolNames: Iterable<string>): string 
 
   if (names.has("search") && names.has("fetch")) paragraphs.push(PUBLIC_MCP_WIKI_INSTRUCTION);
 
-  if (hasAny(names, CRM_RECORD_TOOL_NAMES)) {
+  if (hasAny(names, CRM_RECORD_TOOL_NAMES))
     paragraphs.push(`${MCP_RECORD_CONTRACT_INSTRUCTION} ${CRM_DATA_INVARIANTS.join(" ")}`);
-    paragraphs.push(
-      "Retired entity tools return migration guidance without changing data. Refresh the catalog and construct a version-two request; do not replay their old arguments.",
-    );
-  }
 
   if (hasAny(names, MCP_CONFIRMATION_TOOL_NAMES)) paragraphs.push(MCP_CLIENT_CONFIRMATION_INSTRUCTION);
 

@@ -10,7 +10,6 @@ import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
@@ -18,13 +17,10 @@ import { useIsWiderThan } from "@/hooks/use-media-query";
 import { useClientReady } from "@/hooks/use-client-ready";
 
 import { UnsavedChangesGuard } from "./unsaved-changes-guard";
-import { AppModalAction, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
+import { AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
-export type AppModalActions =
-  | readonly []
-  | readonly [AppModalActionProps]
-  | readonly [AppModalActionProps, AppModalActionProps];
+export type AppModalActions = readonly AppModalActionProps[];
 
 export type ModalSize = "sm" | "md" | "lg" | "xl" | "3xl" | "5xl";
 
@@ -79,18 +75,6 @@ function focusFirstContentControl(event: Event) {
   content.focus({ preventScroll: true });
 }
 
-function AppModalActionRail({ actions }: { actions: readonly AppModalActionProps[] }) {
-  return (
-    <TooltipProvider>
-      <div className={APP_MODAL_ACTION_RAIL_CLASS} data-slot="app-modal-actions">
-        {actions.map((action) => (
-          <AppModalAction key={action.id} {...action} />
-        ))}
-      </div>
-    </TooltipProvider>
-  );
-}
-
 export const AppModal = observer((props: Props) => {
   const { title, actions = [], description, layerClassName, size = "md", children } = props;
   const store = hasStore(props) ? props.store : undefined;
@@ -104,7 +88,6 @@ export const AppModal = observer((props: Props) => {
   const actionCount = actions.length;
   const hasActions = actionCount > 0;
 
-  if (actionCount > 2) throw new Error("AppModal supports at most two header actions");
   const focusReturn = useOverlayFocusReturn(
     isOpen,
     store?.focusReturnTarget ?? props.focusReturnTarget,
@@ -167,7 +150,7 @@ export const AppModal = observer((props: Props) => {
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </VisuallyHidden.Root>
 
-            {hasActions ? <AppModalActionRail actions={actions} /> : null}
+            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
             {children}
           </DialogContent>
@@ -193,7 +176,7 @@ export const AppModal = observer((props: Props) => {
               {description ? <DrawerDescription>{description}</DrawerDescription> : null}
             </VisuallyHidden.Root>
 
-            {hasActions ? <AppModalActionRail actions={actions} /> : null}
+            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
             {children}
           </DrawerContent>
