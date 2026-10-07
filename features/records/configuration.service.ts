@@ -80,6 +80,7 @@ function removeArchivedDefinitions(
 ): { deletion: RecordDefinitionDeletion; issues: ModelIssue[] } {
   const typeIds = new Set<string>();
   const fieldIds = new Set<string>();
+  const channelTypeIds = new Set<string>();
   for (const operation of operations) {
     if (operation.operation === "deleteType") {
       if (!model.types.some((type) => type.id === operation.typeId && type.archived))
@@ -89,6 +90,11 @@ function removeArchivedDefinitions(
       if (!model.fields.some((field) => field.id === operation.fieldId && field.archived))
         throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
       fieldIds.add(operation.fieldId);
+    } else if (operation.operation === "deleteCapability") {
+      const binding = model.capabilities.find((candidate) => candidate.id === operation.capabilityId);
+      if (binding?.kind !== "channels" || binding.enabled !== false)
+        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      channelTypeIds.add(binding.typeId);
     } else throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
   }
   for (const field of model.fields) if (typeIds.has(field.typeId)) fieldIds.add(field.id);
@@ -107,7 +113,23 @@ function removeArchivedDefinitions(
     );
   model.fields = model.fields.filter((field) => !fieldIds.has(field.id));
   model.relationships = model.relationships.filter((relation) => !relationIds.has(relation.id));
-  model.capabilities = model.capabilities.filter((binding) => !typeIds.has(binding.typeId));
+  model.capabilities = model.capabilities.filter(
+    (binding) => !typeIds.has(binding.typeId) && !(binding.kind === "channels" && channelTypeIds.has(binding.typeId)),
+  );
+  const withoutChannels = (columns: string[]) => columns.filter((column) => column !== "system:channels");
+  model.types = model.types.map((type) =>
+    channelTypeIds.has(type.id)
+      ? {
+          ...type,
+          defaults: {
+            ...type.defaults,
+            columns: withoutChannels(type.defaults.columns),
+            hiddenColumns: withoutChannels(type.defaults.hiddenColumns),
+            pinnedFields: withoutChannels(type.defaults.pinnedFields),
+          },
+        }
+      : type,
+  );
   const issues: ModelIssue[] = [];
   for (const field of model.fields) {
     if (field.behavior.kind === "input") continue;
@@ -123,7 +145,15 @@ function removeArchivedDefinitions(
     if (type.parentRelationshipId && relationIds.has(type.parentRelationshipId))
       issues.push({ code: "deletion_dependency", typeId: type.id });
   }
-  return { deletion: { typeIds: [...typeIds], fieldIds: [...fieldIds], relationIds: [...relationIds] }, issues };
+  return {
+    deletion: {
+      typeIds: [...typeIds],
+      fieldIds: [...fieldIds],
+      relationIds: [...relationIds],
+      channelTypeIds: [...channelTypeIds].filter((typeId) => !typeIds.has(typeId)),
+    },
+    issues,
+  };
 }
 
 export type PreparedConfiguration = {
@@ -382,11 +412,16 @@ export class RecordConfigurationService extends UserAccessor {
       }
     }
     const removed = input.operations.some(
-      (operation) => operation.operation === "deleteType" || operation.operation === "deleteField",
+      (operation) =>
+        operation.operation === "deleteType" ||
+        operation.operation === "deleteField" ||
+        operation.operation === "deleteCapability",
     )
       ? removeArchivedDefinitions(model, input.operations)
       : null;
     if (removed?.deletion.typeIds.length && !policy.canManageRoles)
+      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+    if (removed?.deletion.channelTypeIds.some((typeId) => !policy.isAdmin && !policy.allowed(typeId, "readAll")))
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
     for (const typeId of reorderedTypes) {
       const slots = model.fields.flatMap((field, index) => (field.typeId === typeId ? [index] : []));
@@ -459,7 +494,7 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
-    const viewTypes = new Set(changedTypes);
+    const viewTypes = new Set([...changedTypes, ...(removed?.deletion.channelTypeIds ?? [])]);
     const changedRelations = new Set(
       [...current.relationships, ...model.relationships]
         .filter(

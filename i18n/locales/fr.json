@@ -3008,6 +3008,14 @@
       "oneToMany": "Un à plusieurs",
       "oneToOne": "Un à un"
     },
+    "channelsField": {
+      "deleted": "Supprimé",
+      "deleteMessage": "Les messages ne seront plus associés aux fiches de cette liste. Les adresses e-mail, numéros de téléphone et comptes sociaux sont conservés : restaurez le champ Canaux pour les associer à nouveau, ou supprimez-le définitivement.",
+      "deleteTitle": "Supprimer le champ Canaux ?",
+      "detail": "Adresses e-mail, numéros de téléphone et comptes sociaux qui associent les messages aux fiches",
+      "restore": "Restaurer",
+      "short": "E-mail, téléphone, réseaux"
+    },
     "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
     "color": "Couleur",
     "conditionIf": "Condition",
@@ -3051,7 +3059,6 @@
     "editValue": "Modifier {field}",
     "empty": "Aucune fiche pour le moment",
     "emptyDescription": "Créez votre première fiche pour commencer.",
-    "enableChannels": "Activer les canaux",
     "enabled": "Activé",
     "existingValuesIncompatible": "Les valeurs existantes ne correspondent pas à cette définition. Conservez un type compatible ou modifiez d’abord ces valeurs.",
     "field": "Champ",
@@ -3264,6 +3271,7 @@
     "optionAttribute": "Attribut de l’option",
     "options": "Options",
     "permanentDeletion": {
+      "channelsMessage": "Cela supprime définitivement le champ Canaux et toutes les adresses e-mail, numéros de téléphone et comptes sociaux enregistrés sur les fiches de cette liste. Les messages ne seront plus associés à ces fiches. Cette action est irréversible.",
       "deleteField": "Supprimer le champ définitivement",
       "deleteList": "Supprimer la liste définitivement",
       "dependentField": "{field} dans {list} en dépend encore. Supprimez ou modifiez d’abord ce champ.",
@@ -3271,6 +3279,7 @@
       "fieldMessage": "Cela supprime définitivement le champ et toutes ses valeurs enregistrées. Cette action est irréversible.",
       "fieldTitle": "Supprimer {name} définitivement ?",
       "grants": "{count, plural, one {# droit de rôle} other {# droits de rôle}}",
+      "identifiers": "{count, plural, one {# identifiant} other {# identifiants}} sur {records, plural, one {# fiche} other {# fiches}}",
       "links": "{count, plural, one {# lien entre enregistrements} other {# liens entre enregistrements}}",
       "listMessage": "Cela supprime définitivement la liste avec ses champs, enregistrements, liens, relations, vues enregistrées et droits de rôle. Cette action est irréversible.",
       "listTitle": "Supprimer {name} définitivement ?",

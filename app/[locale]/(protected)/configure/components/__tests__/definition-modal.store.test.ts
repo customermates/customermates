@@ -400,3 +400,38 @@ describe("configuration form validation feedback", () => {
     },
   );
 });
+
+describe("Channels field", () => {
+  it("deletes and restores the channels binding without replacing its identity, naming roles or avatar setting", () => {
+    const model = createCrmPreset(company);
+    const binding = recordInvariant(
+      model.capabilities.find((candidate) => candidate.kind === "channels" && candidate.typeId === id("contact")),
+    );
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.editChannels(model, id("contact"));
+    expect(store.isChannels).toBe(true);
+    store.onChange("archived", true);
+    const archived = validate(store.operations()).operations[0];
+    expect(archived.operation === "putCapability" && archived.capability).toEqual({ ...binding, enabled: false });
+    store.onChange("archived", false);
+    const restored = validate(store.operations()).operations[0];
+    expect(restored.operation === "putCapability" && restored.capability).toEqual({ ...binding, enabled: true });
+  });
+
+  it("adds one Channels field from the Add menu with a stable binding id", () => {
+    const model = createCrmPreset(company);
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, id("organization"), null, { valueType: "channels" });
+    expect(store.isChannels).toBe(true);
+    const first = validate(store.operations()).operations;
+    expect(validate(store.operations()).operations).toEqual(first);
+    expect(first).toHaveLength(1);
+    expect(first[0].operation === "putCapability" && first[0].capability).toMatchObject({
+      kind: "channels",
+      typeId: id("organization"),
+      enabled: true,
+      providerAvatar: false,
+      fields: [],
+    });
+  });
+});

@@ -1,0 +1,332 @@
+{
+  "scope": "Second interim checkpoint of PR #203 at pr203/integration 5984bfaf3 (adds I7 one event log with the edited CRM migration, I1 round 3, a docs MDX fix and test fixes; I6 not yet). Slim coordinator scope: production build, a production-mode Chromium smoke of eight key specs, and a smoke of all migrations (including the edited CRM migration) on a fresh scratch production copy. Not final verification; the full four-browser matrix, served hubs and the full migration re-rehearsal belong to the final source.",
+  "checkpoint": "interim",
+  "testedCommit": "5984bfaf3d0b2668c835da0c2490d3e812827d98",
+  "testedTree": "b6fdf504fa69240cc506a9190c203fd344f2f74b",
+  "testedSourceNote": "The commit that adds this receipt changes only tests/e2e/review/2026-10-07-interim-2-summary.json and the tests/e2e/README.md receipt link.",
+  "runtime": {
+    "host": "Ubuntu 24.04 x86_64 SSH VM, 16 vCPU, 64 GB, shared with a concurrent review flow; this run pinned to CPUs 8-15",
+    "node": "24.18.0",
+    "postgres": [
+      "17.8 (pgvector 0.8.1 image)"
+    ],
+    "productionBuildId": "cXSse8XH4rcdpFDRakXOR"
+  },
+  "citedIntegrationGates": {
+    "source": "Coordinator integration gate on 5984bfaf3 (reported by the coordinator; logs in its worktree; not re-executed here)",
+    "results": [
+      "full database-enabled Vitest: 9,835 passed, 0 failed",
+      "items I7 and I1 round 3 browser specs green on chromium, webkit and mobile after development-server flake reruns"
+    ]
+  },
+  "gates": [
+    {
+      "name": "build",
+      "command": "yarn build",
+      "exitCode": 0,
+      "seconds": 279.82
+    },
+    {
+      "name": "e2e-migrate",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 2.798
+    },
+    {
+      "name": "e2e-seed1",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 18.071
+    },
+    {
+      "name": "e2e-seed2",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 17.046
+    },
+    {
+      "name": "e2e-bootstrap",
+      "command": "node_modules/.bin/bootstrap",
+      "exitCode": 0,
+      "seconds": 1.172
+    },
+    {
+      "name": "chromium-smoke",
+      "command": "node_modules/.bin/playwright test company-activity.spec.ts configure-graph-round3.spec.ts configure-layout.spec.ts record-configuration.spec.ts record-field-controls.spec.ts record-access-ui.spec.ts widget-types.spec.ts field-currency.spec.ts --project=chromium --workers=1 --retries=0",
+      "exitCode": 1,
+      "seconds": 825.077
+    }
+  ],
+  "earlierBuildAttempts": "Two earlier build attempts at this source were terminated after about 200 s because the whole driver ran inside the VM memory-class wrapper as a light job (8 GB cap); not a build error. The counted build ran with the wrapper applied per step (24 GB build class).",
+  "chromiumSmoke": {
+    "specs": [
+      "company-activity.spec.ts",
+      "configure-graph-round3.spec.ts",
+      "configure-layout.spec.ts",
+      "field-currency.spec.ts",
+      "record-access-ui.spec.ts",
+      "record-configuration.spec.ts",
+      "record-field-controls.spec.ts",
+      "widget-types.spec.ts"
+    ],
+    "profile": "chromium",
+    "workers": 1,
+    "retries": 0,
+    "productionBuild": true,
+    "stats": {
+      "expected": 26,
+      "unexpected": 2,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "durationSeconds": 824.185,
+    "globalErrors": 0,
+    "perStatus": {
+      "chromium:expected": 26,
+      "chromium:unexpected": 2
+    },
+    "nonExpected": [
+      {
+        "file": "record-access-ui.spec.ts",
+        "line": 2132,
+        "title": "keeps personal views separate from shared defaults and completes their UI lifecycle for two genuine users",
+        "status": "unexpected",
+        "attempts": [
+          "failed"
+        ]
+      },
+      {
+        "file": "record-access-ui.spec.ts",
+        "line": 3214,
+        "title": "publishes and withdraws a private-input summary through the field UI without granting the delegated reader access to its inputs",
+        "status": "unexpected",
+        "attempts": [
+          "failed"
+        ]
+      }
+    ],
+    "nonExpectedClassification": [
+      {
+        "case": "chromium record-access-ui.spec.ts:3214 (private-input summary, delegated member)",
+        "observed": "The delegated member opens an existing summary field; the spec expects the Edit field Save button to be enabled before any edit, but it stays disabled (15 s). Deterministic: also failed 2 of 2 isolation reruns. Passed at a0e734579.",
+        "class": "stale test expectation after an intended product change",
+        "cause": "I1 round 3 (61f8e6143, d7b13d3e3) made the Configure drawer Save button disabled unless creating, with unsaved changes, or with a ready preview (model-change-sheet.tsx). The spec used an enabled Save on an untouched existing field as a proxy for edit permission; it needs a different permission signal or an edit before the assertion. Owner: I1 round 3."
+      },
+      {
+        "case": "chromium record-access-ui.spec.ts:2132 (personal views vs shared defaults)",
+        "observed": "The Reset to shared defaults button kept re-rendering and was detached during the click (15 s timeout).",
+        "class": "intermittent; recurring in full-spec runs",
+        "cause": "Failed in both interim smoke runs (a0e734579 and 5984bfaf3) but passed all four isolation reruns. Likely order or long-lived page state in the personal-view surface (touched by I4 P13n settings); not yet root-caused."
+      }
+    ],
+    "isolationReruns": {
+      "command": "node_modules/.bin/playwright test record-access-ui.spec.ts:2132 record-access-ui.spec.ts:3214 --project=chromium --repeat-each=2 --workers=1 --retries=0",
+      "stats": {
+        "expected": 2,
+        "unexpected": 2,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "note": "Diagnostic isolation reruns of the two failed cases (two repeats each, one worker, zero retries, same build and database). They are not counted toward the smoke result."
+    }
+  },
+  "migrationSmokeOnScratchCopy": {
+    "basis": "Fresh clone of the frozen sanitized production-copy baseline (legacy schema, 117 ledger entries), deployed through the loopback-guarded copy runtime with providers paused. Independent expectations from plain SQL on the untouched legacy clone. Aggregates only.",
+    "migrations": [
+      "20261004000000_configurable_records (edited by I7: one event log; only legal-consent and connected-account audit rows carried)",
+      "20261006130000_remove_legacy_record_permissions (I9)",
+      "20261006200000_p13n_settings (I4)",
+      "20261007000000_field_currency (I13)"
+    ],
+    "i7EventLog": {
+      "eventLogRows": 195,
+      "carriedMissing": 0,
+      "unexpectedEventRows": 0,
+      "fieldMismatches": 0,
+      "bySubjectKind": {
+        "connected_account": 39,
+        "legal": 156
+      },
+      "byKind": {
+        "connected_account.created": 19,
+        "connected_account.deleted": 9,
+        "connected_account.reconnected": 5,
+        "connected_account.resynced": 3,
+        "connected_account.updated": 3,
+        "legal.documents_accepted": 28,
+        "legal.notice_sent": 128
+      },
+      "deliveredAtNull": 0,
+      "deliveredOrNextNotCreatedAt": 0,
+      "subjectTypeOrCauseSet": 0,
+      "attemptsOrFailureSet": 0,
+      "auditLogTable": false,
+      "recordEventTable": false,
+      "subjectKindCreatedAtIndex": [
+        true
+      ],
+      "eventLogIndexes": [
+        "EventLog_companyId_kind_createdAt_idx",
+        "EventLog_deliveredAt_nextAttemptAt_idx",
+        "EventLog_pkey",
+        "EventLog_subjectKind_createdAt_idx",
+        "EventLog_subject_idx"
+      ],
+      "webhookDeliveries": 11118,
+      "webhookDeliveriesWithEventId": 0,
+      "recordEventMatchRows": 0,
+      "recordEventSubscriptionRows": 0,
+      "dataViewRows": 7
+    },
+    "tableCounts": {
+      "legacyOnlyDropped": [
+        "AuditLog",
+        "Contact",
+        "ContactIdentifier",
+        "ContactOrganization",
+        "ContactUser",
+        "CustomColumn",
+        "CustomFieldValue",
+        "Deal",
+        "DealContact",
+        "DealOrganization",
+        "DealUser",
+        "EntityTerminology",
+        "Organization",
+        "OrganizationUser",
+        "Service",
+        "ServiceDeal",
+        "ServiceUser",
+        "Task",
+        "TaskContact",
+        "TaskDeal",
+        "TaskOrganization",
+        "TaskService",
+        "TaskUser"
+      ],
+      "newTables": 21,
+      "retainedChanged": [
+        {
+          "table": "DataView",
+          "before": 13,
+          "after": 7
+        },
+        {
+          "table": "P13n",
+          "before": 672,
+          "after": 183
+        },
+        {
+          "table": "RolePermission",
+          "before": 156,
+          "after": 46
+        },
+        {
+          "table": "Widget",
+          "before": 421,
+          "after": 0
+        }
+      ],
+      "retainedUnchanged": 45,
+      "generic": {
+        "CrmRecord": 8564,
+        "RecordValue": 64243,
+        "RecordLink": 5703,
+        "RecordAssignment": 2836,
+        "RecordIdentity": 5233
+      }
+    },
+    "carriedAuditRowsExpected": 195,
+    "carriedByKindExpected": {
+      "connected_account.created": 19,
+      "connected_account.deleted": 9,
+      "connected_account.reconnected": 5,
+      "connected_account.resynced": 3,
+      "connected_account.updated": 3,
+      "legal.documents_accepted": 28,
+      "legal.notice_sent": 128
+    },
+    "auditLogRowsBefore": 27479,
+    "firstDeploy": {
+      "exitCode": 0,
+      "durationSeconds": 18.390769432,
+      "blockedConnections": 0
+    },
+    "secondDeploy": {
+      "exitCode": 0,
+      "durationSeconds": 1.662222562,
+      "noPendingMigrations": true
+    },
+    "ledger": {
+      "ledgerEntries": 121,
+      "ledgerFinished": 121,
+      "ledgerUnfinishedOrRolledBack": 0,
+      "newMigrationsFinished": 4
+    },
+    "workspaces": 145,
+    "formerCompanyCurrencyDistribution": {
+      "EUR": 111,
+      "AUD": 2,
+      "SEK": 2,
+      "MXN": 1,
+      "USD": 21,
+      "INR": 3,
+      "BRL": 3,
+      "GBP": 1,
+      "SGD": 1
+    },
+    "i13FieldCurrency": {
+      "companyCurrencyColumn": 0,
+      "currencyType": 0,
+      "currencyDefinitions": 887,
+      "definitionsWithoutCurrency": 0,
+      "currentSnapshotFieldsWithoutCurrency": 0,
+      "activeOperations": 0,
+      "starterMoneyFields": {
+        "workspacesWithSchemaState": 145,
+        "checked": 870,
+        "missingStarterFields": 0,
+        "currencyMismatchVsLegacyCompanyCurrency": 0,
+        "currentSnapshotChecked": 870,
+        "currentSnapshotMismatch": 0
+      }
+    },
+    "i9RolePermissions": {
+      "legacyRows": 156,
+      "independentlyExpectedAfter": 46,
+      "rolePermissions": 46,
+      "missingVsIndependentExpectation": 0,
+      "unexpectedVsIndependentExpectation": 0,
+      "resourceEnum": [
+        "dataModel",
+        "users",
+        "company",
+        "api",
+        "auditLog",
+        "inboxMessages",
+        "wiki",
+        "routines"
+      ],
+      "storageModeColumn": 0,
+      "presetKeyColumn": 0
+    },
+    "i4P13nSettings": {
+      "expectedRows": 183,
+      "settingsColumn": 1,
+      "settingsNonNull": 0,
+      "p13nRows": 183
+    },
+    "dataViewExpected": 7,
+    "schemaEqualsPrismaSchema": true,
+    "timingsNote": "Deploy durations are observations on a shared 16 vCPU VM, not production-duration guarantees."
+  },
+  "notCoveredByThisInterim": [
+    "full four-browser matrix and served hubs",
+    "item I6",
+    "full re-rehearsal with the independent reconciliation oracle, interruption/recovery and owner/administrator UI replay",
+    "copy destruction (held at the owner's direction)"
+  ],
+  "previousCheckpoint": "2026-10-07-interim-summary.json (a0e734579) and 2026-10-06-summary.json (4223d7deb, latest four-browser matrix and full rehearsal evidence).",
+  "copiedRecordsIdentifiersEmailsValuesFingerprintsIncluded": false,
+  "generatedAtUtc": "2026-10-07T14:49:26.723976+00:00"
+}

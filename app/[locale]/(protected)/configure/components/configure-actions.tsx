@@ -8,6 +8,7 @@ import { observer } from "mobx-react-lite";
 import {
   Archive,
   ArchiveRestore,
+  AtSign,
   Calculator,
   LayoutList,
   Link2,
@@ -30,9 +31,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { recordChannelsBinding } from "@/features/records/record-channels";
 import { useDefinitionDeletion } from "./use-definition-deletion";
 
-export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship";
+export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "channels";
 
 type Props = {
   ai: ReactNode;
@@ -169,6 +171,14 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
 
               {t("RecordModel.addMenu.relationship")}
             </DropdownMenuItem>
+
+            {!recordChannelsBinding(model, selected.id) && (
+              <DropdownMenuItem onSelect={() => onAdd("channels")}>
+                <AtSign aria-hidden="true" />
+
+                {t("EntityChannels.heading")}
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (

@@ -44,6 +44,12 @@ export function configurationActivity(
         const field = models.flatMap((model) => model.fields).find((field) => field.id === resolve(operation.fieldId));
         return field ? `${typeLabel(field.typeId)} · ${field.label}` : operation.fieldId;
       }
+      case "deleteCapability": {
+        const binding = models
+          .flatMap((model) => model.capabilities)
+          .find((capability) => capability.id === resolve(operation.capabilityId));
+        return binding ? typeLabel(binding.typeId) : operation.capabilityId;
+      }
     }
   };
   const source = change.source;

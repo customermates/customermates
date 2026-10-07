@@ -42098,6 +42098,26 @@
                           "properties": {
                             "operation": {
                               "type": "string",
+                              "const": "deleteCapability"
+                            },
+                            "capabilityId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          },
+                          "required": [
+                            "operation",
+                            "capabilityId"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Permanently delete a deleted Channels field (a channels capability with enabled false) and the list's channel identifiers."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "operation": {
+                              "type": "string",
                               "const": "setTypeGrants"
                             },
                             "typeId": {
@@ -42305,6 +42325,16 @@
                           "type": "integer",
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
+                        },
+                        "identifiers": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "identifierRecords": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         }
                       },
                       "required": [
@@ -42313,7 +42343,9 @@
                         "links",
                         "relationships",
                         "views",
-                        "grants"
+                        "grants",
+                        "identifiers",
+                        "identifierRecords"
                       ],
                       "additionalProperties": false
                     }
@@ -43936,6 +43968,26 @@
                           ],
                           "additionalProperties": false,
                           "description": "Permanently delete an archived field and its values."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "operation": {
+                              "type": "string",
+                              "const": "deleteCapability"
+                            },
+                            "capabilityId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            }
+                          },
+                          "required": [
+                            "operation",
+                            "capabilityId"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Permanently delete a deleted Channels field (a channels capability with enabled false) and the list's channel identifiers."
                         },
                         {
                           "type": "object",

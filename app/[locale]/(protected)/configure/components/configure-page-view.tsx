@@ -202,6 +202,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     () => tryNavigate(() => window.history.pushState(null, "", configureHref({ typeId: null }))),
     [tryNavigate],
   );
+  const editChannels = (listId: string) => fieldModal.editChannels(model, listId);
   const add = useCallback(
     (kind: ConfigureAddKind) => {
       if (kind === "list") {
@@ -213,6 +214,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (kind === "calculation")
         fieldModal.edit(model, selected.id, null, { behavior: "formula", valueType: "number" });
       if (kind === "relationship") relationModal.edit(model, selected.id);
+      if (kind === "channels") fieldModal.edit(model, selected.id, null, { valueType: "channels" });
     },
     [fieldModal, model, relationModal, selected, typeModal],
   );
@@ -294,6 +296,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             model={model}
             selected={selected}
             showArchived={showArchived}
+            onEditChannels={() => editChannels(selected.id)}
             onEditField={(field) => {
               fieldModal.edit(model, selected.id, field);
               if (field.archived) fieldModal.onChange("archived", false);
@@ -329,6 +332,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             showArchived={showArchived}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
+            onEditChannels={editChannels}
             onEditField={(listId, field) => {
               fieldModal.edit(model, listId, field);
               if (field.archived) fieldModal.onChange("archived", false);
