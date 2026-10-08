@@ -192,7 +192,7 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
       generateInviteLink: harness.generateInvite,
       open: harness.inviteOpen,
     },
-    roleModalStore: { add: harness.roleAdd, editRole: harness.roleEdit },
+    roleModalStore: { add: harness.roleAdd, allows: () => false, editRole: harness.roleEdit },
     userModalStore: { loadById: harness.userLoad },
     webhookDeliveryModalStore: {
       onInitOrRefresh: harness.webhookDeliveryInit,
@@ -202,7 +202,7 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
       openForCreate: harness.routineCreate,
       openForEdit: harness.routineEdit,
     },
-    webhookModalStore: { openWith: harness.webhookOpen },
+    webhookModalStore: { allows: () => false, openWith: harness.webhookOpen },
     [key]: value,
     ...extras,
   };
