@@ -45,7 +45,7 @@ describe("configurable Channels capability", () => {
     type.archived = true;
     expect(validateRecordModel(model).issues).not.toContainEqual({ code: "capability_requires_type", typeId });
     binding.enabled = true;
-    expect(validateRecordModel(model).issues).toContainEqual({ code: "capability_requires_type", typeId });
+    expect(validateRecordModel(model).issues).not.toContainEqual({ code: "capability_requires_type", typeId });
     binding.enabled = false;
     type.archived = false;
     model.capabilities.push({ ...binding, id: companyId });

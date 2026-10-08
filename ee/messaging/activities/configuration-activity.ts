@@ -40,17 +40,26 @@ export function configurationActivity(
       case "publishSummary":
         return fieldLabel(operation.fieldId);
       case "setTypeGrants":
-      case "deleteType":
         return typeLabel(operation.typeId);
-      case "deleteField": {
-        const field = models.flatMap((model) => model.fields).find((field) => field.id === resolve(operation.fieldId));
-        return field ? `${typeLabel(field.typeId)} · ${field.label}` : operation.fieldId;
-      }
-      case "deleteCapability": {
-        const binding = models
-          .flatMap((model) => model.capabilities)
-          .find((capability) => capability.id === resolve(operation.capabilityId));
-        return binding ? typeLabel(binding.typeId) : operation.capabilityId;
+      case "delete":
+      case "restore":
+      case "deletePermanently": {
+        const { kind, id } = operation.target;
+        if (kind === "type") return typeLabel(id);
+        if (kind === "channels") {
+          const binding = models.flatMap((model) => model.capabilities).find((capability) => capability.id === id);
+          return binding ? typeLabel(binding.typeId) : id;
+        }
+        if (kind === "field") {
+          const field = models.flatMap((model) => model.fields).find((field) => field.id === id);
+          return field ? `${typeLabel(field.typeId)} · ${field.label}` : id;
+        }
+        if (kind === "relationship") {
+          const relation = models.flatMap((model) => model.relationships).find((relation) => relation.id === id);
+          return relation ? `${relation.sourceLabel} · ${relation.targetLabel}` : id;
+        }
+        const path = models.flatMap((model) => model.activityPaths).find((path) => path.id === id);
+        return path ? `${typeLabel(path.typeId)} · ${path.label}` : id;
       }
     }
   };

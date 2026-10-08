@@ -260,7 +260,6 @@ export const RoleModal = observer(({ store }: Props) => {
                           renderAccessRow({
                             key: type.id,
                             label: type.label,
-                            note: type.archived ? t("RoleModal.archived") : undefined,
                             path: `recordGrants.${index}`,
                             access: RECORD_TYPE_ACCESS,
                             data: { "data-record-permission": type.id },

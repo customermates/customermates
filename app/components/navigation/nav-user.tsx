@@ -2,9 +2,11 @@
 
 import type { TenantUser } from "@/features/user/user.schema";
 
-import { ChevronsUpDown, LogIn as LogOut, Moon, Sun } from "lucide-react";
+import { useRef } from "react";
+import { ChevronsUpDown, Keyboard, LogIn as LogOut, Moon, Sun } from "lucide-react";
 import { observer } from "mobx-react-lite";
 
+import { ActiveShortcutKeys } from "@/app/components/keyboard-shortcuts/active-shortcut-keys";
 import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -25,12 +27,16 @@ type Props = {
     signOut: string;
     lightMode: string;
     darkMode: string;
+    keyboardShortcuts: string;
   };
   onThemeChange: () => void;
+  onKeyboardShortcuts?: (invoker: HTMLElement | null) => void;
   onSignOut: () => void;
 };
 
-export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut }: Props) => {
+export const NavUser = observer(({ user, theme, labels, onThemeChange, onKeyboardShortcuts, onSignOut }: Props) => {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const handingOffFocusRef = useRef(false);
   const name = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
   const email = user?.email ?? "";
 
@@ -40,6 +46,7 @@ export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
+              ref={triggerRef}
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               size="lg"
               tooltip={name || email}
@@ -61,6 +68,11 @@ export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side="top"
             sideOffset={4}
+            onCloseAutoFocus={(event) => {
+              if (!handingOffFocusRef.current) return;
+              handingOffFocusRef.current = false;
+              event.preventDefault();
+            }}
           >
             <DropdownMenuGroup>
               <DropdownMenuItem
@@ -73,6 +85,21 @@ export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut
 
                 <span>{theme === "dark" ? labels.lightMode : labels.darkMode}</span>
               </DropdownMenuItem>
+
+              {onKeyboardShortcuts && (
+                <DropdownMenuItem
+                  onSelect={() => {
+                    handingOffFocusRef.current = true;
+                    onKeyboardShortcuts(triggerRef.current);
+                  }}
+                >
+                  <Keyboard className="size-4" />
+
+                  <span>{labels.keyboardShortcuts}</span>
+
+                  <ActiveShortcutKeys className="ml-auto" id="shortcuts" />
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator />

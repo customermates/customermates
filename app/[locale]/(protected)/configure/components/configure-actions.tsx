@@ -5,12 +5,13 @@ import type { RecordModelView, RecordType } from "@/features/records/record-mode
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
-import { Activity, Archive, ArchiveRestore, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { Activity, History, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { FormActions } from "@/components/card/form-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
+import { IntlLink } from "@/i18n/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,8 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { recordChannelsBinding } from "@/features/records/record-channels";
-
-import { useDefinitionDeletion } from "./use-definition-deletion";
+import { useConfigurationDeletion } from "./use-configuration-deletion";
 import { ConfigureListAddItems, type ConfigureListAddKind } from "./configure-add-menu";
 
 export type ConfigureAddKind = "list" | "activity" | ConfigureListAddKind;
@@ -33,13 +33,9 @@ type Props = {
   general: TypeModalStore;
   generalFormId: string;
   selected?: RecordType;
-  hasArchived: boolean;
   canAddSublist: boolean;
-  showArchived: boolean;
-  onToggleArchived: () => void;
   onAdd: (kind: ConfigureAddKind) => void;
   onSharedDefaults: () => void;
-  onArchive: () => void;
   model: RecordModelView;
   onDeleted: () => Promise<void>;
 };
@@ -51,18 +47,14 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   general,
   generalFormId,
   selected,
-  hasArchived,
   canAddSublist,
-  showArchived,
-  onToggleArchived,
   onAdd,
   onSharedDefaults,
-  onArchive,
   model,
   onDeleted,
 }: Props) {
   const t = useTranslations();
-  const deletion = useDefinitionDeletion(onDeleted);
+  const deletion = useConfigurationDeletion(onDeleted);
   if (!canManage) return <div className="flex shrink-0 items-center gap-1">{ai}</div>;
   if (selected && general.original?.id === selected.id && general.hasUnsavedChanges)
     return <FormActions formId={generalFormId} store={general} variant="topbar" />;
@@ -71,19 +63,26 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
     <div className="flex shrink-0 items-center gap-1">
       {ai}
 
-      {!selected && hasArchived && (
+      {!selected && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button aria-label={t("RecordModel.listActions")} disabled={disabled} size="icon-sm" variant="secondary">
+            <Button
+              aria-label={t("RecordModel.configurationDeletion.configureActions")}
+              disabled={disabled}
+              size="icon-sm"
+              variant="secondary"
+            >
               <MoreHorizontal aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={onToggleArchived}>
-              <Archive aria-hidden="true" />
+            <DropdownMenuItem asChild>
+              <IntlLink href="/configure/deleted">
+                <History aria-hidden="true" />
 
-              {showArchived ? t("RecordModel.hideArchived") : t("RecordModel.showArchived")}
+                {t("RecordModel.configurationDeletion.recentlyDeleted")}
+              </IntlLink>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -106,23 +105,27 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onSelect={onArchive}>
-              {selected.archived ? <ArchiveRestore aria-hidden="true" /> : <Archive aria-hidden="true" />}
+            <DropdownMenuItem asChild>
+              <IntlLink href="/configure/deleted">
+                <History aria-hidden="true" />
 
-              {selected.archived ? t("RecordModel.unarchiveList") : t("RecordModel.archiveList")}
+                {t("RecordModel.configurationDeletion.recentlyDeleted")}
+              </IntlLink>
             </DropdownMenuItem>
 
-            {selected.archived && (
-              <DropdownMenuItem
-                disabled={deletion.isPreviewing}
-                variant="destructive"
-                onSelect={() => runUserAction(() => deletion.requestDeletion(model, { type: selected }))}
-              >
-                <Trash2 aria-hidden="true" />
+            <DropdownMenuItem
+              disabled={deletion.isBusy}
+              variant="destructive"
+              onSelect={() =>
+                runUserAction(() =>
+                  deletion.requestDelete(model, { kind: "type", id: selected.id }, selected.pluralLabel),
+                )
+              }
+            >
+              <Trash2 aria-hidden="true" />
 
-                {t("RecordModel.permanentDeletion.deleteList")}
-              </DropdownMenuItem>
-            )}
+              {t("RecordModel.configurationDeletion.deleteList")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )}

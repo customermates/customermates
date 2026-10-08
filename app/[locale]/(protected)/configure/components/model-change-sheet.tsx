@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
+import type { ConfigurationPreview } from "@/features/records/configuration.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
@@ -13,8 +15,11 @@ import { AppModalCloseContext } from "@/components/modal/app-modal-close-context
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
+import { usePreviewBlockers } from "./use-preview-blockers";
 
 type SheetStore = BaseModalStore & {
+  preview: ConfigurationPreview | null;
+  model: RecordModelView;
   isReadOnly: boolean;
   previewReady: boolean;
   onSubmit: () => Promise<void>;
@@ -51,6 +56,7 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   actions?: readonly AppModalActionProps[];
   children: ReactNode;
 }) {
+  usePreviewBlockers(store.isOpen ? store.preview : null, store.model);
   const navigationGuard = store.rootStore.navigationGuard;
   const focusReturn = useOverlayFocusReturn(store.isOpen, store.focusReturnTarget, store.focusReturnFallback);
   useEffect(() => {

@@ -249,7 +249,7 @@ describe("dynamic role permissions", () => {
       data: {
         role,
         schemaRevision: 3,
-        types: [{ id: role.recordGrants?.[0]?.typeId, label: "Customer projects", archived: false }],
+        types: [{ id: role.recordGrants?.[0]?.typeId, label: "Customer projects" }],
         canEdit: true,
         canDelete: true,
       },

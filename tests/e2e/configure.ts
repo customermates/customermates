@@ -52,7 +52,7 @@ export async function addFromConfigure(page: Page, item: ConfigureAddItem) {
   await expect(configureDrawer(page)).toBeVisible();
 }
 
-export async function openListAction(page: Page, item: "Shared defaults" | "Archive list" | "Restore list") {
+export async function openListAction(page: Page, item: "Shared defaults") {
   await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
   await page.getByRole("menuitem", { name: item, exact: true }).click();
   await expect(configureDrawer(page)).toBeVisible();
@@ -125,22 +125,61 @@ export async function saveGeneral(page: Page) {
   await expectConfigureRevisionAfter(page, revision);
 }
 
-export async function setShowArchived(page: Page, visible: boolean) {
-  await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
-  await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
-  const item = page.getByRole("menuitem", { name: visible ? "Show archived" : "Hide archived", exact: true });
-  await expect(item.or(page.getByRole("menuitem", { name: visible ? "Hide archived" : "Show archived" }))).toBeVisible();
-  if (await item.isVisible()) await item.click();
-  else await page.keyboard.press("Escape");
+export async function confirmDeletion(page: Page, typedName?: string) {
+  const confirmation = page.getByRole("alertdialog");
+  await expect(confirmation).toBeVisible();
+  if (typedName !== undefined) await confirmation.getByRole("textbox").fill(typedName);
+  await confirmation.getByRole("button", { name: typedName === undefined ? "Delete" : "Delete permanently", exact: true }).click();
+  await expect(confirmation).not.toBeVisible();
 }
 
-export async function setShowArchivedParts(page: Page, visible: boolean) {
-  const pane = page.locator("[data-configure-list-pane]");
-  const toggle = pane.getByRole("button", { name: visible ? "Show archived" : "Hide archived", exact: true });
-  const done = pane.getByRole("button", { name: visible ? "Hide archived" : "Show archived", exact: true });
-  await expect(toggle.or(done)).toBeVisible();
-  if (await toggle.isVisible()) await toggle.click();
-  await expect(done).toBeVisible();
+export async function deleteFromDrawer(page: Page, action: string) {
+  const revision = await configureRevision(page);
+  const dialog = configureDrawer(page);
+  await dialog.getByRole("button", { name: action, exact: true }).click();
+  await confirmDeletion(page);
+  await expect(dialog).not.toBeVisible();
+  await expectConfigureRevisionAfter(page, revision);
+}
+
+export async function deleteSelectedList(page: Page) {
+  await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Delete list", exact: true }).click();
+  await confirmDeletion(page);
+  await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
+}
+
+export async function openRecentlyDeleted(page: Page) {
+  await page.goto("/en/configure/deleted");
+  await expect(page.locator("[data-recently-deleted]")).toBeVisible();
+}
+
+async function openRecentlyDeletedItem(page: Page, label: string) {
+  await openRecentlyDeleted(page);
+  const detail = page.getByRole("dialog");
+  await expect(async () => {
+    await page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }).click();
+    await expect(detail).toBeVisible({ timeout: 1000 });
+  }).toPass();
+  return detail;
+}
+
+export async function restoreRecentlyDeleted(page: Page, label: string) {
+  const detail = await openRecentlyDeletedItem(page, label);
+  await detail.getByRole("button", { name: "Restore", exact: true }).click();
+  await expect(detail).not.toBeVisible();
+  await expect(
+    page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }),
+  ).toHaveCount(0);
+}
+
+export async function deleteRecentlyDeletedPermanently(page: Page, label: string) {
+  const detail = await openRecentlyDeletedItem(page, label);
+  await detail.getByRole("button", { name: "Delete permanently", exact: true }).click();
+  await confirmDeletion(page, label);
+  await expect(
+    page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }),
+  ).toHaveCount(0);
 }
 
 export async function createConfiguredList(page: Page, name: string, { channels = false } = {}) {
