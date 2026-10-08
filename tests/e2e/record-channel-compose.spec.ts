@@ -466,6 +466,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await openRecordDetails(page, "Channel company 1");
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await expect(drawer).toBeVisible();
+  await waitForRelationshipReads(drawer);
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Channel company 1");
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
   await expect(drawer.getByRole("button", { name: "Hide Channels from details", exact: true })).toBeVisible();
@@ -500,6 +501,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(drawer).not.toBeVisible();
   for (const key of ["contact", "organization"]) await navigateType(presetId(companyId, key));
   await openRecordDetails(page, "Channel company 1");
+  await waitForRelationshipReads(drawer);
   await activateCompose(
     drawer
       .locator('[data-record-channel-key="mail:first-channel@example.test"]')
@@ -542,6 +544,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect.poll(async () => (await readDrafts()).length).toBe(0);
   if (new URL(page.url()).pathname !== `/en/records/${typeId}`) await navigateType(typeId);
   await openRecordDetails(page, "Channel company 1");
+  await waitForRelationshipReads(drawer);
   await activateCompose(
     drawer
       .locator('[data-record-channel-key="mail:first-channel@example.test"]')
