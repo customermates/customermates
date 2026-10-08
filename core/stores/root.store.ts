@@ -48,7 +48,6 @@ import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
 import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
 import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
 import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
-import { FilterPaletteStore } from "@/components/data-view/filter-palette/filter-palette.store";
 import { LayoutStore } from "@/components/layout/layout.store";
 import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
 import { LoadingOverlayStore } from "@/components/shared/loading-overlay.store";
@@ -123,7 +122,6 @@ export class RootStore {
   private _widgetModalStore?: WidgetModalStore;
   private _feedbackModalStore?: FeedbackModalStore;
   private _timelineDetailModalStore?: TimelineDetailModalStore;
-  private _filterPaletteStore?: FilterPaletteStore;
   private _agentChatStore?: AgentChatStore;
   private _agentUiControlStore?: AgentUiControlStore;
 
@@ -181,10 +179,6 @@ export class RootStore {
 
   get threadParticipantsStore() {
     return (this._threadParticipantsStore ??= new ThreadParticipantsStore(this));
-  }
-
-  get filterPaletteStore() {
-    return (this._filterPaletteStore ??= new FilterPaletteStore(this));
   }
 
   get widgetsStore() {

@@ -16,6 +16,10 @@ vi.mock("mobx-react-lite", () => ({
   observer: <T>(component: T) => component,
 }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/components/data-view/filter-palette/use-filter-palette", () => ({
+  useFilterPalette: () => harness.palette.current,
+}));
+
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     filterPaletteStore: harness.palette.current,
@@ -70,6 +74,9 @@ function paletteStore(page: { kind: string; field?: string }, target: unknown) {
     openFor: vi.fn(),
     page,
     target,
+    activeTarget: target,
+    appliedFilters: (target as { filters: Filter[] }).filters,
+    pages: [page],
   };
 }
 

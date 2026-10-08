@@ -54898,6 +54898,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "notEquals",
+                                  "title": "notEquals"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "contains",
                                   "title": "contains"
                                 },
@@ -63168,6 +63173,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "notEquals",
+                                  "title": "notEquals"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "contains",
                                   "title": "contains"
                                 },
@@ -64751,6 +64761,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "notEquals",
+                                  "title": "notEquals"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "contains",
                                   "title": "contains"
                                 },
@@ -65040,6 +65055,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "notEquals",
+                                    "title": "notEquals"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "contains",
                                     "title": "contains"
                                   },
@@ -65324,6 +65344,7 @@
                               "type": "string",
                               "enum": [
                                 "equals",
+                                "notEquals",
                                 "contains",
                                 "startsWith",
                                 "in",
@@ -65728,6 +65749,11 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "notEquals",
+                                  "title": "notEquals"
+                                },
+                                {
+                                  "type": "string",
                                   "const": "contains",
                                   "title": "contains"
                                 },
@@ -66017,6 +66043,11 @@
                                   },
                                   {
                                     "type": "string",
+                                    "const": "notEquals",
+                                    "title": "notEquals"
+                                  },
+                                  {
+                                    "type": "string",
                                     "const": "contains",
                                     "title": "contains"
                                   },
@@ -66301,6 +66332,7 @@
                               "type": "string",
                               "enum": [
                                 "equals",
+                                "notEquals",
                                 "contains",
                                 "startsWith",
                                 "in",

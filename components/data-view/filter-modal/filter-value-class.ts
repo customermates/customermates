@@ -10,6 +10,7 @@ export type FilterValueClass =
   | "none"
   | "unavailable"
   | "stringArray"
+  | "scalarArray"
   | "text"
   | "numericString"
   | "isoDate"
@@ -61,6 +62,7 @@ function standardValueClass(field: string, operator: FilterOperatorKey): FilterV
     case FilterOperatorKey.lte:
       return comparisonValueClass(filterValueKind(field)?.kind);
     case FilterOperatorKey.equals:
+    case FilterOperatorKey.notEquals:
     case FilterOperatorKey.contains:
     case FilterOperatorKey.startsWith:
       return "text";
@@ -84,6 +86,12 @@ export function resolveFilterValueClass(
   const customColumn = customColumns?.find((column) => column.id === field);
   if (isCustomField(field) || customColumn) {
     if (!customColumn) return "unavailable";
+
+    if (
+      [FilterOperatorKey.in, FilterOperatorKey.notIn].includes(operator) &&
+      !["singleSelect", "member", "boolean", "recordReference"].includes(customColumn.type)
+    )
+      return "scalarArray";
 
     switch (customColumn.type) {
       case "singleSelect":
@@ -124,7 +132,7 @@ export function resolveFilterDateGranularity(
 }
 
 function isValueUsableAs(value: unknown, valueClass: FilterValueClass): boolean {
-  if (valueClass === "stringArray")
+  if (valueClass === "stringArray" || valueClass === "scalarArray")
     return Array.isArray(value) && value.length > 0 && value.every((entry) => typeof entry === "string");
 
   if (valueClass === "text") return typeof value === "string" && value.length > 0;

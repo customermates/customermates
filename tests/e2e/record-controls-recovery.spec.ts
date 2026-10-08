@@ -1,3 +1,4 @@
+import { openFilterPalette, pickPaletteField } from "./filter-palette";
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import type { Page, Locator, Request, Route, TestInfo } from "@playwright/test";
@@ -862,11 +863,24 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   ])
     await toggleMultiple(page, '[id="activityQuery.kinds"]', kind);
   await activityPreview(page, [entries[0].body], [entries[1].body]);
-  await openWidgetFilters(page);
-  await select(page, "#activity-add-filter", english.RecordActivityWidgets.filterKinds.record);
-  await select(page, '[id="activityQuery.filters[0].typeId"]', "Organizations");
+  const editRecordFilter = async (operator: "in" | "notIn" | "hasSome" | "hasNone", record?: string) => {
+    await openWidgetFilters(page);
+    await openFilterPalette(page, "widget-activity-filters");
+    const existing = page.locator('[data-filter-index="0"]');
+    if (await existing.count()) await existing.click();
+    else await pickPaletteField(page, `activity:record:${id("organization")}`);
+    await page.locator("[data-palette-operator-trigger]").click();
+    await page.getByRole("menuitem", { name: english.Common.filters.operators[operator], exact: true }).click();
+    if (record) {
+      await page.locator("#filter-palette-search").getByRole("combobox").fill(record);
+      await page.getByRole("option", { name: record, exact: true }).click();
+    }
+    await page.locator("#filter-palette-back").click();
+    await page.keyboard.press("Escape");
+  };
+  await editRecordFilter("hasSome");
   await activityPreview(page, [entries[0].body], [entries[1].body]);
-  await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.hasNone);
+  await editRecordFilter("hasNone");
   await activityPreview(
     page,
     [],
@@ -875,10 +889,9 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await expect(dialog.locator('[data-slot="widget-preview"] ol > li')).toHaveCount(0);
   await toggleMultiple(page, `#activity-scope-${id("contact")}`, entries[0].name);
   await activityPreview(page, [entries[1].body], [entries[0].body]);
-  await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.in);
-  await toggleMultiple(page, '[id="activityQuery.filters[0].recordIds"]', "Activity scope organization");
+  await editRecordFilter("in", "Activity scope organization");
   await activityPreview(page, [entries[0].body], [entries[1].body]);
-  await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.notIn);
+  await editRecordFilter("notIn");
   await activityPreview(page, [entries[1].body], [entries[0].body]);
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.record);
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.messages);
@@ -890,21 +903,15 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await expect(dialog.getByText(entries[1].name, { exact: true })).toBeVisible();
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.messages);
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.record);
-  await dialog
-    .getByRole("button", {
-      name: english.RecordWidgets.removeFilter,
-      exact: true,
-    })
-    .click();
+  await openFilterPalette(page, "widget-activity-filters");
+  await page.locator('[data-palette-remove-filter="0"]').click();
+  await page.keyboard.press("Escape");
   await activityPreview(
     page,
     entries.map((entry) => entry.body),
     [],
   );
-  await openWidgetFilters(page);
-  await select(page, "#activity-add-filter", english.RecordActivityWidgets.filterKinds.record);
-  await select(page, '[id="activityQuery.filters[0].typeId"]', "Organizations");
-  await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.hasNone);
+  await editRecordFilter("hasNone");
   await activityPreview(page, [entries[1].body], [entries[0].body]);
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();

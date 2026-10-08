@@ -1255,6 +1255,7 @@
         "isNull": "est vide",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "Est différent de",
         "notIn": "hors de",
         "notInLastDays": "plus ancien que",
         "startsWith": "Commence par"
@@ -2961,21 +2962,11 @@
     "after": "À partir de",
     "allRecords": "Sans sélection, tous les enregistrements accessibles de ce type sont inclus.",
     "before": "Jusqu’au",
-    "clearConversation": "Effacer le filtre de conversation",
     "filterKinds": {
-      "account": "Canal",
-      "provider": "Fournisseur",
-      "record": "Enregistrements liés",
-      "source": "Type d’activité",
-      "thread": "Conversation"
-    },
-    "operators": {
-      "hasNone": "Ne possède aucun enregistrement lié",
-      "hasSome": "Possède un enregistrement lié",
-      "in": "Inclut au moins un de",
-      "notIn": "Exclut tous les éléments"
+      "provider": "Fournisseur"
     },
     "records": "Enregistrements",
+    "savedFilters": "Filtres de périmètre enregistrés",
     "scopeHelp": "Sans sélection, toutes les activités accessibles sont affichées. Les types et enregistrements sélectionnés sont réunis ; tous les filtres supplémentaires doivent correspondre.",
     "types": "Types d’enregistrements"
   },
@@ -3525,14 +3516,7 @@
     "triggerFiltersHelp": "Laissez vide pour inclure tous les enregistrements."
   },
   "RecordWidgets": {
-    "addFilter": "Ajouter un filtre",
-    "addRelatedFilter": "Ajouter un filtre sur les enregistrements liés",
     "attribution": "Un enregistrement peut apparaître dans plusieurs groupes. Leur somme peut dépasser le total.",
-    "filterDays": "Nombre de jours",
-    "filterFrom": "À partir de",
-    "filterOperator": "Condition",
-    "filterUntil": "Jusqu’au",
-    "filterValue": "Valeur",
     "funnelClosedStage": "{label} : {value}, une étape perdue affichée hors de l’entonnoir.",
     "funnelTooltip": "{value} ({conversion} de l’étape précédente)",
     "group": "Grouper par",
@@ -3554,24 +3538,6 @@
     "measure": "Mesure",
     "noRecordsInPeriod": "Aucun enregistrement",
     "notes": "À propos de ces chiffres",
-    "operators": {
-      "all": "Contient tous",
-      "between": "Entre",
-      "contains": "Contient",
-      "empty": "Est vide",
-      "eq": "Est égal à",
-      "gt": "Supérieur à",
-      "gte": "Au moins",
-      "in": "Est parmi",
-      "inLastDays": "Au cours des derniers jours",
-      "lt": "Inférieur à",
-      "lte": "Au plus",
-      "ne": "Est différent de",
-      "notEmpty": "N’est pas vide",
-      "notIn": "N’est pas parmi",
-      "notInLastDays": "Plus ancien que (jours)",
-      "startsWith": "Commence par"
-    },
     "overall": "Total : {value}",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
     "quarterLabel": "T{quarter} {year}",
@@ -3584,8 +3550,6 @@
     },
     "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
     "relatedAny": "Au moins un enregistrement lié accessible correspond",
-    "relatedFilterHelp": "Toutes les conditions d’un filtre sur les enregistrements liés s’appliquent au même enregistrement. Seuls les enregistrements auxquels vous avez accès sont pris en compte.",
-    "relatedMatch": "Enregistrements liés",
     "relatedNone": "Aucun enregistrement lié accessible ne correspond",
     "removeFilter": "Supprimer le filtre",
     "search": "Rechercher des enregistrements",

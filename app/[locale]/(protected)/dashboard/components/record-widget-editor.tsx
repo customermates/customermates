@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { RecordQueryFilters } from "@/components/records/record-query-filters";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
@@ -18,7 +19,6 @@ import { DisplayType } from "@/features/widget/widget.schema";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
-import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
@@ -38,54 +38,20 @@ import {
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { cn } from "@/core/utils/cn";
-import { recordFilterFields } from "@/features/records/record-filter";
-import {
-  RecordWidgetFieldFilters,
-  RecordWidgetRelatedFilters,
-  widgetRelationshipChoices,
-} from "./record-widget-filters";
+import { widgetRelationshipChoices } from "./record-widget-filters";
 
 const AUTO_PREVIEW_DELAY_MS = 600;
 
 function useWidgetModel(store: WidgetModalStore) {
   const form = store.form;
-  const key =
-    isRecordWidgetForm(form) && store.isOpen
-      ? JSON.stringify([
-          form.measure.source.typeId,
-          [
-            form.measure.groupBy?.path ?? [],
-            ...(form.measure.source.relatedFilters ?? []).map((filter) => filter.path),
-            ...(form.measure.groupBy?.filter?.relatedFilters ?? []).map((filter) => [
-              ...(form.measure.groupBy?.path ?? []),
-              ...filter.path,
-            ]),
-          ],
-        ])
-      : null;
+  const key = isRecordWidgetForm(form) && store.isOpen ? form.measure.source.typeId : null;
   const [state, setState] = useState<{ key: string; model: RecordModelView | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (!key) return;
     let current = true;
-    const [sourceTypeId, paths] = JSON.parse(key) as [
-      string,
-      Array<Array<{ relationId: string; direction: "incoming" | "outgoing" }>>,
-    ];
     const load = async () => {
-      const ids = [sourceTypeId];
-      let model = await getRecordModelAction(ids);
-      for (const path of paths) {
-        let typeId = sourceTypeId;
-        for (const step of path) {
-          const relation = model.relationships.find((relation) => relation.id === step.relationId);
-          if (!relation || (step.direction === "outgoing" ? relation.sourceTypeId : relation.targetTypeId) !== typeId)
-            throw new Error("The selected relationship is unavailable");
-          typeId = step.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
-          if (!ids.includes(typeId)) ids.push(typeId);
-          if (!model.types.some((type) => type.id === typeId)) model = await getRecordModelAction(ids);
-        }
-      }
+      const model = await getRecordModelAction();
       if (current) setState({ key, model });
     };
     void load().catch(() => {
@@ -284,27 +250,12 @@ export const RecordWidgetEditor = observer(
       (measure.source.relatedFilters?.length ?? 0);
     const filtersContent = (
       <div className="space-y-4">
-        <FormInput id="measure.source.search" label={t("RecordWidgets.search")} />
-
         {status}
 
-        <RecordWidgetFieldFilters
-          disabled={!model}
-          fields={recordFilterFields(sourceFields, {
-            createdAt: t("RecordModel.createdAt"),
-            updatedAt: t("RecordModel.updatedAt"),
-            assignedTo: t("RecordModel.assignedTo"),
-          })}
-          filters={measure.source.filters}
-          id="measure.source.filters"
-          store={store}
-        />
-
-        <RecordWidgetRelatedFilters
-          filters={measure.source.relatedFilters ?? []}
-          id="measure.source.relatedFilters"
+        <RecordQueryFilters
+          anchorId="widget-source-filters"
+          id="measure.source"
           model={model}
-          store={store}
           typeId={measure.source.typeId}
         />
       </div>
@@ -457,25 +408,10 @@ export const RecordWidgetEditor = observer(
           <section aria-label={t("RecordWidgets.groupFilters")} className="space-y-3">
             <p className="text-xs text-muted-foreground">{t("RecordWidgets.groupFilterHelp")}</p>
 
-            <FormInput id="measure.groupBy.filter.search" label={t("RecordWidgets.search")} />
-
-            <RecordWidgetFieldFilters
-              disabled={!model}
-              fields={recordFilterFields(model?.fields.filter((field) => field.typeId === groupTypeId) ?? [], {
-                createdAt: t("RecordModel.createdAt"),
-                updatedAt: t("RecordModel.updatedAt"),
-                assignedTo: t("RecordModel.assignedTo"),
-              })}
-              filters={measure.groupBy.filter?.filters ?? []}
-              id="measure.groupBy.filter.filters"
-              store={store}
-            />
-
-            <RecordWidgetRelatedFilters
-              filters={measure.groupBy.filter?.relatedFilters ?? []}
-              id="measure.groupBy.filter.relatedFilters"
+            <RecordQueryFilters
+              anchorId="widget-group-filters"
+              id="measure.groupBy.filter"
               model={model}
-              store={store}
               typeId={groupTypeId}
             />
           </section>

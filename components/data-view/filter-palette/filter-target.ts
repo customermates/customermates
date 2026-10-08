@@ -7,7 +7,26 @@ export type FilterTargetUpdate = {
   refreshMode?: "background";
 };
 
+export type FilterTargetGroup = {
+  id: string;
+  label: string;
+  target: FilterTarget;
+  mode: string;
+  modes: { value: string; label: string }[];
+  setMode: (mode: string) => void;
+  remove: () => void;
+};
+
 export type FilterTarget = {
+  readonly isDisabled?: boolean;
+  readonly identity?: unknown;
+  readonly discardPendingOnDispose?: boolean;
+  readonly scopeKey?: string;
+  openField?: (field: string) => { group: FilterTargetGroup; field: string } | undefined;
+  readonly groups?: FilterTargetGroup[];
+  readonly maxFilters?: number;
+  readonly uniqueFields?: string[];
+  canAddField?: (field: string) => boolean;
   readonly filters?: Filter[];
   readonly filterableFields: FilterableField[];
   readonly filterColumns?: ColumnPresentation[];

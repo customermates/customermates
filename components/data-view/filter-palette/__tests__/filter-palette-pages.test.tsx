@@ -1,3 +1,4 @@
+import { recordInvariant } from "@/features/records/record-invariant";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
@@ -184,6 +185,7 @@ function mount(element: ReactElement) {
 function mountPalette(table: ReturnType<typeof tableStore>) {
   return mount(
     createElement(FilterPalette, {
+      palette: harness.palette.current as FilterPaletteStore,
       store: table as unknown as BaseDataViewStore<HasId>,
     }),
   );
@@ -427,4 +429,42 @@ describe("filter palette date page", () => {
     expect(palette.page.kind).toBe("dateInput");
     expect(table.setQueryOptions).not.toHaveBeenCalled();
   });
+});
+
+describe("scalar array value editing", () => {
+  it.each([
+    { type: CustomColumnType.currency, first: "10", second: "25.5", bad: "not-a-number" },
+    { type: CustomColumnType.date, first: "2026-01-01", second: "2026-02-01", bad: "2026-02-30" },
+  ])(
+    "keeps malformed $type tokens visible and rejects the whole edit until corrected",
+    ({ type, first, second, bad }) => {
+      const initial: Filter = { field: FIRST_STAGE_COLUMN, operator: FilterOperatorKey.notIn, value: [first] };
+      const table = tableStore([initial]);
+      table.filterColumns = [{ ...CUSTOM_COLUMNS[1], type }];
+      const palette = openPalette(table);
+      const container = mountPalette(table);
+      act(() => palette.editFilterAt(0));
+      const input = recordInvariant(container.querySelector<HTMLInputElement>('[id="draft.value"]'));
+      const valueDescriptor = recordInvariant(Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value"));
+      const enter = (value: string) => {
+        act(() => {
+          valueDescriptor.set?.call(input, value);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        press(input, "Enter");
+      };
+      enter(bad);
+      expect(container.querySelector('[role="alert"]')?.textContent).toBe("Common.errors.invalidFilterValue");
+      expect(container.textContent).toContain(bad);
+      act(() => palette.flushPendingChanges());
+      expect(table.filters).toEqual([initial]);
+      expect(palette.page.kind).toBe("value");
+      const removals = container.querySelectorAll('[aria-label="Common.actions.remove"]');
+      click(recordInvariant(removals.item(removals.length - 1)));
+      expect(container.querySelector('[role="alert"]')).toBeNull();
+      enter(second);
+      act(() => palette.flushPendingChanges());
+      expect(table.filters).toEqual([{ ...initial, value: [first, second] }]);
+    },
+  );
 });

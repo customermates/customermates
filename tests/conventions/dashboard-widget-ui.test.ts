@@ -38,23 +38,25 @@ describe("generic dashboard widget UI", () => {
     expect(row.slice(row.indexOf("export function TimelineRow"))).not.toContain("ActivityRecordChips");
     expect(read("features/messaging/activities/audit-detail.tsx")).toContain('size="xl"');
   });
-  it("uses bounded metadata-driven shared inputs for chart and activity filters", () => {
+  it("uses host-owned shared palettes for chart, activity and trigger filters", () => {
     const chart = component("record-widget-editor.tsx");
-    const fields = component("record-widget-filters.tsx");
     const activity = component("record-activity-widget-editor.tsx");
-    expect(chart).toContain("<RecordWidgetFieldFilters");
-    expect(chart).toContain("<RecordWidgetRelatedFilters");
-    expect(fields).toContain("<FormSelect");
-    expect(fields).toContain("recordFilterOperators(field)");
-    expect(fields).toContain("border-b border-border");
-    expect(fields).not.toContain("rounded-lg border border-border");
-    expect(activity).toContain("<FormAutocomplete");
-    expect(activity).toContain('selectionMode="multiple"');
-    expect(activity).toContain("RecordActivityQuerySchema");
-    for (const source of [fields, activity]) {
-      expect(source).toContain("useAppForm()?.isDisabled");
-      expect(source).toContain("disabled={formDisabled");
+    const queryHost = read("components/records/record-query-filters.tsx");
+    const activityHost = read("components/records/record-activity-filters.tsx");
+    const trigger = read("components/records/record-trigger-fields.tsx");
+    expect(chart.match(/<RecordQueryFilters/g)).toHaveLength(2);
+    expect(chart).toContain('anchorId="widget-source-filters"');
+    expect(chart).toContain('anchorId="widget-group-filters"');
+    expect(activity).toContain("<RecordActivityFilters");
+    expect(trigger).toContain("<RecordQueryFilters");
+    for (const host of [queryHost, activityHost]) {
+      expect(host).toContain("<FilterTargetPopover");
+      expect(host).toContain("store.onChange");
+      expect(host).toContain("store.isDisabled");
+      expect(host).not.toMatch(/upsert|Action\(/);
     }
+    expect(component("record-widget-filters.tsx")).not.toMatch(/RecordWidgetFieldFilters|RecordWidgetRelatedFilters/);
+    expect(activity).not.toContain("activity-add-filter");
   });
   it("keeps widget filter drafts local until the editor is saved", () => {
     const store = component("widget-modal.store.ts");

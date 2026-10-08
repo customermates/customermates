@@ -171,7 +171,7 @@ export function filterOptionSources(
           items: result.items.map((thread) => ({
             key: thread.id,
             value: thread.id,
-            textValue: thread.name || t("Common.inputs.unavailableSelection"),
+            textValue: thread.subject?.trim() || thread.name?.trim() || t("Common.inputs.unavailableSelection"),
             startContent: renderProviderIcon(thread.provider, t(`Common.providers.${thread.provider}`)),
           })),
         };
@@ -502,7 +502,10 @@ export function useFilterSelectItems(
                 {
                   key: result.thread.id,
                   value: result.thread.id,
-                  textValue: result.thread.name || t("Common.inputs.unavailableSelection"),
+                  textValue:
+                    result.thread.subject?.trim() ||
+                    result.thread.name?.trim() ||
+                    t("Common.inputs.unavailableSelection"),
                   startContent: renderProviderIcon(
                     result.thread.provider,
                     t(`Common.providers.${result.thread.provider}`),

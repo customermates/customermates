@@ -64,7 +64,7 @@ export function recordColumnPresentation(field: RecordFieldView): ColumnPresenta
   return { ...base, type: "plain" };
 }
 export function recordFilterableFields(
-  fields: RecordField[],
+  fields: RecordFieldView[],
   relationships: RecordRelationship[] = [],
   typeId?: string,
   paths: RecordRelationshipPath[] = [],
@@ -92,7 +92,7 @@ export function recordFilterableFields(
     ...definitions.flatMap((field) => {
       const operators = recordFilterOperators(field)
         .flatMap((operator) => {
-          if (operator === "ne") return [];
+          if (operator === "ne") return [FilterOperatorKey.notEquals];
           if (operator === "eq") return [FilterOperatorKey.equals];
           if (operator === "empty") return [FilterOperatorKey.isNull];
           if (operator === "notEmpty") return [FilterOperatorKey.isNotNull];
@@ -102,7 +102,8 @@ export function recordFilterableFields(
         })
         .filter(
           (operator) =>
-            !["select", "member", "boolean"].includes(field.valueType) || operator !== FilterOperatorKey.equals,
+            !["select", "member", "boolean"].includes(field.valueType) ||
+            ![FilterOperatorKey.equals, FilterOperatorKey.notEquals].includes(operator),
         );
       if (field.id === "system:assignedTo") operators.push(FilterOperatorKey.hasSome, FilterOperatorKey.hasNone);
 
@@ -178,6 +179,7 @@ export function presentationQuery(
     throw new Error("Invalid presentation filter");
   const operators = {
     equals: "eq",
+    notEquals: "ne",
     contains: "contains",
     startsWith: "startsWith",
     gt: "gt",
@@ -299,7 +301,7 @@ export function presentationQuery(
 }
 export function presentationFiltersAreValid(
   filters: Filter[],
-  fields: RecordField[],
+  fields: RecordFieldView[],
   relationships: RecordRelationship[] = [],
   typeId?: string,
   paths: RecordRelationshipPath[] = [],

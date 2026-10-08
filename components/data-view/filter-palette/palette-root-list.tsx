@@ -1,6 +1,6 @@
 "use client";
 
-import type { FilterTarget } from "./filter-target";
+import type { FilterTarget, FilterTargetGroup } from "./filter-target";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
 
@@ -8,6 +8,8 @@ import { XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
+import { FormSelect } from "@/components/forms/form-select";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
@@ -23,6 +25,9 @@ type Props = {
   store: FilterTarget;
   filters: Filter[];
   isAtLimit: boolean;
+  disabled?: boolean;
+  onPickGroup: (group: FilterTargetGroup) => void;
+  onRemoveFilter: (index: number) => void;
   onPickField: (field: string) => void;
   onPickFilter: (index: number) => void;
 };
@@ -31,6 +36,9 @@ export const PaletteRootList = observer(function PaletteRootList({
   store,
   filters,
   isAtLimit,
+  disabled,
+  onPickGroup,
+  onRemoveFilter,
   onPickField,
   onPickFilter,
 }: Props) {
@@ -62,11 +70,12 @@ export const PaletteRootList = observer(function PaletteRootList({
                       aria-label={t("Common.filters.palette.removeFilter")}
                       className="ml-0.5 opacity-50 transition-[opacity,transform] hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
                       data-palette-remove-filter={index}
+                      disabled={disabled}
                       tabIndex={-1}
                       type="button"
                       onClick={(event) => {
                         event.stopPropagation();
-                        store.removeFilterAt(index);
+                        onRemoveFilter(index);
                       }}
                     >
                       <XIcon className="size-3" />
@@ -90,6 +99,46 @@ export const PaletteRootList = observer(function PaletteRootList({
         </div>
       )}
 
+      {(store.groups ?? []).map((group) => (
+        <div
+          key={group.id}
+          className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-2 pb-2"
+          data-palette-group={group.id}
+        >
+          <ClickableChip
+            className="min-w-0 max-w-full justify-self-start"
+            title={group.label}
+            onClick={() => onPickGroup(group)}
+          >
+            <span className="truncate">{group.label}</span>
+          </ClickableChip>
+
+          {group.modes.length > 0 && (
+            <FormSelect
+              ariaLabel={t("Common.filters.selectOperator")}
+              className="h-8 [&_[data-slot=select-value]]:truncate"
+              containerClassName="col-span-2 row-start-2 min-w-0"
+              disabled={disabled}
+              id={`palette-group-${group.id}`}
+              items={group.modes}
+              label={null}
+              value={group.mode}
+              onValueChange={(mode) => runUserAction(() => group.setMode(mode))}
+            />
+          )}
+
+          <button
+            aria-label={t("Common.filters.palette.removeFilter")}
+            className="col-start-2 row-start-1"
+            disabled={disabled}
+            type="button"
+            onClick={() => runUserAction(group.remove)}
+          >
+            <XIcon className="size-3" />
+          </button>
+        </div>
+      ))}
+
       <CommandList className="max-h-none! overflow-visible">
         <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
@@ -103,7 +152,11 @@ export const PaletteRootList = observer(function PaletteRootList({
                 key={field.field}
                 className="data-[selected=true]:bg-selected"
                 data-palette-field={field.field}
-                disabled={isAtLimit}
+                disabled={
+                  disabled ||
+                  (!(store.canAddField?.(field.field) ?? !isAtLimit) &&
+                    !(applied > 0 && store.uniqueFields?.includes(field.field)))
+                }
                 keywords={[label]}
                 value={`${label} ${index}`}
                 onSelect={() => onPickField(field.field)}
