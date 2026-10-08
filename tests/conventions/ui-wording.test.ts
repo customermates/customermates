@@ -62,9 +62,6 @@ const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
 };
 
 const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
-  "Inbox.compose.draftDiscard": "I25: draft Discard through Common.actions.discard",
-  "Inbox.refresh": "I25: inbox Refresh through Common.actions.refresh",
-  "OnboardingWizard.back": "I25: onboarding Back through Common.actions.back",
   "RoleModal.delete": "I19: role Delete through Common.actions.delete",
   "Subscription.refresh": "I19: billing Refresh through Common.actions.refresh",
 };

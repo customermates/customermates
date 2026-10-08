@@ -3,17 +3,12 @@
 import type { WikiPageStore } from "./wiki-page.store";
 
 import { observer } from "mobx-react-lite";
-import { Link, MoreHorizontal, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Link, MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { TopBarMenuButton, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
@@ -40,56 +35,38 @@ export const WikiPageActions = observer((props: Props) => {
   return (
     <div className="flex items-center gap-1">
       {hasDocument && store.form.id && !store.hasUnsavedChanges && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-label={t("Wiki.pageActions")} disabled={store.isLoading} size="icon-sm" variant="secondary">
-              <MoreHorizontal aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
+        <TopBarMenuButton busy={store.isLoading} icon={MoreHorizontal} label={t("Wiki.pageActions")}>
+          <DropdownMenuItem
+            onSelect={() =>
+              runUserAction(() => copyToClipboard(wikiPageUrl(window.location.origin, store.form.id as string)))
+            }
+          >
+            <Link aria-hidden="true" />
 
-          <DropdownMenuContent align="end">
+            {t("Wiki.copyLink")}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onSelect={onReload}>
+            <RotateCcw aria-hidden="true" />
+
+            {t("Wiki.reload")}
+          </DropdownMenuItem>
+
+          {store.allows(Action.delete) && (
             <DropdownMenuItem
-              onSelect={() =>
-                runUserAction(() => copyToClipboard(wikiPageUrl(window.location.origin, store.form.id as string)))
-              }
+              variant="destructive"
+              onSelect={() => showDeleteConfirmation(() => store.delete(), store.form.title)}
             >
-              <Link aria-hidden="true" />
+              <Trash2 aria-hidden="true" />
 
-              {t("Wiki.copyLink")}
+              {t("Wiki.delete")}
             </DropdownMenuItem>
-
-            <DropdownMenuItem onSelect={onReload}>
-              <RotateCcw aria-hidden="true" />
-
-              {t("Wiki.reload")}
-            </DropdownMenuItem>
-
-            {store.allows(Action.delete) && (
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => showDeleteConfirmation(() => store.delete(), store.form.title)}
-              >
-                <Trash2 aria-hidden="true" />
-
-                {t("Wiki.delete")}
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          )}
+        </TopBarMenuButton>
       )}
 
       {store.allows(Action.create) && canCreate && !store.creating && !store.hasUnsavedChanges && (
-        <Button
-          aria-label={t("Wiki.newPage")}
-          disabled={store.isLoading}
-          size="sm"
-          variant="default"
-          onClick={onCreate}
-        >
-          <Plus aria-hidden="true" className="size-4" />
-
-          <span className="hidden sm:inline">{t("Wiki.newPage")}</span>
-        </Button>
+        <TopBarPrimaryButton disabled={store.isLoading} label={t("Wiki.newPage")} onClick={onCreate} />
       )}
 
       {hasDocument && (
