@@ -38,12 +38,12 @@ export function recordToolRisk(name: string, input: unknown): RecordToolRisk | n
     if (operation.operation === "createType") continue;
     if (operation.operation === "putField") {
       const field = object(operation.field);
-      if (field.archived === false && isNewDefinitionReference(field.id)) continue;
+      if (field.archived !== true && isNewDefinitionReference(field.id)) continue;
     }
     if (operation.operation === "putRelationship") {
       const relationship = object(operation.relationship);
       if (
-        relationship.archived === false &&
+        relationship.archived !== true &&
         isNewDefinitionReference(relationship.id) &&
         ["unlink", "restrict"].includes(String(relationship.onSourceDelete)) &&
         ["unlink", "restrict"].includes(String(relationship.onTargetDelete))

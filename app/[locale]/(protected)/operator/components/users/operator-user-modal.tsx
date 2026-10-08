@@ -7,8 +7,10 @@ import type { Status } from "@/generated/prisma";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { CircleSlash, RotateCcw } from "lucide-react";
 
 import { AppModal } from "@/components/modal";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -154,7 +156,33 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
   };
 
   return (
-    <AppModal open={user !== null} size="3xl" title={identity} onClose={onClose}>
+    <AppModal
+      actions={
+        period && !allowanceMissing
+          ? [
+              {
+                id: "reset-base-allowance",
+                anchorId: "operator-user-reset-base",
+                label: t("OperatorUsers.reset.baseAllowance"),
+                icon: RotateCcw,
+                onClick: () => confirmReset("baseAllowance", t("OperatorUsers.reset.baseAllowance")),
+              },
+              {
+                id: "reset-zero-balance",
+                anchorId: "operator-user-reset-zero",
+                label: t("OperatorUsers.reset.zeroBalance"),
+                icon: CircleSlash,
+                variant: "destructive",
+                onClick: () => confirmReset("zeroBalance", t("OperatorUsers.reset.zeroBalance")),
+              },
+            ]
+          : []
+      }
+      open={user !== null}
+      size="3xl"
+      title={identity}
+      onClose={onClose}
+    >
       <AppCard>
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">
@@ -279,10 +307,6 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
                           onValueChange={setDelta}
                         />
                       </div>
-
-                      <Button disabled={delta === undefined} size="sm" variant="secondary" onClick={applyCorrection}>
-                        {t("Common.actions.save")}
-                      </Button>
                     </div>
 
                     <p className="text-xs text-muted-foreground">
@@ -290,26 +314,6 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
                         date: intlStore.formatNumericalShortDate(period.periodEnd),
                       })}
                     </p>
-
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        className="w-full"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => confirmReset("baseAllowance", t("OperatorUsers.reset.baseAllowance"))}
-                      >
-                        {t("OperatorUsers.reset.baseAllowance")}
-                      </Button>
-
-                      <Button
-                        className="w-full"
-                        size="sm"
-                        variant="destructiveOutline"
-                        onClick={() => confirmReset("zeroBalance", t("OperatorUsers.reset.zeroBalance"))}
-                      >
-                        {t("OperatorUsers.reset.zeroBalance")}
-                      </Button>
-                    </div>
                   </>
                 )}
               </>
@@ -320,6 +324,10 @@ export const OperatorUserModal = observer(function OperatorUserModal({ user, onC
             ) : null}
           </div>
         </AppCardBody>
+
+        {period && !allowanceMissing ? (
+          <FormFooterActions anchorScope="operator-user-modal" dirty={delta !== undefined} onSave={applyCorrection} />
+        ) : null}
       </AppCard>
     </AppModal>
   );

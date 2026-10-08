@@ -680,7 +680,7 @@ describeDatabase("scripted assistant configuration uses production tools and per
         deniedChange = {
           expectedRevision: 2,
           idempotencyKey: randomUUID(),
-          operations: [{ operation: "putField", field: { ...field, behavior: field.behavior, archived: true } }],
+          operations: [{ operation: "delete", target: { kind: "field", id: field.id } }],
         };
         const removalPreview = ConfigurationPreviewSchema.parse(
           configurationResult(

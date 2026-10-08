@@ -70,8 +70,8 @@ export class RoleManagementService extends UserAccessor {
                   !(await this.roles.hasUsersAssigned(role.id)),
               ),
               types: model.types
-                .filter((type) => !type.embedded && (!typeIds || typeIds.includes(type.id)))
-                .map((type) => ({ id: type.id, label: type.pluralLabel, archived: type.archived })),
+                .filter((type) => !type.embedded && !type.archived && (!typeIds || typeIds.includes(type.id)))
+                .map((type) => ({ id: type.id, label: type.pluralLabel })),
             },
           };
         } catch (error) {

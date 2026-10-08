@@ -146,15 +146,39 @@ async function customizeWorkspace(client: Client, companyId: string) {
       operations: [change.configuration.operations[1]],
     },
   };
+  const subsidiaries = presetId(companyId, "custom:subsidiaries");
+  const lifecycle = {
+    ...change,
+    causeId: randomUUID(),
+    expectedRevision: revision + 1,
+    configuration: {
+      expectedRevision: revision + 1,
+      idempotencyKey: randomUUID(),
+      operations: [
+        { operation: "delete", target: { kind: "activityPath", id: subsidiaries } },
+        { operation: "delete", target: { kind: "type", id: id("service") } },
+      ],
+    },
+    deletions: [
+      { target: { kind: "activityPath", id: subsidiaries }, cascade: [] },
+      {
+        target: { kind: "type", id: id("service") },
+        cascade: [
+          { kind: "activityPath", id: subsidiaries },
+          { kind: "relationship", id: id("lineItem.service") },
+        ],
+      },
+    ],
+  };
   await client.query(
-    'INSERT INTO "RecordSchemaRevision" ("companyId", revision, "actorId", snapshot, change) VALUES ($1, $2, $3, $4, $5), ($1, $6, $3, $4, $7)',
-    [companyId, revision, latest.actorId, snapshot, change, revision + 1, pathOnly],
+    'INSERT INTO "RecordSchemaRevision" ("companyId", revision, "actorId", snapshot, change) VALUES ($1, $2, $3, $4, $5), ($1, $6, $3, $4, $7), ($1, $8, $3, $4, $9)',
+    [companyId, revision, latest.actorId, snapshot, change, revision + 1, pathOnly, revision + 2, lifecycle],
   );
   await client.query(
     'INSERT INTO "RecordRelationshipDefinition" ("companyId", id, "sourceTypeId", "targetTypeId", definition, "updatedAt") VALUES ($1, $2, $3, $3, $4, now())',
     [companyId, parentId, id("organization"), parent],
   );
-  await client.query('UPDATE "RecordSchemaState" SET revision = $2 WHERE "companyId" = $1', [companyId, revision + 1]);
+  await client.query('UPDATE "RecordSchemaState" SET revision = $2 WHERE "companyId" = $1', [companyId, revision + 2]);
   return { parentId, revision };
 }
 
@@ -236,6 +260,18 @@ describeDatabase("activity sources migration", { timeout: 240000 }, () => {
       history.find((row) => row.revision === revision + 1)?.change,
     );
     expect(pathOnlyChange.configuration).toBeUndefined();
+    const lifecycleChange = RecordRevisionChangeSchema.parse(
+      history.find((row) => row.revision === revision + 2)?.change,
+    );
+    expect(lifecycleChange.configuration?.operations).toEqual([
+      { operation: "delete", target: { kind: "type", id: customId("service") } },
+    ]);
+    expect(lifecycleChange.deletions).toEqual([
+      {
+        target: { kind: "type", id: customId("service") },
+        cascade: [{ kind: "relationship", id: customId("lineItem.service") }],
+      },
+    ]);
     expect(RecordModelSchema.parse(history[0].snapshot).relationships.every((item) => item.id !== parentId)).toBe(true);
 
     for (const workspace of [starter, customized]) {

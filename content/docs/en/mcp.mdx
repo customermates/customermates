@@ -152,7 +152,7 @@ The MCP server can discover schemas, query and change records, configure fields 
 **Read-only** means the tool does not write. **Can delete data** identifies a tool that includes destructive operations; it does not mean every action on that tool deletes data. For example, configuration preview does not write. Tools that send messages, invitations or support requests, move email or change provider data also have real effects even when they do not carry a destructive flag. Configure client approval behavior for the actual operation. The server enforces authorization and validation, but an external MCP call does not open the hosted assistant’s approval dialog.
 
 {/* mcp-catalog:flags */}
-**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`, `read_recently_deleted_configuration`
 
 **Can delete data:** `mutate_crm_record`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -536,9 +536,15 @@ A pending result supplies an operation ID. Read progress until completion; the l
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
 
-Preview or apply a typed configuration bundle containing types, fields, relationships, calculations, access presets and shared defaults. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority.
+Preview or apply a typed configuration bundle containing types, fields, relationships, calculations, access presets and shared defaults. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Recently deleted, restore to bring it back, and deletePermanently to remove it for good.
 
 **Can delete data.** Required: `action`, `change`.
+
+#### `read_recently_deleted_configuration`
+
+List the lists, fields and relationships in Recently deleted, with who deleted them and when. Only people who manage the data model can read it; restore or permanently delete an item with configure_record_model.
+
+**Read-only.** No arguments.
 
 #### `cancel_crm_operation`
 
@@ -562,9 +568,9 @@ The source determines the aggregation grain. Deal reporting counts each matching
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
 
-List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout `{x, y, w, h}` on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. Delete removes the widget configuration, not its source records.
+List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout `{x, y, w, h}` on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. viewId places a widget on a dashboard view (a saved view of manage_data_views surface dashboard); without it a new widget goes to the caller’s current dashboard view. Delete removes the widget configuration, not its source records.
 
-**Can delete data.** Required: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`.
+**Can delete data.** Required: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`, `viewId`.
 {/* /mcp-catalog */}
 
 ### Routines

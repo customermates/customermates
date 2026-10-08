@@ -185,12 +185,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
       apply.invoke({
         expectedRevision: current.revision,
         idempotencyKey: randomUUID(),
-        operations: [
-          { operation: "putType", type: { ...retired, archived: true } },
-          ...current.capabilities
-            .filter((binding) => binding.kind === "channels" && binding.typeId === retired.id)
-            .map((binding) => ({ operation: "putCapability" as const, capability: { ...binding, enabled: false } })),
-        ],
+        operations: [{ operation: "delete", target: { kind: "type", id: retired.id } }],
       }),
     );
     expect(archived, JSON.stringify(archived)).toMatchObject({ ok: true });
@@ -487,50 +482,45 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     });
 
     it("blocks permanently deleting a field with values the caller cannot read, and hides its counts", async () => {
-      const field = (await modelFor(actors.admin)).fields.find((candidate) => candidate.id === scoreId);
       expect(
-        await configure(actors.admin, [
-          { operation: "putField", field: { ...omit(field, ["publishedSummary"]), archived: true } as never },
-        ]),
+        await configure(actors.admin, [{ operation: "delete", target: { kind: "field", id: scoreId } }]),
       ).toMatchObject({ ok: true });
-      const operations: ConfigurationChange["operations"] = [{ operation: "deleteField", fieldId: scoreId }];
+      const operations: ConfigurationChange["operations"] = [
+        { operation: "deletePermanently", target: { kind: "field", id: scoreId } },
+      ];
       const steward = await previewAs(actors.steward, operations);
       expect(steward.valid).toBe(false);
       expect(steward.issues).toContainEqual(
         expect.objectContaining({ code: "deletion_requires_read_all", fieldId: scoreId }),
       );
-      expect(steward).toMatchObject({ hiddenRecords: true, deletion: { values: null, records: null } });
+      expect(steward).toMatchObject({ hiddenRecords: true, deletion: { removed: { values: null, records: null } } });
       const refused = await configure(actors.steward, operations);
       expect(refused.ok).toBe(false);
       const admin = await previewAs(actors.admin, operations);
-      expect(admin).toMatchObject({ valid: true, hiddenRecords: false, deletion: { values: 1 } });
+      expect(admin).toMatchObject({ valid: true, hiddenRecords: false, deletion: { removed: { values: 1 } } });
     });
 
     it("blocks permanently deleting a non-empty list for a caller without read-all and lets the admin do it", async () => {
-      const model = await modelFor(actors.admin);
-      const leads = model.types.find((type) => type.id === leadsId);
-      if (!leads) throw new Error("The leads fixture is missing");
       expect(
-        await configure(actors.admin, [
-          { operation: "putType", type: { ...leads, archived: true } },
-          ...model.capabilities
-            .filter((binding) => binding.kind === "channels" && binding.typeId === leadsId)
-            .map((binding) => ({ operation: "putCapability" as const, capability: { ...binding, enabled: false } })),
-        ]),
+        await configure(actors.admin, [{ operation: "delete", target: { kind: "type", id: leadsId } }]),
       ).toMatchObject({ ok: true });
-      const operations: ConfigurationChange["operations"] = [{ operation: "deleteType", typeId: leadsId }];
+      const operations: ConfigurationChange["operations"] = [
+        { operation: "deletePermanently", target: { kind: "type", id: leadsId } },
+      ];
       const steward = await previewAs(actors.steward, operations);
       expect(steward.issues).toContainEqual(
         expect.objectContaining({ code: "deletion_requires_read_all", typeId: leadsId }),
       );
-      expect(steward).toMatchObject({ valid: false, hiddenRecords: true, deletion: { records: null } });
+      expect(steward).toMatchObject({ valid: false, hiddenRecords: true, deletion: { removed: { records: null } } });
       expect((await configure(actors.steward, operations)).ok).toBe(false);
 
-      const empty = await previewAs(actors.steward, [{ operation: "deleteType", typeId: archivedTypeId }]);
+      const empty = await previewAs(actors.steward, [
+        { operation: "deletePermanently", target: { kind: "type", id: archivedTypeId } },
+      ]);
       expect(empty.issues.some((issue) => issue.code === "deletion_requires_read_all")).toBe(false);
 
       const admin = await previewAs(actors.admin, operations);
-      expect(admin).toMatchObject({ valid: true, hiddenRecords: false, deletion: { records: 1 } });
+      expect(admin).toMatchObject({ valid: true, hiddenRecords: false, deletion: { removed: { records: 1 } } });
       expect(await configure(actors.admin, operations)).toMatchObject({ ok: true });
     });
   });

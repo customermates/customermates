@@ -111,6 +111,8 @@ const {
   getUpsertRoutineInteractor,
   getUpsertWebhookInteractor,
   getDeleteWebhookInteractor,
+  getGetRecordModelInteractor,
+  getGetRecentlyDeletedInteractor,
 } = await import("@/core/di");
 const { manageWebhooksTool } = await import("@/features/mcp-tools/webhook.mcp-tools");
 const { manageRolesTool } = await import("@/features/mcp-tools/role.mcp-tools");
@@ -127,6 +129,7 @@ const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
 const { manageRecordDetailLayoutV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 
+const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
@@ -218,7 +221,14 @@ async function fixture() {
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const widgets = new PrismaRecordWidgetRepo();
   const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
-  const writeWidget = new UpsertRecordWidgetInteractor(widgets, repo, policy, measure, widgetReader);
+  const writeWidget = new UpsertRecordWidgetInteractor(
+    widgets,
+    repo,
+    policy,
+    measure,
+    widgetReader,
+    new PrismaDataViewRepo(),
+  );
   const configurations = new RecordConfigurationService(repo);
   const preview = new PreviewRecordConfigurationInteractor(repo, policy, configurations);
   const configure = new ApplyRecordConfigurationInteractor(
@@ -288,6 +298,7 @@ async function fixture() {
     policy,
     activities,
     activityWidgetReader,
+    new PrismaDataViewRepo(),
   );
   const timeline = (input: Partial<RecordActivitiesInput>, as = admin) =>
     run(
@@ -1138,7 +1149,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.configure.invoke({
           expectedRevision: 2,
           idempotencyKey: randomUUID(),
-          operations: [{ operation: "putRelationship", relationship: { ...relation, archived: true } }],
+          operations: [{ operation: "delete", target: { kind: "relationship", id: relation.id } }],
         }),
       ),
     ).toMatchObject({ ok: true, data: { schemaRevision: 3 } });
@@ -1184,7 +1195,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.configure.invoke({
           expectedRevision: current.revision,
           idempotencyKey: randomUUID(),
-          operations: [{ operation: "putType", type: { ...targetType, archived: true } }],
+          operations: [{ operation: "delete", target: { kind: "type", id: targetType.id } }],
         }),
       ),
     ).toMatchObject({ ok: true });
@@ -2582,15 +2593,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       model.fields.find((candidate) => candidate.id === f.id("service.amount")),
     );
     expect(publishedSummary).toBe(false);
-    const change = (archived: boolean): ConfigurationChange => ({
+    const change = (deleted: boolean): ConfigurationChange => ({
       expectedRevision: 1,
       idempotencyKey: randomUUID(),
-      operations: [
-        {
-          operation: "putField",
-          field: { ...field, label: "Catalog price", archived },
-        },
-      ],
+      operations: deleted
+        ? [{ operation: "delete", target: { kind: "field", id: field.id } }]
+        : [{ operation: "putField", field: { ...field, label: "Catalog price" } }],
     });
     const compatible = await f.run(() => f.preview.invoke(change(false)));
     expect(compatible).toMatchObject({ ok: true, data: { issues: [] } });
@@ -2598,7 +2606,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(incompatible).toMatchObject({
       ok: true,
       data: {
-        issues: expect.arrayContaining([{ code: "event_subscription_incompatible", typeId: f.id("service") }]),
+        valid: false,
+        deletion: {
+          blockers: expect.arrayContaining([
+            expect.objectContaining({
+              reason: "routine",
+              target: expect.objectContaining({ kind: "field", id: field.id }),
+            }),
+          ]),
+        },
       },
     });
     expect(await f.run(() => f.configure.invoke(change(true)))).toMatchObject({
@@ -5305,18 +5321,18 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.preview.invoke({
         expectedRevision: 2,
         idempotencyKey: randomUUID(),
-        operations: [{ operation: "putType", type: { ...type, archived: true } }],
+        operations: [{ operation: "delete", target: { kind: "type", id: type.id } }],
       }),
     );
     expect(blocked, JSON.stringify(blocked)).toMatchObject({
       ok: true,
       data: {
-        issues: expect.arrayContaining([
-          expect.objectContaining({
-            code: "widget_incompatible",
-            typeId: type.id,
-          }),
-        ]),
+        valid: false,
+        deletion: {
+          blockers: expect.arrayContaining([
+            expect.objectContaining({ reason: "widget", source: expect.objectContaining({ kind: "widget" }) }),
+          ]),
+        },
       },
     });
     const updates = await Promise.all(
@@ -6021,12 +6037,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.configure.invoke({
         expectedRevision: archivableModel.revision,
         idempotencyKey: randomUUID(),
-        operations: [
-          { operation: "putType", type: { ...archivableType, archived: true } },
-          ...archivableModel.capabilities
-            .filter((binding) => binding.kind === "channels" && binding.typeId === archivableType.id)
-            .map((binding) => ({ operation: "putCapability" as const, capability: { ...binding, enabled: false } })),
-        ],
+        operations: [{ operation: "delete", target: { kind: "type", id: archivableType.id } }],
       }),
     );
     expect(archivedResult, JSON.stringify(archivedResult)).toMatchObject({ ok: true });
@@ -6044,10 +6055,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       fields: [],
       enabled: true,
     };
-    const change = (revision: number, enabled: boolean): ConfigurationChange => ({
+    const change = (revision: number, enabled: boolean, lifecycle?: "delete" | "restore"): ConfigurationChange => ({
       expectedRevision: revision,
       idempotencyKey: randomUUID(),
-      operations: [{ operation: "putCapability", capability: { ...capability, enabled } }],
+      operations: lifecycle
+        ? [{ operation: lifecycle, target: { kind: "channels", id: capability.id } }]
+        : [{ operation: "putCapability", capability: { ...capability, enabled } }],
     });
     expect(await f.run(() => f.configure.invoke(change(1, true)), f.member)).toMatchObject({ ok: false });
     await runWithoutTenant(() =>
@@ -6091,7 +6104,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const resolve = (as = f.admin) =>
       f.run(() => reader.resolve([{ provider: "mail", value: "disabled@example.test" }]), as);
     expect((await resolve(f.member))[0].records).toEqual([]);
-    expect(await f.run(() => f.configure.invoke(change(2, false)), f.member)).toMatchObject({
+    expect(await f.run(() => f.configure.invoke(change(2, false, "delete")), f.member)).toMatchObject({
       ok: true,
       data: { schemaRevision: 3 },
     });
@@ -6116,7 +6129,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         3,
       ),
     ).toMatchObject({ ok: false });
-    expect(await f.run(() => f.configure.invoke(change(3, true)), f.member)).toMatchObject({
+    expect(await f.run(() => f.configure.invoke(change(3, true, "restore")), f.member)).toMatchObject({
       ok: true,
       data: { schemaRevision: 4 },
     });
@@ -6612,17 +6625,19 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const archive = {
       expectedRevision: 2,
       idempotencyKey: randomUUID(),
-      operations: [{ operation: "putField" as const, field: { ...field, archived: true } }],
+      operations: [{ operation: "delete" as const, target: { kind: "field" as const, id: field.id } }],
     };
     expect(await f.run(() => f.preview.invoke(archive))).toMatchObject({
       ok: true,
       data: {
-        valid: false,
-        issues: expect.arrayContaining([{ code: "detail_layout_incompatible", typeId }]),
+        valid: true,
+        deletion: {
+          blockers: [],
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({ consumer: expect.objectContaining({ kind: "detailLayout", typeId }) }),
+          ]),
+        },
       },
-    });
-    expect(await f.run(() => f.configure.invoke(archive))).toMatchObject({
-      ok: false,
     });
     await f.run(() => runInTransaction(() => f.repo.setGrants(typeId, [])));
     expect(await f.run(() => executeMcpTool(manageRecordDetailLayoutV2Tool, [request]), f.member)).toMatchObject({
@@ -7986,50 +8001,32 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       await other.run(() => executeMcpTool(manageDataViewsTool, [{ action: "list", surfaceKey, viewKey: viewId }])),
     ).toMatchObject({ ok: false });
 
-    const archive: ConfigurationChange = {
+    const deletion: ConfigurationChange = {
       expectedRevision: 3,
       idempotencyKey: randomUUID(),
-      operations: [
-        {
-          operation: "putField",
-          field: { ...field, label: "Investment", archived: true },
-        },
-      ],
+      operations: [{ operation: "delete", target: { kind: "field", id: field.id } }],
     };
-    expect(await f.run(() => f.preview.invoke(archive))).toMatchObject({
+    expect(await f.run(() => f.preview.invoke(deletion))).toMatchObject({
       ok: true,
       data: {
-        valid: false,
-        issues: expect.arrayContaining([{ code: "saved_view_incompatible", typeId: type.id }]),
+        valid: true,
+        deletion: {
+          blockers: [],
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({
+              consumer: expect.objectContaining({ kind: "view", id: viewId }),
+              target: expect.objectContaining({ kind: "field", id: field.id }),
+            }),
+          ]),
+        },
       },
     });
-    expect(await f.run(() => f.configure.invoke(archive))).toMatchObject({
-      ok: false,
-    });
-    expect(
-      await call({
-        action: "update",
-        surfaceKey,
-        viewKey: "__all__",
-        state: { hiddenColumns: [budget.id] },
-      }),
-    ).toMatchObject({ ok: true });
-    expect(await call({ action: "delete", surfaceKey, viewKey: viewId })).toMatchObject({ ok: true });
-    expect(await f.run(() => f.preview.invoke(archive))).toMatchObject({
-      ok: true,
-      data: { valid: false },
-    });
-    expect(
-      await call({
-        action: "update",
-        surfaceKey,
-        viewKey: "__all__",
-        state: { hiddenColumns: [] },
-      }),
-    ).toMatchObject({ ok: true });
-    expect(await f.run(() => f.configure.invoke(archive))).toMatchObject({
-      ok: true,
-    });
+    expect(await f.run(() => f.configure.invoke(deletion))).toMatchObject({ ok: true });
+    const cleaned = await f.run(() =>
+      prisma.dataView.findFirstOrThrow({ where: { companyId: f.company.id, id: viewId } }),
+    );
+    expect(cleaned.columnOrder).toEqual([type.primaryFieldId]);
+    expect((await f.run(() => f.repo.getModel())).fields.find((item) => item.id === field.id)?.archived).toBe(true);
   });
 
   it("inherits shared defaults only for untouched settings and resets selected overrides through the AI tool", async () => {
@@ -8770,6 +8767,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     expect(widget).toMatchObject({ ok: true });
+    if (!widget.ok) throw widget.error;
+    const widgetId = widget.data.id;
     const relation = recordInvariant(
       f.model.relationships.find((relation) => relation.id === f.id("contact.organizations")),
     );
@@ -8778,19 +8777,17 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.preview.invoke({
           expectedRevision: 1,
           idempotencyKey: randomUUID(),
-          operations: [
-            {
-              operation: "putRelationship",
-              relationship: { ...relation, archived: true },
-            },
-          ],
+          operations: [{ operation: "delete", target: { kind: "relationship", id: relation.id } }],
         }),
       ),
     ).toMatchObject({
       ok: true,
       data: {
-        valid: false,
-        issues: expect.arrayContaining([expect.objectContaining({ code: "widget_incompatible" })]),
+        deletion: {
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({ consumer: expect.objectContaining({ kind: "widget", id: widgetId }) }),
+          ]),
+        },
       },
     });
   });
@@ -9203,6 +9200,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     expect(widget).toMatchObject({ ok: true });
+    if (!widget.ok) throw widget.error;
+    const widgetId = widget.data.id;
     const relation = recordInvariant(
       f.model.relationships.find((relation) => relation.id === f.id("lineItem.service")),
     );
@@ -9211,19 +9210,17 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.preview.invoke({
           expectedRevision: 1,
           idempotencyKey: randomUUID(),
-          operations: [
-            {
-              operation: "putRelationship",
-              relationship: { ...relation, archived: true },
-            },
-          ],
+          operations: [{ operation: "delete", target: { kind: "relationship", id: relation.id } }],
         }),
       ),
     ).toMatchObject({
       ok: true,
       data: {
-        valid: false,
-        issues: expect.arrayContaining([expect.objectContaining({ code: "widget_incompatible" })]),
+        deletion: {
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({ consumer: expect.objectContaining({ kind: "widget", id: widgetId }) }),
+          ]),
+        },
       },
     });
   });
@@ -10066,6 +10063,77 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(JSON.stringify(result)).not.toContain("Confidential derived title");
     expect(JSON.stringify(result)).not.toContain("Private source");
+  });
+
+  it("keeps retained values restricted in the record editor after their source list is deleted", async () => {
+    const f = await fixture();
+    const deal = await f.create("deal", "Confidential derived title");
+    const definition: ConfigurationChange = {
+      expectedRevision: 1,
+      idempotencyKey: randomUUID(),
+      operations: [
+        {
+          operation: "createType",
+          reference: "$privateSources",
+          label: "Private source",
+          pluralLabel: "Private sources",
+          description: "",
+          icon: "list",
+          embedded: false,
+          accessPresetId: null,
+        },
+      ],
+    };
+    const preview = await f.run(() => f.preview.invoke(definition));
+    if (!preview.ok) throw preview.error;
+    const refId = (reference: string) =>
+      recordInvariant(preview.data.references.find((item) => item.reference === reference)).id;
+    expect(await f.run(() => f.configure.invoke(definition))).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
+    const created = await f.mutation(
+      {
+        action: "create",
+        typeId: refId("$privateSources"),
+        fields: [{ fieldId: refId("$privateSources.name"), value: textValue("Private source") }],
+      },
+      f.admin,
+      randomUUID(),
+      2,
+    );
+    if (!created.ok || created.data.status !== "completed") throw new Error("Private source fixture failed");
+    const privateSource = recordInvariant(created.data.refs[0]);
+    await f.run(() =>
+      runInTransaction(async () => {
+        for (const type of (await f.repo.getModel()).types) {
+          if (type.id !== privateSource.typeId && !type.embedded)
+            await f.repo.setGrants(type.id, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
+        }
+        await f.repo.setValueDependencies(deal, f.id("deal.name"), [privateSource]);
+      }),
+    );
+    const restricted = async () => {
+      const result = await f.run(() => f.editor.invoke(deal), f.member);
+      expect(result).toMatchObject({
+        ok: true,
+        data: {
+          record: {
+            fields: expect.arrayContaining([{ fieldId: f.id("deal.name"), result: { state: "restricted" } }]),
+          },
+        },
+      });
+      expect(JSON.stringify(result)).not.toContain("Confidential derived title");
+    };
+    await restricted();
+    const model = await f.run(() => f.repo.getModel());
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: model.revision,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "delete", target: { kind: "type", id: privateSource.typeId } }],
+        }),
+      ),
+    ).toMatchObject({ ok: true, data: { status: "completed" } });
+    await restricted();
   });
 
   it("filters assignments and orders timestamps in PostgreSQL through the shared query and view contracts", async () => {
@@ -12031,14 +12099,18 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.preview.invoke({
           expectedRevision: 2,
           idempotencyKey: randomUUID(),
-          operations: [{ operation: "putType", type: { ...contact, archived: true } }],
+          operations: [{ operation: "delete", target: { kind: "type", id: f.id("task") } }],
         }),
       ),
     ).toMatchObject({
       ok: true,
       data: {
         valid: false,
-        issues: expect.arrayContaining([{ code: "capability_requires_type", typeId: contact.id }]),
+        deletion: {
+          blockers: [
+            expect.objectContaining({ reason: "protected", source: expect.objectContaining({ id: f.id("task") }) }),
+          ],
+        },
       },
     });
     const field = recordInvariant(f.model.fields.find((field) => field.id === f.id("contact.firstName")));
@@ -12791,11 +12863,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                     },
             },
           })),
-          { operation: "putType", type: { ...sourceType, archived: true } },
-          {
-            operation: "putRelationship",
-            relationship: { ...relation, archived: true },
-          },
         ],
       };
       expect(await f.run(() => f.preview.invoke(change), manager)).toMatchObject({ ok: true, data: { valid: true } });
@@ -12823,8 +12890,20 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           data: { state: "completed" },
         });
       }
+      expect((await f.run(() => f.repo.getModel())).revision).toBe(3);
+      expect(
+        await f.run(
+          () =>
+            f.configure.invoke({
+              expectedRevision: 3,
+              idempotencyKey: randomUUID(),
+              operations: [{ operation: "delete", target: { kind: "type", id: sourceType.id } }],
+            }),
+          manager,
+        ),
+      ).toMatchObject({ ok: true, data: { status: "completed" } });
       const accepted = await f.run(() => f.repo.getModel());
-      expect(accepted.revision).toBe(3);
+      expect(accepted.revision).toBe(4);
       expect(accepted.types.find((type) => type.id === sourceType.id)?.archived).toBe(true);
       expect(accepted.relationships.find((entry) => entry.id === relation.id)?.archived).toBe(true);
       for (const field of [total, memo]) {
@@ -12906,7 +12985,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           },
           f.admin,
           randomUUID(),
-          3,
+          4,
         ),
       ).toMatchObject({ ok: true, data: { status: "completed" } });
       expect(
@@ -12927,9 +13006,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       });
       const restore = await f.run(() =>
         f.configure.invoke({
-          expectedRevision: 3,
+          expectedRevision: 4,
           idempotencyKey: randomUUID(),
-          operations: [{ operation: "putType", type: { ...sourceType, archived: false } }],
+          operations: [{ operation: "restore", target: { kind: "type", id: sourceType.id } }],
         }),
       );
       if (!restore.ok) throw new Error("Source restore failed");
@@ -12944,7 +13023,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }
         expect(completed).toBe(true);
       }
-      expect((await f.run(() => f.repo.getModel())).revision).toBe(4);
+      expect((await f.run(() => f.repo.getModel())).revision).toBe(5);
       expect(
         (await f.run(() => f.policy.load(), retainedReader)).access([sourceType.id]).get(sourceType.id)?.access,
       ).toBe("all");
@@ -14093,14 +14172,21 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.preview.invoke({
         expectedRevision: 1,
         idempotencyKey: randomUUID(),
-        operations: [{ operation: "putField", field: { ...field, archived: true } }],
+        operations: [{ operation: "delete", target: { kind: "field", id: field.id } }],
       }),
     );
     expect(preview).toMatchObject({
       ok: true,
       data: {
         valid: false,
-        issues: expect.arrayContaining([{ code: "widget_incompatible", typeId: f.id("service") }]),
+        deletion: {
+          blockers: expect.arrayContaining([
+            expect.objectContaining({
+              reason: "widget",
+              source: expect.objectContaining({ kind: "widget", id: saved.data.id, label: "Visible price" }),
+            }),
+          ]),
+        },
       },
     });
     expect(
@@ -15439,7 +15525,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: false });
   });
 
-  it("permanently deletes archived fields with their values once no calculation depends on them", async () => {
+  it("moves fields to Recently deleted, blocks while a calculation uses them and deletes them permanently", async () => {
     const f = await fixture();
     const typeId = f.id("organization");
     const sourceId = randomUUID();
@@ -15451,7 +15537,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       valueType: "text" as const,
       required: false,
       behavior: { kind: "input" as const },
-      archived: false,
       options: [],
       position: 90,
     };
@@ -15469,10 +15554,21 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       },
       position: 91,
     };
-    const apply = (expectedRevision: number, operations: ConfigurationChange["operations"]) =>
-      f.run(() => f.configure.invoke({ expectedRevision, idempotencyKey: randomUUID(), operations }));
+    let revision = 1;
+    const change = (operations: ConfigurationChange["operations"]): ConfigurationChange => ({
+      expectedRevision: revision,
+      idempotencyKey: randomUUID(),
+      operations,
+    });
+    const apply = async (operations: ConfigurationChange["operations"]) => {
+      const result = await f.run(() => f.configure.invoke(change(operations)));
+      if (result.ok) revision = result.data.schemaRevision;
+      return result;
+    };
+    const lifecycle = (operation: "delete" | "restore" | "deletePermanently", id: string) =>
+      [{ operation, target: { kind: "field" as const, id } }] as ConfigurationChange["operations"];
     expect(
-      await apply(1, [
+      await apply([
         { operation: "putField", field: source },
         { operation: "putField", field: formula },
       ]),
@@ -15488,57 +15584,78 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       },
       f.admin,
       randomUUID(),
-      2,
+      revision,
     );
     expect(organization).toMatchObject({ ok: true });
-    const deleteSource = (expectedRevision: number): ConfigurationChange => ({
-      expectedRevision,
-      idempotencyKey: randomUUID(),
-      operations: [{ operation: "deleteField", fieldId: sourceId }],
-    });
-    expect(await f.run(() => f.preview.invoke(deleteSource(2)))).toMatchObject({ ok: false });
 
-    expect(
-      await apply(2, [
-        { operation: "putField", field: { ...source, archived: true } },
-        { operation: "putField", field: { ...formula, archived: true } },
-      ]),
-    ).toMatchObject({ ok: true });
-    const blocked = await f.run(() => f.preview.invoke(deleteSource(3)));
-    expect(blocked).toMatchObject({
+    expect(await f.run(() => f.preview.invoke(change(lifecycle("delete", sourceId))))).toMatchObject({
       ok: true,
       data: {
         valid: false,
-        issues: [{ code: "deletion_dependency", fieldId: formulaId, typeId }],
-        deletion: { records: 0, values: 1, links: 0, relationships: 0, views: 0, grants: 0 },
+        deletion: {
+          blockers: [
+            {
+              reason: "calculation",
+              source: { kind: "field", id: formulaId, typeId, label: "Legacy code upper" },
+              target: { kind: "field", id: sourceId, typeId, label: "Legacy code" },
+            },
+          ],
+          removed: null,
+        },
       },
     });
-    expect(await f.run(() => f.configure.invoke(deleteSource(3)))).toMatchObject({ ok: false });
+    expect(await apply(lifecycle("delete", sourceId))).toMatchObject({ ok: false });
     expect(
       await f.run(() =>
-        f.preview.invoke({
-          ...deleteSource(3),
-          operations: [
-            { operation: "deleteField", fieldId: formulaId },
-            { operation: "putField", field: { ...source, label: "Renamed" } },
-          ],
-        }),
+        f.preview.invoke(change([...lifecycle("delete", formulaId), { operation: "putField", field: source }])),
       ),
     ).toMatchObject({ ok: false });
-
-    const both: ConfigurationChange = {
-      expectedRevision: 3,
-      idempotencyKey: randomUUID(),
-      operations: [
-        { operation: "deleteField", fieldId: formulaId },
-        { operation: "deleteField", fieldId: sourceId },
-      ],
-    };
-    expect(await f.run(() => f.preview.invoke(both))).toMatchObject({ ok: true, data: { valid: true, issues: [] } });
-    expect(await f.run(() => f.configure.invoke(both))).toMatchObject({
-      ok: true,
-      data: { status: "completed", schemaRevision: 4 },
+    expect(
+      await f.run(() => f.preview.invoke(change([{ operation: "putField", field: { ...source, archived: true } }]))),
+    ).toMatchObject({ ok: false });
+    expect(await f.run(() => f.preview.invoke(change(lifecycle("deletePermanently", sourceId))))).toMatchObject({
+      ok: false,
     });
+
+    expect(await apply(lifecycle("delete", formulaId))).toMatchObject({ ok: true, data: { status: "completed" } });
+    const live = await f.run(() => getGetRecordModelInteractor().invoke({ typeIds: [typeId] }));
+    expect(live.ok && live.data.fields.some((field) => field.id === formulaId)).toBe(false);
+    const recentlyDeleted = await f.run(() => getGetRecentlyDeletedInteractor().invoke({}));
+    expect(recentlyDeleted).toMatchObject({
+      ok: true,
+      data: {
+        items: [
+          {
+            target: { kind: "field", id: formulaId },
+            label: "Legacy code upper",
+            typeId,
+            deletedBy: "Admin Test",
+          },
+        ],
+      },
+    });
+    expect(await f.run(() => getGetRecentlyDeletedInteractor().invoke({}), f.member)).toMatchObject({ ok: false });
+
+    expect(await apply(lifecycle("restore", formulaId))).toMatchObject({ ok: true });
+    expect((await f.run(() => f.repo.getModel())).fields.find((field) => field.id === formulaId)?.archived).toBe(false);
+    expect(await apply(lifecycle("delete", formulaId))).toMatchObject({ ok: true });
+    expect(await apply(lifecycle("delete", sourceId))).toMatchObject({ ok: true });
+
+    expect(await f.run(() => f.preview.invoke(change(lifecycle("deletePermanently", sourceId))))).toMatchObject({
+      ok: true,
+      data: {
+        valid: false,
+        deletion: {
+          blockers: [
+            expect.objectContaining({ reason: "calculation", source: expect.objectContaining({ id: formulaId }) }),
+          ],
+          removed: { records: 0, values: 1, links: 0, relationships: 0, views: 0, grants: 0 },
+        },
+      },
+    });
+    expect(await apply(lifecycle("deletePermanently", formulaId))).toMatchObject({ ok: true });
+    const permanent = lifecycle("deletePermanently", sourceId);
+    expect(await apply(permanent)).toMatchObject({ ok: true });
     const model = await f.run(() => f.repo.getModel());
     expect(model.fields.some((field) => field.id === sourceId || field.id === formulaId)).toBe(false);
     expect(
@@ -15550,15 +15667,38 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ]),
       ),
     ).toEqual([0, 0, 1]);
-    const revision = await f.run(() =>
-      prisma.recordSchemaRevision.findUniqueOrThrow({
-        where: { companyId: f.company.id, companyId_revision: { companyId: f.company.id, revision: 4 } },
+    const stored = await f.run(() =>
+      prisma.recordSchemaRevision.findFirstOrThrow({
+        where: { companyId: f.company.id, revision: model.revision },
       }),
     );
-    expect(RecordRevisionChangeSchema.parse(revision.change).configuration?.operations).toEqual(both.operations);
+    expect(RecordRevisionChangeSchema.parse(stored.change).configuration?.operations).toEqual(permanent);
   });
 
-  it("permanently deletes an archived list with its records, links, relationships, views and grants", async () => {
+  it("deletes and restores the starter deals list with its own relationship columns and calculations", async () => {
+    const f = await fixture();
+    const change = (operation: "delete" | "restore", revision: number): ConfigurationChange => ({
+      expectedRevision: revision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation, target: { kind: "type", id: f.id("deal") } }],
+    });
+    const preview = await f.run(() => f.preview.invoke(change("delete", 1)));
+    expect(preview).toMatchObject({ ok: true, data: { issues: [] } });
+    if (!preview.ok) throw preview.error;
+    if (preview.data.deletion?.blockers.length) return;
+    expect(await f.run(() => f.configure.invoke(change("delete", 1)))).toMatchObject({ ok: true });
+    const deleted = await f.run(() => f.repo.getModel());
+    expect(
+      deleted.types.filter((type) => [f.id("deal"), f.id("lineItem")].includes(type.id)).map((type) => type.archived),
+    ).toEqual([true, true]);
+    expect(await f.run(() => f.configure.invoke(change("restore", 2)))).toMatchObject({ ok: true });
+    const restored = await f.run(() => f.repo.getModel());
+    expect(
+      restored.types.filter((type) => [f.id("deal"), f.id("lineItem")].includes(type.id)).map((type) => type.archived),
+    ).toEqual([false, false]);
+  });
+
+  it("deletes a list with its embedded child list, restores both and deletes them permanently", async () => {
     const f = await fixture();
     const definition: ConfigurationChange = {
       expectedRevision: 1,
@@ -15575,20 +15715,29 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           accessPresetId: null,
         },
         {
+          operation: "createType",
+          reference: "$milestones",
+          label: "Milestone",
+          pluralLabel: "Milestones",
+          description: "",
+          icon: "list",
+          embedded: true,
+          accessPresetId: null,
+        },
+        {
           operation: "putRelationship",
           relationship: {
-            id: "$projectOrganization",
-            sourceTypeId: "$projects",
-            targetTypeId: f.id("organization"),
-            sourceLabel: "Organization",
-            targetLabel: "Projects",
+            id: "$milestoneProject",
+            sourceTypeId: "$milestones",
+            targetTypeId: "$projects",
+            sourceLabel: "Project",
+            targetLabel: "Milestones",
             sourceCardinality: "one",
             targetCardinality: "many",
             onSourceDelete: "unlink",
-            onTargetDelete: "unlink",
+            onTargetDelete: "cascade",
             messagesOnSource: false,
             messagesOnTarget: false,
-            archived: false,
           },
         },
         {
@@ -15604,112 +15753,101 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       recordInvariant(created.data.references.find((item) => item.reference === reference)).id;
     expect(await f.run(() => f.configure.invoke(definition))).toMatchObject({ ok: true });
     const projectTypeId = refId("$projects");
-    const relationId = refId("$projectOrganization");
-    const kept = await f.mutation(
-      {
-        action: "create",
-        typeId: f.id("organization"),
-        fields: [{ fieldId: f.id("organization.name"), value: textValue("Kept") }],
-      },
-      f.admin,
-      randomUUID(),
-      2,
-    );
-    if (!kept.ok || kept.data.status !== "completed") throw new Error("Organization fixture failed");
-    const organization = recordInvariant(kept.data.refs[0]);
-    const project = await f.mutation(
-      {
-        action: "create",
-        typeId: projectTypeId,
-        fields: [{ fieldId: refId("$projects.name"), value: textValue("Pilot") }],
-        links: [{ relationId, direction: "outgoing", record: organization }],
-      },
-      f.admin,
-      randomUUID(),
-      2,
-    );
-    expect(project).toMatchObject({ ok: true });
-    const rollupId = randomUUID();
+    const milestoneTypeId = refId("$milestones");
+    const relationId = refId("$milestoneProject");
     let model = await f.run(() => f.repo.getModel());
-    const projectType = recordInvariant(model.types.find((type) => type.id === projectTypeId));
-    const relation = recordInvariant(model.relationships.find((item) => item.id === relationId));
+    const milestones = recordInvariant(model.types.find((type) => type.id === milestoneTypeId));
     expect(
       await f.run(() =>
         f.configure.invoke({
           expectedRevision: model.revision,
           idempotencyKey: randomUUID(),
-          operations: [
-            {
-              operation: "putField",
-              field: {
-                id: rollupId,
-                typeId: f.id("organization"),
-                label: "Project count",
-                valueType: "number",
-                required: false,
-                archived: true,
-                options: [],
-                position: 90,
-                behavior: {
-                  kind: "rollup",
-                  expression: {
-                    kind: "related",
-                    relationId,
-                    direction: "incoming",
-                    reducer: "count",
-                    expression: { kind: "literal", value: null },
-                  },
-                },
-              },
-            },
-            { operation: "putType", type: { ...projectType, archived: true } },
-            { operation: "putRelationship", relationship: { ...relation, archived: true } },
-          ],
+          operations: [{ operation: "putType", type: { ...milestones, parentRelationshipId: relationId } }],
         }),
       ),
     ).toMatchObject({ ok: true });
-    await f.run(() =>
+    model = await f.run(() => f.repo.getModel());
+    const project = await f.mutation(
+      {
+        action: "create",
+        typeId: projectTypeId,
+        fields: [{ fieldId: refId("$projects.name"), value: textValue("Pilot") }],
+      },
+      f.admin,
+      randomUUID(),
+      model.revision,
+    );
+    if (!project.ok || project.data.status !== "completed") throw new Error("Project fixture failed");
+    const projectRef = recordInvariant(project.data.refs[0]);
+    expect(
+      await f.mutation(
+        {
+          action: "create",
+          typeId: milestoneTypeId,
+          fields: [{ fieldId: refId("$milestones.name"), value: textValue("Kickoff") }],
+          links: [{ relationId, direction: "outgoing", record: projectRef }],
+        },
+        f.admin,
+        randomUUID(),
+        model.revision,
+      ),
+    ).toMatchObject({ ok: true });
+    const view = await f.run(() =>
       prisma.dataView.create({
         data: { companyId: f.company.id, userId: f.admin.id, surfaceKey: `records:${projectTypeId}`, name: "Mine" },
       }),
     );
+    const lifecycle = async (operation: "delete" | "restore" | "deletePermanently") => {
+      const current = await f.run(() => f.repo.getModel());
+      return f.run(() =>
+        f.configure.invoke({
+          expectedRevision: current.revision,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation, target: { kind: "type", id: projectTypeId } }],
+        }),
+      );
+    };
+    expect(await lifecycle("delete")).toMatchObject({ ok: true, data: { status: "completed" } });
     model = await f.run(() => f.repo.getModel());
-    const deleteList = (operations: ConfigurationChange["operations"]): ConfigurationChange => ({
-      expectedRevision: model.revision,
-      idempotencyKey: randomUUID(),
-      operations,
-    });
     expect(
-      await f.run(() => f.preview.invoke(deleteList([{ operation: "deleteType", typeId: projectTypeId }]))),
-    ).toMatchObject({
-      ok: true,
-      data: {
-        valid: false,
-        issues: [{ code: "deletion_dependency", fieldId: rollupId, typeId: f.id("organization") }],
-        deletion: { records: 1, values: 1, links: 1, relationships: 1, views: 1, grants: 1 },
-      },
-    });
-    const change = deleteList([
-      { operation: "deleteField", fieldId: rollupId },
-      { operation: "deleteType", typeId: projectTypeId },
+      model.types.filter((type) => [projectTypeId, milestoneTypeId].includes(type.id)).map((type) => type.archived),
+    ).toEqual([true, true]);
+    expect(model.relationships.find((relation) => relation.id === relationId)?.archived).toBe(true);
+    const live = await f.run(() => getGetRecordModelInteractor().invoke({}));
+    expect(live.ok && live.data.types.some((type) => [projectTypeId, milestoneTypeId].includes(type.id))).toBe(false);
+    const deletedItems = await f.run(() => getGetRecentlyDeletedInteractor().invoke({}));
+    expect(deletedItems.ok && deletedItems.data.items.map((item) => item.target)).toEqual([
+      { kind: "type", id: projectTypeId },
     ]);
-    expect(await f.run(() => f.configure.invoke(change))).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(await f.run(() => prisma.dataView.count({ where: { companyId: f.company.id, id: view.id } }))).toBe(1);
+
+    expect(await lifecycle("restore")).toMatchObject({ ok: true });
+    model = await f.run(() => f.repo.getModel());
+    expect(
+      model.types.filter((type) => [projectTypeId, milestoneTypeId].includes(type.id)).map((type) => type.archived),
+    ).toEqual([false, false]);
+    expect(model.relationships.find((relation) => relation.id === relationId)?.archived).toBe(false);
+
+    expect(await lifecycle("delete")).toMatchObject({ ok: true });
+    expect(await lifecycle("deletePermanently")).toMatchObject({ ok: true });
     const after = await f.run(() => f.repo.getModel());
-    expect(after.types.some((type) => type.id === projectTypeId)).toBe(false);
-    expect(after.relationships.some((item) => item.id === relationId)).toBe(false);
-    expect(after.fields.some((field) => field.typeId === projectTypeId || field.id === rollupId)).toBe(false);
+    expect(after.types.some((type) => [projectTypeId, milestoneTypeId].includes(type.id))).toBe(false);
+    expect(after.relationships.some((relation) => relation.id === relationId)).toBe(false);
     expect(
       await f.run(() =>
         Promise.all([
-          prisma.recordTypeDefinition.count({ where: { companyId: f.company.id, id: projectTypeId } }),
-          prisma.crmRecord.count({ where: { companyId: f.company.id, typeId: projectTypeId } }),
+          prisma.recordTypeDefinition.count({
+            where: { companyId: f.company.id, id: { in: [projectTypeId, milestoneTypeId] } },
+          }),
+          prisma.crmRecord.count({
+            where: { companyId: f.company.id, typeId: { in: [projectTypeId, milestoneTypeId] } },
+          }),
           prisma.recordLink.count({ where: { companyId: f.company.id, relationId } }),
           prisma.recordTypeGrant.count({ where: { companyId: f.company.id, typeId: projectTypeId } }),
-          prisma.dataView.count({ where: { companyId: f.company.id, surfaceKey: `records:${projectTypeId}` } }),
+          prisma.dataView.count({ where: { companyId: f.company.id, id: view.id } }),
         ]),
       ),
     ).toEqual([0, 0, 0, 0, 0]);
-    expect((await f.readRecord(organization)).ref).toEqual(organization);
   });
 
   it("permanently deletes a deleted Channels field with the list's identifiers and keeps shared identifiers", async () => {
@@ -15777,42 +15915,44 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         (binding) => binding.kind === "channels" && binding.typeId === contactTypeId,
       ),
     );
-    const deletion = { operation: "deleteCapability" as const, capabilityId: contactChannels.id };
+    const target = { kind: "channels" as const, id: contactChannels.id };
+    const deletion = { operation: "deletePermanently" as const, target };
     expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({ ok: false });
-    expect(
-      await f.run(async () =>
-        f.configure.invoke(
-          await change([{ operation: "putCapability", capability: { ...contactChannels, enabled: false } }]),
-        ),
-      ),
-    ).toMatchObject({ ok: true, data: { status: "completed" } });
-    expect(
-      await f.run(() =>
-        executeMcpTool(manageDataViewsTool, [
-          {
-            action: "create",
-            surfaceKey: `records:${contactTypeId}`,
-            name: "With channels",
-            state: { columnOrder: [f.id("contact.name"), "system:channels"] },
-          },
-        ]),
-      ),
-    ).toMatchObject({ ok: true });
-    expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({
+    const view = await f.run(() =>
+      executeMcpTool(manageDataViewsTool, [
+        {
+          action: "create",
+          surfaceKey: `records:${contactTypeId}`,
+          name: "With channels",
+          state: { columnOrder: [f.id("contact.name"), "system:channels"] },
+        },
+      ]),
+    );
+    expect(view).toMatchObject({ ok: true });
+    expect(await f.run(async () => f.preview.invoke(await change([{ operation: "delete", target }])))).toMatchObject({
       ok: true,
       data: {
-        valid: false,
-        issues: expect.arrayContaining([{ code: "saved_view_incompatible", typeId: contactTypeId }]),
+        valid: true,
+        deletion: {
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({ consumer: expect.objectContaining({ kind: "view" }) }),
+          ]),
+        },
       },
     });
-    await f.run(() =>
-      prisma.dataView.deleteMany({ where: { companyId: f.company.id, surfaceKey: `records:${contactTypeId}` } }),
+    expect(await f.run(async () => f.configure.invoke(await change([{ operation: "delete", target }])))).toMatchObject({
+      ok: true,
+      data: { status: "completed" },
+    });
+    const cleanedView = await f.run(() =>
+      prisma.dataView.findFirstOrThrow({ where: { companyId: f.company.id, surfaceKey: `records:${contactTypeId}` } }),
     );
+    expect(cleanedView.columnOrder).not.toContain("system:channels");
     expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({
       ok: true,
       data: {
         valid: true,
-        deletion: { records: 0, values: 0, links: 0, identifiers: 2, identifierRecords: 1 },
+        deletion: { removed: { records: 0, values: 0, links: 0, identifiers: 2, identifierRecords: 1 } },
       },
     });
     expect(await f.run(async () => f.configure.invoke(await change([deletion])))).toMatchObject({

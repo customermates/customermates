@@ -1140,15 +1140,11 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "archived": {
-                            "type": "boolean"
                           }
                         },
                         "required": [
                           "id",
-                          "label",
-                          "archived"
+                          "label"
                         ],
                         "additionalProperties": false
                       }
@@ -12462,6 +12458,19 @@
                         ],
                         "additionalProperties": false,
                         "description": "Optional position and size on the 12-column desktop grid. Omit it to keep the current position on update or to place a new widget in the first free spot. It must not overlap another widget."
+                      },
+                      "viewId": {
+                        "description": "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -12851,6 +12860,19 @@
                         ],
                         "additionalProperties": false,
                         "description": "Optional position and size on the 12-column desktop grid. Omit it to keep the current position on update or to place a new widget in the first free spot. It must not overlap another widget."
+                      },
+                      "viewId": {
+                        "description": "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -15782,6 +15804,18 @@
                             }
                           ]
                         },
+                        "viewId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "isTemplate": {
                           "type": "boolean"
                         },
@@ -16875,6 +16909,7 @@
                         "measure",
                         "displayOptions",
                         "layout",
+                        "viewId",
                         "isTemplate",
                         "createdAt",
                         "updatedAt",
@@ -17416,6 +17451,18 @@
                                 }
                               },
                               "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "viewId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             {
                               "type": "null"
@@ -21428,6 +21475,7 @@
                         "activityQuery",
                         "displayOptions",
                         "layout",
+                        "viewId",
                         "isTemplate",
                         "createdAt",
                         "updatedAt",
@@ -24454,6 +24502,18 @@
                             }
                           ]
                         },
+                        "viewId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "isTemplate": {
                           "type": "boolean"
                         },
@@ -25547,6 +25607,7 @@
                         "measure",
                         "displayOptions",
                         "layout",
+                        "viewId",
                         "isTemplate",
                         "createdAt",
                         "updatedAt",
@@ -26088,6 +26149,18 @@
                                 }
                               },
                               "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "viewId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             {
                               "type": "null"
@@ -30100,6 +30173,7 @@
                         "activityQuery",
                         "displayOptions",
                         "layout",
+                        "viewId",
                         "isTemplate",
                         "createdAt",
                         "updatedAt",
@@ -33122,6 +33196,18 @@
                                   }
                                 ]
                               },
+                              "viewId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
                               "isTemplate": {
                                 "type": "boolean"
                               },
@@ -34215,6 +34301,7 @@
                               "measure",
                               "displayOptions",
                               "layout",
+                              "viewId",
                               "isTemplate",
                               "createdAt",
                               "updatedAt",
@@ -34756,6 +34843,18 @@
                                       }
                                     },
                                     "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "viewId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                   },
                                   {
                                     "type": "null"
@@ -38768,6 +38867,7 @@
                               "activityQuery",
                               "displayOptions",
                               "layout",
+                              "viewId",
                               "isTemplate",
                               "createdAt",
                               "updatedAt",
@@ -38967,7 +39067,8 @@
                             "type": "boolean"
                           },
                           "archived": {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "description": "True while the item is in Recently deleted."
                           },
                           "position": {
                             "type": "integer",
@@ -39951,7 +40052,8 @@
                             "additionalProperties": false
                           },
                           "archived": {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "description": "True while the item is in Recently deleted."
                           },
                           "publishedSummary": {
                             "type": "boolean"
@@ -40330,7 +40432,8 @@
                             "description": "Show the messages of directly linked source records on each target record's activity timeline."
                           },
                           "archived": {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "description": "True while the item is in Recently deleted."
                           }
                         },
                         "required": [
@@ -40481,6 +40584,203 @@
                     "relationships",
                     "accessPresets",
                     "capabilities"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/model/deleted": {
+      "post": {
+        "operationId": "readRecentlyDeletedConfiguration",
+        "summary": "Read lists, fields and relationships in Recently deleted",
+        "tags": [
+          "records"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The operation was accepted or completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "schemaRevision": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "target": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "type",
+                                  "field",
+                                  "relationship",
+                                  "channels"
+                                ]
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "typeId": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "typeLabel": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "deletedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "deletedBy": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "target",
+                          "label",
+                          "typeId",
+                          "typeLabel",
+                          "deletedAt",
+                          "deletedBy"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "schemaRevision",
+                    "items"
                   ],
                   "additionalProperties": false
                 }
@@ -40758,6 +41058,7 @@
                                   "type": "boolean"
                                 },
                                 "archived": {
+                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                   "type": "boolean"
                                 },
                                 "position": {
@@ -41187,14 +41488,14 @@
                                         }
                                       },
                                       "archived": {
+                                        "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                         "type": "boolean"
                                       }
                                     },
                                     "required": [
                                       "id",
                                       "label",
-                                      "path",
-                                      "archived"
+                                      "path"
                                     ],
                                     "additionalProperties": false
                                   }
@@ -41208,7 +41509,6 @@
                                 "icon",
                                 "primaryFieldId",
                                 "embedded",
-                                "archived",
                                 "position",
                                 "defaults"
                               ],
@@ -41553,6 +41853,7 @@
                                   "additionalProperties": false
                                 },
                                 "archived": {
+                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                   "type": "boolean"
                                 },
                                 "options": {
@@ -41701,7 +42002,6 @@
                                 "valueType",
                                 "behavior",
                                 "required",
-                                "archived",
                                 "options",
                                 "position"
                               ],
@@ -41812,6 +42112,7 @@
                                   "description": "Show the messages of directly linked source records on each target record's activity timeline."
                                 },
                                 "archived": {
+                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                   "type": "boolean"
                                 }
                               },
@@ -41826,8 +42127,7 @@
                                 "onSourceDelete",
                                 "onTargetDelete",
                                 "messagesOnSource",
-                                "messagesOnTarget",
-                                "archived"
+                                "messagesOnTarget"
                               ],
                               "additionalProperties": false
                             }
@@ -42055,60 +42355,117 @@
                           "properties": {
                             "operation": {
                               "type": "string",
-                              "const": "deleteType"
+                              "const": "delete"
                             },
-                            "typeId": {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            "target": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "type",
+                                    "field",
+                                    "relationship",
+                                    "channels"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "id"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
                             "operation",
-                            "typeId"
+                            "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently delete an archived type with its fields, records, links and relationships."
+                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
                           "properties": {
                             "operation": {
                               "type": "string",
-                              "const": "deleteField"
+                              "const": "restore"
                             },
-                            "fieldId": {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            "target": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "type",
+                                    "field",
+                                    "relationship",
+                                    "channels"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "id"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
                             "operation",
-                            "fieldId"
+                            "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently delete an archived field and its values."
+                          "description": "Restore an item from Recently deleted together with what was deleted with it."
                         },
                         {
                           "type": "object",
                           "properties": {
                             "operation": {
                               "type": "string",
-                              "const": "deleteCapability"
+                              "const": "deletePermanently"
                             },
-                            "capabilityId": {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            "target": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "type",
+                                    "field",
+                                    "relationship",
+                                    "channels"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "id"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
                             "operation",
-                            "capabilityId"
+                            "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently delete a deleted Channels field (a channels capability with enabled false) and the list's channel identifiers."
+                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and Channels its identifiers."
                         },
                         {
                           "type": "object",
@@ -42305,75 +42662,288 @@
                     "deletion": {
                       "type": "object",
                       "properties": {
-                        "records": {
-                          "anyOf": [
-                            {
-                              "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
+                        "blockers": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "reason": {
+                                "type": "string",
+                                "enum": [
+                                  "calculation",
+                                  "snapshotTrigger",
+                                  "parentAccess",
+                                  "binding",
+                                  "primaryField",
+                                  "protected",
+                                  "routine",
+                                  "webhook",
+                                  "widget",
+                                  "requiresRestore"
+                                ]
+                              },
+                              "source": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "channels",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "target": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "channels",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              }
                             },
-                            {
-                              "type": "null"
-                            }
-                          ]
+                            "required": [
+                              "reason",
+                              "source",
+                              "target"
+                            ],
+                            "additionalProperties": false
+                          }
                         },
-                        "values": {
-                          "anyOf": [
-                            {
-                              "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
+                        "cleaned": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "consumer": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "channels",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "target": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "channels",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              }
                             },
-                            {
-                              "type": "null"
-                            }
-                          ]
+                            "required": [
+                              "consumer",
+                              "target"
+                            ],
+                            "additionalProperties": false
+                          }
                         },
-                        "links": {
+                        "removed": {
                           "anyOf": [
                             {
-                              "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "relationships": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
-                        },
-                        "views": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
-                        },
-                        "grants": {
-                          "type": "integer",
-                          "minimum": -9007199254740991,
-                          "maximum": 9007199254740991
-                        },
-                        "identifiers": {
-                          "anyOf": [
-                            {
-                              "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "identifierRecords": {
-                          "anyOf": [
-                            {
-                              "type": "integer",
-                              "minimum": -9007199254740991,
-                              "maximum": 9007199254740991
+                              "type": "object",
+                              "properties": {
+                                "records": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "values": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "links": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "relationships": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "views": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "grants": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "identifiers": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "identifierRecords": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "records",
+                                "values",
+                                "links",
+                                "relationships",
+                                "views",
+                                "grants",
+                                "identifiers",
+                                "identifierRecords"
+                              ],
+                              "additionalProperties": false
                             },
                             {
                               "type": "null"
@@ -42382,14 +42952,9 @@
                         }
                       },
                       "required": [
-                        "records",
-                        "values",
-                        "links",
-                        "relationships",
-                        "views",
-                        "grants",
-                        "identifiers",
-                        "identifierRecords"
+                        "blockers",
+                        "cleaned",
+                        "removed"
                       ],
                       "additionalProperties": false
                     }
@@ -42682,6 +43247,7 @@
                                   "type": "boolean"
                                 },
                                 "archived": {
+                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                   "type": "boolean"
                                 },
                                 "position": {
@@ -43111,14 +43677,14 @@
                                         }
                                       },
                                       "archived": {
+                                        "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                         "type": "boolean"
                                       }
                                     },
                                     "required": [
                                       "id",
                                       "label",
-                                      "path",
-                                      "archived"
+                                      "path"
                                     ],
                                     "additionalProperties": false
                                   }
@@ -43132,7 +43698,6 @@
                                 "icon",
                                 "primaryFieldId",
                                 "embedded",
-                                "archived",
                                 "position",
                                 "defaults"
                               ],
@@ -43477,6 +44042,7 @@
                                   "additionalProperties": false
                                 },
                                 "archived": {
+                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                   "type": "boolean"
                                 },
                                 "options": {
@@ -43625,7 +44191,6 @@
                                 "valueType",
                                 "behavior",
                                 "required",
-                                "archived",
                                 "options",
                                 "position"
                               ],
@@ -43736,6 +44301,7 @@
                                   "description": "Show the messages of directly linked source records on each target record's activity timeline."
                                 },
                                 "archived": {
+                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                   "type": "boolean"
                                 }
                               },
@@ -43750,8 +44316,7 @@
                                 "onSourceDelete",
                                 "onTargetDelete",
                                 "messagesOnSource",
-                                "messagesOnTarget",
-                                "archived"
+                                "messagesOnTarget"
                               ],
                               "additionalProperties": false
                             }
@@ -43979,60 +44544,117 @@
                           "properties": {
                             "operation": {
                               "type": "string",
-                              "const": "deleteType"
+                              "const": "delete"
                             },
-                            "typeId": {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            "target": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "type",
+                                    "field",
+                                    "relationship",
+                                    "channels"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "id"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
                             "operation",
-                            "typeId"
+                            "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently delete an archived type with its fields, records, links and relationships."
+                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
                           "properties": {
                             "operation": {
                               "type": "string",
-                              "const": "deleteField"
+                              "const": "restore"
                             },
-                            "fieldId": {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            "target": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "type",
+                                    "field",
+                                    "relationship",
+                                    "channels"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "id"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
                             "operation",
-                            "fieldId"
+                            "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently delete an archived field and its values."
+                          "description": "Restore an item from Recently deleted together with what was deleted with it."
                         },
                         {
                           "type": "object",
                           "properties": {
                             "operation": {
                               "type": "string",
-                              "const": "deleteCapability"
+                              "const": "deletePermanently"
                             },
-                            "capabilityId": {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            "target": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "type",
+                                    "field",
+                                    "relationship",
+                                    "channels"
+                                  ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "id"
+                              ],
+                              "additionalProperties": false
                             }
                           },
                           "required": [
                             "operation",
-                            "capabilityId"
+                            "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Permanently delete a deleted Channels field (a channels capability with enabled false) and the list's channel identifiers."
+                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and Channels its identifiers."
                         },
                         {
                           "type": "object",

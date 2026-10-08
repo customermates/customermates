@@ -70,7 +70,7 @@ export const RoleEditorContextSchema = z
     canEdit: z.boolean(),
     canDelete: z.boolean(),
     role: RolePermissionsDtoSchema.nullable(),
-    types: z.array(z.object({ id: z.uuid(), label: z.string(), archived: z.boolean() }).strict()),
+    types: z.array(z.object({ id: z.uuid(), label: z.string() }).strict()),
   })
   .strict();
 export type RoleEditorContext = z.infer<typeof RoleEditorContextSchema>;

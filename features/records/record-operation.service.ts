@@ -280,6 +280,8 @@ export class RecordOperationService extends UserAccessor {
 
           if (prepared) {
             await this.records.saveModel(prepared.model, this.userId, prepared.change);
+            if (prepared.deletion) await this.records.deleteDefinitions(prepared.deletion);
+            await this.records.applyConsumerCleanups(prepared.cleanups);
             for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
           } else {
             const mutation = MutateRecordSchema.parse(operation.request).mutation;

@@ -292,7 +292,7 @@ export const RecordFieldSchema = z
       })
       .strict()
       .optional(),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
     publishedSummary: z.boolean(),
     options: z.array(
       z
@@ -326,7 +326,7 @@ export const RecordRelationshipSchema = z
     messagesOnTarget: z
       .boolean()
       .describe("Show the messages of directly linked source records on each target record's activity timeline."),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
   })
   .strict();
 export type RecordRelationship = z.infer<typeof RecordRelationshipSchema>;
@@ -351,7 +351,7 @@ export const RecordTypeSchema = z
     parentRelationshipId: z.uuid().nullable().default(null),
     embedded: z.boolean(),
     navigationVisible: z.boolean().default(true),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
     position: z.number().int().nonnegative(),
     defaults: z
       .object({

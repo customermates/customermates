@@ -5,7 +5,8 @@
 --     step from the source list) or messagesOnTarget (incoming step from the target list);
 --   * the starter Tasks -> Contacts path is dropped (Tasks do not show contact messages);
 --   * self paths become implicit, multi-hop paths and includeAudit on linked paths are dropped;
---   * stored configuration changes lose their putActivityPath operations (a change left without operations
+--   * stored configuration changes lose their putActivityPath operations and delete/restore operations and
+--     deletion records that target an activity path (a change left without operations
 --     keeps its revision entry without a configuration), and their putRelationship operations carry the
 --     switches of the relationship in that revision.
 -- Re-running the migration changes nothing.
@@ -69,7 +70,20 @@ LANGUAGE sql IMMUTABLE AS $$
         operation.value #>> '{relationship,id}')
       LIMIT 1) stored ON TRUE
     WHERE operation.value ->> 'operation' IS DISTINCT FROM 'putActivityPath'
+      AND operation.value #>> '{target,kind}' IS DISTINCT FROM 'activityPath'
   ), '[]'::jsonb) AS operations) converted
+$$;
+
+CREATE FUNCTION activity_sources_upgrade.convert_deletions(deletions jsonb) RETURNS jsonb
+LANGUAGE sql IMMUTABLE AS $$
+  SELECT COALESCE(jsonb_agg(
+      deletion.value || jsonb_build_object('cascade', COALESCE((
+        SELECT jsonb_agg(item.value ORDER BY item.ordinality)
+        FROM jsonb_array_elements(deletion.value -> 'cascade') WITH ORDINALITY AS item(value, ordinality)
+        WHERE item.value ->> 'kind' IS DISTINCT FROM 'activityPath'), '[]'::jsonb))
+      ORDER BY deletion.ordinality), '[]'::jsonb)
+  FROM jsonb_array_elements(deletions) WITH ORDINALITY AS deletion(value, ordinality)
+  WHERE deletion.value #>> '{target,kind}' IS DISTINCT FROM 'activityPath'
 $$;
 
 UPDATE "RecordSchemaRevision"
@@ -86,9 +100,15 @@ WHERE jsonb_typeof(change #> '{configuration,operations}') = 'array'
   AND EXISTS (
     SELECT 1 FROM jsonb_array_elements(change #> '{configuration,operations}') AS operation(value)
     WHERE operation.value ->> 'operation' = 'putActivityPath'
+      OR operation.value #>> '{target,kind}' = 'activityPath'
       OR (operation.value ->> 'operation' = 'putRelationship'
         AND NOT (operation.value -> 'relationship' ? 'messagesOnSource' AND operation.value -> 'relationship' ? 'messagesOnTarget'))
   );
+
+UPDATE "RecordSchemaRevision"
+SET change = jsonb_set(change, '{deletions}', activity_sources_upgrade.convert_deletions(change -> 'deletions'))
+WHERE jsonb_typeof(change -> 'deletions') = 'array'
+  AND jsonb_path_exists(change -> 'deletions', '$[*] ? (@.target.kind == "activityPath" || exists(@.cascade[*] ? (@.kind == "activityPath")))');
 
 CREATE FUNCTION activity_sources_upgrade.current_switch(company_id text, relationship_id text, switch text) RETURNS boolean
 LANGUAGE sql STABLE AS $$
@@ -113,6 +133,8 @@ BEGIN
     OR EXISTS (
       SELECT 1 FROM "RecordSchemaRevision"
       WHERE change #> '{configuration,operations}' @> '[{"operation": "putActivityPath"}]'
+        OR change #> '{configuration,operations}' @> '[{"target": {"kind": "activityPath"}}]'
+        OR jsonb_path_exists(change -> 'deletions', '$[*] ? (@.target.kind == "activityPath" || exists(@.cascade[*] ? (@.kind == "activityPath")))')
     ) THEN
     RAISE EXCEPTION 'An activity path is still stored';
   END IF;

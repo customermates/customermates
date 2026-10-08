@@ -26,7 +26,9 @@ import { useRecordRouteReady } from "@/components/records/use-record-route-ready
 import { discoverRecordTypesAction } from "../../records/actions";
 import { ConfigureTopBarActions } from "./configure-actions";
 import { ConfigureListPane } from "./configure-list-pane";
+import { isResolvedField } from "./configure-model";
 import { DataModelStore } from "./data-model.store";
+import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
 import { FieldModal, FieldModalStore } from "./field-modal";
 import { RelationshipModal, RelationshipModalStore } from "./relationship-modal";
 import { TypeModal, TypeModalStore } from "./type-modal";
@@ -40,6 +42,8 @@ const ConfigureGraph = dynamic(() => import("./configure-graph").then((module) =
     </div>
   ),
 });
+
+const CONFIGURE_FOCUS_KINDS: FocusKind[] = ["list", "field", "relationship"];
 
 function configureHref(changes: Record<string, string | null>) {
   const url = new URL(window.location.href);
@@ -76,7 +80,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const generalFormId = useId();
   const [store] = useState(() => new DataModelStore(initialModel));
   const [graphLayout, setGraphLayout] = useState(savedLayout?.positions ?? null);
-  const [showArchived, setShowArchived] = useState(false);
   const authoritative = useRef(initialModel);
   useEffect(() => {
     if (authoritative.current === initialModel) return;
@@ -152,7 +155,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   }, [createRequested, canManage, model, typeModal]);
 
   const selected = model.types.find((type) => type.id === typeId);
-  const hasArchived = model.types.some((type) => type.archived);
   const selectedLabel = selected?.pluralLabel;
   useEffect(() => {
     if (!selectedLabel) return;
@@ -189,6 +191,31 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     fieldModal.close();
     await refresh();
   }, [fieldModal, refresh]);
+  const relationshipDeleted = useCallback(async () => {
+    relationModal.close();
+    await refresh();
+  }, [relationModal, refresh]);
+  const [focusedListId, setFocusedListId] = useState<string | null>(null);
+  useFocusTarget(
+    CONFIGURE_FOCUS_KINDS,
+    (target) => {
+      if (target.kind === "list") {
+        setFocusedListId(target.id);
+        return true;
+      }
+      if (!selected) return true;
+      if (target.kind === "field") {
+        const field = model.fields.find((candidate) => candidate.id === target.id && candidate.typeId === selected.id);
+        if (field && isResolvedField(field)) fieldModal.edit(model, selected.id, field);
+      }
+      if (target.kind === "relationship") {
+        const relation = model.relationships.find((candidate) => candidate.id === target.id);
+        if (relation) relationModal.edit(model, selected.id, relation);
+      }
+      return true;
+    },
+    interactive,
+  );
   const tryNavigate = useCallback((navigate: () => void) => root.navigationGuard.tryNavigate(navigate), [root]);
   const selectList = useCallback(
     (id: string) =>
@@ -236,37 +263,16 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         disabled={!interactive}
         general={general}
         generalFormId={generalFormId}
-        hasArchived={hasArchived}
         model={model}
         selected={selected}
-        showArchived={showArchived}
         onAdd={add}
-        onArchive={() => {
-          if (!selected) return;
-          typeModal.edit(model, selected, "archive");
-          typeModal.onChange("archived", !selected.archived);
-        }}
         onDeleted={listDeleted}
         onSharedDefaults={() => {
           if (selected) typeModal.edit(model, selected, "appearance");
         }}
-        onToggleArchived={() => setShowArchived((current) => !current)}
       />
     ),
-    [
-      add,
-      canManage,
-      general,
-      generalFormId,
-      hasArchived,
-      interactive,
-      model,
-      selected,
-      showArchived,
-      listDeleted,
-      t,
-      typeModal,
-    ],
+    [add, canManage, general, generalFormId, interactive, model, selected, listDeleted, t, typeModal],
   );
   useSetTopBarActions(topBar);
 
@@ -295,21 +301,10 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             interactive={interactive}
             model={model}
             selected={selected}
-            showArchived={showArchived}
             onEditChannels={() => editChannels(selected.id)}
-            onEditField={(field) => {
-              fieldModal.edit(model, selected.id, field);
-              if (field.archived) fieldModal.onChange("archived", false);
-            }}
-            onEditRelationship={(relation) => {
-              relationModal.edit(model, selected.id, relation);
-              if (relation.archived) relationModal.onChange("archived", false);
-            }}
-            onEditRelationshipPath={(path) => {
-              relationModal.editPath(model, selected.id, path);
-              if (path.archived) relationModal.onChange("archived", false);
-            }}
-            onToggleArchived={() => setShowArchived((current) => !current)}
+            onEditField={(field) => fieldModal.edit(model, selected.id, field)}
+            onEditRelationship={(relation) => relationModal.edit(model, selected.id, relation)}
+            onEditRelationshipPath={(path) => relationModal.editPath(model, selected.id, path)}
           />
         </section>
       ) : typeId ? (
@@ -327,20 +322,14 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             canManage={canManage}
             catalog={catalog}
             disabled={!interactive}
+            focusedListId={focusedListId}
             layout={graphLayout}
             model={model}
-            showArchived={showArchived}
             onAddField={(listId) => fieldModal.edit(model, listId, null)}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
             onEditChannels={editChannels}
-            onEditField={(listId, field) => {
-              fieldModal.edit(model, listId, field);
-              if (field.archived) fieldModal.onChange("archived", false);
-            }}
-            onEditRelationship={(relation) => {
-              relationModal.edit(model, relation.sourceTypeId, relation);
-              if (relation.archived) relationModal.onChange("archived", false);
-            }}
+            onEditField={(listId, field) => fieldModal.edit(model, listId, field)}
+            onEditRelationship={(relation) => relationModal.edit(model, relation.sourceTypeId, relation)}
             onLayoutChange={setGraphLayout}
             onSelectList={selectList}
           />
@@ -351,7 +340,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
 
       <FieldModal store={fieldModal} onDeleted={fieldDeleted} />
 
-      <RelationshipModal store={relationModal} />
+      <RelationshipModal store={relationModal} onDeleted={relationshipDeleted} />
     </div>
   );
 });
