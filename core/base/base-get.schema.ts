@@ -37,6 +37,9 @@ export const FilterSchema = z.preprocess(
           z.literal(FilterOperatorKey.in).meta({ title: "in" }),
           z.literal(FilterOperatorKey.notIn).meta({ title: "notIn" }),
           z.literal(FilterOperatorKey.between).meta({ title: "between" }),
+          z.literal(FilterOperatorKey.hasAnyOf).meta({ title: "hasAnyOf" }),
+          z.literal(FilterOperatorKey.hasAllOf).meta({ title: "hasAllOf" }),
+          z.literal(FilterOperatorKey.hasNoneOf).meta({ title: "hasNoneOf" }),
         ]),
         value: z.array(zx.nulFreeText()),
       })

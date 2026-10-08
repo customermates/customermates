@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { TruncatedText } from "@/components/shared/truncated-text";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
 
 export type RankedTableRow = {
   key: string;
@@ -21,8 +21,7 @@ type Props = {
 
 export function RankedTable({ color, hiddenCount, rows }: Props) {
   const t = useTranslations();
-  const locale = useHydratedIntlStore().formattingLocale;
-  const percent = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 });
+  const valueFormat = useRecordValueFormat();
 
   return (
     <div className="min-h-0 overflow-auto" data-slot="widget-ranked-table">
@@ -68,7 +67,7 @@ export function RankedTable({ color, hiddenCount, rows }: Props) {
               </td>
 
               <td className="whitespace-nowrap py-1.5 pl-3 text-right tabular-nums text-muted-foreground">
-                {row.share === null ? "—" : percent.format(row.share)}
+                {row.share === null ? "—" : valueFormat.percent(row.share)}
               </td>
             </tr>
           ))}

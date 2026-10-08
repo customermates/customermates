@@ -20,7 +20,7 @@ import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.repo";
 import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
 import type { RegisterUserRepo } from "@/features/user/register/register-user.repo";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.repo";
-import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
+import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.repo";
 import type { Prisma } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";

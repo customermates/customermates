@@ -4,6 +4,7 @@ import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/gro
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
+import { isPersistedColumnWidthKey } from "@/core/data-view/data-view-state.schema";
 import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
 import type { GetResult } from "./base-get.interactor";
@@ -835,7 +836,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         this.columnOrder = localProjection.columnOrder.filter((id) => available.has(id) && id !== this.primaryColumnId);
       if (keepWidths) {
         this.columnWidths = Object.fromEntries(
-          Object.entries(localProjection.columnWidths).filter(([id]) => available.has(id)),
+          Object.entries(localProjection.columnWidths).filter(([id]) => isPersistedColumnWidthKey(id, available)),
         );
       }
       if (keepHidden) {

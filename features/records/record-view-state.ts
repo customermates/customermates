@@ -1,4 +1,4 @@
-import type { DataViewState } from "@/core/data-view/data-view-state.schema";
+import { isPersistedColumnWidthKey, type DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { RecordModel } from "./record-model.schema";
 
 import { presentationFiltersAreValid, presentationQuery } from "./record-presentation";
@@ -12,9 +12,8 @@ export function recordViewStateIsValid(typeId: string, state: DataViewState, mod
   const paths = model.types.find((type) => type.id === typeId)?.relationshipPaths;
   const ids = new Set(recordColumns(typeId, model).map((column) => column.id));
   if (
-    [...(state.columnOrder ?? []), ...(state.hiddenColumns ?? []), ...Object.keys(state.columnWidths ?? {})].some(
-      (id) => !ids.has(id),
-    )
+    [...(state.columnOrder ?? []), ...(state.hiddenColumns ?? [])].some((id) => !ids.has(id)) ||
+    Object.keys(state.columnWidths ?? {}).some((id) => !isPersistedColumnWidthKey(id, ids))
   )
     return false;
   if (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model)) return false;

@@ -23,7 +23,8 @@ import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
-import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
+import type { FocusKind } from "@/components/focus/focus-href";
+import { useFocusTarget } from "@/components/focus/focus-target";
 import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 

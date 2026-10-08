@@ -41,6 +41,7 @@ export function recordDto(
         ? [assignment.user]
         : [],
     ),
+    memberUsers: [],
     relationships: [],
     fields: model.fields
       .filter(
@@ -56,6 +57,31 @@ export function recordDto(
           : { state: "restricted" },
       })),
   };
+}
+
+function memberIds(record: RecordDto) {
+  return record.fields.flatMap(({ result }) =>
+    result.state === "value" && result.value.kind === "member" ? [result.value.value] : [],
+  );
+}
+
+export async function withMemberUsers<T extends RecordDto>(
+  records: T[],
+  repo: Pick<RecordRepo, "getMembersCompanyWide">,
+  memberScope: RecordReadScope,
+): Promise<T[]> {
+  const readable = [...new Set(records.flatMap(memberIds))].filter(
+    (id) => memberScope.access === "all" || (memberScope.access === "own" && id === memberScope.userId),
+  );
+  if (!readable.length) return records;
+  const users = new Map((await repo.getMembersCompanyWide(readable)).map((user) => [user.id, user]));
+  return records.map((record) => ({
+    ...record,
+    memberUsers: [...new Set(memberIds(record))].flatMap((id) => {
+      const user = users.get(id);
+      return user ? [user] : [];
+    }),
+  }));
 }
 
 @AllowInDemoMode
@@ -110,18 +136,22 @@ export class QueryRecordsInteractor extends AuthenticatedInteractor<RecordQuery,
           return {
             ok: true as const,
             data: {
-              records: result.records.map((record) => ({
-                ...recordDto(
-                  record,
-                  model,
-                  result.visibleFields.get(record.id) ?? new Set(),
-                  policy.memberScope,
-                  query.fields,
-                ),
-                ...(identities ? { identities: identities.get(record.id) ?? [] } : {}),
-                relationships: relationships.get(record.id) ?? [],
-                relationshipPaths: paths.get(record.id) ?? [],
-              })),
+              records: await withMemberUsers(
+                result.records.map((record) => ({
+                  ...recordDto(
+                    record,
+                    model,
+                    result.visibleFields.get(record.id) ?? new Set(),
+                    policy.memberScope,
+                    query.fields,
+                  ),
+                  ...(identities ? { identities: identities.get(record.id) ?? [] } : {}),
+                  relationships: relationships.get(record.id) ?? [],
+                  relationshipPaths: paths.get(record.id) ?? [],
+                })),
+                this.records,
+                policy.memberScope,
+              ),
               total: result.total,
               page: query.page,
               pageSize: query.pageSize,

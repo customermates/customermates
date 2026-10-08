@@ -23,8 +23,14 @@ import { resolveSearchReferencesAction } from "../../search/actions";
 import { getMessagingThreadsAction } from "../../inbox/actions";
 import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordActivityWidgetForm } from "./record-widget-form";
-import { WidgetEditorColumns } from "./widget-editor-layout";
-import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
+import {
+  WidgetEditorColumns,
+  WidgetEditorSegments,
+  initialWidgetEditorSegment,
+  opensWidgetFilters,
+} from "./widget-editor-layout";
+import { recordActivityFilterCount } from "@/ee/messaging/activities/record-activity-sources";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { RecordActivityWidgetCard } from "./record-activity-widget-card";
 import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activity-timeline-skeleton";
@@ -122,7 +128,6 @@ export const RecordActivityWidgetEditor = observer(
     const form = store.form;
     const [typeNames, setTypeNames] = useState<Array<{ id: string; pluralLabel: string }>>([]);
     const query = isRecordActivityWidgetForm(form) ? form.activityQuery : null;
-    const [refreshes, setRefreshes] = useState(0);
     const validQuery = query && RecordActivityQuerySchema.safeParse(query).success ? JSON.stringify(query) : null;
     const previewQuery = useDebouncedValue(validQuery, PREVIEW_DELAY_MS);
     const typeIds = query
@@ -207,14 +212,11 @@ export const RecordActivityWidgetEditor = observer(
         <WidgetPreviewFrame
           geometry={store.previewGeometry}
           kind={form.kind}
-          refreshDisabled={formDisabled || !previewQuery}
-          refreshLabel={t("Dashboard.widgetEditor.preview.title")}
-          onRefresh={() => setRefreshes((count) => count + 1)}
+          loading={Boolean(validQuery) && previewQuery !== validQuery}
         >
           {previewQuery ? (
             <div className="h-full" data-preview-current={previewQuery === validQuery}>
               <RecordActivityWidgetCard
-                key={refreshes}
                 widget={{
                   id: form.id ?? "",
                   name: form.name.trim() || t("Dashboard.widgetEditor.preview.untitled"),
@@ -283,7 +285,10 @@ export const RecordActivityWidgetEditor = observer(
             <p className="text-xs text-muted-foreground">{t("RecordActivityWidgets.allRecords")}</p>
           </div>
         ))}
-
+      </div>
+    );
+    const filtersContent = (
+      <div className="space-y-4">
         {filters.map((filter, index) => {
           const id = `activityQuery.filters[${index}]`;
           const operators = filter.kind === "record" ? ["in", "notIn", "hasSome", "hasNone"] : ["in", "notIn"];
@@ -413,29 +418,29 @@ export const RecordActivityWidgetEditor = observer(
       <WidgetEditorColumns
         preview={<section id="widget-config-preview">{previewContent}</section>}
         settings={
-          <EditorTabs
-            contentClassName="space-y-4 pt-4"
-            label={t("Dashboard.widgetEditor.settings")}
-            tabs={[
-              {
-                id: "data",
-                label: t("Dashboard.widgetEditor.tabs.data"),
-                fields: ["name", "activityQuery"],
-                content: (
-                  <>
-                    {settingsHeader}
+          <WidgetEditorSegments
+            appearance={appearance}
+            appearanceFields={["displayOptions", "isTemplate"]}
+            data={
+              <>
+                {settingsHeader}
 
-                    {dataContent}
-                  </>
-                ),
-              },
-              {
-                id: "appearance",
-                label: t("Dashboard.widgetEditor.tabs.appearance"),
-                fields: ["displayOptions", "isTemplate"],
-                content: appearance,
-              },
-            ]}
+                {dataContent}
+
+                <CollapsibleSection
+                  defaultOpen={opensWidgetFilters(store.expandedSection)}
+                  id="widget-config-filters"
+                  summary={t("Dashboard.widgetEditor.sections.activeFilters", {
+                    count: recordActivityFilterCount(query),
+                  })}
+                  title={t("Dashboard.widgetEditor.sections.filters")}
+                >
+                  {filtersContent}
+                </CollapsibleSection>
+              </>
+            }
+            dataFields={["name", "activityQuery"]}
+            initial={initialWidgetEditorSegment(store.expandedSection)}
           />
         }
       />

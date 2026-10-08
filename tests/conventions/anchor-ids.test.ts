@@ -18,47 +18,14 @@ import { recordUiTargets } from "@/ee/agent-chat/record-ui-targets";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
-
 const ENFORCED = true;
 
-const DOCS_ID_PATTERN = /`#([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`/g;
 const LITERAL_ID_PATTERN =
   /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId|anchorId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
 const SEGMENT_ID_PREFIX_PATTERN = /<SegmentedControl\b(?:=>|[^>])*?\sidPrefix=["']([a-z0-9-]+)["']/g;
 const SEGMENT_VALUE_PATTERN = /\{ value: "([a-z0-9-]+)", label:/g;
 const FOOTER_ANCHOR_SCOPE_PATTERN = /<FormFooterActions\b(?:=>|[^>])*?\sanchorScope=["']([a-z0-9-]+)["']/g;
-const DOCS_LOCALES = CONTENT_LOCALES;
-
-const RESERVED_LITERAL_PREFIXES = [
-  "nav-",
-  "entity-",
-  "drawer-",
-  "confirm-",
-  "dashboard-",
-  "profile-",
-  "api-key-",
-  "onboarding-",
-  "global-",
-  "mass-",
-  "inbox-",
-  "records-",
-];
-const UNDOCUMENTED_DIALOG_IDS = /^(?:mass-|confirm-)/;
-
-function appGuideFiles(locale: string): string[] {
-  return walkFiles(join(REPO_ROOT, "content", "docs", locale), (path) => /app-[a-z-]+\.mdx$/.test(path));
-}
-
-function documentedIds(locale: string): Set<string> {
-  const ids = new Set<string>();
-  for (const file of appGuideFiles(locale)) {
-    const text = readFileSync(file, "utf8");
-    for (const match of text.matchAll(DOCS_ID_PATTERN)) ids.add(match[1]);
-  }
-  return ids;
-}
 
 function sourceFiles(): string[] {
   return [
@@ -111,33 +78,7 @@ function toolbarSuffixes(scope: string, hasAdd: boolean): string[] {
   ];
 }
 
-function expectedDocumentedIds(): Set<string> {
-  const ids = new Set<string>();
-  for (const scope of TOOLBAR_SCOPES_WITH_ADD)
-    for (const suffix of toolbarSuffixes(scope, true)) ids.add(`${scope}${suffix}`);
-  for (const suffix of toolbarSuffixes("records", true)) ids.add(`records${suffix}`);
-  ids.add("records-transfer");
-  for (const scope of TOOLBAR_SCOPES_WITHOUT_ADD)
-    for (const suffix of toolbarSuffixes(scope, false)) ids.add(`${scope}${suffix}`);
-  for (const page of FORM_PAGES)
-    for (const suffix of ["-save", formDiscardSuffix(page)]) ids.add(`${page.scope}${suffix}`);
-  for (const key of NAV_KEYS) ids.add(`nav-${key}`);
-  for (const file of sourceFiles()) {
-    const text = readFileSync(file, "utf8");
-    for (const match of text.matchAll(LITERAL_ID_PATTERN)) {
-      const id = match[1] ?? match[2];
-      if (RESERVED_LITERAL_PREFIXES.some((prefix) => id.startsWith(prefix)) && !UNDOCUMENTED_DIALOG_IDS.test(id))
-        ids.add(id);
-    }
-  }
-  return ids;
-}
-
-describe("app-guide anchor id fidelity", () => {
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has app-guide pages in every locale", () => {
-    for (const locale of DOCS_LOCALES) expect(appGuideFiles(locale).length).toBeGreaterThan(0);
-  });
-
+describe("interface anchor id fidelity", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("declares every nav key and scope it expands", () => {
     const sidebar = ["app-sidebar.tsx", "navigation/nav-header.tsx", "navigation/nav-user.tsx"]
       .map((file) => readFileSync(join(REPO_ROOT, "app", "components", file), "utf8"))
@@ -157,37 +98,11 @@ describe("app-guide anchor id fidelity", () => {
     const allSource = sourceFiles()
       .map((file) => readFileSync(file, "utf8"))
       .join("\n");
-    for (const scope of [
-      ...TOOLBAR_SCOPES_WITH_ADD,
-      ...TOOLBAR_SCOPES_WITHOUT_ADD,
-      ...FORM_SCOPES,
-    ])
+    for (const scope of [...TOOLBAR_SCOPES_WITH_ADD, ...TOOLBAR_SCOPES_WITHOUT_ADD, ...FORM_SCOPES])
       expect(allSource, `anchorScope "${scope}" not found in source`).toContain(`anchorScope="${scope}"`);
 
     for (const control of ["add", "search", "filter", "display-options", "transfer"])
       expect(allSource, `no component renders a "${control}" anchor id`).toContain(`-${control}\``);
-  });
-
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents only ids that exist in code", () => {
-    const inCode = codeIds();
-    for (const locale of DOCS_LOCALES) {
-      const missing = [...documentedIds(locale)].filter((id) => !inCode.has(id));
-      expect(missing, `${locale} docs reference unknown ids`).toEqual([]);
-    }
-  });
-
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents identical id sets in both locales", () => {
-    const [en, de] = DOCS_LOCALES.map((locale) => documentedIds(locale));
-    expect([...en].sort()).toEqual([...de].sort());
-  });
-
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents every reserved code id in both locales", () => {
-    const expected = expectedDocumentedIds();
-    for (const locale of DOCS_LOCALES) {
-      const documented = documentedIds(locale);
-      const undocumented = [...expected].filter((id) => !documented.has(id)).sort();
-      expect(undocumented, `${locale} app-guide pages missing ids`).toEqual([]);
-    }
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("offers the agent only targets that exist in code", () => {

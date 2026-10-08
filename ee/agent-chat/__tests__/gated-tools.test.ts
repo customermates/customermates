@@ -281,17 +281,6 @@ describe("gated-tools", () => {
         ],
         "sensitive",
       ],
-      [[{ operation: "putActivityPath", activityPath: { id: "$history", archived: false } }], "write"],
-      [
-        [
-          {
-            operation: "putActivityPath",
-            activityPath: { id: "0d7c4f5e-8f1a-4b8e-9a52-3d0c1f2a7b64", archived: false },
-          },
-        ],
-        "sensitive",
-      ],
-      [[{ operation: "putActivityPath", activityPath: { archived: false } }], "sensitive"],
       [
         [
           {

@@ -2,40 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { settingsHref } from "@/app/components/navigation/settings-routes";
 
-export const FOCUS_KINDS = [
-  "list",
-  "field",
-  "relationship",
-  "activityPath",
-  "routine",
-  "webhook",
-  "widget",
-  "view",
-  "record",
-] as const;
-export type FocusKind = (typeof FOCUS_KINDS)[number];
-export type FocusTarget = { kind: FocusKind; id: string };
+import { findAgentUiTarget } from "@/ee/agent-chat/ui-targets";
+import { FOCUS_KINDS, FOCUS_PARAM, focusKey, type FocusKind, type FocusTarget } from "./focus-href";
 
-const FOCUS_PARAM = "focus";
 const HIGHLIGHT_MS = 2400;
 const WAIT_MS = 6000;
-
-export const focusKey = (target: FocusTarget) => `${target.kind}:${target.id}`;
-
-export function focusHref(target: FocusTarget & { typeId?: string }): string {
-  const focus = `${FOCUS_PARAM}=${encodeURIComponent(focusKey(target))}`;
-  if (target.kind === "list") return `/configure?${focus}`;
-  if (target.kind === "field") return `/configure?typeId=${target.typeId}&tab=fields&${focus}`;
-  if (target.kind === "relationship") return `/configure?typeId=${target.typeId}&tab=relationships&${focus}`;
-  if (target.kind === "activityPath") return `/configure?typeId=${target.typeId}&tab=activity&${focus}`;
-  if (target.kind === "routine") return `/routines?${focus}`;
-  if (target.kind === "webhook") return `${settingsHref("webhooks")}?${focus}`;
-  if (target.kind === "widget") return `/dashboard?${focus}`;
-  if (target.kind === "view") return `/records/${target.typeId}?view=${target.id}&${focus}`;
-  return `/records/${target.typeId}/${target.id}?${focus}`;
-}
 
 function readFocus(value: string | null): FocusTarget | null {
   const separator = value?.indexOf(":") ?? -1;
@@ -54,7 +26,10 @@ export function highlightFocusTarget(target: FocusTarget) {
   const selector = `[data-focus-target="${CSS.escape(focusKey(target))}"]`;
   const started = Date.now();
   const attempt = () => {
-    const element = document.querySelector<HTMLElement>(selector);
+    const element =
+      target.kind === "control"
+        ? document.getElementById(findAgentUiTarget(target.id)?.elementId ?? target.id)
+        : document.querySelector<HTMLElement>(selector);
     if (!element) {
       if (Date.now() - started < WAIT_MS) window.setTimeout(attempt, 120);
       return;

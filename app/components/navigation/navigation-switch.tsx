@@ -27,6 +27,7 @@ import { ProtectedEnhancementsProvider } from "./protected-enhancements-context"
 import { accountStateForPath } from "./account-state-for-path";
 import { resolveNavigationShell } from "./navigation-shell";
 import { PublicScrollport } from "./public-scrollport";
+import { ControlFocus } from "@/components/focus/control-focus";
 
 const AppSidebar = dynamic(() => import("../app-sidebar").then((mod) => ({ default: mod.AppSidebar })));
 const AppTopBar = dynamic(() => import("../app-topbar").then((mod) => ({ default: mod.AppTopBar })));
@@ -183,6 +184,8 @@ export function NavigationSwitch({
           <TopBarActionsProvider>
             <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-clip overflow-y-auto [--table-sticky-top:4rem] [&:has([data-joins-top-bar])>header]:border-b-0">
               <AppTopBar operatorConsoleVisible={operatorConsoleVisible} />
+
+              <ControlFocus />
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
             </div>

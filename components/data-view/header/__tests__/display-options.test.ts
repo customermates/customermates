@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
-import type * as TabsModule from "@/components/ui/tabs";
+import type * as SegmentedControlModule from "@/components/ui/segmented-control";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -13,14 +13,14 @@ const harness = vi.hoisted(() => ({
   onLayoutChange: undefined as ((value: string) => void) | undefined,
 }));
 
-vi.mock("@/components/ui/tabs", async (importOriginal) => {
-  const actual = await importOriginal<typeof TabsModule>();
+vi.mock("@/components/ui/segmented-control", async (importOriginal) => {
+  const actual = await importOriginal<typeof SegmentedControlModule>();
 
   return {
     ...actual,
-    Tabs: (props: Parameters<typeof actual.Tabs>[0]) => {
+    SegmentedControl: (props: Parameters<typeof actual.SegmentedControl>[0]) => {
       harness.onLayoutChange = props.onValueChange;
-      return createElement(actual.Tabs, props);
+      return createElement(actual.SegmentedControl, props);
     },
   };
 });
@@ -209,29 +209,18 @@ describe("display options", () => {
   it("renders exactly the table and board layout controls as a segmented list under the anchor scope", () => {
     const html = render(store(), "deals");
 
-    expect(html).toContain('data-variant="segmented"');
+    expect(html).toContain('data-slot="segmented-control"');
     expect(html).toContain('id="deals-layout-table"');
     expect(html).toContain('id="deals-layout-board"');
     expect(html).not.toContain("deals-layout-cards");
     expect(html).not.toContain("deals-layout-kanban");
     expect(html).not.toContain("bg-primary data-[state=active]");
-    expect(html).toContain("Common.ariaLabels.switchToBoardView");
     expect(html).not.toContain('disabled=""');
   });
 
-  it("draws each layout as a labelled card rather than a bare icon", () => {
-    const html = render(store(), "deals");
-
-    expect(html).toContain("Common.table.layouts.table");
-    expect(html).toContain("Common.table.layouts.board");
-    expect(html).toContain("grid-cols-2");
-    for (const id of ["deals-layout-table", "deals-layout-board"]) {
-      const trigger = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] ?? "";
-
-      expect(trigger, id).toContain("min-h-16");
-      expect(trigger, id).toContain("flex-col");
-      expect(trigger, id).toContain("data-[state=active]:border-primary/60");
-    }
+  it("labels each layout segment and explains a disabled board", () => {
+    expect(render(store(), "deals")).toContain("Common.table.layouts.board");
+    expect(render(store({ canBoard: false }), "deals")).toContain("Common.ariaLabels.switchToBoardViewDisabled");
   });
 
   it("names the layout tab list and both pickers and points no layout tab at a panel that is never rendered", () => {

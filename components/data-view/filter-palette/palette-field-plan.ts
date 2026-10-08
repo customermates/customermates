@@ -16,6 +16,7 @@ export type PalettePlan = {
 
 export const PALETTE_OPERATOR_PREFERENCE: FilterOperatorKey[] = [
   FilterOperatorKey.in,
+  FilterOperatorKey.hasAnyOf,
   FilterOperatorKey.contains,
   FilterOperatorKey.inLastDays,
   FilterOperatorKey.gte,

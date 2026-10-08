@@ -41,15 +41,12 @@ test("keeps source totals separate from filtered widget groups across save and r
   await page.getByRole("option", { name: "Price", exact: true }).click();
   await dialogs.getByRole("combobox", { name: "Group by", exact: true }).click();
   await page.getByRole("option", { name: "Each record", exact: true }).click();
-  await dialogs.getByRole("tab", { name: "Filters, none active", exact: true }).click();
-  await expect(dialogs.getByRole("heading", { name: "Filters, none active", exact: true })).toBeAttached();
   const groupFilters = dialogs.getByRole("region", { name: "Group filters", exact: true });
   await groupFilters.getByRole("combobox", { name: "Add filter", exact: true }).click();
   await page.getByRole("option", { name: "Name", exact: true }).click();
   await groupFilters.getByRole("combobox", { name: "Condition", exact: true }).click();
   await page.getByRole("option", { name: "Equals", exact: true }).click();
   await groupFilters.getByLabel("Value", { exact: true }).fill("Shown service");
-  await dialogs.getByRole("button", { name: "Preview measure", exact: true }).click();
   await expect(dialogs.getByText("Overall: €100.00", { exact: true })).toBeVisible();
   await expect(dialogs.locator("dt").filter({ hasText: "Shown service" })).toHaveCount(1);
   await expect(dialogs.locator("dt").filter({ hasText: "Other service" })).toHaveCount(0);

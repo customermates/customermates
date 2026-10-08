@@ -46,6 +46,9 @@ function standardValueClass(field: string, operator: FilterOperatorKey): FilterV
   switch (operator) {
     case FilterOperatorKey.in:
     case FilterOperatorKey.notIn:
+    case FilterOperatorKey.hasAnyOf:
+    case FilterOperatorKey.hasAllOf:
+    case FilterOperatorKey.hasNoneOf:
       return "stringArray";
     case FilterOperatorKey.between:
       return "isoRange";

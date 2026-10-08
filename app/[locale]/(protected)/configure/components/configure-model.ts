@@ -3,7 +3,6 @@ import { omit } from "lodash";
 import type {
   CalculationExpression,
   RecordField,
-  RecordModel,
   RecordRelationship,
   RecordFieldView,
   RecordModelView,
@@ -60,7 +59,6 @@ export function configureCounts(model: RecordModelView, typeId: string) {
     relationships:
       model.relationships.filter((relation) => relation.sourceTypeId === typeId || relation.targetTypeId === typeId)
         .length + (type?.relationshipPaths ?? []).length,
-    activity: model.activityPaths.filter((path) => path.typeId === typeId).length,
   };
 }
 
@@ -113,10 +111,6 @@ export function fieldDefinition(field: RecordField) {
 
 export function relationshipDefinition(relation: RecordRelationship) {
   return omit(relation, "archived");
-}
-
-export function activityPathDefinition(path: RecordModel["activityPaths"][number]) {
-  return omit(path, "archived");
 }
 
 function relatedExpression(

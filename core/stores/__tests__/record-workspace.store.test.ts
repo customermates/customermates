@@ -38,6 +38,7 @@ function fixture() {
   const context: RecordEditorResult = {
     model,
     linkColors: {},
+    linkIcons: {},
     typeId: model.types[0].id,
     record: null,
     canManageSchema: true,
@@ -218,6 +219,7 @@ describe("record draft handoff", () => {
       ],
       assignedUserIds: [],
       assignedUsers: [],
+      memberUsers: [],
       relationships: [],
     });
     const page = new RecordEditorStore(f.root, f.context, async () => {}, true);

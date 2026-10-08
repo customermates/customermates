@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ResponsiveOverlay } from "@/components/modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useColumnLabel } from "@/components/data-view/use-column-label";
@@ -27,13 +27,9 @@ import { cn } from "@/core/utils/cn";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
 import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
 
-import { LayoutIllustration } from "./layout-illustration";
 import { PopoverSection as Section } from "./popover-section";
 
 type DataViewMode = "table" | "board";
-
-const LAYOUT_CARD_CLASS =
-  "interactive-surface h-auto min-h-16 w-full flex-col items-center gap-1.5 rounded-md border border-input bg-input-background px-2 py-2.5 shadow-xs data-[state=active]:border-primary/60";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -230,58 +226,30 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
       <TooltipProvider>
         <div className="flex flex-col">
           <Section label={t("Common.table.layout")}>
-            <Tabs value={currentLayout} onValueChange={handleLayoutChange}>
-              <TabsList
-                aria-label={t("Common.table.layout")}
-                className="grid h-auto w-full grid-cols-2 gap-1.5 border-0 bg-transparent p-0 shadow-none group-data-[orientation=horizontal]/tabs:h-auto"
-                variant="segmented"
-              >
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="block min-w-0">
-                      <TabsTrigger
-                        aria-controls={undefined}
-                        aria-label={t("Common.ariaLabels.switchToTableView")}
-                        className={LAYOUT_CARD_CLASS}
-                        id={anchorScope ? `${anchorScope}-layout-table` : undefined}
-                        value="table"
-                      >
-                        <LayoutIllustration layout="table" />
+            <SegmentedControl
+              items={[
+                {
+                  value: "table",
+                  label: t("Common.table.layouts.table"),
+                  id: anchorScope ? `${anchorScope}-layout-table` : undefined,
+                  controls: false,
+                },
+                {
+                  value: "board",
+                  label: t("Common.table.layouts.board"),
+                  id: anchorScope ? `${anchorScope}-layout-board` : undefined,
+                  disabled: !canBoard,
+                  controls: false,
+                },
+              ]}
+              label={t("Common.table.layout")}
+              value={currentLayout}
+              onValueChange={handleLayoutChange}
+            />
 
-                        <span className="text-xs font-medium">{t("Common.table.layouts.table")}</span>
-                      </TabsTrigger>
-                    </span>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{t("Common.ariaLabels.switchToTableView")}</TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="block min-w-0">
-                      <TabsTrigger
-                        aria-controls={undefined}
-                        aria-label={t("Common.ariaLabels.switchToBoardView")}
-                        className={LAYOUT_CARD_CLASS}
-                        disabled={!canBoard}
-                        id={anchorScope ? `${anchorScope}-layout-board` : undefined}
-                        value="board"
-                      >
-                        <LayoutIllustration layout="board" />
-
-                        <span className="text-xs font-medium">{t("Common.table.layouts.board")}</span>
-                      </TabsTrigger>
-                    </span>
-                  </TooltipTrigger>
-
-                  <TooltipContent>
-                    {canBoard
-                      ? t("Common.ariaLabels.switchToBoardView")
-                      : t("Common.ariaLabels.switchToBoardViewDisabled")}
-                  </TooltipContent>
-                </Tooltip>
-              </TabsList>
-            </Tabs>
+            {!canBoard && (
+              <p className="mt-1.5 text-xs text-muted-foreground">{t("Common.ariaLabels.switchToBoardViewDisabled")}</p>
+            )}
           </Section>
 
           {store.groupableFields.length > 0 && (

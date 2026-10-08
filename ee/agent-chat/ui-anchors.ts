@@ -420,6 +420,13 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     labelKeys: ["NavigationBar.dashboard"],
   },
   {
+    key: "wiki",
+    route: "/wiki",
+    description: "Sidebar link to the Knowledge Base, the workspace's own pages that Mate reads as reference",
+    labelKeys: ["NavigationBar.wiki"],
+    resource: Resource.wiki,
+  },
+  {
     key: "inbox",
     route: "/inbox",
     description: "Sidebar link to the unified messaging inbox",

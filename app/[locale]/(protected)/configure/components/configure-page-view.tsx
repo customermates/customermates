@@ -24,12 +24,12 @@ import { Button } from "@/components/ui/button";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 
 import { discoverRecordTypesAction } from "../../records/actions";
-import { ActivityPathModal, ActivityPathModalStore } from "./activity-path-modal";
 import { ConfigureTopBarActions } from "./configure-actions";
 import { ConfigureListPane } from "./configure-list-pane";
 import { isResolvedField } from "./configure-model";
 import { DataModelStore } from "./data-model.store";
-import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
+import type { FocusKind } from "@/components/focus/focus-href";
+import { useFocusTarget } from "@/components/focus/focus-target";
 import { FieldModal, FieldModalStore } from "./field-modal";
 import { RelationshipModal, RelationshipModalStore } from "./relationship-modal";
 import { TypeModal, TypeModalStore } from "./type-modal";
@@ -44,7 +44,7 @@ const ConfigureGraph = dynamic(() => import("./configure-graph").then((module) =
   ),
 });
 
-const CONFIGURE_FOCUS_KINDS: FocusKind[] = ["list", "field", "relationship", "activityPath"];
+const CONFIGURE_FOCUS_KINDS: FocusKind[] = ["list", "field", "relationship"];
 
 function configureHref(changes: Record<string, string | null>) {
   const url = new URL(window.location.href);
@@ -129,20 +129,16 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const [relationModal] = useState(
     () => new RelationshipModalStore(root, initialModel, refresh, canPublishSummary, store.hydrate),
   );
-  const [activityModal] = useState(
-    () => new ActivityPathModalStore(root, initialModel, refresh, canPublishSummary, store.hydrate),
-  );
   useEffect(() => {
-    for (const modal of [typeModal, general, fieldModal, relationModal, activityModal])
-      modal.setCanRenewSummaries(canPublishSummary);
-  }, [canPublishSummary, typeModal, general, fieldModal, relationModal, activityModal]);
+    for (const modal of [typeModal, general, fieldModal, relationModal]) modal.setCanRenewSummaries(canPublishSummary);
+  }, [canPublishSummary, typeModal, general, fieldModal, relationModal]);
   useEffect(() => {
-    const stores = [typeModal, fieldModal, relationModal, activityModal];
+    const stores = [typeModal, fieldModal, relationModal];
     for (const modal of stores) root.registerModalStore(modal);
     return () => {
       for (const modal of stores) root.unregisterModalStore(modal);
     };
-  }, [root, typeModal, fieldModal, relationModal, activityModal]);
+  }, [root, typeModal, fieldModal, relationModal]);
 
   const consumedCreate = useRef(false);
   useEffect(() => {
@@ -200,10 +196,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     relationModal.close();
     await refresh();
   }, [relationModal, refresh]);
-  const activityDeleted = useCallback(async () => {
-    activityModal.close();
-    await refresh();
-  }, [activityModal, refresh]);
   const [focusedListId, setFocusedListId] = useState<string | null>(null);
   useFocusTarget(
     CONFIGURE_FOCUS_KINDS,
@@ -220,10 +212,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (target.kind === "relationship") {
         const relation = model.relationships.find((candidate) => candidate.id === target.id);
         if (relation) relationModal.edit(model, selected.id, relation);
-      }
-      if (target.kind === "activityPath") {
-        const path = model.activityPaths.find((candidate) => candidate.id === target.id);
-        if (path) activityModal.edit(model, selected.id, path);
       }
       return true;
     },
@@ -255,9 +243,8 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         fieldModal.edit(model, selected.id, null, { behavior: "formula", valueType: "number" });
       if (kind === "relationship") relationModal.edit(model, selected.id);
       if (kind === "channels") fieldModal.edit(model, selected.id, null, { valueType: "channels" });
-      if (kind === "activity") activityModal.edit(model, selected.id);
     },
-    [activityModal, fieldModal, model, relationModal, selected, typeModal],
+    [fieldModal, model, relationModal, selected, typeModal],
   );
   const topBar = useMemo(
     () => (
@@ -315,7 +302,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             interactive={interactive}
             model={model}
             selected={selected}
-            onEditActivity={(path) => activityModal.edit(model, selected.id, path)}
             onEditChannels={() => editChannels(selected.id)}
             onEditField={(field) => fieldModal.edit(model, selected.id, field)}
             onEditRelationship={(relation) => relationModal.edit(model, selected.id, relation)}
@@ -356,8 +342,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       <FieldModal store={fieldModal} onDeleted={fieldDeleted} />
 
       <RelationshipModal store={relationModal} onDeleted={relationshipDeleted} />
-
-      <ActivityPathModal store={activityModal} onDeleted={activityDeleted} />
     </div>
   );
 });

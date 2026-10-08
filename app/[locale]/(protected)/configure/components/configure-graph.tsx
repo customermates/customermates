@@ -62,6 +62,7 @@ import {
 } from "./configure-graph-layout";
 import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { recordFieldTypeKey } from "@/features/records/record-input-value";
 import { isResolvedField } from "./configure-model";
 
 export type ConfigureGraphAccounts =
@@ -217,14 +218,16 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
                       {detail && <span className="text-muted-foreground">{` ${detail}`}</span>}
                     </span>
 
-                    <span className="shrink-0 text-muted-foreground">{t(`RecordModel.types.${field.valueType}`)}</span>
+                    <span className="shrink-0 text-muted-foreground">
+                      {t(`RecordModel.types.${recordFieldTypeKey(field)}`)}
+                    </span>
                   </button>
                 </TooltipTrigger>
 
                 <TooltipContent className="max-w-xs">
                   <p className="font-medium">{field.label}</p>
 
-                  <p>{detail ?? t(`RecordModel.types.${field.valueType}`)}</p>
+                  <p>{detail ?? t(`RecordModel.types.${recordFieldTypeKey(field)}`)}</p>
                 </TooltipContent>
               </Tooltip>
             </li>
