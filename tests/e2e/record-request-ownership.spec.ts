@@ -2,6 +2,7 @@ import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 function collectErrors(page: Page) {
   const errors: string[] = [];
@@ -98,7 +99,7 @@ test("keeps the current record draft when a previous real save response arrives 
     await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Current retained draft");
     await editor.getByRole("textbox", { name: "Price", exact: false }).fill("19.75");
     await expect(
-      page.getByRole("button", { name: "Accepted earlier record", exact: true, includeHidden: true }),
+      page.getByRole("link", { name: "Accepted earlier record", exact: true, includeHidden: true }),
     ).toHaveCount(1);
     await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Current retained draft");
     await expect(editor.getByRole("textbox", { name: "Price", exact: false })).toHaveValue("19.75");
@@ -178,7 +179,7 @@ test("keeps a newly opened record draft when an accepted deletion response arriv
   await editor.getByRole("textbox", { name: "Price", exact: false }).fill("10");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(editor).not.toBeVisible();
-  await page.getByRole("button", { name: "Earlier deletion target", exact: true }).click();
+  await openRecordDetails(page, "Earlier deletion target");
   await editor.getByRole("button", { name: "Delete", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toBeVisible();
@@ -204,7 +205,7 @@ test("keeps a newly opened record draft when an accepted deletion response arriv
     await editor.getByRole("textbox", { name: "Name", exact: false }).fill("Draft after deletion");
     await editor.getByRole("textbox", { name: "Price", exact: false }).fill("31.25");
     await expect(
-      page.getByRole("button", { name: "Earlier deletion target", exact: true, includeHidden: true }),
+      page.getByRole("link", { name: "Earlier deletion target", exact: true, includeHidden: true }),
     ).toHaveCount(0);
     await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft after deletion");
     await expect(editor.getByRole("button", { name: "Save", exact: true })).toBeEnabled();

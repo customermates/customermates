@@ -26,7 +26,7 @@ import type { ConfigurationConsumerCleanup, RecordDefinitionDeletion, RecordRepo
 import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
-import type { RecordPathSummary } from "./record-model.schema";
+import type { RecordMember, RecordPathSummary } from "./record-model.schema";
 import type { RecordPathRow } from "./record-path-query";
 import { compileRecordPathSummaries } from "./record-path-query";
 import type { RecordRelationshipRow } from "./record-relationship-query";
@@ -1195,6 +1195,14 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     await this.deleteOrphanedIdentities(identities.map((row) => row.identityId));
   }
 
+  async getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]> {
+    if (!userIds.length) return [];
+    return this.prisma.user.findMany({
+      where: { companyId: this.companyId, id: { in: [...new Set(userIds)] } },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+    });
+  }
+
   async setAssignments(ref: RecordRef, userIds: string[]): Promise<void> {
     const companyId = this.companyId;
     await this.prisma.recordAssignment.deleteMany({
@@ -1801,7 +1809,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('date', 'dateTime') THEN (stage.payload->'result'->'value'->>'value')::timestamptz AT TIME ZONE 'UTC' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'richText' THEN (stage.payload->'result'->'value'->>'documentJson')::jsonb WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value') - 'kind' END,
         stage.payload->'result'->>'code', ${revision}, NOW(), NOW(),
-        CASE WHEN stage.payload->'result'->'value'->>'kind' = 'textList' THEN ARRAY(SELECT jsonb_array_elements_text(stage.payload->'result'->'value'->'value')) ELSE ARRAY[]::text[] END,
+        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('textList', 'selectList') THEN ARRAY(SELECT jsonb_array_elements_text(stage.payload->'result'->'value'->'value')) ELSE ARRAY[]::text[] END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('date', 'dateTime') THEN stage.payload->'result'->'value'->>'value' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value'->>'start')::timestamptz AT TIME ZONE 'UTC' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value'->>'end')::timestamptz AT TIME ZONE 'UTC' END FROM "RecordStageRow" stage JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId' WHERE ${stage("value")}

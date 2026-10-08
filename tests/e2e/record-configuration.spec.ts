@@ -136,7 +136,7 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   expect(errors).toEqual([]);
 });
 
-test("edits a linear calculation and restores deleted fields, activity connections and a list", async ({
+test("edits a linear calculation and restores deleted fields and a list", async ({
   page,
   database,
   companyId,
@@ -203,7 +203,7 @@ test("edits a linear calculation and restores deleted fields, activity connectio
   );
   expect(calculated.rows).toEqual([{ state: "value", value: "25" }]);
   await page.reload();
-  await expect(page.getByRole("button", { name: "Pilot research", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Pilot research", exact: true })).toBeVisible();
   await followConfigureLink(page);
   await openConfigureRow(page, "Fields", "Double budget");
   await deleteFromDrawer(page, "Delete field");
@@ -212,18 +212,6 @@ test("edits a linear calculation and restores deleted fields, activity connectio
   expect((await readModel(database, companyId)).fields.find((field) => field.id === doubled?.id)).toMatchObject({
     archived: false,
     behavior: doubled?.behavior,
-  });
-  await openConfigure(page, typeId);
-  await openConfigureRow(page, "Activity connections", name);
-  await deleteFromDrawer(page, "Delete activity connection");
-  await expect(configureRow(page, "Activity connections", name)).toHaveCount(0);
-  await restoreRecentlyDeleted(page, name);
-  expect((await readModel(database, companyId)).activityPaths.find((path) => path.typeId === typeId)).toMatchObject({
-    label: name,
-    archived: false,
-    path: [],
-    includeAudit: true,
-    includeMessages: false,
   });
   await openConfigure(page);
   await selectConfigureList(page, name);
@@ -235,7 +223,7 @@ test("edits a linear calculation and restores deleted fields, activity connectio
     pluralLabel: name,
   });
   await openRecordList(page, typeId);
-  await expect(page.getByRole("button", { name: "Pilot research", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Pilot research", exact: true })).toBeVisible();
   await expect(page.getByRole("cell", { name: "25", exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("restored-custom-record.png"), animations: "disabled" });
   expect(errors).toEqual([]);

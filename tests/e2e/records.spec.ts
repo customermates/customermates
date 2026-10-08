@@ -10,6 +10,7 @@ import {
   saveGeneral,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 test("creates a custom list and field through the UI, then persists a decimal record across reloads", async ({
   page,
@@ -68,7 +69,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   expect(values.rows.map((row: { value: string }) => row.value.replace(/0+$/, ""))).toEqual(["123456789012345.125"]);
   await page.reload();
   await expect(page.getByText(recordName, { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: recordName, exact: true }).click();
+  await openRecordDetails(page, recordName);
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("textbox", { name: "Budget", exact: false })).toHaveValue("123456789012345.125");
   const surface =
@@ -77,7 +78,8 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await expect(dialog).toHaveCSS("opacity", "1");
   expect(errors).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath("record-details.png"), fullPage: true, animations: "disabled" });
-  await page.keyboard.press("Escape");
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
   await followConfigureLink(page);
   await addFromConfigure(page, "Relationship");
   await dialog.getByRole("combobox", { name: "Link to", exact: true }).click();
@@ -92,7 +94,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   const client = organization.rows[0];
   expect(client).toBeDefined();
   await openConfiguredRecords();
-  await page.getByRole("button", { name: recordName, exact: true }).click();
+  await openRecordDetails(page, recordName);
   await dialog.getByRole("combobox", { name: "Client organization", exact: true }).click();
   await page.getByRole("option", { name: client.name, exact: true }).click();
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
@@ -193,8 +195,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("option", { name: "Sum", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
-  await dialog.getByRole("tab", { name: "Filters, none active", exact: true }).click();
-  await expect(dialog.getByRole("heading", { name: "Filters, none active", exact: true })).toBeAttached();
+  await dialog.locator("#widget-config-filters").click();
   await dialog.getByRole("combobox", { name: "Add filter", exact: true }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Condition", exact: true }).click();
@@ -204,7 +205,6 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("option", { name: "Client organization", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Linked records", exact: true }).click();
   await page.getByRole("option", { name: "No accessible linked records match", exact: true }).click();
-  await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
   await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.125/)).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
@@ -272,7 +272,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
   const typeId = presetId(companyId, "organization");
   const fieldId = presetId(companyId, "organization.name");
   await page.goto(`/en/records/${typeId}`);
-  await expect(page.getByRole("button", { name: "Example organization", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Example organization", exact: true })).toBeVisible();
   const handle = page.getByRole("button", {
     name: englishMessages.DataView.resizeColumn.replace("{column}", "Name"),
     exact: true,

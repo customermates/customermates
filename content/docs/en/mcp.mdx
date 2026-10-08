@@ -345,7 +345,7 @@ Without threadId, filter and paginate accessible inbox threads; with threadId, r
 
 #### `get_activities`
 
-Activity timeline for accessible record references (`typeId` and `recordId`) or types, using declared activity paths. Combine typed inclusion, exclusion and presence filters for records, source kinds, providers, accounts and conversations; also filter by time range. Tenant, record, and inbox permissions apply to every path and source. The result contains `items`, `availableSources`, and an opaque-position `nextCursor`; pass that cursor unchanged to load older entries. The default limit is 25, maximum 100. Legacy entity scopes, page numbers, and entity-specific filters are rejected.
+Activity timeline for accessible record references (`typeId` and `recordId`) or types, including directly linked records where a relationship shows them. Combine typed inclusion, exclusion and presence filters for records, source kinds, providers, accounts and conversations; also filter by time range. Tenant, record, and inbox permissions apply to every record and source. The result contains `items`, `availableSources`, and an opaque-position `nextCursor`; pass that cursor unchanged to load older entries. The default limit is 25, maximum 100. Legacy entity scopes, page numbers, and entity-specific filters are rejected.
 
 **Read-only.** Optional: `scope`, `kinds`, `providers`, `threadIds`, `after`, `before`, `filters`, `cursor`, `limit`.
 
@@ -532,13 +532,13 @@ A pending result returns an operation id. Read its progress until it completes; 
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
 
-Preview or apply a typed configuration bundle containing types, fields, relationships, calculations, access presets and shared defaults. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field, relationship or activity connection to Recently deleted, restore to bring it back, and deletePermanently to remove it for good.
+Preview or apply a typed configuration bundle containing types, fields, relationships, calculations, access presets and shared defaults. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Recently deleted, restore to bring it back, and deletePermanently to remove it for good.
 
 **Can delete data.** Required: `action`, `change`.
 
 #### `read_recently_deleted_configuration`
 
-List the lists, fields, relationships and activity connections in Recently deleted, with who deleted them and when. Only people who manage the data model can read it; restore or permanently delete an item with configure_record_model.
+List the lists, fields and relationships in Recently deleted, with who deleted them and when. Only people who manage the data model can read it; restore or permanently delete an item with configure_record_model.
 
 **Read-only.** No arguments.
 

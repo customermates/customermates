@@ -57,6 +57,15 @@ describe("filter URL parameters", () => {
     expect(decodeGetParams(new URLSearchParams({ filters: `emailFolder:in:${value}` })).filters).toEqual([]);
   });
 
+  it("round trips multiple choice filters as option lists", () => {
+    const filters: Filter[] = [
+      { field: "10000000-0000-4000-8000-000000000001", operator: FilterOperatorKey.hasAnyOf, value: ["a"] },
+      { field: "10000000-0000-4000-8000-000000000001", operator: FilterOperatorKey.hasAllOf, value: ["a", "b"] },
+      { field: "10000000-0000-4000-8000-000000000001", operator: FilterOperatorKey.hasNoneOf, value: ["c"] },
+    ];
+    expect(decodeGetParams(new URLSearchParams(encodeGetParams({ filters }).toString())).filters).toEqual(filters);
+  });
+
   it("round trips relation existence filters without a value token", () => {
     const filters: Filter[] = [
       { field: FilterFieldKey.ownerUserId, operator: FilterOperatorKey.hasNone },

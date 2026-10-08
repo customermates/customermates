@@ -345,7 +345,7 @@ Ohne threadId zugängliche Inbox-Threads filtern und seitenweise lesen; mit thre
 
 #### `get_activities`
 
-Aktivitäts-Timeline für zugängliche Datensatzreferenzen (`typeId` und `recordId`) oder Typen entlang konfigurierter Aktivitätspfade. Typisierte Ein-, Ausschluss- und Anwesenheitsfilter für Datensätze, Quelltypen, Anbieter, Kanäle und Unterhaltungen kombinieren sowie nach Zeitraum filtern. Mandanten-, Datensatz- und Postfachberechtigungen gelten für jeden Pfad und jede Quelle. Das Ergebnis enthält `items`, `availableSources` und `nextCursor`; diesen Cursor unverändert zum Laden älterer Einträge übergeben. Standardlimit: 25, Maximum: 100. Alte Entitätsumfänge, Seitennummern und entitätsspezifische Filter werden abgelehnt.
+Aktivitäts-Timeline für zugängliche Datensatzreferenzen (`typeId` und `recordId`) oder Typen, einschließlich direkt verknüpfter Datensätze, wenn eine Beziehung sie anzeigt. Typisierte Ein-, Ausschluss- und Anwesenheitsfilter für Datensätze, Quelltypen, Anbieter, Kanäle und Unterhaltungen kombinieren sowie nach Zeitraum filtern. Mandanten-, Datensatz- und Postfachberechtigungen gelten für jeden Datensatz und jede Quelle. Das Ergebnis enthält `items`, `availableSources` und `nextCursor`; diesen Cursor unverändert zum Laden älterer Einträge übergeben. Standardlimit: 25, Maximum: 100. Alte Entitätsumfänge, Seitennummern und entitätsspezifische Filter werden abgelehnt.
 
 **Nur lesend.** Optional: `scope`, `kinds`, `providers`, `threadIds`, `after`, `before`, `filters`, `cursor`, `limit`.
 
@@ -532,13 +532,13 @@ Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Absc
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
 
-Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen, Zugriffsvorlagen und gemeinsamen Standards prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen. Mit delete verschieben Sie eine Liste, ein Feld, eine Beziehung oder eine Aktivitätsverbindung nach „Zuletzt gelöscht“, mit restore holen Sie sie zurück, mit deletePermanently entfernen Sie sie endgültig.
+Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen, Zugriffsvorlagen und gemeinsamen Standards prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen. Mit delete verschieben Sie eine Liste, ein Feld oder eine Beziehung nach „Zuletzt gelöscht“, mit restore holen Sie sie zurück, mit deletePermanently entfernen Sie sie endgültig.
 
 **Kann Daten löschen.** Pflicht: `action`, `change`.
 
 #### `read_recently_deleted_configuration`
 
-Listet die Listen, Felder, Beziehungen und Aktivitätsverbindungen unter „Zuletzt gelöscht“ mit Löschenden und Zeitpunkt. Nur Personen, die das Datenmodell verwalten, können sie lesen; wiederherstellen oder endgültig löschen erfolgt über configure_record_model.
+Listet die Listen, Felder und Beziehungen unter „Zuletzt gelöscht“ mit Löschenden und Zeitpunkt. Nur Personen, die das Datenmodell verwalten, können sie lesen; wiederherstellen oder endgültig löschen erfolgt über configure_record_model.
 
 **Nur lesend.** Keine Argumente.
 

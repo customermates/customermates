@@ -4,17 +4,16 @@ import { useEffect } from "react";
 import { RecordActivityWidgetEditor } from "./record-activity-widget-editor";
 
 import { WidgetKind } from "@/generated/prisma";
-import { ChevronsUpDownIcon, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronsUpDownIcon, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { FormActions } from "@/components/card/form-actions";
 import { AppForm } from "@/components/forms/form-context";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSwitch } from "@/components/forms/form-switch";
@@ -96,11 +95,22 @@ export const WidgetModal = observer(() => {
         onClick: () => showDeleteConfirmation(() => widgetModalStore.delete(), form.name),
       }
     : null;
+  const backAction: AppModalActionProps | null =
+    isCreate && widgetModalStore.creationStep === "configure"
+      ? {
+          id: "widget-kind-back",
+          kind: "navigate",
+          label: t("Dashboard.widgetEditor.kind.change"),
+          icon: ArrowLeft,
+          disabled: isDisabled,
+          onClick: goBackToKindStep,
+        }
+      : null;
   const modalActions: AppModalActionProps[] = [
+    ...(backAction ? [backAction] : []),
     ...(askAction ? [askAction] : []),
     ...(deleteAction ? [deleteAction] : []),
   ];
-  const saveDisabled = isDisabled || !form.name.trim() || (!isCreate && !widgetModalStore.hasUnsavedChanges);
 
   useEffect(() => {
     if (
@@ -340,24 +350,15 @@ export const WidgetModal = observer(() => {
             )}
           </AppCardBody>
 
-          {isCreate ? (
-            widgetModalStore.creationStep === "configure" && (
-              <AppCardFooter className="gap-2">
-                <Button disabled={isDisabled} type="button" variant="secondary" onClick={goBackToKindStep}>
-                  {t("Common.actions.back")}
-                </Button>
-
-                <Button disabled={saveDisabled} id="widget-modal-save" type="submit">
-                  {t("Dashboard.widgetEditor.create")}
-                </Button>
-              </AppCardFooter>
-            )
-          ) : (
-            <FormActions
-              showInitially
+          {!isChooseStep && (
+            <FormFooterActions
               anchorScope="widget-modal"
-              overrideDisabled={!form.name.trim()}
-              primaryButtonLabel="Dashboard.widgetEditor.save"
+              dirty={isCreate ? true : undefined}
+              reset={
+                isCreate
+                  ? undefined
+                  : { differs: widgetModalStore.hasUnsavedChanges, onReset: widgetModalStore.resetForm }
+              }
               store={widgetModalStore}
             />
           )}

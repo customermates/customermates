@@ -780,7 +780,6 @@
       "prompt": "Istruzioni",
       "publishSummary": "Riepilogo pubblicato",
       "putAccessPreset": "Modello di accesso",
-      "putActivityPath": "Percorso attività",
       "putCapability": "Funzionalità",
       "putField": "Campo",
       "putRelationship": "Relazione",
@@ -870,9 +869,7 @@
       "hidePassword": "Nascondi password",
       "selectOption": "Seleziona un'opzione",
       "showPassword": "Mostra password",
-      "switchToBoardView": "Passa alla vista board",
       "switchToBoardViewDisabled": "Questo elenco non ha alcun campo per cui raggruppare",
-      "switchToTableView": "Passa alla vista tabella",
       "themeSwitcher": "Selettore del tema",
       "tooltipFields": "Aspetto",
       "tooltipFilters": "Filtri"
@@ -1243,7 +1240,10 @@
         "equals": "=",
         "gt": ">",
         "gte": "≥",
+        "hasAllOf": "ha tutti",
+        "hasAnyOf": "ha uno qualsiasi di",
         "hasNone": "non ne ha nessuno",
+        "hasNoneOf": "non ha nessuno di",
         "hasSome": "ne ha almeno uno",
         "hasUnset": "non completamente collegato",
         "in": "è uno di",
@@ -1735,13 +1735,13 @@
         "showFilters": "Mostra il numero di attività e i filtri",
         "showMetricAndFilters": "Mostra la metrica e i filtri"
       },
-      "create": "Crea widget",
       "danger": {
         "deleteLabel": "Elimina il widget {name}"
       },
       "editTitle": "Modifica «{name}»",
       "kind": {
         "activityTimelineDescription": "Segui in ordine cronologico le modifiche ai record, i messaggi e le attività di account e calendario.",
+        "change": "Scegli un altro widget",
         "chartDescription": "Confronta i dati del CRM in un grafico.",
         "description": "Scegli un formato e seleziona tu i dati.",
         "scratchTitle": "Parti da zero",
@@ -1751,10 +1751,13 @@
         "incomplete": "Completa le impostazioni dei dati per vedere un’anteprima.",
         "live": "Anteprima dal vivo",
         "size": "Dimensione nella dashboard {w} × {h}",
-        "title": "Anteprima",
         "untitled": "Widget senza titolo"
       },
-      "save": "Salva le modifiche",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Nessuno} one {1 attivo} other {# attivi}}",
+        "filters": "Filtri",
+        "grouping": "Raggruppamento"
+      },
       "settings": "Impostazioni del widget",
       "sharing": {
         "template": "Condividi come modello"
@@ -1870,6 +1873,7 @@
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Nessun valore",
+    "resizeBoardColumns": "Ridimensiona le colonne della bacheca. Trascina o usa le frecce; tocca due volte o premi Invio per ripristinare.",
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
     "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
     "rowActions": "Azioni riga",
@@ -2458,7 +2462,6 @@
     "text": "Caricamento..."
   },
   "MassActions": {
-    "apply": "Applica alla selezione",
     "clearField": "Svuota campo",
     "delete": "Elimina gli elementi selezionati",
     "keepInView": "Mantieni solo le righe visibili",
@@ -2976,15 +2979,12 @@
   "RecordModel": {
     "access": "Accesso",
     "accessDescription": "Solo gli amministratori possono accedere a questo elenco, salvo la selezione di un accesso predefinito approvato.",
-    "activityConnections": "Collegamenti delle attività",
-    "activityConnectionsHelp": "Scegli quali record collegati contribuiscono con messaggi e modifiche alla cronologia delle attività di questa lista. Restano valide le autorizzazioni dei messaggi e dei record.",
     "addAttribute": "Aggiungi attributo",
     "addEmbedded": "Aggiungi {type}",
     "addField": "Aggiungi campo",
     "addGroupSummary": "Aggiungi riepilogo",
     "addInput": "Aggiungi input",
     "addMenu": {
-      "activityConnection": "Collegamento attività",
       "calculation": "Calcolo",
       "field": "Campo",
       "list": "Lista",
@@ -3007,6 +3007,7 @@
       "snapshot": "Salvato durante un evento"
     },
     "board": "Bacheca",
+    "calculatedReadOnly": "{field} è calcolato e non può essere modificato.",
     "calculationError": "Calcolo non disponibile",
     "calculationInput": "Valore {number}",
     "calculationNavigation": "Navigazione del calcolo",
@@ -3080,7 +3081,6 @@
         "widget": "{count, plural, one {{target} viene rimosso dai filtri o dal raggruppamento del widget {consumers}.} other {{target} viene rimosso dai filtri o dal raggruppamento di # widget: {consumers}.}}"
       },
       "configureActions": "Azioni di Configura",
-      "deleteActivityPath": "Elimina collegamento di attività",
       "deleteColumn": "Elimina colonna",
       "deleteColumnMessage": "La colonna di record collegati {name} viene rimossa da {list}.",
       "deleteColumnTitle": "Eliminare la colonna {name}?",
@@ -3103,7 +3103,6 @@
       },
       "kind": "Tipo",
       "kinds": {
-        "activityPath": "Collegamento di attività",
         "channels": "Campo dei canali",
         "field": "Campo",
         "relationship": "Relazione",
@@ -3115,7 +3114,7 @@
       "openConfigure": "Apri Configura",
       "recentlyDeleted": "Eliminati di recente",
       "recentlyDeletedEmpty": "Non è stato eliminato nulla",
-      "recentlyDeletedHelp": "Liste, campi, relazioni, collegamenti di attività e campi dei canali eliminati restano qui finché non li ripristini o li elimini definitivamente.",
+      "recentlyDeletedHelp": "Liste, campi, relazioni e campi dei canali eliminati restano qui finché non li ripristini o li elimini definitivamente.",
       "removed": {
         "grants": "{count, plural, one {# permesso di ruolo} other {# permessi di ruolo}}",
         "hidden": "Contiene record che non puoi vedere.",
@@ -3319,9 +3318,9 @@
     },
     "iconSearch": "Cerca icone",
     "identityChannels": "Canali",
-    "includeAudit": "Includi modifiche ai record",
-    "includeMessages": "Includi messaggi",
     "invalidConfiguration": "Questa modifica deve essere verificata prima di applicarla.",
+    "invalidPhone": "Inserisci un numero di telefono in formato internazionale, ad esempio +4930123456.",
+    "invalidValue": "Inserisci un valore valido.",
     "lineFields": {
       "amount": "Importo",
       "effectivePrice": "Prezzo unitario",
@@ -3336,7 +3335,7 @@
     "linkedType": "Collega a",
     "linkRecord": "Collega un record",
     "listActions": "Azioni della lista",
-    "listCounts": "{fields, plural, one {# campo} other {# campi}} · {relationships, plural, one {# relazione} other {# relazioni}} · {activity, plural, one {# collegamento attività} other {# collegamenti attività}}",
+    "listCounts": "{fields, plural, one {# campo} other {# campi}} · {relationships, plural, one {# relazione} other {# relazioni}}",
     "listUnavailable": "Questa lista non è disponibile. Scegli un’altra lista.",
     "member": "Membro",
     "missing": "Nessun valore",
@@ -3349,12 +3348,13 @@
     "no": "No",
     "noGrouping": "Nessun raggruppamento",
     "noneYet": "Ancora nessuno",
+    "noOptions": "Nessuna opzione ancora. Aggiungi la prima opzione da scegliere.",
     "onePerLine": "Inserisci un valore per riga.",
     "onSourceDelete": "Quando questo record viene eliminato",
     "onTargetDelete": "Quando il record collegato viene eliminato",
+    "openDetails": "Apri dettagli",
     "openPage": "Apri pagina",
     "openRecord": "Apri {name}",
-    "openRecordDetails": "Apri i dettagli di {name}",
     "operation": "Calcolo",
     "operationCancelled": "La modifica è stata annullata.",
     "operationFailed": "La modifica non è riuscita. Lo stato completo precedente resta attivo.",
@@ -3382,6 +3382,7 @@
     "oppositeLabel": "Etichetta sull’altro lato",
     "option": "Opzione",
     "optionAttribute": "Attributo dell’opzione",
+    "optionCount": "{count, plural, =0 {Nessuna opzione} one {# opzione} other {# opzioni}}",
     "options": "Opzioni",
     "pinnedFields": "Campi di dettaglio fissati",
     "pluralDescription": "Mostrato nella navigazione e nei titoli delle liste. Suggerito dal nome finché non lo modifichi.",
@@ -3483,7 +3484,6 @@
     "summaryField": "Campo del riepilogo",
     "systemActor": "Sistema",
     "table": "Tabella",
-    "thisList": "Questa lista",
     "triggerField": "Quando questo campo cambia",
     "triggerValue": "A questo valore",
     "types": {
@@ -3495,6 +3495,7 @@
       "dateTimeRange": "Intervallo di date e ore",
       "email": "Email",
       "member": "Membro",
+      "multiSelect": "Scelta multipla",
       "number": "Numero",
       "phone": "Telefono",
       "richText": "Testo formattato",
@@ -3546,6 +3547,7 @@
     "noRecordsInPeriod": "Nessun record",
     "notes": "Informazioni su questi numeri",
     "operators": {
+      "all": "Ha tutti",
       "between": "Tra",
       "contains": "Contiene",
       "empty": "È vuoto",
@@ -3563,7 +3565,6 @@
       "startsWith": "Inizia con"
     },
     "overall": "Totale: {value}",
-    "preview": "Anteprima della misura",
     "previewFailed": "Impossibile caricare l’anteprima. Riprova.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {

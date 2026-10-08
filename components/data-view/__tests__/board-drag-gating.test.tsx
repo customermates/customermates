@@ -136,6 +136,7 @@ const PROBABILITY_GROUPS: DataViewGroup[] = [
 function store(grouping: Partial<GroupingResult>, moveItemBetweenGroups = vi.fn()): BaseDataViewStore<Item> {
   return {
     customColumns: [STORED_COLUMN],
+    columnWidths: {},
     entityType: "deal",
     hiddenColumns: [],
     isGrouped: true,
