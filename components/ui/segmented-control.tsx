@@ -10,6 +10,7 @@ import { cn } from "@/core/utils/cn";
 export type SegmentedControlItem<Value extends string> = {
   value: Value;
   label: ReactNode;
+  disabled?: boolean;
   invalid?: boolean;
   invalidLabel?: string;
 };
@@ -63,6 +64,7 @@ export function SegmentedControl<Value extends string>({
               )}
               data-invalid={item.invalid || undefined}
               data-slot="segmented-control-item"
+              disabled={item.disabled}
               {...(idPrefix ? { id: segmentId(idPrefix, item.value) } : {})}
               value={item.value}
             >

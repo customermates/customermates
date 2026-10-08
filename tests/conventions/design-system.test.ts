@@ -46,7 +46,6 @@ const TABS_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": "I1 r4: list page sidebar list",
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx": "I3 r3: Data / Appearance segments",
   "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx": "I3 r3: widget editor segments",
-  "app/[locale]/(protected)/onboarding/wizard/components/step-invite.tsx": "I25 phase 2: onboarding invite step",
 };
 
 describe("rule 57: sections and segments instead of tab bars", () => {

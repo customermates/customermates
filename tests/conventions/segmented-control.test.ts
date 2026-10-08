@@ -16,7 +16,6 @@ const RULE_PATTERNS: Record<Rule, RegExp> = {
 };
 
 const NOT_YET_MIGRATED: Record<string, Rule[]> = {
-  "app/[locale]/(protected)/onboarding/wizard/components/step-invite.tsx": ["raw-tabs", "underline-bar"],
   "components/data-view/header/display-options.tsx": ["raw-tabs"],
   "components/entity-detail/entity-detail-panels.tsx": ["raw-tabs", "underline-bar"],
   "components/editor-tabs/editor-tabs.tsx": ["editor-tabs"],
