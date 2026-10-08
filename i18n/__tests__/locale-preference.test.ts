@@ -34,6 +34,27 @@ describe("locale preferences", () => {
     expect(displayLanguageNavigationTarget("it", "/de?tab=mine#open")).toBe("/it?tab=mine#open");
   });
 
+  it("only navigates to same-origin paths and falls back to the locale root otherwise", () => {
+    for (const unsafe of [
+      "//evil.com/x",
+      "/\\evil.com",
+      "/de//evil.com/x",
+      "/\t/evil.com",
+      "javascript:alert(1)",
+      "https://evil.com/x?tab=mine#open",
+    ]) {
+      expect(displayLanguageNavigationTarget("system", unsafe)).toBe("/");
+      expect(displayLanguageNavigationTarget("it", unsafe)).toBe("/it");
+      expect(appLocaleReconciliationTarget("fr", "de", unsafe, "en")).toBe("/fr");
+    }
+    expect(displayLanguageNavigationTarget("system", "/records/deals?view=open&page=2#row-7")).toBe(
+      "/records/deals?view=open&page=2#row-7",
+    );
+    expect(displayLanguageNavigationTarget("de", "/fr/records/deals?view=open&page=2#row-7")).toBe(
+      "/de/records/deals?view=open&page=2#row-7",
+    );
+  });
+
   it("reconciles a newly synchronized preference with the rendered app locale", () => {
     expect(appLocaleReconciliationTarget("fr", "de", "/dashboard?tab=mine#open", "en")).toBe(
       "/fr/dashboard?tab=mine#open",

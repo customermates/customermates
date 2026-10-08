@@ -718,9 +718,8 @@ export const FieldModal = observer(function FieldModal({
                         id={`options.${index}.color`}
                         items={CHIP_COLORS.map((color) => ({
                           value: color,
-                          label: option.label.trim() || t(`Common.colors.${color}`),
-                          textValue: t(`Common.colors.${color}`),
-                          description: option.label.trim() ? t(`Common.colors.${color}`) : undefined,
+                          label: t(`Common.colors.${color}`),
+                          chipLabel: option.label.trim() || undefined,
                           color,
                         }))}
                         label={null}
