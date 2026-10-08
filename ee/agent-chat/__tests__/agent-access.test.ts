@@ -13,7 +13,7 @@ import {
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
 const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
@@ -510,11 +510,12 @@ describe("agent access", () => {
       expect(result.ok && result.data.disposition).toBe("run");
       expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
       expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-        model: SHIPPED_AGENT_MODEL,
+        model: AGENT_MODELS.routine,
         requiredContextBytes: expect.any(Number),
         creditCeilingMicrocents: expected,
         webSearchReserveMicrocents: 2_400_000,
       });
+      expect(usage.prepareTurn.mock.calls[0][2].model.reasoningEffort).toBe("medium");
       expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
         expect.objectContaining({
           conversationId: CONVERSATION_ID,
@@ -685,11 +686,12 @@ describe("agent access", () => {
     expect(result.ok && result.data.disposition).toBe("run");
     expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, undefined);
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-      model: SHIPPED_AGENT_MODEL,
+      model: AGENT_MODELS.chat,
       requiredContextBytes: expect.any(Number),
       creditCeilingMicrocents: null,
       webSearchReserveMicrocents: 3_600_000,
     });
+    expect(usage.prepareTurn.mock.calls[0][2].model.reasoningEffort).toBe("low");
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.not.objectContaining({ routineRunId: expect.anything() }),
     );
@@ -761,7 +763,7 @@ describe("agent access", () => {
       }
       expect(result.ok && result.data.disposition).toBe("run");
       expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-        model: SHIPPED_AGENT_MODEL,
+        model: AGENT_MODELS.chat,
         requiredContextBytes: expect.any(Number),
         creditCeilingMicrocents: null,
         webSearchReserveMicrocents: 3_600_000,
@@ -816,7 +818,7 @@ describe("agent access", () => {
     expect(result.data).not.toHaveProperty("toolNames");
     expect(repo.listRecentMessages).not.toHaveBeenCalled();
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-      model: SHIPPED_AGENT_MODEL,
+      model: AGENT_MODELS.chat,
       requiredContextBytes: expect.any(Number),
       creditCeilingMicrocents: null,
       webSearchReserveMicrocents: 3_600_000,

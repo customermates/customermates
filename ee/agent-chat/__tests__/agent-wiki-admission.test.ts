@@ -193,7 +193,7 @@ describe("Workspace Wiki admission bootstrap", () => {
     });
     expect(systemPrompt).not.toContain("Current workspace guidance");
     const admission = state.usage.prepareTurn.mock.calls[0][2];
-    expect(admission.model).toEqual(resolveAgentModel());
+    expect(admission.model).toEqual(resolveAgentModel(null, surface));
     expect(admission.requiredContextBytes).toBe(
       conservativeAgentInitialContextBytes({
         systemPrompt,

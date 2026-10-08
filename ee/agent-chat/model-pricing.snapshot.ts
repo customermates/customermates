@@ -1,6 +1,6 @@
 export const MODEL_PRICING_SNAPSHOT = {
   source: "https://ai-gateway.vercel.sh/v1/models and https://ai-gateway.vercel.sh/v1/models/{model}/endpoints",
-  fetchedAt: "2026-09-13T13:55:33Z",
+  fetchedAt: "2026-10-08T15:29:05Z",
   endpoints: [
     {
       modelId: "google/gemini-3.5-flash-lite",
@@ -98,7 +98,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       provider: "vertex",
       inferenceRegion: "eu",
       contextLength: 1000000,
-      maxCompletionTokens: 65536,
+      maxCompletionTokens: 65535,
       requestUsd: "0",
       webSearchUsdPerThousandCalls: "14",
       prompt: [
@@ -160,7 +160,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1050000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
+      webSearchUsdPerThousandCalls: "0.014",
       prompt: [
         {
           costUsdPerToken: "0.0000002",
@@ -213,7 +213,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1050000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
+      webSearchUsdPerThousandCalls: "0.014",
       prompt: [
         {
           costUsdPerToken: "0.000002",
@@ -267,7 +267,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 1050000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
+      webSearchUsdPerThousandCalls: "0.014",
       prompt: [
         {
           costUsdPerToken: "0.000005",
@@ -321,7 +321,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
+      webSearchUsdPerThousandCalls: "0.014",
       prompt: [
         {
           costUsdPerToken: "0.00000005",
@@ -351,7 +351,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
+      webSearchUsdPerThousandCalls: "0.014",
       prompt: [
         {
           costUsdPerToken: "0.00000025",
@@ -381,7 +381,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
+      webSearchUsdPerThousandCalls: "0.014",
       prompt: [
         {
           costUsdPerToken: "0.00000075",
@@ -411,7 +411,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       contextLength: 400000,
       maxCompletionTokens: 128000,
       requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
+      webSearchUsdPerThousandCalls: "0.014",
       prompt: [
         {
           costUsdPerToken: "0.0000002",
@@ -430,6 +430,60 @@ export const MODEL_PRICING_SNAPSHOT = {
       inputCacheWrite: [
         {
           costUsdPerToken: "0",
+        },
+      ],
+    },
+    {
+      modelId: "anthropic/claude-haiku-5.5",
+      providerNativeModelId: "claude-haiku-5.5",
+      provider: "vertexAnthropic",
+      inferenceRegion: "eu",
+      contextLength: 1000000,
+      maxCompletionTokens: 128000,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "10",
+      prompt: [
+        {
+          costUsdPerToken: "0.00000011",
+          minPromptTokens: 0,
+          maxPromptTokens: 100001,
+        },
+        {
+          costUsdPerToken: "0.00000055",
+          minPromptTokens: 100001,
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0.00000055",
+          minPromptTokens: 0,
+          maxPromptTokens: 100001,
+        },
+        {
+          costUsdPerToken: "0.00000275",
+          minPromptTokens: 100001,
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0.000000011",
+          minPromptTokens: 0,
+          maxPromptTokens: 100001,
+        },
+        {
+          costUsdPerToken: "0.000000055",
+          minPromptTokens: 100001,
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0.0000001375",
+          minPromptTokens: 0,
+          maxPromptTokens: 100001,
+        },
+        {
+          costUsdPerToken: "0.0000006875",
+          minPromptTokens: 100001,
         },
       ],
     },
@@ -644,41 +698,11 @@ export const MODEL_PRICING_SNAPSHOT = {
       ],
     },
     {
-      modelId: "moonshotai/kimi-k2.7-code",
-      providerNativeModelId: "kimi-k2.7-code",
-      provider: "baseten",
-      inferenceRegion: null,
-      contextLength: 256000,
-      maxCompletionTokens: 32768,
-      requestUsd: "0",
-      webSearchUsdPerThousandCalls: "0",
-      prompt: [
-        {
-          costUsdPerToken: "0.00000095",
-        },
-      ],
-      completion: [
-        {
-          costUsdPerToken: "0.000004",
-        },
-      ],
-      inputCacheRead: [
-        {
-          costUsdPerToken: "0.00000016",
-        },
-      ],
-      inputCacheWrite: [
-        {
-          costUsdPerToken: "0",
-        },
-      ],
-    },
-    {
       modelId: "mistral/mistral-large-3",
       providerNativeModelId: "mistral-large-3",
       provider: "mistral",
       inferenceRegion: null,
-      contextLength: 256000,
+      contextLength: 262144,
       maxCompletionTokens: 256000,
       requestUsd: "0",
       webSearchUsdPerThousandCalls: "0",
@@ -694,7 +718,7 @@ export const MODEL_PRICING_SNAPSHOT = {
       ],
       inputCacheRead: [
         {
-          costUsdPerToken: "0.0000005",
+          costUsdPerToken: "0.00000005",
         },
       ],
       inputCacheWrite: [

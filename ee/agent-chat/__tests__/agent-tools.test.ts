@@ -72,7 +72,7 @@ import { conservativeAgentInitialContextBytes } from "../agent-provider-context"
 import { toolsetsForRequest } from "../agent-toolset-routing";
 import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
 import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS, unopenedUiPrerequisite } from "../ui-targets";
 import {
@@ -283,7 +283,7 @@ describe("agent tools", () => {
   });
 
   it("keeps the request's initially active tools inside the conservative provider envelope", () => {
-    const model = SHIPPED_AGENT_MODEL;
+    const model = AGENT_MODELS.chat;
     const contextLimitBytes = agentContextTokensToBytes(model.maxContextTokens);
     const systemPrompt = buildAgentSystemPrompt({
       userName: "Ada Lovelace",
@@ -381,7 +381,7 @@ describe("agent tools", () => {
         { wikiCatalog: catalog, wikiWebsiteSetup: false },
         { wikiCatalog: null, wikiWebsiteSetup: true },
       ];
-      for (const model of [SHIPPED_AGENT_MODEL]) {
+      for (const model of [AGENT_MODELS.chat]) {
         for (const { wikiCatalog, wikiWebsiteSetup } of states) {
           const label = `${model.modelId} catalog=${Boolean(wikiCatalog)} website=${wikiWebsiteSetup}`;
           const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, {

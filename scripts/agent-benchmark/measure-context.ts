@@ -3,7 +3,7 @@ import { agentToolDefinitionsForToolsets, agentToolDefinitionsForTurn } from "@/
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { conservativeAgentInitialContextBytes } from "@/ee/agent-chat/agent-provider-context";
 import { toolsetsForRequest } from "@/ee/agent-chat/agent-toolset-routing";
-import { SHIPPED_AGENT_MODEL, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 import { agentRoundWorstCaseMicrocents, resolveAgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import {
   AGENT_CREDIT_TENTH_MICROCENTS,
@@ -90,7 +90,7 @@ export function admissionFloorCredits(entry: AgentModelEntry, initialContextByte
 }
 
 export function reservationSummary(initialContextBytes?: number) {
-  return ([[SHIPPED_AGENT_MODEL_KEY, SHIPPED_AGENT_MODEL]] as const).map(([key, entry]) => {
+  return ([[SHIPPED_AGENT_MODEL_KEY, AGENT_MODELS.chat]] as const).map(([key, entry]) => {
     const budget = resolveAgentTurnBudget({
       model: entry,
       availableMicrocents: agentCreditsToMicrocents(500),

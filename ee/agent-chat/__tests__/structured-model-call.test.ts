@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const provider = vi.hoisted(() => ({ generate: vi.fn() }));
 vi.mock("ai", async (importOriginal) => ({ ...(await importOriginal<typeof ai>()), generateText: provider.generate }));
 
-import { INITIAL_WIKI_SYNTHESIS_MODEL } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 
 import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "../structured-model-call";
 
@@ -20,7 +20,7 @@ function rejectWith(error: Error) {
 function call() {
   return generateStructuredObject({
     label: "Website import",
-    model: INITIAL_WIKI_SYNTHESIS_MODEL,
+    model: AGENT_MODELS.wikiSynthesis,
     schema: z.object({ title: z.string() }),
     system: "system",
     prompt: "prompt",
@@ -32,6 +32,22 @@ beforeEach(() => {
 });
 
 describe("generateStructuredObject", () => {
+  it("sends the synthesis entry's output ceiling and reasoning effort to the provider", async () => {
+    provider.generate.mockResolvedValue({
+      output: { title: "Overview" },
+      usage: { inputTokens: 10, outputTokens: 5 },
+      providerMetadata: undefined,
+    });
+    expect((await call()).output).toEqual({ title: "Overview" });
+    expect(provider.generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: "anthropic/claude-haiku-5.5",
+        maxOutputTokens: 16_384,
+        reasoning: "medium",
+      }),
+    );
+  });
+
   it.each([400, 401, 403, 429])("charges nothing when the gateway rejects the request with %i", async (status) => {
     rejectWith(failure(status));
     expect(await call()).toMatchObject({ output: null, charge: null, failure: expect.stringContaining("failed") });
@@ -51,14 +67,14 @@ describe("generateStructuredObject", () => {
     expect(output).toBeNull();
     expect(charge).toMatchObject({
       costSource: "estimated",
-      costMicrocents: structuredCallWorstCaseMicrocents(INITIAL_WIKI_SYNTHESIS_MODEL, "system", "prompt"),
+      costMicrocents: structuredCallWorstCaseMicrocents(AGENT_MODELS.wikiSynthesis, "system", "prompt"),
     });
   });
 
   it("charges the worst case when the request fails without a status", async () => {
     rejectWith(new Error("socket hang up"));
     expect((await call()).charge?.costMicrocents).toBe(
-      structuredCallWorstCaseMicrocents(INITIAL_WIKI_SYNTHESIS_MODEL, "system", "prompt"),
+      structuredCallWorstCaseMicrocents(AGENT_MODELS.wikiSynthesis, "system", "prompt"),
     );
   });
 });

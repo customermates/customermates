@@ -9,7 +9,7 @@ import {
   conservativeAgentInitialContextBytes,
 } from "@/ee/agent-chat/agent-provider-context";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "@/ee/agent-chat/agent-replay-budget";
-import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 import {
   AGENT_WIKI_MORE_PROCEDURES_HINT,
   AGENT_WIKI_REFERENCE_CLOSE,
@@ -254,7 +254,7 @@ describe("Workspace Wiki provider context", () => {
     expect(withWiki).toBe((withoutWiki ?? 0) + agentWikiReferenceBytes(catalog));
   });
 
-  it.each([SHIPPED_AGENT_MODEL])(
+  it.each([AGENT_MODELS.chat])(
     "serializes the $servingProvider Gateway request with the reference inside the system prompt",
     async ({ modelId, servingProvider, inferenceRegion }) => {
       const requests: Record<string, unknown>[] = [];

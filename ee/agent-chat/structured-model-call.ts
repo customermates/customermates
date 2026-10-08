@@ -81,6 +81,7 @@ export async function generateStructuredObject<T>(args: {
       prompt: args.prompt,
       output: Output.object({ schema: args.schema }),
       maxOutputTokens: args.model.maxOutputTokens,
+      ...(args.model.reasoningEffort ? { reasoning: args.model.reasoningEffort } : {}),
       maxRetries: 0,
       abortSignal: AbortSignal.timeout(args.timeoutMs ?? TIMEOUT_MS),
       providerOptions: {

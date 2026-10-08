@@ -9,7 +9,7 @@ vi.mock("@/env", () => ({
 }));
 
 import { usageToTokenCounts } from "../agent-usage-settlement";
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 import { resolveModelPricing } from "../model-pricing";
 
 describe("usageToTokenCounts", () => {
@@ -120,7 +120,11 @@ describe("usageToTokenCounts", () => {
 
 describe("model catalog + pricing coverage", () => {
   it("addresses every catalog model by its gateway-namespaced id", () => {
-    expect([SHIPPED_AGENT_MODEL].map((entry) => entry.modelId)).toEqual(["google/gemini-3.5-flash-lite"]);
+    expect(Object.values(AGENT_MODELS).map((entry) => entry.modelId)).toEqual([
+      "anthropic/claude-haiku-5.5",
+      "anthropic/claude-haiku-5.5",
+      "anthropic/claude-haiku-5.5",
+    ]);
   });
 
   it("refuses to price an unpinned model instead of falling back to a spend cap", () => {
@@ -130,16 +134,16 @@ describe("model catalog + pricing coverage", () => {
   it("prices the configured agent model from the pinned snapshot", () => {
     expect(
       resolveModelPricing(
-        SHIPPED_AGENT_MODEL.modelId,
+        AGENT_MODELS.chat.modelId,
         0,
-        SHIPPED_AGENT_MODEL.servingProvider,
-        SHIPPED_AGENT_MODEL.inferenceRegion,
+        AGENT_MODELS.chat.servingProvider,
+        AGENT_MODELS.chat.inferenceRegion,
       ),
     ).toEqual({
-      inputPerMTok: 0.33,
-      outputPerMTok: 2.75,
-      cacheReadPerMTok: 0.033,
-      cacheWritePerMTok: 0,
+      inputPerMTok: 0.11,
+      outputPerMTok: 0.55,
+      cacheReadPerMTok: 0.011,
+      cacheWritePerMTok: 0.1375,
     });
   });
 });

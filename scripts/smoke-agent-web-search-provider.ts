@@ -22,9 +22,9 @@ import {
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
-import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
-const MODEL = SHIPPED_AGENT_MODEL;
+const MODEL = AGENT_MODELS.chat;
 const MODEL_URL = "https://ai-gateway.vercel.sh/v4/ai/language-model";
 const DOMAIN = "customermates.com";
 const PROMPT = [

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { getAgentProviderOptions } from "../agent-provider-options";
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 
 describe("Agent provider options", () => {
-  it.each([SHIPPED_AGENT_MODEL])("preserves the serving provider and inference region for $modelId", (model) => {
+  it.each([AGENT_MODELS.chat])("preserves the serving provider and inference region for $modelId", (model) => {
     expect(getAgentProviderOptions(model.servingProvider, model.inferenceRegion)).toEqual({
       gateway: {
         only: [model.servingProvider],

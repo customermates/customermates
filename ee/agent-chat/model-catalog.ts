@@ -15,33 +15,32 @@ export type { AgentModelEntry, AgentReasoningEffort, AgentThinkingLevel } from "
 export const SHIPPED_AGENT_MODEL_KEY = "balanced";
 export type AgentModelKey = typeof SHIPPED_AGENT_MODEL_KEY;
 
-export const SHIPPED_AGENT_MODEL = {
-  modelId: "google/gemini-3.5-flash-lite",
-  servingProvider: "vertex",
+const HAIKU = {
+  modelId: "anthropic/claude-haiku-5.5",
+  servingProvider: "vertexAnthropic",
   inferenceRegion: "eu",
   maxOutputTokens: 8192,
-  maxContextTokens: 66_000,
+  maxContextTokens: 65_000,
   maxToolResultChars: 6000,
-  thinkingLevel: "low",
-} as const satisfies AgentModelEntry;
+} as const satisfies Omit<AgentModelEntry, "reasoningEffort">;
 
-assertServableEntry(SHIPPED_AGENT_MODEL_KEY, SHIPPED_AGENT_MODEL);
+export const AGENT_MODELS = {
+  chat: { ...HAIKU, reasoningEffort: "low" },
+  routine: { ...HAIKU, reasoningEffort: "medium" },
+  wikiSynthesis: { ...HAIKU, maxOutputTokens: 16_384, reasoningEffort: "medium" },
+} as const satisfies Record<string, AgentModelEntry>;
 
-export const INITIAL_WIKI_SYNTHESIS_MODEL = {
-  ...SHIPPED_AGENT_MODEL,
-  modelId: "google/gemini-3.8-flash",
-  maxOutputTokens: 16_384,
-  thinkingLevel: "low",
-} as const satisfies AgentModelEntry;
+export type AgentModelPurpose = keyof typeof AGENT_MODELS;
+export type AgentTurnModelPurpose = Extract<AgentModelPurpose, "chat" | "routine">;
 
-assertServableEntry("initial Knowledge Base synthesis", INITIAL_WIKI_SYNTHESIS_MODEL);
+for (const [purpose, entry] of Object.entries(AGENT_MODELS)) assertServableEntry(purpose, entry);
 
 export function isAgentModelKey(value: string): boolean {
   return value === SHIPPED_AGENT_MODEL_KEY || Object.hasOwn(benchmarkModelOverlay(), value);
 }
 
-export function resolveAgentModel(key?: string | null): AgentModelEntry {
-  if (key == null || key === SHIPPED_AGENT_MODEL_KEY) return SHIPPED_AGENT_MODEL;
+export function resolveAgentModel(key?: string | null, purpose: AgentTurnModelPurpose = "chat"): AgentModelEntry {
+  if (key == null || key === SHIPPED_AGENT_MODEL_KEY) return AGENT_MODELS[purpose];
   const overlay = benchmarkModelOverlay()[key];
   if (overlay) return overlay;
   throw new Error(`Unknown agent model "${key}".`);

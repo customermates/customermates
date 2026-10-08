@@ -17,9 +17,9 @@ import { type AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { agentRoundWorstCaseMicrocents } from "../agent-budget-policy";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 import { computeCostMicrocents, promptTokensOf } from "../model-pricing";
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 
-const MODEL = SHIPPED_AGENT_MODEL;
+const MODEL = AGENT_MODELS.chat;
 const CREDIT = 1_000_000;
 
 const NOW = new Date("2026-08-06T12:00:00.000Z");

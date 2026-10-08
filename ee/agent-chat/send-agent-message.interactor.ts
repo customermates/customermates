@@ -275,7 +275,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const requestedModelKey = retiredModelKey ? SHIPPED_AGENT_MODEL_KEY : (storedModelKey ?? data.modelKey ?? null);
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
-    const turnModel = resolveAgentModel(requestedModelKey);
+    const turnModel = resolveAgentModel(requestedModelKey, surface);
     const locale = data.locale ?? resolveUserLocale(user);
     let wikiCatalog: string | null = null;
     let wikiWebsiteSetup = false;

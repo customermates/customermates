@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 
@@ -104,7 +104,7 @@ describe("unified benchmark registry", () => {
     expect(byId.get("V40")?.prompts[0]).toContain("set the search text to View");
     expect(byId.get("V40")?.prompts[0]).toContain("group them by creation month");
     expect(byId.get("R49")?.contexts).toEqual([{ modelKey: "bench:flash-low" }, { modelKey: "omit" }]);
-    const shippedModel = SHIPPED_AGENT_MODEL;
+    const shippedModel = AGENT_MODELS.chat;
     for (const arm of ["shipped", "flash-lite-medium"]) {
       const pinned = benchmarkCaseModelSelection("R49", armById(arm));
       expect(pinned).toEqual({
@@ -120,7 +120,6 @@ describe("unified benchmark registry", () => {
         },
       });
       expect(pinned.modelConfig.modelId).not.toBe(shippedModel.modelId);
-      expect(pinned.modelConfig.servingProvider).toBe(shippedModel.servingProvider);
       expect(pinned.modelConfig.inferenceRegion).toBe(shippedModel.inferenceRegion);
     }
     expect(benchmarkCaseModelSelection("S1", armById("flash-lite-medium"))).toMatchObject({

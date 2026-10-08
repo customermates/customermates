@@ -19,6 +19,8 @@ vi.mock("@/ee/agent-chat/classifier/metered", () => ({
 import type { StoredWikiSynthesisTopic } from "../wiki-synthesis.schema";
 import type { WikiCrawlRecord, WikiSourceRecord } from "../wiki-website-crawl.service";
 
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
+
 import { WikiWebsiteSynthesisService } from "../wiki-website-synthesis.service";
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -179,7 +181,7 @@ describe("website Knowledge Base synthesis", () => {
     const { service, crawl } = harness();
     model.generate.mockResolvedValueOnce(plan(FULL_PLAN));
     expect(await service.plan("crawl-1")).toBe(6);
-    expect(model.generate.mock.calls[0][0].model.modelId).toBe("google/gemini-3.8-flash");
+    expect(model.generate.mock.calls[0][0].model).toBe(AGENT_MODELS.wikiSynthesis);
     expect(crawl().topics).toEqual([
       { title: "Company overview", role: "company_overview", sourceIds: [id(1)], status: "pending" },
       { title: "Customers", role: "customers_and_use_cases", sourceIds: [id(1)], status: "pending" },
@@ -190,11 +192,11 @@ describe("website Knowledge Base synthesis", () => {
     ]);
   });
 
-  it("plans only offerings and procedures for a help-centre extension, on the ordinary model", async () => {
+  it("plans only offerings and procedures for a help-centre extension, on the same synthesis model", async () => {
     const { service, crawl } = harness("extend");
     model.generate.mockResolvedValueOnce(plan(FULL_PLAN));
     expect(await service.plan("crawl-1")).toBe(2);
-    expect(model.generate.mock.calls[0][0].model.modelId).toBe("google/gemini-3.5-flash-lite");
+    expect(model.generate.mock.calls[0][0].model).toBe(AGENT_MODELS.wikiSynthesis);
     expect(crawl().topics?.map(({ title, role }) => [title, role])).toEqual([
       ["Scheduling", "offering"],
       ["company overview", "offering"],

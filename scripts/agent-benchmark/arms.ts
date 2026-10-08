@@ -1,7 +1,7 @@
 import type { AgentModelEntry, AgentReasoningEffort, AgentThinkingLevel } from "@/ee/agent-chat/model-catalog";
 import type { BenchmarkModelEntry } from "@/ee/agent-chat/benchmark-model-registry";
 
-import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 import { BENCHMARK_MODEL_KEY_PREFIX } from "@/ee/agent-chat/benchmark-model-registry";
 
 type BenchmarkFamily = "google" | "openai" | "anthropic" | "deepseek" | "zai" | "moonshot" | "mistral" | "alibaba";
@@ -34,7 +34,7 @@ function benchmarkFamily(modelId: string): BenchmarkFamily {
 }
 
 function shipped(): BenchmarkArm {
-  const model: AgentModelEntry = SHIPPED_AGENT_MODEL;
+  const model: AgentModelEntry = AGENT_MODELS.chat;
   return {
     id: "shipped",
     label: `${model.modelId}, ${SHIPPED_AGENT_MODEL_KEY} catalog configuration (shipped)`,
@@ -136,7 +136,6 @@ export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   hosted("glm53-flash-low", "zai/glm-5.3-flash", "baseten", "zai", "low", "GLM-5.3 Flash, reasoning low (Baseten)"),
   hosted("glm53-flash-high", "zai/glm-5.3-flash", "baseten", "zai", "high", "GLM-5.3 Flash, reasoning high (Baseten)"),
   hosted("glm53-low", "zai/glm-5.3", "baseten", "zai", "low", "GLM-5.3, reasoning low (Baseten)"),
-  hosted("kimi-k27-code", "moonshotai/kimi-k2.7-code", "baseten", "moonshot", undefined, "Kimi K2.7 Code (Baseten)"),
   hosted("mistral-large-3", "mistral/mistral-large-3", "mistral", "mistral", undefined, "Mistral Large 3"),
   hosted("qwen3-coder-next", "alibaba/qwen3-coder-next", "bedrock", "alibaba", undefined, "Qwen3 Coder Next (Bedrock)"),
 ];

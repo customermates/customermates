@@ -2,7 +2,7 @@ import { asSchema } from "ai";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getAgentWebSearchTool } from "@/ee/agent-chat/agent-web-search";
-import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
 import {
   AGENT_WEB_SEARCH_SMOKE_MAX_USD,
@@ -16,7 +16,7 @@ import {
   runLiveProviderSmoke,
 } from "../smoke-agent-web-search-provider";
 
-const MODEL = SHIPPED_AGENT_MODEL;
+const MODEL = AGENT_MODELS.chat;
 const GENERATION_ID = "gen_01M0QTS0NKJMJMMYA0JGKZM6SF";
 
 function generation(overrides: Partial<Parameters<typeof inspectProviderSmokeBilling>[1]> = {}) {
@@ -154,7 +154,7 @@ describe("web-search offline feasibility guard", () => {
       serialization: {
         phase: "search",
         model: MODEL.modelId,
-        provider: "vertex",
+        provider: "vertexAnthropic",
         inferenceRegion: "eu",
         inputSchemaSent: false,
         nativeTools: [
@@ -174,7 +174,7 @@ describe("web-search offline feasibility guard", () => {
         ],
         providerOptions: {
           gateway: {
-            only: ["vertex"],
+            only: ["vertexAnthropic"],
             inferenceRegion: { scope: "zone", geoRegion: "eu" },
             zeroDataRetention: true,
             disallowPromptTraining: true,

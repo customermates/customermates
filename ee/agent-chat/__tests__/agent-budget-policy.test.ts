@@ -17,8 +17,7 @@ import {
 } from "../agent-budget-policy";
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../agent-provider-context";
 import {
-  SHIPPED_AGENT_MODEL,
-  INITIAL_WIKI_SYNTHESIS_MODEL,
+  AGENT_MODELS,
   SHIPPED_AGENT_MODEL_KEY,
   isAgentModelWithinBudgetEnvelope,
   type AgentModelEntry,
@@ -26,7 +25,7 @@ import {
 import { agentWebSearchCallLimit } from "../agent-web-search";
 
 const CREDIT = 1_000_000;
-const BALANCED = SHIPPED_AGENT_MODEL;
+const BALANCED = AGENT_MODELS.chat;
 const NANO: AgentModelEntry = {
   modelId: "openai/gpt-5-nano",
   servingProvider: "azure",
@@ -40,7 +39,7 @@ describe("agent turn credit budget", () => {
   it("pins the shipped model to its ZDR-compatible provider and configured inference region", () => {
     expect(SHIPPED_AGENT_MODEL_KEY).toBe("balanced");
     expect({ provider: BALANCED.servingProvider, region: BALANCED.inferenceRegion }).toEqual({
-      provider: "vertex",
+      provider: "vertexAnthropic",
       region: "eu",
     });
   });
@@ -62,20 +61,20 @@ describe("agent turn credit budget", () => {
     }
   });
 
-  it("prices the initial synthesis output envelope before admitting a provider round", () => {
-    const model = INITIAL_WIKI_SYNTHESIS_MODEL;
+  it("prices the Knowledge Base synthesis output envelope before admitting a provider round", () => {
+    const model = AGENT_MODELS.wikiSynthesis;
     const perRound = agentRoundWorstCaseMicrocents(model);
 
     expect(model.maxOutputTokens).toBe(16_384);
-    expect(model.thinkingLevel).toBe("low");
-    expect(perRound).toBe(15_132_150);
+    expect(model.reasoningEffort).toBe("medium");
+    expect(perRound).toBe(2_276_120);
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound - 1 })).toBeNull();
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound })).toMatchObject({
       maxOutputTokens: 16_384,
       roundReserveMicrocents: perRound,
       reservedMicrocents: perRound,
     });
-    expect(agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL)).toBe(5_602_300);
+    expect(agentRoundWorstCaseMicrocents(AGENT_MODELS.chat)).toBe(1_825_560);
   });
 
   it("reserves a few rounds ahead rather than a whole worst-case turn", () => {
@@ -87,7 +86,7 @@ describe("agent turn credit budget", () => {
   });
 
   it("keeps the round worst case in exact microcents, without a whole-credit round-up or minimum", () => {
-    expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(5_602_300);
+    expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(1_825_560);
     expect(Number.isSafeInteger(agentRoundWorstCaseMicrocents(NANO))).toBe(true);
     expect(agentRoundWorstCaseMicrocents(NANO) % CREDIT).not.toBe(0);
   });
@@ -146,14 +145,18 @@ describe("agent turn credit budget", () => {
       chatSearch: 3_600_000,
       routineSearch: 2_400_000,
     });
-    for (const webSearchReserveMicrocents of [chatSearch, routineSearch]) {
+    for (const [webSearchReserveMicrocents, reservedMicrocents] of [
+      [chatSearch, 5_425_560],
+      [routineSearch, 4_225_560],
+    ]) {
       const budget = resolveAgentTurnBudget({
         model: BALANCED,
         availableMicrocents: 500 * CREDIT,
         webSearchReserveMicrocents,
       });
-      expect(budget?.reservedMicrocents).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
-      expect(budget?.reservedMicrocents).toBeGreaterThanOrEqual(perRound + webSearchReserveMicrocents);
+      expect(budget?.reservedMicrocents).toBe(reservedMicrocents);
+      expect(budget?.reservedMicrocents).toBe(perRound + webSearchReserveMicrocents);
+      expect(budget?.reservedMicrocents).toBeGreaterThan(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
     }
     expect(
       resolveAgentTurnBudget({
