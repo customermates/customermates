@@ -60,7 +60,13 @@ async function chooseMultiple(page: Page, selector: string, value: string) {
   await expect(popover).toHaveCount(0);
 }
 
+async function openWidgetFilters(page: Page) {
+  const trigger = page.getByRole("dialog").locator("#widget-config-filters");
+  if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
+}
+
 async function addFilter(page: Page, kind: "provider" | "account" | "thread", index: number, value: string) {
+  await openWidgetFilters(page);
   await page
     .locator(':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"])[role="dialog"]')
     .locator("#activity-add-filter")
@@ -79,6 +85,7 @@ async function previewMessages(page: Page, present: string[], absent: string[] =
 }
 
 async function todayBound(page: Page, key: "after" | "before", time: string) {
+  await openWidgetFilters(page);
   await page
     .locator(':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"])[role="dialog"]')
     .locator(`[id="activityQuery.${key}"]`)

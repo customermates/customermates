@@ -450,6 +450,11 @@ function transportEvidence(page: Page) {
     },
   };
 }
+async function openWidgetFilters(page: Page) {
+  const trigger = page.getByRole("dialog").locator("#widget-config-filters");
+  if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
+}
+
 async function select(page: Page, selector: string, name: string, scope: Locator = page.getByRole("dialog")) {
   await scope.locator(selector).click();
   await page.getByRole("option", { name, exact: true }).click();
@@ -857,6 +862,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   ])
     await toggleMultiple(page, '[id="activityQuery.kinds"]', kind);
   await activityPreview(page, [entries[0].body], [entries[1].body]);
+  await openWidgetFilters(page);
   await select(page, "#activity-add-filter", english.RecordActivityWidgets.filterKinds.record);
   await select(page, '[id="activityQuery.filters[0].typeId"]', "Organizations");
   await activityPreview(page, [entries[0].body], [entries[1].body]);
@@ -895,6 +901,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
     entries.map((entry) => entry.body),
     [],
   );
+  await openWidgetFilters(page);
   await select(page, "#activity-add-filter", english.RecordActivityWidgets.filterKinds.record);
   await select(page, '[id="activityQuery.filters[0].typeId"]', "Organizations");
   await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.hasNone);
