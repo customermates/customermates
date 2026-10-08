@@ -164,6 +164,8 @@ export function TopBarMenuButton({
   label,
   anchorId,
   busy = false,
+  disabled = false,
+  primary = false,
   children,
   ...props
 }: {
@@ -171,6 +173,8 @@ export function TopBarMenuButton({
   label: string;
   anchorId?: string;
   busy?: boolean;
+  disabled?: boolean;
+  primary?: boolean;
   children: ReactNode;
   "data-transfer-menu"?: string;
   "data-thread-folder-move"?: boolean;
@@ -187,14 +191,16 @@ export function TopBarMenuButton({
                 aria-label={label}
                 className="h-8"
                 data-slot="top-bar-action"
-                disabled={busy}
+                disabled={busy || disabled}
                 id={anchorId}
-                size="icon-sm"
+                size={primary ? "sm" : "icon-sm"}
                 type="button"
-                variant="secondary"
+                variant={primary ? "default" : "secondary"}
                 {...props}
               >
-                <ActiveIcon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />
+                <ActiveIcon aria-hidden className={busy ? "size-4 animate-spin" : primary ? "size-3.5" : "size-4"} />
+
+                {primary && <span className="hidden sm:inline">{label}</span>}
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
