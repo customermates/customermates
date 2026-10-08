@@ -669,7 +669,6 @@
       "skip": "Salta"
     },
     "tourUi": {
-      "back": "Indietro",
       "title": "Tour guidato"
     },
     "ui": {
@@ -2142,7 +2141,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Chiedi a Mate: {question}",
-    "clearRecent": "Cancella",
     "emptyDescription": "Cerca record negli elenchi a cui hai accesso.",
     "emptyTitle": "Trova tutto nel tuo spazio di lavoro",
     "groupRecent": "Aperti di recente",
@@ -2150,7 +2148,6 @@
     "hintNavigate": "Naviga",
     "hintOpen": "Apri",
     "loading": "Ricerca...",
-    "loadMore": "Carica altri",
     "noResults": "Nessun risultato",
     "placeholder": "Cerca...",
     "staleItem": "Questo elemento non esiste più ed è stato rimosso dagli elementi recenti."
@@ -2697,7 +2694,6 @@
       "sentSuccess": "{count, plural, one {# invito inviato.} other {# inviti inviati.}}",
       "tabs": {
         "email": "Invia e-mail",
-        "label": "Modalità di invito",
         "link": "Condividi il link"
       }
     },

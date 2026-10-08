@@ -669,7 +669,6 @@
       "skip": "Überspringen"
     },
     "tourUi": {
-      "back": "Zurück",
       "title": "Geführte Tour"
     },
     "ui": {
@@ -2142,7 +2141,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Mate fragen: {question}",
-    "clearRecent": "Leeren",
     "emptyDescription": "Finde Datensätze in den Listen, auf die du Zugriff hast.",
     "emptyTitle": "Finde alles in deinem Workspace",
     "groupRecent": "Zuletzt geöffnet",
@@ -2150,7 +2148,6 @@
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
     "loading": "Suche...",
-    "loadMore": "Mehr laden",
     "noResults": "Keine Ergebnisse gefunden",
     "placeholder": "Suchen...",
     "staleItem": "Dieser Eintrag existiert nicht mehr und wurde aus den zuletzt geöffneten entfernt."
@@ -2697,7 +2694,6 @@
       "sentSuccess": "{count, plural, one {# Einladung gesendet.} other {# Einladungen gesendet.}}",
       "tabs": {
         "email": "E-Mails senden",
-        "label": "Einladungsart",
         "link": "Link teilen"
       }
     },

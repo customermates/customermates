@@ -669,7 +669,6 @@
       "skip": "Ignorer"
     },
     "tourUi": {
-      "back": "Retour",
       "title": "Visite guidée"
     },
     "ui": {
@@ -2142,7 +2141,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Demander à Mate : {question}",
-    "clearRecent": "Effacer",
     "emptyDescription": "Recherchez des fiches dans les listes auxquelles vous avez accès.",
     "emptyTitle": "Trouvez tout dans votre espace de travail",
     "groupRecent": "Ouverts récemment",
@@ -2150,7 +2148,6 @@
     "hintNavigate": "Naviguer",
     "hintOpen": "Ouvrir",
     "loading": "Recherche...",
-    "loadMore": "Charger plus",
     "noResults": "Aucun résultat",
     "placeholder": "Rechercher...",
     "staleItem": "Cet élément n'existe plus et a été retiré de vos éléments récents."
@@ -2697,7 +2694,6 @@
       "sentSuccess": "{count, plural, one {# invitation envoyée.} other {# invitations envoyées.}}",
       "tabs": {
         "email": "Envoyer des e-mails",
-        "label": "Mode d'invitation",
         "link": "Partager un lien"
       }
     },

@@ -669,7 +669,6 @@
       "skip": "Skip"
     },
     "tourUi": {
-      "back": "Back",
       "title": "Guided tour"
     },
     "ui": {
@@ -2142,7 +2141,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Ask Mate: {question}",
-    "clearRecent": "Clear",
     "emptyDescription": "Find records across the lists you can access.",
     "emptyTitle": "Find anything in your workspace",
     "groupRecent": "Recently opened",
@@ -2150,7 +2148,6 @@
     "hintNavigate": "Navigate",
     "hintOpen": "Open",
     "loading": "Searching...",
-    "loadMore": "Load more",
     "noResults": "No results found",
     "placeholder": "Search...",
     "staleItem": "This item no longer exists and was removed from your recent items."
@@ -2697,7 +2694,6 @@
       "sentSuccess": "{count, plural, one {Sent # invitation.} other {Sent # invitations.}}",
       "tabs": {
         "email": "Send emails",
-        "label": "Invite method",
         "link": "Share link"
       }
     },

@@ -114,10 +114,7 @@ function animatedBlurFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const ANIMATED_BLUR_ALLOWLIST: Allowlist = {
-  "components/ui/sheet.tsx": "I25: the sheet overlay fades a backdrop blur in and out; drop the blur (WebKit, I11)",
-  "components/page-state/page-state.tsx": "I25: the empty state halo animates a blurred layer; drop the blur",
-};
+const ANIMATED_BLUR_ALLOWLIST: Allowlist = {};
 
 describe("rule 12: overlays never animate a blur", () => {
   it("never combines a blur or backdrop blur with an animation or transition on one element", () => {

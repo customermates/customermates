@@ -157,7 +157,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
 
 function tourCopy(t: ReturnType<typeof useTranslations>) {
   return {
-    back: t("AgentChat.tourUi.back"),
+    back: t("Common.actions.back"),
     title: t("AgentChat.tourUi.title"),
   };
 }
