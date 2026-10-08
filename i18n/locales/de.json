@@ -1736,13 +1736,13 @@
         "showFilters": "Aktivitätsanzahl und Filter anzeigen",
         "showMetricAndFilters": "Kennzahl und Filter anzeigen"
       },
-      "create": "Widget erstellen",
       "danger": {
         "deleteLabel": "Widget löschen: {name}"
       },
       "editTitle": "„{name}“ bearbeiten",
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
+        "change": "Anderes Widget wählen",
         "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
         "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
         "scratchTitle": "Von Grund auf neu",
@@ -1752,10 +1752,13 @@
         "incomplete": "Vervollständigen Sie die Dateneinstellungen, um eine Vorschau zu sehen.",
         "live": "Live-Vorschau",
         "size": "Dashboard-Größe {w} × {h}",
-        "title": "Vorschau",
         "untitled": "Unbenanntes Widget"
       },
-      "save": "Änderungen speichern",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Keine} one {1 aktiv} other {# aktiv}}",
+        "filters": "Filter",
+        "grouping": "Gruppierung"
+      },
       "settings": "Widget-Einstellungen",
       "sharing": {
         "template": "Als Vorlage freigeben"
@@ -3571,7 +3574,6 @@
       "startsWith": "Beginnt mit"
     },
     "overall": "Insgesamt: {value}",
-    "preview": "Kennzahl prüfen",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {

@@ -189,11 +189,6 @@ const NOT_YET_MIGRATED: Record<string, Rule[]> = {
     "footer-primitive",
     "confirm-primitive",
   ],
-  "app/[locale]/(protected)/dashboard/components/widget-modal.tsx": [
-    "footer-primitive",
-    "submit-button",
-    "legacy-footer",
-  ],
 };
 
 function scannedFiles(): string[] {
@@ -240,7 +235,6 @@ const SAVE_LIKE_KEY_EXEMPT: Record<string, string> = {
 };
 const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>([
   "ConnectedAccountsCard.emailSave",
-  "Dashboard.widgetEditor.save",
   "MassActions.update",
 ]);
 

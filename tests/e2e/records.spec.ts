@@ -195,8 +195,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("option", { name: "Sum", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
-  await dialog.getByRole("tab", { name: "Filters, none active", exact: true }).click();
-  await expect(dialog.getByRole("heading", { name: "Filters, none active", exact: true })).toBeAttached();
+  await dialog.locator("#widget-config-filters").click();
   await dialog.getByRole("combobox", { name: "Add filter", exact: true }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Condition", exact: true }).click();
@@ -206,7 +205,6 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("option", { name: "Client organization", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Linked records", exact: true }).click();
   await page.getByRole("option", { name: "No accessible linked records match", exact: true }).click();
-  await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
   await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.125/)).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
