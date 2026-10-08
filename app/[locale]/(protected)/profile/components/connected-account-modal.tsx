@@ -10,10 +10,11 @@ import { AppChip } from "@/components/chip/app-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppModal, type AppModalActionProps, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -23,13 +24,12 @@ import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { cn } from "@/core/utils/cn";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 import { isEmailProvider } from "@/ee/messaging/provider";
 
 import { AccountFolders } from "./account-folders";
-import { AccountSignature } from "./account-signature";
+import { ACCOUNT_EMAIL_FORM_ID, AccountSignature } from "./account-signature";
 
 export const ConnectedAccountModal = observer(() => {
   const t = useTranslations();
@@ -53,13 +53,16 @@ export const ConnectedAccountModal = observer(() => {
     (requestedTab === "email" && !showEmailTab) || (requestedTab === "folders" && !showFoldersTab)
       ? "details"
       : requestedTab;
-  const tabCount = 1 + (showEmailTab ? 1 : 0) + (showFoldersTab ? 1 : 0);
 
   const title = account.displayName ?? getProviderDisplayLabel(account, t);
   const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
   const ProviderIcon = getProviderIcon(account.provider);
   const providerLabel = getProviderDisplayLabel(account, t);
   const shownFolders = account.folders.filter((folder) => account.selectedFolderIds.includes(folder.id)).length;
+  const foldersLabel = t("ConnectedAccountsCard.tabs.foldersCount", {
+    shown: shownFolders,
+    total: account.folders.length,
+  });
   const canReconnect =
     canUpdate &&
     (account.status === "credentials" ||
@@ -132,40 +135,19 @@ export const ConnectedAccountModal = observer(() => {
         </AppCardHeader>
 
         <AppCardBody>
-          <Tabs
-            className="min-w-0"
+          <SegmentedControl
+            className="min-w-0 gap-0"
+            idPrefix="connected-account"
+            items={[
+              { value: "details", label: t("ConnectedAccountsCard.tabs.details") },
+              ...(showEmailTab ? [{ value: "email", label: t("ConnectedAccountsCard.tabs.email") }] : []),
+              ...(showFoldersTab ? [{ value: "folders", label: foldersLabel }] : []),
+            ]}
+            label={t("ConnectedAccountsCard.tabs.label")}
             value={activeTab}
             onValueChange={(tab) => setTabState({ accountId: account.id, tab })}
           >
-            <TabsList
-              aria-label={t("ConnectedAccountsCard.tabs.label")}
-              className={cn(
-                "grid w-full",
-                tabCount === 3 ? "grid-cols-3" : tabCount === 2 ? "grid-cols-2" : "grid-cols-1",
-              )}
-              variant="segmented"
-            >
-              <TabsTrigger id="connected-account-tab-details" value="details">
-                {t("ConnectedAccountsCard.tabs.details")}
-              </TabsTrigger>
-
-              {showEmailTab && (
-                <TabsTrigger id="connected-account-tab-email" value="email">
-                  {t("ConnectedAccountsCard.tabs.email")}
-                </TabsTrigger>
-              )}
-
-              {showFoldersTab && (
-                <TabsTrigger id="connected-account-tab-folders" value="folders">
-                  {t("ConnectedAccountsCard.tabs.foldersCount", {
-                    shown: shownFolders,
-                    total: account.folders.length,
-                  })}
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            <TabsContent aria-labelledby="connected-account-tab-details" className="pt-5" value="details">
+            <SegmentedControlPanel className="pt-5" value="details">
               <div className="flex flex-col gap-2">
                 <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
 
@@ -256,25 +238,20 @@ export const ConnectedAccountModal = observer(() => {
                   </InfoRow>
                 )}
               </div>
-            </TabsContent>
+            </SegmentedControlPanel>
 
             {showEmailTab && (
-              <TabsContent
-                forceMount
-                aria-labelledby="connected-account-tab-email"
-                className="pt-5 data-[state=inactive]:hidden"
-                value="email"
-              >
+              <SegmentedControlPanel forceMount className="pt-5" value="email">
                 <AccountSignature
                   key={account.id}
                   account={account}
                   store={connectedAccountModalStore.signatureStore}
                 />
-              </TabsContent>
+              </SegmentedControlPanel>
             )}
 
             {showFoldersTab && (
-              <TabsContent aria-labelledby="connected-account-tab-folders" className="pt-5" value="folders">
+              <SegmentedControlPanel className="pt-5" value="folders">
                 <AccountFolders
                   account={account}
                   editable={account.isOwner && canUpdate}
@@ -282,10 +259,18 @@ export const ConnectedAccountModal = observer(() => {
                     runUserAction(() => connectedAccountModalStore.toggleFolder(folderId, on))
                   }
                 />
-              </TabsContent>
+              </SegmentedControlPanel>
             )}
-          </Tabs>
+          </SegmentedControl>
         </AppCardBody>
+
+        {showEmailTab && activeTab === "email" && (
+          <FormFooterActions
+            anchorScope="connected-account-email"
+            formId={ACCOUNT_EMAIL_FORM_ID}
+            store={connectedAccountModalStore.signatureStore}
+          />
+        )}
       </AppCard>
     </AppModal>
   );

@@ -669,7 +669,6 @@
       "skip": "Salta"
     },
     "tourUi": {
-      "back": "Indietro",
       "title": "Tour guidato"
     },
     "ui": {
@@ -698,7 +697,6 @@
       "finalizing": "Completamento e salvataggio delle modifiche…",
       "history": "Cronologia chat",
       "imageNotAvailable": "Immagine non disponibile",
-      "jumpToLatest": "Vai ai messaggi più recenti",
       "linkCopied": "Link copiato",
       "loadChatFailed": "Non è stato possibile caricare la chat. Selezionarla di nuovo per riprovare.",
       "loadingChat": "Caricamento della chat…",
@@ -740,7 +738,6 @@
     "addDescription": "Crea una chiave per la tua integrazione oppure scegli un client IA per la configurazione guidata.",
     "addTitle": "Aggiungi una chiave API",
     "backToOptions": "Tutte le opzioni per le chiavi API",
-    "done": "Fatto",
     "expiresIn": "Scade tra",
     "expiresInPlaceholder": "Non scade mai",
     "keyCreated": "Chiave API creata",
@@ -852,6 +849,7 @@
       "delete": "Elimina",
       "discard": "Scarta",
       "expand": "Espandi",
+      "jumpToLatest": "Vai ai messaggi più recenti",
       "labelHistory": "Cronologia",
       "loadMore": "Carica altro",
       "open": "Apri",
@@ -1562,7 +1560,6 @@
     "emailPreviewLink": "Link di esempio",
     "emailPreviewSample": "Ecco come apparirà il testo della tua e-mail.",
     "emailPreviewTitle": "Anteprima",
-    "emailSave": "Salva impostazioni e-mail",
     "emailSaved": "Impostazioni e-mail salvate",
     "emailSignatureContent": "Contenuto della firma",
     "emailSignatureDescription": "Viene aggiunta automaticamente alle e-mail inviate da questo account.",
@@ -2144,7 +2141,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Chiedi a Mate: {question}",
-    "clearRecent": "Cancella",
     "emptyDescription": "Cerca record negli elenchi a cui hai accesso.",
     "emptyTitle": "Trova tutto nel tuo spazio di lavoro",
     "groupRecent": "Aperti di recente",
@@ -2152,7 +2148,6 @@
     "hintNavigate": "Naviga",
     "hintOpen": "Apri",
     "loading": "Ricerca...",
-    "loadMore": "Carica altri",
     "noResults": "Nessun risultato",
     "placeholder": "Cerca...",
     "staleItem": "Questo elemento non esiste più ed è stato rimosso dagli elementi recenti."
@@ -2270,7 +2265,6 @@
     },
     "groupThread": "Gruppo ({count, plural, one {# membro} other {# membri}})",
     "hideQuotedText": "Nascondi il testo citato",
-    "jumpToLatest": "Vai al più recente",
     "lastMessageDirections": {
       "inbound": "Ricevuto",
       "outbound": "Inviato"
@@ -3617,7 +3611,6 @@
     "create": "Crea",
     "delete": "Elimina",
     "edit": "Modifica",
-    "general": "Generale",
     "manageAccess": "Gestione",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",
     "readAccess": "Accesso in lettura",
