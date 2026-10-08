@@ -1493,6 +1493,7 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "Vous pouvez modifier votre propre compte dans vos <settingsLink>paramètres</settingsLink>.",
+    "deleteMessage": "{name} est désactivé et perd l'accès à cet espace de travail. Ses enregistrements et son historique sont conservés, et vous pouvez le réactiver depuis ses détails.",
     "title": "Utilisateur"
   },
   "ComparePage": {

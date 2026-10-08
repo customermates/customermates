@@ -1493,6 +1493,7 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "Du kannst dein eigenes Benutzerkonto in deinen <settingsLink>Einstellungen</settingsLink> bearbeiten.",
+    "deleteMessage": "{name} wird deaktiviert und verliert den Zugriff auf diesen Workspace. Datensätze und Verlauf bleiben erhalten, und du kannst die Person in den Details wieder aktivieren.",
     "title": "Benutzer"
   },
   "ComparePage": {

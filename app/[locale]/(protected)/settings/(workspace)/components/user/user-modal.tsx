@@ -2,6 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
 import { Status } from "@/generated/prisma";
 
 import { UserDetailsAvatar } from "@/app/[locale]/(protected)/settings/(account)/components/user-details-avatar";
@@ -22,14 +23,53 @@ import { AppLink } from "@/components/shared/app-link";
 import { Alert } from "@/components/shared/alert";
 import { roleDisplayName } from "@/features/role/role-display-name";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+
+export function useMemberDeleteConfirmation() {
+  const t = useTranslations();
+  const { userModalStore } = useRootStore();
+  const { showConfirmation } = useDeleteConfirmation();
+
+  return (name: string) =>
+    showConfirmation({
+      title: t("Common.deleteConfirmation.title"),
+      message: t("CompanyUserModal.deleteMessage", { name }),
+      confirmLabel: t("Common.actions.delete"),
+      confirmVariant: "destructive",
+      onConfirm: () => userModalStore.remove(),
+    });
+}
+
+export function memberName(member: { firstName: string; lastName: string; email: string }) {
+  return [member.firstName, member.lastName].filter(Boolean).join(" ") || member.email;
+}
 
 export const CompanyUserModal = observer(() => {
   const t = useTranslations();
   const { userModalStore: store, rolesStore } = useRootStore();
-  const { form, savedState, isOwnProfile } = store;
+  const { form, savedState, isOwnProfile, canRemove, isLoading } = store;
+  const confirmDelete = useMemberDeleteConfirmation();
 
   return (
-    <AppModal store={store} title={t("CompanyUserModal.title")}>
+    <AppModal
+      actions={
+        canRemove
+          ? [
+              {
+                id: "delete-member",
+                anchorId: "member-modal-delete",
+                label: t("Common.actions.delete"),
+                icon: Trash2,
+                variant: "destructive",
+                disabled: isLoading,
+                onClick: () => confirmDelete(memberName({ ...savedState, email: form.email })),
+              },
+            ]
+          : []
+      }
+      store={store}
+      title={t("CompanyUserModal.title")}
+    >
       <AppForm store={store}>
         <AppCard>
           <AppCardHeader>

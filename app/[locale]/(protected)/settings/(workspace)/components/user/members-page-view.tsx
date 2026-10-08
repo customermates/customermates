@@ -20,9 +20,11 @@ import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { Status } from "@/generated/prisma";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { MembersPageSkeleton } from "./members-page-skeleton";
+import { memberName, useMemberDeleteConfirmation } from "./user-modal";
 import { useMemberColumns } from "./use-member-columns";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
@@ -32,7 +34,8 @@ type Props = {
 };
 
 const MembersPageViewContent = observer(function MembersPageView({ initialRoles, initialUsers }: Props) {
-  const { companyInviteModalStore, rolesStore, userModalStore, usersStore } = useRootStore();
+  const { companyInviteModalStore, rolesStore, userModalStore, usersStore, userStore } = useRootStore();
+  const confirmDelete = useMemberDeleteConfirmation();
 
   useDataViewSync(usersStore, initialUsers);
   const columns = useMemberColumns();
@@ -108,7 +111,15 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
           columns={columns}
           rowActions={(user) => (
             <RecordRowActions
-              name={[user.firstName, user.lastName].filter(Boolean).join(" ") || user.email}
+              name={memberName(user)}
+              onDelete={
+                userModalStore.canManage && user.id !== userStore.user?.id && user.status !== Status.inactive
+                  ? async () => {
+                      await userModalStore.loadById(user.id);
+                      if (userModalStore.canRemove) confirmDelete(memberName(user));
+                    }
+                  : undefined
+              }
               onOpen={() => runUserAction(() => userModalStore.loadById(user.id))}
             />
           )}

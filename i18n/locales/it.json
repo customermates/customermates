@@ -1493,6 +1493,7 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "Puoi modificare il tuo account nelle tue <settingsLink>impostazioni</settingsLink>.",
+    "deleteMessage": "{name} viene disattivato e perde l'accesso a questo workspace. I suoi record e la cronologia restano e puoi riattivarlo dai suoi dettagli.",
     "title": "Utente"
   },
   "ComparePage": {

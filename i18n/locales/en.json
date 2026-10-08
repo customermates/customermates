@@ -1493,6 +1493,7 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
+    "deleteMessage": "{name} is deactivated and loses access to this workspace. Their records and history stay, and you can reactivate them from their details.",
     "title": "User"
   },
   "ComparePage": {
