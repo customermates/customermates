@@ -507,7 +507,7 @@ const FullAppSidebar = observer(
               <AreaNav
                 area={area === "settings" ? t("NavigationBar.settings") : t("NavigationBar.operator")}
                 backHref={lastWorkPath}
-                backLabel={t("SettingsNav.back")}
+                backLabel={t("Common.actions.back")}
                 groups={areaGroups}
                 pathname={intlPathname}
                 onNavigate={() => closeMobileSidebar()}

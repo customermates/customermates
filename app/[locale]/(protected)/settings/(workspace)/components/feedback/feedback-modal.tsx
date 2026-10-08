@@ -3,20 +3,19 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/modal";
 import { AppForm } from "@/components/forms/form-context";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const FeedbackModal = observer(() => {
   const t = useTranslations();
   const { feedbackModalStore: store } = useRootStore();
-  const { isLoading, close, form } = store;
+  const { form } = store;
 
   const translationKey = `feedback.${form.type}`;
 
@@ -34,15 +33,7 @@ export const FeedbackModal = observer(() => {
             <FormTextarea required id="feedback" rows={6} />
           </AppCardBody>
 
-          <AppCardFooter>
-            <Button disabled={isLoading} variant="secondary" onClick={close}>
-              {t("Common.actions.cancel")}
-            </Button>
-
-            <Button disabled={isLoading} type="submit">
-              {t("Common.actions.save")}
-            </Button>
-          </AppCardFooter>
+          <FormFooterActions anchorScope="feedback-modal" />
         </AppCard>
       </AppForm>
     </AppModal>

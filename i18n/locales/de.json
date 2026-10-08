@@ -737,7 +737,6 @@
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
     "addTitle": "API-Key hinzufügen",
     "backToOptions": "Alle API-Key-Optionen",
-    "done": "Fertig",
     "expiresIn": "Läuft ab",
     "expiresInPlaceholder": "Läuft nie ab",
     "keyCreated": "API-Schlüssel erfolgreich erstellt",
@@ -1226,7 +1225,7 @@
         "timelineThreadId": "Konversation",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
-        "workspaceId": "Arbeitsbereich",
+        "workspaceId": "Workspace",
         "workspaceTags": "Schlagwörter"
       },
       "operators": {
@@ -1380,7 +1379,7 @@
     "stageProbability": "Phasenwahrscheinlichkeit",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer in den <link>Unternehmenseinstellungen</link>, um diese Aufgabe zu lösen."
+        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer unter <link>Mitglieder</link>, um diese Aufgabe zu erledigen."
       }
     },
     "table": {
@@ -1450,7 +1449,7 @@
         "user": "Benutzer",
         "users": "Zugewiesen",
         "weightedValue": "Gewichteter Wert",
-        "workspace": "Arbeitsbereich"
+        "workspace": "Workspace"
       },
       "fields": "Felder",
       "groupBy": "Gruppieren nach",
@@ -1559,7 +1558,6 @@
     "emailPreviewLink": "Beispiellink",
     "emailPreviewSample": "So sieht dein E-Mail-Text aus.",
     "emailPreviewTitle": "Vorschau",
-    "emailSave": "E-Mail-Einstellungen speichern",
     "emailSaved": "E-Mail-Einstellungen gespeichert",
     "emailSignatureContent": "Signaturinhalt",
     "emailSignatureDescription": "Wird automatisch an E-Mails angefügt, die über dieses Konto gesendet werden.",
@@ -2023,7 +2021,7 @@
     "ariaStartThread": "{provider} Nachricht verfassen",
     "ariaUnlink": "{provider}-Kanal entfernen",
     "compose": {
-      "noAccount": "Kein nutzbares {provider} Konto verbunden. Verbinde eines unter Mein Profil."
+      "noAccount": "Kein nutzbares {provider} Konto verbunden. Verbinde eines unter Einstellungen › Kanäle."
     },
     "emptyHint": "Noch keine Kanäle. Füge eine E-Mail, LinkedIn, WhatsApp, … hinzu",
     "heading": "Kanäle",
@@ -3601,9 +3599,7 @@
   },
   "RoleModal": {
     "create": "Erstellen",
-    "delete": "Löschen",
     "edit": "Bearbeiten",
-    "general": "Allgemein",
     "manageAccess": "Verwalten",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
     "readAccess": "Lesen",
@@ -3795,7 +3791,6 @@
     "account": "Konto",
     "activity": "Aktivität",
     "apiKeys": "API-Schlüssel",
-    "back": "Zurück",
     "billing": "Abrechnung",
     "channels": "Kanäle",
     "deliveries": "Zustellungen",
@@ -3872,7 +3867,7 @@
       "planManage": "Wird mit der Abrechnung synchronisiert. Verwende „{billing}“ für Änderungen.",
       "planPicker": "Wähle unten einen Tarif, um das Abonnement zu starten oder zu ändern.",
       "planReadOnly": "Wird mit der Abrechnung synchronisiert. Bitte eine Workspace-Administration um Änderungen.",
-      "quantity": "Wird mit der Anzahl aktiver Workspace-Mitglieder synchronisiert. Eine Workspace-Administration kann Mitglieder unter „{company}“ aktivieren oder deaktivieren.",
+      "quantity": "Wird mit der Anzahl aktiver Workspace-Mitglieder synchronisiert. Eine Workspace-Administration kann Mitglieder unter „{members}“ aktivieren oder deaktivieren.",
       "trialEndsManage": "Wird durch den Testzeitraum festgelegt. Verwalte das Abonnement über „{billing}“.",
       "trialEndsPicker": "Wird durch den Testzeitraum festgelegt. Wähle vor diesem Datum einen Tarif, um Unterbrechungen zu vermeiden.",
       "trialEndsReadOnly": "Wird durch den Testzeitraum festgelegt. Bitte eine Workspace-Administration, das Abonnement zu verwalten."
@@ -3898,7 +3893,7 @@
       "routinesPerUser": "{routines, plural, one {# Routine pro Nutzer} other {# Routinen pro Nutzer}}",
       "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer"
     },
-    "plan": "Plan",
+    "plan": "Tarif",
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
@@ -3907,7 +3902,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Aktive Nutzerplätze",
-    "refresh": "Aktualisieren",
     "refreshSuccess": "Abonnement erfolgreich aktualisiert",
     "seatBillingNote": "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet.",
     "status": {
@@ -3980,14 +3974,13 @@
     "title": "Willkommen in deiner Testphase"
   },
   "UserAvatar": {
-    "company": "Mein Unternehmen",
     "documentation": "Dokumentation",
     "home": "Startseite",
     "language": "Sprache",
     "menu": "Persönliches Menü",
     "sendFeedback": "Feedback senden",
     "signOut": "Abmelden",
-    "theme": "Design"
+    "theme": "Darstellung"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Steuert die UI-Sprache: Beschriftungen, Schaltflächen, etc.",

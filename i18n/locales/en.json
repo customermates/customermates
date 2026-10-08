@@ -631,7 +631,7 @@
           "empty": {
             "first-wiki-page": {
               "label": "Build from my website",
-              "prompt": "Build my Knowledge Base from my company website."
+              "prompt": "Build my Knowledge Base from our website."
             },
             "wiki-structure": {
               "label": "Suggest a Knowledge Base structure",
@@ -737,7 +737,6 @@
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
     "addTitle": "Add an API key",
     "backToOptions": "All API key options",
-    "done": "Done",
     "expiresIn": "Expires in",
     "expiresInPlaceholder": "Never expires",
     "keyCreated": "API key created successfully",
@@ -1380,7 +1379,7 @@
     "stageProbability": "Stage probability",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task."
+        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>Members</link> to resolve this task."
       }
     },
     "table": {
@@ -1559,7 +1558,6 @@
     "emailPreviewLink": "Example link",
     "emailPreviewSample": "This is how your email text will look.",
     "emailPreviewTitle": "Preview",
-    "emailSave": "Save email settings",
     "emailSaved": "Email settings saved",
     "emailSignatureContent": "Signature content",
     "emailSignatureDescription": "Automatically add it to emails sent from this account.",
@@ -2023,7 +2021,7 @@
     "ariaStartThread": "Compose {provider} message",
     "ariaUnlink": "Unlink {provider} channel",
     "compose": {
-      "noAccount": "No usable {provider} account is connected. Connect one under My Profile."
+      "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels."
     },
     "emptyHint": "No channels yet. Add an email, LinkedIn, WhatsApp, …",
     "heading": "Channels",
@@ -3601,9 +3599,7 @@
   },
   "RoleModal": {
     "create": "Create",
-    "delete": "Delete",
     "edit": "Edit",
-    "general": "General",
     "manageAccess": "Manage",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
     "readAccess": "Read access",
@@ -3795,7 +3791,6 @@
     "account": "Account",
     "activity": "Activity",
     "apiKeys": "API keys",
-    "back": "Back",
     "billing": "Billing",
     "channels": "Channels",
     "deliveries": "Deliveries",
@@ -3872,7 +3867,7 @@
       "planManage": "Synced from billing. Use {billing} to make changes.",
       "planPicker": "Choose a plan below to start or change the subscription.",
       "planReadOnly": "Synced from billing. Ask a workspace administrator to make changes.",
-      "quantity": "Synced to the number of active workspace members. Workspace administrators can activate or deactivate members in {company}.",
+      "quantity": "Synced to the number of active workspace members. Workspace administrators can activate or deactivate members in {members}.",
       "trialEndsManage": "Set by the trial period. Use {billing} to manage the subscription.",
       "trialEndsPicker": "Set by the trial period. Choose a plan before this date to continue without interruption.",
       "trialEndsReadOnly": "Set by the trial period. Ask a workspace administrator to manage the subscription."
@@ -3907,7 +3902,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Active seats",
-    "refresh": "Refresh",
     "refreshSuccess": "Subscription refreshed successfully",
     "seatBillingNote": "You pay per active user. Seat changes are prorated on your next invoice.",
     "status": {
@@ -3980,7 +3974,6 @@
     "title": "Welcome to your trial"
   },
   "UserAvatar": {
-    "company": "My Company",
     "documentation": "Documentation",
     "home": "Home",
     "language": "Language",

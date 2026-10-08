@@ -737,7 +737,6 @@
     "addDescription": "Crea una chiave per la tua integrazione oppure scegli un client IA per la configurazione guidata.",
     "addTitle": "Aggiungi una chiave API",
     "backToOptions": "Tutte le opzioni per le chiavi API",
-    "done": "Fatto",
     "expiresIn": "Scade tra",
     "expiresInPlaceholder": "Non scade mai",
     "keyCreated": "Chiave API creata",
@@ -1559,7 +1558,6 @@
     "emailPreviewLink": "Link di esempio",
     "emailPreviewSample": "Ecco come apparirà il testo della tua e-mail.",
     "emailPreviewTitle": "Anteprima",
-    "emailSave": "Salva impostazioni e-mail",
     "emailSaved": "Impostazioni e-mail salvate",
     "emailSignatureContent": "Contenuto della firma",
     "emailSignatureDescription": "Viene aggiunta automaticamente alle e-mail inviate da questo account.",
@@ -3601,9 +3599,7 @@
   },
   "RoleModal": {
     "create": "Crea",
-    "delete": "Elimina",
     "edit": "Modifica",
-    "general": "Generale",
     "manageAccess": "Gestione",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",
     "readAccess": "Accesso in lettura",
@@ -3795,7 +3791,6 @@
     "account": "Account",
     "activity": "Attività",
     "apiKeys": "Chiavi API",
-    "back": "Indietro",
     "billing": "Fatturazione",
     "channels": "Canali",
     "deliveries": "Consegne",
@@ -3872,7 +3867,7 @@
       "planManage": "Sincronizzato con la fatturazione. Usa «{billing}» per apportare modifiche.",
       "planPicker": "Scegli un piano qui sotto per avviare o modificare l’abbonamento.",
       "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
-      "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{company}».",
+      "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{members}».",
       "trialEndsManage": "Definita dal periodo di prova. Usa «{billing}» per gestire l’abbonamento.",
       "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
       "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento."
@@ -3907,7 +3902,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Postazioni attive",
-    "refresh": "Aggiorna",
     "refreshSuccess": "Abbonamento aggiornato correttamente",
     "seatBillingNote": "Paghi per utente attivo. Le modifiche alle postazioni vengono conteggiate proporzionalmente sulla prossima fattura.",
     "status": {
@@ -3980,7 +3974,6 @@
     "title": "La tua prova inizia qui"
   },
   "UserAvatar": {
-    "company": "La mia azienda",
     "documentation": "Documentazione",
     "home": "Home",
     "language": "Lingua",

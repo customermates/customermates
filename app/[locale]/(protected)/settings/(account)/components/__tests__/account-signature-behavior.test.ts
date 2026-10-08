@@ -3,8 +3,9 @@ import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 import type { EmailSettings } from "@/ee/messaging/email-settings";
 import type { ReactElement, ReactNode } from "react";
 import type { Root } from "react-dom/client";
+import type { AccountSignatureStore } from "../account-signature.store";
 
-import { act, createElement } from "react";
+import { act, createElement, Fragment } from "react";
 import { createRoot } from "react-dom/client";
 import { action, observable, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -189,7 +190,9 @@ vi.mock("../account-folders", () => ({
   AccountFolders: () => createElement("div", { "data-account-folders": true }),
 }));
 
-import { AccountSignature } from "../account-signature";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
+
+import { ACCOUNT_EMAIL_FORM_ID, AccountSignature } from "../account-signature";
 import { ConnectedAccountModal } from "../connected-account-modal";
 import { ConnectedAccountModalStore } from "../connected-account-modal.store";
 
@@ -322,12 +325,17 @@ function emailAccount(settings: EmailSettings = defaultEmailSettings()): Connect
   };
 }
 
-function saveButton(container: HTMLElement) {
-  return requiredElement(
-    [...container.querySelectorAll<HTMLButtonElement>("button")].find(
-      (button) => button.textContent === "ConnectedAccountsCard.emailSave",
-    ) ?? null,
+function signatureWithFooter(account: ConnectedAccountDto, store: AccountSignatureStore) {
+  return createElement(
+    Fragment,
+    null,
+    createElement(AccountSignature, { account, store }),
+    createElement(FormFooterActions, { anchorScope: "connected-account-email", formId: ACCOUNT_EMAIL_FORM_ID, store }),
   );
+}
+
+function saveButton(container: HTMLElement) {
+  return requiredElement(container.querySelector<HTMLButtonElement>("#connected-account-email-save"));
 }
 
 beforeEach(() => {
@@ -364,7 +372,7 @@ function mountSignature(settings = defaultEmailSettings()) {
   const account = emailAccount(settings);
   const modal = modalStore(account);
   const store = modal.signatureStore;
-  const container = mount(createElement(AccountSignature, { account: modal.form, store }));
+  const container = mount(signatureWithFooter(modal.form, store));
   return { container, store, modal };
 }
 
@@ -578,7 +586,7 @@ describe("ConnectedAccountModal email form lifecycle", () => {
     if (!root) throw new Error("Expected a mounted root");
     act(() => root.unmount());
     roots.delete(root);
-    const remounted = mount(createElement(AccountSignature, { account: modal.form, store }));
+    const remounted = mount(signatureWithFooter(modal.form, store));
     expect(field<HTMLTextAreaElement>(remounted, "signature").value).toBe("Unsaved responsive signature");
     expect(field<HTMLInputElement>(remounted, "settings.appearance.linkHex").value).toBe("#123456");
     expect(store.savedState.signature).toBe("");
@@ -607,7 +615,7 @@ describe("ConnectedAccountModal email form lifecycle", () => {
     if (!root) throw new Error("Expected a mounted root");
     act(() => root.unmount());
     roots.delete(root);
-    const remounted = mount(createElement(AccountSignature, { account: modal.form, store }));
+    const remounted = mount(signatureWithFooter(modal.form, store));
     expect(store.isLoading).toBe(true);
     expect(store.hasUnsavedChanges).toBe(true);
     expect(saveButton(remounted).disabled).toBe(true);

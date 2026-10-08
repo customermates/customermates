@@ -50,7 +50,7 @@ const subscription = (overrides: Partial<SubscriptionDto> = {}): SubscriptionDto
 
 function refreshShown(initialSubscription: SubscriptionDto) {
   renderToStaticMarkup(createElement(SubscriptionView, { initialSubscription }));
-  return renderToStaticMarkup(createElement("div", null, harness.topBarActions)).includes("Subscription.refresh");
+  return renderToStaticMarkup(createElement("div", null, harness.topBarActions)).includes("Common.actions.refresh");
 }
 
 beforeEach(() => {

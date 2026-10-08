@@ -16,7 +16,6 @@ import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { useFormFieldErrors } from "@/components/forms/use-form-field";
-import { Button } from "@/components/ui/button";
 import { EmailFrame } from "@/features/messaging/email-frame";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { EmailFontFamily, EmailLinkStyle, EmailSettingsSchema, SignatureTemplate } from "@/ee/messaging/email-settings";
@@ -26,6 +25,8 @@ import { SignatureTemplatePicker } from "./signature-template-picker";
 import { SignatureLayoutOptions } from "./signature-layout-options";
 
 type Props = { account: ConnectedAccountDto; store: AccountSignatureStore };
+
+export const ACCOUNT_EMAIL_FORM_ID = "connected-account-email-form";
 
 const FieldError = observer(({ id }: { id: string }) => {
   const { errors, hasError } = useFormFieldErrors(id);
@@ -52,7 +53,7 @@ export const AccountSignature = observer(({ account, store }: Props) => {
   const showLogo = settings.signature.template !== SignatureTemplate.plain;
 
   return (
-    <AppForm store={store}>
+    <AppForm id={ACCOUNT_EMAIL_FORM_ID} store={store}>
       <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.9fr)]">
         <fieldset className="flex min-w-0 flex-col gap-6" disabled={isDisabled}>
           <section aria-labelledby="email-appearance-heading" className="flex flex-col gap-3">
@@ -204,17 +205,6 @@ export const AccountSignature = observer(({ account, store }: Props) => {
             <EmailFrame showRemoteImages html={html} />
           </div>
         </section>
-
-        <div className="flex justify-end lg:col-span-2">
-          <Button
-            disabled={isDisabled || !store.hasUnsavedChanges}
-            id="connected-account-email-save"
-            size="sm"
-            type="submit"
-          >
-            {t("ConnectedAccountsCard.emailSave")}
-          </Button>
-        </div>
       </div>
     </AppForm>
   );

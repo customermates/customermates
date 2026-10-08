@@ -737,7 +737,6 @@
     "addDescription": "Crea una clave para tu propia integración o elige un cliente de IA para recibir una configuración guiada.",
     "addTitle": "Añadir una clave de API",
     "backToOptions": "Todas las opciones de claves de API",
-    "done": "Listo",
     "expiresIn": "Caduca en",
     "expiresInPlaceholder": "Nunca caduca",
     "keyCreated": "Clave de API creada",
@@ -1559,7 +1558,6 @@
     "emailPreviewLink": "Enlace de ejemplo",
     "emailPreviewSample": "Así se verá el texto de tu correo.",
     "emailPreviewTitle": "Vista previa",
-    "emailSave": "Guardar ajustes de correo",
     "emailSaved": "Ajustes de correo guardados",
     "emailSignatureContent": "Contenido de la firma",
     "emailSignatureDescription": "Se añade automáticamente a los correos enviados desde esta cuenta.",
@@ -3601,9 +3599,7 @@
   },
   "RoleModal": {
     "create": "Crear",
-    "delete": "Eliminar",
     "edit": "Editar",
-    "general": "General",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
     "readAccess": "Acceso de lectura",
@@ -3795,7 +3791,6 @@
     "account": "Cuenta",
     "activity": "Actividad",
     "apiKeys": "Claves de API",
-    "back": "Volver",
     "billing": "Facturación",
     "channels": "Canales",
     "deliveries": "Entregas",
@@ -3872,7 +3867,7 @@
       "planManage": "Se sincroniza con la facturación. Usa «{billing}» para hacer cambios.",
       "planPicker": "Elige un plan abajo para iniciar o cambiar la suscripción.",
       "planReadOnly": "Se sincroniza con la facturación. Pide los cambios a un administrador del espacio de trabajo.",
-      "quantity": "Se sincroniza con el número de miembros activos del espacio de trabajo. Los administradores pueden activar o desactivar miembros en «{company}».",
+      "quantity": "Se sincroniza con el número de miembros activos del espacio de trabajo. Los administradores pueden activar o desactivar miembros en «{members}».",
       "trialEndsManage": "Lo determina el periodo de prueba. Usa «{billing}» para gestionar la suscripción.",
       "trialEndsPicker": "Lo determina el periodo de prueba. Elige un plan antes de esta fecha para continuar sin interrupciones.",
       "trialEndsReadOnly": "Lo determina el periodo de prueba. Pide a un administrador del espacio de trabajo que gestione la suscripción."
@@ -3907,7 +3902,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Plazas activas",
-    "refresh": "Actualizar",
     "refreshSuccess": "Suscripción actualizada correctamente",
     "seatBillingNote": "Pagas por usuario activo. Los cambios de plazas se prorratean en tu próxima factura.",
     "status": {
@@ -3980,7 +3974,6 @@
     "title": "Te damos la bienvenida a tu prueba"
   },
   "UserAvatar": {
-    "company": "Mi empresa",
     "documentation": "Documentación",
     "home": "Inicio",
     "language": "Idioma",

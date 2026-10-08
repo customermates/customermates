@@ -25,9 +25,9 @@ Rollen bearbeitet unter **Mein Unternehmen › Rollen** ein Mitglied, dessen Rol
 
 ## Seite Einstellungen (Profileinstellungen) [#settings-tab]
 
-Die Seite **Einstellungen** des Profils enthält Ihren Namen, Avatar, Sprache, Formate und Darstellung. Route `/settings/profile`, Seitenleisten-Eintrag **Einstellungen**. Jedes angemeldete Mitglied kann die Seite öffnen, unabhängig von der Rolle, und das Formular ändert nur Ihr eigenes Profil. Speichern oder verwerfen Sie mit **Speichern** (`#settings-profile-save`) und **Zurücksetzen** (`#settings-profile-reset`) unter dem Formular; beide Buttons erscheinen, sobald das Formular ungespeicherte Änderungen hat. **Speichern** sichert alle Felder auf einmal.
+Die Seite **Einstellungen** des Profils enthält Ihren Namen, Avatar, Sprache, Formate und Darstellung. Route `/settings/profile`, Seitenleisten-Eintrag **Einstellungen**. Jedes angemeldete Mitglied kann die Seite öffnen, unabhängig von der Rolle, und das Formular ändert nur Ihr eigenes Profil. Speichern oder verwerfen Sie mit **Speichern** (`#settings-profile-save`) und **Zurücksetzen** (`#settings-profile-reset`) unter dem Formular; **Speichern** ist immer da und wird aktiv, sobald das Formular ungespeicherte Änderungen hat, **Zurücksetzen** erscheint erst dann. **Speichern** sichert alle Felder auf einmal.
 
-**Link:** der Link zur Seite **Einstellungen** des Profils, `/settings/profile`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-profile`; `highlight_element` nimmt außerdem die Feld-Ids unten ohne `#` an, `settings-profile-verify-email`, solange Ihre E-Mail nicht verifiziert ist, sowie `settings-profile-save` und `settings-profile-reset`, die erst bei ungespeicherten Änderungen sichtbar sind.
+**Link:** der Link zur Seite **Einstellungen** des Profils, `/settings/profile`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-profile`; `highlight_element` nimmt außerdem die Feld-Ids unten ohne `#` an, `settings-profile-verify-email`, solange Ihre E-Mail nicht verifiziert ist, `settings-profile-save` sowie `settings-profile-reset`, das erst bei ungespeicherten Änderungen sichtbar ist.
 
 ### Wie ändere ich Namen, Avatar, Sprache oder Darstellung? [#how-do-i-change-my-name-avatar-language-or-theme]
 
@@ -46,7 +46,7 @@ Der Kopfbereich über dem Formular zeigt Ihren Namen, Ihre E-Mail-Adresse, **E-M
 
 Das Avatar-Menü unten in der Seitenleiste enthält den Schalter **Dunkler Modus** bzw. **Heller Modus**, der Ihre Darstellung ebenfalls speichert, sowie **Abmelden**.
 
-**Link:** `/settings/profile`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-profile`, danach `highlight_element` mit der Feld-Id dieser Tabelle ohne `#`, zum Beispiel `settings-profile-first-name`, `settings-profile-avatar-url` oder `settings-profile-theme`, und, sobald sich etwas geändert hat, `settings-profile-save`. Der Kopfbereich und das Avatar-Menü haben kein Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** `/settings/profile`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-profile`, danach `highlight_element` mit der Feld-Id dieser Tabelle ohne `#`, zum Beispiel `settings-profile-first-name`, `settings-profile-avatar-url` oder `settings-profile-theme`, und `settings-profile-save`. Der Kopfbereich und das Avatar-Menü haben kein Ziel, deshalb nennt Mate sie beim Namen.
 
 ### Wie verifiziere ich meine E-Mail-Adresse oder sende die Bestätigungs-E-Mail erneut? [#how-do-i-verify-my-email-address]
 
@@ -92,7 +92,7 @@ Kanäle sind die E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, 
 | Tab Details | Kanal-Dialog | `#connected-account-tab-details` (**Details**) | **Anbieter**, **Status**, **Sichtbarkeit**, **Besitzer**, **Ordner**, **Verbunden** und **Zuletzt synchronisiert** |
 | Teilen oder nicht mehr teilen | Tab Details | `#connected-account-visibility` | Der Schalter **Sichtbarkeit** zwischen **Privat** und **Geteilt**; nur für den Besitzer |
 | Tab E-Mail | Kanal-Dialog | `#connected-account-tab-email` (**E-Mail**) | Darstellung und Signatur; nur bei einem eigenen Gmail-, Outlook- oder IMAP-Konto |
-| Signatur und Speichern | Tab E-Mail | `#connected-account-signature` (**Signatur hinzufügen**) / `#connected-account-email-save` (**E-Mail-Einstellungen speichern**) | Der Signatur-Schalter und der Button, der den Tab sichert, sobald sich etwas geändert hat |
+| Signatur und Speichern | Tab E-Mail | `#connected-account-signature` (**Signatur hinzufügen**) / `#connected-account-email-save` (**Speichern**) | Der Signatur-Schalter und der Button, der den Tab sichert, sobald sich etwas geändert hat |
 | Tab Ordner | Kanal-Dialog | `#connected-account-tab-folders` (**Ordner** mit Zähler, zum Beispiel **Ordner 4/6**) | Ein Schalter pro Ordner; nur, wenn das Konto Ordner meldet |
 | Reaktivieren, neu synchronisieren oder trennen | Kanal-Dialog | `#connected-account-reactivate` (**Reaktivieren**) / `#connected-account-resync` (**Neu synchronisieren**) / `#connected-account-disconnect` (**Trennen**) | Nur für den Besitzer, mit **Bearbeiten** auf **Inbox-Nachrichten** für **Reaktivieren** und **Neu synchronisieren** und **Löschen** für **Trennen**; **Reaktivieren** oder **Neu synchronisieren** je nach Status |
 
@@ -171,7 +171,7 @@ Standardmäßig ist jeder Ordner eingeschaltet außer Papierkorb, Junk oder Spam
 
 ### Wie ändere ich Schriftart, Linkfarbe und Signatur ausgehender E-Mails? [#email-appearance-and-signature]
 
-Der Tab **E-Mail** legt fest, wie E-Mails aus diesem Konto aussehen: Schriftart, Schriftgröße, Linkfarbe und Signatur. Er erscheint nur bei einem eigenen Gmail-, Outlook- oder IMAP-Konto, Bearbeiten erfordert **Bearbeiten** bei **Inbox-Nachrichten**, und **E-Mail-Einstellungen speichern** sichert beide Bereiche.
+Der Tab **E-Mail** legt fest, wie E-Mails aus diesem Konto aussehen: Schriftart, Schriftgröße, Linkfarbe und Signatur. Er erscheint nur bei einem eigenen Gmail-, Outlook- oder IMAP-Konto, Bearbeiten erfordert **Bearbeiten** bei **Inbox-Nachrichten**, und **Speichern** sichert beide Bereiche.
 
 | Feld | Optionen | Standard |
 |---|---|---|
@@ -186,7 +186,7 @@ Bei einem neuen Konto ist die Signatur ausgeschaltet; schalten Sie **Signatur hi
 
 Solange **Signatur hinzufügen** eingeschaltet ist, wird die gespeicherte Signatur unter jede E-Mail aus diesem Konto gesetzt, ob sie aus dem Posteingang, über die REST-API oder ein MCP-Tool gesendet wird, HTML-Texte eingeschlossen. Agents dürfen die Signatur daher nicht zusätzlich in den Nachrichtentext schreiben.
 
-**Link:** `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`; hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-tab-email` für den Tab **E-Mail** an (`#connected-account-tab-email`, eigene E-Mail-Konten) und bei geöffnetem Tab `connected-account-signature` für **Signatur hinzufügen** (`#connected-account-signature`) und `connected-account-email-save` für **E-Mail-Einstellungen speichern** (`#connected-account-email-save`). Die Felder für Darstellung und Layout sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/settings/channels`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-channels`; hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-tab-email` für den Tab **E-Mail** an (`#connected-account-tab-email`, eigene E-Mail-Konten) und bei geöffnetem Tab `connected-account-signature` für **Signatur hinzufügen** (`#connected-account-signature`) und `connected-account-email-save` für **Speichern** (`#connected-account-email-save`). Die Felder für Darstellung und Layout sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ### Wie reaktiviere, synchronisiere oder trenne ich einen Kanal? [#how-do-i-reactivate-resync-or-disconnect-a-channel]
 

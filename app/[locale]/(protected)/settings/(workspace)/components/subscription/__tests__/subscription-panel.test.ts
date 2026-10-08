@@ -106,7 +106,7 @@ describe("SubscriptionPanel read-only fields", () => {
     });
     expect(harness.translationCalls).toContainEqual({
       key: "Subscription.fieldHelp.quantity",
-      values: { company: "UserAvatar.company" },
+      values: { members: "SettingsNav.members" },
     });
     expect(harness.outputs.at(-1)?.description).toBe("Subscription.seatBillingNote");
   });

@@ -737,7 +737,6 @@
     "addDescription": "Créez une clé pour votre propre intégration ou choisissez un client d’IA pour une configuration guidée.",
     "addTitle": "Ajouter une clé API",
     "backToOptions": "Toutes les options de clé API",
-    "done": "Terminé",
     "expiresIn": "Expire dans",
     "expiresInPlaceholder": "N’expire jamais",
     "keyCreated": "Clé API créée",
@@ -1559,7 +1558,6 @@
     "emailPreviewLink": "Exemple de lien",
     "emailPreviewSample": "Voici à quoi ressemblera le texte de votre e-mail.",
     "emailPreviewTitle": "Aperçu",
-    "emailSave": "Enregistrer les réglages d'e-mail",
     "emailSaved": "Réglages d'e-mail enregistrés",
     "emailSignatureContent": "Contenu de la signature",
     "emailSignatureDescription": "Elle est ajoutée automatiquement aux e-mails envoyés depuis ce compte.",
@@ -3601,9 +3599,7 @@
   },
   "RoleModal": {
     "create": "Créer",
-    "delete": "Supprimer",
     "edit": "Modifier",
-    "general": "Général",
     "manageAccess": "Gérer",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
     "readAccess": "Accès en lecture",
@@ -3795,7 +3791,6 @@
     "account": "Compte",
     "activity": "Activité",
     "apiKeys": "Clés API",
-    "back": "Retour",
     "billing": "Facturation",
     "channels": "Canaux",
     "deliveries": "Livraisons",
@@ -3872,7 +3867,7 @@
       "planManage": "Synchronisé avec la facturation. Utilisez « {billing} » pour le modifier.",
       "planPicker": "Choisissez une offre ci-dessous pour démarrer ou modifier l’abonnement.",
       "planReadOnly": "Synchronisé avec la facturation. Demandez les modifications à un administrateur de l’espace de travail.",
-      "quantity": "Synchronisé avec le nombre de membres actifs de l’espace de travail. Les administrateurs peuvent activer ou désactiver des membres dans « {company} ».",
+      "quantity": "Synchronisé avec le nombre de membres actifs de l’espace de travail. Les administrateurs peuvent activer ou désactiver des membres dans « {members} ».",
       "trialEndsManage": "Définie par la période d’essai. Utilisez « {billing} » pour gérer l’abonnement.",
       "trialEndsPicker": "Définie par la période d’essai. Choisissez une offre avant cette date pour continuer sans interruption.",
       "trialEndsReadOnly": "Définie par la période d’essai. Demandez à un administrateur de l’espace de travail de gérer l’abonnement."
@@ -3907,7 +3902,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Sièges actifs",
-    "refresh": "Actualiser",
     "refreshSuccess": "Abonnement actualisé",
     "seatBillingNote": "Vous payez par utilisateur actif. Les changements de sièges sont calculés au prorata sur votre prochaine facture.",
     "status": {
@@ -3980,7 +3974,6 @@
     "title": "Bienvenue dans votre essai"
   },
   "UserAvatar": {
-    "company": "Mon entreprise",
     "documentation": "Documentation",
     "home": "Accueil",
     "language": "Langue",
