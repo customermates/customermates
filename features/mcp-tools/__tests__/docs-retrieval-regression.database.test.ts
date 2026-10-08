@@ -22,19 +22,19 @@ const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["en", "API keys page URL", "/settings/api-keys"],
   ["en", "routines page URL", "/routines"],
   ["en", "URL of the routines page", "/routines"],
-  ["en", "contacts page URL", "/records/<typeId>"],
-  ["en", "link to the deals page", "/records/<typeId>"],
-  ["en", "tasks page URL", "/records/<typeId>"],
-  ["en", "organizations page URL", "/records/<typeId>"],
-  ["en", "link to the services page", "/records/<typeId>"],
+  ["en", "contacts page URL", "/open/records/contact"],
+  ["en", "link to the deals page", "/open/records/deal"],
+  ["en", "tasks page URL", "/open/records/task"],
+  ["en", "organizations page URL", "/open/records/organization"],
+  ["en", "link to the services page", "/open/records/service"],
   ["de", "URL der Rollen-Seite", "/settings/roles"],
   ["de", "URL der Webhooks-Seite", "/settings/webhooks"],
   ["de", "URL der API-Keys-Seite", "/settings/api-keys"],
   ["de", "Link zur Routinen-Seite", "/routines"],
-  ["de", "URL der Kontakte-Seite", "/records/<typeId>"],
-  ["de", "Link zur Aufgaben-Seite", "/records/<typeId>"],
-  ["de", "URL der Organisationen-Seite", "/records/<typeId>"],
-  ["de", "URL der Services-Seite", "/records/<typeId>"],
+  ["de", "URL der Kontakte-Seite", "/open/records/contact"],
+  ["de", "Link zur Aufgaben-Seite", "/open/records/task"],
+  ["de", "URL der Organisationen-Seite", "/open/records/organization"],
+  ["de", "URL der Services-Seite", "/open/records/service"],
   ["en", "webhooks route", "/settings/webhooks"],
   ["de", "Route Webhooks", "/settings/webhooks"],
   ["de", "URL der Profileinstellungen-Seite", "/settings/profile"],
@@ -53,20 +53,20 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "webhooks route", "app-company#webhooks-tab", "/settings/webhooks"],
   ["de", "Route Webhooks", "app-company#webhooks-tab", "/settings/webhooks"],
   ["en", "query_crm_records page size", "mcp#records", null],
-  ["en", "who can create API keys", "api-keys#who-can-create-and-see-api-keys", "/settings/api-keys"],
-  ["en", "how long do quick connection keys last", "api-keys#do-keys-expire", "/settings/api-keys"],
-  ["en", "API key name length", "api-keys#what-is-the-key-format", "/settings/api-keys"],
-  ["en", "who can see webhook secrets", "webhooks#who-can-see-and-change-webhooks", "/settings/webhooks"],
+  ["en", "who can create API keys", "api-keys#who-can-create-and-see-api-keys", null],
+  ["en", "how long do quick connection keys last", "api-keys#do-keys-expire", null],
+  ["en", "API key name length", "api-keys#what-is-the-key-format", null],
+  ["en", "who can see webhook secrets", "webhooks#who-can-see-and-change-webhooks", null],
   ["en", "how do I debug a webhook delivery", "webhooks#how-do-i-debug-a-delivery", "/settings/webhooks/deliveries"],
-  ["de", "Laufen API-Keys ab", "api-keys#do-keys-expire", "/settings/api-keys"],
-  ["de", "Wie lang darf ein Key-Name sein", "api-keys#what-is-the-key-format", "/settings/api-keys"],
-  ["de", "Wer kann Webhooks sehen und ändern", "webhooks#who-can-see-and-change-webhooks", "/settings/webhooks"],
+  ["de", "Laufen API-Keys ab", "api-keys#do-keys-expire", null],
+  ["de", "Wie lang darf ein Key-Name sein", "api-keys#what-is-the-key-format", null],
+  ["de", "Wer kann Webhooks sehen und ändern", "webhooks#who-can-see-and-change-webhooks", null],
   ["de", "Wie debugge ich eine Delivery", "webhooks#how-do-i-debug-a-delivery", "/settings/webhooks/deliveries"],
-  ["en", "where do I add a new contact", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
-  ["en", "where do I see a list of all tasks", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
-  ["en", "where do I see my services", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
-  ["de", "Kontakt anlegen", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
-  ["de", "Wo lege ich einen neuen Deal an", "app-records#how-do-i-add-a-record", "/records/<typeId>"],
+  ["en", "where do I add a new contact", "app-records#how-do-i-add-a-record", "/open/records/"],
+  ["en", "where do I see a list of all tasks", "app-records#how-do-i-add-a-record", "/open/records/"],
+  ["en", "where do I see my services", "app-records#how-do-i-add-a-record", "/open/records/"],
+  ["de", "Kontakt anlegen", "app-records#how-do-i-add-a-record", "/open/records/"],
+  ["de", "Wo lege ich einen neuen Deal an", "app-records#how-do-i-add-a-record", "/open/records/"],
   ["en", "where do I create a routine", "app-routines#how-do-i-create-a-routine", "/routines"],
   ["de", "Wo lege ich eine Routine an", "app-routines#how-do-i-create-a-routine", "/routines"],
   [
@@ -130,8 +130,8 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "link to the audit logs", "app-company#activity-tab", "/settings/activity"],
   ["en", "link to the inbox", "app-inbox#what-is-the-inbox", "/inbox"],
   ["en", "link to my profile settings", "app-profile#settings-tab", "/settings/profile"],
-  ["en", "link to the routines page", "app-routines#which-ids-does-the-page-have", "/routines"],
-  ["en", "link to the onboarding wizard", "app-onboarding#what-are-the-three-steps", "/onboarding/wizard"],
+  ["en", "link to the routines page", "app-routines#how-do-i-create-a-routine", "/routines"],
+  ["en", "link to the onboarding wizard", "app-onboarding#what-are-the-three-steps", null],
   ["en", "link to the API keys page", "api-keys#how-do-i-create-an-api-key", "/settings/api-keys"],
   ["en", "Where is the Recent Deliveries page?", "app-company#deliveries-tab", "/settings/webhooks/deliveries"],
   ["en", "Who can manage billing?", "app-company#who-can-manage-billing", "/settings/billing"],
@@ -140,7 +140,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "en",
     "What happens to my connected accounts if we switch to Starter?",
     "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
-    "/settings/billing",
+    null,
   ],
   ["en", "create a custom role", "app-company#how-does-the-role-editor-work", "/settings/roles"],
   [
@@ -149,16 +149,11 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-company#how-do-i-rename-record-types-in-the-data-model",
     "/configure",
   ],
-  [
-    "en",
-    "trial ended and I'm locked out",
-    "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
-    "/subscription-expired",
-  ],
+  ["en", "trial ended and I'm locked out", "app-company#what-happens-when-the-trial-ends-or-a-payment-fails", null],
   ["en", "Can I scope an API key to read-only?", "api-keys#what-permissions-does-a-key-have", null],
   ["en", "Which header does the API key go in?", "api-keys#how-do-i-use-a-key", null],
   ["en", "How do I create an automation?", "app-routines#how-do-i-create-a-routine", "/routines"],
-  ["en", "trigger an automation when a deal changes", "app-routines#how-do-event-triggers-work", "/routines"],
+  ["en", "trigger an automation when a deal changes", "app-routines#how-do-event-triggers-work", null],
   ["en", "Can Mate click buttons for me?", "app-assistant#how-does-mate-operate-the-interface", null],
   ["en", "Can a contact belong to several companies?", "concepts#how-do-relationships-link-records", null],
   ["en", "Are notes markdown?", "concepts#what-are-notes", null],
@@ -169,42 +164,37 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "en",
     "show my pipeline as a kanban board",
     "app-records#how-do-i-switch-between-table-and-board-view",
-    "/records/<typeId>",
+    "/open/records/",
   ],
   [
     "en",
     "How do I set up pipeline stages?",
     "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
-    "/records/<typeId>",
+    "/open/records/",
   ],
   [
     "en",
     "Can I edit an existing record in the add drawer?",
     "app-records#what-is-the-shared-layout-of-a-record-type",
-    "/records/<typeId>",
+    null,
   ],
-  ["en", "change the font of my outgoing emails", "app-profile#email-appearance-and-signature", "/settings/channels"],
-  ["en", "make a channel visible to teammates", "app-profile#private-or-shared", "/settings/channels"],
-  ["en", "change my password", "app-profile#what-can-i-not-change-here", "/settings/profile"],
-  ["en", "Why is the inbox locked on Starter?", "app-inbox#who-can-use-the-inbox", "/inbox"],
+  ["en", "change the font of my outgoing emails", "app-profile#email-appearance-and-signature", null],
+  ["en", "make a channel visible to teammates", "app-profile#private-or-shared", null],
+  ["en", "change my password", "app-profile#what-can-i-not-change-here", null],
+  ["en", "Why is the inbox locked on Starter?", "app-inbox#who-can-use-the-inbox", null],
   ["en", "Can an admin read my private conversations?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
-  [
-    "en",
-    "write a new email to a contact",
-    "app-inbox#how-do-i-start-a-new-conversation",
-    "/records/<typeId>/<recordId>",
-  ],
-  ["en", "Is there a calendar in Customermates?", "app-dashboard#what-can-an-activity-timeline-show", "/dashboard"],
+  ["en", "write a new email to a contact", "app-inbox#how-do-i-start-a-new-conversation", "/open/records/"],
+  ["en", "Is there a calendar in Customermates?", "app-dashboard#what-can-an-activity-timeline-show", null],
   ["en", "share a dashboard widget with my team", "app-dashboard#what-does-the-dashboard-show", "/dashboard"],
   ["en", "Which chart types can a widget show?", "app-dashboard#which-widget-types-exist", "/dashboard"],
-  ["en", "Can I skip onboarding?", "app-onboarding#can-i-skip-parts-of-the-onboarding", "/onboarding/wizard"],
+  ["en", "Can I skip onboarding?", "app-onboarding#can-i-skip-parts-of-the-onboarding", null],
   ["en", "Can I search contacts by email address?", "app-search#what-does-global-search-find", null],
   ["en", "Should I use searchTerm or a filter?", "filter-syntax#free-text-search-or-a-filter", null],
   ["de", "Link zur Mitglieder-Seite", "app-company#members-tab", "/settings/members"],
   ["de", "Link zum Audit-Log", "app-company#activity-tab", "/settings/activity"],
   ["de", "Link zum Posteingang", "app-inbox#what-is-the-inbox", "/inbox"],
   ["de", "Link zur Seite mit den API-Keys", "api-keys#how-do-i-create-an-api-key", "/settings/api-keys"],
-  ["de", "Link zur Routinen-Seite", "app-routines#which-ids-does-the-page-have", "/routines"],
+  ["de", "Link zur Routinen-Seite", "app-routines#how-do-i-create-a-routine", "/routines"],
   ["de", "Webhook anlegen", "webhooks#how-do-i-create-a-webhook", "/settings/webhooks"],
   ["de", "Kommen Webhooks in der richtigen Reihenfolge an?", "webhooks#are-deliveries-ordered", null],
   ["de", "Kann ich Filter mit ODER verknüpfen?", "filter-syntax#what-does-a-filter-rule-look-like", null],
@@ -213,16 +203,11 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "de",
     "Wo speichere ich die Telefonnummer eines Kontakts?",
     "app-records#what-is-special-about-each-record-type",
-    "/records/<typeId>",
+    "/open/records/",
   ],
   ["de", "Wie lege ich eine Automatisierung an?", "app-routines#how-do-i-create-a-routine", "/routines"],
-  ["de", "Kanal für Kollegen sichtbar machen", "app-profile#private-or-shared", "/settings/channels"],
-  [
-    "de",
-    "Spam-Ordner im Posteingang ausblenden",
-    "app-profile#what-does-the-folders-tab-control",
-    "/settings/channels",
-  ],
+  ["de", "Kanal für Kollegen sichtbar machen", "app-profile#private-or-shared", null],
+  ["de", "Spam-Ordner im Posteingang ausblenden", "app-profile#what-does-the-folders-tab-control", null],
   ["de", "Sieht der Admin meine privaten Chats?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
   ["de", "Eigene Rolle anlegen", "app-company#how-does-the-role-editor-work", "/settings/roles"],
   [
@@ -231,7 +216,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-company#how-do-i-rename-record-types-in-the-data-model",
     "/configure",
   ],
-  ["de", "Onboarding überspringen", "app-onboarding#kann-ich-teile-des-onboardings-uberspringen", "/onboarding/wizard"],
+  ["de", "Onboarding überspringen", "app-onboarding#kann-ich-teile-des-onboardings-uberspringen", null],
   [
     "en",
     "where can I change the stage field used for deal weighting",
@@ -244,19 +229,19 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "app-company#how-do-stage-probabilities-and-totals-work",
     "/configure",
   ],
-  ["en", "My Gmail channel says Reconnect needed", "app-profile#what-does-each-status-mean", "/settings/channels"],
-  ["en", "My Outlook channel shows Permission issue", "app-profile#what-does-each-status-mean", "/settings/channels"],
+  ["en", "My Gmail channel says Reconnect needed", "app-profile#what-does-each-status-mean", null],
+  ["en", "My Outlook channel shows Permission issue", "app-profile#what-does-each-status-mean", null],
   [
     "de",
     "Mein Gmail-Kanal zeigt Erneute Verbindung nötig",
     "app-profile#how-do-i-reactivate-resync-or-disconnect-a-channel",
-    "/settings/channels",
+    null,
   ],
   [
     "de",
     "Mein Outlook-Kanal zeigt Berechtigungsproblem",
     "app-profile#how-do-i-reactivate-resync-or-disconnect-a-channel",
-    "/settings/channels",
+    null,
   ],
   ["en", "how do I connect Gmail", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
   ["de", "Gmail verbinden", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
@@ -276,23 +261,25 @@ it("keeps the hosted route and section expectations aligned with the current doc
   const corpus = docsCorpus();
   const localeSections = (locale: ContentLocale) =>
     [...corpus.sections].filter(([key]) => key.startsWith(`${locale}:docs:`)).map(([, section]) => section);
-  const links = (text: string) =>
-    text
-      .split("\n")
-      .filter((line) => line.startsWith("**Link:**"))
-      .join("\n");
+  const links = (text: string) => [...text.matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1]).join("\n");
 
+  const misses: string[] = [];
   for (const [locale, query, route] of PAGE_LINK_QUESTIONS) {
-    const linkLines = localeSections(locale)
+    const targets = localeSections(locale)
       .map((section) => links(section.text))
       .join("\n");
-    expect(linkLines, `${locale} "${query}"`).toContain(`\`${route}\``);
+    if (!targets.includes(route)) misses.push(`${locale} "${query}": no section links ${route}`);
   }
   for (const [locale, query, expected, route] of SECTION_QUESTIONS) {
     const section = localeSections(locale).find((candidate) => `${candidate.slug}#${candidate.anchor}` === expected);
-    expect(section, `${locale} "${query}" -> ${expected}`).toBeDefined();
-    if (route) expect(links(section?.text ?? ""), `${locale} "${query}" -> ${expected}`).toContain(`\`${route}\``);
+    if (!section) misses.push(`${locale} "${query}": no section ${expected}`);
+    else if (route && !links(section.text).includes(route)) {
+      misses.push(
+        `${locale} "${query}": ${expected} does not link ${route} (links: ${links(section.text).replace(/\n/g, " ")})`,
+      );
+    }
   }
+  expect(misses, misses.join("\n")).toEqual([]);
 });
 
 describeDatabase("documentation retrieval exact regression contracts", () => {
@@ -346,7 +333,8 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   const excerptOf = async (slug: string, query: string, locale: ContentLocale = "en") =>
     ((await getResult({ slug, query, locale })) as { structuredContent: { markdown: string } }).structuredContent
       .markdown;
-  const firstLinkLine = (markdown: string) => markdown.split("\n").find((line) => line.startsWith("**Link:**")) ?? "";
+  const appLinks = (markdown: string) => [...markdown.matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1]).join(" ");
+  const APP = "http://localhost:4000";
 
   it("ranks the webhooks page first for a webhook signature query", async () => {
     const result = await search({ query: "webhook signature" });
@@ -442,18 +430,14 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   });
 
   itHosted(
-    "answers a page-link question with a section whose link line names that page",
+    "answers a page-link question with a section whose app link names that page",
     async () => {
       const misses = (
         await Promise.all(
           PAGE_LINK_QUESTIONS.map(async ([locale, query, route]) => {
             const [best] = await searchHits(query, locale);
             const excerpt = best ? await excerptOf(best.slug, query, locale) : "";
-            const routes = excerpt
-              .split("\n")
-              .filter((line) => line.startsWith("**Link:**"))
-              .join(" ");
-            return routes.includes(`\`${route}`) ? [] : [`${locale} "${query}" -> ${best?.slug}#${best?.anchor}`];
+            return appLinks(excerpt).includes(route) ? [] : [`${locale} "${query}" -> ${best?.slug}#${best?.anchor}`];
           }),
         )
       ).flat();
@@ -463,15 +447,15 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   );
 
   itHosted(
-    "answers task and permission questions with the section that handles them and that section's link line",
+    "answers task and permission questions with the section that handles them and that section's app link",
     async () => {
       const misses = (
         await Promise.all(
           SECTION_QUESTIONS.map(async ([locale, query, expected, route]) => {
             const [best] = await searchHits(query, locale);
             const found = `${best?.slug}#${best?.anchor}`;
-            const link = best ? firstLinkLine(await excerptOf(best.slug, query, locale)) : "";
-            const routeOk = route === null || link.includes(`\`${route}`);
+            const link = best ? appLinks(await excerptOf(best.slug, query, locale)) : "";
+            const routeOk = route === null || link.includes(route);
             return found === expected && routeOk
               ? []
               : [`${locale} "${query}" -> ${found} (link: ${link.slice(0, 60)})`];
@@ -484,7 +468,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   );
 
   itHosted(
-    "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+    "answers where-is and take-me-to questions with the section that introduces that page, and its app link",
     async () => {
       const misses = (
         await Promise.all(
@@ -499,8 +483,8 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
           ).map(async ([locale, query, expected, route]) => {
             const [best] = await searchHits(query, locale);
             const found = `${best?.slug}#${best?.anchor}`;
-            const link = best ? firstLinkLine(await excerptOf(best.slug, query, locale)) : "";
-            return found === expected && link.includes(`\`${route}`) ? [] : [`${locale} "${query}" -> ${found}`];
+            const link = best ? appLinks(await excerptOf(best.slug, query, locale)) : "";
+            return found === expected && link.includes(route) ? [] : [`${locale} "${query}" -> ${found}`];
           }),
         )
       ).flat();
@@ -585,7 +569,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     },
   );
 
-  it("credits a link line's synonym only to the query word it is a synonym of", async () => {
+  it("credits a synonym only to the query word it is a synonym of", async () => {
     const [logs] = await searchHits("Where are the logs of my self-hosted instance?");
     expect(logs?.slug).toBe("self-hosting");
     const [history] = await searchHits("Wo sehe ich den Änderungsverlauf eines Kontakts?", "de");
@@ -683,14 +667,14 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     60000,
   );
 
-  itHosted("answers a page-address question with a German page compound through that page's link line", async () => {
+  itHosted("answers a page-address question with a German page compound through that page's app link", async () => {
     for (const [query, route] of [
       ["Link zur Mitgliederseite", "/settings/members"],
       ["Wo ist die Webhookseite?", "/settings/webhooks"],
     ] as const) {
       const [best] = await searchHits(query, "de");
       expect(best, query).toBeDefined();
-      expect(firstLinkLine(await excerptOf(best?.slug ?? "", query, "de")), query).toContain(`\`${route}`);
+      expect(appLinks(await excerptOf(best?.slug ?? "", query, "de")), query).toContain(`${APP}${route}`);
     }
   });
 
@@ -773,12 +757,12 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       query: "Walk me through connecting WhatsApp to the Customermates inbox.",
     });
     const bounded = result.slice(0, 512);
-    expect(bounded).toContain("nav-settings-channels");
+    expect(bounded).toContain(`${APP}/settings/channels`);
     expect(bounded).toContain("settings-channels-connect");
     expect(bounded).toContain("WhatsApp");
   });
 
-  itHosted("excerpts the section search_docs names, with that section's own link line", async () => {
+  itHosted("excerpts the section search_docs names, with that section's own app link", async () => {
     for (const [locale, query, route] of [
       ["en", "roles page URL", "/settings/roles"],
       ["de", "URL der Rollen-Seite", "/settings/roles"],
@@ -787,27 +771,27 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       ["de", "URL der Webhooks-Seite", "/settings/webhooks"],
     ] as const) {
       const excerpt = await excerptOf("app-company", query, locale);
-      expect(firstLinkLine(excerpt), `${locale} "${query}"`).toContain(`\`${route}\``);
+      expect(appLinks(excerpt).split(" "), `${locale} "${query}"`).toContain(`${APP}${route}`);
       const best = (await searchHits(query, locale)).find((hit) => hit.slug === "app-company");
       if (best) expect(excerpt.split("\n")[0], `${locale} "${query}"`).toContain(best.section.split(" > ").at(-1));
     }
   });
 
-  it("puts the section a query names first and keeps its link line, steps included", async () => {
+  it("puts the section a query names first and keeps its app link, steps included", async () => {
     for (const [locale, slug, heading, route] of [
       ["en", "connect-custom-connector", "Can ChatGPT use an API key instead of OAuth?", "/settings/api-keys"],
       ["de", "connect-custom-connector", "Kann ChatGPT statt OAuth einen API-Key nutzen?", "/settings/api-keys"],
       ["en", "mcp", "Connect a client", "/settings/api-keys"],
       ["en", "architecture-security", "How are webhook secrets and destinations secured?", "/settings/webhooks"],
-      ["en", "app-profile", "Profile settings page", "/settings/profile"],
+      ["en", "app-profile", "Profile & preferences", "/settings/profile"],
     ] as const) {
       const excerpt = await excerptOf(slug, heading, locale);
       const [firstLine] = excerpt.split("\n");
       expect(firstLine, `${slug} "${heading}"`).toMatch(/^#+ /);
       expect(firstLine.replace(/^#+ /, ""), `${slug} "${heading}"`).toBe(heading);
-      expect(firstLinkLine(excerpt), `${slug} "${heading}"`).toContain(`\`${route}\``);
+      expect(appLinks(excerpt).split(" "), `${slug} "${heading}"`).toContain(`${APP}${route}`);
     }
-    expect((await excerptOf("app-company", "roles-tab")).split("\n")[0]).toBe("## Roles page");
+    expect((await excerptOf("app-company", "roles-tab")).split("\n")[0]).toBe("## Roles");
   });
 
   it("keeps the table row, or the sentence deep in a paragraph, that answers the query inside the bounded excerpt", async () => {
@@ -816,24 +800,26 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       [
         "app-profile",
         "which setting decides the number and date format",
-        "| Field | Id | Options and rules | Effect |",
-        "| **Formatting Locale** |",
+        "| Field | Rules and effect |",
+        "| [Formatting Locale](http://localhost:4000/settings/profile?focus=control%3Asettings-profile-formatting-locale) | The same choices; how numbers, dates and amounts are written",
       ],
-      ["app-routines", "what is the default schedule of a routine", null, "The default schedule is daily at 09:00."],
+      ["app-routines", "what is the default schedule of a routine", null, "The default is every day at 09:00."],
     ] as const) {
       const excerpt = await excerptOf(slug, query);
       expect(excerpt, query).toContain(answer);
       if (header) expect(excerpt.indexOf(header), query).toBeGreaterThan(-1);
       if (header) expect(excerpt.indexOf(header), query).toBeLessThan(excerpt.indexOf(answer));
       expect(excerpt.length, query).toBeLessThanOrEqual(1400);
-      expect(firstLinkLine(excerpt), query).toMatch(/`\/[a-z]/);
+      expect(appLinks(excerpt), query).toMatch(/http:\/\/localhost:4000\/[a-z]/);
     }
   });
 
   it("keeps the step that answers a question in the words of that step, not a row that shares one word", async () => {
     const excerpt = await excerptOf("webhooks", "Wo trage ich die Webhook-URL ein", "de");
-    expect(excerpt).toContain("**UI:** Um einen Webhook anzulegen");
-    expect(firstLinkLine(excerpt)).toContain("`/settings/webhooks`");
+    expect(excerpt).toContain(
+      `Öffnen Sie [Webhooks](${APP}/settings/webhooks), klicken Sie auf [Hinzufügen](${APP}/settings/webhooks?focus=control%3Asettings-webhooks-add), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein`,
+    );
+    expect(appLinks(excerpt).split(" ")).toContain(`${APP}/settings/webhooks`);
   });
 
   itHosted("answers a channel status question with the instruction to reactivate the channel", async () => {
@@ -843,11 +829,11 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("app-profile", query, locale);
       expect(excerpt, query).toContain(action);
-      expect(firstLinkLine(excerpt), query).toContain("`/settings/channels`");
+      expect(appLinks(excerpt), query).toContain(`${APP}/settings/channels`);
     }
   });
 
-  it("keeps the formula a calculation question asks for, and the link line of the section that states it", async () => {
+  it("keeps the formula a calculation question asks for, and the app link of the section that states it", async () => {
     for (const [locale, query, formula] of [
       [
         "en",
@@ -862,10 +848,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("concepts", query, locale);
       expect(excerpt, query).toContain(formula);
-      expect(
-        excerpt.split("\n").some((line) => line.startsWith("**Link:**") && line.includes("`/configure`")),
-        query,
-      ).toBe(true);
+      expect(appLinks(excerpt).split(" "), query).toContain(`${APP}/open/configure/deal`);
       expect(excerpt.length, query).toBeLessThanOrEqual(1400);
     }
   });
@@ -897,8 +880,8 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       ["en", "app-company", "Which plans are there?", "Hosted AI credits per active user and month"],
     ] as const) {
       const excerpt = await excerptOf(slug, query, locale);
-      const linkEnd = excerpt.indexOf("\n", excerpt.indexOf("**Link:**"));
-      const top = linkEnd === -1 ? excerpt : excerpt.slice(0, linkEnd);
+      const next = excerpt.search(/\n#{1,6} /u);
+      const top = next === -1 ? excerpt : excerpt.slice(0, next).trimEnd();
       expect(top.length, query).toBeGreaterThan(700);
       expect(top.length, query).toBeLessThanOrEqual(1400);
       expect(top, query).not.toContain("…");

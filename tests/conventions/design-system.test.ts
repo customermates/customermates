@@ -55,11 +55,7 @@ const OVERLAY_PRIMITIVE_EXEMPTIONS: Allowlist = {
 };
 
 const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx": "I2 r3: record drawer on AppModal",
-  "components/records/workspace-record-editor.tsx": "I2 r3: record drawer on AppModal",
-  "components/records/record-compose-recovery.tsx": "I2 r3: compose recovery on the shared dialog",
   "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": "I1 r4 / I5 r2: confirm dialog",
-  "app/[locale]/(protected)/wiki/components/wiki-page-view.tsx": "I25 phase 2: wiki page drawer on AppModal",
 };
 
 describe("rules 31 and 35: dialogs and drawers through the shared overlay components", () => {
@@ -166,7 +162,6 @@ function destructiveActionFindings(sources: SourceFile[]) {
 }
 
 const DESTRUCTIVE_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/inbox/components/message-item.tsx": "I25 phase 2: email draft discard is neutral grey",
 };
 
 const DESTRUCTIVE_EXEMPTIONS: Allowlist = {
@@ -255,12 +250,9 @@ const TOP_BAR_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx": "I3 r3: Add widget through the shared top-bar action buttons",
   "app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-view.tsx": "I19: billing page actions",
   "app/[locale]/(protected)/settings/(account)/components/api-keys-page-view.tsx": "I19: API keys Add through the shared top-bar action buttons",
-  "app/[locale]/(protected)/inbox/components/inbox-list.tsx": "I25 phase 2: refresh and connect through I2's top-bar action buttons",
-  "app/[locale]/(protected)/inbox/components/thread-topbar.tsx": "I25 phase 2: resync through I2's top-bar action buttons",
   "app/[locale]/(protected)/configure/components/configure-page-view.tsx": "I1 r4: ConfigureTopBarActions buttons",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx": "I19: VerifyEmailAction button",
   "app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx": "I19: ConnectAction button",
-  "app/[locale]/(protected)/wiki/components/wiki-page-view.tsx": "I25 phase 2: wiki page actions",
 };
 
 describe("rules 5, 6 and 58: top-bar actions and view chips through their shared components", () => {
@@ -285,8 +277,6 @@ const VALUE_FORMAT =
 const VALUE_RENDERER_OWNERS = new Set(["app/[locale]/(protected)/records/[typeId]/components/record-value.tsx"]);
 
 const VALUE_RENDERER_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/legal-update/components/legal-update-view.tsx": "I25 phase 2: effective date",
-  "app/[locale]/(protected)/operator/overview/page.tsx": "I25 phase 2: operator metrics",
 };
 
 function isRenderingSource({ file }: SourceFile) {
@@ -306,14 +296,7 @@ const PALETTE_COLOR =
   /\b(?:text|bg|border|ring|fill|stroke|from|to|via|outline|decoration|shadow|divide|accent|caret|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|black|white)(?:-\d{2,3})?(?:\/\d+)?\b/;
 const LITERAL_COLOR = /(?<=^|[[(:,\s=])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])|\b(?:rgba?|hsla?|oklch)\(/;
 
-const COLOR_OWNERS = new Set([
-  "components/ui/button.tsx",
-  "components/ui/dialog.tsx",
-  "components/ui/alert-dialog.tsx",
-  "components/ui/drawer.tsx",
-  "components/ui/sheet.tsx",
-  "components/shared/loading-overlay.tsx",
-]);
+const COLOR_OWNERS = new Set(["components/ui/button.tsx"]);
 
 const COLOR_EXEMPTIONS: Allowlist = {
   "features/messaging/email-frame.tsx": "styles the sandboxed email document, which cannot read app tokens",
@@ -340,9 +323,6 @@ function stringLiteralFindings(sources: SourceFile[], pattern: RegExp) {
 
 const COLOR_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": "I1 r4 / I5 r2: scrim token",
-  "app/[locale]/(protected)/inbox/components/attachment-classify.ts": "I25 phase 2: file type colors from tokens",
-  "app/components/agent-chat/agent-chat.tsx": "I25 phase 2: Mate panel shadow token",
-  "app/components/agent-chat/agent-tour-overlay.tsx": "I25 phase 2: tour scrim token",
 };
 
 describe("rule 58: colors only through design tokens", () => {
@@ -413,11 +393,6 @@ const NATIVE_TITLE_EXEMPTIONS: Allowlist = {
 };
 
 const NATIVE_TITLE_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/inbox/components/email-message-header.tsx": "I25 phase 2: sent time tooltip",
-  "app/[locale]/(protected)/inbox/components/thread-folder-menu.tsx": "I25 phase 2: folder name tooltip",
-  "components/data-view/filter-modal/inputs/filter-input-select.tsx": "I25 phase 2: group label tooltip",
-  "components/data-view/filter-palette/palette-value-select.tsx": "I25 phase 2: group label tooltip",
-  "components/layout/resizable-panels.tsx": "I25 phase 2: resize hint tooltip",
 };
 
 describe("rule 4: tooltips through the app Tooltip, never title attributes", () => {

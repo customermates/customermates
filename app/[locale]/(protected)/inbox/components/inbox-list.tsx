@@ -22,10 +22,10 @@ import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { TopBarActionButtons, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { PageState } from "@/components/page-state/page-state";
 import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
 import { resolveDataViewPageState, type DataViewPageState } from "@/components/data-view/data-view-state";
-import { runUserAction } from "@/core/errors/report-application-error";
 
 import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { ThreadRow } from "./thread-row";
@@ -91,34 +91,26 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
           />
 
           {canUpdate && (
-            <Button
-              aria-label={t("Inbox.refresh")}
-              className="h-8"
-              disabled={isRefreshing}
-              size="sm"
-              variant="secondary"
-              onClick={() => runUserAction(() => messagingThreadsStore.refreshInbox())}
-            >
-              <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
-
-              <span className="hidden sm:inline">{t("Inbox.refresh")}</span>
-            </Button>
+            <TopBarActionButtons
+              actions={[
+                {
+                  id: "refresh",
+                  icon: RefreshCw,
+                  label: t("Common.actions.refresh"),
+                  busy: isRefreshing,
+                  onClick: () => messagingThreadsStore.refreshInbox(),
+                },
+              ]}
+            />
           )}
 
           {canConnect && (
-            <Button asChild className="h-8" size="sm" variant="default">
-              <Link aria-label={t("ConnectedAccountsCard.title")} href={settingsHref("channels")}>
-                <Cable className="size-3.5" />
-
-                <span className="hidden sm:inline">{t("ConnectedAccountsCard.title")}</span>
-
-                {channelsNeedingAction > 0 && (
-                  <span className="bg-warning/25 text-warning inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md px-1.5 text-[11px] font-medium tabular-nums">
-                    {channelsNeedingAction}
-                  </span>
-                )}
-              </Link>
-            </Button>
+            <TopBarPrimaryButton
+              count={channelsNeedingAction}
+              href={settingsHref("channels")}
+              icon={Cable}
+              label={t("ConnectedAccountsCard.title")}
+            />
           )}
         </div>
       ),

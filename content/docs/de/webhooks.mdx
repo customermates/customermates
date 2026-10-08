@@ -4,44 +4,37 @@ heading: "CRM-Ereignisse über Webhooks empfangen"
 description: CRM-Events abonnieren, Signaturen verifizieren, fehlgeschlagene Zustellungen prüfen und den vollständigen Event-Katalog auf einer Seite lesen.
 ---
 
-Customermates sendet einen JSON-POST an Ihren Endpunkt, sobald sich abonnierte Daten ändern. Sie wählen die Events und geben die URL an. Fehlgeschlagene Zustellungen können Sie aus der UI oder per MCP erneut senden. Hat der Webhook ein Secret, werden Zustellungen per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
+Customermates sendet einen JSON-POST an Ihren Endpunkt, sobald sich abonnierte Daten ändern. Sie wählen die Ereignisse und die URL. Mit einem Secret wird jede Zustellung per HMAC-SHA256 über den rohen Request-Body signiert. Fehlgeschlagene Zustellungen werden automatisch wiederholt und lassen sich von Hand erneut senden. Der Ereigniskatalog steht am Ende dieser Seite.
 
 ## Wofür sind Webhooks da? [#what-are-webhooks-for]
 
-Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
+Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen, etwa um neue Kontakte an einen E-Mail-Sequencer zu übergeben, ein Support-Ticket zu öffnen, wenn ein Deal seinen Zustand ändert, einen Finance-Workflow beim Abschluss eines Deals zu starten oder Datensätze nahezu in Echtzeit in ein Data Warehouse zu synchronisieren.
 
-- Neue Contacts in einen E-Mail-Sequencer übergeben.
-- Ein Ticket im Support-Tool öffnen, wenn ein Deal seinen Zustand ändert.
-- Einen Finance-Workflow auslösen, wenn ein Deal als abgeschlossen markiert wird.
-- Records nahezu in Echtzeit in ein Data Warehouse synchronisieren.
+## Wie lege ich einen Webhook an? [#how-do-i-create-a-webhook]
 
-## Webhook anlegen: Wie lege ich einen Webhook an oder füge einen hinzu, und wo trage ich seine URL ein? [#how-do-i-create-a-webhook]
-
-**UI:** Um einen Webhook anzulegen, klappen Sie in der Seitenleiste **Mein Unternehmen** auf, öffnen Sie **Webhooks** und fügen Sie mit **Hinzufügen** einen Webhook hinzu (auf schmalen Bildschirmen zeigt die Schaltfläche nur ein Plus-Symbol). Füllen Sie den Dialog **Webhook** aus, tragen Sie die URL ein und klicken Sie auf **Speichern**.
+Öffnen Sie [Webhooks](app:settings/webhooks), klicken Sie auf [Hinzufügen](app:settings/webhooks?focus=add), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein und klicken Sie auf **Speichern**.
 
 | Feld | Wirkung |
 | --- | --- |
 | **URL** | Pflichtfeld. Der Endpunkt, der für jedes abonnierte Ereignis einen `POST` erhält. Eine URL ohne Schema wird mit vorangestelltem `https://` gespeichert. |
 | **Beschreibung** | Optional, bis zu 500 Zeichen. Erscheint in der Liste. |
-| **Ereignisse** | Pflichtfeld. Ein oder mehrere Ereignisse aus dem Katalog am Ende dieser Seite. |
-| **Secret** | Optional, 1 bis 256 Zeichen. Ist es gesetzt, tragen Zustellungen eine damit erstellte Signatur (siehe [Wie prüfe ich die Signatur?](#how-do-i-verify-the-signature)). |
+| **Ereignisse** | Pflichtfeld. Ein oder mehrere Ereignisse aus dem [Katalog](#which-events-exist). |
+| **Secret** | Optional, 1 bis 256 Zeichen. Signiert jede Zustellung (siehe [Wie prüfe ich die Signatur?](#how-do-i-verify-the-signature)). |
 | **Eigene Header** | Optional. Ein `Name: Wert` pro Zeile (siehe [Eigene Header und Body-Vorlagen](#custom-headers-and-body-templates)). |
 | **Body-Vorlage** | Optionales JSON-Dokument, das den Standardumschlag ersetzt. |
-| **Aktiviert** | Standardmäßig eingeschaltet. Ein deaktivierter Webhook erhält keine Zustellungen und behält seine Konfiguration, Sie können ihn also pausieren, ohne ihn zu löschen. |
+| **Aktiviert** | Standardmäßig eingeschaltet. Ein deaktivierter Webhook erhält nichts und behält seine Konfiguration, Sie können ihn also pausieren, ohne ihn zu löschen. |
 
-Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten den Dialog und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf das Papierkorb-Symbol (**Löschen**) und bestätigen; seine bisherigen Zustellungen bleiben unter **Letzte Zustellungen** erhalten. Die Liste zeigt für jeden Webhook **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Das Suchfeld durchsucht die URL, die Filter decken Erstellungs- und Änderungsdatum ab.
+Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten ihn und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf **Löschen** und bestätigen; seine bisherigen Zustellungen bleiben im Reiter [Zustellungen](app:settings/webhooks/deliveries) erhalten. Die Liste zeigt **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Die [Suche](app:settings/webhooks?focus=search) durchsucht die URL, die [Filter](app:settings/webhooks?focus=filter) decken Erstellungs- und Änderungsdatum ab.
 
-**MCP:** `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Der gehostete Assistent nutzt dasselbe Tool und kann außerdem **Webhooks** oder **Letzte Zustellungen** für Sie öffnen und auf die Schaltfläche **Hinzufügen** zeigen.
+Verwenden Sie einen HTTPS-Endpunkt. Reines `http://` wird für jeden Host nur akzeptiert, solange der Webhook keine eigenen Header hat. Mit eigenen Headern muss die URL `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Das wird beim Speichern und erneut vor jeder Zustellung geprüft.
 
-Verwenden Sie einen HTTPS-Endpunkt. Eine reine `http://`-URL wird für jeden Host akzeptiert, solange der Webhook keine eigenen Header hat. Ein Webhook mit eigenen Headern muss `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Diese Regel wird beim Speichern und erneut vor jeder Zustellung geprüft.
-
-**Link:** `/settings/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks`, danach `highlight_element` mit `settings-webhooks-add` für **Hinzufügen** (nur vorhanden mit **Erstellen** bei **API & Webhooks**). Im Dialog **Webhook**, geöffnet über **Hinzufügen** (Voraussetzung `settings-webhooks-add`) oder eine Zeile, heben `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` und `webhook-modal-enabled` die Felder der Tabelle oben hervor, ohne **Bearbeiten** (bei einem neuen Webhook **Erstellen**) schreibgeschützt; `webhook-modal-save` und `webhook-modal-cancel` heben **Speichern** und **Abbrechen** für Rollen mit **Erstellen** bei einem neuen oder **Bearbeiten** bei einem gespeicherten Webhook hervor, `webhook-modal-delete` hebt **Löschen** für Rollen mit **Löschen** hervor. Die Listen-Controls stehen unter [Mein Unternehmen](/docs/app-company#webhooks-tab).
+Über MCP nutzen Sie `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`.
 
 ## Welche Datensätze lösen einen Webhook aus, und mit wessen Zugriff wird zugestellt? [#record-event-sources]
 
-Für Datensatzereignisse wählen Sie den Quelltyp aus und ergänzen bei Bedarf beobachtete Felder, Suchtext sowie Feld- oder Beziehungsfilter. Die Zustellung verwendet den Datensatzzugriff des ausgewählten Eigentümers; standardmäßig ist dies der Ersteller. Nur ein Administrator darf einen anderen Eigentümer auswählen. Migrierte Abonnements können mehrere Quellen behalten.
+Sobald Sie ein Datensatzereignis wählen, zeigt der Dialog die Datensatzquelle: Wählen Sie unter **Datensätze aus** die Liste (oder **Alle zugänglichen Typen**) und bei Bedarf **Geänderte Felder**, **Datensätze suchen** sowie **Datensatzfilter** auf Feldern und Beziehungen. Zugestellt wird mit dem Datensatzzugriff des Mitglieds unter **Zugriffsberechtigtes Mitglied**, standardmäßig des Mitglieds, das den Webhook anlegt; nur ein Administrator kann ein anderes Mitglied wählen. Ältere migrierte Webhooks können mehrere Quellen behalten, die als Chips erscheinen.
 
-**MCP:** Datensatzabonnements in `manage_webhooks` benötigen außerdem `expectedSchemaRevision` aus `get_record_model`. `recordTrigger` enthält eine Abfrage mit stabilen Typ- und Feld-IDs und optionalen `changedFieldIds`; null wählt alle zugänglichen Typen. `recordOwnerUserId` legt optional den Eigentümer für die Zustellung fest. Lassen Sie diese Einstellungen bei einem Update weg, um sie zu erhalten; Änderungen an Quelle oder Eigentümer benötigen die aktuelle Schema-Revision.
+Über MCP benötigen Datensatzabonnements in `manage_webhooks` außerdem `expectedSchemaRevision` aus `get_record_model`. `recordTrigger` enthält eine Abfrage mit stabilen Typ- und Feld-IDs und optionalen `changedFieldIds`; `null` wählt alle zugänglichen Typen. `recordOwnerUserId` legt optional den Eigentümer für die Zustellung fest. Lassen Sie diese Einstellungen bei einem Update weg, um sie zu behalten; Änderungen an Quelle oder Eigentümer benötigen die aktuelle Schema-Revision.
 
 ```json
 {
@@ -57,25 +50,19 @@ Für Datensatzereignisse wählen Sie den Quelltyp aus und ergänzen bei Bedarf b
 }
 ```
 
-**Link:** `/settings/webhooks`. **Mate:** liest mit `get_record_model` die Typ- und Feld-IDs und nutzt dann `manage_webhooks`.
-
 ## Wer kann Webhooks sehen und ändern? [#who-can-see-and-change-webhooks]
 
-Den Zugriff legt die Zeile **API & Webhooks** im Rolleneditor unter **Mein Unternehmen** → **Rollen** fest. Gespeicherte **Secret**- und **Eigene Header**-Werte sehen im Dialog nur die Rolle **Admin** oder Rollen mit **Bearbeiten** bei **API & Webhooks**. **Lesen** **Alle** allein zeigt `********`.
+Den Zugriff legt die Zeile **API & Webhooks** einer Rolle unter [Rollen](app:settings/roles) fest.
 
 | Einstellung bei **API & Webhooks** | Was Mitglieder mit dieser Rolle tun können |
 | --- | --- |
-| **Lesen** **Keine** (Standard für eine neue Rolle) | **Webhooks** und **Letzte Zustellungen** sind in der Seitenleiste ausgeblendet. Wer die Adresse direkt öffnet, landet auf dem Dashboard. |
-| **Lesen** **Alle**, keine Checkbox angehakt | Beide Seiten öffnen, den Dialog jedes Webhooks schreibgeschützt öffnen und **Ereignis-Details** zu jeder Zustellung öffnen. Im Dialog erscheinen ein gespeichertes **Secret** und jeder Wert unter **Eigene Header** als `********`; die Header-Namen bleiben sichtbar. |
+| **Lesen** **Keine** (Standard für eine neue Rolle) | Webhooks sind ausgeblendet; wer die Seite direkt öffnet, landet auf dem Dashboard. |
+| **Lesen** **Alle**, keine Checkbox angehakt | Webhooks und die Zustellungen öffnen, jeden Webhook schreibgeschützt öffnen und **Ereignis-Details** zu jeder Zustellung öffnen. Ein gespeichertes **Secret** und jeder Wert unter **Eigene Header** erscheinen als `********`; die Header-Namen bleiben sichtbar. |
 | **Lesen** **Alle** plus **Erstellen** | Webhooks anlegen und Zustellungen erneut senden. |
-| **Lesen** **Alle** plus **Bearbeiten** | Webhooks bearbeiten und gespeicherte **Secret**- und **Eigene Header**-Werte im Webhook-Dialog sehen. |
+| **Lesen** **Alle** plus **Bearbeiten** | Webhooks bearbeiten und gespeicherte Werte von **Secret** und **Eigene Header** sehen. |
 | **Lesen** **Alle** plus **Löschen** | Webhooks löschen. |
 
-Dieselbe Zeile steuert auch **Mein Profil** → **API & Konnektoren**. Eine Rolle, die eigene API-Keys anlegen oder löschen darf, darf also auch jeden Webhook im Workspace anlegen oder löschen.
-
-Die Rolle **Admin** darf alles. Webhooks sind an keinen Tarif gebunden und funktionieren in jedem Cloud-Tarif sowie in einer selbstgehosteten Installation. Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und im gehosteten Assistenten. Im gehosteten Assistenten fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
-
-**Link:** `/settings/webhooks` und `/settings/webhooks/deliveries`, und für die Zeile **API & Webhooks** der Rolle `/settings/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks`, `nav-settings-webhooks` oder `nav-settings-roles`; in einem geöffneten Dialog **Webhook** heben `webhook-modal-secret` und `webhook-modal-headers` **Secret** und **Eigene Header** hervor. Die Zeilen der Rollen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Dieselbe Zeile steuert auch [API-Schlüssel](app:settings/api-keys). Eine Rolle, die eigene API-Keys anlegen oder löschen darf, darf also auch jeden Webhook im Workspace anlegen oder löschen. Die Rolle **Admin** darf alles. Webhooks sind an keinen Tarif gebunden und funktionieren in jedem Cloud-Tarif sowie selbstgehostet. Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und in Mate; dort fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
 
 ## Wie sieht der Payload aus? [#what-does-the-payload-look-like]
 
@@ -94,9 +81,9 @@ Jede Zustellung ist ein `POST` mit `Content-Type: application/json` und demselbe
 }
 ```
 
-`id` bezeichnet das Event: Ein erneutes Senden und jeder Wiederholungsversuch tragen dieselbe `id`, nutzen Sie sie also zum Deduplizieren. `actorId` ist der User, der den Write verursacht hat, inklusive User, die über einen API-Key handeln, und Routinen, die für ihren Eigentümer laufen. Bei Messaging-Events, die durch eingehende Provider-Aktivität statt durch eine User-Aktion ausgelöst werden, ist `actorId` gleich `null`.
+`id` bezeichnet das Ereignis: Ein erneutes Senden und jeder Wiederholungsversuch tragen dieselbe `id`, nutzen Sie sie also zum Deduplizieren. `actorId` ist der User, der den Write verursacht hat, inklusive User, die über einen API-Key handeln, und Routinen, die für ihren Eigentümer laufen. Messaging-Ereignisse entstehen durch eingehende Provider-Aktivität, ihr `actorId` ist deshalb `null`.
 
-Bei Datensatz-Events enthält `data` die Datensatzänderung: `data.record` mit der Referenz (`typeId` und `recordId`, auch nach einer Umbenennung eindeutig) und den Änderungen, `data.cause` mit der Ursache des Writes und `data.causeId`, die alle Events desselben Writes teilen. Legen Sie am Webhook Datensatzquellen fest, um Typen und Felder für die Zustellung auszuwählen.
+Bei Datensatzereignissen enthält `data.record` die Referenz (`typeId` und `recordId`, auch nach einer Umbenennung eindeutig) und die Änderungen, `data.cause` die Ursache des Writes, und `data.causeId` teilen alle Ereignisse desselben Writes.
 
 Beispiel für `record.updated` bei einem Kontakt, ohne für die Erklärung unnötige Felder:
 
@@ -127,41 +114,39 @@ Beispiel für `record.updated` bei einem Kontakt, ohne für die Erklärung unnö
 }
 ```
 
-Die tatsächliche Datensatzänderung enthält außerdem Zuweisungen, Identitäten, Änderungen an Verknüpfungen und verknüpfte Datensätze. Feldeinträge tragen Anzeigedaten und können statt eines Werts `missing`, `restricted` oder `error` enthalten. Stabile Typ- und Feld-IDs liefert `POST /api/v1/model/discover` oder das MCP-Tool `get_record_model`.
+Eine echte Datensatzänderung enthält außerdem Zuweisungen, Identitäten, Änderungen an Verknüpfungen und verknüpfte Datensätze. Feldeinträge tragen Anzeigedaten und können statt eines Werts `missing`, `restricted` oder `error` enthalten. Stabile Typ- und Feld-IDs liefert `POST /api/v1/model/discover` oder das MCP-Tool `get_record_model`.
 
 ## Das `changes`-Objekt: geänderte Felder [#the-changes-object]
 
-`data.record.fields` listet geänderte Felder mit Werten für `before` und `after` auf. `data.record.links`, `data.record.assignments` und `data.record.identities` beschreiben weitere geänderte Verbindungen. `data.record.beforeVersion` und `data.record.afterVersion` bezeichnen die betroffenen Datensatzversionen. Ein fehlender oder eingeschränkter Wert ist nicht dasselbe wie der Zahlenwert 0.
+`data.record.fields` listet geänderte Felder mit Werten für `before` und `after`; `data.record.links`, `data.record.assignments` und `data.record.identities` beschreiben weitere geänderte Verbindungen. `data.record.beforeVersion` und `data.record.afterVersion` bezeichnen die Datensatzversionen. Ein fehlender oder eingeschränkter Wert ist nicht dasselbe wie 0.
 
-Änderungen ohne Wirkung erzeugen kein `record.updated`-Event. Der Payload wird bei der Zustellung gemäß den aktuellen Datensatz- und Berechnungsfeldrechten des Webhook-Eigentümers redigiert.
+Änderungen ohne Wirkung erzeugen kein `record.updated`-Ereignis. Der Payload wird bei der Zustellung gemäß den aktuellen Datensatz- und Berechnungsfeldrechten des Webhook-Eigentümers redigiert.
 
 ## Eigene Header und Body-Vorlagen [#custom-headers-and-body-templates]
 
-Manche Empfänger akzeptieren die Standardzustellung nicht. Dafür gibt es zwei optionale Einstellungen; ein Webhook, der keine davon setzt, stellt den Standardumschlag aus [Wie sieht der Payload aus?](#what-does-the-payload-look-like) zu.
+Zwei optionale Einstellungen decken Empfänger ab, die die Standardzustellung nicht akzeptieren. Ein Webhook ohne beide sendet den [Standardumschlag](#what-does-the-payload-look-like).
 
-**Eigene Header** werden bei jeder Zustellung mitgesendet, für Endpunkte mit eigener Authentifizierung. In der Oberfläche tragen Sie sie im Feld **Eigene Header** zeilenweise als `Name: Wert` ein (eine Zeile ohne Doppelpunkt wird ignoriert, und ein geleertes Feld entfernt alle Header), über MCP und API als `headers`-Objekt. Sechs Namen sind reserviert und werden beim Speichern abgelehnt: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding` und `X-Webhook-Signature`. Header-Namen müssen gültige HTTP-Tokens sein, Werte müssen Latin-1-Text ohne Zeilenumbrüche sein, und ein Webhook darf bis zu 20 Header tragen, mit Namen bis 128 Zeichen, Werten bis 2.048 Zeichen und insgesamt 8.192 Zeichen. Da Header in der Regel ein Credential tragen, muss ein Webhook mit Headern einen HTTPS-Endpunkt verwenden; reines HTTP wird nur für `localhost`, `127.0.0.1` und `::1` akzeptiert.
+**Eigene Header** werden bei jeder Zustellung mitgesendet, für Endpunkte mit eigener Authentifizierung. Tragen Sie sie zeilenweise als `Name: Wert` ein (eine Zeile ohne Doppelpunkt wird ignoriert, ein leeres Feld entfernt alle Header) oder übergeben Sie über MCP und API ein `headers`-Objekt. Sechs Namen sind reserviert und werden abgelehnt: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding` und `X-Webhook-Signature`. Namen müssen gültige HTTP-Tokens sein, Werte Latin-1-Text ohne Zeilenumbrüche. Ein Webhook darf bis zu 20 Header tragen, mit Namen bis 128 Zeichen, Werten bis 2.048 Zeichen und insgesamt 8.192 Zeichen. Ein Webhook mit Headern muss HTTPS verwenden; reines HTTP wird nur für `localhost`, `127.0.0.1` und `::1` akzeptiert.
 
-Header-Werte und das Signaturgeheimnis werden von der REST-API und von MCP nie zurückgegeben, beide liefern stattdessen `headerNames` und `hasSecret`. Der Dialog **Webhook** zeigt die Werte nur Rollen mit **Bearbeiten** bei **API & Webhooks** und der Rolle **Admin**; dort bleibt das Secret maskiert, bis Sie es über das Augensymbol einblenden. Eine Rolle mit **Lesen** **Alle**, aber ohne **Bearbeiten** sieht statt des Secrets und jedes Header-Werts `********`, die Header-Namen bleiben erhalten, sodass sie erkennt, ob ein Secret und welche Header gesetzt sind. Eine Aktualisierung über API oder MCP ohne `headers` behält die gespeicherten Werte, eine mit `null` löscht sie.
+REST-API und MCP geben Header-Werte und das Secret nie zurück; sie liefern `headerNames` und `hasSecret`. Der Dialog zeigt die Werte nur der Rolle **Admin** und Rollen mit **Bearbeiten** bei **API & Webhooks**, das Secret maskiert, bis Sie auf das Augensymbol klicken. Eine Aktualisierung über API oder MCP ohne `headers` behält die gespeicherten Werte, `null` löscht sie.
 
-**Eine Body-Vorlage** ersetzt den Standardumschlag für Endpunkte mit fester Struktur. Schreiben Sie ein JSON-Dokument und verweisen Sie über Platzhalter auf Werte des Umschlags:
+**Eine Body-Vorlage** ersetzt den Standardumschlag für Endpunkte mit fester Struktur. Schreiben Sie ein JSON-Dokument mit Platzhaltern:
 
 ```json
 { "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
-Verfügbar sind `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` sowie jeder Pfad unterhalb von `{{data}}`, etwa `{{data.record.ref.recordId}}` bei einem Datensatz-Event oder `{{data.entityId}}` bei einem Messaging-Event. Ein Platzhalter muss innerhalb eines JSON-Strings stehen; `{"count": {{data.count}}}` wird abgelehnt. Ein Platzhalter, der ein Objekt liefert, wird als JSON-String eingesetzt, ein fehlender Pfad wird zu einem leeren String. Eingesetzte Werte werden escaped, sodass Datensatzinhalte die Struktur des Dokuments nicht verändern können.
+Platzhalter sind `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` sowie jeder Pfad unterhalb von `{{data}}`, etwa `{{data.record.ref.recordId}}` bei einem Datensatzereignis oder `{{data.entityId}}` bei einem Messaging-Ereignis. Ein Platzhalter muss innerhalb eines JSON-Strings stehen; `{"count": {{data.count}}}` wird abgelehnt. Ein Objektwert wird als JSON-String eingesetzt, ein fehlender Pfad als leerer String. Eingesetzte Werte werden escaped, sodass Datensatzinhalte die Struktur des Dokuments nicht verändern können.
 
-Die Vorlage darf bis zu 8.192 Zeichen lang sein und muss ein JSON-Objekt ergeben. Sie wird beim Speichern geprüft. Eine Zustellung, deren Vorlage nicht gerendert werden kann oder deren gerenderter Body länger als 131.072 Zeichen ist, wird als fehlgeschlagen erfasst statt gesendet und nicht wiederholt. Die Signatur wird immer über den tatsächlich gesendeten Body berechnet, prüfen Sie sie also gegen den gerenderten Body und nicht gegen den Umschlag.
+Die Vorlage darf bis zu 8.192 Zeichen lang sein, muss ein JSON-Objekt ergeben und wird beim Speichern geprüft. Eine Zustellung, deren Vorlage nicht gerendert werden kann oder deren gerenderter Body 131.072 Zeichen überschreitet, wird als fehlgeschlagen erfasst, ohne gesendet zu werden, und nicht wiederholt. Die Signatur wird über den tatsächlich gesendeten Body berechnet, prüfen Sie sie also gegen den gerenderten Body.
 
-**Secret oder Vorlage entfernen.** Der Dialog kann ein gespeichertes **Secret** oder eine gespeicherte **Body-Vorlage** nicht entfernen: Das Speichern eines leeren Felds wird abgelehnt. Zum Entfernen aktualisieren Sie den Webhook über `manage_webhooks` oder die REST-API mit `secret: null` oder `bodyTemplate: null`, oder Sie löschen den Webhook und legen ihn neu an.
+**Secret oder Vorlage entfernen.** Ist **Secret** oder **Body-Vorlage** einmal gesetzt, lehnt der Dialog das Speichern mit leerem Feld ab. Aktualisieren Sie den Webhook über `manage_webhooks` oder die REST-API mit `secret: null` oder `bodyTemplate: null`, oder löschen Sie ihn und legen ihn neu an.
 
 Zustellungen werden mit dem Ereignis-Payload erfasst, nicht mit dem gerenderten Body. **Ereignis-Details** zeigt also das ausgelöste Ereignis und nicht die exakt gesendeten Bytes.
 
-**Link:** `/settings/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks`; in einem geöffneten Dialog **Webhook** heben `webhook-modal-headers` und `webhook-modal-body-template` **Eigene Header** und **Body-Vorlage** hervor, ohne **Bearbeiten** bei **API & Webhooks** schreibgeschützt.
-
 ## Wie sende ich an Slack, Discord oder n8n? [#how-do-i-send-to-slack-discord-or-n8n]
 
-Mit diesen Rezepten posten Sie eine Nachricht in einen Team-Chat-Kanal oder starten einen Workflow, sobald im CRM etwas passiert, zum Beispiel wenn ein neuer Deal erscheint. Jedes Rezept nennt die URL, die eigenen Header und die Body-Vorlage zum Einfügen in den Dialog **Webhook** unter **Einstellungen** → **Webhooks** → **Hinzufügen**. Setzen Sie in jedem Fall ein Signaturgeheimnis; ein Empfänger, der es nicht prüfen kann, ignoriert den Header einfach.
+Jedes Rezept nennt URL, eigene Header und Body-Vorlage, die Sie nach [Hinzufügen](app:settings/webhooks?focus=add) in Webhooks eintragen. Setzen Sie in jedem Fall ein Secret; ein Empfänger, der es nicht prüfen kann, ignoriert den Header.
 
 ### Claude-Code-Routinen [#claude-code-routines]
 
@@ -194,13 +179,11 @@ anthropic-version: 2023-06-01
 { "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
-Der Endpunkt liest ausschließlich `text` und ignoriert jedes andere Feld. Die Vorlage ist deshalb zwingend; ohne sie startet die Routine ohne Kontext. Jede Zustellung startet einen eigenen Lauf auf Ihr Routinen-Kontingent, ein Retry einen weiteren. Abonnieren Sie deshalb möglichst wenige Ereignisse.
+Der Endpunkt liest ausschließlich `text`, die Vorlage ist deshalb zwingend; ohne sie startet die Routine ohne Kontext. Jede Zustellung und jeder Retry startet einen eigenen Lauf auf Ihr Routinen-Kontingent. Abonnieren Sie deshalb nur die Ereignisse, die die Aufgabe braucht.
 
 ### Slack [#slack]
 
-Beitrag über einen Incoming Webhook in einen Kanal posten. Die URL trägt die Authentifizierung, eigene Header sind nicht nötig.
-
-Verwenden Sie die Incoming-Webhook-URL aus **Slack → Apps → Incoming Webhooks**.
+Posten Sie über einen Incoming Webhook aus **Slack → Apps → Incoming Webhooks** in einen Kanal. Die URL trägt die Authentifizierung, eigene Header sind nicht nötig.
 
 ```json
 { "text": "{{event}} for {{data.record.ref.recordId}}" }
@@ -208,9 +191,7 @@ Verwenden Sie die Incoming-Webhook-URL aus **Slack → Apps → Incoming Webhook
 
 ### Discord [#discord]
 
-Dieselbe Struktur unter einem anderen Schlüssel.
-
-Verwenden Sie die Webhook-URL aus **Kanal → Kanal bearbeiten → Integrationen → Webhooks**.
+Verwenden Sie die Webhook-URL aus **Kanal → Kanal bearbeiten → Integrationen → Webhooks**. Dieselbe Struktur, anderer Schlüssel:
 
 ```json
 { "content": "{{event}} for {{data.record.ref.recordId}}" }
@@ -228,7 +209,7 @@ Das vollständige Muster steht unter [n8n](/docs/n8n).
 
 ### Alles andere [#anything-else]
 
-Ein Empfänger, der weder eigene Authentifizierung noch eine feste Body-Struktur braucht, benötigt keine der beiden Einstellungen. Lassen Sie beide leer und prüfen Sie die Signatur wie unter [Wie prüfe ich die Signatur?](#how-do-i-verify-the-signature) beschrieben.
+Ein Empfänger, der weder eigene Authentifizierung noch eine feste Body-Struktur braucht, benötigt keine der beiden Einstellungen. Lassen Sie beide leer und [prüfen Sie die Signatur](#how-do-i-verify-the-signature).
 
 ## Wie prüfe ich die Signatur? [#how-do-i-verify-the-signature]
 
@@ -253,41 +234,38 @@ function verify(rawBody: string, received: string, secret: string) {
 
 ## Wie funktionieren Wiederholungen (Retries) und fehlgeschlagene Zustellungen? [#how-do-retries-and-failed-deliveries-work]
 
-Customermates wiederholt eine fehlgeschlagene Zustellung automatisch, mit bis zu 10 Versuchen insgesamt und wachsenden Pausen von höchstens einer Stunde dazwischen, bei Timeouts, Netzwerkfehlern, 5xx-Responses und 408, 425 und 429; andere 4xx-Responses, etwa 400, 401, 403, 404 und 422, werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Jede Zustellung wird unter **Mein Unternehmen › Letzte Zustellungen** (`/settings/webhooks/deliveries`) und über `manage_webhooks` mit `action: "list_deliveries"` protokolliert. Die Seite listet die neuesten Zustellungen zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Das Suchfeld durchsucht Ereignis und URL, die Filter decken Ereignis, URL und Erstellungsdatum ab. Zustellungen werden nicht automatisch gelöscht; sie bleiben erhalten, solange der Workspace besteht.
+Eine Zustellung schlägt fehl, wenn der HTTP-Status außerhalb von 2xx liegt, die Request nach 5 Sekunden timeoutet oder keine Antwort eintrifft. Customermates wiederholt Timeouts, Netzwerkfehler, 5xx-Responses sowie 408, 425 und 429 automatisch, mit bis zu 10 Versuchen insgesamt und wachsenden Pausen von höchstens einer Stunde. Andere 4xx-Responses, etwa 400, 401, 403, 404 und 422, werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Eine Zustellung schlägt außerdem schon vor dem Senden fehl, mit Status-Code 422, wenn Header an eine Adresse gehen würden, die sie nicht erlaubt, oder die Body-Vorlage nicht gerendert werden kann.
 
-Ein Klick auf eine Zeile öffnet **Ereignis-Details**. Der Dialog zeigt den Status (**Ausstehend**, bis der erste Versuch abgeschlossen ist, danach **Zugestellt** oder **Fehlgeschlagen**), **URL**, **Ereignis**, **Element**, **Erstellt am**, **Status-Code**, **Antwort-Nachricht** und den **Ereignis-Payload**. Jede Zustellung wird aus ihrem Event gelesen: Der Payload eines Messaging-Ereignisses wird so angezeigt, wie er gesendet wurde, der Payload eines Datensatz-Ereignisses wird mit Ihren aktuellen Rechten neu gelesen: Werte, die Sie nicht lesen dürfen, erscheinen als eingeschränkt, und ohne Zugriff auf den Datensatz bleibt der Payload leer.
+Jede Zustellung wird im Reiter [Zustellungen](app:settings/webhooks/deliveries) von Webhooks protokolliert, die neueste zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Die [Suche](app:settings/webhooks/deliveries?focus=search) durchsucht Ereignis und URL, die [Filter](app:settings/webhooks/deliveries?focus=filter) decken Ereignis, URL und Erstellungsdatum ab. Über MCP nutzen Sie `manage_webhooks` mit `action: "list_deliveries"`. Zustellungen bleiben erhalten, solange der Workspace besteht.
 
-Eine Zustellung gilt als fehlgeschlagen, wenn der HTTP-Status außerhalb des 2xx-Bereichs liegt, die Request timeoutet oder keine Antwort eintrifft. Der Request-Timeout beträgt 5 Sekunden. Eine Zustellung schlägt außerdem schon vor dem Senden fehl, mit Status-Code 422, wenn Header an eine Adresse gehen würden, die sie nicht erlaubt, oder wenn die Body-Vorlage nicht gerendert werden kann.
+Wiederholungen laufen innerhalb derselben Zustellung und erzeugen keine weiteren Einträge: Jeder Eintrag zeigt das letzte Ergebnis, kann also **Fehlgeschlagen** zeigen, während noch Wiederholungen ausstehen, und zu **Zugestellt** wechseln, sobald eine gelingt.
 
-Die Wiederholungen laufen innerhalb desselben Zustellvorgangs, erzeugen also keine zusätzlichen Zustellungseinträge; jeder Eintrag zeigt das jeweils letzte Ergebnis, kann also **Fehlgeschlagen** anzeigen, während noch Wiederholungen ausstehen, und zu **Zugestellt** wechseln, sobald eine gelingt.
+Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, **Wird gesendet**, **Zugestellt** oder **Fehlgeschlagen**), **URL**, **Ereignis**, **Element**, **Erstellt am**, **Status-Code**, **Antwort-Nachricht** und **Ereignis-Payload**. Der Payload eines Messaging-Ereignisses erscheint so, wie er gesendet wurde. Der Payload eines Datensatzereignisses wird mit Ihren aktuellen Rechten neu gelesen: Werte, die Sie nicht lesen dürfen, erscheinen als eingeschränkt, und ohne Zugriff auf den Datensatz bleibt der Payload leer.
 
-Sie können eine Zustellung zusätzlich selbst erneut senden. In **Ereignis-Details** erscheint oben das Symbol mit den kreisförmigen Pfeilen (**Erneut senden**), sobald die Zustellung **Zugestellt** oder **Fehlgeschlagen** ist, für Rollen mit **Erstellen** bei **API & Webhooks**. Über MCP nutzen Sie `manage_webhooks` mit `action: "resend_delivery"` und der Id der Zustellung. Ein erneutes Senden erzeugt einen neuen Zustellungseintrag für denselben Webhook und sendet ihn mit der aktuellen URL, dem aktuellen Secret, den aktuellen Headern und der aktuellen Vorlage des Webhooks; das Original bleibt unverändert. Ein Messaging-Ereignis wird aus seinem gespeicherten Event erneut gesendet. Ein Datensatz-Ereignis wird mit den aktuellen Rechten des Webhook-Eigentümers neu gelesen; nur dieser Eigentümer oder ein Administrator kann es erneut senden, und das erneute Senden wird abgelehnt, wenn sich die Datensatzquellen des Webhooks seit der ursprünglichen Zustellung geändert haben. Der Webhook muss noch existieren, aktiviert sein und das Ereignis abonnieren; Zustellungen stillgelegter typspezifischer Ereignisse lassen sich nicht erneut senden.
-
-**Link:** `/settings/webhooks/deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks` (hervorhebbar nur, solange **Mein Unternehmen** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat); `settings-webhooks-deliveries-search` und `settings-webhooks-deliveries-filter` heben das Suchfeld und die Filter hervor. `settings-webhooks-deliveries-display-options` hebt die Anzeigeoptionen hervor, `settings-webhooks-deliveries-layout-table` und `settings-webhooks-deliveries-layout-board` die Layout-Controls darin (zuerst die Anzeigeoptionen öffnen). Ist eine Zustellungszeile geöffnet, hebt `webhook-delivery-modal-resend` das Symbol **Erneut senden** in **Ereignis-Details** hervor (Rollen mit **Erstellen**, nur bei zugestellten und fehlgeschlagenen Zustellungen); die Zeilen und der Rest des Dialogs sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Zum erneuten Senden klicken Sie oben in **Ereignis-Details** auf **Erneut senden**. Die Aktion erscheint, sobald die Zustellung **Zugestellt** oder **Fehlgeschlagen** ist, für Rollen mit **Erstellen** bei **API & Webhooks**; über MCP nutzen Sie `manage_webhooks` mit `action: "resend_delivery"` und der Id der Zustellung. Ein erneutes Senden erzeugt einen neuen Zustellungseintrag mit der aktuellen URL, dem aktuellen Secret, den aktuellen Headern und der aktuellen Vorlage des Webhooks; das Original bleibt unverändert. Ein Messaging-Ereignis wird aus seinem gespeicherten Event erneut gesendet. Ein Datensatzereignis wird mit den aktuellen Rechten des Webhook-Eigentümers neu gelesen, nur dieser Eigentümer oder ein Administrator kann es erneut senden, und das erneute Senden wird abgelehnt, wenn sich die Datensatzquellen des Webhooks seit der ursprünglichen Zustellung geändert haben. Der Webhook muss noch existieren, aktiviert sein und das Ereignis abonnieren; Zustellungen stillgelegter typspezifischer Ereignisse lassen sich nicht erneut senden.
 
 ## Sind Zustellungen geordnet, und kommen Webhooks in der richtigen Reihenfolge an? [#are-deliveries-ordered]
 
-Zustellungen sind über Ereignisse hinweg nicht strikt geordnet. Zwei `record.updated`-Events im Millisekundenabstand können in falscher Reihenfolge ankommen. Nutzen Sie `timestamp` und Datensatzversion zur Reihenfolge oder behandeln Sie Zustellungen als idempotente Nachrichten mit `typeId`, `recordId` und Event-ID als Schlüssel.
+Nein. Zwei `record.updated`-Ereignisse im Millisekundenabstand können in falscher Reihenfolge ankommen. Nutzen Sie `timestamp` und Datensatzversion zur Reihenfolge oder behandeln Sie Zustellungen als idempotente Nachrichten mit `typeId`, `recordId` und Ereignis-ID als Schlüssel.
 
 ## Warum sind Notizen in Payloads Tiptap-JSON? [#notes-are-json-not-markdown]
 
-Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Um es auf Ihrer Seite als Markdown zu rendern, nutzen Sie einen Tiptap-kompatiblen Serializer. In MCP liefert `read_crm_record` den konfigurierten Rich-Text-Wert mit `documentJson`; bei Bedarf konvertiert ein passender Serializer das Dokument in Markdown.
+Das `notes`-Feld in Payloads ist Tiptap-JSON, die Struktur, die der Editor speichert. Ein Tiptap-kompatibler Serializer macht daraus Markdown. In MCP liefert `read_crm_record` den Rich-Text-Wert mit `documentJson`, der sich genauso umwandeln lässt.
 
 ## Was enthalten Delete-Payloads? [#what-do-delete-payloads-contain]
 
-Bei `record.deleted` enthält `data.record` die eindeutige `ref`, die zulässigen Vorher-Werte und die entfernten Beziehungen. `afterVersion` ist null. Quellfilter gelten unmittelbar vor der Entfernung; der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft.
+Bei `record.deleted` enthält `data.record` die eindeutige `ref`, die zulässigen Vorher-Werte und die entfernten Beziehungen; `afterVersion` ist null. Quellfilter gelten unmittelbar vor der Entfernung, der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft.
 
 ## Wie untersuche ich eine fehlgeschlagene Zustellung? [#how-do-i-debug-a-delivery]
 
-- Nutzen Sie [webhook.site](https://webhook.site) als Einweg-Receiver beim Integrationstest.
-- Das Zustellprotokoll (`manage_webhooks`, `action: "list_deliveries"`) unterstützt `searchTerm` auf URL und Event-Name.
-- Für jede Zustellung erfasst Customermates nur den HTTP-Status-Code und den Statustext, den Ihr Receiver zurückgegeben hat (zum Beispiel `404` und `Not Found`), angezeigt als **Status-Code** und **Antwort-Nachricht** in **Ereignis-Details**. Der Response-Body wird nicht gespeichert, protokollieren Sie ihn also auf der Empfängerseite. Trifft keine Antwort ein, zeigt **Status-Code** einen Strich (in der Liste bleibt die Spalte leer) und **Antwort-Nachricht** nennt die Ursache, etwa den Timeout.
-
-**Link:** `/settings/webhooks/deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks`; die Zeilen und die Felder in **Ereignis-Details** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+- Suchen Sie die Zustellung unter [Zustellungen](app:settings/webhooks/deliveries) und öffnen Sie sie, um die **Ereignis-Details** zu sehen.
+- Nutzen Sie [webhook.site](https://webhook.site) beim Testen als Einweg-Empfänger.
+- `manage_webhooks` mit `action: "list_deliveries"` unterstützt `searchTerm` auf URL und Ereignisname.
+- Customermates speichert nur den HTTP-Status-Code und den Statustext, den Ihr Empfänger zurückgegeben hat (zum Beispiel `404` und `Not Found`), angezeigt als **Status-Code** und **Antwort-Nachricht** in **Ereignis-Details**. Der Response-Body wird nicht gespeichert, protokollieren Sie ihn also auf der Empfängerseite. Ohne Antwort zeigt **Status-Code** einen Strich (in der Liste bleibt die Spalte leer) und **Antwort-Nachricht** nennt die Ursache, etwa den Timeout.
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 
-Ein Webhook kann [[derived.webhooks.events.total]] Events abonnieren: [[derived.webhooks.events.records]] Datensatz-Events und [[derived.webhooks.events.messaging]] Messaging-Events. Fünfzehn stillgelegte typspezifische Bezeichner können noch an älteren Webhooks und im Zustellungsverlauf stehen, lassen sich aber nicht mehr auswählen und werden von nichts mehr ausgelöst. Für einen neuen CRM-Webhook wählen Sie `record.created`, `record.updated` oder `record.deleted` und legen Datensatzquellen mit Typen, Feldern und Filtern fest. Das funktioniert auch für selbst angelegte Typen. Alle nutzen den Umschlag aus [Wie sieht der Payload aus?](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus; siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
+Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Messaging-Ereignisse. Für einen CRM-Webhook wählen Sie **Datensatz erstellt**, **Datensatz aktualisiert** oder **Datensatz gelöscht** (`record.created`, `record.updated`, `record.deleted`) und legen die [Datensatzquelle](#record-event-sources) fest; das gilt auch für Listen, die Sie selbst angelegt haben. Alle nutzen den [Standardumschlag](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus. Siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record-Events [#record-events]
 
@@ -297,7 +275,7 @@ Ein Webhook kann [[derived.webhooks.events.total]] Events abonnieren: [[derived.
 | `record.updated` | Feld, Zuweisung, Identität oder Verknüpfung eines konfigurierten Quelltyps ändert sich | die Datensatzänderung mit vorherigen und neuen Werten |
 | `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird gelöscht | die Datensatzänderung mit den vorherigen Werten |
 
-Die folgenden typspezifischen Bezeichner sind stillgelegt. Sie bleiben nur erhalten, damit ältere Konfigurationen und Zustellungseinträge lesbar bleiben; für Webhooks und Routinen lassen sie sich nicht auswählen, und keine Änderung löst sie aus. Ersetzen Sie sie durch ein generisches Event mit Datensatzquelle.
+Fünfzehn typspezifische Bezeichner sind stillgelegt. Sie bleiben nur erhalten, damit ältere Webhooks und Zustellungseinträge lesbar bleiben: Für Webhooks und Routinen lassen sie sich nicht auswählen, und nichts löst sie aus. Ersetzen Sie sie durch ein generisches Ereignis mit Datensatzquelle.
 
 | Altes Event | Frühere Bedeutung | Alter `payload` |
 | --- | --- | --- |
@@ -319,7 +297,7 @@ Die folgenden typspezifischen Bezeichner sind stillgelegt. Sie bleiben nur erhal
 
 ### Messaging-Events [#messaging-events]
 
-Messaging-Events feuern bei eingehender Provider-Aktivität auf verbundenen Accounts. Die Liste **Ereignisse** bietet sie in jedem Workspace an, sie feuern aber nur, wo verbundene Accounts existieren, und das setzt die Cloud und einen Tarif mit Messaging voraus. `actorId` ist `null`. `data` referenziert Provider-Records per id (`entityId` für die betroffene Nachricht, den Thread, Kalender, Kalendertermin oder die Verbindung, dazu `connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Records einzubetten. Ein Messaging-Event wird nur gespeichert, solange ein Webhook oder eine Event-Routine es abonniert.
+Messaging-Ereignisse feuern bei eingehender Provider-Aktivität auf verbundenen Konten. **Ereignisse** bietet sie in jedem Workspace an, sie feuern aber nur, wo [Kanäle](app:settings/channels) verbunden sind, und das setzt die Cloud und einen Tarif mit Messaging voraus. `actorId` ist `null`. `data` referenziert Provider-Records per id (`entityId` für die betroffene Nachricht, den Thread, Kalender, Kalendertermin oder die Verbindung, dazu `connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Datensätze einzubetten. Ein Messaging-Ereignis wird nur gespeichert, solange ein Webhook oder eine Event-Routine es abonniert.
 
 | Event | Wann es feuert |
 | --- | --- |
