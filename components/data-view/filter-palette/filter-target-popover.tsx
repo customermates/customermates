@@ -3,6 +3,7 @@
 import type { FilterTarget } from "./filter-target";
 import type { ComponentProps, ReactNode } from "react";
 
+import { useRef } from "react";
 import { Filter } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -33,6 +34,7 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
 }: Props) {
   const t = useTranslations();
   const palette = useFilterPalette(store);
+  const contentRef = useRef<HTMLDivElement>(null);
   const filterFieldLabel = useFilterFieldLabel();
 
   if (store.filterableFields.length === 0 && !store.filters?.length && !store.groups?.length) return null;
@@ -45,15 +47,25 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
       ? filterFieldLabel(page.field, palette.activeTarget?.filterColumns)
       : (palette.activeGroup?.label ?? t("Common.filters.palette.title"));
 
+  function commitFocusedInput() {
+    contentRef.current?.querySelector<HTMLElement>(":focus")?.blur();
+  }
+
+  function handleClose() {
+    commitFocusedInput();
+    palette.close();
+  }
+
   function handleOpenChange(open: boolean) {
     if (open) palette.openFor(store);
-    else palette.close();
+    else handleClose();
   }
 
   function handleEscapeKeyDown(event: KeyboardEvent) {
     if (palette.pages.length === 1) return;
 
     event.preventDefault();
+    commitFocusedInput();
     palette.pop();
   }
 
@@ -115,7 +127,7 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
     <ResponsiveOverlay
       align="end"
       footer={footer}
-      headerAction={headerAction?.(palette.close)}
+      headerAction={headerAction?.(handleClose)}
       open={isOpen}
       popoverClassName="w-[min(22rem,var(--radix-popover-content-available-width))]"
       title={title}
@@ -124,7 +136,9 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
       onEscapeKeyDown={handleEscapeKeyDown}
       onOpenChange={handleOpenChange}
     >
-      <FilterPalette palette={palette} store={store} />
+      <div ref={contentRef}>
+        <FilterPalette palette={palette} store={store} />
+      </div>
     </ResponsiveOverlay>
   );
 

@@ -53,7 +53,9 @@ describe("generic dashboard widget UI", () => {
       expect(host).toContain("<FilterTargetPopover");
       expect(host).toContain("store.onChange");
       expect(host).toContain("store.isDisabled");
-      expect(host).not.toMatch(/upsert|Action\(/);
+      // MobX runInAction only updates local metadata; hosts must not import server actions.
+      expect(host).not.toMatch(/from ["'][^"']*\/actions["']/);
+      expect(host).not.toMatch(/\bupsert\w*\s*\(/);
     }
     expect(component("record-widget-filters.tsx")).not.toMatch(/RecordWidgetFieldFilters|RecordWidgetRelatedFilters/);
     expect(activity).not.toContain("activity-add-filter");

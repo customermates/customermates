@@ -76,6 +76,9 @@ function paletteStore(page: { kind: string; field?: string }, target: unknown) {
     target,
     activeTarget: target,
     appliedFilters: (target as { filters: Filter[] }).filters,
+    isAtFilterLimit:
+      (target as { filters: Filter[] }).filters.length >=
+      ((target as { maxFilters?: number }).maxFilters ?? MAX_APPLIED_FILTERS),
     pages: [page],
   };
 }

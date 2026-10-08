@@ -6,7 +6,7 @@ import type { DashboardWidgets } from "@/features/widget/get-widgets.interactor"
 import type { ComponentType, ReactNode } from "react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout/legacy";
 
-import { BarChart3, Plus } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
@@ -20,7 +20,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { connectDataViewUrlSync } from "@/components/data-view/data-view-url-sync";
 import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
-import { Icon } from "@/components/shared/icon";
+import { TopBarAddButton } from "@/components/shared/top-bar-action-buttons";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -129,17 +129,11 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
     () =>
       pageState !== "loading" && pageState !== "error" && canAddWidget ? (
         <div className="flex items-center gap-1">
-          <Button
-            aria-label={t("Dashboard.addCard")}
-            id="dashboard-add-widget"
-            size="sm"
-            variant="default"
+          <TopBarAddButton
+            anchorId="dashboard-add-widget"
+            label={t("Dashboard.addCard")}
             onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
-          >
-            <Icon icon={Plus} />
-
-            <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
-          </Button>
+          />
         </div>
       ) : null,
     [canAddWidget, pageState, t, widgetModalStore],

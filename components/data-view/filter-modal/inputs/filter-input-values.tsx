@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import { FormInputChips } from "@/components/forms/form-input-chips";
 import { AppChip } from "@/components/chip/app-chip";
@@ -49,9 +50,16 @@ export const FilterInputValues = observer(function FilterInputValues({
         onValueChange={(next) => {
           if (next.length > 100 || next.some((item) => !validScalarFilterValue(item, column))) {
             setRejected(next);
+            toast.error(
+              next.length > 100
+                ? t("Common.filters.selectionLimit", { count: 100 })
+                : t("Common.errors.invalidFilterValue"),
+              { id: labelId },
+            );
             return;
           }
           setRejected(undefined);
+          toast.dismiss(labelId);
           store?.onChange(id, next);
         }}
       />

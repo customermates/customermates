@@ -13,7 +13,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 
-const harness = vi.hoisted(() => ({ palette: { current: null as unknown } }));
+const harness = vi.hoisted(() => ({
+  palette: { current: null as unknown },
+  toast: { error: vi.fn(), dismiss: vi.fn() },
+}));
+
+vi.mock("sonner", () => ({ toast: harness.toast }));
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
@@ -440,7 +445,11 @@ describe("scalar array value editing", () => {
     ({ type, first, second, bad }) => {
       const initial: Filter = { field: FIRST_STAGE_COLUMN, operator: FilterOperatorKey.notIn, value: [first] };
       const table = tableStore([initial]);
-      table.filterColumns = [{ ...CUSTOM_COLUMNS[1], type }];
+      table.filterColumns = [
+        type === CustomColumnType.currency
+          ? { id: FIRST_STAGE_COLUMN, label: "Value", type: CustomColumnType.currency, options: { currency: "EUR" } }
+          : { id: FIRST_STAGE_COLUMN, label: "Value", type: CustomColumnType.date },
+      ];
       const palette = openPalette(table);
       const container = mountPalette(table);
       act(() => palette.editFilterAt(0));
@@ -456,12 +465,16 @@ describe("scalar array value editing", () => {
       enter(bad);
       expect(container.querySelector('[role="alert"]')?.textContent).toBe("Common.errors.invalidFilterValue");
       expect(container.textContent).toContain(bad);
+      expect(harness.toast.error).toHaveBeenLastCalledWith("Common.errors.invalidFilterValue", {
+        id: expect.any(String),
+      });
       act(() => palette.flushPendingChanges());
       expect(table.filters).toEqual([initial]);
       expect(palette.page.kind).toBe("value");
       const removals = container.querySelectorAll('[aria-label="Common.actions.remove"]');
       click(recordInvariant(removals.item(removals.length - 1)));
       expect(container.querySelector('[role="alert"]')).toBeNull();
+      expect(harness.toast.dismiss).toHaveBeenCalledWith(expect.any(String));
       enter(second);
       act(() => palette.flushPendingChanges());
       expect(table.filters).toEqual([{ ...initial, value: [first, second] }]);
