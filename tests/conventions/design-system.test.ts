@@ -40,9 +40,6 @@ const TABS_OWNERS = new Set(["components/ui/tabs.tsx"]);
 const TABS_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx": "I1 r4: relationship drawer sections",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": "I1 r4: list page sidebar list",
-  "app/[locale]/(protected)/company/components/role/role-modal.tsx": "I19: role drawer as one form with sections",
-  "app/[locale]/(protected)/company/components/company-invite/company-invite-modal.tsx": "I19: invite dialog",
-  "app/[locale]/(protected)/profile/components/connected-account-modal.tsx": "I19: channel account drawer",
 };
 
 describe("rule 57: sections and segments instead of tab bars", () => {

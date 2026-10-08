@@ -49,12 +49,11 @@ export const StepInvite = observer(() => {
   return (
     <SegmentedControl
       className="w-full"
-      idPrefix="onboarding-invite"
       items={[
         { value: "link", label: t("OnboardingWizard.invite.tabs.link"), disabled: onboardingWizardStore.isSaving },
         { value: "email", label: t("OnboardingWizard.invite.tabs.email"), disabled: onboardingWizardStore.isSaving },
       ]}
-      label={t("OnboardingWizard.invite.tabs.label")}
+      label={t("CompanyInviteModal.title")}
       value={onboardingWizardStore.inviteTab}
       onValueChange={onboardingWizardStore.setInviteTab}
     >
