@@ -217,7 +217,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
                               disabled={!editable || deletion.isPreviewing}
                               size="icon"
                               type="button"
-                              variant="destructiveGhost"
+                              variant="ghostDestructive"
                               onClick={() => remove(record, name)}
                             >
                               <Trash2 className="size-4" />

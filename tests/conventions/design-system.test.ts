@@ -38,7 +38,6 @@ function importFindings(sources: SourceFile[], modulePattern: RegExp) {
 const TABS_OWNERS = new Set(["components/ui/tabs.tsx"]);
 
 const TABS_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/configure/components/field-modal.tsx": "I1 r4: field drawer as one form with sections",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx": "I1 r4: relationship drawer sections",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": "I1 r4: list page sidebar list",
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx": "I3 r3: Data / Appearance segments",
@@ -174,7 +173,6 @@ function destructiveActionFindings(sources: SourceFile[]) {
 }
 
 const DESTRUCTIVE_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/configure/components/field-modal.tsx": "I1 r4: option and input trash buttons",
   "app/[locale]/(protected)/inbox/components/message-item.tsx": "I25 phase 2: email draft discard is neutral grey",
 };
 

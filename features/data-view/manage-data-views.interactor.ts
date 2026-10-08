@@ -452,7 +452,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
         filterableFields: recordFilterableFields(fields),
         filterValues: new Map(
           fields
-            .filter((field) => field.valueType === "select")
+            .filter((field) => field.valueType === "select" && !field.multiple)
             .map((field) => [field.id, field.options.map((option) => option.id)]),
         ),
         sortableFields: columns
@@ -460,7 +460,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           .map((column) => ({ field: column.id, resolvedFields: [column.id], label: column.label })),
         groupableFields: [] as GroupableFieldSpec[],
         groupableDtos: fields
-          .filter((field) => field.valueType === "select")
+          .filter((field) => field.valueType === "select" && !field.multiple)
           .map((field) => ({
             id: field.id,
             grouping: { field: field.id },
@@ -482,7 +482,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
                   : "dateTime",
         })),
         supportsSearch: true,
-        viewModes: fields.some((field) => field.valueType === "select")
+        viewModes: fields.some((field) => field.valueType === "select" && !field.multiple)
           ? [ViewMode.table, ViewMode.card]
           : [ViewMode.table],
       };

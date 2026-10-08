@@ -8,6 +8,7 @@ import type { CalculatedValue, RecordFieldView, RecordMember } from "@/features/
 
 import { AppChip } from "@/components/chip/app-chip";
 import { MemberChip } from "@/components/chip/member-chip";
+import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { toChipColor } from "@/constants/chip-colors";
 
 export function formatRecordDecimal(
@@ -51,6 +52,20 @@ export const RecordValue = observer(function RecordValue({
     const option = field.options.find((option) => option.id === value.value);
     return (
       <AppChip variant={toChipColor(option?.color)}>{option?.label ?? t("RecordModel.unavailableOption")}</AppChip>
+    );
+  }
+  if (value.kind === "selectList") {
+    return (
+      <AppChipStack
+        items={value.value.map((id) => {
+          const option = field.options.find((option) => option.id === id);
+          return {
+            id,
+            label: option?.label ?? t("RecordModel.unavailableOption"),
+            variant: toChipColor(option?.color),
+          };
+        })}
+      />
     );
   }
   if (value.kind === "boolean") return <span>{value.value ? t("RecordModel.yes") : t("RecordModel.no")}</span>;

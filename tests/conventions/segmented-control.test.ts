@@ -24,7 +24,6 @@ const NOT_YET_MIGRATED: Record<string, Rule[]> = {
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx": ["editor-tabs"],
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["editor-tabs"],
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx": ["editor-tabs"],
-  "app/[locale]/(protected)/configure/components/field-modal.tsx": ["editor-tabs"],
   "app/[locale]/(protected)/company/components/role/role-modal.tsx": ["editor-tabs"],
 };
 
