@@ -90,7 +90,7 @@ export function PageState(props: PageStateProps) {
       >
         <div
           data-page-state-content
-          className="animate-page-empty-in pointer-events-none relative isolate flex w-full max-w-sm flex-col items-center gap-3 text-center before:pointer-events-none before:absolute before:-inset-12 before:-z-10 before:rounded-full before:bg-background/85 before:blur-xl motion-reduce:animate-none"
+          className="animate-page-empty-in pointer-events-none relative isolate flex w-full max-w-sm flex-col items-center gap-3 text-center before:pointer-events-none before:absolute before:-inset-12 before:-z-10 before:rounded-full before:bg-radial before:from-background/85 before:from-40% before:to-transparent motion-reduce:animate-none"
         >
           {EmptyIcon && <EmptyIcon data-page-state-icon aria-hidden="true" className="size-6 text-muted-foreground" />}
 

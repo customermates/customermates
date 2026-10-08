@@ -322,11 +322,11 @@ describe("Inbox page-state owners", () => {
 
   it("offers Refresh only to a role with Manage on Inbox messages", () => {
     renderInboxList("ready", { withItem: true });
-    expect(renderToStaticMarkup(latestTopBar() as ReactElement)).toContain("Inbox.refresh");
+    expect(renderToStaticMarkup(latestTopBar() as ReactElement)).toContain("Common.actions.refresh");
 
     renderInboxList("ready", { canConnect: false, canUpdate: false, withItem: true });
     const readOnlyTopBar = renderToStaticMarkup(latestTopBar() as ReactElement);
-    expect(readOnlyTopBar).not.toContain("Inbox.refresh");
+    expect(readOnlyTopBar).not.toContain("Common.actions.refresh");
     expect(readOnlyTopBar).toContain("data-data-view-toolbar");
   });
 

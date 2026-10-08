@@ -8,7 +8,7 @@ import { LoaderCircle, Plus } from "lucide-react";
 import { orderAppModalActions, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { IntlLink } from "@/i18n/navigation";
 
@@ -68,19 +68,21 @@ function TopBarActionButton({ action }: { action: AppModalActionProps }) {
     </Button>
   );
   return (
-    <Tooltip key={disabled ? "disabled" : "enabled"}>
-      <TooltipTrigger asChild>
-        {disabled ? (
-          <span aria-disabled="true" aria-label={label} className="inline-flex" role="button" tabIndex={0}>
-            {control}
-          </span>
-        ) : (
-          control
-        )}
-      </TooltipTrigger>
+    <TooltipProvider>
+      <Tooltip key={disabled ? "disabled" : "enabled"}>
+        <TooltipTrigger asChild>
+          {disabled ? (
+            <span aria-disabled="true" aria-label={label} className="inline-flex" role="button" tabIndex={0}>
+              {control}
+            </span>
+          ) : (
+            control
+          )}
+        </TooltipTrigger>
 
-      <TooltipContent>{tooltip ?? label}</TooltipContent>
-    </Tooltip>
+        <TooltipContent>{tooltip ?? label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -162,32 +164,34 @@ export function TopBarMenuButton({
   const ActiveIcon = busy ? LoaderCircle : Icon;
 
   return (
-    <DropdownMenu>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button
-              aria-label={label}
-              className="h-8"
-              data-slot="top-bar-action"
-              disabled={busy}
-              id={anchorId}
-              size="icon-sm"
-              type="button"
-              variant="secondary"
-              {...props}
-            >
-              <ActiveIcon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
+    <TooltipProvider>
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                aria-label={label}
+                className="h-8"
+                data-slot="top-bar-action"
+                disabled={busy}
+                id={anchorId}
+                size="icon-sm"
+                type="button"
+                variant="secondary"
+                {...props}
+              >
+                <ActiveIcon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
 
-        <TooltipContent>{label}</TooltipContent>
-      </Tooltip>
+          <TooltipContent>{label}</TooltipContent>
+        </Tooltip>
 
-      <DropdownMenuContent align="end" aria-labelledby={anchorId}>
-        {children}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <DropdownMenuContent align="end" aria-labelledby={anchorId}>
+          {children}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </TooltipProvider>
   );
 }

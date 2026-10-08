@@ -95,7 +95,7 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
                 {
                   id: "refresh",
                   icon: RefreshCw,
-                  label: t("Inbox.refresh"),
+                  label: t("Common.actions.refresh"),
                   busy: isRefreshing,
                   onClick: () => messagingThreadsStore.refreshInbox(),
                 },

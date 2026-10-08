@@ -184,7 +184,7 @@ const OnboardingWizardContent = observer(
               variant="secondary"
               onClick={() => runUserAction(back)}
             >
-              {t("OnboardingWizard.back")}
+              {t("Common.actions.back")}
             </Button>
 
             <Button

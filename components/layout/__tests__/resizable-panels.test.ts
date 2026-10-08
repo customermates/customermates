@@ -149,8 +149,15 @@ function prepareHandle(container: HTMLElement, index = 0) {
   return { handle, releasePointerCapture, setPointerCapture };
 }
 
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  vi.stubGlobal("ResizeObserver", ResizeObserverMock);
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function getPanelRect(this: HTMLElement) {
     if (this.id === "left-panel") return rect(300);
     if (this.id === "middle-panel") return rect(400);
@@ -166,6 +173,7 @@ afterEach(() => {
   });
   for (const container of containers.splice(0)) container.remove();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("ResizablePanelGroup", () => {
