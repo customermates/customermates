@@ -77,7 +77,7 @@ function repo(
   },
 ) {
   return {
-    syncStaleSections: vi.fn(() => Promise.resolve(0)),
+    syncStaleSections: vi.fn(() => Promise.resolve({ synced: 0, remaining: false })),
     semanticSections: vi.fn(() =>
       Promise.resolve(
         semantic

@@ -10,6 +10,7 @@ import { currentWikiSummary, wikiSummaryNeeded } from "@/features/wiki/wiki-summ
 import { embeddingVectorLiteral, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_VERSION } from "./wiki-embedding-model";
 
 export const WIKI_SEMANTIC_INDEX_BATCH_PAGES = 8;
+export const WIKI_SECTION_SYNC_BATCH_PAGES = 200;
 
 export type WikiIndexPage = WikiSummaryState & { id: string };
 
@@ -20,6 +21,10 @@ export class WikiSemanticIndexService extends UserAccessor {
     private summaries: Pick<WikiSummaryService, "summarize">,
   ) {
     super();
+  }
+
+  async syncStaleSections(): Promise<{ synced: number; remaining: boolean }> {
+    return this.repo.syncStaleSections(WIKI_SECTION_SYNC_BATCH_PAGES);
   }
 
   async indexStalePages(): Promise<{ indexed: number; remaining: boolean }> {

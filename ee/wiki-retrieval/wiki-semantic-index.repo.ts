@@ -1,8 +1,10 @@
 import type { WikiSectionRow } from "@/features/wiki/wiki-sections";
+import type { WikiSectionSync } from "@/features/wiki/search-wiki-pages.repo";
 import type { WikiIndexPage } from "./wiki-semantic-index.service";
 
 export abstract class WikiSemanticIndexRepo {
   abstract semanticIndexAvailable(): Promise<boolean>;
+  abstract syncStaleSections(limit?: number): Promise<WikiSectionSync>;
   abstract claimStaleIndexPages(version: string, limit: number): Promise<WikiIndexPage[]>;
   abstract sectionEmbeddingsByHash(pageId: string, version: string): Promise<Map<string, string>>;
   abstract storeSummary(args: {

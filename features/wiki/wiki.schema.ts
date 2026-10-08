@@ -189,6 +189,7 @@ export const WikiPageSearchResultSchema = z.object({
   didYouMean: z.array(z.string()).optional(),
   retrieval: z.enum(["semantic", "keyword"]).optional(),
   abstained: z.boolean().optional(),
+  incomplete: z.boolean().optional(),
 });
 export type WikiPageSearchResult = Data<typeof WikiPageSearchResultSchema>;
 

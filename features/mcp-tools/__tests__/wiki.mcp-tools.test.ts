@@ -682,6 +682,30 @@ describe("manage_wiki_pages sections, abstention and gaps", () => {
     expect(result.hint).toContain("No Knowledge Base section adequately answers this query");
   });
 
+  it("says coverage is still being rebuilt instead of abstaining while sections are unsynced", async () => {
+    calls.search.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [],
+        total: 0,
+        totalIsExact: false,
+        hasMore: false,
+        page: 1,
+        pageSize: 5,
+        incomplete: true,
+      },
+    });
+    const result = decode(mcpToolResultText(await run({ action: "search", query: "parking garage" }))) as {
+      incomplete: boolean;
+      noAdequateSection?: boolean;
+      hint: string;
+    };
+    expect(result.incomplete).toBe(true);
+    expect(result.noAdequateSection).toBeUndefined();
+    expect(result.hint).toContain("still being rebuilt");
+    expect(result.hint).not.toContain("No Knowledge Base section adequately answers this query");
+  });
+
   it("lists the anonymised knowledge gaps for editors", async () => {
     calls.gaps.mockResolvedValue({
       ok: true,

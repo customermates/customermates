@@ -39,6 +39,9 @@ const WIKI_MCP_ANCHOR_HINTS = 30;
 export const WIKI_NO_ADEQUATE_SECTION =
   "No Knowledge Base section adequately answers this query. Do not guess: say the Knowledge Base does not cover it, or ask for details.";
 
+export const WIKI_INDEX_REBUILDING =
+  "The Knowledge Base search index is still being rebuilt, so some pages were not searched yet. Do not conclude the Knowledge Base lacks this: list pages or search again shortly.";
+
 const MarkdownInputSchema = z
   .string()
   .refine(
@@ -153,6 +156,7 @@ export const ManageWikiPagesOutputSchema = z.looseObject({
   didYouMean: z.array(z.string()).optional(),
   retrieval: z.enum(["semantic", "keyword"]).optional(),
   noAdequateSection: z.boolean().optional(),
+  incomplete: z.boolean().optional(),
   hint: z.string().optional(),
   section: z.string().optional(),
   gaps: z
@@ -314,6 +318,7 @@ function wikiSearchResult(result: WikiPageSearchResult) {
     ...(result.didYouMean ? { didYouMean: result.didYouMean } : {}),
     ...(result.retrieval ? { retrieval: result.retrieval } : {}),
     ...(result.abstained ? { noAdequateSection: true, hint: WIKI_NO_ADEQUATE_SECTION } : {}),
+    ...(result.incomplete ? { incomplete: true, hint: WIKI_INDEX_REBUILDING } : {}),
   });
 }
 

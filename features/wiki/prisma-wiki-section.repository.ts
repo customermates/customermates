@@ -4,6 +4,7 @@ import type {
   WikiFullTextSections,
   WikiSectionHit,
   WikiSectionMatch,
+  WikiSectionSync,
 } from "@/features/wiki/search-wiki-pages.repo";
 import type { WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.repo";
 import type { WikiIndexPage } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
@@ -94,17 +95,17 @@ export class PrismaWikiSectionRepo
     return sectionEmbeddingColumn;
   }
 
-  async syncStaleSections(): Promise<number> {
-    const pages = await this.prisma.$queryRaw<WikiIndexPage[]>(Prisma.sql`
+  async syncStaleSections(limit = WIKI_SECTION_SYNC_LIMIT): Promise<WikiSectionSync> {
+    const found = await this.prisma.$queryRaw<WikiIndexPage[]>(Prisma.sql`
       SELECT p."id", p."title", p."markdown", p."updatedAt", p."summary", p."summaryContentHash",
         p."sourceImportedUpdatedAt"
       FROM "WikiPage" p
       WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL AND ${this.unsyncedPage()}
       ORDER BY p."updatedAt" DESC, p."id" ASC
-      LIMIT ${WIKI_SECTION_SYNC_LIMIT}
+      LIMIT ${limit + 1}
     `);
     let synced = 0;
-    for (const page of pages) {
+    for (const page of found.slice(0, limit)) {
       const summary = currentWikiSummary(page);
       const written = await this.replaceSections({
         pageId: page.id,
@@ -118,7 +119,7 @@ export class PrismaWikiSectionRepo
       });
       if (written) synced += 1;
     }
-    return synced;
+    return { synced, remaining: found.length > limit };
   }
 
   @Transaction

@@ -39,6 +39,7 @@ export type WikiSearchOrder = {
   exhaustive: boolean;
   semantic: boolean;
   abstained: boolean;
+  incomplete: boolean;
   vector: QueryVector | null;
   corrected?: string;
   expiresAt: number;
@@ -125,7 +126,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       return {
         items,
         total: order.ids.length,
-        totalIsExact: order.exhaustive,
+        totalIsExact: order.exhaustive && !order.incomplete,
         hasMore: order.ids.length > window || !order.exhaustive,
         page: data.page,
         pageSize: data.pageSize,
@@ -136,6 +137,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
             }
           : {}),
         ...(order.abstained ? { abstained: true } : {}),
+        ...(order.incomplete ? { incomplete: true } : {}),
       };
     } finally {
       stopwatch.finish();
@@ -153,7 +155,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     },
   ): Promise<WikiSearchOrder> {
     const { window, pageStart, semantic, stopwatch, previous } = args;
-    await this.repo.syncStaleSections();
+    const sync = await this.repo.syncStaleSections();
     const sections = new Map<string, string>();
     const limit = Math.max(WIKI_SEMANTIC_CANDIDATES, window + 1);
     let fullTextCount = 0;
@@ -196,7 +198,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       relevanceFloor: semantic?.relevanceFloor,
     });
     if (fused.semantic) for (const hit of semanticHits) sections.set(hit.pageId, hit.sectionId);
-    if (semantic && stale) await semantic.scheduler.schedule();
+    if (semantic && (stale || sync.remaining)) await semantic.scheduler.schedule();
 
     const reranks = pageStart < WIKI_RERANK_CANDIDATES && pageStart < fused.ranked.length;
     const head = fused.ranked.slice(0, WIKI_RERANK_CANDIDATES);
@@ -209,7 +211,8 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       sections,
       exhaustive: !kept || (fullTextCount < limit && semanticCount < limit),
       semantic: fused.vector !== null,
-      abstained: ids.length === 0,
+      abstained: ids.length === 0 && !sync.remaining,
+      incomplete: sync.remaining,
       vector: fused.vector,
       ...(corrected ? { corrected } : {}),
       expiresAt: Date.now() + WIKI_SEARCH_ORDER_TTL_MS,
@@ -221,6 +224,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       ids: [...previous.ids, ...order.ids.filter((id) => !seen.has(id))],
       sections: new Map([...order.sections, ...previous.sections]),
       exhaustive: order.exhaustive,
+      incomplete: order.incomplete,
       expiresAt: order.expiresAt,
     };
   }

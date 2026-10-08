@@ -485,6 +485,66 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     expect(columns.rows.map(({ column_name }: { column_name: string }) => column_name)).not.toContain("userId");
   });
 
+  it("reports a partly rebuilt section index as incomplete, without abstaining or recording a gap", async () => {
+    const values = Array.from({ length: 101 }, (_, index) => [
+      randomUUID(),
+      companyId,
+      `Holiday note ${index}`,
+      WikiMarkdownSchema.parse(`Office closure ${index}.`),
+      new Date(Date.UTC(2026, 0, 1, 0, 0, index)),
+    ]);
+    await client.query(
+      `INSERT INTO "WikiPage" ("id", "companyId", "title", "markdown", "createdAt", "updatedAt")
+       SELECT v."id", v."companyId", v."title", v."markdown", v."at", v."at"
+       FROM jsonb_to_recordset($1::jsonb) AS v("id" text, "companyId" text, "title" text, "markdown" text, "at" timestamptz)`,
+      [
+        JSON.stringify(
+          values.map(([id, company, title, markdown, at]) => ({ id, companyId: company, title, markdown, at })),
+        ),
+      ],
+    );
+    const { service } = fakeEmbeddings();
+    const schedule = vi.fn(() => Promise.resolve());
+
+    const partial = await search("Incident outage escalation?", service, user, schedule);
+    if (!partial.ok) throw new Error("search failed");
+    expect(partial.data).toMatchObject({ items: [], incomplete: true, totalIsExact: false });
+    expect(partial.data.abstained).toBeUndefined();
+    expect(schedule).toHaveBeenCalled();
+
+    const complete = await search("Incident outage escalation?", service, user, schedule);
+    if (!complete.ok) throw new Error("search failed");
+    expect(complete.data.incomplete).toBeUndefined();
+    expect(complete.data.abstained).toBe(true);
+    const gaps = await client.query('SELECT "count" FROM "WikiKnowledgeGap" WHERE "companyId" = $1', [companyId]);
+    expect(gaps.rows).toEqual([{ count: 1 }]);
+  });
+
+  it("syncs every stale section in batches without any provider call", async () => {
+    await Promise.all(
+      Array.from({ length: 5 }, (_, index) => insert(user, `Page ${index}`, `Holiday note ${index}`, index)),
+    );
+    const repo = new PrismaWikiSectionRepo();
+    const batches = await runWithTenant(user, async () => [
+      await repo.syncStaleSections(2),
+      await repo.syncStaleSections(2),
+      await repo.syncStaleSections(2),
+      await repo.syncStaleSections(2),
+    ]);
+    expect(batches).toEqual([
+      { synced: 2, remaining: true },
+      { synced: 2, remaining: true },
+      { synced: 1, remaining: false },
+      { synced: 0, remaining: false },
+    ]);
+    const unsynced = await client.query(
+      `SELECT count(*)::int AS "count" FROM "WikiPage" p WHERE p."companyId" = $1
+       AND NOT EXISTS (SELECT 1 FROM "WikiPageSection" s WHERE s."pageId" = p."id" AND s."pageUpdatedAt" = p."updatedAt")`,
+      [companyId],
+    );
+    expect(unsynced.rows).toEqual([{ count: 0 }]);
+  });
+
   it("lets keyword matches cover pages that are not indexed yet and asks for indexing", async () => {
     await insert(user, "Customer Refund Policy", "## Annual plans\n\nMoney back within 30 days.", 0);
     const { service } = fakeEmbeddings();
