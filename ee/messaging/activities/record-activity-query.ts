@@ -24,77 +24,56 @@ export function compileRecordActivityScope(
 ): Prisma.Sql {
   const scope = input.scope;
   const restricted = scope.records.length > 0 || scope.typeIds.length > 0;
-  const paths = model.activityPaths.filter(
-    (path) =>
-      !path.archived &&
-      model.types.some((type) => type.id === path.typeId && !type.archived) &&
-      (!restricted || scope.typeIds.includes(path.typeId) || scope.records.some((ref) => ref.typeId === path.typeId)),
-  );
-  const branches = paths
-    .map((path, branch) => {
-      let typeId = path.typeId;
-      const root = Prisma.raw(`activity_root_${branch}`);
-      let current = Prisma.raw(`activity_frontier_${branch}_0`);
-      const allowed = (typeId: string, record: Prisma.Sql) =>
-        recordReadPredicate(companyId, access.get(typeId) ?? { access: "none", userId }, record);
-      const ids = scope.records.filter((ref) => ref.typeId === path.typeId).map((ref) => ref.recordId);
-      const rootSelection =
-        !restricted || scope.typeIds.includes(path.typeId)
-          ? Prisma.sql`TRUE`
-          : ids.length
-            ? Prisma.sql`${root}.id IN (${Prisma.join(ids)})`
-            : Prisma.sql`FALSE`;
-      const frontiers = [
-        Prisma.sql`${current} AS MATERIALIZED (
-        SELECT ${root}."typeId", ${root}.id FROM "CrmRecord" ${root}
-        WHERE ${root}."companyId" = ${companyId} AND ${root}."typeId" = ${path.typeId}
-        AND ${rootSelection} AND ${allowed(typeId, root)})`,
-      ];
-      for (const [index, step] of path.path.entries()) {
-        const relationship = model.relationships.find(
-          (relation) => relation.id === step.relationId && !relation.archived,
-        );
-        if (!relationship) return null;
-        const outgoing = step.direction === "outgoing";
-        if (typeId !== (outgoing ? relationship.sourceTypeId : relationship.targetTypeId)) return null;
-        typeId = outgoing ? relationship.targetTypeId : relationship.sourceTypeId;
-        if (!model.types.some((type) => type.id === typeId && !type.archived)) return null;
-        const target = Prisma.raw(`activity_target_${branch}_${index}`);
-        const link = Prisma.raw(`activity_link_${branch}_${index}`);
-        const next = Prisma.raw(`activity_frontier_${branch}_${index + 1}`);
-        const sourceColumn = outgoing ? Prisma.sql`${link}."sourceId"` : Prisma.sql`${link}."targetId"`;
-        const targetColumn = outgoing ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
-        frontiers.push(Prisma.sql`${next} AS MATERIALIZED (
-          SELECT DISTINCT ${target}."typeId", ${target}.id FROM ${current}
-          JOIN LATERAL (SELECT * FROM "RecordLink" ${link}
-            WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relationId}
-            AND ${link}."sourceTypeId" = ${relationship.sourceTypeId} AND ${link}."targetTypeId" = ${relationship.targetTypeId}
-            AND ${sourceColumn} = ${current}.id OFFSET 0) ${link} ON TRUE
-          JOIN LATERAL (SELECT ${target}."typeId", ${target}.id FROM "CrmRecord" ${target}
-            WHERE ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetColumn}
-            AND ${allowed(typeId, target)} OFFSET 0) ${target} ON TRUE)`);
-        current = next;
-      }
-      const identity = path.includeMessages && recordChannelsEnabled(model, typeId);
-      return Prisma.sql`(WITH ${Prisma.join(frontiers)}
-        SELECT ${current}."typeId", ${current}.id, ${path.includeAudit}::boolean AS audit,
-        ${identity}::boolean AS messaging, ${path.includeMessages}::boolean AS threading FROM ${current})`;
-    })
-    .filter((branch): branch is Prisma.Sql => branch !== null);
-  const direct = model.types.filter(
+  const live = (typeId: string) => model.types.some((type) => type.id === typeId && !type.archived);
+  const allowed = (typeId: string, record: Prisma.Sql) =>
+    recordReadPredicate(companyId, access.get(typeId) ?? { access: "none", userId }, record);
+  const roots = model.types.filter(
     (type) =>
       !type.archived &&
       (!restricted || scope.typeIds.includes(type.id) || scope.records.some((ref) => ref.typeId === type.id)),
   );
-  for (const type of direct) {
-    const ids = scope.records.filter((ref) => ref.typeId === type.id).map((ref) => ref.recordId);
-    const selected =
-      !restricted || scope.typeIds.includes(type.id)
-        ? Prisma.sql`TRUE`
-        : Prisma.sql`record.id IN (${Prisma.join(ids)})`;
-    branches.push(Prisma.sql`SELECT record."typeId", record.id, FALSE AS audit, FALSE AS messaging, TRUE AS threading
+  const selected = (typeId: string, record: Prisma.Sql) => {
+    const ids = scope.records.filter((ref) => ref.typeId === typeId).map((ref) => ref.recordId);
+    return !restricted || scope.typeIds.includes(typeId)
+      ? Prisma.sql`TRUE`
+      : Prisma.sql`${record}.id IN (${Prisma.join(ids)})`;
+  };
+  const branches = roots.map(
+    (type) => Prisma.sql`SELECT record."typeId", record.id, TRUE AS audit,
+      ${recordChannelsEnabled(model, type.id)}::boolean AS messaging, TRUE AS threading
       FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id}
-      AND ${selected} AND ${recordReadPredicate(companyId, access.get(type.id) ?? { access: "none", userId }, Prisma.sql`record`)}`);
+      AND ${selected(type.id, Prisma.sql`record`)} AND ${allowed(type.id, Prisma.sql`record`)}`,
+  );
+  const sources = model.relationships.flatMap((relationship) =>
+    relationship.archived || !live(relationship.sourceTypeId) || !live(relationship.targetTypeId)
+      ? []
+      : [
+          ...(relationship.messagesOnSource ? [{ relationship, outgoing: true }] : []),
+          ...(relationship.messagesOnTarget ? [{ relationship, outgoing: false }] : []),
+        ],
+  );
+  for (const [branch, { relationship, outgoing }] of sources.entries()) {
+    const rootTypeId = outgoing ? relationship.sourceTypeId : relationship.targetTypeId;
+    const linkedTypeId = outgoing ? relationship.targetTypeId : relationship.sourceTypeId;
+    if (!roots.some((type) => type.id === rootTypeId) || !restricted || scope.typeIds.includes(linkedTypeId)) continue;
+    const root = Prisma.raw(`activity_root_${branch}`);
+    const link = Prisma.raw(`activity_link_${branch}`);
+    const linked = Prisma.raw(`activity_linked_${branch}`);
+    const rootColumn = outgoing ? Prisma.sql`${link}."sourceId"` : Prisma.sql`${link}."targetId"`;
+    const linkedColumn = outgoing ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
+    branches.push(Prisma.sql`(WITH ${root} AS MATERIALIZED (
+        SELECT ${root}.id FROM "CrmRecord" ${root}
+        WHERE ${root}."companyId" = ${companyId} AND ${root}."typeId" = ${rootTypeId}
+        AND ${selected(rootTypeId, root)} AND ${allowed(rootTypeId, root)})
+      SELECT DISTINCT ${linked}."typeId", ${linked}.id, FALSE AS audit,
+        ${recordChannelsEnabled(model, linkedTypeId)}::boolean AS messaging, TRUE AS threading FROM ${root}
+      JOIN LATERAL (SELECT * FROM "RecordLink" ${link}
+        WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relationship.id}
+        AND ${link}."sourceTypeId" = ${relationship.sourceTypeId} AND ${link}."targetTypeId" = ${relationship.targetTypeId}
+        AND ${rootColumn} = ${root}.id OFFSET 0) ${link} ON TRUE
+      JOIN LATERAL (SELECT ${linked}."typeId", ${linked}.id FROM "CrmRecord" ${linked}
+        WHERE ${linked}."companyId" = ${companyId} AND ${linked}."typeId" = ${linkedTypeId} AND ${linked}.id = ${linkedColumn}
+        AND ${allowed(linkedTypeId, linked)} OFFSET 0) ${linked} ON TRUE)`);
   }
   return branches.length
     ? Prisma.sql`SELECT "typeId", id, bool_or(audit) AS audit, bool_or(messaging) AS messaging, bool_or(threading) AS threading FROM (${Prisma.join(branches, " UNION ALL ")}) expanded GROUP BY "typeId", id`
@@ -271,9 +250,6 @@ export function compileRecordHistoryScope(
     (type) =>
       !type.archived &&
       access.get(type.id)?.access === "all" &&
-      model.activityPaths.some(
-        (path) => path.typeId === type.id && !path.archived && path.includeAudit && !path.path.length,
-      ) &&
       (!restricted || scope.typeIds.includes(type.id) || scope.records.some((ref) => ref.typeId === type.id)),
   );
   const selection = selected.map((type) => {

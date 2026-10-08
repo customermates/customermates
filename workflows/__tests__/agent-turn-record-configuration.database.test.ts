@@ -314,6 +314,8 @@ function bundle(key: string): ProviderConfigurationChange {
           targetCardinality: "many",
           onSourceDelete: "unlink",
           onTargetDelete: "unlink",
+          messagesOnSource: false,
+          messagesOnTarget: false,
           archived: false,
         },
       },

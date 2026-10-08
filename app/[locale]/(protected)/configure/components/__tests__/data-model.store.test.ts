@@ -11,7 +11,6 @@ const model = (revision: number): RecordModel => ({
   relationships: [],
   capabilities: [],
   accessPresets: [],
-  activityPaths: [],
 });
 
 describe("data model refresh", () => {

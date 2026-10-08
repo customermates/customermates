@@ -235,7 +235,6 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.prompt",
   "AuditLogModal.fields.publishSummary",
   "AuditLogModal.fields.putAccessPreset",
-  "AuditLogModal.fields.putActivityPath",
   "AuditLogModal.fields.putCapability",
   "AuditLogModal.fields.putField",
   "AuditLogModal.fields.putRelationship",

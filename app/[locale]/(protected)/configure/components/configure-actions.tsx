@@ -6,7 +6,6 @@ import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
 import {
-  Activity,
   AtSign,
   History,
   Calculator,
@@ -35,7 +34,7 @@ import {
 import { recordChannelsBinding } from "@/features/records/record-channels";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
 
-export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "channels" | "activity";
+export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "channels";
 
 type Props = {
   ai: ReactNode;
@@ -183,12 +182,6 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
                 {t("EntityChannels.heading")}
               </DropdownMenuItem>
             )}
-
-            <DropdownMenuItem onSelect={() => onAdd("activity")}>
-              <Activity aria-hidden="true" />
-
-              {t("RecordModel.addMenu.activityConnection")}
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (

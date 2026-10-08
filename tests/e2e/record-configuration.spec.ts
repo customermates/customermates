@@ -136,7 +136,7 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   expect(errors).toEqual([]);
 });
 
-test("edits a linear calculation and restores deleted fields, activity connections and a list", async ({
+test("edits a linear calculation and restores deleted fields and a list", async ({
   page,
   database,
   companyId,
@@ -212,18 +212,6 @@ test("edits a linear calculation and restores deleted fields, activity connectio
   expect((await readModel(database, companyId)).fields.find((field) => field.id === doubled?.id)).toMatchObject({
     archived: false,
     behavior: doubled?.behavior,
-  });
-  await openConfigure(page, typeId);
-  await openConfigureRow(page, "Activity connections", name);
-  await deleteFromDrawer(page, "Delete activity connection");
-  await expect(configureRow(page, "Activity connections", name)).toHaveCount(0);
-  await restoreRecentlyDeleted(page, name);
-  expect((await readModel(database, companyId)).activityPaths.find((path) => path.typeId === typeId)).toMatchObject({
-    label: name,
-    archived: false,
-    path: [],
-    includeAudit: true,
-    includeMessages: false,
   });
   await openConfigure(page);
   await selectConfigureList(page, name);

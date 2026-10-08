@@ -35,8 +35,6 @@ export function configurationActivity(
         return operation.preset.label;
       case "putCapability":
         return typeLabel(operation.capability.typeId);
-      case "putActivityPath":
-        return `${typeLabel(operation.activityPath.typeId)} · ${operation.activityPath.label}`;
       case "publishSummary":
         return fieldLabel(operation.fieldId);
       case "setTypeGrants":
@@ -54,12 +52,8 @@ export function configurationActivity(
           const field = models.flatMap((model) => model.fields).find((field) => field.id === id);
           return field ? `${typeLabel(field.typeId)} · ${field.label}` : id;
         }
-        if (kind === "relationship") {
-          const relation = models.flatMap((model) => model.relationships).find((relation) => relation.id === id);
-          return relation ? `${relation.sourceLabel} · ${relation.targetLabel}` : id;
-        }
-        const path = models.flatMap((model) => model.activityPaths).find((path) => path.id === id);
-        return path ? `${typeLabel(path.typeId)} · ${path.label}` : id;
+        const relation = models.flatMap((model) => model.relationships).find((relation) => relation.id === id);
+        return relation ? `${relation.sourceLabel} · ${relation.targetLabel}` : id;
       }
     }
   };

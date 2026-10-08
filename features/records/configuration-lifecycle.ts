@@ -52,17 +52,13 @@ export function deletionReference(model: RecordModel, target: ConfigurationTarge
     const field = model.fields.find((candidate) => candidate.id === target.id);
     return { kind: "field", id: target.id, typeId: field?.typeId, label: field?.label ?? "" };
   }
-  if (target.kind === "relationship") {
-    const relation = model.relationships.find((candidate) => candidate.id === target.id);
-    return {
-      kind: "relationship",
-      id: target.id,
-      typeId: relation?.sourceTypeId,
-      label: relation ? `${typeLabel(relation.sourceTypeId)} → ${typeLabel(relation.targetTypeId)}` : "",
-    };
-  }
-  const path = model.activityPaths.find((candidate) => candidate.id === target.id);
-  return { kind: "activityPath", id: target.id, typeId: path?.typeId, label: path?.label ?? "" };
+  const relation = model.relationships.find((candidate) => candidate.id === target.id);
+  return {
+    kind: "relationship",
+    id: target.id,
+    typeId: relation?.sourceTypeId,
+    label: relation ? `${typeLabel(relation.sourceTypeId)} → ${typeLabel(relation.targetTypeId)}` : "",
+  };
 }
 
 function invalid(): never {
@@ -76,9 +72,7 @@ function isDeleted(model: RecordModel, target: ConfigurationTarget): boolean {
   }
   if (target.kind === "type") return model.types.find((type) => type.id === target.id)?.archived ?? invalid();
   if (target.kind === "field") return model.fields.find((field) => field.id === target.id)?.archived ?? invalid();
-  if (target.kind === "relationship")
-    return model.relationships.find((relation) => relation.id === target.id)?.archived ?? invalid();
-  return model.activityPaths.find((path) => path.id === target.id)?.archived ?? invalid();
+  return model.relationships.find((relation) => relation.id === target.id)?.archived ?? invalid();
 }
 
 function setDeleted(model: RecordModel, target: ConfigurationTarget, archived: boolean) {
@@ -89,13 +83,7 @@ function setDeleted(model: RecordModel, target: ConfigurationTarget, archived: b
     return;
   }
   const items: Array<{ id: string; archived: boolean }> =
-    target.kind === "type"
-      ? model.types
-      : target.kind === "field"
-        ? model.fields
-        : target.kind === "relationship"
-          ? model.relationships
-          : model.activityPaths;
+    target.kind === "type" ? model.types : target.kind === "field" ? model.fields : model.relationships;
   const index = items.findIndex((item) => item.id === target.id);
   if (index < 0) invalid();
   items[index] = { ...items[index], archived };
@@ -112,15 +100,11 @@ function deleteWithCascade(model: RecordModel, target: ConfigurationTarget): Con
     setDeleted(model, item, true);
     cascade.push(item);
   };
-  const removeRelationship = (relationId: string) => {
-    remove({ kind: "relationship", id: relationId });
-    for (const path of model.activityPaths)
-      if (path.path.some((step) => step.relationId === relationId)) remove({ kind: "activityPath", id: path.id });
-  };
   const removeType = (typeId: string) => {
-    for (const path of model.activityPaths) if (path.typeId === typeId) remove({ kind: "activityPath", id: path.id });
-    for (const relation of model.relationships)
-      if (relation.sourceTypeId === typeId || relation.targetTypeId === typeId) removeRelationship(relation.id);
+    for (const relation of model.relationships) {
+      if (relation.sourceTypeId === typeId || relation.targetTypeId === typeId)
+        remove({ kind: "relationship", id: relation.id });
+    }
     for (const child of model.types) {
       const parent = model.relationships.find((relation) => relation.id === child.parentRelationshipId);
       if (child.embedded && parent?.targetTypeId === typeId && child.id !== typeId) {
@@ -131,10 +115,6 @@ function deleteWithCascade(model: RecordModel, target: ConfigurationTarget): Con
   };
   setDeleted(model, target, true);
   if (target.kind === "type") removeType(target.id);
-  if (target.kind === "relationship") {
-    for (const path of model.activityPaths)
-      if (path.path.some((step) => step.relationId === target.id)) remove({ kind: "activityPath", id: path.id });
-  }
   return cascade.filter((item) => targetKey(item) !== targetKey(target));
 }
 
@@ -149,44 +129,25 @@ function canRestore(model: RecordModel, target: ConfigurationTarget): boolean {
     const field = model.fields.find((candidate) => candidate.id === target.id);
     return Boolean(field && activeType(model, field.typeId));
   }
-  if (target.kind === "relationship") {
-    const relation = model.relationships.find((candidate) => candidate.id === target.id);
-    return Boolean(relation && activeType(model, relation.sourceTypeId) && activeType(model, relation.targetTypeId));
-  }
-  const path = model.activityPaths.find((candidate) => candidate.id === target.id);
-  return Boolean(
-    path &&
-      activeType(model, path.typeId) &&
-      path.path.every((step) =>
-        model.relationships.some((relation) => relation.id === step.relationId && !relation.archived),
-      ),
-  );
+  const relation = model.relationships.find((candidate) => candidate.id === target.id);
+  return Boolean(relation && activeType(model, relation.sourceTypeId) && activeType(model, relation.targetTypeId));
 }
 
 function restoreBlocker(model: RecordModel, target: ConfigurationTarget): DeletionBlocker {
   const field = target.kind === "field" ? model.fields.find((candidate) => candidate.id === target.id) : undefined;
   const relation =
     target.kind === "relationship" ? model.relationships.find((candidate) => candidate.id === target.id) : undefined;
-  const path =
-    target.kind === "activityPath" ? model.activityPaths.find((candidate) => candidate.id === target.id) : undefined;
   const type = model.types.find((candidate) => candidate.id === target.id);
   const parent = model.relationships.find((candidate) => candidate.id === type?.parentRelationshipId);
-  const missingType = [
-    field?.typeId,
-    relation?.sourceTypeId,
-    relation?.targetTypeId,
-    path?.typeId,
-    parent?.targetTypeId,
-  ].find((id): id is string => Boolean(id) && !activeType(model, id as string));
-  const missingRelation = path?.path.find(
-    (step) => !model.relationships.some((candidate) => candidate.id === step.relationId && !candidate.archived),
+  const missingType = [field?.typeId, relation?.sourceTypeId, relation?.targetTypeId, parent?.targetTypeId].find(
+    (id): id is string => Boolean(id) && !activeType(model, id as string),
   );
   return {
     reason: "requiresRestore",
     source: deletionReference(model, target),
     target: missingType
       ? deletionReference(model, { kind: "type", id: missingType })
-      : deletionReference(model, { kind: "relationship", id: missingRelation?.relationId ?? target.id }),
+      : deletionReference(model, { kind: "relationship", id: target.id }),
   };
 }
 
@@ -304,13 +265,12 @@ function removePermanently(
   model: RecordModel,
   targets: ConfigurationTarget[],
 ): {
-  removed: RecordDefinitionDeletion & { activityPathIds: string[] };
+  removed: RecordDefinitionDeletion;
   sets: { typeIds: Set<string>; fieldIds: Set<string>; relationIds: Set<string> };
 } {
   const typeIds = new Set(targets.filter((target) => target.kind === "type").map((target) => target.id));
   const fieldIds = new Set(targets.filter((target) => target.kind === "field").map((target) => target.id));
   const relationIds = new Set(targets.filter((target) => target.kind === "relationship").map((target) => target.id));
-  const pathIds = new Set(targets.filter((target) => target.kind === "activityPath").map((target) => target.id));
   const channelTypeIds = new Set(
     targets.flatMap((target) => {
       const typeId = target.kind === "channels" ? channelsBinding(model, target.id)?.typeId : undefined;
@@ -321,7 +281,6 @@ function removePermanently(
   for (const relation of model.relationships)
     if (typeIds.has(relation.sourceTypeId) || typeIds.has(relation.targetTypeId)) relationIds.add(relation.id);
   const crosses = (path: Array<{ relationId: string }>) => path.some((step) => relationIds.has(step.relationId));
-  for (const path of model.activityPaths) if (typeIds.has(path.typeId) || crosses(path.path)) pathIds.add(path.id);
   model.types = model.types
     .filter((type) => !typeIds.has(type.id))
     .map((type) =>
@@ -334,14 +293,12 @@ function removePermanently(
   model.capabilities = model.capabilities.filter(
     (binding) => !typeIds.has(binding.typeId) && !(binding.kind === "channels" && channelTypeIds.has(binding.typeId)),
   );
-  model.activityPaths = model.activityPaths.filter((path) => !pathIds.has(path.id));
   return {
     removed: {
       typeIds: [...typeIds],
       fieldIds: [...fieldIds],
       relationIds: [...relationIds],
       channelTypeIds: [...channelTypeIds],
-      activityPathIds: [...pathIds],
     },
     sets: { typeIds, fieldIds, relationIds },
   };
@@ -384,7 +341,7 @@ export function applyConfigurationLifecycle(
       }
       setDeleted(model, target, false);
       const cascade = records.get(targetKey(target))?.cascade ?? [];
-      for (const kind of ["type", "relationship", "activityPath", "field"] as const) {
+      for (const kind of ["type", "relationship", "field"] as const) {
         for (const item of cascade.filter((entry) => entry.kind === kind))
           if (isDeleted(model, item) && canRestore(model, item)) setDeleted(model, item, false);
       }
