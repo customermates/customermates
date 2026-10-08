@@ -682,19 +682,11 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers.sum);
   await chartPreview(page, "€30.00", { New: "€10.00", Won: "€25.00" });
   await expect(dialog.getByText(english.RecordWidgets.attribution, { exact: true })).toBeVisible();
-  await expect(
-    dialog.getByRole("button", {
-      name: english.RecordWidgets.removeFilter,
-      exact: true,
-    }),
-  ).toHaveCount(2);
-  await dialog
-    .getByRole("button", {
-      name: english.RecordWidgets.removeFilter,
-      exact: true,
-    })
-    .nth(1)
-    .click();
+  const removeStep = (label: string) =>
+    dialog.getByRole("button", { name: english.RecordModel.removePathStep.replace("{label}", label), exact: true });
+  await expect(removeStep("Line items")).toHaveCount(1);
+  await expect(removeStep("Deal")).toHaveCount(1);
+  await removeStep("Deal").click();
   await expect(dialog.locator("#widget-group-field")).toContainText(english.RecordWidgets.groupRecord);
   await select(page, "#widget-group-path", "Deal");
   await select(page, "#widget-group-field", "Stage");
