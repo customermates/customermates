@@ -669,7 +669,6 @@
       "skip": "Omitir"
     },
     "tourUi": {
-      "back": "Atrás",
       "title": "Visita guiada"
     },
     "ui": {
@@ -698,7 +697,6 @@
       "finalizing": "Finalizando y guardando los cambios…",
       "history": "Historial de chats",
       "imageNotAvailable": "Imagen no disponible",
-      "jumpToLatest": "Ir a lo más reciente",
       "linkCopied": "Enlace copiado",
       "loadChatFailed": "No se pudo cargar el chat. Vuelva a seleccionarlo para reintentar.",
       "loadingChat": "Cargando el chat…",
@@ -740,7 +738,6 @@
     "addDescription": "Crea una clave para tu propia integración o elige un cliente de IA para recibir una configuración guiada.",
     "addTitle": "Añadir una clave de API",
     "backToOptions": "Todas las opciones de claves de API",
-    "done": "Listo",
     "expiresIn": "Caduca en",
     "expiresInPlaceholder": "Nunca caduca",
     "keyCreated": "Clave de API creada",
@@ -852,6 +849,7 @@
       "delete": "Eliminar",
       "discard": "Descartar",
       "expand": "Ampliar",
+      "jumpToLatest": "Ir a lo más reciente",
       "labelHistory": "Historial",
       "loadMore": "Cargar más",
       "open": "Abrir",
@@ -1563,7 +1561,6 @@
     "emailPreviewLink": "Enlace de ejemplo",
     "emailPreviewSample": "Así se verá el texto de tu correo.",
     "emailPreviewTitle": "Vista previa",
-    "emailSave": "Guardar ajustes de correo",
     "emailSaved": "Ajustes de correo guardados",
     "emailSignatureContent": "Contenido de la firma",
     "emailSignatureDescription": "Se añade automáticamente a los correos enviados desde esta cuenta.",
@@ -2145,7 +2142,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Preguntar a Mate: {question}",
-    "clearRecent": "Borrar",
     "emptyDescription": "Busca registros en las listas a las que tienes acceso.",
     "emptyTitle": "Encuentra todo en tu espacio de trabajo",
     "groupRecent": "Abiertos recientemente",
@@ -2153,7 +2149,6 @@
     "hintNavigate": "Navegar",
     "hintOpen": "Abrir",
     "loading": "Buscando...",
-    "loadMore": "Cargar más",
     "noResults": "Sin resultados",
     "placeholder": "Buscar...",
     "staleItem": "Este elemento ya no existe y se ha quitado de tus elementos recientes."
@@ -2271,7 +2266,6 @@
     },
     "groupThread": "Grupo ({count, plural, one {# miembro} other {# miembros}})",
     "hideQuotedText": "Ocultar el texto citado",
-    "jumpToLatest": "Ir a lo más reciente",
     "lastMessageDirections": {
       "inbound": "Recibido",
       "outbound": "Enviado"
@@ -3543,7 +3537,6 @@
     "recordCount": "{count, plural, one {# registro} other {# registros}}",
     "relatedAny": "Coincide al menos un registro vinculado accesible",
     "relatedNone": "No coincide ningún registro vinculado accesible",
-    "removeFilter": "Eliminar filtro",
     "search": "Buscar registros",
     "signedChart": "Los valores negativos se muestran en una lista. Elige un gráfico de barras para representarlos.",
     "source": "Registros de",
@@ -3575,7 +3568,6 @@
     "create": "Crear",
     "delete": "Eliminar",
     "edit": "Editar",
-    "general": "General",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
     "readAccess": "Acceso de lectura",

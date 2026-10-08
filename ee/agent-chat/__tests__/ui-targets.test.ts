@@ -30,6 +30,12 @@ function componentSource(): string {
 }
 
 function rendersLiteralId(source: string, id: string) {
+  const segment = /^(.+)-tab-([a-z0-9-]+)$/.exec(id);
+  const rendersSegmentId =
+    segment !== null &&
+    source.includes(`idPrefix="${segment[1]}"`) &&
+    source.includes(`{ value: "${segment[2]}", label:`);
+  if (rendersSegmentId) return true;
   const footerScope = /^(.+)-(?:save|cancel|reset)$/.exec(id)?.[1];
   const rendersFooterId =
     footerScope !== undefined &&
@@ -162,10 +168,11 @@ describe("agent interface targets", () => {
       expect(discard?.prerequisite, page.scope).toBe(page.resetOpener ?? page.opener);
     }
     expect(findAgentUiTarget("role-modal-save")?.prerequisite).toBe("company-roles-add");
-    expect(findAgentUiTarget("webhook-modal-reset")?.prerequisite).toBe("company-webhooks-add");
+    expect(findAgentUiTarget("webhook-modal-cancel")?.prerequisite).toBe("company-webhooks-add");
+    expect(findAgentUiTarget("webhook-modal-reset")).toBeNull();
     expect(findAgentUiTarget("routine-modal-cancel")?.prerequisite).toBe("routines-add");
     expect(findAgentUiTarget("routine-modal-reset")).toBeNull();
-    for (const id of ["member-modal-save", "member-modal-reset"])
+    for (const id of ["member-modal-save", "member-modal-cancel"])
       expect(findAgentUiTarget(id)?.prerequisite, id).toBe("a member row");
     expect(findAgentUiTarget("widget-modal-save")?.prerequisite).toBe("widget-modal-kind");
     expect(findAgentUiTarget("widget-modal-kind")?.prerequisite).toBe("dashboard-add-widget");
@@ -226,9 +233,12 @@ describe("agent interface targets", () => {
   });
 
   it("describes when a form's save button exists and who sees conditional controls", () => {
-    expect(findAgentUiTarget("profile-settings-save")?.description).toContain("shown once something changed");
+    expect(findAgentUiTarget("profile-settings-save")?.description).toContain(
+      "always shown, enabled once something changed",
+    );
+    expect(findAgentUiTarget("profile-settings-reset")?.description).toContain("shown once something changed");
     expect(findAgentUiTarget("member-modal-save")?.description).toContain("roles with Manage");
-    expect(findAgentUiTarget("role-modal-save")?.description).toContain("system role");
+    expect(findAgentUiTarget("role-modal-save")?.description).toContain("not shown for the system role");
     expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("Lemon Squeezy subscription");
     expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("not on Enterprise");
     expect(findAgentUiTarget("company-subscription-refresh")?.description).toContain("not during the trial");

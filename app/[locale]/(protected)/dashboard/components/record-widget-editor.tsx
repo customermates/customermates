@@ -312,12 +312,13 @@ export const RecordWidgetEditor = observer(
       <div className="space-y-4">
         {(measure.groupBy?.path ?? []).map((step, index) => {
           const relation = model?.relationships.find((relation) => relation.id === step.relationId);
+          const label = (step.direction === "outgoing" ? relation?.sourceLabel : relation?.targetLabel) ?? "";
           return (
             <div key={`${step.relationId}:${index}`} className="flex items-center justify-between gap-2 text-sm">
-              <span>{step.direction === "outgoing" ? relation?.sourceLabel : relation?.targetLabel}</span>
+              <span>{label}</span>
 
               <Button
-                aria-label={t("RecordWidgets.removeFilter")}
+                aria-label={t("RecordModel.removePathStep", { label })}
                 size="icon"
                 type="button"
                 variant="ghost"

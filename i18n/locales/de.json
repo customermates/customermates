@@ -8,7 +8,7 @@
     "title": "Deine E-Mail-Adresse ist bestätigt"
   },
   "AccountRemovalReason": {
-    "ownerInactive": "Eigentümer/in deaktiviert",
+    "ownerInactive": "Eigentümer deaktiviert",
     "planDowngrade": "Tarif herabgestuft",
     "subscriptionLapsed": "Abo abgelaufen",
     "trialExpired": "Testphase beendet"
@@ -669,7 +669,6 @@
       "skip": "Überspringen"
     },
     "tourUi": {
-      "back": "Zurück",
       "title": "Geführte Tour"
     },
     "ui": {
@@ -698,7 +697,6 @@
       "finalizing": "Änderungen werden abgeschlossen und gespeichert…",
       "history": "Chatverlauf",
       "imageNotAvailable": "Bild nicht verfügbar",
-      "jumpToLatest": "Zu den neuesten Nachrichten",
       "linkCopied": "Link kopiert",
       "loadChatFailed": "Der Chat konnte nicht geladen werden. Wähle ihn erneut, um es noch einmal zu versuchen.",
       "loadingChat": "Chat wird geladen …",
@@ -740,7 +738,6 @@
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
     "addTitle": "API-Key hinzufügen",
     "backToOptions": "Alle API-Key-Optionen",
-    "done": "Fertig",
     "expiresIn": "Läuft ab",
     "expiresInPlaceholder": "Läuft nie ab",
     "keyCreated": "API-Schlüssel erfolgreich erstellt",
@@ -852,6 +849,7 @@
       "delete": "Löschen",
       "discard": "Verwerfen",
       "expand": "Aufklappen",
+      "jumpToLatest": "Zu den neuesten Nachrichten",
       "labelHistory": "Verlauf",
       "loadMore": "Mehr laden",
       "open": "Öffnen",
@@ -1217,7 +1215,7 @@
         "lastMessageSentAt": "Letzte Nachricht am",
         "lastName": "Nachname",
         "name": "Name",
-        "ownerUserId": "Inhaber",
+        "ownerUserId": "Eigentümer",
         "participantContactId": "Verknüpfte Datensätze",
         "participants": "Teilnehmer",
         "plan": "Tarif",
@@ -1227,7 +1225,7 @@
         "status": "Status",
         "subscriptionStatus": "Abonnement",
         "timelineKind": "Typ",
-        "timelineThreadId": "Konversation",
+        "timelineThreadId": "Unterhaltung",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
         "workspaceId": "Arbeitsbereich",
@@ -1429,7 +1427,7 @@
         "operator": "Operator",
         "options": "Optionen",
         "organizations": "Organisationen",
-        "owner": "Inhaber",
+        "owner": "Eigentümer",
         "permissions": "Berechtigungen",
         "plan": "Tarif",
         "provider": "Anbieter",
@@ -1563,7 +1561,6 @@
     "emailPreviewLink": "Beispiellink",
     "emailPreviewSample": "So sieht dein E-Mail-Text aus.",
     "emailPreviewTitle": "Vorschau",
-    "emailSave": "E-Mail-Einstellungen speichern",
     "emailSaved": "E-Mail-Einstellungen gespeichert",
     "emailSignatureContent": "Signaturinhalt",
     "emailSignatureDescription": "Wird automatisch an E-Mails angefügt, die über dieses Konto gesendet werden.",
@@ -1592,7 +1589,7 @@
     "lastSynced": "Zuletzt synchronisiert",
     "messagingRequiresCloud": "Messaging ist in Customermates Cloud verfügbar (ab dem Pro-Tarif).",
     "messagingRequiresPro": "Messaging erfordert den Pro-Tarif oder höher. Führe ein Upgrade durch, um einen Kanal zu verbinden.",
-    "ownerLabel": "Besitzer",
+    "ownerLabel": "Eigentümer",
     "paidSubscriptionRequired": "Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.",
     "provider": "Anbieter",
     "reactivate": "Reaktivieren",
@@ -2145,7 +2142,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Mate fragen: {question}",
-    "clearRecent": "Leeren",
     "emptyDescription": "Finde Datensätze in den Listen, auf die du Zugriff hast.",
     "emptyTitle": "Finde alles in deinem Workspace",
     "groupRecent": "Zuletzt geöffnet",
@@ -2153,7 +2149,6 @@
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
     "loading": "Suche...",
-    "loadMore": "Mehr laden",
     "noResults": "Keine Ergebnisse gefunden",
     "placeholder": "Suchen...",
     "staleItem": "Dieser Eintrag existiert nicht mehr und wurde aus den zuletzt geöffneten entfernt."
@@ -2245,7 +2240,7 @@
       "updateDraft": "Entwurf aktualisieren",
       "writeReply": "Antwort schreiben…"
     },
-    "conversationRegion": "Konversation",
+    "conversationRegion": "Unterhaltung",
     "copyAddress": "{address} kopieren",
     "dateToday": "Heute",
     "dateYesterday": "Gestern",
@@ -2271,7 +2266,6 @@
     },
     "groupThread": "Gruppe ({count, plural, one {# Mitglied} other {# Mitglieder}})",
     "hideQuotedText": "Zitierten Text ausblenden",
-    "jumpToLatest": "Zum neuesten springen",
     "lastMessageDirections": {
       "inbound": "Empfangen",
       "outbound": "Gesendet"
@@ -2741,7 +2735,7 @@
   "OperatorAudit": {
     "emptyBody": "Passe Suche oder Filter an, um das Protokoll zu erweitern.",
     "emptyTitle": "Keine Audit-Ereignisse passen zu diesen Filtern",
-    "navigation": "Audit-Protokoll",
+    "navigation": "Audit-Log",
     "searchPlaceholder": "Nach Aktion suchen",
     "values": {
       "action": {
@@ -3027,7 +3021,7 @@
     "calculationResult": "Ergebnis",
     "calculationSource": "Verwenden",
     "cancelOperation": "Änderung abbrechen",
-    "capture": "Wert speichern",
+    "capture": "Wert erfassen",
     "captureChanged": "Wenn ein Feld einen bestimmten Wert erhält",
     "captureCreate": "Beim Erstellen des Datensatzes",
     "captureExplicit": "Auf Anfrage",
@@ -3092,7 +3086,7 @@
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
       },
-      "kind": "Art",
+      "kind": "Typ",
       "kinds": {
         "channels": "Kanalfeld",
         "field": "Feld",
@@ -3287,7 +3281,7 @@
       "scale": "Recht",
       "server": "Server",
       "shield": "Richtlinie",
-      "signature": "Unterschrift",
+      "signature": "Signatur",
       "smartphone": "Mobilgerät",
       "stamp": "Freigabe",
       "star": "Stern",
@@ -3543,7 +3537,6 @@
     "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
     "relatedAny": "Mindestens ein zugänglicher verknüpfter Datensatz trifft zu",
     "relatedNone": "Kein zugänglicher verknüpfter Datensatz trifft zu",
-    "removeFilter": "Filter entfernen",
     "search": "Datensätze suchen",
     "signedChart": "Negative Werte werden als Liste angezeigt. Wähle ein Balkendiagramm zur Darstellung.",
     "source": "Datensätze aus",
@@ -3575,7 +3568,6 @@
     "create": "Erstellen",
     "delete": "Löschen",
     "edit": "Bearbeiten",
-    "general": "Allgemein",
     "manageAccess": "Verwalten",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
     "readAccess": "Lesen",
@@ -3653,10 +3645,10 @@
       "title": "Noch keine Läufe"
     },
     "never": "Nie",
-    "owner": "Eigentümer/in",
+    "owner": "Eigentümer",
     "ownerOnlyEdit": "Diese Routine ist für dich schreibgeschützt. Sie wird nur als {owner} ausgeführt und kann von dieser Person bearbeitet oder pausiert werden. Unternehmensadmins können sie nur pausieren oder löschen.",
     "ownerPermissionReadOnly": "Deine Rolle erlaubt dir, diese Routine und ihre Ausführungen anzusehen, aber nicht, sie zu ändern oder zu testen.",
-    "ownerUnavailable": "Eigentümer/in nicht verfügbar",
+    "ownerUnavailable": "Eigentümer nicht verfügbar",
     "ownerUnavailableReadOnly": "Für diese Routine ist keine Eigentümerin und kein Eigentümer mehr verfügbar. Sie bleibt pausiert und schreibgeschützt; ein Unternehmensadmin kann sie löschen.",
     "ranAs": "Ausgeführt als {owner}",
     "readOnlyTitle": "Schreibgeschützter Zugriff",
@@ -4078,7 +4070,7 @@
     },
     "generated": {
       "gapsHeading": "Noch zu klären",
-      "pagesHeading": "Seiten der Wissensdatenbank",
+      "pagesHeading": "Wissensdatenbank-Seiten",
       "roles": {
         "company_overview": "Unternehmensüberblick",
         "customers_and_use_cases": "Kunden und Anwendungsfälle",
