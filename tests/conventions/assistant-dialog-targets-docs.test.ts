@@ -9,14 +9,12 @@ import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 
-type DashboardMessages = {
-  addCard: string;
-  widgetKinds: { chart: string; activityTimeline: string };
-  widgetEditor: { create: string };
+type Messages = {
+  Common: { actions: { save: string } };
+  Dashboard: { addCard: string; widgetKinds: { chart: string; activityTimeline: string } };
 };
 
-const dashboardMessages = (locale: string) =>
-  JSON.parse(read(`i18n/locales/${locale}.json`)).Dashboard as DashboardMessages;
+const localeMessages = (locale: string) => JSON.parse(read(`i18n/locales/${locale}.json`)) as Messages;
 
 describe("dialog targets in the assistant documentation", () => {
   it("keeps the widget kind cards a highlight target", () => {
@@ -24,7 +22,7 @@ describe("dialog targets in the assistant documentation", () => {
   });
 
   it.each(CONTENT_LOCALES)("names the widget kind cards among the dialog targets in %s", (locale) => {
-    const messages = dashboardMessages(locale);
+    const { Common, Dashboard: messages } = localeMessages(locale);
     const paragraph = read(`content/docs/${locale}/app-assistant.mdx`)
       .split("\n\n")
       .find(
@@ -35,6 +33,6 @@ describe("dialog targets in the assistant documentation", () => {
 
     expect(paragraph).toBeDefined();
     expect(paragraph).toContain(`**${messages.addCard}**`);
-    expect(paragraph).toContain(`**${messages.widgetEditor.create}**`);
+    expect(paragraph).toContain(`**${Common.actions.save}**`);
   });
 });

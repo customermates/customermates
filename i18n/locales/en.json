@@ -1736,13 +1736,13 @@
         "showFilters": "Show activity count and filters",
         "showMetricAndFilters": "Show metric and filters"
       },
-      "create": "Create widget",
       "danger": {
         "deleteLabel": "Delete widget {name}"
       },
       "editTitle": "Edit {name}",
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
+        "change": "Choose another widget",
         "chartDescription": "Compare CRM data in a visual chart.",
         "description": "Pick a format and choose the data yourself.",
         "scratchTitle": "Start from scratch",
@@ -1752,10 +1752,13 @@
         "incomplete": "Complete the data settings to see a preview.",
         "live": "Live preview",
         "size": "Dashboard size {w} × {h}",
-        "title": "Preview",
         "untitled": "Untitled widget"
       },
-      "save": "Save changes",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {None} one {1 active} other {# active}}",
+        "filters": "Filters",
+        "grouping": "Grouping"
+      },
       "settings": "Widget settings",
       "sharing": {
         "template": "Share as a template"
@@ -3568,7 +3571,6 @@
       "startsWith": "Starts with"
     },
     "overall": "Overall: {value}",
-    "preview": "Preview measure",
     "previewFailed": "The preview could not be loaded. Try again.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {

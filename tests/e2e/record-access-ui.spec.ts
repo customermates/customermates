@@ -3589,9 +3589,6 @@ test("copies another member's widget template into an independent owned widget w
   await dialog
     .getByRole("switch", { name: "Share as a template", exact: true })
     .check();
-  await dialog
-    .getByRole("button", { name: "Preview measure", exact: true })
-    .click();
   await expect(dialog.getByText(overall, { exact: true })).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
@@ -3650,9 +3647,6 @@ test("copies another member's widget template into an independent owned widget w
     await copiedDialog
       .getByRole("switch", { name: "Show metric and filters", exact: true })
       .uncheck();
-    await copiedDialog
-      .getByRole("button", { name: "Preview measure", exact: true })
-      .click();
     await expect(copiedDialog.locator("svg.recharts-surface")).toBeVisible();
     await expect(
       copiedDialog
@@ -3707,7 +3701,7 @@ test("copies another member's widget template into an independent owned widget w
       .getByRole("textbox", { name: "Name", exact: false })
       .fill("Reader edited copy");
     await copiedDialog
-      .getByRole("button", { name: "Save changes", exact: true })
+      .getByRole("button", { name: "Save", exact: true })
       .click();
     await expect(copiedDialog).not.toBeVisible();
     await expect(

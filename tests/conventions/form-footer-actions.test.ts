@@ -172,11 +172,6 @@ const NOT_YET_MIGRATED: Record<string, Rule[]> = {
     "footer-primitive",
     "confirm-primitive",
   ],
-  "app/[locale]/(protected)/dashboard/components/widget-modal.tsx": [
-    "footer-primitive",
-    "submit-button",
-    "legacy-footer",
-  ],
   "app/[locale]/(protected)/records/[typeId]/components/record-editor-actions.tsx": ["save-label", "submit-button"],
   "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx": ["footer-primitive"],
   "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx": ["confirm-primitive"],
@@ -227,7 +222,6 @@ const SAVE_LIKE_KEY_EXEMPT: Record<string, string> = {
   "DataTransfer.recordImport.update": "names an import mode option, not a button",
 };
 const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>([
-  "Dashboard.widgetEditor.save",
   "MassActions.apply",
   "MassActions.update",
 ]);
