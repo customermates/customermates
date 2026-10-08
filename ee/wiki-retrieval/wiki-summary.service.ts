@@ -43,11 +43,12 @@ export class WikiSummaryService {
       charge,
       payer: output ? "grant" : "platform",
     });
-    if (output)
+    if (output) {
       return {
         status: "generated",
         summary: boundedWikiSummary(output.summary),
       };
+    }
     return failureScope === "request" ? { status: "failed" } : { status: "unavailable" };
   }
 }

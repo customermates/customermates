@@ -85,13 +85,14 @@ describe("tier selection", () => {
   });
 
   it("resolves a tier whose bounds are omitted in the catalog for every prompt size", () => {
-    for (const promptTokens of [0, 1, BOUNDARY, 1_000_000])
+    for (const promptTokens of [0, 1, BOUNDARY, 1_000_000]) {
       expect(resolveModelPricing(JEV_MODEL_ID, promptTokens, JEV_PRICING_PROVIDER, null)).toEqual({
         inputPerMTok: 0.042,
         outputPerMTok: 0,
         cacheReadPerMTok: 0.042,
         cacheWritePerMTok: 0,
       });
+    }
   });
 });
 

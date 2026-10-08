@@ -16,10 +16,7 @@ function filler(topic: string, headings: string[]): string {
       (heading, index) =>
         `## ${topic} ${heading.toLocaleLowerCase()}\n\n${Array.from(
           { length: 6 },
-          (_, sentence) =>
-            GENERIC_SENTENCES[
-              (index * 4 + sentence) % GENERIC_SENTENCES.length
-            ],
+          (_, sentence) => GENERIC_SENTENCES[(index * 4 + sentence) % GENERIC_SENTENCES.length],
         ).join(" ")}`,
     )
     .join("\n\n");
@@ -40,257 +37,243 @@ const FILLER_HEADINGS = [
   "Notes",
 ];
 
-export const WIKI_RETRIEVAL_CORPUS: Array<{ title: string; markdown: string }> =
-  [
-    {
-      title: "Refund policy",
-      markdown: [
-        "This page describes how we handle refund requests from customers.",
-        "## Eligibility\n\nCustomers can request a refund within 30 days of purchase when the subscription was barely used.",
-        "## Partial refunds\n\nPartial refunds are calculated pro rata for the unused months of an annual plan.",
-        filler("Refund", FILLER_HEADINGS.slice(0, 6)),
-        "## Refund timelines\n\nApproved refunds are paid back to the original payment method within 5 business days.",
-        "## Chargebacks\n\nWhen a bank reports a chargeback, pause the account and notify finance immediately.",
-        filler("Refund", FILLER_HEADINGS.slice(6)),
-        "## Regional rules\n\nIn the European Union, consumers have a statutory right of withdrawal of 14 days after purchase.",
-        "## Approval matrix\n\nRefunds above 500 EUR require approval from the finance lead before they are issued.",
-      ].join("\n\n"),
-    },
-    {
-      title: "Refund policy (legacy 2023)",
-      markdown:
-        "This archived page describes the refund rules that applied before January 2024. Refunds were only granted within 14 days and required a written request by letter.",
-    },
-    {
-      title: "Rückerstattungen",
-      markdown:
-        "Kunden können eine Rückerstattung innerhalb von 30 Tagen beantragen. Rückerstattungen werden innerhalb von 10 Werktagen bearbeitet. Bei Teilzahlungen wird anteilig erstattet.",
-    },
-    {
-      title: "Política de reembolsos",
-      markdown:
-        "Los reembolsos se procesan en un plazo de 7 días hábiles. El cliente debe enviar la solicitud por correo electrónico al equipo de facturación.",
-    },
-    {
-      title: "Politique de remboursement",
-      markdown:
-        "Les remboursements sont traités sous 5 jours ouvrés. Toute demande de remboursement doit être envoyée par écrit au service de facturation.",
-    },
-    {
-      title: "Politica di rimborso",
-      markdown:
-        "I rimborsi vengono elaborati entro 10 giorni lavorativi. La richiesta deve essere inviata al reparto amministrativo.",
-    },
-    {
-      title: "Onboarding checklist",
-      markdown: [
-        "Use this checklist for every new customer after the contract is signed.",
-        "## Before kickoff\n\nCreate the workspace, invite the champion, and prepare the welcome email.",
-        "## Kickoff call\n\nSchedule the kickoff call within 3 business days of signature and share the agenda upfront.",
-        filler("Onboarding", FILLER_HEADINGS.slice(0, 5)),
-        "## Data import\n\nImport contacts from CSV using the import wizard; map custom fields before uploading.",
-        "## Training sessions\n\nOffer two live training sessions: one for admins and one for sales reps.",
-        filler("Onboarding", FILLER_HEADINGS.slice(5)),
-        "## Go-live criteria\n\nGo-live requires at least three active users and one completed pipeline review.",
-        "## Handover\n\nAfter go-live the account manager takes over the relationship.",
-      ].join("\n\n"),
-    },
-    {
-      title: "Customer onboarding playbook",
-      markdown:
-        "Our playbook for onboarding enterprise customers: assign a dedicated onboarding manager and run weekly check-ins for the first 60 days.",
-    },
-    {
-      title: "Kundenonboarding",
-      markdown:
-        "Jeder neue Kunde erhält einen persönlichen Ansprechpartner. Das Einführungsgespräch findet innerhalb einer Woche statt.",
-    },
-    {
-      title: "Guía de incorporación de clientes",
-      markdown:
-        "La incorporación de nuevos clientes comienza con una llamada de bienvenida y una sesión de formación para administradores.",
-    },
-    {
-      title: "Guide d'intégration des clients",
-      markdown:
-        "L'intégration des nouveaux clients commence par un appel de lancement suivi d'une formation des administrateurs.",
-    },
-    {
-      title: "Support escalation process",
-      markdown: [
-        "How support tickets move from the first line to engineering.",
-        "## Severity levels\n\nSeverity 1 means the product is unavailable for all users. Severity 2 means a major feature is broken.",
-        "## On-call rotation\n\nThe on-call engineer is paged through PagerDuty and rotates every Monday.",
-        filler("Escalation", FILLER_HEADINGS.slice(0, 6)),
-        "## Escalating to engineering\n\nCritical tickets outside business hours are escalated by calling the on-call engineer through the paging tool.",
-        "## Customer communication\n\nPost a status update for affected customers every hour until the issue is resolved.",
-        filler("Escalation", FILLER_HEADINGS.slice(6)),
-        "## Post-incident review\n\nEvery severity 1 incident needs a written post-mortem within five working days.",
-      ].join("\n\n"),
-    },
-    {
-      title: "Service level agreement",
-      markdown:
-        "Priority 1 tickets receive a first response within 30 minutes. Priority 2 tickets receive a first response within 4 hours. The uptime commitment is 99.9 percent per month.",
-    },
-    {
-      title: "Brand voice and tone",
-      markdown:
-        "We write in a friendly, direct voice. Avoid jargon and exclamation marks. Address customers by first name in chat.",
-    },
-    {
-      title: "Tonalität und Markenstimme",
-      markdown:
-        "Wir duzen unsere Kunden im Chat und siezen sie in E-Mails. Wir vermeiden Fachjargon und Ausrufezeichen.",
-    },
-    {
-      title: "Pricing and discounts",
-      markdown:
-        "Customers who prepay annually receive an annual prepayment discount of 15 percent. Registered nonprofits receive a 30 percent nonprofit discount on any plan. Discounts cannot be combined.",
-    },
-    {
-      title: "Preise und Rabatte",
-      markdown:
-        "Bei jährlicher Vorauszahlung gewähren wir 15 Prozent Rabatt. Gemeinnützige Organisationen erhalten 30 Prozent Nachlass auf jeden Tarif.",
-    },
-    {
-      title: "Security and data protection",
-      markdown: [
-        "Our security commitments for customer data.",
-        "## Encryption\n\nAll customer data is encrypted with AES-256 at rest and TLS 1.3 in transit.",
-        filler("Security", FILLER_HEADINGS.slice(0, 6)),
-        "## Access reviews\n\nAdmin access is checked in a quarterly access review by the security lead.",
-        "## Incident response\n\nSuspected breaches are reported to the security lead within one hour.",
-        filler("Security", FILLER_HEADINGS.slice(6)),
-        "## Data retention\n\nData of cancelled workspaces is permanently deleted after 90 days.",
-        "## Subprocessors\n\nThe list of subprocessors is published on the trust page.",
-      ].join("\n\n"),
-    },
-    {
-      title: "Datenschutz und Sicherheit",
-      markdown:
-        "Mit jedem Geschäftskunden schließen wir einen Auftragsverarbeitungsvertrag (AVV) ab. Personenbezogene Daten werden ausschließlich in Rechenzentren in Frankfurt gespeichert.",
-    },
-    {
-      title: "Sales playbook",
-      markdown: [
-        "How we run deals from first contact to signature.",
-        "## Discovery questions\n\nAsk about the current tool, the team size, and the biggest pain in the weekly pipeline meeting.",
-        "## Qualification\n\nWe qualify opportunities with the MEDDICC framework before the first demo.",
-        filler("Sales", FILLER_HEADINGS.slice(0, 6)),
-        "## Objection handling\n\nWhen a prospect says the product is too expensive, compare the cost with the hours saved per week.",
-        "## Demo guidelines\n\nShow the prospect's own pipeline instead of sample data whenever possible.",
-        filler("Sales", FILLER_HEADINGS.slice(6)),
-        "## Closing\n\nSend the order form together with a mutual action plan.",
-      ].join("\n\n"),
-    },
-    {
-      title: "Partner program",
-      markdown:
-        "Referral partners receive a 20 percent revenue share for the first year of each referred customer. Partners must complete the certification course.",
-    },
-    {
-      title: "Holiday calendar and office hours",
-      markdown:
-        "Our office hours are Monday to Friday, 9:00 to 17:00 CET. The office is closed on December 24 and December 31.",
-    },
-    {
-      title: "Travel expense policy",
-      markdown: [
-        "Rules for booking and reimbursing business travel.",
-        "## Booking travel\n\nBook trains and flights through the travel portal at least 14 days ahead.",
-        filler("Travel", FILLER_HEADINGS.slice(0, 6)),
-        "## Per diem rates\n\nThe per diem for Berlin is 28 EUR per day; other cities follow the statutory table.",
-        "## Receipts\n\nSubmit receipts within 30 days of the trip in the expense tool.",
-        filler("Travel", FILLER_HEADINGS.slice(6)),
-        "## Mileage\n\nPrivate car use is reimbursed at 0.30 EUR per kilometre.",
-      ].join("\n\n"),
-    },
-    {
-      title: "Reisekostenrichtlinie",
-      markdown:
-        "Übernachtungskosten werden bis 120 Euro pro Nacht erstattet. Bahnfahrten erfolgen in der zweiten Klasse.",
-    },
-    {
-      title: "Product roadmap Q3",
-      markdown:
-        "The Zephyr integration ships in August. Bulk editing for deals follows in September.",
-    },
-    {
-      title: "Engineering on-call runbook",
-      markdown: [
-        "Operational steps for the engineer on call.",
-        "## Alerts\n\nAcknowledge every alert within ten minutes and write the first note in the incident channel.",
-        filler("Runbook", FILLER_HEADINGS.slice(0, 6)),
-        "## Restarting consumers\n\nIf the event queue stalls, restart the Kafka consumer group with kcat on the quokka-7 cluster.",
-        "## Database failover\n\nPromote the replica only after the primary has been unreachable for five minutes.",
-        filler("Runbook", FILLER_HEADINGS.slice(6)),
-        "## Rollbacks\n\nRoll back a failed deployment by promoting the previous release in the deploy dashboard.",
-      ].join("\n\n"),
-    },
-    {
-      title: "客户支持手册",
-      markdown: "退款申请需要在30天内提交。客户支持团队会在一个工作日内回复。",
-    },
-    {
-      title: "고객 지원 안내",
-      markdown: [
-        "## 소개\n\n이 페이지는 고객 지원 팀의 기본 안내입니다.",
-        "## 환불 정책\n\n환불은 구매 후 30일 이내에 요청할 수 있습니다.",
-        "## 배송\n\n배송은 영업일 기준 3일이 걸립니다.",
-      ].join("\n\n"),
-    },
-    {
-      title: "社内研修ガイド",
-      markdown: [
-        "## 概要\n\nこのページは新入社員向けの案内です。",
-        "## がくしゅう\n\n新入社員はがくしゅう計画に沿って三か月学びます。",
-        "## データベース\n\n本番のデータベースは毎晩バックアップされます。",
-      ].join("\n\n"),
-    },
-    {
-      title: "Glossary",
-      markdown: [
-        "Terms we use across sales, success, and finance.",
-        ...[
-          ["Churn", "The share of customers who cancel in a period."],
-          ["Pipeline", "All open deals with their stage and expected value."],
-          [
-            "Lead scoring",
-            "Points assigned to leads based on fit and engagement.",
-          ],
-          ["Champion", "The person inside the customer who drives adoption."],
-          ["Seat", "One paid user license in a workspace."],
-          ["Cohort", "A group of customers who signed up in the same month."],
-          [
-            "Upsell",
-            "Selling a larger plan or add-on to an existing customer.",
-          ],
-          ["Win rate", "Closed won deals divided by all closed deals."],
-        ].map(
-          ([term, definition]) =>
-            `### ${term}\n\n${definition} ${GENERIC_SENTENCES.slice(0, 5).join(" ")}`,
-        ),
-        "### NRR\n\nNet revenue retention: revenue kept from existing customers including expansion.",
-        "### ARR\n\nAnnual recurring revenue: the yearly value of all active subscriptions.",
-      ].join("\n\n"),
-    },
-    {
-      title: "Hiring process",
-      markdown:
-        "Every engineering candidate completes a paid take-home exercise. The final interview is with two future teammates.",
-    },
-    {
-      title: "Contract renewal process",
-      markdown:
-        "Contracts renew automatically. Send the renewal notice 60 days before the end of the term.",
-    },
-    {
-      title: "Meeting notes template",
-      markdown:
-        "Use this template for customer meetings: attendees, agenda, decisions, next steps.",
-    },
-  ];
+export const WIKI_RETRIEVAL_CORPUS: Array<{ title: string; markdown: string }> = [
+  {
+    title: "Refund policy",
+    markdown: [
+      "This page describes how we handle refund requests from customers.",
+      "## Eligibility\n\nCustomers can request a refund within 30 days of purchase when the subscription was barely used.",
+      "## Partial refunds\n\nPartial refunds are calculated pro rata for the unused months of an annual plan.",
+      filler("Refund", FILLER_HEADINGS.slice(0, 6)),
+      "## Refund timelines\n\nApproved refunds are paid back to the original payment method within 5 business days.",
+      "## Chargebacks\n\nWhen a bank reports a chargeback, pause the account and notify finance immediately.",
+      filler("Refund", FILLER_HEADINGS.slice(6)),
+      "## Regional rules\n\nIn the European Union, consumers have a statutory right of withdrawal of 14 days after purchase.",
+      "## Approval matrix\n\nRefunds above 500 EUR require approval from the finance lead before they are issued.",
+    ].join("\n\n"),
+  },
+  {
+    title: "Refund policy (legacy 2023)",
+    markdown:
+      "This archived page describes the refund rules that applied before January 2024. Refunds were only granted within 14 days and required a written request by letter.",
+  },
+  {
+    title: "Rückerstattungen",
+    markdown:
+      "Kunden können eine Rückerstattung innerhalb von 30 Tagen beantragen. Rückerstattungen werden innerhalb von 10 Werktagen bearbeitet. Bei Teilzahlungen wird anteilig erstattet.",
+  },
+  {
+    title: "Política de reembolsos",
+    markdown:
+      "Los reembolsos se procesan en un plazo de 7 días hábiles. El cliente debe enviar la solicitud por correo electrónico al equipo de facturación.",
+  },
+  {
+    title: "Politique de remboursement",
+    markdown:
+      "Les remboursements sont traités sous 5 jours ouvrés. Toute demande de remboursement doit être envoyée par écrit au service de facturation.",
+  },
+  {
+    title: "Politica di rimborso",
+    markdown:
+      "I rimborsi vengono elaborati entro 10 giorni lavorativi. La richiesta deve essere inviata al reparto amministrativo.",
+  },
+  {
+    title: "Onboarding checklist",
+    markdown: [
+      "Use this checklist for every new customer after the contract is signed.",
+      "## Before kickoff\n\nCreate the workspace, invite the champion, and prepare the welcome email.",
+      "## Kickoff call\n\nSchedule the kickoff call within 3 business days of signature and share the agenda upfront.",
+      filler("Onboarding", FILLER_HEADINGS.slice(0, 5)),
+      "## Data import\n\nImport contacts from CSV using the import wizard; map custom fields before uploading.",
+      "## Training sessions\n\nOffer two live training sessions: one for admins and one for sales reps.",
+      filler("Onboarding", FILLER_HEADINGS.slice(5)),
+      "## Go-live criteria\n\nGo-live requires at least three active users and one completed pipeline review.",
+      "## Handover\n\nAfter go-live the account manager takes over the relationship.",
+    ].join("\n\n"),
+  },
+  {
+    title: "Customer onboarding playbook",
+    markdown:
+      "Our playbook for onboarding enterprise customers: assign a dedicated onboarding manager and run weekly check-ins for the first 60 days.",
+  },
+  {
+    title: "Kundenonboarding",
+    markdown:
+      "Jeder neue Kunde erhält einen persönlichen Ansprechpartner. Das Einführungsgespräch findet innerhalb einer Woche statt.",
+  },
+  {
+    title: "Guía de incorporación de clientes",
+    markdown:
+      "La incorporación de nuevos clientes comienza con una llamada de bienvenida y una sesión de formación para administradores.",
+  },
+  {
+    title: "Guide d'intégration des clients",
+    markdown:
+      "L'intégration des nouveaux clients commence par un appel de lancement suivi d'une formation des administrateurs.",
+  },
+  {
+    title: "Support escalation process",
+    markdown: [
+      "How support tickets move from the first line to engineering.",
+      "## Severity levels\n\nSeverity 1 means the product is unavailable for all users. Severity 2 means a major feature is broken.",
+      "## On-call rotation\n\nThe on-call engineer is paged through PagerDuty and rotates every Monday.",
+      filler("Escalation", FILLER_HEADINGS.slice(0, 6)),
+      "## Escalating to engineering\n\nCritical tickets outside business hours are escalated by calling the on-call engineer through the paging tool.",
+      "## Customer communication\n\nPost a status update for affected customers every hour until the issue is resolved.",
+      filler("Escalation", FILLER_HEADINGS.slice(6)),
+      "## Post-incident review\n\nEvery severity 1 incident needs a written post-mortem within five working days.",
+    ].join("\n\n"),
+  },
+  {
+    title: "Service level agreement",
+    markdown:
+      "Priority 1 tickets receive a first response within 30 minutes. Priority 2 tickets receive a first response within 4 hours. The uptime commitment is 99.9 percent per month.",
+  },
+  {
+    title: "Brand voice and tone",
+    markdown:
+      "We write in a friendly, direct voice. Avoid jargon and exclamation marks. Address customers by first name in chat.",
+  },
+  {
+    title: "Tonalität und Markenstimme",
+    markdown: "Wir duzen unsere Kunden im Chat und siezen sie in E-Mails. Wir vermeiden Fachjargon und Ausrufezeichen.",
+  },
+  {
+    title: "Pricing and discounts",
+    markdown:
+      "Customers who prepay annually receive an annual prepayment discount of 15 percent. Registered nonprofits receive a 30 percent nonprofit discount on any plan. Discounts cannot be combined.",
+  },
+  {
+    title: "Preise und Rabatte",
+    markdown:
+      "Bei jährlicher Vorauszahlung gewähren wir 15 Prozent Rabatt. Gemeinnützige Organisationen erhalten 30 Prozent Nachlass auf jeden Tarif.",
+  },
+  {
+    title: "Security and data protection",
+    markdown: [
+      "Our security commitments for customer data.",
+      "## Encryption\n\nAll customer data is encrypted with AES-256 at rest and TLS 1.3 in transit.",
+      filler("Security", FILLER_HEADINGS.slice(0, 6)),
+      "## Access reviews\n\nAdmin access is checked in a quarterly access review by the security lead.",
+      "## Incident response\n\nSuspected breaches are reported to the security lead within one hour.",
+      filler("Security", FILLER_HEADINGS.slice(6)),
+      "## Data retention\n\nData of cancelled workspaces is permanently deleted after 90 days.",
+      "## Subprocessors\n\nThe list of subprocessors is published on the trust page.",
+    ].join("\n\n"),
+  },
+  {
+    title: "Datenschutz und Sicherheit",
+    markdown:
+      "Mit jedem Geschäftskunden schließen wir einen Auftragsverarbeitungsvertrag (AVV) ab. Personenbezogene Daten werden ausschließlich in Rechenzentren in Frankfurt gespeichert.",
+  },
+  {
+    title: "Sales playbook",
+    markdown: [
+      "How we run deals from first contact to signature.",
+      "## Discovery questions\n\nAsk about the current tool, the team size, and the biggest pain in the weekly pipeline meeting.",
+      "## Qualification\n\nWe qualify opportunities with the MEDDICC framework before the first demo.",
+      filler("Sales", FILLER_HEADINGS.slice(0, 6)),
+      "## Objection handling\n\nWhen a prospect says the product is too expensive, compare the cost with the hours saved per week.",
+      "## Demo guidelines\n\nShow the prospect's own pipeline instead of sample data whenever possible.",
+      filler("Sales", FILLER_HEADINGS.slice(6)),
+      "## Closing\n\nSend the order form together with a mutual action plan.",
+    ].join("\n\n"),
+  },
+  {
+    title: "Partner program",
+    markdown:
+      "Referral partners receive a 20 percent revenue share for the first year of each referred customer. Partners must complete the certification course.",
+  },
+  {
+    title: "Holiday calendar and office hours",
+    markdown:
+      "Our office hours are Monday to Friday, 9:00 to 17:00 CET. The office is closed on December 24 and December 31.",
+  },
+  {
+    title: "Travel expense policy",
+    markdown: [
+      "Rules for booking and reimbursing business travel.",
+      "## Booking travel\n\nBook trains and flights through the travel portal at least 14 days ahead.",
+      filler("Travel", FILLER_HEADINGS.slice(0, 6)),
+      "## Per diem rates\n\nThe per diem for Berlin is 28 EUR per day; other cities follow the statutory table.",
+      "## Receipts\n\nSubmit receipts within 30 days of the trip in the expense tool.",
+      filler("Travel", FILLER_HEADINGS.slice(6)),
+      "## Mileage\n\nPrivate car use is reimbursed at 0.30 EUR per kilometre.",
+    ].join("\n\n"),
+  },
+  {
+    title: "Reisekostenrichtlinie",
+    markdown:
+      "Übernachtungskosten werden bis 120 Euro pro Nacht erstattet. Bahnfahrten erfolgen in der zweiten Klasse.",
+  },
+  {
+    title: "Product roadmap Q3",
+    markdown: "The Zephyr integration ships in August. Bulk editing for deals follows in September.",
+  },
+  {
+    title: "Engineering on-call runbook",
+    markdown: [
+      "Operational steps for the engineer on call.",
+      "## Alerts\n\nAcknowledge every alert within ten minutes and write the first note in the incident channel.",
+      filler("Runbook", FILLER_HEADINGS.slice(0, 6)),
+      "## Restarting consumers\n\nIf the event queue stalls, restart the Kafka consumer group with kcat on the quokka-7 cluster.",
+      "## Database failover\n\nPromote the replica only after the primary has been unreachable for five minutes.",
+      filler("Runbook", FILLER_HEADINGS.slice(6)),
+      "## Rollbacks\n\nRoll back a failed deployment by promoting the previous release in the deploy dashboard.",
+    ].join("\n\n"),
+  },
+  {
+    title: "客户支持手册",
+    markdown: "退款申请需要在30天内提交。客户支持团队会在一个工作日内回复。",
+  },
+  {
+    title: "고객 지원 안내",
+    markdown: [
+      "## 소개\n\n이 페이지는 고객 지원 팀의 기본 안내입니다.",
+      "## 환불 정책\n\n환불은 구매 후 30일 이내에 요청할 수 있습니다.",
+      "## 배송\n\n배송은 영업일 기준 3일이 걸립니다.",
+    ].join("\n\n"),
+  },
+  {
+    title: "社内研修ガイド",
+    markdown: [
+      "## 概要\n\nこのページは新入社員向けの案内です。",
+      "## がくしゅう\n\n新入社員はがくしゅう計画に沿って三か月学びます。",
+      "## データベース\n\n本番のデータベースは毎晩バックアップされます。",
+    ].join("\n\n"),
+  },
+  {
+    title: "Glossary",
+    markdown: [
+      "Terms we use across sales, success, and finance.",
+      ...[
+        ["Churn", "The share of customers who cancel in a period."],
+        ["Pipeline", "All open deals with their stage and expected value."],
+        ["Lead scoring", "Points assigned to leads based on fit and engagement."],
+        ["Champion", "The person inside the customer who drives adoption."],
+        ["Seat", "One paid user license in a workspace."],
+        ["Cohort", "A group of customers who signed up in the same month."],
+        ["Upsell", "Selling a larger plan or add-on to an existing customer."],
+        ["Win rate", "Closed won deals divided by all closed deals."],
+      ].map(([term, definition]) => `### ${term}\n\n${definition} ${GENERIC_SENTENCES.slice(0, 5).join(" ")}`),
+      "### NRR\n\nNet revenue retention: revenue kept from existing customers including expansion.",
+      "### ARR\n\nAnnual recurring revenue: the yearly value of all active subscriptions.",
+    ].join("\n\n"),
+  },
+  {
+    title: "Hiring process",
+    markdown:
+      "Every engineering candidate completes a paid take-home exercise. The final interview is with two future teammates.",
+  },
+  {
+    title: "Contract renewal process",
+    markdown: "Contracts renew automatically. Send the renewal notice 60 days before the end of the term.",
+  },
+  {
+    title: "Meeting notes template",
+    markdown: "Use this template for customer meetings: attendees, agenda, decisions, next steps.",
+  },
+];
 
 export type WikiEvalCategory =
   | "exact-title"
@@ -434,8 +417,7 @@ export const WIKI_RETRIEVAL_QUERIES: WikiEvalQuery[] = [
   },
   {
     category: "natural-language",
-    query:
-      "What happens when a customer in the EU wants to withdraw from the contract after purchase?",
+    query: "What happens when a customer in the EU wants to withdraw from the contract after purchase?",
     expect: ["Refund policy"],
     answer: "statutory right of withdrawal of 14 days",
   },

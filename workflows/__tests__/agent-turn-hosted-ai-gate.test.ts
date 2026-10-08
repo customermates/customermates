@@ -3798,7 +3798,9 @@ describe("routine browse-or-mutate batch safety", () => {
         gatewayCost: "0.0005",
         routing: {
           finalProvider: "vertexAnthropic",
-          modelAttempts: [{ providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] }],
+          modelAttempts: [
+            { providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] },
+          ],
         },
       },
     };
@@ -4152,7 +4154,9 @@ describe("agent-turn rate-limited provider requests", () => {
       cost: "0",
       routing: {
         finalProvider: "vertexAnthropic",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: false }] }],
+        modelAttempts: [
+          { providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: false }] },
+        ],
       },
     },
   };
@@ -4162,7 +4166,9 @@ describe("agent-turn rate-limited provider requests", () => {
       cost: "0.0005",
       routing: {
         finalProvider: "vertexAnthropic",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] }],
+        modelAttempts: [
+          { providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] },
+        ],
       },
     },
   };

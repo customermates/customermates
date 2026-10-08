@@ -1536,7 +1536,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
         ...(payload.turnBudget.reasoningEffort ? { reasoning: payload.turnBudget.reasoningEffort } : {}),
-        providerOptions: getAgentProviderOptions(payload.turnBudget.servingProvider, payload.turnBudget.inferenceRegion),
+        providerOptions: getAgentProviderOptions(
+          payload.turnBudget.servingProvider,
+          payload.turnBudget.inferenceRegion,
+        ),
         prepareStep: async ({ messages: stepMessages }) => {
           settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)

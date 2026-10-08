@@ -358,7 +358,8 @@ describe("gated-tools", () => {
   });
 
   it("treats Knowledge Base gaps as an approval-free read", () => {
-    const wiki = ALL_MCP_TOOLS.find((tool) => tool.name === "manage_wiki_pages")!;
+    const wiki = ALL_MCP_TOOLS.find((tool) => tool.name === "manage_wiki_pages");
+    if (!wiki) throw new Error("manage_wiki_pages is not registered.");
     expect(approvalNeeded(wiki, { action: "gaps" })).toBe(false);
     expect(isReadOnlyAgentToolCall("manage_wiki_pages", wiki, { action: "gaps" })).toBe(true);
     expect(describeInternalTool("manage_wiki_pages", { action: "gaps" })).toMatchObject({
@@ -366,9 +367,9 @@ describe("gated-tools", () => {
       resource: "wiki",
       risk: "read",
     });
-    expect(requiresApprovalOnSurface(internalToolIdentity("manage_wiki_pages"), wiki, { action: "gaps" }, "routine")).toBe(
-      false,
-    );
+    expect(
+      requiresApprovalOnSurface(internalToolIdentity("manage_wiki_pages"), wiki, { action: "gaps" }, "routine"),
+    ).toBe(false);
   });
 
   it("keeps known read tools ungated", () => {
