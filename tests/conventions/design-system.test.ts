@@ -251,7 +251,6 @@ function topBarFindings(sources: SourceFile[]) {
 }
 
 const TOP_BAR_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx": "I3 r3: Add widget through the shared top-bar action buttons",
   "app/[locale]/(protected)/configure/components/configure-page-view.tsx": "I1 r4: ConfigureTopBarActions buttons",
 };
 

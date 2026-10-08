@@ -1878,10 +1878,12 @@
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
+      "activityCount": "{count, plural, one {# activité} other {# activités}}",
       "aiLabel": "Interroger l’IA sur {name}",
       "all": "Toutes",
       "applied": "Affichage de {name}",
       "askAi": "Demander à l'IA",
+      "conversationCount": "{count, plural, one {# discussion} other {# discussions}}",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
       "createWithAi": "Créer avec l’IA",
