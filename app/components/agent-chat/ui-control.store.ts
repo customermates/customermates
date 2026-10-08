@@ -190,7 +190,7 @@ export class AgentUiControlStore extends BaseStore {
       const result = await getRecordAction(record.data);
       if (!result.ok)
         return { ok: false, result: "The record is unavailable or cannot be read with your current access." };
-    } else if (route.path.startsWith("/records/") || route.path.startsWith("/configure?typeId=")) {
+    } else if (route.path.startsWith("/records/") || route.path.startsWith("/configure?focus=")) {
       const navigation = await getRecordNavigationAction();
       const typeId = /[0-9a-f-]{36}/.exec(route.path)?.[0];
       if (!navigation.types.some((type) => type.id === typeId) || !this.canOpen(route.path.split("?")[0]))

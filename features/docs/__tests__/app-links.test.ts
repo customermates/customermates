@@ -23,14 +23,16 @@ function path(href: string, withWorkspace = true) {
 describe("app links", () => {
   it("resolves a list by its preset key to the reader's list", () => {
     expect(path("app:records/contact")).toBe(`/records/${CONTACTS}`);
-    expect(path("app:records/contact?focus=add")).toBe(`/records/${CONTACTS}?focus=control:records:${CONTACTS}:add`);
-    expect(path("app:configure/contact")).toBe(`/configure?typeId=${CONTACTS}`);
+    expect(path("app:records/contact?focus=add")).toBe(
+      `/records/${CONTACTS}?focus=control%3Arecords%3A${CONTACTS}%3Aadd`,
+    );
+    expect(path("app:configure/contact")).toBe(`/configure?focus=list%3A${CONTACTS}`);
   });
 
   it("resolves a fixed page and its controls without a workspace", () => {
     expect(path("app:company/roles", false)).toBe("/company/roles");
-    expect(path("app:company/roles?focus=add", false)).toBe("/company/roles?focus=control:company-roles-add");
-    expect(path("app:dashboard?focus=add-widget", false)).toBe("/dashboard?focus=control:dashboard-add-widget");
+    expect(path("app:company/roles?focus=add", false)).toBe("/company/roles?focus=control%3Acompany-roles-add");
+    expect(path("app:dashboard?focus=add-widget", false)).toBe("/dashboard?focus=control%3Adashboard-add-widget");
   });
 
   it("sends a workspace-dependent link through the open route when no workspace is known", () => {
@@ -61,7 +63,7 @@ describe("app links", () => {
     const text = resolvePublicAppLinks("[Add](app:records/contact?focus=add), [Roles](app:company/roles)", BASE);
 
     expect(localizeAppLinks(text, BASE, workspace)).toBe(
-      `[Add](/records/${CONTACTS}?focus=control:records:${CONTACTS}:add), [Roles](/company/roles)`,
+      `[Add](/records/${CONTACTS}?focus=control%3Arecords%3A${CONTACTS}%3Aadd), [Roles](/company/roles)`,
     );
     expect(localizeAppLinks(`[Docs](${BASE}/en/docs/app-records)`, BASE, workspace)).toBe(
       `[Docs](${BASE}/en/docs/app-records)`,
@@ -71,16 +73,18 @@ describe("app links", () => {
   });
 
   it("lets navigation open only resolved app link paths", () => {
-    expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control:records:${CONTACTS}:add`)).toBe(true);
-    expect(isResolvedAppLinkPath(`/configure?typeId=${CONTACTS}`)).toBe(true);
-    expect(isResolvedAppLinkPath("/company/roles?focus=control:company-roles-add")).toBe(true);
+    expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control%3Arecords%3A${CONTACTS}%3Aadd`)).toBe(true);
+    expect(isResolvedAppLinkPath(`/configure?focus=list%3A${CONTACTS}`)).toBe(true);
+    expect(isResolvedAppLinkPath("/company/roles?focus=control%3Acompany-roles-add")).toBe(true);
     expect(isResolvedAppLinkPath("/company/roles")).toBe(true);
     expect(isResolvedAppLinkPath("/operator/users")).toBe(false);
     expect(isResolvedAppLinkPath("/company/roles?x=1")).toBe(false);
     expect(isResolvedAppLinkPath("https://evil.example/company/roles")).toBe(false);
     expect(isResolvedAppLinkPath("//evil.example/company/roles")).toBe(false);
-    expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control:records:${OTHER}:add`)).toBe(false);
-    expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control:records:${CONTACTS}:layout-board`)).toBe(false);
-    expect(isResolvedAppLinkPath(`/configure?typeId=${CONTACTS}&x=1`)).toBe(false);
+    expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control%3Arecords%3A${OTHER}%3Aadd`)).toBe(false);
+    expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control%3Arecords%3A${CONTACTS}%3Alayout-board`)).toBe(
+      false,
+    );
+    expect(isResolvedAppLinkPath(`/configure?focus=list%3A${CONTACTS}&x=1`)).toBe(false);
   });
 });
