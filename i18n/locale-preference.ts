@@ -23,14 +23,26 @@ export function browserAppLocale(languages: readonly string[]): AppLocale {
   return DEFAULT_LOCALE;
 }
 
+function isSameOriginPath(path: string): boolean {
+  return (
+    path.startsWith("/") &&
+    !path.startsWith("//") &&
+    ![...path].some(
+      (character) => character === "\\" || character.trim() === "" || character < " " || character === "\u007f",
+    )
+  );
+}
+
 export function displayLanguageNavigationTarget(locale: unknown, pathname: string): string {
   const suffixStart = pathname.search(/[?#]/);
   const path = suffixStart === -1 ? pathname : pathname.slice(0, suffixStart);
-  const suffix = suffixStart === -1 ? "" : pathname.slice(suffixStart);
   const unprefixedPath = stripLocalePrefix(path);
-  if (locale === "system") return `${unprefixedPath}${suffix}`;
+  const safe = isSameOriginPath(path) && isSameOriginPath(unprefixedPath);
+  const routePath = safe ? unprefixedPath : "/";
+  const suffix = safe && suffixStart !== -1 ? pathname.slice(suffixStart) : "";
+  if (locale === "system") return `/${routePath.slice(1)}${suffix}`;
 
-  return `${buildLocalePath(appLocaleOrDefault(locale), unprefixedPath)}${suffix}`;
+  return `/${buildLocalePath(appLocaleOrDefault(locale), routePath).slice(1)}${suffix}`;
 }
 
 export function appLocaleReconciliationTarget(
