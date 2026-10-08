@@ -399,14 +399,10 @@ describe("rule 58: icons from the shared icon set", () => {
   });
 });
 
-const KEY_CAP_OWNERS = new Set(["components/keyboard/shortcut-keys.tsx"]);
+const KEY_CAP_OWNERS = new Set(["components/keyboard/shortcut-keys.tsx", "components/keyboard/key-matching.ts"]);
 const RAW_KEY_HINT = /<kbd\b|&#8984;|⌘|\\u2318/;
 
-const KEY_CAP_ALLOWLIST: Allowlist = {
-  "app/components/navigation/nav-header.tsx": "I22: sidebar quick action key hints",
-  "app/components/global-search-modal.tsx": "I22: Cmd+K palette key hints",
-  "app/components/app-sidebar.tsx": "I22: Ask Mate key hint from the shortcut registry",
-};
+const KEY_CAP_ALLOWLIST: Allowlist = {};
 
 describe("rule 52: key hints only through the shared key caps", () => {
   it("renders keyboard hints only inside the shared key cap component", () => {

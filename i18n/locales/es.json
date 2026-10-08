@@ -1896,6 +1896,9 @@
       "name": "Nombre",
       "namePlaceholder": "Nombre de la vista",
       "nameRequired": "Introduce un nombre para la vista.",
+      "pickerEmpty": "Ninguna vista coincide",
+      "pickerPlaceholder": "Buscar una vista…",
+      "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
       "recordCount": "{count, plural, one {# registro} other {# registros}}"
     }
@@ -2136,10 +2139,12 @@
     "title": "Contraseña olvidada"
   },
   "GlobalSearch": {
+    "askMateWith": "Preguntar a Mate: {question}",
     "clearRecent": "Borrar",
     "emptyDescription": "Busca registros en las listas a las que tienes acceso.",
     "emptyTitle": "Encuentra todo en tu espacio de trabajo",
     "groupRecent": "Abiertos recientemente",
+    "hintAskMate": "Preguntar a Mate",
     "hintNavigate": "Navegar",
     "hintOpen": "Abrir",
     "loading": "Buscando...",
@@ -2369,6 +2374,44 @@
     "stepsTitle": "Cómo unirte",
     "subtitle": "Un administrador del espacio de trabajo debe invitar a {email}.",
     "title": "Unirte a un espacio de trabajo existente"
+  },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Añadir un registro o una lista",
+      "askMate": "Preguntar a Mate",
+      "close": "Cerrar el diálogo o panel superior",
+      "goConfigure": "Configurar",
+      "goDashboard": "Panel",
+      "goInbox": "Bandeja de entrada",
+      "goKnowledgeBase": "Base de conocimientos",
+      "goList": "Listas según su posición en tu barra lateral",
+      "goRoutines": "Rutinas",
+      "goSettings": "Ajustes",
+      "save": "Guardar el formulario abierto",
+      "search": "Buscar",
+      "searchAlias": "Buscar",
+      "shortcuts": "Mostrar atajos de teclado",
+      "switchView": "Cambiar de vista en una lista",
+      "toggleSidebar": "Mostrar u ocultar la barra lateral"
+    },
+    "groups": {
+      "create": "Crear",
+      "forms": "Formularios",
+      "general": "General",
+      "listsAndViews": "Listas y vistas",
+      "navigation": "Navegación"
+    },
+    "noMatches": "Ningún atajo coincide con tu búsqueda.",
+    "or": "o",
+    "pendingGo": "Ir a… pulsa una letra o un número de lista",
+    "searchLabel": "Buscar atajos",
+    "searchPlaceholder": "Buscar atajos…",
+    "singleKey": {
+      "description": "C, /, V, ? y las secuencias G. Desactívalos si usas entrada por voz o pulsas teclas por error.",
+      "label": "Atajos de una tecla"
+    },
+    "then": "luego",
+    "title": "Atajos de teclado"
   },
   "LegalDocumentNotice": {
     "contractBody": "Hemos actualizado los documentos legales que se indican a continuación. Revísalos en nombre del cliente empresarial y organiza su aceptación electrónica por parte de un administrador del sistema autorizado.",

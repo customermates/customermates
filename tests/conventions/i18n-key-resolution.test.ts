@@ -47,6 +47,7 @@ import {
   WidgetKind,
 } from "@/generated/prisma";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 
 const STARTER_TYPE_KEYS = RECORD_PRESET_KEYS.flatMap((preset) =>
@@ -585,6 +586,8 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
   ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
+  ["KeyboardShortcuts.actions.${*}", SHORTCUTS.map((entry) => `KeyboardShortcuts.actions.${entry.id}`)],
+  ["KeyboardShortcuts.groups.${*}", SHORTCUT_GROUPS.map((group) => `KeyboardShortcuts.groups.${group}`)],
   ["ErrorCard.${*}", ERROR_CARD_DYNAMIC_KEYS],
   ["HomepagePricing.${*}.${*}", HOMEPAGE_PRICING_VARIABLE_KEYS],
   ["HomepagePricing.${*}.ctaText", ["HomepagePricing.cloud.ctaText", "HomepagePricing.selfHosted.ctaText"]],
@@ -778,6 +781,9 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/agent-chat/agent-chat-items.tsx :: t :: AgentChat.approval.${item.resolution}",
   "app/components/agent-chat/credit-blocked-notice.tsx :: t :: AgentChat.credits.blocked.${reason}",
   "app/components/agent-chat/usage-ring.tsx :: t :: Subscription.planNames.${usage.plan}",
+  "app/components/global-search-modal.tsx :: t :: KeyboardShortcuts.actions.${entry.id}",
+  "app/components/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx :: t :: KeyboardShortcuts.actions.${entry.id}",
+  "app/components/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx :: t :: KeyboardShortcuts.groups.${group}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.planNames.${plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.status.${status}",
   "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",

@@ -37,6 +37,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { ComposerSignature } from "./composer-signature";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
+import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
 
 const COMPOSER_EMOJIS = [
   "😀",
@@ -199,7 +200,7 @@ export const ThreadReplyComposer = observer(
     ]);
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+      if (isShortcutPress(event.nativeEvent, "save")) {
         event.preventDefault();
         if (!isNewThread || activeSender) runUserAction(() => threadComposeStore.send());
       }

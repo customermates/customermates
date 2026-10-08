@@ -20,6 +20,7 @@ import { EMAIL_STYLES } from "@/ee/messaging/email-styles";
 
 import { LinkPopover } from "./link-popover";
 
+import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
 import "./editor.scss";
 
 export type EmailMarkdownEditorHandle = {
@@ -97,7 +98,7 @@ export const EmailMarkdownEditor = forwardRef<EmailMarkdownEditorHandle, Props>(
         role: "textbox",
       },
       handleKeyDown: (_view, event) => {
-        if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && onSubmitShortcut) {
+        if (onSubmitShortcut && isShortcutPress(event, "save")) {
           event.preventDefault();
           onSubmitShortcut();
           return true;

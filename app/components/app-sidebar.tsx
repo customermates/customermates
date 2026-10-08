@@ -46,7 +46,8 @@ import { NavHeader } from "./navigation/nav-header";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
 import { visibleSubroutes } from "./navigation/workspace-sections";
-import { NavSections } from "./navigation/nav-sections";
+import { NavSections, useResolvedSidebar } from "./navigation/nav-sections";
+import { shortcutDestinations } from "./navigation/shortcut-destinations";
 import { SidebarCustomize } from "./navigation/sidebar-customize";
 import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
@@ -128,7 +129,14 @@ const FullAppSidebar = observer(
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const { feedbackModalStore, globalSearchModalStore, recordWorkspaceStore, userStore } = rootStore;
+    const {
+      addPickerStore,
+      feedbackModalStore,
+      globalSearchModalStore,
+      keyboardShortcutsStore,
+      recordWorkspaceStore,
+      userStore,
+    } = rootStore;
     const { messagingThreadsStore } = rootStore;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const inboxVisible =
@@ -144,9 +152,6 @@ const FullAppSidebar = observer(
     const subscriptionStatus = subscription?.status ?? null;
     const subscriptionPlan = subscription?.plan ?? null;
     const [selectedKey, setSelectedKey] = useState<string | null>(recordNavigationKey(intlPathname));
-    const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
-    const addPickerInvokerRef = useRef<HTMLElement | null>(null);
-    const addPickerFallbackRef = useRef<HTMLElement | null>(null);
 
     function handleThemeChange() {
       const next = resolvedTheme === "dark" ? ThemeEnum.light : ThemeEnum.dark;
@@ -315,6 +320,13 @@ const FullAppSidebar = observer(
       channelsNeedingActionCount,
     ]);
 
+    const resolvedSidebar = useResolvedSidebar(navGroups);
+
+    useEffect(
+      () => keyboardShortcutsStore.setDestinations(shortcutDestinations(navGroups, resolvedSidebar)),
+      [keyboardShortcutsStore, navGroups, resolvedSidebar],
+    );
+
     const secondaryItems: NavSecondaryItem[] = [
       ...(recordWorkspaceStore.navigationRefreshFailed && !restricted
         ? [
@@ -403,7 +415,6 @@ const FullAppSidebar = observer(
                 ? t("AgentChat.askAi")
                 : undefined
             }
-            assistantShortcut="⌘J"
             brandName="Customermates"
             brandSubtitle={planSubtitle}
             homeHref={
@@ -418,11 +429,7 @@ const FullAppSidebar = observer(
                 return;
               }
 
-              closeMobileSidebar(() => {
-                addPickerInvokerRef.current = invoker;
-                addPickerFallbackRef.current = document.getElementById("sidebar-trigger");
-                setIsAddPickerOpen(true);
-              });
+              closeMobileSidebar(() => addPickerStore.openFrom(invoker, document.getElementById("sidebar-trigger")));
             }}
             onAssistant={() => {
               if (restricted) {
@@ -468,9 +475,21 @@ const FullAppSidebar = observer(
                 signOut: t("UserAvatar.signOut"),
                 lightMode: t("UserAvatar.lightMode"),
                 darkMode: t("UserAvatar.darkMode"),
+                keyboardShortcuts: t("KeyboardShortcuts.title"),
               }}
               theme={resolvedTheme}
               user={user}
+              onKeyboardShortcuts={
+                restricted
+                  ? undefined
+                  : (invoker) =>
+                      closeMobileSidebar(() =>
+                        keyboardShortcutsStore.openFrom(
+                          invoker ?? document.body,
+                          document.getElementById("sidebar-trigger"),
+                        ),
+                      )
+              }
               onSignOut={() =>
                 closeMobileSidebar(() => {
                   runUserAction(handleSignOut);
@@ -484,19 +503,18 @@ const FullAppSidebar = observer(
         {!restricted ? (
           <AddPickerDrawer
             items={addItems}
-            open={isAddPickerOpen}
-            returnFocusFallback={addPickerFallbackRef.current}
-            returnFocusTarget={addPickerInvokerRef.current}
-            onOpenChange={setIsAddPickerOpen}
+            open={addPickerStore.isOpen}
+            returnFocusFallback={addPickerStore.focusReturnFallback}
+            returnFocusTarget={addPickerStore.focusReturnTarget}
+            onOpenChange={(open) => {
+              if (!open) addPickerStore.close();
+            }}
             onPick={(item) => {
-              setIsAddPickerOpen(false);
-              if (item.typeId) {
-                recordWorkspaceStore.open(
-                  { typeId: item.typeId },
-                  addPickerInvokerRef.current,
-                  addPickerFallbackRef.current,
-                );
-              } else router.push("/configure?create=true");
+              const { focusReturnTarget, focusReturnFallback } = addPickerStore;
+              addPickerStore.close();
+              if (item.typeId)
+                recordWorkspaceStore.open({ typeId: item.typeId }, focusReturnTarget, focusReturnFallback);
+              else router.push("/configure?create=true");
             }}
           />
         ) : null}
