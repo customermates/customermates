@@ -1,40 +1,29 @@
 ---
 title: "Global Search (Cmd/Ctrl+K)"
-description: "The Cmd/Ctrl+K search modal: which record types it searches, its stable ids, where a result opens, and where to look for messages instead."
+description: "Search every list you can read from anywhere with Cmd/Ctrl+K: what it finds, where a result opens, and where to search messages instead."
 ---
 
-Global search is a modal, not a page: it opens from anywhere in the app with **Cmd/Ctrl+K** or by activating `#nav-search` in the sidebar. This page documents it for people and for AI agents that drive the UI.
+Global search opens over the page you are on, from anywhere in the app: press Cmd/Ctrl+K, press / when no field has focus, or click **Search** in the sidebar.
 
 ## What does global search find, and which contact fields does it match? [#what-does-global-search-find]
 
-Global search returns a bounded page of accessible records across configured types, including custom types. You can search contacts by email address or phone number through their identity channels. Search also matches permitted titles and searchable field values, including configured email fields. Use **Load more** when additional results are available. Restricted values do not participate in search.
+Search looks through records in every list you can read, including lists your workspace created, and groups the hits by list. It matches record titles and searchable field values, including email fields, and finds contacts by any email address or phone number in their **Channels**. Values you are not allowed to see are not searched. If your role reads a list only with **Assigned**, you only get records you are assigned to. **Load more** fetches further hits.
 
-You only see the record types your role can read, and **Assigned** read access limits the hits to records you are assigned to. Before you type, **Recently opened** shows your last 8 picks from this search, kept in this browser only; **Clear** empties it. Arrow keys move through the hits and Enter opens one.
+Before you type, **Recently opened** shows your last 8 picks from search, stored in this browser only; **Clear** empties it. The same box also offers pages to go to, **Add** to create a record and, on a list, its saved views. Arrow keys move through the hits and Enter opens one. Selecting a record opens it in the details drawer.
 
-Messages are not searched; the Inbox has its own search.
+Messages are not searched here; the [Inbox](app:inbox) has its own search. For a filtered or sorted list of records, use a list instead, for example [Contacts](app:records/contact) with [Filters](app:records/contact?focus=filter). To add a record, see [CRM records](/docs/app-records#how-do-i-add-a-record).
 
-Selecting a result opens the record's detail page at `/records/<typeId>/<recordId>`. To add a record instead, use the **Add** control on its list page or the sidebar type picker documented in [CRM Records](/docs/app-records).
+## For agents [#which-stable-ids-does-it-have]
 
-**Link:** no page; open the modal on any app page with Cmd+K or Ctrl+K, or with **Search** in the sidebar. **Mate:** `highlight_element` with `nav-search` (it cannot `navigate` there or open the modal); the search field and the results are not highlight targets, so Mate names them.
+Mate can point at **Search** in the sidebar but cannot open the search box or type into it. For filtered, sorted or aggregated lookups, use the record query tools instead of global search.
 
-## Which stable ids does global search have? [#which-stable-ids-does-it-have]
-
-| Control | Id |
-| --- | --- |
-| Sidebar trigger | `#nav-search` |
-| Search field wrapper inside the modal | `#global-search-input` |
-
-For an agent, typing happens in the text input inside `#global-search-input` after opening the modal; results are regular options selected by their visible name. For filtered or sorted lookups use a list page or `query_crm_records`; use `query_crm_measure` for aggregates. The hosted assistant can highlight `#nav-search` but cannot open the modal or type into it.
-
-**Link:** no page; open the modal anywhere in the app with Cmd+K or Ctrl+K. **Mate:** `highlight_element` with `nav-search`; `#global-search-input` is not a highlight target, so Mate names the search field.
-
-## Frequently asked questions
+## Frequently asked questions [#frequently-asked-questions]
 
 <Faq>
 <FaqItem question="What is the keyboard shortcut?">
-Cmd+K on a Mac, Ctrl+K on Windows and Linux, from anywhere in the app, or / when no text field has focus. Type a question and press Tab to hand it to [Mate](/docs/app-assistant) instead. **Search** in the sidebar shows the key for your computer and opens the same modal. All shortcuts are listed in [Which keyboard shortcuts are there?](/docs/app-dashboard#keyboard-shortcuts).
+Cmd+K on a Mac, Ctrl+K on Windows and Linux, from anywhere in the app, or / when no text field has focus. Type a question and press Tab to hand it to [Mate](/docs/app-assistant) instead. **Search** in the sidebar shows the key for your computer and opens the same search. All shortcuts are listed in [Which keyboard shortcuts are there?](/docs/app-dashboard#keyboard-shortcuts).
 </FaqItem>
 <FaqItem question="Where do results open?">
-On the record's detail page at `/records/<typeId>/<recordId>`, documented in CRM Records.
+In the record's details drawer, over the page you were on. From there you can open the full record page, described in [CRM records](/docs/app-records#what-is-the-shared-layout-of-a-record-type).
 </FaqItem>
 </Faq>

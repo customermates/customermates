@@ -17,23 +17,21 @@ Customermates ist ein Open-Source-CRM mit einem nativen MCP-Endpoint. Claude, Ch
 | Cursor | [Cursor verbinden](/docs/connect-cli#cursor) |
 | Beliebiger MCP-Client | [MCP-Übersicht](/docs/mcp) |
 
-Jede Seite ist in sich abgeschlossen: die Verbindungsschritte und Ihre ersten Kommandos. Der Server brieft Ihren Client automatisch beim Verbinden, Sie müssen also nicht zwischen Seiten wechseln.
-
-Für einen Durchlauf mit Webhook und erster KI-Interaktion siehe [Quickstart](/docs/quickstart).
+Jede Seite enthält die Verbindungsschritte und Ihre ersten Kommandos, und der Server brieft Ihren Client beim Verbinden. Für einen Durchlauf mit Webhook und erster KI-Interaktion siehe [Quickstart](/docs/quickstart).
 
 ## Was Customermates ist [#what-customermates-is]
 
-Ein CRM mit konfigurierbaren Datensatztypen, Feldern, Beziehungen und Berechnungen sowie vertrauten Tabellen, Boards und Dashboards. Kontakte, Organisationen, Deals, Services und Aufgaben sind die fünf Startkonfigurationen; eigene Typen sind möglich. Dazu kommen:
+Ein CRM mit konfigurierbaren Listen, Feldern, Beziehungen und Berechnungen, Tabellen- und Board-Ansichten sowie Dashboards. Es beginnt mit Kontakten, Organisationen, Deals, Services und Aufgaben, und Sie können eigene Listen anlegen. Dazu kommen:
 
-- **Nativer MCP-Endpoint** unter `/api/v1/mcp`, damit ein MCP-Client CRM-Operationen ohne Plugin entdeckt und aufruft.
-- **Open Source** unter AGPLv3. Enterprise-Komponenten stehen unter einer separaten kommerziellen Lizenz. Self-Hosting oder die Managed Cloud.
+- **Nativer MCP-Endpoint** unter `/api/v1/mcp`: Ein MCP-Client entdeckt und ruft CRM-Operationen ohne Plugin auf.
+- **Open Source** unter AGPLv3; Enterprise-Komponenten stehen unter einer separaten kommerziellen Lizenz. Self-Hosting oder die Managed Cloud.
 - **Managed Cloud** mit Datenbank in der AWS-Region Frankfurt, einem [AVV](/dpa) und allen Unterauftragsverarbeitern, auch aus den USA, in der [Liste der Unterauftragsverarbeiter](/subprocessors).
 - **Webhooks** mit optional signierten Payloads, Retries und Delivery-Log.
 - **OpenAPI-3.1**-Spezifikation für die volle REST-Oberfläche unter `/api/v1/openapi`.
-- **Mate**, der In-App-KI-Assistent in Customermates Cloud: Er braucht keinen externen KI-Client und keine Einrichtung und nutzt die Credits aus Ihrem Tarif. Siehe [Assistent](/docs/app-assistant).
+- **Mate**, der In-App-KI-Assistent in Customermates Cloud: kein externer KI-Client, keine Einrichtung, er nutzt die Credits aus Ihrem Tarif. Siehe [Assistent](/docs/app-assistant).
 - **Routinen**, die Mate nach Zeitplan oder bei einer Datensatzänderung ausführen, in Customermates Cloud. Siehe [Routinen](/docs/app-routines).
 - **Posteingang** für E-Mail und verbundene LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, in Customermates Cloud. Siehe [Posteingang](/docs/app-inbox).
-- **Rollen**, die je Bereich festlegen, wer alle Datensätze, nur zugewiesene oder keine lesen und wer sie erstellen, bearbeiten oder löschen darf. Siehe [Unternehmen](/docs/app-company).
+- **Rollen**, die je Liste festlegen, wer alle Datensätze, nur zugewiesene oder keine lesen und wer sie erstellen, bearbeiten oder löschen darf. Siehe [Unternehmen](/docs/app-company).
 
 ## Vier Wege, wie Customermates mit Ihrem Stack spricht [#four-ways-customermates-connects-to-your-stack]
 
@@ -44,21 +42,21 @@ Ein CRM mit konfigurierbaren Datensatztypen, Feldern, Beziehungen und Berechnung
 | Auf CRM-Änderungen in Slack, einem Sequencer, BI oder Ihrem Warehouse reagieren | [Webhooks](/docs/webhooks) |
 | Workflows visuell ohne Code komponieren | [n8n](/docs/n8n) |
 
-MCP, OpenAPI und n8n authentifizieren sich mit einem API-Key, und MCP-Clients wie Claude und ChatGPT können sich auch per OAuth ohne Key verbinden; siehe [API-Keys](/docs/api-keys). Webhooks funktionieren umgekehrt: Customermates sendet jede Zustellung an Ihre URL und signiert sie, wenn der Webhook ein Secret hat, mit diesem Secret; Ihr Empfänger prüft also die Signatur oder einen eigenen Header, den Sie am Webhook hinterlegen, statt eines Keys.
+MCP, OpenAPI und n8n authentifizieren sich mit einem API-Key; MCP-Clients wie Claude und ChatGPT können sich auch per OAuth ohne Key verbinden. Siehe [API-Keys](/docs/api-keys). Webhooks funktionieren umgekehrt: Customermates sendet jede Zustellung an Ihre URL und signiert sie, wenn der Webhook ein Secret hat; Ihr Empfänger prüft also diese Signatur oder einen eigenen Header, den Sie am Webhook hinterlegen.
 
 ## Design-Ansatz [#design-approach]
 
-Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ benannt, Fehler sind umsetzbar, Beziehungen lassen sich inkrementell ändern, und die MCP-Oberfläche bleibt klein ([[derived.mcp.tools.total]] Tools, standardmäßig alle aktiv), damit auch kleinere Modelle sie zuverlässig bedienen können.
+Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ benannt, Fehler sagen, was zu tun ist, Beziehungen ändern sich inkrementell, und die MCP-Oberfläche bleibt klein ([[derived.mcp.tools.total]] Tools, standardmäßig alle aktiv), damit auch kleinere Modelle sie zuverlässig bedienen.
 
 ## Wie die Docs organisiert sind [#how-the-docs-are-organized]
 
-- **Getting Started**: [Quickstart](/docs/quickstart), [Konzepte](/docs/concepts).
+- **Erste Schritte**: [Quickstart](/docs/quickstart), [Konzepte](/docs/concepts).
 - **KI verbinden**: [Custom Connector](/docs/connect-custom-connector), [CLI & Editoren](/docs/connect-cli), [Ratenlimits](/docs/messaging-rate-limits).
-- **App-Guide**: [Assistent](/docs/app-assistant), [Dashboard](/docs/app-dashboard), [Posteingang](/docs/app-inbox), [Datensätze](/docs/app-records), [Routinen](/docs/app-routines), [Profil](/docs/app-profile), [Globale Suche](/docs/app-search), der [Onboarding-Wizard](/docs/app-onboarding), [Unternehmen](/docs/app-company), [API-Keys](/docs/api-keys) und [Filter-Syntax](/docs/filter-syntax). Jeder dokumentierte App-Bereich trägt stabile Anchor ids für KI-Agents, und die Anchors werden per Test gegen die Oberfläche abgesichert.
+- **App-Leitfaden**: [Assistent](/docs/app-assistant), [Dashboard](/docs/app-dashboard), [Posteingang](/docs/app-inbox), [Datensätze](/docs/app-records), [Routinen](/docs/app-routines), [Profil](/docs/app-profile), [Globale Suche](/docs/app-search), der [Onboarding-Wizard](/docs/app-onboarding), [Unternehmen](/docs/app-company), [API-Keys](/docs/api-keys) und [Filter-Syntax](/docs/filter-syntax). Orte in der App sind Links: In der App öffnen sie die Seite und heben das genannte Bedienelement hervor.
 - **Integrationen**: [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
 - **Self-Hosting**: [Start und Betrieb](/docs/self-hosting), [Architektur und Sicherheit](/docs/architecture-security).
-- **Reference**: [MCP-Tool-Katalog](/docs/mcp#tool-catalog), [Filter-Syntax](/docs/filter-syntax), [API-Keys](/docs/api-keys).
+- **Referenz**: [MCP-Tool-Katalog](/docs/mcp#tool-catalog), [Filter-Syntax](/docs/filter-syntax), [API-Keys](/docs/api-keys).
 
 ## Ausprobieren [#try-it]
 
-Die eingebettete Demo auf dieser Seite ist eine schreibgeschützte Live-Instanz mit Beispieldaten: Sie können sie durchsehen und durchsuchen, aber Datensätze anlegen, ändern oder löschen und Mate fragen ist gesperrt; stattdessen erscheint ein Hinweis, dass die Aktion im Demo-Modus nicht verfügbar ist. [Starten Sie eine kostenlose Testphase](/auth/signup), um mit Ihren eigenen Daten zu arbeiten.
+Die eingebettete Demo auf dieser Seite ist eine schreibgeschützte Live-Instanz mit Beispieldaten. Sie können sie durchsehen und durchsuchen; Datensätze anlegen, ändern oder löschen und Mate fragen zeigt einen Hinweis, dass die Aktion im Demo-Modus nicht verfügbar ist. [Starten Sie eine kostenlose Testphase](/auth/signup), um mit Ihren eigenen Daten zu arbeiten.

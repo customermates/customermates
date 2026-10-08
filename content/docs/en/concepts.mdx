@@ -1,80 +1,76 @@
 ---
 title: "CRM data model: records, links, and calculations"
-description: "How starting and custom record types, fields, links, deal totals, permissions, widgets, and webhooks work together."
+description: "How lists, fields, relationships, deal totals, permissions, widgets, and webhooks work together."
 ---
 
-Customermates stores CRM information as configured record types. Contacts, Organizations, Deals, Services, and Tasks are the five starting configurations. A workspace can add Projects, Applications, or other types without a new database table or application release. Each record has a stable type ID and record ID; labels can change without changing references. A saved view presents records of a type and does not duplicate them.
+Customermates keeps CRM data in configurable lists. A workspace starts with Contacts, Organizations, Deals, Services and Tasks and can add its own, such as Projects or Applications, without a release. Every record keeps a stable ID, so renaming a list or field breaks no references. A saved view shows records of a list without copying them.
 
 ## Which record types exist, and which does a workspace start with? [#which-five-record-types-exist]
 
-| Starting type | Purpose | Initial behavior |
+| Starting list | Purpose | Starts with |
 | --- | --- | --- |
-| Contact | Person | Name, indexed channels, notes, assignments |
-| Organization | Company or account | Name, notes, assignments |
-| Deal | Sales opportunity | Name, service line items, calculated value and quantity, optional weighted value |
-| Service | Offering or catalog item | Name, live unit price |
-| Task | Work item | Name, assignments, status option field; membership-approval tasks retain protected actions |
+| [Contacts](app:records/contact) | People | Name, channels, notes, assignments |
+| [Organizations](app:records/organization) | Companies or accounts | Name, notes, assignments |
+| [Deals](app:records/deal) | Sales opportunities | Name, line items, calculated value and quantity, optional weighted value |
+| [Services](app:records/service) | Offerings or catalog items | Name, live unit price |
+| [Tasks](app:records/task) | Work items | Name, assignments, status; membership-approval tasks keep protected actions |
 
-The starting templates and custom types use the same engine. Fields, relationships, and presentation defaults can be extended. Add a Channels field to any type to link indexed identifiers to its records; one identifier can link to several records. Ordinary phone and email fields do not participate in matching. Membership-approval actions remain protected. Read the current type and field IDs with `discover_record_types` and `get_record_model`.
+Starting lists are ordinary lists: you can extend or change their fields, relationships and layout like any list you create. To match messages to records, add a **Channels** field (emails, phones and profiles) to a list; one identifier can match several records. Ordinary email and phone fields do not take part in matching.
 
 ## How is a deal's total value calculated? [#how-is-a-deals-total-value-calculated]
 
-A deal has embedded service line items. Each line has a service, quantity, pricing mode, and an effective unit price. **Line amount = quantity × effective unit price**. Deal value is the sum of line amounts, and deal quantity is the sum of line quantities. The same service can appear in more than one line. Live pricing follows changes to the linked service price; saved pricing keeps the captured unit price. Money uses decimal arithmetic, and amounts in different currencies are not silently added.
+A deal's **Line items** are a sub-list of Deals: each line belongs to one deal, is edited inside it, shares its access and is removed with it. Each line has a service, a quantity, a pricing mode and an effective unit price. **Line amount = quantity × effective unit price**. The deal value is the sum of the line amounts, the deal quantity the sum of the quantities. The same service can appear on several lines. Live pricing follows later changes to the service price; saved pricing keeps the captured price. Every money field carries its own currency, and amounts in different currencies are never silently added.
 
-The total is a configured rollup and formula, so a schema manager can change it or make a value manual after previewing dependent widgets and records. A missing input, a restricted result, zero, and a calculation error are different states. See [weighted pipeline](#how-does-a-weighted-pipeline-work).
+The total is a configured calculation, so a schema manager can change it or turn it into a manual value after previewing the affected records and widgets. A missing input, a value you may not see, zero and a calculation error are different states. See [weighted pipeline](#how-does-a-weighted-pipeline-work).
 
 ## How do relationships link records, for example a contact to several organizations? [#how-do-relationships-link-records]
 
-Relationships are definitions between configured types. Each direction has its own label, and cardinality can permit one or several records at either end. For example, one contact can link to several organizations, and a project can link to contacts and deals. Both record pages show a permitted link. A deal's service lines are embedded records linked to both their deal and service; they also carry quantity and pricing fields.
+A relationship connects two lists. Each side has its own label, and each side allows one or several records, so one contact can belong to several organizations and a project can link contacts and deals. Both records show the link. In the record form a relationship is a field: pick the records, then click **Save**. On a list's [configure page](app:configure/contact) you add one with **Add** → **Relationship**, or by dragging from one list to another in [Configure](app:configure). The relationship drawer also has one switch per direction to show the linked records' messages on the other list.
 
-The link between a deal and a service is stored as a line record with its own quantity. The same service can appear twice on one deal with different quantities or saved prices.
-
-In the record form, a relationship appears as a labeled relation field. Pick the records, then save.
-
-The backend enforces endpoint types, workspace ownership, cardinality, duplicate prevention, and deletion behavior. A multi-record lookup or rollup must choose an aggregation such as sum or count. MCP clients use `mutate_crm_record` with stable relation IDs from `get_record_model` to link or unlink. Every record reference contains both `typeId` and `recordId`.
+The app checks list types, cardinality, duplicates and what happens on deletion. A lookup or rollup over several linked records needs an aggregation such as sum or count.
 
 ## What are fields, and which field types are there? [#what-are-custom-columns]
 
-Every type starts with seeded fields, and a workspace can add its own custom fields; table views show fields as columns. A field has a **value type** and a **behavior**. The value types are text, rich text, number, currency, boolean, date, date and time, date range, date and time range, select, email, phone, URL, and member. Text, email, phone, and URL fields can allow multiple values. A select field is either a **single choice** or a **multiple choice**, which stores an ordered list of option IDs, each at most once. Select options have stable IDs and editable labels. Switching a single choice to a multiple choice keeps every value; switching back is only allowed while every record holds at most one option.
+Every list starts with some fields, and you can add your own; tables show them as columns. Field types are Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Phone, Web address and Member. Text, email, phone and web address fields can **Allow several values**; email, phone and web address fields can open or copy their value on click. Choice options keep a stable ID when you rename them. Switching a Single choice field to Multiple choice keeps every value; switching back works only while each record holds at most one option.
 
-Behaviors are manually entered input, formula, lookup through a relationship, rollup over linked records, and snapshot captured at a configured event. Formulas use a validated, deterministic expression language with typed operations; they cannot run arbitrary JavaScript or SQL. The engine rejects cycles, incompatible values, and excessive work before accepting a definition. Custom fields can participate in filters, sorting, views, widgets, routines, and assistant operations where access permits it.
+A field is entered by hand or calculated: a formula, a lookup through a relationship, a rollup over linked records, or a snapshot taken at a configured event. Formulas use a checked expression language and never run arbitrary code; cycles, mismatched types and overly expensive definitions are rejected. Fields can be used in filters, sorting, views, widgets, routines and Mate, as far as access allows.
 
 ## How do I add, change or delete fields, including the deal stage field? [#how-do-i-add-change-or-delete-a-custom-column]
 
-Open **Configure** (`/configure`), select a list in the left rail, and add or edit its fields; **Add** in the top bar also creates calculations and relationships, and **Map** shows how lists connect. The field editor opens beside the list and offers the value type, entered or calculated behavior, options, formatting, and a readable calculation editor. A change previews its affected records, views, widgets, routines, and other formulas before it is applied. Incompatible changes are blocked until their dependencies are resolved. To delete a list, field or relationship, use **Delete** in its menu or editor. The confirmation names the view columns, filters and widget groupings it removes automatically, and it names any calculation, routine, webhook or widget that still uses the item; each name links to that item so you can resolve it first. Deleted items move to **Recently deleted** in **Configure**, where you can restore them or delete them permanently after typing the name; a permanent deletion also removes the stored values, and for a list its records and links.
+Open [Configure](app:configure), which shows all lists as a graph, and open a list, for example [Contacts](app:configure/contact). Its **Add** menu creates a field, a calculated field, a relationship, a **Channels** field or a sub-list, each in its own drawer. The deal stage field lives on the [Deals configure page](app:configure/deal). Before a change is applied it previews the affected records, views, widgets, routines and formulas, and changes that would break something are blocked until you resolve them.
 
-To add a custom field to contacts, select the **Contacts** list in **Configure** and choose **Add** → **Field**; every other type works the same way. To edit or delete a custom field, open it in the field editor and change its settings or choose **Delete field**.
+To delete a custom field, a list or a relationship, use **Delete** in its drawer or in the page's menu. The confirmation lists the references it removes automatically (view filters, columns, sorts, widget filters) and blocks only on things that would compute wrong, such as calculations and routines. Deleted items move to **Recently deleted** in Configure, where you can **Restore** them or **Delete permanently** after typing the name; a permanent deletion also removes the stored values, and for a list its records and links.
 
-Schema editing is separate from record editing. Administrators can delegate it; expanding role access still requires role-management authority. Over MCP, `get_record_model` reads the schema and `configure_record_model` previews and applies a change with an expected revision and idempotency key. A stale revision requires a fresh preview.
+Names are unique: list names, field names within a list, relationship labels per side and option labels per field, ignoring case and accents. Managing the data model is its own permission, separate from editing records; it grants neither record access nor role management.
 
-**Link:** `/configure`. **Mate:** navigate to `nav-configure-records`; the assistant can use `configure_record_model` for the same validated change.
+## How does a weighted pipeline work, and how is the weighted value calculated? [#how-does-a-weighted-pipeline-work]
 
-## How does a weighted pipeline work? [#how-does-a-weighted-pipeline-work]
+**Weighted deal value = deal value × stage probability / 100**. The stages are a Single choice field whose options each carry a probability from 0 to 100 percent. A 2,600 deal at 60 percent contributes 1,560; a zero-percent stage contributes zero, and a missing probability leaves the weighted value empty. A changed live service price recalculates dependent values; a saved quote price does not.
 
-A configured select field can represent deal stages. Each stage option can carry a probability from 0 to 100 percent. **Weighted deal value = deal value × stage probability / 100**. A 2,600 deal at 60 percent contributes 1,560; a zero-percent stage contributes zero, while a missing probability leaves the weighted value absent. A changed live service price recalculates dependent values; a saved quote price does not.
-
-A schema manager edits stage options, their probability metadata, or the weighted-value formula in **Configure**. The dependency preview shows the effect on existing deals and widgets. A published summary of restricted inputs requires explicit administrator approval; otherwise readers who cannot access the inputs see a restricted value rather than a leaked total.
-
-**Link:** `/configure`. **Mate:** use `get_record_model` and `configure_record_model` after reviewing the change preview.
+A schema manager edits the stages, their probabilities or the formula on the [Deals configure page](app:configure/deal), and the preview shows the effect on existing deals and widgets. People who cannot read every input of a calculation see a restricted value instead of the total, and the formula itself is shown only to people who can read all its inputs.
 
 ## What are widgets? [#what-are-widgets]
 
-A chart widget selects a source type, an aggregation and value field, optional filters, grouping, and display style. For example, it can sum the calculated Deal Value field by Stage or count Projects by Owner. A measure sums once at its declared record grain; a deal linked to two organizations may be fully attributed to both groups, so grouped totals can exceed the distinct overall total. Service contribution charts use line items as their grain. Widgets honor the same record and calculated-value permissions as the list. Activity widgets show a feed instead of an aggregate. See [Dashboard](/docs/app-dashboard).
+A chart widget on the [Dashboard](app:dashboard) picks a list, an aggregation and a value field, optional filters, a grouping and a display style, for example the sum of Deal value by Stage or the count of Projects by Owner. Each record counts once at the list it comes from; a deal linked to two organizations counts fully in both groups, so grouped totals can exceed the overall total. Service charts count line items. Widgets follow the same access rules as lists. Activity widgets show a feed instead of a number. See [Dashboard](/docs/app-dashboard).
 
 ## What are webhooks? [#what-are-webhooks]
 
-A workspace can subscribe a webhook or routine to record events from one or more configured types, optionally filtered by stable field and type IDs. Delivery is queued after the record transaction commits. A failed HTTP delivery can retry with the same event and delivery identity; external delivery is not guaranteed exactly once. Permissions are checked again at send time, and historical delivery previews are redacted for the reader. See [Webhooks](/docs/webhooks).
+A [webhook](app:settings/webhooks) or a routine can subscribe to record events of one or more lists, optionally filtered by fields. Deliveries are queued after the change is saved. A failed delivery is retried with the same event and delivery identity, so a receiver can see one event more than once. Access is checked again at send time, and past deliveries are redacted for the person viewing them. See [Webhooks](/docs/webhooks).
 
 ## What are notes, and are they markdown? [#what-are-notes]
 
-Notes are rich text attached to a record. The editor stores a validated document rather than a plain markdown string. The generic record API reads the document and writes it as a typed rich-text field value. A plain-text or markdown representation in another surface is a conversion of that document, not a second source of truth.
+Notes are formatted text on a record, stored as a checked document rather than a markdown string. Wherever notes appear as plain text or markdown, that is a conversion of the same document, not a second copy.
 
 ## Who are users, roles, and the company, and what does Assigned read access mean? [#who-are-users-roles-and-the-company]
 
-Users are workspace members. Roles grant create, read, update, and delete access per configured type. **All** read access covers every permitted record of that type; **Assigned** covers records assigned to that member; **None** grants no read access. Updating and deleting also require access to the specific record. Data-model management is a separate permission and does not grant record access or the right to administer roles. New types start with restricted access. Every query, calculation, export, widget, and assistant tool applies workspace and reader permissions.
+Members are the people in a workspace. [Roles](app:settings/roles) grant create, read, edit and delete per list. Read access **All** covers every record of the list, **Assigned** only records assigned to that member, **None** nothing. Editing and deleting also need access to the specific record. New lists start without access. Every search, calculation, export, widget and Mate answer applies the reader's access.
 
 ## Next [#next]
 
-- [CRM records](/docs/app-records): lists, editors, and views.
+- [CRM records](/docs/app-records): lists, editors and views.
 - [Filter syntax](/docs/filter-syntax): filters and relationship operators.
-- [MCP tool catalog](/docs/mcp#tool-catalog): generic record and configuration tools.
+- [MCP tool catalog](/docs/mcp#tool-catalog): record and configuration tools.
+
+## For agents [#for-agents]
+
+Read list and field IDs with `discover_record_types` and `get_record_model`. Every record reference carries both `typeId` and `recordId`. Link or unlink records with `mutate_crm_record` using relation IDs from `get_record_model`. Notes are written as a typed rich-text field value. `configure_record_model` previews and applies a schema change with an expected revision and an idempotency key; a stale revision needs a fresh preview.

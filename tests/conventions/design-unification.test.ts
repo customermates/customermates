@@ -166,9 +166,7 @@ function handBuiltFocusLinkFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const FOCUS_LINK_ALLOWLIST: Allowlist = {
-  "features/docs/app-links.ts": "I21: build docs app links with focusHref",
-};
+const FOCUS_LINK_ALLOWLIST: Allowlist = {};
 
 describe("rule 36: one open-and-highlight mechanism", () => {
   it("builds and reads ?focus= links only through focus-target.ts", () => {
