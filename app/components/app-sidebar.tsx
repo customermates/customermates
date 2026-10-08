@@ -649,12 +649,7 @@ function AddPickerDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        className="gap-0 sm:max-w-[420px]"
-        side="left"
-        {...focusReturn}
-        onCloseAutoFocus={handleCloseAutoFocus}
-      >
+      <SheetContent className="gap-0 sm:max-w-[420px]" {...focusReturn} onCloseAutoFocus={handleCloseAutoFocus}>
         <SheetHeader className="px-6 pt-6">
           <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
 
