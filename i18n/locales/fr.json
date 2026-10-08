@@ -1875,10 +1875,12 @@
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
+      "activityCount": "{count, plural, one {# activité} other {# activités}}",
       "aiLabel": "Interroger l’IA sur {name}",
       "all": "Toutes",
       "applied": "Affichage de {name}",
       "askAi": "Demander à l'IA",
+      "conversationCount": "{count, plural, one {# discussion} other {# discussions}}",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
       "createWithAi": "Créer avec l’IA",
@@ -3042,6 +3044,21 @@
       "short": "E-mail, téléphone, réseaux"
     },
     "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
+    "clickAction": "Au clic",
+    "clickActions": {
+      "email": {
+        "copy": "Copier l’adresse",
+        "open": "Ouvrir dans l’app de messagerie"
+      },
+      "phone": {
+        "copy": "Copier le numéro",
+        "open": "Appeler le numéro"
+      },
+      "url": {
+        "copy": "Copier le lien",
+        "open": "Ouvrir le lien"
+      }
+    },
     "color": "Couleur",
     "conditionIf": "Condition",
     "conditionOtherwise": "Sinon",

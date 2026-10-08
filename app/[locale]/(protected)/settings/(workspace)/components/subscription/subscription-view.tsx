@@ -8,10 +8,9 @@ import { Action, Resource, SubscriptionPlan, SubscriptionStatus } from "@/genera
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
-import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 
 import { SubscriptionPanel } from "./subscription-panel";
 import { SubscribeManageButton } from "./subscribe-manage-button";
@@ -36,18 +35,17 @@ const SubscriptionViewContent = observer(({ initialSubscription }: Props) => {
     () => (
       <div className="flex items-center gap-1">
         {showRefresh && (
-          <Button
-            aria-label={t("Common.actions.refresh")}
-            className="h-8"
-            id="settings-billing-refresh"
-            size="sm"
-            variant="secondary"
-            onClick={() => runUserAction(() => subscriptionStore.handleRefresh())}
-          >
-            <RefreshCw className="size-3.5" />
-
-            <span className="hidden sm:inline">{t("Common.actions.refresh")}</span>
-          </Button>
+          <TopBarActionButtons
+            actions={[
+              {
+                id: "refresh",
+                anchorId: "settings-billing-refresh",
+                icon: RefreshCw,
+                label: t("Common.actions.refresh"),
+                onClick: () => subscriptionStore.handleRefresh(),
+              },
+            ]}
+          />
         )}
 
         <SubscribeManageButton />

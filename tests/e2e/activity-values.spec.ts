@@ -70,7 +70,6 @@ test("renders change values with the shared value renderers on every activity su
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Value readers");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Reads tasks");
-  await role.getByRole("tab", { name: "Record types", exact: true }).click();
   await role
     .locator("[data-record-permission]")
     .filter({ hasText: /^Tasks/ })

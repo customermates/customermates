@@ -3366,6 +3366,21 @@
                                                           "type": "null"
                                                         }
                                                       ]
+                                                    },
+                                                    "onClick": {
+                                                      "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                                      "anyOf": [
+                                                        {
+                                                          "type": "string",
+                                                          "enum": [
+                                                            "open",
+                                                            "copy"
+                                                          ]
+                                                        },
+                                                        {
+                                                          "type": "null"
+                                                        }
+                                                      ]
                                                     }
                                                   },
                                                   "additionalProperties": false
@@ -4093,6 +4108,21 @@
                                                           "type": "integer",
                                                           "minimum": 0,
                                                           "maximum": 30
+                                                        },
+                                                        {
+                                                          "type": "null"
+                                                        }
+                                                      ]
+                                                    },
+                                                    "onClick": {
+                                                      "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                                      "anyOf": [
+                                                        {
+                                                          "type": "string",
+                                                          "enum": [
+                                                            "open",
+                                                            "copy"
+                                                          ]
                                                         },
                                                         {
                                                           "type": "null"
@@ -18687,6 +18717,21 @@
                                                                       "type": "null"
                                                                     }
                                                                   ]
+                                                                },
+                                                                "onClick": {
+                                                                  "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                                                  "anyOf": [
+                                                                    {
+                                                                      "type": "string",
+                                                                      "enum": [
+                                                                        "open",
+                                                                        "copy"
+                                                                      ]
+                                                                    },
+                                                                    {
+                                                                      "type": "null"
+                                                                    }
+                                                                  ]
                                                                 }
                                                               },
                                                               "additionalProperties": false
@@ -19414,6 +19459,21 @@
                                                                       "type": "integer",
                                                                       "minimum": 0,
                                                                       "maximum": 30
+                                                                    },
+                                                                    {
+                                                                      "type": "null"
+                                                                    }
+                                                                  ]
+                                                                },
+                                                                "onClick": {
+                                                                  "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                                                  "anyOf": [
+                                                                    {
+                                                                      "type": "string",
+                                                                      "enum": [
+                                                                        "open",
+                                                                        "copy"
+                                                                      ]
                                                                     },
                                                                     {
                                                                       "type": "null"
@@ -27826,6 +27886,21 @@
                                                                       "type": "null"
                                                                     }
                                                                   ]
+                                                                },
+                                                                "onClick": {
+                                                                  "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                                                  "anyOf": [
+                                                                    {
+                                                                      "type": "string",
+                                                                      "enum": [
+                                                                        "open",
+                                                                        "copy"
+                                                                      ]
+                                                                    },
+                                                                    {
+                                                                      "type": "null"
+                                                                    }
+                                                                  ]
                                                                 }
                                                               },
                                                               "additionalProperties": false
@@ -28553,6 +28628,21 @@
                                                                       "type": "integer",
                                                                       "minimum": 0,
                                                                       "maximum": 30
+                                                                    },
+                                                                    {
+                                                                      "type": "null"
+                                                                    }
+                                                                  ]
+                                                                },
+                                                                "onClick": {
+                                                                  "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                                                  "anyOf": [
+                                                                    {
+                                                                      "type": "string",
+                                                                      "enum": [
+                                                                        "open",
+                                                                        "copy"
+                                                                      ]
                                                                     },
                                                                     {
                                                                       "type": "null"
@@ -36961,6 +37051,21 @@
                                                                             "type": "null"
                                                                           }
                                                                         ]
+                                                                      },
+                                                                      "onClick": {
+                                                                        "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                                                        "anyOf": [
+                                                                          {
+                                                                            "type": "string",
+                                                                            "enum": [
+                                                                              "open",
+                                                                              "copy"
+                                                                            ]
+                                                                          },
+                                                                          {
+                                                                            "type": "null"
+                                                                          }
+                                                                        ]
                                                                       }
                                                                     },
                                                                     "additionalProperties": false
@@ -37688,6 +37793,21 @@
                                                                             "type": "integer",
                                                                             "minimum": 0,
                                                                             "maximum": 30
+                                                                          },
+                                                                          {
+                                                                            "type": "null"
+                                                                          }
+                                                                        ]
+                                                                      },
+                                                                      "onClick": {
+                                                                        "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                                                        "anyOf": [
+                                                                          {
+                                                                            "type": "string",
+                                                                            "enum": [
+                                                                              "open",
+                                                                              "copy"
+                                                                            ]
                                                                           },
                                                                           {
                                                                             "type": "null"
@@ -41808,6 +41928,21 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "onClick": {
+                                "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "open",
+                                      "copy"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "additionalProperties": false
@@ -43631,6 +43766,21 @@
                                           "type": "integer",
                                           "minimum": 0,
                                           "maximum": 30
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "onClick": {
+                                      "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "open",
+                                            "copy"
+                                          ]
                                         },
                                         {
                                           "type": "null"
@@ -45824,6 +45974,21 @@
                                           "type": "integer",
                                           "minimum": 0,
                                           "maximum": 30
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "onClick": {
+                                      "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "open",
+                                            "copy"
+                                          ]
                                         },
                                         {
                                           "type": "null"
@@ -77233,6 +77398,21 @@
                                                   "type": "null"
                                                 }
                                               ]
+                                            },
+                                            "onClick": {
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "anyOf": [
+                                                {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "open",
+                                                    "copy"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "null"
+                                                }
+                                              ]
                                             }
                                           },
                                           "additionalProperties": false
@@ -77611,6 +77791,21 @@
                                                   "type": "integer",
                                                   "minimum": 0,
                                                   "maximum": 30
+                                                },
+                                                {
+                                                  "type": "null"
+                                                }
+                                              ]
+                                            },
+                                            "onClick": {
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "anyOf": [
+                                                {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "open",
+                                                    "copy"
+                                                  ]
                                                 },
                                                 {
                                                   "type": "null"
@@ -78539,6 +78734,21 @@
                                                   "type": "null"
                                                 }
                                               ]
+                                            },
+                                            "onClick": {
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "anyOf": [
+                                                {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "open",
+                                                    "copy"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "null"
+                                                }
+                                              ]
                                             }
                                           },
                                           "additionalProperties": false
@@ -78917,6 +79127,21 @@
                                                   "type": "integer",
                                                   "minimum": 0,
                                                   "maximum": 30
+                                                },
+                                                {
+                                                  "type": "null"
+                                                }
+                                              ]
+                                            },
+                                            "onClick": {
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "anyOf": [
+                                                {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "open",
+                                                    "copy"
+                                                  ]
                                                 },
                                                 {
                                                   "type": "null"
@@ -79845,6 +80070,21 @@
                                                   "type": "null"
                                                 }
                                               ]
+                                            },
+                                            "onClick": {
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "anyOf": [
+                                                {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "open",
+                                                    "copy"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "null"
+                                                }
+                                              ]
                                             }
                                           },
                                           "additionalProperties": false
@@ -80223,6 +80463,21 @@
                                                   "type": "integer",
                                                   "minimum": 0,
                                                   "maximum": 30
+                                                },
+                                                {
+                                                  "type": "null"
+                                                }
+                                              ]
+                                            },
+                                            "onClick": {
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "anyOf": [
+                                                {
+                                                  "type": "string",
+                                                  "enum": [
+                                                    "open",
+                                                    "copy"
+                                                  ]
                                                 },
                                                 {
                                                   "type": "null"
