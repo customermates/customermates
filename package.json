@@ -195,7 +195,7 @@
     "agent:benchmark": "RUN_AGENT_BENCHMARK=true tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/bootstrap.ts",
     "agent:web-search-smoke": "tsx scripts/smoke-agent-web-search-provider.ts",
     "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",
-    "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && next build",
+    "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && NODE_OPTIONS=\"${NODE_OPTIONS:-} --max-old-space-size=6144\" next build",
     "clean": "rm -rf node_modules .next tsconfig.tsbuildinfo generated && yarn install && prisma generate",
     "conventions:check": "vitest run tests/conventions",
     "db:clean-local": "bash ee/scripts/clean-local-db.sh",
@@ -222,7 +222,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:watch": "vitest",
-    "typecheck": "fumadocs-mdx core/fumadocs/source.config.ts && tsc --noEmit",
+    "typecheck": "fumadocs-mdx core/fumadocs/source.config.ts && node --max-old-space-size=6144 node_modules/typescript/bin/tsc --noEmit",
+    "typecheck:headroom": "fumadocs-mdx core/fumadocs/source.config.ts && node --max-old-space-size=4915 node_modules/typescript/bin/tsc --noEmit --incremental false",
     "vercel-build": "bash scripts/vercel-build.sh",
     "workflow:setup": "bootstrap"
   },
