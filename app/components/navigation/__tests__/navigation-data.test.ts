@@ -8,6 +8,7 @@ function loaders(): NavigationDataLoaders {
   return {
     records: vi.fn().mockResolvedValue({ companyId: "company-1", schemaRevision: 1, canManageSchema: true, types: [] }),
     sidebarLayout: vi.fn().mockResolvedValue(null),
+    keyboardPreferences: vi.fn().mockResolvedValue({ singleKeyShortcuts: false }),
     subscription: vi.fn().mockResolvedValue({
       status: "active",
       plan: "pro",
@@ -33,6 +34,7 @@ describe("loadNavigationData", () => {
       expect(await loadNavigationData(state, deps)).toEqual({
         records: null,
         sidebarLayout: null,
+        keyboardPreferences: null,
         subscription: null,
         trialDaysLeft: null,
         systemTaskCount: 0,
@@ -50,6 +52,7 @@ describe("loadNavigationData", () => {
 
     expect(result).toMatchObject({
       subscription: { status: "active", plan: "pro" },
+      keyboardPreferences: { singleKeyShortcuts: false },
       systemTaskCount: 2,
       unreadThreadCount: 3,
       channelsNeedingActionCount: 4,

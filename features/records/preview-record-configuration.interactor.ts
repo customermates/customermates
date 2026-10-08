@@ -40,7 +40,7 @@ export class PreviewRecordConfigurationInteractor extends AuthenticatedInteracto
               relationId,
             });
           }
-          prepared.preview.valid = !prepared.preview.issues.length;
+          prepared.preview.valid = !prepared.preview.issues.length && !prepared.preview.deletion?.blockers.length;
           return { ok: true as const, data: prepared.preview };
         } catch (error) {
           return recordWriteFailure(error);

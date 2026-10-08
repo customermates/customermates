@@ -76,7 +76,7 @@ describeDatabase("configuration history labels", () => {
             configuration: {
               expectedRevision: before.revision,
               idempotencyKey: "history-labels",
-              operations: [{ operation: "deleteType", typeId: serviceTypeId }],
+              operations: [{ operation: "deletePermanently", target: { kind: "type", id: serviceTypeId } }],
             },
             references: [],
             grants: [],
@@ -95,7 +95,7 @@ describeDatabase("configuration history labels", () => {
     const [revision] = loaded.revisions;
     expect(revision.models.map((model) => model.revision)).toEqual([after.revision, before.revision]);
     expect(configurationActivity(revision.change, revision.models, loaded.roleNames).changes).toEqual([
-      { field: "deleteType", snapshot: true, previous: undefined, current: "Services" },
+      { field: "deletePermanently", snapshot: true, previous: undefined, current: "Services" },
     ]);
   }, 120_000);
 });

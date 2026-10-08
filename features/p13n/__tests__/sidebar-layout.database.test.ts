@@ -41,8 +41,8 @@ describeDatabase("personal sidebar layout in P13n settings", () => {
   const repo = new PrismaP13nRepo();
   const upsert = (userId: string, data: unknown) =>
     runWithTenant(tenant(userId), () => new UpsertP13nInteractor(repo).invoke(data as never));
-  const read = (userId: string) =>
-    runWithTenant(tenant(userId), async () => (await new GetP13nInteractor(repo).invoke({ p13nId: "sidebar" })).data);
+  const read = (userId: string, p13nId = "sidebar") =>
+    runWithTenant(tenant(userId), async () => (await new GetP13nInteractor(repo).invoke({ p13nId })).data);
   const layout = {
     sections: [
       { id: "custom:sales", name: "Sales", items: ["records:a", "inbox"] },
@@ -104,5 +104,34 @@ describeDatabase("personal sidebar layout in P13n settings", () => {
     ];
     for (const data of invalid) await expect(upsert(secondUserId, data)).rejects.toThrow();
     expect(await read(secondUserId)).toBeUndefined();
+  });
+
+  it("stores the keyboard preference per person and only in its own settings shape", async () => {
+    expect(
+      (
+        await upsert(firstUserId, {
+          p13nId: "keyboard",
+          settings: { singleKeyShortcuts: false },
+        })
+      ).ok,
+    ).toBe(true);
+    expect((await read(firstUserId, "keyboard"))?.settings).toEqual({
+      singleKeyShortcuts: false,
+    });
+    expect(await read(secondUserId, "keyboard")).toBeUndefined();
+    await expect(upsert(secondUserId, { p13nId: "keyboard", settings: layout })).rejects.toThrow();
+    await expect(
+      upsert(secondUserId, {
+        p13nId: "sidebar",
+        settings: { singleKeyShortcuts: true },
+      }),
+    ).rejects.toThrow();
+    await expect(
+      upsert(secondUserId, {
+        p13nId: "keyboard",
+        settings: { singleKeyShortcuts: true, extra: 1 },
+      }),
+    ).rejects.toThrow();
+    expect(await read(secondUserId, "keyboard")).toBeUndefined();
   });
 });

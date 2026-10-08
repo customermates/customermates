@@ -5,11 +5,14 @@ import { recordTypeIcon } from "@/components/records/record-type-icon";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { CornerDownLeft, Loader2, Search } from "lucide-react";
+import { ArrowRight, CornerDownLeft, Layers, Loader2, Plus, Search, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
+import { Kbd, ShortcutKeys } from "@/components/keyboard/shortcut-keys";
+import { SHORTCUTS, type ShortcutId } from "@/components/keyboard/shortcut-registry";
+import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -25,9 +28,29 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 type SelectableItem = RecordSearchHit & { onSelect: () => void };
 
+type PaletteCommand = {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+  shortcut?: ShortcutId;
+  onSelect: () => void;
+};
+
+const PAGE_SHORTCUTS = SHORTCUTS.filter((entry) => entry.destination !== undefined);
+
 export const GlobalSearchModal = observer(() => {
   const t = useTranslations();
-  const { globalSearchModalStore, recordWorkspaceStore } = useRootStore();
+  const {
+    addPickerStore,
+    agentChatEnabled,
+    agentChatStore,
+    globalSearchModalStore,
+    keyboardShortcutsStore,
+    navigationGuard,
+    recordWorkspaceStore,
+    viewPickerStore,
+  } = useRootStore();
+  const router = useRouter();
   const { isOpen, debouncedSearchTerm, isLoading, results, recentItems } = globalSearchModalStore;
   const [selectedValue, setSelectedValue] = useState("");
 
@@ -36,6 +59,69 @@ export const GlobalSearchModal = observer(() => {
   const searchTerm = globalSearchModalStore.form.searchTerm ?? "";
   const hasQuery = debouncedSearchTerm.trim().length > 0;
   const showNoResults = hasQuery && !isLoading && results?.results.length === 0;
+
+  const query = searchTerm.trim();
+  const mateAvailable = agentChatEnabled && agentChatStore.enabled === true;
+  const matchesQuery = (label: string) => !query || label.toLocaleLowerCase().includes(query.toLocaleLowerCase());
+
+  const closeThen = (action: (focusReturnTarget: HTMLElement | null) => void) => {
+    const focusReturnTarget = globalSearchModalStore.focusReturnTarget;
+    globalSearchModalStore.close();
+    action(focusReturnTarget);
+  };
+
+  const askMate = () =>
+    closeThen(() => {
+      if (!query) {
+        agentChatStore.open();
+        return;
+      }
+      agentChatStore.openWithDraft(query);
+      agentChatStore.submitDraft();
+    });
+
+  const viewCommands: PaletteCommand[] = (viewPickerStore.surface?.options() ?? [])
+    .filter((option) => matchesQuery(option.name))
+    .map((option) => ({
+      value: `palette-view-${option.id}`,
+      label: option.name,
+      icon: Layers,
+      onSelect: () => closeThen(() => viewPickerStore.surface?.select(option.id)),
+    }));
+
+  const navigationCommands: PaletteCommand[] = PAGE_SHORTCUTS.flatMap((entry) => {
+    const href = entry.destination ? keyboardShortcutsStore.destinations.pages[entry.destination] : undefined;
+    const label = t(`KeyboardShortcuts.actions.${entry.id}`);
+    if (!href || !matchesQuery(label)) return [];
+    return [
+      {
+        value: `palette-go-${entry.id}`,
+        label,
+        icon: ArrowRight,
+        shortcut: entry.id,
+        onSelect: () => closeThen(() => navigationGuard.tryNavigate(() => router.push(href))),
+      },
+    ];
+  });
+
+  const addLabel = t("KeyboardShortcuts.actions.add");
+  const createCommands: PaletteCommand[] = matchesQuery(addLabel)
+    ? [
+        {
+          value: "palette-add",
+          label: addLabel,
+          icon: Plus,
+          shortcut: "add",
+          onSelect: () => closeThen((target) => addPickerStore.openFrom(target ?? document.body)),
+        },
+      ]
+    : [];
+
+  const commandGroups = [
+    { key: "views", heading: t("DataView.views.pickerTitle"), commands: viewCommands },
+    { key: "navigation", heading: t("KeyboardShortcuts.groups.navigation"), commands: navigationCommands },
+    { key: "create", heading: t("KeyboardShortcuts.groups.create"), commands: createCommands },
+  ].filter((group) => group.commands.length > 0);
 
   const openItem = (item: RecordSearchHit) => {
     const focusReturnTarget = globalSearchModalStore.focusReturnTarget;
@@ -74,9 +160,9 @@ export const GlobalSearchModal = observer(() => {
     return [...groups.values()];
   }, [results, recentItems, hasQuery, globalSearchModalStore, recordWorkspaceStore, t]);
 
-  const hasItems = groupedResults.some((group) => group.items.length > 0);
+  const hasItems = groupedResults.some((group) => group.items.length > 0) || commandGroups.length > 0;
   const firstItem = groupedResults[0]?.items[0];
-  const firstValue = firstItem ? recordSearchKey(firstItem) : "";
+  const firstValue = firstItem ? recordSearchKey(firstItem) : (commandGroups[0]?.commands[0]?.value ?? "");
 
   useEffect(
     () => setSelectedValue((current) => (isOpen && current ? firstValue : "")),
@@ -99,6 +185,11 @@ export const GlobalSearchModal = observer(() => {
         <CommandInput
           placeholder={t("GlobalSearch.placeholder")}
           value={searchTerm}
+          onKeyDown={(event) => {
+            if (event.key !== "Tab" || event.shiftKey || !query || !mateAvailable) return;
+            event.preventDefault();
+            askMate();
+          }}
           onValueChange={(next) => globalSearchModalStore.onChange("searchTerm", next)}
         />
       </div>
@@ -112,9 +203,23 @@ export const GlobalSearchModal = observer(() => {
       )}
 
       <CommandList>
-        {showNoResults && <CommandEmpty>{t("GlobalSearch.noResults")}</CommandEmpty>}
+        {mateAvailable && (
+          <CommandGroup>
+            <CommandItem className="gap-3" value="palette-ask-mate" onSelect={askMate}>
+              <Sparkles className="size-4 shrink-0 text-muted-foreground" />
 
-        {!hasQuery && recentItems.length === 0 && (
+              <span className="min-w-0 flex-1 truncate">
+                {query ? t("GlobalSearch.askMateWith", { question: query }) : t("AgentChat.askAi")}
+              </span>
+
+              {query ? <Kbd>Tab</Kbd> : <ShortcutKeys id="askMate" />}
+            </CommandItem>
+          </CommandGroup>
+        )}
+
+        {showNoResults && commandGroups.length === 0 && <CommandEmpty>{t("GlobalSearch.noResults")}</CommandEmpty>}
+
+        {!hasQuery && recentItems.length === 0 && commandGroups.length === 0 && (
           <CommandEmpty className="px-8 py-12">
             <div className="mx-auto flex max-w-sm flex-col items-center gap-4 text-center">
               <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
@@ -156,6 +261,20 @@ export const GlobalSearchModal = observer(() => {
           </CommandGroup>
         ))}
 
+        {commandGroups.map((group) => (
+          <CommandGroup key={group.key} heading={group.heading}>
+            {group.commands.map((command) => (
+              <CommandItem key={command.value} className="gap-3" value={command.value} onSelect={command.onSelect}>
+                <command.icon className="size-4 shrink-0 text-muted-foreground" />
+
+                <span className="min-w-0 flex-1 truncate">{command.label}</span>
+
+                {command.shortcut && <ShortcutKeys id={command.shortcut} />}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        ))}
+
         {hasQuery && results?.nextCursor && (
           <CommandGroup>
             <CommandItem
@@ -174,6 +293,8 @@ export const GlobalSearchModal = observer(() => {
           <Hint label={t("GlobalSearch.hintNavigate")} symbol="↑↓" />
 
           <Hint label={t("GlobalSearch.hintOpen")} symbol={<CornerDownLeft className="size-3" />} />
+
+          {mateAvailable && query && <Hint label={t("GlobalSearch.hintAskMate")} symbol="Tab" />}
         </div>
       )}
     </CommandDialog>
@@ -216,9 +337,7 @@ function ResultRow({
 function Hint({ label, symbol }: { label: string; symbol: ReactNode }) {
   return (
     <div className="flex items-center gap-1.5">
-      <kbd className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded border border-border bg-muted px-1 text-[10px] font-medium text-muted-foreground">
-        {symbol}
-      </kbd>
+      <Kbd>{symbol}</Kbd>
 
       <span>{label}</span>
     </div>
