@@ -56,7 +56,6 @@ const OVERLAY_PRIMITIVE_OWNER_PREFIXES = ["components/ui/", "components/modal/"]
 
 const OVERLAY_PRIMITIVE_EXEMPTIONS: Allowlist = {
   "app/components/app-sidebar.tsx": "the mobile sidebar is the navigation shell, not a dialog or drawer",
-  "app/[locale]/(protected)/wiki/components/wiki-page-view.tsx": "the mobile wiki page list is navigation, not a dialog or drawer",
 };
 
 const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {
