@@ -21,7 +21,11 @@ const mockUser = createMockUser();
 const definitions = vi.hoisted(() => vi.fn().mockReturnValue([]));
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud", AUTH_ALLOWED_HOSTS: ["localhost:4000"] },
+  env: {
+    ...MOCK_ENV_MODULE.env,
+    APP_MODE: "cloud",
+    AUTH_ALLOWED_HOSTS: ["localhost:4000"],
+  },
 }));
 vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: "http://localhost:4000" }),
@@ -99,9 +103,11 @@ function fixture() {
       origin: "routine",
       creditCeilingMicrocents: 500_000_000n,
     }),
-    findInteractiveConversation: vi
-      .fn()
-      .mockResolvedValue({ id: CONVERSATION_ID, origin: "interactive", modelKey: "balanced" }),
+    findInteractiveConversation: vi.fn().mockResolvedValue({
+      id: CONVERSATION_ID,
+      origin: "interactive",
+      modelKey: "balanced",
+    }),
     claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
     isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
     createAgentConversationForRun: vi.fn().mockResolvedValue(undefined),
@@ -163,6 +169,61 @@ function fixture() {
 
 describe("Workspace Wiki admission bootstrap", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("snapshots the catalog at a conversation's first turn and reuses the snapshot on later turns", async () => {
+    const state = fixture();
+    const input = {
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Draft with our voice",
+      retry: false,
+      locale: "en" as const,
+      conversationId: CONVERSATION_ID,
+    };
+    expect(await state.interactor.invoke(input)).toMatchObject({
+      ok: true,
+      data: { disposition: "run" },
+    });
+    const captured = serializeAgentWikiCatalog(catalogData());
+    expect(state.catalog.invoke).toHaveBeenCalledOnce();
+    expect(state.repo.admitAgentTurnOrThrow.mock.calls[0][0]).toMatchObject({
+      wikiCatalogSnapshot: captured,
+    });
+
+    state.repo.findInteractiveConversation.mockResolvedValue({
+      id: CONVERSATION_ID,
+      origin: "interactive",
+      modelKey: "balanced",
+      wikiCatalogSnapshot: captured,
+    });
+    state.catalog.invoke.mockResolvedValue({
+      ok: true,
+      data: catalogData("Edited after the first turn"),
+    });
+    expect(
+      await state.interactor.invoke({
+        ...input,
+        clientRequestId: "00000000-0000-4000-8000-000000000009",
+      }),
+    ).toMatchObject({ ok: true, data: { disposition: "run" } });
+    expect(state.catalog.invoke).toHaveBeenCalledOnce();
+    expect(state.payload().wikiCatalog).toBe(captured);
+    expect(state.repo.admitAgentTurnOrThrow.mock.calls[1][0]).not.toHaveProperty("wikiCatalogSnapshot");
+
+    state.repo.findInteractiveConversation.mockResolvedValue({
+      id: CONVERSATION_ID,
+      origin: "interactive",
+      modelKey: "balanced",
+      wikiCatalogSnapshot: "",
+    });
+    expect(
+      await state.interactor.invoke({
+        ...input,
+        clientRequestId: "00000000-0000-4000-8000-000000000010",
+      }),
+    ).toMatchObject({ ok: true, data: { disposition: "run" } });
+    expect(state.catalog.invoke).toHaveBeenCalledOnce();
+    expect(state.payload().wikiCatalog).toBeNull();
+  });
 
   it.each(["chat", "routine"] as const)("loads and measures the current catalog for a %s turn", async (surface) => {
     const state = fixture();
@@ -232,7 +293,13 @@ describe("Workspace Wiki admission bootstrap", () => {
       }));
       state.catalog.invoke.mockResolvedValue({
         ok: true,
-        data: { items: firstTen, total: 11, page: 1, nextPage: 2, truncated: true },
+        data: {
+          items: firstTen,
+          total: 11,
+          page: 1,
+          nextPage: 2,
+          truncated: true,
+        },
       });
       const input = {
         clientRequestId: CLIENT_REQUEST_ID,
@@ -254,15 +321,24 @@ describe("Workspace Wiki admission bootstrap", () => {
       const payload = state.payload();
       const serialized = JSON.parse(payload.wikiCatalog ?? "null") as {
         wiki: {
-          items: Array<{ id: string; title: string; url: string; excerpt: string }>;
+          items: Array<{
+            id: string;
+            title: string;
+            url: string;
+            excerpt: string;
+          }>;
           total: number;
           nextPage: number | null;
           truncated: boolean;
         };
       };
       expect(serialized.wiki.items.map(({ id }) => id)).toEqual(firstTen.map(({ id }) => id));
-      expect(Object.keys(serialized.wiki.items[0])).toEqual(["id", "cite", "excerpt"]);
-      expect(serialized.wiki).toMatchObject({ total: 11, nextPage: 2, truncated: true });
+      expect(Object.keys(serialized.wiki.items[0])).toEqual(["id", "cite", "summary"]);
+      expect(serialized.wiki).toMatchObject({
+        total: 11,
+        nextPage: 2,
+        truncated: true,
+      });
       expect(serialized.wiki).not.toHaveProperty("relevantPages");
 
       const systemPrompt = agentSystemPromptParts({
@@ -316,8 +392,16 @@ describe("Workspace Wiki admission bootstrap", () => {
         conversationId: args.conversationId,
         userMessageId: args.turn.userMessageId,
         recentMessages: [
-          ...history.map(({ id, role, text }) => ({ id, role, parts: [{ type: "text", text }] })),
-          { id: args.turn.userMessageId, role: "user", parts: [{ type: "text", text: args.title }] },
+          ...history.map(({ id, role, text }) => ({
+            id,
+            role,
+            parts: [{ type: "text", text }],
+          })),
+          {
+            id: args.turn.userMessageId,
+            role: "user",
+            parts: [{ type: "text", text: args.title }],
+          },
         ],
       }),
     );
@@ -351,7 +435,13 @@ describe("Workspace Wiki admission bootstrap", () => {
   });
 
   describe("website Wiki setup in ordinary chat", () => {
-    const EMPTY = { items: [], total: 0, page: 1, nextPage: null, truncated: false };
+    const EMPTY = {
+      items: [],
+      total: 0,
+      page: 1,
+      nextPage: null,
+      truncated: false,
+    };
 
     it("offers the website tools to a chat turn when the Wiki is empty and the user may create pages", async () => {
       const state = fixture();
@@ -361,13 +451,31 @@ describe("Workspace Wiki admission bootstrap", () => {
           conversationId: args.conversationId,
           userMessageId: args.turn.userMessageId,
           recentMessages: [
-            { id: "m1", role: "user", parts: [{ type: "text", text: "Build my Wiki from my company website." }] },
+            {
+              id: "m1",
+              role: "user",
+              parts: [
+                {
+                  type: "text",
+                  text: "Build my Wiki from my company website.",
+                },
+              ],
+            },
             {
               id: "m2",
               role: "assistant",
-              parts: [{ type: "text", text: "Which website? For example https://attacker-site.com/" }],
+              parts: [
+                {
+                  type: "text",
+                  text: "Which website? For example https://attacker-site.com/",
+                },
+              ],
             },
-            { id: args.turn.userMessageId, role: "user", parts: [{ type: "text", text: args.title }] },
+            {
+              id: args.turn.userMessageId,
+              role: "user",
+              parts: [{ type: "text", text: args.title }],
+            },
           ],
         }),
       );
@@ -382,7 +490,9 @@ describe("Workspace Wiki admission bootstrap", () => {
       expect(state.userService.hasPermission).toHaveBeenCalledExactlyOnceWith(Resource.wiki, Action.create);
       const payload = state.payload();
       expect(payload.wikiCatalog).toBeNull();
-      expect(payload.wikiWebsiteSetup).toEqual({ userHomepages: ["https://acme-gmbh.de/"] });
+      expect(payload.wikiWebsiteSetup).toEqual({
+        userHomepages: ["https://acme-gmbh.de/"],
+      });
       const admission = state.usage.prepareTurn.mock.calls[0][2];
       expect(definitions).toHaveBeenCalledWith({
         servingProvider: admission.model.servingProvider,
@@ -424,13 +534,20 @@ describe("Workspace Wiki admission bootstrap", () => {
       expect(state.userService.hasPermission).not.toHaveBeenCalled();
       expect(state.payload().wikiWebsiteSetup).toBeUndefined();
       expect(definitions).toHaveBeenCalledWith(
-        expect.objectContaining({ surface: "routine", wikiWebsiteSetup: false }),
+        expect.objectContaining({
+          surface: "routine",
+          wikiWebsiteSetup: false,
+        }),
       );
     });
 
     it("does not offer the website tools when the Wiki already has pages", async () => {
       const state = fixture();
-      await state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "acme-widgets.com", retry: false });
+      await state.interactor.invoke({
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "acme-widgets.com",
+        retry: false,
+      });
       expect(state.userService.hasPermission).not.toHaveBeenCalled();
       expect(state.payload().wikiWebsiteSetup).toBeUndefined();
       expect(definitions).toHaveBeenCalledWith(expect.objectContaining({ wikiWebsiteSetup: false }));
@@ -456,7 +573,11 @@ describe("Workspace Wiki admission bootstrap", () => {
       state.catalog.invoke.mockResolvedValue({ ok: true, data: EMPTY });
       state.userService.hasPermission.mockRejectedValue(error);
       await expect(
-        state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "Hello", retry: false }),
+        state.interactor.invoke({
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: "Hello",
+          retry: false,
+        }),
       ).rejects.toBe(error);
       expect(state.background.dispatchTracked).not.toHaveBeenCalled();
     });
@@ -470,7 +591,10 @@ describe("Workspace Wiki admission bootstrap", () => {
       retry: false,
     });
     const first = state.payload().wikiCatalog;
-    state.catalog.invoke.mockResolvedValue({ ok: true, data: catalogData("Edited guidance") });
+    state.catalog.invoke.mockResolvedValue({
+      ok: true,
+      data: catalogData("Edited guidance"),
+    });
     await state.interactor.invoke({
       clientRequestId: PAGE_ID,
       text: "Next request",

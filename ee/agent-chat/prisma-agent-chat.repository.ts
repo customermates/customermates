@@ -124,6 +124,7 @@ type AgentTurnAdmissionArgs = {
   servingProvider: string;
   recentMessageLimit: number;
   routineRunId?: string;
+  wikiCatalogSnapshot?: string;
   turn:
     | {
         kind: "create";
@@ -531,6 +532,18 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         select: { id: true, origin: true },
       });
       if (!conversation) throw new Error("Conversation not found.");
+
+      if (args.wikiCatalogSnapshot !== undefined) {
+        await this.prisma.agentConversation.updateMany({
+          where: {
+            id: conversationId,
+            companyId,
+            userId,
+            wikiCatalogSnapshot: null,
+          },
+          data: { wikiCatalogSnapshot: args.wikiCatalogSnapshot },
+        });
+      }
 
       if (args.routineRunId) {
         if (conversation.origin !== AgentConversationOrigin.routine || args.turn.kind !== "create")
@@ -2496,14 +2509,24 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
   private async settleStalePlatformReservations(args: { reservedBefore: Date; now: Date }): Promise<number> {
     const reservations = await this.prisma.hostedAiPlatformReservation.findMany({
       where: { createdAt: { lt: args.reservedBefore } },
-      select: { id: true, purpose: true, model: true, reservedMicrocents: true, createdAt: true },
+      select: {
+        id: true,
+        purpose: true,
+        model: true,
+        reservedMicrocents: true,
+        createdAt: true,
+      },
     });
     if (reservations.length === 0) return 0;
     const released = await this.prisma.hostedAiPlatformReservation.deleteMany({
-      where: { id: { in: reservations.map(({ id }) => id) }, createdAt: { lt: args.reservedBefore } },
+      where: {
+        id: { in: reservations.map(({ id }) => id) },
+        createdAt: { lt: args.reservedBefore },
+      },
     });
     if (released.count !== reservations.length)
       throw new Error("Platform AI reservations changed before stale settlement.");
+
     for (const reservation of reservations) {
       await this.accruePlatformUsageUnscoped({
         purpose: reservation.purpose,
@@ -2707,7 +2730,12 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     await this.prisma
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
     const released = await this.prisma.$queryRaw<
-      Array<{ model: string | null; reservedMicrocents: bigint; providerStartedAt: Date | null; createdAt: Date }>
+      Array<{
+        model: string | null;
+        reservedMicrocents: bigint;
+        providerStartedAt: Date | null;
+        createdAt: Date;
+      }>
     >`
       UPDATE "AgentUsageEvent" SET "state" = 'released', "chargedMicrocents" = 0,
         "settledAt" = ${args.now}

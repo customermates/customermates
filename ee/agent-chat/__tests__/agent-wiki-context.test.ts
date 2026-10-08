@@ -73,7 +73,13 @@ describe("Workspace Wiki provider context", () => {
   });
 
   it("sends no reference for an empty Wiki", () => {
-    const empty = serializeAgentWikiCatalog({ items: [], total: 0, page: 1, nextPage: null, truncated: false });
+    const empty = serializeAgentWikiCatalog({
+      items: [],
+      total: 0,
+      page: 1,
+      nextPage: null,
+      truncated: false,
+    });
     expect(empty).toBeNull();
     expect(agentWikiSystemPrompt("System", empty)).toBe("System");
   });
@@ -152,7 +158,10 @@ describe("Workspace Wiki provider context", () => {
       nextPage: null,
       truncated: false,
     });
-    const firstRequest = { role: "user", text: "Which deals are in Negotiation?" };
+    const firstRequest = {
+      role: "user",
+      text: "Which deals are in Negotiation?",
+    };
     const firstTurn = buildAgentProviderContext("System", [firstRequest], [], serializeAgentWikiCatalog(data()));
     const secondTurn = buildAgentProviderContext(
       "System",
@@ -165,7 +174,10 @@ describe("Workspace Wiki provider context", () => {
       serializeAgentWikiCatalog(data()),
     );
     const prefix = (context: typeof firstTurn) =>
-      JSON.stringify({ system: context.system, messages: context.messages.slice(0, 1) });
+      JSON.stringify({
+        system: context.system,
+        messages: context.messages.slice(0, 1),
+      });
 
     expect(secondTurn.system).toBe(firstTurn.system);
     expect(prefix(secondTurn)).toBe(prefix(firstTurn));
@@ -207,7 +219,10 @@ describe("Workspace Wiki provider context", () => {
           schemaDigest,
           loadedToolsets,
         });
-        return { parts, system: buildAgentProviderContext(parts, [], [], wikiCatalog).system };
+        return {
+          parts,
+          system: buildAgentProviderContext(parts, [], [], wikiCatalog).system,
+        };
       } finally {
         vi.useRealTimers();
       }
@@ -236,7 +251,11 @@ describe("Workspace Wiki provider context", () => {
   });
 
   it("measures the same envelope whether the Wiki block ends the prompt or sits before its volatile tail", () => {
-    const parts = agentSystemPromptParts({ userName: "Ada", locale: "en", surface: "chat" });
+    const parts = agentSystemPromptParts({
+      userName: "Ada",
+      locale: "en",
+      surface: "chat",
+    });
     const joined = `${parts.stable}\n\n${parts.volatile}`;
     const measure = (systemPrompt: typeof parts | string) =>
       conservativeAgentInitialContextBytes({
@@ -389,12 +408,54 @@ it("gives every page a citation link that survives the visible-text safety filte
   expect(item).toEqual({
     id: "00000000-0000-4000-8000-000000000001",
     cite: "[RESA SAP Data Import](/wiki?page=00000000-0000-4000-8000-000000000001)",
-    excerpt: "Transfers data into SAP.",
+    summary: "Transfers data into SAP.",
   });
   expect(sanitizeAgentVisibleText(`RESA moves data into SAP ${item.cite}.`)).toBe(
     `RESA moves data into SAP ${item.cite}.`,
   );
   expect(agentWikiReferenceBlock(text)).toContain("Cite a page by copying its cite link exactly.");
+});
+
+it("renders procedure and knowledge cards with whenToUse and the page summary in place of the excerpt", () => {
+  const text = serializeAgentWikiCatalog({
+    procedures: {
+      items: [
+        {
+          id: "00000000-0000-4000-8000-000000000002",
+          title: "Refunds",
+          url: "u",
+          whenToUse: "A customer asks for money back.",
+          summary: "How to issue a refund step by step.",
+        },
+      ],
+      total: 1,
+      truncated: false,
+    },
+    items: [
+      {
+        id: "00000000-0000-4000-8000-000000000001",
+        title: "Pricing",
+        url: "u",
+        excerpt: "The first paragraph of the page.",
+        summary: "Plans, prices and discounts for every customer type.",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ],
+    total: 1,
+    page: 1,
+    nextPage: null,
+    truncated: false,
+  });
+  const { wiki } = JSON.parse(text ?? "null");
+  expect(wiki.procedures.items[0]).toMatchObject({
+    whenToUse: "A customer asks for money back.",
+    summary: "How to issue a refund step by step.",
+  });
+  expect(wiki.items[0]).toMatchObject({
+    summary: "Plans, prices and discounts for every customer type.",
+  });
+  expect(text).not.toContain("The first paragraph of the page.");
 });
 
 it("bounds ten worst-case escaped Unicode entries without dropping IDs or pagination", () => {
@@ -509,7 +570,14 @@ it("emits the reference for a Wiki that holds only a guide or procedures", () =>
   const text = serializeAgentWikiCatalog({
     guide: null,
     procedures: {
-      items: [{ id: "00000000-0000-4000-8000-000000000001", title: "Refunds", url: "u", whenToUse: "Money back." }],
+      items: [
+        {
+          id: "00000000-0000-4000-8000-000000000001",
+          title: "Refunds",
+          url: "u",
+          whenToUse: "Money back.",
+        },
+      ],
       total: 1,
       truncated: false,
     },
@@ -520,7 +588,15 @@ it("emits the reference for a Wiki that holds only a guide or procedures", () =>
     truncated: false,
   });
   expect(JSON.parse(text ?? "null").wiki.procedures.items[0].whenToUse).toBe("Money back.");
-  expect(serializeAgentWikiCatalog({ items: [], total: 0, page: 1, nextPage: null, truncated: false })).toBeNull();
+  expect(
+    serializeAgentWikiCatalog({
+      items: [],
+      total: 0,
+      page: 1,
+      nextPage: null,
+      truncated: false,
+    }),
+  ).toBeNull();
 });
 
 describe("Workspace Wiki reference degradation", () => {
@@ -561,9 +637,17 @@ describe("Workspace Wiki reference degradation", () => {
   type Cited = { cite: string };
   type Reference = {
     wiki: {
-      guide?: Cited & { markdown: string; title: string; nextOffset: number | null };
-      procedures?: { items: (Cited & { title: string; whenToUse: string })[]; truncated: boolean; more?: string };
-      items: (Cited & { title: string; excerpt: string })[];
+      guide?: Cited & {
+        markdown: string;
+        title: string;
+        nextOffset: number | null;
+      };
+      procedures?: {
+        items: (Cited & { title: string; whenToUse: string })[];
+        truncated: boolean;
+        more?: string;
+      };
+      items: (Cited & { title: string; summary: string })[];
     };
   };
   const titled = <T extends Cited>(entry: T) => ({
@@ -579,7 +663,10 @@ describe("Workspace Wiki reference degradation", () => {
       wiki: {
         ...wiki,
         guide: wiki.guide && titled(wiki.guide),
-        procedures: wiki.procedures && { ...wiki.procedures, items: wiki.procedures.items.map(titled) },
+        procedures: wiki.procedures && {
+          ...wiki.procedures,
+          items: wiki.procedures.items.map(titled),
+        },
         items: wiki.items.map(titled),
       },
     };
@@ -589,14 +676,18 @@ describe("Workspace Wiki reference degradation", () => {
     expect(WIKI_REFERENCE_MAX_BYTES).toBe(6000);
   });
 
-  it("drops excerpts before knowledge titles, and knowledge titles before any procedure", () => {
-    const seen = { excerptsDropped: false, itemsDropped: false, proceduresDropped: false };
+  it("drops card summaries before knowledge titles, and knowledge titles before any procedure", () => {
+    const seen = {
+      excerptsDropped: false,
+      itemsDropped: false,
+      proceduresDropped: false,
+    };
     for (let scale = 0; scale <= 60; scale += 2) {
       const { wiki } = reference(scale);
       const itemsDropped = wiki.items.length < 10;
-      if (wiki.items.some(({ excerpt }) => excerpt === "")) seen.excerptsDropped = true;
+      if (wiki.items.some(({ summary }) => summary === "")) seen.excerptsDropped = true;
       if (wiki.items.some(({ title }) => title.endsWith("…")) || itemsDropped)
-        expect(wiki.items.every(({ excerpt }) => excerpt === "")).toBe(true);
+        expect(wiki.items.every(({ summary }) => summary === "")).toBe(true);
       if (itemsDropped) seen.itemsDropped = true;
       if ((wiki.procedures?.items.length ?? 0) < 20) {
         seen.proceduresDropped = true;
@@ -604,7 +695,11 @@ describe("Workspace Wiki reference degradation", () => {
         expect(new TextEncoder().encode(wiki.guide?.markdown).byteLength).toBeLessThanOrEqual(1_600);
       }
     }
-    expect(seen).toEqual({ excerptsDropped: true, itemsDropped: true, proceduresDropped: true });
+    expect(seen).toEqual({
+      excerptsDropped: true,
+      itemsDropped: true,
+      proceduresDropped: true,
+    });
   });
 
   it("points to manage_wiki_pages whenever the procedure list is truncated", () => {
@@ -616,7 +711,10 @@ describe("Workspace Wiki reference degradation", () => {
   });
 
   it("degrades a pathologically large Wiki deterministically instead of throwing", () => {
-    const overrides = { guideTitle: "G".repeat(50_000), procedureTitle: "漢".repeat(50_000) };
+    const overrides = {
+      guideTitle: "G".repeat(50_000),
+      procedureTitle: "漢".repeat(50_000),
+    };
     const first = serializeAgentWikiCatalog(sized(60, overrides));
     expect(serializeAgentWikiCatalog(sized(60, overrides))).toBe(first);
     const { wiki } = reference(60, overrides);
@@ -628,7 +726,13 @@ describe("Workspace Wiki reference degradation", () => {
 
   it("falls back to a fixed pointer to manage_wiki_pages when even the bare index cannot fit", () => {
     const text = serializeAgentWikiCatalog({
-      guide: { id: OVERSIZED_PATH_ID, title: "Operating Guide", url: "u", markdown: "Be kind.", nextOffset: null },
+      guide: {
+        id: OVERSIZED_PATH_ID,
+        title: "Operating Guide",
+        url: "u",
+        markdown: "Be kind.",
+        nextOffset: null,
+      },
       items: [],
       total: 0,
       page: 1,

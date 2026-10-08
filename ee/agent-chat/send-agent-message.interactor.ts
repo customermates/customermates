@@ -124,16 +124,24 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     return this.userService.hasPermission(Resource.wiki, Action.create);
   }
 
-  private async wikiTurnContext(mode: AgentInvocationMode) {
+  private async wikiTurnContext(mode: AgentInvocationMode, snapshot: string | null) {
     try {
-      const result = await this.wikiCatalog.invoke({ page: 1 });
-      if (!result.ok) return { ok: false as const, failure: result };
-      const wikiEmpty = result.data.total === 0 && !result.data.guide && !result.data.procedures?.total;
+      const captured = snapshot === null ? await this.wikiCatalog.invoke({ page: 1 }) : null;
+      if (captured && !captured.ok) return { ok: false as const, failure: captured };
+      const wikiCatalog = captured ? serializeAgentWikiCatalog(captured.data) : snapshot || null;
+      const wikiEmpty = captured
+        ? captured.data.total === 0 && !captured.data.guide && !captured.data.procedures?.total
+        : wikiCatalog === null;
       const wikiWebsiteSetup =
         mode === "interactive" &&
         (wikiEmpty || ((await this.wikiCrawls?.findLatestCrawl())?.pendingHosts.length ?? 0) > 0) &&
         (await this.wikiWebsiteSetupAvailable());
-      return { ok: true as const, wikiCatalog: serializeAgentWikiCatalog(result.data), wikiWebsiteSetup };
+      return {
+        ok: true as const,
+        wikiCatalog,
+        wikiWebsiteSetup,
+        ...(captured ? { wikiCatalogSnapshot: wikiCatalog ?? "" } : {}),
+      };
     } catch (error) {
       if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
       return { ok: true as const, wikiCatalog: null, wikiWebsiteSetup: false };
@@ -288,7 +296,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey, surface);
     const locale = data.locale ?? resolveUserLocale(user);
-    const [wikiContext, schemaDigest] = await Promise.all([this.wikiTurnContext(mode), this.schemaDigest()]);
+    const [wikiContext, schemaDigest] = await Promise.all([
+      this.wikiTurnContext(mode, conversation?.wikiCatalogSnapshot ?? null),
+      this.schemaDigest(),
+    ]);
     if (!wikiContext.ok) return wikiContext.failure;
     const { wikiCatalog, wikiWebsiteSetup } = wikiContext;
     const toolOptions = {
@@ -299,7 +310,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     };
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
-    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts });
+    const requestedToolsets = toolsetsForRequest({
+      text: data.text,
+      pageRoute,
+      contexts,
+    });
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: agentSystemPromptParts({
         userName,
@@ -435,6 +450,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         servingProvider: reservation.budget.servingProvider,
         recentMessageLimit: AGENT_REPLAY_COUNT,
         ...(mode === "routine" ? { routineRunId: data.clientRequestId } : {}),
+        ...(wikiContext.wikiCatalogSnapshot !== undefined
+          ? { wikiCatalogSnapshot: wikiContext.wikiCatalogSnapshot }
+          : {}),
         turn:
           decision.disposition === "retry"
             ? {
