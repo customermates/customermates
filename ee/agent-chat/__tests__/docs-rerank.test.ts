@@ -504,9 +504,7 @@ describe("query-focused section-ranking evidence", () => {
       section: {
         pageTitle: "Connections",
         headingPath: ["Mailbox status"],
-        text:
-          "Background. ".repeat(80) +
-          "\n[Reactivation](http://localhost:4000/settings/channels) restores access.",
+        text: "Background. ".repeat(80) + "\n[Reactivation](http://localhost:4000/settings/channels) restores access.",
       },
     }));
     const [question] = docsRankSpec(candidates, "docs", "reactivation access").questions;

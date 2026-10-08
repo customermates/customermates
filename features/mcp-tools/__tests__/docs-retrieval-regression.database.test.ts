@@ -182,12 +182,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "make a channel visible to teammates", "app-profile#private-or-shared", null],
   ["en", "change my password", "app-profile#what-can-i-not-change-here", null],
   ["en", "Why is the inbox locked on Starter?", "app-inbox#who-can-use-the-inbox", null],
-  [
-    "en",
-    "Can an admin read my private conversations?",
-    "app-inbox#which-conversations-do-i-see",
-    "/settings/channels",
-  ],
+  ["en", "Can an admin read my private conversations?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
   ["en", "write a new email to a contact", "app-inbox#how-do-i-start-a-new-conversation", "/open/records/"],
   ["en", "Is there a calendar in Customermates?", "app-dashboard#what-can-an-activity-timeline-show", null],
   ["en", "share a dashboard widget with my team", "app-dashboard#what-does-the-dashboard-show", "/dashboard"],
@@ -213,12 +208,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["de", "Wie lege ich eine Automatisierung an?", "app-routines#how-do-i-create-a-routine", "/routines"],
   ["de", "Kanal für Kollegen sichtbar machen", "app-profile#private-or-shared", null],
   ["de", "Spam-Ordner im Posteingang ausblenden", "app-profile#what-does-the-folders-tab-control", null],
-  [
-    "de",
-    "Sieht der Admin meine privaten Chats?",
-    "app-inbox#which-conversations-do-i-see",
-    "/settings/channels",
-  ],
+  ["de", "Sieht der Admin meine privaten Chats?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
   ["de", "Eigene Rolle anlegen", "app-company#how-does-the-role-editor-work", "/settings/roles"],
   [
     "de",
@@ -256,12 +246,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "how do I connect Gmail", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
   ["de", "Gmail verbinden", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
   ["en", "Error connecting my Gmail channel", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
-  [
-    "de",
-    "Fehler beim Verbinden des Gmail-Kanals",
-    "app-profile#how-do-i-connect-a-channel",
-    "/settings/channels",
-  ],
+  ["de", "Fehler beim Verbinden des Gmail-Kanals", "app-profile#how-do-i-connect-a-channel", "/settings/channels"],
   [
     "en",
     "LinkedIn rate limit error",

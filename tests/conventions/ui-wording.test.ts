@@ -61,8 +61,7 @@ const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
   "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
 
-const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
-};
+const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {};
 
 describe("rules 30 and 58: shared action words come from one key", () => {
   it("labels the shared action words only through their Common.actions key", () => {
@@ -106,8 +105,7 @@ const GERMAN_TERM_EXEMPTIONS: Allowlist = {
   Services: "the Services starter list and the operator's service statistics",
 };
 
-const GERMAN_TERM_ALLOWLIST: Allowlist = {
-};
+const GERMAN_TERM_ALLOWLIST: Allowlist = {};
 
 describe("one German term per concept (owner 2026-10-08)", () => {
   it("translates each short English label with one German label", () => {
@@ -155,8 +153,7 @@ function retiredTermViolations(units: TextUnit[]) {
     .sort();
 }
 
-const RETIRED_TERM_ALLOWLIST: Allowlist = {
-};
+const RETIRED_TERM_ALLOWLIST: Allowlist = {};
 
 describe("rules 30, 33, 43, 50 and 51: retired UI names leave messages and docs", () => {
   it("names no retired UI place or action in the messages or the product docs", () => {
