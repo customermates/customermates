@@ -236,19 +236,21 @@ function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
 
 const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
   "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx":
-    "delivery log: entries are neither opened as an entity nor deleted",
+    "webhook deliveries are a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/audit/operator-audit-page-view.tsx":
-    "operator audit log: entries are neither opened as an entity nor deleted",
+    "the operator audit is a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/users/operator-users-page-view.tsx":
-    "operator console table, outside rule 59 (members, roles, webhooks, routines)",
+    "internal back-office surface with its own guarded flows, not customer UI",
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx":
-    "operator console table, outside rule 59 (members, roles, webhooks, routines)",
+    "internal back-office surface with its own guarded flows, not customer UI",
 };
 
 const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/settings/(workspace)/components/user/members-page-view.tsx": "I20: rule 59 row menu on members",
+  "app/[locale]/(protected)/settings/(workspace)/components/user/members-page-view.tsx":
+    "I20: rule 59 row menu on members",
   "app/[locale]/(protected)/settings/(workspace)/components/role/roles-page-view.tsx": "I20: rule 59 row menu on roles",
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-view.tsx": "I20: rule 59 row menu on webhooks",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-view.tsx":
+    "I20: rule 59 row menu on webhooks",
   "app/[locale]/(protected)/routines/components/routines-page-view.tsx": "I20: rule 59 row menu on routines",
 };
 
