@@ -1,6 +1,6 @@
 ---
-title: "CRM Security: Tenant Isolation and Audit Logs"
-description: "How Customermates is built, how workspace data is isolated, how API keys and MCP OAuth authenticate, what the audit log records, and how to report a flaw."
+title: "CRM Security: Tenant Isolation and Activity Log"
+description: "How Customermates is built, how workspace data is isolated, how API keys and MCP OAuth authenticate, what the Activity log records and how to report a flaw."
 ---
 
 Each company is an isolated tenant in a shared PostgreSQL database. Every record belongs to one company, API keys and OAuth connections act as the user who created or authorized them, and AI agents see only what that user may see.
@@ -85,19 +85,19 @@ The published self-hosted image sets no error reporting address and turns off Ne
 
 You manage webhooks in [Webhooks](app:company/webhooks); see [Webhooks](/docs/webhooks).
 
-## What does the audit log record? [#what-does-the-audit-log-record]
+## What does the Activity log record? [#what-does-the-audit-log-record]
 
-[Activity](app:company/activity) is the workspace's audit log. Every change is written to it with its actor, its kind, the affected element and its payload, in the same transaction as the change itself. Record changes carry field-level previous and current values; updates to roles, webhooks, routines and connected accounts carry a field-level diff, and creates, deletes and member saves carry a snapshot. Configuration changes to the data model and to record access by role are kept with the configuration revision they produced. User registrations, record exports and accepted legal documents are recorded as well. The actor is kept even after the user is removed, and automated changes are recorded as system or as the routine owner. A failed write leaves no entry. The audit log is included on every cloud plan and in the self-hosted edition alike.
+[Activity](app:company/activity) is the workspace's Activity log. Every change is written to it with its actor, its kind, the affected element and its payload, in the same transaction as the change itself. Record changes carry field-level previous and current values; updates to roles, webhooks, routines and connected accounts carry a field-level diff, and creates, deletes and member saves carry a snapshot. Configuration changes to the data model and to record access by role are kept with the configuration revision they produced. User registrations, record exports and accepted legal documents are recorded as well. The actor is kept even after the user is removed, and automated changes are recorded as system or as the routine owner. A failed write leaves no entry. The Activity log is included on every cloud plan and in the self-hosted edition alike.
 
-## What is not in the audit log? [#what-is-not-in-the-audit-log]
+## What is not in the Activity log? [#what-is-not-in-the-audit-log]
 
-Messaging events are not part of the audit log; they are kept only as delivery entries while a webhook or an event routine subscribes to them. Authentication events such as sign-ins, the API key lifecycle, subscription changes, saved views, widgets, agent conversations and vendor operator actions are not recorded either. Webhook secrets and header values are redacted in webhook entries. An entry written by an automated process, such as removing a connected account when a trial ends, names the user it affected rather than someone who performed it.
+Messaging events are not part of the Activity log; they are kept only as delivery entries while a webhook or an event routine subscribes to them. Authentication events such as sign-ins, the API key lifecycle, subscription changes, saved views, widgets, agent conversations and vendor operator actions are not recorded either. Webhook secrets and header values are redacted in webhook entries. An entry written by an automated process, such as removing a connected account when a trial ends, names the user it affected rather than someone who performed it.
 
-## Who can read the audit log, and where? [#who-can-read-the-audit-log-and-where]
+## Who can read the Activity log, and where? [#who-can-read-the-audit-log-and-where]
 
-Open [Activity](app:company/activity); see [Activity](/docs/app-company#activity-tab). Access needs **Read access** **All** on the **Audit Log** row of your role, which offers no **Create**, **Edit** or **Delete**; the **Admin** role always has it. The page shows record changes, admin and system events and configuration changes, and can be filtered by kind. Record changes follow the reader's record access. The same permission shows the change history in a record's **Activities** view.
+Open [Activity](app:company/activity); see [Activity](/docs/app-company#activity-tab). Access needs **Read access** **All** on the **Audit Log** row of your role, which offers no **Create**, **Edit** or **Delete**; the **Admin** role always has it. The page shows record changes, admin and system events and configuration changes, and can be filtered by kind. Record changes follow the reader's record access. The same permission shows the Activity log in a record's **Activities** view.
 
-## How long are audit entries kept, and can I export them? [#how-long-are-audit-entries-kept-and-can-i-export-them]
+## How long are Activity log entries kept, and can I export them? [#how-long-are-audit-entries-kept-and-can-i-export-them]
 
 Entries are not deleted automatically; they are kept as long as the workspace exists. [Activity](app:company/activity) has no export action. The activity timeline, its REST endpoint and its MCP tool return the same entries under the same permission.
 

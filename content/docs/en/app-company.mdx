@@ -24,9 +24,9 @@ On Cloud, when the Terms or the DPA change, members see **Legal documents update
 
 [Members](app:company/members) lists everyone in the workspace with **Name**, **Email**, **Role**, **Status**, **Updated at** and **Created at**. [Search](app:company/members?focus=search) and [filter](app:company/members?focus=filter) by status and dates. Inviting needs **Users & Roles** **Create**; approving and editing others needs **Users & Roles** **Edit** with read access **All**.
 
-### How do I invite people? [#how-do-invitations-work]
+### How do I invite people, and when does the invitation link expire? [#how-do-invitations-work]
 
-Click [Add](app:company/members?focus=add) on Members (or use the invite entry in the workspace menu). The **Invite User** dialog has two tabs:
+Click [Add](app:company/members?focus=add) on Members (or **Invite members** in the workspace menu). The **Invite User** dialog has two tabs:
 
 - **Share link** shows one **Invitation link** for the whole workspace with a copy button. It is valid for 7 days ("Expires on" with the date) and reused until then; the first time the dialog opens after it expired, a new link is created. Anyone with the link can register, and it cannot be revoked early.
 - **Send emails** takes 1 to 20 addresses, separated by a comma or Enter. **Send invitations** emails each address the workspace link once and confirms with "Sent 3 invitations." (with the actual count).
@@ -92,7 +92,7 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 | **Current period ends** | The renewal date, or after a cancellation the date the subscription ends |
 | **Active seats** | Billed seats; before the first checkout the number of **Active** members |
 
-The workspace menu shows the plan with its status, for example **Pro · Trial · 3 days left**, and opens Plan.
+The workspace menu shows the plan with its status, for example **Pro · Trial · 3 days left**, and opens Billing.
 
 ### Who can manage billing? [#who-can-manage-billing]
 
@@ -163,9 +163,9 @@ Enterprise is set up with Customermates and billed by invoice. Plan shows only *
 
 On Starter, the [Inbox](app:inbox) and [Channels](app:profile/connected-accounts) show **Upgrade to unlock messaging** with **Upgrade your plan**. At the connected-account limit, Pro users see **Upgrade to connect more accounts** with **View plans**, as does the hosted assistant's credit notice. All open [Billing](app:company/subscription), where only roles with **Company** **Edit** can act.
 
-## Activity [#activity-tab]
+## Activity: where do I find the audit log and change history? [#activity-tab]
 
-[Activity](app:company/activity) is the workspace's event log: who changed which record, setting or configuration, and when, newest first. Each entry shows the previous and the current value inline; the same entries appear on a record's **Activities** view, the dashboard activity widget and in Mate. Filter by kind:
+[Activity](app:company/activity) is the workspace's event log: who changed which record, setting or configuration, and when, newest first. Each entry shows the previous and the current value inline; the same entries appear on a record's **Activities** view, such as a contact's, the dashboard activity widget and in Mate. Filter by kind:
 
 - **Record changes**: creates, updates and deletes of records with field values.
 - **Admin and system**: members, roles, webhooks, routines, connected accounts, Knowledge Base pages, legal notices and exports. Webhook secrets and header values are redacted.

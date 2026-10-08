@@ -348,6 +348,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ((await getResult({ slug, query, locale })) as { structuredContent: { markdown: string } }).structuredContent
       .markdown;
   const appLinks = (markdown: string) => [...markdown.matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1]).join(" ");
+  const APP = "http://localhost:4000";
 
   it("ranks the webhooks page first for a webhook signature query", async () => {
     const result = await search({ query: "webhook signature" });
@@ -443,7 +444,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   });
 
   itHosted(
-    "answers a page-link question with a section whose link line names that page",
+    "answers a page-link question with a section whose app link names that page",
     async () => {
       const misses = (
         await Promise.all(
@@ -460,7 +461,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   );
 
   itHosted(
-    "answers task and permission questions with the section that handles them and that section's link line",
+    "answers task and permission questions with the section that handles them and that section's app link",
     async () => {
       const misses = (
         await Promise.all(
@@ -481,7 +482,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   );
 
   itHosted(
-    "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+    "answers where-is and take-me-to questions with the section that introduces that page, and its app link",
     async () => {
       const misses = (
         await Promise.all(
@@ -582,7 +583,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     },
   );
 
-  it("credits a link line's synonym only to the query word it is a synonym of", async () => {
+  it("credits a synonym only to the query word it is a synonym of", async () => {
     const [logs] = await searchHits("Where are the logs of my self-hosted instance?");
     expect(logs?.slug).toBe("self-hosting");
     const [history] = await searchHits("Wo sehe ich den Änderungsverlauf eines Kontakts?", "de");
@@ -680,14 +681,14 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     60000,
   );
 
-  itHosted("answers a page-address question with a German page compound through that page's link line", async () => {
+  itHosted("answers a page-address question with a German page compound through that page's app link", async () => {
     for (const [query, route] of [
       ["Link zur Mitgliederseite", "/company/members"],
       ["Wo ist die Webhookseite?", "/company/webhooks"],
     ] as const) {
       const [best] = await searchHits(query, "de");
       expect(best, query).toBeDefined();
-      expect(appLinks(await excerptOf(best?.slug ?? "", query, "de")), query).toContain(`\`${route}`);
+      expect(appLinks(await excerptOf(best?.slug ?? "", query, "de")), query).toContain(`${APP}${route}`);
     }
   });
 
@@ -770,12 +771,12 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       query: "Walk me through connecting WhatsApp to the Customermates inbox.",
     });
     const bounded = result.slice(0, 512);
-    expect(bounded).toContain("nav-profile-connected-accounts");
+    expect(bounded).toContain(`${APP}/profile/connected-accounts`);
     expect(bounded).toContain("profile-connected-accounts-connect");
     expect(bounded).toContain("WhatsApp");
   });
 
-  itHosted("excerpts the section search_docs names, with that section's own link line", async () => {
+  itHosted("excerpts the section search_docs names, with that section's own app link", async () => {
     for (const [locale, query, route] of [
       ["en", "roles page URL", "/company/roles"],
       ["de", "URL der Rollen-Seite", "/company/roles"],
@@ -784,27 +785,27 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       ["de", "URL der Webhooks-Seite", "/company/webhooks"],
     ] as const) {
       const excerpt = await excerptOf("app-company", query, locale);
-      expect(appLinks(excerpt), `${locale} "${query}"`).toContain(`\`${route}\``);
+      expect(appLinks(excerpt).split(" "), `${locale} "${query}"`).toContain(`${APP}${route}`);
       const best = (await searchHits(query, locale)).find((hit) => hit.slug === "app-company");
       if (best) expect(excerpt.split("\n")[0], `${locale} "${query}"`).toContain(best.section.split(" > ").at(-1));
     }
   });
 
-  it("puts the section a query names first and keeps its link line, steps included", async () => {
+  it("puts the section a query names first and keeps its app link, steps included", async () => {
     for (const [locale, slug, heading, route] of [
       ["en", "connect-custom-connector", "Can ChatGPT use an API key instead of OAuth?", "/profile/api-keys"],
       ["de", "connect-custom-connector", "Kann ChatGPT statt OAuth einen API-Key nutzen?", "/profile/api-keys"],
       ["en", "mcp", "Connect a client", "/profile/api-keys"],
       ["en", "architecture-security", "How are webhook secrets and destinations secured?", "/company/webhooks"],
-      ["en", "app-profile", "Profile settings page", "/profile/settings"],
+      ["en", "app-profile", "Profile & preferences", "/profile/settings"],
     ] as const) {
       const excerpt = await excerptOf(slug, heading, locale);
       const [firstLine] = excerpt.split("\n");
       expect(firstLine, `${slug} "${heading}"`).toMatch(/^#+ /);
       expect(firstLine.replace(/^#+ /, ""), `${slug} "${heading}"`).toBe(heading);
-      expect(appLinks(excerpt), `${slug} "${heading}"`).toContain(`\`${route}\``);
+      expect(appLinks(excerpt).split(" "), `${slug} "${heading}"`).toContain(`${APP}${route}`);
     }
-    expect((await excerptOf("app-company", "roles-tab")).split("\n")[0]).toBe("## Roles page");
+    expect((await excerptOf("app-company", "roles-tab")).split("\n")[0]).toBe("## Roles");
   });
 
   it("keeps the table row, or the sentence deep in a paragraph, that answers the query inside the bounded excerpt", async () => {
@@ -813,24 +814,26 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       [
         "app-profile",
         "which setting decides the number and date format",
-        "| Field | Id | Options and rules | Effect |",
-        "| **Formatting Locale** |",
+        "| Field | Rules and effect |",
+        "| [Formatting Locale](http://localhost:4000/profile/settings?focus=control%3Aprofile-settings-formatting-locale) | The same choices; how numbers, dates and amounts are written",
       ],
-      ["app-routines", "what is the default schedule of a routine", null, "The default schedule is daily at 09:00."],
+      ["app-routines", "what is the default schedule of a routine", null, "The default is every day at 09:00."],
     ] as const) {
       const excerpt = await excerptOf(slug, query);
       expect(excerpt, query).toContain(answer);
       if (header) expect(excerpt.indexOf(header), query).toBeGreaterThan(-1);
       if (header) expect(excerpt.indexOf(header), query).toBeLessThan(excerpt.indexOf(answer));
       expect(excerpt.length, query).toBeLessThanOrEqual(1400);
-      expect(appLinks(excerpt), query).toMatch(/`\/[a-z]/);
+      expect(appLinks(excerpt), query).toMatch(/http:\/\/localhost:4000\/[a-z]/);
     }
   });
 
   it("keeps the step that answers a question in the words of that step, not a row that shares one word", async () => {
     const excerpt = await excerptOf("webhooks", "Wo trage ich die Webhook-URL ein", "de");
-    expect(excerpt).toContain("**UI:** Um einen Webhook anzulegen");
-    expect(appLinks(excerpt)).toContain("`/company/webhooks`");
+    expect(excerpt).toContain(
+      `Öffnen Sie [Webhooks](${APP}/company/webhooks), klicken Sie auf [Hinzufügen](${APP}/company/webhooks?focus=control%3Acompany-webhooks-add), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein`,
+    );
+    expect(appLinks(excerpt).split(" ")).toContain(`${APP}/company/webhooks`);
   });
 
   itHosted("answers a channel status question with the instruction to reactivate the channel", async () => {
@@ -840,11 +843,11 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("app-profile", query, locale);
       expect(excerpt, query).toContain(action);
-      expect(appLinks(excerpt), query).toContain("`/profile/connected-accounts`");
+      expect(appLinks(excerpt), query).toContain(`${APP}/profile/connected-accounts`);
     }
   });
 
-  it("keeps the formula a calculation question asks for, and the link line of the section that states it", async () => {
+  it("keeps the formula a calculation question asks for, and the app link of the section that states it", async () => {
     for (const [locale, query, formula] of [
       [
         "en",
@@ -859,10 +862,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("concepts", query, locale);
       expect(excerpt, query).toContain(formula);
-      expect(
-        excerpt.split("\n").some((line) => line.startsWith("**Link:**") && line.includes("`/configure`")),
-        query,
-      ).toBe(true);
+      expect(appLinks(excerpt).split(" "), query).toContain(`${APP}/open/configure/deal`);
       expect(excerpt.length, query).toBeLessThanOrEqual(1400);
     }
   });
@@ -894,8 +894,8 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       ["en", "app-company", "Which plans are there?", "Hosted AI credits per active user and month"],
     ] as const) {
       const excerpt = await excerptOf(slug, query, locale);
-      const linkEnd = excerpt.indexOf("\n", excerpt.indexOf("**Link:**"));
-      const top = linkEnd === -1 ? excerpt : excerpt.slice(0, linkEnd);
+      const next = excerpt.search(/\n#{1,6} /u);
+      const top = next === -1 ? excerpt : excerpt.slice(0, next).trimEnd();
       expect(top.length, query).toBeGreaterThan(700);
       expect(top.length, query).toBeLessThanOrEqual(1400);
       expect(top, query).not.toContain("…");

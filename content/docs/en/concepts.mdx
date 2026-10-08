@@ -39,11 +39,11 @@ A field is entered by hand or calculated: a formula, a lookup through a relation
 
 Open [Configure](app:configure), which shows all lists as a graph, and open a list, for example [Contacts](app:configure/contact). Its **Add** menu creates a field, a calculated field, a relationship, a **Channels** field or a sub-list, each in its own drawer. The deal stage field lives on the [Deals configure page](app:configure/deal). Before a change is applied it previews the affected records, views, widgets, routines and formulas, and changes that would break something are blocked until you resolve them.
 
-To delete a list, field or relationship, use **Delete** in its drawer or in the page's menu. The confirmation lists the references it removes automatically (view filters, columns, sorts, widget filters) and blocks only on things that would compute wrong, such as calculations and routines. Deleted items move to **Recently deleted** in Configure, where you can **Restore** them or **Delete permanently** after typing the name; a permanent deletion also removes the stored values, and for a list its records and links.
+To delete a custom field, a list or a relationship, use **Delete** in its drawer or in the page's menu. The confirmation lists the references it removes automatically (view filters, columns, sorts, widget filters) and blocks only on things that would compute wrong, such as calculations and routines. Deleted items move to **Recently deleted** in Configure, where you can **Restore** them or **Delete permanently** after typing the name; a permanent deletion also removes the stored values, and for a list its records and links.
 
 Names are unique: list names, field names within a list, relationship labels per side and option labels per field, ignoring case and accents. Managing the data model is its own permission, separate from editing records; it grants neither record access nor role management.
 
-## How does a weighted pipeline work? [#how-does-a-weighted-pipeline-work]
+## How does a weighted pipeline work, and how is the weighted value calculated? [#how-does-a-weighted-pipeline-work]
 
 **Weighted deal value = deal value × stage probability / 100**. The stages are a Single choice field whose options each carry a probability from 0 to 100 percent. A 2,600 deal at 60 percent contributes 1,560; a zero-percent stage contributes zero, and a missing probability leaves the weighted value empty. A changed live service price recalculates dependent values; a saved quote price does not.
 

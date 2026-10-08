@@ -24,9 +24,9 @@ Ihre Rolle bestimmt, was Sie sehen. Eine Seite, die Ihre Rolle nicht lesen darf,
 
 [Mitglieder](app:company/members) listet alle Personen im Workspace mit **Name**, **E-Mail**, **Rolle**, **Status**, **Aktualisiert am** und **Erstellt am**. [Suchen](app:company/members?focus=search) und [filtern](app:company/members?focus=filter) Sie nach Status und Datum. Einladen erfordert **Benutzer & Rollen** **Erstellen**; andere genehmigen und bearbeiten erfordert **Benutzer & Rollen** **Bearbeiten** mit Leserecht **Alle**.
 
-### Wie lade ich Personen ein? [#how-do-invitations-work]
+### Wie lade ich Personen ein, und wie lange gilt der Einladungslink? [#how-do-invitations-work]
 
-Klicken Sie auf Mitglieder auf [Hinzufügen](app:company/members?focus=add) (oder nutzen Sie den Einladen-Eintrag im Workspace-Menü). Der Dialog **Benutzer einladen** hat zwei Tabs:
+Klicken Sie auf Mitglieder auf [Hinzufügen](app:company/members?focus=add) (oder **Mitglieder einladen** im Workspace-Menü). Der Dialog **Benutzer einladen** hat zwei Tabs:
 
 - **Link teilen** zeigt einen **Einladungslink** für den ganzen Workspace mit Kopier-Button. Er gilt 7 Tage ("Läuft am" mit Datum ab) und wird bis dahin wiederverwendet; öffnet sich der Dialog nach Ablauf zum ersten Mal, entsteht ein neuer Link. Jeder mit dem Link kann sich registrieren, und er lässt sich nicht vorzeitig widerrufen.
 - **E-Mails senden** nimmt 1 bis 20 Adressen an, getrennt durch Komma oder Enter. **Einladungen senden** schickt jeder Adresse den Workspace-Link einmal und bestätigt mit der Anzahl der gesendeten Einladungen.
@@ -92,7 +92,7 @@ Jeder Workspace startet mit einer eingebauten Rolle, **Admin**, die die Person e
 | **Ende des aktuellen Abrechnungszeitraums** | Das Verlängerungsdatum, nach einer Kündigung das Enddatum des Abonnements |
 | **Aktive Nutzerplätze** | Abgerechnete Nutzerplätze; vor dem ersten Checkout die Zahl der **Aktiven** Mitglieder |
 
-Das Workspace-Menü zeigt den Tarif mit seinem Status, etwa **Pro · Testphase · noch 3 Tage**, und öffnet Plan.
+Das Workspace-Menü zeigt den Tarif mit seinem Status, etwa **Pro · Testphase · noch 3 Tage**, und öffnet Abrechnung.
 
 ### Wer darf die Abrechnung verwalten? [#who-can-manage-billing]
 
@@ -163,9 +163,9 @@ Enterprise wird mit Customermates eingerichtet und per Rechnung abgerechnet. Pla
 
 Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle](app:profile/connected-accounts) **Upgrade nötig, um Messaging freizuschalten** mit **Tarif upgraden**. Am Kontenlimit sehen Pro-Nutzer **Upgrade, um mehr Konten zu verbinden** mit **Tarife ansehen**, ebenso der Credit-Hinweis des gehosteten Assistenten. Alle öffnen [Abrechnung](app:company/subscription), wo nur Rollen mit **Unternehmen** **Bearbeiten** handeln können.
 
-## Aktivität [#activity-tab]
+## Aktivität: Wo finde ich das Audit-Log und den Änderungsverlauf? [#activity-tab]
 
-[Aktivität](app:company/activity) ist das Ereignisprotokoll des Workspace: wer welchen Datensatz, welche Einstellung oder Konfiguration wann geändert hat, das Neueste zuerst. Jeder Eintrag zeigt den vorherigen und den aktuellen Wert direkt; dieselben Einträge erscheinen in der Ansicht **Aktivitäten** eines Datensatzes, im Aktivitäts-Widget des Dashboards und in Mate. Filtern Sie nach Art:
+[Aktivität](app:company/activity) ist das Ereignisprotokoll des Workspace: wer welchen Datensatz, welche Einstellung oder Konfiguration wann geändert hat, das Neueste zuerst. Jeder Eintrag zeigt den vorherigen und den aktuellen Wert direkt; dieselben Einträge erscheinen in der Ansicht **Aktivitäten** eines Datensatzes, etwa eines Kontakts, im Aktivitäts-Widget des Dashboards und in Mate. Filtern Sie nach Art:
 
 - **Datensatzänderungen**: Anlegen, Ändern und Löschen von Datensätzen mit Feldwerten.
 - **Verwaltung und System**: Mitglieder, Rollen, Webhooks, Routinen, verbundene Konten, Seiten der Wissensdatenbank, rechtliche Hinweise und Exporte. Webhook-Secrets und Header-Werte werden unkenntlich gemacht.
