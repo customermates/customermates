@@ -46,6 +46,12 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
         </span>
 
         {detail && <p className="text-subdued mt-0.5 line-clamp-2 text-xs font-normal">{detail}</p>}
+
+        {run.wikiProposalCount > 0 && (
+          <p className="mt-0.5 text-xs font-normal text-primary" data-routine-run-wiki-proposals="">
+            {t("RoutineDetail.wikiProposals", { count: run.wikiProposalCount })}
+          </p>
+        )}
       </span>
 
       <span className="flex shrink-0 flex-col items-end gap-1.5">

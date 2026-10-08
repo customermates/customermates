@@ -114,6 +114,7 @@ const ROUTINE_RUN_SELECT = {
   error: true,
   createdAt: true,
   updatedAt: true,
+  _count: { select: { wikiProposals: true } },
 } as const;
 
 function ownerName(owner: { firstName: string; lastName: string }): string {
@@ -127,9 +128,13 @@ function storedRoutineFilters(value: unknown): Filter[] {
   return parsed.data;
 }
 
-type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason" | "chargedCredits" | "chargedPct"> & {
+type RoutineRunRow = Omit<
+  RoutineRunDto,
+  "triggerContext" | "stopReason" | "chargedCredits" | "chargedPct" | "wikiProposalCount"
+> & {
   triggerPayload: unknown;
   chargedMicrocents: bigint;
+  _count: { wikiProposals: number };
 };
 
 function routineRunChargedPct(chargedMicrocents: number, allowanceMicrocents: number | null): number | null {
@@ -143,7 +148,7 @@ function routineRunDto(
   storedStopReason: string | null,
   allowanceMicrocents: number | null = null,
 ): RoutineRunDto {
-  const { triggerPayload, chargedMicrocents, ...run } = row;
+  const { triggerPayload, chargedMicrocents, _count, ...run } = row;
   if (storedStopReason !== null && !isAgentTurnStopReason(storedStopReason))
     throw new Error("Stored agent turn stop reason is invalid.");
   const charged = agentMicrocentsFromStorage(chargedMicrocents, "Routine run charge");
@@ -152,6 +157,7 @@ function routineRunDto(
     ...run,
     chargedCredits: agentMicrocentsToCredits(charged),
     chargedPct: routineRunChargedPct(charged, allowanceMicrocents),
+    wikiProposalCount: _count.wikiProposals,
     stopReason: storedStopReason,
     triggerContext: routineRunTriggerContext(run.triggerEvent, triggerPayload),
   };

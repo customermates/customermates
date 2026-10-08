@@ -60,6 +60,7 @@ type Props = {
   initialSetupState?: WikiHomepageSetupState;
   layoutInitial?: Record<string, number>;
   listPage: WikiPageListResult;
+  openProposals?: boolean;
   pinnedPage?: WikiPageSummary | null;
   requestedPageId?: string;
   unavailable?: boolean;
@@ -70,6 +71,7 @@ const WikiPageViewContent = observer(function WikiPageView({
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   layoutInitial,
   listPage,
+  openProposals = false,
   pinnedPage = null,
   requestedPageId,
   unavailable = false,
@@ -95,8 +97,9 @@ const WikiPageViewContent = observer(function WikiPageView({
   useEffect(() => {
     if (!canReviewProposals) return;
     proposals.bind();
+    if (openProposals) proposals.setOpen(true);
     return () => proposals.dispose();
-  }, [canReviewProposals, proposals]);
+  }, [canReviewProposals, openProposals, proposals]);
   const canApplyProposal = useCallback(
     (action: "create" | "update" | "delete") =>
       Boolean(
