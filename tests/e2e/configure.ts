@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
 
-export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Channels";
+export type ConfigureAddItem = "List" | "Field" | "Calculated field" | "Sub-list" | "Relationship" | "Channels";
 export type ConfigureSection = "Fields" | "Relationships";
 
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -70,6 +70,12 @@ export async function openDrawerTab(page: Page, name: string) {
   if (!(await section.count())) return;
   if ((await section.getAttribute("aria-expanded")) !== "true") await section.click();
   await expect(section).toHaveAttribute("aria-expanded", "true");
+}
+
+export async function openDrawerSection(page: Page, name: string) {
+  const trigger = configureDrawer(page).getByRole("button", { name: new RegExp(`^${escapePattern(name)}`) });
+  if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
 }
 
 export async function openConfigureTab(page: Page, section: ConfigureSection | "General") {

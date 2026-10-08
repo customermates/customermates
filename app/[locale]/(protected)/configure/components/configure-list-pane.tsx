@@ -23,7 +23,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ChevronRight, GripVertical } from "lucide-react";
+import { ChevronRight, GripVertical, Plus } from "lucide-react";
 
 import { FormActions } from "@/components/card/form-actions";
 import { AppForm } from "@/components/forms/form-context";
@@ -31,6 +31,7 @@ import { RecordConfigurationPreview } from "@/components/records/record-configur
 import { usePreviewBlockers } from "./use-preview-blockers";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 
@@ -38,10 +39,12 @@ import {
   configureChannelsField,
   configureCounts,
   configureFieldSource,
+  configureParentId,
   configurePathLists,
   isResolvedField,
 } from "./configure-model";
 import { ModelChangeRecovery } from "./model-change-recovery";
+import { configureCardinality } from "./configure-graph-model";
 import { TypeSettingsFields } from "./type-modal";
 import { recordFieldTypeKey } from "@/features/records/record-input-value";
 
@@ -54,6 +57,7 @@ type Props = {
   interactive: boolean;
   onEditField: (field: RecordField) => void;
   onEditChannels: () => void;
+  onAddRelationship: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onEditRelationshipPath: (path: RecordRelationshipPath) => void;
 };
@@ -201,6 +205,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   interactive,
   onEditField,
   onEditChannels,
+  onAddRelationship,
   onEditRelationship,
   onEditRelationshipPath,
 }: Props) {
@@ -208,10 +213,14 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   const dndId = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
   const Icon = recordTypeIcon(selected.icon);
   const counts = configureCounts(model, selected.id);
+  const parentId = configureParentId(model, selected);
+  const parent = parentId ? model.types.find((type) => type.id === parentId) : undefined;
   const editingGeneral = canManage && general.original?.id === selected.id;
   const order = editingGeneral
     ? general.form.fieldOrder
@@ -249,6 +258,19 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     general.moveField(String(active.id), String(over.id));
   };
   const empty = <p className="px-4 py-3 text-sm text-muted-foreground">{t("RecordModel.noneYet")}</p>;
+  const relationshipsEmpty = (
+    <div className="flex flex-col items-start gap-3 p-4" data-configure-relationships-empty="">
+      <p className="text-sm text-muted-foreground">{t("RecordModel.relationshipsEmpty")}</p>
+
+      {canManage && (
+        <Button disabled={!interactive} size="sm" type="button" variant="secondary" onClick={onAddRelationship}>
+          <Plus aria-hidden="true" className="size-4" />
+
+          {t("RecordModel.addRelationship")}
+        </Button>
+      )}
+    </div>
+  );
 
   const tabs = (
     <EditorTabs
@@ -324,19 +346,31 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 <ul className="divide-y divide-border">
                   {relations.map((relation) => {
                     const outgoing = relation.sourceTypeId === selected.id;
+                    const cardinality = configureCardinality(
+                      outgoing
+                        ? relation
+                        : {
+                            sourceCardinality: relation.targetCardinality,
+                            targetCardinality: relation.sourceCardinality,
+                          },
+                    );
                     const other = model.types.find(
                       (type) => type.id === (outgoing ? relation.targetTypeId : relation.sourceTypeId),
                     );
                     return (
                       <li
                         key={relation.id}
+                        className="bg-card"
                         data-configure-relationship-row={relation.id}
                         data-focus-target={`relationship:${relation.id}`}
                       >
                         <ConfigureRow
-                          detail={other?.pluralLabel}
+                          detail={[t(`RecordModel.cardinality.${cardinality}`), other?.pluralLabel]
+                            .filter(Boolean)
+                            .join(" · ")}
                           interactive={interactive}
                           label={outgoing ? relation.sourceLabel : relation.targetLabel}
+                          leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
                           onOpen={canManage ? () => onEditRelationship(relation) : undefined}
                         />
                       </li>
@@ -344,7 +378,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                   })}
 
                   {paths.map((path) => (
-                    <li key={path.id}>
+                    <li key={path.id} className="bg-card">
                       <ConfigureRow
                         detail={[
                           t("RecordModel.relationshipPath"),
@@ -354,13 +388,14 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                           .join(" · ")}
                         interactive={interactive}
                         label={path.label}
+                        leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
                         onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
                       />
                     </li>
                   ))}
                 </ul>
               ) : (
-                empty
+                relationshipsEmpty
               )}
             </ConfigureGroup>
           ),
@@ -377,6 +412,12 @@ export const ConfigureListPane = observer(function ConfigureListPane({
 
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">{selected.pluralLabel}</h1>
+
+            {parent && (
+              <p className="text-sm text-muted-foreground" data-configure-sublist-explanation="">
+                {`${t("RecordModel.graph.sublistOf", { list: parent.pluralLabel })} · ${t("RecordModel.sublistExplanation", { parent: parent.label })}`}
+              </p>
+            )}
 
             <p className="text-sm text-muted-foreground">
               {t("RecordModel.listCounts", counts)}
