@@ -108,7 +108,6 @@ const GERMAN_TERM_EXEMPTIONS: Allowlist = {
 const GERMAN_TERM_ALLOWLIST: Allowlist = {
   Admin: "I19: the Admin navigation entry disappears with the Settings area",
   Plan: "I19: Plan becomes Billing (rule 51), with one German term",
-  Relationship: "I1r4: one German term (Beziehung or Verknüpfung)",
   Workspace: "I19: one German term (Arbeitsbereich or Workspace)",
 };
 

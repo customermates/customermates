@@ -166,12 +166,7 @@ const NOT_YET_MIGRATED: Record<string, Rule[]> = {
   "app/components/navigation/sidebar-customize.tsx": ["overlay-footer"],
   "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["legacy-footer"],
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": [
-    "save-label",
-    "cancel-label",
-    "footer-primitive",
-    "confirm-primitive",
-  ],
+  "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": ["footer-primitive", "confirm-primitive"],
 };
 
 function scannedFiles(): string[] {
