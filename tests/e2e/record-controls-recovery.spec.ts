@@ -116,14 +116,10 @@ test("paginates and retries record and widget history, restores a personal timel
     ).rows;
   const beforeJournal = await journal();
   expect(beforeJournal).toHaveLength(29);
-  const faults = new Set([
-    "record history",
-    "older record history",
-    "dashboard collection",
-    "widget history",
-    "older widget history",
-  ]);
+  const faults = new Set(["older record history", "dashboard collection", "widget history", "older widget history"]);
   let dashboardFaultArmed = false;
+  let recordHistoryFails = true;
+  let widgetHistoryArmed = false;
   await page.route("**/*", async (route) => {
     const args = nextArguments(route.request());
     if (!args) return route.fallback();
@@ -135,20 +131,20 @@ test("paginates and retries record and widget history, restores a personal timel
         const scope = input.scope as { records?: RecordRef[]; typeIds?: string[] };
         if (JSON.stringify(scope.records) === JSON.stringify([ref]) && input.cursor !== null)
           label = "older record history";
-        if (JSON.stringify(scope.typeIds) === JSON.stringify([typeId]))
+        if (widgetHistoryArmed && JSON.stringify(scope.typeIds) === JSON.stringify([typeId]))
           label = input.cursor === null ? "widget history" : "older widget history";
       }
     }
     if (
       dashboardFaultArmed &&
-      args.length === 0 &&
       invokesServerAction(
         route.request(),
         serverActionIds("app/[locale]/(protected)/dashboard/actions.ts", "refreshWidgetsAction"),
       )
     )
       label = "dashboard collection";
-    if (label && faults.delete(label)) await evidence.failResponse(route, label);
+    if (label === "record history" && recordHistoryFails) await evidence.failResponse(route, label);
+    else if (label && faults.delete(label)) await evidence.failResponse(route, label);
     else await route.fallback();
   });
   await page.goto(`/en/records/${ref.typeId}/${ref.recordId}`);
@@ -158,6 +154,7 @@ test("paginates and retries record and widget history, restores a personal timel
   const retry = history.getByRole("button", { name: english.ErrorCard.retry, exact: true });
   const older = history.getByRole("button", { name: english.EntityTimeline.loadOlder, exact: true });
   await expect(retry).toBeVisible();
+  recordHistoryFails = false;
   await retry.click();
   await expect(rows).toHaveCount(25);
   await expect(retry).toHaveCount(0);
@@ -363,6 +360,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await expect(dialog).toHaveCount(0);
   const dashboardError = page.locator('main [data-page-state="error"][role="alert"]');
   await expect(dashboardError).toBeVisible();
+  widgetHistoryArmed = true;
   await dashboardError.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
   await expect(dashboardError).toHaveCount(0);
   const card = page
