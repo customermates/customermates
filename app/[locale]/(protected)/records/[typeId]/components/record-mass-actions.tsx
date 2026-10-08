@@ -104,15 +104,15 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
               <button className="flex items-center gap-1.5" type="button" onClick={() => setActiveId(null)}>
                 <ChevronLeft className="size-3.5" />
 
-                {t("MassActions.update")}
+                {t("MassActions.edit")}
               </button>
             ) : (
-              t("MassActions.update")
+              t("MassActions.edit")
             )
           }
           trigger={
             <Button disabled={busy} size="sm" variant="secondary">
-              {t("MassActions.update")}
+              {t("MassActions.edit")}
 
               <ChevronDown className="size-3.5" />
             </Button>
