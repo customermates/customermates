@@ -22,6 +22,13 @@ import { WikiPageKindSchema, WIKI_TITLE_MAX_LENGTH, type WikiPageKind } from "@/
 import { env } from "@/env";
 
 import {
+  stripUntrustedNotesMarkers,
+  UNTRUSTED_NOTES_CLOSE,
+  UNTRUSTED_NOTES_HANDLING,
+  UNTRUSTED_NOTES_OPEN,
+} from "./entity-generic.mcp-tools";
+
+import {
   customMcpFailure,
   formatDatesInResponse,
   mcpInteractorFailure,
@@ -159,6 +166,8 @@ export const ManageWikiPagesOutputSchema = z.looseObject({
   incomplete: z.boolean().optional(),
   hint: z.string().optional(),
   section: z.string().optional(),
+  gapsTrust: z.literal("untrusted").optional(),
+  gapsHandling: z.string().optional(),
   gaps: z
     .array(
       z.looseObject({
@@ -322,6 +331,10 @@ function wikiSearchResult(result: WikiPageSearchResult) {
   });
 }
 
+function untrustedGapQuery(query: string) {
+  return `${UNTRUSTED_NOTES_OPEN}\n${stripUntrustedNotesMarkers(query)}\n${UNTRUSTED_NOTES_CLOSE}`;
+}
+
 function wikiAnchorSection(markdown: string, anchor: string) {
   const sections = wikiMarkdownSections(markdown).filter((section) => section.level > 0);
   const anchors = sections.map((section) => slugifyHeading(section.path.at(-1) ?? ""));
@@ -403,7 +416,11 @@ export const manageWikiPagesTool = {
 
     if (params.action === "gaps") {
       return runInteractor(getGetWikiKnowledgeGapsInteractor().invoke(), ({ items }) =>
-        toonResult({ gaps: formatDatesInResponse(items) }),
+        toonResult({
+          gapsTrust: "untrusted",
+          gapsHandling: UNTRUSTED_NOTES_HANDLING,
+          gaps: formatDatesInResponse(items.map((item) => ({ ...item, query: untrustedGapQuery(item.query) }))),
+        }),
       );
     }
 
