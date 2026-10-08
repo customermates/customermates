@@ -3042,6 +3042,21 @@
       "short": "Correo, teléfono, redes"
     },
     "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
+    "clickAction": "Al hacer clic",
+    "clickActions": {
+      "email": {
+        "copy": "Copiar dirección",
+        "open": "Abrir en la app de correo"
+      },
+      "phone": {
+        "copy": "Copiar número",
+        "open": "Llamar al número"
+      },
+      "url": {
+        "copy": "Copiar enlace",
+        "open": "Abrir enlace"
+      }
+    },
     "color": "Color",
     "conditionIf": "Condición",
     "conditionOtherwise": "Si no",
@@ -3406,8 +3421,11 @@
     "relationshipChange": "{count} relaciones modificadas",
     "relationshipEditor": {
       "cardinality": "Cuántos registros se vinculan",
+      "messagesHelp": "Los mensajes proceden de registros vinculados con canales o de conversaciones vinculadas. Los permisos de registros y mensajes siguen aplicándose.",
       "onDelete": "Al eliminar",
       "otherList": "la lista vinculada",
+      "showMessagesOn": "Mostrar sus mensajes en {list}",
+      "showMessagesOnSide": "Mostrar sus mensajes en {list} ({side})",
       "shownOn": "Se muestra en los registros de {list}",
       "thisList": "Esta lista"
     },
