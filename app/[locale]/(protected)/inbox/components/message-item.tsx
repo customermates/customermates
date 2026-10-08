@@ -231,11 +231,10 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                       <TooltipTrigger asChild>
                         <Button
                           aria-label={t("Inbox.compose.draftDiscard")}
-                          className={isEmail ? "text-muted-foreground hover:text-destructive" : undefined}
                           disabled={!message.draftRevision}
                           size="icon-xs"
                           type="button"
-                          variant={isEmail ? "ghost" : "softDestructive"}
+                          variant="softDestructive"
                           onClick={() => {
                             const draftRevision = message.draftRevision;
                             if (!draftRevision) return;

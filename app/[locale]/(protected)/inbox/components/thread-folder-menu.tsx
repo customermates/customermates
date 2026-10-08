@@ -13,6 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { TruncatedText } from "@/components/shared/truncated-text";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -64,12 +65,11 @@ export const ThreadFolderMenu = observer(() => {
           <DropdownMenuItem
             key={entry.id}
             disabled={moving}
-            title={entry.name}
             onSelect={() => runUserAction(() => detail.moveToFolder(entry.id))}
           >
             <Folder />
 
-            <span className="max-w-64 truncate">{entry.name}</span>
+            <TruncatedText className="max-w-64">{entry.name}</TruncatedText>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

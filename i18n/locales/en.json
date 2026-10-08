@@ -2702,6 +2702,7 @@
       "sentSuccess": "{count, plural, one {Sent # invitation.} other {Sent # invitations.}}",
       "tabs": {
         "email": "Send emails",
+        "label": "Invite method",
         "link": "Share link"
       }
     },

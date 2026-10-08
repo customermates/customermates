@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+import { TruncatedText } from "@/components/shared/truncated-text";
 
 type OptionResult = {
   key: string;
@@ -132,9 +133,7 @@ export const PaletteValueSelect = observer(function PaletteValueSelect({
               data-filter-option-group={group.key || undefined}
               heading={
                 group.label ? (
-                  <span className="block truncate" title={group.label}>
-                    {group.label}
-                  </span>
+                  <TruncatedText>{group.label}</TruncatedText>
                 ) : undefined
               }
             >

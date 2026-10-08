@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { CopyableAddress } from "./copyable-address";
@@ -80,13 +81,18 @@ export const EmailMessageHeader = observer(
               )}
             </div>
 
-            <time
-              className="text-muted-foreground shrink-0 text-xs whitespace-nowrap"
-              dateTime={new Date(message.sentAt).toISOString()}
-              title={intlStore.formatNumericalShortDateTime(message.sentAt)}
-            >
-              {intlStore.formatTime(message.sentAt)}
-            </time>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <time
+                  className="text-muted-foreground shrink-0 text-xs whitespace-nowrap"
+                  dateTime={new Date(message.sentAt).toISOString()}
+                >
+                  {intlStore.formatTime(message.sentAt)}
+                </time>
+              </TooltipTrigger>
+
+              <TooltipContent>{intlStore.formatNumericalShortDateTime(message.sentAt)}</TooltipContent>
+            </Tooltip>
 
             {!message.isDeleted && (
               <DropdownMenu>
