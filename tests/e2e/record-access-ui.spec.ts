@@ -32,6 +32,7 @@ import {
   restoreRecentlyDeleted,
 } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
@@ -261,13 +262,13 @@ test("admits an assigned-record writer and separately delegates schema configura
     });
     await member.page.goto(`/en/records/${type.id}`);
     await expect(
-      member.page.getByRole("button", {
+      member.page.getByRole("link", {
         name: "Assigned project",
         exact: true,
       }),
     ).toBeVisible();
     await expect(
-      member.page.getByRole("button", {
+      member.page.getByRole("link", {
         name: "Other member project",
         exact: true,
       }),
@@ -275,9 +276,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect(member.page.locator("#records-add")).toHaveCount(0);
     await expect(member.page.locator("#nav-configure-records")).toHaveCount(0);
     await expect(member.page.locator("#records-configure")).toHaveCount(0);
-    await member.page
-      .getByRole("button", { name: "Assigned project", exact: true })
-      .click();
+    await openRecordDetails(member.page, "Assigned project");
     const drawer = member.page.getByRole("dialog", {
       name: "Project",
       exact: true,
@@ -288,7 +287,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     await drawer.getByRole("button", { name: "Save", exact: true }).click();
     await expect(drawer).not.toBeVisible();
     await expect(
-      member.page.getByRole("button", {
+      member.page.getByRole("link", {
         name: "Edited assigned project",
         exact: true,
       }),
@@ -316,9 +315,7 @@ test("admits an assigned-record writer and separately delegates schema configura
         )
       ).rows.map((row: { userId: string }) => row.userId);
     await page.goto(`/en/records/${type.id}`);
-    await page
-      .getByRole("button", { name: "Other member project", exact: true })
-      .click();
+    await openRecordDetails(page, "Other member project");
     const administratorEditor = page.getByRole("dialog", {
       name: "Project",
       exact: true,
@@ -350,7 +347,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .toEqual([workspace.userId, member.userId].sort());
     await member.page.reload();
     await expect(
-      member.page.getByRole("button", {
+      member.page.getByRole("link", {
         name: "Other member project",
         exact: true,
       }),
@@ -362,9 +359,7 @@ test("admits an assigned-record writer and separately delegates schema configura
         })
       ).status(),
     ).toBe(200);
-    await page
-      .getByRole("button", { name: "Other member project", exact: true })
-      .click();
+    await openRecordDetails(page, "Other member project");
     const assignmentField = administratorEditor.locator(
       '[data-entity-field="system:assignedTo"]',
     );
@@ -383,13 +378,13 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect.poll(assignees).toEqual([workspace.userId]);
     await member.page.reload();
     await expect(
-      member.page.getByRole("button", {
+      member.page.getByRole("link", {
         name: "Other member project",
         exact: true,
       }),
     ).toHaveCount(0);
     await expect(
-      member.page.getByRole("button", {
+      member.page.getByRole("link", {
         name: "Edited assigned project",
         exact: true,
       }),
@@ -626,7 +621,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       .click();
     await expect(approvedDrawer).not.toBeVisible();
     await expect(
-      member.page.getByRole("button", {
+      member.page.getByRole("link", {
         name: "Own approved record",
         exact: true,
       }),
@@ -1245,13 +1240,13 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
     ).toBe(404);
     await foreign.page.goto(`/en/records/${foreignContactTypeId}`);
     await expect(
-      foreign.page.getByRole("button", {
+      foreign.page.getByRole("link", {
         name: "Foreign CRM Ada",
         exact: true,
       }),
     ).toBeVisible();
     await expect(
-      foreign.page.getByRole("button", {
+      foreign.page.getByRole("link", {
         name: "Private CRM Ada",
         exact: true,
       }),
@@ -1420,7 +1415,7 @@ async function relationshipOpenRecordUi(
 ) {
   await page.waitForLoadState("networkidle");
   await page.goto(`/en/records/${typeId}`);
-  await page.getByRole("button", { name: title, exact: true }).click();
+  await openRecordDetails(page, title);
   const editor = page.getByRole("dialog", { name: typeLabel, exact: true });
   await expect(editor).toBeVisible();
   await expect(
@@ -2353,9 +2348,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   await expect(
     page.getByRole("columnheader", { name: "Internal memo", exact: false }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Alpha portfolio", exact: true })
-    .click();
+  await openRecordDetails(page, "Alpha portfolio");
   const detail = page.getByRole("dialog", { name: type.label, exact: true });
   await expect(
     detail.locator(`[data-summary-field="${budgetId}"]`),
@@ -2451,7 +2444,14 @@ test("keeps personal views separate from shared defaults and completes their UI 
       ).slice(0, 3),
     ).toEqual([type.primaryFieldId, budgetId, stageId]);
     await presentationCloseAppearanceUi(reader.page, testInfo);
-    await reader.page.locator(`[data-item-id="${alpha.recordId}"]`).click();
+    const alphaCard = reader.page.locator(`[data-item-id="${alpha.recordId}"]`);
+    await alphaCard.hover();
+    await alphaCard
+      .getByRole("button", { name: "More actions for Alpha portfolio", exact: true })
+      .click();
+    await reader.page
+      .getByRole("menuitem", { name: "Open details", exact: true })
+      .click();
     const readerDetail = reader.page.getByRole("dialog", {
       name: type.label,
       exact: true,
@@ -3003,7 +3003,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       const row = reader.page
         .getByRole("row")
         .filter({
-          has: reader.page.getByRole("button", {
+          has: reader.page.getByRole("link", {
             name: "Readable archive summary",
             exact: true,
           }),
@@ -3013,9 +3013,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       ).toHaveCount(2);
       await expect(row).not.toContainText(canary);
       await expect(row).not.toContainText("€41.25");
-      await row
-        .getByRole("button", { name: "Readable archive summary", exact: true })
-        .click();
+      await openRecordDetails(reader.page, "Readable archive summary");
       const editor = reader.page.getByRole("dialog", {
         name: summaryType.label,
         exact: true,
@@ -3286,9 +3284,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     ).fields.find((field) => field.fieldId === summary.id)?.result;
   const openReader = async () => {
     await member.page.goto(`/en/records/${deal.typeId}`);
-    await member.page
-      .getByRole("button", { name: "Summary publication deal", exact: true })
-      .click();
+    await openRecordDetails(member.page, "Summary publication deal");
     return member.page.getByRole("dialog", { name: "Deal", exact: true });
   };
   const privateInputsStayPrivate = async () => {

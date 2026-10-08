@@ -1,5 +1,6 @@
 import type { Locator } from "@playwright/test";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 test("opens a stable record page, preserves its draft alongside the assistant, and saves notes", async ({
@@ -42,7 +43,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Local opportunity");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialogs).not.toBeVisible();
-  await page.getByRole("button", { name: "Local opportunity", exact: true }).click();
+  await openRecordDetails(page, "Local opportunity");
   await waitForDealReads(dialogs);
   await dialogs.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId("deal")}/[a-f0-9-]+$`));

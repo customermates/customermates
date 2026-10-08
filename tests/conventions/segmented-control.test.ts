@@ -16,12 +16,9 @@ const RULE_PATTERNS: Record<Rule, RegExp> = {
 };
 
 const NOT_YET_MIGRATED: Record<string, Rule[]> = {
-  "components/data-view/header/display-options.tsx": ["raw-tabs"],
-  "components/entity-detail/entity-detail-panels.tsx": ["raw-tabs", "underline-bar"],
   "components/editor-tabs/editor-tabs.tsx": ["editor-tabs"],
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["editor-tabs"],
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx": ["editor-tabs"],
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx": ["editor-tabs"],
 };
 
 function findings() {

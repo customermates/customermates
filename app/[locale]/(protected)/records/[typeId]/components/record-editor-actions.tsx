@@ -3,15 +3,13 @@
 import { useMemo, type MouseEvent } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Check, Maximize2, RotateCcw, Save, Settings2, Trash2 } from "lucide-react";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { Check, Maximize2, Settings2, Trash2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { useRecordDeletion } from "./use-record-deletion";
-import { Button } from "@/components/ui/button";
 import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
-import { cn } from "@/core/utils/cn";
 import { useRecordAiAction } from "@/app/components/agent-chat/record-ai-action";
-import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import {
   RecordDetailLayoutStatus,
@@ -94,18 +92,9 @@ export const RecordHeaderActions = observer(function RecordHeaderActions({
 });
 
 const RecordTopBarActions = observer(function RecordTopBarActions(props: HeaderActionProps) {
-  const actions = useRecordHeaderActions(props);
-  const askAi = actions.find((action) => action.kind === "assistant");
   return (
     <>
-      {askAi && "onClick" in askAi && askAi.onClick && (
-        <ViewAiAction
-          className="[&>span]:hidden sm:[&>span]:inline"
-          onClick={() => runUserAction(() => askAi.onClick?.())}
-        />
-      )}
-
-      <AppModalActionRail actions={actions.filter((action) => action !== askAi)} className="min-h-8 self-center" />
+      <TopBarActionButtons actions={useRecordHeaderActions(props)} />
 
       {props.layout && <RecordDetailLayoutStatus {...props.layout} />}
     </>
@@ -117,40 +106,15 @@ export const RecordEditorActions = observer(function RecordEditorActions({
   formId,
   compact = false,
 }: Pick<Props, "store" | "formId"> & { compact?: boolean }) {
-  const t = useTranslations();
   return (
-    <>
-      {!store.isReadOnly && store.hasUnsavedChanges && (
-        <Button
-          aria-label={t("Common.actions.reset")}
-          className={cn(compact && "h-8")}
-          disabled={store.isLoading}
-          size={compact ? "sm" : "default"}
-          type="button"
-          variant="secondary"
-          onClick={store.resetForm}
-        >
-          <RotateCcw aria-hidden className={cn("size-4", compact && "sm:hidden")} />
-
-          <span className={cn(compact && "hidden sm:inline")}>{t("Common.actions.reset")}</span>
-        </Button>
-      )}
-
-      {!store.isReadOnly && (
-        <Button
-          aria-label={t("Common.actions.save")}
-          className={cn(compact && "h-8")}
-          disabled={store.isDisabled || (store.record !== null && !store.hasUnsavedChanges)}
-          form={formId}
-          size={compact ? "sm" : "default"}
-          type="submit"
-        >
-          {compact && <Save aria-hidden className="size-4 sm:hidden" />}
-
-          <span className={cn(compact && "hidden sm:inline")}>{t("Common.actions.save")}</span>
-        </Button>
-      )}
-    </>
+    <FormFooterActions
+      dirty={store.record === null || store.hasUnsavedChanges}
+      editable={!store.isReadOnly}
+      formId={formId}
+      placement={compact ? "topbar" : "card"}
+      saving={store.isLoading || store.isDisabled}
+      store={store}
+    />
   );
 });
 

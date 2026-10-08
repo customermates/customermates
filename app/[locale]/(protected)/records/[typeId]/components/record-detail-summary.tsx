@@ -12,6 +12,7 @@ import { EntityDetailSummaryRail } from "@/components/entity-detail/entity-detai
 import { RecordValue } from "./record-value";
 import { RecordCell } from "./record-cell";
 import { useRecordChoices } from "./record-relationship-editor";
+import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { EntityDetailAvatarSummaryValue } from "@/components/entity-detail/entity-detail-summary";
@@ -78,6 +79,7 @@ const RelatedSummary = observer(function RelatedSummary({
   const items = records.map((record) => ({
     id: record.ref.recordId,
     ref: record.ref,
+    startContent: <RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />,
     label:
       record.title.state === "value" && record.title.value.kind === "text"
         ? record.title.value.value
@@ -111,7 +113,11 @@ const SummaryValue = observer(function SummaryValue({
   const t = useTranslations();
   const copy = useCopyToClipboard();
   const { previewFieldValues } = useEntityDetailPersonalization();
-  if (column.kind === "field") return <RecordValue field={column.field} result={store.previewValue(column.field)} />;
+  if (column.kind === "field") {
+    return (
+      <RecordValue field={column.field} members={store.record?.memberUsers} result={store.previewValue(column.field)} />
+    );
+  }
   if (column.kind === "relationship" || column.kind === "relationshipPath")
     return <RelatedSummary column={column} store={store} />;
   if (column.kind === "identity") {
@@ -166,6 +172,7 @@ const SummaryValue = observer(function SummaryValue({
       relativeTimestamp
       column={column}
       linkColors={store.presentation.linkColors}
+      linkIcons={store.presentation.linkIcons}
       record={store.record}
       onMore={() => undefined}
       onOpen={() => undefined}

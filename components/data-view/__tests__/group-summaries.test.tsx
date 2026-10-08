@@ -37,6 +37,21 @@ describe("group summary presentation", () => {
     expect(html).toContain("€9,007,199,254,740,993.13");
     expect(html).toContain("Budget · RecordModel.reducers.sum");
   });
+  it("keeps compact totals to one decimal while retaining the full configured precision in the label", () => {
+    const html = renderToStaticMarkup(
+      createElement(GroupSummaries, {
+        compact: true,
+        summaries: [
+          {
+            ...summary({ state: "value", value: { kind: "decimal", value: "1234567.1259", currency: "EUR" } }),
+            decimalPlaces: 4,
+          },
+        ],
+      }),
+    );
+    expect(html).toContain(">€1.2M<");
+    expect(html).toContain('aria-label="Budget · RecordModel.reducers.sum: €1,234,567.1259"');
+  });
   it("keeps zero, missing, restricted and failed summaries visibly different", () => {
     const html = renderToStaticMarkup(
       createElement(GroupSummaries, {

@@ -3,6 +3,7 @@ import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { DataViewConfigurationRepo } from "./data-view-configuration.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
+import { isPersistedColumnWidthKey } from "@/core/data-view/data-view-state.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { DeleteDataViewInteractor } from "./delete-data-view.interactor";
@@ -568,8 +569,11 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       }
       const columnIds = new Set(config.appearance.map(({ id }) => id));
       for (const key of ["columnOrder", "hiddenColumns", "columnWidths"] as const) {
-        const columns = key === "columnWidths" ? Object.keys(input[key] ?? {}) : (input[key] ?? []);
-        if (columns.some((id) => !columnIds.has(id))) {
+        const invalid =
+          key === "columnWidths"
+            ? Object.keys(input[key] ?? {}).some((id) => !isPersistedColumnWidthKey(id, columnIds))
+            : (input[key] ?? []).some((id) => !columnIds.has(id));
+        if (invalid) {
           ctx.addIssue({
             code: "custom",
             path: [key],
