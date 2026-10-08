@@ -255,7 +255,7 @@ export const GlobalSearchModal = observer(() => {
                 value="global-search-clear-recent"
                 onSelect={() => globalSearchModalStore.clearRecentItems()}
               >
-                {t("GlobalSearch.clearRecent")}
+                {t("Common.actions.clear")}
               </CommandItem>
             )}
           </CommandGroup>
@@ -282,7 +282,7 @@ export const GlobalSearchModal = observer(() => {
               value="global-search-more"
               onSelect={() => runUserAction(globalSearchModalStore.loadMore)}
             >
-              {globalSearchModalStore.isLoadingMore ? t("GlobalSearch.loading") : t("GlobalSearch.loadMore")}
+              {globalSearchModalStore.isLoadingMore ? t("GlobalSearch.loading") : t("Common.actions.loadMore")}
             </CommandItem>
           </CommandGroup>
         )}
