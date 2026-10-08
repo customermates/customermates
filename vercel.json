@@ -1,6 +1,5 @@
 {
   "buildCommand": "yarn vercel-build",
-  "regions": ["fra1"],
   "crons": [
     {
       "path": "/api/cron/lifecycle",
@@ -32,5 +31,6 @@
       ],
       "source": "/.well-known/microsoft-identity-association.json"
     }
-  ]
+  ],
+  "regions": ["fra1"]
 }
