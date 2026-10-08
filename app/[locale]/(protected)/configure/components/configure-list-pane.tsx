@@ -25,7 +25,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { ChevronRight, GripVertical, Plus } from "lucide-react";
 
-import { FormActions } from "@/components/card/form-actions";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppForm } from "@/components/forms/form-context";
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
 import { usePreviewBlockers } from "./use-preview-blockers";
@@ -33,7 +33,9 @@ import { RecordOperationProgress } from "@/components/records/record-operation-p
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
-import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
+import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
+import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 import {
   configureChannelsField,
@@ -210,6 +212,9 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   onEditRelationshipPath,
 }: Props) {
   const t = useTranslations();
+  const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const dndId = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -272,136 +277,152 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     </div>
   );
 
-  const tabs = (
-    <EditorTabs
-      syncUrl
-      className="flex flex-col"
-      contentClassName="flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6"
-      label={selected.pluralLabel}
-      tabs={[
-        {
-          id: "general",
-          label: t("RecordModel.general"),
-          content: (
-            <>
-              <ConfigureGroup framed={!editingGeneral} title={t("RecordModel.general")}>
-                {editingGeneral ? (
-                  <TypeSettingsFields idPrefix="configure-general" store={general} />
-                ) : (
-                  <GeneralSummary type={selected} />
-                )}
-              </ConfigureGroup>
+  const sections = [
+    {
+      id: "general",
+      label: t("RecordModel.general"),
+      content: (
+        <>
+          <ConfigureGroup framed={!editingGeneral} title={t("RecordModel.general")}>
+            {editingGeneral ? (
+              <TypeSettingsFields idPrefix="configure-general" store={general} />
+            ) : (
+              <GeneralSummary type={selected} />
+            )}
+          </ConfigureGroup>
 
-              {editingGeneral && <FormActions formId={generalFormId} store={general} />}
-            </>
-          ),
-        },
-        {
-          id: "fields",
-          label: t("RecordModel.fields"),
-          content: (
-            <ConfigureGroup title={t("RecordModel.fields")}>
-              {fields.length || channels ? (
-                <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
-                  <SortableContext items={fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
-                    <ul className="divide-y divide-border">
-                      {fields.map((field) => (
-                        <SortableField key={field.id} enabled={reorderEnabled} id={field.id} label={field.label}>
-                          <ConfigureRow
-                            detail={`${t(`RecordModel.types.${recordFieldTypeKey(field)}`)} · ${fieldSource(field)}`}
-                            interactive={interactive}
-                            label={field.label}
-                            leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
-                            onOpen={canManage && isResolvedField(field) ? () => onEditField(field) : undefined}
-                          />
-                        </SortableField>
-                      ))}
-
-                      {channels && (
-                        <li data-configure-channels-row="">
-                          <ConfigureRow
-                            detail={`${t("EntityChannels.heading")} · ${t("RecordModel.channelsField.detail")}`}
-                            interactive={interactive}
-                            label={t("EntityChannels.heading")}
-                            leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
-                            onOpen={canManage ? onEditChannels : undefined}
-                          />
-                        </li>
-                      )}
-                    </ul>
-                  </SortableContext>
-                </DndContext>
-              ) : (
-                empty
-              )}
-            </ConfigureGroup>
-          ),
-        },
-        {
-          id: "relationships",
-          label: t("RecordModel.relationships"),
-          content: (
-            <ConfigureGroup title={t("RecordModel.relationships")}>
-              {relations.length || paths.length ? (
+          {editingGeneral && <FormFooterActions formId={generalFormId} store={general} />}
+        </>
+      ),
+    },
+    {
+      id: "fields",
+      label: t("RecordModel.fields"),
+      content: (
+        <ConfigureGroup title={t("RecordModel.fields")}>
+          {fields.length || channels ? (
+            <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
+              <SortableContext items={fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
                 <ul className="divide-y divide-border">
-                  {relations.map((relation) => {
-                    const outgoing = relation.sourceTypeId === selected.id;
-                    const cardinality = configureCardinality(
-                      outgoing
-                        ? relation
-                        : {
-                            sourceCardinality: relation.targetCardinality,
-                            targetCardinality: relation.sourceCardinality,
-                          },
-                    );
-                    const other = model.types.find(
-                      (type) => type.id === (outgoing ? relation.targetTypeId : relation.sourceTypeId),
-                    );
-                    return (
-                      <li
-                        key={relation.id}
-                        className="bg-card"
-                        data-configure-relationship-row={relation.id}
-                        data-focus-target={`relationship:${relation.id}`}
-                      >
-                        <ConfigureRow
-                          detail={[t(`RecordModel.cardinality.${cardinality}`), other?.pluralLabel]
-                            .filter(Boolean)
-                            .join(" · ")}
-                          interactive={interactive}
-                          label={outgoing ? relation.sourceLabel : relation.targetLabel}
-                          leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
-                          onOpen={canManage ? () => onEditRelationship(relation) : undefined}
-                        />
-                      </li>
-                    );
-                  })}
-
-                  {paths.map((path) => (
-                    <li key={path.id} className="bg-card">
+                  {fields.map((field) => (
+                    <SortableField key={field.id} enabled={reorderEnabled} id={field.id} label={field.label}>
                       <ConfigureRow
-                        detail={[
-                          t("RecordModel.relationshipPath"),
-                          configurePathLists(model, selected.id, path.path).join(" → "),
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
+                        detail={`${t(`RecordModel.types.${recordFieldTypeKey(field)}`)} · ${fieldSource(field)}`}
                         interactive={interactive}
-                        label={path.label}
+                        label={field.label}
                         leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
-                        onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
+                        onOpen={canManage && isResolvedField(field) ? () => onEditField(field) : undefined}
+                      />
+                    </SortableField>
+                  ))}
+
+                  {channels && (
+                    <li data-configure-channels-row="">
+                      <ConfigureRow
+                        detail={`${t("EntityChannels.heading")} · ${t("RecordModel.channelsField.detail")}`}
+                        interactive={interactive}
+                        label={t("EntityChannels.heading")}
+                        leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
+                        onOpen={canManage ? onEditChannels : undefined}
                       />
                     </li>
-                  ))}
+                  )}
                 </ul>
-              ) : (
-                relationshipsEmpty
-              )}
-            </ConfigureGroup>
-          ),
-        },
-      ]}
-    />
+              </SortableContext>
+            </DndContext>
+          ) : (
+            empty
+          )}
+        </ConfigureGroup>
+      ),
+    },
+    {
+      id: "relationships",
+      label: t("RecordModel.relationships"),
+      content: (
+        <ConfigureGroup title={t("RecordModel.relationships")}>
+          {relations.length || paths.length ? (
+            <ul className="divide-y divide-border">
+              {relations.map((relation) => {
+                const outgoing = relation.sourceTypeId === selected.id;
+                const cardinality = configureCardinality(
+                  outgoing
+                    ? relation
+                    : {
+                        sourceCardinality: relation.targetCardinality,
+                        targetCardinality: relation.sourceCardinality,
+                      },
+                );
+                const other = model.types.find(
+                  (type) => type.id === (outgoing ? relation.targetTypeId : relation.sourceTypeId),
+                );
+                return (
+                  <li
+                    key={relation.id}
+                    className="bg-card"
+                    data-configure-relationship-row={relation.id}
+                    data-focus-target={`relationship:${relation.id}`}
+                  >
+                    <ConfigureRow
+                      detail={[t(`RecordModel.cardinality.${cardinality}`), other?.pluralLabel]
+                        .filter(Boolean)
+                        .join(" · ")}
+                      interactive={interactive}
+                      label={outgoing ? relation.sourceLabel : relation.targetLabel}
+                      leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
+                      onOpen={canManage ? () => onEditRelationship(relation) : undefined}
+                    />
+                  </li>
+                );
+              })}
+
+              {paths.map((path) => (
+                <li key={path.id} className="bg-card">
+                  <ConfigureRow
+                    detail={[
+                      t("RecordModel.relationshipPath"),
+                      configurePathLists(model, selected.id, path.path).join(" → "),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                    interactive={interactive}
+                    label={path.label}
+                    leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
+                    onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            relationshipsEmpty
+          )}
+        </ConfigureGroup>
+      ),
+    },
+  ];
+  const sectionIds = sections.map((section) => section.id);
+  const requestedSection = params.get("tab");
+  const activeSection = requestedSection && sectionIds.includes(requestedSection) ? requestedSection : sectionIds[0];
+  const selectSection = (next: string) => {
+    const query = new URLSearchParams(params.toString());
+    query.set("tab", next);
+    router.replace(`${pathname}?${query.toString()}`, { scroll: false });
+  };
+  const tabs = (
+    <SegmentedControl
+      className="w-full max-w-4xl p-4 md:p-6"
+      items={sections.map((section) => ({ value: section.id, label: section.label }))}
+      label={selected.pluralLabel}
+      orientation="vertical"
+      value={activeSection}
+      onValueChange={selectSection}
+    >
+      {sections.map((section) => (
+        <SegmentedControlPanel key={section.id} className="flex flex-col gap-6" value={section.id}>
+          {section.content}
+        </SegmentedControlPanel>
+      ))}
+    </SegmentedControl>
   );
 
   return (
