@@ -3414,8 +3414,11 @@
     "relationshipChange": "{count} relationships changed",
     "relationshipEditor": {
       "cardinality": "How many records link",
+      "messagesHelp": "Messages come from linked records with Channels or linked conversations. Record and message permissions still apply.",
       "onDelete": "When deleted",
       "otherList": "the linked list",
+      "showMessagesOn": "Show their messages on {list}",
+      "showMessagesOnSide": "Show their messages on {list} ({side})",
       "shownOn": "Shown on records in {list}",
       "thisList": "This list"
     },
