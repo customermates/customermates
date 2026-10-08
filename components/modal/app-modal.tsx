@@ -124,7 +124,7 @@ export const AppModal = observer((props: Props) => {
       if (event.currentTarget instanceof HTMLElement) event.currentTarget.focus({ preventScroll: true });
       return;
     }
-    if (hasActions || props.side) focusFirstContentControl(event);
+    if (hasActions) focusFirstContentControl(event);
   }
 
   useEffect(() => {
