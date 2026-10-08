@@ -19,6 +19,9 @@ import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { Action } from "@/generated/prisma";
 
 import { useWebhookColumns } from "./use-webhook-columns";
 import { WebhooksPageSkeleton } from "./webhooks-page-skeleton";
@@ -36,6 +39,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
   useDataViewSync(webhooksStore, initialWebhooks);
   const columns = useWebhookColumns();
   const t = useTranslations();
+  const { showDeleteConfirmation } = useDeleteConfirmation();
   const view = resolveDataViewView(webhooksStore.viewMode, webhooksStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
@@ -78,6 +82,24 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
         enabled: item.enabled,
       }),
     [webhookModalStore],
+  );
+  const canDeleteWebhooks = webhookModalStore.allows(Action.delete);
+  const rowActions = useCallback(
+    (item: (typeof webhooksStore.items)[number]) => (
+      <RecordRowActions
+        name={item.url}
+        onDelete={
+          canDeleteWebhooks
+            ? () => {
+                openWebhook(item);
+                if (webhookModalStore.ownsRecordAccess) showDeleteConfirmation(() => webhookModalStore.delete());
+              }
+            : undefined
+        }
+        onOpen={() => openWebhook(item)}
+      />
+    ),
+    [canDeleteWebhooks, openWebhook, showDeleteConfirmation, webhookModalStore],
   );
   useFocusTarget(
     WEBHOOK_FOCUS_KINDS,
@@ -137,7 +159,15 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
       );
       break;
     case "content":
-      body = <DataViewContent columns={columns} store={webhooksStore} view={view} onRowClick={openWebhook} />;
+      body = (
+        <DataViewContent
+          columns={columns}
+          rowActions={rowActions}
+          store={webhooksStore}
+          view={view}
+          onRowClick={openWebhook}
+        />
+      );
       break;
     default: {
       const exhaustive: never = pageState;

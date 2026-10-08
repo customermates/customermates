@@ -5,7 +5,8 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import type { RoleDto } from "@/features/role/get-roles.interactor";
 
 import { observer } from "mobx-react-lite";
-import { useLayoutEffect, useMemo } from "react";
+import { useCallback, useLayoutEffect, useMemo } from "react";
+import { when } from "mobx";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -18,6 +19,9 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { Action } from "@/generated/prisma";
 
 import { RoleModal } from "./role-modal";
 import { RolesPageSkeleton } from "./roles-page-skeleton";
@@ -31,6 +35,26 @@ const RolesPageViewContent = observer(function RolesPageView({ initialRoles }: P
   const columns = useRoleColumns();
   const t = useTranslations();
   useLayoutEffect(() => rolesStore.setItems(initialRoles), [initialRoles, rolesStore]);
+  const { showDeleteConfirmation } = useDeleteConfirmation();
+  const canDeleteRoles = roleModalStore.allows(Action.delete);
+  const rowActions = useCallback(
+    (role: RoleDto) => (
+      <RecordRowActions
+        name={role.name}
+        onDelete={
+          canDeleteRoles && !role.isSystemRole && !role.hasUsersAssigned
+            ? async () => {
+                roleModalStore.editRole(role);
+                await when(() => roleModalStore.context !== null || roleModalStore.loadFailed);
+                if (roleModalStore.canDeleteRole) showDeleteConfirmation(() => roleModalStore.delete(), role.name);
+              }
+            : undefined
+        }
+        onOpen={() => roleModalStore.editRole(role)}
+      />
+    ),
+    [canDeleteRoles, roleModalStore, showDeleteConfirmation],
+  );
 
   const view = resolveDataViewView(rolesStore.viewMode, rolesStore.canBoard);
   const pageState = resolveDataViewPageState({
@@ -95,7 +119,15 @@ const RolesPageViewContent = observer(function RolesPageView({ initialRoles }: P
       );
       break;
     case "content":
-      body = <DataViewContent columns={columns} store={rolesStore} view={view} onRowClick={roleModalStore.editRole} />;
+      body = (
+        <DataViewContent
+          columns={columns}
+          rowActions={rowActions}
+          store={rolesStore}
+          view={view}
+          onRowClick={roleModalStore.editRole}
+        />
+      );
       break;
     default: {
       const exhaustive: never = pageState;

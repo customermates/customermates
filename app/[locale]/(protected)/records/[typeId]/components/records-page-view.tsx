@@ -33,7 +33,7 @@ import {
   isCalculatedForEditor,
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
-import { RecordRowActions } from "./record-row-actions";
+import { RecordRowActions, recordRowName } from "./record-row-actions";
 import { useRecordDeletion } from "./use-record-deletion";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
@@ -147,7 +147,19 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     onPending: (operationId) => store.setBulkState(false, operationId),
   });
   const rowActions = useCallback(
-    (record: RecordRow) => <RecordRowActions deletion={deletion} record={record} store={store} onOpen={openRecord} />,
+    (record: RecordRow) => {
+      const name = recordRowName(store, record);
+      const canDelete = store.presentation.permittedActions.includes("delete") && !record.protectedKind;
+      return (
+        <RecordRowActions
+          name={name}
+          onDelete={
+            canDelete ? () => deletion.requestDeletion(record, store.presentation.model.revision, name) : undefined
+          }
+          onOpen={(returnFocusTo) => openRecord(record, returnFocusTo)}
+        />
+      );
+    },
     [deletion, store, openRecord],
   );
   const handleAdd = useCallback(() => openEditor({ typeId: store.presentation.typeId }), [openEditor, store]);

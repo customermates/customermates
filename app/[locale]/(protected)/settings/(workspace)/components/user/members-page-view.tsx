@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
+import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
 import { DataViewEmpty } from "@/components/data-view/data-view-empty";
 import { DataViewLayout } from "@/components/data-view/data-view-layout";
 import { resolveDataViewPageState, resolveDataViewView } from "@/components/data-view/data-view-state";
@@ -105,6 +106,12 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
       body = (
         <DataViewContent
           columns={columns}
+          rowActions={(user) => (
+            <RecordRowActions
+              name={[user.firstName, user.lastName].filter(Boolean).join(" ") || user.email}
+              onOpen={() => runUserAction(() => userModalStore.loadById(user.id))}
+            />
+          )}
           store={usersStore}
           view={view}
           onRowClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
