@@ -702,7 +702,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordWidgets.intervals.${interval}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
-  "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.description",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.name",

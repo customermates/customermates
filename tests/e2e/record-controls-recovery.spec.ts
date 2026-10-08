@@ -593,11 +593,12 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   await dialog.locator("#widget-kind-chart").click();
   const name = "Related price aggregates";
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
-  let schemaFault = true;
+  const modelAction = serverActionIds("app/[locale]/(protected)/records/actions.ts", "getRecordModelAction");
+  let schemaFault = false;
   let previewFault = false;
   await page.route("**/*", async (route) => {
     const args = nextArguments(route.request());
-    if (schemaFault && JSON.stringify(args) === JSON.stringify([[id("service")]])) {
+    if (schemaFault && invokesServerAction(route.request(), modelAction)) {
       schemaFault = false;
       await evidence.failResponse(route, "widget schema");
     } else if (
@@ -611,6 +612,8 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
       await evidence.failResponse(route, "widget preview");
     } else await route.fallback();
   });
+  await expect(dialog.getByText(english.RecordWidgets.loadingSchema, { exact: true })).toHaveCount(0);
+  schemaFault = true;
   await select(page, '[id="measure.source.typeId"]', "Services");
   const schemaRetry = dialog.getByRole("button", { name: english.ErrorCard.retry, exact: true });
   await expect(schemaRetry).toBeVisible();
