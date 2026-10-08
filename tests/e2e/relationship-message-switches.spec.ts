@@ -43,7 +43,9 @@ test("shows and saves the per-direction message switches of a relationship", asy
   await expect(onContacts).toBeChecked();
   await saveDrawer(page);
   await expect
-    .poll(async () => (await readModel(database, companyId)).relationships.find((relation) => relation.id === relationId))
+    .poll(async () =>
+      (await readModel(database, companyId)).relationships.find((relation) => relation.id === relationId),
+    )
     .toMatchObject({ messagesOnSource: true, messagesOnTarget: true });
 
   await openConfigureRow(page, "Relationships", "Contacts");
@@ -51,7 +53,9 @@ test("shows and saves the per-direction message switches of a relationship", asy
   await onContacts.click();
   await saveDrawer(page);
   await expect
-    .poll(async () => (await readModel(database, companyId)).relationships.find((relation) => relation.id === relationId))
+    .poll(async () =>
+      (await readModel(database, companyId)).relationships.find((relation) => relation.id === relationId),
+    )
     .toMatchObject({ messagesOnSource: true, messagesOnTarget: false });
   expect(errors).toEqual([]);
 });
