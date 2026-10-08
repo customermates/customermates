@@ -27,7 +27,7 @@ The total is a configured calculation, so a schema manager can change it or turn
 
 A relationship connects two lists. Each side has its own label, and each side allows one or several records, so one contact can belong to several organizations and a project can link contacts and deals. Both records show the link. In the record form a relationship is a field: pick the records, then click **Save**. On a list's [configure page](app:configure/contact) you add one with **Add**, then **Relationship**, or by dragging from the dot on one list to another in [Configure](app:configure). The **Relationships** tab lists each one as a row with its label, how many records link (for example **One to many**) and the other list; a list without any shows **Add relationship**. The drawer sets both labels, how many records link and, under **When deleted**, what happens to linked records.
 
-A relationship can also show the messages of directly linked records on the other list's Activities, set per direction. The starter lists show contacts' messages on Organizations and Deals, not on Tasks. The relationship drawer has no switch for this; change it with Mate or the API.
+A relationship can also show the messages of directly linked records on the other list's Activities, set per direction. The starter lists show contacts' messages on Organizations and Deals, not on Tasks. In the relationship drawer, one switch per direction turns this on or off, for example **Show their messages on Organizations**.
 
 The app checks list types, cardinality, duplicates and what happens on deletion. A lookup or rollup over several linked records needs an aggregation such as sum or count.
 
