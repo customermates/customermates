@@ -20,7 +20,10 @@ export function useRecordValueFormat() {
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;
   return {
-    decimal: (value: string | number, { currency = null, compact = false, maximumFractionDigits }: DecimalFormat = {}) =>
+    decimal: (
+      value: string | number,
+      { currency = null, compact = false, maximumFractionDigits }: DecimalFormat = {},
+    ) =>
       new Intl.NumberFormat(locale, {
         style: currency ? "currency" : "decimal",
         ...(currency ? { currency } : {}),

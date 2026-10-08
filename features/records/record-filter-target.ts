@@ -232,6 +232,12 @@ function toPaletteFilter(filter: RecordFilter, field: string): Filter | null {
       return { field, operator: FilterOperatorKey.isNull };
     case "notEmpty":
       return { field, operator: FilterOperatorKey.isNotNull };
+    case "all":
+      return {
+        field,
+        operator: FilterOperatorKey.hasAllOf,
+        value: (filter.values ?? []).map(scalarText),
+      };
     case "in":
     case "notIn":
     case "between":
@@ -239,7 +245,7 @@ function toPaletteFilter(filter: RecordFilter, field: string): Filter | null {
         field,
         operator: FilterOperatorKey[filter.operator],
         value: (filter.values ?? []).map(scalarText),
-      } as Filter;
+      };
     case "inLastDays":
     case "notInLastDays":
       return {
@@ -252,7 +258,7 @@ function toPaletteFilter(filter: RecordFilter, field: string): Filter | null {
         field,
         operator: FilterOperatorKey[filter.operator],
         value: scalarText(filter.value),
-      } as Filter;
+      };
   }
 }
 
@@ -332,7 +338,7 @@ function fieldShape(model: RecordModel, fieldId: string): Pick<RecordField, "val
 function toRecordFilter(filter: Filter, fieldId: string, model: RecordModel): RecordFilter | null {
   const shape = fieldShape(model, fieldId);
   if (!shape) return null;
-  const scalar = (raw: string) => filterScalar(raw, shape as RecordField);
+  const scalar = (raw: string) => filterScalar(raw, shape);
   switch (filter.operator) {
     case FilterOperatorKey.isNull:
     case FilterOperatorKey.hasNone:
@@ -347,6 +353,20 @@ function toRecordFilter(filter: Filter, fieldId: string, model: RecordModel): Re
         operator: filter.operator,
         value: { kind: "decimal", value: String(filter.value), currency: null },
       };
+    case FilterOperatorKey.hasAnyOf:
+    case FilterOperatorKey.hasAllOf:
+    case FilterOperatorKey.hasNoneOf:
+      return {
+        fieldId,
+        operator:
+          filter.operator === FilterOperatorKey.hasAllOf
+            ? "all"
+            : filter.operator === FilterOperatorKey.hasNoneOf
+              ? "notIn"
+              : "in",
+        value: null,
+        values: filter.value.map(scalar),
+      };
     case FilterOperatorKey.in:
     case FilterOperatorKey.notIn:
     case FilterOperatorKey.between:
@@ -356,14 +376,20 @@ function toRecordFilter(filter: Filter, fieldId: string, model: RecordModel): Re
         value: null,
         values: filter.value.map(scalar),
       };
+    case FilterOperatorKey.equals:
+    case FilterOperatorKey.contains:
+    case FilterOperatorKey.startsWith:
+    case FilterOperatorKey.gt:
+    case FilterOperatorKey.gte:
+    case FilterOperatorKey.lt:
+    case FilterOperatorKey.lte:
+      return {
+        fieldId,
+        operator: SINGLE_OPERATORS[filter.operator],
+        value: scalar(filter.value),
+      };
     default:
-      return filter.operator in SINGLE_OPERATORS && "value" in filter && typeof filter.value === "string"
-        ? {
-            fieldId,
-            operator: SINGLE_OPERATORS[filter.operator],
-            value: scalar(filter.value),
-          }
-        : null;
+      return null;
   }
 }
 

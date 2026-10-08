@@ -1,4 +1,5 @@
 import type { Filter } from "@/core/base/base-get.schema";
+import type { RecordQuery } from "@/features/records/record-query.schema";
 
 import { describe, expect, it } from "vitest";
 
@@ -28,6 +29,10 @@ function present<T>(value: T | undefined): T {
 }
 const stage = present(model.fields.find((field) => field.id === id("deal.stage")));
 const won = present(stage.options.find((option) => option.label === "Won")).id;
+const multipleChoiceModel = {
+  ...model,
+  fields: model.fields.map((field) => (field.id === stage.id ? { ...field, multiple: true } : field)),
+};
 const amount = present(model.fields.find((field) => field.typeId === id("deal") && field.valueType === "currency"));
 const toDeal = {
   relationId: id("lineItem.deal"),
@@ -176,6 +181,54 @@ describe("record filter target", () => {
     });
     expect(palette.filters).toEqual([{ field: stage.id, operator: FilterOperatorKey.notIn, value: [won] }]);
   });
+
+  it.each([stage.id, relatedFieldKey([toDeal], stage.id)])(
+    "round-trips an all-options condition through %s without losing its values",
+    (field) => {
+      const filters: Filter[] = [{ field, operator: FilterOperatorKey.hasAllOf, value: [won] }];
+      const query = paletteFiltersToRecordQuery(filters, [], multipleChoiceModel);
+      const converted = field === stage.id ? query.filters : query.relatedFilters?.[0].filters;
+      expect(converted).toEqual([
+        { fieldId: stage.id, operator: "all", value: null, values: [{ kind: "select", value: won }] },
+      ]);
+      expect(recordQueryToPaletteFilters(query)).toEqual({ filters, retained: [] });
+    },
+  );
+
+  it.each([
+    [FilterOperatorKey.hasAnyOf, "in"],
+    [FilterOperatorKey.hasAllOf, "all"],
+    [FilterOperatorKey.hasNoneOf, "notIn"],
+  ] as const)("converts %s into the %s record condition", (operator, recordOperator) => {
+    const filters: Filter[] = [{ field: stage.id, operator, value: [won] }];
+    const query = paletteFiltersToRecordQuery(filters, [], multipleChoiceModel);
+    expect(query.filters).toEqual([
+      { fieldId: stage.id, operator: recordOperator, value: null, values: [{ kind: "select", value: won }] },
+    ]);
+  });
+
+  it("preserves all selected options when opening an existing all-options condition", () => {
+    const values = stage.options.slice(0, 2).map((option) => ({ kind: "select" as const, value: option.id }));
+    const query: Pick<RecordQuery, "filters" | "relationships"> = {
+      filters: [{ fieldId: stage.id, operator: "all", value: null, values }],
+      relationships: [],
+    };
+    const palette = recordQueryToPaletteFilters(query);
+    expect(palette.filters).toEqual([
+      { field: stage.id, operator: FilterOperatorKey.hasAllOf, value: values.map((value) => value.value) },
+    ]);
+    expect(paletteFiltersToRecordQuery(palette.filters, palette.retained, multipleChoiceModel)).toEqual(query);
+  });
+
+  it.each([FilterOperatorKey.hasUnset, FilterOperatorKey.allSet] as const)(
+    "does not turn unsupported %s into a scalar condition",
+    (operator) => {
+      expect(paletteFiltersToRecordQuery([{ field: stage.id, operator }], [], multipleChoiceModel)).toEqual({
+        filters: [],
+        relationships: [],
+      });
+    },
+  );
 
   it("keeps linked-record filters the palette cannot express unchanged", () => {
     const searched = {
