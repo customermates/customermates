@@ -669,7 +669,6 @@
       "skip": "Ignorer"
     },
     "tourUi": {
-      "back": "Retour",
       "title": "Visite guidée"
     },
     "ui": {
@@ -698,7 +697,6 @@
       "finalizing": "Finalisation et enregistrement des modifications…",
       "history": "Historique des chats",
       "imageNotAvailable": "Image non disponible",
-      "jumpToLatest": "Aller aux derniers messages",
       "linkCopied": "Lien copié",
       "loadChatFailed": "La discussion n’a pas pu être chargée. Sélectionnez-la à nouveau pour réessayer.",
       "loadingChat": "Chargement de la discussion…",
@@ -851,6 +849,7 @@
       "delete": "Supprimer",
       "discard": "Abandonner",
       "expand": "Agrandir",
+      "jumpToLatest": "Aller aux derniers messages",
       "labelHistory": "Historique",
       "loadMore": "Charger plus",
       "open": "Ouvrir",
@@ -2142,7 +2141,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Demander à Mate : {question}",
-    "clearRecent": "Effacer",
     "emptyDescription": "Recherchez des fiches dans les listes auxquelles vous avez accès.",
     "emptyTitle": "Trouvez tout dans votre espace de travail",
     "groupRecent": "Ouverts récemment",
@@ -2150,7 +2148,6 @@
     "hintNavigate": "Naviguer",
     "hintOpen": "Ouvrir",
     "loading": "Recherche...",
-    "loadMore": "Charger plus",
     "noResults": "Aucun résultat",
     "placeholder": "Rechercher...",
     "staleItem": "Cet élément n'existe plus et a été retiré de vos éléments récents."
@@ -2268,7 +2265,6 @@
     },
     "groupThread": "Groupe ({count, plural, one {# membre} other {# membres}})",
     "hideQuotedText": "Masquer le texte cité",
-    "jumpToLatest": "Aller au plus récent",
     "lastMessageDirections": {
       "inbound": "Reçu",
       "outbound": "Envoyé"
@@ -2462,14 +2458,14 @@
   "MassActions": {
     "clearField": "Vider le champ",
     "delete": "Supprimer la sélection",
+    "edit": "Modifier",
     "keepInView": "Conserver uniquement les lignes visibles",
     "limitReached": "Vous pouvez sélectionner jusqu'à {limit} enregistrements à la fois.",
     "noMatchingFields": "Aucun champ ne correspond à votre recherche.",
     "offView": "{count, plural, one {# hors de la vue actuelle} other {# hors de la vue actuelle}}",
     "scopeStale": "Les filtres ont changé depuis cette sélection.",
     "searchFieldPlaceholder": "Rechercher des champs…",
-    "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}",
-    "update": "Mettre à jour"
+    "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}"
   },
   "McpConsentCard": {
     "approve": "Approuver",

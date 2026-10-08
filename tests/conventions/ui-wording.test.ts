@@ -55,15 +55,13 @@ function sharedActionWordViolations(messages: Messages) {
 }
 
 const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
+  "AgentChat.approval.rejectAction":
+    "Mate rejecting a proposed action is its own decision, not the shared footer Cancel; single consumer, so no new Common key",
   "RecordModel.operators.add": "the arithmetic operator Add in calculations, not the Add action",
   "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
 
 const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
-  "AgentChat.approval.rejectAction": "final sweep: Mate approval Cancel through Common.actions.cancel",
-  "AgentChat.tourUi.back": "final sweep: Mate tour Back through Common.actions.back",
-  "GlobalSearch.clearRecent": "final sweep: search Clear through Common.actions.clear",
-  "GlobalSearch.loadMore": "final sweep: search Load more through Common.actions.loadMore",
   "Inbox.compose.draftDiscard": "I25: draft Discard through Common.actions.discard",
   "Inbox.refresh": "I25: inbox Refresh through Common.actions.refresh",
   "OnboardingWizard.back": "I25: onboarding Back through Common.actions.back",
@@ -114,17 +112,9 @@ const GERMAN_TERM_EXEMPTIONS: Allowlist = {
 };
 
 const GERMAN_TERM_ALLOWLIST: Allowlist = {
-  "Audit Log": "final sweep: one German term (Audit-Protokoll or Audit-Log)",
-  "Capture value": "final sweep: one German term (Wert erfassen)",
   Admin: "I19: the Admin navigation entry disappears with the Settings area",
-  Conversation: "final sweep: one German term (Unterhaltung or Konversation)",
-  "Jump to latest": "final sweep: one German term for Mate and Inbox",
-  "Knowledge Base pages": "final sweep: one German term (Wissensdatenbank-Seiten)",
-  Owner: "final sweep: one German term (Inhaber, Besitzer or Eigentümer/in)",
   Plan: "I19: Plan becomes Billing (rule 51), with one German term",
   Relationship: "I1r4: one German term (Beziehung or Verknüpfung)",
-  Signature: "final sweep: one German term (Signatur or Unterschrift)",
-  Type: "final sweep: one German term (Typ or Art)",
   Workspace: "I19: one German term (Arbeitsbereich or Workspace)",
 };
 

@@ -303,7 +303,7 @@ export const AgentContextPicker = observer(function AgentContextPicker({
                   value="context-search-more"
                   onSelect={() => runUserAction(() => loadMore())}
                 >
-                  {loadingMore ? t("GlobalSearch.loading") : t("GlobalSearch.loadMore")}
+                  {loadingMore ? t("GlobalSearch.loading") : t("Common.actions.loadMore")}
                 </CommandItem>
               </CommandGroup>
             )}

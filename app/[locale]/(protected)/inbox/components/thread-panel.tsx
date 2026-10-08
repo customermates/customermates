@@ -140,7 +140,7 @@ const ThreadPanelContent = observer(({ threadDetail, locked = false }: Props) =>
           <ThreadTopBar thread={thread} />
 
           <MessagesScrollContainer
-            jumpToLatestLabel={t("Inbox.jumpToLatest")}
+            jumpToLatestLabel={t("Common.actions.jumpToLatest")}
             latestItemKey={store.messages.at(-1)?.id}
             scrollKey={`thread:${thread.id}`}
             scrollRegionLabel={t("Inbox.conversationRegion")}
