@@ -666,7 +666,6 @@
       "skip": "Skip"
     },
     "tourUi": {
-      "back": "Back",
       "title": "Guided tour"
     },
     "ui": {
@@ -695,7 +694,6 @@
       "finalizing": "Finishing and saving changes…",
       "history": "Chat history",
       "imageNotAvailable": "Image not available",
-      "jumpToLatest": "Jump to latest",
       "linkCopied": "Link copied",
       "loadChatFailed": "The chat couldn’t be loaded. Select it again to retry.",
       "loadingChat": "Loading chat…",
@@ -847,6 +845,7 @@
       "delete": "Delete",
       "discard": "Discard",
       "expand": "Expand",
+      "jumpToLatest": "Jump to latest",
       "labelHistory": "History",
       "loadMore": "Load more",
       "open": "Open",
@@ -2139,7 +2138,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Ask Mate: {question}",
-    "clearRecent": "Clear",
     "emptyDescription": "Find records across the lists you can access.",
     "emptyTitle": "Find anything in your workspace",
     "groupRecent": "Recently opened",
@@ -2147,7 +2145,6 @@
     "hintNavigate": "Navigate",
     "hintOpen": "Open",
     "loading": "Searching...",
-    "loadMore": "Load more",
     "noResults": "No results found",
     "placeholder": "Search...",
     "staleItem": "This item no longer exists and was removed from your recent items."
@@ -2265,7 +2262,6 @@
     },
     "groupThread": "Group ({count, plural, one {# member} other {# members}})",
     "hideQuotedText": "Hide quoted text",
-    "jumpToLatest": "Jump to latest",
     "lastMessageDirections": {
       "inbound": "Received",
       "outbound": "Sent"
@@ -2975,14 +2971,17 @@
     "addGroupSummary": "Add summary",
     "addInput": "Add input",
     "addMenu": {
-      "calculation": "Calculation",
+      "calculation": "Calculated field",
+      "channels": "Channels",
       "field": "Field",
       "list": "List",
-      "relationship": "Relationship"
+      "relationship": "Relationship",
+      "sublist": "Sub-list"
     },
     "addOption": "Add option",
     "addPathStep": "Add a relationship step",
     "addProbability": "Add probability",
+    "addRelationship": "Add relationship",
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
     "ascending": "Ascending",
@@ -3125,6 +3124,7 @@
     "contactFullName": "Name",
     "createdAt": "Created at",
     "createList": "Create list",
+    "createSublist": "New sub-list of {list}",
     "currency": "Currency",
     "decimalPlaces": "Decimal places",
     "decimalPlacesHelp": "Leave empty for the default. This changes how values are displayed, not how they are calculated.",
@@ -3177,7 +3177,7 @@
       "accountEdge": "Syncs conversations into {list}",
       "accounts": "Connected accounts",
       "accountUnit": "{count, plural, one {account} other {accounts}}",
-      "addFieldTo": "Add field to {list}",
+      "addTo": "Add to {list}",
       "calculatedFrom": "from {sources}",
       "calculationEdge": "Calculated from this list: {fields}",
       "connectDescription": "Connect Gmail, Outlook or another channel to bring conversations into your lists.",
@@ -3188,14 +3188,14 @@
       "help": "Select a list or field to edit it, select the chip on a line to edit a relationship, or drag from the dot on one list to another to connect them.",
       "helpReadOnly": "Select a list to open it. Lines show how lists are related and where calculated values come from.",
       "label": "Graph of lists, fields and connected accounts",
-      "manage": "Manage",
       "moreAccounts": "{count, plural, one {# more account} other {# more accounts}}",
       "moreFields": "{count, plural, one {# more field} other {# more fields}}",
-      "partOf": "Part of {list}",
       "recordsRestricted": "Record count not available",
       "recordUnit": "{count, plural, one {record} other {records}}",
       "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
       "resetLayout": "Reset layout",
+      "showFewer": "Show fewer",
+      "sublistOf": "Sub-list of {list}",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out"
     },
@@ -3418,6 +3418,7 @@
     "relationshipPath": "Through linked records",
     "relationshipPathHelp": "Show records reached through existing relationships. Edit the underlying links to change these records.",
     "relationships": "Relationships",
+    "relationshipsEmpty": "No relationships yet. Link this list to another list to see related records together.",
     "reloadLists": "Reload lists",
     "removeGroupSummary": "Remove summary",
     "removeInput": "Remove input",
@@ -3469,6 +3470,7 @@
         "singular": "Task"
       }
     },
+    "sublistExplanation": "Each entry belongs to one {parent} record, is edited inside it, shares its access and is removed with it.",
     "summaryAggregation": "Calculation",
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
     "summaryField": "Summary field",

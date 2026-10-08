@@ -8,7 +8,7 @@
     "title": "Deine E-Mail-Adresse ist bestätigt"
   },
   "AccountRemovalReason": {
-    "ownerInactive": "Eigentümer/in deaktiviert",
+    "ownerInactive": "Eigentümer deaktiviert",
     "planDowngrade": "Tarif herabgestuft",
     "subscriptionLapsed": "Abo abgelaufen",
     "trialExpired": "Testphase beendet"
@@ -666,7 +666,6 @@
       "skip": "Überspringen"
     },
     "tourUi": {
-      "back": "Zurück",
       "title": "Geführte Tour"
     },
     "ui": {
@@ -695,7 +694,6 @@
       "finalizing": "Änderungen werden abgeschlossen und gespeichert…",
       "history": "Chatverlauf",
       "imageNotAvailable": "Bild nicht verfügbar",
-      "jumpToLatest": "Zu den neuesten Nachrichten",
       "linkCopied": "Link kopiert",
       "loadChatFailed": "Der Chat konnte nicht geladen werden. Wähle ihn erneut, um es noch einmal zu versuchen.",
       "loadingChat": "Chat wird geladen …",
@@ -847,6 +845,7 @@
       "delete": "Löschen",
       "discard": "Verwerfen",
       "expand": "Aufklappen",
+      "jumpToLatest": "Zu den neuesten Nachrichten",
       "labelHistory": "Verlauf",
       "loadMore": "Mehr laden",
       "open": "Öffnen",
@@ -1212,7 +1211,7 @@
         "lastMessageSentAt": "Letzte Nachricht am",
         "lastName": "Nachname",
         "name": "Name",
-        "ownerUserId": "Inhaber",
+        "ownerUserId": "Eigentümer",
         "participantContactId": "Verknüpfte Datensätze",
         "participants": "Teilnehmer",
         "plan": "Tarif",
@@ -1222,7 +1221,7 @@
         "status": "Status",
         "subscriptionStatus": "Abonnement",
         "timelineKind": "Typ",
-        "timelineThreadId": "Konversation",
+        "timelineThreadId": "Unterhaltung",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
         "workspaceId": "Workspace",
@@ -1424,7 +1423,7 @@
         "operator": "Operator",
         "options": "Optionen",
         "organizations": "Organisationen",
-        "owner": "Inhaber",
+        "owner": "Eigentümer",
         "permissions": "Berechtigungen",
         "plan": "Tarif",
         "provider": "Anbieter",
@@ -1586,7 +1585,7 @@
     "lastSynced": "Zuletzt synchronisiert",
     "messagingRequiresCloud": "Messaging ist in Customermates Cloud verfügbar (ab dem Pro-Tarif).",
     "messagingRequiresPro": "Messaging erfordert den Pro-Tarif oder höher. Führe ein Upgrade durch, um einen Kanal zu verbinden.",
-    "ownerLabel": "Besitzer",
+    "ownerLabel": "Eigentümer",
     "paidSubscriptionRequired": "Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.",
     "provider": "Anbieter",
     "reactivate": "Reaktivieren",
@@ -2139,7 +2138,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Mate fragen: {question}",
-    "clearRecent": "Leeren",
     "emptyDescription": "Finde Datensätze in den Listen, auf die du Zugriff hast.",
     "emptyTitle": "Finde alles in deinem Workspace",
     "groupRecent": "Zuletzt geöffnet",
@@ -2147,7 +2145,6 @@
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
     "loading": "Suche...",
-    "loadMore": "Mehr laden",
     "noResults": "Keine Ergebnisse gefunden",
     "placeholder": "Suchen...",
     "staleItem": "Dieser Eintrag existiert nicht mehr und wurde aus den zuletzt geöffneten entfernt."
@@ -2239,7 +2236,7 @@
       "updateDraft": "Entwurf aktualisieren",
       "writeReply": "Antwort schreiben…"
     },
-    "conversationRegion": "Konversation",
+    "conversationRegion": "Unterhaltung",
     "copyAddress": "{address} kopieren",
     "dateToday": "Heute",
     "dateYesterday": "Gestern",
@@ -2265,7 +2262,6 @@
     },
     "groupThread": "Gruppe ({count, plural, one {# Mitglied} other {# Mitglieder}})",
     "hideQuotedText": "Zitierten Text ausblenden",
-    "jumpToLatest": "Zum neuesten springen",
     "lastMessageDirections": {
       "inbound": "Empfangen",
       "outbound": "Gesendet"
@@ -2730,7 +2726,7 @@
   "OperatorAudit": {
     "emptyBody": "Passe Suche oder Filter an, um das Protokoll zu erweitern.",
     "emptyTitle": "Keine Audit-Ereignisse passen zu diesen Filtern",
-    "navigation": "Audit-Protokoll",
+    "navigation": "Audit-Log",
     "searchPlaceholder": "Nach Aktion suchen",
     "values": {
       "action": {
@@ -2975,14 +2971,17 @@
     "addGroupSummary": "Übersicht hinzufügen",
     "addInput": "Eingabe hinzufügen",
     "addMenu": {
-      "calculation": "Berechnung",
+      "calculation": "Berechnetes Feld",
+      "channels": "Kanäle",
       "field": "Feld",
       "list": "Liste",
-      "relationship": "Verknüpfung"
+      "relationship": "Beziehung",
+      "sublist": "Unterliste"
     },
     "addOption": "Option hinzufügen",
     "addPathStep": "Beziehungsschritt hinzufügen",
     "addProbability": "Wahrscheinlichkeit hinzufügen",
+    "addRelationship": "Beziehung hinzufügen",
     "aggregation": "Zusammenfassung",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
     "ascending": "Aufsteigend",
@@ -3026,7 +3025,7 @@
     "calculationResult": "Ergebnis",
     "calculationSource": "Verwenden",
     "cancelOperation": "Änderung abbrechen",
-    "capture": "Wert speichern",
+    "capture": "Wert erfassen",
     "captureChanged": "Wenn ein Feld einen bestimmten Wert erhält",
     "captureCreate": "Beim Erstellen des Datensatzes",
     "captureExplicit": "Auf Anfrage",
@@ -3091,7 +3090,7 @@
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
       },
-      "kind": "Art",
+      "kind": "Typ",
       "kinds": {
         "channels": "Kanalfeld",
         "field": "Feld",
@@ -3125,6 +3124,7 @@
     "contactFullName": "Name",
     "createdAt": "Erstellt am",
     "createList": "Liste erstellen",
+    "createSublist": "Neue Unterliste von {list}",
     "currency": "Währung",
     "decimalPlaces": "Dezimalstellen",
     "decimalPlacesHelp": "Für die Standardeinstellung leer lassen. Dies ändert die Anzeige der Werte, nicht ihre Berechnung.",
@@ -3177,7 +3177,7 @@
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",
       "accounts": "Verbundene Konten",
       "accountUnit": "{count, plural, one {Konto} other {Konten}}",
-      "addFieldTo": "Feld zu {list} hinzufügen",
+      "addTo": "Zu {list} hinzufügen",
       "calculatedFrom": "aus {sources}",
       "calculationEdge": "Aus dieser Liste berechnet: {fields}",
       "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
@@ -3188,14 +3188,14 @@
       "help": "Wählen Sie eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehen Sie vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
       "helpReadOnly": "Wählen Sie eine Liste, um sie zu öffnen. Linien zeigen, wie Listen zusammenhängen und woher berechnete Werte stammen.",
       "label": "Grafik der Listen, Felder und verbundenen Konten",
-      "manage": "Verwalten",
       "moreAccounts": "{count, plural, one {# weiteres Konto} other {# weitere Konten}}",
       "moreFields": "{count, plural, one {# weiteres Feld} other {# weitere Felder}}",
-      "partOf": "Teil von {list}",
       "recordsRestricted": "Anzahl der Datensätze nicht verfügbar",
       "recordUnit": "{count, plural, one {Datensatz} other {Datensätze}}",
       "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
       "resetLayout": "Layout zurücksetzen",
+      "showFewer": "Weniger anzeigen",
+      "sublistOf": "Unterliste von {list}",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern"
     },
@@ -3286,7 +3286,7 @@
       "scale": "Recht",
       "server": "Server",
       "shield": "Richtlinie",
-      "signature": "Unterschrift",
+      "signature": "Signatur",
       "smartphone": "Mobilgerät",
       "stamp": "Freigabe",
       "star": "Stern",
@@ -3405,8 +3405,8 @@
       "one": "Einzelner verknüpfter Wert",
       "sum": "Summe"
     },
-    "relationship": "Verknüpfung",
-    "relationshipChange": "{count} Verknüpfungen geändert",
+    "relationship": "Beziehung",
+    "relationshipChange": "{count} Beziehungen geändert",
     "relationshipEditor": {
       "cardinality": "Wie viele Datensätze verknüpft sind",
       "onDelete": "Beim Löschen",
@@ -3418,6 +3418,7 @@
     "relationshipPath": "Über verknüpfte Datensätze",
     "relationshipPathHelp": "Zeige Datensätze über bestehende Beziehungen an. Bearbeite die zugrunde liegenden Verknüpfungen, um diese Datensätze zu ändern.",
     "relationships": "Beziehungen",
+    "relationshipsEmpty": "Noch keine Beziehungen. Verknüpfen Sie diese Liste mit einer anderen, um zusammengehörige Einträge gemeinsam zu sehen.",
     "reloadLists": "Listen neu laden",
     "removeGroupSummary": "Übersicht entfernen",
     "removeInput": "Eingabe entfernen",
@@ -3469,6 +3470,7 @@
         "singular": "Aufgabe"
       }
     },
+    "sublistExplanation": "Jeder Eintrag gehört zu genau einem Datensatz in {parent}, wird darin bearbeitet, teilt dessen Zugriff und wird mit ihm gelöscht.",
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
     "summaryField": "Feld für die Übersicht",
@@ -3676,10 +3678,10 @@
       "title": "Noch keine Läufe"
     },
     "never": "Nie",
-    "owner": "Eigentümer/in",
+    "owner": "Eigentümer",
     "ownerOnlyEdit": "Diese Routine ist für dich schreibgeschützt. Sie wird nur als {owner} ausgeführt und kann von dieser Person bearbeitet oder pausiert werden. Unternehmensadmins können sie nur pausieren oder löschen.",
     "ownerPermissionReadOnly": "Deine Rolle erlaubt dir, diese Routine und ihre Ausführungen anzusehen, aber nicht, sie zu ändern oder zu testen.",
-    "ownerUnavailable": "Eigentümer/in nicht verfügbar",
+    "ownerUnavailable": "Eigentümer nicht verfügbar",
     "ownerUnavailableReadOnly": "Für diese Routine ist keine Eigentümerin und kein Eigentümer mehr verfügbar. Sie bleibt pausiert und schreibgeschützt; ein Unternehmensadmin kann sie löschen.",
     "ranAs": "Ausgeführt als {owner}",
     "readOnlyTitle": "Schreibgeschützter Zugriff",
@@ -4121,7 +4123,7 @@
     },
     "generated": {
       "gapsHeading": "Noch zu klären",
-      "pagesHeading": "Seiten der Wissensdatenbank",
+      "pagesHeading": "Wissensdatenbank-Seiten",
       "roles": {
         "company_overview": "Unternehmensüberblick",
         "customers_and_use_cases": "Kunden und Anwendungsfälle",

@@ -666,7 +666,6 @@
       "skip": "Salta"
     },
     "tourUi": {
-      "back": "Indietro",
       "title": "Tour guidato"
     },
     "ui": {
@@ -695,7 +694,6 @@
       "finalizing": "Completamento e salvataggio delle modifiche…",
       "history": "Cronologia chat",
       "imageNotAvailable": "Immagine non disponibile",
-      "jumpToLatest": "Vai ai messaggi più recenti",
       "linkCopied": "Link copiato",
       "loadChatFailed": "Non è stato possibile caricare la chat. Selezionarla di nuovo per riprovare.",
       "loadingChat": "Caricamento della chat…",
@@ -847,6 +845,7 @@
       "delete": "Elimina",
       "discard": "Scarta",
       "expand": "Espandi",
+      "jumpToLatest": "Vai ai messaggi più recenti",
       "labelHistory": "Cronologia",
       "loadMore": "Carica altro",
       "open": "Apri",
@@ -2139,7 +2138,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Chiedi a Mate: {question}",
-    "clearRecent": "Cancella",
     "emptyDescription": "Cerca record negli elenchi a cui hai accesso.",
     "emptyTitle": "Trova tutto nel tuo spazio di lavoro",
     "groupRecent": "Aperti di recente",
@@ -2147,7 +2145,6 @@
     "hintNavigate": "Naviga",
     "hintOpen": "Apri",
     "loading": "Ricerca...",
-    "loadMore": "Carica altri",
     "noResults": "Nessun risultato",
     "placeholder": "Cerca...",
     "staleItem": "Questo elemento non esiste più ed è stato rimosso dagli elementi recenti."
@@ -2265,7 +2262,6 @@
     },
     "groupThread": "Gruppo ({count, plural, one {# membro} other {# membri}})",
     "hideQuotedText": "Nascondi il testo citato",
-    "jumpToLatest": "Vai al più recente",
     "lastMessageDirections": {
       "inbound": "Ricevuto",
       "outbound": "Inviato"
@@ -2975,14 +2971,17 @@
     "addGroupSummary": "Aggiungi riepilogo",
     "addInput": "Aggiungi input",
     "addMenu": {
-      "calculation": "Calcolo",
+      "calculation": "Campo calcolato",
+      "channels": "Canali",
       "field": "Campo",
       "list": "Lista",
-      "relationship": "Relazione"
+      "relationship": "Relazione",
+      "sublist": "Sottoelenco"
     },
     "addOption": "Aggiungi opzione",
     "addPathStep": "Aggiungi un passaggio di relazione",
     "addProbability": "Aggiungi probabilità",
+    "addRelationship": "Aggiungi relazione",
     "aggregation": "Aggregazione",
     "allowManualOverride": "Consenti un valore sostitutivo manuale",
     "ascending": "Crescente",
@@ -3125,6 +3124,7 @@
     "contactFullName": "Nome completo",
     "createdAt": "Creato il",
     "createList": "Crea elenco",
+    "createSublist": "Nuovo sottoelenco di {list}",
     "currency": "Valuta",
     "decimalPlaces": "Cifre decimali",
     "decimalPlacesHelp": "Lascia vuoto per usare il formato predefinito. Cambia la visualizzazione dei valori, non il loro calcolo.",
@@ -3177,7 +3177,7 @@
       "accountEdge": "Sincronizza le conversazioni in {list}",
       "accounts": "Account collegati",
       "accountUnit": "{count, plural, one {account} other {account}}",
-      "addFieldTo": "Aggiungi campo a {list}",
+      "addTo": "Aggiungi a {list}",
       "calculatedFrom": "da {sources}",
       "calculationEdge": "Calcolato da questa lista: {fields}",
       "connectDescription": "Collega Gmail, Outlook o un altro canale per portare le conversazioni nelle tue liste.",
@@ -3188,14 +3188,14 @@
       "help": "Seleziona una lista o un campo per modificarlo, il chip su una linea per modificare una relazione oppure trascina dal punto di una lista a un’altra per collegarle.",
       "helpReadOnly": "Seleziona una lista per aprirla. Le linee mostrano come sono collegate le liste e da dove provengono i valori calcolati.",
       "label": "Grafico di liste, campi e account collegati",
-      "manage": "Gestisci",
       "moreAccounts": "{count, plural, one {# altro account} other {altri # account}}",
       "moreFields": "{count, plural, one {# altro campo} other {altri # campi}}",
-      "partOf": "Parte di {list}",
       "recordsRestricted": "Numero di record non disponibile",
       "recordUnit": "{count, plural, one {record} other {record}}",
       "relationshipLabel": "{label}: {source} verso {target}, {cardinality}",
       "resetLayout": "Ripristina layout",
+      "showFewer": "Mostra meno",
+      "sublistOf": "Sottoelenco di {list}",
       "zoomIn": "Ingrandisci",
       "zoomOut": "Riduci"
     },
@@ -3418,6 +3418,7 @@
     "relationshipPath": "Tramite record collegati",
     "relationshipPathHelp": "Mostra i record raggiungibili tramite relazioni esistenti. Modifica i collegamenti sottostanti per cambiare questi record.",
     "relationships": "Relazioni",
+    "relationshipsEmpty": "Ancora nessuna relazione. Collega questo elenco a un altro per vedere insieme i record correlati.",
     "reloadLists": "Ricarica le liste",
     "removeGroupSummary": "Rimuovi riepilogo",
     "removeInput": "Rimuovi input",
@@ -3469,6 +3470,7 @@
         "singular": "Attività"
       }
     },
+    "sublistExplanation": "Ogni voce appartiene a un record di {parent}, si modifica al suo interno, ne condivide l’accesso e viene eliminata con esso.",
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",
     "summaryField": "Campo del riepilogo",

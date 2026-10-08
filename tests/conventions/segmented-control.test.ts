@@ -18,7 +18,6 @@ const RULE_PATTERNS: Record<Rule, RegExp> = {
 const NOT_YET_MIGRATED: Record<string, Rule[]> = {
   "components/editor-tabs/editor-tabs.tsx": ["editor-tabs"],
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["editor-tabs"],
-  "app/[locale]/(protected)/configure/components/relationship-modal.tsx": ["editor-tabs"],
 };
 
 function findings() {

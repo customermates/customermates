@@ -15,6 +15,7 @@ import {
 } from "@/ee/agent-chat/ui-targets";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { isResolvedAppLinkPath } from "@/features/docs/app-links";
+import { focusTargetOfHref } from "@/components/focus/focus-href";
 import { NavigateRecordTargetSchema } from "@/ee/agent-chat/ui-operations";
 import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/ee/agent-chat/agent-tours";
 import {
@@ -193,7 +194,7 @@ export class AgentUiControlStore extends BaseStore {
       const result = await getRecordAction(record.data);
       if (!result.ok)
         return { ok: false, result: "The record is unavailable or cannot be read with your current access." };
-    } else if (route.path.startsWith("/records/") || route.path.startsWith("/configure?focus=")) {
+    } else if (route.path.startsWith("/records/") || focusTargetOfHref(route.path)?.kind === "list") {
       const navigation = await getRecordNavigationAction();
       const typeId = /[0-9a-f-]{36}/.exec(route.path)?.[0];
       if (!navigation.types.some((type) => type.id === typeId) || !this.canOpen(route.path.split("?")[0]))

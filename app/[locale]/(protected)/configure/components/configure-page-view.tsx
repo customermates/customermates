@@ -61,6 +61,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   accounts,
   savedLayout,
   canManage,
+  canAddSublist = false,
   canPublishSummary = false,
 }: {
   initialModel: RecordModelView;
@@ -68,6 +69,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   accounts: ConfigureGraphAccounts;
   savedLayout: ConfigureGraphLayout | null;
   canManage: boolean;
+  canAddSublist?: boolean;
   canPublishSummary?: boolean;
 }) {
   useRecordRouteReady();
@@ -80,7 +82,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const t = useTranslations();
   const generalFormId = useId();
   const [store] = useState(() => new DataModelStore(initialModel));
-  const [graphLayout, setGraphLayout] = useState(savedLayout?.positions ?? null);
+  const [graphLayout, setGraphLayout] = useState(savedLayout);
   const authoritative = useRef(initialModel);
   useEffect(() => {
     if (authoritative.current === initialModel) return;
@@ -231,20 +233,24 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     [tryNavigate],
   );
   const editChannels = (listId: string) => fieldModal.editChannels(model, listId);
+  const addTo = useCallback(
+    (typeId: string, kind: ConfigureAddKind) => {
+      const type = model.types.find((candidate) => candidate.id === typeId);
+      if (!type) return;
+      if (kind === "field") fieldModal.edit(model, typeId, null);
+      if (kind === "calculation") fieldModal.edit(model, typeId, null, { behavior: "formula", valueType: "number" });
+      if (kind === "relationship") relationModal.edit(model, typeId);
+      if (kind === "sublist") typeModal.editSublist(model, typeId);
+      if (kind === "channels") fieldModal.edit(model, typeId, null, { valueType: "channels" });
+    },
+    [fieldModal, model, relationModal, typeModal],
+  );
   const add = useCallback(
     (kind: ConfigureAddKind) => {
-      if (kind === "list") {
-        typeModal.edit(model, null);
-        return;
-      }
-      if (!selected) return;
-      if (kind === "field") fieldModal.edit(model, selected.id, null);
-      if (kind === "calculation")
-        fieldModal.edit(model, selected.id, null, { behavior: "formula", valueType: "number" });
-      if (kind === "relationship") relationModal.edit(model, selected.id);
-      if (kind === "channels") fieldModal.edit(model, selected.id, null, { valueType: "channels" });
+      if (kind === "list") typeModal.edit(model, null);
+      else if (selected) addTo(selected.id, kind);
     },
-    [fieldModal, model, relationModal, selected, typeModal],
+    [addTo, model, selected, typeModal],
   );
   const topBar = useMemo(
     () => (
@@ -260,6 +266,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             }
           />
         }
+        canAddSublist={canAddSublist}
         canManage={canManage}
         disabled={!interactive}
         general={general}
@@ -273,7 +280,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         }}
       />
     ),
-    [add, canManage, general, generalFormId, interactive, model, selected, listDeleted, t, typeModal],
+    [add, canAddSublist, canManage, general, generalFormId, interactive, model, selected, listDeleted, t, typeModal],
   );
   useSetTopBarActions(topBar);
 
@@ -302,6 +309,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             interactive={interactive}
             model={model}
             selected={selected}
+            onAddRelationship={() => addTo(selected.id, "relationship")}
             onEditChannels={() => editChannels(selected.id)}
             onEditField={(field) => fieldModal.edit(model, selected.id, field)}
             onEditRelationship={(relation) => relationModal.edit(model, selected.id, relation)}
@@ -320,13 +328,14 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         <div className="flex min-h-0 flex-1 flex-col">
           <ConfigureGraph
             accounts={accounts}
+            canAddSublist={canAddSublist}
             canManage={canManage}
             catalog={catalog}
             disabled={!interactive}
             focusedListId={focusedListId}
             layout={graphLayout}
             model={model}
-            onAddField={(listId) => fieldModal.edit(model, listId, null)}
+            onAdd={addTo}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
             onEditChannels={editChannels}
             onEditField={(listId, field) => fieldModal.edit(model, listId, field)}
