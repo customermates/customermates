@@ -11,7 +11,7 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { AppChip } from "@/components/chip/app-chip";
-import { ContactValueActions } from "@/components/shared/contact-value";
+import { ContactValueActions } from "@/components/records/contact-value";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";

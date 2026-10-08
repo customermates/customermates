@@ -11,7 +11,7 @@ import { Copy, ExternalLink, Send, X } from "lucide-react";
 import { Action, Resource } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { ContactValue } from "@/components/shared/contact-value";
+import { ContactValue } from "@/components/records/contact-value";
 import { FormControlRow } from "@/components/forms/form-control-row";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";

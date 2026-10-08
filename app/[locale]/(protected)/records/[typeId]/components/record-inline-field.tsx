@@ -26,6 +26,9 @@ import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { toChipColor } from "@/constants/chip-colors";
+import { isInteractiveClick } from "@/components/data-view/is-interactive-click";
+import { cn } from "@/core/utils/cn";
+import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
@@ -210,8 +213,18 @@ export const RecordInlineField = observer(function RecordInlineField({
     );
   }
   if (field.valueType === "boolean") return <InlineBoolean field={field} record={record} records={records} />;
+  const editsFromSpace = CONTACT_VALUE_TYPES.includes(field.valueType);
   return (
-    <span className="flex min-w-0 items-center gap-1">
+    <span
+      className={cn("flex min-w-0 items-center gap-1", editsFromSpace && "w-full cursor-text")}
+      data-inline-edit-space={editsFromSpace ? field.id : undefined}
+      role="presentation"
+      onClick={(event) => {
+        if (!editsFromSpace || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
+        event.stopPropagation();
+        setOpen(true);
+      }}
+    >
       <span className="min-w-0 truncate">{children}</span>
 
       <Popover modal open={open} onOpenChange={setOpen}>
