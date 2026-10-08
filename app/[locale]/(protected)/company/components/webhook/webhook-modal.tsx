@@ -20,7 +20,7 @@ import { PasswordInput } from "@/components/forms/password-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
-import { FormActions } from "@/components/card/form-actions";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { AppChip } from "@/components/chip/app-chip";
@@ -181,7 +181,7 @@ export const WebhookModal = observer(() => {
             <FormCheckbox id="enabled" inputId="webhook-modal-enabled" label={t("WebhookModal.enabled")} />
           </AppCardBody>
 
-          <FormActions showInitially anchorScope="webhook-modal" store={webhookModalStore} />
+          <FormFooterActions anchorScope="webhook-modal" store={webhookModalStore} />
         </AppCard>
       </AppForm>
     </AppModal>

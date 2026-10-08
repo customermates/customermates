@@ -135,7 +135,7 @@ function formTargets(page: FormAnchorPage): AgentUiTarget[] {
     {
       id: `${page.scope}-save`,
       route: page.route,
-      description: `Save button of the ${page.label}; ${page.hiddenUntilDirty ? "shown" : "enabled"} once something changed`,
+      description: `Save button of the ${page.label}; always shown, enabled once something changed`,
       ...prerequisiteOf(page.opener),
     },
     { route: page.route, ...discard },
