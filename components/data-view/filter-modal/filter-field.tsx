@@ -20,6 +20,7 @@ import { FilterInputIsoDateRange } from "@/components/data-view/filter-modal/inp
 import { FilterInputNumber } from "@/components/data-view/filter-modal/inputs/filter-input-number";
 import { FilterInputSelect } from "@/components/data-view/filter-modal/inputs/filter-input-select";
 import { FilterInputText } from "@/components/data-view/filter-modal/inputs/filter-input-text";
+import { FilterInputValues } from "@/components/data-view/filter-modal/inputs/filter-input-values";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { useAppForm } from "@/components/forms/form-context";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -85,6 +86,15 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
             id={id}
             isValidFilter={isValidFilter}
             onValueChange={() => onFilterChange?.(filter.field)}
+          />
+        );
+      case "scalarArray":
+        return (
+          <FilterInputValues
+            key={`${filter.field}-${operator}`}
+            customColumns={customColumns}
+            field={filter.field}
+            id={id}
           />
         );
       case "numericString":

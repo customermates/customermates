@@ -21,6 +21,10 @@ vi.mock("next-intl", () => ({
     values?.count === undefined ? key : `${key}:${values.count}`,
 }));
 
+vi.mock("@/components/data-view/filter-palette/use-filter-palette", () => ({
+  useFilterPalette: () => harness.palette.current,
+}));
+
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     filterPaletteStore: harness.palette.current,
@@ -201,7 +205,12 @@ describe("filter palette keyboard", () => {
   it("narrows the field rows to what was typed", () => {
     const table = tableStore();
     openPalette(table);
-    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     expect(fieldRows(container)).toEqual(["name", "status", "email"]);
 
@@ -213,7 +222,12 @@ describe("filter palette keyboard", () => {
   it("moves the highlight with the arrows and opens the highlighted field on Enter", () => {
     const table = tableStore();
     const palette = openPalette(table);
-    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     press(searchInput(container), "ArrowDown");
     press(searchInput(container), "Enter");
@@ -224,7 +238,12 @@ describe("filter palette keyboard", () => {
   it("pops one page on Backspace with an empty query and leaves a typed query alone", () => {
     const table = tableStore();
     const palette = openPalette(table);
-    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     act(() => palette.pickField("status"));
     type(searchInput(container), "op");
@@ -241,7 +260,12 @@ describe("filter palette keyboard", () => {
   it("toggles a select row on Enter once the arrows highlight it, and stays on the page", () => {
     const table = tableStore();
     const palette = openPalette(table);
-    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     act(() => palette.pickField("status"));
     press(searchInput(container), "ArrowDown");
@@ -260,7 +284,12 @@ describe("filter palette keyboard", () => {
   it("renders no command root on a text page, so Enter, Home and End reach the input", () => {
     const table = tableStore();
     const palette = openPalette(table);
-    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     act(() => palette.pickField("name"));
 
@@ -283,7 +312,12 @@ describe("filter palette focus when a value page replaces the search", () => {
   it("moves focus to the date control when Enter picks a date operator", () => {
     const table = tableStore([], [...FILTERABLE_FIELDS, DATE_FIELD]);
     const palette = openPalette(table);
-    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     act(() => palette.pickField("createdAt"));
     act(() => searchInput(container).focus());
@@ -299,7 +333,12 @@ describe("filter palette focus when a value page replaces the search", () => {
   it("moves focus to the text input when Enter picks a text field from the root page", () => {
     const table = tableStore();
     const palette = openPalette(table);
-    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     act(() => searchInput(container).focus());
     type(searchInput(container), "name");
@@ -314,7 +353,12 @@ describe("filter palette focus when a value page replaces the search", () => {
   it("returns focus to the search when Enter commits a text value and the palette goes back to the root", () => {
     const table = tableStore();
     const palette = openPalette(table);
-    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     act(() => searchInput(container).focus());
     type(searchInput(container), "name");
@@ -334,7 +378,12 @@ describe("filter palette focus when a value page replaces the search", () => {
     containers.push(outside);
     act(() => outside.focus());
 
-    mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+    mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
 
     expect(document.activeElement).toBe(outside);
   });

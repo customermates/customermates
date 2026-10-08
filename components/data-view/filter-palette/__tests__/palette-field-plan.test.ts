@@ -279,6 +279,16 @@ describe("palettePlan", () => {
     }
   });
 
+  it("opens the sole declared value operator for an activity time bound", () => {
+    expect(
+      palettePlan(
+        "activity:before",
+        [{ field: "activity:before", operators: [FilterOperatorKey.lte] }],
+        [{ id: "activity:before", label: "Before", type: "dateTime" }],
+      ),
+    ).toMatchObject({ impliedOperator: FilterOperatorKey.lte, pageKind: "date" });
+  });
+
   it("returns an unusable but safe plan for a field the surface does not declare", () => {
     const plan = palettePlan("unknownField", FILTERABLE_FIELDS, CUSTOM_COLUMNS);
 

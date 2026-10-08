@@ -16,6 +16,10 @@ vi.mock("mobx-react-lite", () => ({
   observer: <T>(component: T) => component,
 }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/components/data-view/filter-palette/use-filter-palette", () => ({
+  useFilterPalette: () => harness.palette.current,
+}));
+
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     filterPaletteStore: harness.palette.current,
@@ -61,7 +65,7 @@ function dataViewStore(filters: Filter[] = [], filterableFields = [{ field: "nam
   } as unknown as BaseDataViewStore<{ id: string }>;
 }
 
-function paletteStore(page: { kind: string; field?: string }, tableStore: unknown) {
+function paletteStore(page: { kind: string; field?: string }, target: unknown) {
   return {
     close: vi.fn(),
     clearFilters: vi.fn(),
@@ -69,7 +73,13 @@ function paletteStore(page: { kind: string; field?: string }, tableStore: unknow
     isOpen: true,
     openFor: vi.fn(),
     page,
-    tableStore,
+    target,
+    activeTarget: target,
+    appliedFilters: (target as { filters: Filter[] }).filters,
+    isAtFilterLimit:
+      (target as { filters: Filter[] }).filters.length >=
+      ((target as { maxFilters?: number }).maxFilters ?? MAX_APPLIED_FILTERS),
+    pages: [page],
   };
 }
 

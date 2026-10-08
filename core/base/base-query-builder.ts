@@ -25,6 +25,7 @@ export enum ViewMode {
 
 export enum FilterOperatorKey {
   equals = "equals",
+  notEquals = "notEquals",
   contains = "contains",
   startsWith = "startsWith",
   in = "in",

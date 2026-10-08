@@ -4,16 +4,11 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordEventSubscriptionDefinition } from "@/features/records/record-event-subscription.schema";
-import { recordFilterFields } from "@/features/records/record-filter";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
-import { FormInput } from "@/components/forms/form-input";
 import { FormLabel } from "@/components/forms/form-label";
 import { AppChip } from "@/components/chip/app-chip";
-import {
-  RecordWidgetFieldFilters,
-  RecordWidgetRelatedFilters,
-} from "@/app/[locale]/(protected)/dashboard/components/record-widget-filters";
+import { RecordQueryFilters } from "./record-query-filters";
 
 export type RecordTriggerForm = {
   query: NonNullable<RecordEventSubscriptionDefinition["query"]>;
@@ -39,11 +34,6 @@ export const RecordTriggerFields = observer(
     if (!model) return null;
     const fields = model.fields.filter((field) => field.typeId === trigger?.query.typeId && !field.archived);
     const watched = fields.map((field) => ({ key: field.id, label: field.label }));
-    const filterFields = recordFilterFields(fields, {
-      createdAt: t("RecordModel.createdAt"),
-      updatedAt: t("RecordModel.updatedAt"),
-      assignedTo: t("RecordModel.assignedTo"),
-    });
     return (
       <div data-record-trigger className="space-y-4">
         <FormSelect
@@ -94,20 +84,10 @@ export const RecordTriggerFields = observer(
           <div className="space-y-3">
             <FormLabel>{t("Common.inputs.triggerFilters")}</FormLabel>
 
-            <FormInput id="recordTrigger.query.search" label={t("RecordWidgets.search")} />
-
-            <RecordWidgetFieldFilters
-              fields={filterFields}
-              filters={trigger.query.filters}
-              id="recordTrigger.query.filters"
-              store={store}
-            />
-
-            <RecordWidgetRelatedFilters
-              filters={trigger.query.relatedFilters ?? []}
-              id="recordTrigger.query.relatedFilters"
+            <RecordQueryFilters
+              anchorId="record-trigger-filters"
+              id="recordTrigger.query"
               model={model}
-              store={store}
               typeId={trigger.query.typeId}
             />
 

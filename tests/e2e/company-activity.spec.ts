@@ -16,9 +16,7 @@ test("shows admin and configuration history on the workspace activity page and f
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Activity auditors");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Reads the workspace history");
-  await role.getByRole("tab", { name: "Workspace", exact: true }).click();
   await role.locator('[data-resource-permission="auditLog"]').getByRole("radio", { name: "All", exact: true }).check();
-  await role.getByRole("tab", { name: "Record types", exact: true }).click();
   await role
     .locator("[data-record-permission]")
     .filter({ hasText: /^Contacts/ })

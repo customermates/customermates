@@ -5,6 +5,7 @@ import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from
 import { legacyRecordFixture } from "../helpers/legacy-record-fixture";
 import { test as base, expect, isBenignPageError } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
+import { openRecordDetails } from "./record-rows";
 
 const test = base.extend({
   workspace: async ({ database }, use) => {
@@ -57,8 +58,8 @@ test("opens upgraded records with persisted values, totals and links", async ({
   const typeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("header")).toContainText("Deals");
-  await expect(page.getByRole("button", { name: "Synthetic deal", exact: true })).toHaveCount(2);
-  await page.getByRole("button", { name: "Synthetic deal", exact: true }).first().click();
+  await expect(page.getByRole("link", { name: "Synthetic deal", exact: true })).toHaveCount(2);
+  await openRecordDetails(page, "Synthetic deal");
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
   await expect(drawer.getByRole("heading", { name: "Synthetic deal", exact: true })).toBeVisible();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Synthetic deal");
@@ -96,8 +97,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
       personType,
     ])
   ).rows[0];
-  await page.getByRole("button", { name: "Synthetic Person", exact: true }).click();
-  await page.getByRole("dialog").getByRole("link", { name: "Open page", exact: true }).click();
+  await page.getByRole("link", { name: "Synthetic Person", exact: true }).first().click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${personType}/${person.id}$`));
   await expect(page.getByText("Organization A", { exact: true }).first()).toBeVisible();
   expect(errors).toEqual([]);

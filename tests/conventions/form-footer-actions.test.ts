@@ -151,7 +151,7 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
     rules: ["submit-button"],
     reason: "message composer whose submit sends the message",
   },
-  "components/data-view/header/filter-popover.tsx": {
+  "components/data-view/filter-palette/filter-target-popover.tsx": {
     rules: ["overlay-footer"],
     reason: "filters apply immediately; the footer only holds Clear",
   },

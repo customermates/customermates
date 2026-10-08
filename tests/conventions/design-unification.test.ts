@@ -132,15 +132,7 @@ describe("rule 12: overlays never animate a blur", () => {
 
 const LOCAL_FILTER_UI = /\bRecordWidget(?:Field|Related)Filters\b|["'`]RecordWidgets\.(?:add|remove)Filter["'`]/;
 
-const LOCAL_FILTER_UI_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/dashboard/components/record-widget-filters.tsx":
-    "I3r3b: widget filter rows move to the shared Filters palette",
-  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx":
-    "I3r3b: widget editor filters through the shared Filters palette",
-  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx":
-    "I3r3b: activity widget filters through the shared Filters palette",
-  "components/records/record-trigger-fields.tsx": "I3r3b: routine trigger filters through the shared Filters palette",
-};
+const LOCAL_FILTER_UI_ALLOWLIST: Allowlist = {};
 
 describe("rule 32: one filter design everywhere", () => {
   it("builds view, widget, routine and activity filters only with the shared Filters palette", () => {
