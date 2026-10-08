@@ -23,8 +23,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useWebhookColumns } from "./use-webhook-columns";
 import { WebhooksPageSkeleton } from "./webhooks-page-skeleton";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
 
 type Props = { initialWebhooks: GetResult<WebhookDto> };
+
+const WEBHOOK_FOCUS_KINDS: FocusKind[] = ["webhook"];
 
 const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebhooks }: Props) {
   const { webhookModalStore, webhooksStore } = useRootStore();
@@ -57,6 +60,32 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
         enabled: true,
       }),
     [webhookModalStore],
+  );
+  const openWebhook = useCallback(
+    (item: (typeof webhooksStore.items)[number]) =>
+      webhookModalStore.openWith({
+        id: item.id,
+        recordTrigger: item.recordTrigger ?? null,
+        recordSources: item.recordSources ?? null,
+        recordOwnerUserId: item.recordOwnerUserId ?? undefined,
+        url: item.url,
+        description: item.description ?? undefined,
+        events: item.events,
+        secret: item.secret ?? undefined,
+        headers: formatWebhookHeaderLines(item.headers),
+        bodyTemplate: item.bodyTemplate ?? undefined,
+        enabled: item.enabled,
+      }),
+    [webhookModalStore],
+  );
+  useFocusTarget(
+    WEBHOOK_FOCUS_KINDS,
+    (target) => {
+      const item = webhooksStore.items.find((webhook) => webhook.id === target.id);
+      if (item) openWebhook(item);
+      return true;
+    },
+    pageState !== "loading",
   );
   const topBarNode = useMemo(
     () => (
@@ -107,28 +136,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
       );
       break;
     case "content":
-      body = (
-        <DataViewContent
-          columns={columns}
-          store={webhooksStore}
-          view={view}
-          onRowClick={(item) =>
-            webhookModalStore.openWith({
-              id: item.id,
-              recordTrigger: item.recordTrigger ?? null,
-              recordSources: item.recordSources ?? null,
-              recordOwnerUserId: item.recordOwnerUserId ?? undefined,
-              url: item.url,
-              description: item.description ?? undefined,
-              events: item.events,
-              secret: item.secret ?? undefined,
-              headers: formatWebhookHeaderLines(item.headers),
-              bodyTemplate: item.bodyTemplate ?? undefined,
-              enabled: item.enabled,
-            })
-          }
-        />
-      );
+      body = <DataViewContent columns={columns} store={webhooksStore} view={view} onRowClick={openWebhook} />;
       break;
     default: {
       const exhaustive: never = pageState;

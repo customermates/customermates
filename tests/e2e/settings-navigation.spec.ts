@@ -50,7 +50,7 @@ test("settings live in one area reached from the workspace menu, with Back to th
   await test.step("webhook deliveries are a tab inside Webhooks", async () => {
     await page.locator("#nav-settings-webhooks").click();
     await expect(page).toHaveURL(/\/en\/settings\/webhooks$/);
-    const tabs = page.locator("[data-route-tabs]");
+    const tabs = page.locator("[data-slot=\"segmented-control-list\"]");
     await expect(tabs.getByRole("tab", { name: "Webhooks" })).toHaveAttribute("aria-selected", "true");
     await tabs.getByRole("tab", { name: "Deliveries" }).click();
     await expect(page).toHaveURL(/\/en\/settings\/webhooks\/deliveries$/);
@@ -66,7 +66,7 @@ test("settings live in one area reached from the workspace menu, with Back to th
   });
 
   await test.step("the old profile and company routes are gone", async () => {
-    for (const path of ["/en/profile/settings", "/en/company/members", "/en/company/webhook-deliveries"])
+    for (const path of ["/en/settings/profile", "/en/settings/members", "/en/settings/webhooks/deliveries"])
       expect((await page.request.get(path)).status(), path).toBe(404);
   });
 

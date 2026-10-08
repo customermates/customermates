@@ -76,6 +76,7 @@ vi.mock("@/components/modal/responsive-overlay", () => ({
   ResponsiveOverlay: ({
     children,
     footer,
+    headerAction,
     open,
     trigger,
     onOpenChange,
@@ -83,6 +84,7 @@ vi.mock("@/components/modal/responsive-overlay", () => ({
   }: {
     children: ReactNode;
     footer?: ReactNode;
+    headerAction?: ReactNode;
     open: boolean;
     trigger: ReactNode;
     onOpenChange: (open: boolean) => void;
@@ -93,6 +95,7 @@ vi.mock("@/components/modal/responsive-overlay", () => ({
       "div",
       null,
       createElement("span", { onClick: () => onOpenChange(!open) }, trigger),
+      open ? headerAction : null,
       open ? children : null,
       open ? footer : null,
     );

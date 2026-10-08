@@ -154,7 +154,7 @@ Der MCP-Server kann Schemata finden, Datensätze abfragen und ändern, Felder un
 **Read-only** bedeutet, dass ein Tool nicht schreibt. **Kann Daten löschen** kennzeichnet Tools mit destruktiven Aktionen; nicht jede Aktion dieses Tools löscht Daten. Eine Konfigurationsvorschau schreibt beispielsweise nichts. Nachrichten, Einladungen und Supportanfragen versenden, E-Mails verschieben oder Anbieterdaten ändern kann auch ohne destruktives Flag reale Auswirkungen haben. Die Client-Freigabe muss zur konkreten Aktion passen. Das Backend prüft Berechtigungen und Eingaben; ein externer MCP-Aufruf öffnet jedoch keinen Freigabedialog des integrierten Assistenten.
 
 {/* mcp-catalog:flags */}
-**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`, `read_recently_deleted_configuration`
 
 **Kann Daten löschen:** `mutate_crm_record`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -538,9 +538,15 @@ Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Absc
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
 
-Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen, Zugriffsvorlagen und gemeinsamen Standards prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen.
+Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen, Zugriffsvorlagen und gemeinsamen Standards prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen. Mit delete verschieben Sie eine Liste, ein Feld, eine Beziehung oder eine Aktivitätsverbindung nach „Zuletzt gelöscht“, mit restore holen Sie sie zurück, mit deletePermanently entfernen Sie sie endgültig.
 
 **Kann Daten löschen.** Pflicht: `action`, `change`.
+
+#### `read_recently_deleted_configuration`
+
+Listet die Listen, Felder, Beziehungen und Aktivitätsverbindungen unter „Zuletzt gelöscht“ mit Löschenden und Zeitpunkt. Nur Personen, die das Datenmodell verwalten, können sie lesen; wiederherstellen oder endgültig löschen erfolgt über configure_record_model.
+
+**Nur lesend.** Keine Argumente.
 
 #### `cancel_crm_operation`
 
@@ -564,9 +570,9 @@ Der Quelltyp legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden pa
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
 
-Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Schreibvorgänge akzeptieren optional ein layout `{x, y, w, h}` im 12-Spalten-Raster, das im selben Aufruf gespeichert wird; ohne layout erhält ein neues Widget den ersten freien Platz und ein geändertes bleibt, wo es ist; überlappende Positionen werden abgelehnt. list liefert das aktuelle Layout jedes Widgets. Löschen entfernt die Widget-Konfiguration, nicht ihre Quelldatensätze.
+Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Schreibvorgänge akzeptieren optional ein layout `{x, y, w, h}` im 12-Spalten-Raster, das im selben Aufruf gespeichert wird; ohne layout erhält ein neues Widget den ersten freien Platz und ein geändertes bleibt, wo es ist; überlappende Positionen werden abgelehnt. list liefert das aktuelle Layout jedes Widgets. viewId legt ein Widget auf einer Dashboard-Ansicht ab (gespeicherte Ansicht der manage_data_views-Oberfläche dashboard); ohne viewId landet ein neues Widget in der aktuellen Dashboard-Ansicht. Löschen entfernt die Widget-Konfiguration, nicht ihre Quelldatensätze.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`, `viewId`.
 {/* /mcp-catalog */}
 
 ### Routinen [#routines]

@@ -78,6 +78,7 @@ export const RoutineRunTriggerContextSchema = z.object({
   threadId: z.string().nullable(),
   changedFields: z.array(z.string()).max(ROUTINE_TRIGGER_FIELD_LIMIT),
   changedFieldsTruncated: z.boolean(),
+  changedFieldLabels: z.record(z.string(), z.string()),
 });
 
 export const RoutineRunDtoSchema = z.object({

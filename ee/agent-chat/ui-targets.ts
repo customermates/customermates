@@ -23,6 +23,7 @@ import {
   TOOLBAR_PAGES_WITH_ADD,
   TOOLBAR_PAGES_WITHOUT_ADD,
   type AnchorPage,
+  type FormAnchorPage,
   type ControlPage,
 } from "./ui-anchors";
 
@@ -115,7 +116,19 @@ function prerequisiteOf(opener: string | undefined) {
   return opener ? { prerequisite: opener } : {};
 }
 
-function formTargets(page: AnchorPage): AgentUiTarget[] {
+function formTargets(page: FormAnchorPage): AgentUiTarget[] {
+  const discard =
+    page.discard === "cancel"
+      ? {
+          id: `${page.scope}-cancel`,
+          description: `Cancel button that closes the ${page.label} without saving and asks before discarding changes`,
+          ...prerequisiteOf(page.opener),
+        }
+      : {
+          id: `${page.scope}-reset`,
+          description: `Reset button that discards unsaved changes in the ${page.label}; shown once something changed`,
+          ...prerequisiteOf(page.resetOpener ?? page.opener),
+        };
   return [
     {
       id: `${page.scope}-save`,
@@ -123,12 +136,7 @@ function formTargets(page: AnchorPage): AgentUiTarget[] {
       description: `Save button of the ${page.label}; ${page.hiddenUntilDirty ? "shown" : "enabled"} once something changed`,
       ...prerequisiteOf(page.opener),
     },
-    {
-      id: `${page.scope}-reset`,
-      route: page.route,
-      description: `Reset button that discards unsaved changes in the ${page.label}; shown once something changed`,
-      ...prerequisiteOf(page.resetOpener ?? page.opener),
-    },
+    { route: page.route, ...discard },
   ];
 }
 

@@ -14,6 +14,7 @@ export const DATA_VIEW_PATHS: Readonly<Record<BuiltinDataViewSurfaceKey, string 
   [SURFACE.operatorWorkspaces]: "/operator/workspaces",
   [SURFACE.operatorAudit]: "/operator/audit",
   [SURFACE.routines]: "/routines",
+  [SURFACE.dashboard]: "/dashboard",
 });
 
 export function dataViewPath(surface: DataViewSurfaceKey): string | null {

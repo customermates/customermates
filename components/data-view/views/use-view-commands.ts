@@ -43,16 +43,19 @@ export type ViewCommands = {
   submitMeta: (draft: ViewMetaDraft, values: { name: string }) => Promise<void>;
 };
 
+export type ViewDeleteNotice = { message: string; details: string[] };
+
 export function useViewCommands<E extends HasId>(args: {
   closeMeta: () => void;
+  deleteNotice?: (view: DataViewChipDto) => ViewDeleteNotice;
   openMeta: (draft: ViewMetaDraft) => void;
   pathname: string;
   store: BaseDataViewStore<E>;
   owningRail: () => HTMLElement | null;
 }): ViewCommands {
-  const { closeMeta, openMeta, pathname, store, owningRail } = args;
+  const { closeMeta, deleteNotice, openMeta, pathname, store, owningRail } = args;
   const t = useTranslations();
-  const { showDeleteConfirmation } = useDeleteConfirmation();
+  const { showConfirmation, showDeleteConfirmation } = useDeleteConfirmation();
 
   function viewById(viewId: string | undefined): DataViewChipDto | undefined {
     return store.views.find((candidate) => candidate.id === viewId);
@@ -82,16 +85,17 @@ export function useViewCommands<E extends HasId>(args: {
 
     remove: (view) => {
       const rail = owningRail();
-      showDeleteConfirmation(
-        () => deleteView(store, view),
-        view.name,
-        () => {
-          if (!rail || owningRail() !== rail) return false;
-          const target = usableOverlayFocusTarget(rail.querySelector("#global-data-views-all"));
-          if (!target || !rail.contains(target)) return false;
-          return focusOverlayTarget(captureOverlayFocusTarget(target));
-        },
-      );
+      const focusAfterConfirm = () => {
+        if (!rail || owningRail() !== rail) return false;
+        const target = usableOverlayFocusTarget(rail.querySelector("#global-data-views-all"));
+        if (!target || !rail.contains(target)) return false;
+        return focusOverlayTarget(captureOverlayFocusTarget(target));
+      };
+      const onConfirm = () => deleteView(store, view);
+      const notice = deleteNotice?.(view);
+      if (notice)
+        showConfirmation({ title: t("Common.deleteConfirmation.title"), ...notice, focusAfterConfirm, onConfirm });
+      else showDeleteConfirmation(onConfirm, view.name, focusAfterConfirm);
     },
 
     select: (viewKey) => runUserAction(() => selectView(store, viewKey, pathname)),

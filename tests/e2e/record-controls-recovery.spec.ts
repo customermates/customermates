@@ -7,7 +7,7 @@ import {
   openConfigure,
   openConfigureRow,
   saveDrawer,
-  setShowArchivedParts,
+  confirmDeletion,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
@@ -179,7 +179,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await page.locator('[data-palette-value="messages"]').click();
   await page.locator("#filter-palette-back").click();
   await page.keyboard.press("Escape");
-  await expect(history.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(history.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await expect(rows).toHaveCount(0);
   await history.locator("#global-data-views-new").click();
   const viewName = "My message history";
@@ -205,7 +205,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await page.reload();
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
   await expect(view).toHaveAttribute("aria-current", "page");
-  await expect(history.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(history.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await history.locator("#global-data-views-all").click();
   await expect(history.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
   await history.getByRole("button", { name: english.Common.ariaLabels.tooltipFilters, exact: true }).click();
@@ -242,7 +242,7 @@ test("paginates and retries record and widget history, restores a personal timel
     "aria-current",
     "page",
   );
-  await expect(linkedHistory.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(linkedHistory.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await expect(linkedHistory.locator("ol > li")).toHaveCount(0);
   await page.getByRole("button", { name, exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Service", exact: true });
@@ -264,7 +264,7 @@ test("paginates and retries record and widget history, restores a personal timel
     "aria-current",
     "page",
   );
-  await expect(drawerHistory.getByText(english.Dashboard.activityWidget.noActivity, { exact: true })).toBeVisible();
+  await expect(drawerHistory.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await expect(page).toHaveURL(parentUrl);
   expect(await drawerHistory.getByRole("link", { name: viewName, exact: true }).getAttribute("href")).toBe(copiedHref);
   await expect
@@ -481,10 +481,6 @@ async function chartPreview(page: Page, total: string, groups: Record<string, st
   await dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true }).click();
   await expectChartPreview(page, total, groups);
 }
-async function applyDefinition(page: Page) {
-  await saveDrawer(page);
-}
-
 test("uses Average, Minimum and Maximum at record grain, groups through relationships, edits group colors and retries an owned preview", async ({
   page,
   database,
@@ -966,7 +962,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await evidence.verify(testInfo, []);
 });
 
-test("retries failed participant and conversation searches and archives and restores a real relationship projection", async ({
+test("retries failed participant and conversation searches and deletes a real relationship projection", async ({
   page,
   database,
   companyId,
@@ -1093,58 +1089,8 @@ test("retries failed participant and conversation searches and archives and rest
   await page.keyboard.press("Escape");
   await expect(settings).not.toBeVisible();
   await page.unrouteAll({ behavior: "wait" });
-  await openConfigure(page, id("service"));
-  const relationships = page.getByRole("region", {
-    name: english.RecordModel.relationships,
-    exact: true,
-  });
-  await openConfigureRow(page, "Relationships", "Deals");
-  const dialog = page.getByRole("dialog");
-  await dialog
-    .getByRole("switch", {
-      name: english.RecordModel.archiveRelationshipPath,
-      exact: true,
-    })
-    .check();
-  await applyDefinition(page);
-  await expect(configureRow(page, "Relationships", "Deals")).toHaveCount(0);
-  let latest = await model(page);
-  expect(
-    latest.types
-      .find((type) => type.id === id("service"))
-      ?.relationshipPaths?.find((path) => path.id === id("service.deals.path"))?.archived,
-  ).toBe(true);
-  expect(
-    (
-      await database.query(
-        'SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId" IN ($2,$3)',
-        [companyId, id("lineItem.deal"), id("lineItem.service")],
-      )
-    ).rows,
-  ).toEqual([{ count: 2 }]);
-  await setShowArchivedParts(page, true);
-  await openConfigureRow(page, "Relationships", "Deals");
-  await expect(
-    dialog.getByRole("switch", {
-      name: english.RecordModel.archiveRelationshipPath,
-      exact: true,
-    }),
-  ).not.toBeChecked();
-  await applyDefinition(page);
-  latest = await model(page);
-  expect(
-    latest.types
-      .find((type) => type.id === id("service"))
-      ?.relationshipPaths?.find((path) => path.id === id("service.deals.path"))?.archived,
-  ).toBe(false);
   await page.goto(`/en/records/${service.typeId}/${service.recordId}`);
   const projection = page.getByRole("region", { name: "Deals", exact: true });
-  await expect(
-    projection.getByRole("button", {
-      name: english.RecordModel.openRecord.replace("{name}", "Retry conversation deal"),
-      exact: true,
-    }),
-  ).toBeVisible();
   await projection
     .getByRole("button", {
       name: english.RecordModel.openRecord.replace("{name}", "Retry conversation deal"),
@@ -1157,9 +1103,30 @@ test("retries failed participant and conversation searches and archives and rest
   });
   await expect(openedDeal.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Retry conversation deal");
   await page.screenshot({
-    path: testInfo.outputPath("restored-related-record-projection.png"),
+    path: testInfo.outputPath("related-record-projection.png"),
     fullPage: true,
   });
+  await openConfigure(page, id("service"));
+  await openConfigureRow(page, "Relationships", "Deals");
+  await page.getByRole("dialog").getByRole("button", { name: "Delete column", exact: true }).click();
+  await confirmDeletion(page);
+  await expect(configureRow(page, "Relationships", "Deals")).toHaveCount(0);
+  const latest = await model(page);
+  expect(
+    latest.types
+      .find((type) => type.id === id("service"))
+      ?.relationshipPaths?.some((path) => path.id === id("service.deals.path")),
+  ).toBe(false);
+  expect(
+    (
+      await database.query(
+        'SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId" IN ($2,$3)',
+        [companyId, id("lineItem.deal"), id("lineItem.service")],
+      )
+    ).rows,
+  ).toEqual([{ count: 2 }]);
+  await page.goto(`/en/records/${service.typeId}/${service.recordId}`);
+  await expect(page.getByRole("region", { name: "Deals", exact: true })).toHaveCount(0);
   await evidence.verify(testInfo, ["participant search", "conversation search"]);
 });
 

@@ -38,8 +38,6 @@ function importFindings(sources: SourceFile[], modulePattern: RegExp) {
 const TABS_OWNERS = new Set(["components/ui/tabs.tsx"]);
 
 const TABS_ALLOWLIST: Allowlist = {
-  "components/editor-tabs/editor-tabs.tsx": "I20: replaced by the shared CollapsibleSection, then deleted",
-  "components/editor-tabs/route-tabs.tsx": "I19: Webhooks / Deliveries through the shared SegmentedControl, then deleted",
   "components/entity-detail/entity-detail-panels.tsx": "I2 r3: record page Overview / Notes / Activities segments",
   "components/data-view/header/display-options.tsx": "I2 r3: view layout picker as SegmentedControl",
   "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx": "I2 r3: record drawer segments",
@@ -51,7 +49,6 @@ const TABS_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/settings/(workspace)/components/role/role-modal.tsx": "I19: role drawer as one form with sections",
   "app/[locale]/(protected)/settings/(workspace)/components/company-invite/company-invite-modal.tsx": "I19: invite dialog",
   "app/[locale]/(protected)/settings/(account)/components/connected-account-modal.tsx": "I19: channel account drawer",
-  "app/[locale]/(protected)/routines/components/routine-modal.tsx": "I25 phase 2: routine drawer",
   "app/[locale]/(protected)/onboarding/wizard/components/step-invite.tsx": "I25 phase 2: onboarding invite step",
 };
 
@@ -100,6 +97,7 @@ const ACTION_TAGS = new Set([
 
 const DELETE_LABEL = /\bt\(\s*["'`][\w.]*\.(?:\w*D|d)elete\w*["'`]/;
 const TRASH_ICON = /<Trash\w*\b|\bicon[:=]\s*\{?\s*Trash\w*\b/;
+const NAVIGATION = /\bhref=/;
 const DESTRUCTIVE_VARIANT = /[dD]estructive/;
 
 function isDeleteAction(text: string) {
@@ -170,7 +168,8 @@ function destructiveActionFindings(sources: SourceFile[]) {
     visit(source.ast, (node) => {
       if (!isActionElement(node) && !isActionDescriptor(node)) return;
       const text = node.getText(source.ast);
-      if (!isDeleteAction(text) || hasDestructiveVariant(node) || containsNestedDeleteAction(source, node)) return;
+      if (!isDeleteAction(text) || NAVIGATION.test(text)) return;
+      if (hasDestructiveVariant(node) || containsNestedDeleteAction(source, node)) return;
       findings.push(finding(source, node.getStart(source.ast), text));
     });
 
@@ -182,7 +181,6 @@ const DESTRUCTIVE_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/records/[typeId]/components/record-embedded-records.tsx": "I2 r3: sub-list row delete",
   "app/[locale]/(protected)/records/[typeId]/components/record-mass-actions.tsx": "I2 r3: mass delete button",
   "app/[locale]/(protected)/records/[typeId]/components/record-row-actions.tsx": "I2 r3: row delete action",
-  "app/components/agent-chat/conversation-history.tsx": "I25 phase 2: delete chat button",
   "app/[locale]/(protected)/inbox/components/message-item.tsx": "I25 phase 2: email draft discard is neutral grey",
 };
 

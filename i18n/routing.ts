@@ -80,6 +80,7 @@ export const PUBLIC_ROUTES = [
 export const PROTECTED_ROUTES = [
   "/auth/mcp-consent",
   "/configure",
+  "/configure/deleted",
   "/dashboard",
   "/inbox",
   "/legal-update",

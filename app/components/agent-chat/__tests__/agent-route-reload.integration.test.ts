@@ -44,7 +44,7 @@ vi.mock("@/components/ui/drawer", () => ({
   DrawerTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
   DrawerDescription: ({ children }: { children: ReactNode }) => createElement("p", null, children),
 }));
-vi.mock("@/components/modal/unsaved-changes-guard", () => ({ UnsavedChangesGuard: () => null }));
+vi.mock("@/components/modal/confirm-dialog", () => ({ DiscardChangesDialog: () => null }));
 
 import { AppModal } from "@/components/modal/app-modal";
 import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";

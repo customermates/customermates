@@ -87,8 +87,8 @@ vi.mock("@/components/ui/drawer", () => ({
   DrawerDescription: ({ children }: { children: ReactNode }) => createElement("p", null, children),
 }));
 
-vi.mock("../unsaved-changes-guard", () => ({
-  UnsavedChangesGuard: () => null,
+vi.mock("../confirm-dialog", () => ({
+  DiscardChangesDialog: () => null,
 }));
 
 import { AppModal } from "../app-modal";

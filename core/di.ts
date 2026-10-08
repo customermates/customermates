@@ -95,6 +95,7 @@ import { ApplyRecordConfigurationInteractor } from "@/features/records/configure
 import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import { PreviewRecordConfigurationInteractor } from "@/features/records/preview-record-configuration.interactor";
 import { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
+import { GetRecentlyDeletedInteractor } from "@/features/records/get-recently-deleted.interactor";
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
@@ -450,6 +451,8 @@ export const getRecordWriteService = () =>
   new RecordWriteService(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordConfigurationService = () => new RecordConfigurationService(getRecordRepo());
 export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getGetRecentlyDeletedInteractor = () =>
+  new GetRecentlyDeletedInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getImportRecordsInteractor = () =>
@@ -766,7 +769,7 @@ export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleMan
 
 // --- Widget ---
 
-export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo());
+export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo(), getDataViewStateRepo());
 
 export const getDeleteWidgetInteractor = () => new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator());
 
@@ -1515,6 +1518,7 @@ export const getUpsertRecordWidgetInteractor = () =>
     getRecordAccessPolicy(),
     getQueryRecordMeasureInteractor(),
     getRecordWidgetReader(),
+    getDataViewStateRepo(),
   );
 
 export const getGetRecordWidgetInteractor = () =>
@@ -1544,6 +1548,7 @@ export const getUpsertRecordActivityWidgetInteractor = () =>
     getRecordAccessPolicy(),
     getGetRecordActivitiesInteractor(),
     getRecordActivityWidgetReader(),
+    getDataViewStateRepo(),
   );
 
 export const getManageDataViewsInteractor = () =>

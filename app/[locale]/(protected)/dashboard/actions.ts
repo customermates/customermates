@@ -43,8 +43,8 @@ export async function updateWidgetLayoutsAction(data: UpdateWidgetLayoutsData) {
   return serializeResult(getUpdateWidgetLayoutsInteractor().invoke(data));
 }
 
-export async function refreshWidgetsAction() {
-  const result = await getGetWidgetsInteractor().invoke();
+export async function refreshWidgetsAction(viewId?: string) {
+  const result = await getGetWidgetsInteractor().invoke({ viewId });
   return result.data;
 }
 

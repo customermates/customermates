@@ -144,7 +144,7 @@ const WikiPageViewContent = observer(function WikiPageView({
     });
   };
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
-  const cancelCreate = useCallback(() => tryNavigate(() => store.load(initialPage)), [initialPage, store, tryNavigate]);
+  const cancelCreate = useCallback(() => store.load(initialPage), [initialPage, store]);
   const savePanelSizes = useCallback(
     (sizes: readonly number[] | null) => {
       commitColumnWidths((current) =>

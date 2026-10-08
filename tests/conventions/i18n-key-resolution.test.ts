@@ -29,6 +29,7 @@ import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/r
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
 import { WIDGET_STARTER_RECIPES } from "@/features/widget/widget-gallery";
 import { RecordFilterSchema } from "@/features/records/record-query.schema";
+import { CONFIGURATION_TARGET_KINDS, DeletionBlockerSchema } from "@/features/records/configuration.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
   ConnectedAccountStatus,
@@ -227,8 +228,8 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.cronExpression",
   "AuditLogModal.fields.currency",
   "AuditLogModal.fields.debounceSeconds",
-  "AuditLogModal.fields.deleteField",
-  "AuditLogModal.fields.deleteType",
+  "AuditLogModal.fields.delete",
+  "AuditLogModal.fields.deletePermanently",
   "AuditLogModal.fields.disabledReason",
   "AuditLogModal.fields.effectiveAt",
   "AuditLogModal.fields.emails",
@@ -246,6 +247,7 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.putType",
   "AuditLogModal.fields.recipientEmail",
   "AuditLogModal.fields.removalReason",
+  "AuditLogModal.fields.restore",
   "AuditLogModal.fields.street",
   "AuditLogModal.fields.timezone",
   "AuditLogModal.fields.triggerEvents",
@@ -528,6 +530,26 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["RecordModel.starterTypes.${*}.singular", STARTER_TYPE_KEYS.filter((key) => key.endsWith(".singular"))],
   ["RecordModel.starterTypes.${*}.plural", STARTER_TYPE_KEYS.filter((key) => key.endsWith(".plural"))],
   ["RecordModel.deletion.${*}", ["unlink", "restrict", "cascade"].map((value) => `RecordModel.deletion.${value}`)],
+  [
+    "RecordModel.configurationDeletion.blockers.${*}",
+    DeletionBlockerSchema.shape.reason.options.map((reason) => `RecordModel.configurationDeletion.blockers.${reason}`),
+  ],
+  [
+    "RecordModel.configurationDeletion.cleaned.${*}",
+    ["listDefaults", "personalLayouts", "view", "widget"].map(
+      (key) => `RecordModel.configurationDeletion.cleaned.${key}`,
+    ),
+  ],
+  [
+    "RecordModel.configurationDeletion.issues.${*}",
+    ["existingValues", "savedView", "detailLayout", "summaryApproval", "readAll", "dependency"].map(
+      (key) => `RecordModel.configurationDeletion.issues.${key}`,
+    ),
+  ],
+  [
+    "RecordModel.configurationDeletion.kinds.${*}",
+    CONFIGURATION_TARGET_KINDS.map((kind) => `RecordModel.configurationDeletion.kinds.${kind}`),
+  ],
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
   ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
@@ -676,6 +698,10 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.types.${value}",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.cardinality.${value}",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.deletion.${value}",
+  "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.blockers.${blocker.reason}",
+  "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.cleaned.${key}",
+  "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.issues.${key}",
+  "app/[locale]/(protected)/configure/deleted/components/recently-deleted-view.tsx :: t :: RecordModel.configurationDeletion.kinds.${item.target.kind}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: Common.dateBuckets.${field.bucket}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${field.label}",
@@ -910,7 +936,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
-    'components/records/record-configuration-preview.tsx :: t :: ISSUE_MESSAGES[issue.code as keyof typeof ISSUE_MESSAGES] ?? "RecordModel.dependencyHelp"',
+    "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate",
     1,
   ],
   [
@@ -980,18 +1006,16 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     keys: ["EntityChannels.addChannel.sourceConversations", "EntityChannels.addChannel.sourceLookup"],
   },
   {
-    file: "components/records/record-configuration-preview.tsx",
+    file: "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts",
+    keys: ["RecordModel.configurationDeletion.moved"],
+  },
+  {
+    file: "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts",
     keys: [
-      "RecordModel.existingValuesIncompatible",
-      "RecordModel.savedViewIncompatible",
-      "RecordModel.detailLayoutIncompatible",
-      "RecordModel.summaryApprovalRequired",
-      "RecordModel.deletionRequiresReadAll",
       "RecordModel.duplicateListName",
       "RecordModel.duplicateFieldName",
       "RecordModel.duplicateOptionLabel",
       "RecordModel.duplicateRelationshipLabel",
-      "RecordModel.dependencyHelp",
     ],
   },
   {

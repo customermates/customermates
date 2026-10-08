@@ -10,7 +10,7 @@ export default async function Loading() {
     <PageContainer padded={false}>
       <PageState
         background={<WebhooksPageSkeleton />}
-        className="h-[calc(100svh-7.25rem)] md:h-[calc(100svh-8.25rem)]"
+        className="h-[calc(100svh-6.75rem)] md:h-[calc(100svh-7.75rem)]"
         label={t("loading")}
         state="loading"
       />

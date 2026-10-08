@@ -15,6 +15,7 @@ const LOCATIONS: Record<BuiltinAiManageableDataViewSurfaceKey, string> = {
   [SURFACE.entityTimeline]: "Common.actions.labelHistory",
   [SURFACE.activity]: "SettingsNav.activity",
   [SURFACE.routines]: "NavigationBar.routines",
+  [SURFACE.dashboard]: "NavigationBar.dashboard",
 };
 
 export function viewAiTypeLabel(

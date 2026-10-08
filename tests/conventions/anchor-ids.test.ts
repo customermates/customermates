@@ -4,7 +4,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+  FORM_PAGES,
   FORM_SCOPES,
+  formDiscardSuffix,
   NAV_KEYS,
   SCOPES_WITHOUT_FILTER,
   SCOPES_WITHOUT_SEARCH,
@@ -24,6 +26,9 @@ const DOCS_ID_PATTERN = /`#([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`/g;
 const LITERAL_ID_PATTERN =
   /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId|anchorId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
+const SEGMENT_ID_PREFIX_PATTERN = /<SegmentedControl\b(?:=>|[^>])*?\sidPrefix=["']([a-z0-9-]+)["']/g;
+const SEGMENT_VALUE_PATTERN = /\{ value: "([a-z0-9-]+)", label:/g;
+const FOOTER_ANCHOR_SCOPE_PATTERN = /<FormFooterActions\b(?:=>|[^>])*?\sanchorScope=["']([a-z0-9-]+)["']/g;
 const DOCS_LOCALES = CONTENT_LOCALES;
 
 const RESERVED_LITERAL_PREFIXES = [
@@ -67,6 +72,11 @@ function codeIds(): Set<string> {
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) ids.add(match[1] ?? match[2]);
+    for (const prefix of text.matchAll(SEGMENT_ID_PREFIX_PATTERN))
+      for (const segment of text.matchAll(SEGMENT_VALUE_PATTERN)) ids.add(`${prefix[1]}-tab-${segment[1]}`);
+    for (const match of text.matchAll(FOOTER_ANCHOR_SCOPE_PATTERN))
+      if (!FORM_SCOPES.includes(match[1]))
+        for (const suffix of ["-save", "-cancel", "-reset"]) ids.add(`${match[1]}${suffix}`);
     for (const match of text.matchAll(ANCHOR_SCOPE_PATTERN)) {
       const scope = match[1];
       if (TOOLBAR_SCOPES_WITH_ADD.includes(scope) || TOOLBAR_SCOPES_WITHOUT_ADD.includes(scope)) {
@@ -77,9 +87,10 @@ function codeIds(): Set<string> {
         ids.add(`${scope}-layout-board`);
         if (TOOLBAR_SCOPES_WITH_ADD.includes(scope)) ids.add(`${scope}-add`);
       }
-      if (FORM_SCOPES.includes(scope)) {
+      const formPage = FORM_PAGES.find((page) => page.scope === scope);
+      if (formPage) {
         ids.add(`${scope}-save`);
-        ids.add(`${scope}-reset`);
+        ids.add(`${scope}${formDiscardSuffix(formPage)}`);
       }
     }
   }
@@ -108,7 +119,8 @@ function expectedDocumentedIds(): Set<string> {
   ids.add("records-transfer");
   for (const scope of TOOLBAR_SCOPES_WITHOUT_ADD)
     for (const suffix of toolbarSuffixes(scope, false)) ids.add(`${scope}${suffix}`);
-  for (const scope of FORM_SCOPES) for (const suffix of ["-save", "-reset"]) ids.add(`${scope}${suffix}`);
+  for (const page of FORM_PAGES)
+    for (const suffix of ["-save", formDiscardSuffix(page)]) ids.add(`${page.scope}${suffix}`);
   for (const key of NAV_KEYS) ids.add(`nav-${key}`);
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
