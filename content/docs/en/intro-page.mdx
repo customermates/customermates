@@ -6,9 +6,9 @@ demo:
   title: Customermates Demo
 ---
 
-Customermates is an open-source CRM with a native MCP endpoint. Claude, ChatGPT, Cursor, and any other client that speaks the Model Context Protocol can read and write your CRM directly, without copy-paste.
+Customermates is an open-source CRM with a native MCP endpoint. Claude, ChatGPT, Cursor and any other client that speaks the Model Context Protocol read and write your CRM directly, without copy-paste.
 
-## Pick your client and start
+## Pick your client and start [#pick-your-client-and-start]
 
 | Your AI | Full setup on one page |
 | --- | --- |
@@ -17,25 +17,23 @@ Customermates is an open-source CRM with a native MCP endpoint. Claude, ChatGPT,
 | Cursor | [Connect Cursor](/docs/connect-cli#cursor) |
 | Any MCP client | [MCP overview](/docs/mcp) |
 
-Each page is self-contained: the connect steps and your first commands. The server briefs your client automatically on connect, so you do not need to move between pages.
+Each page covers the connect steps and your first commands, and the server briefs your client on connect. For a walkthrough with a webhook and a first AI interaction, see [Quickstart](/docs/quickstart).
 
-For a walkthrough that includes a webhook and a first AI interaction, see [Quickstart](/docs/quickstart).
+## What Customermates is [#what-customermates-is]
 
-## What Customermates is
+A CRM with configurable lists, fields, relationships and calculations, table and board views, and dashboards. It starts with Contacts, Organizations, Deals, Services and Tasks, and you can add your own lists. Plus:
 
-A CRM with configurable record types, fields, relationships and calculations, familiar table and board layouts, and dashboards. Contacts, organizations, deals, services and tasks are its five starting configurations. You can add your own types, plus:
-
-- **Native MCP endpoint** at `/api/v1/mcp`, so an MCP client can discover and call CRM operations without a plugin.
-- **Open source** under AGPLv3. Enterprise components are under a separate commercial license. Self-host or use the managed cloud.
+- **Native MCP endpoint** at `/api/v1/mcp`: an MCP client discovers and calls CRM operations without a plugin.
+- **Open source** under AGPLv3; enterprise components are under a separate commercial license. Self-host or use the managed cloud.
 - **Managed cloud** with its database in the AWS Frankfurt region, a [DPA](/dpa), and every subprocessor, including US providers, listed on the [subprocessors page](/subprocessors).
-- **Webhooks** with optionally signed payloads, retries, and a delivery log.
+- **Webhooks** with optionally signed payloads, retries and a delivery log.
 - **OpenAPI 3.1** specification for the full REST surface at `/api/v1/openapi`.
-- **Mate**, the in-app AI assistant on Customermates Cloud: it needs no external AI client or setup and uses the credits included in your plan. See [Assistant](/docs/app-assistant).
+- **Mate**, the in-app AI assistant on Customermates Cloud: no external AI client or setup, it uses the credits included in your plan. See [Assistant](/docs/app-assistant).
 - **Routines** that run Mate on a schedule or when a record changes, on Customermates Cloud. See [Routines](/docs/app-routines).
 - **Inbox** for email and connected LinkedIn, WhatsApp, Instagram and Telegram accounts, on Customermates Cloud. See [Inbox](/docs/app-inbox).
-- **Roles** that decide per area who can read all records, only assigned ones, or none, and who can create, edit or delete them. See [Company](/docs/app-company).
+- **Roles** that decide per list who can read all records, only assigned ones or none, and who can create, edit or delete them. See [Company](/docs/app-company).
 
-## Four ways Customermates connects to your stack
+## Four ways Customermates connects to your stack [#four-ways-customermates-connects-to-your-stack]
 
 | I want to | Use |
 | --- | --- |
@@ -44,21 +42,21 @@ A CRM with configurable record types, fields, relationships and calculations, fa
 | React to CRM changes in Slack, a sequencer, BI, or your warehouse | [Webhooks](/docs/webhooks) |
 | Compose workflows visually without code | [n8n](/docs/n8n) |
 
-MCP, OpenAPI and n8n authenticate with an API key, and MCP clients such as Claude and ChatGPT can also connect over OAuth without a key; see [API keys](/docs/api-keys). Webhooks work the other way round: Customermates sends each delivery to your URL, and when the webhook has a secret it signs the delivery with it, so your receiver checks that signature, or a custom header you configure on the webhook, instead of a key.
+MCP, OpenAPI and n8n authenticate with an API key; MCP clients such as Claude and ChatGPT can also connect over OAuth without one. See [API keys](/docs/api-keys). Webhooks work the other way round: Customermates sends each delivery to your URL and, if the webhook has a secret, signs it, so your receiver checks that signature or a custom header you set on the webhook.
 
-## Design approach
+## Design approach [#design-approach]
 
-Customermates treats the AI client as a first-class user. Tools are named imperatively, errors are actionable, relationships can be modified incrementally, and the MCP surface is kept small ([[derived.mcp.tools.total]] tools, all on by default) so that smaller models can navigate it reliably.
+Customermates treats the AI client as a first-class user. Tools are named imperatively, errors say what to do, relationships change incrementally, and the MCP surface stays small ([[derived.mcp.tools.total]] tools, all on by default) so smaller models navigate it reliably.
 
-## How the docs are organized
+## How the docs are organized [#how-the-docs-are-organized]
 
 - **Getting started**: [Quickstart](/docs/quickstart), [Concepts](/docs/concepts).
 - **Connect your AI**: [Custom connector](/docs/connect-custom-connector), [CLI & editors](/docs/connect-cli), [Rate limits](/docs/messaging-rate-limits).
-- **App guide**: [Assistant](/docs/app-assistant), [Dashboard](/docs/app-dashboard), [Inbox](/docs/app-inbox), [Records](/docs/app-records), [Routines](/docs/app-routines), [Profile](/docs/app-profile), [Global Search](/docs/app-search), the [Onboarding Wizard](/docs/app-onboarding), [Company](/docs/app-company), [API keys](/docs/api-keys) and [Filter syntax](/docs/filter-syntax). Every documented app area carries stable anchor ids for AI agents, and the anchors are test-enforced against the interface.
+- **App guide**: [Assistant](/docs/app-assistant), [Dashboard](/docs/app-dashboard), [Inbox](/docs/app-inbox), [Records](/docs/app-records), [Routines](/docs/app-routines), [Profile](/docs/app-profile), [Global Search](/docs/app-search), the [Onboarding Wizard](/docs/app-onboarding), [Company](/docs/app-company), [API keys](/docs/api-keys) and [Filter syntax](/docs/filter-syntax). Places in the app are links: in the app they open the page and highlight the control they name.
 - **Integrations**: [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
 - **Self-hosting**: [Get started and manage](/docs/self-hosting), [Architecture and security](/docs/architecture-security).
 - **Reference**: [MCP tool catalog](/docs/mcp#tool-catalog), [Filter syntax](/docs/filter-syntax), [API keys](/docs/api-keys).
 
-## Try it
+## Try it [#try-it]
 
-The embedded demo on this page is a read-only live instance with sample data: you can browse and search it, but creating, changing or deleting records and asking Mate are blocked with a notice that the action is not available in demo mode. [Start a free trial](/auth/signup) to work with your own data.
+The embedded demo on this page is a read-only live instance with sample data. You can browse and search it; creating, changing or deleting records and asking Mate show a notice that the action is not available in demo mode. [Start a free trial](/auth/signup) to work with your own data.

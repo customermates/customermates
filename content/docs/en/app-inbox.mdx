@@ -1,103 +1,83 @@
 ---
 title: "Customermates CRM Inbox: Threads and Replies"
-description: "The Customermates Inbox puts email, LinkedIn, WhatsApp, Instagram, and Telegram threads in one list, with stable anchor ids for UI-driving agents."
+description: "The Inbox puts email, LinkedIn, WhatsApp, Instagram and Telegram conversations in one list: read, reply, triage, share and match them to records."
 ---
 
-This page documents the managed-cloud **Inbox** screen for humans and for authorized clients that drive the UI.
+## What is the Inbox? [#what-is-the-inbox]
 
-## What is the Inbox, and where is its link? [#what-is-the-inbox]
-
-The Inbox is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram and Telegram conversations (threads) in one list, the most recent activity first. Click a conversation in the list to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share the conversation with your team and link participants to records across channel-enabled lists, or link this conversation to a record. The channels themselves are connected under **My Profile › Channels**, see [App guide, Profile](/docs/app-profile).
-
-**Link:** the link to the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the thread list, reply box, state select, folder menu, thread settings, search, filters, **Refresh** and **Channels** are not highlight targets, so Mate names them.
+The [Inbox](app:inbox) is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram and Telegram conversations in one list, most recent activity first. Click a conversation to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share it with your team and match its participants to records. You connect the accounts themselves on [Channels](app:profile/connected-accounts), see [App guide, Profile](/docs/app-profile).
 
 ## Who can use the Inbox, and why is it locked on Starter or missing in the self-hosted version? [#who-can-use-the-inbox]
 
-All four conditions must hold; when one is missing, for example on Starter, the Inbox is locked or hidden:
+All four conditions must hold:
 
-- **Customermates Cloud.** Self-hosted installations have no Inbox: the sidebar entry is hidden and `/inbox` redirects to the Dashboard.
-- **A plan with messaging:** Pro, Business, Enterprise or a trial. On Starter the page stays in the sidebar but is locked under **Upgrade to unlock messaging**, and **Upgrade your plan** opens **My Company › Subscription**.
-- **A usable subscription:** status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the page is locked the same way, with the text "Connecting channels requires an active subscription or a trial that hasn't expired."
-- **Your role:** the **Inbox messages** row set to **Read access** **All**. With **None** the sidebar entry is hidden and opening `/inbox` brings you back to the Dashboard. The **Admin** role always has access.
+- **Customermates Cloud.** Self-hosted installations have no Inbox: the sidebar entry is hidden and opening it leads to the Dashboard.
+- **A plan with messaging:** Pro, Business, Enterprise or a trial. On Starter the Inbox stays in the sidebar but shows **Upgrade to unlock messaging**, and **Upgrade your plan** opens [Billing](app:company/subscription).
+- **A usable subscription:** status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the Inbox is locked the same way.
+- **Your role:** **Inbox messages** with **Read access** set to **All**. With **None** the sidebar entry is hidden and opening the Inbox leads to the Dashboard. The **Admin** role always has access.
 
-**Link:** the **Inbox** page, `/inbox`, and the **Subscription** page for **Upgrade your plan**, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, or `nav-company-subscription` and then `company-subscription-plan-picker` for the plan cards (shown until the first checkout) or `company-subscription-manage` for **Manage with Lemon Squeezy** (to change a running plan), both only for roles with **Edit** on **Company**; **Upgrade your plan** has no id, so Mate names it.
+## Do I need a connected channel? [#do-i-need-a-connected-channel]
 
-## Do I need a connected channel?
-
-Not to open the Inbox: without a channel of your own you still see what teammates share. You need one to send and receive on your own accounts. When the list is empty it reads **Nothing here yet** and "No messages yet. Connect a channel in your profile to start receiving messages." Below that, members with **Create** on **Inbox messages** get a **Channels** button that opens **My Profile › Channels**; when Mate is available, assistant starter prompts appear there instead. On **My Profile › Channels**, **Connect channel** adds an email, LinkedIn, WhatsApp, Instagram or Telegram account with the same permission, see [How do I connect a channel?](/docs/app-profile#how-do-i-connect-a-channel). Channels per member: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro.
-
-**Link:** the **Channels** page, `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, then `highlight_element` with `profile-connected-accounts-connect` (**Connect channel**); the **Channels** button in the empty Inbox has no id, so Mate names it.
+Not to open the Inbox: without a channel of your own you still see what teammates share. To send and receive on your own accounts you need one. An empty Inbox reads **Nothing here yet**; members with **Create** on **Inbox messages** get a **Channels** button below it (when Mate is available, starter prompts appear there instead). Add an email, LinkedIn, WhatsApp, Instagram or Telegram account with [Connect channel](app:profile/connected-accounts?focus=connect), see [How do I connect a channel?](/docs/app-profile#how-do-i-connect-a-channel). Channels per member: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro.
 
 ## Which conversations do I see, and can an admin read my private ones? [#which-conversations-do-i-see]
 
-The list combines three sources: the channels you connected yourself, channels a teammate shared with the whole workspace, and single conversations a teammate shared from a private channel. A teammate's private conversations never appear, whatever your role, **Admin** included.
+The list combines the channels you connected, channels a teammate shared with the whole workspace, and single conversations a teammate shared from a private channel. A teammate's private conversations never appear, whatever your role, **Admin** included.
 
-For email accounts, only messages in the folders switched on in the account's **Folders** tab under **My Profile › Channels** appear. By default every folder is on except trash, junk or spam, drafts and the all-mail folder; if mail from another folder, for example an archive, is missing, check that its switch is on. A conversation without any message appears only while it holds a saved draft.
+For email accounts, only folders switched on in the account's **Folders** tab on [Channels](app:profile/connected-accounts) appear. By default every folder is on except trash, junk or spam, drafts and the all-mail folder; if mail from an archive is missing, check its switch. A conversation without any message appears only while it holds a saved draft.
 
-**Link:** the **Channels** page, `/profile/connected-accounts`, for the folders; the Inbox is `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts` or `nav-inbox`; once the user has opened the account from its card, `connected-account-tab-folders` highlights the **Folders** tab (accounts with folders only); the folder switches are not highlight targets, so Mate names them.
+## Which permissions does the Inbox need? [#which-permissions-does-the-inbox-need]
 
-## Which permissions does the Inbox need?
-
-Roles are edited under **My Company › Roles**. The Inbox uses the **Inbox messages** row, which offers **Create**, **Edit** and **Delete**, plus **Read access** **None** or **All** (there is no **Assigned**).
+Roles are edited on [Roles](app:company/roles). The Inbox uses the **Inbox messages** row: **Create**, **Edit**, **Delete**, and **Read access** **None** or **All**.
 
 | To do this | The role needs |
 | --- | --- |
 | See the Inbox and read conversations | **Inbox messages**: **Read access** **All** |
 | Reply, save or send drafts, start a conversation from a contact | **Inbox messages**: **Create** |
 | Discard a draft | **Inbox messages**: **Delete** |
-| Change the state, move an email, **Refresh**, **Resync thread**, load older messages by scrolling up, share a conversation | **Inbox messages**: **Edit** |
-| Link or unlink a participant’s channel, create a record from one | Read and **Edit** access to the selected record; **Create** for a new record |
-| Link or unlink a record for this conversation | **Inbox messages**: **Edit**, plus read and update access to that record |
-| Add a Channels field or configure lists | The separate **Data model** configuration permission |
+| Change the state, move an email, **Refresh**, **Resync thread**, load older messages, share a conversation | **Inbox messages**: **Edit** |
+| Match a participant's address to a record, or create a record from it | Read and edit access to that record; create access for a new record |
+| Link a record to this one conversation | **Inbox messages**: **Edit**, plus read and edit access to the record |
+| Add a Channels field to a list | **Data model** |
 
-Without **Create** on **Inbox messages** the reply box is hidden. Without **Edit** the folder move action is hidden, the state shows as a read-only chip, and opening an unread conversation leaves it **Unread**. Each email still shows its folder or label names below its recipient fields. Sharing a single conversation also requires that you own its channel.
+Without **Create** the reply box is hidden. Without **Edit** the move action is hidden, the state is a read-only chip, and opening an unread conversation leaves it **Unread**. Sharing a single conversation also requires that you own its channel.
 
-**Link:** **My Company › Roles**, `/company/roles`; the Inbox is `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles` or `nav-inbox`; the role rows are not highlight targets, so Mate names them.
+## How do I search, filter or refresh the Inbox? [#how-do-i-search-filter-or-refresh-the-inbox]
 
-## How do I search, filter or refresh the Inbox?
-
-The top bar above the list holds these controls:
+The top bar of the [Inbox](app:inbox) holds:
 
 - **Search...** finds conversations by subject, message text, conversation name, and participant names or addresses.
-- **Filters** (funnel icon) offers **State**, **Linked records** (select a record from a channel-enabled list), **Participants** (**not fully linked** finds conversations with someone who has no matching record you can read), **Provider** (the channel) and **Draft** (**has some** finds conversations with a saved draft). It also offers **Channel**, **Email folder**, **Last message** (**Sent** or **Received**), **Last message date** and **Last activity**.
-- **Refresh** pulls new messages from your channels and the workspace's shared channels right away (**Inbox refreshed.**); when a provider pushes back it says "Some channels hit their rate limit. Try again in a few minutes." When one of your channels needs reconnecting, or a channel couldn't be refreshed, it says so with the number of channels instead of confirming. It appears only with **Edit** on **Inbox messages**.
-- **Channels** opens **My Profile › Channels**, with a number when channels need attention. It appears only with **Create** on **Inbox messages**.
+- **Filters** offers **State**, **Linked records**, **Participants** (**not fully linked** finds conversations with someone who has no matching record you can read), **Provider**, **Channel**, **Email folder**, **Draft** (**has some** finds conversations with a saved draft), **Last message** (**Sent** or **Received**), **Last message date** and **Last activity**.
+- **Refresh** pulls new messages right away (**Inbox refreshed.**) and reports channels that hit a rate limit, need reconnecting or could not be refreshed. Needs **Edit**.
+- **Channels** opens [Channels](app:profile/connected-accounts), with a number when channels need attention. Needs **Create**.
 
-Folder choices are grouped under the email account. Each group contains only accessible folders, and selected filters retain the account name so identically named folders stay separate. **in** finds conversations with a visible message in any selected folder; **not in** excludes those placements. A conversation can match several folders. **Last message** uses the latest visible sent or received message: later drafts, deleted messages and system events do not change it; draft-only conversations match neither direction. **Last message date** uses that same actual message, with the usual date comparisons and ranges. For three to seven days ago, add two **Last message date** conditions: **Older than…** with 3 days, then **7 days**. Conditions combine automatically and the day window updates over time. **Last activity** includes saved drafts and supports the same date filters. All filters respect account sharing and the folders enabled in the account settings.
+**Email folder** groups folders under their account, so folders with the same name stay apart; **in** finds conversations with a visible message in any selected folder, **not in** excludes them. **Last message** and **Last message date** use the latest real sent or received message; drafts, deleted messages and system events do not count. For mail from three to seven days ago, add two **Last message date** conditions: **Older than…** 3 days and **7 days**. **Last activity** includes saved drafts. All filters respect account sharing and the enabled folders.
 
-The views rail offers **All** and your personal saved views. The list shows 25 conversations per page; the pagination switches between 5, 10, 25 and 100. The sidebar entry **Inbox** shows how many of the conversations you can see are **Unread**.
+The views row offers **All** and your personal saved views. The list shows 25 conversations per page (5, 10, 25 or 100). The sidebar entry shows how many conversations you can see are **Unread**.
 
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; **Search...**, **Filters**, **Refresh**, **Channels** and the views rail are not highlight targets, so Mate names them.
+## How do I open a specific conversation? [#how-do-i-open-a-specific-conversation]
 
-## How do I open a specific conversation?
+Click its row. The browser address then points to that conversation, so you can bookmark it or send it to a teammate who can see it; an address you cannot open brings you back to the Inbox. To find the conversations of one record, pick it in the **Linked records** filter: matching uses the record's Channels values and still checks your access to each conversation. Mate does not open a single conversation for you: it opens the Inbox and names the conversation.
 
-Click a row in the list; the address becomes `/inbox?threadId=<id>`, which you can bookmark or send to a teammate who can see the conversation. An id you cannot open brings you back to `/inbox`. To find conversations for a record, select it in the **Linked records** filter. Matching uses its Channels identifiers and still checks your access to each conversation.
+With **Edit** on **Inbox messages**, scrolling to the top of a conversation fetches older messages from the provider, once per conversation until you reload. **Resync thread** in the header fetches the whole conversation again.
 
-With **Edit** on **Inbox messages**, scrolling to the top of a conversation fetches older messages from the provider, once per conversation until you reload the page; without it nothing more loads. **Resync thread** in the header fetches the conversation again and needs the same permission.
-
-**Link:** the **Inbox** page, `/inbox`; one conversation is `/inbox?threadId=<id>`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, which opens the Inbox but not a single conversation, so Mate opens the Inbox and names the conversation; rows and filters are not highlight targets, so Mate names them.
-
-## What is in the conversation header?
+## What is in the conversation header? [#what-is-in-the-conversation-header]
 
 Next to the conversation's name, left to right:
 
-| Control | Label | What it does |
-| --- | --- | --- |
-| Folder with arrow icon, IMAP and Outlook only | Tooltip **Move conversation to folder…** | Opens the folder menu (`#inbox-thread-folder`); only with **Edit** and access to the channel's folders |
-| Circular arrow icon | Tooltip **Resync thread** | Fetches the conversation again from the provider; only with **Edit** |
-| Chip with participant avatars | **Private Thread** or **Shared Thread**, tooltip **Manage visibility and people** | Opens **Thread settings** |
-| Person icon with a number | Tooltip **Some participants have no linked record you can read** | Opens **Thread settings**; shown when you can create or edit records in a channel-enabled list |
-| State chip | **Unread**, **Open**, **Closed** or **Spam** | Sets the state (`#inbox-thread-state`) |
+| Control | What it does |
+| --- | --- |
+| **Move conversation to folder…** (IMAP and Outlook) | Files the conversation in another folder; needs **Edit** |
+| **Resync thread** | Fetches the conversation again; needs **Edit** |
+| **Private Thread** or **Shared Thread** chip | Opens **Thread settings** |
+| **Some participants have no linked record you can read** | Opens **Thread settings**; shown when you can create or edit records in a list with a Channels field |
+| State chip | **Unread**, **Open**, **Closed** or **Spam** |
 
 On narrow screens the chips show icons only.
 
-Emails keep their rounded message bubbles, with incoming messages on the left and outgoing messages on the right. The compact header shows the sender, time and first recipient. **Details** shows **From**, **To**, **Cc** and **Bcc** in that order, omitting empty fields and showing each field once. **Email actions** also opens these details. Bcc is visible only on outgoing mail to the account owner and teammates with access to the whole account. Sharing an individual conversation does not reveal its Bcc addresses or count. Received mail never reveals the sender's hidden recipient list. Click any sender or recipient address to copy it. Copy icons appear on hover or keyboard focus.
+Incoming messages sit on the left, outgoing on the right. An email's compact header shows sender, time and first recipient; **Details** (also under **Email actions**) shows **From**, **To**, **Cc** and **Bcc**. Bcc is visible only on outgoing mail, to the account owner and teammates with access to the whole account; sharing a single conversation never reveals it. Click an address to copy it. A folder button below the recipients shows where that email is filed. Received HTML keeps the sender's layout and colors, and remote images load only after **Load remote images**.
 
-A quiet folder button below the recipient summary shows that email's location. With several labels it shows one name and a count; clicking reveals all names and permitted move options. A conversation can contain Inbox, Sent and Archive emails together. If a folder name is unavailable, it reads **Unnamed**; pending messages without folder information show no location. **Load remote images** appears beside the folder control when images are blocked. Received HTML uses one canvas across the bubble, without an extra inset card or another layer of padding. It retains its sender-authored layout and colors in both app themes. Remote images load only when you choose **Load remote images**. Draft **Edit** and discard controls sit below the body on the left, with **Send draft** on the right.
-
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; none of the header controls is a highlight target, so Mate names them.
-
-## What do the thread states mean?
+## What do the thread states mean? [#what-do-the-thread-states-mean]
 
 | State | Meaning |
 | --- | --- |
@@ -106,88 +86,51 @@ A quiet folder button below the recipient summary shows that email's location. W
 | **Closed** | Done |
 | **Spam** | Marked as spam |
 
-Opening an unread conversation sets it to **Open**, but only for members with **Edit** on **Inbox messages**. The state is one value shared by everyone who sees the conversation, not per person. A newly received message sets the conversation back to **Unread**, even when it was **Closed** or **Spam**. **Spam** is only a label: it does not hide the conversation, block the sender or report anything to the provider; use the **State** filter to keep it out of view. Setting a state never sends anything to the other side. With **Edit**, change it with the state select (`#inbox-thread-state`), or ask Mate, which uses `update_messaging_thread`.
+Opening an unread conversation sets it to **Open** (only with **Edit**). The state is shared by everyone who sees the conversation. A new incoming message sets it back to **Unread**, even from **Closed** or **Spam**. **Spam** is only a label: it does not hide the conversation, block the sender or report anything to the provider; use the **State** filter to keep it out of view. Setting a state never sends anything.
 
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the state select is not a highlight target, so Mate names it.
+## How do I move an email to another folder? [#how-do-i-move-an-email-to-another-folder]
 
-## How do I move an email to another folder?
+In IMAP and Outlook conversations, click an email's folder button and pick a destination under **Move this email to…** to move only that email, or use **Move conversation to folder…** in the header to file the whole conversation. Messages move in the real mailbox too. Sent and Drafts are never targets, and messages in them stay put. Gmail conversations, members without **Edit** and teammates who see a conversation shared from a private channel can read the folder names but get no move options; only the channel owner files those.
 
-In IMAP and Outlook conversations, click an email's folder button and choose a destination under **Move this email to…** to move only that email. To file the whole conversation, use **Move conversation to folder…** in the toolbar above it (`#inbox-thread-folder`). Eligible messages move in the real mailbox too, including older emails when the newest is already in the destination. Sent and Drafts are never targets, and messages in them stay where they are. Gmail conversations, members without **Edit** on **Inbox messages** and teammates who only see a shared conversation can open the location menu to read its folder or label names, but have no move options. A conversation a teammate shared from a private channel has no move options, and `move_email_thread` fails for it, so only the channel's owner can file it.
+You can keep working while the move runs. Messages moved into a folder that is switched off on the account's **Folders** tab disappear from the conversation; when nothing visible remains, the confirmation says it no longer appears in your Inbox. If the provider rate-limits partway, a message says so and you can move the rest later.
 
-The move button shows progress while you can continue navigating. The email folder buttons update to the actual placements after the result. Messages moved into a folder switched off on the account's **Folders** tab disappear from the transcript; other visible emails, including Sent mail, keep the conversation available. When no visible messages remain, the confirmation is "Moved to `{folder}`. It no longer appears in your inbox." If the provider rate-limits partway, a toast reports "Stopped filing into `{folder}` because the provider is rate limiting." and the rest can be moved later. Mate uses `move_email_thread` for the same move.
+## How do I share a single conversation? [#how-do-i-share-a-single-conversation]
 
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the folder menu is not a highlight target, so Mate names it.
+Click **Private Thread** or **Shared Thread** in the header to open **Thread settings**. Under **Visibility Settings**, the switch shares just this conversation with everyone whose role can read the Inbox (**Shared to CRM**); switching it off shows **Conversation is now private**. Only the channel owner can use it, on a plan with messaging and with **Edit**. Teammates can then read the conversation, change its state and resync it, but not move it, and only you can reply while the channel itself is private.
 
-## How do I share a single conversation?
-
-To share a single conversation with your team, click the chip **Private Thread** or **Shared Thread** in the header to open **Thread settings**. Under **Visibility Settings**, the switch (`#thread-shared`) shares just this conversation with everyone whose role can read the Inbox; **Shared to CRM** confirms it, and switching off shows **Conversation is now private**. Only the owner of the channel can use the switch, on a plan with messaging (Pro, Business, Enterprise or a trial) and with **Edit** on **Inbox messages**. Teammates can read the conversation, change its state and use **Resync thread**, but they cannot move it to another folder (the move action does not appear for them), and replies go out from the channel, so only you can answer while the channel itself is private.
-
-To share every conversation of a channel, share the channel: **Visibility** on its **Details** tab under **My Profile › Channels**, on Business or Enterprise. The per-conversation switch then stays on and locked, with the note "This account is shared with your team, so all its conversations are visible".
-
-**Link:** the **Inbox** page, `/inbox`, and the **Channels** page, `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-inbox` or `nav-profile-connected-accounts`; the chip and the per-conversation switch are not highlight targets, so Mate names them; once the owner has opened the channel on **Channels**, `connected-account-visibility` highlights its **Visibility** switch.
+To share every conversation of a channel, switch on **Visibility** on the channel's **Details** tab on [Channels](app:profile/connected-accounts) (Business or Enterprise). The per-conversation switch then stays on and locked.
 
 ## How do I link participants and records? [#how-do-i-link-a-participant]
 
-Open **Thread settings**. Under **People**, each participant shows every accessible record associated with their channel. Click an address or handle to copy it; the standard notification confirms the copy. **Link** can add a record from any list with **Channels** enabled. The same indexed email, phone number or supported profile identifier can belong to several records, including a contact and an organization. **Unlink record** removes only the selected association. These channel associations resolve other conversations using the same identifier; an ordinary text field does not participate in matching.
+Messages are matched to records through the Channels field: a record whose Channels contain an email address, phone number or profile shows every conversation with that address. Open **Thread settings**. Under **People**, each participant shows the records you can see that match their address. **Link** adds the address to the Channels of a record in any list that has a Channels field; **Unlink record** removes only that match. One address can belong to several records, for example a contact and an organization, and every other conversation with the same address follows. Ordinary text fields are never used for matching.
 
-Under **Conversation records**, **Link record** connects only this conversation to a record, including a project or deal without Channels enabled. Its history and activity widgets can then show the conversation’s visible messages. Other conversations from the participant stay separate. Linking does not grant access to private messages or restricted records. Provider names and pictures remain the participant’s presentation when several records match.
+Under **Conversation records**, **Link record** attaches only this conversation to a record, for example a deal in a list without a Channels field; other conversations with the participant stay separate. Linking never grants access to private messages or restricted records.
 
-**Mate:** `resolve_record_identifiers` finds all accessible matches efficiently. `manage_conversation_records` reads and changes the one-conversation links. Global channel associations use `mutate_crm_record` with the selected record’s latest revision and version.
+## How do I reply to a conversation? [#how-do-i-reply-to-a-conversation]
 
-## How do I reply to a conversation?
+Click **Write a reply...** (email) or **Type a message...** (chat) below the conversation. Email replies show **Subject** and **To**, filled from the conversation; **Cc/Bcc** adds those fields, and any combination works as long as there is one valid recipient. You write email in a Markdown editor, and your signature, if switched on, is added when sending. Bcc recipients are never carried into a reply. Chat replies are plain text. Use **Attach files** and **Insert emoji** as needed, then **Send** or Cmd/Ctrl+Enter; **More send options** holds **Save as draft**.
 
-Click the row under the conversation, **Write a reply...** for email or **Type a message...** for chats (`#inbox-reply-expand`), to open the composer. Email replies show **Subject** and **To**, filled from the conversation, and **Cc/Bcc** adds those fields; you write email in a Markdown editor, and your signature, if switched on, is added when sending. You can send email with any combination of **To**, **Cc** and **Bcc**, including Bcc only; at least one valid recipient is required. Editing a draft restores its Cc and Bcc fields and preserves an empty To field. A saved new message keeps its To recipients: change Cc or Bcc, or discard the draft and start a new message to address someone else. Bcc recipients remain separate and are never added automatically to a reply. Chat replies are plain text in `#inbox-reply-input`. The composer also has **Attach files** and **Insert emoji**. Send with **Send** (`#inbox-reply-send`) or Cmd/Ctrl+Enter; **More send options** next to it holds **Save as draft**. If sending fails, **Retry** appears only when trying again can help, such as a rate limit or a temporary outage. When the provider rejects the message, change it before sending again; after a timeout or a dropped connection, check the conversation first, because the message may already have gone out. A channel that needs reconnecting is reported before anything is sent, and only its owner can reconnect it under **Channels**.
-
-Replying needs **Create** on **Inbox messages**; without it the composer is hidden. The reply goes out from the conversation's own channel, so you can answer only on channels you own or that are shared with the workspace.
-
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the composer and its buttons are not highlight targets, so Mate names them.
+If sending fails, **Retry** appears only when trying again can help (rate limit, temporary outage). When the provider rejects a message, change it first; after a timeout, check the conversation, because the message may already have gone out. A channel that needs reconnecting is reported before anything is sent, and only its owner can reconnect it. Replies go out from the conversation's own channel, so you can answer only on channels you own or that are shared with the workspace.
 
 ## How do I start a new conversation or write a new email to a contact? [#how-do-i-start-a-new-conversation]
 
-The Inbox has no button for a new conversation. Start one from a contact: in the contact's **Channels** block, the **New message** icon next to an email address or handle opens a compose box for that channel. When several of your channels can send, pick one under **From**; for LinkedIn with Sales Navigator or Recruiter, **Send as** chooses **Classic**, **Sales Navigator InMail** or **Recruiter InMail**. After **Send** the message goes out in the background: "Sending message" appears while you keep working, then "Message sent." once the provider accepts it. The icon needs Customermates Cloud and **Create** on **Inbox messages**. Over MCP, `send_email`, `send_chat_message` and `save_message_draft` start conversations too.
+The Inbox has no button for a new conversation. Open the contact in [Contacts](app:records/contact) and click the **New message** icon next to an email address or handle in its Channels. When several of your channels can send, pick one under **From**; for LinkedIn with Sales Navigator or Recruiter, **Send as** chooses **Classic**, **Sales Navigator InMail** or **Recruiter InMail**. After **Send** the message goes out in the background (**Sending message**, then **Message sent.**). This needs Customermates Cloud and **Create** on **Inbox messages**.
 
-**Link:** a contact's page, `/records/<typeId>/<recordId>`. **Mate:** `navigate` and `highlight_element` with `nav-contacts` for the contact list; the **New message** icon is not a highlight target, so Mate names it.
+## How do drafts and attachments work? [#how-do-drafts-and-attachments-work]
 
-## How do drafts and attachments work?
+**Save as draft** keeps a message without sending it; while you edit a saved draft it reads **Update draft**. A reply draft sits in its conversation with **Send draft**, **Edit** and **Discard**. A draft for a new conversation appears in the list as its own conversation ("Draft saved. Find it in the inbox."); the **Draft** filter with **has some** lists them all. There is one draft per conversation. A new LinkedIn InMail cannot be saved as a draft. Discarding cannot be undone. The app, the REST API and MCP share the same drafts.
 
-**Save as draft** under **More send options** keeps a message without sending it; while you edit a saved draft the entry reads **Update draft**. A reply draft sits in its conversation with **Send draft**, **Edit** and **Discard**. A draft for a new conversation confirms "Draft saved. Find it in the inbox." and appears in the list as its own conversation; the **Draft** filter with **has some** lists every conversation holding a draft. There is one draft per conversation, and saving again updates it. A new LinkedIn InMail cannot be saved as a draft. Discarding cannot be undone. UI, REST (`POST /v1/messaging/drafts`) and MCP (`save_message_draft`) share the same drafts; API clients pass the saved message ID and its current `draftRevision` to send or discard one.
+**Attach files** adds up to 20 files per message, 15 MB together. Drafts cannot keep attachments ("Remove attachments before saving this draft."). In received messages supported media opens inline, other files download, and unsupported items show **Unsupported**.
 
-**Attach files** adds up to 20 files per message, 15 MB together. Drafts cannot keep attachments: "Remove attachments before saving this draft." In received messages, supported media opens inline, other files download, unsupported items show **Unsupported**, and LinkedIn-post attachments open at their external source.
+## How do I set an email signature? [#how-do-i-set-an-email-signature]
 
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the composer, the draft buttons and the **Draft** filter are not highlight targets, so Mate names them.
+The signature belongs to each email account you own: on [Channels](app:profile/connected-accounts), open the Gmail, Outlook or IMAP account and use its **Email** tab. Set font, size and link style, switch on **Add a signature**, choose a layout with or without a logo and write the text in Markdown. While it is on, it is added below every email sent from that account, from the Inbox, the REST API or MCP, so do not paste it into the message; the composer previews it. All fields: [Email appearance and signature](/docs/app-profile#email-appearance-and-signature).
 
-## How do I set an email signature?
+## For agents [#tips-for-agents]
 
-The signature belongs to each email account you own, not to the Inbox: open **My Profile › Channels**, select the Gmail, Outlook or IMAP account and use its **Email** tab. There you set font, size, link colour and link style, switch on **Add a signature**, choose a layout with or without a logo and write the text in Markdown. While it is on, the signature is added below every email sent from that account, from the Inbox, the REST API or MCP, so do not paste it into the message; the composer previews it under your text. Every field is listed under [Email appearance and signature](/docs/app-profile#email-appearance-and-signature).
+Prefer [MCP](/docs/mcp) tools over clicking: `get_messaging_threads` reads conversations, `update_messaging_thread` sets the state, `move_email_thread` files an email (it fails for a conversation shared from someone else's private channel), `send_email` and `send_chat_message` start conversations, and `save_message_draft` (REST `POST /v1/messaging/drafts`) prepares one for review; send or discard a draft with its message id and current `draftRevision`. `resolve_record_identifiers` finds the records that match an address, `manage_conversation_records` reads and changes the records linked to one conversation, and `mutate_crm_record` changes a record's Channels.
 
-**Link:** the **Channels** page, `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; once the user has opened the account from its card, `connected-account-tab-email` highlights the **Email** tab, and on that open tab `connected-account-signature` highlights **Add a signature** and `connected-account-email-save` highlights **Save email settings**. The appearance and layout fields are not highlight targets, so Mate names them.
+## Related [#related]
 
-## Which ids does the Inbox have?
-
-Mate navigates to and highlights `#nav-inbox`. The other ids are DOM ids for external browser clients; Mate triages threads with the `update_messaging_thread` and `move_email_thread` tools instead of pressing these controls.
-
-| Action | Where | Anchor id | What happens |
-| --- | --- | --- | --- |
-| Go to Inbox | App sidebar | `#nav-inbox` | Opens /inbox |
-| Open thread | Row (button) inside the thread list | `#inbox-thread-list` | The list container has the id; thread rows inside it are buttons |
-| Open the reply composer | Collapsed row under the thread | `#inbox-reply-expand` | Expands the composer; it stays open while a draft or attachment is present |
-| Reply | Composer at the bottom of a thread | `#inbox-reply-input` / `#inbox-reply-send` | The input id is the chat text box; the email editor has no id. Send goes out on the thread's channel |
-| Set thread state | Thread header state select | `#inbox-thread-state` | Choose **Unread**, **Open**, **Closed** or **Spam** |
-| Move email to a folder | Folder menu above the conversation | `#inbox-thread-folder` | IMAP and Outlook only; files the conversation in the real mailbox; Sent and Drafts are not targets |
-| Share thread with the team | Thread settings | `#thread-shared` | Shares this one thread; only the channel owner, and not when the channel itself is shared |
-| Link a participant’s channel | Thread settings, **People** | none | **Link** per participant; each record can be unlinked separately |
-| Link this conversation to a record | Thread settings, **Conversation records** | none | **Link record** |
-
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the other ids in this table are not highlight targets, so Mate names the controls.
-
-## Tips for agents
-
-- External browser clients locate controls via the stable ids above, for example with the CSS selector `#inbox-reply-send`. The hosted assistant navigates to and highlights `nav-inbox` only.
-- Rows never carry ids. Open records via their page URL `/records/<typeId>/<recordId>` and a conversation via `/inbox?threadId={id}`. In the Inbox, thread rows are buttons inside `#inbox-thread-list`.
-- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: `get_messaging_threads` reads, `update_messaging_thread` sets the state, `move_email_thread` files an email, and `save_message_draft` prepares a message for review.
-- Starting a fresh conversation (new email, new chat) is available through the MCP tools `send_email` and `send_chat_message`. Prefer those over the UI. In the app, the **New message** icon on a contact's channel opens a compose box for a quick message.
-
-## Related
-
-- [App guide, Profile](/docs/app-profile): connect the email, LinkedIn, WhatsApp, Instagram, or Telegram accounts that feed the Inbox.
-- [Rate limits](/docs/messaging-rate-limits): the per-provider budgets that govern reads and sends.
+- [App guide, Profile](/docs/app-profile): connect the accounts that feed the Inbox.
+- [Rate limits](/docs/messaging-rate-limits): the per-provider budgets for reads and sends.

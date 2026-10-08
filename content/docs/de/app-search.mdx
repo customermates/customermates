@@ -1,40 +1,29 @@
 ---
 title: "Globale Suche (Cmd/Ctrl+K)"
-description: "Das Cmd/Ctrl+K-Suchmodal: welche Datensatztypen es durchsucht, seine stabilen Ids, wo ein Ergebnis öffnet und wo Nachrichten stattdessen liegen."
+description: "Durchsuchen Sie mit Cmd/Ctrl+K überall alle lesbaren Listen: was die Suche findet, wo ein Ergebnis öffnet und wo Sie stattdessen Nachrichten suchen."
 ---
 
-Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mit **Cmd/Ctrl+K** oder über `#nav-search` (**Suchen**) in der Sidebar. Diese Seite dokumentiert sie für Menschen und für KI-Agents, die die UI steuern.
+Die globale Suche öffnet sich überall in der App über der aktuellen Seite: Drücken Sie Cmd/Ctrl+K, drücken Sie /, wenn kein Feld den Fokus hat, oder klicken Sie in der Sidebar auf **Suchen**.
 
 ## Was findet die globale Suche, und welche Kontaktfelder durchsucht sie? [#what-does-global-search-find]
 
-Die globale Suche liefert eine begrenzte Seite zugänglicher Datensätze aus konfigurierten Typen, einschließlich eigener Typen. Sie können Kontakte anhand ihrer E-Mail-Adresse oder Telefonnummer in den Identitätskanälen suchen. Die Suche findet außerdem zulässige Titel und durchsuchbare Feldwerte, einschließlich konfigurierter E-Mail-Felder. Mit **Mehr laden** rufen Sie weitere verfügbare Ergebnisse ab. Eingeschränkte Werte nehmen nicht an der Suche teil.
+Die Suche durchsucht Datensätze in allen Listen, die Sie lesen dürfen, auch in Listen, die Ihr Workspace angelegt hat, und gruppiert die Treffer nach Liste. Sie findet Titel und durchsuchbare Feldwerte, auch E-Mail-Felder, und Kontakte über jede E-Mail-Adresse oder Telefonnummer in ihren **Kanälen**. Werte, die Sie nicht sehen dürfen, werden nicht durchsucht. Darf Ihre Rolle eine Liste nur mit **Zugewiesen** lesen, erhalten Sie nur Datensätze, denen Sie zugewiesen sind. **Mehr laden** ruft weitere Treffer ab.
 
-Sie sehen nur die Datensatztypen, die Ihre Rolle lesen darf, und **Lesen** mit **Zugewiesen** beschränkt die Treffer auf Datensätze, denen Sie zugewiesen sind. Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten 8 Auswahlen aus dieser Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen.
+Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten 8 Auswahlen aus der Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. Dasselbe Feld bietet außerdem Seiten zum Wechseln, **Hinzufügen** zum Anlegen eines Datensatzes und auf einer Liste deren gespeicherte Ansichten. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen. Ein ausgewählter Datensatz öffnet sich im Details-Drawer.
 
-Nachrichten werden nicht durchsucht; der Posteingang hat seine eigene Suche.
+Nachrichten werden hier nicht durchsucht; der [Posteingang](app:inbox) hat eine eigene Suche. Für eine gefilterte oder sortierte Liste von Datensätzen nutzen Sie eine Liste, zum Beispiel [Kontakte](app:records/contact) mit [Filter](app:records/contact?focus=filter). Wie Sie einen Datensatz anlegen, steht unter [CRM-Datensätze](/docs/app-records#how-do-i-add-a-record).
 
-Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/records/<typeId>/<recordId>`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder die Typauswahl der Seitenleiste, dokumentiert in [CRM-Datensätze](/docs/app-records).
+## Für Agents [#which-stable-ids-does-it-have]
 
-**Link:** keine Seite; öffnen Sie das Modal auf jeder App-Seite mit Cmd+K oder Ctrl+K oder über **Suchen** in der Sidebar. **Mate:** `highlight_element` mit `nav-search` (Mate kann weder mit `navigate` dorthin wechseln noch das Modal öffnen); das Suchfeld und die Treffer sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
-
-## Welche stabilen Ids hat die globale Suche? [#which-stable-ids-does-it-have]
-
-| Control | Id |
-| --- | --- |
-| Sidebar-Trigger | `#nav-search` (**Suchen**) |
-| Container des Suchfelds im Modal | `#global-search-input` |
-
-Für einen Agent passiert die Eingabe nach dem Öffnen des Modals im Textfeld innerhalb von `#global-search-input`; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte oder sortierte Abfragen nutzen Sie eine Listenseite oder `query_crm_records`; für Aggregate dient `query_crm_measure`. Der gehostete Assistent Mate kann `#nav-search` hervorheben, aber das Modal weder öffnen noch etwas hineintippen.
-
-**Link:** keine Seite; das Modal öffnet sich auf jeder App-Seite mit Cmd+K oder Ctrl+K. **Mate:** `highlight_element` mit `nav-search`; `#global-search-input` ist kein Highlight-Ziel, deshalb nennt Mate das Suchfeld beim Namen.
+Mate kann auf **Suchen** in der Sidebar zeigen, die Suche aber weder öffnen noch etwas hineintippen. Für gefilterte, sortierte oder aggregierte Abfragen verwenden Sie die Tools für Datensatzabfragen statt der globalen Suche.
 
 ## Häufige Fragen [#frequently-asked-questions]
 
 <Faq>
 <FaqItem question="Was ist das Tastenkürzel?">
-Cmd+K auf dem Mac, Strg+K unter Windows und Linux, überall in der App, oder /, wenn kein Textfeld den Fokus hat. Tippen Sie eine Frage und drücken Sie Tab, um sie stattdessen an [Mate](/docs/app-assistant) zu geben. **Suchen** in der Sidebar zeigt die Taste für Ihren Computer und öffnet dasselbe Modal. Alle Kürzel stehen unter [Welche Tastenkürzel gibt es?](/docs/app-dashboard#keyboard-shortcuts).
+Cmd+K auf dem Mac, Strg+K unter Windows und Linux, überall in der App, oder /, wenn kein Textfeld den Fokus hat. Tippen Sie eine Frage und drücken Sie Tab, um sie stattdessen an [Mate](/docs/app-assistant) zu geben. **Suchen** in der Sidebar zeigt die Taste für Ihren Computer und öffnet dieselbe Suche. Alle Kürzel stehen unter [Welche Tastenkürzel gibt es?](/docs/app-dashboard#keyboard-shortcuts).
 </FaqItem>
 <FaqItem question="Wo öffnen sich Ergebnisse?">
-Auf der Detailseite des Datensatzes unter `/records/<typeId>/<recordId>`, dokumentiert in CRM-Datensätze.
+Im Details-Drawer des Datensatzes, über der Seite, auf der Sie waren. Von dort öffnen Sie die vollständige Datensatzseite, beschrieben unter [CRM-Datensätze](/docs/app-records#what-is-the-shared-layout-of-a-record-type).
 </FaqItem>
 </Faq>

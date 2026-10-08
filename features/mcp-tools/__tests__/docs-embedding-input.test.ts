@@ -17,61 +17,58 @@ const section = (text: string): DocsSection => ({
 const hash = (text: string) => createHash("sha256").update(text).digest("hex");
 
 describe("documentation embedding input", () => {
-  it("removes only canonical navigation metadata and keeps raw searchable bodies and routes", () => {
-    const text = "Private conversations stay private.\n\n**Link:** `/inbox`. **Mate:** `navigate` with `nav-inbox`.";
+  it("embeds the searchable body with inline app link text and without link targets", () => {
+    const text = "Private conversations stay private in the [Inbox](app:inbox).";
     const [chunk] = docsSectionChunks("en", section(text));
-    expect(chunk.body).toBe(text);
-    expect(chunk.embeddingBody).toBe("Private conversations stay private.");
-    expect(docsEmbeddingText(chunk)).toBe("Example > Privacy\n\nPrivate conversations stay private.");
+    expect(chunk.body).toBe("Private conversations stay private in the [Inbox].");
+    expect(chunk.embeddingBody).toBe(chunk.body);
+    expect(docsEmbeddingText(chunk)).toBe("Example > Privacy\n\nPrivate conversations stay private in the [Inbox].");
     expect(chunk.contentHash).toBe(hash(docsEmbeddingText(chunk)));
-    expect(chunk.contentHash).not.toBe(hash(retrievalChunkText(chunk.label, chunk.body)));
+    expect(chunk.contentHash).toBe(hash(retrievalChunkText(chunk.label, chunk.body)));
   });
 
-  it("removes metadata even when raw SQL chunk windows start inside a long metadata line", () => {
+  it("embeds each raw SQL chunk window's own text for long sections", () => {
     const prose = `Verified user-facing fact. ${"Evidence ".repeat(190)}`;
-    const metadata = `**Link:** \`/example\`. **Mate:** ${"machine_only_fragment ".repeat(170)}`;
-    const text = `${prose}\n\n${metadata}\n\nAnother verified fact.`;
+    const middle = `Open the [Example](app:example) page. ${"searchable_fragment ".repeat(170)}`;
+    const text = `${prose}\n\n${middle}\n\nAnother verified fact.`;
+    const body = text.replace("](app:example)", "]");
     const chunks = docsSectionChunks("en", section(text));
     expect(chunks.length).toBeGreaterThan(2);
-    expect(
-      chunks.some((chunk) => !chunk.body.startsWith("**Link:") && chunk.body.includes("machine_only_fragment")),
-    ).toBe(true);
+    expect(chunks.some((chunk) => chunk.embeddingBody.includes("searchable_fragment"))).toBe(true);
     expect(chunks.some((chunk) => chunk.embeddingBody.includes("Another verified fact."))).toBe(true);
     for (const chunk of chunks) {
-      expect(chunk.body).toBe(text.slice(chunk.charOffset, chunk.charOffset + chunk.body.length));
-      expect(chunk.embeddingBody).not.toContain("machine_only_fragment");
-      expect(chunk.embeddingBody).not.toContain("**Mate:**");
+      expect(chunk.body).toBe(body.slice(chunk.charOffset, chunk.charOffset + chunk.body.length));
+      expect(chunk.embeddingBody).toBe(chunk.body.trim());
+      expect(chunk.embeddingBody).not.toContain("app:example");
       expect(chunk.contentHash).toBe(hash(docsEmbeddingText(chunk)));
     }
   });
 
-  it("preserves code examples, identifiers and prose that discuss Link or Mate", () => {
+  it("keeps the window's complete text, including code examples and prose that discuss Link or Mate", () => {
     const text =
-      "Link: a verified relationship. Mate reads __exact_identifier__.\n\n```md\n**Link:** this is literal example content.\n```\n\n**Link:** `/actual-route`. **Mate:** `navigate`.";
-    const body = docsEmbeddingBody(text, { offset: 0, text });
+      "Intro.\n\nLink: a verified relationship. Mate reads __exact_identifier__.\n\n```md\n**Link:** this is literal example content.\n```\n\n**Link:** `/literal-route`. ";
+    const offset = "Intro.\n\n".length;
+    const body = docsEmbeddingBody(text, { offset, text: text.slice(offset) });
     expect(body).toBe(
-      "Link: a verified relationship. Mate reads __exact_identifier__.\n\n```md\n**Link:** this is literal example content.\n```",
+      "Link: a verified relationship. Mate reads __exact_identifier__.\n\n```md\n**Link:** this is literal example content.\n```\n\n**Link:** `/literal-route`.",
     );
   });
 
-  it("changes the corpus build for navigation-only edits while reusing only identical semantic inputs", () => {
-    const first = docsSectionChunks("en", section("Verified fact.\n\n**Link:** `/first`. **Mate:** `navigate`."));
-    const second = docsSectionChunks(
-      "en",
-      section("Verified fact.\n\n**Link:** `/other`. **Mate:** `highlight_element`."),
-    );
-    expect(first[0].body).not.toBe(second[0].body);
+  it("reuses identical embedding and build inputs for link-target-only edits and changes them for visible text", () => {
+    const first = docsSectionChunks("en", section("Verified fact in [Inbox](app:inbox)."));
+    const second = docsSectionChunks("en", section("Verified fact in [Inbox](app:company/roles)."));
+    expect(first[0].body).toBe(second[0].body);
     expect(first[0].contentHash).toBe(second[0].contentHash);
-    expect(docsCorpusBuildHash(first)).not.toBe(docsCorpusBuildHash(second));
-    const changedFact = docsSectionChunks(
-      "en",
-      section("A changed verified fact.\n\n**Link:** `/first`. **Mate:** `navigate`."),
-    );
+    expect(docsCorpusBuildHash(first)).toBe(docsCorpusBuildHash(second));
+    const changedLabel = docsSectionChunks("en", section("Verified fact in [Roles](app:inbox)."));
+    expect(changedLabel[0].contentHash).not.toBe(first[0].contentHash);
+    expect(docsCorpusBuildHash(changedLabel)).not.toBe(docsCorpusBuildHash(first));
+    const changedFact = docsSectionChunks("en", section("A changed verified fact in [Inbox](app:inbox)."));
     expect(changedFact[0].contentHash).not.toBe(first[0].contentHash);
   });
 
   it("uses the versioned corpus input for every pending hash and rejects unrelated durable rows", () => {
-    const chunks = docsSectionChunks("en", section("Verified fact.\n\n**Link:** `/example`. **Mate:** `navigate`."));
+    const chunks = docsSectionChunks("en", section("Verified fact in [Example](app:example)."));
     expect(docsPendingEmbeddingTexts({ chunks }, chunks)).toEqual(chunks.map(docsEmbeddingText));
     expect(() => docsPendingEmbeddingTexts({ chunks }, [{ contentHash: "foreign" }])).toThrow(
       "Pending documentation embedding is absent from the current corpus.",
