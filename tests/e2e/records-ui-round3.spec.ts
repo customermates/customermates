@@ -4,6 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data });
@@ -138,6 +139,62 @@ test("rows and cards open the record page and keep only Open details and Delete 
   await row.getByRole("link", { name, exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
   await expect(page.getByRole("heading", { name }).or(page.getByText(name).first())).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("record drawer Cancel closes clean forms and guards unsaved changes", async ({ page, companyId }, testInfo) => {
+  const typeId = presetId(companyId, "organization");
+  const name = `Cancel guard ${randomUUID().slice(0, 8)}`;
+  const draft = `${name} unsaved`;
+  await page.goto(`/en/records/${typeId}`);
+  await page.locator("#records-add").click();
+  const drawer = page.getByRole("dialog");
+  const input = drawer.getByRole("textbox", { name: "Name", exact: false });
+  const cancel = drawer.getByRole("button", { name: "Cancel", exact: true });
+  const save = drawer.getByRole("button", { name: "Save", exact: true });
+  await input.fill(name);
+  await save.click();
+  await expect(drawer).not.toBeVisible();
+  await page.waitForLoadState("networkidle");
+  const errors = trackErrors(page);
+  const moreActions = page.getByRole("button", { name: `More actions for ${name}`, exact: true });
+
+  await openRecordDetails(page, name);
+  await expect(input).toHaveValue(name);
+  await expect(save).toBeDisabled();
+  await page.screenshot({ path: testInfo.outputPath("record-drawer-clean.png"), animations: "disabled" });
+  await expect(cancel).toBeVisible();
+  await cancel.click();
+  await expect(drawer).not.toBeVisible();
+  await expect(page.getByRole("alertdialog")).not.toBeVisible();
+  await expect(moreActions).toBeFocused();
+
+  await openRecordDetails(page, name);
+  await expect(input).toHaveValue(name);
+  await input.fill(draft);
+  await expect(save).toBeEnabled();
+  await cancel.click();
+  const guard = page.getByRole("alertdialog");
+  await expect(guard).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("record-drawer-discard.png"), animations: "disabled" });
+  await guard.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(guard).not.toBeVisible();
+  await expect(input).toHaveValue(draft);
+  await expect(save).toBeEnabled();
+  await expect(cancel).toBeFocused();
+
+  await cancel.click();
+  await expect(guard).toBeVisible();
+  await guard.getByRole("button", { name: "Discard", exact: true }).click();
+  await expect(guard).not.toBeVisible();
+  await expect(drawer).not.toBeVisible();
+  await expect(moreActions).toBeFocused();
+  await page.reload();
+  await openRecordDetails(page, name);
+  await expect(input).toHaveValue(name);
+  await expect(save).toBeDisabled();
+  await cancel.click();
+  await expect(drawer).not.toBeVisible();
   expect(errors).toEqual([]);
 });
 
