@@ -28,9 +28,15 @@ export async function openSidebar(page: Page) {
 }
 
 export async function openMenu(page: Page, trigger: "#nav-workspace-menu" | "#nav-personal-menu") {
+  await page.waitForLoadState("networkidle");
   await openSidebar(page);
-  await page.locator(trigger).click();
-  return page.getByRole("menu");
+  const menu = page.getByRole("menu");
+  await expect(async () => {
+    if (!(await menu.isVisible())) await page.locator(trigger).click();
+    await expect(menu).toBeVisible({ timeout: 1000 });
+    await expect(page.locator(trigger)).toHaveAttribute("aria-expanded", "true", { timeout: 1000 });
+  }).toPass();
+  return menu;
 }
 
 export async function openCustomize(page: Page) {

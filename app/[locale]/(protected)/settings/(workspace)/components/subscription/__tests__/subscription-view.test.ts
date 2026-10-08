@@ -15,9 +15,10 @@ vi.mock("mobx-react-lite", () => ({
   observer: <T extends ComponentType<any>>(component: T) => component,
 }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("lucide-react", () => ({ RefreshCw: () => null }));
+vi.mock("lucide-react", () => ({ LoaderCircle: () => null, Plus: () => null, RefreshCw: () => null }));
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children }: { children: ReactNode }) => createElement("button", null, children),
+  Button: ({ children, "aria-label": label }: { children: ReactNode; "aria-label"?: string }) =>
+    createElement("button", { "aria-label": label }, children),
 }));
 vi.mock("@/core/errors/report-application-error", () => ({ runUserAction: vi.fn() }));
 vi.mock("@/app/components/topbar-actions-context", () => ({
