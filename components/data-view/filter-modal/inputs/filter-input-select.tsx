@@ -20,6 +20,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+import { TruncatedText } from "@/components/shared/truncated-text";
 
 type Props = {
   customColumns?: ColumnPresentation[];
@@ -245,13 +246,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                 <CommandGroup
                   key={group.key}
                   data-filter-option-group={group.key || undefined}
-                  heading={
-                    group.label ? (
-                      <span className="block truncate" title={group.label}>
-                        {group.label}
-                      </span>
-                    ) : undefined
-                  }
+                  heading={group.label ? <TruncatedText>{group.label}</TruncatedText> : undefined}
                 >
                   {group.items.map((item) => {
                     const selected = selectedKeys.includes(item.key);

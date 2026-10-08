@@ -115,12 +115,12 @@ describe("StepAi provider chooser", () => {
     expect(finishButton).toContain('data-variant="default"');
     expectButtonDisabled(finishButton, false);
     expect(html).not.toContain("OnboardingWizard.ai.choices.skip");
-    expect(buttonContaining(html, "OnboardingWizard.back")).toContain('data-variant="secondary"');
+    expect(buttonContaining(html, "Common.actions.back")).toContain('data-variant="secondary"');
     const footer = html.match(/<div[^>]*data-slot="card-footer"[^>]*>/)?.[0];
 
     expect(footer).toContain("justify-end");
     expect(footer).not.toContain("justify-between");
-    expect(html.indexOf("OnboardingWizard.back")).toBeLessThan(html.indexOf("OnboardingWizard.finish"));
+    expect(html.indexOf("Common.actions.back")).toBeLessThan(html.indexOf("OnboardingWizard.finish"));
   });
 
   it("does not leave a provider looking selected when returning to the chooser", () => {
@@ -151,7 +151,7 @@ describe("StepAi Claude setup", () => {
     expect(html).toContain("OnboardingWizard.ai.methods.local.description");
     expect(html).not.toContain("OnboardingWizard.ai.createKey");
     expect(html).not.toContain("OnboardingWizard.ai.screen.back");
-    expect(buttonContaining(html, "OnboardingWizard.back")).toContain('data-variant="secondary"');
+    expect(buttonContaining(html, "Common.actions.back")).toContain('data-variant="secondary"');
     expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
   });
 
