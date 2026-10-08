@@ -126,12 +126,12 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
   private async wikiTurnContext(mode: AgentInvocationMode, snapshot: string | null) {
     try {
-      const captured = snapshot === null ? await this.wikiCatalog.invoke({ page: 1 }) : null;
+      const captured = snapshot ? null : await this.wikiCatalog.invoke({ page: 1 });
       if (captured && !captured.ok) return { ok: false as const, failure: captured };
-      const wikiCatalog = captured ? serializeAgentWikiCatalog(captured.data) : snapshot || null;
+      const wikiCatalog = captured ? serializeAgentWikiCatalog(captured.data) : snapshot;
       const wikiEmpty = captured
         ? captured.data.total === 0 && !captured.data.guide && !captured.data.procedures?.total
-        : wikiCatalog === null;
+        : false;
       const wikiWebsiteSetup =
         mode === "interactive" &&
         (wikiEmpty || ((await this.wikiCrawls?.findLatestCrawl())?.pendingHosts.length ?? 0) > 0) &&
@@ -140,7 +140,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         ok: true as const,
         wikiCatalog,
         wikiWebsiteSetup,
-        ...(captured ? { wikiCatalogSnapshot: wikiCatalog ?? "" } : {}),
+        ...(captured && !wikiEmpty && wikiCatalog ? { wikiCatalogSnapshot: wikiCatalog } : {}),
       };
     } catch (error) {
       if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;

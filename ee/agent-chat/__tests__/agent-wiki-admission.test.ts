@@ -221,8 +221,34 @@ describe("Workspace Wiki admission bootstrap", () => {
         clientRequestId: "00000000-0000-4000-8000-000000000010",
       }),
     ).toMatchObject({ ok: true, data: { disposition: "run" } });
-    expect(state.catalog.invoke).toHaveBeenCalledOnce();
-    expect(state.payload().wikiCatalog).toBeNull();
+    expect(state.catalog.invoke).toHaveBeenCalledTimes(2);
+    expect(state.payload().wikiCatalog).toBe(serializeAgentWikiCatalog(catalogData("Edited after the first turn")));
+  });
+
+  it("takes no snapshot of an empty Knowledge Base, so pages added later reach the conversation", async () => {
+    const state = fixture();
+    const input = {
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Help me set up my Knowledge Base",
+      retry: false,
+      locale: "en" as const,
+      conversationId: CONVERSATION_ID,
+    };
+    state.catalog.invoke.mockResolvedValue({
+      ok: true,
+      data: { items: [], total: 0, page: 1, nextPage: null, truncated: false },
+    });
+    await state.interactor.invoke(input);
+    expect(state.repo.admitAgentTurnOrThrow.mock.calls[0][0]).not.toHaveProperty("wikiCatalogSnapshot");
+    expect(definitions).toHaveBeenLastCalledWith(expect.objectContaining({ wikiWebsiteSetup: true }));
+
+    state.catalog.invoke.mockResolvedValue({ ok: true, data: catalogData() });
+    await state.interactor.invoke({ ...input, clientRequestId: "00000000-0000-4000-8000-000000000011" });
+    const captured = serializeAgentWikiCatalog(catalogData());
+    expect(state.catalog.invoke).toHaveBeenCalledTimes(2);
+    expect(state.repo.admitAgentTurnOrThrow.mock.calls[1][0]).toMatchObject({ wikiCatalogSnapshot: captured });
+    expect(state.payload().wikiCatalog).toBe(captured);
+    expect(definitions).toHaveBeenLastCalledWith(expect.objectContaining({ wikiWebsiteSetup: false }));
   });
 
   it.each(["chat", "routine"] as const)("loads and measures the current catalog for a %s turn", async (surface) => {

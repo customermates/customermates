@@ -539,7 +539,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
             id: conversationId,
             companyId,
             userId,
-            wikiCatalogSnapshot: null,
+            OR: [{ wikiCatalogSnapshot: null }, { wikiCatalogSnapshot: "" }],
           },
           data: { wikiCatalogSnapshot: args.wikiCatalogSnapshot },
         });
