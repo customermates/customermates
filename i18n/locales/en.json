@@ -3062,7 +3062,7 @@
       },
       "phone": {
         "copy": "Copy number",
-        "open": "Call"
+        "open": "Call number"
       },
       "url": {
         "copy": "Copy link",
