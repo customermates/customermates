@@ -244,9 +244,7 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("settings-billing-manage")?.description).toContain("not on Enterprise");
     expect(findAgentUiTarget("settings-billing-refresh")?.description).toContain("not during the trial");
     expect(findAgentUiTarget("settings-billing-refresh")?.description).toContain("Lemon Squeezy subscription");
-    expect(findAgentUiTarget("settings-billing-plan-picker")?.description).toContain(
-      "no Lemon Squeezy subscription",
-    );
+    expect(findAgentUiTarget("settings-billing-plan-picker")?.description).toContain("no Lemon Squeezy subscription");
     expect(findAgentUiTarget("settings-billing-plan-picker")?.description).toContain("not on Enterprise");
     expect(findAgentUiTarget("webhook-delivery-modal-resend")?.description).toContain("only on Delivered or Failed");
     expect(findAgentUiTarget("webhook-delivery-modal-resend")?.description).toContain("not Pending or Sending");

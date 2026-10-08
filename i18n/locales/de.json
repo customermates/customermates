@@ -2208,7 +2208,6 @@
       "ccLabel": "Cc",
       "createContact": "„{query}“ erstellen",
       "draftAttachmentsUnsupported": "Entfernen Sie Anhänge, bevor Sie diesen Entwurf speichern.",
-      "draftDiscard": "Verwerfen",
       "draftDiscardFailed": "Entwurf konnte nicht verworfen werden",
       "draftEdit": "Bearbeiten",
       "draftSaved": "Entwurf gespeichert. Sie finden ihn im Posteingang.",
@@ -2293,7 +2292,6 @@
     "previewVideo": "🎥 Video",
     "previewVoice": "🎙️ Sprachnachricht",
     "rateLimited": "Das Rate-Limit dieses Kanals wurde erreicht. Du kannst es {retryAfter, select, later {später} other {{retryAfter}}} erneut versuchen.",
-    "refresh": "Aktualisieren",
     "refreshDone": "Posteingang aktualisiert.",
     "refreshNeedsReconnect": "{count, plural, one {# Kanal muss} other {# Kanäle müssen}} neu verbunden werden, bevor synchronisiert werden kann. Öffne Kanäle, um sie neu zu verbinden.",
     "refreshPartial": "{count, plural, one {# Kanal konnte} other {# Kanäle konnten}} nicht aktualisiert werden. Der Posteingang zeigt den zuletzt synchronisierten Stand.",
@@ -2675,7 +2673,6 @@
         }
       }
     },
-    "back": "Zurück",
     "continue": "Weiter",
     "finish": "Fertig",
     "invite": {

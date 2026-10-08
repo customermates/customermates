@@ -1,4 +1,4 @@
-import { getFormatter, getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Activity, AlertTriangle, Building2, CircleDollarSign, Megaphone, Sparkles, Users } from "lucide-react";
 
@@ -12,6 +12,8 @@ import {
   getGetOperatorUserSummaryInteractor,
 } from "@/core/di";
 import { appErrorDetails } from "@/core/errors/app-errors";
+import { formatLocalizedNumber } from "@/core/stores/intl-number";
+import { appLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 function microcentsAsDollars(value: string): number {
@@ -20,7 +22,7 @@ function microcentsAsDollars(value: string): number {
 
 export default async function OperatorOverviewPage() {
   const t = await getTranslations();
-  const format = await getFormatter();
+  const formattingLocale = formattingTagFor(appLocaleOrDefault(await getLocale()));
 
   let overview;
   let summary;
@@ -37,13 +39,13 @@ export default async function OperatorOverviewPage() {
   }
 
   const money = (microcents: string) =>
-    format.number(microcentsAsDollars(microcents), {
+    formatLocalizedNumber(microcentsAsDollars(microcents), formattingLocale, {
       currency: "USD",
       maximumFractionDigits: 2,
       minimumFractionDigits: 2,
       style: "currency",
     });
-  const integer = (value: number) => format.number(value, { maximumFractionDigits: 0 });
+  const integer = (value: number) => formatLocalizedNumber(value, formattingLocale, { maximumFractionDigits: 0 });
   const committed = microcentsAsDollars(overview.currentUtcMonth.totalCommittedMicrocents);
   const cap = overview.monthlySpendCapMicrocents ? microcentsAsDollars(overview.monthlySpendCapMicrocents) : null;
   const atRisk = risk.subscriptionsPastDue + risk.subscriptionsUnpaid + risk.subscriptionsExpired;

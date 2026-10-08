@@ -2208,7 +2208,6 @@
       "ccLabel": "Cc",
       "createContact": "Crea \"{query}\"",
       "draftAttachmentsUnsupported": "Rimuovi gli allegati prima di salvare questa bozza.",
-      "draftDiscard": "Scarta",
       "draftDiscardFailed": "Impossibile scartare la bozza",
       "draftEdit": "Modifica",
       "draftSaved": "Bozza salvata. La trovi nella posta in arrivo.",
@@ -2293,7 +2292,6 @@
     "previewVideo": "🎥 Video",
     "previewVoice": "🎙️ Messaggio vocale",
     "rateLimited": "Questo canale ha raggiunto il limite di frequenza. Puoi riprovare {retryAfter, select, later {più tardi} other {{retryAfter}}}.",
-    "refresh": "Aggiorna",
     "refreshDone": "Posta in arrivo aggiornata.",
     "refreshNeedsReconnect": "{count, plural, one {# canale deve} other {# canali devono}} essere ricollegati prima di potersi sincronizzare. Apri Canali per ricollegarli.",
     "refreshPartial": "{count, plural, one {Non è stato possibile aggiornare # canale} other {Non è stato possibile aggiornare # canali}}. La posta in arrivo mostra l’ultima sincronizzazione.",
@@ -2675,7 +2673,6 @@
         }
       }
     },
-    "back": "Indietro",
     "continue": "Continua",
     "finish": "Fine",
     "invite": {
