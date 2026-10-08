@@ -458,7 +458,7 @@ export const MENU_NAV_TARGETS: {
   {
     key: "personal-menu",
     description:
-      "Personal menu on the avatar at the bottom of the sidebar: Profile & preferences, Theme, Language, Documentation, Send feedback, Customize sidebar and Sign out",
+      "Personal menu on the avatar at the bottom of the sidebar: Profile & preferences, Theme, Language, Keyboard shortcuts, Documentation, Send feedback, Customize sidebar and Sign out",
     labelKey: "UserAvatar.menu",
   },
 ];

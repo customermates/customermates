@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { stripLocalePrefix } from "@/i18n/locale-registry";
 
 import { FeedbackModal } from "./settings/(workspace)/components/feedback/feedback-modal";
 import { CompanyUserModal } from "./settings/(workspace)/components/user/user-modal";
@@ -24,6 +23,9 @@ import { UnexpectedErrorToaster } from "@/components/shared/unexpected-error-toa
 import { TranslationSync } from "@/components/shared/translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/protected-enhancements-context";
+import { GlobalKeyboardShortcuts } from "@/app/components/keyboard-shortcuts/global-keyboard-shortcuts";
+import { KeyboardShortcutsDialog } from "@/app/components/keyboard-shortcuts/keyboard-shortcuts-dialog";
+import { ViewPicker } from "@/components/data-view/views/view-picker";
 
 const ConnectedAccountModal = dynamic(
   () => import("./settings/(account)/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
@@ -54,35 +56,6 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     previousPathname.current = pathname;
   }, [pathname, closeAllModals, protectedEnhancementsAllowed]);
 
-  useEffect(() => {
-    if (!protectedEnhancementsAllowed) return;
-    const { globalSearchModalStore } = rootStore;
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (!event.metaKey && !event.ctrlKey) return;
-      if (!rootStore.recordWorkspaceStore.routeReady(stripLocalePrefix(pathname))) return;
-
-      if (event.key === "k") {
-        event.preventDefault();
-        globalSearchModalStore.open();
-      }
-
-      if (event.key === "j" && rootStore.agentChatEnabled) {
-        const agentChat = rootStore.agentChatStore;
-        if (agentChat.enabled !== true) return;
-
-        event.preventDefault();
-        agentChat.toggle();
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown, true);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown, true);
-    };
-  }, [protectedEnhancementsAllowed, rootStore, pathname]);
-
   return (
     <>
       {children}
@@ -100,6 +73,12 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <DeleteConfirmationModal />
 
           <NavigationGuardModal />
+
+          <GlobalKeyboardShortcuts />
+
+          <KeyboardShortcutsDialog />
+
+          <ViewPicker />
 
           <GlobalSearchModal />
 

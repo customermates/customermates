@@ -1894,6 +1894,9 @@
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
       "nameRequired": "Geben Sie einen Namen für die Ansicht ein.",
+      "pickerEmpty": "Keine passende Ansicht",
+      "pickerPlaceholder": "Ansicht suchen …",
+      "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
     }
@@ -2134,10 +2137,12 @@
     "title": "Passwort vergessen"
   },
   "GlobalSearch": {
+    "askMateWith": "Mate fragen: {question}",
     "clearRecent": "Leeren",
     "emptyDescription": "Finde Datensätze in den Listen, auf die du Zugriff hast.",
     "emptyTitle": "Finde alles in deinem Workspace",
     "groupRecent": "Zuletzt geöffnet",
+    "hintAskMate": "Mate fragen",
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
     "loading": "Suche...",
@@ -2367,6 +2372,44 @@
     "stepsTitle": "So trittst du bei",
     "subtitle": "Ein Workspace-Administrator muss {email} einladen.",
     "title": "Bestehendem Workspace beitreten"
+  },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Datensatz oder Liste hinzufügen",
+      "askMate": "Mate fragen",
+      "close": "Obersten Dialog oder Drawer schließen",
+      "goConfigure": "Konfigurieren",
+      "goDashboard": "Dashboard",
+      "goInbox": "Posteingang",
+      "goKnowledgeBase": "Wissensdatenbank",
+      "goList": "Listen nach ihrer Position in Ihrer Seitenleiste",
+      "goRoutines": "Routinen",
+      "goSettings": "Einstellungen",
+      "save": "Offenes Formular speichern",
+      "search": "Suchen",
+      "searchAlias": "Suchen",
+      "shortcuts": "Tastenkürzel anzeigen",
+      "switchView": "Ansicht einer Liste wechseln",
+      "toggleSidebar": "Seitenleiste ein- oder ausblenden"
+    },
+    "groups": {
+      "create": "Erstellen",
+      "forms": "Formulare",
+      "general": "Allgemein",
+      "listsAndViews": "Listen und Ansichten",
+      "navigation": "Navigation"
+    },
+    "noMatches": "Kein Kürzel passt zu Ihrer Suche.",
+    "or": "oder",
+    "pendingGo": "Gehe zu … Buchstaben oder Listennummer drücken",
+    "searchLabel": "Kürzel durchsuchen",
+    "searchPlaceholder": "Kürzel durchsuchen …",
+    "singleKey": {
+      "description": "C, /, V, ? und die G-Folgen. Schalten Sie sie aus, wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken.",
+      "label": "Einzeltasten-Kürzel"
+    },
+    "then": "dann",
+    "title": "Tastenkürzel"
   },
   "LegalDocumentNotice": {
     "contractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Bitte prüfen Sie diese für den Geschäftskunden und veranlassen Sie die elektronische Annahme durch einen berechtigten Systemadministrator.",

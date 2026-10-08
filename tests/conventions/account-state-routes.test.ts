@@ -93,7 +93,7 @@ describe("guarded account-state route contract", () => {
     expect(source("app/[locale]/(protected)/legal-update/actions.ts")).toContain("refresh()");
   });
 
-  it("keeps tenant enhancements and keyboard search unmounted for restricted shells", () => {
+  it("keeps tenant enhancements and keyboard shortcuts unmounted for restricted shells", () => {
     const layout = source("app/[locale]/(protected)/protected-shell.tsx");
     const navigation = source("app/components/navigation/navigation-switch.tsx");
     const context = source("app/components/navigation/protected-enhancements-context.tsx");
@@ -103,12 +103,11 @@ describe("guarded account-state route contract", () => {
     expect(context).toContain("createContext<boolean | null>(null)");
     expect(context).not.toContain("AccountState");
     expect(layout).toContain("useProtectedEnhancementsAllowed()");
-    expect(layout).toContain("if (!protectedEnhancementsAllowed) return;");
-    expect(layout.indexOf("if (!protectedEnhancementsAllowed) return;")).toBeLessThan(
-      layout.indexOf('document.addEventListener("keydown"'),
-    );
+    expect(layout).not.toContain('addEventListener("keydown"');
     expect(guardedMarkup).toBeGreaterThan(0);
     for (const component of [
+      "<GlobalKeyboardShortcuts />",
+      "<KeyboardShortcutsDialog />",
       "<GlobalSearchModal />",
       "<CompanyUserModal />",
       "<CompanyInviteModal />",

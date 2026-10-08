@@ -66,8 +66,8 @@ test("settings live in one area reached from the workspace menu, with Back to th
   });
 
   await test.step("the old profile and company routes are gone", async () => {
-    for (const path of ["/en/settings/profile", "/en/settings/members", "/en/settings/webhooks/deliveries"])
-      expect((await page.request.get(path)).status(), path).toBe(404);
+    for (const removed of ["profile/settings", "company/members", "company/webhook-deliveries"])
+      expect((await page.request.get(`/en/${removed}`)).status(), removed).toBe(404);
   });
 
   expect(errors).toEqual([]);
@@ -85,7 +85,11 @@ test("the personal menu holds profile, theme, language, docs, feedback and custo
   let menu = await openMenu(page, "#nav-personal-menu");
   for (const item of ["Profile & preferences", "Documentation", "Send feedback", "Customize sidebar", "Sign Out"])
     await expect(menu.getByRole("menuitem", { name: item, exact: true })).toBeVisible();
-  await expect(menu.getByRole("menuitem", { name: /keyboard shortcuts/i })).toHaveCount(0);
+  await menu.getByRole("menuitem", { name: /^Keyboard shortcuts/ }).click();
+  await expect(page.getByRole("dialog", { name: "Keyboard shortcuts" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Keyboard shortcuts" })).toHaveCount(0);
+  menu = await openMenu(page, "#nav-personal-menu");
 
   await menu.getByRole("menuitem", { name: "Theme", exact: true }).click();
   await page.getByRole("menuitemradio", { name: "Dark", exact: true }).click();

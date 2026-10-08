@@ -62,7 +62,7 @@ To change a widget, click it, or click one of its filter chips to open the edito
 
 The sidebar is the same on every screen; its controls are documented here because the Dashboard is where you land.
 
-Entries sit in two groups: **Overview** (**Dashboard** and **Knowledge Base**, plus **Inbox** and **Routines** on Cloud) and **Data** (accessible configured record types, including customer-created types, under their workspace labels, plus **Configure** (`#nav-configure-records`, `/configure`) for members who may change the data model). Settings are not in the sidebar: the workspace name at the top opens the workspace menu (`#nav-workspace-menu`) with **Invite members**, **Members**, **Settings**, **Billing** with the plan badge and, for operators, the **Operator Console**; your avatar at the bottom opens the personal menu (`#nav-personal-menu`) with **Profile & preferences**, **Theme**, **Language**, **Documentation**, **Send feedback**, **Customize sidebar** and **Sign Out**. Inside **Settings** the sidebar shows the settings pages instead, grouped under **Account** (`#nav-settings-profile`, `#nav-settings-channels`, `#nav-settings-api-keys`) and **Workspace** (`#nav-settings-members`, `#nav-settings-roles`, `#nav-settings-billing`, `#nav-settings-activity`, `#nav-settings-webhooks`), with **Back** (`#nav-area-back`) returning to the page you came from. An entry your role cannot read is hidden, a group with no visible entries disappears, and opening a hidden page by its URL brings you back to the Dashboard. Mate can navigate to each settings page your role can open, and highlight its entry while Settings is open. Three places show a number: **Inbox** counts unread conversations, the tasks entry shows members with **Edit** on **Users & Roles** how many **Approve User** tasks are open, and **Channels** counts channels that need attention.
+Entries sit in two groups: **Overview** (**Dashboard** and **Knowledge Base**, plus **Inbox** and **Routines** on Cloud) and **Data** (accessible configured record types, including customer-created types, under their workspace labels, plus **Configure** (`#nav-configure-records`, `/configure`) for members who may change the data model). Settings are not in the sidebar: the workspace name at the top opens the workspace menu (`#nav-workspace-menu`) with **Invite members**, **Members**, **Settings**, **Billing** with the plan badge and, for operators, the **Operator Console**; your avatar at the bottom opens the personal menu (`#nav-personal-menu`) with **Profile & preferences**, **Theme**, **Language**, **Keyboard shortcuts**, **Documentation**, **Send feedback**, **Customize sidebar** and **Sign Out**. Inside **Settings** the sidebar shows the settings pages instead, grouped under **Account** (`#nav-settings-profile`, `#nav-settings-channels`, `#nav-settings-api-keys`) and **Workspace** (`#nav-settings-members`, `#nav-settings-roles`, `#nav-settings-billing`, `#nav-settings-activity`, `#nav-settings-webhooks`), with **Back** (`#nav-area-back`) returning to the page you came from. An entry your role cannot read is hidden, a group with no visible entries disappears, and opening a hidden page by its URL brings you back to the Dashboard. Mate can navigate to each settings page your role can open, and highlight its entry while Settings is open. Three places show a number: **Inbox** counts unread conversations, the tasks entry shows members with **Edit** on **Users & Roles** how many **Approve User** tasks are open, and **Channels** counts channels that need attention.
 
 Each person can arrange their own sidebar; nobody else sees the change. Drag an entry to reorder it or to move it into another section, or open its **…** menu (also by right-click or a long press) for **Move up**, **Move down**, **Move to section** (including **New section**) and **Hide from sidebar**, which also works by keyboard and on touch screens. Click a section title to collapse or expand it; the **…** menu of a section (also by right-click) moves it, and personal sections can be renamed or deleted. Deleting a personal section asks first and lists where each of its entries goes: back to its usual section, hidden entries stay hidden. **Customize sidebar** in the personal menu shows hidden entries again, lists your personal sections with **Rename** and **Delete section**, creates a **New section**, and offers **Reset to default** (after a confirmation) once you have changed anything. New lists always appear under **Data**.
 
@@ -72,9 +72,9 @@ Each person can arrange their own sidebar; nobody else sees the change. Drag an 
 | Add widget | Page header | `#dashboard-add-widget` | Opens the widget modal |
 | Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K); see [Global search](/docs/app-search) |
 | Search field | Search modal | `#global-search-input` | Finds accessible records across configured types |
-| Create a record | Top of sidebar | `#nav-add` | Opens the record type picker |
+| Create a record | Top of sidebar | `#nav-add` | Opens the record type picker (also C) |
 | Workspace menu | Workspace name at the top | `#nav-workspace-menu` | Opens **Invite members**, **Members**, **Settings**, **Billing** with the plan badge and, for operators, the **Operator Console** |
-| Personal menu | Your avatar at the bottom | `#nav-personal-menu` | Opens **Profile & preferences**, **Theme**, **Language**, **Documentation**, **Send feedback**, **Customize sidebar** (shows or hides entries, creates a personal section or resets your sidebar to the default) and **Sign Out** |
+| Personal menu | Your avatar at the bottom | `#nav-personal-menu` | Opens **Profile & preferences**, **Theme**, **Language**, **Keyboard shortcuts**, **Documentation**, **Send feedback**, **Customize sidebar** (shows or hides entries, creates a personal section or resets your sidebar to the default) and **Sign Out** |
 | Back from Settings | Top of the settings sidebar | `#nav-area-back` | Returns to the page you opened Settings from |
 | Ask Mate | Top of sidebar when Mate is enabled, also visible during onboarding | `#nav-assistant` | **Ask Mate** opens or closes the [AI assistant](/docs/app-assistant) panel (also Cmd/Ctrl+J); during onboarding it rechecks account state and returns to the permitted route |
 | Plan and status | **Billing** in the workspace menu, Cloud only | none | Shows the plan, or the plan with its status, for example **Pro · Trial · 5 days left**; green, amber with 3 or fewer trial days left, red for **Past Due**, **Unpaid**, **Cancelled** or **Expired**; opens the **Billing** page |
@@ -82,6 +82,30 @@ Each person can arrange their own sidebar; nobody else sees the change. Drag an 
 | Theme and sign-out | Personal menu | none | **Theme** sets **System**, **Light** or **Dark** and saves it; **Sign out** ends the session |
 
 **Link:** the sidebar appears everywhere in the app; the **Dashboard** is `/dashboard`. **Mate:** `navigate` and `highlight_element` with each `nav-*` id in this section that your role can open, except `nav-search`, `nav-workspace-menu` and `nav-personal-menu`, which it can only highlight, and `#nav-add` and `#nav-assistant`, which are not targets; settings entries can be highlighted only while Settings is open. The plan chip, **Email not verified** and the items inside the two menus are not highlight targets, so Mate names them.
+
+## Which keyboard shortcuts are there? [#keyboard-shortcuts]
+
+Press **?** anywhere in the app, or choose **Keyboard shortcuts** in the menu under your name, to see every shortcut with the keys for your computer: Mac shows ⌘, Windows and Linux show Ctrl. The list has a search field, so you can type "view" or "G" to find a shortcut. Shortcuts with Cmd or Ctrl work everywhere, even while you type. Single keys and G sequences only work when no text field has focus.
+
+| Group | Shortcut | What it does |
+| --- | --- | --- |
+| General | Cmd+K (Mac) or Ctrl+K, or / | Opens [Global search](/docs/app-search) |
+| General | Cmd+J (Mac) or Ctrl+J | Opens or closes the [AI assistant](/docs/app-assistant); in search, type a question and press Tab to ask it directly |
+| General | ? | Shows the keyboard shortcuts |
+| General | Cmd+\ (Mac) or Ctrl+\ | Shows or hides the sidebar |
+| Navigation | G then D | Goes to the [Dashboard](/docs/app-dashboard) |
+| Navigation | G then I | Goes to the [Inbox](/docs/app-inbox) |
+| Navigation | G then K | Goes to the Knowledge Base |
+| Navigation | G then R | Goes to [Routines](/docs/app-routines) |
+| Navigation | G then C | Goes to Configure, where you change [the data model](/docs/app-records), if your role allows it |
+| Navigation | G then S | Goes to your [settings](/docs/app-profile) |
+| Create | C | Opens **Add**, the same picker as **Add** in the sidebar |
+| Lists and views | G then 1 to 9 | Opens the first to ninth list in your own sidebar order; hidden lists are skipped |
+| Lists and views | V | On a list, opens a searchable picker of its [saved views](/docs/app-records) |
+| Forms | Cmd+Enter (Mac) or Ctrl+Enter | Saves the open form |
+| Forms | Esc | Closes the topmost dialog or drawer |
+
+Global search also lists the shortcuts it offers: **Ask Mate** on top, the saved views of the list you are on, the pages you can go to and **Add**, each with its key on the right. After G you have about one second for the second key; a small hint shows that the app is waiting. Single keys do nothing while a menu or dialog is open or while an input method is composing text. If you use speech input or press keys by accident, turn off **Single-key shortcuts** at the bottom of the **Keyboard shortcuts** dialog; Cmd/Ctrl shortcuts keep working. The setting is personal and follows you to every device.
 
 ## What happens on first run?
 

@@ -5,6 +5,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import {
   BookOpen,
   ChevronsUpDown,
+  Keyboard,
   Languages,
   LogIn as LogOut,
   MessageCircle,
@@ -17,6 +18,7 @@ import { useRef } from "react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { AppLink } from "@/components/shared/app-link";
+import { ActiveShortcutKeys } from "@/app/components/keyboard-shortcuts/active-shortcut-keys";
 import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -54,6 +56,7 @@ type Props = {
     theme: string;
     themes: Record<ThemeChoice, string>;
     language: string;
+    keyboardShortcuts: string;
     documentation: string;
     feedback: string;
     customizeSidebar: string;
@@ -62,6 +65,7 @@ type Props = {
   onNavigate: () => void;
   onThemeChange: (theme: ThemeChoice) => void;
   onLanguageChange: (language: string) => void;
+  onKeyboardShortcuts?: (invoker: HTMLElement | null) => void;
   onFeedback: (invoker: HTMLElement) => void;
   onCustomizeSidebar: () => void;
   onSignOut: () => void;
@@ -84,11 +88,13 @@ export const NavUser = observer(
     onNavigate,
     onThemeChange,
     onLanguageChange,
+    onKeyboardShortcuts,
     onFeedback,
     onCustomizeSidebar,
     onSignOut,
   }: Props) => {
     const triggerRef = useRef<HTMLButtonElement>(null);
+    const handingOffFocusRef = useRef(false);
     const name = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
     const email = user?.email ?? "";
     const notVerified = emailVerified === false && (
@@ -132,6 +138,11 @@ export const NavUser = observer(
               className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
               side="top"
               sideOffset={4}
+              onCloseAutoFocus={(event) => {
+                if (!handingOffFocusRef.current) return;
+                handingOffFocusRef.current = false;
+                event.preventDefault();
+              }}
             >
               {!restricted && (
                 <>
@@ -196,6 +207,21 @@ export const NavUser = observer(
                         </DropdownMenuRadioGroup>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
+
+                    {onKeyboardShortcuts && (
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          handingOffFocusRef.current = true;
+                          onKeyboardShortcuts(triggerRef.current);
+                        }}
+                      >
+                        <Keyboard />
+
+                        <span className="flex-1">{labels.keyboardShortcuts}</span>
+
+                        <ActiveShortcutKeys id="shortcuts" />
+                      </DropdownMenuItem>
+                    )}
 
                     <DropdownMenuItem asChild>
                       <AppLink appearance="unstyled" href={docsHref} prefetch={false} onClick={onNavigate}>

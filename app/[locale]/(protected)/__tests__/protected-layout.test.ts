@@ -11,8 +11,6 @@ const state = vi.hoisted(() => ({
   closeAllModals: vi.fn(),
   getGlobalSearchStore: vi.fn(),
   getAgentChatStore: vi.fn(),
-  openGlobalSearch: vi.fn(),
-  toggleAgentChat: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({ usePathname: () => state.pathname }));
@@ -23,15 +21,11 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     recordWorkspaceStore: { routeReady: () => true },
     get globalSearchModalStore() {
       state.getGlobalSearchStore();
-      return { open: state.openGlobalSearch };
+      return {};
     },
     get agentChatStore() {
       state.getAgentChatStore();
-      return {
-        enabled: state.agentConfigEnabled,
-        isOpen: state.agentOpen,
-        toggle: state.toggleAgentChat,
-      };
+      return { enabled: state.agentConfigEnabled, isOpen: state.agentOpen };
     },
   }),
 }));
@@ -88,6 +82,15 @@ vi.mock("@/components/shared/unexpected-error-toaster", () => ({
 vi.mock("@/components/shared/translation-sync", () => ({
   TranslationSync: () => "translation-sync",
 }));
+vi.mock("@/app/components/keyboard-shortcuts/global-keyboard-shortcuts", () => ({
+  GlobalKeyboardShortcuts: () => "global-keyboard-shortcuts",
+}));
+vi.mock("@/app/components/keyboard-shortcuts/keyboard-shortcuts-dialog", () => ({
+  KeyboardShortcutsDialog: () => "keyboard-shortcuts-dialog",
+}));
+vi.mock("@/components/data-view/views/view-picker", () => ({
+  ViewPicker: () => "view-picker",
+}));
 vi.mock("@/app/components/agent-chat/agent-chat", () => ({
   AgentChat: () => "agent-chat",
 }));
@@ -110,8 +113,6 @@ beforeEach(() => {
   state.closeAllModals.mockClear();
   state.getGlobalSearchStore.mockClear();
   state.getAgentChatStore.mockClear();
-  state.openGlobalSearch.mockClear();
-  state.toggleAgentChat.mockClear();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -147,14 +148,14 @@ describe("ProtectedLayout account-state boundary", () => {
     state.agentChatEnabled = true;
     state.agentConfigEnabled = true;
     await renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
 
     expect(container.textContent).toContain("recovery-card");
     expect(container.textContent).toContain("toaster");
     expect(container.textContent).toContain("loading-overlay");
     expect(container.textContent).toContain("unexpected-error-toaster");
     expect(container.textContent).toContain("translation-sync");
+    expect(container.textContent).not.toContain("global-keyboard-shortcuts");
+    expect(container.textContent).not.toContain("keyboard-shortcuts-dialog");
     expect(container.textContent).not.toContain("global-search-modal");
     expect(container.textContent).not.toContain("company-user-modal");
     expect(container.textContent).not.toContain("routine-modal");
@@ -162,47 +163,27 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(container.textContent).not.toContain("agent-chat");
     expect(state.getGlobalSearchStore).not.toHaveBeenCalled();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();
-    expect(state.openGlobalSearch).not.toHaveBeenCalled();
-    expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("mounts tenant enhancements but not the assistant when its process gate is off", async () => {
+  it("mounts tenant enhancements and the keyboard shortcuts but not the assistant when its process gate is off", async () => {
     state.protectedEnhancementsAllowed = true;
     await renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
 
+    expect(container.textContent).toContain("global-keyboard-shortcuts");
+    expect(container.textContent).toContain("keyboard-shortcuts-dialog");
     expect(container.textContent).toContain("global-search-modal");
     expect(container.textContent).toContain("company-user-modal");
     expect(container.textContent).toContain("routine-modal");
     expect(container.textContent).not.toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");
-    expect(state.getGlobalSearchStore).toHaveBeenCalledOnce();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();
-    expect(state.openGlobalSearch).toHaveBeenCalledOnce();
-    expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("mounts the assistant but ignores Cmd+J while its config is unresolved", async () => {
+  it("mounts the assistant when its process gate is on", async () => {
     state.protectedEnhancementsAllowed = true;
     state.agentChatEnabled = true;
     await renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", ctrlKey: true, bubbles: true }));
 
     expect(container.textContent).toContain("agent-chat");
-    expect(state.getAgentChatStore).toHaveBeenCalledOnce();
-    expect(state.toggleAgentChat).not.toHaveBeenCalled();
-  });
-
-  it("toggles the available assistant with Cmd+J", async () => {
-    state.protectedEnhancementsAllowed = true;
-    state.agentChatEnabled = true;
-    state.agentConfigEnabled = true;
-    await renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
-
-    expect(container.textContent).toContain("agent-chat");
-    expect(state.getAgentChatStore).toHaveBeenCalledOnce();
-    expect(state.toggleAgentChat).toHaveBeenCalledOnce();
   });
 });

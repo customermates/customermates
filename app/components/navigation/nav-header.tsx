@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { ChevronDown, Loader2, Plus, Search, Sparkles } from "lucide-react";
 
+import { ActiveShortcutKeys } from "@/app/components/keyboard-shortcuts/active-shortcut-keys";
 import { AppImage } from "@/components/shared/app-image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
@@ -16,7 +17,6 @@ type Props = {
   brandName: string;
   logoAlt: string;
   assistantLabel?: string;
-  assistantShortcut?: string;
   assistantBusy?: boolean;
   assistantBusyLabel?: string;
   searchLabel: string;
@@ -34,7 +34,6 @@ export function NavHeader({
   brandName,
   logoAlt,
   assistantLabel,
-  assistantShortcut,
   assistantBusy,
   assistantBusyLabel,
   searchLabel,
@@ -101,7 +100,9 @@ export function NavHeader({
             <SidebarMenuButton
               aria-disabled={overlaysDisabled}
               id="nav-search"
-              tooltip={searchLabel}
+              tooltip={{
+                children: <ShortcutTooltip label={searchLabel} shortcut={<ActiveShortcutKeys id="search" />} />,
+              }}
               onClick={(event) => {
                 if (!overlaysDisabled) onSearch(event.currentTarget);
               }}
@@ -110,9 +111,7 @@ export function NavHeader({
 
               <span>{searchLabel}</span>
 
-              <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
-                &#8984;K
-              </kbd>
+              <ActiveShortcutKeys className="ml-auto" id="search" />
             </SidebarMenuButton>
           </SidebarMenuItem>
 
@@ -121,7 +120,14 @@ export function NavHeader({
               <SidebarMenuButton
                 aria-disabled={overlaysDisabled}
                 id="nav-assistant"
-                tooltip={assistantBusy ? (assistantBusyLabel ?? assistantLabel) : assistantLabel}
+                tooltip={{
+                  children: (
+                    <ShortcutTooltip
+                      label={assistantBusy ? (assistantBusyLabel ?? assistantLabel) : assistantLabel}
+                      shortcut={<ActiveShortcutKeys id="askMate" />}
+                    />
+                  ),
+                }}
                 onClick={(event) => {
                   if (!overlaysDisabled) onAssistant(event.currentTarget);
                 }}
@@ -130,11 +136,7 @@ export function NavHeader({
 
                 <span>{assistantLabel}</span>
 
-                {assistantShortcut && (
-                  <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-sidebar-border bg-sidebar-accent/60 px-1.5 font-sans text-[11px] text-sidebar-foreground/70">
-                    {assistantShortcut}
-                  </kbd>
-                )}
+                <ActiveShortcutKeys className="ml-auto" id="askMate" />
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}
@@ -143,7 +145,9 @@ export function NavHeader({
             <SidebarMenuButton
               aria-disabled={overlaysDisabled}
               id="nav-add"
-              tooltip={addLabel}
+              tooltip={{
+                children: <ShortcutTooltip label={addLabel} shortcut={<ActiveShortcutKeys id="add" />} />,
+              }}
               onClick={(event) => {
                 if (!overlaysDisabled) onAdd(event.currentTarget);
               }}
@@ -151,10 +155,22 @@ export function NavHeader({
               <Plus />
 
               <span>{addLabel}</span>
+
+              <ActiveShortcutKeys className="ml-auto" id="add" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       )}
     </SidebarHeader>
+  );
+}
+
+function ShortcutTooltip({ label, shortcut }: { label: string; shortcut: ReactNode }) {
+  return (
+    <span className="flex items-center gap-2">
+      {label}
+
+      {shortcut}
+    </span>
   );
 }
