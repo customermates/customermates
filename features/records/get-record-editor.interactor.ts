@@ -6,6 +6,7 @@ import type { RecordRepo } from "./record.repo";
 import type { RecordDto, RecordModelView } from "./record-model.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { liveRecordModel } from "./record-model-snapshot";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -51,7 +52,8 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
   async invoke(input: z.infer<typeof GetRecordEditorSchema>): Validated<RecordEditorResult> {
     return runInTransaction(
       async () => {
-        const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
+        const [storedModel, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
+        const model = liveRecordModel(storedModel);
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
         if (!type || !policy.actor || !policy.canReadType(type.id))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
@@ -98,12 +100,12 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
           const layout = await this.layouts.read(type.id, model, policy);
           if (!layout.ok) return layout;
           const visible = ref
-            ? await this.records.getVisibleFields(ref, model, policy.access([...accessible]))
+            ? await this.records.getVisibleFields(ref, storedModel, policy.access([...accessible]))
             : new Set<string>();
           const record = stored
             ? (
                 await withMemberUsers(
-                  [recordDto(stored, model, visible, policy.memberScope)],
+                  [recordDto(stored, storedModel, visible, policy.memberScope)],
                   this.records,
                   policy.memberScope,
                 )

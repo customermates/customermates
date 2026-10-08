@@ -15,6 +15,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { Action } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { liveRecordModel } from "./record-model-snapshot";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -71,7 +72,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
     return runInTransaction(
       async () => {
         const [model, policy, viewState, t] = await Promise.all([
-          this.records.getModel(),
+          this.records.getModel().then(liveRecordModel),
           this.policy.load(),
           this.views.loadSurfaceState(recordSurfaceKey(input.typeId)),
           getTranslations(),

@@ -58,12 +58,14 @@ describe("configurationActivity", () => {
     const deletion = {
       references: [],
       source: { kind: "configuration" },
-      configuration: { operations: [{ operation: "deleteCapability", capabilityId: "capability-channels" }] },
+      configuration: {
+        operations: [{ operation: "deletePermanently", target: { kind: "channels", id: "capability-channels" } }],
+      },
       grants: [],
     } as unknown as RecordRevisionChange;
 
     expect(configurationActivity(deletion, [after, before], ROLES).changes).toEqual([
-      { field: "deleteCapability", snapshot: true, previous: undefined, current: "Contacts" },
+      { field: "deletePermanently", snapshot: true, previous: undefined, current: "Contacts" },
     ]);
     expect(configurationActivity(deletion, [after], ROLES).changes.map((change) => change.current)).toEqual([
       "capability-channels",
@@ -80,16 +82,16 @@ describe("configurationActivity", () => {
       source: { kind: "configuration" },
       configuration: {
         operations: [
-          { operation: "deleteType", typeId: "type-projects" },
-          { operation: "deleteField", fieldId: "field-budget" },
+          { operation: "deletePermanently", target: { kind: "type", id: "type-projects" } },
+          { operation: "delete", target: { kind: "field", id: "field-budget" } },
         ],
       },
       grants: [],
     } as unknown as RecordRevisionChange;
 
     expect(configurationActivity(deletion, [MODEL, before], ROLES).changes).toEqual([
-      { field: "deleteType", snapshot: true, previous: undefined, current: "Projects" },
-      { field: "deleteField", snapshot: true, previous: undefined, current: "Contacts · Budget" },
+      { field: "deletePermanently", snapshot: true, previous: undefined, current: "Projects" },
+      { field: "delete", snapshot: true, previous: undefined, current: "Contacts · Budget" },
     ]);
     expect(configurationActivity(deletion, [MODEL], ROLES).changes.map((change) => change.current)).toEqual([
       "type-projects",

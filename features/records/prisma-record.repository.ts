@@ -7,7 +7,14 @@ import { compileRecordSearch, type RecordSearchRow } from "./record-search-query
 import type { RecordSearch } from "./record-search.schema";
 import { recordInvariant } from "./record-invariant";
 import type { StoredStateRow, StoredPersonalizationRow } from "@/features/data-view/data-view-row-mapping";
-import { readStoredState, readStoredPersonalizationState } from "@/features/data-view/data-view-row-mapping";
+import {
+  readStoredState,
+  readStoredPersonalizationState,
+  writePartialStoredState,
+  writePersonalizationState,
+} from "@/features/data-view/data-view-row-mapping";
+import { targetKey, type ConfigurationDeletionRecord } from "./configuration-lifecycle";
+import type { ConfigurationTarget } from "./configuration.schema";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 
 import { randomUUID } from "node:crypto";
@@ -15,7 +22,7 @@ import { randomUUID } from "node:crypto";
 import { Prisma } from "@/generated/prisma";
 
 import type { Action } from "@/generated/prisma";
-import type { RecordDefinitionDeletion, RecordRepo } from "./record.repo";
+import type { ConfigurationConsumerCleanup, RecordDefinitionDeletion, RecordRepo } from "./record.repo";
 import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
@@ -30,6 +37,7 @@ import { compileRecordGroups } from "./record-group-query";
 import { resolveRecordGrouping } from "./record-grouping";
 import { RecordGroupingResultSchema } from "./record-grouping.schema";
 import { MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
+import { groupingShadowColumnId } from "@/core/base/grouping/stored-grouping";
 import { RecordWriteError } from "./record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordMeasure } from "./record-measure.schema";
@@ -412,12 +420,13 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         activityQuery: { not: Prisma.AnyNull },
         ...(afterId ? { id: { gt: afterId } } : {}),
       },
-      select: { id: true, activityQuery: true },
+      select: { id: true, name: true, activityQuery: true },
       orderBy: { id: "asc" },
       take: 200,
     });
     return rows.map((row) => ({
       id: row.id,
+      name: row.name,
       query: RecordActivityQuerySchema.parse(row.activityQuery),
     }));
   }
@@ -428,12 +437,13 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         measure: { not: Prisma.AnyNull },
         ...(afterId ? { id: { gt: afterId } } : {}),
       },
-      select: { id: true, measure: true },
+      select: { id: true, name: true, measure: true },
       orderBy: { id: "asc" },
       take: 200,
     });
     return rows.map((row) => ({
       id: row.id,
+      name: row.name,
       measure: RecordMeasureSchema.parse(row.measure),
     }));
   }
@@ -446,7 +456,106 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       orderBy: { id: "asc" },
       take: 200,
     });
-    return rows.map(({ companyId: _companyId, ...row }) => RecordEventSubscriptionSchema.parse(row));
+    const ids = rows.map((row) => row.id);
+    const [routines, webhooks] = await Promise.all([
+      this.prisma.routine.findMany({
+        where: { companyId: this.companyId, id: { in: ids } },
+        select: { id: true, name: true },
+      }),
+      this.prisma.webhook.findMany({
+        where: { companyId: this.companyId, id: { in: ids } },
+        select: { id: true, url: true, description: true },
+      }),
+    ]);
+    const labels = new Map([
+      ...routines.map((routine) => [routine.id, routine.name] as const),
+      ...webhooks.map((webhook) => [webhook.id, webhook.description || webhook.url] as const),
+    ]);
+    return rows.map(({ companyId: _companyId, ...row }) => ({
+      ...RecordEventSubscriptionSchema.parse(row),
+      label: labels.get(row.id) ?? "",
+    }));
+  }
+
+  async getConfigurationDeletions(targets?: ConfigurationTarget[]) {
+    const wanted = targets ? new Set(targets.map(targetKey)) : null;
+    const records = new Map<string, ConfigurationDeletionRecord>();
+    if (wanted && !wanted.size) return records;
+    const rows = await this.prisma.$queryRaw<
+      Array<{ actorId: string; createdAt: Date; deletions: unknown }>
+    >(Prisma.sql`
+      SELECT "actorId", "createdAt", change->'deletions' AS deletions FROM "RecordSchemaRevision"
+      WHERE "companyId" = ${this.companyId} AND jsonb_exists(change, 'deletions') ORDER BY revision DESC
+    `);
+    for (const row of rows) {
+      for (const deletion of RecordRevisionChangeSchema.shape.deletions.unwrap().parse(row.deletions)) {
+        const key = targetKey(deletion.target);
+        if (records.has(key) || (wanted && !wanted.has(key))) continue;
+        records.set(key, { ...deletion, actorId: row.actorId, deletedAt: row.createdAt });
+      }
+      if (wanted && records.size === wanted.size) break;
+    }
+    return records;
+  }
+
+  async getUserNamesCompanyWide(userIds: string[]) {
+    const users = await this.prisma.user.findMany({
+      where: { companyId: this.companyId, id: { in: [...new Set(userIds)] } },
+      select: { id: true, firstName: true, lastName: true },
+    });
+    return new Map(users.map((user) => [user.id, `${user.firstName} ${user.lastName}`.trim()]));
+  }
+
+  async applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<void> {
+    const companyId = this.companyId;
+    for (const cleanup of cleanups) {
+      if (cleanup.kind === "view") {
+        await this.prisma.dataView.updateMany({
+          where: { companyId, id: cleanup.id },
+          data: writePartialStoredState(cleanup.state),
+        });
+      } else if (cleanup.kind === "personalLayout") {
+        const write = writePersonalizationState(cleanup.state);
+        await this.prisma.p13n.updateMany({
+          where: { companyId, id: cleanup.id },
+          data: {
+            ...(write.filters !== undefined ? { filters: write.filters as Prisma.InputJsonValue } : {}),
+            ...(write.sortDescriptor !== undefined
+              ? { sortDescriptor: (write.sortDescriptor ?? {}) as Prisma.InputJsonValue }
+              : {}),
+            ...(write.grouping !== undefined
+              ? {
+                  grouping: write.grouping === null ? Prisma.DbNull : (write.grouping as Prisma.InputJsonValue),
+                  groupingColumnId: write.grouping === null ? null : groupingShadowColumnId(write.grouping),
+                }
+              : {}),
+            ...(write.columnOrder !== undefined ? { columnOrder: write.columnOrder } : {}),
+            ...(write.columnWidths !== undefined ? { columnWidths: write.columnWidths } : {}),
+            ...(write.hiddenColumns !== undefined ? { hiddenColumns: write.hiddenColumns } : {}),
+          },
+        });
+      } else if (cleanup.kind === "detailLayout") {
+        const row = await this.prisma.p13n.findFirst({ where: { companyId, id: cleanup.id } });
+        if (!row) continue;
+        const options = EntityDetailOptionsSchema.parse(row.detailOptions);
+        await this.prisma.p13n.updateMany({
+          where: { companyId, id: cleanup.id },
+          data: {
+            detailOptions: {
+              ...options,
+              starredFieldIds: cleanup.layout.pinnedFields,
+              hiddenFieldIds: cleanup.layout.hiddenFields,
+              fieldOrder: cleanup.layout.fieldOrder,
+            },
+          },
+        });
+      } else if (cleanup.kind === "widget") {
+        await this.prisma.widget.updateMany({
+          where: { companyId, id: cleanup.id },
+          data: { measure: cleanup.measure as Prisma.InputJsonValue, version: { increment: 1 } },
+        });
+      }
+    }
   }
   async measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]> {
     return this.prisma.$queryRaw<MeasureRow[]>(compileRecordMeasure(this.companyId, measure, model, access));
@@ -542,7 +651,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         key: string;
         surface: string;
         kind: "view" | "personalization";
-        payload: StoredStateRow & StoredPersonalizationRow;
+        payload: StoredStateRow & StoredPersonalizationRow & { name?: string };
       }>
     >(Prisma.sql`
       SELECT * FROM (
@@ -556,6 +665,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     return rows.map((row) => ({
       key: row.key,
       typeId: row.surface.slice(8),
+      name: row.kind === "view" ? (row.payload.name ?? null) : null,
       state: row.kind === "view" ? readStoredState(row.payload) : readStoredPersonalizationState(row.payload),
     }));
   }

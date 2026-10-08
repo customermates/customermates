@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addChannelsField, openConfigureTab, openDrawerTab, addFromConfigure, configureListCard, configureRow, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList, setShowArchived, setShowArchivedParts } from "./configure";
+import { addChannelsField, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteRecentlyDeletedPermanently, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openDrawerTab, openListAction, restoreRecentlyDeleted, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function applyConfiguration(page: Page) {
@@ -82,7 +82,6 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   await openConfigureRow(page, "Fields", "Channels");
   await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText("Channels");
   await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toBeDisabled();
-  await expect(dialog.getByRole("switch", { name: "Archive field", exact: true })).toHaveCount(0);
   await dialog.getByRole("switch", { name: "Use channel profile picture", exact: true }).uncheck();
   await saveDrawer(page);
   expect(await channelsOf(contactTypeId)).toEqual({ ...before, enabled: true, providerAvatar: false });
@@ -103,8 +102,8 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
 
   await openConfigureTab(page, "Fields");
   await openConfigureRow(page, "Fields", "Channels");
-  await dialog.getByRole("button", { name: "Delete", exact: true }).click();
-  await expect(confirmation).toContainText("Delete the Channels field?");
+  await dialog.getByRole("button", { name: "Delete field", exact: true }).click();
+  await expect(confirmation).toContainText("Delete Channels?");
   await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await expect.poll(async () => (await channelsOf(customTypeId))?.enabled).toBe(false);
@@ -115,13 +114,7 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
 
-  await followConfigureLink(page);
-  await openConfigureTab(page, "Fields");
-  await setShowArchivedParts(page, true);
-  await expect(configureRow(page, "Fields", "Channels")).toContainText("Deleted");
-  await openConfigureRow(page, "Fields", "Channels");
-  await dialog.getByRole("button", { name: "Restore", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await restoreRecentlyDeleted(page, "Channels");
   await expect.poll(async () => (await channelsOf(customTypeId))?.enabled).toBe(true);
   await openRecordList(page, customTypeId);
   await page.locator("#records-add").click();
@@ -132,27 +125,18 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   await followConfigureLink(page);
   await openConfigureTab(page, "Fields");
   await openConfigureRow(page, "Fields", "Channels");
-  await dialog.getByRole("button", { name: "Delete", exact: true }).click();
-  await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
+  await deleteFromDrawer(page, "Delete field");
   await expect.poll(async () => (await channelsOf(customTypeId))?.enabled).toBe(false);
-  await setShowArchivedParts(page, true);
-  await openConfigureRow(page, "Fields", "Channels");
-  await dialog.getByRole("button", { name: "Delete field permanently", exact: true }).click();
-  await expect(confirmation).toContainText("Delete Channels permanently?");
-  await expect(confirmation).toContainText("No stored data uses it.");
-  const remove = confirmation.getByRole("button", { name: "Delete", exact: true });
-  await expect(remove).toBeDisabled();
-  await confirmation.getByRole("textbox").fill("Channels");
-  await remove.click();
-  await expect(confirmation).not.toBeVisible();
+  await deleteRecentlyDeletedPermanently(page, "Channels");
   await expect.poll(async () => channelsOf(customTypeId)).toBeUndefined();
+  await openConfigure(page, customTypeId);
+  await openConfigureTab(page, "Fields");
   await expect(configureRow(page, "Fields", "Channels")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("channels-field-deleted.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });
 
-test("edits a linear calculation and restores archived fields, activity connections and a list", async ({
+test("edits a linear calculation and restores deleted fields, activity connections and a list", async ({
   page,
   database,
   companyId,
@@ -222,25 +206,18 @@ test("edits a linear calculation and restores archived fields, activity connecti
   await expect(page.getByRole("link", { name: "Pilot research", exact: true })).toBeVisible();
   await followConfigureLink(page);
   await openConfigureRow(page, "Fields", "Double budget");
-  await dialog.getByRole("switch", { name: "Archive field", exact: true }).check();
-  await applyConfiguration(page);
+  await deleteFromDrawer(page, "Delete field");
   await expect(configureRow(page, "Fields", "Double budget")).toHaveCount(0);
-  await setShowArchivedParts(page, true);
-  await expect(configureRow(page, "Fields", "Double budget")).toContainText("Archived");
-  await openConfigureRow(page, "Fields", "Double budget");
-  await expect(dialog.getByRole("switch", { name: "Archive field", exact: true })).not.toBeChecked();
-  await applyConfiguration(page);
+  await restoreRecentlyDeleted(page, "Double budget");
   expect((await readModel(database, companyId)).fields.find((field) => field.id === doubled?.id)).toMatchObject({
     archived: false,
     behavior: doubled?.behavior,
   });
+  await openConfigure(page, typeId);
   await openConfigureRow(page, "Activity connections", name);
-  await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
-  await applyConfiguration(page);
-  await expect(configureRow(page, "Activity connections", name)).toContainText("Archived");
-  await openConfigureRow(page, "Activity connections", name);
-  await expect(dialog.getByRole("switch", { name: "Archive connection", exact: true })).not.toBeChecked();
-  await applyConfiguration(page);
+  await deleteFromDrawer(page, "Delete activity connection");
+  await expect(configureRow(page, "Activity connections", name)).toHaveCount(0);
+  await restoreRecentlyDeleted(page, name);
   expect((await readModel(database, companyId)).activityPaths.find((path) => path.typeId === typeId)).toMatchObject({
     label: name,
     archived: false,
@@ -248,18 +225,11 @@ test("edits a linear calculation and restores archived fields, activity connecti
     includeAudit: true,
     includeMessages: false,
   });
-  await openConfigureRow(page, "Activity connections", name);
-  await dialog.getByRole("switch", { name: "Archive connection", exact: true }).check();
-  await applyConfiguration(page);
-  await openListAction(page, "Archive list");
-  await applyConfiguration(page);
   await openConfigure(page);
-  await expect(configureListCard(page, name)).toHaveCount(0);
-  await setShowArchived(page, true);
-  await expect(configureListCard(page, name)).toContainText("Archived");
   await selectConfigureList(page, name);
-  await openListAction(page, "Restore list");
-  await applyConfiguration(page);
+  await deleteSelectedList(page);
+  await expect(configureListCard(page, name)).toHaveCount(0);
+  await restoreRecentlyDeleted(page, name);
   expect((await readModel(database, companyId)).types.find((type) => type.id === typeId)).toMatchObject({
     archived: false,
     pluralLabel: name,

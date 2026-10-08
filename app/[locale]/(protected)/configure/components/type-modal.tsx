@@ -25,12 +25,7 @@ import { recordColumns } from "@/features/records/record-columns";
 import { recordGroupableFields, resolveRecordGrouping } from "@/features/records/record-grouping";
 import { encodeGroupingToken, decodeGroupingToken } from "@/core/base/grouping/grouping.schema";
 import { FormRecordTypeIcon } from "@/components/records/form-record-type-icon";
-import {
-  archiveListOperations,
-  configureFieldOrder,
-  moveConfigureField,
-  reorderFieldOperations,
-} from "./configure-model";
+import { configureFieldOrder, moveConfigureField, reorderFieldOperations, typeDefinition } from "./configure-model";
 import { ModelChangeSheet } from "./model-change-sheet";
 import { suggestListPlural } from "./list-plural";
 
@@ -40,7 +35,6 @@ const initialType = () => ({
   description: "",
   icon: "folder",
   accessPresetId: "private",
-  archived: false,
   navigationVisible: true,
   layout: "table" as RecordType["defaults"]["layout"],
   groupBy: "none",
@@ -52,7 +46,7 @@ const initialType = () => ({
   groupSummaries: [] as RecordGroupSummaryDefinition[],
   fieldOrder: [] as string[],
 });
-export type TypeModalSection = "settings" | "appearance" | "archive";
+export type TypeModalSection = "settings" | "appearance";
 export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialType>> {
   original: RecordType | null = null;
   section: TypeModalSection = "settings";
@@ -90,7 +84,6 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
             pluralName: type.pluralLabel,
             description: type.description,
             icon: type.icon,
-            archived: type.archived,
             navigationVisible: type.navigationVisible,
             ...type.defaults,
             groupSummaries: type.defaults.groupSummaries ?? [],
@@ -138,8 +131,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
   };
   get summaryFields() {
     return this.model.fields.filter(
-      (field) =>
-        field.typeId === this.original?.id && !field.archived && ["number", "currency"].includes(field.valueType),
+      (field) => field.typeId === this.original?.id && ["number", "currency"].includes(field.valueType),
     );
   }
   get nextSummary() {
@@ -175,12 +167,11 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
         {
           operation: "putType",
           type: {
-            ...this.original,
+            ...typeDefinition(this.original),
             label: this.form.name,
             pluralLabel: this.form.pluralName.trim() || this.suggestPlural(this.form.name),
             description: this.form.description,
             icon: this.form.icon,
-            archived: this.form.archived,
             navigationVisible: this.form.navigationVisible,
             defaults: {
               ...this.original.defaults,
@@ -197,9 +188,6 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
           },
         },
         ...reorderFieldOperations(this.model, this.original.id, this.form.fieldOrder),
-        ...(this.form.archived === this.original.archived
-          ? []
-          : archiveListOperations(this.model, this.original.id, this.form.archived)),
       ];
     }
     return [
@@ -291,16 +279,11 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
               : column.label,
       }))
     : [];
-  const archiving = !store.original?.archived;
   const title = !store.original
     ? t("RecordModel.createList")
     : store.section === "appearance"
       ? t("RecordModel.sharedDefaults")
-      : store.section === "archive"
-        ? archiving
-          ? t("RecordModel.archiveList")
-          : t("RecordModel.unarchiveList")
-        : t("RecordModel.typeSettings");
+      : t("RecordModel.typeSettings");
   return (
     <ModelChangeSheet creating={!store.original} store={store} title={title}>
       <AppForm store={store}>
@@ -316,12 +299,6 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
           )}
 
           {(!store.original || store.section === "settings") && <TypeSettingsFields store={store} />}
-
-          {store.original && store.section === "archive" && (
-            <p className="text-sm text-muted-foreground">
-              {archiving ? t("RecordModel.archiveListDescription") : t("RecordModel.unarchiveListDescription")}
-            </p>
-          )}
 
           {store.original && store.section === "appearance" && (
             <div className="space-y-4">

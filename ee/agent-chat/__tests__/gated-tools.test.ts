@@ -378,7 +378,7 @@ describe("gated-tools", () => {
     const groupSizes = Object.fromEntries(Object.entries(MCP_TOOL_GROUPS).map(([key, tools]) => [key, tools.length]));
 
     expect(groupSizes).toEqual({
-      "record-model": 3,
+      "record-model": 4,
       records: 10,
       workspace: 2,
       views: 2,

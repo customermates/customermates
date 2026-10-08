@@ -1,6 +1,8 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { FormEvent } from "react";
 
+import type { ConfirmationSentence } from "./confirmation-sentence";
+
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export interface DeleteConfirmationData {
@@ -9,8 +11,8 @@ export interface DeleteConfirmationData {
   entityName?: string;
   confirmLabel?: string;
   confirmVariant?: "default" | "destructive";
-  details?: string[];
-  blockers?: string[];
+  details?: Array<string | ConfirmationSentence>;
+  blockers?: Array<string | ConfirmationSentence>;
   confirmationText?: string;
   successKey?: string;
   focusAfterConfirm?: () => boolean;

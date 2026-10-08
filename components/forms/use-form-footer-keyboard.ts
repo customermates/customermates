@@ -4,6 +4,7 @@ import type { RefObject } from "react";
 
 import { useEffect } from "react";
 
+import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
 import { useOverlayDismissGuard } from "@/components/modal/overlay-dismiss-guard";
 
 const SHORTCUT_SCOPE =
@@ -16,11 +17,6 @@ type Options = {
   formId?: string;
   interceptDismiss: () => boolean;
 };
-
-export function isSaveShortcut(event: KeyboardEvent) {
-  if (!(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey || event.isComposing) return false;
-  return event.key === "Enter" || event.code === "Enter" || event.code === "NumpadEnter";
-}
 
 export function shortcutScope(container: HTMLElement | null, formId: string | undefined) {
   const form = formId ? document.getElementById(formId) : null;
@@ -45,7 +41,7 @@ export function useFormFooterKeyboard({ enabled, containerRef, saveButtonRef, fo
 
     function onKeyDown(event: KeyboardEvent) {
       const button = saveButtonRef.current;
-      if (event.defaultPrevented || !isSaveShortcut(event) || !button || button.disabled) return;
+      if (event.defaultPrevented || !isShortcutPress(event, "save") || !button || button.disabled) return;
       event.preventDefault();
       event.stopPropagation();
       button.click();

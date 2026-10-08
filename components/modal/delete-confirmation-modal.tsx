@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { ConfirmDialog } from "./confirm-dialog";
+import { ConfirmationSentenceView } from "./confirmation-sentence";
 
 export const DeleteConfirmationModal = observer(() => {
   const t = useTranslations();
@@ -31,8 +32,10 @@ export const DeleteConfirmationModal = observer(() => {
     >
       {form.details?.length ? (
         <ul className="list-disc space-y-1 ps-5 text-sm" data-delete-confirmation-details="">
-          {form.details.map((detail) => (
-            <li key={detail}>{detail}</li>
+          {form.details.map((detail, index) => (
+            <li key={index}>
+              <ConfirmationSentenceView sentence={typeof detail === "string" ? [detail] : detail} onNavigate={close} />
+            </li>
           ))}
         </ul>
       ) : null}
@@ -42,8 +45,13 @@ export const DeleteConfirmationModal = observer(() => {
           <p className="font-medium text-destructive">{t("Common.deleteConfirmation.blocked")}</p>
 
           <ul className="list-disc space-y-1 ps-5">
-            {form.blockers.map((blocker) => (
-              <li key={blocker}>{blocker}</li>
+            {form.blockers.map((blocker, index) => (
+              <li key={index}>
+                <ConfirmationSentenceView
+                  sentence={typeof blocker === "string" ? [blocker] : blocker}
+                  onNavigate={close}
+                />
+              </li>
             ))}
           </ul>
         </div>
