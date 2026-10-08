@@ -39,6 +39,7 @@ export const RecordRowActions = observer(function RecordRowActions({
 }) {
   const t = useTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
+  const openedDetails = useRef(false);
   const name = recordRowName(store, record);
   const canDelete = store.presentation.permittedActions.includes("delete") && !record.protectedKind;
   const moreLabel = t("RecordModel.moreActions", { name });
@@ -60,8 +61,20 @@ export const RecordRowActions = observer(function RecordRowActions({
           <TooltipContent>{moreLabel}</TooltipContent>
         </Tooltip>
 
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => onOpen(record, trigger.current)}>
+        <DropdownMenuContent
+          align="end"
+          onCloseAutoFocus={(event) => {
+            if (!openedDetails.current) return;
+            openedDetails.current = false;
+            event.preventDefault();
+          }}
+        >
+          <DropdownMenuItem
+            onSelect={() => {
+              openedDetails.current = true;
+              onOpen(record, trigger.current);
+            }}
+          >
             <PanelLeftOpen className="size-4" />
 
             {t("RecordModel.openDetails")}
