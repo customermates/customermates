@@ -37,6 +37,7 @@ export function calculationDependencyHash(field: RecordField, model: RecordModel
       id: definition.id,
       typeId: definition.typeId,
       valueType: definition.valueType,
+      multiple: definition.multiple ?? false,
       behavior: definition.behavior,
       options: definition.options
         .map((option) => ({

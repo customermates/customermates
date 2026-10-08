@@ -150,7 +150,10 @@ function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | u
   switch (op) {
     case FilterOperatorKey.in:
     case FilterOperatorKey.notIn:
-    case FilterOperatorKey.between: {
+    case FilterOperatorKey.between:
+    case FilterOperatorKey.hasAnyOf:
+    case FilterOperatorKey.hasAllOf:
+    case FilterOperatorKey.hasNoneOf: {
       const arr = Array.isArray(value) ? value : value !== undefined && value !== null ? [value] : [];
 
       const values = arr.map((x) => String(x));
@@ -195,6 +198,9 @@ function decodeFilterToken(token: string): Filter | undefined {
       case FilterOperatorKey.in:
       case FilterOperatorKey.notIn:
       case FilterOperatorKey.between:
+      case FilterOperatorKey.hasAnyOf:
+      case FilterOperatorKey.hasAllOf:
+      case FilterOperatorKey.hasNoneOf:
         value = decodeListValue(rest);
         break;
       case FilterOperatorKey.isNull:

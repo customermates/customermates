@@ -20,7 +20,8 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
+import type { FocusKind } from "@/components/focus/focus-href";
+import { useFocusTarget } from "@/components/focus/focus-target";
 
 import { useRoutineColumns } from "./use-routine-columns";
 import { RoutinesPageSkeleton } from "./routines-page-skeleton";

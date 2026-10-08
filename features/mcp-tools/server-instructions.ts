@@ -18,7 +18,7 @@ export const CRM_DATA_INVARIANTS = [
   "Never guess type, field, relationship or select-option ids. Discover relevant types with discover_record_types and fetch their current schemas with get_record_model.",
   "A record reference always includes typeId and recordId. Names are editable labels, never identifiers. An ordinary email field is not an identity key.",
   "Read totals from query_crm_measure at the requested grain, never sum one result page. Follow pagination for complete record lists; a restricted, missing or failed value is never zero.",
-  "Typed value fields: text, select, member and ISO date/dateTime use a string value; textList uses a string array; boolean uses a boolean value. Decimal uses an exact decimal string value plus currency (three-letter code or null). Range uses start and end (strings or null); richText uses documentJson. Include only the fields for that kind.",
+  "Typed value fields: text, select, member and ISO date/dateTime use a string value; textList and selectList (multiple choice option ids, each once) use a string array; boolean uses a boolean value. Decimal uses an exact decimal string value plus currency (three-letter code or null). Range uses start and end (strings or null); richText uses documentJson. Include only the fields for that kind.",
   "Use decimal strings for numbers and money, explicit currencies, and validated expression definitions. Re-read after a stale revision; reuse an idempotency key only for the exact same request.",
 ] as const;
 
