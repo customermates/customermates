@@ -24,6 +24,7 @@ export type ModelIssue = {
 };
 
 export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select"];
+export const CONTACT_VALUE_TYPES: readonly RecordValueType[] = ["email", "phone", "url"];
 
 export function selectedOptionIds(value: RecordScalar | null): string[] {
   if (!value) return [];
@@ -409,6 +410,8 @@ export function validateRecordModel(model: RecordModel): {
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
     if (field.valueType === "currency" && !field.format?.currency)
       issues.push({ code: "missing_currency", fieldId: field.id });
+    if (field.format?.onClick && !CONTACT_VALUE_TYPES.includes(field.valueType))
+      issues.push({ code: "invalid_click_action", fieldId: field.id });
     if (field.behavior.kind === "input") {
       if (
         field.behavior.defaultValue &&

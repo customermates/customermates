@@ -305,6 +305,13 @@ export const RecordFieldSchema = z
           .nullable()
           .optional(),
         decimalPlaces: z.number().int().min(0).max(30).nullable().optional(),
+        onClick: z
+          .enum(["open", "copy"])
+          .nullable()
+          .optional()
+          .describe(
+            "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+          ),
       })
       .strict()
       .optional(),

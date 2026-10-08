@@ -3058,6 +3058,21 @@
       "short": "Correo, teléfono, redes"
     },
     "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
+    "clickAction": "Al hacer clic",
+    "clickActions": {
+      "email": {
+        "copy": "Copiar dirección",
+        "open": "Abrir en la app de correo"
+      },
+      "phone": {
+        "copy": "Copiar número",
+        "open": "Llamar"
+      },
+      "url": {
+        "copy": "Copiar enlace",
+        "open": "Abrir enlace"
+      }
+    },
     "color": "Color",
     "conditionIf": "Condición",
     "conditionOtherwise": "Si no",

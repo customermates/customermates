@@ -3058,6 +3058,21 @@
       "short": "E-Mail, Telefon, Social"
     },
     "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "clickAction": "Beim Klicken",
+    "clickActions": {
+      "email": {
+        "copy": "Adresse kopieren",
+        "open": "Im Mailprogramm öffnen"
+      },
+      "phone": {
+        "copy": "Nummer kopieren",
+        "open": "Anrufen"
+      },
+      "url": {
+        "copy": "Link kopieren",
+        "open": "Link öffnen"
+      }
+    },
     "color": "Farbe",
     "conditionIf": "Bedingung",
     "conditionOtherwise": "Andernfalls",
