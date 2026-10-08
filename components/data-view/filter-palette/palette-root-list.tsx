@@ -1,6 +1,6 @@
 "use client";
 
-import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import type { FilterTarget } from "./filter-target";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
 
@@ -20,7 +20,7 @@ const PALETTE_GROUP_CLASS =
   "**:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:tracking-wide **:[[cmdk-group-heading]]:uppercase";
 
 type Props = {
-  store: BaseDataViewStore<any>;
+  store: FilterTarget;
   filters: Filter[];
   isAtLimit: boolean;
   onPickField: (field: string) => void;

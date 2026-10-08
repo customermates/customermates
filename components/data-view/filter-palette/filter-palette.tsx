@@ -1,6 +1,6 @@
 "use client";
 
-import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import type { FilterTarget } from "./filter-target";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { KeyboardEvent } from "react";
 
@@ -30,7 +30,7 @@ import { PaletteValueText } from "./palette-value-text";
 import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
 
 type Props = {
-  store: BaseDataViewStore<any>;
+  store: FilterTarget;
 };
 
 export const FilterPalette = observer(function FilterPalette({ store }: Props) {

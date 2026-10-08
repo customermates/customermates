@@ -61,7 +61,7 @@ function dataViewStore(filters: Filter[] = [], filterableFields = [{ field: "nam
   } as unknown as BaseDataViewStore<{ id: string }>;
 }
 
-function paletteStore(page: { kind: string; field?: string }, tableStore: unknown) {
+function paletteStore(page: { kind: string; field?: string }, target: unknown) {
   return {
     close: vi.fn(),
     clearFilters: vi.fn(),
@@ -69,7 +69,7 @@ function paletteStore(page: { kind: string; field?: string }, tableStore: unknow
     isOpen: true,
     openFor: vi.fn(),
     page,
-    tableStore,
+    target,
   };
 }
 

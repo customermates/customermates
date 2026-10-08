@@ -39,7 +39,7 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
   if (store.filterableFields.length === 0) return null;
 
   const activeFilterCount = store.filters?.length ?? 0;
-  const isOpen = palette.isOpen && palette.tableStore === store;
+  const isOpen = palette.isOpen && palette.target === store;
   const page = palette.page;
   const title =
     isOpen && page.kind !== "root"

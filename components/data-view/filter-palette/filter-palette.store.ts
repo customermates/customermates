@@ -1,8 +1,8 @@
-import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
 import type { PalettePlan } from "./palette-field-plan";
 import type { RootStore } from "@/core/stores/root.store";
+import type { FilterTarget } from "./filter-target";
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 
@@ -40,7 +40,7 @@ function emptyDraft(): PaletteDraft {
 }
 
 export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
-  tableStore?: BaseDataViewStore<HasId>;
+  target?: FilterTarget;
   pages: FilterPalettePage[] = [ROOT_PAGE];
   query = "";
   pendingIndex: number | undefined = undefined;
@@ -50,7 +50,7 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
     super(rootStore, { draft: emptyDraft() });
 
     makeObservable(this, {
-      tableStore: observable.ref,
+      target: observable.ref,
       pages: observable.ref,
       query: observable,
       pendingIndex: observable,
@@ -80,7 +80,7 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
   }
 
   get appliedFilters(): Filter[] {
-    return toJS(this.tableStore?.filters) ?? [];
+    return toJS(this.target?.filters) ?? [];
   }
 
   get isAtFilterLimit(): boolean {
@@ -88,19 +88,19 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
   }
 
   planFor = (field: string): PalettePlan =>
-    palettePlan(field, this.tableStore?.filterableFields ?? [], this.tableStore?.filterColumns);
+    palettePlan(field, this.target?.filterableFields ?? [], this.target?.filterColumns);
 
-  openFor = (tableStore: BaseDataViewStore<any>) => {
+  openFor = (target: FilterTarget) => {
     this.cancelPending();
-    this.tableStore = tableStore;
+    this.target = target;
     this.pages = [ROOT_PAGE];
     this.query = "";
     this.pendingIndex = undefined;
     this.openWith({ draft: emptyDraft() });
   };
 
-  openAt = (tableStore: BaseDataViewStore<any>, page: FilterPalettePage) => {
-    this.openFor(tableStore);
+  openAt = (target: FilterTarget, page: FilterPalettePage) => {
+    this.openFor(target);
     if (page.kind !== "root") this.push(page);
   };
 
@@ -203,8 +203,8 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
   commitDraft = () => {
     this.cancelPending();
 
-    const tableStore = this.tableStore;
-    if (!tableStore) return;
+    const target = this.target;
+    if (!target) return;
 
     const draft = toJS(this.form.draft);
     const filters = [...this.appliedFilters];
@@ -219,7 +219,7 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
 
       filters.splice(index, 1);
       this.pendingIndex = undefined;
-      this.applyFilters(tableStore, filters);
+      this.applyFilters(target, filters);
       return;
     }
 
@@ -233,7 +233,7 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
       this.pendingIndex = filters.length - 1;
     } else filters[index] = applied;
 
-    this.applyFilters(tableStore, filters);
+    this.applyFilters(target, filters);
   };
 
   clearFilters = () => {
@@ -242,11 +242,11 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
     this.pages = [ROOT_PAGE];
     this.query = "";
     this.onInitOrRefresh({ draft: emptyDraft() });
-    this.tableStore?.setQueryOptions({ filters: [], forceRefresh: true, refreshMode: "background" });
+    this.target?.setQueryOptions({ filters: [], forceRefresh: true, refreshMode: "background" });
   };
 
   protected override afterChange(id: string): void {
-    if (!this.isOpen || !this.tableStore) return;
+    if (!this.isOpen || !this.target) return;
     if (!id.startsWith(DRAFT_PATH_PREFIX)) return;
 
     this.commitDebounced();
@@ -281,7 +281,7 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
   };
 
   private get customColumns() {
-    return this.tableStore?.filterColumns;
+    return this.target?.filterColumns;
   }
 
   private boundIndex = (field: string): number | undefined => {
@@ -300,8 +300,8 @@ export class FilterPaletteStore extends BaseModalStore<FilterPaletteForm> {
     return toAppliedFilter(candidate);
   };
 
-  private applyFilters = (tableStore: BaseDataViewStore<HasId>, filters: Filter[]) => {
-    tableStore.setQueryOptions({ filters, refreshMode: "background" });
+  private applyFilters = (target: FilterTarget, filters: Filter[]) => {
+    target.setQueryOptions({ filters, refreshMode: "background" });
     this.markCommitted();
   };
 
