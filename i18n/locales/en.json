@@ -669,7 +669,6 @@
       "skip": "Skip"
     },
     "tourUi": {
-      "back": "Back",
       "title": "Guided tour"
     },
     "ui": {
@@ -698,7 +697,6 @@
       "finalizing": "Finishing and saving changes…",
       "history": "Chat history",
       "imageNotAvailable": "Image not available",
-      "jumpToLatest": "Jump to latest",
       "linkCopied": "Link copied",
       "loadChatFailed": "The chat couldn’t be loaded. Select it again to retry.",
       "loadingChat": "Loading chat…",
@@ -851,6 +849,7 @@
       "delete": "Delete",
       "discard": "Discard",
       "expand": "Expand",
+      "jumpToLatest": "Jump to latest",
       "labelHistory": "History",
       "loadMore": "Load more",
       "open": "Open",
@@ -2142,7 +2141,6 @@
   },
   "GlobalSearch": {
     "askMateWith": "Ask Mate: {question}",
-    "clearRecent": "Clear",
     "emptyDescription": "Find records across the lists you can access.",
     "emptyTitle": "Find anything in your workspace",
     "groupRecent": "Recently opened",
@@ -2150,7 +2148,6 @@
     "hintNavigate": "Navigate",
     "hintOpen": "Open",
     "loading": "Searching...",
-    "loadMore": "Load more",
     "noResults": "No results found",
     "placeholder": "Search...",
     "staleItem": "This item no longer exists and was removed from your recent items."
@@ -2268,7 +2265,6 @@
     },
     "groupThread": "Group ({count, plural, one {# member} other {# members}})",
     "hideQuotedText": "Hide quoted text",
-    "jumpToLatest": "Jump to latest",
     "lastMessageDirections": {
       "inbound": "Received",
       "outbound": "Sent"
