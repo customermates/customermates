@@ -92,40 +92,79 @@ test("deleting a personal section asks first and returns its items to their defa
   expect(errors).toEqual([]);
 });
 
-test("the customize dialog creates, renames and deletes empty personal sections", async ({
+test("the customize dialog reorders, renames and deletes sections with visible handles and menus", async ({
   page,
   database,
   workspace,
-}) => {
+}, testInfo) => {
   const errors = collectErrors(page);
+  const touch = testInfo.project.name === "mobile";
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
 
-  let dialog = await openCustomize(page);
+  const dialog = await openCustomize(page);
   await expect(page.getByRole("button", { name: "Reset to default", exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "New section", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
-  await nameNewSection(page, "Later");
-  await expect(sidebarSection(page, "Later")).toContainText("Drag items here or use Move to section");
+  await expect(dialog).toContainText("Drag the handles to reorder items and sections");
+  await expect(dialog.getByRole("button", { name: "Move Tasks", exact: true })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Move section Data", exact: true })).toBeVisible();
 
-  dialog = await openCustomize(page);
+  const dataItems = () =>
+    dialog.locator('[data-customize-section="Data"] [data-customize-item]').evaluateAll((rows) =>
+      rows.map((row) => row.getAttribute("data-customize-item")),
+    );
+  const before = await dataItems();
+  const tasks = await dialog
+    .locator("[data-customize-item]")
+    .filter({ has: page.getByRole("button", { name: "Move Tasks", exact: true }) })
+    .getAttribute("data-customize-item");
+  await dialog.getByRole("button", { name: "Move Tasks", exact: true }).focus();
+  await page.keyboard.press("Space");
+  await page.keyboard.press("ArrowUp");
+  await page.keyboard.press("Space");
+  await expect.poll(async () => (await dataItems()).indexOf(tasks)).toBe(before.indexOf(tasks) - 1);
+
+  await page.getByRole("button", { name: "New section", exact: true }).click();
+  await expect(dialog).toBeVisible();
+  const name = dialog.getByRole("textbox", { name: "Section name" });
+  await expect(name).toBeFocused();
+  await name.fill("Later");
+  await name.press("Enter");
   const later = dialog.locator('[data-customize-section="Later"]');
   await expect(later).toContainText("Drag items here or use Move to section");
-  await later.getByRole("button", { name: "Options for Later", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Rename", exact: true }).click();
-  await nameNewSection(page, "Someday");
 
-  dialog = await openCustomize(page);
-  await dialog
-    .locator('[data-customize-section="Someday"]')
-    .getByRole("button", { name: "Options for Someday" })
-    .click();
+  if (!touch) {
+    const handle = dialog.getByRole("button", { name: "Move Contacts", exact: true });
+    const from = await handle.boundingBox();
+    const to = await later.locator("ul").boundingBox();
+    if (!from || !to) throw new Error("Drag source and target must be visible");
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2 + 10, { steps: 4 });
+    await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 12 });
+    await page.mouse.up();
+    await expect(later.locator('[data-customize-item]')).toHaveCount(1);
+  } else {
+    await dialog.getByRole("button", { name: "Options for Contacts", exact: true }).click();
+    await page.getByRole("menuitem", { name: "Move to section", exact: true }).click();
+    await page.getByRole("menuitem", { name: "Later", exact: true }).click();
+    await expect(later.locator('[data-customize-item]')).toHaveCount(1);
+  }
+
+  await later.getByRole("button", { name: "Later", exact: true }).click();
+  const rename = dialog.getByRole("textbox", { name: "Section name" });
+  await rename.fill("Someday");
+  await rename.press("Enter");
+  const someday = dialog.locator('[data-customize-section="Someday"]');
+  await expect(someday).toBeVisible();
+
+  await someday.getByRole("button", { name: "Options for Someday", exact: true }).click();
   await page.getByRole("menuitem", { name: "Delete section", exact: true }).click();
   const confirm = page.getByRole("alertdialog");
-  await expect(confirm).toContainText("The section is empty, so no items move.");
+  await expect(confirm).toContainText("Contacts moves back to Data");
   await confirm.getByRole("button", { name: "Delete section", exact: true }).click();
   await openSidebar(page);
   await expect(sidebarSection(page, "Someday")).toHaveCount(0);
+  await expect(sidebarItem(page, "Contacts")).toBeVisible();
   await expect
     .poll(async () => JSON.stringify(await storedLayout(database, workspace.userId)))
     .not.toContain("Someday");

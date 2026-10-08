@@ -67,8 +67,6 @@ type Props = {
 
 const SECTION_DROP_PREFIX = "section:";
 
-export const SECTION_NAME_INPUT_ID = "sidebar-section-name";
-
 function defaultSections(groups: NavGroup[]) {
   return groups.map((group) => ({ id: group.key, items: group.items.map((item) => item.key) }));
 }
@@ -281,7 +279,6 @@ function SectionNameInput({ initial, onDone }: { initial: string; onDone: (name:
       autoFocus
       aria-label={t("SidebarCustomize.sectionName")}
       className="h-7"
-      id={SECTION_NAME_INPUT_ID}
       maxLength={SIDEBAR_SECTION_NAME_MAX}
       value={value}
       onBlur={() => finish(true)}

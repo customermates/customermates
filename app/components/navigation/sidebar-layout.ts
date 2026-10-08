@@ -138,6 +138,16 @@ export function shiftSidebarSection(
   return { ...resolved, sections };
 }
 
+export function moveSidebarSection(resolved: ResolvedSidebar, sectionId: string, targetId: string): ResolvedSidebar {
+  const from = resolved.sections.findIndex((section) => section.id === sectionId);
+  const to = resolved.sections.findIndex((section) => section.id === targetId);
+  if (from < 0 || to < 0 || from === to) return resolved;
+  const sections = [...resolved.sections];
+  const [moving] = sections.splice(from, 1);
+  sections.splice(to, 0, moving);
+  return { ...resolved, sections };
+}
+
 export function addSidebarSection(
   resolved: ResolvedSidebar,
   id: string,
