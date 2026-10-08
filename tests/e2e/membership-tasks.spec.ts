@@ -56,9 +56,9 @@ test("resolves a protected task through member approval and rejects ordinary rec
   }
   await expect(task.locator('[aria-busy="true"]')).toHaveCount(0);
   await task.screenshot({ path: testInfo.outputPath("protected-membership-task.png"), animations: "disabled" });
-  await task.getByRole("link", { name: "company settings", exact: true }).click();
-  await expect(page).toHaveURL(/\/company\/members$/);
-  await page.getByRole("button", { name: /Invited Member/ }).click();
+  await task.getByRole("link", { name: "Members", exact: true }).click();
+  await expect(page).toHaveURL(/\/settings\/members$/);
+  await page.locator('[data-slot="data-row-open"]').filter({ hasText: "Invited Member" }).click();
   const member = page.getByRole("dialog", { name: "User", exact: true });
   await member.locator("#member-modal-status").click();
   await page.getByRole("option", { name: "Active", exact: true }).click();
