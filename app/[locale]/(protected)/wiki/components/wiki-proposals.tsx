@@ -39,6 +39,27 @@ type Props = {
   canApply: (action: WikiPageProposalAction) => boolean;
 };
 
+type Translate = ReturnType<typeof useTranslations>;
+
+function actionLabel(t: Translate, action: WikiPageProposalAction) {
+  const labels: Record<WikiPageProposalAction, string> = {
+    create: t("Wiki.proposals.action.create"),
+    update: t("Wiki.proposals.action.update"),
+    delete: t("Wiki.proposals.action.delete"),
+  };
+  return labels[action];
+}
+
+function kindLabel(t: Translate, kind: WikiPageKind | null | undefined) {
+  if (!kind) return null;
+  const labels: Record<WikiPageKind, string> = {
+    guide: t("Wiki.kind.guide"),
+    procedure: t("Wiki.kind.procedure"),
+    knowledge: t("Wiki.kind.knowledge"),
+  };
+  return labels[kind];
+}
+
 function proposalTitle(proposal: WikiPageProposalReviewItem, fallback: string) {
   return proposal.title ?? proposal.currentPage?.title ?? fallback;
 }
@@ -77,7 +98,6 @@ function Comparison({ label, current, proposed }: { label: string; current: Reac
 const ProposalPreview = observer(({ proposal }: { proposal: WikiPageProposalReviewItem }) => {
   const t = useTranslations();
   const page = proposal.currentPage;
-  const kindLabel = (kind: WikiPageKind | null | undefined) => (kind ? t(`Wiki.kind.${kind}`) : null);
   const notYetCreated = t("Wiki.proposals.notYetCreated");
   const missing = t("Wiki.proposals.pageMissing");
   const currentEmpty = proposal.action === "create" ? notYetCreated : missing;
@@ -108,7 +128,9 @@ const ProposalPreview = observer(({ proposal }: { proposal: WikiPageProposalRevi
               empty={currentEmpty}
               value={
                 page
-                  ? [kindLabel(page.kind), page.kind === "procedure" ? page.whenToUse : null].filter(Boolean).join(": ")
+                  ? [kindLabel(t, page.kind), page.kind === "procedure" ? page.whenToUse : null]
+                      .filter(Boolean)
+                      .join(": ")
                   : null
               }
             />
@@ -117,7 +139,7 @@ const ProposalPreview = observer(({ proposal }: { proposal: WikiPageProposalRevi
           proposed={
             <ComparedText
               empty={deleted}
-              value={[kindLabel(proposedKind), proposedWhenToUse].filter(Boolean).join(": ") || null}
+              value={[kindLabel(t, proposedKind), proposedWhenToUse].filter(Boolean).join(": ") || null}
             />
           }
         />
@@ -168,9 +190,7 @@ const ProposalList = observer(({ store }: { store: WikiProposalsStore }) => {
           >
             <span className="grid min-w-0 flex-1 gap-1">
               <span className="flex min-w-0 flex-wrap items-center gap-2">
-                <AppChip variant={ACTION_CHIP_COLOR[proposal.action]}>
-                  {t(`Wiki.proposals.action.${proposal.action}`)}
-                </AppChip>
+                <AppChip variant={ACTION_CHIP_COLOR[proposal.action]}>{actionLabel(t, proposal.action)}</AppChip>
 
                 {proposal.stale && <AppChip variant="warning">{t("Wiki.proposals.staleShort")}</AppChip>}
               </span>
@@ -240,9 +260,7 @@ export const WikiProposals = observer(({ store, canApply }: Props) => {
                 </Button>
 
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <AppChip variant={ACTION_CHIP_COLOR[selected.action]}>
-                    {t(`Wiki.proposals.action.${selected.action}`)}
-                  </AppChip>
+                  <AppChip variant={ACTION_CHIP_COLOR[selected.action]}>{actionLabel(t, selected.action)}</AppChip>
 
                   <h2 className="min-w-0 break-words text-base font-semibold">
                     {proposalTitle(selected, t("Wiki.untitled"))}
