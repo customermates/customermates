@@ -4654,6 +4654,81 @@
                                 ],
                                 "additionalProperties": false
                               },
+                              "members": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "firstName": {
+                                      "type": "string"
+                                    },
+                                    "lastName": {
+                                      "type": "string"
+                                    },
+                                    "avatarUrl": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "firstName",
+                                    "lastName",
+                                    "avatarUrl"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "lists": {
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "additionalProperties": {
+                                  "type": "object",
+                                  "properties": {
+                                    "icon": {
+                                      "type": "string"
+                                    },
+                                    "color": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "default",
+                                            "secondary",
+                                            "destructive",
+                                            "success",
+                                            "warning",
+                                            "info"
+                                          ]
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "icon",
+                                    "color"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
                               "records": {
                                 "type": "object",
                                 "properties": {
@@ -4785,6 +4860,8 @@
                               "actor",
                               "event",
                               "changes",
+                              "members",
+                              "lists",
                               "records"
                             ],
                             "additionalProperties": false
@@ -19417,6 +19494,81 @@
                                             ],
                                             "additionalProperties": false
                                           },
+                                          "members": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "format": "uuid",
+                                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                },
+                                                "firstName": {
+                                                  "type": "string"
+                                                },
+                                                "lastName": {
+                                                  "type": "string"
+                                                },
+                                                "avatarUrl": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "string"
+                                                    },
+                                                    {
+                                                      "type": "null"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "firstName",
+                                                "lastName",
+                                                "avatarUrl"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          },
+                                          "lists": {
+                                            "type": "object",
+                                            "propertyNames": {
+                                              "type": "string",
+                                              "format": "uuid",
+                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                            },
+                                            "additionalProperties": {
+                                              "type": "object",
+                                              "properties": {
+                                                "icon": {
+                                                  "type": "string"
+                                                },
+                                                "color": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "default",
+                                                        "secondary",
+                                                        "destructive",
+                                                        "success",
+                                                        "warning",
+                                                        "info"
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "null"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "required": [
+                                                "icon",
+                                                "color"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          },
                                           "records": {
                                             "type": "object",
                                             "properties": {
@@ -19548,6 +19700,8 @@
                                           "actor",
                                           "event",
                                           "changes",
+                                          "members",
+                                          "lists",
                                           "records"
                                         ],
                                         "additionalProperties": false
@@ -28115,6 +28269,81 @@
                                             ],
                                             "additionalProperties": false
                                           },
+                                          "members": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "format": "uuid",
+                                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                },
+                                                "firstName": {
+                                                  "type": "string"
+                                                },
+                                                "lastName": {
+                                                  "type": "string"
+                                                },
+                                                "avatarUrl": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "string"
+                                                    },
+                                                    {
+                                                      "type": "null"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "firstName",
+                                                "lastName",
+                                                "avatarUrl"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          },
+                                          "lists": {
+                                            "type": "object",
+                                            "propertyNames": {
+                                              "type": "string",
+                                              "format": "uuid",
+                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                            },
+                                            "additionalProperties": {
+                                              "type": "object",
+                                              "properties": {
+                                                "icon": {
+                                                  "type": "string"
+                                                },
+                                                "color": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "default",
+                                                        "secondary",
+                                                        "destructive",
+                                                        "success",
+                                                        "warning",
+                                                        "info"
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "null"
+                                                    }
+                                                  ]
+                                                }
+                                              },
+                                              "required": [
+                                                "icon",
+                                                "color"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          },
                                           "records": {
                                             "type": "object",
                                             "properties": {
@@ -28246,6 +28475,8 @@
                                           "actor",
                                           "event",
                                           "changes",
+                                          "members",
+                                          "lists",
                                           "records"
                                         ],
                                         "additionalProperties": false
@@ -36809,6 +37040,81 @@
                                                   ],
                                                   "additionalProperties": false
                                                 },
+                                                "members": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "id": {
+                                                        "type": "string",
+                                                        "format": "uuid",
+                                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                      },
+                                                      "firstName": {
+                                                        "type": "string"
+                                                      },
+                                                      "lastName": {
+                                                        "type": "string"
+                                                      },
+                                                      "avatarUrl": {
+                                                        "anyOf": [
+                                                          {
+                                                            "type": "string"
+                                                          },
+                                                          {
+                                                            "type": "null"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "id",
+                                                      "firstName",
+                                                      "lastName",
+                                                      "avatarUrl"
+                                                    ],
+                                                    "additionalProperties": false
+                                                  }
+                                                },
+                                                "lists": {
+                                                  "type": "object",
+                                                  "propertyNames": {
+                                                    "type": "string",
+                                                    "format": "uuid",
+                                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                  },
+                                                  "additionalProperties": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "icon": {
+                                                        "type": "string"
+                                                      },
+                                                      "color": {
+                                                        "anyOf": [
+                                                          {
+                                                            "type": "string",
+                                                            "enum": [
+                                                              "default",
+                                                              "secondary",
+                                                              "destructive",
+                                                              "success",
+                                                              "warning",
+                                                              "info"
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "null"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "icon",
+                                                      "color"
+                                                    ],
+                                                    "additionalProperties": false
+                                                  }
+                                                },
                                                 "records": {
                                                   "type": "object",
                                                   "properties": {
@@ -36940,6 +37246,8 @@
                                                 "actor",
                                                 "event",
                                                 "changes",
+                                                "members",
+                                                "lists",
                                                 "records"
                                               ],
                                               "additionalProperties": false

@@ -24,19 +24,25 @@ export function formatRecordDecimal(
   }).format(value.value as unknown as number);
 }
 
+export function EmptyValue() {
+  return <span className="text-muted-foreground">—</span>;
+}
+
 export const RecordValue = observer(function RecordValue({
   result,
   field,
   members = [],
+  wrap = false,
 }: {
   result?: CalculatedValue;
   field: RecordFieldView;
   members?: RecordMember[];
+  wrap?: boolean;
 }) {
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;
   const t = useTranslations();
-  if (!result || result.state === "missing") return <span className="text-muted-foreground">—</span>;
+  if (!result || result.state === "missing") return <EmptyValue />;
   if (result.state === "restricted")
     return <span className="text-muted-foreground">{t("RecordModel.restricted")}</span>;
   if (result.state === "error") return <span className="text-destructive">{t("RecordModel.calculationError")}</span>;
@@ -84,5 +90,5 @@ export const RecordValue = observer(function RecordValue({
     const member = members.find((user) => user.id === value.value);
     return member ? <MemberChip member={member} /> : <AppChip>{t("RecordModel.member")}</AppChip>;
   }
-  return <span className="truncate">{value.value}</span>;
+  return <span className={wrap ? "whitespace-pre-wrap break-words" : "truncate"}>{value.value}</span>;
 });

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CountryCode, Status, SubscriptionPlan } from "@/generated/prisma";
+import { DomainEvent } from "@/features/event/domain-events";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -47,6 +48,7 @@ function harness(previousStatus: Status) {
   const roleRepo = {
     isSystemRoleOrThrow: vi.fn().mockResolvedValue(false),
     hasAnotherActiveSystemRoleUser: vi.fn(),
+    findRoleById: vi.fn().mockResolvedValue({ id: "role-next", name: "Sales" }),
   };
   const eventService = { publish: vi.fn().mockResolvedValue(undefined) };
   const subscriptionService = { updateSubscriptionQuantityOrThrow: vi.fn() };
@@ -77,12 +79,36 @@ function harness(previousStatus: Status) {
       roleId: TARGET_ROLE_ID,
     });
 
-  return { invoke, subscriptionRepo, userRepo };
+  return { invoke, subscriptionRepo, userRepo, eventService };
 }
 
 function expectProfileUpdateBefore(profileUpdate: ReturnType<typeof vi.fn>, timestampWrite: ReturnType<typeof vi.fn>) {
   expect(profileUpdate.mock.invocationCallOrder[0]).toBeLessThan(timestampWrite.mock.invocationCallOrder[0]);
 }
+
+describe("AdminUpdateUserDetailsInteractor history", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("publishes the changed fields as previous and current values, with the role by name", async () => {
+    const { invoke, eventService } = harness(Status.pendingAuthorization);
+
+    await expect(invoke(Status.active)).resolves.toMatchObject({ ok: true });
+
+    expect(eventService.publish).toHaveBeenCalledWith(DomainEvent.USER_UPDATED, {
+      entityId: TARGET_USER_ID,
+      payload: {
+        changes: expect.objectContaining({
+          firstName: { previous: "Test", current: "Team" },
+          lastName: { previous: "User", current: "Mate" },
+          status: { previous: Status.pendingAuthorization, current: Status.active },
+          role: { previous: expect.anything(), current: "Sales" },
+        }),
+      },
+    });
+  });
+});
 
 describe("AdminUpdateUserDetailsInteractor agent credit activation", () => {
   beforeEach(() => {

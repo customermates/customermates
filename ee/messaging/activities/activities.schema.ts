@@ -16,6 +16,7 @@ import { AuditChangeSchema } from "@/features/event/audit-changes";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import { RecordHistoryChangesSchema } from "@/features/records/record-event.schema";
+import { CHIP_COLORS } from "@/constants/chip-colors";
 
 const CalendarEventDtoSchema = CalendarEventSchema.pick({
   id: true,
@@ -45,6 +46,19 @@ export const ActorSchema = z.object({
   lastName: z.string(),
   avatarUrl: z.string().nullable(),
   email: z.string(),
+});
+
+export const ActivityMemberSchema = z.object({
+  id: z.uuid(),
+  firstName: z.string(),
+  lastName: z.string(),
+  avatarUrl: z.string().nullable(),
+});
+export type ActivityMemberDto = z.infer<typeof ActivityMemberSchema>;
+
+export const ActivityListAppearanceSchema = z.object({
+  icon: z.string(),
+  color: z.enum(CHIP_COLORS).nullable(),
 });
 
 export const ActivityThreadRefSchema = z.object({
@@ -85,6 +99,8 @@ export const ActivityEntryDtoSchema = z.union([
     actor: ActorSchema,
     event: z.enum(["record.created", "record.updated", "record.deleted"]),
     changes: RecordHistoryChangesSchema,
+    members: z.array(ActivityMemberSchema),
+    lists: z.record(z.uuid(), ActivityListAppearanceSchema),
     records: ActivityRecordContextSchema,
   }),
   z.object({
