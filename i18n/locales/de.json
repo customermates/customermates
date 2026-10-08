@@ -2989,7 +2989,7 @@
       "channels": "Kanäle",
       "field": "Feld",
       "list": "Liste",
-      "relationship": "Verknüpfung",
+      "relationship": "Beziehung",
       "sublist": "Unterliste"
     },
     "addOption": "Option hinzufügen",
@@ -3419,8 +3419,8 @@
       "one": "Einzelner verknüpfter Wert",
       "sum": "Summe"
     },
-    "relationship": "Verknüpfung",
-    "relationshipChange": "{count} Verknüpfungen geändert",
+    "relationship": "Beziehung",
+    "relationshipChange": "{count} Beziehungen geändert",
     "relationshipEditor": {
       "cardinality": "Wie viele Datensätze verknüpft sind",
       "onDelete": "Beim Löschen",

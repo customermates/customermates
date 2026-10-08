@@ -54,7 +54,7 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   await saveDrawer(page);
   await addFromConfigure(page, "Calculated field");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Uppercase code");
-  await dialog.getByRole("combobox", { name: "Value type", exact: true }).click();
+  await dialog.locator("#valueType").click();
   await page.getByRole("option", { name: "Text", exact: true }).click();
   await openDrawerTab(page, "Calculation");
   const calculation = dialog.getByRole("region", { name: "Calculation", exact: true });
