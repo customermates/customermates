@@ -3406,8 +3406,11 @@
     "relationshipChange": "{count} Beziehungen geändert",
     "relationshipEditor": {
       "cardinality": "Wie viele Datensätze verknüpft sind",
+      "messagesHelp": "Nachrichten stammen von verknüpften Datensätzen mit Kanälen oder verknüpften Unterhaltungen. Berechtigungen für Datensätze und Nachrichten gelten weiterhin.",
       "onDelete": "Beim Löschen",
       "otherList": "der verknüpften Liste",
+      "showMessagesOn": "Nachrichten anzeigen in {list}",
+      "showMessagesOnSide": "Nachrichten anzeigen in {list} ({side})",
       "shownOn": "Wird bei Datensätzen in {list} angezeigt",
       "thisList": "Diese Liste"
     },
@@ -3804,8 +3807,11 @@
     "deleteSectionEmpty": "Der Abschnitt ist leer, es werden keine Einträge verschoben.",
     "deleteSectionMoves": "Die Einträge kehren an ihren Standardplatz in deiner Seitenleiste zurück; ausgeblendete Einträge bleiben ausgeblendet:",
     "deleteSectionTitle": "Abschnitt „{section}“ löschen?",
+    "dragItem": "{item} verschieben",
+    "dragSection": "Abschnitt {section} verschieben",
     "emptySection": "Einträge hierher ziehen oder „In Abschnitt verschieben“ nutzen",
     "hide": "In der Seitenleiste ausblenden",
+    "hint": "Ziehe die Griffe, um Einträge und Abschnitte neu anzuordnen, oder nutze die Menüs …. Klicke auf den Namen eines eigenen Abschnitts, um ihn umzubenennen.",
     "itemActions": "Optionen für {item}",
     "moveDown": "Nach unten",
     "movesBackTo": "{item} kehrt zu {section} zurück",

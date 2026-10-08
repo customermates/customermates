@@ -15,6 +15,7 @@ import { RecordOperationProgress } from "@/components/records/record-operation-p
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
+import { FormSwitch } from "@/components/forms/form-switch";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
@@ -128,6 +129,27 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
   }
 }
 const CARDINALITIES = ["oneToOne", "oneToMany", "manyToOne", "manyToMany"] as const;
+
+const MessageSourceSwitches = observer(function MessageSourceSwitches({ store }: { store: RelationshipModalStore }) {
+  const t = useTranslations();
+  const source = store.model.types.find((type) => type.id === store.sourceTypeId);
+  const target = store.model.types.find((type) => type.id === store.form.targetTypeId);
+  if (!source || !target) return null;
+  const self = source.id === target.id;
+  const label = (list: string, side: string) =>
+    self
+      ? t("RecordModel.relationshipEditor.showMessagesOnSide", { list, side })
+      : t("RecordModel.relationshipEditor.showMessagesOn", { list });
+  return (
+    <div className="flex flex-col gap-3" data-relationship-messages="">
+      <FormSwitch id="messagesOnSource" label={label(source.pluralLabel, store.form.sourceLabel)} />
+
+      <FormSwitch id="messagesOnTarget" label={label(target.pluralLabel, store.form.targetLabel)} />
+
+      <p className="text-xs text-muted-foreground">{t("RecordModel.relationshipEditor.messagesHelp")}</p>
+    </div>
+  );
+});
 
 const DirectRelationshipFields = observer(function DirectRelationshipFields({
   store,
@@ -287,6 +309,8 @@ export const RelationshipModal = observer(function RelationshipModal({
           ) : (
             <>
               <DirectRelationshipFields store={store} />
+
+              <MessageSourceSwitches store={store} />
 
               <CollapsibleSection
                 id="relationship-deletion"

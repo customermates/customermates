@@ -3406,8 +3406,11 @@
     "relationshipChange": "{count} relazioni modificate",
     "relationshipEditor": {
       "cardinality": "Quanti record sono collegati",
+      "messagesHelp": "I messaggi provengono da record collegati con canali o da conversazioni collegate. I permessi su record e messaggi restano validi.",
       "onDelete": "All'eliminazione",
       "otherList": "la lista collegata",
+      "showMessagesOn": "Mostra i loro messaggi in {list}",
+      "showMessagesOnSide": "Mostra i loro messaggi in {list} ({side})",
       "shownOn": "Mostrato nei record di {list}",
       "thisList": "Questa lista"
     },
@@ -3804,8 +3807,11 @@
     "deleteSectionEmpty": "La sezione è vuota, quindi nessun elemento viene spostato.",
     "deleteSectionMoves": "I suoi elementi tornano al loro posto predefinito nella barra laterale; gli elementi nascosti restano nascosti:",
     "deleteSectionTitle": "Eliminare la sezione «{section}»?",
+    "dragItem": "Sposta {item}",
+    "dragSection": "Sposta la sezione {section}",
     "emptySection": "Trascina qui gli elementi o usa Sposta nella sezione",
     "hide": "Nascondi dalla barra laterale",
+    "hint": "Trascina le maniglie per riordinare elementi e sezioni, oppure usa i menu …. Fai clic sul nome di una sezione personale per rinominarla.",
     "itemActions": "Opzioni per {item}",
     "moveDown": "Sposta giù",
     "movesBackTo": "{item} torna in {section}",
