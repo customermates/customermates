@@ -30,13 +30,13 @@ export function useMemberDeleteConfirmation() {
   const { userModalStore } = useRootStore();
   const { showConfirmation } = useDeleteConfirmation();
 
-  return (name: string) =>
+  return (name: string, memberId: string) =>
     showConfirmation({
       title: t("Common.deleteConfirmation.title"),
       message: t("CompanyUserModal.deleteMessage", { name }),
       confirmLabel: t("Common.actions.delete"),
       confirmVariant: "destructive",
-      onConfirm: () => userModalStore.remove(),
+      onConfirm: () => userModalStore.remove(memberId),
     });
 }
 
@@ -47,13 +47,13 @@ export function memberName(member: { firstName: string; lastName: string; email:
 export const CompanyUserModal = observer(() => {
   const t = useTranslations();
   const { userModalStore: store, rolesStore } = useRootStore();
-  const { form, savedState, isOwnProfile, canRemove, isLoading } = store;
+  const { form, savedState, isOwnProfile, canRemove, isLoading, loadedUserId } = store;
   const confirmDelete = useMemberDeleteConfirmation();
 
   return (
     <AppModal
       actions={
-        canRemove
+        canRemove && loadedUserId
           ? [
               {
                 id: "delete-member",
@@ -62,7 +62,7 @@ export const CompanyUserModal = observer(() => {
                 icon: Trash2,
                 variant: "destructive",
                 disabled: isLoading,
-                onClick: () => confirmDelete(memberName({ ...savedState, email: form.email })),
+                onClick: () => confirmDelete(memberName({ ...savedState, email: form.email }), loadedUserId),
               },
             ]
           : []

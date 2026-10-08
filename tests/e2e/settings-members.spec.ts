@@ -20,7 +20,17 @@ test("the members row menu deletes another member through the guarded deactivati
     [memberId, workspace.companyId, role.rows[0].roleId, `second-${memberId}@example.test`],
   );
 
+  const pendingId = randomUUID();
+  await database.query(
+    'INSERT INTO "User" (id,"companyId",email,"firstName","lastName",status,country,"updatedAt") VALUES ($1,$2,$3,\'Invited\',\'Member\',\'pendingAuthorization\',\'de\',NOW())',
+    [pendingId, workspace.companyId, `pending-${pendingId}@example.test`],
+  );
+
   await page.goto("/en/settings/members");
+  await page.getByRole("button", { name: "More actions for Invited Member", exact: true }).click();
+  await expect(page.getByRole("menuitem")).toHaveText(["Open details"]);
+  await page.keyboard.press("Escape");
+
   const ownMenu = page.getByRole("button", {
     name: "More actions for Browser Administrator",
     exact: true,

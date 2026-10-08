@@ -3,7 +3,7 @@ import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-up
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
-import { CountryCode, Resource, Status } from "@/generated/prisma";
+import { Action, CountryCode, Resource, Status } from "@/generated/prisma";
 
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -11,8 +11,15 @@ import { adminUpdateUserDetailsAction, getRolesAction, getUserByIdAction } from 
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
+type RemovableMember = { status: Status; roleId: string | null; firstName: string; lastName: string };
+
+export function isRemovableMember(member: RemovableMember) {
+  return member.status === Status.active && Boolean(member.roleId && member.firstName && member.lastName);
+}
+
 export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
   public loadedUserId: string | null = null;
+  private loadSequence = 0;
 
   constructor(rootStore: RootStore) {
     super(
@@ -53,7 +60,7 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
 
   get canRemove() {
     return Boolean(
-      this.loadedUserId && !this.isOwnProfile && this.canManage && this.savedState.status !== Status.inactive,
+      this.loadedUserId && !this.isOwnProfile && this.allows(Action.update) && isRemovableMember(this.savedState),
     );
   }
 
@@ -62,11 +69,14 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
   };
 
   loadById = async (id: string) => {
+    const sequence = ++this.loadSequence;
     this.setIsLoading(true);
     this.setLoadedUserId(null);
 
     try {
       const [{ user }, roles] = await Promise.all([getUserByIdAction({ id }), getRolesAction()]);
+
+      if (sequence !== this.loadSequence) return;
 
       this.rootStore.rolesStore.setItems(roles);
 
@@ -85,12 +95,12 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
         roleId: user.roleId ?? "",
       });
     } finally {
-      this.setIsLoading(false);
+      if (sequence === this.loadSequence) this.setIsLoading(false);
     }
   };
 
-  remove = async (): Promise<boolean> => {
-    if (!this.canRemove || this.isLoading) return false;
+  remove = async (memberId: string): Promise<boolean> => {
+    if (this.loadedUserId !== memberId || !this.canRemove || this.isLoading) return false;
 
     this.setIsLoading(true);
 
