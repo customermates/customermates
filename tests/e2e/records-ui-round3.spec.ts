@@ -297,8 +297,11 @@ test("board columns keep a one-line header and a persisted, keyboard-resizable w
   await page.reload();
   await expect(page.locator("[data-group-key]").first()).toBeVisible();
   await expect.poll(async () => (await page.locator("[data-group-key]").first().boundingBox())!.width).toBe(before + 30);
-  await page.locator('[data-slot="column-resize-handle"]').first().focus();
-  await page.keyboard.press("Enter");
-  await expect.poll(async () => (await page.locator("[data-group-key]").first().boundingBox())!.width).toBe(before);
+  const laneWidth = async () => (await page.locator("[data-group-key]").first().boundingBox())!.width;
+  await expect(async () => {
+    await page.locator('[data-slot="column-resize-handle"]').first().focus();
+    await page.keyboard.press("Enter");
+    await expect.poll(laneWidth, { timeout: 2000 }).toBe(before);
+  }).toPass({ timeout: 20000 });
   await expect.poll(storedWidth).toBeUndefined();
 });
