@@ -105,13 +105,7 @@ const DOCUMENTED_OVERLAY_TYPES = [
   "CommandDialog",
 ];
 
-const OVERLAY_FOOTER_COMPONENTS = [
-  "DialogFooter",
-  "DrawerFooter",
-  "SheetFooter",
-  "AlertDialogFooter",
-  "PopoverFooter",
-];
+const OVERLAY_FOOTER_COMPONENTS = ["DialogFooter", "DrawerFooter", "SheetFooter", "AlertDialogFooter", "PopoverFooter"];
 
 const OVERLAY_FOOTER_DIVIDER = new RegExp(
   `<(?:${OVERLAY_FOOTER_COMPONENTS.join("|")})\\b(?:(?!>).)*\\bborder-(?:t|b)\\b(?:(?!>).)*>`,
@@ -244,16 +238,20 @@ describe("overlay contract", () => {
     expect(found, `Use var(--safe-top|right|bottom|left) from styles/globals.css:\n${found.join("\n")}`).toEqual([]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("routes floating surfaces through a collision-aware primitive", () => {
-    const found = violations(
-      (line) => FIXED_FLOATING_SURFACE.test(line.text),
-      (file) => FIXED_SURFACE_ALLOWLIST.has(file),
-    );
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "routes floating surfaces through a collision-aware primitive",
+    () => {
+      const found = violations(
+        (line) => FIXED_FLOATING_SURFACE.test(line.text),
+        (file) => FIXED_SURFACE_ALLOWLIST.has(file),
+      );
 
-    expect(found, `Compose Popover, Dialog, Sheet or Drawer instead of a raw fixed layer:\n${found.join("\n")}`).toEqual(
-      [],
-    );
-  });
+      expect(
+        found,
+        `Compose Popover, Dialog, Sheet or Drawer instead of a raw fixed layer:\n${found.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has no detached absolute dropdown panels", () => {
     const found = violations((line) => DETACHED_ABSOLUTE_PANEL.test(line.text));
@@ -420,21 +418,22 @@ describe("overlay contract", () => {
         { file: "bad.tsx", text: "<AppCardFooter>\n  <FormFooterActions store={s} />\n</AppCardFooter>" },
       ]),
     ).toHaveLength(1);
-    expect(
-      nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormFooterActions store={s} />" }]),
-    ).toHaveLength(0);
+    expect(nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormFooterActions store={s} />" }])).toHaveLength(
+      0,
+    );
   });
 
   it("keeps delegated sheet card footers above the bottom safe area", () => {
     const appCardFooter = readFileSync(join(REPO_ROOT, "components/card/app-card-footer.tsx"), "utf8");
 
-    expect(appCardFooter).toContain(
-      "in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]",
-    );
+    expect(appCardFooter).toContain("in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]");
   });
 
   it("keeps task-overlay headers and action footers divider-free", () => {
-    const entityDetail = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx"), "utf8");
+    const entityDetail = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx"),
+      "utf8",
+    );
     const responsiveOverlay = readFileSync(join(REPO_ROOT, "components/modal/responsive-overlay.tsx"), "utf8");
     const footerViolations = sourcePatternViolations(OVERLAY_FOOTER_DIVIDER);
 
@@ -470,7 +469,10 @@ describe("overlay contract", () => {
     expect(focusTarget).toContain("[data-overlay-surface][data-state='closed']");
     expect(focusTarget).toContain("element.focus({ preventScroll: true })");
 
-    const entityDrawer = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"), "utf8");
+    const entityDrawer = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"),
+      "utf8",
+    );
     expect(entityDrawer).toContain("store.focusReturnTarget, store.focusReturnFallback");
     expect(entityDrawer).toContain("{...focusReturn}");
 

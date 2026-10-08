@@ -10,6 +10,7 @@ import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
@@ -37,6 +38,7 @@ const sizeClassMap: Record<ModalSize, string> = {
 
 type SharedProps = {
   title: ReactNode;
+  presentation?: "dialog" | "sheet";
   actions?: AppModalActions;
   description?: ReactNode;
   layerClassName?: string;
@@ -78,15 +80,15 @@ function focusFirstContentControl(event: Event) {
 }
 
 export const AppModal = observer((props: Props) => {
-  const { title, actions = [], description, layerClassName, size = "md", children } = props;
+  const { title, actions = [], description, layerClassName, size = "md", presentation = "dialog", children } = props;
   const store = hasStore(props) ? props.store : undefined;
   const clientReady = useClientReady();
   const isOpen = clientReady && (hasStore(props) ? props.store.isOpen : props.open);
   const navigationGuard = store?.rootStore.navigationGuard;
   const releaseFocus = layerClassName === OVERLAY_TOPMOST_LAYER_CLASS ? undefined : releaseFocusToAssistantSurface;
   const isWide = useIsWiderThan("md");
-  const [presentation, setPresentation] = useState({ open: isOpen, wide: isWide });
-  if (presentation.open !== isOpen) setPresentation({ open: isOpen, wide: isOpen ? isWide : presentation.wide });
+  const [layout, setLayout] = useState({ open: isOpen, wide: isWide });
+  if (layout.open !== isOpen) setLayout({ open: isOpen, wide: isOpen ? isWide : layout.wide });
   const actionCount = actions.length;
   const hasActions = actionCount > 0;
 
@@ -103,7 +105,7 @@ export const AppModal = observer((props: Props) => {
 
   function handleOpenAutoFocus(event: Event) {
     focusReturn.onOpenAutoFocus();
-    if (hasActions) focusFirstContentControl(event);
+    if (hasActions || presentation === "sheet") focusFirstContentControl(event);
   }
 
   useEffect(() => {
@@ -128,9 +130,44 @@ export const AppModal = observer((props: Props) => {
     if (!next && !dismissGuard.shouldKeepOpen()) requestClose();
   }
 
+  const content = (
+    <>
+      <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
+
+      <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+        <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
+      </OverlayDismissGuardContext.Provider>
+    </>
+  );
+
   return (
     <>
-      {presentation.wide ? (
+      {presentation === "sheet" ? (
+        <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+          <SheetContent
+            className={cn("w-full gap-0 bg-background sm:max-w-xl", layerClassName)}
+            data-overlay-action-count={hasActions ? actionCount : undefined}
+            data-overlay-actions={hasActions ? "" : undefined}
+            overlayClassName={layerClassName}
+            side="right"
+            onBlur={releaseFocus}
+            onEscapeKeyDown={keepOpenForAssistantSurface}
+            onInteractOutside={keepOpenForAssistantSurface}
+            {...(!description ? { "aria-describedby": undefined } : {})}
+            {...focusReturn}
+            onCloseAutoFocus={handleCloseAutoFocus}
+            onOpenAutoFocus={handleOpenAutoFocus}
+          >
+            <VisuallyHidden.Root>
+              <SheetTitle>{title}</SheetTitle>
+
+              {description ? <SheetDescription>{description}</SheetDescription> : null}
+            </VisuallyHidden.Root>
+
+            {content}
+          </SheetContent>
+        </Sheet>
+      ) : layout.wide ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
             className={cn(
@@ -155,11 +192,7 @@ export const AppModal = observer((props: Props) => {
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </VisuallyHidden.Root>
 
-            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
-
-            <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
-              <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
-            </OverlayDismissGuardContext.Provider>
+            {content}
           </DialogContent>
         </Dialog>
       ) : (
@@ -183,11 +216,7 @@ export const AppModal = observer((props: Props) => {
               {description ? <DrawerDescription>{description}</DrawerDescription> : null}
             </VisuallyHidden.Root>
 
-            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
-
-            <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
-              <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
-            </OverlayDismissGuardContext.Provider>
+            {content}
           </DrawerContent>
         </Drawer>
       )}
