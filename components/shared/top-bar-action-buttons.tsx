@@ -93,6 +93,7 @@ export function TopBarActionButtons({ actions }: { actions: readonly AppModalAct
 export function TopBarPrimaryButton({
   label,
   icon: Icon = Plus,
+  leading,
   anchorId,
   count,
   disabled,
@@ -100,13 +101,14 @@ export function TopBarPrimaryButton({
 }: {
   label: string;
   icon?: LucideIcon;
+  leading?: ReactNode;
   anchorId?: string;
   count?: number;
   disabled?: boolean;
-} & ({ onClick: () => void } | { href: string })) {
+} & ({ onClick: () => void } | { href: string } | { menu: ReactNode })) {
   const content = (
     <>
-      <Icon aria-hidden className="size-3.5" />
+      {leading ?? <Icon aria-hidden className="size-3.5" />}
 
       <span className="hidden sm:inline">{label}</span>
 
@@ -128,7 +130,7 @@ export function TopBarPrimaryButton({
     );
   }
 
-  return (
+  const button = (
     <Button
       aria-label={label}
       className="h-8"
@@ -138,10 +140,22 @@ export function TopBarPrimaryButton({
       size="sm"
       type="button"
       variant="default"
-      onClick={target.onClick}
+      onClick={"onClick" in target ? target.onClick : undefined}
     >
       {content}
     </Button>
+  );
+
+  if (!("menu" in target)) return button;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>{button}</DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" aria-labelledby={anchorId}>
+        {target.menu}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

@@ -244,15 +244,7 @@ function topBarFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const TOP_BAR_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx":
-    "I3 r3: Add widget through the shared top-bar action buttons",
-  "app/[locale]/(protected)/company/components/subscription/subscription-view.tsx": "I19: billing page actions",
-  "app/[locale]/(protected)/profile/components/api-keys-page-view.tsx":
-    "I19: API keys Add through the shared top-bar action buttons",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx": "I19: VerifyEmailAction button",
-  "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx": "I19: ConnectAction button",
-};
+const TOP_BAR_ALLOWLIST: Allowlist = {};
 
 describe("rules 5, 6 and 58: top-bar actions and view chips through their shared components", () => {
   it("builds every top-bar action node from DataViewToolbar or the shared top-bar action buttons", () => {

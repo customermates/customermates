@@ -1878,10 +1878,12 @@
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
+      "activityCount": "{count, plural, one {# activité} other {# activités}}",
       "aiLabel": "Interroger l’IA sur {name}",
       "all": "Toutes",
       "applied": "Affichage de {name}",
       "askAi": "Demander à l'IA",
+      "conversationCount": "{count, plural, one {# discussion} other {# discussions}}",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
       "createWithAi": "Créer avec l’IA",
@@ -3624,7 +3626,6 @@
   },
   "RoleModal": {
     "create": "Créer",
-    "delete": "Supprimer",
     "edit": "Modifier",
     "manageAccess": "Gérer",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
@@ -3908,7 +3909,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Sièges actifs",
-    "refresh": "Actualiser",
     "refreshSuccess": "Abonnement actualisé",
     "seatBillingNote": "Vous payez par utilisateur actif. Les changements de sièges sont calculés au prorata sur votre prochaine facture.",
     "status": {
