@@ -50,7 +50,7 @@ export const RecordEditorField = observer(function RecordEditorField({
         action={restricted ? null : captureAction}
         fieldId={field.id}
         label={field.label}
-        value={<RecordValue field={field} result={result} />}
+        value={<RecordValue field={field} members={store.record?.memberUsers} result={result} />}
       />
     ) : null;
   }

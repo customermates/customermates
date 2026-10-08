@@ -353,7 +353,6 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await selectOption(page, "Group by", "No grouping");
     await showTab(page, "Appearance");
     await type("number").check();
-    await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
     await expect(dialog.locator('[data-slot="widget-number"]')).toContainText(money(total));
     await save(page);
     const saved = await readWidget(database, companyId, "Pipeline total");
@@ -402,7 +401,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     );
     await openEditor(page, "Deals closed");
     await selectOption(page, "Time interval", "Quarter");
-    await dialog.getByRole("button", { name: "Save changes", exact: true }).click();
+    await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).toHaveCount(0);
     await expect
       .poll(async () => (await readWidget(database, companyId, "Deals closed")).measure)
@@ -610,7 +609,7 @@ test("adds every starter template resolved against the model and keeps them edit
   await openEditor(page, "Open Value");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Open deal count");
   await selectOption(page, "Measure", "Count");
-  await dialog.getByRole("button", { name: "Save changes", exact: true }).click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).toHaveCount(0);
   const edited = await readWidget(database, companyId, "Open deal count");
   expect(edited.version).toBe(2);

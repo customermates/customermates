@@ -12,6 +12,7 @@ import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewLayout } from "@/components/data-view/data-view-layout";
@@ -21,12 +22,17 @@ import { resolveDataViewPageState, resolveDataViewView } from "@/components/data
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { IntlLink } from "@/i18n/navigation";
 import { RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { RecordCell } from "./record-cell";
-import { RecordInlineField, canEditInline } from "./record-inline-field";
+import {
+  RecordCalculatedCell,
+  RecordInlineField,
+  RecordInlineRelationship,
+  canEditInline,
+  isCalculatedForEditor,
+  hasInlineRelationshipEditor,
+} from "./record-inline-field";
 import { RecordRowActions } from "./record-row-actions";
 import { useRecordDeletion } from "./use-record-deletion";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
@@ -72,14 +78,18 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     return () => root.layoutStore.clearRuntimeIdentity("entity", key);
   }, [root, presentation.typeId, store.type?.pluralLabel, t]);
   const openEditor = useCallback(
-    (ref: { typeId: string; recordId?: string }) => {
+    (ref: { typeId: string; recordId?: string }, returnFocusTo?: HTMLElement | null) => {
       const target = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-      root.recordWorkspaceStore.open(ref, target);
+      root.recordWorkspaceStore.open(ref, returnFocusTo ?? target);
     },
     [root],
   );
   const openRelated = useCallback((ref: RecordRef) => openEditor(ref), [openEditor]);
-  const openRecord = useCallback((record: RecordRow) => openEditor(record.ref), [openEditor]);
+  const openRecord = useCallback(
+    (record: RecordRow, returnFocusTo?: HTMLElement | null) => openEditor(record.ref, returnFocusTo),
+    [openEditor],
+  );
+  const recordHref = useCallback((record: RecordRow) => `/records/${record.ref.typeId}/${record.ref.recordId}`, []);
   const recordColumns = store.recordColumns;
   const avatarFieldId = store.presentation.model.capabilities
     .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
@@ -96,21 +106,41 @@ const RecordsPageViewContent = observer(function RecordsPageView({
               avatarFieldId={column.id === store.type?.primaryFieldId ? avatarFieldId : undefined}
               column={column}
               linkColors={store.presentation.linkColors}
+              linkIcons={store.presentation.linkIcons}
               record={row.original}
               onMore={() => openRecord(row.original)}
               onOpen={openRelated}
             />
           );
-          return view === "table" && column.kind === "field" && canEditInline(store, row.original, column.field) ? (
-            <RecordInlineField field={column.field} record={row.original} records={store}>
-              {cell}
-            </RecordInlineField>
+          if (column.kind === "relationship" && hasInlineRelationshipEditor(store, row.original, column.relation)) {
+            return (
+              <RecordInlineRelationship
+                direction={column.direction}
+                label={column.label}
+                record={row.original}
+                records={store}
+                relation={column.relation}
+              >
+                {cell}
+              </RecordInlineRelationship>
+            );
+          }
+          if (column.kind !== "field") return cell;
+          if (canEditInline(store, row.original, column.field)) {
+            return (
+              <RecordInlineField field={column.field} record={row.original} records={store}>
+                {cell}
+              </RecordInlineField>
+            );
+          }
+          return isCalculatedForEditor(store, row.original, column.field) ? (
+            <RecordCalculatedCell field={column.field}>{cell}</RecordCalculatedCell>
           ) : (
             cell
           );
         },
       })),
-    [recordColumns, openRecord, openRelated, avatarFieldId, store, view],
+    [recordColumns, openRecord, openRelated, avatarFieldId, store],
   );
   const deletion = useRecordDeletion({
     onDeleted: () => root.recordWorkspaceStore.invalidate(),
@@ -129,21 +159,17 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       <DataViewToolbar
         actions={
           store.presentation.canManageSchema && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button asChild className="h-8" size="icon-sm" variant="secondary">
-                  <IntlLink
-                    aria-label={configureLabel}
-                    href={`/configure?typeId=${presentation.typeId}`}
-                    id="records-configure"
-                  >
-                    <Settings2 aria-hidden className="size-4" />
-                  </IntlLink>
-                </Button>
-              </TooltipTrigger>
-
-              <TooltipContent>{configureLabel}</TooltipContent>
-            </Tooltip>
+            <TopBarActionButtons
+              actions={[
+                {
+                  id: "configure",
+                  anchorId: "records-configure",
+                  href: `/configure?typeId=${presentation.typeId}`,
+                  icon: Settings2,
+                  label: configureLabel,
+                },
+              ]}
+            />
           )
         }
         anchorScope="records"
@@ -214,7 +240,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       break;
     case "content":
       body = (
-        <DataViewContent columns={columns} rowActions={rowActions} store={store} view={view} onRowClick={openRecord} />
+        <DataViewContent columns={columns} rowActions={rowActions} rowHref={recordHref} store={store} view={view} />
       );
       break;
     default: {

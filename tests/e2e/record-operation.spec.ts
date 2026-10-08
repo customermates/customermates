@@ -2,6 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 import { RecordQueryResultSchema } from "../../features/records/record-query-result.schema";
 
 test("keeps complete application reads, History and a blocked form draft while a high-fan-out update publishes", async ({
@@ -118,7 +119,7 @@ test("keeps complete application reads, History and a blocked form draft while a
       else errors.push(message.text());
     });
   }
-  await page.getByRole("button", { name: "Shared live catalogue price", exact: true }).click();
+  await openRecordDetails(page, "Shared live catalogue price");
   await editor.getByRole("textbox", { name: "Price", exact: false }).fill("20");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(editor.getByRole("status").filter({ hasText: "Existing data remains available" })).toBeVisible();

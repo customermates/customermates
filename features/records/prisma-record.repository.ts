@@ -26,7 +26,7 @@ import type { ConfigurationConsumerCleanup, RecordDefinitionDeletion, RecordRepo
 import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
-import type { RecordPathSummary } from "./record-model.schema";
+import type { RecordMember, RecordPathSummary } from "./record-model.schema";
 import type { RecordPathRow } from "./record-path-query";
 import { compileRecordPathSummaries } from "./record-path-query";
 import type { RecordRelationshipRow } from "./record-relationship-query";
@@ -1193,6 +1193,14 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       },
     });
     await this.deleteOrphanedIdentities(identities.map((row) => row.identityId));
+  }
+
+  async getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]> {
+    if (!userIds.length) return [];
+    return this.prisma.user.findMany({
+      where: { companyId: this.companyId, id: { in: [...new Set(userIds)] } },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+    });
   }
 
   async setAssignments(ref: RecordRef, userIds: string[]): Promise<void> {

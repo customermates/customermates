@@ -6,7 +6,7 @@ import { Tooltip } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
 
 type TooltipContentProps = {
   active?: boolean;
@@ -29,19 +29,14 @@ const BASE_CLASS =
 
 const TooltipContent = observer((props: TooltipContentProps) => {
   const { active, currency, label, payload } = props;
-  const intlStore = useHydratedIntlStore();
+  const valueFormat = useRecordValueFormat();
   const t = useTranslations();
 
   if (!active || !payload || payload.length === 0) return null;
 
   const isPieChart = payload.length > 0 && payload[0].name && payload[0].name !== "value";
   const format = (value: number) =>
-    currency !== undefined
-      ? new Intl.NumberFormat(intlStore.formattingLocale, {
-          style: currency ? "currency" : "decimal",
-          ...(currency ? { currency } : {}),
-        }).format(value)
-      : intlStore.formatNumber(value);
+    currency !== undefined ? valueFormat.decimal(value, { currency }) : valueFormat.number(value);
 
   if (payload.length === 1) {
     const entry = payload[0];

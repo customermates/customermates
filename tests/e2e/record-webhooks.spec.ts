@@ -1,5 +1,6 @@
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -107,7 +108,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   await record.getByRole("textbox", { name: field.rows[0].label, exact: false }).fill("Draft project");
   await record.getByRole("button", { name: "Save", exact: true }).click();
   await expect(record).not.toBeVisible();
-  await page.getByRole("button", { name: "Draft project", exact: true }).click();
+  await openRecordDetails(page, "Draft project");
   await record.getByRole("textbox", { name: field.rows[0].label, exact: false }).fill("Ready project");
   await record.getByRole("button", { name: "Save", exact: true }).click();
   await expect(record).not.toBeVisible();

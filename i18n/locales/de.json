@@ -869,9 +869,7 @@
       "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
-      "switchToBoardView": "Zur Board-Ansicht wechseln",
       "switchToBoardViewDisabled": "Diese Liste hat kein Feld zum Gruppieren",
-      "switchToTableView": "Zur Tabellenansicht wechseln",
       "themeSwitcher": "Darstellungsmodus-Umschalter",
       "tooltipFields": "Darstellung",
       "tooltipFilters": "Filter"
@@ -1737,13 +1735,13 @@
         "showFilters": "Aktivitätsanzahl und Filter anzeigen",
         "showMetricAndFilters": "Kennzahl und Filter anzeigen"
       },
-      "create": "Widget erstellen",
       "danger": {
         "deleteLabel": "Widget löschen: {name}"
       },
       "editTitle": "„{name}“ bearbeiten",
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
+        "change": "Anderes Widget wählen",
         "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
         "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
         "scratchTitle": "Von Grund auf neu",
@@ -1753,10 +1751,13 @@
         "incomplete": "Vervollständigen Sie die Dateneinstellungen, um eine Vorschau zu sehen.",
         "live": "Live-Vorschau",
         "size": "Dashboard-Größe {w} × {h}",
-        "title": "Vorschau",
         "untitled": "Unbenanntes Widget"
       },
-      "save": "Änderungen speichern",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Keine} one {1 aktiv} other {# aktiv}}",
+        "filters": "Filter",
+        "grouping": "Gruppierung"
+      },
       "settings": "Widget-Einstellungen",
       "sharing": {
         "template": "Als Vorlage freigeben"
@@ -1872,6 +1873,7 @@
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Kein Wert",
+    "resizeBoardColumns": "Breite der Board-Spalten ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "rowActions": "Zeilenaktionen",
@@ -2460,7 +2462,6 @@
     "text": "Laden..."
   },
   "MassActions": {
-    "apply": "Auf Auswahl anwenden",
     "clearField": "Feld leeren",
     "delete": "Ausgewählte löschen",
     "keepInView": "Nur sichtbare Zeilen behalten",
@@ -3006,6 +3007,7 @@
       "snapshot": "Bei einem Ereignis gespeichert"
     },
     "board": "Board",
+    "calculatedReadOnly": "{field} wird berechnet und kann nicht bearbeitet werden.",
     "calculationError": "Berechnung nicht verfügbar",
     "calculationInput": "Eingabe {number}",
     "calculationNavigation": "Berechnungsnavigation",
@@ -3317,6 +3319,8 @@
     "iconSearch": "Symbole suchen",
     "identityChannels": "Kanäle",
     "invalidConfiguration": "Diese Änderung muss vor dem Anwenden überprüft werden.",
+    "invalidPhone": "Gib eine Telefonnummer im internationalen Format ein, zum Beispiel +4930123456.",
+    "invalidValue": "Gib einen gültigen Wert ein.",
     "lineFields": {
       "amount": "Betrag",
       "effectivePrice": "Einzelpreis",
@@ -3348,9 +3352,9 @@
     "onePerLine": "Einen Wert pro Zeile eingeben.",
     "onSourceDelete": "Beim Löschen dieses Datensatzes",
     "onTargetDelete": "Beim Löschen des verknüpften Datensatzes",
+    "openDetails": "Details öffnen",
     "openPage": "Seite öffnen",
     "openRecord": "{name} öffnen",
-    "openRecordDetails": "Details zu {name} öffnen",
     "operation": "Berechnung",
     "operationCancelled": "Die Änderung wurde abgebrochen.",
     "operationFailed": "Die Änderung ist fehlgeschlagen. Der vorherige vollständige Stand bleibt aktiv.",
@@ -3561,7 +3565,6 @@
       "startsWith": "Beginnt mit"
     },
     "overall": "Insgesamt: {value}",
-    "preview": "Kennzahl prüfen",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {

@@ -49,7 +49,7 @@ test("restores relationship, assignment and date filters with labels after reloa
   await page.locator("#filter-palette-back").click();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("heading", { name: "Filters", exact: true })).not.toBeVisible();
-  await expect(page.getByRole("button", { name: "Linked opportunity", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Linked opportunity", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Unlinked opportunity", exact: true })).not.toBeVisible();
   await expect
     .poll(async () => {
@@ -65,7 +65,7 @@ test("restores relationship, assignment and date filters with labels after reloa
       { field: "system:updatedAt", operator: "inLastDays", value: 7 },
     ]);
   await page.reload();
-  await expect(page.getByRole("button", { name: "Linked opportunity", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Linked opportunity", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Unlinked opportunity", exact: true })).not.toBeVisible();
   await page.getByRole("button", { name: "Filters", exact: true }).click();
   const active = page.locator("[data-palette-active-filters]");

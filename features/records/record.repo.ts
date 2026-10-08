@@ -178,6 +178,7 @@ export interface RecordRepo {
   touch(ref: RecordRef): Promise<void>;
   delete(ref: RecordRef): Promise<void>;
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
+  getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;
   setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void>;
   setValueDependencies(ref: RecordRef, fieldId: string, sources: RecordRef[]): Promise<void>;
   getValueDependencies(ref: RecordRef, fieldId: string): Promise<RecordRef[]>;

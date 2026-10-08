@@ -10,7 +10,7 @@ import type { RecordQuery } from "./record-query.schema";
 import type { QueryRecordsInteractor } from "./query-records.interactor";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
-import type { RecordLinkColors, RecordRow } from "./record-presentation";
+import type { RecordLinkColors, RecordLinkIcons, RecordRow } from "./record-presentation";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { Action } from "@/generated/prisma";
 
@@ -31,6 +31,7 @@ import {
   recordFilterableFields,
   presentationFiltersAreValid,
   recordLinkColors,
+  recordLinkIcons,
 } from "./record-presentation";
 import { recordColumns } from "./record-columns";
 import { recordGroupableFields } from "./record-grouping";
@@ -47,6 +48,7 @@ export type RecordPresentationResult = {
   systemColumnLabels: Record<"system:createdAt" | "system:updatedAt" | "system:assignedTo" | "system:channels", string>;
   permittedActions: Action[];
   linkColors: RecordLinkColors;
+  linkIcons: RecordLinkIcons;
   query: RecordQuery;
   result: GetResult<RecordRow>;
 };
@@ -181,6 +183,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             },
             canManageSchema: policy.canManageSchema,
             linkColors: recordLinkColors(model.types, relationships),
+            linkIcons: recordLinkIcons(model.types, relationships),
             systemColumnLabels,
             permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter((action) =>
               policy.allowed(type.id, action),

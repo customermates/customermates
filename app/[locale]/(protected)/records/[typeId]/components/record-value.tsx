@@ -4,9 +4,10 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-import type { CalculatedValue, RecordFieldView } from "@/features/records/record-model.schema";
+import type { CalculatedValue, RecordFieldView, RecordMember } from "@/features/records/record-model.schema";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { MemberChip } from "@/components/chip/member-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { toChipColor } from "@/constants/chip-colors";
 
@@ -14,17 +15,42 @@ export function EmptyValue() {
   return <span className="text-muted-foreground">—</span>;
 }
 
+type DecimalFormat = { currency?: string | null; compact?: boolean; maximumFractionDigits?: number };
+
+export function useRecordValueFormat() {
+  const intl = useHydratedIntlStore();
+  const locale = intl.formattingLocale;
+  return {
+    decimal: (
+      value: string | number,
+      { currency = null, compact = false, maximumFractionDigits }: DecimalFormat = {},
+    ) =>
+      new Intl.NumberFormat(locale, {
+        style: currency ? "currency" : "decimal",
+        ...(currency ? { currency } : {}),
+        notation: compact ? "compact" : "standard",
+        maximumFractionDigits: maximumFractionDigits ?? (compact ? 2 : 20),
+      }).format(value as unknown as number),
+    number: (value: number) => intl.formatNumber(value),
+    percent: (ratio: number) =>
+      new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(ratio),
+    date: (value: Date, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(locale, options).format(value),
+  };
+}
+
 export const RecordValue = observer(function RecordValue({
   result,
   field,
+  members = [],
   wrap = false,
 }: {
   result?: CalculatedValue;
   field: RecordFieldView;
+  members?: RecordMember[];
   wrap?: boolean;
 }) {
   const intl = useHydratedIntlStore();
-  const locale = intl.formattingLocale;
+  const valueFormat = useRecordValueFormat();
   const t = useTranslations();
   if (!result || result.state === "missing") return <EmptyValue />;
   if (result.state === "restricted")
@@ -56,11 +82,10 @@ export const RecordValue = observer(function RecordValue({
   if (value.kind === "decimal") {
     return (
       <span className="font-mono tabular-nums">
-        {new Intl.NumberFormat(locale, {
-          style: value.currency ? "currency" : "decimal",
-          ...(value.currency ? { currency: value.currency } : {}),
+        {valueFormat.decimal(value.value, {
+          currency: value.currency,
           maximumFractionDigits: field.format?.decimalPlaces ?? (value.currency ? 2 : 10),
-        }).format(value.value as unknown as number)}
+        })}
       </span>
     );
   }
@@ -88,6 +113,9 @@ export const RecordValue = observer(function RecordValue({
     );
   }
   if (value.kind === "richText") return null;
-  if (value.kind === "member") return <span>{t("RecordModel.member")}</span>;
+  if (value.kind === "member") {
+    const member = members.find((user) => user.id === value.value);
+    return member ? <MemberChip member={member} /> : <AppChip>{t("RecordModel.member")}</AppChip>;
+  }
   return <span className={wrap ? "whitespace-pre-wrap break-words" : "truncate"}>{value.value}</span>;
 });

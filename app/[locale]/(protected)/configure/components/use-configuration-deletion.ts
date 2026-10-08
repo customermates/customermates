@@ -14,7 +14,7 @@ import { useTranslations } from "next-intl";
 
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { confirmationSentence } from "@/components/modal/confirmation-sentence";
-import { focusHref } from "@/components/focus/focus-target";
+import { focusHref } from "@/components/focus/focus-href";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 

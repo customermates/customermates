@@ -3,6 +3,7 @@ import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 async function choose(page: Page, label: string, option: string) {
   await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
@@ -222,7 +223,7 @@ test("configures and persists all fourteen field types, multiple values and cale
   expect(await localTime(value("Calendar time range").jsonValue.end)).toEqual([17, 20, 21]);
   expect(JSON.stringify(value("Notes").jsonValue)).toContain("Formatted notes survive typed storage");
   await page.reload();
-  await page.getByRole("button", { name: "Complete typed record", exact: true }).click();
+  await openRecordDetails(page, "Complete typed record");
   await expect(dialog.getByRole("tab", { name: "Notes", exact: true })).toHaveAttribute("data-state", "active");
   await expect(dialog.getByRole("textbox", { name: "Notes", exact: true })).toContainText(
     "Formatted notes survive typed storage",
@@ -423,7 +424,7 @@ test("builds every calculation operator with the linear editor and persists resu
       });
   }
   await page.reload();
-  await page.getByRole("button", { name: "Calculated record", exact: true }).click();
+  await openRecordDetails(page, "Calculated record");
   await expect(dialog.getByText("Calculation unavailable", { exact: true })).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath("calculation-operator-results.png"),
@@ -497,7 +498,7 @@ test("captures snapshots on request and on stage changes while preserving manual
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
   };
-  const open = async () => page.getByRole("button", { name: "Snapshot record", exact: true }).click();
+  const open = async () => openRecordDetails(page, "Snapshot record");
   await list(page, typeId);
   await page.locator("#records-add").click();
   await dialog.getByRole("textbox", { name, exact: false }).fill("Snapshot record");
@@ -708,7 +709,7 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
   const newerValues = await readValues(newer.recordId);
   for (const label of ["Missing amount", "False default", "Zero default", "Precise default"])
     expect(valueFor(newerValues, label)).toMatchObject({ state: "missing", amount: null, booleanValue: null });
-  const open = async () => page.getByRole("button", { name: "Original defaults record", exact: true }).click();
+  const open = async () => openRecordDetails(page, "Original defaults record");
   const expectCapture = async (amount: string) => {
     expect(valueFor(await readValues(original.recordId), "Disabled snapshot")).toMatchObject({
       state: "value",
@@ -805,7 +806,7 @@ test("changes numeric display precision through the field editor without roundin
   await expect(dialog).not.toBeVisible();
   const recordRow = page
     .getByRole("row")
-    .filter({ has: page.getByRole("button", { name: "Precision record", exact: true }) });
+    .filter({ has: page.getByRole("link", { name: "Precision record", exact: true }) });
   const cellShowing = (text: string) =>
     recordRow.getByRole("cell").filter({ hasText: new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) });
   await expect(cellShowing("12")).toBeVisible();
@@ -851,7 +852,7 @@ test("changes numeric display precision through the field editor without roundin
   await page.reload();
   await expect(cellShowing("12.3456")).toBeVisible();
   await expect(cellShowing("€19.88")).toBeVisible();
-  await page.getByRole("button", { name: "Precision record", exact: true }).click();
+  await openRecordDetails(page, "Precision record");
   await expect(dialog.getByRole("textbox", { name: "Display amount", exact: true })).toHaveValue("12.3456");
   await expect(dialog.getByRole("textbox", { name: "Display price", exact: true })).toHaveValue("19.8765");
   await page.screenshot({ path: testInfo.outputPath("decimal-display-preserves-values.png"), animations: "disabled" });

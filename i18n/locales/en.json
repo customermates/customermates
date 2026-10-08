@@ -869,9 +869,7 @@
       "hidePassword": "Hide password",
       "selectOption": "Select an option",
       "showPassword": "Show password",
-      "switchToBoardView": "Switch to board view",
       "switchToBoardViewDisabled": "This list has no field to group by",
-      "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
       "tooltipFields": "Appearance",
       "tooltipFilters": "Filters"
@@ -1737,13 +1735,13 @@
         "showFilters": "Show activity count and filters",
         "showMetricAndFilters": "Show metric and filters"
       },
-      "create": "Create widget",
       "danger": {
         "deleteLabel": "Delete widget {name}"
       },
       "editTitle": "Edit {name}",
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
+        "change": "Choose another widget",
         "chartDescription": "Compare CRM data in a visual chart.",
         "description": "Pick a format and choose the data yourself.",
         "scratchTitle": "Start from scratch",
@@ -1753,10 +1751,13 @@
         "incomplete": "Complete the data settings to see a preview.",
         "live": "Live preview",
         "size": "Dashboard size {w} × {h}",
-        "title": "Preview",
         "untitled": "Untitled widget"
       },
-      "save": "Save changes",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {None} one {1 active} other {# active}}",
+        "filters": "Filters",
+        "grouping": "Grouping"
+      },
       "settings": "Widget settings",
       "sharing": {
         "template": "Share as a template"
@@ -1872,6 +1873,7 @@
     "groupOverflow": "Only {count} groups are shown",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "No value",
+    "resizeBoardColumns": "Resize the board columns. Drag or use the arrow keys; double-tap or press Enter to reset.",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
     "rowActions": "Row actions",
@@ -2460,7 +2462,6 @@
     "text": "Loading..."
   },
   "MassActions": {
-    "apply": "Apply to selected",
     "clearField": "Clear field",
     "delete": "Delete selected",
     "keepInView": "Keep only rows in view",
@@ -3006,6 +3007,7 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
+    "calculatedReadOnly": "{field} is calculated and can’t be edited.",
     "calculationError": "Calculation unavailable",
     "calculationInput": "Input {number}",
     "calculationNavigation": "Calculation navigation",
@@ -3317,6 +3319,8 @@
     "iconSearch": "Search icons",
     "identityChannels": "Channels",
     "invalidConfiguration": "This change needs attention before it can be applied.",
+    "invalidPhone": "Enter a phone number in international format, for example +4930123456.",
+    "invalidValue": "Enter a valid value.",
     "lineFields": {
       "amount": "Amount",
       "effectivePrice": "Unit price",
@@ -3348,9 +3352,9 @@
     "onePerLine": "Enter one value per line.",
     "onSourceDelete": "When this record is deleted",
     "onTargetDelete": "When the linked record is deleted",
+    "openDetails": "Open details",
     "openPage": "Open page",
     "openRecord": "Open {name}",
-    "openRecordDetails": "Open details for {name}",
     "operation": "Calculation",
     "operationCancelled": "The change was cancelled.",
     "operationFailed": "The change failed. The previous complete state is still active.",
@@ -3561,7 +3565,6 @@
       "startsWith": "Starts with"
     },
     "overall": "Overall: {value}",
-    "preview": "Preview measure",
     "previewFailed": "The preview could not be loaded. Try again.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {

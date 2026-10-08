@@ -9,7 +9,7 @@ const sources = (dir: string) => walkFiles(join(REPO_ROOT, dir), (path) => /\.ts
 describe("generic dashboard widget UI", () => {
   it("retains shared form actions, deletion treatment and ordinary appearance switches", () => {
     const modal = component("widget-modal.tsx");
-    expect(modal).toContain("<FormActions");
+    expect(modal).toContain("<FormFooterActions");
     expect(modal).toContain('anchorScope="widget-modal"');
     expect(modal).toContain('id: "delete-widget"');
     expect(modal).toContain("icon: Trash2");
@@ -66,11 +66,11 @@ describe("generic dashboard widget UI", () => {
   it("previews both widget kinds as their real dashboard cards, keyed to the current draft", () => {
     const chart = component("record-widget-editor.tsx");
     const activity = component("record-activity-widget-editor.tsx");
-    expect(chart).toContain('t("RecordWidgets.preview")');
+    expect(chart).not.toContain("onRefresh");
     expect(chart).toContain("await store.runPreview(() => previewRecordWidgetAction(parsed.data))");
     expect(chart).toContain("<RecordWidgetCard");
     expect(chart).toContain("preview?.key === key");
-    expect(activity).toContain('t("Dashboard.widgetEditor.preview.title")');
+    expect(activity).not.toContain("onRefresh");
     expect(activity).toContain("<RecordActivityWidgetCard");
   });
   it("keeps activity loading and empty states on the shared skeleton", () => {

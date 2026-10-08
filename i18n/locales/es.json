@@ -869,9 +869,7 @@
       "hidePassword": "Ocultar contraseña",
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
-      "switchToBoardView": "Cambiar a la vista de tablero",
       "switchToBoardViewDisabled": "Esta lista no tiene ningún campo por el que agrupar",
-      "switchToTableView": "Cambiar a la vista de tabla",
       "themeSwitcher": "Selector de tema",
       "tooltipFields": "Apariencia",
       "tooltipFilters": "Filtros"
@@ -1737,13 +1735,13 @@
         "showFilters": "Mostrar el número de actividades y los filtros",
         "showMetricAndFilters": "Mostrar la métrica y los filtros"
       },
-      "create": "Crear widget",
       "danger": {
         "deleteLabel": "Eliminar el widget {name}"
       },
       "editTitle": "Editar «{name}»",
       "kind": {
         "activityTimelineDescription": "Sigue en orden cronológico los cambios en registros, los mensajes y la actividad de cuentas y calendario.",
+        "change": "Elegir otro widget",
         "chartDescription": "Compara los datos del CRM en un gráfico.",
         "description": "Elige un formato y selecciona tú mismo los datos.",
         "scratchTitle": "Empezar desde cero",
@@ -1753,10 +1751,13 @@
         "incomplete": "Completa la configuración de datos para ver una vista previa.",
         "live": "Vista previa en vivo",
         "size": "Tamaño en el panel {w} × {h}",
-        "title": "Vista previa",
         "untitled": "Widget sin título"
       },
-      "save": "Guardar cambios",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Ninguno} one {1 activo} other {# activos}}",
+        "filters": "Filtros",
+        "grouping": "Agrupación"
+      },
       "settings": "Configuración del widget",
       "sharing": {
         "template": "Compartir como plantilla"
@@ -1872,6 +1873,7 @@
     "groupOverflow": "Solo se muestran {count} grupos",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Sin valor",
+    "resizeBoardColumns": "Cambiar el ancho de las columnas del tablero. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer.",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "rowActions": "Acciones de fila",
@@ -2460,7 +2462,6 @@
     "text": "Cargando..."
   },
   "MassActions": {
-    "apply": "Aplicar a la selección",
     "clearField": "Vaciar campo",
     "delete": "Eliminar la selección",
     "keepInView": "Conservar solo las filas visibles",
@@ -3006,6 +3007,7 @@
       "snapshot": "Guardado en un evento"
     },
     "board": "Tablero",
+    "calculatedReadOnly": "{field} se calcula y no se puede editar.",
     "calculationError": "Cálculo no disponible",
     "calculationInput": "Entrada {number}",
     "calculationNavigation": "Navegación del cálculo",
@@ -3317,6 +3319,8 @@
     "iconSearch": "Buscar iconos",
     "identityChannels": "Canales",
     "invalidConfiguration": "Este cambio requiere revisión antes de aplicarlo.",
+    "invalidPhone": "Introduce un número de teléfono en formato internacional, por ejemplo +4930123456.",
+    "invalidValue": "Introduce un valor válido.",
     "lineFields": {
       "amount": "Importe",
       "effectivePrice": "Precio unitario",
@@ -3348,9 +3352,9 @@
     "onePerLine": "Introduce un valor por línea.",
     "onSourceDelete": "Al eliminar este registro",
     "onTargetDelete": "Al eliminar el registro vinculado",
+    "openDetails": "Abrir detalles",
     "openPage": "Abrir página",
     "openRecord": "Abrir {name}",
-    "openRecordDetails": "Abrir detalles de {name}",
     "operation": "Cálculo",
     "operationCancelled": "El cambio se canceló.",
     "operationFailed": "El cambio falló. El estado completo anterior sigue activo.",
@@ -3561,7 +3565,6 @@
       "startsWith": "Empieza por"
     },
     "overall": "Total: {value}",
-    "preview": "Vista previa de la medida",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
