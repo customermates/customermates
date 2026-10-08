@@ -159,10 +159,14 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       await page
         .getByRole("row")
         .filter({ has: page.getByText(`Channel company ${index + 1}`, { exact: true }) })
-        .getByRole("link", { name: `Channel company ${index + 1}`, exact: true })
+        .getByRole("button", { name: `Channel company ${index + 1}`, exact: true })
         .click();
+      const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
+      // Drain this drawer's reads so the held page responses belong to its newly mounted editor.
+      await waitForRelationshipReads(recordDrawer);
+      await recordDrawer.getByRole("link", { name: "Open page", exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[index].recordId}$`));
-      await waitForRelationshipReads(page.locator("body"));
+      await expect(recordDrawer).toHaveCount(0);
     }
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
