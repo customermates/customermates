@@ -214,6 +214,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
     await expect(page.getByRole("columnheader", { name: "Half budget", exact: false })).toBeVisible();
     await expect(page.getByRole("cell", { name: "34.25", exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("mcp-configured-projects.png"), animations: "disabled" });
+    await page.waitForLoadState("networkidle");
     await page.goto("/en/dashboard");
     const widget = page
       .locator('[data-uid="app-card"]')

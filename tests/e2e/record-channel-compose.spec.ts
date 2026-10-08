@@ -6,6 +6,7 @@ import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 test("opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally", async ({
   page,
@@ -156,11 +157,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       hasOpenedRecord = true;
     } else {
       await navigateType(typeId);
-      await page
-        .getByRole("row")
-        .filter({ has: page.getByText(`Channel company ${index + 1}`, { exact: true }) })
-        .getByRole("button", { name: `Channel company ${index + 1}`, exact: true })
-        .click();
+      await openRecordDetails(page, `Channel company ${index + 1}`);
       const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
       // Drain this drawer's reads so the held page responses belong to its newly mounted editor.
       await waitForRelationshipReads(recordDrawer);
