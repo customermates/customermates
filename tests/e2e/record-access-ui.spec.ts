@@ -19,6 +19,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
 import {
   addFromConfigure,
+  openDrawerSection,
   openDrawerTab,
   configureTopBar,
   followConfigureLink,
@@ -1334,7 +1335,7 @@ async function relationshipApplyUi(page: Page) {
 
 async function relationshipOptionUi(page: Page, id: string, label: string) {
   if (id === "onSourceDelete" || id === "onTargetDelete")
-    await openDrawerTab(
+    await openDrawerSection(
       page,
       englishMessages.RecordModel.relationshipEditor.onDelete,
     );

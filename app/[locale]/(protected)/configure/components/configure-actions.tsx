@@ -5,18 +5,7 @@ import type { RecordModelView, RecordType } from "@/features/records/record-mode
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
-import {
-  AtSign,
-  History,
-  Calculator,
-  LayoutList,
-  Link2,
-  List,
-  MoreHorizontal,
-  Plus,
-  TextCursorInput,
-  Trash2,
-} from "lucide-react";
+import { History, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { FormActions } from "@/components/card/form-actions";
@@ -33,8 +22,9 @@ import {
 
 import { recordChannelsBinding } from "@/features/records/record-channels";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
+import { ConfigureListAddItems, type ConfigureListAddKind } from "./configure-add-menu";
 
-export type ConfigureAddKind = "list" | "field" | "calculation" | "relationship" | "channels";
+export type ConfigureAddKind = "list" | ConfigureListAddKind;
 
 type Props = {
   ai: ReactNode;
@@ -43,6 +33,7 @@ type Props = {
   general: TypeModalStore;
   generalFormId: string;
   selected?: RecordType;
+  canAddSublist: boolean;
   onAdd: (kind: ConfigureAddKind) => void;
   onSharedDefaults: () => void;
   model: RecordModelView;
@@ -56,6 +47,7 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   general,
   generalFormId,
   selected,
+  canAddSublist,
   onAdd,
   onSharedDefaults,
   model,
@@ -157,31 +149,11 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onSelect={() => onAdd("field")}>
-              <TextCursorInput aria-hidden="true" />
-
-              {t("RecordModel.addMenu.field")}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem onSelect={() => onAdd("calculation")}>
-              <Calculator aria-hidden="true" />
-
-              {t("RecordModel.addMenu.calculation")}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem onSelect={() => onAdd("relationship")}>
-              <Link2 aria-hidden="true" />
-
-              {t("RecordModel.addMenu.relationship")}
-            </DropdownMenuItem>
-
-            {!recordChannelsBinding(model, selected.id) && (
-              <DropdownMenuItem onSelect={() => onAdd("channels")}>
-                <AtSign aria-hidden="true" />
-
-                {t("EntityChannels.heading")}
-              </DropdownMenuItem>
-            )}
+            <ConfigureListAddItems
+              channels={!recordChannelsBinding(model, selected.id)}
+              sublist={canAddSublist && !selected.embedded}
+              onAdd={onAdd}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
