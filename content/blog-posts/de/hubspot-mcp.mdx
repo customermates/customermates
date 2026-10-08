@@ -1,16 +1,17 @@
 ---
-title: "HubSpot-MCP-Server: Funktionen, Grenzen und Vergleich"
-description: "Was der HubSpot-MCP-Server kann: Remote-Server für CRM- und Marketingdaten, Entwickler-Server, Grenzen und der Vergleich mit einem eingebauten MCP-Server."
+title: "HubSpot MCP-Server: Einrichtung, Zugriff und Grenzen"
+description: "So funktioniert der HubSpot MCP-Server: Connector für Claude und ChatGPT, eigener MCP-Connector, Entwickler-Server und die dokumentierten Grenzen."
 
 hero:
-  title: "HubSpot-MCP-Server: Remote, Entwickler und Alternativen"
-  description: "HubSpot bietet einen Remote-MCP-Server für CRM- und Marketingdaten und einen lokalen Entwickler-MCP-Server. Dieser Leitfaden erklärt, was beide lesen und schreiben, wie sie eingerichtet werden, wo ihre Grenzen liegen und wann ein CRM mit eingebautem MCP-Server besser passt."
+  title: "HubSpot MCP-Server: Welcher Weg passt, was er kann und wo er aufhört"
+  description: "HubSpot verbindet KI-Clients über einen gehosteten MCP-Server unter mcp.hubspot.com und einen lokalen Entwickler-Server mit Ihrem CRM. Dieser Leitfaden zeigt, welcher Verbindungsweg zu Ihrem Client passt, was der Server liest und schreibt, welche Grenzen HubSpot dokumentiert und wie Sie die Einführung im Team angehen."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-09-27
+  updated: 2026-10-08
   tags:
     - HubSpot MCP
     - MCP
@@ -24,113 +25,153 @@ relatedHrefs:
   - /compare/hubspot-alternative
 ---
 
-# HubSpot-MCP-Server: Remote, Entwickler und Alternativen
+# HubSpot MCP-Server: Welcher Weg passt, was er kann und wo er aufhört
 
-Der **HubSpot-MCP-Server** verbindet KI-Clients wie Claude, ChatGPT oder Gemini über das Model Context Protocol (MCP) mit einem HubSpot-Account. MCP ist der offene Standard, über den KI-Clients Werkzeuge in anderen Systemen aufrufen. HubSpot betreibt zwei verschiedene MCP-Server: einen Remote-Server für die Arbeit mit CRM- und Marketingdaten und einen lokalen Entwickler-Server für den Bau von HubSpot-Apps und CMS-Inhalten.
+Ja, HubSpot hat einen offiziellen MCP-Server. Der Remote-Server unter `https://mcp.hubspot.com` erlaubt Claude, ChatGPT und anderen MCP-Clients, Datensätze in Ihrem HubSpot-Account zu lesen und zu ändern. Seit dem 13. April 2026 ist er für alle HubSpot-Accounts allgemein verfügbar. Arbeiten Sie mit Claude oder ChatGPT, müssen Sie nichts bauen: Sie installieren den fertigen Connector von HubSpot und melden sich an. Einen eigenen MCP-Connector in HubSpot legen Sie nur für andere Clients an.
 
-Dieser Leitfaden fasst beide anhand der HubSpot-Entwicklerdokumentation mit Stand 27. September 2026 zusammen und vergleicht sie mit einem CRM, dessen MCP-Server Teil des Produkts ist. Offenlegung: Customermates, das zweite hier besprochene CRM, veröffentlicht diesen Leitfaden.
+Daneben gibt es einen zweiten, davon unabhängigen Server für Entwickler, der lokal über die HubSpot CLI läuft. Die meisten Missverständnisse rund um „HubSpot MCP“ entstehen, weil diese beiden Server verwechselt werden, oder weil HubSpots Server mit den vielen Community-Servern auf GitHub in einen Topf kommt.
+
+Offenlegung: Customermates, ein Open-Source-CRM mit eigenem MCP-Server, veröffentlicht diesen Leitfaden. Die Angaben zu HubSpot wurden am 8. Oktober 2026 auf HubSpots eigenen Seiten geprüft; die Quellen stehen am Ende.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Remote HubSpot MCP Server">
-    Liest und schreibt CRM-Datensätze, Aktivitäten und Marketinginhalte unter
-    mcp.hubspot.com. Seit April 2026 für alle HubSpot-Accounts allgemein
-    verfügbar.
+  <SummaryItem label="Remote-Server">
+    Von HubSpot gehostet unter mcp.hubspot.com. Liest und schreibt
+    CRM-Datensätze, Aktivitäten und Marketinginhalte, immer im Rahmen der
+    HubSpot-Berechtigungen des angemeldeten Nutzers.
   </SummaryItem>
-  <SummaryItem label="Entwickler-MCP-Server">
-    Läuft lokal über die HubSpot CLI und hilft bei App- und CMS-Entwicklung.
+  <SummaryItem label="Schnellster Weg">
+    Claude und ChatGPT: HubSpot-Connector installieren und per OAuth anmelden.
+    Laut HubSpot ist der Claude-Connector in allen HubSpot-Stufen kostenlos.
+  </SummaryItem>
+  <SummaryItem label="Andere Clients">
+    MCP-Connector unter Development in HubSpot anlegen, dann Client-ID und
+    Client-Secret in einem Client nutzen, der OAuth mit PKCE beherrscht.
   </SummaryItem>
   <SummaryItem label="Wichtigste Grenzen">
-    Kein Löschen, Aktivitätsdaten gesperrt, wenn sensible Daten aktiviert
-    sind, und seitenweise Ergebnisse.
-  </SummaryItem>
-  <SummaryItem label="Eingebaute Alternative">
-    Ein CRM mit eigenem MCP-Endpunkt wie Customermates lässt sich ohne eigene
-    App verbinden; der Preis dafür: keine Marketing-Funktionen.
+    Bei aktivierten sensiblen Daten sind Aktivitäten und Konversationen
+    gesperrt, der dokumentierte Schreibzugriff kennt kein Löschen, und einige
+    Werkzeuge setzen bezahlte Hubs voraus.
   </SummaryItem>
 </ArticleSummary>
 
-## Der Remote HubSpot MCP Server
+## Zuerst den passenden Weg wählen
 
-HubSpot hat am 13. April 2026 angekündigt, dass sein [Remote-MCP-Server](https://developers.hubspot.com/changelog/remote-hubspot-mcp-server-is-now-generally-available) die Beta verlassen hat und für alle HubSpot-Accounts allgemein verfügbar ist. Er läuft unter `https://mcp.hubspot.com`.
+Auf die Frage „Wie verbinde ich HubSpot per MCP?“ gibt es vier Antworten. Welche gilt, hängt vom Client und von der Aufgabe ab.
 
-**Was er lesen kann.** Laut [Integrationsleitfaden](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server) CRM-Datensätze wie Kontakte, Unternehmen, Deals, Tickets und benutzerdefinierte Objekte, Aktivitäten wie Anrufe, E-Mails, Meetings, Notizen und Aufgaben, Marketinginhalte wie Kampagnen, Landingpages, Blogbeiträge und Marketing-E-Mails sowie Konversationen und Account-Details.
+| Ihre Situation | Weg | Wer richtet es ein |
+| --- | --- | --- |
+| Sie arbeiten in Claude (Web, Desktop oder Mobil) | HubSpot-Connector aus den Connector-Einstellungen von Claude oder dem Anthropic-Marketplace, Anmeldung per OAuth | Jeder Nutzer selbst, mit wenigen Klicks |
+| Sie arbeiten in ChatGPT | HubSpot-Connector für ChatGPT, Anmeldung per OAuth; laut Marketplace-Eintrag ist ein kostenpflichtiger ChatGPT-Tarif nötig (Plus, Pro, Team, Enterprise oder Edu) | Jeder Nutzer selbst |
+| Sie nutzen einen anderen MCP-Client oder bauen einen eigenen Agenten | MCP-Connector in HubSpot anlegen, dann mit Client-ID und Secret an `https://mcp.hubspot.com` verbinden | Jemand mit Zugriff auf den Bereich Development in HubSpot |
+| Sie entwickeln HubSpot-Apps oder CMS-Themes im Editor | Entwickler-MCP-Server, installiert mit `hs mcp setup` | Der Entwickler, lokal |
 
-**Was er schreiben kann.** Kontakte, Unternehmen, Deals, Tickets, Leads, Line Items und Produkte anlegen und bearbeiten, Aktivitäten protokollieren, Folgeaufgaben anlegen, E-Mails entwerfen oder protokollieren und mit Inhalten, Kampagnen, Pipelines, benutzerdefinierten Eigenschaften und Segmenten arbeiten.
+Server von Drittanbietern sind eine fünfte Möglichkeit. Zapier bietet zum Beispiel HubSpot-Aktionen über einen eigenen MCP-Server unter mcp.zapier.com an, und auf GitHub finden sich mehrere Community-Server für HubSpot, die Sie selbst betreiben. Das lohnt sich, wenn ein einziger MCP-Server viele Apps abdecken soll. Es ist aber nicht HubSpots Server: Umfang, Pflege und Datenverarbeitung bestimmt der jeweilige Anbieter.
 
-**Grenzen laut HubSpot.**
+## Was der Remote-Server lesen und schreiben kann
 
-- Löschvorgänge werden nicht unterstützt;
-- ist im Account die Option für sensible Daten aktiviert, sind Aktivitäts- und Konversationsdaten gesperrt;
-- Suchen liefern höchstens 200 Ergebnisse pro Seite, Abrufe nehmen bis zu 100 IDs pro Anfrage;
-- einige Werkzeuge setzen bestimmte Abonnements voraus, etwa das Angebotsmanagement eine Professional- oder Enterprise-Stufe im Revenue-Bereich und AEO-Kennzahlen Marketing Hub Professional oder höher.
+HubSpots [Integrationsleitfaden](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server) beschreibt den Zugriff ausführlich. Kurz gefasst:
 
-**Berechtigungen.** HubSpot gibt an, dass jede Aktion die bestehenden HubSpot-Berechtigungen des Nutzers respektiert: Man kann nur lesen oder ändern, was man ohnehin sehen oder bearbeiten darf.
+| Bereich | Lesen | Schreiben |
+| --- | --- | --- |
+| CRM-Datensätze | Kontakte, Unternehmen, Deals, Tickets, Leads, Nutzer, Termine, Kurse, Listings, Projekte, Services, benutzerdefinierte Objekte, Segmente | Kontakte, Unternehmen, Deals, Tickets, Leads, Positionen (Line Items), Produkte, Termine, Kurse, Listings, Projekte, Services und benutzerdefinierte Objekte anlegen und bearbeiten |
+| Aktivitäten | Anrufe, E-Mails, Meetings, Notizen, Aufgaben | Dieselben Aktivitätstypen protokollieren |
+| Marketing und Inhalte | Blogbeiträge, Landingpages, Website-Seiten, Kampagnen, Marketing-Events, Content-Analysen, Entwürfe und Kennzahlen von Marketing-E-Mails | Landingpages, Website-Seiten und Blogbeiträge anlegen, bearbeiten und veröffentlichen; Kampagnen und E-Mail-Entwürfe anlegen und ändern |
+| Struktur | Eigenschaften und Pipelines | Benutzerdefinierte Eigenschaften anlegen; Pipelines anlegen und verwalten (mit den kostenlosen Tools nur die Standard-Pipeline bearbeiten) |
+| Konversationen | Live-Chat, Team-E-Mail, WhatsApp, SMS, Facebook Messenger und eigene Kanäle im Help Desk oder Konversationen-Postfach | Nicht aufgeführt |
+| Umsatzobjekte | Warenkörbe, Rechnungen, Bestellungen, Positionen, Produkte, Angebote, Abonnements (Beta) | Angebote (Beta), mit Revenue Hub Professional oder Enterprise |
 
-### So verbinden Sie ihn
+Zwei Details sind für die Planung wichtig. Der Server baut auf HubSpots CRM-Such-API auf, die laut HubSpot keine Vektorsuche hat. Die KI findet Datensätze also über Filter und Eigenschaften, nicht über Bedeutung. Und beim Anlegen oder Ändern greift die bedingte Feldlogik des Accounts samt den Validierungen der Pipeline-Phasen: Ein Pflichtfeld, das ein Mensch nicht überspringen kann, überspringt auch die KI nicht.
 
-1. Legen Sie in HubSpot im Bereich **Development** eine MCP-Auth-App (Connector) mit Namen und Redirect-URL an.
-2. Kopieren Sie Client-ID und Client-Secret.
-3. Konfigurieren Sie Ihren MCP-Client mit diesen Zugangsdaten und der Serveradresse `https://mcp.hubspot.com`.
-4. Schließen Sie den OAuth-Ablauf ab, wählen Sie den Account und erteilen Sie die angefragten Berechtigungen.
+## Grenzen laut HubSpot
 
-Der Client muss OAuth mit PKCE unterstützen. HubSpot nennt MCP Inspector, Claude, ChatGPT und Gemini als Beispiele.
+- **Sensible Daten sperren Aktivitäten.** Ist im Account die Funktion für sensible Daten aktiviert, sind Anrufe, E-Mails, Meetings, Notizen, Aufgaben und Konversationen über den MCP-Server gesperrt. HubSpot betont, dass das nur für MCP gilt und nicht für die normalen CRM-APIs.
+- **Kein Löschen.** Der dokumentierte Schreibzugriff umfasst Anlegen, Bearbeiten, Protokollieren und Veröffentlichen. Löschen ist nicht aufgeführt; Aufräumen bleibt Handarbeit in HubSpot.
+- **Berechtigungen gelten weiter.** Jeder Aufruf läuft als der angemeldete Nutzer und respektiert dessen HubSpot-Rechte. Ein Postfach, das auf bestimmte Nutzer oder Teams beschränkt ist, bleibt auch über MCP beschränkt.
+- **Berechtigungen (Scopes) werden bei der Installation festgelegt.** Sie wählen die Scopes nicht selbst. Sie ergeben sich aus den Werkzeugen, die zum Installationszeitpunkt verfügbar sind, und aus den Rechten, die der Nutzer erteilt. Kommen neue Werkzeuge hinzu, müssen bestehende Nutzer neu installieren.
+- **Manche Werkzeuge brauchen bezahlte Hubs.** AEO-Kennzahlen und verfolgte Prompts setzen Marketing Hub Professional oder Enterprise voraus, Angebote Revenue Hub Professional oder Enterprise.
+- **Auswertungen sind begrenzt.** Das SQL-Werkzeug filtert, aggregiert und sortiert, kann laut HubSpot aber keine Joins, Unterabfragen, Assoziationen durchlaufen oder Währungen umrechnen. Für Fragen wie „Gewinnrate nach Phasenwechsel im letzten Quartal“ braucht die KI mehrere Aufrufe, oder Sie bauen den Bericht in HubSpot.
+
+## Verbinden: der eigene Connector Schritt für Schritt
+
+Bei Claude und ChatGPT erledigt der Connector alles Folgende. Für jeden anderen Client beschreibt HubSpot diesen Ablauf:
+
+<Steps>
+  <Step title="MCP-Connector anlegen">
+    Öffnen Sie in HubSpot **Development**, dann **MCP Connectors**, dann **Create MCP connector**. Tragen Sie einen Namen, optional eine Beschreibung und die Redirect-URL Ihres Clients ein. Für Tests mit dem MCP Inspector verlangt HubSpot zusätzlich `http://localhost:6274/oauth/callback/debug`.
+  </Step>
+  <Step title="Zugangsdaten kopieren">
+    Die Detailseite des Connectors zeigt Client-ID, Client-Secret und Redirect-URLs. Die Redirect-URL muss exakt mit der im Client hinterlegten übereinstimmen.
+  </Step>
+  <Step title="Client mit dem Server verbinden">
+    Konfigurieren Sie Ihren Client mit `https://mcp.hubspot.com` und den Zugangsdaten. Der Client muss den OAuth-Ablauf mit PKCE ausführen. Der MCP Inspector macht das automatisch; in einer eigenen Integration implementieren Sie es selbst.
+  </Step>
+  <Step title="Freigeben und prüfen">
+    Wählen Sie den HubSpot-Account, erteilen Sie die Rechte und bestätigen Sie. Rufen Sie danach `get_user_details` auf: HubSpot empfiehlt das, um zu sehen, welche Werkzeuge und Objekte Ihr Account tatsächlich nutzen kann.
+  </Step>
+</Steps>
+
+Funktioniert ein Client nach längerer Pause nicht mehr, liegt es meist am Token-Refresh. Der Client muss das Refresh-Token aus der ersten Anmeldung verwenden; ist auch das abgelaufen, starten Sie den OAuth-Ablauf neu.
 
 ## Der HubSpot-Entwickler-MCP-Server
 
-Der [Entwickler-MCP-Server](https://developers.hubspot.com/docs/developer-tooling/local-development/developer-mcp/setup) läuft lokal und wird mit der HubSpot CLI eingerichtet (`hs mcp setup`, CLI-Version 8.2.0 oder neuer). Er hilft Coding-Assistenten wie Claude Code, Codex CLI, Cursor, Gemini CLI, VS Code und Windsurf, HubSpot-Apps anzulegen, mit CMS-Assets zu arbeiten und Entwicklerdokumentation nachzuschlagen. Er ist ein Entwicklungswerkzeug und kein Zugang für Vertriebsteams zu CRM-Daten.
+Der [Entwickler-MCP-Server](https://developers.hubspot.com/docs/developer-tooling/local-development/developer-mcp/setup) läuft auf Ihrem Rechner und wird mit `hs mcp setup` eingerichtet (HubSpot CLI ab Version 8.2.0). Er arbeitet mit Claude Code, Codex CLI, Cursor, Gemini CLI, VS Code und Windsurf und erscheint dort als „HubSpotDev“. HubSpot beschreibt ihn als Werkzeugsatz für die App- und CMS-Entwicklung. Für einen Vertrieb, der mit CRM-Datensätzen arbeiten will, ist er nicht gedacht; das ist Aufgabe des Remote-Servers.
 
-## Wofür sich der HubSpot-MCP-Server eignet
+## Checkliste für die Einführung im kleinen Team
 
-Für Teams, die bereits mit HubSpot arbeiten, ist der Remote-Server eine starke Option: Er deckt CRM- und Marketingobjekte ab, steht jedem Account zur Verfügung, und die Berechtigungen gelten wie in HubSpot. Typische Anwendungen sind eine Zusammenfassung der letzten Aktivitäten eines Deals, Notizen nach einem Anruf, der Entwurf einer Nachfass-E-Mail oder das Aktualisieren von Eigenschaften aus einem Gespräch heraus.
+1. **Zuerst die sensiblen Daten prüfen.** Ist die Funktion aktiv, sieht MCP weder Aktivitäten noch Konversationen, und damit fallen die meisten nützlichen Fragen zu einem Deal weg. Das sollten Sie wissen, bevor jemand es ausprobiert.
+2. **Nutzerrechte in HubSpot durchsehen.** Die KI sieht genau das, was der Nutzer sieht. Darf ein Nutzer jeden Deal bearbeiten, darf es sein verbundener Client auch.
+3. **Mit Lesen beginnen.** Gute erste Prompts: „Zusammenfassung der letzten fünf Aktivitäten am Deal Müller GmbH“, „Welche offenen Deals in der Phase Angebot haben seit 14 Tagen keine Aktivität?“, „Alle Kontakte bei Müller GmbH mit ihrem letzten Meeting.“
+4. **Dann das Protokollieren freigeben.** „Notiz am Deal Müller GmbH anlegen: Telefonat am Dienstag, Budget freigegeben, Vertragsentwurf folgt.“ Kontrollieren Sie die Notiz danach in HubSpot.
+5. **Veröffentlichen bleibt in Menschenhand.** Der Server kann Landingpages und Blogbeiträge veröffentlichen. Legen Sie fest, wer eine KI darum bitten darf, bevor es versehentlich passiert.
+6. **Konten einschränken, wo möglich.** HubSpot weist darauf hin, dass Admins von Claude Enterprise den Connector über verifizierte Domains auf firmeneigene Konten beschränken können.
 
-Die Abwägungen sind der Einrichtungsschritt (jemand legt die Auth-App an), das fehlende Löschen und der Umstand, dass Accounts mit aktivierten sensiblen Daten keinen Zugriff auf Aktivitäten über MCP haben. Funktionen, die von kostenpflichtigen Hubs abhängen, bleiben an diese Abonnements gebunden.
+Ein Punkt zum Datenschutz: Was der KI-Client aus HubSpot liest, verarbeitet der Anbieter dieses Clients. Ihr Auftragsverarbeitungsvertrag mit HubSpot deckt diese Strecke nicht ab. Prüfen Sie deshalb die Bedingungen des KI-Anbieters und Ihr Verzeichnis von Verarbeitungstätigkeiten, bevor Kundendaten über MCP fließen. Laut HubSpots Marketplace-Eintrag ist der Chat im ChatGPT-Connector im Tarif ChatGPT Pro für Nutzer im EWR, in der Schweiz und im Vereinigten Königreich derzeit nicht verfügbar.
 
-## Ein CRM mit eingebautem MCP-Server
+## Wenn das CRM selbst einen MCP-Server mitbringt
 
-[Customermates](/) geht einen anderen Weg: Der MCP-Endpunkt ist auf jedem Cloud-Tarif und in selbst gehosteten Installationen Teil des CRM. In Claude und ChatGPT fügen Sie ihn als benutzerdefinierten Connector hinzu, tragen die Endpunkt-URL ein und melden sich an; für Kommandozeilen- und Editor-Clients nutzen Sie einen API-Schlüssel. Ein verbundener Client findet [[derived.mcp.tools.total]] Werkzeuge für Kontakte, Organisationen, Deals, Services, Aufgaben, eigene Felder, Dashboards und Webhooks sowie, in Tarifen mit Messaging, für den einheitlichen Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
+Stehen Sie vor der Wahl eines CRM, statt ein bestehendes anzubinden, ist ein im CRM eingebauter MCP-Server die Alternative. [Customermates](/) ist ein Beispiel: Der Endpunkt unter `/api/v1/mcp` gehört zu jedem Cloud-Tarif und zu jeder selbst gehosteten Installation. In Claude und ChatGPT fügen Sie ihn als Custom Connector hinzu und melden sich an ([Einrichtung](/docs/connect-custom-connector)); Claude Code, Codex, Cursor und Gemini CLI verbinden sich mit einem API-Key ([CLI-Einrichtung](/docs/connect-cli)). Ein verbundener Client findet [[derived.mcp.tools.total]] Werkzeuge, und über einen URL-Parameter lässt sich die Auswahl eingrenzen, wie die [MCP-Referenz](/docs/mcp) beschreibt.
 
-| Frage                        | Remote HubSpot MCP Server                               | Customermates MCP                                        |
-| ---------------------------- | ------------------------------------------------------- | -------------------------------------------------------- |
-| Einrichtung                  | MCP-Auth-App anlegen, dann per OAuth verbinden          | Endpunkt-URL eintragen und anmelden, oder API-Schlüssel   |
-| Verfügbarkeit                | Alle HubSpot-Accounts; einige Werkzeuge nur mit bezahlten Hubs | Jeder Cloud-Tarif und selbst gehostet; Posteingang ab Pro |
-| Löschen                      | Nicht unterstützt                                       | Für Datensätze möglich, im Rahmen der Nutzerrechte        |
-| Marketingobjekte             | Kampagnen, Landingpages, Blogbeiträge, Marketing-E-Mails | Nicht Teil des Produkts                                  |
-| Messaging                    | E-Mails und Konversationen als HubSpot-Objekte          | Lesen, entwerfen und senden über fünf Kanaltypen ab Pro   |
-| Open Source und Self-Hosting | Nein                                                    | AGPL-Kern, selbst hostbar                                 |
+| Frage | Remote HubSpot MCP-Server | Customermates MCP |
+| --- | --- | --- |
+| Verbindung in Claude oder ChatGPT | Eigener Connector von HubSpot | Custom Connector mit Endpunkt-URL, Anmeldung per OAuth |
+| Andere Clients | MCP-Connector in HubSpot anlegen, OAuth mit PKCE | API-Key im Header `x-api-key` |
+| Datensätze löschen | Nicht im dokumentierten Schreibzugriff | Möglich, im Rahmen der Nutzerrechte |
+| Marketinginhalte | Landingpages, Blogbeiträge, Kampagnen, Marketing-E-Mails | Nicht Teil des Produkts |
+| Kundenkonversationen | Liest Konversationen aus dem HubSpot-Postfach | Liest, entwirft und sendet Nachrichten über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab Pro, nur in der Cloud |
+| Selbst hosten | Nein, von HubSpot gehostet | AGPL-Kern mit MCP, ohne Posteingang |
 
-Weil Löschen und Senden möglich sind, zählt die Frage der Bestätigung. Die Server-Anweisungen des Customermates-MCP-Servers fordern Clients auf, vor Löschungen und dem Senden nachzufragen, doch diese Bestätigung findet im Client statt; ruft ein berechtigter Client ein Werkzeug auf, führt der Server es aus. Prüfen Sie, wie Ihr Client Freigaben handhabt, und beginnen Sie mit Lesen und Entwürfen. Der [Leitfaden zu agentischem CRM](/blog/agentic-crm) erklärt das ausführlich.
+Dass Löschen und Senden möglich sind, hat zwei Seiten. Der Customermates-Server fordert verbundene Clients auf, vor dem Löschen oder Senden nachzufragen. Das ist eine Anweisung an den Client, keine Sperre im Server: Ruft ein berechtigter Client ein Werkzeug auf, wird es ausgeführt. Prüfen Sie, wie Ihr Client Freigaben handhabt, und beginnen Sie wie bei HubSpot mit Lesen und Entwürfen.
 
-## Wann was passt
+Auch die Kosten sind anders verteilt. MCP ist ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten; die Posteingangs-Werkzeuge brauchen Pro für [[commercial.price.pro.monthly]]. Ein externer KI-Client läuft über Ihr eigenes KI-Abo, nicht über Customermates-Credits. Wer gar keinen externen Client anbinden möchte, kann in Customermates Cloud Mate nutzen, einen Assistenten in der App, der gehostete KI-Credits verbraucht ([Mate-Dokumentation](/docs/app-assistant)).
 
-- **Sie nutzen HubSpot und bleiben dabei:** Setzen Sie den Remote HubSpot MCP Server ein. Beginnen Sie mit lesenden Aufgaben und einer kleinen Nutzergruppe.
-- **Sie entwickeln auf HubSpot:** Ergänzen Sie Ihren Coding-Assistenten um den Entwickler-MCP-Server.
-- **Sie möchten ein CRM, das KI-Clients ab dem ersten Tag bedienen, mit einheitlichem Posteingang und Open-Source-Kern:** Ein CRM mit eingebautem MCP-Server ist der kürzere Weg. Siehe den [Vergleich mit HubSpot](/compare/hubspot-alternative).
-- **Sie nutzen Salesforce:** Der [Leitfaden zu Salesforce MCP](/blog/salesforce-mcp) erklärt die gehosteten Server und den Entwickler-Server.
+Customermates passt nicht, wenn Sie auf HubSpots Marketing-Werkzeuge, den Help Desk oder die Umsatzobjekte angewiesen sind; nichts davon gibt es dort. Bleiben Sie bei HubSpot, nutzen Sie HubSpots Server. Erwägen Sie einen Wechsel, zeigt der [Vergleich mit HubSpot](/compare/hubspot-alternative) die Unterschiede, und der [Leitfaden zu Salesforce MCP](/blog/salesforce-mcp) erklärt die entsprechenden Server bei Salesforce.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Hat HubSpot einen MCP-Server?">
-Ja. HubSpot betreibt einen Remote-MCP-Server unter mcp.hubspot.com für CRM- und Marketingdaten, seit April 2026 für alle HubSpot-Accounts allgemein verfügbar, sowie einen lokalen Entwickler-MCP-Server, der über die HubSpot CLI läuft.
+<FaqItem question="Hat HubSpot einen offiziellen MCP-Server?">
+Ja. HubSpot hostet einen Remote-MCP-Server unter mcp.hubspot.com, seit dem 13. April 2026 für alle HubSpot-Accounts allgemein verfügbar, und bietet zusätzlich einen lokalen Entwickler-MCP-Server, der über die HubSpot CLI läuft.
 </FaqItem>
 
-<FaqItem question="Kann der HubSpot-MCP-Server Datensätze löschen?">
-Nein. Laut HubSpot-Dokumentation werden Löschvorgänge nicht unterstützt. Der Server kann Datensätze und Aktivitäten lesen, anlegen und aktualisieren.
+<FaqItem question="Wie verbinde ich HubSpot mit Claude?">
+Installieren Sie den HubSpot-Connector aus den Connector-Einstellungen von Claude oder dem Anthropic-Marketplace und melden Sie sich per OAuth bei HubSpot an. Laut HubSpot funktioniert der Connector in Claude im Web, auf dem Desktop und mobil und ist in allen HubSpot-Stufen kostenlos. Einen eigenen MCP-Connector in HubSpot brauchen Sie dafür nicht.
 </FaqItem>
 
-<FaqItem question="Welche KI-Clients funktionieren mit dem HubSpot-MCP-Server?">
-Jeder MCP-Client, der OAuth mit PKCE unterstützt. HubSpot nennt MCP Inspector, Claude, ChatGPT und Gemini als Beispiele.
+<FaqItem question="Ist der HubSpot MCP-Server kostenlos?">
+Der Remote-Server steht allen HubSpot-Accounts zur Verfügung, auch kostenlosen. Einige Werkzeuge hängen an bezahlten Abonnements: AEO-Werkzeuge an Marketing Hub Professional oder Enterprise, Angebote an Revenue Hub Professional oder Enterprise, und mit den kostenlosen Tools lassen sich keine eigenen Pipelines anlegen. Das Abo Ihres KI-Clients kommt separat hinzu.
 </FaqItem>
 
-<FaqItem question="Brauche ich einen kostenpflichtigen HubSpot-Tarif für MCP?">
-Der Remote-Server steht allen HubSpot-Accounts zur Verfügung. Einige Werkzeuge hängen von kostenpflichtigen Abonnements ab, zum Beispiel das Angebotsmanagement und AEO-Kennzahlen.
+<FaqItem question="Kann der HubSpot MCP-Server Datensätze löschen?">
+Löschen gehört nicht zum Schreibzugriff, den HubSpot dokumentiert. Der Server kann lesen, anlegen, bearbeiten und protokollieren und außerdem Landingpages, Website-Seiten und Blogbeiträge veröffentlichen.
 </FaqItem>
 
-<FaqItem question="Was ist der HubSpot-Entwickler-MCP-Server?">
-Ein lokaler MCP-Server, der mit der HubSpot CLI installiert wird und Coding-Assistenten beim Bau von HubSpot-Apps und CMS-Inhalten sowie beim Nachschlagen der Entwicklerdokumentation hilft.
+<FaqItem question="Warum sieht mein KI-Client keine Anrufe, Notizen oder E-Mails aus HubSpot?">
+Meist ist im Account die Funktion für sensible Daten aktiviert. HubSpot sperrt dann Aktivitäts- und Konversationsdaten über den MCP-Server, während die normalen APIs nicht betroffen sind. Auch Nutzerrechte und beschränkte Postfächer begrenzen, was ein Client sieht.
 </FaqItem>
 
-<FaqItem question="Wie unterscheidet sich der MCP-Server von Customermates?">
-Er ist Teil jedes Customermates-Tarifs und jeder Installation, lässt sich ohne eigene App verbinden, unterstützt Löschen im Rahmen der Nutzerrechte und enthält in Tarifen mit Messaging Werkzeuge für den Posteingang. Marketingobjekte wie Landingpages oder Kampagnen deckt er nicht ab.
+<FaqItem question="Was unterscheidet den Remote-Server vom Entwickler-MCP-Server?">
+Der Remote-Server gibt KI-Clients Zugriff auf Ihre CRM-Daten. Der Entwickler-MCP-Server läuft lokal in Coding-Werkzeugen wie Claude Code oder Cursor und ist für die Entwicklung von HubSpot-Apps und CMS-Inhalten gedacht. Für die Arbeit mit CRM-Datensätzen nutzen Sie den Remote-Server.
 </FaqItem>
 </Faq>
+
+Quellen: Angaben zu HubSpot am 8. Oktober 2026 geprüft im [Integrationsleitfaden zum Remote-MCP-Server](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server), im [Changelog zur allgemeinen Verfügbarkeit](https://developers.hubspot.com/changelog/remote-hubspot-mcp-server-is-now-generally-available), in der [Einrichtungsanleitung für den Entwickler-MCP-Server](https://developers.hubspot.com/docs/developer-tooling/local-development/developer-mcp/setup), auf [HubSpots Seite zum Claude-Connector](https://www.hubspot.com/claude), im [Marketplace-Eintrag zum ChatGPT-Connector](https://ecosystem.hubspot.com/marketplace/listing/hubspot-connector-for-chatgpt), auf [HubSpot AI Tools](https://www.hubspot.com/ai-tools) und auf [Zapiers Seite zu HubSpot MCP](https://zapier.com/mcp/hubspot).

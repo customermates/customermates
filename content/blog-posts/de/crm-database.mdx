@@ -1,16 +1,23 @@
 ---
-title: "CRM-Datenbank: Aufbau, Daten und Auswahl"
-description: "CRM-Datenbank aufbauen: Datenbanktypen, Datenstruktur, Bereinigung, Sicherheit, DSGVO-Konformität, Excel vs. CRM und Schritt-für-Schritt-Anleitung."
+title: "CRM-Datenbank: Aufbau, Datenmodell und Pflege"
+description: "Was eine CRM-Datenbank enthält, wie HubSpot, Salesforce und Pipedrive ihre Daten ordnen und wie Sie Ihre eigene aufbauen und sauber halten."
+
+relatedHrefs:
+  - /features/contact-management
+  - /blog/client-database-software
+  - /blog/excel-crm-template
+  - /docs/app-records
 
 hero:
-  title: "CRM-Datenbank: Aufbau, Struktur und Pflege Ihrer Kundendaten"
-  description: Ihre CRM-Datenbank ist die Grundlage jeder Kundeninteraktion. Erfahren Sie, wie Sie sie aufbauen, welche Daten Sie speichern sollten, wie Sie die Qualität sichern und wann ein CRM besser ist als Tabellen oder eigenständige Datenbanken.
+  title: "CRM-Datenbank: Was sie ist und wie Sie eine aufbauen, die sauber bleibt"
+  description: Eine CRM-Datenbank verknüpft Personen, Unternehmen, Deals und Aufgaben. Hier sehen Sie, wie große CRM-Systeme ihr Datenmodell ordnen, wie Sie Ihre eigene Kundendatenbank planen und importieren und mit welchen Regeln sie aktuell bleibt.
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-01-12
+  updated: 2026-10-08
   tags:
     - CRM-Datenbank
     - Kundendaten
@@ -18,489 +25,173 @@ blogPost:
     - DSGVO
 ---
 
-# CRM-Datenbank: Aufbau, Struktur und Pflege Ihrer Kundendaten
+# CRM-Datenbank: Was sie ist und wie Sie eine aufbauen, die sauber bleibt
 
-Ihre CRM-Datenbank ist die Grundlage jeder Kundeninteraktion. Dieser Leitfaden zeigt, wie Sie eine CRM-Datenbank von Grund auf aufbauen, welche Daten Sie speichern sollten, wie Sie die Qualität sichern und wann ein dediziertes CRM besser ist als Tabellen, Excel oder eine eigenständige Datenbank.
+Eine CRM-Datenbank ist der strukturierte Datenbestand hinter einem CRM: ein Datensatz pro Person, einer pro Unternehmen, einer pro Deal, dazu die Verknüpfungen dazwischen und die Historie. Gerade die Verknüpfungen unterscheiden sie von einer Adressliste. Sie öffnen ein Unternehmen und sehen seine Ansprechpartner, die offenen Deals und das letzte Gespräch. Sie öffnen einen Deal und sehen, wer beteiligt ist und was angeboten wurde.
 
-Jedes [CRM-System](/blog/crm-systems) basiert auf einer Datenbank. Diese Datenbank enthält sämtliche Informationen über Ihre Kunden, Interessenten, Deals und Interaktionen. Wenn die Datenbank gut strukturiert und sauber ist, arbeiten Ihre Vertriebs- und Marketingteams souverän. Wenn sie unordentlich, veraltet oder unvollständig ist, leidet alles nachgelagert: E-Mails gehen an die falschen Personen, Berichte zeigen falsche Zahlen und Vertriebsmitarbeiter verschwenden Zeit mit toten Leads.
+Von Grund auf programmieren müssen Sie so eine Datenbank fast nie. Sie wählen ein CRM, legen fest, welche Datensatztypen und Felder Sie brauchen, bereinigen Ihre vorhandenen Daten und importieren sie in der richtigen Reihenfolge. Dieser Leitfaden behandelt genau diese Planung, zeigt das Datenmodell von vier CRM-Systemen und endet mit einem durchgespielten Beispiel. Customermates veröffentlicht diesen Leitfaden; die Angaben zu anderen Anbietern stammen aus deren eigener Dokumentation, verlinkt am Ende.
 
-Laut [Gartner](https://www.gartner.com/en/information-technology/glossary/customer-relationship-management-crm) zählt CRM zu den größten Märkten für Unternehmenssoftware. Dennoch scheitern viele Unternehmen nicht an der Auswahl eines CRM, sondern am Aufbau und der Pflege der zugrundeliegenden Datenbank. Dieser Leitfaden zeigt, wie Sie diesen Teil richtig angehen.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was sie ist">Verknüpfte Datensätze zu Personen, Unternehmen, Deals und Aufgaben, mit typisierten Feldern und einer Aktivitätshistorie. Eine Tabelle enthält Zeilen, eine CRM-Datenbank enthält Beziehungen.</SummaryItem>
+  <SummaryItem label="Aufbau">Erst die Datensatztypen festlegen, dann die Felder, nach denen Sie filtern, dann ein eindeutiges Merkmal pro Person. Vor dem Import bereinigen, Unternehmen vor Personen importieren.</SummaryItem>
+  <SummaryItem label="Woran sie scheitert">Dubletten, Freitextfelder, die eigentlich Auswahllisten sein sollten, und niemand, der für die Datenpflege zuständig ist.</SummaryItem>
+  <SummaryItem label="Customermates">Fünf Datensatztypen (Kontakte, Organisationen, Deals, Services, Aufgaben) mit typisierten benutzerdefinierten Feldern, in der Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat oder selbst gehostet unter AGPL.</SummaryItem>
+</ArticleSummary>
 
-## Was ist eine CRM-Datenbank?
+## Was in einer CRM-Datenbank steht
 
-Eine CRM-Datenbank ist eine strukturierte Sammlung von Kunden- und Interessentendaten innerhalb eines Customer-Relationship-Management-Systems. Sie organisiert [Kontakte](/features/contact-management), Unternehmen, Deals und sämtliche Interaktionen in einem relationalen Format, in dem Datensätze miteinander verknüpft sind und ein vollständiges Bild jeder Kundenbeziehung über die Zeit entsteht.
+Stellen Sie sich eine Handvoll Tabellen vor, die aufeinander verweisen. Die meisten CRM-Systeme bringen denselben Kern mit und unterscheiden sich darin, was sie darum herum anbieten.
 
-Anders als eine flache Tabelle oder ein Adressbuch erstellt eine CRM-Datenbank Beziehungen zwischen Datensätzen. Ein Kontakt gehört zu einem Unternehmen. Ein Deal ist mit beiden verknüpft. Eine E-Mail, ein Anruf oder ein Meeting hängt gleichzeitig am Kontakt, am Deal und am Unternehmen. Diese relationale Struktur macht eine CRM-Datenbank fundamental anders als eine Namensliste in einer Datei.
+| Datensatztyp | Ein Datensatz ist | Typischerweise verknüpft mit | Sinnvolle Felder |
+|---|---|---|---|
+| Person (Kontakt) | ein Mensch, mit dem Sie sprechen | Unternehmen, Deals, Aufgaben, Nachrichten | Vor- und Nachname, E-Mail, Telefon, Funktion, Herkunft des Kontakts |
+| Unternehmen (Organisation, Account) | eine Firma oder Institution | ihre Personen und Deals | Name, Segment, Website, Anschrift |
+| Deal (Verkaufschance) | ein mögliches oder laufendes Geschäft | beteiligte Personen und Unternehmen, verkaufte Produkte oder Leistungen | Phase, Wert, geplanter Start, Quelle |
+| Produkt oder Leistung | etwas, das Sie zu einem Preis verkaufen | die Deals, in denen es vorkommt | Name, Preis |
+| Aufgabe oder Aktivität | etwas, das jemand erledigen muss oder erledigt hat | jeder der obigen Typen | Zuständige Person, Notizen |
 
-Eine gut aufgebaute CRM-Datenbank enthält:
+Zwei Fragen zum Datenmodell entscheiden, ob die Datenbank später trägt. Kann eine Person zu mehreren Unternehmen gehören, etwa eine Beraterin mit zwei Mandaten oder ein Freelancer, der für drei Agenturen arbeitet? Und kann ein Deal mehrere Personen betreffen? Erzwingt Ihr CRM ein Unternehmen pro Person oder einen Kontakt pro Deal, landen die Ausnahmen bald in den Notizen.
 
-- **Kontaktdatensätze**: Einzelne Personen mit Namen, E-Mails, Telefonnummern, Positionen, Kommunikationspräferenzen und Einwilligungsstatus
-- **Unternehmensdatensätze**: Organisationen mit Branche, Größe, Standort, Umsatz und weiteren firmografischen Daten
-- **Interaktionshistorie**: Jede E-Mail, jeder Anruf, jedes Meeting, jede Chat-Nachricht und jede Notiz, verknüpft mit dem relevanten Kontakt oder Unternehmen
-- **Deal-Datensätze**: Verkaufschancen mit Werten, Phasen, Wahrscheinlichkeiten, erwartetem Abschlussdatum und verknüpften Produkten oder Dienstleistungen
-- **Aktivitätsdaten**: Erledigte Aufgaben, geplante Follow-ups und ausgelöste [Workflow-Trigger](/features/workflow-automation)
-- **Individuelle Daten**: Branchenspezifische Felder, die für Ihr Geschäft relevante Informationen erfassen
-- **Einwilligungs- und Compliance-Daten**: DSGVO-Einwilligungszeitstempel, Rechtsgrundlage der Verarbeitung und Betroffenenanfragen
+Die andere Hälfte einer CRM-Datenbank ist die Historie. Jede Änderung an einem Datensatz und jede verknüpfte E-Mail oder Nachricht ergibt eine Zeitleiste. Mit ihr kann eine Kollegin einen Kunden übernehmen, ohne dass es ein Übergabegespräch braucht. Genau das kann eine Excel-Liste nicht.
 
-### Beispiele für CRM-Datenbanken
+## Beispiele: So ordnen vier CRM-Systeme ihre Daten
 
-CRM-Datenbanken sehen je nach Branche und Geschäftsmodell unterschiedlich aus. Hier sind konkrete Beispiele:
+An den Datensatztypen sieht man, wofür ein CRM gebaut wurde. Die Tabelle vergleicht nur das Datenmodell, nicht Preis oder Qualität.
 
-**B2B-SaaS-Unternehmen**: Kontakte verknüpft mit Firmenkonten, mit Deal-Datensätzen, die Trial-zu-Paid-Conversions, monatlichen wiederkehrenden Umsatz, Vertragsverlängerungsdaten und Produktnutzungsdaten aus der Anwendung tracken.
+| CRM | Standard-Datensatztypen | Eigene Datensatztypen |
+|---|---|---|
+| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Kontakte und Unternehmen als Grundlage, dazu Deals, Leads, Tickets, Produkte, Projekte, Aufgaben und weitere | Benutzerdefinierte Objekte, die ein Enterprise-Abo voraussetzen |
+| [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Standardobjekte wie Account, Contact, Lead und Opportunity | Benutzerdefinierte Objekte für Informationen, die für Ihr Unternehmen oder Ihre Branche spezifisch sind |
+| [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, Deals, Personen, Organisationen, Aktivitäten, Produkte, Projekte und E-Mails | Der verlinkte Artikel nennt keinen eigenen Objekttyp; Projekte sind bis einschließlich Growth als Add-on erhältlich und in Premium und Ultimate enthalten |
+| Customermates | Kontakte, Organisationen, Deals, Services und Aufgaben, mit vorgegebenen Bezeichnungen umbenennbar | Keine: fünf feste Typen mit typisierten benutzerdefinierten Feldern |
 
-**Immobilienagentur**: Immobilienangebote verknüpft mit Käufer- und Verkäuferkontakten, mit Aktivitätsdatensätzen für Besichtigungen, Angebote und Vertragsmeilensteine. Individuelle Felder für Objekttyp, Quadratmeter, Preisklasse und Stadtteil.
+Kurz gesagt: HubSpot und Salesforce erlauben eigene Objekttypen, die Sie selbst konfigurieren, bei HubSpot mit einem Enterprise-Abo. Die Datenelemente von Pipedrive bleiben nah am Vertriebsprozess. Customermates bleibt bei fünf Typen und lässt Sie diese umbenennen, sodass im ganzen Workspace etwa „Kunden" statt „Kontakte" und „Projekte" statt „Deals" steht.
 
-**E-Commerce-Händler**: Kundenprofile angereichert mit Kaufhistorie, durchschnittlichem Bestellwert, Retourenquote und Support-Ticket-Historie. Segmente basierend auf Kaufhäufigkeit und Customer Lifetime Value.
+## CRM-Datenbank, Excel oder eigene Datenbank?
 
-**IT-Beratung**: Kundenkontakte verknüpft mit Projektdatensätzen, mit individuellen Feldern für Technologie-Stack, Stundensätze, Vertragswert und Verlängerungsdaten. Aktivitätstracking für abrechenbare vs. nicht-abrechenbare Interaktionen.
+Alle drei können Kundendaten speichern. Entscheidend ist, wer sie pflegt und wie viel Logik Sie selbst bauen wollen.
 
-**Arztpraxis**: Patientenkontakte (mit strikter Zugriffskontrolle) verknüpft mit Termindatensätzen, Behandlungshistorie und Überweisungsquellen. DSGVO-konforme Felder für Einwilligungsmanagement.
+| Wählen Sie | wenn | Sie verzichten auf |
+|---|---|---|
+| Excel oder eine andere Tabelle | eine Person die Liste führt, sie kurz ist und keine gemeinsame Historie nötig ist | Verknüpfungen zwischen Personen und Firmen, eine Zeitleiste pro Kunde, sicheres Bearbeiten durch mehrere Personen |
+| eine eigene Datenbank oder ein No-Code-Tool (Airtable, Notion, Access, PostgreSQL) | Ihre Daten keine Personen und Deals sind oder Sie ein Modell brauchen, das kein CRM bietet | Formulare, Beziehungen, Berechtigungen und Historie, die Sie selbst bauen |
+| ein CRM | mehrere Personen mit denselben Kunden arbeiten und Sie Deals, offene Rückmeldungen oder Gespräche nachhalten | etwas Freiheit im Datenmodell; die meisten Cloud-CRMs kosten pro Nutzer |
 
-Diese Beispiele zeigen, dass eine CRM-Datenbank keine Einheitslösung ist. Die Grundstruktur (Kontakte, Unternehmen, Deals, Aktivitäten) bleibt konsistent, aber individuelle Felder und Beziehungen passen sich jedem Unternehmen an.
+Wenn Sie heute mit einer Tabelle arbeiten, zeigt die [Excel-CRM-Vorlage](/blog/excel-crm-template), wie weit sie trägt und wie Sie sie so anlegen, dass der spätere Import leichtfällt. Welche Art von Software für eine Kundendatenbank passt, behandelt der Beitrag zu [Kundendatenbank-Software](/blog/client-database-software).
 
-## Die 4 Typen von CRM-Datenbanken
+## CRM-Datenbank erstellen: Schritt für Schritt
 
-Nicht alle CRM-Datenbanken dienen demselben Zweck. Das Verständnis der vier Typen hilft Ihnen, den richtigen Ansatz für Ihr Unternehmen zu wählen.
+Diese Schritte gelten für jedes CRM. Die Reihenfolge ist wichtiger als das Werkzeug.
 
-### 1. Operative CRM-Datenbank
+<Steps>
+  <Step title="Datensatztypen festlegen">Beginnen Sie mit Personen, Unternehmen und Deals. Ein eigener Typ lohnt sich nur, wenn er einen eigenen Lebenszyklus hat. Ein Produktkatalog hat einen, ein Besprechungsort nicht.</Step>
+  <Step title="Felder auflisten, nach denen Sie filtern oder auswerten">Wonach nie jemand filtert, gehört in die Notizen. Wählen Sie für jedes Feld einen Typ: Datum, Währung, E-Mail, Telefon, Link oder eine Einzelauswahl aus einer festen Liste. Ein Feld „Segment" als Freitext enthält nach einem Monat „Retainer", „retainer" und „Ret.".</Step>
+  <Step title="Deal-Phasen und Übergänge definieren">Fünf bis sieben Phasen, jede mit einer schriftlichen Regel, wann ein Deal sie verlässt, zum Beispiel „Angebot: Ein schriftliches Angebot ist verschickt". Phasen ohne solche Regeln werden zur Ansichtssache.</Step>
+  <Step title="Ein eindeutiges Merkmal pro Person wählen">Meist die E-Mail-Adresse. Über sie finden Sie Dubletten vor dem Import, und das CRM ordnet eingehende E-Mails darüber der richtigen Person zu.</Step>
+  <Step title="Quelldaten bereinigen">Eine Person pro Zeile, eine Art von Wert pro Spalte, Namen in Vor- und Nachname trennen, Dubletten über die E-Mail entfernen und Personen löschen, für die Sie keinen Grund zur Speicherung mehr haben.</Step>
+  <Step title="Erst Unternehmen, dann Personen, dann Deals importieren">So kann jeder spätere Import auf bereits vorhandene Datensätze verweisen, zugeordnet über den Namen. Testen Sie mit 50 Zeilen, bevor Sie die ganze Datei einlesen.</Step>
+  <Step title="Die Ansichten speichern, mit denen gearbeitet wird">„Meine offenen Deals", „Kunden ohne Unternehmen", „Seit 90 Tagen unverändert". Eine Datenbank, auf die niemand schaut, veraltet unbemerkt.</Step>
+  <Step title="Eine verantwortliche Person für die Datenpflege benennen">Jemand, der den monatlichen Check weiter unten durchführt. Ist die Pflege Aufgabe aller, erledigt sie niemand.</Step>
+</Steps>
 
-Eine operative CRM-Datenbank unterstützt die täglichen kundenorientierten Prozesse: Vertrieb, Marketing und Service. Sie ist der häufigste Typ und das, was die meisten Menschen meinen, wenn sie „CRM-Datenbank" sagen.
+## Daten, die nicht in Kontakte, Unternehmen oder Deals passen
 
-**Hauptfokus**: Automatisierung und Optimierung von Kundeninteraktionen
-**Zentrale Daten**: Kontakte, Deals, Aufgaben, E-Mails, Anrufprotokolle, Pipeline-Phasen
-**Ideal für**: Vertriebsteams mit Pipeline-Management, Marketing-Teams mit Kampagnen, Service-Teams mit Tickets
-**Beispiele**: Customermates, Salesforce Sales Cloud, HubSpot CRM, Pipedrive
+Das ist die häufigste Frage beim Datenmodell, und es gibt vier ehrliche Antworten.
 
-### 2. Analytische CRM-Datenbank
+1. **Die Angabe beschreibt einen vorhandenen Datensatz.** Ein Vertragsende, ein Kundensegment, ein LinkedIn-Profil. Legen Sie dafür ein typisiertes benutzerdefiniertes Feld beim passenden Datensatztyp an.
+2. **Es ist etwas, das Sie verkaufen.** Pflegen Sie es im Produkt- oder Leistungskatalog und verknüpfen Sie es mit Deals, damit sich der Deal-Wert aus dem Inhalt ergibt.
+3. **Es ist Text, den Sie lesen, aber nie filtern.** Gesprächsnotizen, Hintergrund, Vorlieben. Dafür sind die Notizen da.
+4. **Es hat einen eigenen Lebenszyklus und eigene Beziehungen.** Immobilien, Fahrzeuge, Bewerber, Veranstaltungen. Dafür brauchen Sie benutzerdefinierte Objekte. HubSpot bietet sie im Enterprise-Tarif, Salesforce auf seiner Plattform, und No-Code-Datenbanken wie Airtable sind darauf ausgelegt. Customermates hat keine eigenen Datensatztypen, solche Daten gehören also in ein anderes System.
 
-Eine analytische CRM-Datenbank ist für Reporting, Datenanalyse und Business Intelligence optimiert. Sie aggregiert Daten aus operativen Systemen und wandelt sie in Erkenntnisse um.
+## Beispiel: Die CRM-Datenbank einer Beratung mit vier Personen
 
-**Hauptfokus**: Kundenverhalten und Geschäftsperformance verstehen
-**Zentrale Daten**: Aggregierte Vertriebskennzahlen, Customer Lifetime Value, Churn-Raten, Conversion-Funnels, Kohortenanalysen
-**Ideal für**: Management-Teams bei strategischen Entscheidungen, Datenanalysten bei Prognosen
-**Beispiele**: Salesforce Einstein Analytics, Microsoft Dynamics 365 Customer Insights, dedizierte BI-Tools mit CRM-Anbindung
+So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen Stand des Produkts. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen, Agenturen und Gründer.
 
-### 3. Kollaborative CRM-Datenbank
+**Datensatztypen.** Unter Mein Unternehmen › Einstellungen › Datenmodell benennen Sie Kontakte in Kunden und Deals in Projekte um. Die Namen wählen Sie aus Vorgaben, freier Text ist nicht möglich. Organisationen, Services und Aufgaben behalten ihre Namen.
 
-Eine kollaborative CRM-Datenbank konzentriert sich auf den Austausch von Kundeninformationen über Abteilungen und externe Partner hinweg. Sie bricht Datensilos zwischen Vertrieb, Marketing, Service und Partnerkanälen auf.
+**Benutzerdefinierte Felder.** Jedes Feld hat einen Typ: Text, E-Mail, Telefon, Link, Datum, Datum & Uhrzeit, Datumsbereich, Datums- und Uhrzeitbereich, Währung oder Einzelauswahl.
 
-**Hauptfokus**: Sicherstellen, dass jedes Team den gleichen Kundenkontext hat
-**Zentrale Daten**: Geteilte Kontaktdatensätze, abteilungsübergreifende Notizen, Partner-Zugriffsprotokolle, kanalübergreifende Kommunikationshistorie
-**Ideal für**: Organisationen, in denen mehrere Abteilungen mit denselben Kunden interagieren
-**Beispiele**: Customermates (mit rollenbasiertem Sharing), Salesforce mit Community Cloud, Monday CRM
+| Datensatztyp | Feld | Typ |
+|---|---|---|
+| Organisationen | Segment (Retainer, Projekt, Ehemalig) | Einzelauswahl |
+| Organisationen | Kunde seit | Datum |
+| Kunden | Funktion | Text |
+| Kunden | LinkedIn-Profil | Link |
+| Projekte | Laufzeit | Datumsbereich |
+| Projekte | Quelle (Empfehlung, Anfrage, Veranstaltung) | Einzelauswahl |
 
-### 4. Strategische CRM-Datenbank
+**Verknüpfungen.** Ein Kunde kann mit mehreren Organisationen verknüpft sein, ein Projekt mit mehreren Kunden, Organisationen, Services und zugewiesenen Nutzern. Der Wert eines Projekts ist die Summe seiner verknüpften Services, jeweils Preis mal Menge. „Strategie-Workshop" einmal und „Monatlicher Retainer" sechsmal ergeben den Projektwert also von selbst.
 
-Eine strategische CRM-Datenbank kombiniert operative und analytische Fähigkeiten mit langfristiger Planung von Kundenbeziehungen. Der Fokus liegt auf kundenzentrischer Strategie statt transaktionaler Effizienz.
+**Phasen.** Ein neuer Workspace startet mit einem Feld Phase (Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren), für das Sie je Phase eine Abschlusswahrscheinlichkeit festlegen. Die gewichtete Pipeline ergibt sich rein rechnerisch aus diesen Prozentsätzen und ist keine Vorhersage.
 
-**Hauptfokus**: Langfristige Kundenbeziehungen aufbauen und Lifetime Value maximieren
-**Zentrale Daten**: Kundenzufriedenheitswerte, Treueprogramm-Daten, Beziehungsgesundheitsindikatoren, strategische Account-Pläne
-**Ideal für**: Unternehmen mit komplexen, hochwertigen Kundenbeziehungen
-**Beispiele**: SAP CRM, Oracle CX, Enterprise-Salesforce-Implementierungen
+**Eindeutiges Merkmal.** Customermates verknüpft eine E-Mail-Adresse nicht mit einem zweiten Kontakt und meldet „Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft." Die globale Suche (Cmd/Strg+K) findet einen Kunden über Vorname, Nachname, E-Mail-Adresse oder Firmenname.
 
-Die meisten kleinen und mittelständischen Unternehmen brauchen eine operative CRM-Datenbank mit integrierten Analysefunktionen. Customermates liefert beides: tägliches Pipeline- und Kontaktmanagement plus Dashboards und Berichte, die relevante Erkenntnisse liefern: alles in einem System ab [[commercial.price.starter.monthly]]/Nutzer/Monat.
+**Import.** Über Import und Export › Aus Datei hinzufügen lesen Sie eine .xlsx-Arbeitsmappe ein, ein Datensatztyp pro Import, in der Reihenfolge Organisationen, Kunden, Projekte. Verknüpfungsspalten werden über den Datensatznamen zugeordnet. CSV-Dateien werden nicht akzeptiert, speichern Sie sie vorher als .xlsx. Alle Importregeln stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
 
-## Ist Excel eine CRM-Datenbank?
+**Ansichten.** Speichern Sie „Seit 90 Tagen unverändert" mit dem Filter Aktualisiert am, Älter als… 90 Tage, und „Kunden ohne Organisation". Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben Filtern ihre eigene Ansicht an.
 
-Das ist eine der häufigsten Fragen, die Unternehmen stellen, und die ehrliche Antwort lautet: Excel kann Kundendaten speichern, ist aber keine CRM-Datenbank.
+**Kosten.** Vier Personen zahlen im Tarif Starter [[commercial.price.starter.monthly.seats.4]] pro Monat. Im Tarif Pro, der die [Unified Inbox](/features/unified-inbox) ergänzt, sodass das verbundene E-Mail-, LinkedIn- oder WhatsApp-Konto jedes Nutzers seine Gespräche neben dem Kunden zeigt, sind es [[commercial.price.pro.monthly.seats.4]] pro Monat. Abgerechnet wird monatlich, die Testphase dauert [[commercial.trial.days]] Tage. Der selbst gehostete Open-Source-Kern kostet keine Lizenzgebühr, enthält aber weder Inbox noch Mate.
 
-Excel (und Google Sheets) kann als einfache Kontaktliste funktionieren. Viele Unternehmen starten dort, und eine Weile funktioniert es. Aber als CRM-Datenbank scheitern Tabellenkalkulationen aus konkreten, vorhersehbaren Gründen:
+**Eine Routine für die Datenqualität (Customermates Cloud).** Mate, der Assistent in Customermates Cloud, nutzt gehostete KI-Credits. Eine Routine führt gespeicherte Anweisungen nach Zeitplan oder bei einem Datensatzereignis aus, und zwar als die Person, der sie gehört; Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer. Eine wöchentliche Routine könnte diese Anweisung haben:
 
-| Funktion                                            | Excel / Google Sheets                      | CRM-Datenbank                        |
-| --------------------------------------------------- | ------------------------------------------ | ------------------------------------ |
-| Kontaktspeicherung                                  | Ja                                         | Ja                                   |
-| Relationale Daten (Kontakt-Unternehmen-Verknüpfung) | Nein (manuelle Umwege)                     | Integriert                           |
-| Automatisches Interaktionstracking                  | Nein                                       | Ja                                   |
-| Pipeline-Visualisierung                             | Nein (manuelle Diagramme)                  | Natives Drag-and-Drop                |
-| E-Mail-Integration                                  | Nein                                       | Nativ                                |
-| Automatisierungs-Workflows                          | Begrenzt (Makros/Skripte)                  | Integriert oder via n8n              |
-| Audit-Trail / DSGVO-Konformität                     | Nein                                       | Integriert                           |
-| Mehrbenutzer-Zusammenarbeit                         | Begrenzt (Konflikte, keine Berechtigungen) | Echtzeit mit rollenbasiertem Zugriff |
-| Duplikaterkennung                                   | Manuell                                    | Automatisch                          |
-| Reporting-Dashboards                                | Manuelle Diagrammerstellung                | Integriert und dynamisch             |
+> Liste jeden Montag die Kunden auf, die in den letzten 7 Tagen angelegt wurden und keine verknüpfte Organisation oder keine E-Mail-Adresse haben, und die Organisationen ohne Wert im Feld Segment. Gib die Listen in der Zusammenfassung des Laufs aus. Ändere keinen Datensatz und sende keine Nachricht.
 
-**Wann Excel funktioniert**: Weniger als 100 Kontakte, eine Person verwaltet die Daten, einfache Prozesse ohne Pipeline-Tracking.
+Auf den letzten Satz kommt es an. Mate kann Nachrichten senden, wenn eine Anweisung darum bittet; eine Routine, die nur berichten soll, muss das also ausdrücklich sagen. Wenn Sie lieber Ihren eigenen KI-Client nutzen, können Claude, ChatGPT und andere MCP-Clients dieselben Datensätze über [[derived.mcp.tools.total]] [MCP-Tools](/docs/mcp) abfragen, in der Cloud und selbst gehostet.
 
-**Wann Excel versagt**: Mehr als 200 Kontakte, mehrere Teammitglieder greifen auf Daten zu, jeglicher Bedarf an Pipeline-Visualisierung, Follow-up-Automatisierung oder Compliance-Dokumentation. Ab diesem Punkt wird die Tabelle zur Belastung. Siehe unseren [Google-Sheets-CRM-Leitfaden](/blog/google-sheets-crm) und die [Excel-CRM-Vorlage](/blog/excel-crm-template) für einen detaillierten Vergleich.
+## CRM-Datenpflege: So bleibt die Datenbank sauber
 
-**Die tatsächlichen Kosten des Festhaltens an Excel**: Die Zeit, die Ihr Team mit der Pflege von Tabellen, der Suche nach Informationen und der erneuten Dateneingabe verbringt, ist fast immer teurer als ein CRM-Abo. Ab [[commercial.price.starter.monthly]]/Nutzer/Monat kostet Customermates weniger als der Stundenlohn der Zeit, die für Tabellenverwaltung verschwendet wird.
+Kontaktdaten veralten, weil Menschen die Stelle wechseln und Firmen fusionieren. Eine kurze, feste Routine mit klarer Zuständigkeit bringt mehr als ein jährliches Aufräumprojekt.
 
-## CRM-Datenbank vs. eigenständige Datenbank
+| Wie oft | Prüfung | In Customermates |
+|---|---|---|
+| Wöchentlich | neue Personen ohne Unternehmen, neue Deals ohne Phase | gespeicherte Ansichten oder die Routine oben |
+| Monatlich | Datensätze, die seit 90 Tagen niemand geändert hat: noch relevant? | Filter Aktualisiert am, Älter als… 90 Tage |
+| Monatlich | Freitextwerte, die eine Auswahlliste sein sollten | ein Feld vom Typ Einzelauswahl anlegen und mit Aktualisieren für bis zu 100 markierte Datensätze auf einmal setzen |
+| Vierteljährlich | Personen, für die Sie keinen Speichergrund mehr haben | in der Liste oder auf der Detailseite löschen |
+| Vor jeder größeren Änderung | eine Kopie des Bestands | jeden Datensatztyp als .xlsx exportieren; einen Export des gesamten Kontos gibt es nicht |
 
-Einige Unternehmen erwägen, eine Kundendatenbank von Grund auf mit Tools wie MySQL, PostgreSQL, Airtable oder Supabase aufzubauen. Dieser Ansatz bietet Flexibilität, erfordert aber erheblichen Aufwand für Funktionen, die ein CRM standardmäßig mitbringt:
+Eine exportierte Arbeitsmappe können Sie bearbeiten und wieder einlesen: Die Spalte Datensatz-ID aktualisiert dann die vorhandenen Datensätze, statt Dubletten anzulegen. So lassen sich Korrekturen in großer Zahl ohne API erledigen.
 
-| Funktion                   | Eigenständige Datenbank | CRM-Datenbank           |
-| -------------------------- | ----------------------- | ----------------------- |
-| Kontaktspeicherung         | Ja                      | Ja                      |
-| Relationales Datenmodell   | Manueller Aufbau        | Integriert              |
-| Interaktionstracking       | Eigenentwicklung        | Automatisch             |
-| Pipeline-Visualisierung    | Nicht enthalten         | Nativ                   |
-| E-Mail-Integration         | Eigenentwicklung        | Nativ                   |
-| Automatisierungs-Workflows | Eigenentwicklung        | Integriert oder via n8n |
-| Audit-Trail / DSGVO        | Eigenentwicklung        | Integriert              |
-| Reporting-Dashboards       | Eigenentwicklung        | Integriert              |
-| Zeit bis zur Produktivität | Monate                  | Tage                    |
-| Laufende Wartung           | Ihre Verantwortung      | Vom Anbieter verwaltet  |
+## CRM-Datenbank und DSGVO
 
-**Fazit:** Eine eigenständige Datenbank ist nur dann sinnvoll, wenn Ihr Datenmodell so ungewöhnlich ist, dass kein CRM es abbilden kann. Für die allermeisten Unternehmen spart ein dediziertes CRM mit flexiblem Datenmodell Monate an Entwicklung und laufender Wartung.
+Eine CRM-Datenbank mit Personen enthält personenbezogene Daten im Sinne der [DSGVO](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Drei Grundsätze aus Artikel 5 lassen sich direkt in das Datenmodell übersetzen: Datenminimierung (nur Felder, die Sie wirklich brauchen), Richtigkeit (die regelmäßige Datenpflege) und Speicherbegrenzung (das vierteljährliche Löschen). Artikel 17 gibt Betroffenen ein Recht auf Löschung, Sie müssen eine Person also vollständig finden und löschen können. Artikel 28 verlangt einen Auftragsverarbeitungsvertrag mit jedem Anbieter, der die Daten für Sie speichert.
 
-### Warum Ihre CRM-Datenbank entscheidend ist
+Für Customermates Cloud ist der [Auftragsverarbeitungsvertrag](/dpa) öffentlich, die Anwendungsdatenbank ist in der AWS-Region Frankfurt konfiguriert, und die [Unterauftragsverarbeiter](/subprocessors) sind aufgelistet, US-Anbieter eingeschlossen. Customermates hat keine Compliance-Zertifizierung. Wenn die Daten auf Ihrem eigenen Server liegen sollen, können Sie den [Open-Source-Kern selbst hosten](/features/self-hosted).
 
-Ihre CRM-Datenbank ist die einzige Quelle der Wahrheit für Kundenbeziehungen. Jede Entscheidung, die Vertrieb und Marketing treffen, hängt von der Qualität dieser Daten ab. Genaue Daten bedeuten bessere Segmentierung, personalisierte Ansprache, verlässliche [Sales-Pipeline](/blog/sales-pipeline)-Prognosen und fundierte strategische Entscheidungen. Schlechte Daten bedeuten Verschwendung, verpasste Chancen und frustrierte Kunden.
+## Wann Customermates nicht die richtige Datenbank ist
 
-Schlechte CRM-Daten kosten Unternehmen spürbar Umsatz. Doppelte Datensätze bedeuten, dass mehrere Vertriebsmitarbeiter denselben Interessenten kontaktieren. Veraltete Kontaktdaten bedeuten, dass E-Mails zurückkommen und Anrufe ins Leere laufen. Unvollständige Datensätze bedeuten, dass Vertriebsmitarbeiter ohne Kontext in Meetings gehen.
+- **Sie brauchen eigene Datensatztypen** wie Immobilien, Bewerber oder Veranstaltungen. Nehmen Sie ein CRM mit benutzerdefinierten Objekten oder eine No-Code-Datenbank.
+- **Sie möchten Dokumente am Datensatz ablegen.** Datensätze haben keine Dateianhänge; Notizen können Bilder und Tabellen enthalten.
+- **Sie brauchen Berechtigungen pro Feld.** Berechtigungen gelten pro Datensatztyp und Aktion, nicht pro Feld.
+- **Sie wollen alles mit einem Klick exportieren.** Der Export läuft je Datensatztyp als .xlsx.
+- **Sie verschicken Newsletter aus Ihrem Kundenstamm.** Massenversand gibt es nicht; dafür ist ein E-Mail-Marketing-Tool da.
 
-## So strukturieren Sie Ihre CRM-Datenbank
-
-### Datenmodell definieren
-
-Bevor Sie Daten eingeben, planen Sie Ihr Datenmodell. Entscheiden Sie, welche Objekte (Entitäten) Sie brauchen und wie sie zusammenhängen:
-
-- **Kontakte** gehören zu **Unternehmen**
-- **Deals** sind mit **Kontakten** und **Unternehmen** verknüpft
-- **Aktivitäten** (Anrufe, E-Mails, Meetings) sind mit Deals, Kontakten oder beidem verbunden
-- **Produkte/Dienstleistungen** können mit Deals verknüpft werden
-- **Notizen** und **Dateien** lassen sich an jeden Datensatz anhängen
-
-Ein klares Entity-Relationship-Modell verhindert spätere Verwirrung. Wenn Sie von Tabellen migrieren, ordnen Sie Ihre Spalten diesen Entitäten zu, bevor Sie irgendetwas importieren.
-
-### Welche Datentypen Sie speichern sollten
-
-Nicht alle Daten sind gleich wertvoll. Konzentrieren Sie sich auf diese Kategorien:
-
-**Identitätsdaten**: Wer ist der Kontakt?
-
-- Vollständiger Name, E-Mail, Telefon, Position, Unternehmen, LinkedIn-Profil
-
-**Beschreibende Daten**: Was charakterisiert den Kontakt?
-
-- Branche, Unternehmensgröße, Standort, Jahresumsatz, Technologie-Stack
-
-**Verhaltensdaten**: Was hat der Kontakt getan?
-
-- Website-Besuche, E-Mail-Öffnungen, Meeting-Teilnahmen, Support-Tickets, Produktnutzung
-
-**Transaktionsdaten**: Was hat der Kontakt gekauft?
-
-- Kaufhistorie, Deal-Werte, Vertragsdaten, wiederkehrender Umsatz
-
-**Qualitative Daten**: Was ist der Beziehungskontext?
-
-- Notizen aus Gesprächen, Meeting-Zusammenfassungen, Präferenzen, geäußerte Einwände
-
-**Compliance-Daten**: Was dürfen Sie tun?
-
-- Einwilligungsstatus, Rechtsgrundlage, Opt-in-Datum, Betroffenenanfragen
-
-Priorisieren Sie Daten, die Ihr Team tatsächlich nutzen wird. Felder, die niemand befüllt, sind schlimmer als gar keine Felder, weil sie eine falsche Vollständigkeit suggerieren.
-
-### Standardfelder vs. individuelle Felder
-
-Jedes CRM hat Standardfelder wie Name, E-Mail, Telefon und Unternehmen. Aber Ihr Geschäft braucht wahrscheinlich zusätzliche Informationen. Individuelle Felder erfassen branchenspezifische Daten:
-
-- Ein Immobilien-CRM braucht Felder für Objekttyp, Quadratmeter und Inseratsdatum
-- Ein IT-Beratungs-CRM braucht Felder für Technologie-Stack, Vertragsverlängerungsdatum und monatlichen wiederkehrenden Umsatz
-- Ein Agentur-CRM braucht Felder für Projekttyp, Kampagnenbudget und Kundenkategorie
-
-Customermates unterstützt zehn Feldtypen für individuelle Felder: Text, Link, E-Mail, Telefon, Währung, Einfachauswahl, Datum, Datum und Uhrzeit, Datumsbereich und Datums-/Zeitbereich. Sie können diese Felder in Tabellen- und Kartenansichten organisieren, um die Oberfläche übersichtlich zu halten.
-
-### Namenskonventionen festlegen
-
-Inkonsistente Dateneingabe zerstört die Datenbankqualität schneller als alles andere. Legen Sie klare Konventionen fest:
-
-- **Firmennamen**: "Customermates GmbH", nicht "customermates" oder "Customermates GMBH"
-- **Telefonnummern**: Einheitliches Format wie +49 123 456789
-- **Positionen**: Definieren Sie eine Standardliste, um Varianten wie "CEO", "Geschäftsführer", "GF" zu vermeiden
-- **Adressen**: Einheitliches Format für Land, Bundesland und Postleitzahl
-- **Tags und Kategorien**: Erstellen Sie ein kontrolliertes Vokabular statt Freitext-Tags
-
-Dokumentieren Sie diese Konventionen und integrieren Sie sie in Ihr Onboarding für neue Teammitglieder.
-
-### Beziehungen planen
-
-Eine CRM-Datenbank ist von Natur aus relational. Planen Sie diese Beziehungen sorgfältig:
-
-- Ein Kontakt kann zu einem oder mehreren Unternehmen gehören (z. B. Berater, Aufsichtsräte)
-- Ein Unternehmen kann mehrere Kontakte haben
-- Ein Deal kann mehrere Kontakte aus demselben Unternehmen umfassen
-- Aktivitäten können mit Kontakten, Unternehmen oder Deals verknüpft sein
-- Produkte oder Dienstleistungen können mit Deals verknüpft werden
-
-Korrekte Beziehungen von Anfang an verhindern Datensilos und stellen sicher, dass Ihr Reporting die Realität widerspiegelt.
-
-## CRM-Datenbank aufbauen: Schritt für Schritt
-
-### Schritt 1: Bestehende Daten auditieren
-
-Bevor Sie irgendetwas importieren, überprüfen Sie die Daten, die Sie bereits haben. Wahrscheinlich verteilen sie sich auf Tabellen, E-Mail-Kontakte, Visitenkartenscanner, Buchhaltungssysteme oder Alt-CRMs. Bewerten Sie die Qualität:
-
-- **Vollständigkeit**: Wie viel Prozent der Datensätze haben alle Pflichtfelder befüllt?
-- **Genauigkeit**: Wie aktuell sind die Informationen? Wann wurden sie zuletzt überprüft?
-- **Konsistenz**: Sind Formate, Namenskonventionen und Kategorien einheitlich?
-- **Duplikate**: Wie viele doppelte oder fast doppelte Datensätze existieren?
-
-### Schritt 2: Vor dem Import bereinigen
-
-Datenbereinigung ist mühsam, aber unerlässlich. Es ist viel einfacher, Daten vor dem Import zu bereinigen als danach:
-
-1. **Duplikate entfernen**: Datensätze zusammenführen, die sich auf dieselbe Person oder dasselbe Unternehmen beziehen
-2. **Formate korrigieren**: Telefonnummern, Adressen und Firmennamen standardisieren
-3. **Veraltetes aktualisieren**: E-Mail-Adressen verifizieren, Bounce-Domains prüfen, Positionen bestätigen
-4. **Lücken füllen**: Unvollständige Datensätze mit öffentlich verfügbaren Informationen anreichern
-5. **Irrelevantes löschen**: Kontakte entfernen, die keine Geschäftsbeziehung haben und kein Potenzial bieten
-
-### Schritt 3: Felder zuordnen
-
-Erstellen Sie eine Zuordnung zwischen Ihren Quelldatenfeldern und Ihren CRM-Feldern. Entscheiden Sie, wohin jede Information gehört, was transformiert werden muss und was verworfen werden kann. Eine einfache Zuordnungstabelle hilft:
-
-| Quellfeld | CRM-Feld           | Transformation         |
-| --------- | ------------------ | ---------------------- |
-| Name      | Vorname + Nachname | Am Leerzeichen trennen |
-| Firma     | Unternehmensname   | Format standardisieren |
-| Tel       | Telefon            | Ländervorwahl ergänzen |
-| Status    | Deal-Phase         | Werte zuordnen         |
-
-### Schritt 4: In Chargen importieren
-
-Importieren Sie Ihre Daten in überschaubaren Chargen (500-1.000 Datensätze) statt alles auf einmal. So können Sie Fehler früh erkennen und korrigieren, bevor sie sich über die gesamte Datenbank verbreiten.
-
-### Schritt 5: Nach dem Import verifizieren
-
-Überprüfen Sie nach jeder Importcharge die Daten:
-
-- Prüfen Sie 20-30 Datensätze manuell per Stichprobe
-- Bestätigen Sie, dass Beziehungen (Kontakt-zu-Unternehmen, Deal-zu-Kontakt) korrekt sind
-- Verifizieren Sie, dass individuelle Felder befüllt und korrekt formatiert sind
-- Führen Sie eine Duplikatsprüfung gegen bestehende Datensätze durch
-- Testen Sie, ob Segmentierungsfilter erwartete Ergebnisse liefern
-
-### Schritt 6: Automatisierungen einrichten
-
-Sobald Ihre Daten sauber und importiert sind, konfigurieren Sie Automatisierungen, um die Qualität dauerhaft zu sichern:
-
-- Automatische Duplikaterkennung bei neuen Datensätzen
-- Pflichtfeld-Validierung, bevor ein Deal in die nächste Phase wechseln kann
-- E-Mail-Verifizierungs-Workflows, die Bounce-Adressen markieren
-- Aktivitätserinnerungen für Datensätze ohne Interaktion seit 30, 60 oder 90 Tagen
-- Datenanreicherungs-Trigger, die Unternehmensinformationen aus öffentlichen Quellen abrufen
-
-## CRM-Datenbank pflegen und Datenhygiene sichern
-
-Eine Datenbank, die nicht aktiv gepflegt wird, verfällt. Kontaktdaten ändern sich, Menschen wechseln den Job, Unternehmen fusionieren oder schließen, und E-Mails beginnen zu bouncen. Ohne regelmäßige Pflege wird Ihre Datenbank zur Belastung statt zum Asset.
-
-### Regelmäßiger Datenhygiene-Plan
-
-Planen Sie regelmäßige Datenhygiene-Sessions ein. Monatlich ist ein guter Rhythmus:
-
-- **Doppelte Datensätze zusammenführen**, die durch Importe, Webformulare oder manuelle Eingabe entstanden sind
-- **Kontaktdaten aktualisieren** für Schlüsselkunden und aktive Deals
-- **Gebounce-Kontakte entfernen**, deren E-Mails dauerhaft nicht zustellbar sind
-- **Inaktive Deals archivieren**, die seit über 90 Tagen in derselben Phase stehen
-- **Interaktionslogs prüfen**, um sicherzustellen, dass aktuelle Aktivitäten korrekt erfasst sind
-- **Tags und Kategorien bereinigen**, um unkontrolliertes Wachstum zu verhindern
-
-### Wie schnell CRM-Daten verfallen
-
-CRM-Daten verfallen schneller, als die meisten Unternehmen annehmen:
-
-- Kontaktdaten veralten laufend durch Jobwechsel und Umfirmierungen
-- B2B-E-Mail-Adressen werden ungültig, sobald jemand das Unternehmen verlässt
-- Importe und parallele Eingaben erzeugen Duplikate
-- Schlechte Datenqualität kostet Zeit und Umsatz
-
-Das spricht für proaktive, automatisierte Datenhygiene statt gelegentlicher manueller Bereinigung.
-
-### Automatisierte Datenqualität mit n8n
-
-Manuelle Datenhygiene skaliert nicht. Nutzen Sie Automatisierung, um die Qualität passiv zu sichern:
-
-- Datensätze mit fehlenden Pflichtfeldern (z. B. keine E-Mail, kein Unternehmen) markieren
-- Vertriebsmitarbeiter bei Kontakten ohne Aktivität seit 90 Tagen benachrichtigen
-- Deals automatisch archivieren, die zu lange in derselben Phase stecken
-- Neue Einträge beim Import gegen bestehende Datensätze auf Duplikate prüfen
-- E-Mail-Formate validieren und offensichtlich ungültige Adressen markieren
-- Datensätze mit externen Datenquellen anreichern (Unternehmensgröße, Branchenklassifikation)
-
-Customermates unterstützt automatisierte Datenqualitäts-Workflows über Webhooks, REST und einen Community-Node für ein separat betriebenes [n8n](/features/workflow-automation). Dort bauen Sie visuelle Automatisierungen, die auf Duplikate prüfen, Datenformate validieren, Datensätze mit einer externen Datenquelle anreichern und Teammitglieder bei Qualitätsproblemen benachrichtigen, ohne eine Zeile Code. Customermates selbst hat keine eingebaute Anreicherung. [Mehr zu n8n-Workflows](/blog/n8n-for-beginners-build-your-first-workflow)
-
-Über n8n hinaus können KI-Agenten die Datenbank direkt über die native MCP-Integration ([[derived.mcp.tools.total]] Tools) bedienen. Ein Agent (Claude, ChatGPT oder Gemini) mit einem API-Key kann Dubletten finden und bereinigen, Datensätze mit selbst recherchierten Angaben ergänzen, Felder aktualisieren und Notizen schreiben, im Rahmen der Berechtigungen seines Nutzers, was Routine-Datenpflege in eine Aufgabe verwandelt, die ein Agent in Minuten erledigt.
-
-### Daten-Ownership zuweisen
-
-Jeder Datensatz in Ihrer CRM-Datenbank sollte einen Eigentümer haben. Der Eigentümer ist dafür verantwortlich, den Datensatz aktuell und korrekt zu halten. Ohne Ownership verfallen Datensätze, weil sich niemand für die Pflege verantwortlich fühlt. Das gilt besonders für Schlüsselkunden und aktive Deals.
-
-## Segmentierung: Ihre CRM-Datenbank nutzbar machen
-
-Eine CRM-Datenbank mit 10.000 Kontakten ist nur nützlich, wenn Sie sie sinnvoll aufteilen können. Segmentierung gruppiert Kontakte nach gemeinsamen Merkmalen und ermöglicht gezielte Kommunikation.
-
-### Häufige Segmentierungskriterien
-
-- **Branche**: Messaging nach Branche ausrichten
-- **Unternehmensgröße**: KMU- und Enterprise-Ansätze differenzieren
-- **Deal-Phase**: Verschiedene Inhalte für Interessenten und Bestandskunden
-- **Geografie**: Regionale Vorschriften einhalten und nach Markt anpassen
-- **Engagement-Level**: Heiße Leads von kalten Kontakten anhand aktueller Aktivität unterscheiden
-- **Customer Lifetime Value**: Hochwertige Beziehungen für persönliche Ansprache priorisieren
-- **Lead-Quelle**: Analysieren, welche Kanäle die besten Kunden bringen
-- **Produktinteresse**: Kommunikation auf Basis der Produkte oder Dienstleistungen anpassen, für die sich ein Kontakt interessiert
-
-### Segmente für Aktionen nutzen
-
-Segmente treiben Aktionen in Ihrem gesamten Unternehmen:
-
-- **Vertrieb** kann hochwertige Segmente für Outbound-Kampagnen und [Follow-up-Sequenzen](/blog/sales-follow-up-email) priorisieren
-- **Marketing** kann E-Mail-Kampagnen nach Branche, Unternehmensgröße oder Engagement personalisieren
-- **Support** kann Tickets nach Kundenkategorie oder Vertragstyp routen
-- **Management** kann Performance, Conversion-Raten und Umsatz nach Segment analysieren
-
-Der Schlüssel ist, Segmente zu erstellen, die direkt auf Aktionen Ihres Teams abbilden. Ein Segment, auf das niemand reagiert, ist nur eine Filterübung.
-
-## Datensicherheit und DSGVO-Konformität
-
-### DSGVO-Anforderungen an CRM-Datenbanken
-
-Für europäische Unternehmen ist DSGVO-Konformität beim Management einer CRM-Datenbank nicht verhandelbar. Zentrale Anforderungen:
-
-- **Rechtsgrundlage**: Sie brauchen eine rechtliche Basis für die Speicherung personenbezogener Daten (Einwilligung, berechtigtes Interesse oder Vertragserfüllung)
-- **Datenminimierung**: Nur Daten erheben, die Sie für einen definierten Zweck tatsächlich brauchen
-- **Recht auf Löschung**: Sie müssen die Daten einer Person auf Anfrage vollständig löschen können (Artikel 17)
-- **Auskunftsrecht**: Betroffene können eine Kopie aller über sie gespeicherten Daten anfordern (Artikel 15)
-- **Datenportabilität**: Betroffene können ihre Daten in maschinenlesbarem Format anfordern (Artikel 20)
-- **Audit-Trail**: Sie müssen die Einhaltung durch Dokumentation und Protokollierung nachweisen können
-- **Meldepflicht bei Datenschutzverletzungen**: Sie müssen Verstöße innerhalb von 72 Stunden an die Aufsichtsbehörde melden
-
-### Wo Ihre Daten liegen, ist entscheidend
-
-Der physische Standort Ihrer CRM-Datenbank hat direkte Compliance-Auswirkungen. In den USA gehostete CRM-Systeme stehen nach dem Schrems-II-Urteil unter europäischem Datenschutzrecht vor rechtlicher Unsicherheit. Datentransfers in die USA erfordern zusätzliche Schutzmaßnahmen (Standardvertragsklauseln, Angemessenheitsbeschlüsse), die in der Praxis möglicherweise keinen ausreichenden Schutz bieten.
-
-Self-Hosting auf EU-Infrastruktur reduziert diese Unsicherheit deutlich, weil Sie den Speicherort und die beteiligten Dienstleister selbst bestimmen. Bei EU-gehosteten SaaS-Systemen lohnt der Blick in die Liste der Unterauftragsverarbeiter, denn auch dort sind oft US-Dienstleister beteiligt.
-
-### Wie Customermates Datensicherheit handhabt
-
-Customermates adressiert Sicherheit und Compliance der CRM-Datenbank direkt:
-
-- **Transparenter Datenstandort**: In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
-- **Self-Hosting-Option**: Deployment auf eigener Infrastruktur mit Docker für volle Kontrolle über den Datenstandort
-- **Integriertes Audit-Logging**: Änderungen an Datensätzen werden mit Zeitstempel und Benutzer protokolliert, in jedem Tarif
-- **Rollenbasierte Zugriffskontrolle**: Legen Sie pro Ressource und Aktion fest, wer lesen, bearbeiten oder löschen darf (Berechtigungen auf Feldebene gibt es nicht)
-- **Datenexport**: XLSX-Export je Datensatztyp und die REST-API unterstützen Auskunfts- und Portabilitätsanfragen nach DSGVO Artikel 15 und 20
-- **Open Source**: Prüfen Sie den Code selbst, um zu verifizieren, wie Ihre Daten verarbeitet werden
-
-## CRM-Datenbank-Vergleich: Salesforce vs. HubSpot vs. Pipedrive vs. Customermates
-
-Die Wahl der richtigen CRM-Datenbank hängt von Teamgröße, Budget und Datenanforderungen ab. So vergleichen sich die wichtigsten Plattformen:
-
-| Funktion                    | Salesforce              | HubSpot                   | Pipedrive         | Customermates                                        |
-| --------------------------- | ----------------------- | ------------------------- | ----------------- | ---------------------------------------------------- |
-| **Einstiegspreis**          | 25 $/Nutzer/Monat       | Kostenlos (eingeschränkt) | 14 €/Nutzer/Monat | Ab [[commercial.price.starter.monthly]]/Nutzer/Monat |
-| **Individuelle Felder**     | Unbegrenzt (Enterprise) | Im Free-Plan limitiert    | Im Lite limitiert | Ja (10 Feldtypen)                                    |
-| **Daten-Hosting**           | USA (Standard)          | USA (Standard)            | EU verfügbar      | Cloud-DB Frankfurt, selbst hostbar                   |
-| **Self-Hosting**            | Nein                    | Nein                      | Nein              | Ja (Open Source)                                     |
-| **Audit-Logging**           | Nur Enterprise          | Nur Enterprise            | Nicht verfügbar   | Alle Pläne                                           |
-| **API-Zugang**              | Ja                      | Ja (Rate-limitiert)       | Ja                | Ja                                                   |
-| **n8n-Integration**         | Via API                 | Via API                   | Via API           | Community-Node (n8n separat)                         |
-| **DSGVO-Tools**             | Zusatzmodul             | Zusatzmodul               | Basis             | AVV, Audit-Log, Unterauftragsverarbeiter offengelegt |
-| **Duplikaterkennung**       | Ja                      | Ja                        | Basis             | Über API oder KI-Agent                               |
-| **Einrichtungskomplexität** | Hoch                    | Mittel                    | Niedrig           | Niedrig                                              |
-
-**Salesforce** bietet die leistungsfähigste CRM-Datenbank für Unternehmen mit komplexen Datenmodellen und großen Teams. Aber Komplexität, Kosten und US-Standard-Hosting machen es für die meisten KMU überdimensioniert.
-
-**HubSpot** bietet einen kostenlosen Einstieg, der gut zum Starten funktioniert. Die Datenbankfunktionen sind aber begrenzt, bis Sie auf Bezahlpläne wechseln. Individuelle Felder, erweitertes Reporting und Audit-Logs erfordern Marketing oder Sales Hub Enterprise.
-
-**Pipedrive** konzentriert sich auf Sales-Pipeline-Management mit einer sauberen Oberfläche. Die Datenbankfunktionen sind solide für Vertriebsteams, aber weniger geeignet für Marketing- oder Service-Anwendungsfälle.
-
-**Customermates** liefert eine komplette CRM-Datenbank mit individuellen Feldern (zehn Feldtypen), Cloud-Datenbank in Frankfurt oder Self-Hosting, Audit-Logging und Anbindung an ein separat betriebenes n8n ab [[commercial.price.starter.monthly]]/Nutzer/Monat. Zwei Funktionen heben es ab: KI-Agenten bedienen die Datenbank direkt über eine native MCP-Integration (Dubletten bereinigen, Datensätze aktualisieren), und ein nativer einheitlicher Posteingang bringt E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Unterhaltungen neben den Kontakt (Cloud, ab der Pro-Stufe).
-
-## Best Practices für Ihre CRM-Datenbank
-
-### Einfach starten, schrittweise erweitern
-
-Versuchen Sie nicht, ab Tag eins jeden möglichen Datenpunkt zu erfassen. Starten Sie mit den Feldern, die Ihr Team tatsächlich braucht, und erweitern Sie mit wachsenden Prozessen. Komplexität, die Sie nicht pflegen können, ist schlimmer als Einfachheit, die Sie konsequent nutzen.
-
-### Team schulen
-
-Ihre CRM-Datenbank ist nur so gut wie die Menschen, die Daten eingeben. Schulen Sie jeden Nutzer in Dateneingabestandards, erklären Sie, warum Datenqualität wichtig ist, und machen Sie es einfach, das Richtige zu tun. [CRM-Schulung Best Practices](/blog/crm-training)
-
-### Datenquellen integrieren
-
-Verbinden Sie Ihre CRM-Datenbank mit anderen Systemen, um manuelle Eingaben zu reduzieren und Daten aktuell zu halten:
-
-- [E-Mail-Integration](/features/email-integration) mit Gmail und Outlook für automatische Interaktionsprotokollierung
-- Kalender-Sync für Meeting-Datensätze
-- Webformular-Anbindung für Lead-Erfassung
-- Buchhaltungssystem-Verknüpfung für Rechnungs- und Zahlungsdaten
-- [n8n-Workflows](/features/workflow-automation) zur Anbindung jedes Tools mit API
-
-### Datenqualität messen
-
-Was gemessen wird, wird gemanagt. Verfolgen Sie Metriken wie:
-
-- Prozentsatz der Kontakte mit vollständigen Pflichtfeldern
-- Duplikat-Rate (neue Duplikate pro Monat)
-- E-Mail-Bounce-Rate
-- Datensätze ohne Aktivität seit über 90 Tagen
-- Durchschnittliche Zeit bis zur Aktualisierung eines Datensatzes nach einer Kundeninteraktion
-
-### Regelmäßig sichern
-
-Ihre CRM-Datenbank ist ein geschäftskritisches Asset. Stellen Sie sicher, dass regelmäßige Backups erstellt werden und Sie im Bedarfsfall wiederherstellen können. Self-Hosted-Systeme wie Customermates geben Ihnen die volle Kontrolle über Backup-Häufigkeit, Speicherort und Wiederherstellungsverfahren.
-
-### Datenmodell dokumentieren
-
-Erstellen Sie ein lebendes Dokument, das Ihre CRM-Datenbankstruktur beschreibt: welche Felder existieren, was sie bedeuten, welche Werte akzeptabel sind und wie Datensätze zueinander in Beziehung stehen. Diese Dokumentation ist essenziell für das Onboarding neuer Teammitglieder und für die Konsistenz Ihrer wachsenden Datenbank.
-
-## Häufig gestellte Fragen
+## Häufige Fragen
 
 <Faq>
 <FaqItem question="Was ist eine CRM-Datenbank?">
-Eine CRM-Datenbank ist die strukturierte Datenschicht innerhalb eines Customer-Relationship-Management-Systems. Sie speichert Kontakte, Unternehmen, Deals, Interaktionen und individuelle Daten in einem relationalen Format, in dem Datensätze miteinander verknüpft sind. Anders als eine flache Tabelle verfolgt eine CRM-Datenbank die gesamte Historie jeder Kundenbeziehung und verbindet sie mit Ihrer Sales-Pipeline, Aufgaben und Kommunikation.
+Der Datenbestand hinter einem CRM: Datensätze zu Personen, Unternehmen, Deals und Aufgaben, miteinander verknüpft, mit typisierten Feldern und einer Historie aus Änderungen und Gesprächen. Erst Verknüpfungen und Historie machen daraus mehr als eine Adressliste.
 </FaqItem>
 
-<FaqItem question="Was sind Beispiele für CRM-Datenbanken?">
-Beispiele für CRM-Datenbanken umfassen ein B2B-SaaS-Unternehmen, das Kontakte, Trial-Conversions und wiederkehrenden Umsatz trackt; eine Immobilienagentur, die Objektangebote mit Käufer- und Verkäuferkontakten verwaltet; einen E-Commerce-Betrieb, der Kaufhistorie und Customer Lifetime Value speichert; und eine IT-Beratung, die Kundenkontakte mit Projektdatensätzen und individuellen Feldern für Technologie-Stacks und Vertragsdaten verknüpft. Jede Branche passt die CRM-Datenbankstruktur (Kontakte, Unternehmen, Deals, Aktivitäten) an ihre spezifischen Bedürfnisse an.
-</FaqItem>
-
-<FaqItem question="Was sind die 4 Typen von CRM?">
-Die vier Typen von CRM-Datenbanken sind operativ (tägliche Vertriebs-, Marketing- und Serviceprozesse), analytisch (Reporting, Datenanalyse und Business Intelligence), kollaborativ (Austausch von Kundendaten über Abteilungen und Partner hinweg) und strategisch (langfristige Beziehungsplanung und Lifetime-Value-Optimierung). Die meisten kleinen und mittelständischen Unternehmen brauchen ein operatives CRM mit integrierten Analysefunktionen, wie es Plattformen wie Customermates bieten.
+<FaqItem question="Was ist der Unterschied zwischen einer Kundendatenbank und einem CRM?">
+Eine Datenbank speichert die Tabellen, die Sie entwerfen, und überlässt Ihnen Formulare, Beziehungen, Berechtigungen und Historie. Ein CRM ist eine Datenbank, in der diese Kundenlogik schon gebaut ist: Personen verknüpft mit Unternehmen und Deals, Pipeline-Phasen, Zuständigkeiten und eine Zeitleiste pro Datensatz. Sie tauschen etwas Freiheit im Datenmodell gegen die Arbeit, die Sie nicht selbst machen müssen.
 </FaqItem>
 
 <FaqItem question="Ist Excel eine CRM-Datenbank?">
-Excel kann Kontaktdaten speichern, ist aber keine CRM-Datenbank. Excel fehlen relationale Datenverknüpfung, automatisches Interaktionstracking, Pipeline-Visualisierung, E-Mail-Integration, Automatisierungs-Workflows, Audit-Trails und Mehrbenutzer-Zugriffskontrolle. Tabellenkalkulationen funktionieren für weniger als 100 Kontakte, die von einer Person verwaltet werden. Darüber hinaus ist eine dedizierte CRM-Datenbank zuverlässiger, effizienter und oft günstiger, wenn Sie die für manuelle Tabellenpflege verschwendete Zeit einrechnen.
+Nein. Excel kann eine Kundenliste speichern, und für eine Person mit einer kurzen Liste reicht das. Es fehlen aber Verknüpfungen zwischen Personen und Firmen, eine Historie pro Kunde und ein sicheres gleichzeitiges Bearbeiten durch mehrere Personen. Eine saubere Tabelle mit einer Art von Wert pro Spalte ist trotzdem ein guter Ausgangspunkt für den Import.
 </FaqItem>
 
-<FaqItem question="Was gilt als CRM-Datenbank?">
-Eine CRM-Datenbank ist jedes strukturierte System, das Kunden- und Interessentendaten in einem relationalen Format mit Interaktionstracking speichert. Es muss Kontakte mit Unternehmen, Deals mit Kontakten und Aktivitäten mit allen relevanten Datensätzen verknüpfen. Es sollte Pipeline-Management, Aktivitätsprotokollierung und Reporting-Funktionen umfassen. Systeme, die als CRM-Datenbank gelten, sind unter anderem Salesforce, HubSpot, Pipedrive, Zoho CRM, Monday CRM und Customermates. Eine Tabellenkalkulation oder einfache Kontaktliste gilt nicht als CRM-Datenbank, da ihr die relationale Struktur und Interaktionshistorie fehlt.
+<FaqItem question="Welche Arten von CRM gibt es?">
+Üblich ist die Einteilung in operatives CRM (Vertrieb, Service und Marketing im Alltag), analytisches CRM (Auswertung der Kundendaten) und kollaboratives CRM (Kundeninformationen über Teams hinweg teilen); manche ergänzen strategisches CRM. Alle nutzen dieselbe CRM-Datenbank, sie unterscheiden sich darin, was Sie damit tun.
 </FaqItem>
 
-<FaqItem question="Wie baue ich eine CRM-Datenbank auf?">
-Definieren Sie zunächst Ihr Datenmodell (Kontakte, Unternehmen, Deals, Aktivitäten) und die Beziehungen zwischen den Objekten. Auditieren und bereinigen Sie Ihre bestehenden Daten, ordnen Sie sie Ihren CRM-Feldern zu und importieren Sie in Chargen. Verifizieren Sie jede Charge vor dem nächsten Import. Legen Sie Namenskonventionen und Dateneingabestandards fest und schulen Sie Ihr Team. Für die meisten Unternehmen ist ein CRM wie Customermates schneller und zuverlässiger als eine Eigenentwicklung.
-</FaqItem>
-
-<FaqItem question="Welche Daten sollte ich in einer CRM-Datenbank speichern?">
-Konzentrieren Sie sich auf fünf Kategorien: Identitätsdaten (Name, E-Mail, Telefon), beschreibende Daten (Branche, Unternehmensgröße, Position), Verhaltensdaten (E-Mail-Öffnungen, Meetings, Website-Besuche), Transaktionsdaten (Deals, Rechnungen, Vertragsdaten) und Compliance-Daten (Einwilligungsstatus, Rechtsgrundlage). Erheben Sie nur Daten, die Ihr Team tatsächlich nutzen wird. Leere Felder erzeugen eine falsche Vollständigkeit.
-</FaqItem>
-
-<FaqItem question="CRM-Datenbank vs. Tabellenkalkulation: Was ist besser?">
-Tabellenkalkulationen funktionieren bei weniger als 200 Kontakten mit einfachen Prozessen. Darüber hinaus stoßen sie an Grenzen: keine relationalen Daten, keine Automatisierung, kein Audit-Trail, keine Zugriffskontrolle und kein Interaktionstracking. Eine CRM-Datenbank verknüpft Kontakte mit Unternehmen, Deals mit Kontakten und Aktivitäten mit allem. Sie automatisiert Follow-ups, bietet Pipeline-Transparenz und skaliert mit Ihrem Team. Lesen Sie unseren [Google-Sheets-CRM-Leitfaden](/blog/google-sheets-crm) für einen detaillierten Vergleich.
-</FaqItem>
-
-<FaqItem question="Wie halte ich meine CRM-Datenbank sauber?">
-Planen Sie monatliche Datenhygiene-Sessions: Duplikate zusammenführen, Schlüsselkunden aktualisieren, Bounce-Kontakte entfernen, inaktive Deals archivieren und Tags bereinigen. Automatisieren Sie, was möglich ist: Nutzen Sie n8n-Workflows, um unvollständige Datensätze zu markieren, E-Mail-Formate zu validieren und Eigentümer über inaktive Kontakte zu benachrichtigen. Weisen Sie Data-Ownership zu, damit jeder Datensatz eine verantwortliche Person hat.
-</FaqItem>
-
-<FaqItem question="Ist eine CRM-Datenbank DSGVO-konform?">
-Eine CRM-Datenbank kann DSGVO-konform sein, wenn das System die nötigen Funktionen unterstützt: Rechtsgrundlagen-Tracking, Datenminimierung, Recht auf Löschung, Datenportabilität und Audit-Logging. Der Hosting-Standort ist ebenfalls relevant: EU-gehostete oder Self-Hosted-Systeme bieten mehr Rechtssicherheit als US-gehostete Alternativen. Bei Customermates liegt die Cloud-Datenbank in der AWS-Region Frankfurt, Unterauftragsverarbeiter (auch aus den USA) sind offengelegt, ein AVV liegt vor; dazu kommen Open Source, Self-Hosting, Audit-Logging und rollenbasierte Zugriffskontrolle. Ob Ihr Einsatz DSGVO-konform ist, hängt auch davon ab, wie Sie das System nutzen.
+<FaqItem question="Wie speichere ich Daten, die nicht in Kontakte, Unternehmen oder Deals passen?">
+Beschreibt die Angabe einen vorhandenen Datensatz, legen Sie ein typisiertes benutzerdefiniertes Feld an. Ist es etwas, das Sie verkaufen, gehört es in den Produkt- oder Leistungskatalog. Lesen Sie es nur, reichen Notizen. Hat es einen eigenen Lebenszyklus und eigene Beziehungen, brauchen Sie benutzerdefinierte Objekte, die HubSpot im Enterprise-Tarif und Salesforce auf seiner Plattform anbieten; Customermates hat fünf feste Datensatztypen.
 </FaqItem>
 
 <FaqItem question="Was kostet eine CRM-Datenbank?">
-Die Kosten für CRM-Datenbanken reichen von kostenlos (mit erheblichen Einschränkungen) bis über 300 Euro pro Nutzer und Monat bei Enterprise-Plattformen wie Salesforce. Die meisten kleinen und mittelständischen Unternehmen zahlen zwischen 10 und 50 Euro pro Nutzer und Monat. Customermates kostet ab [[commercial.price.starter.monthly]] pro Nutzer und Monat für das volle Kern-CRM, ohne Zusatzkosten für die Basisfunktionen. Self-Hosting des Open-Source-Kerns kostet keine Lizenzgebühren. [Vollständiger CRM-Kostenvergleich](/blog/crm-cost)
+Eine Tabelle oder ein selbst gehostetes Open-Source-CRM kostet keine Lizenzgebühr, dafür Zeit für Einrichtung und Pflege. Cloud-CRMs berechnen meist einen Preis pro Nutzer und Monat. In Customermates Cloud sind das [[commercial.price.starter.monthly]] pro Nutzer im Tarif Starter und [[commercial.price.pro.monthly]] im Tarif Pro mit Unified Inbox; Details auf der [Preisseite](/pricing).
 </FaqItem>
 </Faq>
 
-## Fazit
-
-Ihre CRM-Datenbank ist nicht nur eine Liste von Namen und E-Mail-Adressen. Sie ist das operative Fundament Ihrer Kundenbeziehungen, Ihrer Vertriebsprognosen und Ihrer strategischen Entscheidungen. Bauen Sie sie mit einem klaren Datenmodell auf, pflegen Sie sie mit regelmäßiger Hygiene, sichern Sie sie mit angemessenen Zugriffskontrollen und schützen Sie sie mit DSGVO-konformem Hosting.
-
-Die Entscheidung zwischen Eigenentwicklung und dediziertem CRM ist für die meisten Unternehmen eindeutig: Ein CRM liefert Datenmodell, Automatisierung, Reporting und Compliance-Funktionen, deren Eigenentwicklung Monate dauern würde.
-
-Customermates bietet Ihnen eine flexible CRM-Datenbank mit individuellen Feldern über zehn Feldtypen, Filtern und gespeicherten Ansichten, Datenqualitäts-Workflows über n8n und KI-Agenten (native MCP), voller Self-Hosting-Kontrolle und einer Cloud-Datenbank in Frankfurt, ab [[commercial.price.starter.monthly]] pro Nutzer und Monat. [Preise ansehen](/pricing)
+Angaben zu anderen Anbietern geprüft am 8. Oktober 2026 anhand der [HubSpot-Dokumentation zu Objekten](https://knowledge.hubspot.com/records/understand-objects), [Salesforce Trailhead zu Standard- und benutzerdefinierten Objekten](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) und des [Pipedrive-Artikels zur Datenorganisation](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized).

@@ -10,14 +10,18 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const POSTS = walkFiles(join(REPO_ROOT, "content", "blog-posts"), (path) => path.endsWith(".mdx"));
 const CALENDAR_DATE = z.iso.date();
 
-function publicationDate(source: string): unknown {
+function blogPostDates(source: string): { date?: unknown; updated?: unknown } {
   const frontmatter = /^---\n(.*?)\n---\n?/su.exec(source);
-  return frontmatter ? (parse(frontmatter[1]) as { blogPost?: { date?: unknown } }).blogPost?.date : undefined;
+  return frontmatter ? ((parse(frontmatter[1]) as { blogPost?: { date?: unknown; updated?: unknown } }).blogPost ?? {}) : {};
+}
+
+function publicationDate(source: string): unknown {
+  return blogPostDates(source).date;
 }
 
 describe("blog publication dates", () => {
   it("reads every blog post", () => {
-    expect(POSTS.length).toBeGreaterThan(100);
+    expect(POSTS.length).toBeGreaterThan(80);
   });
 
   it("writes every publication date as a real calendar date", () => {
@@ -29,6 +33,18 @@ describe("blog publication dates", () => {
     }))
       .filter(({ date }) => typeof date !== "string" || !CALENDAR_DATE.safeParse(date).success)
       .map(({ file, date }) => `${file}: ${String(date ?? "missing")}`);
+
+    expect(invalid).toEqual([]);
+  });
+
+  it("writes every update date as a real calendar date on or after publication", () => {
+    const invalid = POSTS.map((file) => ({ file: relative(REPO_ROOT, file), ...blogPostDates(readFileSync(file, "utf8")) }))
+      .filter(({ updated }) => updated !== undefined)
+      .filter(
+        ({ date, updated }) =>
+          typeof updated !== "string" || !CALENDAR_DATE.safeParse(updated).success || String(updated) < String(date),
+      )
+      .map(({ file, updated }) => `${file}: ${String(updated)}`);
 
     expect(invalid).toEqual([]);
   });

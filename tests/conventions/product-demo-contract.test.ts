@@ -112,15 +112,10 @@ describe("seeded public product demo", () => {
       ),
     ).toBe(true);
     expect(FEATURE_PRODUCT_DEMOS["self-hosted"].hostedBoundary).toBe(true);
-    expect(FEATURE_PRODUCT_DEMOS["crm-integration"]).toStrictEqual({
-      path: "/company/webhooks",
-    });
-    expect(FEATURE_PRODUCT_DEMOS["sales-automation"]).toStrictEqual({
+    expect(FEATURE_PRODUCT_DEMOS["workflow-automation"]).toStrictEqual({
       path: "/company/webhooks",
     });
     for (const slug of [
-      "customer-service",
-      "email-integration",
       "integrations",
       "linkedin-integration",
       "outlook-integration",

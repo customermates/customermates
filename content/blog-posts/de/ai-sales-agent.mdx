@@ -1,162 +1,172 @@
 ---
-title: "KI Sales Agent: Fähigkeiten, Architektur und Auswahl"
-description: "Was ein KI Sales Agent leisten kann, wie Daten und Aktionen zusammenspielen und wie Sie einen begrenzten Workflow prüfen, ohne Agent und CRM zu verwechseln."
+title: "KI Sales Agent: Was er kann und wie Sie ihn testen"
+description: "KI Sales Agents qualifizieren Anfragen, akquirieren, recherchieren und pflegen das CRM. Typen, Kosten, Grenzen, Rechtslage und ein Pilot in vier Wochen."
 
 relatedHrefs:
   - /blog/agentic-crm
-  - /blog/ai-sdr
   - /blog/ai-in-sales
-  - /docs/mcp
+  - /blog/agentforce
+  - /docs/app-routines
 
 hero:
-  title: "KI Sales Agent: Was er ist, wie er arbeitet und wie Sie ihn bewerten"
-  description: KI Sales Agents reichen von Schreibassistenten bis zu Systemen mit freigegebenen Werkzeugen. Dieser Leitfaden trennt Kategorien, Architektur, Kontrollen und CRM-Grenzen.
+  title: "KI Sales Agent: Was er kann, wo er scheitert und wie Sie ihn testen"
+  description: "Ein KI Sales Agent ist ein Sprachmodell, das CRM, Posteingang und Kalender selbst bedient, um eine Vertriebsaufgabe zu erledigen. Welche Typen es gibt, vom KI-SDR bis zum CRM-Agenten, was sie kosten, was in Deutschland erlaubt ist und wie Sie einen testen, bevor er echten Kunden schreibt."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-04-30
+  updated: 2026-10-08
   tags:
     - ki-sales-agent
-    - ki-agenten
     - KI-Agenten
+    - KI-SDR
     - Vertrieb
     - CRM
 ---
 
-# KI Sales Agent: Was er ist, wie er arbeitet und wie Sie ihn bewerten
+# KI Sales Agent: Was er kann, wo er scheitert und wie Sie ihn testen
 
-Ein **KI Sales Agent** ist Software, die ein Sprachmodell, geschäftlichen Kontext und freigegebene Werkzeuge verbindet, um klar abgegrenzte Vertriebsaufgaben zu bearbeiten. Je nach Produkt recherchiert das System ein Unternehmen, formuliert eine Nachricht, fasst ein Gespräch zusammen, aktualisiert einen CRM-Datensatz oder koordiniert mehrere Schritte. Daraus folgt jedoch nicht automatisch ein autonomer Prozess vom Erstkontakt bis zum Abschluss.
+Ein KI Sales Agent ist Software, in der ein Sprachmodell Werkzeuge wie CRM, Posteingang, Kalender oder eine Lead-Datenbank selbst aufruft, um eine Vertriebsaufgabe mit mehreren Schritten zu erledigen. Er macht also mehr als Textvorschläge. Die meisten Produkte unter diesem Namen decken einen Ausschnitt ab: Anfragen beantworten, Neukunden anschreiben (oft „KI-SDR“ oder „KI-BDR“ genannt), Unternehmen recherchieren oder das CRM aktuell halten. Verlässlich übernehmen KI-Agenten im Vertrieb heute Recherche, erste Entwürfe, Weiterleitung und Datenpflege. Wen Sie ansprechen, wie Sie einen Deal einschätzen und wofür Sie mit Ihrem Namen einstehen, bleibt bei Ihnen.
 
-Entscheidend ist nicht die Bezeichnung „Agent“. Prüfen Sie, welche Daten das System lesen darf, welche Aktionen es ausführen kann, wann ein Mensch zustimmen muss und welches System den dauerhaften Kundenstand verwaltet.
+Ein Hinweis zum Begriff: Mit „Sales Agent“ ist im Deutschen manchmal auch ein Handelsvertreter gemeint. Hier geht es um Software.
 
-> **Produktgrenze von Customermates:** Customermates ist in dieser Architektur das CRM und die Aktionsebene, nicht der Akquise-Agent und kein autonomes Komplettsystem. Werkzeugfähige KI-Clients können über MCP mit unterstützten CRM-Datensätzen arbeiten. Wenn die entsprechende Cloud-Stufe gebucht und eingerichtet ist, unterstützt der einheitliche Posteingang einzelne Unterhaltungen auf den dokumentierten Kanälen. Customermates bietet keine native Lead-Beschaffung, Datenanreicherung, Lead-Bewertung, Umsatzprognose, Sequenzen, Massenansprache, Telefonie, SMS oder Kalenderbuchung.
+Diesen Leitfaden veröffentlicht Customermates, ein KI-CRM, das sein eigenes Setup in einem gekennzeichneten Abschnitt beschreibt. Angaben zu anderen Anbietern stammen von deren eigenen Seiten, geprüft am 8. Oktober 2026.
 
-## Was gilt als KI Sales Agent?
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was es ist">Ein Sprachmodell mit der Erlaubnis, Vertriebswerkzeuge zu bedienen. Es liest, entscheidet den nächsten Schritt und handelt, innerhalb Ihrer Regeln.</SummaryItem>
+  <SummaryItem label="Vier Typen">Inbound-Qualifizierung, Outbound-Akquise (KI-SDR oder KI-BDR), Recherche für den Vertrieb und Agenten, die das CRM bedienen.</SummaryItem>
+  <SummaryItem label="Funktioniert gut">Recherche-Briefings, Antwortentwürfe, Weiterleitung von Anfragen und Datenpflege nach einem Gespräch.</SummaryItem>
+  <SummaryItem label="Geht schief">Erfundene Details, falsche Empfänger, Dubletten und Nachrichten, die niemand gelesen hat. Kalte E-Mails sind in Deutschland zudem rechtlich eng begrenzt.</SummaryItem>
+  <SummaryItem label="Einstieg">Ein Ablauf, zuerst nur lesend, dann Entwürfe, und Versand erst nach vier Wochen mit kleinen Korrekturen.</SummaryItem>
+</ArticleSummary>
 
-Unter dem Begriff werden drei deutlich verschiedene Produktformen angeboten:
+## Vier Typen von KI Sales Agents
 
-| Kategorie | Typische Aufgabe | Rolle des Menschen | Zentrales Prüfrisiko |
-| --- | --- | --- | --- |
-| KI-Vertriebsassistent | Vorschlagen, zusammenfassen oder entwerfen | Ein Mensch startet und prüft jeden Schritt | Das Ergebnis gelangt möglicherweise nie zuverlässig ins führende System |
-| Agentischer Workflow | Eine definierte Folge mit freigegebenen Werkzeugen ausführen | Ein Mensch setzt Regeln und bearbeitet Ausnahmen | Fehlerhafte Übergaben erzeugen doppelte oder veraltete Datensätze |
-| Autonomer Vertriebsagent | Mehrere nächste Schritte auswählen und ausführen | Ein Mensch überwacht Ziele und Leitplanken | Das Autonomieversprechen kann die tatsächlichen Kontrollen übersteigen |
+Hinter dem Begriff stecken Produkte für sehr unterschiedliche Aufgaben. Die Beispiele sind nach den Seiten der jeweiligen Anbieter beschrieben.
 
-Diese Kategorien sind keine Reifestufen. Ein enger Assistent kann wertvoller sein als ein breiter Agent, wenn sein Kontext verlässlich und jede Aktion nachvollziehbar ist.
+| Typ | Was er tut | Beispiel laut Anbieterseite | Passt, wenn |
+|---|---|---|---|
+| Inbound-Qualifizierung | Beantwortet Website-Besucher und neue Leads, stellt Qualifizierungsfragen, bietet Termine an | Der [Agentforce SDR von Salesforce](https://www.salesforce.com/sales/ai-sales-agent/) begrüßt Website-Besucher, legt Lead-Datensätze an, beantwortet Produktfragen und zeigt freie Kalenderzeiten in Echtzeit. [Julian von 11x](https://www.11x.ai/) ist ein Telefonagent für eingehende Interessenten | Viele Anfragen kommen herein und langsame Antworten kosten Aufträge |
+| Outbound-Akquise (KI-SDR oder KI-BDR) | Findet Leads, schreibt und versendet Ansprachen, bearbeitet Antworten, bucht Termine | [Ava von Artisan](https://www.artisan.co/ai-sales-agent) deckt Lead-Suche, Datenanreicherung, Kampagnen, autonome Antworten und Terminplanung ab, mit Kontrollpunkten für Menschen. [Alice von 11x](https://www.11x.ai/) führt mehrstufige Sequenzen über E-Mail, Telefon, Chat, soziale Netzwerke, SMS und WhatsApp | Sie verkaufen per Kaltakquise in einen großen, klar umrissenen Markt |
+| Recherche und Unterstützung | Erstellt Briefings zu Unternehmen und Personen, fasst Deals zusammen, meldet festgefahrene Deals | [Salesloft](https://www.salesloft.com/platform/ai-agents) nennt Agenten für Unternehmensrecherche, Personenrecherche, Deal-Zusammenfassungen und Hinweise auf stockende Deals | Ihr Vertrieb arbeitet bereits mit einer Vertriebsplattform wie Salesloft |
+| CRM-Bedienung | Liest und ändert Datensätze, entwirft und sendet Nachrichten aus dem Gesprächsverlauf, läuft nach Zeitplan oder bei Änderungen | Der [Prospecting Agent von HubSpot](https://www.hubspot.com/products/artificial-intelligence) achtet auf Kaufsignale, startet personalisierte Ansprachen und entwirft nach Terminen Follow-ups und CRM-Aktualisierungen. Mate, der Assistent von Customermates (Abschnitt unten) | Das CRM soll sich aus echten Gesprächen aktuell halten |
 
-## Kategorien von KI Sales Agents im Vergleich
+**KI-SDR oder KI-BDR?** Anbieter verwenden beide Begriffe unscharf. Ein KI-SDR (Sales Development Representative) qualifiziert meist Leads und übergibt eine terminreife Verkaufschance an den Vertrieb, eingehend wie ausgehend. Ein KI-BDR (Business Development Representative) eröffnet meist neue Gespräche im Outbound. Vergleichen Sie die Schritte, die ein Produkt tatsächlich ausführt, nicht das Etikett.
 
-### Recherche und Vorbereitung
+## Welche Schritte ein Agent übernehmen kann
 
-Recherchewerkzeuge sammeln Informationen zu Unternehmen, Märkten oder Kontakten. Prüfen Sie Herkunft, Nutzungsberechtigung, Aktualität und die Verfügbarkeit von Quellen im späteren Review. Recherche ist nicht dasselbe wie CRM-Anreicherung: Sobald externe Angaben in einen Kundendatensatz geschrieben werden, entstehen Fragen zu Zuordnung, Herkunft und Löschung.
+Die Neukundengewinnung läuft in sieben Schritten. Die mittlere Spalte beschreibt, was im Vertrieb kleiner Teams heute verlässlich klappt, die rechte, worauf Sie in einer Demo achten sollten.
 
-### Textentwurf und Gesprächsunterstützung
+| Schritt | Was ein Agent heute gut kann | Worauf Sie achten |
+|---|---|---|
+| 1. Zielkunden festlegen | Macht aus einem schriftlichen Zielprofil Suchfilter | Wer Profil und Ausschlussliste festlegt. Diese Entscheidung bleibt bei Ihnen |
+| 2. Kontakte finden und prüfen | Durchsucht eine Lead-Datenbank, die Sie lizenziert haben | Woher jede Kontaktangabe stammt und ob Sie sie verwenden dürfen |
+| 3. Unternehmen recherchieren | Schreibt ein einseitiges Briefing aus Website, Nachrichten und Ihrer bisherigen Kundenhistorie | Jede Angabe ohne Quelle. Modelle erfinden plausible Details |
+| 4. Nachricht schreiben | Entwirft in der Sprache des Kunden und bezieht sich auf echten Kontext | Ob ein Mensch Empfänger und Text sieht, bevor etwas hinausgeht |
+| 5. Antworten sortieren | Trennt Interesse, Einwände, Weiterempfehlungen und Abmeldungen | Dass eine Abmeldung jeden weiteren Kontakt auf allen Kanälen stoppt |
+| 6. Qualifizieren und übergeben | Wendet Ihre Qualifizierungsregel an und leitet weiter | Fehlentscheidungen bei den Grenzfällen, die Ihnen wichtig sind |
+| 7. CRM pflegen | Legt Kontakt, Organisation, Deal und Notizen an oder aktualisiert sie | Dubletten, falsche Verknüpfungen und was passiert, wenn zwei Systeme widersprechen |
 
-Solche Werkzeuge formulieren E-Mails oder Social-Nachrichten, Besprechungsnotizen und Vorschläge für das Nachfassen. Klären Sie, ob sie nur in bestehenden Unterhaltungen arbeiten oder neue Kontakte ansprechen können, ob ein Mensch Empfänger und endgültigen Text sieht und ob der Versand eine eigenständige Aktion ist.
+Schritte 3, 4 und 7 lohnen sich für die meisten Teams zuerst: viel Tipparbeit, wenig Urteil. Schritt 1 sollten Sie behalten. Ein Agent, der seine Zielkunden selbst wählt, erzeugt Aktivität, aber keine Pipeline.
 
-### CRM-Operationen
+## Ersetzt ein KI-Agent Ihre SDRs oder BDRs?
 
-CRM-fähige Agenten lesen und aktualisieren unterstützte Kontakte, Organisationen, Deals, Services, Aufgaben oder benutzerdefinierte Felder. Berechtigungen und Datenstruktur sollten weiterhin serverseitig durch das CRM geprüft werden. Eine natürlich formulierte Anweisung ersetzt keine Autorisierung.
+Im Inbound teilweise. Ein Inbound-Agent kann nachts antworten, die Qualifizierungsfragen stellen und einen Termin anbieten; dort ist der Gewinn am deutlichsten. In der Kaltakquise für beratungsintensive Leistungen nicht. Ein Agent recherchiert und schreibt viel schneller als ein Mensch, aber er erkennt nicht, welches von fünfzig plausiblen Unternehmen die Zeit eines Partners wert ist.
 
-### Workflow-Orchestrierung
+Agentforce ist ein gutes Beispiel. Salesforce beschreibt seinen SDR-Agenten so, dass er eingehende Leads innerhalb der von Ihnen gesetzten Leitplanken bearbeitet, Fragen aus Ihren Geschäftsdaten beantwortet und Termine anbietet. Das ersetzt einen Teil der Erstreaktion, nicht die Person, die Zielkunden, Bedarfsgespräch und Übergabe verantwortet.
 
-Orchestratoren verbinden Recherche, Kommunikation, CRM und weitere Werkzeuge. Sie sind hilfreich, wenn jede Übergabe ausdrücklich modelliert ist. Sie werden riskant, wenn ein Workflow stillschweigend annimmt, Firmenname oder E-Mail-Adresse seien ein dauerhaft eindeutiger Schlüssel.
+### Was kostet ein KI-Agent?
 
-## Wie ein KI Sales Agent technisch arbeitet
+Das hängt vom Preismodell ab. Agentforce-Preise, geprüft am 8. Oktober 2026 auf der [Preisseite von Salesforce](https://www.salesforce.com/agentforce/pricing/), in US-Dollar:
 
-Ein belastbares System besitzt sechs Ebenen:
+| Preismodell Agentforce | Preis | Rechenbeispiel |
+|---|---|---|
+| Flex Credits | 500 $ je 100.000 Credits; eine Agentforce-Aktion verbraucht 20 Credits (eine Sprachaktion 30) | 20 Credits kosten 0,10 $, 10.000 Aktionen im Monat also 1.000 $ |
+| Pro Gespräch | 2 $ je Gespräch, für kundenseitige Agenten | 800 eingehende Gespräche im Monat kosten 1.600 $ |
+| Sales-Cloud-Add-on | 125 $ pro Nutzer und Monat, mit unbegrenzter Agentforce-Nutzung für Mitarbeitende | Ein Team mit fünf Personen zahlt 625 $ im Monat zusätzlich zu den Sales-Cloud-Lizenzen |
 
-1. **Anweisung:** Aufgabe, Zielgruppe, Beleganforderungen und Abbruchbedingungen.
-2. **Kontext:** CRM-Datensätze, Gesprächsverlauf, Produktwissen und erlaubte externe Quellen.
-3. **Modell:** Die Komponente, die den Auftrag interpretiert und Ergebnis oder Werkzeugaufruf vorbereitet.
-4. **Werkzeuge:** Typisierte Aktionen wie Datensatz lesen, Aufgabe erstellen oder Antwort entwerfen.
-5. **Kontrollgrenze:** Berechtigungen, Freigaben, Validierung, Nutzungslimits und Prüfnachweise.
-6. **Führendes System:** Der Ort, an dem der endgültige Kundenstand nach dem Agentenlauf nachvollziehbar bleibt.
+Outbound-Agenten verursachen Kosten, die in keiner Preisliste des Agenten stehen: Lead-Daten, Versanddomains und Postfächer sowie die Stunden, in denen jemand Entwürfe prüft und Datensätze korrigiert. Rechnen Sie diese mit, bevor Sie Listenpreise vergleichen.
 
-Eine überzeugende Formulierung kann weder unvollständigen Kontext noch eine unsichere Werkzeuggrenze ausgleichen. Prüfen Sie vor der Textqualität, ob das System Vorschlag und Änderung sowie Entwurf und Versand zuverlässig unterscheidet.
+## Kaltakquise per Agent: Was in Deutschland gilt
 
-## Wo Customermates passt – und wo nicht
+Ein Outbound-Agent, der Fremden schreibt, ist zuerst eine Rechtsfrage. Nach [§ 7 Abs. 2 Nr. 2 UWG](https://dejure.org/gesetze/UWG/7.html) ist Werbung per E-Mail ohne vorherige ausdrückliche Einwilligung des Empfängers eine unzumutbare Belästigung, und zwar auch gegenüber Unternehmen. Die enge Ausnahme in § 7 Abs. 3 betrifft Bestandskunden, deren Adresse Sie beim Verkauf erhalten haben. Für Anrufe genügt bei Unternehmen eine mutmaßliche Einwilligung, bei Verbrauchern braucht es eine ausdrückliche.
 
-Customermates stellt den strukturierten CRM-Kontext für Kontakte, Organisationen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Ansichten und Aktivitäten bereit. Externe KI-Clients können über die dokumentierte MCP-Verbindung unterstützte CRM-Arbeit mit den Berechtigungen des anfragenden Nutzers ausführen. REST und Webhooks sind weitere Integrationsflächen; zusätzlich gibt es einen separaten Community-Node für Teams, die n8n selbst betreiben.
+Ein autonomer E-Mail-Agent, der gekaufte Listen kalt anschreibt, kommt in Deutschland daher meist nicht in Frage, so gut seine Texte auch sein mögen. Besser passen Agenten dort, wo der Kontakt das Gespräch begonnen hat: bei Anfragen, Antworten, Bestandskunden und LinkedIn-Unterhaltungen, die Sie selbst eröffnet haben. Für jede Kontaktangabe, die der Agent sammelt, gilt außerdem die DSGVO. Dieser Abschnitt ist eine allgemeine Information, keine Rechtsberatung.
 
-Die Messaging-Funktionen sind eine getrennte kommerzielle Oberfläche. In berechtigten Cloud-Konten deckt der einheitliche Posteingang unterstützte E-Mail- und Social-Kanäle ab. Ein externer KI-Client kann einen erlaubten Thread lesen, einen Antwortentwurf an einem bestehenden Thread speichern, eine einzelne E-Mail senden oder einen unterstützten Chat beginnen und eine Nachricht senden. Die Versand-Tools stellen sofort zu: Customermates weist kompatible Clients an, vorher nachzufragen, und erzwingt die Berechtigungen des anfragenden Nutzers; nach einem autorisierten MCP-Aufruf gibt es jedoch keine allgemeine zweite serverseitige Freigabe. Sequenzen und Massenkampagnen bleiben außerhalb des aktuellen Produkts.
+## Ein Pilot in vier Wochen
 
-Damit eignet sich Customermates als kontrollierte CRM-Schicht in einem größeren KI-Vertriebsstack. Es sollte nicht als Datenanbieter, Outreach-System, Modellhost oder autonomer Agent beschrieben werden.
+<Steps>
+  <Step title="Einen Ablauf wählen">Nehmen Sie eine Aufgabe, die jede Woche anfällt, etwa neue Anfragen beantworten oder bei verschickten Angeboten nachfassen. Notieren Sie, wie oft sie vorkommt und wie lange sie heute dauert.</Step>
+  <Step title="Regeln auf eine Seite schreiben">Ihre Qualifizierungsregel, Ihr Ton, was der Agent nie zusagen darf (Preise, Termine, Rabatte) und wann er anhalten muss: unklarer Empfänger, Abmeldung, widersprüchliche Datensätze.</Step>
+  <Step title="Woche eins: nur lesen">Der Agent liefert ausschließlich Briefings und Listen. Gleichen Sie diese mit Ihrem Wissen ab und notieren Sie jede erfundene Angabe.</Step>
+  <Step title="Woche zwei: eine umkehrbare Änderung">Erlauben Sie ihm, eine Aufgabe anzulegen oder ein Feld zu ändern. Prüfen Sie danach die Datensätze auf Dubletten und falsche Verknüpfungen.</Step>
+  <Step title="Wochen drei und vier: Entwürfe">Der Agent speichert Entwürfe in den echten Unterhaltungen, Sie überarbeiten und senden. Zählen Sie, wie viele mit kleinen Änderungen hinausgehen.</Step>
+  <Step title="Über den Versand entscheiden">Geben Sie den Versand nur für die Nachrichtenart frei, bei der Ihre Korrekturen klein geworden sind, und testen Sie ihn zuerst mit einem Empfänger, den Sie kontrollieren.</Step>
+</Steps>
 
-## Ein begrenzter Evaluierungsworkflow
+Bevor Sie einen Vertrag unterschreiben, stellen Sie jedem Anbieter fünf Fragen: Welche Schritte erledigt das Produkt selbst und welche brauchen ein weiteres Tool? Woher stammen die Kontaktdaten? Sind Lesen, Entwerfen, Schreiben und Senden getrennte Berechtigungen? Wie stoppt eine Abmeldung alle Kanäle? Und was hinterlässt ein abgebrochener Lauf in Ihrem CRM?
 
-Beginnen Sie mit einem reversiblen Ablauf, dessen Ergebnis sich leicht prüfen lässt:
+## Beispiel: ein Vertriebsagent für kleine Teams in Customermates
 
-1. Wählen Sie ein bestehendes Unternehmen und legen Sie fest, welche Datensätze der Client lesen darf.
-2. Lassen Sie den Client den Stand zusammenfassen und für jede Schlussfolgerung die Grundlage nennen.
-3. Erlauben Sie ihm, genau eine CRM-Änderung oder eine Follow-up-Aufgabe vorzuschlagen.
-4. Lassen Sie einen Menschen die konkreten Felder vor jedem Schreibvorgang prüfen.
-5. Vergleichen Sie den neuen Datensatz mit den Quellen und kontrollieren Sie die Dublettenbehandlung.
-6. Erfassen Sie Fehler, Korrekturen und eingesparte Zeit, bevor Sie Berechtigungen ausweiten.
+Dieser Abschnitt beschreibt Customermates, das CRM, das diesen Leitfaden veröffentlicht. Mate, der Assistent darin, läuft in Customermates Cloud und verbraucht gehostete KI-Credits. Routinen sind gespeicherte Anweisungen, die Mate nach Zeitplan oder bei Änderungen an Datensätzen ausführt.
 
-Fügen Sie Nachrichtenentwürfe erst hinzu, wenn der Datensatzablauf verlässlich ist. Behandeln Sie den Versand als separate Berechtigung und testen Sie ihn mit einem kontrollierten Empfänger, bevor reale Kundenarbeit folgt.
+Nehmen wir eine Beratungsfirma mit drei Personen im Pro-Tarif. Jede Beraterin und jeder Berater verbindet [[commercial.entitlement.pro.includedAccountsPerUser]] Konto mit dem [einheitlichen Posteingang](/features/unified-inbox), meist das Arbeitspostfach in Gmail oder Outlook; LinkedIn, WhatsApp, Instagram und Telegram sind die weiteren Kanäle. Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Person, genug für Postfach und LinkedIn. Deals haben ein Einzelauswahl-Feld für die Phase: Erstgespräch, Abstimmung, Angebot versendet, Gewonnen, Verloren. Leistungen und Schreibregeln der Beratung stehen auf einer Seite der Wissensdatenbank, die Mate in Chats und Routineläufen lesen kann.
 
-## So bewerten Sie KI-Sales-Agent-Software
+**Anfragen sichten, jeden Morgen.** Eine [Routine](/docs/app-routines) mit **Nach Zeitplan**, **Täglich** um 08:00 Uhr:
 
-Nutzen Sie für jeden Kandidaten dasselbe Prüfraster:
+```text
+Prüfen Sie die Unterhaltungen in meinem Posteingang, die seit gestern
+08:00 Uhr eine Nachricht von außerhalb unseres Unternehmens erhalten
+haben. Suchen Sie zu jedem Absender Kontakt und Organisation oder
+legen Sie sie an. Fragt die Nachricht nach unseren Leistungen, legen
+Sie einen Deal in der Phase „Erstgespräch“ an, der mir zugewiesen ist,
+und speichern Sie in der Unterhaltung einen Antwortentwurf, der ein
+kurzes Gespräch vorschlägt. Listen Sie auf, was Sie getan haben und
+wo Sie unsicher waren. Senden Sie nichts.
+```
 
-- **Aufgabenpassung:** Welchen genauen Ablauf verantwortet das Produkt vom Eingang bis zum geprüften Ergebnis?
-- **Datenherkunft:** Kann der Prüfer erkennen, woher Unternehmens- und Kontaktdaten stammen?
-- **Aktionsmodell:** Sind Lesen, Entwerfen, Schreiben und Senden getrennte Berechtigungen?
-- **CRM-Treue:** Bleiben Kennungen, Beziehungen, Pflichtfelder und Aktivitäten korrekt erhalten?
-- **Menschliche Kontrolle:** Lassen sich Empfänger, Inhalt und Nebenwirkung vor einer irreversiblen Aktion prüfen?
-- **Fehlerbehebung:** Sind Wiederholungen idempotent und Teilergebnisse nachvollziehbar?
-- **Sicherheits- und Rechtsprüfung:** Welche Auftragsverarbeiter, Regionen, Aufbewahrungsregeln und Verträge gelten für Ihren konkreten Betrieb?
-- **Betriebskosten:** Was kosten Lizenzen, Modellnutzung, Datenanbieter, Postfächer, Integration und laufende Kontrolle zusammen?
+**Nachfassen bei Angeboten, bei einer Änderung.** Eine zweite Routine mit **Wenn sich etwas ändert**, Ereignis **Deal aktualisiert**, geändertes Feld „Phase“, gefiltert auf Deals, die der Person zugewiesen sind, der die Routine gehört: Wechselt ein Deal auf „Angebot versendet“, legt Mate eine mit Deal und Kontakt verknüpfte Aufgabe an und speichert einen kurzen Nachfass-Entwurf in der letzten Unterhaltung.
 
-Ranglisten aus Funktionslisten reichen nicht. Testen Sie dieselben repräsentativen Datensätze mit jedem Finalisten und bewerten Sie Korrektheit, Prüfaufwand und Wiederherstellung statt nur die Sprachqualität.
+Beide Anweisungen enden bewusst mit „Senden Sie nichts“. Wenn Sie Mate bitten, eine E-Mail oder Chatnachricht zu senden, sendet Mate sie ohne zweite Bestätigung. Vor Löschungen und einigen Verwaltungsaktionen fragt Mate nach einer Freigabe, und eine Routine lehnt diese Aktionen ab, weil niemand da ist, der zustimmen könnte. Eine Routine läuft im Namen der Person, der sie gehört, mit deren Kanälen und Berechtigungen. Ereignis-Auslöser ignorieren nach dem Start eines Laufs für kurze Zeit weitere Ereignisse; für eingehende E-Mails ist die tägliche Sichtung deshalb die sicherere Wahl. Jeder Lauf hat außerdem eine Obergrenze an Credits; bei einem vollen Posteingang kann ein Lauf vorzeitig enden und wird dann als „Teilweise“ markiert. Die Grenzen stehen in der [Dokumentation zu Routinen](/docs/app-routines).
 
-## Was ein KI-Sales-Agent-Stack kostet
+Im Outbound arbeitet Mate Kontakt für Kontakt: Mit einem verbundenen LinkedIn-Konto, das ein eigenes Sales-Navigator-Abo hat, kann Mate in Sales Navigator suchen, Leads in Listen speichern, die Kontakte im CRM anlegen und eine erste Nachricht zum Prüfen im Chat formulieren. Gesendet wird erst, wenn Sie es sagen, und jeweils eine Nachricht.
 
-Es gibt keinen belastbaren Universalpreis. Die Gesamtkosten hängen von der Produktkategorie und häufig getrennt berechneten Komponenten ab: Nutzerlizenzen, Modellnutzung, externe Daten, Versandinfrastruktur, Orchestrierung, CRM-Zugriff, Einführung und menschliche Prüfung.
+**Kosten:** Pro für drei Personen kostet [[commercial.price.pro.monthly.seats.3]] im Monat, monatlich abgerechnet, mit Posteingang, bis zu [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Person und monatlichen gehosteten KI-Credits pro aktivem Nutzer; Details unter [Preise](/pricing). Starter für [[commercial.price.starter.monthly.seats.3]] im Monat bei drei Personen enthält Mate und [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Person, aber keinen Posteingang; der Agent sähe dann nur die CRM-Datensätze. Die Testphase dauert [[commercial.trial.days]] Tage.
 
-Erstellen Sie ein Szenario aus Ihren tatsächlichen Mengen. Halten Sie fest, wie viele Unternehmen in den Ablauf gelangen, wie oft kostenpflichtige Datenquellen aufgerufen werden, wie viele Nachrichten eine Freigabe benötigen und wie Ausnahmen bearbeitet werden. Ein niedriger Listenpreis kann teuer werden, wenn Mitarbeitende falsche Zuordnungen oder Dubletten reparieren müssen.
+**Mit Ihrem eigenen KI-Client:** Claude, ChatGPT und andere Clients können dieselbe CRM-Arbeit über den [MCP-Server von Customermates](/docs/mcp) erledigen, in jedem Tarif und selbst gehostet, mit Ihrem eigenen KI-Abo. Die Messaging-Werkzeuge brauchen Pro oder höher in der Cloud. Der Server weist Clients an, vor dem Senden oder Löschen nachzufragen; ob Sie diese Rückfrage sehen, hängt vom Client ab.
 
-## Typische Grenzen und Fehlerbilder
-
-- **Überzeugende, aber unbelegte Recherche:** Quellen und Beobachtungszeitpunkte verlangen.
-- **Falsche Identitätszuordnung:** stabile Kennungen und klare Matching-Regeln statt nur Firmennamen verwenden.
-- **Kontextverlust zwischen Werkzeugen:** für jedes Feld und jeden Status ein führendes System bestimmen.
-- **Zu breite Berechtigungen:** mit Lesezugriffen und reversiblen Änderungen beginnen, bevor Versand oder Löschung freigeschaltet werden.
-- **Automatisierung ohne Abbruchregel:** bei unklarem Empfänger, fehlendem Einwilligungsnachweis, widersprüchlichen Datensätzen oder fehlenden Pflichtangaben stoppen.
-- **Keine Lernschleife:** Korrekturen erfassen, damit Fehler nicht unbemerkt wiederholt werden.
-
-KI kann mechanische Arbeit reduzieren. Positionierung, Verhandlung, Urteil und Verantwortung bleiben jedoch Aufgaben von Menschen. Eine glaubwürdige Einführung ist so gestaltet, dass das Team erklären kann, was der Agent getan hat und warum.
+<AcquisitionCallout title="Was Customermates nicht tut" variant="boundary">
+Customermates ist kein autonomer Outbound-Agent. Es hat keine eigene Lead-Datenbank, keine Datenanreicherung und kein Lead-Scoring. Es gibt keine E-Mail-Sequenzen, keinen Massenversand, keine Telefonie oder SMS und keine Terminbuchung. Selbst gehostet erhalten Sie den Open-Source-Kern mit REST, Webhooks und MCP, aber keinen Posteingang, kein Mate und keine Routinen. Wer in großem Umfang per Kaltakquise arbeitet, ist mit einem spezialisierten Outbound-Agenten wie Artisan oder 11x besser bedient, ein Salesforce-Team mit Agentforce und ein HubSpot-Team mit den Agenten von HubSpot.
+</AcquisitionCallout>
 
 ## Häufige Fragen
 
 <Faq>
-<FaqItem question="Was ist ein KI Sales Agent?">
-Es ist Software, die Modell, Kontext und Werkzeuge verbindet, um definierte Vertriebsaufgaben zu bearbeiten. Der Umfang reicht vom Textassistenten bis zum mehrstufigen Workflow; deshalb sind erlaubte Daten und Aktionen wichtiger als die Bezeichnung.
+<FaqItem question="Was ist ein KI-Agent im Vertrieb, mit Beispiel?">
+Ein Sprachmodell, das Vertriebswerkzeuge selbst bedient. Beispiel: Jeden Morgen sichtet der Agent neue Anfragen im Posteingang, legt fehlende Kontakte und einen Deal an und speichert einen Antwortentwurf, den Sie prüfen und senden. Andere Agenten beantworten Website-Besucher, recherchieren Unternehmen oder schreiben Neukunden an.
 </FaqItem>
 
-<FaqItem question="Welcher KI Sales Agent ist der beste?">
-Einen allgemeinen Sieger gibt es nicht. Testen Sie einen repräsentativen Ablauf und vergleichen Sie Korrektheit, Quellen, Kontrollen, CRM-Treue, Fehlerbehebung und Gesamtkosten.
-</FaqItem>
-
-<FaqItem question="Was kostet ein KI Sales Agent?">
-Die Kosten hängen von Lizenzen, Modell- und Datennutzung, Versandinfrastruktur, Integration und menschlicher Prüfung ab. Rechnen Sie mit Ihren tatsächlichen Mengen statt mit einem allgemeinen Richtwert.
+<FaqItem question="Welche KI für den Vertrieb?">
+Die, die Ihre zeitraubendste Aufgabe übernimmt. Für Anfragen im großen Umfang passt ein Inbound-Agent, für Kaltakquise in großen Märkten ein Outbound-Agent, für Teams auf Salesforce oder HubSpot die Agenten der Plattform. Kleine Teams, deren Kundengespräche per E-Mail, LinkedIn und WhatsApp laufen, gewinnen meist am meisten mit einem Agenten, der diese Gespräche und das CRM zusammen sieht.
 </FaqItem>
 
 <FaqItem question="Ersetzt ein KI Sales Agent Vertriebsmitarbeitende?">
-Er kann klar begrenzte Aufgaben unterstützen oder automatisieren. Kundenverständnis, Positionierung, Verhandlung und Verantwortung bleiben menschliche Aufgaben. Die sinnvolle Grenze hängt vom Risiko des jeweiligen Ablaufs ab.
+Nicht im beziehungsorientierten Vertrieb. KI übernimmt viel Tipparbeit: Recherche, Notizen, erste Entwürfe und Datenpflege. Die Situation des Kunden verstehen, Umfang und Preis einschätzen und die Beziehung verantworten bleibt bei Menschen. Am stärksten betroffen ist skriptbasierte Erstansprache in großer Zahl.
 </FaqItem>
 
-<FaqItem question="Ist ein Open-Source-CRM automatisch ein Open-Source-KI-Sales-Agent?">
-Nein. Ein CRM kann nachvollziehbare Datensätze und Werkzeuge bereitstellen, während Modell, Datenanbieter und Orchestrierung getrennte Produkte mit eigenen Lizenzen und Bedingungen bleiben.
+<FaqItem question="Was kostet ein KI-Agent?">
+Die Preismodelle unterscheiden sich: pro Nutzer, pro Gespräch, pro Aktion oder nach Credits. Salesforce nennt 2 $ je Gespräch oder Flex Credits zu 500 $ je 100.000, mit 20 Credits pro Agentforce-Aktion, geprüft am 8. Oktober 2026. Rechnen Sie bei Outbound-Agenten Lead-Daten, Postfächer und Prüfzeit hinzu.
 </FaqItem>
 
-<FaqItem question="Ist KI-Vertriebsautomatisierung DSGVO-konform?">
-Das lässt sich weder aus einer Produktkategorie noch aus einem Hosting-Ort ableiten. Maßgeblich sind Daten, Zweck, Rechtsgrundlage, Auftragsverarbeiter, Aufbewahrung, Schutzmaßnahmen und der konkrete Ablauf. Lassen Sie den tatsächlichen Einsatz angemessen rechtlich prüfen.
+<FaqItem question="Was ist der Unterschied zwischen KI-SDR und KI-BDR?">
+Ein KI-SDR qualifiziert meist Leads und übergibt eine terminreife Verkaufschance an den Vertrieb, eingehend wie ausgehend. Ein KI-BDR eröffnet meist neue Gespräche im Outbound. Die Anbieter mischen die Begriffe; vergleichen Sie die Schritte, die ein Produkt ausführt.
 </FaqItem>
 
-<FaqItem question="Kann Customermates einen KI-Sales-Agent-Workflow unterstützen?">
-Customermates kann über MCP als CRM- und unterstützte Aktionsebene für einen externen werkzeugfähigen KI-Client dienen. Es ist keine native Leadquelle, kein Anreicherungsdienst, keine Sequenz-Engine und kein autonomer Vertriebsagent.
+<FaqItem question="Darf ein KI-Agent in Deutschland kalte E-Mails versenden?">
+Werbe-E-Mails ohne vorherige ausdrückliche Einwilligung sind nach § 7 Abs. 2 Nr. 2 UWG eine unzumutbare Belästigung, auch gegenüber Unternehmen. Ein Agent bleibt daher meist auf Bestandskunden, Anfragen und Gespräche beschränkt, die der Kontakt begonnen hat. Lassen Sie Ihren konkreten Ablauf anwaltlich prüfen.
 </FaqItem>
 </Faq>
+
+Anbieter- und Rechtsangaben geprüft am 8. Oktober 2026 anhand von [Salesforce Agentforce SDR](https://www.salesforce.com/sales/ai-sales-agent/), [Agentforce-Preisen](https://www.salesforce.com/agentforce/pricing/), [HubSpot AI](https://www.hubspot.com/products/artificial-intelligence), [Salesloft AI Agents](https://www.salesloft.com/platform/ai-agents), [Artisan Ava](https://www.artisan.co/ai-sales-agent), [11x](https://www.11x.ai/) und [§ 7 UWG](https://dejure.org/gesetze/UWG/7.html).

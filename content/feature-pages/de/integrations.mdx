@@ -1,17 +1,17 @@
 ---
-title: "CRM-Integrationen: 400+ Tools über n8n, API und Webhooks"
-description: "CRM mit 400+ Tools über separates n8n, REST API und Webhooks verbinden. Zapier-Alternative über Ihr eigenes, separat betriebenes n8n."
+title: "CRM-Integration: REST-API, Webhooks, MCP und n8n"
+description: "Customermates per REST-API, signierten Webhooks, MCP für KI-Clients und eigenem n8n anbinden. In jedem Tarif, auch selbst gehostet. Mit klaren Grenzen."
 featureName: CRM-Integrationen
 
 relatedHrefs:
-  - /features/follow-up
-  - /features/lead-management
-  - /features/lead-tracking
-  - /features/linkedin-integration
+  - /features/api
+  - /features/workflow-automation
+  - /features/cloud-crm
+  - /blog/crm-erp-integration
 
 hero:
-  title: CRM-Integrationen, die Ihren gesamten Tool-Stack verbinden
-  description: Verbinden Sie Ihr CRM auf vier Wegen. Unterstützte externe KI-Clients nutzen [[derived.mcp.tools.total]] MCP-Tools, eine separate n8n-Instanz erreicht 400+ Dienste, die dokumentierte REST API und [[derived.webhooks.events.total]] Webhook-Ereignisse binden andere Systeme an, und der native einheitliche Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ins CRM. REST, Webhooks und MCP starten ab [[commercial.price.starter.monthly]] pro Nutzer und Monat; n8n und Anbieter bleiben separat.
+  title: CRM-Integration über offene Schnittstellen statt App-Marktplatz
+  description: Customermates verbindet sich über eine dokumentierte REST-API, [[derived.webhooks.events.total]] Webhook-Ereignisse, einen MCP-Endpunkt für KI-Clients wie Claude und ChatGPT und eine Community-Node für n8n mit anderer Software. Das gilt in jedem Tarif und auch bei Selbst-Hosting. E-Mail, LinkedIn, WhatsApp, Instagram und Telegram binden Sie ab Pro direkt über den einheitlichen Posteingang an.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bereit, Ihre Tools zu verbinden?
-  description: Verbinden Sie Ihren Tool-Stack heute über REST, Webhooks, MCP oder Ihre eigene n8n-Instanz. Externe Konnektoren, Laufzeiten und Anbietergebühren bleiben separat.
+  action: Binden Sie Ihr erstes Tool an
+  description: Legen Sie im Testzeitraum einen API-Key oder Webhook an und schicken Sie ein echtes CRM-Ereignis an das System, das es braucht.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,129 +28,124 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Warum CRM-Integrationen wichtig sind
+CRM-Integration heißt: Daten und Auslöser fließen zwischen dem CRM und Ihren anderen Systemen, ohne dass jemand einen Deal von einem Fenster ins nächste abtippt. Customermates setzt dafür auf vier offene Schnittstellen statt auf einen App-Marktplatz: eine REST-API, ausgehende Webhooks, einen MCP-Endpunkt für KI-Clients und eine Community-Node für n8n. Alle vier stehen in jedem Tarif zur Verfügung, auch in selbst gehosteten Installationen.
 
-CRM-Integrationen verbinden Ihr Kundenbeziehungsmanagementsystem mit den anderen Tools, auf die Ihr Unternehmen angewiesen ist. Sie ermöglichen den Datenfluss zwischen Plattformen, lösen Aktionen systemübergreifend aus und halten Informationen synchron, ohne manuelles Kopieren und Einfügen.
+Das hat eine Kehrseite, die Sie vorher kennen sollten. Es gibt keinen Katalog mit Ein-Klick-Apps. Soll Customermates mit Slack, Ihrer Buchhaltung oder einem Formular-Tool sprechen, richten Sie einen Webhook auf dieses Tool, rufen die API aus eigenem Code auf oder bauen den Ablauf in einem Automatisierungstool wie n8n, Make oder Zapier.
 
-Kein CRM arbeitet isoliert. Ihr Vertriebsteam nutzt täglich [E-Mail](/features/email-integration), [Slack](/features/slack-integration), [Outlook](/features/outlook-integration), Buchhaltungssoftware, Marketingplattformen und Projektmanagement-Tools. Ohne Integrationen leben Daten in Silos, Teammitglieder verschwenden Stunden mit doppelter Dateneingabe, und Informationen werden toolübergreifend inkonsistent. CRM-Integrationen beseitigen diese Probleme, indem sie Ihr CRM zum vernetzten Knotenpunkt Ihrer Geschäftsabläufe machen.
+## Die fünf Anbindungswege im Überblick
 
-Jedes unverbundene Tool erzeugt Reibung, Verzögerungen und Fehler. Ein gut integriertes CRM wird zur einzigen Quelle der Wahrheit, die alles zusammenbringt, und der Nutzen wächst mit jeder neuen Verbindung.
-
-## So funktionieren CRM-Integrationen in Customermates
-
-Customermates bietet mehrere komplementäre Integrationsansätze, damit Sie unterstützte Tools verbinden und einen externen KI-Client zulässige CRM-Daten bearbeiten lassen können, unabhängig vom technischen Kenntnisstand Ihres Teams.
-
-### MCP für externe KI-Clients
-
-Customermates bringt einen Model-Context-Protocol-Endpunkt (MCP) mit, über den unterstützte externe Clients wie Claude, ChatGPT und Gemini zulässige CRM-Daten lesen und schreiben können. Der Endpunkt unter `https://customermates.com/api/v1/mcp` stellt [[derived.mcp.tools.grouped]] Tools über [[derived.mcp.toolsets.count]] Toolsets plus [[derived.mcp.tools.alwaysOn]] stets aktive Recherche-Tools bereit, insgesamt [[derived.mcp.tools.total]] Tools. Ein konfigurierter Client kann Kontakte erstellen, Deal-Phasen verschieben, einzelne Follow-ups entwerfen und Notizen aktualisieren. Grenzen Sie die Tools pro Client mit `?toolsets=` ein und authentifizieren Sie sich über einen `x-api-key`-Header. MCP startet mit Starter; Client, Modell, Abonnement und Nutzung bleiben separat.
-
-### Nativer einheitlicher Posteingang
-
-E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Threads landen in einem Postfach im CRM, und ein unterstützter externer KI-Client kann dort zulässige einzelne Nachrichten lesen, entwerfen und senden. Der einheitliche Posteingang ist ab Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat enthalten; gemeinsam genutzte Team-Konten ab Business.
-
-### n8n-Automatisierungs-Engine (selbst mitgebracht)
-
-Customermates arbeitet mit [n8n](https://n8n.io), einer weit verbreiteten quellverfügbaren (Fair-Code-)Workflow-Automatisierungsplattform, die Sie selbst hosten oder abonnieren. Sie ist nicht ins CRM eingebettet; Webhooks, die REST API und ein veröffentlichter Community-Node verbinden beide. n8n bietet einen visuellen Drag-and-Drop-Workflow-Builder mit vorgefertigten Konnektoren für über 400 Dienste, darunter:
-
-- **Kommunikation:** Slack, Microsoft Teams, Discord, Telegram
-- **E-Mail:** Gmail, Outlook, SMTP, Mailchimp, SendGrid
-- **Produktivität:** Google Workspace, Microsoft 365, Notion, Airtable
-- **Buchhaltung:** Xero, QuickBooks, lexoffice, sevDesk
-- **Marketing:** HubSpot Marketing, ActiveCampaign, Brevo
-- **Entwicklung:** GitHub, GitLab, Jira, Linear
-- **Speicher:** Google Drive, Dropbox, OneDrive, S3
-
-Erstellen Sie Integrationen visuell, indem Sie Knoten auf einer Arbeitsoberfläche verbinden. Kein Code erforderlich. Jeder Workflow kann bedingte Logik, Datentransformation, Fehlerbehandlung und Zeitplanung umfassen.
-
-### REST API
-
-Für Entwickler und Teams mit programmatischem Bedarf stellt Customermates eine REST API mit OpenAPI-3.1-Schema unter `/api/v1/openapi` bereit. Nutzen Sie dokumentierte Operationen für Kontakte, Organisationen, Deals, Services und Aufgaben über Standard-HTTP-Anfragen. Die Verfügbarkeit unterscheidet sich je Ressource; generische Listen verwenden `page` und `pageSize`, einen allgemeinen Batch-Endpunkt oder veröffentlichten Rate-Limit-Header-Vertrag gibt es nicht.
-
-### Webhooks
-
-Erhalten Sie Echtzeit-Push-Benachrichtigungen, wenn sich Datensätze ändern. Customermates sendet [[derived.webhooks.events.total]] Webhook-Ereignisse: [[derived.webhooks.events.records]] Datensatz-Ereignisse (erstellt, aktualisiert und gelöscht für jeden der fünf Datensatztypen: Kontakte, Organisationen, Deals, Services, Aufgaben) plus [[derived.webhooks.events.messaging]] Messaging- und Kalender-Ereignisse. Webhooks übermitteln Daten sofort an Ihre Systeme, ohne Polling.
-
-## Beliebte CRM-Integrationsszenarien
-
-**CRM zu [Slack](/features/slack-integration).** Senden Sie Deal-Updates, Hinweise auf neue Leads und Hinweise zu eigenen Aufgaben-Datumsfeldern über einen externen Workflow an Slack-Kanäle. Ein Drei-Knoten-n8n-Workflow verbindet den CRM-Trigger mit einem Slack-Nachrichten-Knoten, und Ihr Team erhält Echtzeit-Updates im Kanal, den es bereits nutzt.
-
-**[E-Mail](/features/email-integration)-Marketing-Synchronisierung.** Ein separater n8n-Workflow kann unterstützte Kontaktfelder an Mailchimp, Brevo oder ActiveCampaign übergeben; der Anbieter verwaltet Kampagnen. Externe Formulartools können Daten an den Workflow senden. Customermates besitzt keine native Formular-, Kampagnen- oder Routing-Engine.
-
-**Buchhaltungsintegration.** Wenn ein Deal gewonnen wird, kann ein separater Workflow unterstützte Daten an lexoffice, sevDesk, Xero oder QuickBooks übergeben. Der Buchhaltungsanbieter erstellt und speichert Rechnungen, Nummerierung, Steuern, Zahlungen und Versand; Customermates hat keinen nativen Rechnungsdatensatz.
-
-**Kalenderzugriff, nur lesend.** Lesen Sie unterstützte Google-Calendar- oder [Outlook](/features/outlook-integration)-Termine im CRM-Kontext. Customermates erstellt, ändert oder bucht keine Anbietertermine und schreibt sie nicht zurück; native Aufgaben haben weder Fristen noch Erinnerungen.
-
-**Webformular-Lead-Erfassung.** Ein externer Formularanbieter kann Daten an eine von Ihnen betriebene n8n-Instanz senden. Sie kann per REST einen unterstützten Kontakt erstellen und einen externen E-Mail-Anbieter um einen Welcome-Flow bitten. Customermates hat keine native Formular-, Routing- oder Sequenz-Engine.
-
-**Projektmanagement-Übergabe.** Wenn ein Deal abgeschlossen wird, kann ein separater Workflow Asana, Monday oder Notion um ein Projekt mit unterstützten Deal-Details bitten. Projektdatensätze, Vorlagen, Ausführungsprotokolle, Limits und Lieferung bleiben in den externen Systemen.
-
-**[LinkedIn](/features/linkedin-integration)-Kontaktanreicherung.** Ein separater Datenanbieter oder Workflow kann Profildetails recherchieren und freigegebene Werte in unterstützte CRM-Felder schreiben. Customermates bietet weder nativen LinkedIn-Profilabgleich noch Anreicherung, Lead-Import oder Jobwechsel-Monitoring.
-
-## Customermates im Vergleich zu anderen CRM-Integrationsansätzen
-
-| Merkmal | Customermates + separates n8n | HubSpot | Zapier + beliebiges CRM |
+| Anbindung | Richtung | Wofür | Tarif |
 |---|---|---|---|
-| MCP-Steuerung für externe KI-Clients | Ja ([[derived.mcp.tools.total]] Tools) | Begrenzt | Nein |
-| Nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) | Ja (Pro-Stufe) | Begrenzt | Nein |
-| Automatisierungs-Engine | Eigenes n8n (Webhooks, REST, Community-Node) | Begrenzt (Operations Hub) | Nein (separates Abo) |
-| Vorgefertigte Konnektoren | n8n-Katalog (separat) | 1.600+ (Marketplace) | 7.000+ |
-| Integrationskosten | CRM ab [[commercial.price.starter.monthly]] + separate n8n-/Anbieterkosten | Operations Hub ab 800 USD/Monat | Ab 20 USD/Monat + CRM-Kosten |
-| Self-Hosting möglich | Ja | Nein | Nein |
-| Open Source | Ja | Nein | Nein |
-| Individuelle Konnektoren | Über Ihre separate n8n-Instanz | Partnerprogramm erforderlich | Developer-Plan erforderlich |
-| Datenverarbeitung | Cloud-Datenbank in Frankfurt (AWS), Unterauftragsverarbeiter offengelegt; selbst hostbar | Standard: USA | Standard: USA |
-| Nutzungslimits | Aktuelle CRM-, n8n- und Anbieterverträge | Stufenabhängig | Stufenabhängig |
+| Webhooks | CRM an Ihr System | Ein Ereignis senden, wenn ein Kontakt, eine Organisation, ein Deal, eine Leistung oder eine Aufgabe angelegt, geändert oder gelöscht wird oder eine Nachricht im Posteingang eingeht | Jeder Tarif, auch selbst gehostet |
+| REST-API | Ihr System an CRM | Datensätze aus Code oder einem Automatisierungstool anlegen, lesen, suchen, ändern und löschen | Jeder Tarif, auch selbst gehostet |
+| MCP | KI-Client an CRM | Claude, ChatGPT, Cursor, Codex oder Gemini CLI lesen und schreiben Datensätze im Gespräch | Jeder Tarif, auch selbst gehostet |
+| n8n-Community-Node | Beide | Eigene Customermates-Nodes in einer separat betriebenen n8n-Instanz | Jeder Tarif; Kosten für n8n separat |
+| Einheitlicher Posteingang | Kanäle an CRM | Gespräche aus Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram und Telegram direkt am Datensatz, dazu Google- und Microsoft-Kalender nur lesend | Customermates Cloud, ab Pro |
 
-Während HubSpot mehr Marketplace-Apps bietet und Zapier mehr Dienste verbindet, eignet sich Customermates für Teams, die offene Schnittstellen und externen KI-Zugriff wollen. Eine separate n8n-Instanz kann mehrstufige Workflows ausführen; Hosting, Abo, Konnektoren, Limits, Protokolle und Anbieterkosten bleiben extern.
+Webhooks, REST und MCP sind ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten. Der [einheitliche Posteingang](/features/unified-inbox) beginnt mit Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat, mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto pro Nutzer; Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Nutzer und geteilte Konten. Selbst gehostete Installationen erhalten REST, Webhooks und MCP, aber keinen Posteingang. Messaging-Ereignisse werden dort also nie ausgelöst.
 
-## Zentrale Vorteile von CRM-Integrationen in Customermates
+## Welcher Weg passt zu welcher Aufgabe
 
-**Datensilos eliminieren.** Wenn Ihr CRM mit Ihren anderen Tools verbunden ist, fließen Daten automatisch. Kontaktinformationen bleiben konsistent, Deal-Updates gelangen zu Reporting-Tools, und alle arbeiten mit einer einzigen Quelle der Wahrheit.
+| Wenn Sie … | nutzen Sie | weil |
+|---|---|---|
+| bei jedem neuen Deal eine Nachricht in einen Slack-Channel schicken wollen | einen Webhook mit Body-Vorlage an einen Slack-Incoming-Webhook | kein Automatisierungstool nötig ist |
+| gewonnene Deals an Ihre Buchhaltungssoftware übergeben wollen | n8n, Make oder Zapier auf das Ereignis `deal.updated` | diese Tools den Phasenwert prüfen und die API der Buchhaltung aufrufen |
+| Kontakte aus Ihrem Website-Formular anlegen wollen | das Formular-Tool oder n8n mit `POST /api/v1/contacts` | Customermates kein eigenes einbettbares Formular hat |
+| Datensätze in ein Data Warehouse spiegeln wollen | Webhooks, idempotent über `entityId` | Daten nahezu in Echtzeit ankommen, ohne Polling |
+| nach einem Kundengespräch fünf Deals per KI aktualisieren wollen | MCP aus Claude, ChatGPT oder einem anderen Client | der Client die Tools selbst findet und aufruft |
+| eine bestehende Kundenliste übernehmen wollen | den XLSX-Import, ein Datensatztyp nach dem anderen | das für einen einmaligen Umzug schneller ist als ein API-Skript |
 
-**Codefreies Erstellen von Integrationen.** Eine separate n8n-Instanz stellt den visuellen Workflow-Builder bereit. Ziehen Sie Knoten auf ihre Arbeitsoberfläche, verbinden Sie sie und konfigurieren Sie das Mapping. Customermates liefert REST, Webhooks, MCP und den Community-Node statt der Laufzeit.
+## Webhooks
 
-**Entwicklerfreundlich, wenn nötig.** Wenn No-Code nicht ausreicht, nutzen Entwickler die dokumentierte REST API und Webhooks. Standard-Authentifizierung und JSON-Antworten bieten einen vertrauten Einstieg; prüfen Sie jede benötigte Ressource und Operation im aktuellen OpenAPI-Vertrag.
+Einen Webhook legen Sie unter **Mein Unternehmen → Webhooks → Hinzufügen** an: Ziel-URL einfügen, Ereignisse wählen, speichern. Zur Auswahl stehen [[derived.webhooks.events.total]] Ereignisse: [[derived.webhooks.events.records]] Datensatz-Ereignisse (angelegt, geändert und gelöscht für Kontakte, Organisationen, Deals, Leistungen und Aufgaben) und [[derived.webhooks.events.messaging]] Messaging-Ereignisse, etwa eine eingegangene Nachricht oder E-Mail und eine Änderung in einem verbundenen Kalender.
 
-**Echtzeit-Datenfluss.** Webhooks liefern sofortige Ereignisbenachrichtigungen. Ihre verbundenen Systeme reagieren in Echtzeit auf CRM-Änderungen. Keine Batch-Verarbeitungsverzögerungen und keine veralteten Daten.
+Worauf es beim Aufbau ankommt:
 
-**Selbst hostbare Alternative zu Zapier.** Eine separat betriebene n8n-Instanz kann einige Zapier- oder Make-Workflows ersetzen, wenn Konnektoren, Tarif, Limits und Betrieb passen. Customermates liefert CRM-Schnittstellen und Community-Node, nicht den Automatisierungsdienst.
+- **Signaturen.** Mit einem **Secret** trägt jede Zustellung eine HMAC-SHA256-Signatur über den Request-Body. Der Empfänger kann gefälschte Aufrufe so abweisen.
+- **Wiederholungen.** Timeouts, Netzwerkfehler, 5xx-Antworten sowie 408, 425 und 429 werden automatisch bis zu 5-mal wiederholt. Andere 4xx-Antworten nicht.
+- **Zustellprotokoll.** **Mein Unternehmen → Letzte Zustellungen** zeigt jede Zustellung mit Statuscode und Payload. Von dort lässt sie sich erneut senden.
+- **Eigene Header und Body-Vorlagen.** Header authentifizieren Sie beim Empfänger. Eine **Body-Vorlage** ersetzt den Standard-JSON-Umschlag durch das Format, das der Empfänger erwartet, mit Platzhaltern wie `{{event}}` und `{{data.payload.name}}`.
+- **Nur echte Änderungen.** Ein `*.updated`-Ereignis enthält ein `changes`-Objekt mit altem und neuem Wert jedes geänderten Felds. Ein Speichervorgang ohne Änderung löst kein Ereignis aus.
 
-**Self-Hosted CRM mit externen Integrationen.** Beim Self-Hosting laufen Customermates-Anwendung und PostgreSQL-Datenbank auf Ihrer Infrastruktur. n8n bleibt eine separate Bereitstellung; jeder verbundene Anbieter erhält nach seinen Bedingungen die vom Workflow gesendeten Daten.
+Zustellungen kommen nicht streng geordnet an. Behandeln Sie sie als idempotente Nachrichten mit dem Schlüssel `entityId` und ordnen Sie sie über den `timestamp` der Payload. Den vollständigen Katalog finden Sie in der [Webhook-Dokumentation](/docs/webhooks).
 
-## Warum Customermates für CRM-Integrationen?
+## REST-API
 
-**Offene Schnittstellen ab der Einstiegsstufe.** REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte und MCP-Zugriff sind ab [[commercial.price.starter.monthly]] pro Nutzer und Monat verfügbar. n8n, KI-Clients, Modelle, Konnektoren, Laufzeiten, Zustellanbieter, Limits und Kosten bleiben separat. Der native einheitliche Posteingang startet mit Pro, gemeinsam genutzte Team-Konten mit Business.
+Die API ist unter `/api/v1` versioniert, wird per Header `x-api-key` authentifiziert und durch ein OpenAPI-Dokument beschrieben. Kontakte, Organisationen, Deals, Leistungen und Aufgaben lassen sich jeweils anlegen, lesen, suchen, ändern und löschen. Für Stapel gibt es `/many`-Endpunkte mit bis zu 100 Datensätzen pro Anfrage. `GET /api/v1/<typ>/configuration` liefert die eigenen Spalten und Optionen Ihres Arbeitsbereichs. Das brauchen Sie, weil die Deal-Phase eine konfigurierbare Spalte vom Typ Einzelauswahl ist und kein festes Feld.
 
-**Open Source und erweiterbar.** Der Customermates-AGPL-Kern ist Open Source, n8n ist ein separates quellverfügbares Produkt. Entwickeln Sie gegen ihre dokumentierten Schnittstellen oder ergänzen Sie Konnektoren im n8n-Dienst, den Sie betreiben, und verwalten Sie Systeme, Anbieter, Zugangsdaten und Updates getrennt.
+Ein API-Key erbt die Rechte des Nutzers, der ihn angelegt hat. Eine Einschränkung pro Key gibt es nicht. Legen Sie Keys deshalb mit einem Nutzer an, dessen Rolle zur Integration passt. Mehr dazu auf der [Seite zur API](/features/api).
 
-**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
+## MCP für KI-Clients
 
-**Self-hostbare Anwendung und Datenbank.** Betreiben Sie Customermates-Anwendung und PostgreSQL-Datenbank auf Ihrer Infrastruktur. Externe KI-, Workflow-, Messaging- und Geschäftsanbieter erhalten weiterhin die Daten Ihrer Konfiguration und führen eigene Zugangsdaten und Protokolle.
+MCP (Model Context Protocol) ist ein [offener Standard, um KI-Anwendungen mit externen Systemen zu verbinden](https://modelcontextprotocol.io/docs/getting-started/intro). Customermates betreibt einen MCP-Endpunkt unter `/api/v1/mcp` mit [[derived.mcp.tools.total]] Tools. Claude und ChatGPT verbinden sich als benutzerdefinierter Connector mit OAuth-Anmeldung, wie in der [Anleitung für Claude und ChatGPT](/docs/connect-custom-connector) beschrieben. Claude Code, Codex, Cursor und Gemini CLI verbinden sich per API-Key.
 
-## Häufig gestellte Fragen
+Client und Modell gehören Ihnen. Ihr KI-Anbieter rechnet seine Nutzung selbst ab, und MCP-Aufrufe verbrauchen keine gehosteten KI-Credits von Customermates. Messaging-, Kalender- und Social-Tools setzen einen Cloud-Tarif mit Posteingang voraus. Die [MCP-Referenz](/docs/mcp) listet alle Tools.
+
+In Customermates Cloud gibt es zusätzlich Mate, den gehosteten Assistenten, der gehostete KI-Credits verbraucht. Mate kann Webhooks für Sie anlegen und ändern, und seine [Routinen](/docs/app-routines) führen eine gespeicherte Anweisung aus, wenn sich ein Datensatz ändert. Das deckt Arbeit ab, die Lesen und Abwägen verlangt. Feste Regeln gehören in Webhooks und n8n.
+
+## n8n, Make oder Zapier
+
+Keines dieser Tools ist in Customermates enthalten. Sie betreiben oder abonnieren sie separat, und sie bringen die großen Konnektor-Kataloge mit. Customermates dokumentiert die Muster für n8n und veröffentlicht eine [Community-Node](https://github.com/customermates/n8n-nodes-crm). Make und Zapier binden Sie über deren allgemeine Webhook- und HTTP-Schritte an. Diese Seite stammt von Customermates; die Tabelle gibt das Preismodell jedes Tools nach dessen eigener Preisseite wieder, Stand 8. Oktober 2026.
+
+| Tool | Preismodell | Kostenlose Option |
+|---|---|---|
+| [n8n](https://n8n.io/pricing/) | Cloud-Tarife nach Workflow-Ausführungen; ein kompletter Durchlauf zählt als eine Ausführung | Selbst gehostete Community Edition |
+| [Make](https://www.make.com/en/pricing) | Credits; die meisten Modul-Aktionen verbrauchen einen Credit | Kostenloser Tarif mit monatlichem Credit-Kontingent |
+| [Zapier](https://zapier.com/pricing) | Tasks; jeder erfolgreich ausgeführte Aktionsschritt zählt, Trigger nicht | Kostenloser Tarif, beschränkt auf Zaps mit zwei Schritten |
+
+n8n ist Fair-Code unter der [Sustainable Use License](https://github.com/n8n-io/n8n). n8n beschreibt den Quellcode als einsehbar und selbst hostbar. Das ist eine andere Lizenz als die AGPL, unter der der Kern von Customermates steht.
+
+Zahlen Sie bereits für eines der Tools, nehmen Sie dieses. Fangen Sie bei null an und kann jemand im Team einen Container betreiben, hält ein selbst gehostetes n8n CRM und Automatisierung auf Ihren eigenen Servern. Die [n8n-Anleitung](/docs/n8n) zeigt den Webhook-Trigger, die HTTP-Request-Aufrufe und das Credential für `x-api-key`.
+
+## Slack: zwei Wege, keine native App
+
+Customermates hat keine Slack-App, keinen Slack-Kanal im Posteingang und keine Slack-Einstellungen. Slack erreichen Sie über Webhooks oder n8n.
+
+**Weg 1, nur mit Webhook.** Slacks [Incoming Webhooks](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) nehmen einen JSON-POST wie `{"text": "Hallo"}` an und posten ihn in einen festgelegten Channel. Eine Body-Vorlage in Customermates erzeugt genau dieses Format:
+
+<Steps>
+  <Step title="Slack-Incoming-Webhook anlegen">Legen Sie in Slack eine App an, aktivieren Sie Incoming Webhooks, fügen Sie einen Webhook zum Workspace hinzu und wählen Sie den Channel. Kopieren Sie die URL und behandeln Sie sie wie ein Passwort.</Step>
+  <Step title="Webhook in Customermates anlegen">Fügen Sie unter **Mein Unternehmen → Webhooks → Hinzufügen** die Slack-URL ein und wählen Sie `deal.created`.</Step>
+  <Step title="Body-Vorlage schreiben">Tragen Sie `{"text": "Neuer Deal: {{data.payload.name}}"}` ein. Bei `deal.updated` liegt der Datensatz eine Ebene tiefer, dort lautet der Platzhalter `{{data.payload.deal.name}}`.</Step>
+  <Step title="Testen und Protokoll prüfen">Legen Sie einen Test-Deal an und öffnen Sie **Letzte Zustellungen**. Ein 2xx-Statuscode heißt, dass Slack die Nachricht angenommen hat.</Step>
+</Steps>
+
+**Weg 2, mit n8n.** n8n brauchen Sie, sobald Logik ins Spiel kommt: nur melden, wenn die Phasen-Spalte einen bestimmten Wert erreicht, einmal pro Woche eine Pipeline-Übersicht aus einem geplanten `POST /api/v1/deals/search` posten, oder aus einem Slack-Shortcut per API einen neuen Kontakt anlegen. Slack-Gespräche erscheinen in beiden Fällen nicht im Customermates-Posteingang.
+
+## Was nicht enthalten ist
+
+<AcquisitionCallout title="Grenzen, die Sie vor der Planung kennen sollten" variant="boundary">
+  Kein App-Marktplatz und keine Ein-Klick-Konnektoren. Keine native Integration für Slack, Microsoft Teams, Buchhaltung oder Terminbuchung. Kalender sind nur lesbar. Keine einbettbaren Webformulare. Dateiaustausch nur als XLSX, ein Datensatztyp nach dem anderen, ohne Export des gesamten Kontos. n8n, Make und Zapier sind eigene Produkte mit eigenen Kosten.
+</AcquisitionCallout>
+
+Braucht Ihr Team Hunderte fertige, vom Anbieter gepflegte Konnektoren, die jemand ohne Technikkenntnisse in einer Einstellungsseite einschaltet, passt ein CRM mit eigenem App-Marktplatz besser. Customermates passt zu Teams, die einen Webhook selbst einrichten oder die Aufrufe einem KI-Client überlassen, und die in der Cloud wie im eigenen Rechenzentrum dieselben Schnittstellen haben wollen. Die Anbindung an ein ERP folgt demselben Muster; der [Leitfaden zur CRM-ERP-Integration](/blog/crm-erp-integration) zeigt den Ablauf.
+
+## Häufige Fragen
 
 <Faq>
-<FaqItem question="Wie viele Integrationen unterstützt Customermates?">
-Customermates liefert REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte, [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Der Katalog mit 400+ Konnektoren gehört n8n; der native einheitliche Posteingang verbindet unterstützte E-Mail- und Social-Kanäle ab Pro.
+<FaqItem question="Was bedeutet CRM-Integration?">
+Die Verbindung eines CRM mit anderer Software, sodass Daten oder Auslöser automatisch fließen. Ein neuer Deal legt zum Beispiel ein Projekt im Projekttool an, oder eine Formular-Anfrage wird zum Kontakt. Das läuft über eine API, Webhooks, ein Automatisierungstool oder einen fertigen Konnektor des Anbieters. Customermates bietet die ersten drei Wege und zusätzlich MCP für KI-Clients.
 </FaqItem>
 
-<FaqItem question="Muss ich für Integrationen extra bezahlen?">
-REST, Webhooks und MCP-Zugriff starten mit der Starter-Stufe für [[commercial.price.starter.monthly]] pro Nutzer und Monat. n8n-Workflows, Konnektoren, Hosting, Ausführungen, Protokolle, Zustellanbieter, Limits und Kosten sind separat und hängen von den gewählten Diensten ab.
+<FaqItem question="Hat Customermates eine offene API und Webhooks?">
+Ja, in jedem Tarif und in selbst gehosteten Installationen. Die REST-API ist per OpenAPI dokumentiert und nutzt den Header `x-api-key`. Webhooks decken [[derived.webhooks.events.total]] Ereignisse ab, mit HMAC-Signatur, automatischen Wiederholungen und Zustellprotokoll.
 </FaqItem>
 
-<FaqItem question="Kann ich Zapier durch Customermates ersetzen?">
-Nicht allein. Eine separate n8n-Instanz kann einige CRM-bezogene Zapier- oder Make-Workflows ersetzen, wenn Konnektoren, Tarif, Limits und Betrieb passen. Customermates verbindet sie über REST, Webhooks, MCP und Community-Node, enthält aber kein Automatisierungsabonnement.
+<FaqItem question="Gibt es eine native Slack-Integration?">
+Nein. CRM-Ereignisse schicken Sie per Webhook mit Body-Vorlage an einen Slack-Incoming-Webhook, oder Sie bauen den Ablauf in n8n. Auch das Anlegen von CRM-Datensätzen aus Slack heraus läuft über n8n und die REST-API.
 </FaqItem>
 
-<FaqItem question="Ist die REST API in jedem Plan enthalten?">
-Dokumentierter API-Zugang steht in den veröffentlichten Tarifen bereit. Folgen Sie dem aktuellen OpenAPI-Dokument und den Antworten für Operationen, Paginierung, Durchsatz und Wiederholungen; Customermates veröffentlicht kein allgemeines Unbegrenzt-Versprechen und keinen Rate-Limit-Header-Vertrag.
+<FaqItem question="Ist n8n im Abo enthalten?">
+Nein. n8n ist ein eigenes Produkt. Sie hosten die kostenlose Community Edition selbst oder abonnieren die Cloud von n8n. Customermates liefert die Community-Node, die Webhooks und die API, mit denen n8n arbeitet.
 </FaqItem>
 
-<FaqItem question="Kann ich Integrationen mit Tools erstellen, die nicht in n8n gelistet sind?">
-Im separaten n8n-Dienst kann der HTTP-Request-Knoten APIs aufrufen, und Sie können eigene n8n-Knoten für interne Systeme entwickeln. Konnektorunterstützung, Authentifizierung, Hosting, Wartung, Limits und Kosten werden von n8n und den jeweiligen Anbietern bestimmt.
+<FaqItem question="Funktionieren auch Zapier oder Make statt n8n?">
+Ja. Jedes Tool, das einen HTTP-POST empfangen und HTTP-Anfragen mit eigenem Header senden kann, funktioniert. Eine eigene Customermates-App gibt es in deren Katalogen nicht, Sie nutzen dort die allgemeinen Webhook- und HTTP-Schritte.
+</FaqItem>
+
+<FaqItem question="Lässt sich das CRM mit SAP oder einem anderen ERP verbinden?">
+Ja, über dieselben Wege: Webhooks melden Änderungen an das ERP, die REST-API nimmt Daten von dort entgegen, meist mit n8n oder einer anderen Middleware dazwischen. Einen fertigen SAP-Konnektor liefert Customermates nicht.
 </FaqItem>
 </Faq>
 
-## Starten Sie heute mit CRM-Integrationen
-
-Verbinden Sie Tools über einen dokumentierten Webhook, REST-Aufruf oder unterstützten externen MCP-Client. Für visuelle Workflows öffnen Sie eine separate n8n-Instanz, konfigurieren dort den Datenfluss und verbinden sie über Community-Node oder offene Schnittstellen. Registrieren Sie sich und beginnen Sie mit den CRM-Funktionen Ihres Tarifs.
+Angaben zu Drittanbietern geprüft am 8. Oktober 2026 auf den Seiten [n8n-Preise](https://n8n.io/pricing/), [n8n-Repository](https://github.com/n8n-io/n8n), [Make-Preise](https://www.make.com/en/pricing), [Zapier-Preise](https://zapier.com/pricing), [Slack Incoming Webhooks](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) und [MCP-Einführung](https://modelcontextprotocol.io/docs/getting-started/intro).

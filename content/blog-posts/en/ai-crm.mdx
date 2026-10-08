@@ -1,154 +1,201 @@
 ---
-title: "AI in CRM: Features, Vendors and Practical Setup"
-description: "How AI in CRM works, where it actually saves time, and what to look for in 2026. Includes vendor comparison and a practical setup using MCP and Claude."
+title: "AI CRM: What It Is and How to Choose One"
+description: "An AI CRM lets a language model read, update and draft from your customer records. What AI-native means, how vendors bill AI, and eight questions to ask."
 
 hero:
-  title: "Artificial Intelligence in Customer Relationship Management"
-  description: AI in CRM stopped being hype the moment agents could read and write the database directly. Here is what changed and how to use it.
+  title: "AI CRM: What an AI-Native CRM Does and How to Judge One"
+  description: "What AI actually does inside a CRM, what separates an AI-native CRM from add-on AI, how the large vendors package and bill it, and eight questions that sort the products quickly."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-05-02
+  updated: 2026-10-08
   tags:
-    - AI in CRM
-    - AI Agents
+    - AI CRM
+    - AI-Native CRM
     - MCP
+
+relatedHrefs:
+  - /blog/agentic-crm
+  - /docs/mcp
+  - /features/unified-inbox
+  - /features/workflow-automation
 ---
 
-# Artificial Intelligence in Customer Relationship Management
+# AI CRM: What an AI-Native CRM Does and How to Judge One
 
-Artificial intelligence in customer relationship management is the practice of using machine learning, large language models, and AI agents to automate the data-entry, analysis, and follow-up work that lives inside a CRM. Done well, it removes the busywork that drains adoption and lets the system stay current without human typing.
+An AI CRM is a CRM in which a language model works with your customer data: it reads contacts, deals and conversations, answers questions about them, changes records and drafts the next message. Products differ less in whether they have AI than in what the AI may do. In some, it writes text in a side panel and a person still makes every change. In an AI-native CRM, the AI uses the same actions and permissions as a user, and it also works when nobody types a prompt: on a schedule, or when a record changes.
 
-This guide explains what AI in CRM means in 2026, where it actually saves time, what the leading vendors offer, and how to build a workflow where Claude or ChatGPT operates the CRM directly through [MCP (Model Context Protocol)](/features/api).
+Customermates, an AI-native CRM, publishes this guide and appears in its own labelled section below. Facts about other vendors come from their own pages, checked on 8 October 2026.
 
-## What is AI in CRM?
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Definition">A CRM where AI reads and changes records and conversations, instead of only summarising what is on screen.</SummaryItem>
+  <SummaryItem label="AI-native">The AI acts through the same operations and permissions as a person, and can run unattended with caps on runs and spending.</SummaryItem>
+  <SummaryItem label="How to judge">Ask what it changes without approval, whether it sees your email and chat threads, who pays for the model and whether your own AI client can connect.</SummaryItem>
+  <SummaryItem label="Customermates">Mate works inside Customermates Cloud and uses hosted AI credits. Claude, ChatGPT and other clients connect through MCP on every plan, self-hosted included.</SummaryItem>
+  <SummaryItem label="Limits">Customermates has no lead scoring, no data enrichment and no revenue forecasting.</SummaryItem>
+</ArticleSummary>
 
-AI in CRM covers four distinct capabilities, each addressing a different pain point:
+## What AI does in a CRM today
 
-- **Data capture and enrichment.** Reading emails, call transcripts, and meeting notes, then writing structured records to the CRM (contact created, deal stage advanced, note appended).
-- **Analysis and prediction.** Lead scoring, churn prediction, deal-win probability, next-best-action recommendations.
-- **Drafting and personalization.** Composing follow-up emails, LinkedIn messages, or proposal text that references prior interactions.
-- **Conversational interfaces.** Asking the CRM questions in natural language ("which deals slipped this week?") and getting answers without building a report.
+Most of what gets sold as AI in customer relationship management falls into seven jobs. The first five are language-model work and pay off in the first week, even with a few hundred records. The last two depend on data volume and on outside sources.
 
-The first capability is the one that breaks the adoption ceiling. The classic reason CRM rollouts fail is not missing features. It is reps not entering data. AI that reads the email and writes the record removes that step entirely.
+| Job | Example | What to check |
+|---|---|---|
+| Summarise | "What happened with Acme since June?" across notes, emails and LinkedIn messages | Does it read the conversations, or only the notes field? |
+| Draft | A reply in the thread, in the contact's language, that refers to the open deal | Does it save a draft, or can it also send? |
+| Update records | Move a deal to the next stage, add a note, link a new contact to its organization | Is every change logged, and does it respect user roles? |
+| Answer questions over data | "Which open proposals have the highest value and no message from us in two weeks?" | Does it compute over all records, or guess from the first page of results? |
+| Run unattended | A daily pass over open deals, or a reaction when a deal is won | Are there caps on runs and spending, and what may it do while nobody watches? |
+| Score | A likelihood-to-close number per lead or deal, or an expected revenue figure | Which history does the model learn from, and is there enough of it? |
+| Fill in data | Company size or job titles taken from outside sources | Which data provider supplies it, and on what legal basis? |
 
-## How AI in CRM works under the hood
+A scoring model learns from your won and lost deals. A consultancy that closes 30 deals a year gives it very little to learn from, so for small teams the first five jobs save the most time.
 
-Three architectures dominate in 2026:
+## AI-native, add-on AI and smart CRM: what the labels mean
 
-**Embedded AI features.** The vendor builds AI into the product. Salesforce Einstein, HubSpot ChatSpot, Pipedrive's AI Sales Assistant, Zoho Zia. You stay inside the CRM UI and the AI surfaces inside it (sidebars, suggestions, summary panels). Convenient, but the AI's capabilities are bounded by what the vendor exposed.
+Vendors use these labels loosely. Here is what each one usually means, and the question that tells them apart.
 
-**Workflow automation with AI nodes.** Tools like n8n, Zapier, or Make let you build flows that call OpenAI or Anthropic APIs and write back to the CRM via webhooks or REST. More flexible than embedded AI, but you build and maintain the flows yourself.
+| Label | What it usually means | The question that exposes it |
+|---|---|---|
+| CRM with AI features | An assistant panel that summarises records and writes text; a person still makes each change | "Can it change the record itself?" |
+| Smart CRM | An older marketing term for a CRM with automation and scoring. HubSpot also uses Smart CRM as the name of its CRM | "Which of these features are AI, and which are rules someone configured?" |
+| AI-native CRM | The AI operates the CRM through the same actions and permissions as a user, inside the app and from outside AI clients, including unattended runs | "Which actions need my approval, and which run straight away?" |
+| Agentic CRM | AI agents finish multi-step tasks on their own. The term overlaps with AI-native | "What can an agent do while nobody is watching?" |
 
-**Native agent integration via MCP.** The CRM exposes its operations as Model Context Protocol tools. Any MCP-compatible agent (Claude Desktop, Codex, custom OpenAI agent) can read and write the CRM directly with no glue code. The agent decides which tools to call based on the conversation. This is the newest pattern and the one with the highest ceiling, because the agent is not bounded by a pre-built workflow.
+A quick test for "AI-native": list what a person can do in the CRM, then check how much of it the AI can do through a tool. If the AI can only read, or only writes text that you paste somewhere, it is an add-on. The [agentic CRM guide](/blog/agentic-crm) goes deeper into agent actions and the approvals around them.
 
-The third pattern is what makes "the CRM updates itself" a real claim instead of marketing. The agent is the worker, the CRM is the system of record.
+## Eight questions that sort AI CRMs quickly
 
-## Where AI in CRM actually saves time
+Ask these in a demo or look them up in the documentation. The third column shows how Customermates answers, so you can see what a concrete answer looks like.
 
-Three workflows show up in almost every customer who genuinely uses AI in their CRM:
+| Question | A good answer | Customermates |
+|---|---|---|
+| 1. Can the AI change records, or only suggest? | It updates records, notes and links itself and reports what changed | Yes. Mate changes records directly and reports each change |
+| 2. What does it do without asking? | A written list of the actions that need approval | Deletions, renaming record types, team invitations, webhook resends and support requests ask every time. Sending messages does not, so ask for a draft when you want to review first |
+| 3. Does it see the conversations? | Email and chat threads sit next to the deal they belong to | On Pro and higher, the [unified inbox](/features/unified-inbox) holds email, LinkedIn, WhatsApp, Instagram and Telegram threads. Starter has no inbox |
+| 4. Can it run without you? | Schedules and record events, with caps on runs and spending | Routines run a saved instruction on a schedule or when a record changes, capped per run and per hour |
+| 5. Can your own AI client connect? | An MCP server or a complete API, under the user's permissions | An MCP server with [[derived.mcp.tools.total]] tools, on every plan and self-hosted |
+| 6. Who pays for the model? | A unit you can check in advance: credits, an add-on or your own AI provider | Mate uses monthly hosted AI credits per active user, see [pricing](/pricing). With an MCP client, the model runs at your own AI provider |
+| 7. Where does the data go, and can you take it out? | Named model providers and subprocessors, a data processing agreement, a documented export | Primary database configured in the AWS Frankfurt region; the [subprocessors](/subprocessors) page names Google Cloud Vertex AI and Microsoft Azure as the providers behind Mate's models. Export as XLSX, one record type at a time |
+| 8. Does it score deals? | If you need scores, ask which data the model learns from | No. Weighted pipeline values come from the stage probabilities you set |
 
-**1. Email-to-CRM logging.** An email lands in the inbox. An agent reads it, identifies the contact and deal, and updates the CRM: deal stage, last-contacted date, a one-line summary appended to the contact note. The rep never opens the CRM to log the email. This single workflow is responsible for most of the perceived "the CRM is current now" effect.
+MCP, the [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), is an open-source standard for connecting AI applications such as Claude or ChatGPT to external systems. With an MCP server, the AI client you already pay for works in the CRM directly.
 
-**2. Meeting and call summaries.** A transcription tool ([Fireflies.ai](https://fireflies.ai), Granola, Otter, or a self-hosted Whisper pipeline) produces a transcript. An agent reads it, writes a structured summary to the deal, creates follow-up tasks, and drafts the next email. The rep reviews the draft and sends.
+### A ten-minute trial test
 
-**3. Outbound research and drafting.** Given a list of new leads, an agent enriches each contact (LinkedIn role, company stage, recent posts), drafts a personalized first message, and either sends or queues for human approval. Volume goes up, quality stays consistent.
+Run the same test in every trial, with your own data instead of demo records. The Customermates trial runs [[commercial.trial.days]] days with Pro features, so the inbox is part of it.
 
-Pattern across all three: the agent does the typing. The human reviews and decides. The CRM stays current as a side effect.
+<Steps>
+  <Step title="Load a few real records">Import 20 contacts and five open deals. In Customermates, import runs from an XLSX workbook, one record type at a time.</Step>
+  <Step title="Give one compound instruction">Paste a real client email and write: "Find the deal for this client, move it to the next stage, add the three main points of this email to the deal's notes and save a reply as a draft. Do not send it."</Step>
+  <Step title="Check what actually changed">Open the deal and look at the stage, the notes, the activity history and the draft. Count what the AI did, not what it said it did.</Step>
+  <Step title="Ask a question that needs arithmetic">"Which open deals have the highest value and no message from us in 14 days?" A good answer covers every open deal, not the first page of a list.</Step>
+  <Step title="Try a deletion">Ask it to delete a test contact and see whether it stops for your approval.</Step>
+</Steps>
 
-## Leading AI-in-CRM vendors in 2026
+## How the large CRM vendors package AI
 
-| Vendor                                 | AI approach                                                                                                                                                            | Pricing model                                                                                                              | Best for                                |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| **Salesforce Einstein**                | Embedded across Sales / Service Cloud, generative AI in Slack                                                                                                          | Add-on per user/month on top of Salesforce                                                                                 | Large enterprises already on Salesforce |
-| **HubSpot ChatSpot / Breeze**          | Embedded conversational AI, content generation, prospecting agent                                                                                                      | Included with paid HubSpot tiers                                                                                           | Marketing-led mid-market                |
-| **Pipedrive AI Sales Assistant**       | Suggests next actions, summarizes deals                                                                                                                                | Included                                                                                                                   | Sales-first SMBs                        |
-| **Zoho Zia**                           | Lead scoring, anomaly detection, voice assistant                                                                                                                       | Included on higher Zoho tiers                                                                                              | Zoho ecosystem users                    |
-| **Microsoft Copilot for Dynamics 365** | Embedded across Sales, Service, Marketing                                                                                                                              | $20-$30/user/month add-on                                                                                                  | Microsoft-stack companies               |
-| **Folk AI**                            | Drafting and enrichment assistants                                                                                                                                     | Credits on Standard / Premium                                                                                              | LinkedIn-first solo / small teams       |
-| **Customermates**                      | Native MCP server (agents operate the CRM) plus a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) the same agents can read, draft, and send from | From [[commercial.price.starter.monthly]]/user/month (Starter); unified inbox on Pro from [[commercial.price.pro.monthly]] | Teams already using Claude / ChatGPT    |
+If your team already works in one of these CRMs, switching on its AI is usually cheaper than migrating. The table names each vendor's AI and how it is billed, as described on the vendor's own pages.
 
-The split that matters: vendors with embedded AI keep you in their UI; agent-native CRMs let your AI tools operate the CRM from outside, which is the model you want if you already use Claude, ChatGPT, or Codex daily. Customermates pairs that with a native unified inbox, so the same agent that updates a deal can also read and draft the email, LinkedIn, or WhatsApp reply that moved it.
+| Vendor | AI | What the vendor describes | How it is billed | Fits teams that |
+|---|---|---|---|---|
+| [Salesforce](https://www.salesforce.com/agentforce/pricing/) | Agentforce, Einstein | Agentforce agents for employees and for customer-facing work | Flex Credits per agent action, a price per conversation for customer-facing agents, or per-user add-ons for Sales, Service and Field Service with unmetered use by employees | already run Salesforce and have an admin |
+| [HubSpot](https://www.hubspot.com/products/crm/ai-crm) | Breeze Assistant and Breeze agents | Customer, Prospecting and Data agents; MCP connectors and a connector for Claude | [HubSpot Credits](https://www.hubspot.com/products/artificial-intelligence/credits): seat-based plans include credits each month, and unused ones expire | want marketing, sales and service on one platform |
+| [Pipedrive](https://support.pipedrive.com/en/article/pipedrive-ai) | Pipedrive AI | A Sales Assistant in beta that answers questions about your data and creates notes; AI email writing, summaries and suggested replies | Tied to the plan; the AI email features need Premium or higher | run a pipeline-first sales process |
+| [Zoho CRM](https://www.zoho.com/crm/zia.html) | Zia | Predictions including lead scoring and churn, AI forecasting, anomaly detection, data enrichment and AI agents | Depends on the Zoho CRM edition | already use other Zoho apps |
+| [Microsoft Dynamics 365 Sales](https://learn.microsoft.com/en-us/dynamics365/sales/copilot-overview) | Copilot, and the Sales agent in Microsoft 365 Copilot | Record summaries, meeting preparation, email help and account news | Set out in Microsoft's Dynamics 365 licensing guide | spend their day in Microsoft 365 |
+| [Attio](https://attio.com/pricing) | Ask Attio, AI agents | Ask Attio, AI agents, call intelligence and an MCP server on every plan | Seat and workspace credits that grow with the plan | want a flexible data model they shape themselves |
 
-## A practical AI-in-CRM setup with Claude and MCP
+Microsoft says the Sales agent in Microsoft 365 Copilot will become the preferred way to use Copilot in Dynamics 365 Sales. If you plan to connect Claude or ChatGPT to an existing HubSpot account, the [HubSpot MCP guide](/blog/hubspot-mcp) covers what that connection can read and write.
 
-Here is a setup that takes about ten minutes and replaces "rep enters data into CRM" with "AI agent enters data into CRM."
+## Customermates as an AI-native CRM
 
-**Step 1.** Pick a CRM with a real MCP server. Customermates ships one with [[[derived.mcp.tools.total]] tools covering every CRM operation](/features/api) (create contacts, update deals, link entities, configure custom columns). Salesforce and HubSpot now offer their own MCP servers with their own scope and setup (see the [Salesforce MCP](/blog/salesforce-mcp) and [HubSpot MCP](/blog/hubspot-mcp) guides); coverage elsewhere varies.
+Customermates is an open-source CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. Contacts, organizations, deals, services and tasks live in one workspace; on Pro and higher, the email, LinkedIn and WhatsApp conversations about them sit alongside. AI reaches that data in two ways, and self-hosting changes which of them you get.
 
-**Step 2.** Add the MCP server to Claude Desktop or your agent of choice. For Customermates the config is:
+| | Mate | Your own AI client through MCP | Self-hosted |
+|---|---|---|---|
+| Where it runs | Customermates Cloud, every plan | Customermates Cloud on every plan, and self-hosted | Your server, with the AGPL core |
+| Who pays for the model | Monthly hosted AI credits per active user | Your own AI subscription or provider; clients include Claude, ChatGPT, Cursor, Codex and Gemini CLI | Your own AI provider, through MCP |
+| Inbox | Pro and higher | Messaging tools on Pro and higher, cloud only | No inbox |
+| Unattended runs | Routines | Only if your client schedules them | No Mate and no routines |
 
-```json
-{
-  "mcpServers": {
-    "customermates": {
-      "type": "http",
-      "url": "https://customermates.com/api/v1/mcp",
-      "headers": { "x-api-key": "YOUR_API_KEY" }
-    }
-  }
-}
+Mate is the assistant inside Customermates Cloud. It reads your workspace Knowledge Base, where you keep company facts, processes and tone of voice, and cites the pages it used. For questions that need arithmetic across many records, such as the median deal value per lead source, it runs a read-only analysis over the matching records instead of reading one page of results.
+
+Your own AI client connects to the [MCP server](/docs/mcp): Claude and ChatGPT through a custom connector with OAuth sign-in, Claude Code, Codex, Cursor and Gemini CLI with an API key. The server asks clients to confirm before deleting or sending, but whether you see a confirmation depends on the client.
+
+### A worked setup for a five-person consultancy
+
+- **Deal stages:** Lead (10%), Qualified (30%), Proposal sent (60%), Won (100%), Lost (0%). The percentages are stage probabilities and drive the weighted pipeline.
+- **Custom field on deals:** Source, a single-select field with Referral, LinkedIn, Website and Event.
+- **Saved view:** "My open proposals", filtered to the stage Proposal sent and to deals assigned to me, sorted by value. Saved views are personal, so each consultant saves their own.
+- **Inbox:** each consultant connects [[commercial.entitlement.pro.includedAccountsPerUser]] account on Pro, usually the work email or LinkedIn.
+
+Each consultant then adds two [routines](/docs/app-routines). Both run in Customermates Cloud and use hosted AI credits.
+
+The first, "Proposal follow-ups", runs **On a schedule**, **Every day** at 09:00:
+
+```text
+Look at the open deals assigned to me in the stage "Proposal sent".
+For each deal, read the latest conversation with its contacts.
+If our message was the last one and is more than five days old,
+save a short follow-up as a draft in that thread, in the language
+of the conversation. Do not send anything.
+End with a list of the drafts you saved.
 ```
 
-**Step 3.** Send the agent the email, transcript, or context. Tell it to update the CRM. The agent picks the right tools (`list_records` to find the deal, `update_deals` to advance the stage, `update_record_notes` to add a summary) and executes.
+The second, "Won handover", runs **When something changes**, on the event Deal Updated, with **Changed fields** set to the stage:
 
-**Step 4.** Review and audit. The same agent can read back changes for verification. Webhook events fire on record changes, so a separately run n8n flow or your own endpoint can show what changed.
+```text
+If this deal is now in the stage "Won", create a task
+"Kick-off: [deal name]", link it to the deal and assign it to the
+deal's assigned users. Then add a five-line summary of the latest
+conversation to the deal's notes. If the stage is anything else,
+do nothing.
+```
 
-That is the entire loop. No vendor lock-in to a specific AI add-on, no SaaS-side feature gate. The intelligence lives in your agent; the CRM is the system of record.
+A routine runs as its owner, with the owner's channels and permissions. An unattended run refuses everything that would need approval, and changes made by a routine never trigger another routine. Mate sends messages when asked to, which is why the first instruction says "Do not send anything".
 
-## What to look for when choosing an AI-in-CRM tool
+**What it costs:** on Pro, this team pays [[commercial.price.pro.monthly.seats.5]] per month for the inbox, [[commercial.entitlement.pro.includedAccountsPerUser]] connected account and up to [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per person, with monthly hosted AI credits per active user for Mate and the routines (see [pricing](/pricing)). Starter costs the same team [[commercial.price.starter.monthly.seats.5]] per month and includes Mate, MCP and [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per person, but no inbox, so the follow-up routine would have no threads to read. Billing is monthly.
 
-Six questions cut through the marketing:
+### What Customermates does not do
 
-1. **Does the AI write to the CRM, or just suggest?** Suggestions still require a human to type. Writing is the actual win.
-2. **Is the AI a paid add-on or included?** Add-ons (Einstein, Copilot for Dynamics) often double the per-user cost.
-3. **Can my own AI tools operate the CRM?** MCP, an open API, and webhooks tell you yes. A closed AI sidebar tells you no.
-4. **What does the data exit look like?** If the AI vendor is the same as the CRM vendor, you cannot leave easily. Open formats and self-hosting (Customermates, [SuiteCRM](https://suitecrm.com)) give you an exit.
-5. **GDPR and data residency.** Where the data lives matters when CRM data includes EU contacts. In the Customermates cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. The AGPL-licensed core can also be self-hosted. For Salesforce and HubSpot, check which data-center options your plan includes.
-6. **Pricing math at your team size.** A 5-person team on Pipedrive + AI add-on is roughly $90-$150/month. The same team on Customermates Starter is [[commercial.price.starter.monthly.seats.5]]/month with the agent integration included at every tier.
+- No lead scoring, no data enrichment and no revenue forecasting. Weighted pipeline values come from the stage probabilities you set.
+- No email sequences or bulk sending. Routines have no recipient lists or sequence steps, and Mate sends individual messages.
+- No calendar booking. Pro and higher read connected calendars without writing to them.
+- No native mobile app.
+- No inbox, Mate or routines when self-hosted. Self-hosting gives you the AGPL core with REST, webhooks and MCP.
 
-## Common objections, addressed honestly
-
-> _"AI hallucinations will corrupt my CRM data."_
-
-Fair concern. Mitigations: agents that operate the CRM should call read-back tools to verify writes, webhook listeners can flag unusual changes, and the audit log shows every operation. Customermates exposes [[derived.webhooks.events.total]] webhook events for exactly this reason. The risk is real but manageable.
-
-> _"This only works if I am already using Claude or ChatGPT."_
-
-True. The agent angle assumes you have an agent. If you do not use AI tools daily, an embedded-AI CRM (HubSpot ChatSpot, Pipedrive Sales Assistant) gives you the in-product version without the setup. The agent angle pays off when AI is already in your daily workflow.
-
-> _"Won't the AI replace my sales reps?"_
-
-No. The AI replaces the data entry that reps avoid, not the conversations and judgment that reps actually do. Adoption goes up when reps stop typing into the CRM, not down.
-
-## Conclusion
-
-Artificial intelligence in customer relationship management has moved from "summarize this contact" features to agents that actually operate the CRM. The new pattern is simple: pick a CRM with a real MCP server or open API, point your existing Claude or ChatGPT at it, let the agent do the typing. The CRM stays current, adoption stops being a problem, and the team works in the tools they already use.
-
-If you want to try this end-to-end, [Customermates](/pricing) ships the MCP server, REST API, and webhooks in every tier from [[commercial.price.starter.monthly]] per user per month (plus a community node if you run n8n yourself), and adds a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) on Pro from [[commercial.price.pro.monthly]], so the agent that keeps the pipeline current can also handle the conversations that move it. The first [[commercial.trial.days]] days are free on Pro, no credit card. The same agent architecture works on [Salesforce](https://www.salesforce.com/eu/crm/ai-crm/), [HubSpot](https://www.hubspot.com/products/crm/ai-crm), and [Microsoft Dynamics](https://learn.microsoft.com/en-us/dynamics365/copilot/ai-get-started) if you are already on those platforms; the integration story is just less direct.
+If predictive scoring for a large sales team is why you want AI, Customermates is not the fit: look at Zoho CRM with Zia or at Salesforce, whose own pages describe predictive features.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is AI in CRM?">
-AI in CRM is the use of machine learning, large language models, and AI agents to automate the data entry, analysis, drafting, and follow-up work that lives inside a CRM. The most valuable application is removing the rep typing step entirely: an agent reads the email or call transcript and writes the structured record back to the CRM.
+<FaqItem question="What is an AI CRM?">
+A customer relationship management system in which an AI model reads and acts on your customer data: it summarises relationships, answers questions over records, updates deals and drafts messages. In an AI-native CRM, the AI also uses the same actions and permissions as a person and can run on a schedule.
 </FaqItem>
 
-<FaqItem question="How does AI improve customer relationship management?">
-Three concrete ways: (1) data freshness goes up because the AI logs interactions instead of waiting for a human, (2) follow-ups get drafted faster and more consistently, (3) reps spend their time on conversations and judgment instead of typing. The classic adoption ceiling on CRM rollouts is reps not entering data, and AI agents that can write to the CRM remove that friction.
+<FaqItem question="Is a smart CRM the same as an AI CRM?">
+Mostly a difference in wording. Smart CRM is the older term, and HubSpot also uses it as the name of its CRM product. Judge any product, whatever it calls itself, by what the AI may change, what it asks first and who pays for the model.
 </FaqItem>
 
-<FaqItem question="What is the best AI CRM in 2026?">
-Depends on your stack. For Microsoft enterprises, Dynamics 365 with Copilot for Sales is natural. For marketing-led teams, HubSpot with Breeze. For sales-first SMBs, Pipedrive's AI Sales Assistant. For teams already using Claude or ChatGPT daily who want the agent to operate the CRM directly, [Customermates](/pricing) from [[commercial.price.starter.monthly]] per user per month with a native MCP server, REST API, and [[derived.webhooks.events.total]] webhook events is a low-cost agent-native option.
+<FaqItem question="Which AI CRM is the best?">
+There is no single answer, and Customermates, which publishes this guide, does not rank itself. If you already run Salesforce, HubSpot, Zoho CRM or Dynamics 365, start with your vendor's AI. If your team works through email, LinkedIn and WhatsApp and wants AI to keep the CRM current from those conversations, a CRM with a unified inbox and an MCP server, such as Customermates, is worth a trial. Run the ten-minute test in each one.
 </FaqItem>
 
-<FaqItem question="Is AI in CRM safe for my data?">
-It can be, with the right setup. Risks: hallucinated edits, prompt injection, leaking data to a third-party AI vendor. Mitigations: choose a CRM with audit logs and webhook events on every write, prefer agents that call read-back tools to verify their changes, host the CRM in a region that matches your data sovereignty needs (EU for GDPR contacts). Open-source self-hosting (Customermates, [SuiteCRM](https://suitecrm.com)) removes the vendor-side data exposure entirely.
+<FaqItem question="Can ChatGPT make a CRM?">
+ChatGPT or Claude can generate the code for a simple contact database, but then you own its hosting, permissions, backups and every fix. The more common route is to connect the AI client to an existing CRM through MCP, so it reads and updates real records under your permissions. Customermates offers this on every plan; the guide to [using Claude with a CRM](/blog/claude-crm) shows the setup.
 </FaqItem>
 
-<FaqItem question="Can ChatGPT or Claude operate my CRM directly?">
-Yes if the CRM exposes a Model Context Protocol (MCP) server or a complete REST API. Customermates ships an MCP server with [[derived.mcp.tools.total]] tools that map to every CRM operation, so Claude Desktop, Codex, or any MCP-compatible agent can read and write the CRM with one JSON config block. Salesforce and HubSpot now offer their own MCP servers with their own scope. For other CRMs you can build the integration through their REST API plus an n8n or Zapier flow.
+<FaqItem question="Will AI replace the CRM?">
+Not the record itself. An AI model needs a place that stores who the client is, what was agreed and which deal is at which stage, with permissions around that data. What AI replaces is much of the typing: logging conversations, moving stages and writing first drafts. The CRM becomes the system the AI reads from and writes to.
+</FaqItem>
+
+<FaqItem question="Is AI in a CRM safe for customer data under GDPR?">
+That depends on where the model runs and who processes the data, so ask every vendor for its subprocessor list and a data processing agreement. In Customermates Cloud, the primary database is configured in the AWS Frankfurt region. The subprocessors page names Google Cloud Vertex AI and Microsoft Azure as the providers behind Mate's models, and the privacy policy explains that using Mate can involve processing in the United States. With your own AI client through MCP, the data the client reads goes to the AI provider you chose. Self-hosting the open-source core keeps the CRM data on your own servers.
 </FaqItem>
 </Faq>
+
+Vendor details checked on 8 October 2026 against [Salesforce Agentforce pricing](https://www.salesforce.com/agentforce/pricing/), [HubSpot's AI CRM page](https://www.hubspot.com/products/crm/ai-crm), [HubSpot Credits](https://www.hubspot.com/products/artificial-intelligence/credits), [Pipedrive AI](https://support.pipedrive.com/en/article/pipedrive-ai), [Zoho CRM Zia](https://www.zoho.com/crm/zia.html), [Copilot in Dynamics 365 Sales](https://learn.microsoft.com/en-us/dynamics365/sales/copilot-overview) and [Attio pricing](https://attio.com/pricing).

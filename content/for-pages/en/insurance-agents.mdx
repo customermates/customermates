@@ -1,17 +1,17 @@
 ---
-title: "CRM for Insurance Agents: Leads & Follow-Ups"
-description: "Manage insurance prospects, client relationships, referral partners, and renewal follow-up. Complements an AMS; it does not administer policies or claims."
+title: "CRM for Insurance Agents: Leads, Renewals, Inbox"
+description: "A sales CRM for insurance agents and brokers beside the AMS: prospects, renewal reviews, referral partners and client email or WhatsApp in one place."
 industryName: "Insurance Agents"
 
 relatedHrefs:
-  - /for/insurance-companies
   - /for/financial-advisors
-  - /for/mortgage-brokers
-  - /for/accountants
+  - /features/unified-inbox
+  - /features/follow-up
+  - /for/real-estate
 
 hero:
-  title: "The Relationship CRM Beside Your Agency System"
-  description: "Organize prospects, conversations, referral sources, and renewal opportunities without pretending a general CRM is an agency-management system."
+  title: "A CRM for Insurance Agents That Sits Beside Your Agency System"
+  description: "Track prospects, renewal conversations and referral partners, and from Pro read client email and WhatsApp next to the record. Policies, carrier downloads, claims and commissions stay in your agency management system."
   buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the demo
@@ -19,8 +19,8 @@ hero:
   hint: "No credit card required • [[commercial.trial.days]]-day Pro trial"
 
 cta:
-  action: Map your sales and follow-up workflow
-  description: Test prospect stages, partner records, and next actions while your AMS remains the authority for policies, claims, documents, and commissions.
+  action: Map your sales and renewal follow-up
+  description: Import your prospect list from Excel, set up your stages and save the renewal view you check every Monday, while your AMS stays the record for policies, claims and commissions.
   buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the demo
@@ -28,124 +28,163 @@ cta:
   hint: "Start with relationship context, not a copy of the policy system."
 ---
 
-A **CRM for insurance agents** organizes the people, conversations, opportunities, and next actions around an agency. An agency-management system owns the operational insurance record. Customermates is designed for the CRM side of that boundary, not as a substitute for policy or claims software.
+Customermates fits an insurance agency that already has an agency management system (AMS) and wants a separate place for selling: new prospects, renewal reviews, cross-sell conversations and the people who refer business. It is an open-source, AI-native CRM built in Germany. It does not manage policies, download carrier data, rate quotes or reconcile commissions. If you want one system that does all of that, you need an AMS or an insurance suite, and the table further down names some.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Best for">
-    Agencies that want a configurable relationship and opportunity pipeline
-    beside an existing AMS or carrier workflow.
+  <SummaryItem label="Fits">
+    Independent agents, small agencies and brokers who sell more than they
+    service in the CRM, and keep policy service in the AMS.
   </SummaryItem>
-  <SummaryItem label="Core job">
-    Connect prospects, client contacts, referral partners, sales opportunities,
-    and manual follow-up.
+  <SummaryItem label="Setup">
+    Prospects and clients as contacts, businesses and referral partners as
+    organizations, each sale or renewal review as a deal with line of
+    business, carrier and renewal date fields.
   </SummaryItem>
-  <SummaryItem label="Feature scope">
-    Organizations, contacts, custom deal stages, custom fields, filtered table
-    and Kanban views, and linked tasks.
+  <SummaryItem label="AI">
+    In Customermates Cloud, Mate summarizes a client's history and prepares
+    renewal drafts, using hosted AI credits. Or connect your own AI client
+    through MCP.
   </SummaryItem>
-  <SummaryItem label="System boundary">
-    No policy administration, carrier download, claims processing, commission
-    accounting, insurance quoting, or compliance archive.
+  <SummaryItem label="Not included">
+    Policy administration, carrier downloads, comparative rating, claims,
+    commission accounting and compliance archives.
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Relationship CRM capabilities for insurance agencies">
-  <ProofItem label="Prospects">Contacts and organizations</ProofItem>
-  <ProofItem label="Sales">Configurable deal pipeline</ProofItem>
-  <ProofItem label="Context">Carrier and source references</ProofItem>
-  <ProofItem label="Follow-up">Record-linked tasks</ProofItem>
-  <ProofItem label="Extensions">REST, webhooks and MCP</ProofItem>
-</ProofRail>
+## CRM or AMS: what an agency actually needs
 
-## CRM or AMS: which does an insurance agency need?
+EZLynx, which sells an AMS, [puts the split in one line](https://www.ezlynx.com/blog/posts/insurance-crm-vs-insurance-agency-management-system-whats-the-difference/): agencies choose a CRM "when they sell more than they service, and an AMS when they service more than they sell." The AMS is the source of truth for active policies, claims history and carrier data. A CRM tracks who you are talking to, what you offered and what happens next.
 
-An agency-management system typically maintains policies, carrier downloads, documents, claims activity, commissions, and accounting. A CRM focuses on prospective business, client relationships, referral sources, conversations, and sales follow-up. Some insurance suites combine both categories, but the capabilities should still be evaluated separately.
+Many products sold as insurance CRMs are really both. AgencyBloc describes its agency management system as built for health, life and group benefits agencies, with commission reconciliation. HawkSoft lists carrier downloads, accounting and a rater. If you have no AMS yet, start there. If you have one and your sales follow-up still lives in a notebook or a spreadsheet, a CRM beside it makes sense.
 
-Customermates is a general CRM. It does not replace an AMS, policy-administration system, carrier portal, claims platform, rating engine, or commission ledger.
+What insurance selling asks of that CRM:
 
-| Insurance-agency need | Customermates | AMS or specialist system |
-| --- | --- | --- |
-| Prospect and relationship context | Contacts, organizations, relations, notes, and activity | Authoritative insured and policy file |
-| Sales opportunity | Deals, custom stages, filters, and kanban | Quote generation and carrier submission |
-| Renewal conversation | Reference fields, filtered views, and tasks | Policy term, carrier data, and renewal processing |
-| Claims relationship follow-up | Contact context and a manual next action | FNOL, claim file, adjustment, and settlement |
-| Integration | REST, webhooks, MCP, and separate n8n option | Carrier, comparative rater, document, and accounting interfaces |
+- **Renewal dates set the rhythm.** A renewal review only helps if it happens weeks before the renewal date, while there is still time to remarket. You need a list sorted by that date.
+- **Households and businesses.** A personal-lines client is one person; a commercial client is a company with an owner, an office manager and a bookkeeper.
+- **Referral partners matter.** Mortgage brokers, real estate agents and accountants send business, and they go quiet if nobody follows up.
+- **Quotes happen elsewhere.** The rater or carrier portal produces the quote. The CRM only needs to know that a quote went out, for what, and when to chase it.
+- **Clients write on WhatsApp.** Many clients send a photo of a letter or a quick question on WhatsApp rather than email.
 
-<AcquisitionCallout title="A policy is not a CRM deal" variant="boundary">
-  A deal can represent the commercial conversation around new business or a
-  renewal. It should not become the authoritative policy, claim, coverage,
-  premium, commission, or regulated advice record.
+## An insurance setup in Customermates
+
+Customermates has five record types. One way to map them for an agency; every field name below is an example you create yourself.
+
+| Record type | Used for | Example custom fields |
+|---|---|---|
+| Contacts | Prospects, clients and people at business clients | Client status (single select: Prospect, Client, Former client), Lead source, AMS client ID |
+| Organizations | Business clients and referral partners | Type (single select: Business client, Referral partner), Partner category (Mortgage, Real estate, Accounting) |
+| Deals | Each new-business opportunity, cross-sell or renewal review | Stage, Line of business (Auto, Home, Life, Health, Commercial), Carrier, Renewal date (Date), Estimated premium (Currency), Quote reference |
+| Services | Lines of business you sell | Optional; only linked services (price times quantity) make up the deal value |
+| Tasks | Next steps assigned to someone | A "Due on" date field, because tasks have no built-in due date |
+
+A contact can link to several deals, so one client can have an auto renewal and a life opportunity open at the same time. Keep the policy number as a reference field if your data policy allows it, and treat the AMS as the record of the policy itself.
+
+### Stages and weighted values
+
+The stage is a single-select field you define, and each option gets a win probability in **My Company › Settings**. A starting point: New lead 10%, Needs analysis 25%, Quote sent 50%, Decision pending 75%, Bound 100%, Lost 0%. For renewal reviews, a second single-select field, Renewal status, with Review due, Contacted, Remarketed, Renewed and Moved, gives you its own board when you group by it. The weighted pipeline is deal value times stage probability. The deal value comes from linked services; a custom Estimated premium field is not part of the calculation. It is arithmetic from your own numbers, not a forecast, and it is not commission.
+
+### Saved views for the week
+
+1. **Renewals coming up:** deals with a Renewal date on or after today's date, sorted ascending. Custom date fields filter with fixed dates (before, after, between), not "next 60 days", so update the date when you open the view or let a routine do the counting.
+2. **Quotes waiting:** deals in Quote sent, sorted by last update, oldest first.
+3. **Stalled:** deals not updated for more than 14 days, using the **Older than…** filter on the updated date.
+4. **Quiet referral partners:** organizations of type Referral partner, sorted by last update.
+
+Saved views are personal, so each colleague sets the same filters and saves their own view.
+
+### Client email and WhatsApp in one inbox (Pro and above)
+
+On Pro, Business and Enterprise in Customermates Cloud, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook or IMAP email together with WhatsApp, LinkedIn, Instagram and Telegram. You reply on the original channel, and a conversation linked to a contact shows on that contact's timeline. Conversations attach to contacts, not to deals or policies.
+
+Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user. An agent who wants a mailbox and WhatsApp in the inbox needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]]. Conversations from your own accounts stay private until you share a thread, or share the whole account on Business and above.
+
+### A renewal routine with Mate (Customermates Cloud)
+
+Mate is the assistant in Customermates Cloud and uses hosted AI credits. Before a review call, ask it to summarize a client's deals, notes and recent messages. For the weekly prep, create a [routine](/docs/app-routines): choose **Every week** under **Repeats**, Monday at 07:30, with instructions like these:
+
+```text
+Find deals whose Renewal date is between today and 45 days from today and
+whose Renewal status is Review due. For each one, read the latest inbox conversation
+with its contacts and save a short draft asking for a renewal review call.
+Do not send anything. Then list: client, line of business, carrier,
+renewal date, draft saved yes or no.
+```
+
+<AcquisitionCallout title="Ask for drafts, not sends" variant="boundary">
+  Mate and routines can send email and chat messages without asking first,
+  so tell a renewal routine to save drafts only. A routine runs as its owner,
+  with the owner's channels and credits, and each run has a credit cap. Mate
+  does not check coverage, compare tariffs or give advice.
 </AcquisitionCallout>
 
-## A supported insurance-sales workflow
+A second routine can react to an event instead: when a deal's stage changes to Bound, create a task "Enter in AMS" assigned to the same person. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
-Create a deal for a prospective relationship or renewal conversation. Connect it to the client contact, the relevant organization, and the introducer where useful. Configure stages around the commercial interaction rather than carrier processing.
+## Connecting quotes and the AMS
 
-<Steps>
-  <Step title="Create the prospect context">
-    Add the person or business and preserve the source of the relationship
-    without copying a complete policy or claims file into the CRM.
-  </Step>
-  <Step title="Configure the sales stages">
-    Use stages such as “Inquiry”, “Needs discussion”, “Quote prepared
-    externally”, “Customer decision”, “Won” or “Closed”.
-  </Step>
-  <Step title="Add bounded reference fields">
-    Store a product category, carrier reference, renewal month, referral source,
-    or external AMS identifier when the agency's data policy permits it.
-  </Step>
-  <Step title="Record the next action">
-    Attach a task to the relevant CRM record. The task has no due date,
-    recurrence, or automatic renewal schedule.
-  </Step>
-  <Step title="Continue insurance operations in the AMS">
-    Quoting, submission, binding, endorsements, claims, documents, and
-    commissions stay in the system that owns those records.
-  </Step>
-</Steps>
+There is no native connector to carriers, raters or any AMS. Three ways to keep the CRM current:
 
-## Renewal follow-up without a renewal engine
+- **Your own integration.** If your rater or AMS can call an API or send webhooks, a script or an [n8n workflow](/features/workflow-automation) you run separately can update the deal through the [REST API](/features/api): set the stage to Quote sent and write the quote reference and premium. Customermates sends webhooks for [[derived.webhooks.events.records]] record events, so a bound deal can trigger a step in the other direction.
+- **Excel round trips.** Export from the AMS, save as .xlsx and import one record type at a time. A column mapped to Record ID updates existing records instead of creating duplicates.
+- **An AI client.** Claude, ChatGPT or another client can create and update records through [MCP](/docs/mcp) on every plan, with model use billed by your AI provider.
 
-A renewal month or external policy reference can help a user filter CRM opportunities and prepare a relationship review. A separately operated [n8n workflow](/features/workflow-automation) can create tasks from a date field. On the cloud, a Mate [routine](/docs/app-routines) can list opportunities with an upcoming renewal month on a schedule and prepare conversation drafts for review; it uses AI credits and is not a reminder feature. Customermates does not calculate policy terms, start reminder sequences, send bulk renewal campaigns, or prevent a policy from lapsing.
+## What it does not do, and what to look at instead
 
-The same boundary applies to claims. A user can record that a relationship follow-up is needed, but Customermates does not accept first notice of loss, maintain the claim file, assign adjusters, calculate reserves, adjudicate coverage, or issue settlement communications.
+- No policy records, carrier downloads, comparative rating, e-signature, claims handling or commission reconciliation.
+- Tasks have no due dates, reminders or notifications. Use a date field and a saved view, or a routine.
+- No email sequences, renewal campaigns or bulk messaging. Follow-up is one conversation at a time.
+- No web forms, no telephony or SMS, no mobile app and no file storage on records.
+- No field-level permissions. A custom role with Assigned read access limits a producer to their own records. Keep health information and claim files out of the CRM.
 
-## Cross-sell context and commissions
+Customermates publishes this page. Vendor details, including the Less Annoying CRM price, were checked on 8 October 2026 on each vendor's own website.
 
-Custom fields may hold high-level product references selected by the agency. Filtered views can help a user inspect those records. Customermates does not infer coverage gaps, recommend products, score clients, or run cross-sell campaigns.
+| If you need | Look at | What the vendor's site lists |
+|---|---|---|
+| An AMS for life, health and benefits | [AgencyBloc](https://www.agencybloc.com/) | Clients, policies, tasks, commission statement reconciliation and compliance tracking for life and health agencies |
+| A P&C agency system with comparative rating | [EZLynx](https://www.ezlynx.com/) | Agency management system and a real-time comparative rater for home and auto |
+| An AMS with carrier downloads and accounting | [HawkSoft](https://www.hawksoft.com/) | Carrier downloads, accounting, rater, e-signature and lead management |
+| A simple contact and policy pipeline | [Less Annoying CRM](https://lessannoyingcrm.com/industry/insurance-agent) | Client and policy pipeline, forms, reminders; $15 per user per month |
 
-Commission rates, statements, reconciliation, clawbacks, and revenue forecasting belong in the AMS or accounting system. A custom currency field holding a commission amount does not replace commission accounting.
+## What it costs
 
-## Individual conversations, AI, and integrations
+Prices are per active user per month, billed monthly. Every plan includes REST, webhooks and MCP.
 
-The managed [unified inbox](/features/unified-inbox) is available from Pro upward. It brings supported individual email and messaging conversations into the CRM, where participants can be associated with contact context. It is not a bulk campaign or sequence tool. Conversations are linked to contacts, not to policies, claims or deals. Self-hosted deployments do not include the inbox.
+| Team | Plan | Per month |
+|---|---|---|
+| Solo agent, pipeline only | Starter | [[commercial.price.starter.monthly]] |
+| Solo agent, one mailbox in the inbox | Pro | [[commercial.price.pro.monthly]] |
+| Two agents, mailbox plus WhatsApp each | Business | [[commercial.price.business.monthly.seats.2]] |
+| Five-person agency, one mailbox each | Pro | [[commercial.price.pro.monthly.seats.5]] |
 
-An authorized external AI client can use supported [MCP](/docs/mcp) actions on CRM records. It does not quote insurance, determine coverage, analyze claims, calculate commissions, or replace a licensed professional's review.
+Each cloud plan adds monthly hosted AI credits per active user for Mate; the amounts are on the [pricing page](/pricing). The open-source core runs on your own server with no licence fee, but a [self-hosted installation](/features/self-hosted) has no inbox and no Mate. In Customermates Cloud the primary database is configured in the AWS Frankfurt region; hosting and other subprocessors, US providers among them, are on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available. Customermates holds no certification.
 
-Customer-built connections can use the [REST API and webhooks](/features/api), MCP, or the separate n8n integration. The customer owns carrier and vendor contracts, field mapping, permissions, validation, retries, and duplicate handling. There is no native carrier-download, comparative-rater, policy, or claims integration.
+## For insurers and MGAs managing brokers
 
-## Data and deployment boundaries
-
-Keep policy documents, coverage details, health information, claim files, commission statements, and regulated advice in systems approved for them. Permissions apply per resource and action, not per field; read access can be limited to records a user is assigned to. Customermates carries no insurance or GDPR compliance certification.
-
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments have the Starter feature set and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+The same setup works for a carrier or MGA distribution team: brokerages as organizations, their producers and principals as contacts, and each partner onboarding or joint opportunity as a deal. Appointments, production data and commission statements stay in the core systems. Customermates is not a policy, claims or underwriting platform.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="Does Customermates replace an agency-management system?">
-No. Customermates is a configurable relationship and sales CRM. Policies, carrier downloads, claims, documents, commissions, accounting, and regulated records remain in the AMS or other specialist systems.
+<FaqItem question="Does Customermates replace an agency management system?">
+No. It covers selling and relationships: prospects, renewal reviews, referral partners and client conversations. Policies, carrier downloads, quoting, claims, documents and commissions stay in your AMS.
 </FaqItem>
 
-<FaqItem question="Can Customermates administer policies, claims, or commissions?">
-No. A deal may represent the commercial conversation, and custom fields may hold bounded references, but Customermates does not perform policy administration, claims handling, or commission accounting.
+<FaqItem question="How can an agency connect quoting activity to CRM records?">
+The quote is produced in your rater or carrier portal. If that tool has an API or sends webhooks, a separately run n8n workflow or a short script can update the matching deal through the Customermates REST API, for example stage Quote sent plus quote reference and premium. Without an API, record the quote by hand or import an .xlsx export with a Record ID column.
 </FaqItem>
 
-<FaqItem question="Can an agency use Customermates for renewal follow-up?">
-Yes, as a configurable relationship opportunity with filtered reference fields and manual tasks. Recurring reminders and renewal sequences do not exist; date-driven tasks come from a separately operated workflow. On the cloud, a routine can build a list of upcoming renewals on a schedule.
+<FaqItem question="How much does a CRM for insurance agents cost?">
+Customermates costs [[commercial.price.starter.monthly]] per user per month on Starter and [[commercial.price.pro.monthly]] on Pro with the inbox, billed monthly. A two-agent office with a mailbox and WhatsApp each pays [[commercial.price.business.monthly.seats.2]] a month on Business. The self-hosted core has no licence fee and no inbox. An AMS is priced separately by its vendor.
 </FaqItem>
 
-<FaqItem question="Does Customermates connect directly to insurance carriers?">
-There is no native carrier or download connector. A customer may build a bounded integration when the carrier, AMS, or vendor exposes a suitable interface.
+<FaqItem question="What is the best free CRM for insurance agents?">
+Customermates has a [[commercial.trial.days]]-day trial, not a free cloud plan. HubSpot advertises a free tier on its [insurance CRM page](https://www.hubspot.com/products/crm/insurance). The open-source Customermates core is free to self-host, without the inbox and Mate. If you need policy tracking at no cost, a free general CRM will not give you that; an AMS will, at a price.
+</FaqItem>
+
+<FaqItem question="Can Customermates remind me of renewals?">
+Not with reminders or notifications. Put the renewal date on the deal, sort a saved view by it, and in Customermates Cloud let a weekly routine list upcoming renewals and save draft messages for you to review.
+</FaqItem>
+
+<FaqItem question="Will AI replace the CRM for insurance agents?">
+AI changes who types into the CRM. Mate or an MCP client can log a call, move a deal and draft a renewal message, but it needs renewal dates, stages and client history to work from, and those live in the CRM. Advice, suitability and coverage decisions stay with you.
 </FaqItem>
 </Faq>

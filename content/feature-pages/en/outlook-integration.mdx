@@ -1,17 +1,17 @@
 ---
-title: "Outlook CRM Integration: Email & Read-Only Calendar"
-description: "Outlook CRM integration with email in the unified inbox and a read-only calendar view. Use separate n8n workflows when needed. Cloud database in Frankfurt."
+title: "CRM Outlook Integration: Email, Folders and Calendar"
+description: "Connect Outlook to Customermates: email in the CRM inbox, folder moves that reach your mailbox, calendar events read-only. No add-in. Pro or higher."
 featureName: Outlook Integration
 
 relatedHrefs:
-  - /features/account-management
-  - /features/api
-  - /features/cloud-crm
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /blog/outlook-crm-integration
   - /features/contact-management
 
 hero:
-  title: Outlook Integration With a Unified Inbox and AI Drafting
-  description: Bring Outlook email into the CRM unified inbox, where a supported external AI client can draft individual replies through MCP. Connected calendar events appear read-only on CRM timelines; Customermates does not synchronize Outlook contacts or write calendar events. Included from Pro at [[commercial.price.pro.monthly]] per user per month.
+  title: Outlook email and calendar inside your CRM, without an add-in
+  description: Connect your Outlook account once and its email threads land in the Customermates inbox, linked to the contacts they belong to. Reply from the CRM or keep writing in Outlook. Calendar events are read-only. Available on Customermates Cloud from Pro at [[commercial.price.pro.monthly]] per user per month.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to connect Outlook?
-  description: Connect a supported Outlook account on Pro for unified-inbox email and read-only calendar data. Contact sync and calendar writes are not included.
+  action: Connect one Outlook account and check it with real mail
+  description: Start a trial, connect Outlook under My Profile › Channels, and see whether your own threads, folders and contacts line up the way your team works.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,131 +28,143 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## What Is CRM Outlook Integration?
+Customermates connects to Outlook on the server side: you sign in to your Outlook account once, and its email threads appear in the CRM's [unified inbox](/features/unified-inbox), matched to contacts by email address. You can answer from the CRM or keep writing in Outlook, because sent mail from Outlook reaches the same thread. Moving an email to a folder in Customermates moves it in your real mailbox too. Calendar events come in read-only. There is nothing to install in Outlook, and the integration needs Customermates Cloud on Pro or higher.
 
-CRM Outlook integration connects Microsoft Outlook with your customer relationship management system, creating a seamless bridge between your email inbox, calendar, and CRM data. It allows your team to manage customer relationships from within Outlook while ensuring that every communication is captured in the CRM for the entire team to access.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What connects">
+    Email from your Outlook account, both directions, plus its calendar events
+    as read-only entries. The channel card shows whether email, calendar or
+    both are connected.
+  </SummaryItem>
+  <SummaryItem label="Plan">
+    Customermates Cloud, Pro or higher. Pro includes
+    [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per
+    user, Business [[commercial.entitlement.business.includedAccountsPerUser]].
+    Starter and self-hosted installations have no inbox.
+  </SummaryItem>
+  <SummaryItem label="How it works">
+    No Outlook add-in or sidebar. Customermates reads and sends through the
+    connected account, so it works whichever Outlook app you write in.
+  </SummaryItem>
+  <SummaryItem label="Not included">
+    No sync of Outlook address-book contacts, no creating or booking calendar
+    events, no bulk email.
+  </SummaryItem>
+</ArticleSummary>
 
-Email remains the primary B2B communication channel. Your sales team sends dozens of emails to prospects and customers every day through Outlook. Without CRM integration, these conversations exist only in individual inboxes, invisible to the rest of the team and disconnected from the deal and contact records where they belong. When someone is out sick, on vacation, or leaves the company, their email context leaves with them.
+## Three kinds of Outlook CRM integration
 
-Outlook integration reduces this problem by bringing supported email into the CRM and matching conversations to relevant records. Connected calendar events can be displayed read-only. Customermates does not synchronize Outlook contacts or create, edit, or book provider calendar events.
+"CRM for Outlook" covers three different designs. Decide which one you want before you compare vendors. Customermates publishes this page; the vendor examples below come from each vendor's own documentation, checked on 8 October 2026.
 
-## How Outlook Integration Works in Customermates
+| Design | Where you work | Example | Choose it if |
+| --- | --- | --- | --- |
+| Add-in in Outlook | In Outlook, with a CRM pane beside the email | [HubSpot Sales Office 365 add-in](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in) (tracks and logs emails in Outlook for Windows, Mac and the web); [Dynamics 365 App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview) (links emails and appointments to records, can synchronize contacts with Exchange) | Your team lives in Outlook all day and wants CRM data next to each email |
+| CRM inside Outlook | Outlook is the CRM interface | [eWay-CRM](https://www.eway-crm.com/), which describes itself as turning Outlook into a CRM | You want no second app at all and your team works in Outlook |
+| Mailbox connected to the CRM | In the CRM, Outlook keeps running beside it | Customermates | You also talk to clients on LinkedIn or WhatsApp, or want an AI assistant to read and draft from the same threads |
 
-Customermates connects supported Microsoft Outlook 365 email to the unified inbox beside LinkedIn, WhatsApp, Instagram, and Telegram. A supported external AI client can read allowed thread context and draft an individual reply through MCP. Email and a read-only view of the connected calendar start with Pro ([[commercial.price.pro.monthly]]/user/month); Starter ([[commercial.price.starter.monthly]]/user/month) covers core CRM without a connected mailbox. Any n8n workflow runs separately.
+If you need Outlook contacts kept in sync both ways, or a CRM pane inside Outlook, Customermates is the wrong fit. Look at an add-in-based CRM instead. The [Outlook CRM comparison](/blog/outlook-crm-integration) goes through more options.
 
-### Setup in Three Steps
+## What the Outlook connection does
 
-**Step 1: Connect your Outlook account.** Open **Profile → Connected accounts** in Customermates, choose **Connect an account**, and sign in through Microsoft's hosted authentication flow. No IT department involvement needed, no Outlook plugins to install.
+**Email threads in the inbox.** Sent and received mail of the connected account shows up as threads in the inbox, newest activity first, next to LinkedIn, WhatsApp, Instagram and Telegram conversations if you connect those. Search covers subject, message text and participant names or addresses, and a filter narrows the list to one email folder.
 
-**Step 2: Configure your email connection.** Select the folders to import where the account supports folder selection. Calendar data is exposed read-only where supported, and there is no Outlook contact-sync direction or calendar-write setting in Customermates.
+**Folders, both ways.** The channel's **Folders** tab has one switch per Outlook folder. By default every folder is on except trash, junk, drafts and the all-mail folder. In an Outlook thread you can move one email or the whole conversation to another folder, and the move happens in your real mailbox. Gmail accounts can't do this; it works for Outlook and IMAP.
 
-**Step 3: Start working.** Email threads from the connected account appear in the unified inbox, where participants can be linked to CRM contacts. Connected calendar events appear in a read-only view. Your team can keep writing in Outlook; conversations from the connected account still reach the CRM inbox.
+**Contacts linked by address.** A contact's email address connects it to every thread with that address. For a sender who is not linked yet, open **Thread settings**, click **Link** and pick a contact or create one from the name. The address is then added to that contact, so all earlier and later threads with it show on the contact. Threads reach deals and organizations through the contact; they are not filed on each deal separately.
 
-### Email Synchronization
+**Replies and new emails from the CRM.** Reply in the thread's composer, with To, Cc and Bcc, Markdown formatting and attached files. Start a new email from a contact's **Channels** block. Each Outlook account has its own font, link colour and signature on its **Email** tab. Once switched on, the signature is added to every email sent from that account, whether from the inbox, the API or MCP.
 
-Email sync captures both sent and received emails of the connected account. When you send an email to a prospect from Outlook, the thread appears in the Customermates inbox; when they reply, the response joins the same thread. Teammates see it when account, thread, and CRM permissions allow it.
+**Calendar, read-only.** Events from the connected Outlook calendar appear in the **Account & calendar** category of activity timeline widgets, and AI clients read them over MCP with `get_calendars`. Customermates has no calendar page of its own and never creates, changes or books events in Outlook.
 
-Customermates matches threads to contacts by their email addresses, and you can link a participant to a contact yourself. If the sender is not yet in your CRM, create the contact and link it to the thread.
+## Set it up
 
-### Read-Only Calendar Data
+<Steps>
+  <Step title="Check the plan">
+    Use Customermates Cloud on Pro, Business, Enterprise or a trial. Your role
+    needs Manage on Inbox messages to connect a channel.
+  </Step>
+  <Step title="Connect Outlook">
+    Open My Profile › Channels, click Connect channel and choose Outlook. The
+    tab moves to a secure connection page where you sign in. Your history then
+    imports in the background, usually in a few minutes and up to an hour for a
+    large mailbox. If your Microsoft 365 tenant blocks user consent to
+    third-party apps, an admin has to approve the connection first.
+  </Step>
+  <Step title="Choose folders">
+    Open the account's Folders tab and switch on the folders you want in the
+    CRM, for example an archive folder, or switch off newsletters.
+  </Step>
+  <Step title="Set the signature">
+    On the Email tab, switch on Add a signature and write it once. Don't paste
+    it into messages as well.
+  </Step>
+  <Step title="Link the first contacts">
+    Filter the inbox by Participants: not fully linked, then link each sender
+    to a contact or create one.
+  </Step>
+</Steps>
 
-Read supported events from the connected Outlook calendar in CRM context. Meetings created in Outlook may appear on the relevant activity timeline, but Customermates does not create, edit, book, delete, or synchronize events back to Outlook.
+Microsoft documents the consent settings in [Configure how users consent to applications](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent): by default users can consent to apps for permissions that don't need admin consent, and admins can restrict that. If your mailbox can't sign in through the Outlook option, the IMAP option connects other email accounts over IMAP and SMTP.
 
-Seeing upcoming and past meetings next to your CRM work gives context before a call. Meeting-frequency or relationship-health metrics are not calculated by Customermates.
+## Who sees which emails
 
-### Contact Matching Without Contact Sync
+A new channel is private: only you see its threads, and no role, Admin included, can read a teammate's private threads. You can share one conversation from its **Thread settings**. On Business and Enterprise you can share the whole account, for example a team address one person connected, and every member whose role can read the inbox then sees all its threads. Each Outlook account can be connected only once per workspace, so share it rather than connecting it twice.
 
-Supported email conversations can be matched to CRM contacts by address. Outlook address-book contacts are not synchronized in either direction; create or update CRM contacts through the product's supported record interfaces instead.
+## AI on your Outlook threads
 
-## Core Features
+**Mate, in Customermates Cloud.** Mate can summarize a thread, draft a reply, file an email to a folder or send it when you ask. Mate uses hosted AI credits; each plan includes monthly hosted AI credits per active user, see [pricing](/pricing). Mate sends without a further confirmation when you ask it to send, so say "draft" when you only want a draft.
 
-**Automatic email capture.** Email threads from the connected account reach the unified inbox automatically and are matched to contacts by address. No manual forwarding and no BCC addresses.
+**Routines, in Customermates Cloud.** A routine can start on the **Email Received** event. Example instruction: "When an email arrives from a contact linked to an open deal, create a task on that deal assigned to me with a two-line summary, and save a reply draft in the thread. Do not send anything." The routine runs as its owner and only sees threads that person can see. Limits are in the [routines guide](/docs/app-routines).
 
-**Conversations next to the contact.** A contact's conversations sit alongside its notes, linked tasks, and deals. Messages are linked through the contact, not attached directly to every deal or organization.
+**Your own AI client, through MCP.** Claude, ChatGPT and other MCP clients can read threads, save drafts and send email through the [MCP server](/docs/mcp), using your own AI subscription instead of hosted credits. Whether the client asks before it sends depends on the client.
 
-**AI-drafted replies through external clients.** Supported clients such as Claude, ChatGPT, or Gemini can use MCP to read allowed thread context and draft one reply for approval. The external client, model, and subscription are yours; on cloud plans the hosted Mate assistant can also draft replies inside the CRM and asks for confirmation before sending.
+## What it costs
 
-**One inbox across channels.** Outlook email sits in the same unified inbox as LinkedIn, WhatsApp, Instagram, and Telegram, so your team answers every channel from one place inside the CRM instead of switching apps.
+The Outlook integration has no separate price. It comes with the plan:
 
-**Shared account support.** From the Business tier at [[commercial.price.business.monthly]] per user per month, an entire connected account, such as a sales@ or support@ mailbox, can be shared with the workspace, so several team members work the same threads without access to each other's personal inboxes. On Pro, individual threads can be shared.
+| Team | Plan | Per month |
+| --- | --- | --- |
+| 3 people, one Outlook account each | Pro | [[commercial.price.pro.monthly.seats.3]] |
+| 3 people, Outlook plus LinkedIn or WhatsApp each | Business | [[commercial.price.business.monthly.seats.3]] |
 
-**Separate n8n workflows for advanced automation.** A separately operated n8n instance can use documented interfaces and external providers for workflows beyond the native email and read-only calendar surface:
+The deciding point is the account allowance: Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]]. If someone needs Outlook and LinkedIn in the same inbox, that person needs Business. Billing is monthly.
 
-- When an email event is available, create a supported task and notify the account manager through an external [Slack](/features/slack-integration) provider
-- When a deal moves to "Proposal Sent," ask an external scheduler and Outlook API to send a later follow-up
-- When a new sender emails your team, create a supported CRM record through REST and apply customer-owned routing logic
-- When an external calendar provider emits an event, update a supported CRM field through the workflow
+## Limits worth knowing
 
-## Key Benefits
+- No Outlook add-in, sidebar or ribbon button. CRM details are looked up in Customermates.
+- Outlook address-book contacts are not synchronized in either direction. Contacts are created in Customermates, by linking a sender, manually or by [XLSX import](/docs/app-records).
+- Calendar data is read-only. No meeting booking, no event writes.
+- No mass email or sequences. Every email is written and sent individually.
+- Disconnecting an account permanently deletes the threads, messages and calendar events Customermates imported from it.
+- Providers limit how fast mail can be read and sent; the current budgets are in [messaging rate limits](/docs/messaging-rate-limits).
+- Self-hosted Customermates has no inbox, so no Outlook connection. Only Customermates Cloud has it.
 
-**No email context ever lost.** Every customer email is captured in the CRM, accessible to the entire team. When a colleague is out, another team member picks up the conversation with full context. When a deal is reassigned, the incoming owner sees every email from day one.
-
-**Keep working in Outlook.** Your team can keep writing in Outlook; conversations from the connected account still reach the CRM inbox without manual logging. There is no Outlook add-in, so CRM details are looked up in Customermates.
-
-**Recorded interaction history.** Supported emails and read-only meetings from Outlook join notes, tasks, calls, and deal activities on a unified CRM timeline. Outlook contacts are not synchronized, and only activity that the connected surfaces record appears here.
-
-**Contact context without address-book sync.** Email matching keeps supported conversations with CRM context. Outlook contacts do not synchronize to or from Customermates, so address-book updates remain in the owning system.
-
-**Supported email context.** Connected email conversations can appear in the unified inbox and calendar data can be viewed read-only. Customermates does not capture every Outlook object, synchronize contacts, or write provider calendar events.
-
-**Smoother handoffs.** When conversations live next to the CRM record, a colleague can pick up a deal with its email context instead of starting from scratch.
-
-## Common Outlook Integration Use Cases
-
-**Sales email tracking.** Log all emails between your sales team and prospects on the corresponding deal records. When reviewing a deal, the [sales](/features/sales) manager sees the complete email thread alongside pipeline activities and notes.
-
-**Read-only meeting context.** Supported meetings from a connected Outlook calendar can appear read-only in CRM context. Meeting-frequency or relationship-health calculations are not native product features.
-
-**Lead capture from email.** A customer-run workflow can use supported email data to create a CRM contact through REST and apply its own routing rules. Customermates has no native lead-routing or Outlook contact-sync engine.
-
-**Follow-up scheduling.** After sending a proposal email, a separate workflow can create a follow-up task linked to the email thread. Store the follow-up date in a custom field; a separately operated n8n workflow can evaluate it and send a notification through an external provider. Customermates has no native reminder engine. On the cloud, a Mate [routine](/docs/app-routines) can instead check that date on a schedule and list or draft due follow-ups (Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]).
-
-**Out-of-office continuity.** When a team member is on vacation, their complete email history with every contact is available in the CRM. Colleagues pick up conversations seamlessly without needing access to the individual's Outlook mailbox.
-
-**Email-triggered deal updates.** A separate n8n workflow can evaluate available email events and call supported CRM operations. Its classification logic, Outlook access, runtime, credentials, logs, limits, and delivery remain external.
-
-## Why Choose Customermates for Outlook Integration
-
-**No plugins, no add-ins.** Customermates connects to Outlook 365 through secure server-side OAuth integration. There is nothing to install in Outlook, no browser extensions, and no desktop plugins that need updating.
-
-**Transparent processing.** The core CRM is open source under AGPL. The connected inbox is a managed-cloud feature; its transport provider (Unipile) and every other subprocessor are listed on the [subprocessors page](/subprocessors).
-
-**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
-
-**Simple, fair pricing.** Supported Outlook email and read-only calendar data start with Pro at [[commercial.price.pro.monthly]] per user per month. Connected-account and shared-account availability follows the published plan limits.
-
-**Separate n8n for custom workflows.** Connect an n8n instance you operate through REST, webhooks, MCP, or the community node. Its scheduling, logic, provider credentials, plan, limits, logs, and costs remain outside Customermates.
-
-**Self-hosted core CRM.** Self-hosting runs the application and PostgreSQL database on your infrastructure with the Starter feature set. It does not include the cloud unified inbox, Outlook email connection, or calendar view; external providers remain separate.
-
-## Frequently Asked Questions
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="Does it work with Outlook desktop or only Outlook 365?">
-Customermates integrates with Microsoft Outlook 365 (Microsoft 365) through server-side sync. This covers Outlook on the web, Outlook desktop connected to a Microsoft 365 account, and the Outlook mobile app. On-premise Exchange servers are supported through IMAP configuration.
+<FaqItem question="Do I need to install an Outlook add-in?">
+No. The connection runs between Customermates and your account, so there is nothing to install in Outlook and nothing to update on each computer. The trade-off: you see CRM data in Customermates, not in an Outlook pane.
 </FaqItem>
 
-<FaqItem question="Do I need to install an Outlook plugin?">
-No. The integration works through server-side OAuth authentication. There is nothing to install in Outlook, no browser extensions, and no add-ins that need maintenance.
+<FaqItem question="Can I keep sending email from Outlook?">
+Yes. Mail you send from Outlook lands in the same thread in Customermates, and replies join it. Use whichever app is at hand.
 </FaqItem>
 
-<FaqItem question="Can I choose which emails are synced?">
-Yes, by folder. When the account supports folder selection, you choose which Outlook folders are imported into the inbox.
+<FaqItem question="Does Customermates sync my Outlook contacts or calendar?">
+Contacts: no, neither direction. Threads are matched to CRM contacts by email address instead. Calendar: events are read into Customermates read-only; nothing is written back to Outlook.
 </FaqItem>
 
-<FaqItem question="Is calendar sync bidirectional?">
-No. Supported events from the connected Outlook calendar are read-only in Customermates. The CRM does not create, edit, book, delete, or synchronize events back to Outlook.
+<FaqItem question="Can the whole team see each other's Outlook mail?">
+Only what is shared. Private threads stay private, Admins included. Single conversations can be shared on any plan with the inbox; whole accounts can be shared on Business and Enterprise.
 </FaqItem>
 
-<FaqItem question="Can multiple team members connect their Outlook accounts?">
-Yes. On Pro each team member can connect one account, on Business up to three plus shared accounts. A teammate sees a conversation when account, thread, and CRM permissions allow it; Pro users can share individual threads, and Business can share a whole account.
+<FaqItem question="Is Microsoft Outlook a CRM?">
+Outlook manages email, calendar and an address book, but it has no deals, pipeline stages or shared customer records. Microsoft's own CRM line is Dynamics 365, which connects to Outlook through the Dynamics 365 App for Outlook. Customermates keeps Outlook as your mail client and adds those records next to your threads.
 </FaqItem>
 
-<FaqItem question="Where is hosted data processed?">
-In the managed cloud, the application database runs in the AWS Frankfurt region, and Unipile, which transports connected accounts, stores data in France. The application is hosted by Vercel in the USA, and all subprocessors are listed on the [subprocessors page](/subprocessors). Self-hosted Starter does not include this cloud email integration.
+<FaqItem question="Where is the data processed?">
+In Customermates Cloud the application database is configured in the AWS Frankfurt region. Connected accounts are transported by Unipile. Every subprocessor, including US providers, is on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 </FaqItem>
 </Faq>
 
-## Get Started with Outlook Integration Today
-
-Connect a supported Outlook account on Pro and bring email into the unified inbox alongside read-only calendar context. Configure the available connection settings and begin with an individual conversation. Outlook contact sync and calendar writes are not included; separate workflows and providers remain external.
+Vendor details checked on 8 October 2026 against [Microsoft Learn](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview), [HubSpot's knowledge base](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in) and [eWay-CRM](https://www.eway-crm.com/).

@@ -18,6 +18,8 @@ const REPO_ROOT = resolve(__dirname, "../../..");
 const COLLECTION_BY_PREFIX: Record<string, string> = {
   "/blog/": "blog-posts",
   "/compare/": "compare-pages",
+  "/features/": "feature-pages",
+  "/for/": "for-pages",
   "/docs/": "docs",
 };
 

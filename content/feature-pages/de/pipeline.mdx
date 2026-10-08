@@ -1,17 +1,17 @@
 ---
-title: "Vertriebspipeline Software: Kanban & Deals"
-description: "Vertriebspipeline verwalten mit Drag-and-Drop Kanban-Boards, eigenen Deal-Phasen und Dashboard-Diagrammen. Externe KI-Clients aktualisieren Felder über MCP."
+title: "CRM Pipeline: Deals als Kanban-Board mit Phasen"
+description: "CRM-Pipeline mit Drag-and-Drop-Board, Phasenwahrscheinlichkeiten und gewichteter Pipeline. Einrichtung, mehrere Pipelines, Grenzen und Kosten."
 featureName: Vertriebspipeline
 
 relatedHrefs:
-  - /features/crm-integration
-  - /features/customer-service
-  - /features/email-integration
-  - /features/follow-up
+  - /features/sales
+  - /features/reporting
+  - /features/workflow-automation
+  - /blog/sales-pipeline
 
 hero:
-  title: Eine Vertriebspipeline, die Ihnen genau zeigt, wo jeder Deal steht
-  description: Visualisieren Sie Ihre gesamte Pipeline mit Drag-and-Drop Kanban-Boards. Unterstützte externe KI-Clients können zulässige Deal-Felder über MCP aktualisieren; Client und Modell bleiben separat. Stellen Sie aktuelle Pipeline-Werte in persönlichen Dashboards dar und erkennen Sie Engpässe früh.
+  title: Die CRM-Pipeline, die jeden Deal nach Phase, Wert und Wahrscheinlichkeit zeigt
+  description: Ziehen Sie Deals über ein Board mit Ihren eigenen Phasen. Jede Spalte zeigt, wie viele Deals dort stehen, was sie wert sind und was sie gewichtet mit der Abschlusswahrscheinlichkeit der Phase wert sind. Pipeline, Board und Dashboards gibt es in jedem Tarif, ab Starter.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bereit, Ihre Pipeline in den Griff zu bekommen?
-  description: Richten Sie Ihre Vertriebspipeline in Customermates ein. Definieren Sie Ihre Phasen, erstellen Sie Ihre ersten Deals und verwalten Sie visuell.
+  action: Bringen Sie Ihre offenen Deals aufs Board
+  description: Benennen Sie die Phasen um, legen Sie die Wahrscheinlichkeiten fest und importieren Sie Ihre Deals aus einer Excel-Datei. Tarife ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,98 +28,141 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Was ist Vertriebspipeline-Management?
+Eine CRM-Pipeline ordnet Ihre offenen Verkaufschancen nach Phasen, vom ersten Kontakt bis zum Abschluss. Auf einen Blick sehen Sie, was gerade läuft, was es wert ist und welcher Deal seit Wochen stillsteht. In Customermates wird die Deal-Liste mit einem Klick zu diesem Board: Jede Spalte zeigt Anzahl, Gesamtwert und gewichteten Wert ihrer Deals, und einen Deal verschieben Sie per Drag-and-Drop.
 
-Vertriebspipeline-Management ist der Prozess, jeden Deal, an dem Ihr Team arbeitet, zu verfolgen, zu organisieren und zu optimieren, während er Ihren Vertriebsprozess durchläuft. Eine gut verwaltete Pipeline verwandelt eine abstrakte Liste von Opportunities in ein strukturiertes, visuelles System, das genau zeigt, wo jeder Deal steht und was als Nächstes passieren muss.
+Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit direktem Kundenkontakt, etwa Beratungen, Agenturen, andere Dienstleister und Gründer, die selbst verkaufen. Umsatzprognosen und automatische Warnungen bei liegengebliebenen Deals bietet Customermates nicht. Braucht Ihr Vertriebsteam genau das, etwa für viele Deals aus der Kaltakquise, nennt der Vergleich weiter unten passendere Werkzeuge.
 
-Ohne eine klar definierte Pipeline arbeiten Vertriebsteams im Dunkeln. Manager können keinen Umsatz zuverlässig prognostizieren, einzelne Mitarbeiter verlieren den Überblick über ihre nächsten Schritte, und Deals stagnieren, ohne dass es jemand bemerkt. Eine strukturierte Pipeline ist das Fundament dieses Prozesses.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was Sie bekommen">Ein Deal-Board nach Phasen, Abschlusswahrscheinlichkeiten je Phase, Gesamt- und gewichtete Pipeline, persönliche gespeicherte Ansichten und Dashboard-Diagramme.</SummaryItem>
+  <SummaryItem label="Tarife">Alles auf dieser Seite außer Mate, Routinen und dem einheitlichen Posteingang ist im Starter-Tarif für [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten, ebenso in der selbst gehosteten Version.</SummaryItem>
+  <SummaryItem label="KI">In Customermates Cloud prüft und aktualisiert Mate die Pipeline und verbraucht dabei gehostete KI-Credits. Ihr eigener KI-Client erledigt das in jedem Tarif über MCP.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine KI-gestützte Umsatzvorhersage, keine Auswertung von Verweildauer oder Konversion je Phase, keine automatische Markierung inaktiver Deals und keine native App fürs Smartphone.</SummaryItem>
+</ArticleSummary>
 
-Pipeline-Management geht über das bloße Auflisten Ihrer Deals hinaus. Es umfasst sechs Kerndisziplinen: Pipeline-Metriken verfolgen, Pipeline-Hygiene pflegen, Phasenprogression optimieren, Teamleistung steuern, Umsätze prognostizieren und die richtigen Tools integrieren. Wenn alle sechs zusammenwirken, wird Ihre Pipeline zum operativen Rückgrat Ihrer Vertriebsorganisation.
+## Was das Pipeline-Board kann
 
-## Die Phasen einer Vertriebspipeline
+**Die Phasen gehören Ihnen.** Die Phase eines Deals ist eine Spalte vom Typ Einzelauswahl namens „Phase“. Ein neuer Arbeitsbereich startet mit sieben Optionen und bereits hinterlegten Abschlusswahrscheinlichkeiten:
 
-Jede Pipeline folgt einer Progression vom Erstkontakt zum abgeschlossenen Deal. Während die spezifischen Phasen je nach Unternehmen variieren, enthalten die meisten Vertriebspipelines diese grundlegenden Stufen.
+| Phase | Wahrscheinlichkeit |
+|---|---|
+| Akquise | 10 % |
+| Qualifizierung | 20 % |
+| Demo | 40 % |
+| Angebot | 60 % |
+| Verhandlung | 80 % |
+| Gewonnen | 100 % |
+| Verloren | 0 % |
 
-**Prospecting.** Identifizieren und Ansprechen potenzieller Kunden. Hier beginnt Ihre Pipeline. Leads kommen durch Inbound-Marketing, Outbound-Outreach, Empfehlungen oder Partnerkanale hinein.
+Sie können Phasen umbenennen, umsortieren, ergänzen oder löschen. Eine Unternehmensberatung arbeitet vielleicht mit Anfrage, Erstgespräch, Angebot verschickt, Mündliche Zusage, Gewonnen und Verloren.
 
-**Qualifizierung.** Bewerten, ob ein Interessent zu Ihrem Produkt oder Ihrer Dienstleistung passt. Qualifizierungskriterien umfassen typischerweise Budget, Entscheidungsbefugnis, Bedarf und Zeitrahmen. Deals, die sich nicht qualifizieren, werden früh entfernt und halten Ihre Pipeline sauber.
+**Das Board.** Öffnen Sie **Deals**, wählen Sie **Darstellung** und stellen Sie die **Ansicht** auf **Board**, gruppiert nach Phase. Ziehen Sie eine Karte in eine andere Spalte, ändert sich die Phase; auf **Kein Wert** abgelegt, wird sie geleert. Jede Karte zeigt die Felder, die Sie unter **Darstellung** einblenden, zum Beispiel Wert, zugewiesene Nutzer, Organisation und ein Datumsfeld „Voraussichtlicher Abschluss“.
 
-**Kontaktaufnahme und Discovery.** Erste Gespräche, um die spezifischen Bedürfnisse, Schmerzpunkte und den Entscheidungsprozess des Interessenten zu verstehen. Diese Phase legt die Grundlage für ein relevantes Angebot.
+**Die Spaltenköpfe rechnen mit.** Jeder Spaltenkopf zeigt die Anzahl der Deals, die Wahrscheinlichkeit der Phase, den Gesamtwert und den gewichteten Wert. Der gewichtete Wert eines Deals ist sein Wert mal die Wahrscheinlichkeit seiner Phase. Ein Beispiel mit drei offenen Deals:
 
-**Angebot.** Präsentation Ihrer Lösung mit Preisen, Umfang und Zeitrahmen. Das Angebot sollte die spezifischen Bedürfnisse adressieren, die während der Discovery-Phase aufgedeckt wurden.
+| Deal | Phase | Wert | Gewichtet |
+|---|---|---|---|
+| Website-Relaunch | Akquise | 5.000 | 500 |
+| Markenworkshop | Angebot | 8.000 | 4.800 |
+| Jahresbetreuung | Verhandlung | 12.000 | 9.600 |
+| **Pipeline** | | **25.000** | **14.900** |
 
-**Verhandlung.** Besprechen von Konditionen, Einwandbehandlung und Verfeinerung der Vereinbarung. Diese Phase erfordert besondere Aufmerksamkeit und entscheidet oft, ob ein Deal abgeschlossen wird oder stagniert.
+Dieselben Summen stehen als **Gesamtpipeline** und **Gewichtete Pipeline** unter **Mein Unternehmen › Einstellungen**, direkt neben den Wahrscheinlichkeiten.
 
-**Abschluss.** Finalisierung der Vereinbarung und Konvertierung des Interessenten zum Kunden. Der Deal wird als gewonnen oder verloren markiert, und das Ergebnis fließt in Ihre Pipeline-Analysen ein.
+**Der Deal-Wert ergibt sich aus Leistungen.** Den Wert eines Deals tippen Sie nicht ein. Er ist die Summe aus Preis mal Menge aller verknüpften Leistungen. Zwei Workshoptage zu 1.500 und zehn Coachingstunden zu 150 ergeben einen Deal-Wert von 4.500 in der Währung Ihres Arbeitsbereichs.
 
-**Follow-Up.** Nachgelagerte Aktivitäten einschließlich Onboarding, Beziehungsaufbau und Identifizierung von Erweiterungsmöglichkeiten. Viele Teams führen dies in einer eigenen gespeicherten Ansicht, getrennt über ein Feld für den Pipeline-Typ, um Neugeschäft und Account-Management auseinanderzuhalten.
+**Dieselbe Liste als Tabelle.** Stellen Sie die **Ansicht** wieder auf **Tabelle** und behalten Sie die Gruppierung: Die Phasen werden zu einklappbaren Zeilengruppen mit eigenen Anzahlen und Summen. Tabellen sortieren nach **Deal-Wert** und **Gewichteter Wert** sowie nach jeder eigenen Spalte.
 
-## So funktioniert Pipeline-Management in Customermates
+## Welchen Tarif Sie brauchen
 
-Customermates bietet eine visuelle Pipeline mit Kanban-Boards, anpassbaren Phasen und Dashboard-Diagrammen. Eine Pipeline ist eine gespeicherte Ansicht Ihrer Deals, gruppiert nach der Phasenspalte Ihrer Wahl, als Board oder als Tabelle. Ein unterstützter externer KI-Client kann zulässige Felder über MCP aktualisieren, und in den Cloud-Tarifen kann das auch der gehostete Mate-Assistent direkt im CRM.
+Board, Phasen, Wahrscheinlichkeiten, gespeicherte Ansichten, Dashboard-Diagramme, XLSX-Import und -Export, REST, Webhooks und MCP sind in jedem Tarif enthalten, auch in Starter und in der selbst gehosteten Version. Ab Pro kommt der [einheitliche Posteingang](/features/unified-inbox) dazu, der E-Mail-, LinkedIn- und WhatsApp-Verläufe bei den Kontakten eines Deals zeigt. Mate und Routinen gibt es nur in Customermates Cloud, sie verbrauchen gehostete KI-Credits. Jeder Cloud-Tarif enthält monatliche KI-Credits je aktivem Nutzer, die Mengen stehen auf der [Preisseite](/pricing).
 
-**Externe KI-Clients können die Pipeline aktualisieren.** Über [[derived.mcp.tools.total]] MCP-Tools können unterstützte Clients wie Claude, ChatGPT oder Gemini zulässige Deals zwischen Phasen verschieben, Felder aktualisieren und ein einzelnes Follow-up entwerfen. Abo, Nutzung und Anbieter-Verarbeitung des externen Clients bleiben bei Ihnen.
+## So richten Sie Ihre Pipeline ein
 
-**Visuelles Kanban-Board.** Ihre Pipeline wird als Drag-and-Drop Kanban-Board dargestellt, bei dem jede Spalte eine Deal-Phase repräsentiert. Deals erscheinen als Karten mit den wichtigsten Informationen auf einen Blick: Deal-Name, Wert, Kontakt und Felder Ihrer Wahl, etwa ein erwartetes Abschlussdatum. Einen Deal in die nächste Phase zu bewegen ist so einfach wie das Ziehen der Karte in die nächste Spalte.
+<Steps>
+  <Step title="Phasen umbenennen">Öffnen Sie einen beliebigen Deal, klicken Sie auf **Anpassen** und bearbeiten Sie die Spalte „Phase“ über **Spalte bearbeiten**. Auf einem nach Phase gruppierten Board öffnet ein Klick auf einen Spaltenkopf denselben Dialog.</Step>
+  <Step title="Wahrscheinlichkeiten prüfen">Unter **Mein Unternehmen › Einstellungen** steht im **Deal-Phasenfeld** die Spalte „Phase“. Tragen Sie für jede Option eine Wahrscheinlichkeit von 0 bis 100 ein und speichern Sie. Customermates berechnet daraufhin den gewichteten Wert jedes Deals neu.</Step>
+  <Step title="Leistungen anlegen">Legen Sie unter **Services** an, was Sie verkaufen, jeweils mit Preis (**Betrag**). Daraus entstehen die Deal-Werte.</Step>
+  <Step title="Zwei eigene Felder ergänzen">Ein Datumsfeld „Voraussichtlicher Abschluss“ und eine Einzelauswahl „Verlustgrund“ mit Preis, Zeitpunkt, Wettbewerber gewählt und Keine Entscheidung.</Step>
+  <Step title="Offene Deals importieren">Nutzen Sie **Aus Datei hinzufügen** mit einer Excel-Datei: erst Organisationen, dann Kontakte, dann Deals, damit die Deals auf bereits vorhandene Datensätze verweisen können. CSV-Dateien werden nicht angenommen, speichern Sie diese vorher als XLSX.</Step>
+  <Step title="Pipeline-Ansicht speichern">Gruppieren Sie das Board nach Phase, filtern Sie Gewonnen und Verloren heraus, klicken Sie auf **Neue Ansicht** und nennen Sie sie „Offene Pipeline“. Die Ansicht merkt sich Filter, Gruppierung, Layout und eingeblendete Felder.</Step>
+</Steps>
 
-**Anpassbare Deal-Phasen.** Definieren Sie die Phasen, die zu Ihrem tatsächlichen Vertriebsprozess passen. Ob Ihre Pipeline vier oder zwölf Phasen hat, Customermates passt sich Ihrem Workflow an. Benennen Sie Phasen um, ordnen Sie sie neu, fügen Sie neue hinzu oder entfernen Sie nicht zutreffende.
+Die [Anleitung zu Datensätzen](/docs/app-records) beschreibt Board, Ansichten und Import im Detail.
 
-**Board- und Tabellenansichten.** Wechseln Sie jede Deal-Liste zwischen einer Board-Ansicht und einer Tabellenansicht und gruppieren Sie beide nach einer Phasenspalte, einem Verantwortlichen, einem verknüpften Datensatz oder einem Datum. Um Neugeschäft, Verlängerungen oder separate Produktlinien getrennt zu halten, speichern Sie jede Variante als eigene Ansicht und wechseln Sie über die Tabs oberhalb der Liste zwischen ihnen.
+## Mehrere Pipelines
 
-**Persönliche gespeicherte Ansichten.** Eine Ansicht merkt sich die gesamte Liste: Filter, Sortierung, Gruppierung, Layout und Spalten. Wechseln Sie über die Tabs oberhalb der Liste zwischen Ihren Ansichten; jede Änderung wird sofort in der Ansicht gespeichert, sodass jede Pipeline genau so öffnet, wie Sie sie verlassen haben.
+Customermates kennt kein eigenes Pipeline-Objekt. Eine zweite Pipeline ist deshalb eine zweite Einzelauswahl-Spalte auf Deals. Ein Team, das neue Projekte verkauft und Rahmenverträge verlängert, legt etwa die Spalte „Verlängerungsphase“ mit Anstehend, In Abstimmung, Angebot verschickt und Verlängert an und speichert dazu eine Board-Ansicht, gruppiert nach dieser Spalte und gefiltert auf Verlängerungen.
 
-**Deal-Karten mit Kontext.** Jede Deal-Karte auf dem Kanban-Board zeigt die Informationen, die Sie für schnelle Entscheidungen brauchen. Sehen Sie Deal-Wert, zugewiesenen Besitzer, verknüpfte Organisation und eigene Felder wie ein erwartetes Abschlussdatum, ohne den vollständigen Datensatz öffnen zu müssen.
+Zwei Grenzen gelten. Nur eine Spalte, die im **Deal-Phasenfeld** gewählte, trägt Wahrscheinlichkeiten und gewichtete Werte; das zweite Board zeigt Anzahlen und Gesamtwerte, aber keine gewichteten Zahlen. Und ein Board zeigt höchstens 50 Spalten.
 
-**Dashboard-Diagramme über Ihre Pipeline.** Jeder Nutzer baut ein persönliches Dashboard aus Diagramm-Widgets (Balken-, Doughnut- oder Radardiagramme) über die Deal-Daten: Pipeline-Wert nach Phase, Deal-Anzahl nach Besitzer, gewonnen versus verloren nach Quelle. Widgets filtern nach jedem Standard- oder benutzerdefinierten Feld und aktualisieren sich, wenn sich Deals ändern, sodass Sie sehen, wo Wert steckt und wo Deals stagnieren, ohne in eine Tabelle zu exportieren.
+Wer lieber bei einer Phasenliste bleibt, ergänzt eine Einzelauswahl „Pipeline“ mit Neugeschäft und Verlängerung und speichert je Wert eine gefilterte Ansicht.
 
-## Pipeline-Performance messen
+## Die Pipeline aktuell halten
 
-Die effektivsten Pipeline-Manager verfolgen einen Kernsatz von Metriken, die die Gesundheit und Entwicklung ihrer Vertriebsorganisation offenlegen. Customermates-Dashboards zeigen gespeicherte Anzahlen, Werte und phasengewichtete Summen; die folgenden abgeleiteten Kennzahlen berechnen Sie in einer Tabelle oder einem Reporting-Tool.
+Ein Board hilft nur, solange es stimmt. Dafür gibt es drei Wege:
 
-**Sales Velocity.** Sales Velocity misst, wie schnell Umsatz durch Ihre Pipeline fließt. Die Formel ist einfach: (Anzahl Deals x durchschnittlicher Deal-Wert x Win Rate) geteilt durch durchschnittliche Verkaufszyklusdauer. Wenn Sie beispielsweise 40 Deals mit durchschnittlich 3.000 EUR bei einer Win Rate von 25 Prozent und einem 30-Tage-Zyklus haben, beträgt Ihre Sales Velocity 1.000 EUR pro Tag. Das Tracking dieser Metrik über die Zeit zeigt, ob Ihre Pipeline beschleunigt oder verlangsamt.
+**Eine Ansicht für liegengebliebene Deals.** Filtern Sie Deals nach **Aktualisiert am** mit **Älter als…** 14 Tage und Phase weder Gewonnen noch Verloren. Der Filter bleibt relativ, die gespeicherte Ansicht zeigt also immer die Deals, die seit zwei Wochen niemand angefasst hat. Jede Änderung am Deal zählt als Aktualisierung, nicht nur ein Phasenwechsel.
 
-**Win Rate nach Phase.** Die Analyse Ihrer Win Rate in jeder Phase zeigt, wo Deals am wahrscheinlichsten aus der Pipeline fallen. Wenn Ihre Qualifizierung-zu-Angebot-Konversion stark ist, aber Ihre Angebot-zu-Abschluss-Rate schwach, wissen Sie genau, wo Coaching und Prozessverbesserung investiert werden sollten.
+**Eine wöchentliche Routine (Customermates Cloud).** Routinen lassen Mate eine gespeicherte Anweisung nach Zeitplan oder bei Änderungen an Datensätzen ausführen und verbrauchen die gehosteten KI-Credits ihres Eigentümers. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Stellen Sie eine Routine auf **Wöchentlich**, Montag früh:
 
-**Pipeline-Coverage-Ratio.** Eine gesunde Pipeline enthält typischerweise das Drei- bis Fünffache des Umsatzziels an Pipeline-Gesamtwert. Wenn Ihr Quartalsziel 100.000 EUR beträgt, sollten Sie 300.000 bis 500.000 EUR in aktiver Pipeline haben. Eine Pipeline-Coverage unterhalb dieses Bereichs signalisiert ein Sourcing-Problem.
+```text
+Suche Deals in den Phasen Angebot oder Verhandlung, die in den letzten 14 Tagen nicht aktualisiert wurden. Lege für jeden eine Aufgabe „Nachfassen: [Deal-Name]“ an, verknüpfe sie mit dem Deal und weise sie den zugewiesenen Nutzern des Deals zu. Versende keine Nachrichten.
+```
 
-**Durchschnittliche Deal-Zykluszeit.** Wie lange dauert es vom Erstkontakt zum abgeschlossenen Deal? Das Verständnis Ihrer durchschnittlichen Zykluszeit hilft Ihnen, genauer zu prognostizieren und ungewöhnlich lange Deals zu identifizieren.
+Die Routine läuft als ihr Eigentümer und sieht nur die Deals, die diese Person sehen darf. Aufgaben anlegen braucht keine Freigabe; Löschungen bräuchten eine, deshalb lehnt ein unbeaufsichtigter Lauf sie ab. Weitere Beispiele finden Sie bei der [Workflow-Automatisierung](/features/workflow-automation).
 
-## Häufige Pipeline-Konfigurationen
+**Ihr eigener KI-Client über MCP.** Claude, ChatGPT und andere MCP-Clients verschieben Deals zwischen Phasen und ändern Felder mit den [[derived.mcp.tools.total]] Werkzeugen aus der [MCP-Dokumentation](/docs/mcp), in jedem Tarif und auch in der selbst gehosteten Version. Jeder Phasenwechsel löst unabhängig von der Quelle einen `deal.updated`-Webhook mit den geänderten Feldern aus, den ein separat betriebener n8n-Workflow aufgreifen kann.
 
-**Standard-B2B-Vertriebspipeline.** Phasen wie Lead, Qualifiziert, Discovery, Angebot, Verhandlung und Gewonnen oder Verloren. Dies deckt die meisten B2B-Vertriebsprozesse ab und bietet klare Übergangsregeln für die Deal-Progression.
+## Grenzen
 
-**Enterprise-Vertriebspipeline.** Für komplexe Verkaufsprozesse mit mehreren Stakeholdern und zusätzlichen Phasen für Stakeholder-Mapping, technische Evaluation, rechtliche Prüfung und Vertragsverhandlung. Enterprise-Zyklen sind länger, und die Pipeline-Struktur sollte diese Komplexität widerspiegeln.
+<AcquisitionCallout title="Was die Pipeline nicht kann" variant="boundary">
+  Die gewichtete Pipeline ist Ihr Wert mal Ihre Wahrscheinlichkeiten. Es gibt kein Modell, das Umsatz oder Abschlusstermine vorhersagt, und keine Auswertung von Verweildauer, Konversion je Phase oder Vertriebsgeschwindigkeit. Inaktive Deals werden nicht automatisch markiert; dafür ist die Ansicht oben da. Gespeicherte Ansichten und Dashboards sind persönlich und lassen sich nicht teilen, deshalb speichert jede Person ihre eigene; ein als Vorlage geteiltes Diagramm lässt sich übernehmen. Deals haben keine Dateianhänge, und eine native App fürs Smartphone gibt es nicht.
+</AcquisitionCallout>
 
-**Inbound-Lead-Pipeline.** Verwalten Sie Inbound-Leads durch Qualifizierungsphasen: Erstanfrage, Qualifiziert, Demo Geplant, Demo Abgeschlossen, Angebot und Abgeschlossen. Pipeline-Analysen zeigen, welche Lead-Quellen die wertvollsten Opportunities liefern.
+Kennzahlen wie die Gewinnrate pro Person ermittelt Mate in Customermates Cloud aus Ihren Datensätzen, mit einem Analysewerkzeug, das nur liest. Alternativ exportieren Sie die Deals als XLSX. Die Diagrammoptionen beschreibt die Seite [Reporting](/features/reporting).
 
-**Verlängerungs-Pipeline.** Verfolgen Sie Vertragsverlängerungen getrennt vom Neugeschäft. Phasen wie Bevorstehend, In Diskussion, Angebot Gesendet und Verlängert stellen sicher, dass keine Verlängerung verpasst oder bis zur letzten Minute aufgeschoben wird.
+## Customermates im Vergleich mit anderen Pipeline-Werkzeugen
 
-**SaaS-Trial-zu-Paid-Pipeline.** Für Softwareunternehmen, die Free-Trial-Nutzer durch Aktivierungsmeilensteine verfolgen: Trial Gestartet, Aktiviert, Engagiert, Demo Angefragt, Verhandlung und Abonniert.
+Diese Seite wird von Customermates veröffentlicht. Die Angaben zu anderen Anbietern wurden am 8. Oktober 2026 auf deren eigenen Seiten geprüft, die Links stehen am Ende.
 
-## Ihre Pipeline optimieren
+| Werkzeug | Passt am besten, wenn | Pipeline-Angaben des Anbieters |
+|---|---|---|
+| Pipedrive | Sie ein auf den Vertrieb ausgerichtetes CRM mit mehreren Pipelines wollen und inaktive Deals auf dem Board markiert sehen möchten | Mehrere Pipelines; eine Rotting-Funktion, die Deals nach einer festgelegten Zeit ohne Aktualisierung rot zeigt; Forecast-Ansicht ab dem Growth-Tarif |
+| HubSpot | Sie kostenlos starten und später Marketing- und Service-Werkzeuge dazunehmen wollen | Vertriebspipeline mit bearbeitbaren Phasen in den kostenlosen Tools; eigene Pipelines ab Starter (15) und Professional (100) bei sitzplatzbasierten Tarifen, geteilt über alle Objekte |
+| Pipeline CRM | Sie als kleines oder mittleres B2B-Team ein Werkzeug suchen, das von der Pipeline her gedacht ist | Start-Tarif mit 1 Pipeline und bis zu 250 aktiven Deals je Konto; Develop 2, Grow 5, Enterprise 20 Pipelines |
+| Customermates | Ihre Deals an Kundengesprächen hängen und KI das Board pflegen soll | Phasen-Board mit gewichteten Werten in jedem Tarif; weitere Pipelines als zusätzliche Phasenspalten; Gesprächsverläufe ab Pro |
 
-Eine Pipeline ist keine statische Struktur. Regelmäßige Optimierung hält Ihren Vertriebsprozess gesund und Ihre Prognosen genau.
+## Was es kostet
 
-**Wöchentliche Pipeline-Reviews.** Planen Sie wöchentliche Sitzungen zur Prüfung der Pipeline-Gesundheit, Identifizierung stagnierter Deals und Priorisierung von Aktivitäten. Ein konsistenter Review-Rhythmus erkennt Probleme früh und hält das Team ausgerichtet.
+| Team | Tarif | Pro Monat |
+|---|---|---|
+| 3 Personen, nur Board und Dashboards | Starter | [[commercial.price.starter.monthly.seats.3]] |
+| 5 Personen, die auch per E-Mail und LinkedIn verkaufen | Pro | [[commercial.price.pro.monthly.seats.5]] |
 
-**Pipeline-Hygiene.** Entfernen Sie tote Deals regelmäßig. Deals, die 60 bis 90 Tage ohne aktives Engagement nicht fortgeschritten sind, werden wahrscheinlich nicht abgeschlossen und verzerren Ihre Metriken. Saubere Pipelines liefern genaue Prognosen.
+Über zwölf Monate zahlt das Pro-Team mit fünf Personen [[commercial.price.pro.monthly.seats.5.months.12]]. Abgerechnet wird monatlich. Für den selbst gehosteten Open-Source-Kern fällt keine Lizenzgebühr an; Sie zahlen nur Ihren eigenen Server.
 
-**Phase-Gate-Kriterien.** Definieren Sie klare Kriterien, die ein Deal erfüllen muss, um von einer Phase zur nächsten zu gelangen. Wenn jedes Teammitglied die gleichen Standards anwendet, werden Ihre Pipeline-Daten zuverlässig und teamübergreifend vergleichbar.
+## Häufige Fragen
 
-**Automatisieren Sie, wo möglich.** Eine separat betriebene n8n-Instanz kann auf Deal-Webhooks reagieren, Aufgaben anlegen, kundendefinierte Datumsfelder nach eigenem Zeitplan auswerten oder Pipeline-Daten mit externen Reporting-Tools synchronisieren. Customermates selbst sendet keine Erinnerungen.
+<Faq>
+<FaqItem question="Was versteht man unter einer Pipeline im CRM?">
+Die Pipeline ist die Liste Ihrer offenen Verkaufschancen, geordnet nach Phasen wie Erstgespräch, Angebot und Verhandlung. Im CRM sehen Sie sie meist als Board mit einer Spalte je Phase. Mit Wahrscheinlichkeiten je Phase ergibt sich daraus ein gewichteter Pipeline-Wert.
+</FaqItem>
 
-## Warum Customermates für Ihr Pipeline-Management?
+<FaqItem question="Ist Pipedrive ein CRM?">
+Ja. Pipedrive bezeichnet sich selbst als CRM für kleine Unternehmen und wachsende Teams und ist stark auf die Vertriebspipeline ausgerichtet. Nicht zu verwechseln mit Pipeline CRM, bis 2020 PipelineDeals, einem eigenständigen Produkt für kleine und mittlere B2B-Teams. Dessen Start-Tarif kostet 25 US-Dollar pro Nutzer und Monat bei jährlicher oder 29 US-Dollar bei monatlicher Abrechnung, mit einer Pipeline (Preise am 8. Oktober 2026 auf der [Preisseite von Pipeline CRM](https://pipelinecrm.com/pricing/) geprüft).
+</FaqItem>
 
-**Open-Source-Kern.** Kern-CRM-Anwendung und Pipeline-Code unter AGPL sind einsehbar. Pipeline-Phasen bleiben kundendefinierte Felder; Customermates enthält keinen versteckten Prognose- oder Scoring-Algorithmus, während Managed-Cloud-Funktionen und Anbieter separat bleiben.
+<FaqItem question="Kann ich in Customermates mehrere Pipelines führen?">
+Ja, als getrennte Einzelauswahl-Spalten auf Deals, jeweils mit eigener gespeicherter Board-Ansicht. Wahrscheinlichkeiten und gewichtete Werte hat nur die Spalte, die als Deal-Phasenfeld eingestellt ist.
+</FaqItem>
 
-**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
+<FaqItem question="Macht Customermates eine Umsatzprognose?">
+Nein, nicht im Sinne einer Vorhersage. Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit, die Sie für seine Phase festgelegt haben. Das ist Rechnen mit Ihren eigenen Zahlen.
+</FaqItem>
 
-**Einfache, faire Preisgestaltung.** Pipeline-Management ist ab [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter-Stufe) enthalten. Board- und Tabellenansichten, individuelle Phasen, Deal-Karten, Dashboard-Diagramme und MCP-Zugang für externe KI-Clients sind in jeder Stufe enthalten. Keine Premium-Stufe für erweiterte Pipeline-Funktionen erforderlich.
+<FaqItem question="Sieht mein ganzes Team dasselbe Board?">
+Alle, deren Rolle sämtliche Deals lesen darf, sehen dieselben Deals und können dasselbe Board bauen. Mit Lesezugriff **Zugewiesen** sieht eine Person nur die ihr zugewiesenen Deals. Gespeicherte Ansichten sind persönlich, deshalb speichert jede Person ihre eigene Board-Ansicht.
+</FaqItem>
+</Faq>
 
-**Separates n8n für Pipeline-Workflows.** Verbinden Sie eine selbst betriebene oder abonnierte n8n-Instanz über REST, Webhooks, MCP oder den Community-Node. Scheduler, Katalog mit über 400 Konnektoren, Laufzeit, Tarife, Limits, Logs, Anbieterzustellung und Kosten bleiben extern.
-
-**Self-hostbare Anwendung und Datenbank.** Betreiben Sie die Customermates-Anwendung und PostgreSQL-Datenbank auf eigener Infrastruktur. Externe KI- und Workflow-Anbieter erhalten weiterhin alle von Ihrer Konfiguration gesendeten Daten; Self-Hosting ist keine Datenresidenz- oder Compliance-Garantie.
-
-## Starten Sie heute mit Ihrer Vertriebspipeline
-
-Richten Sie Ihre Vertriebspipeline in Customermates ein. Definieren Sie Ihre Phasen, erstellen Sie Ihre ersten Deals und beginnen Sie, Ihre Pipeline visuell zu verwalten. Alle Pipeline-Funktionen stehen ab dem ersten Tag zur Verfügung, ohne Konfigurationshürden oder Premium-Upgrades. Starten Sie Ihre kostenlose Testphase und erleben Sie, wie Ihr Vertriebsprozess zum Leben erwacht.
+Angaben zu anderen Anbietern am 8. Oktober 2026 geprüft auf [Pipedrive zu mehreren Pipelines](https://support.pipedrive.com/en/article/how-can-i-have-multiple-pipelines), [Pipedrives Rotting-Funktion](https://support.pipedrive.com/en/article/the-rotting-feature), [Pipedrives Tarifübersicht](https://support.pipedrive.com/en/article/new-pipedrive-plans), [Pipedrive CRM für kleine Unternehmen](https://www.pipedrive.com/de/crm/solutions/crm-for-small-business), [HubSpot Pipeline-Management](https://www.hubspot.com/products/crm/pipeline-management), [HubSpots Pipeline-Limits](https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines), [Pipeline CRM](https://pipelinecrm.com/) und [Pipeline CRM Preise](https://pipelinecrm.com/pricing/).

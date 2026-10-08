@@ -1,464 +1,244 @@
 ---
-title: "Kundenqualifizierung: Beste Interessenten finden"
-description: "8 Qualifizierungs-Frameworks im Überblick: BANT, MEDDIC, CHAMP, ANUM u. a. Lead Scoring im CRM aufbauen und mit n8n automatisieren."
+title: "Leadqualifizierung: Kriterien, Fragen und CRM-Felder"
+description: "Leadqualifizierung erklärt: was BANT, CHAMP und MEDDIC prüfen, welches Modell zu Ihrem Vertrieb passt, was Sie fragen und wie Sie die Antworten erfassen."
+
+relatedHrefs:
+  - /features/lead-management
+  - /blog/sales-pipeline
+  - /blog/chatgpt-for-sales
+  - /docs/app-routines
 
 hero:
-  title: "Kundenqualifizierung: So identifizieren Sie Ihre besten Interessenten"
-  description: Verschwenden Sie keine Zeit mehr mit aussichtslosen Leads. Lernen Sie die Frameworks, CRM-Strategien und Automatisierungstechniken, die Ihren Vertrieb auf Erfolgskurs bringen.
+  title: "Leadqualifizierung: So entscheiden Sie, welche Leads Ihre Zeit bekommen"
+  description: "Die vier Kriterien hinter jedem Modell, wann BANT, CHAMP, MEDDIC oder SPICED passt, Fragen mit Warnsignalen, eine schriftliche Übergabe von Marketing an Vertrieb und ein CRM-Aufbau, der die Antworten jedes Mal gleich erfasst."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2025-11-13
+  updated: 2026-10-08
   tags:
     - Lead-Qualifizierung
     - Vertriebsprozess
     - CRM Strategie
 ---
 
-# Kundenqualifizierung: So identifizieren Sie Ihre besten Interessenten
+# Leadqualifizierung: So entscheiden Sie, welche Leads Ihre Zeit bekommen
 
-Verschwenden Sie keine Zeit mehr mit aussichtslosen Leads. Lernen Sie die Frameworks, CRM-Strategien und Automatisierungstechniken, die Ihren Vertrieb auf Erfolgskurs bringen.
+Leadqualifizierung heißt: Sie prüfen jeden Lead gegen Kriterien, die vorher feststehen, und entscheiden dann, ob er jetzt ein Vertriebsgespräch bekommt, später wieder aufgegriffen wird oder eine freundliche Absage erhält. Fast jedes Modell prüft dieselben vier Punkte in anderer Reihenfolge: ein Problem, das Sie lösen können, eine Person, die entscheiden darf, Geld, das ausgegeben werden kann, und einen Grund, bald zu handeln. Welches Kürzel Sie wählen, ist weniger wichtig, als die Antworten jedes Mal in denselben Feldern festzuhalten. Nur dann bedeutet „qualifiziert" für alle im Team dasselbe.
 
-Jedes Vertriebsteam steht vor der gleichen Herausforderung: begrenzte Zeit und zu viele Leads. Nicht jeder Interessent, der ein Kontaktformular ausfüllt oder eine Demo bucht, passt zu Ihrem Produkt. Ein erheblicher Teil der Leads passt letztlich nicht zum Unternehmen. Der Unterschied zwischen Spitzenteams und dem Rest liegt oft in einer einzigen Fähigkeit: der systematischen Kundenqualifizierung.
+Customermates veröffentlicht diesen Leitfaden und ist das CRM im Einrichtungsbeispiel weiter unten. Customermates hat kein Lead Scoring; die Abschnitte unten sagen, wo das eine Rolle spielt.
 
-Kundenqualifizierung ist der strukturierte Prozess, mit dem Sie bewerten, ob ein Interessent den Bedarf, die Entscheidungsbefugnis, das Budget und den passenden Zeitrahmen mitbringt, um Kunde zu werden. Richtig umgesetzt verkürzt sie Verkaufszyklen, steigert die Abschlussquote und stellt sicher, dass Ihr Team seine Energie dort investiert, wo sie den größten Ertrag bringt.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was Sie prüfen">Passung zu Ihrem idealen Kunden, danach Bedarf, Entscheidungsbefugnis, Budget und Zeitpunkt.</SummaryItem>
+  <SummaryItem label="Reihenfolge">Lead, Marketing Qualified Lead (nur wenn Marketing Leads übergibt), Sales Qualified Lead, dann Deal oder Opportunity.</SummaryItem>
+  <SummaryItem label="Welches Modell">BANT oder ANUM bei kurzen Verkäufen mit einer entscheidenden Person, CHAMP bei Dienstleistungen, MEDDIC oder SPICED, wenn ein Gremium über Monate entscheidet.</SummaryItem>
+  <SummaryItem label="Wohin die Antworten gehören">Vier Einzelauswahl-Felder am Deal, ein Absagegrund und ein Datum, an dem Sie erneut prüfen.</SummaryItem>
+  <SummaryItem label="Rolle der KI">Ein Sprachmodell kann diese Felder aus einer Anfrage befüllen. Entscheiden sollte ein Mensch.</SummaryItem>
+</ArticleSummary>
 
-## Warum Kundenqualifizierung heute wichtiger ist als je zuvor
+## Lead, MQL, SQL, Opportunity: die Reihenfolge
 
-Im Jahr 2026 sind Käufer besser informiert als je zuvor. Sie recherchieren Lösungen eigenständig, vergleichen Anbieter online und kommen oft mit einer festen Meinung ins Verkaufsgespräch. Der alte Ansatz, jeden Lead mit dem gleichen Pitch zu verfolgen, funktioniert nicht mehr.
+Ein Lead ist jeder, der Interesse gezeigt hat: eine Anfrage über die Website, eine Empfehlung, eine Antwort auf eine LinkedIn-Nachricht. Qualifiziert ist er, sobald jemand ihn gegen Ihre Kriterien geprüft hat und die Antwort Ja lautet. Unternehmen mit eigenem Marketing teilen diese Prüfung in zwei Schritte:
 
-### Die Kosten schlechter Qualifizierung
+| Phase | Wer entscheidet | Typischer Nachweis |
+| --- | --- | --- |
+| Lead | Noch niemand | Anfrage, Empfehlung, Antwort auf LinkedIn |
+| Marketing Qualified Lead (MQL) | Marketing, nach vereinbarten Regeln | Passt zum Zielprofil und hat nach Preisen oder einem Gespräch gefragt |
+| Sales Qualified Lead (SQL) | Vertrieb, nach einem Gespräch | Bedarf, Entscheider, Budgetrahmen und Zeitpunkt bestätigt oder in Reichweite |
+| Opportunity oder Deal | Vertrieb | Konkretes Vorhaben mit Wert und nächstem Schritt |
 
-Wenn Ihr Vertriebsteam Zeit auf unqualifizierte Leads verwendet, summieren sich die Kosten schnell:
+Die Standard-Lebenszyklusphasen in HubSpot folgen derselben Reihenfolge, von Subscriber über Lead, MQL, SQL und Opportunity bis zu Customer und Evangelist, so die [HubSpot-Dokumentation zu Lebenszyklusphasen](https://knowledge.hubspot.com/records/use-lifecycle-stages). In Salesforce entstehen bei der Umwandlung eines Leads aus dem Lead-Datensatz ein Account, ein Kontakt und eine Opportunity, wie das [Trailhead-Modul zu Leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) beschreibt. Der Lead kommt also immer zuerst. Die Opportunity ist das, was aus ihm wird, wenn er sich qualifiziert.
 
-- **Verschwendete Verkaufsstunden**: Vertriebsmitarbeiter verbringen einen spürbaren Teil ihrer Zeit mit Interessenten, die nie kaufen werden
-- **Sinkende Motivation**: Wiederholte Absagen von unpassenden Kontakten zehren an der Moral
-- **Ungenaue Prognosen**: Aufgeblähte Pipelines voller unqualifizierter Deals verzerren Umsatzvorhersagen
-- **Längere Verkaufszyklen**: Unqualifizierte Interessenten verzögern, vertrösten und melden sich nicht mehr
-- **Höhere Abwanderung**: Kunden, die von Anfang an kein guter Match waren, kündigen früher
-- **Verfehlte Ziele**: Zeit für unqualifizierte Leads ist Zeit, die nicht in abschließbare Deals fließt
+Ein Team von drei Personen ohne Marketingabteilung kann die MQL-Stufe weglassen. Jede Anfrage geht direkt an die Person, die verkauft, und es zählt nur die Grenze zwischen Lead und qualifiziert.
 
-Die Rechnung ist einfach: Wenn ein Vertriebsmitarbeiter pro Woche nur fünf Stunden spart, indem er unqualifizierte Kontakte frühzeitig erkennt, kann diese Zeit in Deals mit echtem Potenzial fließen. Über ein Quartal sind das 65 Stunden (fast zwei volle Arbeitswochen) wiedergewonnene Vertriebszeit.
+## Zwei Arten von Kriterien: Passung und Kaufbereitschaft
 
-### Qualifizierung als Wettbewerbsvorteil
+**Passung** fragt, ob Sie diesen Kunden überhaupt wollen. Sie ergibt sich aus Ihrem idealen Kundenprofil: Branche, Unternehmensgröße, Region, Art des Projekts und ob Sie Vergleichbares schon gemacht haben. Das meiste lässt sich vor dem ersten Gespräch prüfen, über die Website oder ein LinkedIn-Profil.
 
-Unternehmen, die Kundenqualifizierung meistern, sehen messbare Verbesserungen. Teams mit formalen Qualifizierungskriterien arbeiten fokussierter als Teams, die sich auf ihr Bauchgefühl verlassen, und können ihre Abschlussquoten gezielt verbessern. Wenn Sie genau wissen, wer Ihr idealer Kunde ist, und einen wiederholbaren Prozess dafür aufbauen, hören Sie auf zu raten und fangen an, systematisch zu verkaufen.
+**Kaufbereitschaft** fragt, ob der Interessent bald kaufen kann und will. Das sind Bedarf, Entscheidungsbefugnis, Budget und Zeitpunkt, und die erfahren Sie nur im Gespräch.
 
-## Das Ideal Customer Profile (ICP) definieren
+Trennen Sie beides. Ein Lead kann kaufbereit sein und trotzdem nicht passen: ein Unternehmen, das das Projekt nächsten Monat will, zum halben Tagessatz, in einem Fachgebiet, das Sie nicht kennen. Legen Sie zwei oder drei Ausschlusskriterien fest, die ein Gespräch früh beenden. Eine Branding-Agentur könnte sich etwa auf B2B-Unternehmen mit 20 bis 500 Mitarbeitenden festlegen, mit einer verantwortlichen Person für Marketing im Haus und Projektbudgets ab 15.000 €.
 
-Bevor Sie einzelne Leads qualifizieren, müssen Sie wissen, wie ein qualifizierter Lead aussieht. Ihr Ideal Customer Profile (ICP) definiert die Merkmale von Unternehmen und Ansprechpartnern, die am wahrscheinlichsten erfolgreiche, langfristige Kunden werden.
+## Qualifizierungsmodelle im Vergleich
 
-### Firmen-ICP-Kriterien
+Die Modelle unterscheiden sich vor allem darin, womit das Gespräch beginnt und wie viele Personen sie am Kauf beteiligt sehen.
 
-- **Branche/Vertikale**: Welche Branchen profitieren am meisten von Ihrer Lösung?
-- **Unternehmensgröße**: Welche Mitarbeiterzahl oder Umsatzspanne ist der Sweet Spot?
-- **Geografie**: Welche Märkte bedienen Sie? Welche Compliance-Anforderungen gelten?
-- **Technologie-Stack**: Nutzen sie Tools, die gut mit Ihrem Produkt integrieren?
-- **Wachstumsphase**: Startup, Skalierung oder etabliert?
-- **Geschäftsmodell**: B2B, B2C, SaaS, Dienstleistung, Produktion?
+| Modell | Steht für | Beginnt mit | Passt am besten zu |
+| --- | --- | --- | --- |
+| BANT | Budget, Authority, Need, Timeline | Budget | Kurzen Verkäufen zu festem Preis mit einer entscheidenden Person |
+| ANUM | Authority, Need, Urgency, Money | Entscheidungsbefugnis | Kaltakquise, bei der Sie oft zuerst jemanden ohne Entscheidungsbefugnis erreichen |
+| CHAMP | Challenges, Authority, Money, Prioritization | Dem Problem des Kunden | Beratung und Agenturarbeit, bei der das Problem vor dem Geld kommt |
+| FAINT | Funds, Authority, Interest, Need, Timing | Verfügbaren Mitteln | Käufern ohne eigenen Budgetposten für Ihre Kategorie |
+| MEDDIC | Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain, Champion | Messbaren Ergebnissen | Gremienentscheidungen, die Monate dauern |
+| SPICED | Situation, Pain, Impact, Critical Event, Decision Dynamics | Der Ausgangslage | Beratungsintensivem Verkauf wiederkehrender Leistungen |
+| GPCTBA/C&I | Goals, Plans, Challenges, Timeline, Budget, Authority, Negative Consequences, Positive Implications | Zielen | Eingehenden Anfragen mit Zeit für lange Bedarfsanalysen |
 
-### Kontakt-ICP-Kriterien
+Der [Leitfaden zur Vertriebsqualifizierung von HubSpot](https://blog.hubspot.com/sales/ultimate-guide-to-sales-qualification) schreibt MEDDIC Jack Napoli bei PTC und GPCTBA/C&I HubSpot selbst zu und nennt die RAIN Group als Fürsprecher von FAINT. SPICED stammt von [Winning by Design](https://winningbydesign.com/resources/blueprints/the-spiced-framework/).
 
-- **Jobtitel/Rolle**: Wer ist der typische Käufer? Wer beeinflusst den Kauf?
-- **Entscheidungsbefugnis**: Kann diese Person den Kauf genehmigen oder intern vorantreiben?
-- **Abteilung**: Vertrieb, Marketing, Operations, IT?
-- **Technische Kompetenz**: Wie vertraut ist die Person mit der Einführung neuer Software?
+So wählen Sie:
 
-Dokumentieren Sie Ihr ICP explizit und teilen Sie es mit Marketing und Vertrieb. Wenn Marketing das ICP kennt, generiert es passendere Leads. Wenn der Vertrieb das ICP kennt, qualifiziert er schneller. Fehlende Abstimmung zwischen Marketing und Vertrieb beim ICP ist einer der Hauptgründe, warum Qualifizierungsprozesse scheitern.
+- **BANT oder ANUM**, wenn Sie ein klar umrissenes Paket zu bekanntem Preis verkaufen und eine Person unterschreibt. ANUM, wenn Ihre Leads aus der Kaltakquise kommen.
+- **CHAMP**, wenn Sie Dienstleistungen verkaufen und das erste Gespräch ohnehin um das Problem des Kunden geht. Für Beratungen und Agenturen entspricht es dem Ablauf eines guten Erstgesprächs. Ich würde damit anfangen.
+- **MEDDIC oder SPICED**, wenn drei oder mehr Personen entscheiden, der Einkauf beteiligt ist und Deals Monate dauern.
+- **Immer nur eins.** Übertragen Sie die Buchstaben eines Modells in Felder, arbeiten Sie ein Quartal damit und wechseln Sie, wenn dieselben Felder immer wieder leer bleiben.
 
-## Die 8 wichtigsten Frameworks zur Kundenqualifizierung
+Eine Warnung zu BANT: Die Frage nach dem Budget im Erstgespräch funktioniert bei einem Produkt mit Preisliste. Bei Dienstleistungen oft nicht, weil der Kunde erst ein Budget hat, wenn er den Umfang kennt. Fragen Sie nach einem Rahmen oder danach, was das Problem heute kostet.
 
-### 1. BANT: Budget, Authority, Need, Timeline
+## Fragen, die verwertbare Antworten liefern
 
-Das klassische Framework, ursprünglich in den 1960er Jahren von IBM entwickelt:
+| Kriterium | Frage | Gutes Zeichen | Warnsignal |
+| --- | --- | --- | --- |
+| Bedarf | „Was hat den Ausschlag gegeben, gerade jetzt Unterstützung zu suchen?" | Ein konkreter Auslöser: ein verlorener Kunde, eine Neueinstellung, eine Frist | „Wir schauen uns nur mal um" |
+| Bedarf | „Was haben Sie bisher versucht?" | Sie können sagen, warum es nicht gereicht hat | Nichts versucht, und Abwarten kostet nichts |
+| Entscheidung | „Wer redet mit, bevor Sie entscheiden?" | Namen und Rollen, auch wer unterschreibt | „Das Team", auch nach zwei Gesprächen ohne Namen |
+| Entscheidung | „Wie lief es beim letzten vergleichbaren Einkauf?" | Ein Ablauf, den sie beschreiben können | Niemand ist für das Budget zuständig |
+| Budget | „Welchen Rahmen haben Sie sich vorgestellt?" | Ein Rahmen oder das, was das Problem heute kostet | Auch nach Klärung des Umfangs kein Rahmen |
+| Zeitpunkt | „Bis wann muss das stehen?" | Ein Datum mit Anlass: Produktstart, Messe, Jahresabschluss | „Irgendwann nächstes Jahr" |
+| Priorität | „Wo steht das im Vergleich zu Ihren anderen Projekten in diesem Quartal?" | Unter den ersten drei | Eines von vielen, ohne verantwortliche Person |
 
-- **Budget**: Hat der Interessent die finanziellen Mittel?
-- **Authority (Entscheidungsbefugnis)**: Ist Ihr Gesprächspartner der Entscheidungsträger?
-- **Need (Bedarf)**: Hat der Interessent ein konkretes Problem, das Ihr Produkt löst?
-- **Timeline (Zeitrahmen)**: Gibt es eine Dringlichkeit?
+Notieren Sie die Antwort in den Worten des Kunden. „Geschäftsführung hat 30.000 € für Q1 freigegeben" in den Notizen zum Deal ist mehr wert als ein Häkchen bei Budget, weil die nächste Person selbst beurteilen kann, was es heißt.
 
-**Wann BANT am besten funktioniert**: Bei transaktionalen B2B-Verkäufen mit Dealgrößen über 5.000 Euro.
+## Wann Sie absagen und wann Sie einen Lead zurückstellen
 
-**Einschränkungen**: BANT kann sich starr anfühlen. In 2026 wird Budget oft erst geschaffen, nachdem ein starker Business Case steht. Wenn ein Vertriebler sagt „Der Deal ist qualifiziert, weil sie Budget haben“, ist das ein Warnsignal, kein grünes Licht.
+Sagen Sie ab, wenn einer dieser Punkte zutrifft:
 
-### 2. CHAMP: Challenges, Authority, Money, Prioritization
+- Der Lead erfüllt Ihre Ausschlusskriterien.
+- Es gibt keinen echten Bedarf, nur Neugier oder Recherche für jemand anderen.
+- Niemand, den Sie erreichen, kann entscheiden, und niemand stellt den Kontakt her.
+- Gewünscht ist etwas, das Sie nicht anbieten, und sich dafür zu verbiegen würde der Arbeit schaden.
 
-CHAMP stellt die Herausforderungen des Kunden in den Mittelpunkt:
+Stellen Sie den Lead stattdessen zurück, wenn der Bedarf echt ist, der Zeitpunkt aber nicht: Das Projekt beginnt in sechs Monaten, das Budget dieses Quartals ist vergeben, oder Ihr Kontakt kann Sie später mit der entscheidenden Person zusammenbringen. Ein zurückgestellter Lead braucht einen Grund aus einer festen Liste und ein Datum, an dem Sie ihn erneut prüfen.
 
-- **Challenges (Herausforderungen)**: Welche konkreten Probleme versucht der Interessent zu lösen?
-- **Authority (Entscheidungsbefugnis)**: Wer ist am Kaufprozess beteiligt?
-- **Money (Budget)**: Welche finanziellen Rahmenbedingungen gelten?
-- **Prioritization (Priorisierung)**: Wie hoch steht dieses Problem auf der Agenda?
+Zählen Sie diese Gründe jeden Monat. Steht bei den meisten Absagen „Budget unter Rahmen", liegt das Problem bei der Herkunft Ihrer Leads oder bei der Darstellung Ihrer Preise. Bessere Vertriebsgespräche lösen das nicht.
 
-**Wann CHAMP am besten funktioniert**: In Solution-Selling-Umgebungen. SaaS-Unternehmen und Beratungen bevorzugen diesen Ansatz, weil er Gespräche auf den Wert statt auf die Kosten fokussiert.
+## Übergabe von Marketing an Vertrieb
 
-**Vorteil gegenüber BANT**: Indem CHAMP mit Herausforderungen beginnt, entsteht ein natürlicherer Gesprächsfluss. Interessenten sprechen lieber über ihre Probleme als über ihr Budget.
+Wenn Marketing Leads weitergibt und der Vertrieb einen großen Teil davon als unqualifiziert zurückweist, liegt es meist daran, dass niemand aufgeschrieben hat, was qualifiziert bedeutet. Eine schriftliche Übergabe ist an einem Nachmittag erstellt:
 
-### 3. MEDDIC: Für komplexe Enterprise-Deals
+<Steps>
+  <Step title="MQL in einem Satz definieren">Zum Beispiel: „Ein Kontakt bei einem Unternehmen in unserem Zielprofil, der nach Preisen oder einem Gespräch gefragt hat." Ergänzen Sie, was nicht zählt: Newsletter-Anmeldungen, Bewerbungen, Studierende, Lieferanten.</Step>
+  <Step title="Festlegen, was der Vertrieb bestätigen muss">Listen Sie die SQL-Kriterien und die Mindestantwort für jedes auf. Beide Teams arbeiten mit denselben Feldern.</Step>
+  <Step title="Reaktionszeit vereinbaren">Die Harvard Business Review veröffentlichte im März 2011 den Beitrag [The Short Life of Online Sales Leads](https://hbr.org/2011/03/the-short-life-of-online-sales-leads). Die Autoren James Oldroyd, Kristina McElheran und David Elkington kamen zu dem Schluss, dass die meisten Unternehmen bei weitem nicht schnell genug antworten. Wählen Sie ein Ziel, das Sie halten können, etwa am selben Werktag, und messen Sie es.</Step>
+  <Step title="Ablehnung zum Feld machen">Der Vertrieb darf einen Lead nur mit einem Grund aus einer festen Liste zurückgeben: passt nicht, kein Bedarf, nicht erreichbar, Dublette, zu früh. Einen Grund im Feld kann man zählen, eine Beschwerde im Meeting nicht.</Step>
+  <Step title="Zurückgeben statt löschen">Leads mit „zu früh" gehen mit einem Datum zum erneuten Prüfen zurück ans Marketing.</Step>
+  <Step title="Einmal im Monat auswerten">Zählen Sie Ablehnungen nach Grund und nach Quelle. Liefert eine Quelle die meisten „passt nicht"-Ablehnungen, ändern Sie die Quelle und nicht die Regeln.</Step>
+</Steps>
 
-- **Metrics (Kennzahlen)**: Welchen quantifizierbaren Nutzen erwartet der Kunde?
-- **Economic Buyer (Wirtschaftlicher Entscheider)**: Wer hat die finale Budgethoheit?
-- **Decision Criteria (Entscheidungskriterien)**: Wonach wird die Lösung bewertet?
-- **Decision Process (Entscheidungsprozess)**: Wie läuft der Kaufprozess ab?
-- **Identify Pain (Schmerzpunkt)**: Was ist der dringendste Leidensdruck?
-- **Champion (Interner Fürsprecher)**: Wer setzt sich intern für Ihre Lösung ein?
+Jedes CRM, in dem beide Teams dieselben Felder und dieselbe Liste an Gründen sehen, kann diese Vereinbarung abbilden. Den größten Teil der Arbeit leisten die schriftlichen Definitionen.
 
-**Wann MEDDIC am besten funktioniert**: Enterprise-Sales mit Dealgrößen über 50.000 Euro und Einkaufskomitees. MEDDIC gilt verbreitet als Standard-Framework für High-ACV-SaaS und Enterprise-Deals.
+## Lead Scoring, KI und wer entscheidet
 
-**Der Champion-Faktor**: Das prädiktivste Element in MEDDIC. Deals ohne internen Fürsprecher schließen mit dramatisch niedrigerer Rate.
+Lead Scoring ist ein eigener Schritt neben der Qualifizierung. Es vergibt Punkte für Merkmale wie die Position und für Aktionen wie den Besuch Ihrer Preisseite und übergibt einen Lead ab einem Schwellenwert an den Vertrieb. Dafür brauchen Sie Website- und E-Mail-Tracking und genug Leads, um den Schwellenwert einzustellen. Das Lead-Scoring-Tool von HubSpot bietet zum Beispiel Fit-, Engagement- und kombinierte Scores und setzt Marketing Hub oder Sales Hub in der Stufe Professional oder Enterprise voraus. Scores, die mit KI erstellt werden, brauchen Marketing Hub Enterprise und eine Stichprobe von mindestens 50 Kontakten, davon 25 konvertiert und 25 nicht, laut [HubSpot-Dokumentation](https://knowledge.hubspot.com/scoring/understand-the-lead-scoring-tool).
 
-### 4. ANUM: Authority, Need, Urgency, Money
+Bei ein paar Dutzend Anfragen im Monat würde ich auf Punkte ganz verzichten. Sie können jede Anfrage selbst lesen, und ein Schwellenwert, der an dreißig Leads eingestellt wurde, sagt wenig.
 
-Ein schlankes Framework, das Entscheidungsbefugnis über Budget priorisiert:
+Bei der KI-Leadqualifizierung hilft ein Sprachmodell einem kleinen Team vor allem beim Lesen. ChatGPT oder Claude können eine Anfrage oder einen E-Mail-Verlauf Ihren Kriterien zuordnen, die Sätze nennen, auf die sie sich stützen, und bei jedem Lead dieselben Regeln anwenden. Schlecht funktioniert das bei dünnen Angaben wie einem Namen und „Bitte mehr Infos", und eine Empfehlung von einem Kunden, dem Sie vertrauen, kann das Modell nicht gewichten. Das größere Risiko ist das Raten: Ohne klare Anweisung füllt ein Modell Lücken mit plausiblen Antworten. Dieser Prompt funktioniert in jedem KI-Client:
 
-- **Authority (Entscheidungsbefugnis)**: Hat der Kontakt Entscheidungsmacht? Das wird zuerst geklärt.
-- **Need (Bedarf)**: Welches Geschäftsproblem soll gelöst werden?
-- **Urgency (Dringlichkeit)**: Wie drängend ist der Zeitrahmen?
-- **Money (Budget)**: Welches Budget ist verfügbar? (Bewusst an letzter Stelle.)
+```text
+Sie qualifizieren eingehende Anfragen für [Unternehmen], das [Leistung] an [idealer Kunde] verkauft.
+Lesen Sie die Konversation unten. Wählen Sie für jedes Kriterium eine Option und nennen Sie den Satz, der sie belegt.
+- Passung: Ja / Nein / Unbekannt
+- Bedarf: Bestätigt / Vage / Keiner / Unbekannt
+- Entscheider: Im Gespräch mit Entscheider / Entscheider erreichbar / Kein Zugang / Unbekannt
+- Budget: In unserem Rahmen / Unter unserem Rahmen / Unbekannt
+- Zeitpunkt: Dieses Quartal / Später / Unbekannt
+Antworten Sie mit Unbekannt, wenn der Text es nicht sagt. Schließen Sie nicht von der Unternehmensgröße auf das Budget.
+Nennen Sie zum Schluss die zwei Fragen, die die meisten Unbekannt-Werte klären würden.
+```
 
-**Wann ANUM am besten funktioniert**: Mid-Market-Sales, wo schneller Zugang zum Entscheider wichtiger ist als Budgetbestätigung. Der Unterschied zu BANT: Entscheidungsmacht statt Budget als oberste Priorität.
+Lassen Sie das Modell die Felder befüllen und einen Menschen entscheiden. Lassen Sie es nie allein einen Lead ablehnen.
 
-### 5. FAINT: Funds, Authority, Interest, Need, Timing
+## Leadqualifizierung in Customermates einrichten
 
-FAINT fügt eine entscheidende Dimension hinzu: das Interessensniveau.
+Customermates hat keinen eigenen Lead-Datensatz. Eine neue Anfrage ist ein Kontakt, verknüpft mit einer Organisation, dazu ein Deal, der die Qualifizierungsfelder trägt. Kontakte haben ab Werk das Feld Vertriebsphase (Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen, Verloren) für einen schnellen Status, bevor es einen Deal gibt. Wenn Ihr Team von „Opportunities" spricht, benennen Sie Deals im Abschnitt Datenmodell der Unternehmenseinstellungen unter **Mein Unternehmen** um; Datensätze und Verknüpfungen bleiben, wie sie sind. Die Seite zum [Leadmanagement](/features/lead-management) zeigt dasselbe Modell aus Sicht der Kontakte.
 
-- **Funds (Finanzmittel)**: Hat die Organisation die finanzielle Kapazität? (Breiter als „Budget“: Funds fragt, ob das Geld existiert, nicht ob es spezifisch zugewiesen ist.)
-- **Authority (Entscheidungsbefugnis)**: Wer entscheidet oder beeinflusst?
-- **Interest (Interesse)**: Hat der Interessent echtes Engagement gezeigt?
-- **Need (Bedarf)**: Gibt es ein reales Geschäftsproblem?
-- **Timing (Zeitrahmen)**: Wann wird eine Lösung gebraucht?
+Legen Sie die Felder über **Anpassen** › **Feld hinzufügen** an einem beliebigen Deal an:
 
-**Wann FAINT am besten funktioniert**: Wenn Sie zwischen Interessenten mit finanzieller Kapazität ohne zugewiesenes Budget und solchen unterscheiden müssen, die sich Ihre Lösung schlicht nicht leisten können.
+| Feld | Typ | Optionen |
+| --- | --- | --- |
+| Phase | Einzelauswahl, in jedem neuen Arbeitsbereich vorhanden | Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 %; ergänzen Sie Zurückgestellt mit 0 % |
+| Bedarf | Einzelauswahl | Bestätigt, Vage, Keiner, Unbekannt |
+| Entscheider | Einzelauswahl | Im Gespräch mit Entscheider, Entscheider erreichbar, Kein Zugang, Unbekannt |
+| Budget | Einzelauswahl | In unserem Rahmen, Unter unserem Rahmen, Unbekannt |
+| Zeitpunkt | Einzelauswahl | Dieses Quartal, Später, Unbekannt |
+| Absagegrund | Einzelauswahl | Passt nicht, Kein Bedarf, Kein Zugang, Budget, Zeitpunkt, Dublette |
+| Erneut prüfen am | Datum | Für zurückgestellte Deals setzen |
 
-### 6. SPICED: Situation, Pain, Impact, Critical Event, Decision
+Ergänzen Sie an Kontakten ein Feld Quelle (Einzelauswahl: Empfehlung, Website, LinkedIn, Veranstaltung, Kaltakquise), damit die monatliche Auswertung nach Quelle zählen kann. Die Prozentwerte sind Phasenwahrscheinlichkeiten, die ebenfalls unter **Mein Unternehmen** gepflegt werden. Sie bestimmen den gewichteten Wert Ihrer [Pipeline](/features/pipeline), und Zurückgestellt mit 0 % hält zurückgestellte Deals aus dieser Summe heraus.
 
-Ein neueres Framework, das 2026 besonders im beratungsintensiven SaaS-Vertrieb Traktion gewinnt:
+Speichern Sie dann drei Ansichten in der Deal-Liste. Gespeicherte Ansichten sind persönlich, jede Person legt also ihre eigenen an:
 
-- **Situation**: Wie ist der aktuelle Zustand? Welche Tools und Prozesse werden heute genutzt?
-- **Pain (Schmerz)**: Welche spezifischen Schmerzpunkte bestehen?
-- **Impact (Auswirkung)**: Was kostet der Schmerz in Umsatz, Zeit oder Effizienz?
-- **Critical Event (Kritisches Ereignis)**: Gibt es eine Deadline oder ein Ereignis, das Dringlichkeit erzeugt?
-- **Decision (Entscheidung)**: Wie wird entschieden? Wer ist beteiligt? Welche Kriterien gelten?
+- **Zu qualifizieren:** Phase ist Akquise oder Qualifizierung, sortiert nach Erstellungsdatum, älteste zuerst.
+- **Fehlende Antworten:** derselbe Filter als Board, gruppiert nach Entscheider. Die Spalte Unbekannt zeigt, wo noch Gespräche nötig sind.
+- **Zurückgestellt:** Phase ist Zurückgestellt, sortiert nach Erneut prüfen am. Customermates hat keine Erinnerungen, schauen Sie also jede Woche in diese Ansicht.
 
-**Wann SPICED am besten funktioniert**: Im beratungsintensiven Vertrieb, wo Sie einen überzeugenden Business Case aufbauen müssen. Die Dimensionen „Impact" und „Critical Event" erzeugen Dringlichkeit.
+Ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram direkt zum Kontakt. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter hat keinen Posteingang.
 
-### 7. NEAT: Need, Economic Impact, Access to Authority, Timeline
+**In Customermates Cloud** kann Mate die Felder für Sie befüllen und verbraucht dabei gehostete KI-Credits. Öffnen Sie einen Deal und bitten Sie:
 
-Für modernen Solution-Selling, wo Wertschöpfung wichtiger ist als Feature-Vergleich:
+> Lesen Sie meine Gespräche mit den Kontakten an diesem Deal und setzen Sie Bedarf, Entscheider, Budget und Zeitpunkt. Verwenden Sie Unbekannt, wo nichts dazu gesagt wird. Fügen Sie die Sätze, auf die Sie sich stützen, in die Notizen des Deals ein. Senden Sie nichts.
 
-- **Need (Bedarf)**: Was ist der unerfüllte Bedarf? (Nicht oberflächliche Wünsche, sondern tiefe Anforderungen.)
-- **Economic Impact (Wirtschaftliche Auswirkung)**: Was ist der finanzielle Impact, das Problem zu lösen oder nicht?
-- **Access to Authority (Zugang zum Entscheider)**: Können Sie den Entscheider erreichen?
-- **Timeline (Zeitrahmen)**: Was treibt den Zeitplan?
+Im Tarif Starter gibt es keinen Posteingang. Mate arbeitet dort nur mit dem, was bereits am Deal und an seinen Kontakten steht, etwa mit Notizen, die Sie selbst eingefügt haben.
 
-### 8. GPCTBA/C&I: Das umfassendste Framework
+Damit das bei jedem neuen Deal passiert, legen Sie eine Routine mit dem Auslöser **Wenn sich etwas ändert** und dem Ereignis **Deal erstellt** an:
 
-Ursprünglich von HubSpot populär gemacht:
+> Ein neuer Deal wurde erstellt. Lesen Sie ihn, seine Kontakte und deren letzte Konversation im Posteingang. Setzen Sie Bedarf, Entscheider, Budget und Zeitpunkt und verwenden Sie Unbekannt für alles, was die Konversation nicht nennt. Hängen Sie eine Zusammenfassung in drei Zeilen und die zwei nächsten Fragen an die Notizen des Deals an. Ändern Sie die Phase nicht, und senden oder entwerfen Sie keine Nachricht.
 
-- **Goals (Ziele)**: Was will der Interessent erreichen?
-- **Plans (Pläne)**: Wie plant er, diese Ziele zu erreichen?
-- **Challenges (Herausforderungen)**: Welche Hindernisse stehen im Weg?
-- **Timeline (Zeitrahmen)**: Bis wann werden Ergebnisse gebraucht?
-- **Budget**: Welche Mittel stehen zur Verfügung?
-- **Authority (Entscheidungsbefugnis)**: Wer entscheidet?
-- **Consequences & Implications (Konsequenzen)**: Was passiert, wenn nichts unternommen wird? Was verbessert sich bei Handlung?
+Eine Routine läuft als ihr Eigentümer, mit dessen Zugriffsrechten und Kanälen, und Mate sendet Nachrichten, wenn eine Anweisung das verlangt. Deshalb ist der letzte Satz wichtig. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; jede Routine darf nur begrenzt oft pro Stunde laufen. Entstehen viele Deals innerhalb derselben Stunde, bleiben einige davon ohne Lauf. Die aktuellen Limits nennt die [Dokumentation zu Routinen](/docs/app-routines). Mit Ihrem eigenen KI-Client, etwa Claude oder ChatGPT, erreichen Sie dieselben Felder über den [MCP-Server](/docs/mcp); die Kosten rechnet Ihr KI-Anbieter ab. Eine selbst gehostete Installation behält Felder, Phasen, Ansichten und MCP, hat aber keinen Posteingang und kein Mate.
 
-**Wann GPCTBA/C&I am besten funktioniert**: Für Inbound-Teams, bei denen Interessenten in verschiedenen Bewusstseinsstufen ankommen. Gründlich, aber zeitaufwändig, daher am besten für höherwertige Deals.
+<AcquisitionCallout title="Was Customermates hier nicht kann" variant="boundary">
+  Customermates hat kein Lead Scoring, keine Datenanreicherung und keine einbettbaren Webformulare. Es zeichnet keine Anrufe auf und hat keine Erinnerungen. Anfragen kommen über den Posteingang, einen XLSX-Import, die REST-API oder einen Workflow in n8n, das Sie separat betreiben. Wenn Sie Punkte aus Website-Besuchen und E-Mail-Öffnungen brauchen, sehen Sie sich eine Marketing-Automation-Plattform mit Scoring an, etwa die oben genannten HubSpot-Stufen.
+</AcquisitionCallout>
 
-## Das richtige Framework wählen
+Was das pro Monat kostet:
 
-| Framework  | Am besten für                      | Komplexität    | Deal-Sweet-Spot |
-| ---------- | ---------------------------------- | -------------- | --------------- |
-| BANT       | Transaktionaler B2B                | Niedrig        | €5.000-50.000   |
-| CHAMP      | Solution Selling, SaaS             | Niedrig-Mittel | €2.000-50.000   |
-| MEDDIC     | Enterprise, Multi-Stakeholder      | Hoch           | €50.000+        |
-| ANUM       | Mid-Market, Authority-first        | Niedrig        | €5.000-100.000  |
-| FAINT      | Mid-Market mit Budget-Unsicherheit | Mittel         | €10.000-100.000 |
-| SPICED     | Beratungsintensives SaaS           | Mittel         | €10.000-200.000 |
-| NEAT       | ROI-getriebener Solution-Vertrieb  | Mittel         | €20.000-500.000 |
-| GPCTBA/C&I | Inbound, High-Value                | Hoch           | €20.000+        |
+| Team | Tarif | Pro Monat |
+| --- | --- | --- |
+| 2 Personen, Felder, Phasen, Ansichten und Mate, ohne Posteingang | Starter, [[commercial.price.starter.monthly]] pro Nutzer | [[commercial.price.starter.monthly.seats.2]] |
+| 3 Personen, mit Mate und Posteingang | Pro, [[commercial.price.pro.monthly]] pro Nutzer | [[commercial.price.pro.monthly.seats.3]] |
 
-Für die meisten KMU- und SaaS-Vertriebsteams bieten **CHAMP oder ANUM** die beste Balance aus Struktur und Einfachheit. Für Enterprise-Teams liefern **MEDDIC oder SPICED** die nötige Tiefe. Ein Startup, das ein SaaS-Produkt für 20 Euro pro Monat verkauft, braucht kein MEDDIC. Ein Unternehmen, das sechsstellige Enterprise-Verträge verkauft, sollte sich nicht allein auf BANT verlassen.
+Jeder gehostete Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing). Die Testphase dauert [[commercial.trial.days]] Tage.
 
-## Lead Scoring: Qualifizierung messbar machen
+## Messen, ob die Qualifizierung funktioniert
 
-Frameworks liefern die qualitative Struktur. Lead Scoring macht sie quantifizierbar.
+| Kennzahl | So rechnen Sie | Ein schlechter Wert bedeutet |
+| --- | --- | --- |
+| Anteil Leads, die SQL werden | SQLs ÷ neue Leads, pro Monat | Quelle oder Ausschlusskriterien stimmen nicht |
+| Anteil SQLs, die gewonnen werden | Gewonnene Deals ÷ SQLs | Die Qualifizierung ist zu locker |
+| Absagen nach Grund | Anzahl je Absagegrund | Die Zielgruppenansprache verfehlt auf eine bestimmte Weise |
+| Kosten pro qualifiziertem Lead | Ausgaben für einen Kanal ÷ SQLs aus diesem Kanal | Der Kanal rechnet sich womöglich nicht |
+| Erste Reaktionszeit | Erste Antwort minus Zeitpunkt der Anfrage | Die Übergabevereinbarung hält nicht |
 
-### Fit-Scoring (basierend auf Merkmalen)
+In Customermates kann ein Diagramm im Dashboard Deals nach Phase oder Absagegrund gruppiert zählen und ihre Werte summieren. Anteile und Reaktionszeiten berechnet die App nicht: Exportieren Sie die Deals als XLSX-Arbeitsmappe und rechnen Sie sie in Excel aus.
 
-- Unternehmensgröße passt zum ICP: +20 Punkte
-- Branche in Zielvertikale: +15 Punkte
-- Jobtitel deutet auf Entscheidungsbefugnis: +15 Punkte
-- Region im Zielmarkt: +10 Punkte
-- Nutzt komplementäre Technologie: +10 Punkte
-- Umsatz über Mindestschwelle: +10 Punkte
-
-### Interesse-Scoring (basierend auf Verhalten)
-
-- Demo angefordert: +25 Punkte
-- Preisseite besucht: +15 Punkte
-- Fallstudie heruntergeladen: +10 Punkte
-- Webinar besucht: +10 Punkte
-- Website mehr als dreimal besucht: +10 Punkte
-- Drei oder mehr E-Mails geöffnet: +5 Punkte
-
-### Disqualifizierungssignale (negative Punkte)
-
-- Freemail-Domain (Gmail, GMX, Yahoo): -20 Punkte
-- Unternehmen unter Mindestgröße: -15 Punkte
-- Außerhalb des Zielmarkts: -30 Punkte
-- Konkurrenz-Domain: -50 Punkte
-- Jobtitel ohne Kaufbefugnis (Praktikant, Student): -20 Punkte
-- Keine Aktivität seit 30+ Tagen: -10 Punkte
-- Karriereseite besucht (wahrscheinlich Jobsuchender): -20 Punkte
-
-### Scoring-Schwellwerte
-
-- **0 bis 30 Punkte (kalt)**: im Marketing-Nurturing belassen
-- **31 bis 60 Punkte (warm)**: verstärkt mit Inhalten versorgen
-- **61 bis 80 Punkte (heiß)**: an den Vertrieb übergeben als MQL
-- **81+ Punkte (kaufbereit)**: sofortige persönliche Kontaktaufnahme als SQL
-
-## MQL vs. SQL: Die richtige Abstimmung
-
-Einer der häufigsten Fehler ist fehlende Abstimmung zwischen Marketing und Vertrieb.
-
-**Marketing Qualified Lead (MQL)**: Ein Lead, der grundlegende Fit-Kriterien erfüllt und genug Interesse gezeigt hat, um Vertriebsaufmerksamkeit zu rechtfertigen. Identifiziert durch Lead Scoring.
-
-**Sales Qualified Lead (SQL)**: Ein Lead, der von einem Vertriebsmitarbeiter durch ein Discovery-Gespräch unter Verwendung des Qualifizierungs-Frameworks geprüft wurde. Der Mitarbeiter bestätigt, dass der Interessent die BANT/CHAMP/MEDDIC-Kriterien erfüllt.
-
-**Der Übergabeprozess ist entscheidend.** Wenn Marketing hunderte MQLs sendet, die der Vertrieb als Müll betrachtet, bricht das Vertrauen zusammen. Wenn der Vertrieb MQLs ignoriert, werden Leads kalt. Definieren Sie die Kriterien gemeinsam. Überprüfen Sie die MQL-zu-SQL-Konversionsrate monatlich. Unter 20 Prozent: Marketings Kriterien sind zu locker. Über 60 Prozent: Marketing filtert möglicherweise zu aggressiv.
-
-## Kundenqualifizierung im CRM umsetzen
-
-### Benutzerdefinierte Felder für Qualifizierungskriterien
-
-Legen Sie in Ihrem CRM Felder an, die direkt auf Ihr Framework mappen. Für CHAMP:
-
-- **Kernherausforderung**: Textfeld oder Multi-Select
-- **Entscheidungsträger**: Ja/Nein-Feld mit Namensangabe
-- **Budget-Range**: Dropdown (unter 5.000 €, 5.000-20.000 €, 20.000-50.000 €, 50.000+, Noch nicht zugewiesen)
-- **Priorität**: Dropdown (Top-Priorität, Hoch, Mittel, Niedrig, Nur Orientierung)
-- **Qualifizierungsstatus**: Dropdown (Nicht qualifiziert, In Qualifizierung, MQL, SQL, Disqualifiziert)
-- **Disqualifizierungsgrund**: Dropdown (Kein Budget, Falsches Timing, Kein Bedarf, Falscher Kontakt, Wettbewerb)
-
-In Customermates legen Sie dafür eigene Spalten direkt auf Kontakt, Organisation oder Deal an. Auswahllisten sind dort Einfachauswahl-Spalten; Mehrfachauswahl- und Ja/Nein-Feldtypen gibt es nicht, eine Einfachauswahl mit den Optionen Ja und Nein übernimmt diese Rolle.
-
-### Pipeline-Stufen an Qualifizierung koppeln
-
-1. **Neuer Lead**: Automatisch angelegt bei Formulareingabe
-2. **Marketing Qualified (MQL)**: Erfüllt Grundkriterien und hat Interesse gezeigt (Lead Score über Schwellwert)
-3. **Discovery gebucht**: Erstgespräch vereinbart
-4. **Sales Qualified (SQL)**: BANT/CHAMP/MEDDIC/ANUM-Kriterien geprüft und bestätigt
-5. **Angebot**: Konkretes Angebot erstellt
-6. **Verhandlung**: Vertragsbedingungen werden besprochen
-7. **Gewonnen / Verloren**: Abschluss oder dokumentierter Verlustgrund
-
-### Disqualifizierung dokumentieren
-
-- **Verlustgründe kategorisieren**: Budget, Timing, Wettbewerb, kein Bedarf, falscher Ansprechpartner
-- **Kontext-Notizen hinterlegen**: Warum wurde so entschieden?
-- **Wiederansprache festhalten**: Wann sollte der Lead erneut angesprochen werden? In Customermates gibt es keine Erinnerungen; nutzen Sie eine Datumsspalte und eine gespeicherte Ansicht, sortiert nach diesem Datum.
-- **Quelle verfolgen**: Woher kam der Lead?
-
-Wenn 40 Prozent der Leads wegen fehlendem Budget disqualifiziert werden, stimmt möglicherweise Ihr Targeting nicht.
-
-## Qualifizierung mit n8n automatisieren
-
-### Automatisches Lead Scoring
-
-**Workflow: Neuer Lead Auto-Scoring**
-
-1. **Trigger**: Neuer Kontakt in Customermates erstellt (Webhook)
-2. **Anreicherung**: Firmendaten über APIs (Clearbit, Apollo, Handelsregister-API) anreichern
-3. **Scoring**: Regeln basierend auf Unternehmensgröße, Branche, Jobtitel, Region anwenden
-4. **CRM-Update**: Score in den Lead-Datensatz zurückschreiben
-5. **Routing**: Bei Score über MQL-Schwellwert dem Vertrieb zuweisen und per Slack oder E-Mail benachrichtigen
-
-### Qualifizierungs-E-Mail-Sequenzen
-
-**Workflow: Qualifizierungs-Drip**
-
-1. **Trigger**: Lead Score zwischen 30 und 59 (interessiert, aber noch nicht qualifiziert)
-2. **Tag 1**: Branchenrelevanten Educational Content senden
-3. **Tag 3**: Fallstudie mit messbaren Ergebnissen teilen
-4. **Tag 5**: Kostenlose Beratung oder Assessment anbieten
-5. **Tracken**: E-Mail-Öffnungen, Klicks und Antworten verfolgen
-6. **Re-Score**: Lead Score basierend auf Engagement anpassen
-7. **Eskalation**: Bei Erreichen des MQL-Schwellwerts Vertriebsteam benachrichtigen
-
-### Automatische Disqualifizierung
-
-- Freemail-Adressen (Gmail, GMX, Yahoo) bei reinem B2B-Fokus
-- Unternehmen unter Mindestgröße
-- Regionen außerhalb des Zielmarkts
-- Fehlende Pflichtinformationen nach definierter Frist
-- Konkurrenz-E-Mail-Domains
-
-### Automatische Gesprächsvorbereitung
-
-**Workflow: Pre-Call-Briefing**
-
-1. **Trigger**: Kalenderereignis mit Lead-E-Mail erstellt
-2. **Sammeln**: Lead-Daten aus CRM, E-Mail-Interaktionen, Website-Besuche
-3. **Recherche**: Unternehmensnachrichten, LinkedIn-Profil, aktuelle Aktivitäten
-4. **Zusammenfassen**: Einseitiges Briefing mit Gesprächspunkten und Qualifizierungsfragen
-5. **Zustellen**: 30 Minuten vor dem Meeting per E-Mail oder Slack
-
-### Re-Qualifizierungs-Workflows
-
-**Workflow: Quartalsweise Re-Qualifizierung**
-
-1. **Trigger**: Geplante Ausführung alle 90 Tage
-2. **Filtern**: Leads finden, die vor mehr als 90 Tagen wegen Timing oder Budget disqualifiziert wurden
-3. **Prüfen**: Hat sich beim Unternehmen etwas verändert? (Stellenwechsel, Finanzierungsrunden, Wachstumssignale)
-4. **Re-Engagement**: Personalisierte Check-in-E-Mail senden
-5. **Re-Score**: Score basierend auf Reaktion anpassen
-6. **Routing**: Bei Re-Engagement zurück an den Vertrieb zuweisen
-
-## Die Qualifizierungsfragen, die wirklich zählen
-
-### Bedarf und Herausforderungen
-
-- „Welche Herausforderung versuchen Sie aktuell zu lösen?"
-- „Wie gehen Sie heute mit diesem Thema um?"
-- „Was würde sich ändern, wenn Sie dieses Problem lösen könnten?"
-- „Wie wirkt sich das Problem auf Ihr Tagesgeschäft aus?"
-- „Was hat Sie dazu gebracht, jetzt nach einer Lösung zu suchen?"
-
-### Entscheidungsstruktur
-
-- „Wer ist neben Ihnen in die Entscheidung eingebunden?"
-- „Wie hat Ihr Team ähnliche Kaufentscheidungen in der Vergangenheit getroffen?"
-- „Was müsste passieren, damit dies genehmigt wird?"
-- „Gibt es jemanden, der diese Entscheidung blockieren könnte?"
-- „Wer hat die finale Budget-Freigabe?"
-
-### Budget und Ressourcen
-
-- „Was geben Sie derzeit für die Lösung dieses Problems aus?"
-- „Haben Sie ein Budget für diese Art von Lösung eingeplant, oder müsste es erst genehmigt werden?"
-- „Wie bewertet Ihr Team typischerweise den ROI neuer Tools?"
-- „Was wäre der Preis des Nichtstuns über die nächsten 12 Monate?"
-
-### Zeitrahmen und Dringlichkeit
-
-- „Gibt es einen konkreten Termin oder ein Ereignis, das Ihren Zeitplan bestimmt?"
-- „Was passiert, wenn dieses Problem in den nächsten 90 Tagen nicht gelöst wird?"
-- „Wo steht diese Initiative in der Priorität Ihres Teams?"
-- „Gibt es einen Budgetzyklus oder Geschäftsjahres-Deadline, den wir berücksichtigen sollten?"
-
-Dokumentieren Sie jede Antwort in Ihrem CRM.
-
-## Wann disqualifizieren: Die Signale
-
-**Harte Disqualifizierung** (sofort stoppen):
-
-- Kein Budget und kein Weg zu Budget in absehbarer Zeit
-- Keine Entscheidungsbefugnis und der Entscheider ist nicht erreichbar
-- Kein echter Bedarf: Der Interessent recherchiert nur
-- Ihr Produkt löst das Problem grundsätzlich nicht
-- Konkurrenz-E-Mail-Domain
-
-**Weiche Disqualifizierung** (in Nurturing verschieben):
-
-- Budget existiert, ist aber dieses Quartal einer anderen Priorität zugeordnet
-- Zeitrahmen liegt 6+ Monate in der Zukunft
-- Benötigte Funktionen fehlen, stehen aber auf Ihrer Roadmap
-- Der Kontakt ist nicht der Entscheider, kann Sie aber zum Entscheider bringen
-- Unternehmen hat kürzlich eine große Veränderung durchgemacht (Übernahme, Führungswechsel)
-
-## Häufige Fehler bei der Kundenqualifizierung
-
-### Interesse mit Kaufabsicht verwechseln
-
-Ein Interessent, der jeden Whitepaper herunterlädt und jedes Webinar besucht, kann ein Rechercheur sein. Hohes Engagement bedeutet nicht automatisch Kaufabsicht. Validieren Sie immer mit direkten Qualifizierungsfragen.
-
-### Zu spät qualifizieren
-
-Wenn Ihre erste Qualifizierung erst während der Demo stattfindet, haben Sie bereits erhebliche Zeit investiert. Ein kurzer Fünf-Minuten-Anruf oder ein Qualifizierungsformular auf Ihrer Website filtert unpassende Leads heraus, bevor sie Vertriebsressourcen verbrauchen.
-
-### Re-Qualifizierung überspringen
-
-Umstände ändern sich. Ein Interessent, der vor sechs Monaten nicht qualifiziert war, kann jetzt Budget und Dringlichkeit haben. Bauen Sie Re-Qualifizierung in Ihren Prozess ein.
-
-### Sich auf ein einziges Framework verlassen
-
-Kein Framework passt für jede Situation. Passen Sie die Komplexität des Frameworks an die Komplexität des Verkaufs an.
-
-### Nur auf das Budget schauen
-
-Ein Interessent mit perfektem Bedarf und hoher Dringlichkeit wird das Budget finden. Ein Interessent mit Budget aber ohne echten Bedarf wird den Deal nicht abschließen.
-
-### Qualifizierung als einmaliges Ereignis behandeln
-
-Die Situation eines Interessenten kann sich ändern. Überprüfen Sie die Qualifizierung bei jedem wesentlichen Touchpoint.
-
-### Fehlende Marketing-Vertrieb-Abstimmung
-
-Wenn Marketing und Vertrieb „qualifiziert" unterschiedlich definieren, leidet die gesamte Pipeline. Halten Sie monatliche Abstimmungsmeetings ab, um MQL-zu-SQL-Raten zu überprüfen und Kriterien gemeinsam zu verfeinern.
-
-## Qualifizierungseffektivität messen
-
-- **SQL-zu-Abschluss-Rate**: Unter 20 Prozent sind Ihre Kriterien möglicherweise zu locker
-- **MQL-zu-SQL-Konversion**: Unter 20 Prozent: Marketings Kriterien zu locker. Über 60 Prozent: möglicherweise zu aggressiv gefiltert
-- **Durchschnittliche Verkaufszykluslänge**: Gut qualifizierte Deals sollten schneller abschließen
-- **Pipeline-Genauigkeit**: Prognostizierter vs. tatsächlicher Umsatz
-- **Disqualifizierungsrate**: Prozentsatz und Phase (zeigt, ob Sie die richtige Zielgruppe ansprechen)
-- **Vertriebseffizienz**: Umsatz pro Mitarbeiter pro Stunde Vertriebszeit
-- **Lead-Reaktionszeit**: Wie schnell wird ein neuer Lead kontaktiert?
-- **Kosten pro SQL**: Gesamt-Marketing- und Vertriebskosten geteilt durch generierte SQLs
-
-Customermates bietet anpassbare Dashboards mit Widgets über Ihre Datensätze, etwa Deals je Stufe oder je Qualifizierungsstatus und gewichtete Pipeline-Werte. Konversionsraten zwischen Stufen und Umsatzprognosen berechnet es nicht automatisch; dafür exportieren Sie die Daten oder werten sie über die API aus.
-
-## FAQ: Kundenqualifizierung
+## FAQ
 
 <Faq>
-<FaqItem question="Was ist Kundenqualifizierung im Vertrieb?">
-Kundenqualifizierung ist der systematische Prozess, mit dem bewertet wird, ob ein Interessent Bedarf, Entscheidungsbefugnis, Budget und Zeitrahmen mitbringt. Es nutzt Frameworks wie BANT, CHAMP, MEDDIC, ANUM, FAINT oder SPICED zur Strukturierung und Lead Scoring zur Quantifizierung. Ziel: Zeit auf die richtigen Interessenten konzentrieren und Abschlussquoten verbessern.
-</FaqItem>
-
-<FaqItem question="Was ist der Unterschied zwischen BANT und CHAMP?">
-BANT stellt das Budget als primären Qualifikator voran. CHAMP beginnt mit den Herausforderungen des Interessenten und schafft natürlichere Gespräche. CHAMP wird 2026 generell für Solution Selling und SaaS bevorzugt.
-</FaqItem>
-
-<FaqItem question="Was ist ANUM und wann sollte ich es nutzen?">
-ANUM (Authority, Need, Urgency, Money) priorisiert Entscheidungsbefugnis über Budget. Nutzen Sie ANUM, wenn Ihr größtes Risiko ist, Zeit mit Kontakten zu verschwenden, die keine Kaufentscheidung treffen können. Budget ist bewusst der letzte Faktor.
-</FaqItem>
-
-<FaqItem question="Wie baut man ein Lead-Scoring-Modell auf?">
-Starten Sie mit zwei Dimensionen: Fit-Scoring (Unternehmensgröße, Branche, Jobtitel, Region) und Interesse-Scoring (Seitenbesuche, Downloads, Demo-Anfragen, E-Mail-Engagement). Vergeben Sie Punkte, setzen Sie MQL- und SQL-Schwellwerte und verfeinern Sie basierend auf echten Konversionsdaten. Starten Sie einfach mit 5 bis 10 Kriterien.
+<FaqItem question="Was kostet ein qualifizierter Lead?">
+Eine allgemeine Zahl hilft wenig, weil sie von Kanal und Preisniveau abhängt. Rechnen Sie selbst: die Ausgaben eines Monats für einen Kanal, einschließlich der Arbeitsstunden, geteilt durch die SQLs, die er gebracht hat. Vergleichen Sie das mit der Marge eines durchschnittlich gewonnenen Deals.
 </FaqItem>
 
 <FaqItem question="Was ist der Unterschied zwischen MQL und SQL?">
-MQL (Marketing Qualified Lead): Erfüllt Grundkriterien und hat genug Interesse gezeigt. SQL (Sales Qualified Lead): Von einem Vertriebsmitarbeiter durch Discovery-Gespräch und Framework bestätigt. Die MQL-zu-SQL-Konversionsrate misst die Marketing-Vertrieb-Abstimmung (Zielwert: 20 bis 60 Prozent).
+Ein MQL ist ein Lead, den das Marketing nach Profil und Verhalten als passend eingestuft hat, ohne Vertriebsgespräch. Bei einem SQL hat der Vertrieb mit dem Interessenten gesprochen und ihn gegen Ihre Kriterien geprüft: ein Bedarf, den Sie lösen können, eine bekannte entscheidende Person, ein passender Budgetrahmen und ein Grund für den Zeitpunkt.
 </FaqItem>
 
-<FaqItem question="Welche Qualifizierungsfragen sollte man stellen?">
-Offene Fragen zur Situation: „Was hat Sie dazu gebracht, nach einer Lösung zu suchen?" (Bedarf), „Wer ist noch in diese Entscheidung eingebunden?" (Autorität), „Was geben Sie derzeit für dieses Problem aus?" (Budget), „Gibt es einen Termin, der Ihren Zeitplan bestimmt?" (Dringlichkeit). Vermeiden Sie Ja/Nein-Fragen.
+<FaqItem question="Was sind BANT-Kriterien?">
+BANT steht für Budget, Authority, Need und Timeline, also Budget, Entscheidungsbefugnis, Bedarf und Zeitplan. Das Modell passt zu Produkten mit festem Preis. Bei Dienstleistungen fragen Sie besser nach einem Budgetrahmen oder beginnen mit dem Problem des Kunden, wie es CHAMP vorsieht.
 </FaqItem>
 
-<FaqItem question="Wie hilft ein CRM bei der Kundenqualifizierung?">
-Ein CRM zentralisiert Qualifizierungsdaten in benutzerdefinierten Feldern, automatisiert Lead Scoring über n8n, strukturiert die Pipeline um Qualifizierungsstufen (MQL, SQL, Angebot, Verhandlung) und liefert Analysen. Customermates unterstützt flexible benutzerdefinierte Felder, Automatisierung über separat betriebenes n8n und eine konfigurierbare Deal-Stufenspalte ab [[commercial.price.starter.monthly]] pro Nutzer und Monat.
+<FaqItem question="Kann KI Leads automatisch qualifizieren?">
+Sie kann die erste Prüfung für alles übernehmen, was schriftlich vorliegt: Anfragen, E-Mail-Verläufe, Chatnachrichten, Gesprächsnotizen. Sie braucht die Anweisung, „unbekannt" zu antworten statt zu raten, und sie sollte nicht endgültig entscheiden. Customermates zeichnet keine Anrufe auf und transkribiert sie nicht; ein Telefonat erreicht Mate oder Ihren eigenen KI-Client nur über Notizen am Deal. Weitere Prompts finden Sie unter [ChatGPT im Vertrieb](/blog/chatgpt-for-sales).
 </FaqItem>
 
-<FaqItem question="Wann sollte man einen Lead disqualifizieren?">
-Sofort disqualifizieren: kein Budget und kein Weg dorthin, kein Bedarf, kein Zugang zum Entscheider, Konkurrenz-Domain. Weich disqualifizieren (Nurturing): Timing falsch aber Bedarf da, Budget anderweitig gebunden, benötigte Features auf Roadmap. Immer den Grund im CRM dokumentieren.
+<FaqItem question="Sollte man die Leadqualifizierung auslagern?">
+Bei Kaltakquise in großem Umfang mit festem Gesprächsleitfaden kann das funktionieren: Ein externes Team führt das Erstgespräch und übergibt Termine. Für Beratungen und Agenturen ist das Qualifizierungsgespräch meist Teil des Verkaufs, weil der Kunde gleichzeitig Sie beurteilt. Wenn Sie auslagern, geben Sie die schriftlichen Kriterien und die Liste der Absagegründe mit und lassen Sie das externe Team dieselben Felder befüllen wie Ihr eigenes.
 </FaqItem>
 
-<FaqItem question="Welches Qualifizierungs-Framework sollte ich nutzen?">
-Passen Sie das Framework an Ihre Deal-Komplexität an. Einfache Transaktionen: BANT oder ANUM. Solution Selling und SaaS: CHAMP oder SPICED. Enterprise: MEDDIC oder GPCTBA/C&I. ROI-getriebener Vertrieb: NEAT. Die meisten Teams starten mit CHAMP oder ANUM und steigern die Komplexität mit wachsenden Deals.
+<FaqItem question="Gibt es ein BANT-Gegenstück für Immobilienmakler?">
+Ja. Makler qualifizieren Kaufinteressenten oft mit LPMAMA: Location, Price, Motivation, Agent, Mortgage und Appointment, also Lage, Preis, Motivation, Makler, Finanzierung und Termin. Der US-Anbieter Sierra Interactive beschreibt es in seinem [Hilfecenter](https://help.sierrainteractive.com/helpcenter/qualifying-buyer-leads-with-the-lpmama-conversation-framework) als Modell, um Kaufinteressenten in einem einzigen Gespräch zu qualifizieren. Motivation und Finanzierung übernehmen die Rolle von Bedarf und Budget. Siehe auch die [CRM-Seite für Immobilienmakler](/for/real-estate).
 </FaqItem>
 </Faq>
 
-## Fazit: Qualifizierung ist der Hebel, der alles verändert
-
-Kundenqualifizierung ist kein Nice-to-have. Sie ist der Multiplikator für Ihren gesamten Vertriebserfolg. Die Frameworks liefern die Struktur. Ihr CRM liefert das System. Automatisierung über n8n entfernt die manuelle Last.
-
-Das Ergebnis: Ein Vertriebsteam, das seine Zeit auf die richtigen Interessenten verwendet, Deals schneller abschließt und Umsatz mit Zuversicht prognostiziert. Ob Sie BANT, CHAMP, MEDDIC, ANUM, SPICED oder einen hybriden Ansatz nutzen: Entscheidend ist, bewusst zu qualifizieren und den Prozess kontinuierlich zu verfeinern.
-
-Mit Customermates ab [[commercial.price.starter.monthly]] pro Nutzer und Monat bekommen Sie ein CRM mit flexiblen benutzerdefinierten Feldern, einem n8n-Community-Node für ein separat betriebenes n8n und vollem Pipeline-Management: alles, was Sie brauchen, um eine Qualifizierungs-Engine aufzubauen, die mit Ihrem Unternehmen skaliert. Open Source, selbst hostbar, mit AVV und offengelegten Unterauftragsverarbeitern.
-
-Hören Sie auf zu raten. Fangen Sie an zu qualifizieren.
+Anbieter- und Modellangaben am 8. Oktober 2026 geprüft anhand des [Leitfadens zur Vertriebsqualifizierung](https://blog.hubspot.com/sales/ultimate-guide-to-sales-qualification) sowie der Dokumentation zu [Lebenszyklusphasen](https://knowledge.hubspot.com/records/use-lifecycle-stages) und zum [Lead-Scoring-Tool](https://knowledge.hubspot.com/scoring/understand-the-lead-scoring-tool) von HubSpot, des [Trailhead-Moduls zu Leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) von Salesforce, des [SPICED-Frameworks](https://winningbydesign.com/resources/blueprints/the-spiced-framework/) von Winning by Design, des [LPMAMA-Leitfadens](https://help.sierrainteractive.com/helpcenter/qualifying-buyer-leads-with-the-lpmama-conversation-framework) von Sierra Interactive und des [Beitrags der Harvard Business Review](https://hbr.org/2011/03/the-short-life-of-online-sales-leads).

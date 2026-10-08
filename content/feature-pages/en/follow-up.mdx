@@ -1,17 +1,17 @@
 ---
-title: "Follow Up CRM: Never Miss a Lead Again"
-description: "Follow up CRM with tasks linked to contacts, deals, and organizations, so the next action stays visible. Reminders and sequences run in separate workflows."
+title: "Customer Follow-Up Software in an Open-Source CRM"
+description: "Track who needs a follow-up with a next-contact date, an inbox view of unanswered threads and, in Customermates Cloud, AI drafts. No reminder pings."
 featureName: Follow-Up CRM
 
 relatedHrefs:
-  - /features/crm-integration
-  - /features/customer-service
-  - /features/email-integration
-  - /features/integrations
+  - /features/unified-inbox
+  - /features/task-management
+  - /blog/sales-follow-up-email
+  - /docs/app-routines
 
 hero:
-  title: Follow-Up CRM That Makes Sure No Lead Goes Cold
-  description: Linked tasks and communication context keep follow-ups visible. Supported external AI clients can draft individual messages through MCP, while reminders, multi-channel sequences, and bulk outreach require separate workflows and delivery providers.
+  title: Customer follow-up software that shows you who is waiting on you
+  description: Keep a next-contact date on every client, see email, LinkedIn and WhatsApp threads where you wrote last and heard nothing back, and in Customermates Cloud let Mate prepare the follow-up drafts. You decide when they go out.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Read the automation guide
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to stop losing deals to missed follow-ups?
-  description: Start managing follow-ups with linked tasks and shared CRM context. Connect a separate workflow when you need reminders or sequences.
+  action: Build your follow-up list in ten minutes
+  description: Add a Next contact date column, save two views and, on Pro, an inbox view of unanswered threads. Then let a Monday routine draft the messages.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Explore tasks
@@ -28,94 +28,97 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## What Follow-Up Management Means in Customermates
+Customer follow-up software has one job: make sure the next contact with a client happens, and that whoever makes it knows what was said last. In Customermates that works through lists you open, not pings you receive. You keep a next-contact date on the contact or deal, a saved view sorts everyone by that date, and on Pro and higher an inbox view shows every conversation where you sent the last message and got no answer.
 
-Customermates gives teams ordinary CRM tasks and relationship context. A task has a type, name, notes, assignee, and links to contacts, organizations, deals, or services. It appears in the task views and can also be created or updated through the REST API and MCP tools.
+In Customermates Cloud, Mate can also write the follow-up for you and a routine can run that check every Monday, using hosted AI credits. What Customermates does not have: reminder notifications, task due dates, overdue alerts or automated email sequences. If your team depends on those, a CRM with built-in activities and sequences fits better, and the table further down names two.
 
-The current Task model has no built-in due-date field, reminder schedule, overdue state, or notification transport. Customermates therefore does not claim that it will wake up later and remind a user on its own. If a workflow needs dates, store the relevant date in a custom field on the related CRM record and let a separately operated scheduler decide when to act.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="How it works">A custom Date column such as "Next contact", saved views sorted by it, and an inbox filter for threads you are waiting on.</SummaryItem>
+  <SummaryItem label="Plans">Date columns and saved views on every plan, self-hosted included. The inbox needs Pro or higher. Mate and routines run in Customermates Cloud only.</SummaryItem>
+  <SummaryItem label="AI help">Mate drafts follow-ups from the record and the conversation history. A routine can do it on a schedule or when a deal changes.</SummaryItem>
+  <SummaryItem label="Not included">No notifications, no due dates on tasks, no sequences or bulk email. You open the list; nothing pings you.</SummaryItem>
+</ArticleSummary>
 
-## A Practical Follow-Up Workflow
+## What follow-up looks like in Customermates
 
-1. Create a task that states the next action clearly.
-2. Assign it to the responsible workspace member.
-3. Link it to the relevant contact, organization, deal, or service.
-4. Record the outcome in notes or update the related record after the conversation.
-5. Use views, filters, and ownership to review open work with the team.
+| Follow-up question | Where you answer it | Plan |
+|---|---|---|
+| Who should I contact this week? | Saved view on contacts or deals, sorted by a custom **Next contact** date | Every plan |
+| Which deals have gone quiet? | Saved view on deals: **Updated at** **Older than…** 14 days, **Stage** not Won or Lost | Every plan |
+| Who has not answered my last message? | Inbox filter **Last message** = **Sent**, **Last message date** **Older than…** 3 days | Pro and higher |
+| What do I write? | Ask Mate on the contact or thread for a draft based on notes and history | Customermates Cloud, hosted AI credits |
+| Can this run without me? | A routine that builds the list and saves drafts every Monday | Customermates Cloud, hosted AI credits |
 
-Customermates provides two mechanisms for managing follow-ups: tasks linked to the record, with a due-date column you define, and webhooks that drive multi-channel sequences in your own n8n instance. There is no built-in reminder that notifies you on its own.
+The inbox row covers the follow-up you owe after writing last. **Last message** looks at the latest message actually sent or received in a thread, across email, LinkedIn, WhatsApp, Instagram and Telegram, and ignores drafts. A thread where you wrote last five days ago and heard nothing shows up there. Details are in the [inbox filters guide](/docs/app-inbox).
 
-**Task-based follow-ups.** Create a task linked to a contact or deal, add the subject and assignee, and store any follow-up date or priority in custom fields your team defines. Customermates has no native task due date, overdue state, deadline, or priority; filtering and external workflows can use stored values.
+## Set up a follow-up system
 
-**Externally triggered reminders.** A separate workflow can evaluate recorded activity or customer-defined dates through the API or webhooks, then create a supported task or send a notification through an external provider. Customermates itself does not monitor inactivity or send reminder notifications.
+<Steps>
+  <Step title="Add a Next contact date">On **Contacts** or **Deals**, add a custom column of type **Date** and call it "Next contact". If you want to know why you are following up, add a **Single Select** column "Follow-up reason" with options such as Proposal sent, Check-in, Renewal (a new workspace's deal **Stage** column starts with Proposal, Won and Lost among its options). Tasks have no built-in due date, so the same Date column works there too.</Step>
+  <Step title="Save the weekly list">Open **Appearance**, set **Sort by** to Next contact, **Ascending**, then click **New view** and name it "Follow-ups". The oldest dates sit at the top. Custom date filters take fixed dates (**Before…**, **On or before…**), so sorting is what keeps this list current without editing the filter each week.</Step>
+  <Step title="Save a stale-deals view">On **Deals**, filter **Updated at** with **Older than…** 14 days and exclude Won and Lost in the **Stage** column. This catches deals nobody touched, whether or not someone set a date.</Step>
+  <Step title="Save a waiting-for-reply view (Pro and higher)">In the [unified inbox](/features/unified-inbox), filter **Last message** = **Sent** and **Last message date** **Older than…** 3 days. Save it as "Waiting for reply". The day window moves with the calendar, so the view stays correct.</Step>
+  <Step title="Log the outcome">After each contact, write what happened in the record's notes and move the Next contact date. The record's history keeps the linked messages and changes.</Step>
+</Steps>
 
-**Cloud routines as a follow-up check.** On Customermates Cloud, a Mate [routine](/docs/app-routines) can run a saved prompt on a schedule, for example every Monday: list contacts whose next-contact date has passed and draft a short follow-up for each one for you to review. Routines use hosted AI credits; Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]]. They are not available when self-hosting and are not reminders or sequences.
+Saved views are personal, so each teammate sets the same filters and saves their own view.
 
-**External multi-channel workflows.** Use a separate n8n instance and delivery providers to orchestrate a customer-defined cadence. The native inbox supports individual messages on email, LinkedIn, WhatsApp, Instagram, and Telegram, but Customermates has no sequence engine, bulk outreach, or telephony.
+## Let Mate draft follow-ups (Customermates Cloud)
 
-**Behavior-based external triggers.** A separate email or analytics provider can emit engagement events, and a customer-run workflow can request an individual follow-up while interest is fresh. Customermates has no native email-open, web-visit, or behavior-trigger sequence engine.
+Mate is the assistant in Customermates Cloud and uses hosted AI credits. On a contact, deal or inbox thread, ask it something like "Draft a short follow-up to Anna about the proposal we sent on the 2nd, based on the thread." It reads the notes, the linked conversation and the deal, and saves a draft you review in the thread.
 
-**Recorded follow-up context.** Supported messages, notes, and task changes remain with relevant CRM context where they are recorded. Review that history before reaching out again; do not assume activity from every external channel or workflow is captured automatically.
+A [routine](/docs/app-routines) runs a saved instruction on a schedule (**Every week**, Monday at 08:00, for example) or when something changes, such as a deal update or an incoming email. A routine runs as its owner, with that owner's channels and credits. This is a working Monday instruction:
 
-**Team follow-up context.** Team members can review linked tasks and filter on stored custom values. Native tasks do not have due or overdue states, and saved views are personal rather than shared team views.
+> Find my open deals whose Next contact date is today or earlier, and inbox threads where my last message is more than five days old. For each, save a short follow-up draft in the thread. Do not send anything. Then list them for me with one line of context each.
 
-**Calendar and email context.** Read supported calendar data and work with individual email conversations in the unified inbox. Calendar access is read-only, and Customermates does not schedule follow-up emails or create bookings.
+The "Do not send anything" line matters. Mate sends messages without asking again when an instruction tells it to, and an unattended routine follows the instruction it has. Deletions and a few admin actions need approval, and a routine declines those. Runs per hour and credits per run are capped; the current limits are in the routines guide.
 
-## AI Assistance
+An event example: a routine set to **When something changes** for deal updates, with the instruction "If the stage changed to Proposal, set Next contact to five working days from today and create a task 'Follow up on proposal' assigned to the deal's assigned users." Changes a routine makes never start other routines, so this cannot loop.
 
-External follow-up sequences balance persistence with relevance. Here are principles to apply in the separate campaign or delivery provider that runs them.
+<AcquisitionCallout title="What follow-up in Customermates does not include" variant="boundary">
+  No notifications or reminder emails, no built-in due date or overdue state on tasks, no recurring tasks. No email sequences, drip campaigns or bulk sending; every message is written and sent one at a time. Saved views are personal, not shared team views. Self-hosted installations have no inbox, no Mate and no routines.
+</AcquisitionCallout>
 
-An agent can help decide and record the next action, but its availability is not a reminder service. A durable scheduled action still needs an external scheduler.
+## How it connects to the rest
 
-**Personalize external outreach by segment.** A separate campaign provider can vary its sequence for a VP of Engineering or Head of Marketing. Store persona, pain point, and buying stage in custom fields; Customermates itself sends individual messages rather than sequences.
+- **Inbox (Pro and higher):** follow-ups go out from the original channel, and a thread links to the contact through its participants, so the history shows on the record.
+- **MCP:** your own AI client, such as Claude or ChatGPT, can read the same views and threads through [[derived.mcp.tools.total]] MCP tools and save drafts. This works self-hosted too, minus the inbox. See the [MCP guide](/docs/mcp).
+- **Webhooks and n8n:** if you need a real notification, for example a message in your team chat when a Next contact date passes, run that in n8n or your own scheduler against the REST API. n8n is a separate product with its own plans. See [workflow automation](/features/workflow-automation).
 
-Tasks, custom fields, webhooks, REST API access, and MCP are part of the core CRM from Starter at [[commercial.price.starter.monthly]] per user per month. The connected unified inbox begins on Pro at [[commercial.price.pro.monthly]] per user per month. Business at [[commercial.price.business.monthly]] per user per month increases connected-account capacity and supports shared accounts.
+## When another tool fits better
 
-The community self-hosted build includes the core task, API, webhook, and MCP capabilities. It does not include a bundled n8n container, the managed-cloud unified inbox, or the hosted Mate assistant. Run any automation service separately and secure its credentials and network access yourself.
+Customermates publishes this page, so read the comparison with that in mind.
 
-**Test and iterate.** Track open rates, response rates, and conversion rates in the external sequence provider. A/B test subject lines, timing, and message content there, then use the results to refine your approach.
+| If you need | Look at | Why |
+|---|---|---|
+| Automated multi-step email follow-ups that can stop when the contact replies | HubSpot Sales Hub sequences | HubSpot documents sequences as a series of timed email templates with optional reminder tasks, and contacts can be unenrolled automatically when they reply or book a meeting |
+| Activities with due dates and an overdue count | Pipedrive | Pipedrive activities carry a due date, and the activities icon counts overdue activities and those due today |
+| Follow-up lists, unanswered-thread views and AI drafts you approve | Customermates | Views and inbox filters as described above; Mate and routines in Customermates Cloud |
 
-### Does a task have a due date or reminder through your own automation?
+Competitor details checked on 8 October 2026 against [HubSpot's sequences documentation](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), [Pipedrive's activities article](https://support.pipedrive.com/en/article/activities) and [Pipedrive's overdue count article](https://support.pipedrive.com/en/article/what-is-the-red-number-on-the-activities-icon).
 
-No. The current Task model has no due-date or reminder field and does not schedule notifications.
+## What it costs
 
-**Make follow-up gaps visible.** Store a next-action date in a custom field and review it in a filtered view. A separately operated scheduler can evaluate that field and send a notification through an external provider; Customermates sends no native reminder or inactivity alert.
+Saved views and date columns are on Starter at [[commercial.price.starter.monthly]] per user per month. The waiting-for-reply view needs the inbox, which starts on Pro at [[commercial.price.pro.monthly]] per user per month; a five-person team on Pro pays [[commercial.price.pro.monthly.seats.5]] per month. Every Cloud plan includes monthly hosted AI credits per active user for Mate and routines, see [pricing](/pricing). Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user, Starter [[commercial.entitlement.starter.includedRoutinesPerUser]]. Billing is monthly.
 
-**Reminders through your own automation.** A customer-run automation service can use webhooks and APIs to observe record changes, read dates from custom fields, create tasks, or call a messaging service. Customermates itself does not run the timer.
+## FAQ
 
-**Reduced reliance on individual memory.** Linked tasks and custom fields let sales teams record what should happen, when, and for whom. The CRM stores those values; a person or customer-run workflow decides when action is required.
+<Faq>
+<FaqItem question="What is the best app for customer follow-up?">
+It depends on how you follow up. If you send the same series of emails to many leads, you want an outreach tool built for that. If you follow up personally with a few dozen clients across email, LinkedIn and WhatsApp, you want one list of who is waiting and the conversation history next to it. Customermates is built for the second case.
+</FaqItem>
+<FaqItem question="Is there a CRM that finds deals in email conversations and reminds me to follow up?">
+Customermates does not send reminders. In Customermates Cloud, a routine triggered by incoming email can ask Mate to check whether the conversation belongs to an existing deal, update that deal and set its Next contact date, within the routine limits in the [routines guide](/docs/app-routines#what-are-the-limits). The deal then appears in your follow-up view. The inbox filter for threads you sent last covers the rest.
+</FaqItem>
+<FaqItem question="Does Customermates have follow-up reminders or due dates?">
+No. There are no notifications, and tasks have no built-in due date. Add a custom Date column and sort a saved view by it. If you need a push notification, n8n or another scheduler can read that date through the API and notify you.
+</FaqItem>
+<FaqItem question="Can I automate follow-up emails?">
+Not as a sequence. A routine in Customermates Cloud can write individual drafts on a schedule, and you send them after a read. It can also send if the instruction says so, one message per conversation. Bulk or multi-step cadences need a dedicated sequencing tool.
+</FaqItem>
+<FaqItem question="How do I track follow-ups when self-hosting?">
+Use the Next contact column and saved views, which are part of the open-source core. There is no inbox, Mate or routine when self-hosting, so drafting runs through your own AI client over MCP, and timed actions through webhooks and n8n.
+</FaqItem>
+</Faq>
 
-**Recorded follow-up context.** Supported messages, notes, and task changes retain timestamps and user context where the product records them. Use that context for coaching and process review, not as a complete audit or compliance record.
-
-**Scale with external outreach tools.** As your team and pipeline grow, Customermates keeps individual CRM context while a separate campaign or sequence provider runs automated or bulk outreach under its own limits and safeguards.
-
-**Calendar context, read-only.** The connected calendar on Customermates Cloud (Pro and above) is a read-only CRM view; Customermates does not book or schedule follow-up meetings.
-
-**New lead follow-up sequence.** A customer-run external workflow can start a timed cadence in separate channel providers: day 1 email, day 3 call action, day 5 LinkedIn step, day 7 value-add email, day 14 final outreach. Customermates stores only supported CRM records and individual messages.
-
-**Post-meeting follow-up.** A customer-run workflow can create a supported follow-up task after a documented event and write the next-action date to a custom field. Reminder delivery and meeting scheduling remain in external providers.
-
-**Re-engagement campaigns.** A customer-run external workflow can evaluate recorded activity after 30, 60, or 90 days and ask a separate campaign provider to start a re-engagement sequence. Customermates does not monitor inactivity or send the touchpoints.
-
-**Customer success check-ins.** Store quarterly, annual, or renewal dates in custom fields. A customer-run external scheduler can evaluate those values and deliver reminders through a separate provider; Customermates itself does not schedule them.
-
-**Stale deal recovery.** A customer-run external workflow can evaluate recorded deal activity, notify the owner through a separate provider, and create a supported recovery task. Customermates has no native inactivity timer or escalation engine.
-
-**Post-purchase onboarding.** A customer-run external workflow can ask a separate delivery provider to run an onboarding sequence after a deal closes. The provider owns timing and delivery; Customermates stores supported deal, task, and message context.
-
-## Why Choose Customermates for Follow-Up Management
-
-**Open-source core.** The AGPL core CRM application and linked-task model are inspectable. Reminder scheduling, sequences, delivery providers, external AI clients, and n8n workflows remain separate systems with their own code and terms.
-
-**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
-
-**Simple, fair CRM pricing.** Core CRM records and linked tasks start at [[commercial.price.starter.monthly]] per user per month; the unified inbox starts with Pro at [[commercial.price.pro.monthly]]. Native reminders, sequences, and per-sequence delivery are not included. A separate n8n instance and delivery providers have their own plans, limits, and costs.
-
-**External AI clients draft individual follow-ups.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to read allowed context, draft one message, and send where permitted on a messaging tier. The external client, model, and subscription are yours; on cloud plans the hosted Mate assistant can also draft follow-ups inside the CRM and asks for confirmation before sending.
-
-**Separate n8n for advanced sequences.** Connect your own n8n instance through REST, webhooks, MCP, or the community node. Multi-step timing, conditions, and external delivery run there, not in Customermates; the n8n plan, connectors, logs, limits, and costs remain separate.
-
-**Self-hostable application and database.** Run the Customermates application and PostgreSQL database on your infrastructure. Connected workflow, AI, and messaging providers still receive the data your configuration sends.
-
-## Get Started with Follow-Up Management Today
-
-Start managing follow-ups in Customermates today. Create a linked task and record the next action in a custom field. Connect a separate reminder or outreach workflow only when needed; Customermates does not include automated sequences or bulk outreach. Sign up and begin with the CRM capabilities in your plan.
+For how to word the message itself, read [how to write a sales follow-up email](/blog/sales-follow-up-email).

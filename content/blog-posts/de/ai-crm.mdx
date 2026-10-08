@@ -1,154 +1,205 @@
 ---
-title: "Künstliche Intelligenz im CRM: Praxis-Guide 2026"
-description: "Wie KI im CRM tatsächlich funktioniert, wo sie wirklich Zeit spart und worauf 2026 zu achten ist. Inklusive Anbietervergleich und MCP-Setup mit Claude."
+title: "KI-CRM: Was es kann und wie Sie es auswählen"
+description: "Ein KI-CRM liest Kontakte, Deals und Nachrichten, pflegt Datensätze und entwirft Antworten. Was KI-nativ heißt und acht Fragen für die Auswahl."
 
 hero:
-  title: "Künstliche Intelligenz im CRM"
-  description: KI im CRM hat den Hype-Status verlassen, sobald Agenten direkt in die Datenbank schreiben konnten. Was sich geändert hat und wie Sie es nutzen.
+  title: "KI-CRM: Was ein KI-natives CRM leistet und wie Sie es prüfen"
+  description: "Was KI im CRM heute tatsächlich erledigt, was ein KI-natives CRM von aufgesetzter KI unterscheidet, wie die großen Anbieter KI verpacken und bepreisen, und acht Fragen, mit denen Sie Produkte schnell einordnen."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-05-02
+  updated: 2026-10-08
   tags:
+    - KI-CRM
     - KI im CRM
-    - KI-Agenten
     - MCP
+
+relatedHrefs:
+  - /blog/agentic-crm
+  - /docs/mcp
+  - /features/unified-inbox
+  - /features/workflow-automation
 ---
 
-# Künstliche Intelligenz im CRM
+# KI-CRM: Was ein KI-natives CRM leistet und wie Sie es prüfen
 
-Künstliche Intelligenz im Kundenbeziehungsmanagement bezeichnet den Einsatz von Machine Learning, Large Language Models und KI-Agenten, um die Dateneingabe-, Analyse- und Follow-up-Arbeit zu automatisieren, die in einem CRM lebt. Richtig umgesetzt, eliminiert sie die Routinearbeit, die Adoption erstickt, und hält das System aktuell, ohne dass Menschen tippen müssen.
+Ein KI-CRM ist ein CRM, in dem ein Sprachmodell mit Ihren Kundendaten arbeitet: Es liest Kontakte, Deals und Gespräche, beantwortet Fragen dazu, ändert Datensätze und entwirft die nächste Nachricht. Die Produkte unterscheiden sich weniger darin, ob sie KI haben, als darin, was die KI tun darf. Bei manchen schreibt sie Text in einer Seitenleiste, und jede Änderung macht weiterhin ein Mensch. In einem KI-nativen CRM nutzt die KI dieselben Aktionen und Berechtigungen wie ein Nutzer und arbeitet auch dann, wenn niemand einen Prompt eintippt: nach Zeitplan oder sobald sich ein Datensatz ändert.
 
-Dieser Guide erklärt, was KI im CRM 2026 bedeutet, wo sie tatsächlich Zeit spart, was die führenden Anbieter liefern und wie Sie einen Workflow bauen, in dem Claude oder ChatGPT das CRM direkt über [MCP (Model Context Protocol)](/features/api) bedient.
+Diesen Leitfaden veröffentlicht Customermates, ein KI-natives CRM, das unten in einem eigenen, gekennzeichneten Abschnitt steht. Angaben zu anderen Anbietern stammen von deren eigenen Seiten, geprüft am 8. Oktober 2026.
 
-## Was ist KI im CRM?
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Definition">Ein CRM, in dem KI Datensätze und Gespräche liest und ändert, statt nur zusammenzufassen, was gerade auf dem Bildschirm steht.</SummaryItem>
+  <SummaryItem label="KI-nativ">Die KI handelt über dieselben Aktionen und Rechte wie ein Mensch und läuft auf Wunsch unbeaufsichtigt, mit Obergrenzen für Läufe und Kosten.</SummaryItem>
+  <SummaryItem label="Prüfen">Fragen Sie, was die KI ohne Freigabe ändert, ob sie E-Mail- und Chatverläufe sieht, wer das Modell bezahlt und ob Ihr eigener KI-Client andocken kann.</SummaryItem>
+  <SummaryItem label="Customermates">Mate arbeitet in Customermates Cloud und nutzt gehostete KI-Credits. Claude, ChatGPT und andere Clients greifen über MCP zu, in jedem Tarif und auch selbst gehostet.</SummaryItem>
+  <SummaryItem label="Grenzen">Customermates bietet kein Lead-Scoring, keine Datenanreicherung und keine Umsatzprognose.</SummaryItem>
+</ArticleSummary>
 
-KI im CRM deckt vier unterschiedliche Fähigkeiten ab, jede gegen einen anderen Schmerz:
+## Was KI im CRM heute erledigt
 
-- **Datenerfassung und Anreicherung.** E-Mails, Anruf-Transkripte und Meeting-Notizen lesen und strukturierte Datensätze ins CRM schreiben (Kontakt erstellt, Deal-Stufe vorgerückt, Notiz angehängt).
-- **Analyse und Prognose.** Lead-Scoring, Churn-Prognose, Deal-Win-Wahrscheinlichkeit, Next-Best-Action-Empfehlungen.
-- **Entwürfe und Personalisierung.** Follow-up-E-Mails, LinkedIn-Nachrichten oder Angebotstexte verfassen, die auf vorherige Interaktionen Bezug nehmen.
-- **Konversationelle Schnittstellen.** Das CRM in natürlicher Sprache fragen ("Welche Deals sind diese Woche zurückgefallen?") und Antworten bekommen, ohne einen Report zu bauen.
+Was als KI im Kundenmanagement verkauft wird, lässt sich auf sieben Aufgaben herunterbrechen. Die ersten fünf sind Arbeit für ein Sprachmodell und bringen schon in der ersten Woche etwas, auch mit wenigen hundert Datensätzen. Die letzten beiden hängen von der Datenmenge und von externen Quellen ab.
 
-Die erste Fähigkeit ist die, die die Adoption-Decke durchbricht. Der klassische Grund, warum CRM-Rollouts scheitern, sind nicht fehlende Features. Es ist, dass Reps keine Daten eingeben. KI, die die E-Mail liest und den Datensatz schreibt, eliminiert diesen Schritt komplett.
+| Aufgabe | Beispiel | Worauf Sie achten sollten |
+|---|---|---|
+| Zusammenfassen | „Was ist mit der Müller GmbH seit Juni passiert?“ über Notizen, E-Mails und LinkedIn-Nachrichten | Liest die KI die Gespräche oder nur das Notizfeld? |
+| Entwerfen | Eine Antwort im Verlauf, in der Sprache des Kontakts, mit Bezug zum offenen Deal | Speichert sie einen Entwurf, oder kann sie auch senden? |
+| Datensätze pflegen | Deal in die nächste Phase schieben, Notiz ergänzen, neuen Kontakt mit seiner Organisation verknüpfen | Wird jede Änderung protokolliert, und gelten die Rollenrechte? |
+| Fragen über alle Daten | „Welche offenen Angebote haben den höchsten Wert und seit zwei Wochen keine Nachricht von uns?“ | Wertet sie alle Datensätze aus oder rät sie aus der ersten Ergebnisseite? |
+| Unbeaufsichtigt arbeiten | Ein täglicher Durchgang durch offene Deals oder eine Reaktion, wenn ein Deal gewonnen ist | Gibt es Obergrenzen für Läufe und Kosten, und was darf sie, wenn niemand zusieht? |
+| Bewerten | Eine Abschlusswahrscheinlichkeit pro Lead oder Deal oder ein erwarteter Umsatz | Aus welcher Historie lernt das Modell, und reicht sie aus? |
+| Daten ergänzen | Firmengröße oder Positionen aus externen Quellen | Welcher Datenanbieter liefert, und auf welcher Rechtsgrundlage? |
 
-## Wie KI im CRM unter der Haube funktioniert
+Ein Bewertungsmodell lernt aus Ihren gewonnenen und verlorenen Deals. Eine Beratung, die 30 Deals im Jahr abschließt, liefert ihm kaum Material. Für kleine Teams sparen deshalb die ersten fünf Aufgaben die meiste Zeit.
 
-Drei Architekturen dominieren 2026:
+Wie verändert KI also die Arbeit mit einem CRM? Vor allem beim Tippen: Gespräche festhalten, Phasen nachziehen, erste Entwürfe schreiben. Wer welchen Kunden betreut und welches Angebot hinausgeht, entscheiden weiterhin Sie.
 
-**Eingebettete KI-Funktionen.** Der Anbieter baut KI ins Produkt. Salesforce Einstein, HubSpot ChatSpot, Pipedrives KI-Vertriebsassistent, Zoho Zia. Sie bleiben im CRM-UI, die KI taucht darin auf (Seitenleisten, Vorschläge, Zusammenfassungspanels). Praktisch, aber die KI-Fähigkeiten sind durch das begrenzt, was der Anbieter freigegeben hat.
+## KI-nativ, KI-Funktionen, Smart CRM: was die Begriffe bedeuten
 
-**Workflow-Automatisierung mit KI-Knoten.** Tools wie n8n, Zapier oder Make erlauben Flows, die OpenAI- oder Anthropic-APIs aufrufen und über Webhooks oder REST ins CRM zurückschreiben. Flexibler als eingebettete KI, aber Sie bauen und warten die Flows selbst.
+Anbieter verwenden diese Begriffe großzügig. Hier steht, was jeweils meist gemeint ist, und die Frage, mit der Sie die Begriffe auseinanderhalten.
 
-**Native Agent-Integration via MCP.** Das CRM legt seine Operationen als Model-Context-Protocol-Tools offen. Jeder MCP-kompatible Agent (Claude Desktop, Codex, eigener OpenAI-Agent) kann das CRM direkt lesen und schreiben, ohne Glue-Code. Der Agent entscheidet anhand des Gesprächs, welche Tools er aufruft. Das ist das neueste Muster und das mit der höchsten Decke, weil der Agent nicht durch einen vorgebauten Workflow begrenzt ist.
+| Begriff | Was meist gemeint ist | Die Frage, die es klärt |
+|---|---|---|
+| CRM mit KI-Funktionen | Ein Assistent in der Seitenleiste, der zusammenfasst und Text schreibt; jede Änderung macht ein Mensch | „Kann die KI den Datensatz selbst ändern?“ |
+| Smart CRM | Älterer Marketingbegriff für ein CRM mit Automatisierung und Scoring. HubSpot nennt sein CRM-Produkt ebenfalls Smart CRM | „Welche dieser Funktionen sind KI, und welche sind Regeln, die jemand eingerichtet hat?“ |
+| KI-natives CRM | Die KI bedient das CRM über dieselben Aktionen und Rechte wie ein Nutzer, in der App und aus externen KI-Clients, auch unbeaufsichtigt | „Welche Aktionen brauchen meine Freigabe, und welche laufen sofort?“ |
+| Agentisches CRM | KI-Agenten erledigen mehrstufige Aufgaben selbstständig. Der Begriff überschneidet sich mit KI-nativ | „Was darf ein Agent tun, wenn niemand zusieht?“ |
 
-Das dritte Muster macht „Das CRM aktualisiert sich selbst" zu einer realen Aussage statt Marketing. Der Agent ist der Worker, das CRM ist das System of Record.
+Nicht zu verwechseln ist die Kategorie mit dem Produkt SMARTCRM der SMARTCRM GmbH, einem CRM für den B2B-Mittelstand mit Anbindungen an ERP-Systeme wie SAP oder Microsoft Dynamics ([smartcrm.de](https://www.smartcrm.de/)).
 
-## Wo KI im CRM wirklich Zeit spart
+Ein schneller Test für „KI-nativ“: Notieren Sie, was ein Mensch im CRM tun kann, und prüfen Sie, wie viel davon die KI über ein Werkzeug selbst erledigt. Kann sie nur lesen oder nur Text schreiben, den Sie anschließend irgendwo einfügen, ist sie aufgesetzt. Der Leitfaden zum [agentischen CRM](/blog/agentic-crm) geht tiefer auf Agentenaktionen und die Freigaben rund um sie ein.
 
-Drei Workflows tauchen bei fast jedem Kunden auf, der KI in seinem CRM tatsächlich nutzt:
+## Acht Fragen, mit denen Sie KI-CRMs schnell einordnen
 
-**1. E-Mail-zu-CRM-Logging.** Eine E-Mail landet im Posteingang. Ein Agent liest sie, identifiziert Kontakt und Deal und aktualisiert das CRM: Deal-Stufe, Zuletzt-Kontaktiert-Datum, eine Ein-Zeilen-Zusammenfassung an die Kontaktnotiz angehängt. Der Rep öffnet das CRM nie, um die E-Mail zu loggen. Dieser eine Workflow ist verantwortlich für den Großteil des „Das CRM ist jetzt aktuell"-Effekts.
+Stellen Sie diese Fragen in der Demo, oder schlagen Sie sie in der Dokumentation nach. Die dritte Spalte zeigt die Antworten von Customermates, damit Sie sehen, wie eine konkrete Antwort aussieht.
 
-**2. Meeting- und Anruf-Zusammenfassungen.** Ein Transkriptionstool ([Fireflies.ai](https://fireflies.ai), Granola, Otter oder eine selbst gehostete Whisper-Pipeline) erstellt ein Transkript. Ein Agent liest es, schreibt eine strukturierte Zusammenfassung an den Deal, erstellt Follow-up-Aufgaben und entwirft die nächste E-Mail. Der Rep prüft den Entwurf und sendet.
+| Frage | Eine gute Antwort | Customermates |
+|---|---|---|
+| 1. Ändert die KI Datensätze selbst, oder schlägt sie nur vor? | Sie pflegt Datensätze, Notizen und Verknüpfungen selbst und meldet, was sich geändert hat | Ja. Mate ändert Datensätze direkt und meldet jede Änderung |
+| 2. Was tut sie, ohne zu fragen? | Eine schriftliche Liste der Aktionen, die eine Freigabe brauchen | Löschungen, das Umbenennen von Datensatztypen, Einladungen ins Team, erneute Webhook-Zustellungen und Supportanfragen brauchen jedes Mal Ihre Freigabe. Nachrichten versendet Mate ohne Rückfrage; bitten Sie um einen Entwurf, wenn Sie vorher prüfen möchten |
+| 3. Sieht sie die Gespräche? | E-Mail- und Chatverläufe liegen beim passenden Deal | Ab Pro bündelt der [einheitliche Posteingang](/features/unified-inbox) E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Starter hat keinen Posteingang |
+| 4. Arbeitet sie ohne Sie? | Zeitpläne und Datensatzereignisse, mit Obergrenzen für Läufe und Kosten | Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung aus, begrenzt pro Lauf und pro Stunde |
+| 5. Kann Ihr eigener KI-Client andocken? | Ein MCP-Server oder eine vollständige API, mit den Rechten des jeweiligen Nutzers | Ein MCP-Server mit [[derived.mcp.tools.total]] Werkzeugen, in jedem Tarif und selbst gehostet |
+| 6. Wer bezahlt das Modell? | Eine Einheit, die Sie vorab prüfen können: Credits, ein Add-on oder Ihr eigener KI-Anbieter | Mate nutzt monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing). Mit einem MCP-Client läuft das Modell bei Ihrem eigenen KI-Anbieter |
+| 7. Wohin gehen die Daten, und kommen Sie wieder heraus? | Benannte Modellanbieter und Unterauftragsverarbeiter, ein AVV, ein dokumentierter Export | Primäre Datenbank in der AWS-Region Frankfurt konfiguriert; die Liste der [Unterauftragsverarbeiter](/subprocessors) nennt Google Cloud Vertex AI und Microsoft Azure als Anbieter der Modelle hinter Mate. Export als XLSX, ein Datensatztyp nach dem anderen |
+| 8. Bewertet sie Deals? | Wenn Sie Scores brauchen: Fragen Sie, aus welchen Daten das Modell lernt | Nein. Gewichtete Pipeline-Werte ergeben sich aus den Phasenwahrscheinlichkeiten, die Sie festlegen |
 
-**3. Outbound-Recherche und -Entwurf.** Bei einer Liste neuer Leads reichert ein Agent jeden Kontakt an (LinkedIn-Rolle, Unternehmensphase, aktuelle Posts), entwirft eine personalisierte Erstnachricht und sendet sie oder reiht sie für menschliche Freigabe ein. Volumen steigt, Qualität bleibt konstant.
+MCP, das [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), ist ein Open-Source-Standard, mit dem KI-Anwendungen wie Claude oder ChatGPT auf externe Systeme zugreifen. Mit einem MCP-Server arbeitet der KI-Client, für den Sie schon bezahlen, direkt im CRM.
 
-Muster über alle drei: Der Agent tippt. Der Mensch prüft und entscheidet. Das CRM bleibt als Nebeneffekt aktuell.
+### Der Zehn-Minuten-Test für jede Testphase
 
-## Führende KI-im-CRM-Anbieter 2026
+Machen Sie in jeder Testphase denselben Test, mit eigenen Daten statt Demodatensätzen. Die Testphase von Customermates läuft [[commercial.trial.days]] Tage mit den Funktionen von Pro, der Posteingang ist also enthalten.
 
-| Anbieter                               | KI-Ansatz                                                                                                                                                                                                   | Preismodell                                                                                                         | Am besten für                                  |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| **Salesforce Einstein**                | Eingebettet in Sales / Service Cloud, generative KI in Slack                                                                                                                                                | Add-on pro User/Monat zusätzlich zu Salesforce                                                                      | Großunternehmen, die schon auf Salesforce sind |
-| **HubSpot ChatSpot / Breeze**          | Eingebettete konversationelle KI, Content-Generierung, Prospecting-Agent                                                                                                                                    | In bezahlten HubSpot-Tarifen enthalten                                                                              | Marketing-getriebener Mittelstand              |
-| **Pipedrive KI-Vertriebsassistent**    | Schlägt nächste Aktionen vor, fasst Deals zusammen                                                                                                                                                          | Inklusive                                                                                                           | Vertriebs-first KMU                            |
-| **Zoho Zia**                           | Lead-Scoring, Anomalie-Erkennung, Sprachassistent                                                                                                                                                           | In höheren Zoho-Tarifen enthalten                                                                                   | Zoho-Ökosystem-Nutzer                          |
-| **Microsoft Copilot for Dynamics 365** | Eingebettet in Sales, Service, Marketing                                                                                                                                                                    | $20-$30/User/Monat Add-on                                                                                           | Microsoft-Stack-Unternehmen                    |
-| **Folk AI**                            | Entwurfs- und Anreicherungsassistenten                                                                                                                                                                      | Credits in Standard / Premium                                                                                       | LinkedIn-first Solo / Kleinteam                |
-| **Customermates**                      | Nativer MCP-Server (Agenten bedienen das CRM) plus ein nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), den dieselben Agenten lesen, entwerfen und versenden können | Ab [[commercial.price.starter.monthly]]/User/Monat (Starter); Posteingang ab Pro ([[commercial.price.pro.monthly]]) | Teams, die Claude / ChatGPT bereits nutzen     |
+<Steps>
+  <Step title="Einige echte Datensätze laden">Importieren Sie 20 Kontakte und fünf offene Deals. In Customermates läuft der Import über eine XLSX-Arbeitsmappe, ein Datensatztyp nach dem anderen.</Step>
+  <Step title="Eine zusammengesetzte Anweisung geben">Fügen Sie eine echte Kunden-E-Mail ein und schreiben Sie: „Den Deal zu diesem Kunden finden, in die nächste Phase schieben, die drei wichtigsten Punkte dieser E-Mail in die Notizen des Deals übernehmen und eine Antwort als Entwurf speichern. Nicht senden.“</Step>
+  <Step title="Prüfen, was sich wirklich geändert hat">Öffnen Sie den Deal und sehen Sie sich Phase, Notizen, Aktivitätsverlauf und Entwurf an. Zählen Sie, was die KI getan hat, nicht, was sie angekündigt hat.</Step>
+  <Step title="Eine Frage stellen, die Rechenarbeit braucht">„Welche offenen Deals haben den höchsten Wert und seit 14 Tagen keine Nachricht von uns?“ Eine gute Antwort berücksichtigt alle offenen Deals, nicht nur die erste Seite einer Liste.</Step>
+  <Step title="Eine Löschung versuchen">Lassen Sie einen Testkontakt löschen und achten Sie darauf, ob die KI vorher Ihre Freigabe verlangt.</Step>
+</Steps>
 
-Die wesentliche Trennlinie: Anbieter mit eingebetteter KI halten Sie in ihrem UI. Agent-native CRMs erlauben Ihren KI-Tools, das CRM von außen zu bedienen, was das Modell ist, das Sie wollen, wenn Sie Claude, ChatGPT oder Codex täglich nutzen. Customermates kombiniert das mit einem nativen einheitlichen Posteingang, sodass derselbe Agent, der einen Deal aktualisiert, auch die E-Mail, LinkedIn- oder WhatsApp-Antwort lesen und entwerfen kann, die ihn bewegt hat.
+## Wie die großen CRM-Anbieter KI verpacken
 
-## Praktisches KI-im-CRM-Setup mit Claude und MCP
+Arbeitet Ihr Team bereits in einem dieser CRMs, ist es meist günstiger, dessen KI einzuschalten, als umzuziehen. Die Tabelle nennt die KI jedes Anbieters und wie sie bepreist wird, so wie der Anbieter es auf seinen eigenen Seiten beschreibt.
 
-Hier ist ein Setup, das etwa zehn Minuten dauert und „Rep gibt Daten ins CRM ein" durch „KI-Agent gibt Daten ins CRM ein" ersetzt.
+| Anbieter | KI | Was der Anbieter beschreibt | Wie bezahlt wird | Passt zu Teams, die |
+|---|---|---|---|---|
+| [Salesforce](https://www.salesforce.com/agentforce/pricing/) | Agentforce, Einstein | Agentforce-Agenten für Mitarbeitende und für den Kundenkontakt | Flex Credits pro Agentenaktion, ein Preis pro Konversation für Agenten im Kundenkontakt oder Add-ons pro Nutzer für Sales, Service und Field Service, bei denen die Nutzung durch Mitarbeitende nicht gemessen wird | Salesforce bereits nutzen und einen Admin haben |
+| [HubSpot](https://www.hubspot.com/products/crm/ai-crm) | Breeze Assistant und Breeze-Agenten | Customer, Prospecting und Data Agent; MCP-Konnektoren und ein Konnektor für Claude | [HubSpot Credits](https://www.hubspot.com/products/artificial-intelligence/credits): Sitzbasierte Tarife enthalten jeden Monat Credits, ungenutzte verfallen | Marketing, Vertrieb und Service auf einer Plattform wollen |
+| [Pipedrive](https://support.pipedrive.com/en/article/pipedrive-ai) | Pipedrive AI | Ein Sales Assistant in der Beta, der Fragen zu Ihren Daten beantwortet und Notizen anlegt; KI-gestütztes Schreiben, Zusammenfassen und Antwortvorschläge für E-Mails | An den Tarif gebunden; die KI-Funktionen für E-Mails gibt es ab Premium | einen pipelinezentrierten Vertrieb führen |
+| [Zoho CRM](https://www.zoho.com/crm/zia.html) | Zia | Vorhersagen wie Lead-Scoring und Abwanderung, KI-Prognosen, Anomalieerkennung, Datenanreicherung und KI-Agenten | Hängt von der Zoho-CRM-Edition ab | bereits andere Zoho-Apps nutzen |
+| [Microsoft Dynamics 365 Sales](https://learn.microsoft.com/en-us/dynamics365/sales/copilot-overview) | Copilot und der Sales-Agent in Microsoft 365 Copilot | Zusammenfassungen von Datensätzen, Meetingvorbereitung, Hilfe bei E-Mails und Nachrichten zu Accounts | Geregelt im Lizenzleitfaden für Dynamics 365 | den Arbeitstag in Microsoft 365 verbringen |
+| [Attio](https://attio.com/pricing) | Ask Attio, KI-Agenten | Ask Attio, KI-Agenten, Call Intelligence und ein MCP-Server in jedem Tarif | Credits pro Sitz und pro Workspace, die mit dem Tarif steigen | ein flexibles Datenmodell selbst gestalten wollen |
 
-**Schritt 1.** Wählen Sie ein CRM mit echtem MCP-Server. Customermates liefert einen mit [[[derived.mcp.tools.total]] Tools für die zentralen CRM-Operationen](/features/api) (Kontakte erstellen, Deals aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren). Salesforce, HubSpot, Pipedrive und Zoho CRM bieten offizielle MCP-Server mit unterschiedlicher Abdeckung (siehe die Leitfäden zu [Salesforce MCP](/blog/salesforce-mcp) und [HubSpot MCP](/blog/hubspot-mcp)).
+Laut Microsoft wird der Sales-Agent in Microsoft 365 Copilot der bevorzugte Weg, Copilot in Dynamics 365 Sales zu nutzen. Wenn Sie Claude oder ChatGPT mit einem bestehenden HubSpot-Konto verbinden möchten, erklärt der [Leitfaden zum HubSpot-MCP-Server](/blog/hubspot-mcp), was diese Verbindung lesen und schreiben kann.
 
-**Schritt 2.** Fügen Sie den MCP-Server zu Claude Desktop oder Ihrem Agenten der Wahl hinzu. Für Customermates lautet die Konfiguration:
+## Customermates als KI-natives CRM
 
-```json
-{
-  "mcpServers": {
-    "customermates": {
-      "type": "http",
-      "url": "https://customermates.com/api/v1/mcp",
-      "headers": { "x-api-key": "IHR_API_KEY" }
-    }
-  }
-}
+Customermates ist ein Open-Source-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Kontakte, Organisationen, Deals, Services und Aufgaben liegen in einem Workspace; ab Pro stehen die E-Mail-, LinkedIn- und WhatsApp-Gespräche dazu direkt daneben. Die KI kommt auf zwei Wegen an diese Daten, und bei einer selbst gehosteten Installation ändert sich, welche davon Sie nutzen können.
+
+| | Mate | Ihr eigener KI-Client über MCP | Selbst gehostet |
+|---|---|---|---|
+| Wo es läuft | Customermates Cloud, jeder Tarif | Customermates Cloud in jedem Tarif und selbst gehostet | Ihr Server, mit dem AGPL-Kern |
+| Wer das Modell bezahlt | Monatliche gehostete KI-Credits pro aktivem Nutzer | Ihr eigenes KI-Abo oder Ihr KI-Anbieter; Clients sind etwa Claude, ChatGPT, Cursor, Codex und Gemini CLI | Ihr eigener KI-Anbieter, über MCP |
+| Posteingang | Ab Pro | Messaging-Werkzeuge ab Pro, nur in der Cloud | Kein Posteingang |
+| Unbeaufsichtigte Läufe | Routinen | Nur, wenn Ihr Client sie plant | Kein Mate und keine Routinen |
+
+Mate ist der Assistent in Customermates Cloud. Er liest die Wissensdatenbank Ihres Workspaces, in der Sie Unternehmensfakten, Abläufe und Tonalität festhalten, und nennt die Seiten, auf die er sich stützt. Bei Fragen, die über viele Datensätze rechnen müssen, etwa den mittleren Dealwert pro Lead-Quelle, wertet er alle passenden Datensätze aus, ohne etwas zu ändern, statt nur eine Ergebnisseite zu lesen.
+
+Ihr eigener KI-Client verbindet sich mit dem [MCP-Server](/docs/mcp): Claude und ChatGPT über einen benutzerdefinierten Konnektor mit OAuth-Anmeldung, Claude Code, Codex, Cursor und Gemini CLI mit einem API-Schlüssel. Der Server bittet Clients, vor dem Löschen oder Senden nachzufragen. Ob Sie tatsächlich eine Rückfrage sehen, hängt aber vom Client ab.
+
+### Beispiel: eine Beratung mit fünf Personen
+
+- **Phasen der Deals:** Lead (10 %), Qualifiziert (30 %), Angebot gesendet (60 %), Gewonnen (100 %), Verloren (0 %). Die Prozentwerte sind Phasenwahrscheinlichkeiten und bestimmen die gewichtete Pipeline.
+- **Eigenes Feld an Deals:** Quelle, ein Feld vom Typ Einzelauswahl mit Empfehlung, LinkedIn, Website und Veranstaltung.
+- **Gespeicherte Ansicht:** „Meine offenen Angebote“, gefiltert auf die Phase „Angebot gesendet“ und auf Deals, bei denen ich unter „Zugewiesen“ stehe, sortiert nach Wert. Gespeicherte Ansichten sind persönlich, jede Beraterin und jeder Berater legt die eigene an.
+- **Posteingang:** Auf Pro verbindet jede Person [[commercial.entitlement.pro.includedAccountsPerUser]] Konto, meist das geschäftliche E-Mail-Postfach oder LinkedIn.
+
+Dazu legt jede Person zwei [Routinen](/docs/app-routines) an. Beide laufen in Customermates Cloud und nutzen gehostete KI-Credits.
+
+Die erste, „Nachfassen bei Angeboten“, läuft **Nach Zeitplan**, **Täglich** um 09:00 Uhr:
+
+```text
+Alle offenen Deals in der Phase „Angebot gesendet“ durchgehen,
+die mir zugewiesen sind. Pro Deal das letzte Gespräch mit den
+zugehörigen Kontakten lesen. Wenn die letzte Nachricht von uns
+stammt und älter als fünf Tage ist, eine kurze Nachfrage als
+Entwurf in diesem Verlauf speichern, in der Sprache des Gesprächs.
+Nichts senden. Zum Schluss die gespeicherten Entwürfe auflisten.
 ```
 
-**Schritt 3.** Senden Sie dem Agenten die E-Mail, das Transkript oder den Kontext. Sagen Sie ihm, das CRM zu aktualisieren. Der Agent wählt die richtigen Tools (`list_records`, um den Deal zu finden, `update_deals`, um die Stufe vorzurücken, `update_record_notes`, um eine Zusammenfassung anzuhängen) und führt sie aus.
+Die zweite, „Übergabe nach Auftrag“, läuft **Wenn sich etwas ändert**, beim Ereignis „Deal aktualisiert“, mit der Phase unter **Geänderte Felder**:
 
-**Schritt 4.** Prüfen und auditieren. Derselbe Agent kann Änderungen zur Verifikation zurücklesen. Webhook-Events feuern bei jedem Schreibvorgang, sodass ein n8n-Flow oder Slack-Channel zeigen kann, was sich geändert hat.
+```text
+Wenn dieser Deal jetzt in der Phase „Gewonnen“ ist: eine Aufgabe
+„Kick-off: [Dealname]“ anlegen, mit dem Deal verknüpfen und den
+zugewiesenen Personen des Deals zuweisen. Danach eine
+Zusammenfassung des letzten Gesprächs in fünf Zeilen in den
+Notizen des Deals ergänzen. Bei jeder anderen Phase nichts tun.
+```
 
-Das ist die ganze Schleife. Kein Vendor-Lock-in zu einem bestimmten KI-Add-on, keine SaaS-seitige Feature-Schranke. Die Intelligenz lebt in Ihrem Agenten, das CRM ist das System of Record.
+Eine Routine läuft als ihre Eigentümerin oder ihr Eigentümer, mit deren Kanälen und Rechten. Ein unbeaufsichtigter Lauf lehnt alles ab, was eine Freigabe bräuchte, und Änderungen durch eine Routine lösen keine weitere Routine aus. Mate sendet Nachrichten, wenn man ihn darum bittet; deshalb steht in der ersten Anweisung „Nichts senden“.
 
-## Worauf achten, wenn Sie ein KI-im-CRM-Tool wählen
+**Was es kostet:** Auf Pro zahlt dieses Team [[commercial.price.pro.monthly.seats.5]] pro Monat für den Posteingang, [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto und bis zu [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Person, einschließlich monatlicher gehosteter KI-Credits pro aktivem Nutzer für Mate und die Routinen (siehe [Preise](/pricing)). Starter kostet dasselbe Team [[commercial.price.starter.monthly.seats.5]] pro Monat und umfasst Mate, MCP und [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Person, aber keinen Posteingang; die Nachfass-Routine hätte dann keine Verläufe zum Lesen. Bezahlt wird monatlich.
 
-Sechs Fragen schneiden durch das Marketing:
+### Was Customermates nicht kann
 
-1. **Schreibt die KI ins CRM, oder schlägt sie nur vor?** Vorschläge erfordern weiterhin, dass ein Mensch tippt. Schreiben ist der eigentliche Gewinn.
-2. **Ist die KI ein kostenpflichtiges Add-on oder enthalten?** Add-ons (Einstein, Copilot for Dynamics) verdoppeln oft die Kosten pro User.
-3. **Können meine eigenen KI-Tools das CRM bedienen?** MCP, eine offene API und Webhooks sagen ja. Eine geschlossene KI-Seitenleiste sagt nein.
-4. **Wie sieht der Daten-Exit aus?** Wenn der KI-Anbieter derselbe ist wie der CRM-Anbieter, können Sie nicht leicht weg. Offene Formate und Self-Hosting (Customermates, [SuiteCRM](https://suitecrm.com)) geben Ihnen einen Ausgang.
-5. **DSGVO und Datenresidenz.** Der Speicherort und die beteiligten Dienstleister zählen, wenn das CRM EU-Kontakte enthält. In der Cloud-Version von Customermates liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [AVV](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den AGPL-lizenzierten Kern selbst. Prüfen Sie bei Salesforce und HubSpot die jeweiligen Optionen zur Datenresidenz.
-6. **Preisrechnung bei Ihrer Teamgröße.** Ein 5er-Team auf Pipedrive + KI-Add-on ist grob $90-$150/Monat. Dasselbe Team auf Customermates Starter kostet [[commercial.price.starter.monthly.seats.5]]/Monat, mit Agent-Integration in jeder Stufe inklusive.
+- Kein Lead-Scoring, keine Datenanreicherung und keine Umsatzprognose. Gewichtete Pipeline-Werte ergeben sich aus den Phasenwahrscheinlichkeiten, die Sie festlegen.
+- Keine E-Mail-Sequenzen und kein Massenversand. Routinen haben keine Empfängerlisten und keine Sequenzschritte, und Mate versendet einzelne Nachrichten.
+- Keine Terminbuchung. Ab Pro liest Customermates verbundene Kalender, schreibt aber nicht hinein.
+- Keine native Mobile-App.
+- Kein Posteingang, kein Mate und keine Routinen bei Self-Hosting. Selbst gehostet erhalten Sie den AGPL-Kern mit REST, Webhooks und MCP.
 
-## Häufige Einwände, ehrlich beantwortet
-
-> _„KI-Halluzinationen werden meine CRM-Daten korrumpieren."_
-
-Berechtigte Sorge. Gegenmaßnahmen: Agenten, die das CRM bedienen, sollten Read-Back-Tools aufrufen, um Schreibvorgänge zu verifizieren. Webhook-Listener können ungewöhnliche Änderungen markieren, und das Audit-Log zeigt jede Operation. Customermates bietet [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) genau aus diesem Grund. Das Risiko ist real, aber beherrschbar.
-
-> _„Das funktioniert nur, wenn ich Claude oder ChatGPT bereits nutze."_
-
-Stimmt. Der Agent-Winkel setzt voraus, dass Sie einen Agenten haben. Wenn Sie KI-Tools nicht täglich nutzen, gibt Ihnen ein Embedded-KI-CRM (HubSpot ChatSpot, Pipedrive Sales Assistant) die In-Produkt-Variante ohne das Setup. Der Agent-Winkel zahlt sich aus, wenn KI bereits in Ihrem täglichen Workflow ist.
-
-> _„Wird die KI meine Vertriebsmitarbeiter ersetzen?"_
-
-Nein. Die KI ersetzt die Dateneingabe, die Reps vermeiden, nicht die Gespräche und das Urteilsvermögen, die Reps tatsächlich liefern. Die Adoption steigt, wenn Reps aufhören, ins CRM zu tippen, sie sinkt nicht.
-
-## Fazit
-
-Künstliche Intelligenz im Kundenbeziehungsmanagement hat sich von „Fasse diesen Kontakt zusammen"-Funktionen zu Agenten entwickelt, die das CRM tatsächlich bedienen. Das neue Muster ist einfach: Wählen Sie ein CRM mit echtem MCP-Server oder offener API, richten Sie Ihren vorhandenen Claude oder ChatGPT darauf, lassen Sie den Agenten tippen. Das CRM bleibt aktuell, Adoption ist kein Problem mehr, und das Team arbeitet in den Tools, die es ohnehin nutzt.
-
-Wenn Sie das End-to-End ausprobieren wollen, [Customermates](/pricing) liefert MCP-Server und Webhooks in jeder Stufe, dazu einen Community-Node für ein separat betriebenes n8n, ab [[commercial.price.starter.monthly]] pro User pro Monat, und ergänzt ab Pro ([[commercial.price.pro.monthly]]) einen nativen einheitlichen Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), sodass der Agent, der die Pipeline aktuell hält, auch die Konversationen führen kann, die sie bewegen. Die ersten [[commercial.trial.days]] Tage auf Pro sind kostenlos, keine Kreditkarte. Dieselbe Agent-Architektur funktioniert auf [Salesforce](https://www.salesforce.com/de/crm/ai-crm/), [HubSpot](https://www.hubspot.de/products/crm/ai-crm) und [Microsoft Dynamics](https://learn.microsoft.com/de-de/dynamics365/copilot/ai-get-started), wenn Sie schon auf diesen Plattformen sind; die Integration ist nur weniger direkt.
+Wollen Sie KI vor allem für prädiktives Scoring in einem großen Vertriebsteam, passt Customermates nicht: Sehen Sie sich Zoho CRM mit Zia oder Salesforce an, deren eigene Seiten solche Vorhersagefunktionen beschreiben.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Was ist KI im CRM?">
-KI im CRM ist der Einsatz von Machine Learning, Large Language Models und KI-Agenten, um die Dateneingabe-, Analyse-, Entwurfs- und Follow-up-Arbeit zu automatisieren, die in einem CRM lebt. Die wertvollste Anwendung ist, den Rep-Tippschritt komplett zu eliminieren: Ein Agent liest die E-Mail oder das Anruf-Transkript und schreibt den strukturierten Datensatz ins CRM zurück.
+<FaqItem question="Was ist ein KI-CRM?">
+Ein CRM, in dem ein KI-Modell Ihre Kundendaten liest und damit arbeitet: Es fasst Kundenbeziehungen zusammen, beantwortet Fragen über Datensätze, pflegt Deals und entwirft Nachrichten. In einem KI-nativen CRM nutzt die KI zudem dieselben Aktionen und Rechte wie ein Mensch und läuft auch nach Zeitplan.
 </FaqItem>
 
-<FaqItem question="Wie verbessert KI das Kundenbeziehungsmanagement?">
-Drei konkrete Wege: (1) Datenaktualität steigt, weil die KI Interaktionen loggt statt auf einen Menschen zu warten, (2) Follow-ups werden schneller und konsistenter entworfen, (3) Reps verbringen ihre Zeit mit Gesprächen und Urteilen statt mit Tippen. Die klassische Adoption-Decke bei CRM-Rollouts ist, dass Reps keine Daten eingeben, und KI-Agenten, die ins CRM schreiben können, eliminieren diese Reibung.
+<FaqItem question="Ist ein Smart CRM dasselbe wie ein KI-CRM?">
+Meist ist es eine Frage der Wortwahl. Smart CRM ist der ältere Begriff, HubSpot nutzt ihn zudem als Namen seines CRM-Produkts. Prüfen Sie jedes Produkt, egal wie es sich nennt, gleich: Was darf die KI ändern, was fragt sie vorher, und wer bezahlt das Modell? Die SMARTCRM GmbH ist dagegen ein Anbieter mit eigenem Produkt dieses Namens.
 </FaqItem>
 
-<FaqItem question="Welches ist das beste KI-CRM 2026?">
-Hängt vom Stack ab. Für Microsoft-Enterprises ist Dynamics 365 mit Copilot for Sales natürlich. Für marketing-getriebene Teams HubSpot mit Breeze. Für vertriebsorientierte KMU Pipedrives KI-Vertriebsassistent. Für Teams, die Claude oder ChatGPT bereits täglich nutzen und wollen, dass der Agent das CRM direkt bedient, ist [Customermates](/pricing) ab [[commercial.price.starter.monthly]] pro User pro Monat mit nativem MCP-Server, n8n-Community-Node und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) eine günstige Agent-native Option.
+<FaqItem question="Welches KI-CRM ist das beste?">
+Eine allgemeine Antwort gibt es nicht, und Customermates, der Herausgeber dieses Leitfadens, setzt sich selbst auf keinen Platz. Arbeiten Sie bereits mit Salesforce, HubSpot, Zoho CRM oder Dynamics 365, beginnen Sie mit der KI Ihres Anbieters. Läuft Ihre Kundenarbeit über E-Mail, LinkedIn und WhatsApp und soll die KI das CRM aus diesen Gesprächen aktuell halten, lohnt sich die Testphase eines CRM mit einheitlichem Posteingang und MCP-Server, etwa Customermates. Machen Sie in jeder Testphase den Zehn-Minuten-Test.
 </FaqItem>
 
-<FaqItem question="Ist KI im CRM sicher für meine Daten?">
-Kann sie sein, mit dem richtigen Setup. Risiken: halluzinierte Bearbeitungen, Prompt Injection, Leaking von Daten an einen Drittanbieter-KI-Vendor. Gegenmaßnahmen: Wählen Sie ein CRM mit Audit-Logs und Webhook-Events bei jedem Schreibvorgang, bevorzugen Sie Agenten, die Read-Back-Tools aufrufen, um ihre Änderungen zu verifizieren, hosten Sie das CRM in einer Region, die Ihren Datensouveränitäts-Anforderungen entspricht (EU für DSGVO-Kontakte). Open-Source-Self-Hosting (Customermates, [SuiteCRM](https://suitecrm.com)) eliminiert die vendor-seitige Datenexposition komplett.
+<FaqItem question="Welche Arten von CRM gibt es, und wo gehört KI hin?">
+Üblich ist die Einteilung in operatives CRM (Vertrieb, Marketing und Service im Tagesgeschäft), analytisches CRM (Auswertungen und Kennzahlen) und kollaboratives CRM (Kundenkontext über Abteilungen hinweg). KI ist dabei keine eigene Art. Sie steckt in allen drei: Im operativen CRM pflegt sie Datensätze und entwirft Nachrichten, im analytischen beantwortet sie Fragen über viele Datensätze, im kollaborativen fasst sie Verläufe für die Übergabe zusammen.
 </FaqItem>
 
-<FaqItem question="Können ChatGPT oder Claude mein CRM direkt bedienen?">
-Ja, wenn das CRM einen Model-Context-Protocol-Server (MCP) oder eine vollständige REST-API offenlegt. Customermates liefert einen MCP-Server mit [[derived.mcp.tools.total]] Tools für die zentralen CRM-Operationen, sodass Claude Desktop, Codex oder jeder MCP-kompatible Agent das CRM mit einem JSON-Konfigurationsblock lesen und schreiben kann. Salesforce, HubSpot, Pipedrive und Zoho CRM bieten offizielle MCP-Server mit unterschiedlicher Abdeckung. Für andere CRMs können Sie die Integration über deren REST-API plus einen n8n- oder Zapier-Flow bauen.
+<FaqItem question="Kann ChatGPT ein CRM ersetzen?">
+ChatGPT oder Claude können den Code für eine einfache Kontaktdatenbank erzeugen. Hosting, Rechte, Backups und jede Korrektur liegen dann aber bei Ihnen. Häufiger ist der andere Weg: Sie verbinden den KI-Client per MCP mit einem bestehenden CRM, sodass er echte Datensätze mit Ihren Rechten liest und pflegt. Das CRM bleibt der Ort, an dem steht, wer der Kunde ist und was vereinbart wurde. Customermates bietet MCP in jedem Tarif; der Leitfaden zu [Claude mit einem CRM](/blog/claude-crm) zeigt die Einrichtung.
+</FaqItem>
+
+<FaqItem question="Ist KI im CRM mit der DSGVO vereinbar?">
+Das hängt davon ab, wo das Modell läuft und wer die Daten verarbeitet. Lassen Sie sich von jedem Anbieter die Liste der Unterauftragsverarbeiter und einen Auftragsverarbeitungsvertrag (AVV) geben. In Customermates Cloud ist die primäre Datenbank in der AWS-Region Frankfurt konfiguriert. Die Liste der Unterauftragsverarbeiter nennt Google Cloud Vertex AI und Microsoft Azure als Anbieter der Modelle hinter Mate, und die Datenschutzerklärung weist darauf hin, dass bei der Nutzung von Mate eine Verarbeitung in den USA möglich ist. Mit einem eigenen KI-Client über MCP gehen die Daten, die der Client liest, an den KI-Anbieter Ihrer Wahl. Wer den Open-Source-Kern selbst betreibt, behält die CRM-Daten auf eigenen Servern.
 </FaqItem>
 </Faq>
+
+Angaben zu anderen Anbietern geprüft am 8. Oktober 2026 anhand von [Salesforce Agentforce Pricing](https://www.salesforce.com/agentforce/pricing/), [HubSpots KI-CRM-Seite](https://www.hubspot.com/products/crm/ai-crm), [HubSpot Credits](https://www.hubspot.com/products/artificial-intelligence/credits), [Pipedrive AI](https://support.pipedrive.com/en/article/pipedrive-ai), [Zoho CRM Zia](https://www.zoho.com/crm/zia.html), [Copilot in Dynamics 365 Sales](https://learn.microsoft.com/en-us/dynamics365/sales/copilot-overview), [Attio Pricing](https://attio.com/pricing) und [smartcrm.de](https://www.smartcrm.de/).

@@ -1,302 +1,208 @@
 ---
-title: "CRM-ERP-Integration: Architektur, Datenmapping und Umsetzung"
-description: "CRM und ERP zuverlässig verbinden: Methoden vergleichen und Datenhoheit, Mapping, Idempotenz, Wiederholungen, Monitoring und Rollout planen."
+title: "CRM-ERP-Integration: Architektur und erster Datenfluss"
+description: "CRM und ERP verbinden: Datenhoheit pro Feld, vier Integrationswege, Idempotenz, Abgleich und ein erster Datenfluss, den Sie direkt umsetzen können."
 
 relatedHrefs:
   - /blog/crm-and-erp
-  - /blog/erp-vs-crm
   - /features/api
   - /docs/webhooks
+  - /features/integrations
 
 hero:
-  title: "CRM-ERP-Integration: Praxisleitfaden für Architektur und Umsetzung"
-  description: Verbinden Sie Vertrieb und Betrieb, ohne zwei konkurrierende Wahrheiten zu schaffen. Klären Sie Eigentum, Events, Mapping, Wiederherstellung und Monitoring vor dem Connector.
+  title: "CRM-ERP-Integration: Architektur, Schnittstellen und der erste Datenfluss"
+  description: "Legen Sie fest, welches System welches Feld führt, wählen Sie den Integrationsweg passend zur Schnittstelle Ihres ERP und bauen Sie zuerst ein zuverlässiges Ereignis."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-01-03
+  updated: 2026-10-08
   tags:
     - CRM
     - ERP
     - Integration
 ---
 
-# CRM-ERP-Integration: Praxisleitfaden für Architektur und Umsetzung
+# CRM und ERP verbinden, ohne zwei Wahrheiten zu schaffen
 
-Eine **CRM-ERP-Integration** verbindet kundennahe Arbeit mit operativen oder finanziellen Prozessen. Eine gute Integration kopiert nicht alles zwischen zwei Datenbanken. Sie überträgt nur die kleinste verlässliche Menge an Kennungen und Fakten, die ein Geschäftsevent benötigt, und lässt für jedes Feld genau ein System maßgeblich.
+Bei einer CRM-ERP-Integration tauschen das System, in dem Sie verkaufen, und das System, in dem Sie liefern und abrechnen, eine kleine Menge an Nummern und Status aus. Das CRM führt Personen, Beziehungen, Deals und Gespräche. Das ERP führt das Kundenkonto für die Abrechnung, Artikel, Aufträge, Bestände und Zahlungen. Die Integration reagiert auf festgelegte Geschäftsereignisse wie „Deal gewonnen“ und schreibt die Nummer des einen Systems in das andere zurück.
 
-Der Connector ist nur ein Baustein. Datenhoheit, Validierung, Idempotenz, Wiederholungen, Konfliktbehandlung, Monitoring und Reparatur entscheiden, ob die Integration nach dem Start verlässlich bleibt.
+Für kleine Teams ist ein einzelner Datenfluss in eine Richtung der richtige Anfang: Ein gewonnener Deal legt im ERP den Kunden und einen Auftrag an, und die Auftragsnummer kommt zurück an den Deal. Gibt es für Ihre beiden Systeme einen fertigen Connector, nutzen Sie ihn. Sonst bauen Sie die Anbindung über die REST-API und die Webhooks des ERP, mit einer Automatisierungsplattform wie n8n oder einem kleinen eigenen Dienst.
 
-## Warum CRM-ERP-Integration wichtig ist
+Diesen Leitfaden veröffentlicht Customermates, ein KI-CRM. Customermates ist ausschließlich ein CRM, ohne ERP-Funktionen und ohne fertigen ERP-Connector; der Abschnitt dazu unten zeigt die Anbindung über REST-API und Webhooks. Die Angaben zu den ERP-Anbietern wurden am 8. Oktober 2026 auf deren eigenen Seiten geprüft, die Links stehen am Ende.
 
-Ohne kontrollierte Übergabe erfassen Teams Unternehmens-, Auftrags-, Projekt-, Rechnungs- oder Statusdaten mehrfach. Das verursacht Verzögerungen und erschwert die Frage, welcher Wert aktuell ist. Integration kann diese Übergaben reduzieren, wenn der zugrunde liegende Prozess ausreichend stabil ist.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was fließt">Nummern und wenige Status pro Geschäftsereignis. Nicht jedes Feld und nicht von vornherein in beide Richtungen.</SummaryItem>
+  <SummaryItem label="Wege">Fertiger Connector, Automatisierungsplattform (iPaaS oder n8n), direkte API-Anbindung oder Middleware. Oder eine Komplettlösung, deren ERP ein CRM-Modul mitbringt.</SummaryItem>
+  <SummaryItem label="Vorab klären">Ein führendes System pro Feld, eine Strategie für stabile IDs und das Verhalten, wenn ein Ereignis doppelt kommt oder scheitert.</SummaryItem>
+  <SummaryItem label="ERP prüfen">Ob die API in Ihrem Tarif enthalten ist, ob das ERP Webhooks sendet und welche Ratenlimits gelten. Hier unterscheiden sich die Anbieter stark.</SummaryItem>
+  <SummaryItem label="Customermates">REST-API und Webhooks in jedem Cloud-Tarif und beim Self-Hosting. ERP-Nummern liegen in eigenen Spalten vom Typ Text.</SummaryItem>
+</ArticleSummary>
 
-Sinnvolle Ergebnisse sind:
+## Welches System welche Daten führt
 
-- operative Arbeit aus einem akzeptierten kommerziellen Ereignis anstoßen;
-- eine ERP-Kennung an das CRM zurückgeben;
-- ausgewählten Liefer- oder Zahlungskontext für kundennahe Teams sichtbar machen;
-- doppelte Pflege gemeinsamer Referenzdaten reduzieren;
-- eine nachvollziehbare Verbindung zwischen Beziehung und Transaktion erhalten.
+Füllen Sie diese Tabelle für Ihre eigenen Systeme aus, bevor Sie Werkzeuge vergleichen. Die Datenhoheit gilt pro Feld, nicht pro Objekt: Eine Organisation kann in beiden Systemen existieren, während die Rechnungsanschrift dem ERP gehört und die Notizen zum Kunden dem CRM.
 
-Integration ist nicht automatisch vorteilhaft. Bei unklarem Prozess, Kennungen oder Datenbesitz verteilt Automatisierung Fehler nur schneller.
-
-## Zuerst die Systemgrenze definieren
-
-Erstellen Sie vor der Werkzeugauswahl eine Eigentumsmatrix.
-
-| Daten oder Zustand | Typische Autorität | Mögliche Referenz auf der anderen Seite |
+| Daten | Führendes System | Was die andere Seite speichert |
 | --- | --- | --- |
-| Person und Beziehungskontext | CRM | ERP-Kunden- oder Kontaktreferenz, falls nötig |
-| Chancenphase und nächste Aktion | CRM | nur kommerzielle Referenz |
-| Produkt- oder Artikelstamm | ERP | schreibgeschützte Produktkennung oder ausgewählte Attribute |
-| Auftrag und Lieferung | ERP | Auftrags-ID und ausgewählter Status |
-| Rechnung und Zahlung | ERP | Rechnungs-ID und kundenrelevanter Status |
-| Gespräch und Aktivität | CRM | Referenz nur bei operativem Bedarf |
+| Kontakte, Beziehungshistorie, Gespräche | CRM | Das ERP speichert einen Ansprechpartner nur, wenn seine Belege ihn brauchen |
+| Deal, Phase, nächster Schritt | CRM | Nichts oder eine Referenz am Auftrag |
+| Kundenkonto für die Abrechnung (Firmierung, USt-IdNr., Rechnungsanschrift, Zahlungsbedingungen) | ERP | ERP-Kundennummer, im CRM nur lesend |
+| Artikel und Preise | ERP | Artikelnummer an der Leistung im CRM |
+| Aufträge, Lieferung, Bestand | ERP | Auftragsnummer und ein Status für den Kundenkontakt |
+| Belege und Zahlungen | ERP | Belegnummer und ein grober Zahlungsstatus, falls der Vertrieb ihn braucht |
 
-Das ist ein Beispiel, keine universelle Zuordnung. Bestimmen Sie Eigentum für die konkreten Systeme Feld für Feld.
+Schreiben beide Systeme dasselbe Feld, ist der Konflikt nur eine Frage der Zeit. Legen Sie einen Eigentümer fest, machen Sie das Feld auf der anderen Seite schreibgeschützt und leiten Sie Korrekturen an das führende System.
 
-## Vier Integrationsansätze
+## Vier Wege, CRM und ERP zu verbinden
 
-### 1. Nativer Konnektor
+| Weg | Passt, wenn | Darauf achten |
+| --- | --- | --- |
+| Fertiger Connector | Beide Hersteller bieten eine Anbindung füreinander an | Welche Objekte, Felder und Richtungen abgedeckt sind, welche Edition nötig ist und wer bei Störungen hilft |
+| Automatisierungsplattform (iPaaS, n8n, Make, Zapier) | Wenige Datenflüsse zwischen zwei Systemen mit REST-API, Logik lieber visuell | Idempotenz, Fehlerwarteschlangen und Zugangsdaten bleiben Ihre Aufgabe. Ein visueller Workflow ist Produktivsoftware |
+| Direkte API-Anbindung | Ein enger, wertvoller Datenfluss zwischen zwei stabilen APIs, und jemand im Team programmiert | Authentifizierung, Wiederholungen, API-Versionswechsel und Monitoring liegen bei Ihnen |
+| Middleware oder Integrationsdienst | Mehrere Systeme oder hohes Volumen, mit gemeinsamem Datenmodell und Warteschlangen | Mehr Bausteine. Für fünf Felder zu schwer |
 
-Ein vom Anbieter bereitgestellter Konnektor kann den ersten Aufwand senken. Prüfen Sie Editionen, Objekte, Felder, Richtungen, Frequenz, Grenzen, Fehlerbehandlung und Supportzuständigkeit. „Integration vorhanden“ belegt nicht, dass Ihr Ablauf abgedeckt ist.
+Wer nach einer „CRM-ERP-Komplettlösung“ sucht, meint oft einen fünften Weg: eine Suite. Odoo zum Beispiel liefert eine CRM-App neben seinen ERP-Apps, das Kundenkonto ist also gemeinsam und es gibt nichts zu synchronisieren. Der Preis dafür: Sie arbeiten mit dem CRM der Suite. Die externe API stellt Odoo nur im Tarif „Custom“ bereit; wer ein fremdes System an Odoo anbinden will, braucht also diesen Tarif.
 
-### 2. Direkte API-Integration
+## Synchronisationsmuster und wann sie passen
 
-Ein eigener Dienst ruft CRM- und ERP-API direkt auf. Das ermöglicht genaue Zuordnung und Verhalten, macht Ihr Team aber für Authentifizierung, Versionsänderungen, Wiederholungen, Monitoring und Wartung verantwortlich. Der Ansatz passt zu einem engen, wertvollen Ablauf mit stabilen APIs.
+| Muster | Funktionsweise | Einsatz |
+| --- | --- | --- |
+| Ereignisgesteuert, eine Richtung | Eine Änderung im führenden System löst einen Schreibvorgang im anderen aus | Der erste Datenfluss. Richtung und Datenhoheit bleiben eindeutig |
+| Geplanter Abgleich | Ein Job vergleicht die Querverweise und listet oder repariert Lücken | Sicherheitsnetz unter jedem ereignisgesteuerten Fluss |
+| Abfrage beim Lesen | Ein System fragt aktuelle Daten beim anderen ab, ohne sie zu speichern | Bestand oder Zahlungsstatus bei Bedarf anzeigen |
+| Bidirektional | Beide Systeme ändern zusammenhängende Daten | Nur wenn sich die Daten wirklich an beiden Stellen ändern, mit Datenhoheit pro Feld und Konfliktregeln |
 
-### 3. iPaaS oder Automationsplattform
+„Echtzeit“ ist selten die Anforderung, nach der es klingt. Sieht der Vertrieb einen Zahlungsstatus eine Minute später, geht nichts verloren. Ein doppelter Auftrag im ERP kostet dagegen echtes Geld. Planen Sie zuerst für Wiederholungen und Dubletten, dann für Geschwindigkeit.
 
-Eine Integrationsplattform stellt Auslöser, Konnektoren, Transformationen und Betriebswerkzeuge bereit. Das kann Standardabläufe beschleunigen. Prüfen Sie Zustandsmodell, Idempotenz, Warteschlangen, lang laufende Fehler, Geheimnisverwaltung und versionierte Mappings. Ein visueller Workflow bleibt Produktionssoftware.
+## Was die Schnittstelle Ihres ERP tatsächlich bietet
 
-### 4. Middleware oder Integrationsdienst
+Meist entscheidet die ERP-Seite, wie aufwendig die Anbindung wird. Vier Beispiele zeigen, wie verschieden die Schnittstellen sind:
 
-Ein eigener Dienst führt kanonische Modelle, Ereignisverarbeitung, Mapping, Queues und Abgleich. Das schafft zusätzliche Architektur, kann aber die Kopplung reduzieren, wenn mehrere Systeme oder hohe Transaktionsmengen beteiligt sind.
+| ERP | Schnittstelle laut Hersteller | Bedeutung für die Integration |
+| --- | --- | --- |
+| Microsoft Dynamics 365 Business Central | REST-API v2.0 mit Entitäten wie customers, items, salesQuotes, salesOrders und salesInvoices, dazu Webhook-Abonnements | Abonnements laufen nach drei Tagen ab, wenn sie nicht erneuert werden, und Benachrichtigungen kommen 30 Sekunden nach der ersten Änderung. Mehr als 1.000 Änderungen in diesem Zeitraum kommen als eine „collection“-Benachrichtigung, die Sie per Abfrage auflösen müssen |
+| Odoo | Externe API über XML-RPC in Version 18; Version 19 dokumentiert die JSON-2-API und einen Migrationsweg von XML-RPC und JSON-RPC | Nur im Tarif „Custom“. Prüfen Sie vor dem Bau, welche API Ihre Odoo-Version nutzt |
+| Lexware Office | REST-API für Kontakte, Artikel, Angebote, Auftragsbestätigungen, Lieferscheine und weitere Belege, mit Event-Abonnements | Bis zu 2 Anfragen pro Sekunde je Client, Massenläufe brauchen also eine Drosselung |
+| Xentral | REST-API für Kunden, Produkte, Aufträge, Bestellungen, Lieferscheine und Rechnungen, mit Webhooks und einer Liste der Webhook-Ereignistypen | Mehrere API-Versionen laufen parallel, legen Sie die Version im Mapping fest |
 
-Wählen Sie den einfachsten Ansatz, der die nötige Zuverlässigkeit erreicht. Für wenige stabile Felder ist große Middleware unnötig; für einen geschäftskritischen Mehrsystemprozess reicht ein fragiles Einzelskript nicht.
+Zwei Fragen sparen die meiste Zeit: Ist die API in Ihrem bezahlten Tarif enthalten? Und meldet das ERP Änderungen per Webhook, oder müssen Sie es regelmäßig abfragen?
 
-## Das richtige Synchronisationsmuster wählen
+## Ereignisse, Idempotenz und Abgleich
 
-### Ereignisgesteuerter Einwegfluss
+Eine Integration, die nur den Normalfall abdeckt, erzeugt innerhalb weniger Wochen Dubletten. Webhooks werden wiederholt zugestellt, jemand klickt zweimal, und hinter einem Timeout kann ein Schreibvorgang stecken, der eigentlich geklappt hat.
 
-Ein Ereignis im Quellsystem löst einen Schreibvorgang im Ziel aus. Das ist häufig der sicherste Start, weil Eigentum und Richtung klar bleiben.
+- **Idempotenz.** Prüfen Sie vor dem Anlegen, ob der Datensatz im Zielsystem schon existiert. Am einfachsten über den Querverweis selbst: Hat der Deal schon eine ERP-Auftragsnummer, wird kein zweiter Auftrag angelegt.
+- **Stabile IDs.** Speichern Sie nach dem ersten Abgleich die ID des anderen Systems. Gleichen Sie Firmen nie bei jedem Lauf über den Namen ab; Namen ändern sich, und Tochtergesellschaften teilen sie.
+- **Wiederholungen.** Timeouts, Ratenlimits und Serverfehler mit wachsendem Abstand wiederholen. Bei Validierungsfehlern stoppen und das Ereignis mit Grund in eine Reparaturliste legen.
+- **Konflikte.** Als Geschäftsregel entscheiden: Das führende System gewinnt, oder ein Mensch entscheidet. Nie pauschal „der letzte Schreibvorgang gewinnt“.
+- **Abgleich.** Ein geplanter Lauf listet Datensätze ohne Querverweis oder mit abweichendem Status. Er findet, was der Ereignisfluss verpasst hat.
+- **Protokoll.** Ereignis, Quelldatensatz, Zielreferenz, Anzahl der Versuche und Ergebnis festhalten, ohne mehr Kundendaten in Logs zu kopieren, als die Fehlersuche braucht.
 
-### Geplanter Abgleich
-
-Ein Job vergleicht Datensätze regelmäßig und repariert fehlende oder veraltete Referenzen. Er ist auch dann eine sinnvolle Absicherung, wenn die primären Änderungen ereignisgesteuert sind.
-
-### Abfrage zur Laufzeit
-
-Ein System fragt aktuelle Daten im anderen ab, ohne eine Kopie zu speichern. Das reduziert Duplikate, erzeugt jedoch Abhängigkeiten bei Verfügbarkeit und Latenz.
-
-### Bidirektionale Synchronisation
-
-Beide Systeme dürfen verwandte Daten ändern. Setzen Sie das nur ein, wenn der Prozess wirklich Änderungen aus beiden Richtungen verlangt. Eigentum muss pro Feld statt nur pro Objekt feststehen; Konfliktregeln sind ausdrücklich zu definieren.
-
-„Echtzeit“ sollte eine gemessene Anforderung sein. Viele kundennahe Status tolerieren eine kurze Verzögerung und profitieren von Warteschlangen und Wiederholungen.
-
-## Entitäten und Kennungen abbilden
-
-Beginnen Sie mit stabilen Schlüsseln:
-
-- CRM-Organisations-ID;
-- ERP-Kunden-ID;
-- CRM-Deal- oder Chancen-ID;
-- ERP-Auftrags-, Projekt- oder Rechnungs-ID;
-- Produkt- oder Artikel-ID;
-- Kontakt-ID, wenn der ERP-Prozess eine Person benötigt;
-- Integrationsereignis-ID und Korrelations-ID.
-
-Speichern Sie systemübergreifende Kennungen nach der ersten akzeptierten Zuordnung. Gleichen Sie nicht bei jedem Lauf erneut anhand veränderlicher Werte wie Firmenname ab.
-
-Dokumentieren Sie für jedes Feld:
-
-- Quell- und Zielpfad;
-- Datentyp und erlaubte Werte;
-- Pflicht- oder Optionalstatus;
-- Normalisierung und Transformation;
-- Autorität und Aktualisierungsrichtung;
-- Verhalten bei fehlenden, ungültigen oder widersprüchlichen Daten;
-- Schutzbedarf und Aufbewahrung.
-
-Ein Mapping-Dokument ist ausführbare Entwurfsgrundlage und gehört versioniert zur Integration.
-
-## Ereignisse idempotent gestalten
-
-Das Ziel muss dasselbe Ereignis mehrfach empfangen können, ohne doppelte Arbeit anzulegen. Übergeben Sie eine stabile Ereignis-ID und Geschäftsreferenz und speichern Sie das Verarbeitungsergebnis.
-
-Eine praktische Ereignishülle enthält:
-
-- Ereignistyp und Schemaversion;
-- eindeutige Ereignis-ID;
-- Zeitpunkt des ursprünglichen Ereignisses;
-- Quellsystem und Quell-Datensatz-ID;
-- Korrelations-ID des Geschäftsvorgangs;
-- minimale Nutzlast oder Referenz;
-- bei Bedarf die Version des Erzeugers.
-
-Der Empfänger validiert das Schema, prüft frühere Verarbeitung, wendet die Änderung nach Möglichkeit transaktional an und speichert das Ergebnis.
-
-## Konflikte bewusst behandeln
-
-Konflikte sind zuerst eine geschäftliche und dann eine technische Entscheidung. Mögliche Regeln:
-
-- Das führende System gewinnt.
-- Die jüngste gültige Änderung gewinnt für ein eng definiertes Feld.
-- Das Ziel weist das Ereignis zurück und eröffnet einen Reparaturfall.
-- Ein Mensch entscheidet, wenn beide Werte plausibel und wesentlich sind.
-- Unveränderlicher Transaktionszustand wird durch ein neues Korrekturereignis statt Überschreiben berichtigt.
-
-Verwenden Sie „letzter Schreibvorgang gewinnt“ nie global, ohne Uhren, Warteschlangen und Feldbesitz zu verstehen.
-
-## Wiederholungen, Fehlerablage und Abgleich
-
-Eine Produktionsintegration benötigt mehr als den Erfolgsweg:
-
-- temporäre Fehler mit Abstand wiederholen;
-- dauerhafte Validierungsfehler nicht endlos erneut senden;
-- reparaturbedürftige Ereignisse isolieren;
-- Quelle, Ziel, Nutzlastversion und Fehlergrund sichtbar machen;
-- einen verantwortlichen Betreiber alarmieren;
-- eine sichere Wiederholung ermöglichen;
-- Kennungen und wichtige Status regelmäßig abgleichen;
-- verhindern, dass Reparaturen Dubletten erzeugen.
-
-Der Reparaturweg muss vor dem Start getestet sein. Sonst wird der erste Teilausfall zur improvisierten Datenmigration.
-
-## Schrittweise Umsetzung
+## Den ersten Datenfluss bauen
 
 <Steps>
-  <Step title="Ein Geschäftsevent auswählen">
-    Wählen Sie einen engen Ablauf mit erkennbarem Wert, zum Beispiel: „Ein freigegebener Deal erzeugt ERP-Kunde und Auftragsanforderung.“ „CRM und ERP synchronisieren“ ist zu breit.
+  <Step title="Ein Geschäftsereignis wählen">
+    „Gewonnener Deal legt ERP-Kunden und Auftrag an“ ist ein gutes erstes Ereignis. „CRM und ERP synchronisieren“ ist kein Ereignis.
   </Step>
-  <Step title="Voraussetzungen dokumentieren">
-    Listen Sie erforderliche Quellfelder, Berechtigungen, Status, Freigabe und Dublettenprüfung. Legen Sie fest, was das Ereignis blockiert.
+  <Step title="Voraussetzungen festlegen">
+    Welche Felder müssen gefüllt sein, bevor das Ereignis auslösen darf: Rechnungsanschrift, USt-IdNr., Artikel, Mengen. Legen Sie fest, was das Ereignis blockiert und wer es behebt.
   </Step>
-  <Step title="Datenhoheit zuweisen">
-    Erstellen Sie die Feldmatrix und Strategie für systemübergreifende Kennungen. Klären Sie Widersprüche mit Prozessverantwortlichen vor der Implementierung.
+  <Step title="Das Feld-Mapping schreiben">
+    Pro Feld: Quelle, Ziel, Typ, führendes System, Umwandlung und das Verhalten bei fehlenden oder ungültigen Werten. Versionieren Sie das Mapping zusammen mit der Integration.
   </Step>
-  <Step title="Integrationsmuster wählen">
-    Entscheiden Sie nach Volumen, Latenz, Zuverlässigkeit, internen Fähigkeiten und Betriebseigentum zwischen nativem Konnektor, API-Dienst, Plattform oder Middleware.
+  <Step title="Den Weg wählen">
+    Fertiger Connector, wenn er den Fluss abdeckt; sonst eine Automatisierungsplattform oder ein kleiner Dienst gegen beide REST-APIs.
   </Step>
-  <Step title="Mapping und Validierung umsetzen">
-    Nutzen Sie ausdrückliche Schemata und Transformationen. Unbekannte Auswahlwerte, ungültige Währungen, fehlende Adressen und nicht zugeordnete Produkte sind benannte Fehlerzustände.
+  <Step title="Idempotenz und Rückschreiben bauen">
+    Vor dem Anlegen den Querverweis prüfen, danach die ERP-Nummer im selben Lauf an den CRM-Datensatz zurückschreiben.
   </Step>
-  <Step title="Idempotenz und Beobachtbarkeit ergänzen">
-    Erfassen Sie Ereignis- und Korrelations-ID, Versuche, Verarbeitungszeit, Zielreferenz und Endstatus. Protokolle sollen Fehler erklären, ohne unnötige Kundendaten offenzulegen.
+  <Step title="Die unbequemen Fälle testen">
+    Bestehender Kunde, zwei Firmen mit gleichem Namen, fehlende Anschrift, unbekannter Artikel, ERP-Timeout, dasselbe Ereignis zweimal, Deal nach „gewonnen“ wieder geöffnet.
   </Step>
-  <Step title="Repräsentative und schwierige Fälle testen">
-    Testen Sie bestehende Kunden, Dubletten, Tochtergesellschaften, Namensänderungen, fehlende oder ungültige Werte, Zeitüberschreitungen, Zielablehnung, Wiederholung, Storno und Teilausfall.
-  </Step>
-  <Step title="Kontrolliert ausrollen">
-    Starten Sie mit einer begrenzten Einheit oder Ereignismenge. Gleichen Sie Ergebnisse manuell ab, bis die Fehlerbilder bekannt sind, und erweitern Sie schrittweise.
-  </Step>
-  <Step title="Integration betreiben">
-    Bestimmen Sie Verantwortliche für Alarme, Mapping-Änderungen, Zugangsdatenrotation, Abhängigkeitsupdates, Störungen und regelmäßigen Abgleich.
+  <Step title="Mit Abgleich ausrollen">
+    Mit einem Team oder einer Deal-Art beginnen, beide Systeme in den ersten Wochen von Hand vergleichen, dann den geplanten Abgleich einschalten und die Person benennen, die Fehler bearbeitet.
   </Step>
 </Steps>
 
-## Typische Integrationsszenarien
+## Beispiel: vom gewonnenen Deal zum ERP-Auftrag mit Customermates
 
-### Freigegebener Deal zu ERP-Auftragsanforderung
+So sieht der erste Datenfluss in Customermates aus. Er nutzt die [REST-API](/features/api) und die [Webhooks](/docs/webhooks), die in jedem Cloud-Tarif von Customermates und beim Self-Hosting funktionieren. Den Empfänger in der Mitte betreiben Sie selbst, als n8n-Workflow oder kleinen Dienst.
 
-Das CRM sendet erst, wenn kommerzielle Pflichtfelder und Freigabe vorliegen. Die Integration ordnet den ERP-Kunden zu oder legt ihn an, prüft Produktreferenzen, stellt die Anfrage und schreibt die ERP-Referenz ins CRM zurück. Der resultierende Auftrag gehört dem ERP.
+**Spalten.** Legen Sie eigene Spalten vom Typ Text an: „ERP-Kundennummer“ an Organisationen, „ERP-Auftragsnummer“ an Deals und „ERP-Artikelnummer“ an Leistungen. Deals sind mit Leistungen samt Menge pro Deal verknüpft, Leistungen und Artikelnummern ergeben also die Auftragspositionen. Braucht der Vertrieb den Liefer- oder Zahlungsstand, ergänzen Sie eine Spalte vom Typ Einzelauswahl wie „ERP-Status“ an Deals, die nur die Integration beschreibt.
 
-### ERP-Lieferstatus ins CRM
+**Auslöser.** Die Standardspalte Phase an Deals hat die Option „Gewonnen“. Unter **Mein Unternehmen → Webhooks** abonnieren Sie eine URL für `deal.updated` und setzen ein Secret. Jede Zustellung ist mit HMAC-SHA256 im Header `X-Webhook-Signature` signiert, und bei Update-Ereignissen enthält die Payload ein Objekt `changes` mit altem und neuem Wert jedes geänderten Felds. Ihr Empfänger handelt nur, wenn die Phase auf „Gewonnen“ gewechselt ist.
 
-Das ERP sendet ausgewählte Statusänderungen. Das CRM speichert nur die kundenrelevante Referenz. Interne Lagerdetails bleiben im ERP, sofern kein dokumentierter Anwendungsfall sie benötigt.
+**Idempotenz.** Der Standardumschlag der Webhooks enthält keine eindeutige Ereignis-ID. Nutzen Sie deshalb den Querverweis: Ist „ERP-Auftragsnummer“ am Deal schon gefüllt, bricht der Lauf ab.
 
-### Rechnungs- oder Zahlungskontext im CRM
+**Kundenabgleich.** Lesen Sie die „ERP-Kundennummer“ der Organisation. Ist sie leer, suchen Sie den Kunden im ERP über die USt-IdNr. oder legen ihn an und schreiben die Nummer zurück. Um später eine Organisation anhand der ERP-Nummer zu finden, rufen Sie `POST /api/v1/organizations/search` mit einem `equals`-Filter auf die ID dieser Spalte auf ([Filtersyntax](/docs/filter-syntax)).
 
-Das ERP bleibt maßgeblich. Das CRM kann Rechnungsreferenz und groben Status für ein Kundengespräch erhalten. Die Kopie darf nicht zum Finanzledger werden.
+**Rückschreiben.** Hat das ERP den Auftrag angenommen, rufen Sie `PUT /api/v1/deals/{id}` mit der neuen „ERP-Auftragsnummer“ auf. Geändert werden nur die Felder, die Sie mitschicken.
 
-### Kundenidentität abgleichen
+**Fehler.** Customermates wiederholt eine fehlgeschlagene Zustellung automatisch bei Timeouts, Netzwerkfehlern, 5xx-Antworten sowie 408, 425 und 429. Andere 4xx-Antworten werden nicht wiederholt, weil sie genauso scheitern würden. Jede Zustellung steht unter **Letzte Zustellungen**, wo Sie sie nach der Fehlerbehebung erneut senden.
 
-Legen Sie fest, welches System die Organisation zuerst anlegt. Verwenden Sie stabile IDs und einen Prüfweg für mehrdeutige Treffer. Führen Sie Datensätze nicht allein anhand eines Firmennamens zusammen.
+**Abgleich.** Speichern Sie eine Deal-Ansicht mit Phase „Gewonnen“ und leerer „ERP-Auftragsnummer“. Gespeicherte Ansichten sind persönlich, also legt sie die Person an, die Integrationsfehler bearbeitet. Was dort auftaucht, hat der Ereignisfluss verpasst.
 
-## Was Kosten und Dauer bestimmt
+**Die Gegenrichtung.** Sendet Ihr ERP Webhooks, richten Sie diese auf denselben Empfänger, suchen den Deal über die „ERP-Auftragsnummer“ und setzen „ERP-Status“. Sendet es keine, fragen Sie das ERP zeitgesteuert ab. Die [n8n-Anleitung](/docs/n8n) listet die REST-Aufrufe, die ein n8n-Workflow braucht; eine Community-Node gibt es ebenfalls.
 
-Es gibt keinen allgemeinen Richtwert. Schätzen Sie anhand von:
+In Customermates Cloud kann auch Mate mit diesen Spalten arbeiten, etwa mit „Zeige alle in diesem Monat gewonnenen Deals ohne ERP-Auftragsnummer“. Mate nutzt gehostete KI-Credits. Ein eigener KI-Client kann dasselbe über [MCP](/docs/mcp).
 
-- Zahl und Qualität der Quellsysteme;
-- Abdeckung durch APIs und Webhooks;
-- Entitäten, Feldern, Transformationen und Richtungen;
-- Identitätszuordnung und historischen Daten;
-- Volumen und Latenzanforderungen;
-- Sicherheits-, Datenschutz- und regulatorischen Anforderungen;
-- Umgebungen, Tests, Monitoring und Support;
-- Ausnahmewegen und Reparaturwerkzeugen;
-- Prozessreife und Verfügbarkeit interner Verantwortlicher.
+<AcquisitionCallout title="Was Customermates hier nicht übernimmt" variant="boundary">
+  Customermates hat keine ERP-Funktionen: keine Angebote, keine Rechnungen, keine Aufträge, Zahlungen, Bestände oder Einkauf. Es gibt keinen fertigen ERP-Connector und kein eingebautes n8n; n8n läuft separat. Import und Export von Datensätzen laufen über XLSX-Dateien, ein Datensatztyp pro Vorgang, ohne geplante Synchronisation. Wenn Sie CRM und ERP in einer Datenbank wollen, ist eine Suite mit beidem die bessere Wahl.
+</AcquisitionCallout>
 
-Schätzen Sie nach Arbeitspaketen und Unsicherheit. Ein einfacher Einwegfluss zwischen stabilen APIs ist klein; eine bidirektionale Finanz- und Bestandssynchronisation ist ein anderes Programm.
+## Was Kosten und Aufwand bestimmt
 
-## Customermates in einer CRM-ERP-Integration
+Einen ehrlichen Pauschalwert für alle CRM-ERP-Integrationen gibt es nicht. Ein Ereignis in eine Richtung zwischen zwei dokumentierten APIs und eine Synchronisation von Aufträgen und Beständen in beide Richtungen sind verschiedene Projekte. Schätzen Sie anhand dieser Faktoren:
 
-Customermates stellt unterstützte CRM-Arbeit über REST, Webhooks und MCP bereit. Teams mit selbst betriebenem n8n können den separaten Customermates Community-Node als eine Integrationsoption einsetzen.
+- ob die ERP-API in Ihrem aktuellen Tarif enthalten ist oder ein Upgrade braucht;
+- ob beide Systeme Webhooks senden oder eines abgefragt werden muss;
+- Anzahl der Objekte, Felder, Richtungen und Umwandlungen;
+- Zustand der vorhandenen Kundendaten und wie viele Dubletten einmalig abzugleichen sind;
+- Ratenlimits und Volumen;
+- wer die Plattform oder den Dienst betreibt und wer auf Fehlermeldungen reagiert.
 
-Customermates enthält keinen universellen nativen ERP-Konnektor, keine eingebettete n8n-Laufzeit und keine ERP-Transaktionsmodule wie Angebote, Rechnungen, Aufträge, Zahlungen, Einkauf, Bestand oder Produktion. Ein ERP-Workflow muss die unterstützte Schnittstelle des externen ERP und eine unabhängig betriebene Integrationsschicht verwenden.
-
-Nutzen Sie Customermates als Autorität für die CRM-Datensätze, die es tatsächlich modelliert. Speichern Sie stabile ERP-Referenzen und ausgewählten zurückgegebenen Status nur, wenn der kundennahe Ablauf sie benötigt.
-
-## Ein sicherer erster Produktionsfluss
-
-Ein sinnvoller erster Fluss ist einseitig und möglichst reversibel:
-
-1. Ein Deal erreicht in Customermates einen ausdrücklich freigegebenen Status.
-2. Ein Webhook übergibt Deal- und Organisationsreferenz an die Integration.
-3. Die Integration prüft Pflichtfelder und ihren Idempotenzdatensatz.
-4. Sie löst den ERP-Kunden über eine stabile gespeicherte ID auf oder eröffnet einen Prüffall.
-5. Sie stellt die erlaubte ERP-Anfrage.
-6. Sie schreibt die ERP-Referenz über die unterstützte Customermates-API zurück.
-7. Ein Abgleichjob prüft, ob beide Systeme dieselbe Querverknüpfung halten.
-8. Validierungs- oder Anbieterfehler gehen an einen Betreiber, ohne den CRM-Status fälschlich fortzuschreiben.
-
-Das ist ein Architekturmuster, kein eingebauter Customermates-ERP-Workflow.
+Auf der CRM-Seite brauchen API und Webhooks keinen bestimmten Customermates-Tarif. Ein Team aus drei Personen zahlt im Tarif Starter [[commercial.price.starter.monthly.seats.3]] pro Monat. Die Unified Inbox, die E-Mail-, LinkedIn- und WhatsApp-Gespräche an dieselben Datensätze holt, beginnt mit Pro ([[commercial.price.pro.monthly]] pro Nutzer und Monat).
 
 ## Häufige Fehler
 
-- alle Felder synchronisieren, bevor ein Geschäftsevent funktioniert;
+- jedes Feld synchronisieren, bevor ein einziges Ereignis durchgängig funktioniert;
 - beide Systeme dasselbe Feld führen lassen;
-- Unternehmen bei jedem Lauf nach Namen zuordnen;
-- Idempotenz und Korrelations-ID auslassen;
-- Wiederholungen erst nach einem Ausfall bedenken;
-- Validierungsfehler in allgemeinen Logs verstecken;
-- Storno, Löschung und Korrektur ignorieren;
-- mehr Daten als für den Zielprozess nötig übertragen;
-- ohne Abgleichbericht starten;
-- Alarme ohne benannten Verantwortlichen hinterlassen.
+- Firmen über den Namen statt über gespeicherte IDs abgleichen;
+- keine Reparaturliste, sodass gescheiterte Ereignisse in Logs verschwinden;
+- Stornierungen, wieder geöffnete Deals und Korrekturen ignorieren;
+- ohne Abgleich und ohne verantwortliche Person für Fehlermeldungen starten.
+
+Worin sich die beiden Systemarten unterscheiden und wann ein kleines Team überhaupt ein ERP braucht, lesen Sie im [Vergleich von CRM und ERP](/blog/crm-and-erp).
 
 ## Häufige Fragen
 
 <Faq>
 <FaqItem question="Was ist eine CRM-ERP-Integration?">
-Sie ist der kontrollierte Austausch ausgewählter Kennungen, Ereignisse und Status zwischen kundenbezogener CRM-Arbeit und operativen oder finanziellen ERP-Prozessen.
+Der automatische Austausch ausgewählter Nummern und Status zwischen dem CRM, in dem Sie Beziehungen und Deals führen, und dem ERP, in dem Sie Aufträge, Artikel, Bestände und die Abrechnung führen. Gut gemacht überträgt sie nur, was ein festgelegtes Geschäftsereignis braucht, und jedes Feld hat ein führendes System.
 </FaqItem>
 
-<FaqItem question="Welche Methode ist für CRM-ERP-Integration am besten?">
-Das hängt von Umfang und Zuverlässigkeit ab. Native Konnektoren passen zu unterstützten Standardflüssen, direkte APIs zu engen Sonderfällen, Plattformen zu gängiger Orchestrierung und Middleware zu mehreren kritischen Systemen.
+<FaqItem question="Wie synchronisiert man Daten zwischen ERP und CRM?">
+Legen Sie die Datenhoheit pro Feld fest, wählen Sie ein Geschäftsereignis wie „Deal gewonnen“ und dann den Weg: einen fertigen Connector, falls es ihn gibt, sonst API und Webhooks des ERP über eine Automatisierungsplattform oder einen kleinen Dienst. Vor dem Start gehören Idempotenzprüfung, das Rückschreiben der Fremd-ID und ein geplanter Abgleich dazu.
 </FaqItem>
 
-<FaqItem question="Welche Daten sollten zwischen CRM und ERP fließen?">
-Übertragen Sie nur, was ein definiertes Geschäftsevent benötigt. Weisen Sie jedem gemeinsamen Feld eine Autorität zu und halten Sie stabile systemübergreifende Kennungen.
+<FaqItem question="Sind ERP und CRM das Gleiche, und kann ein CRM Teil eines ERP sein?">
+Es sind verschiedene Systeme: Das CRM deckt Vertrieb und Kundenbeziehungen ab, das ERP Lieferung, Einkauf, Bestand und Finanzen. Manche Suiten enthalten beides. Odoo bietet zum Beispiel eine CRM-App neben seinen ERP-Apps, dann entfällt die Integration zwischen beiden.
 </FaqItem>
 
-<FaqItem question="Sollte die CRM-ERP-Synchronisation bidirektional sein?">
-Nur wenn der Prozess wirklich Änderungen aus beiden Systemen verlangt. Einseitige Ereignisflüsse mit ausgewählten Rückreferenzen sind leichter zu verstehen und zu betreiben.
+<FaqItem question="Sollten CRM und ERP in beide Richtungen synchronisieren?">
+Am Anfang meist nicht. Ein Ereignis vom CRM ins ERP, dazu die zurückgeschriebene Auftragsnummer und ein Statusfeld, deckt den Bedarf kleiner Teams in den meisten Fällen. Eine zweite Richtung lohnt sich nur für Felder, die sich wirklich an beiden Stellen ändern, mit Datenhoheit pro Feld.
 </FaqItem>
 
-<FaqItem question="Was kostet eine CRM-ERP-Integration?">
-Die Kosten hängen von Systemen, APIs, Mapping, Volumen, Kontrollen, Ausnahmen, Tests und Betrieb ab. Schätzen Sie aus Ihrem Entwurf statt aus einer allgemeinen Spanne.
+<FaqItem question="Lassen sich CRM und ERP ohne Programmierung verbinden?">
+Oft ja, mit einem fertigen Connector oder einer Automatisierungsplattform wie n8n, Make oder Zapier. Datenhoheit, Dubletten und Fehlerfälle müssen Sie trotzdem klären, und Sie sollten prüfen, ob Ihr ERP-Tarif API-Zugriff enthält.
 </FaqItem>
 
-<FaqItem question="Kann ich CRM und ERP ohne Programmierung verbinden?">
-Eine Plattform oder ein nativer Konnektor kann eigenen Code reduzieren. Datenhoheit, Mapping, Validierung, Fehlerbehandlung, Monitoring und Reparatur müssen Sie trotzdem festlegen.
-</FaqItem>
-
-<FaqItem question="Enthält Customermates eine ERP-Integration?">
-Customermates bietet REST, Webhooks, MCP und einen separaten Community-Node für n8n. Es enthält keinen universellen nativen ERP-Konnektor und keine ERP-Transaktionsmodule; die Integration muss extern entworfen und betrieben werden.
+<FaqItem question="Lässt sich Customermates an ein ERP anbinden?">
+Ja, über REST-API und Webhooks, mit einer Automatisierungsplattform oder einem Dienst, den Sie selbst betreiben. Einen fertigen ERP-Connector gibt es nicht, und Customermates selbst speichert keine ERP-Daten wie Aufträge oder Zahlungen. ERP-Nummern stehen in eigenen Spalten an Organisationen, Deals und Leistungen.
 </FaqItem>
 </Faq>
+
+Die Angaben zu den ERP-Anbietern wurden am 8. Oktober 2026 geprüft: Microsoft [Business Central API v2.0](https://learn.microsoft.com/de-de/dynamics365/business-central/dev-itpro/api-reference/v2.0/) und [Business-Central-Webhooks](https://learn.microsoft.com/de-de/dynamics365/business-central/dev-itpro/api-reference/v2.0/dynamics-subscriptions), Odoo [externe API für Version 18](https://www.odoo.com/documentation/18.0/developer/reference/external_api.html), [externe API für Version 19](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) und [Preise](https://www.odoo.com/pricing-plan), die [Lexware-API-Dokumentation](https://developers.lexware.io/docs/) und die [Xentral-Entwicklerdokumentation](https://developer.xentral.com/).

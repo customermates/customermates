@@ -1,17 +1,17 @@
 ---
-title: "CRM for Accountants: Client & Engagement Tracking"
-description: "CRM for accountants: track client onboarding, engagements, filing dates and document status in one pipeline. Open source, self-hostable, AI-native."
+title: "CRM for Accountants: Clients, Engagements, Documents"
+description: "A CRM for small accounting and tax firms: clients, engagements and missing documents in one place, next to the practice software you keep."
 industryName: "Accountants"
 
 relatedHrefs:
-  - /for/lawyers
+  - /for/professional-services
   - /for/financial-advisors
-  - /for/insurance-agents
-  - /for/mortgage-brokers
+  - /features/unified-inbox
+  - /for/law-firms
 
 hero:
-  title: "The CRM for Accountants That Runs Your Practice"
-  description: "AI clients keep client records current and draft the follow-ups, while email, LinkedIn and WhatsApp sit in one inbox tied to every client on Pro. Track onboarding, filing dates and document status in one place. Open source, self-hostable, and built for how accounting firms work."
+  title: "The CRM for Accountants Who Want Every Client and Engagement in View"
+  description: "Track each client, each engagement and the documents still missing in one place. From Pro, client email, LinkedIn and WhatsApp arrive in one inbox next to the client record, and in Customermates Cloud the assistant Mate can draft the document chasers for you to check. Deadlines, time and billing stay in your practice software."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to get started?
-  description: Get started with Customermates today and switch to an AI-native open-source CRM built for flexible workflows.
+  action: See which clients still owe you documents
+  description: Import your client list from Excel, set your engagement stages and save the views you check every Monday. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,169 +28,180 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## Why accountants need a CRM
+Accounting firms looking for a CRM often need two different things. Practice management software runs the work: deadlines, time, billing, the client portal. A CRM runs the relationship: who the client is, which engagements are open, what you are waiting for and what was said. Customermates is an open-source, AI-native CRM built in Germany that covers the second job for small firms. If you want one system for both, an accounting practice management suite fits better, and the table further down names some.
 
-A CRM for accountants is not the same as a generic sales tool. Accounting firms and CPA firms manage long-term client relationships with recurring filing dates, sensitive documents, and work that repeats every month, quarter, and year. Spreadsheets and email folders cannot keep up.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Fits">
+    Small accounting, bookkeeping and tax firms that keep their practice
+    software and want a clear view of clients, engagements and open documents.
+  </SummaryItem>
+  <SummaryItem label="Setup">
+    Client companies as organizations, people as contacts, each engagement as
+    a deal with a stage, an engagement type and a few date fields.
+  </SummaryItem>
+  <SummaryItem label="AI">
+    In Customermates Cloud, Mate summarizes a client and saves reply drafts,
+    using hosted AI credits. Or connect your own AI client through MCP.
+  </SummaryItem>
+  <SummaryItem label="Not included">
+    No deadline reminders, time tracking, billing, e-signatures, client portal
+    or file storage on records.
+  </SummaryItem>
+</ArticleSummary>
 
-Common pain points for accounting firms:
+## What an accounting firm needs from a CRM
 
-- **Tax season overwhelm**: When every client needs attention simultaneously, things slip. Missing a filing deadline means penalties for your client and reputational damage for your firm.
-- **Scattered client communication**: Emails, phone calls, portal messages, and handwritten notes across multiple systems. When a client calls, nobody can find the full picture.
-- **Manual onboarding**: Every new client goes through the same checklist: engagement letter, document requests, ID verification, software access. Without an overview, steps get missed.
-- **No visibility across the practice**: Which clients have submitted their tax documents? Who is still outstanding? What is the workload next month? Without a central view, you are guessing.
-- **Referrals go untracked**: A satisfied client refers a colleague. Without a system to capture and follow up, new business walks away.
-- **Client segmentation is nonexistent**: You treat individual tax returns and corporate audit clients the same way, even though they need entirely different workflows.
+- **The client is often a household or a company with several people.** The owner signs, the office manager sends the receipts, the spouse files jointly. They belong on one record.
+- **Engagements repeat.** Monthly bookkeeping, quarterly payroll returns, the annual return. Each cycle is a separate piece of work with its own status.
+- **The bottleneck is missing documents.** In busy season, much of the chasing is "we still need your 1099s" or "the bank statements for March are missing".
+- **Prospects come from referrals.** A client mentions you to a colleague, and the first email sits in someone's inbox until it is forgotten.
+- **Client data is confidential.** Staff should see the clients they work on, and you need to know who changed what.
 
-An accounting CRM structures client relationships, engagement stages, filing-date fields, and document-checklist status. Customermates can hold links or reference IDs for files in your document system, but it is not a document repository.
+## An accounting setup in Customermates
 
-## How Customermates helps accounting firms
+Customermates has five record types. Here is one way to map them; every field name is an example. You can rename record types under **My Company › Settings** from a preset list, for example Deals to Jobs or Projects.
 
-Customermates gives your accounting practice a single hub for every client engagement, from the first inquiry through years of recurring service. Here is what that looks like in practice.
+| Record type | Used for | Example custom fields |
+|---|---|---|
+| Organizations | Client businesses and households | Entity type (Single Select: Individual, Sole proprietor, Partnership, S corp, C corp, Nonprofit), Fiscal year end (Date) |
+| Contacts | People at the client | Role (Single Select: Owner, Bookkeeper, Spouse, Referral source), Referred by |
+| Deals | Each engagement and each cycle, for example "Miller LLC: 2026 return" | Stage, Engagement type, Documents (Single Select: Complete, Partial, Missing), Documents requested on, Filing due (Date), Engagement letter (Link) |
+| Services | What you sell, each with a price | Monthly bookkeeping, Payroll, Individual return, Business return, Advisory hour |
+| Tasks | Next steps for a person | A "Due on" date field you add, because tasks have no built-in due date |
 
-### Client onboarding pipeline
+### Stages for engagements
 
-New client intake is one of the highest-friction processes in any accounting firm. In Customermates, deals represent engagements, and the deal stage is one configurable single-select column. Set the stages of your [pipeline](/features/pipeline) to match onboarding: Initial Inquiry, Proposal Sent, Engagement Letter Signed, Documents Requested, Setup Complete, Active Client.
+The deal stage is one Single Select field you define, and each option can carry a probability. Because there is one stage field, use the Engagement type field to tell onboarding from recurring work. One stage list that works for both:
 
-Assign each engagement an owner and add tasks for the open steps. Tasks have no due dates or reminders, so put the dates that matter, such as the engagement letter send date, into custom date columns and use a saved view sorted by that date to see what needs chasing.
+Inquiry · Proposal sent · Engagement letter signed · Documents requested · Documents received · In preparation · In review · Filed · Closed
 
-### Tax season management
+A deal's value comes from the services linked to it, price times quantity. Weighted totals are plain arithmetic from your own probabilities. On the [pipeline board](/features/pipeline) each engagement is a card you drag between stages, and you can group the board or table by assigned person to see each preparer's load.
 
-Tax season is when a CRM for CPA firms proves its value. Because there is one stage column, separate tax work from onboarding with a custom single-select field such as "Engagement type" and a saved view per type. For tax returns, stages might be: Documents Requested, Documents Received, In Preparation, Under Review, Ready to File, Filed, Complete.
+### Saved views for the week
 
-Filter by filing date, assigned preparer, or client type. See at a glance which clients are stuck at document collection and which are ready for review. When you have hundreds of returns to file, this visibility makes the difference.
+1. **Missing documents:** deals in Documents requested with Documents set to Partial or Missing, sorted by Documents requested on, oldest first.
+2. **Filing soon:** deals not in Filed or Closed, sorted by Filing due. Custom date fields accept Before, After and Between filters, not "next 30 days", so sort by the date or set a Between range.
+3. **Letters not back:** deals in Proposal sent, sorted by last update.
+4. **My engagements:** filtered to you under Assigned.
 
-### Engagement letter tracking
+Saved views are personal, so each colleague sets the same filters and saves their own view.
 
-Track engagement letters as part of your client pipeline. Know which clients have received their letters, which have signed, and which need follow-up. Customermates sends no automatic reminders itself. On Customermates Cloud, a [routine](/docs/app-routines) can run on a schedule and have the Mate assistant list unsigned letters and draft follow-ups for you to review. Alternatively, an external tool such as n8n, operated separately, can act on the data through the REST API or [webhooks](/features/workflow-automation).
+### Client conversations in one inbox (Pro and above)
 
-### Document request management
+In Customermates Cloud on Pro, Business and Enterprise, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with LinkedIn, WhatsApp, Instagram and Telegram. Link a sender to a contact once, and later conversations with that address appear on the client's timeline. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Conversations from your own accounts stay private until you share a thread, or share the whole account on Business and above. Files that clients send stay in the inbox thread.
 
-Use Customermates fields to track which document types have been received and which remain outstanding for each engagement. Add notes, status values, and links or reference IDs for files held in your document system. Customermates does not store file attachments on records.
+### A weekly document chaser with Mate (Customermates Cloud)
 
-### Recurring service tracking
+Mate is the assistant in Customermates Cloud and uses hosted AI credits; reading the inbox needs Pro or higher. Set up a [routine](/docs/app-routines) with **Repeats** set to **Every week**, Monday at 08:00, and instructions like these:
 
-Most accountant CRM needs revolve around recurring work: monthly bookkeeping, quarterly payroll filings, annual tax returns, annual audits. Customermates has no recurring tasks or built-in rules engine that creates engagements. Record the service in a service record, keep the next due date in a custom date column, and work from a saved view sorted by that date.
+```text
+Find deals in the stage Documents requested where Documents is Partial or
+Missing and Documents requested on is more than 10 days ago. For each one,
+read the latest inbox conversation with its contacts. Save a short, polite
+draft reply asking for the missing documents, using what the notes say is
+missing. Do not send anything. End with a list: client, deal, days waiting,
+draft saved yes or no.
+```
 
-If you want new engagements created each cycle, an external scheduler such as n8n (connected via the community node, REST, or webhooks) or an MCP-connected AI client can create them through the API.
+<AcquisitionCallout title="Ask for drafts, not sends" variant="boundary">
+  Mate and routines can send email and chat messages without asking first,
+  so tell a routine to save drafts only. Read each draft in the inbox and
+  send it yourself. Each run has a credit cap, so keep the list short.
+</AcquisitionCallout>
 
-### Client segmentation by service type
+A second routine can react to an event: when a deal's Stage changes to Engagement letter signed, create a task "Send document request" linked to that deal and assigned to the same person. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
-Not all clients are the same. With [contact management](/features/contact-management) and custom single-select fields, segment your clients by service type (tax prep, bookkeeping, advisory, audit), entity type (individual, S-corp, C-corp, partnership, nonprofit), revenue tier, industry, or any other dimension that matters to your practice.
+For next year's cycle you can ask Mate in the chat: "Create a new deal for every Individual return deal in Filed, named with next year, at stage Documents requested." Prefer your own AI client? Connect Claude, ChatGPT or another client through [MCP](/docs/mcp), on every plan and on self-hosted installations.
 
-Use segments to filter and group your work during busy season and to see which service lines hold the most open value.
+## What Customermates does not do for accountants
 
-## Key features for accounting firms
+- **No deadline control.** Tasks have no due dates, reminders or notifications. A Filing due field and a sorted view show what is coming; binding deadline tracking belongs in your practice or tax software.
+- No time tracking, billing, proposals or e-signatures. Store the link to the signed engagement letter on the deal.
+- No client portal and no file storage on records.
+- No recurring engagements created on a schedule by the CRM itself; use Mate, an MCP client, or the REST API with an n8n workflow you run separately.
+- No native QuickBooks or Xero integration. Connect them through the [REST API and webhooks](/features/workflow-automation).
+- No mobile app.
 
-### Pipeline Kanban board
+If one of these is the reason you are shopping, look at a tool built for it. Customermates publishes this page; vendor details were checked on 8 October 2026 on each vendor's own website.
 
-See every engagement at a glance on a visual [Kanban board](/features/pipeline). Columns represent stages: Documents Requested, Documents Received, In Preparation, Under Review, Filed, Complete. Drag engagements between columns as work progresses. Filter by engagement type, filing date, assigned team member, or client segment.
+| If you need | Look at | What the vendor's site lists |
+|---|---|---|
+| Practice management with email, workflow and a portal | [Karbon](https://karbonhq.com/pricing/) | Email management, workflow automation, client portal, time tracking and billing; Team, Business and Enterprise plans |
+| Practice management with tax workflow add-ons | [Canopy](https://www.getcanopy.com/pricing) | Client portal, CRM, document management with e-signatures, time and billing; Standard, Plus, Premium and Enterprise plans |
+| Proposals and engagement letters with automatic billing | [Ignition](https://www.ignitionapp.com/) | Online proposals, client agreements with e-signing, payment details collected in the proposal |
 
-### Contact management with complete client history
+A workable split is practice software for deadlines, time and billing, and Customermates for clients, engagements and conversations. A webhook fires when a deal changes, so an n8n workflow can hand a signed engagement to the other tool if it has an API.
 
-Every client has a profile containing contact details, company information, engagement history, document-status fields, external document links, and notes. Connected email threads remain in the inbox and their participants can be linked to contacts. Learn more about [contact management](/features/contact-management).
+## What it costs
 
-### Unified inbox for client communication
+Prices are per user per month, billed monthly. Every plan includes REST, webhooks and MCP.
 
-On Pro and above, email (Gmail, Outlook, IMAP), LinkedIn, and WhatsApp live in one [unified inbox](/features/email-integration) inside the CRM, and you link each conversation to the right client. When a client asks a question about their quarterly filing, the conversation sits next to the client record. Your team has context without forwarding emails, and the Mate assistant can draft replies that you confirm before they are sent.
+| Firm | Plan | Per month |
+|---|---|---|
+| Solo practitioner, no inbox | Starter | [[commercial.price.starter.monthly]] |
+| Solo practitioner, one mailbox in the inbox | Pro | [[commercial.price.pro.monthly]] |
+| Three people, one mailbox each | Pro | [[commercial.price.pro.monthly.seats.3]] |
+| Five people, no inbox | Starter | [[commercial.price.starter.monthly.seats.5]] |
+| Five people, one mailbox each | Pro | [[commercial.price.pro.monthly.seats.5]] |
 
-### Automation with webhooks, REST and n8n
+Each plan adds monthly hosted AI credits per active user for Mate; the amounts are on the [pricing page](/pricing). The open-source core runs on your own server without a licence fee, but a self-hosted installation has no inbox, no Mate and no routines.
 
-Customermates has no built-in workflow builder. It exposes a REST API and [webhooks](/features/workflow-automation), and n8n (operated separately) connects through the Customermates community node. With these you can build automations such as:
+## Moving your client list in
 
-- **Filing-date checks**: A scheduled n8n workflow reads engagements with an upcoming filing date and creates a "Collect documents" task.
-- **Engagement letter follow-ups**: Notify your team when an engagement sits in "Proposal Sent" for too long.
-- **Recurring engagement creation**: Create new engagements for monthly bookkeeping, quarterly filings, or annual returns on schedule.
-- **New client onboarding**: When a new client enters your pipeline, a webhook can trigger internal setup steps in your other tools.
+<Steps>
+  <Step title="Save your list as Excel">
+    The import reads Excel workbooks (.xlsx), one record type at a time.
+    CSV files are not accepted, so save an export from your old tool as .xlsx first.
+  </Step>
+  <Step title="Import organizations, then contacts">
+    On each list, open Import and export, choose Add from file and map your
+    columns. Give contacts a column with their organization's name to link them.
+  </Step>
+  <Step title="Import open engagements as deals">
+    Include stage, engagement type and your date fields, then link services
+    so each deal gets its value.
+  </Step>
+  <Step title="Save the views and the routine">
+    Save the four views above. On Pro, connect your mailbox under
+    My Profile › Channels, then set up the weekly chaser.
+  </Step>
+</Steps>
 
-### Reporting and analytics
+More on importing in the [records documentation](/docs/app-records).
 
-Track firm performance with [reporting](/features/reporting) dashboards built from your own records, for example engagements per stage, open value per service line, and workload per team member. Weighted pipeline totals come from the probabilities you set on each stage.
+## Client data and confidentiality
 
-### AI clients that operate your CRM
-
-Connect Claude, ChatGPT, or another AI client through the MCP server ([[derived.mcp.tools.total]] tools) and let it do the data entry. You choose and pay for the AI client. It can create client records, move engagements between stages, log notes from a call, draft client communications, and summarize engagement notes, so your team focuses on the work that requires professional judgment.
-
-### Data protection and self-hosting
-
-Client financial data demands proper protection. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
-
-## CRM for accountants vs. practice management software
-
-A common question is whether accounting firms need a CRM, practice management software, or both. Here is the distinction:
-
-- **Practice management software** focuses on workflow execution: tracking tasks, time, and billing for active engagements.
-- **A CRM for accountants** focuses on the client relationship: managing the full lifecycle from prospect to long-term client, including communication history, onboarding, segmentation, and engagement tracking.
-
-Customermates covers the relationship layer. It does not track time, bill clients, or send reminders, so most firms keep a practice management or accounting tool next to it. For QuickBooks, Xero, or DATEV, you connect through the REST API, webhooks, or n8n.
-
-## Pricing that works for accountants
-
-Accountants appreciate straightforward numbers. Customermates keeps it simple:
-
-- **Starter ([[commercial.price.starter.monthly]] per user per month)**: contacts, organizations, engagements, services, tasks, custom fields, views, REST, webhooks, and MCP
-- **Pro ([[commercial.price.pro.monthly]] per user per month)**: adds the unified inbox for client email, WhatsApp, and LinkedIn
-- **Priced per user**: no per-contact charges
-- **Self-hostable**: the open-source core runs on your own server at no licence cost; the inbox and Mate are cloud-only
-
-A solo practitioner pays [[commercial.price.starter.monthly]]/month on Starter. A firm of 8 pays [[commercial.price.starter.monthly.seats.8]]/month.
-
-See full details on our [pricing page](/pricing).
-
-## Integrations for accountants
-
-Customermates connects to the tools accounting firms already use:
-
-- **Email**: Connect Gmail, Outlook, or any IMAP mailbox to the unified inbox on Pro and above
-- **Calendar**: Read-only calendar access on Pro and above; Customermates does not book appointments
-- **Accounting software**: Connect to QuickBooks, Xero, DATEV, Lexware Office, or other platforms via REST, webhooks, or n8n (operated separately)
-- **Document references**: Store links to files managed in Google Drive, Dropbox, OneDrive, or another document system; these services are not built-in integrations or storage
-- **Internal messaging**: There is no native Slack or Teams integration; send webhook events to them through n8n or a similar tool
-- **AI clients (MCP)**: connect Claude, ChatGPT, or another MCP client to draft client emails and summarize notes
-
-## Getting started
-
-Setting up Customermates for your accounting firm:
-
-1. **Create an account**: no credit card required. The first [[commercial.trial.days]] days are free.
-2. **Import your clients**: from an Excel workbook (XLSX), one record type at a time, or through the REST API. There is no CSV import.
-3. **Set up your pipeline**: stages such as Documents Requested, In Preparation, Under Review, Filed.
-4. **Add custom fields**: specific to your practice (fiscal year end, entity type, service type, fee structure, next filing date).
-5. **Connect automations**: if you need them, through webhooks, n8n, or a cloud routine.
-
-Stop managing your practice with spreadsheets and sticky notes. Customermates keeps every client, every filing date, and every engagement organized, so you can focus on the advisory work that grows your firm.
+- In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region. Hosting and the other subprocessors, US providers among them, are on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available.
+- A custom role with Assigned read access limits a staff member to the records assigned to them. The audit log records who changed which record, on every plan.
+- Customermates holds no certification such as ISO 27001 or SOC 2.
+- If you prepare US tax returns, check the rules on using and disclosing tax return information in [26 U.S.C. § 7216](https://www.law.cornell.edu/uscode/text/26/7216) before you store that data in any outside system. Keeping return figures in your tax software and only status in the CRM avoids most of the question.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is a CRM for accountants?">
-A CRM for accountants is a client relationship management system that helps accounting firms manage client data, track engagements through stages, and keep the status of documents and filing dates visible. Unlike generic sales CRMs, an accountant CRM focuses on long-term client relationships with recurring service cycles rather than one-time sales pipelines.
+<FaqItem question="Is QuickBooks a CRM?">
+QuickBooks describes itself as cloud-based accounting software. Its site lists a Customer Hub that keeps customer details, notes and history in one place and suggests follow-ups with sales leads. Check that against what you need: if you want each engagement tracked through stages and client conversations next to the record, a separate CRM can sit next to the books in QuickBooks or Xero.
 </FaqItem>
 
-<FaqItem question="Do small accounting firms need a CRM?">
-Often, yes. Small accounting firms rarely have administrative staff to keep client relationships organized by hand. A CRM gives you one record per client, a pipeline of engagements, and saved views of what is outstanding, which helps most once the number of active clients outgrows a spreadsheet.
+<FaqItem question="What is the best practice management software for accountants?">
+It depends on what you want in one tool. Karbon and Canopy, for example, combine workflow, client portal, time tracking and billing. If you already have practice software and need a clearer view of clients, engagements and conversations, a CRM such as Customermates sits next to it. Customermates is our own product, so weigh that.
 </FaqItem>
 
-<FaqItem question="How is a CRM different from practice management software?">
-Practice management software focuses on internal workflow execution: task tracking, time logging, and billing. A CRM focuses on the client relationship: onboarding, communication history, engagement tracking, and segmentation. Many firms use both. Customermates covers the CRM layer and connects to accounting tools through its API.
+<FaqItem question="How do CPA firms manage deadlines and client deliverables?">
+Usually in practice management or tax software that keeps the deadline list. A CRM adds the client side: which engagement waits on which documents, and what was said. In Customermates, keep a Filing due date on each deal and sort a saved view by it. Customermates sends no reminders.
 </FaqItem>
 
-<FaqItem question="Can Customermates integrate with QuickBooks, Xero, or DATEV?">
-Not natively. You connect them through the REST API, webhooks, or n8n, which you operate separately and which talks to Customermates through a community node. That lets you sync client data or react to accounting events, but you build and run the workflow yourself.
+<FaqItem question="Can Customermates handle engagement letters?">
+It tracks them. Use a stage for Engagement letter signed, a date field for when you sent it and a link field to the signed file. Writing, sending and signing the letter happens in a tool such as Ignition or your practice software.
 </FaqItem>
 
-<FaqItem question="How does Customermates handle GDPR for client financial data?">
-GDPR compliance depends on how your firm uses any tool. Customermates provides a [DPA](/dpa), discloses its subprocessors (including US providers under standard contractual clauses) on the [subprocessors page](/subprocessors), and runs the cloud database in the AWS Frankfurt region. It holds no certification such as ISO 27001 or SOC 2. You can also self-host the open-source core on your own infrastructure for full control over where client data is stored.
+<FaqItem question="Does a small accounting firm need a CRM?">
+A spreadsheet works while one person knows every client. Once two or three people share clients and busy season stacks up open engagements, a shared record of each client and engagement saves the "who is waiting on what" meeting. A solo practitioner pays [[commercial.price.starter.monthly]] per month on Starter.
 </FaqItem>
 
-<FaqItem question="Does Customermates send deadline reminders?">
-No. Tasks have no due dates or reminders. Keep filing dates in custom date columns and use a saved view sorted by date. On Customermates Cloud, a routine can check those dates on a schedule and list what needs attention, and an external scheduler can do the same through the REST API.
-</FaqItem>
-
-<FaqItem question="How much does a CRM for accountants cost?">
-Customermates starts at [[commercial.price.starter.monthly]] per user per month for the core CRM, with the unified inbox on Pro at [[commercial.price.pro.monthly]] per user per month. There are no per-contact fees. A 5-person firm on Starter pays [[commercial.price.starter.monthly.seats.5]]/month.
-</FaqItem>
-
-<FaqItem question="Can I migrate from another CRM to Customermates?">
-Yes. Export your data from spreadsheets, HubSpot, Salesforce, or another system into an Excel workbook (XLSX) and import it one record type at a time. There is no CSV import. For larger or repeated migrations, use the REST API or an AI client connected over MCP.
+<FaqItem question="Can Customermates connect to QuickBooks or Xero?">
+Not natively. Customermates has a REST API, webhooks and a community node for n8n, which you run separately. Through those you can sync client details with tools that offer an API, but you build and run the workflow yourself.
 </FaqItem>
 </Faq>
+
+Vendor details checked on 8 October 2026 against [Karbon pricing](https://karbonhq.com/pricing/), [Canopy pricing](https://www.getcanopy.com/pricing) and [Ignition](https://www.ignitionapp.com/). QuickBooks details from [quickbooks.intuit.com](https://quickbooks.intuit.com/).

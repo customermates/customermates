@@ -1,201 +1,244 @@
 ---
-title: "Notion-Alternative: Open-Source-CRM statt Eigenbau"
-description: "Notion-Alternative fürs CRM: echte Deal-Pipeline, Webhooks und REST für n8n, MCP-Zugriff für Claude oder ChatGPT, ab [[commercial.price.starter.monthly]]/User/Monat."
+title: "Notion-Alternative fürs CRM: Customermates im Vergleich"
+description: "Notion als CRM oder ein CRM-System? Wann eine Notion-Datenbank reicht, was Customermates bietet, Kosten für fünf Personen und der Umzug per Excel."
 competitorName: Notion
 
 relatedHrefs:
-  - /compare/folk
-  - /compare/freshsales-alternative
-  - /compare/gohighlevel
-  - /compare/gohighlevel-alternative
+  - /compare/attio-alternative
+  - /blog/customizable-crm
+  - /features/pipeline
+  - /features/unified-inbox
 
 hero:
-  title: "Die beste Notion-Alternative für CRM"
-  description: "Schluss mit dem CRM-Eigenbau in Notion. Customermates ist ein echtes Open-Source-CRM mit Deal-Pipeline, MCP-Zugriff für externe KI-Clients, einem einheitlichen Posteingang ab Pro und Cloud-Datenbank in Frankfurt oder Self-Hosting."
+  title: "Notion-Alternative fürs CRM: Wann sich der Umzug aus Notion lohnt"
+  description: "In Notion bauen Sie sich ein CRM aus Datenbanken, Formeln und Automatisierungen selbst. Customermates ist ein Open-Source-CRM aus Deutschland, das mit einer gewichteten Deal-Pipeline startet, ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben Ihre Datensätze holt und die Pflege Mate oder Ihrem eigenen KI-Client überlässt. Angaben zu Notion von notion.com, Stand 8. Oktober 2026."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "\u2713 Keine Kreditkarte benötigt \u2713 Erste [[commercial.trial.days]] Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 comparison:
   competitorName: Notion
-  title: Warum Customermates statt Notion?
+  title: "Customermates vs. Notion als CRM"
   sections:
-  - title: Preis & Setup
+  - title: Preise & Tarife
     features:
-      - name: Start & Setup
-        source: Arbeitsbereich schnell angelegt
-        competitor: Stunden bis Wochen (Eigenbau)
-      - name: Kosten
-        source: "Ab [[commercial.price.starter.monthly]] / Monat / User"
-        competitor: 10 $ bis 20 $ / Mitglied / Monat
-      - name: Kostenloser Start
-        source: "[[commercial.trial.days]] Tage Test; Self-Hosting ohne Lizenzkosten"
-        competitor: true
-      - name: Kreditkarte nötig
+      - name: Preis pro Nutzer / Monat, monatliche Zahlung
+        source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: "Free 0 €, Plus 11,50 € (12 $), Business 23,50 € (24 $), Enterprise auf Anfrage"
+      - name: Jährliche Zahlung
+        source: Nur monatlich
+        competitor: "Plus 9,50 € (10 $), Business 19,50 € (20 $)"
+      - name: Kostenloser Tarif
         source: false
-        competitor: false
-      - name: CRM sofort einsatzbereit
-        source: true
-        competitor: false (manueller Aufbau nötig)
-  - title: Kernfunktionen
+        competitor: Ja; ab 2 Mitgliedern mit begrenzter Anzahl an Blöcken
+  - title: CRM-Datenmodell
     features:
-      - name: Keine tarifabhängigen Eintragslimits
+      - name: Fertige CRM-Datensätze
+        source: Kontakte, Organisationen, Deals, Services, Aufgaben
+        competitor: Datenbanken, die Sie selbst entwerfen; CRM-Vorlagen in der Galerie
+      - name: Deal-Phasen mit Wahrscheinlichkeiten
+        source: Phasenfeld mit Wahrscheinlichkeiten ab der Registrierung, gewichtete Pipeline-Summen
+        competitor: Selbst gebaut aus Status- oder Auswahl-Eigenschaft und Formel
+      - name: Feldtypen
+        source: 10 Feldtypen für eigene Felder
+        competitor: Mehr als 20 Eigenschaftstypen, darunter Formel, Rollup und Mehrfachauswahl
+      - name: Eigene Datensatztypen
+        source: false
+        competitor: Jede Datenbank, die Sie anlegen
+      - name: Dateien am Datensatz
+        source: false
+        competitor: Dateien-Eigenschaft; 5 MB pro Datei im Free-Tarif
+  - title: Kommunikation
+    features:
+      - name: E-Mail im CRM
+        source: Gmail, Outlook und IMAP im einheitlichen Posteingang (ab Pro)
+        competitor: Custom Agents mit Mail-Verbindung zu Gmail oder Outlook; Automatisierungen senden über Gmail
+      - name: LinkedIn, WhatsApp, Instagram, Telegram
+        source: Im einheitlichen Posteingang, mit Kontakten verknüpft (ab Pro)
+        competitor: Nicht Teil der Mail-Verbindung
+  - title: KI & Automatisierung
+    features:
+      - name: KI-Assistent in der App
+        source: Mate (Customermates Cloud, gehostete KI-Credits)
+        competitor: Notion Agent in Business enthalten; in Free und Plus als begrenzte Testversion
+      - name: KI nach Zeitplan oder Ereignis
+        source: Routinen nach Zeitplan oder bei Datensatzereignissen (Customermates Cloud)
+        competitor: "Custom Agents: kostenlos testbar, danach 10 $ pro 1.000 Notion-Credits"
+      - name: Regelbasierte Automatisierung
+        source: Webhooks an n8n oder eigenen Code; kein Regel-Editor
+        competitor: Datenbank-Automatisierungen in den bezahlten Tarifen; in Free nur einfache Schaltflächen und Slack-Benachrichtigungen
+      - name: MCP-Server
+        source: "Jeder Tarif und selbst gehostet, [[derived.mcp.tools.total]] Tools"
+        competitor: Notion MCP, von Notion gehostet
+      - name: REST-API und Webhooks
         source: true
         competitor: true
-      - name: Eigene Felder in jedem Tarif
-        source: true
-        competitor: true (als Datenbank-Properties)
-      - name: Deals & Pipelines
-        source: true
-        competitor: false (manuelle Behelfslösung)
-      - name: Kontakte & Organisationen
-        source: true
-        competitor: false (manuelle Datenbanken)
-      - name: Aufgaben & Services
-        source: true
-        competitor: Teilweise
-      - name: Mobile Optimierung
-        source: true
-        competitor: Eingeschränkt
-      - name: Nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Ab Pro
-        competitor: false
-      - name: Externe KI-Clients bedienen das CRM (MCP)
-        source: "[[derived.mcp.tools.total]] MCP-Tools (Claude, ChatGPT, Gemini)"
-        competitor: Notion AI (kein CRM-Agent)
-  - title: Datenschutz & Sicherheit
+  - title: Lizenz, Hosting & Zugang
     features:
-      - name: DSGVO-Dokumentation
-        source: AVV und Standardvertragsklauseln; keine Zertifizierung
-        competitor: Teilweise
-      - name: Hosting
-        source: Cloud-Datenbank in Frankfurt (AWS), selbst hostbar
-        competitor: Region je nach Tarif; beim Anbieter prüfen
-      - name: Open Source
-        source: true
+      - name: Open-Source-Lizenz
+        source: AGPL-3.0-Kern
         competitor: false
-      - name: Self-Hosting möglich
-        source: true
+      - name: Selbst hosten
+        source: Docker Compose (Kern-CRM ohne Posteingang und Mate)
         competitor: false
-  - title: Integration & Automatisierung
-    features:
-      - name: n8n-Anbindung (n8n separat betrieben)
-        source: Community-Node, REST, Webhooks
-        competitor: n8n-Node für Notion
-      - name: API-Zugriff
-        source: true
-        competitor: true
-      - name: CRM-Automatisierung
-        source: Webhooks, REST, n8n (separat), Cloud-Routinen
-        competitor: false (keine CRM-Automatisierung)
-      - name: Workflow-Trigger
-        source: "[[derived.webhooks.events.total]] Webhook-Ereignistypen"
-        competitor: Einfach
+      - name: Speicherort der Daten
+        source: Cloud-Datenbank in jedem Tarif in der AWS-Region Frankfurt konfiguriert
+        competitor: Standardmäßig USA; EU-Datenresidenz mit Enterprise
+      - name: SAML-SSO
+        source: false
+        competitor: Business und Enterprise
+      - name: Native Apps
+        source: Web-App im mobilen Browser
+        competitor: Desktop- und Smartphone-Apps
 
 cta:
-  action: Bereit, Ihr Notion-CRM zu ersetzen?
-  description: Schluss mit Tabellen, die sich als Datenbanken ausgeben. Holen Sie sich ein echtes CRM mit Pipeline, Webhooks und MCP-Zugriff für externe KI-Clients, zu transparenten Tarifen ab [[commercial.price.starter.monthly]]/User/Monat.
+  action: Wird Ihr Notion-CRM mühsam in der Pflege?
+  description: "Starten Sie eine Testphase, importieren Sie eine Notion-Datenbank als Excel-Arbeitsmappe und verbinden Sie das Postfach oder WhatsApp-Konto, über das Ihre Kunden schreiben. So sehen Sie schnell, ob Ihre Pipeline zum Modell von Customermates passt."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com
-  hint: "\u2713 Keine Kreditkarte benötigt \u2713 Erste [[commercial.trial.days]] Tage kostenlos"
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-> Wenn Sie eine **Notion-Alternative** suchen, die tatsächlich als CRM funktioniert, sind Sie nicht allein. Viele Teams bauen in [Notion](https://www.notion.com/) individuelle Datenbanken auf, um Kontakte, Deals und Vertriebspipelines zu verwalten, und stellen dann fest, dass ein Docs-Tool kein echtes CRM ersetzen kann. Customermates ist die Notion-Alternative, die für Kundenbeziehungsmanagement entwickelt wurde. Sie ist um zwei Ideen gebaut: externe KI-Clients (Claude, ChatGPT, Gemini) bedienen das CRM direkt über einen [eingebauten MCP-Server](/features/api) ([[derived.mcp.tools.total]] Tools), und ein nativer einheitlicher Posteingang bündelt ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort. [Kontaktverwaltung](/features/contact-management), [Deal-Pipelines](/features/pipeline), [MCP für Vertriebsabläufe](/features/sales-automation) sowie Webhooks und REST für eine separat betriebene [n8n-Instanz](/features/workflow-automation) sind ab [[commercial.price.starter.monthly]] pro User pro Monat enthalten, mit Cloud-Datenbank in Frankfurt.
+> Solange zwei, drei Personen eine überschaubare Kundenliste pflegen und die Deal-Seiten zugleich Projektnotizen sind, kann Ihr CRM in Notion bleiben. Ein eigenes CRM-System lohnt sich, sobald die Gespräche mit Kunden außerhalb von Notion laufen, Sie eine gewichtete Pipeline ohne selbst gepflegte Formeln wollen oder ein KI-Assistent die Datenpflege übernehmen soll. Notion liefert Datenbanken, Relationen, Formeln und Automatisierungen; das CRM entwerfen Sie selbst. Customermates startet mit Kontakten, Organisationen, Deals samt gewichtetem Phasenfeld, Services und Aufgaben und holt ab Pro Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an diese Datensätze. Brauchen Sie eigene Datensatztypen, kommen Attio oder Twenty der Flexibilität von Notion näher. Diesen Vergleich veröffentlicht Customermates; alle Angaben zu Notion stammen von notion.com und wurden am 8. Oktober 2026 geprüft.
 
-## Warum Teams eine Notion-Alternative suchen
+## Welches Tool zu welchem Team passt
 
-Notion ist ein leistungsstarker Workspace für Dokumentation, Wikis und leichtes Projektmanagement. Doch wenn Teams es als CRM nutzen wollen, stoßen sie schnell an Grenzen:
+| Ihre Situation | Besser geeignet | Warum |
+|---|---|---|
+| Überschaubare Kundenliste, Deals und Besprechungsnotizen auf denselben Seiten wie Ihre Dokumentation | Notion Free oder Plus | Eine Datenbank mit Status-Eigenschaft reicht dafür, und Notion haben Sie schon |
+| Sie brauchen eigene Datensatztypen wie Investoren, Immobilien oder Bewerber, mit Formeln und Rollups | Attio, Twenty oder Airtable | Customermates hat fünf feste Datensatztypen und keine Formelfelder |
+| Kunden schreiben per E-Mail, LinkedIn und WhatsApp, und Sie wollen diese Verläufe am Kontakt sehen | Customermates Pro oder Business | Alle diese Kanäle laufen in einem Posteingang zusammen, verknüpft mit Kontakten |
+| Sie wollen Deal-Wert mal Phasenwahrscheinlichkeit, ohne es selbst zu bauen | Customermates, jeder Tarif | Das Phasenfeld mit Wahrscheinlichkeiten ist ab der Registrierung angelegt |
+| Sie brauchen den Datenspeicher in der EU ohne Enterprise-Vertrag oder wollen das CRM selbst betreiben | Customermates | Cloud-Datenbank in jedem Tarif in der AWS-Region Frankfurt konfiguriert; AGPL-Kern zum Selbsthosten, ohne Posteingang und Mate |
+| Sie brauchen SAML-SSO oder native Apps | Notion Business | Notion bietet beides; Customermates hat kein SSO und keine native App |
 
-- **Keine nativen Pipelines.** Sie müssen Kanban-Boards von Grund auf bauen, und es gibt keine Deal-Pipeline mit Phasen-Wahrscheinlichkeiten und gewichteten Werten.
-- **Kein Posteingang am Kontakt.** Kunden-E-Mails landen nicht automatisch beim passenden Datensatz und müssen manuell übertragen werden.
-- **Kein CRM-Reporting.** Es gibt keine eingebauten Vertriebs-Dashboards oder [Pipeline-Berichte](/features/reporting).
-- **Keine CRM-spezifische Automatisierung.** Notions einfache Automatisierungen können Datenbank-Trigger und Benachrichtigungen auslösen, sind aber nicht auf [Follow-ups](/features/follow-up), Lead-Zuweisung oder Deal-Phasen zugeschnitten.
-- **Kein Self-Hosting.** Notion läuft nur als Cloud-Dienst des US-Anbieters; die Datenregion hängt vom Tarif ab.
+## Für wen Notion als CRM die richtige Wahl ist
 
-Das sind keine Randfälle, sondern die täglichen Anforderungen jedes Teams, das Kundenbeziehungen pflegt. Ein echtes [CRM-System](/blog/crm-systems) löst all diese Probleme von Haus aus.
+Die Notion-Hilfe nennt mehr als 20 Eigenschaftstypen für Datenbanken, darunter Status, Relation, Rollup, Formel, Mehrfachauswahl, Person und Dateien. Damit bilden Sie Kontakte, Firmen und Deals ab, verknüpfen sie und berechnen einen gewichteten Wert per Formel. Die Vorlagengalerie hat eine eigene CRM-Kategorie mit kostenlosen und kostenpflichtigen Vorlagen, viele davon von unabhängigen Erstellern.
 
-## Notion-Alternative im Vergleich
+In den bezahlten Tarifen starten Datenbank-Automatisierungen, wenn eine Seite hinzukommt oder sich eine Eigenschaft ändert, außerdem täglich, wöchentlich oder monatlich nach Zeitplan. Sie ändern Eigenschaften, legen Seiten in einer anderen Datenbank an, benachrichtigen Mitglieder, senden eine E-Mail über Ihr Gmail-Konto oder rufen einen Webhook auf. Notion Agent, der KI-Assistent in der App, ist in Business enthalten, und über Notion MCP lesen und ändern Clients wie Claude Code, Cursor oder Codex Ihre Seiten. Ist das CRM nur ein kleiner Teil eines Workspaces, in dem Ihr Team ohnehin schreibt, ist eine Datenbank neben der Dokumentation eine vernünftige Lösung.
 
-| Funktion                                                                 | Customermates                                 | Notion                | Airtable              | ClickUp               |
-| ------------------------------------------------------------------------ | --------------------------------------------- | --------------------- | --------------------- | --------------------- |
-| Preis/User                                                               | Ab [[commercial.price.starter.monthly]]/Monat | 10 bis 20 $/Mo.       | 20 $/Mo.              | 7 bis 12 $/Mo.        |
-| CRM sofort einsatzbereit                                                 | <StatusAvailable />                           | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
-| Deal-Pipelines                                                           | <StatusAvailable />                           | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
-| Kontaktverwaltung                                                        | <StatusAvailable />                           | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
-| Einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) (ab Pro) | <StatusPartial />                             | <StatusUnavailable /> | <StatusUnavailable /> | <StatusPartial />     |
-| CRM-Automatisierung                                                      | <StatusPartial />                             | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     |
-| KI-Agenten bedienen das CRM (MCP)                                        | <StatusAvailable />                           | <StatusPartial />     | <StatusUnavailable /> | <StatusUnavailable /> |
-| Open Source                                                              | <StatusAvailable />                           | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Self-Hosting                                                             | <StatusAvailable />                           | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| n8n-Anbindung (n8n separat betrieben)                                    | <StatusAvailable />                           | <StatusAvailable />   | <StatusAvailable />   | <StatusAvailable />   |
-| [API-Zugriff](/features/api)                                             | <StatusAvailable />                           | <StatusAvailable />   | <StatusAvailable />   | <StatusAvailable />   |
+## Warum Teams eine Notion-Alternative fürs CRM suchen
 
-[Airtable](https://www.airtable.com/) kann als leichtgewichtige Datenbank funktionieren, bietet aber keine nativen CRM-Pipelines und keine E-Mail-Integration. [ClickUp](https://clickup.com/) ist stark im Projektmanagement, behandelt CRM aber nur als Nebenfunktion. Customermates ist die einzige Notion-Alternative in diesem Vergleich, die ein vollständiges CRM ab dem ersten Login bietet.
+**Sie pflegen das CRM selbst.** Jede Eigenschaft, Relation, Formel und Automatisierung hat jemand aus Ihrem Team entworfen, und jemand muss sie am Laufen halten. Ändert sich der Vertriebsprozess, muss jemand das Schema anpassen und alles, was davon abhängt.
 
-## Setup & Einstieg
+**Kommunikation nur per E-Mail und nur über Agenten.** Für E-Mails setzt Notion auf Custom Agents mit Mail-Verbindung. Sie funktioniert mit Gmail oder Outlook und kann lesen, entwerfen und senden. LinkedIn, WhatsApp, Instagram und Telegram gehören nicht dazu. Custom Agents sind kostenlos testbar und kosten danach 10 $ pro 1.000 Notion-Credits.
 
-Mit Customermates starten Sie schnell. Nach der Registrierung haben Sie sofort Zugriff auf [Kontakte](/features/contact-management), [Deal-Pipelines](/features/pipeline), [Aufgaben](/features/task-management) und Services, ab Pro auch auf den [einheitlichen Posteingang](/features/email-integration). Keine Vorlagen suchen, keine Datenbanken von Grund auf gestalten.
+**Der volle Assistent setzt Business voraus.** In Free und Plus ist Notion Agent eine begrenzte Testversion.
 
-Notion als CRM zu nutzen bedeutet, alles selbst aufzubauen. Sie müssen Datenbanken für Kontakte, Deals und Unternehmen anlegen, Relationen definieren, Board-Ansichten für Pipeline-Phasen gestalten und Templates für konsistente Dateneingabe erstellen. Dieser Eigenbau-Ansatz kann Stunden oder Wochen dauern, und das Ergebnis ist immer ein Kompromiss: Sie bauen ein CRM in einem Tool, das für etwas völlig anderes konzipiert wurde. Jedes Notion-CRM-Setup ist einzigartig, was Fehlerbehebung, Team-Onboarding und Wartung zu einer dauerhaften Belastung macht.
+**Ohne Enterprise liegen die Daten in den USA.** Standardmäßig speichert Notion in den Vereinigten Staaten. Enterprise-Kunden können EU-Datenresidenz in Frankfurt beantragen, mit Irland als Ausweichregion; Notion Calendar, Notion Mail und Beta-Dienste sind davon ausgenommen. Notion verkauft nur gehostete Tarife.
 
-## Preise & Kosten
+## Was fünf Personen im Monat zahlen
 
-Customermates startet bei [[commercial.price.starter.monthly]] pro User pro Monat (Starter), mit jeder CRM-Kernfunktion inklusive: Kontakte, Deals, Pipeline, eigene Felder, MCP-Zugriff für externe KI-Clients, REST-API und Webhooks. Pro ([[commercial.price.pro.monthly]]) und Business ([[commercial.price.business.monthly]]) ergänzen den einheitlichen Posteingang und mehr verbundene Konten. Besuchen Sie unsere [Preisseite](/pricing) für Details. Lesen Sie unseren [CRM-Kosten-Ratgeber](/blog/crm-cost), um einen Überblick über die typischen CRM-Kosten 2026 zu bekommen.
+Preise am 8. Oktober 2026 auf der [Preisseite von Notion](https://www.notion.com/pricing) geprüft, mit den dort ausgewiesenen Euro-Preisen. In US-Dollar kostet Plus 12 $ und Business 24 $ pro Mitglied bei monatlicher Zahlung. Customermates rechnet monatlich in Euro ab.
 
-Notion startet kostenlos für den persönlichen Gebrauch, wechselt aber für Teams zu 10 $/Mitglied/Monat (Plus) oder 20 $/Mitglied/Monat (Business, jährliche Abrechnung). Obwohl der Preis auf dem Papier wettbewerbsfähig erscheint, zahlen Sie für ein Docs- und Wiki-Tool und investieren dann erhebliche Zeit, um CRM-Funktionalität darauf aufzubauen. Die wahren Kosten einer Notion-CRM-Nutzung sind nicht das Abo, sondern die Stunden, die in Setup, Wartung und Behelfslösungen für Funktionen fließen, die ein [echtes CRM](/blog/best-crm-software) nativ bereitstellt.
+| Tarif für fünf Personen | Monatliche Zahlung | Jährliche Zahlung, pro Monat |
+|---|---|---|
+| Notion Plus | 57,50 € | 47,50 € |
+| Notion Business | 117,50 € | 97,50 € |
+| Customermates Starter | [[commercial.price.starter.monthly.seats.5]] | Nicht angeboten |
+| Customermates Pro | [[commercial.price.pro.monthly.seats.5]] | Nicht angeboten |
+| Customermates Business | [[commercial.price.business.monthly.seats.5]] | Nicht angeboten |
 
-## Funktionen
+Für das Geld bekommen Sie nicht dasselbe:
 
-Hier wird der Unterschied unübersehbar. Customermates bietet native CRM-Fähigkeiten: [Kontakt- und Organisationsverwaltung](/features/contact-management), Deal-Tracking mit visuellen [Pipelines](/features/pipeline), [Aufgabenverwaltung](/features/task-management), [Service-Tracking](/features/customer-service), [MCP-Zugriff für externe KI-Clients](/features/sales-automation) und Schnittstellen für [Workflow-Automatisierung](/features/workflow-automation) mit einem separat betriebenen n8n im Starter-Tarif, dazu [E-Mail-Integration](/features/email-integration) über den einheitlichen Posteingang ab Pro. Das sind keine Behelfslösungen, sondern native Funktionen, die ins Produkt eingebaut sind.
+- **Notion Plus und Customermates Starter kosten etwa gleich viel.** Plus ist ein Workspace für Dokumente, Datenbanken und Automatisierungen mit einer Testversion von Notion Agent. Starter ist ein fertiges CRM mit gewichteter Pipeline, MCP-Server und Mate auf gehosteten KI-Credits, aber ohne Posteingang und ohne Dokumentation.
+- **Notion Business und Customermates Pro vergleichen Sie, wenn Sie mehr als Datensätze brauchen.** Business bringt Notion Agent und SAML-SSO, das Customermates nicht anbietet. Pro bringt den einheitlichen Posteingang mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenen Konto pro Nutzer; Customermates Business bietet [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Nutzer und geteilte Konten.
+- **Behalten Sie Notion für die Dokumentation,** zahlen Sie beide Tarife zusammen.
 
-Notion bietet keine dieser nativen CRM-Funktionen. Sie können Datenbanken erstellen, die Kontakten und Deals ähneln, aber es gibt keine echten Pipelines mit gewichteten Werten, keinen Posteingang am Kontakt, kein CRM-spezifisches [Reporting](/features/reporting) und keinen MCP-Zugriff für externe KI-Clients in [Vertriebsworkflows](/features/sales). Jede CRM-Funktion in Notion erfordert manuelle Konfiguration und laufende Wartung. Wenn sich Ihr Vertriebsprozess ändert, müssen Sie Ihre Notion-Datenbanken umbauen: eine Aufgabe, die ein echtes CRM über Konfiguration statt Rekonstruktion löst.
+## Wo Customermates passt
 
-## Open Source & Self-Hosting
+Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Entwickelt wird es in Deutschland.
 
-Customermates ist [Open Source](/blog/open-source-crm) (AGPL-Kern, `ee/` unter kommerzieller Lizenz). Sie können den Code einsehen, beitragen und den Open-Source-Kern auf Ihrer eigenen Infrastruktur [selbst hosten](/features/self-hosted). Self-Hosting umfasst den Funktionsumfang von Starter (ohne Posteingang und Mate). Dann bestimmen Sie selbst, wo Ihre Daten liegen.
+**Die Pipeline steht, bevor Sie etwas bauen.** Ein neuer Workspace startet mit dem Feld „Phase“ an Deals und hinterlegten Wahrscheinlichkeiten: Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 %. Der Wert eines Deals ist die Summe seiner verknüpften Services, Preis mal Menge. Customermates multipliziert ihn mit der Phasenwahrscheinlichkeit und zeigt einen gewichteten Wert pro Deal und eine gewichtete [Pipeline-Summe](/features/pipeline). Das ist eine Rechnung mit Ihren eigenen Zahlen, keine Prognose.
 
-Notion ist proprietär und bietet kein Self-Hosting an. Ihre Daten liegen auf Notions Servern, und Sie sind vollständig von deren Roadmap abhängig. Für Teams, die den Speicherort selbst bestimmen müssen, ist das ein Ausschlusskriterium. Customermates ist eine der wenigen Notion-Alternativen, die Open-Source-Transparenz mit produktionsreifem CRM vereint.
+**Gespräche direkt am Deal.** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) Postfächer von Gmail, Outlook und per IMAP sowie LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal. Verknüpfen Sie einen Gesprächspartner einmal mit einem Kontakt, erscheint jedes Gespräch mit dieser Adresse oder Kennung im Aktivitätsverlauf des Kontakts.
 
-## Datenschutz & DSGVO
+**KI hält die Datensätze aktuell.** In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten, aktualisiert Datensätze und legt Ansichten an. Mate nutzt gehostete KI-Credits mit einem monatlichen Kontingent pro aktivem Nutzer (siehe [Preise](/pricing)). Vor jedem Löschen fragt Mate erneut nach Ihrer Freigabe, Nachrichten verschickt es ohne gesonderte Freigabe. Lassen Sie deshalb Entwürfe speichern, wenn Sie vorher prüfen möchten. Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz aus: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro. Arbeiten Sie lieber mit Claude oder ChatGPT? Dann verbinden Sie den Client mit dem [MCP-Server](/docs/mcp), der in jedem Tarif [[derived.mcp.tools.total]] Tools bereitstellt; die Modellaufrufe laufen über Ihren eigenen KI-Anbieter.
 
-Beim verwalteten Customermates liegt die Anwendungsdatenbank in der AWS-Region Frankfurt; das Hosting läuft bei Vercel (USA), und offengelegte [Unterauftragsverarbeiter](/subprocessors) und internationale Übermittlungen gelten weiterhin. Beim [Self-Hosting](/features/self-hosted) wählt der Betreiber die Datenbankregion und verantwortet verbundene Dienste sowie die gesamte Verarbeitungskette.
+**Hosting nach Wahl.** Die Cloud-Datenbank ist in der AWS-Region Frankfurt konfiguriert. Ein Auftragsverarbeitungsvertrag steht bereit, und die Unterauftragsverarbeiter, darunter US-Anbieter, sind offengelegt. Der AGPL-3.0-Kern läuft mit Docker Compose auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP; eine [selbst gehostete Installation](/features/self-hosted) hat jedoch keinen Posteingang und kein Mate. Eine Compliance-Zertifizierung besitzt Customermates nicht.
 
-Notion ist ein US-amerikanisches Unternehmen und hostet auf AWS; welche Datenregion für Ihr Konto gilt, hängt vom Tarif ab und steht in den Unterlagen von Notion. Customermates stellt einen [AVV](/dpa) bereit und legt seine Unterauftragsverarbeiter offen; eine Zertifizierung hat es nicht. Lesen Sie dazu auch unseren [CRM-Vergleich](/blog/crm-comparison).
+## Wann Customermates nicht passt
 
-## Integration & Automatisierung
+- **Keine eigenen Datensatztypen.** Kontakte, Organisationen, Deals, Services und Aufgaben lassen sich über Vorgaben umbenennen (Deals etwa in Projekte, Organisationen in Unternehmen), einen sechsten Typ gibt es nicht.
+- **Zehn Feldtypen, keine Formeln.** Zahl, Checkbox, Mehrfachauswahl, Formel und Rollup fehlen.
+- **Keine Dokumentation, kein Wiki.** Jeder Datensatz hat ein Notizfeld mit Formatierung, Bildern und Tabellen. Angebote und Handbücher bleiben in Notion.
+- **Keine Dateien am Datensatz.** Dateianhänge gibt es nur in Gesprächen im Posteingang; tragen Sie die Adresse einer Datei in ein Link-Feld ein.
+- **Keine Fälligkeiten und keine automatischen Hinweise bei Aufgaben.** Legen Sie ein Datumsfeld an und sortieren Sie eine gespeicherte Ansicht danach, oder lassen Sie eine Routine prüfen.
+- **Keine nativen Apps, kein SSO, keine geteilten Ansichten, kein kostenloser Tarif.** Customermates läuft im Browser des Smartphones, gespeicherte Ansichten sind persönlich, und auf eine [[commercial.trial.days]]-tägige Testphase folgt ein bezahlter Tarif.
 
-Customermates stellt vollen [API-Zugriff](/features/api), [[derived.webhooks.events.total]] Webhook-Ereignistypen, MCP-Zugriff für externe KI-Clients und einen Community-Node für eine separat betriebene [n8n](https://n8n.io/)-Instanz bereit. Eine eingebaute Workflow-Engine und Erinnerungen gibt es nicht; Abläufe wie das Auslösen von Workflows bei Kontaktaktualisierungen oder das Vorbereiten von [Follow-ups](/features/follow-up) bauen Sie in n8n oder, in der Cloud, als Mate-Routine. Weitere Dienste wie Slack binden Sie über n8n und [Integrationen](/features/integrations) an; LinkedIn verbinden Sie ab Pro mit dem Posteingang.
+## Beispiel: Eine Beratung mit vier Personen zieht aus Notion um
 
-Notion bietet eine öffentliche API und einfache Automatisierungen (Datenbank-Trigger, einfache Benachrichtigungen), aber das sind Allzweck-Werkzeuge, keine CRM-Automatisierungen. Es gibt keine native Möglichkeit, Deal-Workflows zu automatisieren, CRM-E-Mails zu versenden oder vertriebsspezifische Aktionen auszulösen. Notion mit externen Tools für CRM-Funktionalität zu verbinden, erhöht Komplexität, Fragilität und Wartungsaufwand.
+Das Notion-CRM der Beratung besteht aus drei Datenbanken, Kunden, Kontakte und Deals, und die Besprechungsnotizen stehen auf den Deal-Seiten.
+
+| In Notion | In Customermates |
+|---|---|
+| Datenbank „Kunden“ | Organisationen, umbenannt in „Unternehmen“ |
+| Kontakte mit Relation zu „Kunden“ | Kontakte, beim Import per Name mit ihrer Organisation verknüpft |
+| Status-Eigenschaft (Lead, Angebot, Gewonnen, Verloren) | Das Feld „Phase“ mit Ihren Optionen und Wahrscheinlichkeiten |
+| Betrag (Zahl) | Services mit Preis, mit jedem Deal verknüpft; ein Währungsfeld geht auch, zählt aber nicht zur gewichteten Pipeline |
+| Leistungsbereich (Mehrfachauswahl) | Ein verknüpfter Service pro Bereich |
+| Verantwortlich (Person) | Zugewiesen |
+| Nächster Schritt (Datum) | Ein Datumsfeld plus gespeicherte Ansicht, danach sortiert |
+| Gewichteter Wert (Formel) | Der eingebaute gewichtete Wert |
+| Pipeline pro Kunde (Rollup) | Ein Dashboard-Diagramm, das den Deal-Wert nach Organisation summiert |
+| Angebots-PDF (Dateien) | Ein Link-Feld, das auf die Datei zeigt |
+| Seiteninhalt mit Besprechungsnotizen | Die Notizen des Datensatzes |
+
+Jede Beraterin und jeder Berater speichert ein Board der eigenen Deals nach Phase, die Geschäftsführung eine Tabelle, gruppiert nach „Zugewiesen“. Mit Pro verbindet jede Person das Postfach oder WhatsApp-Konto, über das Kunden schreiben, für [[commercial.price.pro.monthly.seats.4]] im Monat fürs Team. Eine Routine pro Person ersetzt den Montagsfilter aus Notion. Sie läuft im Namen der jeweiligen Person in Customermates Cloud und nutzt gehostete KI-Credits:
+
+> Jeden Montag um 8:00 Uhr: meine Deals in der Phase „Angebot“ suchen, deren Datum unter „Nächster Schritt“ verstrichen ist oder deren Kontakt seit zehn Tagen nicht geschrieben hat. Für jeden einen kurzen Nachfass-Entwurf in meinem letzten Gespräch mit diesem Kontakt speichern, nicht absenden. Die Deals in der Zusammenfassung des Laufs auflisten.
+
+## Der Umzug aus Notion in fünf Schritten
+
+<Steps>
+  <Step title="Jede Datenbank exportieren">Öffnen Sie in Notion das •••-Menü der Datenbank, wählen Sie Exportieren und das Format Markdown & CSV. Eine ganzseitige Datenbank kommt als Tabellendatei heraus, dazu eine Markdown-Datei für jede Seite.</Step>
+  <Step title="Als Arbeitsmappe speichern">Customermates liest kein CSV. Öffnen Sie die Datei deshalb in Excel, Numbers oder LibreOffice und speichern Sie sie als .xlsx. Trennen Sie Namen in Vor- und Nachname, denn neue Kontakte brauchen beides.</Step>
+  <Step title="Den Workspace vorbereiten">Wählen Sie unter Mein Unternehmen › Einstellungen › Datenmodell die Bezeichnungen der Datensatztypen, passen Sie Optionen und Wahrscheinlichkeiten der Phase an und legen Sie die Felder aus der Tabelle oben an.</Step>
+  <Step title="Einen Datensatztyp nach dem anderen importieren">Wählen Sie unter Import und Export „Aus Datei hinzufügen“: zuerst Organisationen, dann Kontakte, Services und Deals. Verknüpfungsspalten finden Datensätze über den Namen, ohne auf Groß- und Kleinschreibung zu achten. Ordnen Sie E-Mail-Adressen und WhatsApp-Nummern den Kanälen des Kontakts zu. Die Dateigrenzen stehen im [Leitfaden zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Notizen und Ansichten übernehmen">Die Besprechungsnotizen stecken in den Markdown-Dateien, nicht in der Tabelle. Übernehmen Sie die wichtigen in die Notizen des Datensatzes, oder lassen Sie sie von einem KI-Client per MCP eintragen. Danach legen Sie Ihre Ansichten neu an; jede Person speichert ihre eigenen.</Step>
+</Steps>
+
+## Weitere Notion-Alternativen fürs CRM
+
+Diese Liste veröffentlicht Customermates. Die Angaben stammen von den Preisseiten der Anbieter, geprüft am 8. Oktober 2026.
+
+- **Attio** ist das CRM, das der Datenmodellierung in Notion am nächsten kommt: Objekte, Beziehungs- und Formelattribute, E-Mail- und Kalendersynchronisierung und automatische Datenanreicherung, die Customermates nicht bietet. Laut [Preisseite von Attio](https://attio.com/pricing) umfasst Free bis zu 3 Nutzer und 50.000 Datensätze; Plus kostet 39 € pro Nutzer und Monat (31 € bei jährlicher Zahlung), Pro 93 € (74 €), mit 14 Tagen Pro zum Testen. Mehr im [Vergleich mit Attio](/compare/attio-alternative).
+- **Twenty** ist ein Open-Source-CRM mit unbegrenzt vielen eigenen Objekten, sodass sich ein Notion-Schema recht genau nachbauen und selbst betreiben lässt. Jeder Cloud-Workspace hat einen MCP-Server. Laut [Preisseite von Twenty](https://twenty.com/pricing) kostet Cloud Pro 9 $ pro Nutzer und Monat bei jährlicher Zahlung, Organization 19 $, nach einer Testphase von 30 Tagen.
+- **Airtable** passt zu Teams, die ihr System weiter selbst bauen wollen, mit relationalen Datenbanken, Interfaces und Automatisierungen. Laut [Preisseite von Airtable](https://www.airtable.com/pricing) kostet Team 20 $ und Business 45 $ pro Nutzer und Monat bei jährlicher Zahlung; Free ist kostenlos.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Ist Notion ein gutes CRM?">
-Notion ist ein hervorragender Workspace für Dokumentation und Projektmanagement, aber es ist kein CRM. Es fehlen native Pipelines, E-Mail-Integration, Vertriebsautomatisierung und CRM-Reporting. Teams, die Notion als CRM nutzen wollen, verbringen erhebliche Zeit damit, benutzerdefinierte Datenbanken aufzubauen und zu pflegen, die trotzdem nicht an die Funktionalität eines echten CRM wie Customermates heranreichen.
+<FaqItem question="Funktioniert Notion als CRM?">
+Ja, wenn Sie es selbst aufbauen. Sie legen Datenbanken für Kontakte, Firmen und Deals an, verbinden sie mit Relationen, verfolgen Phasen über eine Status-Eigenschaft und ergänzen Formeln, Ansichten und Automatisierungen, oder Sie starten mit einer Vorlage aus der Galerie. Das Modell entwerfen und pflegen Sie selbst, und die Mail-Verbindung der Notion-Agenten umfasst Gmail und Outlook, keine Chat-Kanäle wie WhatsApp oder LinkedIn.
 </FaqItem>
 
-<FaqItem question="Welche Notion-Alternative ist die beste für CRM?">
-Für Kundenbeziehungsmanagement ist Customermates die beste Notion-Alternative. Es bietet native Kontakte, Deals, Pipeline, MCP für externe KI-Clients sowie REST und Webhooks für ein separat betriebenes n8n ab [[commercial.price.starter.monthly]]/User/Monat, mit E-Mail, LinkedIn, WhatsApp, Instagram und Telegram im einheitlichen Posteingang der Pro-Stufe. Anders als Allzweck-Alternativen wie Coda oder Obsidian ist Customermates speziell für CRM-Workflows konzipiert.
+<FaqItem question="Hat Notion ein eigenes CRM-System?">
+Auf seiner Preisseite führt Notion kein eigenes CRM-Produkt. Ein CRM entsteht dort aus Datenbanken, und die Vorlagengalerie hat eine CRM-Kategorie mit kostenlosen und kostenpflichtigen Vorlagen, viele davon von unabhängigen Erstellern. Customermates dagegen startet mit festen Datensatztypen für Kontakte, Organisationen, Deals, Services und Aufgaben.
 </FaqItem>
 
-<FaqItem question="Kann ich von Notion zu Customermates migrieren?">
-Ja. Exportieren Sie Ihre Notion-Datenbanken, speichern Sie sie als Excel-Datei (XLSX) und importieren Sie jede Datensatzart einzeln, oder laden Sie sie über die REST API oder einen KI-Client per MCP. Der XLSX-Import ordnet Spalten den CRM-Feldern zu, sodass Kontakte, Deals und Organisationen sauber übertragen werden. [Starten Sie Ihre kostenlose Testphase](/auth/signup) und testen Sie die Migration, bevor Sie sich festlegen.
+<FaqItem question="Was kostet Notion als CRM für ein kleines Team?">
+Free ist für Einzelpersonen gedacht; ab 2 Mitgliedern ist die Zahl der Blöcke begrenzt. Plus kostet 11,50 € pro Mitglied und Monat bei monatlicher Zahlung, Business 23,50 €, bei jährlicher Zahlung weniger. Custom Agents verbrauchen zusätzlich Notion-Credits. Customermates Starter kostet [[commercial.price.starter.monthly]] pro Nutzer und Monat, Pro [[commercial.price.pro.monthly]], monatlich abgerechnet.
 </FaqItem>
 
-<FaqItem question="Ist Customermates Open Source?">
-Ja. Customermates ist ein [Open-Source-CRM](/blog/open-source-crm) mit AGPL-Kern; Code unter `ee/` steht unter einer kommerziellen Lizenz. Sie können den Code prüfen, beitragen und es auf Ihrer eigenen Infrastruktur [selbst hosten](/features/self-hosted). Damit ist es eine der wenigen Notion-Alternativen, die CRM-Funktionalität mit voller Datentransparenz verbindet.
+<FaqItem question="Ist Notion als CRM DSGVO-konform?">
+Das beurteilen Sie als Verantwortlicher für Ihren Einsatz selbst. Laut Notion-Hilfe liegen die Daten standardmäßig in den USA; EU-Datenresidenz in Frankfurt können nur Enterprise-Kunden beantragen. Customermates Cloud hat die Datenbank in jedem Tarif in der AWS-Region Frankfurt konfiguriert, bietet einen Auftragsverarbeitungsvertrag und legt seine Unterauftragsverarbeiter offen, darunter US-Anbieter.
 </FaqItem>
 
-<FaqItem question="Wie schneidet Customermates gegenüber anderen Notion-Alternativen wie Airtable oder ClickUp ab?">
-Airtable und ClickUp sind starke Tools für Datenbanken bzw. Projektmanagement, bieten aber kein vollständiges CRM von Haus aus. Customermates beinhaltet native Pipeline, Kontaktverwaltung und offene Automatisierungsschnittstellen im Starter-Tarif, dazu E-Mail-Integration über den einheitlichen Posteingang ab Pro: Funktionen, die Sie in Airtable oder ClickUp erst zusammenbauen müssten. Vergleichen Sie auch, wie Customermates gegen [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative) oder [Salesforce](/compare/salesforce-alternative) abschneidet.
+<FaqItem question="Kann ich Notion behalten und Customermates fürs CRM nutzen?">
+Ja. Beide haben eine REST-API und Webhooks, und n8n hat Nodes für beide. So legt ein Workflow zum Beispiel eine Projektseite in Notion an, sobald ein Deal gewonnen ist. n8n läuft separat und ist nicht Teil von Customermates.
+</FaqItem>
+
+<FaqItem question="Gibt es eine Open-Source-Alternative zu Notion fürs CRM?">
+Ja. Twenty ist Open Source mit eigenen Objekten und kommt einem flexiblen Notion-Schema am nächsten. Customermates hat einen AGPL-3.0-Kern, den Sie mit Docker Compose selbst betreiben; Posteingang und Mate gibt es nur in Customermates Cloud.
 </FaqItem>
 </Faq>
 
-## Fazit
+Angaben zu Wettbewerbern am 8. Oktober 2026 geprüft anhand der [Preisseite von Notion](https://www.notion.com/pricing), der Notion-Hilfe zu [Datenbank-Eigenschaften](https://www.notion.com/help/database-properties), [Datenbank-Automatisierungen](https://www.notion.com/help/database-automations), [Export](https://www.notion.com/help/export-your-content), [Datenresidenz](https://www.notion.com/help/data-residency) und [Mail-Verbindung für Custom Agents](https://www.notion.com/help/connect-mail-to-custom-agents), der [Dokumentation zu Notion MCP](https://developers.notion.com/docs/mcp), der [CRM-Vorlagengalerie](https://www.notion.com/templates/category/crm), der [n8n-Integration für Notion](https://n8n.io/integrations/notion/) sowie der Preisseiten von [Attio](https://attio.com/pricing), [Twenty](https://twenty.com/pricing) und [Airtable](https://www.airtable.com/pricing).
 
-Notion ist hervorragend für Dokumentation, Wikis und leichtes Projektmanagement. Es als CRM zu nutzen bedeutet jedoch, ein Tool zu akzeptieren, dem native CRM-Funktionen fehlen, das umfangreichen manuellen Aufbau erfordert und nicht selbst gehostet werden kann. Customermates ist von Grund auf als CRM gebaut und [Open Source](/blog/open-source-crm), mit Cloud-Datenbank in Frankfurt oder selbst gehostet und mit jeder CRM-Kernfunktion inklusive ab [[commercial.price.starter.monthly]]/User/Monat. Wenn Sie Ihren Notion-CRM-Eigenbau hinter sich lassen wollen, [starten Sie heute Ihre kostenlose Testphase](/auth/signup) und erleben Sie ein echtes CRM. Sehen Sie auch, wie Customermates im Vergleich zu [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), [Monday](/compare/monday-alternative) oder [Zoho CRM](/compare/zoho-crm-alternative) abschneidet.
+Am schnellsten prüfen Sie die Passung mit Ihren eigenen Daten: [Starten Sie eine kostenlose Testphase](/auth/signup), importieren Sie Ihre Deal-Datenbank aus Notion und verbinden Sie den Kanal, über den Ihre Kunden am häufigsten schreiben.

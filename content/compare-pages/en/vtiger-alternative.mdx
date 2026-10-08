@@ -1,17 +1,17 @@
 ---
-title: "Best Vtiger Alternative for Modern CRM in 2026"
-description: "Looking for a Vtiger alternative? Compare modern open-source CRM tools with container self-hosting and transparent pricing. Try Customermates free."
+title: "Vtiger Alternative: Open-Source and Cloud CRMs Compared"
+description: "Vtiger alternatives compared on price, licence, hosting, chat channels and migration: Customermates, SuiteCRM, EspoCRM, Zoho CRM and Odoo."
 competitorName: Vtiger
 
 relatedHrefs:
   - /compare/espocrm-alternative
-  - /compare/hubspot-vs-salesforce
-  - /compare/microsoft-dynamics-alternative
-  - /compare/monday-alternative
+  - /compare/zoho-crm-alternative
+  - /blog/open-source-crm
+  - /features/self-hosted
 
 hero:
-  title: "The Best Vtiger Alternative for Teams That Want Modern CRM"
-  description: "Vtiger pioneered open-source CRM, but its dated interface and split feature set hold teams back. Compare Customermates and Vtiger side by side and see what a modern open-source CRM looks like: AI agents that keep records current and a native inbox for email, LinkedIn, and WhatsApp."
+  title: "Vtiger Alternative: Customermates and Vtiger Compared"
+  description: "Vtiger is a suite of five apps, from sales and marketing to help desk, projects and inventory, with a free cloud plan and a separate open-source edition. Customermates is a smaller open-source CRM built in Germany: contacts, deals and, from Pro, your email, LinkedIn, WhatsApp, Instagram and Telegram conversations in one place, kept current by Mate in Customermates Cloud or by your own AI client over MCP. Vtiger details are from vtiger.com, checked on 8 October 2026."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -22,101 +22,77 @@ comparison:
   competitorName: Vtiger
   title: "Customermates vs. Vtiger: Feature Comparison"
   sections:
-  - title: Pricing & Setup
+  - title: Licence & Deployment
     features:
-      - name: Start & Setup
-        source: Browser sign-up, no installation
-        competitor: Hours to days
-      - name: Cost
-        source: From [[commercial.price.starter.monthly]] / month / user
-        competitor: $12-$42 / month / user
+      - name: Open-source licence
+        source: AGPL-3.0 for the core CRM; cloud features such as the inbox and Mate under the Customermates Commercial License
+        competitor: Vtiger Public License 1.1, based on MPL 1.1 (open-source edition)
+      - name: Self-hosting
+        source: Docker Compose with two services, the app and PostgreSQL 16
+        competitor: Vtiger CRM 8.4.0 on PHP 8, MySQL and Apache; bundles for Linux and Windows, or Docker
+      - name: Missing when self-hosted
+        source: Unified inbox, Mate and hosted AI credits
+        competitor: Email marketing, many integrations, Calculus AI and the mobile apps, among others
+      - name: Cloud data location
+        source: Primary database configured in AWS Frankfurt
+        competitor: US, UK, EU (Ireland, Frankfurt), UAE, Australia, Singapore, Japan or India, set by your location at trial start
+  - title: Pricing
+    features:
+      - name: Cloud price per user / month
+        source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: "One Growth $12, Professional $30, Enterprise $42, One AI $50 billed yearly; $15, $42, $58, $66 billed monthly"
+      - name: Free plan
+        source: No free cloud plan; the self-hosted core has no licence fee
+        competitor: One Pilot, up to 10 users and 3,000 records
+      - name: Billing period
+        source: Monthly
+        competitor: Yearly or monthly
       - name: Free trial
-        source: "[[commercial.trial.days]] days (full Pro)"
-        competitor: Free Pilot (10 users) + 15-day trial
-      - name: Credit card required
+        source: "[[commercial.trial.days]] days"
+        competitor: 15 days
+  - title: CRM & Service
+    features:
+      - name: Record types
+        source: Contacts, organizations, deals, services, tasks
+        competitor: Leads, contacts, organizations, deals and modules across five apps
+      - name: Invoicing and inventory
         source: false
-        competitor: false
-      - name: License complexity
-        source: Low
-        competitor: Medium
-      - name: No core-feature gating
-        source: true
-        competitor: false
-  - title: Core CRM Features
+        competitor: From One Growth
+      - name: Help desk and customer portal
+        source: false
+        competitor: Help desk on every plan, customer portal from One Growth
+      - name: Email campaigns and sequences
+        source: false
+        competitor: From One Pilot
+      - name: Native mobile apps
+        source: false
+        competitor: iPhone and Android (cloud)
+  - title: Conversations
     features:
-      - name: Unlimited records
-        source: true
-        competitor: Limited per plan
-      - name: Custom fields (10 field types)
-        source: true
-        competitor: Limited per plan
-      - name: Deals & pipelines
-        source: true
-        competitor: true
-      - name: Contacts & organizations
-        source: true
-        competitor: true
-      - name: Tasks & services
-        source: true
-        competitor: true
-      - name: Lead management
-        source: true
-        competitor: true
-      - name: Mobile optimization
-        source: true
-        competitor: Partially
-      - name: AI agents operate the CRM (native MCP)
-        source: "[[derived.mcp.tools.total]] tools (from Starter)"
-        competitor: One AI tier ($50)
-      - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Pro+ ([[commercial.price.pro.monthly]])
-        competitor: Email only
-  - title: Data Protection & Security
+      - name: Email
+        source: Gmail, Outlook and IMAP in the unified inbox (Pro+)
+        competitor: Email and phone integration on every plan
+      - name: WhatsApp
+        source: Unified inbox (Pro+)
+        competitor: Through Twilio, Gupshup, Clickatell, Wablas or imimobile; listed for One Professional and One Enterprise
+      - name: LinkedIn
+        source: Unified inbox (Pro+)
+        competitor: Cloud only, per Vtiger's edition comparison
+  - title: AI & Interfaces
     features:
-      - name: GDPR documentation
-        source: DPA + SCCs; no certification
-        competitor: See vendor DPA
-      - name: Hosting
-        source: Cloud database in Frankfurt (AWS)
-        competitor: Check vendor for region
-      - name: Self-hosting option
-        source: true
-        competitor: true (community edition)
-      - name: Choose where data lives
-        source: When self-hosted
-        competitor: When self-hosted
-      - name: Audit log
-        source: Every plan
-        competitor: Enterprise only
-  - title: Integration & Automation
-    features:
-      - name: External n8n integration
-        source: Separate community node + REST/webhooks
-        competitor: false
-      - name: API access
-        source: true
-        competitor: true
-      - name: Workflow automation
-        source: No builder; webhooks, REST, n8n
-        competitor: Paid plans only
-      - name: Third-party integrations
-        source: Via REST, webhooks, MCP, n8n
-        competitor: Limited
-  - title: Open Source & Deployment
-    features:
-      - name: Open source
-        source: AGPL core; ee/ under a commercial license
-        competitor: Community edition only
-      - name: Full core CRM when self-hosted
-        source: Starter feature set
-        competitor: false
-      - name: Modern container deployment
-        source: true
-        competitor: Legacy PHP/MySQL stack
+      - name: In-app AI
+        source: Mate (Customermates Cloud, hosted AI credits)
+        competitor: AI features from One Growth; One AI adds AI designers and voice assistant integration
+      - name: MCP server for AI clients
+        source: "Built in, [[derived.mcp.tools.total]] tools, every plan and self-hosted"
+        competitor: Not listed on Vtiger's pricing page
+      - name: Automation
+        source: Routines (Customermates Cloud), webhooks, n8n community node
+        competitor: Workflows on every plan, Process Designer from One Professional
 
 cta:
-  action: Ready to switch from Vtiger?
-  description: "Start today with Customermates: a modern, open-source Vtiger alternative with container self-hosting, a cloud database in Frankfurt, and an n8n community node."
+  action: Comparing Vtiger alternatives?
+  description: "Start a trial, export one Vtiger list, save it as XLSX and import it, then connect a mailbox or WhatsApp. You will see quickly whether your data and conversations fit the Customermates model."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -124,108 +100,146 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-> [Vtiger](https://www.vtiger.com/) is one of the original open-source CRM platforms, with roots going back to the early 2000s as a fork of SugarCRM. It offers both a cloud version and a self-hosted community edition, covering a wide range of CRM functions. However, as many users on [Reddit](https://www.reddit.com/r/CRMSoftware/comments/1kt42rh/best_alternatives_to_vtiger_crm/) and review sites note, Vtiger's dated user interface, complex module-based setup, and the frustrating feature gap between its free and paid versions make it a challenging choice for modern teams. Customermates is a modern Vtiger alternative that brings the open-source philosophy into the present. AI agents operate the CRM through native MCP ([[derived.mcp.tools.total]] tools), a native unified inbox unites email, LinkedIn, WhatsApp, Instagram, and Telegram from the Pro tier, and you get a clean UI, instant cloud setup, a self-hosting option, and every core CRM feature from [[commercial.price.starter.monthly]]/user/month.
+> The right Vtiger alternative depends on which part of Vtiger you actually use. If help desk, invoicing or inventory run in Vtiger today, look at SuiteCRM or Odoo, which cover those areas too. If you self-host the open-source edition and want another self-hosted open-source CRM, look at EspoCRM. For a large cloud CRM with a free tier, look at Zoho CRM. Customermates fits small client-facing teams, such as consultants and agencies, who mostly need contacts, deals and their email, LinkedIn and WhatsApp conversations in one place, kept current by an AI assistant or their own AI client. Customermates publishes this comparison; every Vtiger and third-party detail comes from the vendors' own sites, checked on 8 October 2026.
 
-## Why Look for a Vtiger Alternative?
+## Which alternative fits which team
 
-Vtiger has served the open-source CRM community for over two decades, but teams searching for a Vtiger alternative in 2026 commonly cite these pain points:
+| Your situation | Look at | Why |
+|---|---|---|
+| You run sales, help desk and invoicing in one system | Stay with Vtiger, or SuiteCRM or Odoo | Customermates has no help desk and does no invoicing |
+| You send email campaigns from the CRM | Stay with Vtiger | Campaigns are in every Vtiger plan, even the free one; Customermates sends one message at a time |
+| Your salespeople work mainly from their phones | Stay with Vtiger | Vtiger Cloud has iPhone and Android apps; Customermates has no native app |
+| You self-host Vtiger and are tired of maintaining PHP and MySQL | Customermates self-hosted, or Vtiger Cloud | Customermates runs as two containers; Vtiger Cloud takes the server off your hands |
+| Clients write on WhatsApp, LinkedIn, Instagram or Telegram as well as by email | Customermates Pro or Business | All of these land in one inbox next to the contact, without a messaging provider account of your own |
+| You want Claude, ChatGPT or another AI client to read and update the CRM | Customermates, any plan or self-hosted | The MCP server is built in |
 
-- **Outdated user interface:** The module-heavy design feels cluttered and inconsistent across different areas of the system. According to [Apptivo's comparison](https://www.apptivo.com/compare-crm/vtiger-alternative/), users describe the UI as feeling like "a CRM from 1998."
-- **Feature split between editions:** The open-source community edition lacks critical features available in the paid cloud version, including advanced [workflow automation](/features/workflow-automation) and reporting.
-- **Complex module configuration:** Understanding relationships between contacts, organizations, deals, quotes, invoices, and projects requires significant onboarding time.
-- **Hosting region questions:** European teams need to check where Vtiger's cloud stores their data and which subprocessors apply.
-- **Limited [sales automation](/features/sales-automation) on lower-tier plans:** Automation capabilities are gated behind the Professional ($30/user) and Enterprise ($42/user) plans.
-- **Legacy self-hosting stack:** The community edition requires PHP/MySQL server administration, which is a significant operational burden.
+## Who Vtiger is a good choice for
 
-Customermates addresses most of these issues; it has no built-in workflow builder, so automation runs through webhooks, REST and a separately operated n8n.
+Vtiger is organised around five apps: Marketing, Sales, Help Desk, Projects and Inventory. The free One Pilot plan, for up to 10 users and 3,000 records, already includes a deal pipeline, email campaigns of up to 1,000 emails a month, web-to-lead forms, email sequences, workflows, a help desk with SLAs, project tasks with a Gantt view and the mobile app.
 
-## Vtiger Alternative Compared: Feature Table
+One Growth adds invoicing, inventory, sales orders, a customer portal, customizable dashboards and AI features, for up to 15 users and 100,000 records. One Professional adds lead scoring, sales forecasting, live web chat, social ticketing and the Process Designer for approvals and business rules. Single App licences cost less for people who work in one app, for example $20 instead of $30 on Professional, billed yearly.
 
-| Feature                                                                     | Customermates                                                | Vtiger Cloud          | Vtiger Community      |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------ | --------------------- | --------------------- |
-| Price/user/month                                                            | From [[commercial.price.starter.monthly]], transparent tiers | $12-$42               | Free                  |
-| Setup time                                                                  | Ready after cloud sign-up                                    | Hours                 | Days (server setup)   |
-| Modern UI                                                                   | <StatusAvailable />                                          | <StatusPartial />     | <StatusPartial />     |
-| Open source                                                                 | <StatusAvailable />                                          | <StatusUnavailable /> | <StatusAvailable />   |
-| [Pipeline management](/features/pipeline)                                   | <StatusAvailable />                                          | <StatusAvailable />   | <StatusPartial />     |
-| [Lead management](/features/lead-management)                                | <StatusAvailable />                                          | <StatusAvailable />   | <StatusPartial />     |
-| Native unified inbox: email, LinkedIn, WhatsApp, Instagram, Telegram (Pro+) | <StatusAvailable />                                          | Email only            | <StatusUnavailable /> |
-| [Workflow automation](/features/workflow-automation)                        | <StatusPartial />                                            | Paid plans only       | <StatusUnavailable /> |
-| n8n community node                                                          | <StatusAvailable />                                          | <StatusUnavailable /> | <StatusUnavailable /> |
-| AI agents operate the CRM (native MCP)                                      | <StatusAvailable />                                          | One AI tier ($50)     | <StatusUnavailable /> |
-| [Self-hosting](/features/self-hosted) option                                | <StatusAvailable />                                          | <StatusUnavailable /> | <StatusAvailable />   |
-| Cloud database location                                                     | Frankfurt (AWS)                                              | Check vendor          | Depends on your setup |
-| API access                                                                  | <StatusAvailable />                                          | <StatusAvailable />   | <StatusAvailable />   |
-| Full core CRM when self-hosted                                              | Starter feature set                                          | <StatusUnavailable /> | <StatusUnavailable /> |
-| Container-based deployment                                                  | <StatusAvailable />                                          | N/A                   | <StatusUnavailable /> |
+The open-source edition is a separate product: Vtiger CRM 8.4.0 on PHP 8 with MySQL and Apache, available as bundles for Linux and Windows or as Docker, with a marketplace of more than 200 extensions and language packs.
 
-## Setup & Onboarding
+If your team uses three or more of those apps every day, Vtiger covers ground that Customermates does not.
 
-Vtiger's cloud version requires account setup and extensive module configuration. The interface is packed with screens and settings, and understanding the relationships between modules (contacts, organizations, deals, quotes, invoices, projects) takes real onboarding time. The self-hosted open-source edition requires PHP/MySQL server setup, manual installation, and ongoing technical administration.
+## Why teams look for a Vtiger alternative
 
-Customermates' managed cloud is ready as soon as you sign up. No server setup for the [cloud version](/features/cloud-crm), no PHP configuration, no module maze. The interface is clean and focused, and you can immediately start working with [contacts](/features/contact-management), [deal pipelines](/features/pipeline), and [tasks](/features/task-management). [Self-hosting](/features/self-hosted) is straightforward with modern container-based deployment; no legacy PHP stack is required.
+**The open-source edition lacks much of the cloud.** Vtiger's own comparison table marks email marketing, advanced reporting, global search, the custom module builder, the iPhone and Android apps, integrations such as Outlook, Office 365, QuickBooks and Zapier, and Calculus AI as cloud only. Vtiger is candid about the cost as well: "Open source CRM is not free!", because hosting, maintenance, support and upgrades add up. Self-hosted Customermates lacks the inbox, Mate and hosted AI credits; the rest is the same core CRM as Starter, with REST, webhooks and MCP.
 
-## Pricing: Vtiger vs. Customermates
+**The price depends on billing period and licence mix.** One Professional costs $30 per user per month billed yearly and $42 billed monthly; One Enterprise costs $42 or $58. Local taxes come on top. Customermates bills monthly only, in euros, with one price per plan.
 
-Vtiger offers a free One Pilot plan (limited to 10 users and 3,000 records), One Growth at $12/user/month, One Professional at $30/user/month, One Enterprise at $42/user/month, and a newer One AI tier at $50/user/month (all annual billing). Features like workflow automation, advanced reporting, process management, and AI are distributed across tiers. The self-hosted community edition is free but lacks many features available in the cloud version, creating a frustrating split experience. See our [pricing page](/pricing) for how Customermates simplifies this.
+**WhatsApp needs a provider and a higher plan.** Vtiger's WhatsApp integration runs through Twilio, Gupshup, Clickatell, Wablas or imimobile, and Vtiger lists it for One Professional and One Enterprise. In Customermates Pro, each person connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, which can be a mailbox, LinkedIn, WhatsApp, Instagram or Telegram.
 
-Customermates starts at [[commercial.price.starter.monthly]] per user per month (Starter), with every core CRM feature included. The free self-hosted version matches the Starter tier exactly; the cloud Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) tiers add the unified inbox and larger hosted AI allowances. For a team of 10, that is [[commercial.price.starter.monthly.seats.10]]/month total on Starter versus $300-$420 with Vtiger Professional or Enterprise.
+**The hosting region follows your trial.** Vtiger runs servers in the US, the UK, the EU (Ireland and Frankfurt), the UAE, Australia, Singapore, Japan and India, and stores your data in the region you were in when you started the trial. If you need a specific region, confirm it with Vtiger first. Customermates Cloud has one: its primary database is configured in AWS Frankfurt. That is a product setting, not a contractual residency guarantee, and the subprocessors, including US providers, are listed on the legal pages.
 
-## Core CRM Features
+## What a five-person team pays
 
-Vtiger offers a broad feature set on paper: contacts, organizations, deals, quotes, invoices, projects, marketing campaigns, help desk, and more. This breadth is impressive in a feature list, but the execution shows its age. The user interface has not kept pace with modern design standards: navigation is module-heavy, screens feel cluttered, and the experience is inconsistent across different parts of the system.
+Prices checked on 8 October 2026 from [Vtiger's pricing page](https://www.vtiger.com/pricing/), for Standard users. Vtiger prices are in US dollars plus local taxes; Customermates prices are in euros.
 
-The most significant issue is the split between Vtiger's open-source community edition and its commercial cloud product. The community edition lacks important features available in the cloud version, including advanced [workflow automation](/features/workflow-automation), [reporting](/features/reporting), and some integration capabilities. Teams must choose between open-source flexibility and feature completeness. That trade-off should not exist in a modern CRM.
+| Plan for five people | Billed yearly, per month | Billed monthly, per month |
+|---|---|---|
+| Vtiger One Pilot | $0 | $0 |
+| Vtiger One Growth | $60 ($720 a year) | $75 |
+| Vtiger One Professional | $150 ($1,800 a year) | $210 |
+| Vtiger One Enterprise | $210 ($2,520 a year) | $290 |
+| Customermates Starter | Not offered | [[commercial.price.starter.monthly.seats.5]] |
+| Customermates Pro | Not offered | [[commercial.price.pro.monthly.seats.5]] |
+| Customermates Business | Not offered | [[commercial.price.business.monthly.seats.5]] |
 
-Customermates keeps the core CRM identical in both editions. It delivers a focused, modern CRM experience: [contacts and organizations](/features/contact-management), deals, [pipelines](/features/pipeline), [tasks](/features/task-management), services, AI agents that operate the CRM (native MCP), webhooks and the REST API for [automation](/features/workflow-automation) on Starter, plus the [unified inbox](/features/email-integration) (email, LinkedIn, WhatsApp, Instagram, Telegram) from Pro. The interface is consistent throughout, and both cloud and [self-hosted](/features/self-hosted) versions run the same core codebase; the free self-hosted edition covers the full core CRM (Starter feature set), while the unified inbox and the hosted Mate assistant are cloud features.
+These rows buy different things:
 
-## Data Protection & GDPR
+- **One Pilot is hard to beat if it fits.** Five people pay nothing for up to 3,000 records.
+- **One Growth and Customermates Starter have similar list prices.** Growth includes help desk, invoicing, campaigns and the mobile app. Starter is the core CRM with Mate on hosted AI credits and [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, and it has no inbox.
+- **Customermates Pro is what the inbox costs.** Each of the five people connects [[commercial.entitlement.pro.includedAccountsPerUser]] mailbox or chat account. On Vtiger, the first One plan listed with WhatsApp is One Professional at $150 to $210 a month for five, plus an account with one of the WhatsApp providers.
+- **Business is for people who need several channels each.** It includes [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user and accounts shared with the team.
 
-For Vtiger's cloud, check the hosting region and subprocessors that apply to your account. The self-hosted community edition gives full data control but requires in-house technical expertise to maintain a PHP/MySQL stack, which is a significant operational burden.
+Hosted AI credits come as a monthly allowance per active user; the [pricing page](/pricing) shows the amounts. Self-hosted, both open-source editions cost nothing in licence fees. You pay for the server and the time for updates, backups and TLS.
 
-In the managed [cloud CRM](/features/cloud-crm), the Customermates application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, [self-host](/features/self-hosted) the open-source core with modern container-based deployment instead of a legacy server stack.
+## Where Customermates fits
 
-## Integration & Automation
+Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other service businesses and founders. It is built in Germany.
 
-Vtiger includes built-in workflow automation and integrations with common business tools. However, automation capabilities on lower-tier plans are limited, and the API follows older patterns that can be cumbersome to work with. As noted in [user reviews](https://www.capterra.com/p/112491/Vtiger-CRM/reviews/), the community edition's integration capabilities are further restricted, and connecting to third-party tools often requires reliance on Zapier, adding cost and complexity.
+**Client conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list, and you reply on the original channel. Link a participant to a contact once, and the conversation is filed with that contact.
 
-Customermates connects to [n8n](https://n8n.io/), an open-source automation engine you run yourself, and from there to thousands of services without restrictions on our side. The API is modern, well-documented, and fully accessible at the base price. In n8n you can, for example, push contact changes to your accounting software or post [Slack messages](/features/slack-integration) on deal updates; [reporting](/features/reporting) dashboards are built into Customermates on every plan.
+**AI that does the CRM work.** In Customermates Cloud, Mate summarizes threads, drafts replies, updates records and manages views, using hosted AI credits. It asks for a fresh approval before every deletion. Sending a message runs without one, so tell it to save drafts when you want to review first. [Routines](/docs/app-routines) run a saved instruction on a schedule or when a record changes, always as their owner.
 
-## Who Should Switch from Vtiger?
+**Your own AI client over MCP.** The [MCP server](/docs/mcp) offers [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs. Claude, ChatGPT and other clients connect with OAuth or an API key and act with the connected user's permissions. Model calls from your client run on your own AI provider and use no hosted credits.
 
-Customermates is the right Vtiger alternative for teams that:
+**Self-hosting with two containers.** The [self-hosted edition](/features/self-hosted) runs the AGPL core as the app plus PostgreSQL 16 under Docker Compose.
 
-- Want an **open-source CRM** with an AGPL core and the same core CRM in cloud and self-hosted editions
-- Want a **cloud database in Frankfurt** with a DPA and disclosed subprocessors, or self-hosting
-- Expect a **modern, clean interface** instead of a cluttered module-based design
-- Require **transparent tiers with no core-feature gating** instead of paying $42/user for enterprise capabilities
-- Prefer **modern [self-hosting](/features/self-hosted)** with containers instead of maintaining a PHP/MySQL stack
-- Value **webhooks and a REST API** from day one, with a community node for your own [n8n](/features/workflow-automation)
+## Where Customermates is the wrong choice
 
-## Frequently Asked Questions
+- **No help desk, tickets, SLAs or customer portal.**
+- **No quotes, invoices, sales orders, purchase orders or inventory.**
+- **No email campaigns, sequences, web forms or landing pages.** Messages go one at a time, written by you or drafted by Mate.
+- **No project management.** You can rename deals to "Projects", but there is no Gantt chart and tasks have no built-in due date. Add a custom date field if you need one.
+- **No native mobile apps, telephony or SMS.**
+- **No custom modules.** You get five record types and ten field types.
+- **No lead scoring or sales forecasting.** The weighted pipeline multiplies each deal value by its stage probability and predicts nothing.
+- **No single sign-on.** Saved views are personal, and permissions apply per record type and action, not per field.
+
+If two or more of these are daily work for your team, stay with Vtiger or look at SuiteCRM or Odoo.
+
+## Moving from Vtiger
+
+Most Vtiger sales data has a direct home. Under Data model in the company settings, you can rename organizations to "Accounts" and deals to "Opportunities", so your team keeps its vocabulary.
+
+| In Vtiger | In Customermates |
+|---|---|
+| Organizations | Organizations, or renamed "Accounts" |
+| Contacts | Contacts |
+| Leads | Contacts, with the default "Sales Pipeline" single-select set to New |
+| Deals | Deals, or renamed "Opportunities" |
+| Products and services | Services, or renamed "Products", linked to deals with quantities |
+| Tasks | Tasks, plus a custom date field for due dates |
+| Cases, quotes, invoices, projects, campaigns | No equivalent; keep Vtiger or a dedicated tool for them |
+
+A new Customermates workspace starts with the stages Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to match your Vtiger stages and adjust the probabilities in the company settings.
+
+<Steps>
+  <Step title="Export from Vtiger">In each module's list view, choose Export and export all data. Vtiger exports CSV files, not Excel.</Step>
+  <Step title="Save each file as XLSX">Customermates imports XLSX workbooks only. Open each export in Excel or LibreOffice and save it as an `.xlsx` file.</Step>
+  <Step title="Prepare the workspace">Choose your record names under Data model, create custom fields for the Vtiger fields you keep, and set the stage names and probabilities.</Step>
+  <Step title="Import one record type at a time">Use Add from file: organizations first, then contacts, then deals. Link columns are matched by record name, so a contact's organization column finds the organization you imported before. The [records documentation](/docs/app-records) lists the limits.</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp, then set up a routine or connect your own AI client.</Step>
+</Steps>
+
+## Other Vtiger alternatives worth a look
+
+Customermates publishes this list. Details come from each vendor's site, checked on 8 October 2026.
+
+- **SuiteCRM** comes closest to Vtiger's breadth in open source. You can host it on your own server, and SuiteCRM 8 is the current major version. Its site highlights quotations, reporting and dashboards, marketing automation and customer service. SuiteCRM Hosted has a free trial, and SuiteASSURED is a supported build with a warranty and care hours for professional services.
+- **EspoCRM** is an open-source CRM under AGPLv3 that you can download and self-host for free. EspoCRM Cloud Basic costs €12.90 per user per month with at least 3 users, billed for 6 months or a year. The [EspoCRM comparison](/compare/espocrm-alternative) goes into detail.
+- **Zoho CRM** is a cloud CRM with a free edition for up to 3 users and the paid editions Standard, Professional, Enterprise and Ultimate; yearly plans save up to 34%. See the [Zoho CRM comparison](/compare/zoho-crm-alternative).
+- **Odoo** fits when CRM, accounting and stock should run in one system. One App Free covers one app with unlimited users on Odoo Online, Standard includes all apps, Custom adds hosting on Odoo.sh or on premise, and the Community edition is a free open-source download. See the [Odoo comparison](/compare/odoo).
+
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="How does Customermates compare to Vtiger's open-source edition?">
-Both are open source. Customermates includes the full core CRM in both the cloud and the self-hosted edition; only the unified inbox and the hosted Mate assistant are cloud-only. Vtiger's community edition lacks workflow automation, advanced reporting, and several integration capabilities that are reserved for the paid cloud version. Customermates also uses modern container-based deployment instead of Vtiger's legacy PHP/MySQL stack.
+<FaqItem question="Is Vtiger CRM free?">
+Two parts of it are. One Pilot is a free cloud plan for up to 10 users and 3,000 records. The open-source edition is free to download under the Vtiger Public License 1.1, but you run the server, and features such as email marketing and the mobile apps are cloud only. Paid plans start with One Growth at $12 per user per month, billed yearly.
 </FaqItem>
 
-<FaqItem question="How does Customermates handle GDPR?">
-GDPR compliance depends on how you as the controller use any tool. Customermates provides a [DPA](/dpa), discloses its [subprocessors](/subprocessors), including US providers under standard contractual clauses, and runs the cloud database in the AWS Frankfurt region. It holds no certification. You can also [self-host](/features/self-hosted) Customermates and choose where the data lives.
+<FaqItem question="Is there a 100% free CRM?">
+Free in licence fees, yes. Vtiger One Pilot is free up to 10 users and Zoho CRM's free edition up to 3. Open-source CRMs such as Customermates, SuiteCRM, EspoCRM and Vtiger's open-source edition cost nothing to license when you host them yourself, but you pay for the server and the time to keep it updated and backed up.
 </FaqItem>
 
-<FaqItem question="Can I migrate from Vtiger to Customermates?">
-Yes. Customermates imports XLSX workbooks, one record type at a time, and also accepts data through the REST API or an AI agent over MCP; there is no CSV importer, so save Vtiger CSV exports as XLSX first. Create custom fields before importing so contacts, organizations and deals transfer cleanly.
+<FaqItem question="What is the best open-source alternative to Vtiger?">
+It depends on what you use Vtiger for. SuiteCRM is closest in breadth, with quotations, marketing and customer service. EspoCRM is free to self-host; some official extensions, such as those included in its cloud plans, are sold separately. Customermates fits small teams that mainly need contacts, deals and client conversations in one place.
 </FaqItem>
 
-<FaqItem question="How does pricing compare between Vtiger and Customermates?">
-Customermates starts at [[commercial.price.starter.monthly]]/user/month (Starter) with every core CRM feature; Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) add the unified inbox and larger hosted AI allowances. Vtiger ranges from free (limited community edition) to $42/user/month for Enterprise cloud. Most teams need at least the Professional plan ($30/user) for meaningful automation capabilities. See our [pricing page](/pricing) for a detailed breakdown.
+<FaqItem question="Which languages does Customermates support?">
+The app interface comes in English, German, French, Italian and Spanish, and the documentation in English and German. The core is open source under AGPL-3.0. For its open-source edition, Vtiger lists more than 30 languages.
 </FaqItem>
 
-<FaqItem question="Does Customermates support self-hosting like Vtiger?">
-Yes. Unlike Vtiger, which requires a PHP/MySQL server stack for self-hosting, Customermates uses modern container-based deployment (Docker). The [self-hosted version](/features/self-hosted) includes the full core CRM (the cloud Starter feature set); only the unified inbox and the hosted Mate assistant are reserved for the cloud.
+<FaqItem question="Can I move my Vtiger data to Customermates?">
+Yes, one record type at a time. Export each Vtiger list view, save the file as XLSX, and import organizations, contacts and deals in that order so links resolve by name. Cases, quotes, invoices and campaigns have no equivalent.
+</FaqItem>
+
+<FaqItem question="Can Customermates replace Vtiger's help desk or invoicing?">
+No. Customermates covers contacts, organizations, deals, services and tasks, plus the unified inbox from Pro. If you rely on ticketing, invoicing or inventory, keep Vtiger or choose SuiteCRM or Odoo. Those tools can still receive CRM events from Customermates through webhooks and the REST API.
 </FaqItem>
 </Faq>
 
-## Conclusion
-
-Vtiger pioneered open-source CRM, and its feature breadth is undeniable. But its dated interface, complex module setup, and split feature set between cloud and self-hosted editions make it a difficult choice for teams that expect modern software. Customermates carries the open-source torch forward with a contemporary UI, instant cloud setup, the same core CRM in cloud and self-hosted editions, and transparent tiered pricing from [[commercial.price.starter.monthly]]/user/month. [Start your free trial today](/auth/signup) and see what modern open-source CRM looks like. See also how Customermates compares to [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), or [Cobra CRM](/compare/cobra-alternative).
+Competitor details checked on 8 October 2026 against Vtiger's [pricing page](https://www.vtiger.com/pricing/), [open-source CRM page](https://www.vtiger.com/open-source-crm/), [open source vs. cloud comparison](https://www.vtiger.com/open-source-vs-cloud/), [security center](https://www.vtiger.com/security-center/), [WhatsApp integration](https://www.vtiger.com/integrations/whatsapp-integration/) and [export FAQ](https://help.vtiger.com/faq/111029577-Can-I-export-records-as-an-Excel-file), and against [SuiteCRM](https://suitecrm.com/), [EspoCRM's pricing](https://www.espocrm.com/pricing/) and [download page](https://www.espocrm.com/download/), [Zoho CRM's pricing](https://www.zoho.com/crm/zohocrm-pricing.html), [Odoo's pricing](https://www.odoo.com/pricing) and [Odoo's editions page](https://www.odoo.com/page/editions).

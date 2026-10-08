@@ -1,17 +1,17 @@
 ---
-title: "CRM Reporting: Dashboards & Analytics"
-description: "CRM reporting through configurable dashboard widgets over your deals, contacts, and activity, with no separate BI tool. External AI clients query over MCP."
+title: "CRM Reporting: Dashboards, Charts and Weighted Pipeline"
+description: "CRM reporting in Customermates: dashboard charts over deals, contacts and tasks, a weighted pipeline and record analysis by Mate. Setup, plans and limits."
 featureName: CRM Reporting
 
 relatedHrefs:
-  - /features/outlook-integration
   - /features/pipeline
-  - /features/project-management
   - /features/sales
+  - /features/workflow-automation
+  - /docs/app-dashboard
 
 hero:
-  title: CRM Reporting That Gives You Answers, Not Just Data
-  description: Build dashboards from configurable chart widgets over your pipeline, deals, and activity. Supported external AI clients can query permitted CRM data through MCP, while the client and model remain separate.
+  title: CRM reporting for small teams that need clear numbers, not a BI project
+  description: Build a personal dashboard from charts over your deals, contacts, organizations, services and tasks. See total and weighted pipeline by stage, and in Customermates Cloud ask Mate for figures a chart cannot show, such as a median or a ranking.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to turn your CRM data into decisions?
-  description: Start building dashboards and tracking performance metrics in Customermates today. Every reporting feature is included from day one.
+  action: Build your first pipeline chart during the trial
+  description: Set your stage probabilities, add two custom fields and create a weighted pipeline chart in a few minutes. Dashboards are included from [[commercial.price.starter.monthly]] per user per month, billed monthly.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,84 +28,135 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## What Is CRM Reporting?
+CRM reporting means counting and summing what is already in your CRM, so questions like "what is in the pipeline?" or "which clients brought the most revenue?" get an answer without a spreadsheet. In Customermates, that happens in three places: dashboard charts, lists grouped by a field, and the weighted pipeline under company settings. Anything that needs real arithmetic over many records, such as a median deal size or a ranking, goes to Mate in Customermates Cloud, to your own AI client through MCP, or to Excel after an export.
 
-CRM reporting is the process of turning your customer relationship data into actionable business intelligence. Instead of scrolling through individual records and deal lists, reporting tools aggregate your data into dashboards, charts, and summary tables that reveal patterns and trends at a glance.
+It is deliberately small. If you need conversion funnels, time in stage, quotas or revenue forecasts, the section on limits names tools that do that.
 
-Effective CRM reporting answers the questions that matter most to sales leaders and business owners. How much revenue is in the pipeline? Which sales stages have the highest drop-off rates? How is each team member performing against their targets? What is the average time to close a deal? Without structured reporting, these questions require hours of manual analysis. With the right reporting tools, the answers are available instantly.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What you get">Chart widgets that count records or sum deal value and weighted deal value, grouped by a single-select field or by record, plus an activity timeline widget.</SummaryItem>
+  <SummaryItem label="Plans">Dashboards and the weighted pipeline are part of every plan, from Starter at [[commercial.price.starter.monthly]] per user per month, and of the self-hosted edition.</SummaryItem>
+  <SummaryItem label="AI">In Customermates Cloud, Mate answers questions that need calculation across many records, using hosted AI credits. Your own AI client reads the same data through MCP.</SummaryItem>
+  <SummaryItem label="Not included">No time-series charts, conversion rates, time in stage, goals, predictive forecasting or scheduled report emails, and no team-wide shared dashboard.</SummaryItem>
+</ArticleSummary>
 
-For growing teams, CRM reporting is not a luxury feature. It is the mechanism that transforms scattered activity into strategic decision-making.
+## What a chart widget can calculate
 
-## Five Essential CRM Reports Every Team Needs
+Every chart takes one record type (called **Element** in the editor), one **Metric** and one **Grouping**. Which metrics are available depends on the record type:
 
-Not every team needs the same reports, but these five cover the fundamentals that nearly every sales organization should track.
+| Element | Count | Deal value | Weighted deal value | Number of services in deals |
+|---|---|---|---|---|
+| Contacts | Yes | Yes, from their deals | Yes, from their deals | No |
+| Organizations | Yes | Yes, from their deals | Yes, from their deals | No |
+| Deals | Yes | Yes | Yes | No |
+| Services | Yes | Yes | No | Yes |
+| Tasks | Yes | No | No | No |
 
-**Pipeline report.** A snapshot of all active deals organized by stage, showing total value, deal count, and weighted value at each stage. This report answers the question: do we have enough pipeline to hit our target? Review it weekly to catch sourcing gaps early.
+**Grouping** is either **No Grouping** (one total), a single-select custom field of that record type such as Stage or Lead source, or, with a metric other than count, each record itself. That last option gives you "deal value per organization" or "deal value per service". Tasks can only be counted, and grouped only by a single-select field or not at all.
 
-**Sales performance report.** Individual and team performance measured by deals won, revenue closed, activities completed, and win rate. This is the foundation for coaching conversations, quota tracking, and performance reviews. Review it weekly or monthly depending on your sales cycle.
+Weighted deal value appears once a deal stage field has win probabilities under **My Company › Settings**. A new workspace already has a Stage field with probabilities filled in, so it works from the first deal.
 
-**Conversion funnel report.** Stage-by-stage conversion rates showing where deals progress and where they drop off. If 80 percent of qualified deals reach the proposal stage but only 30 percent of proposals close, the funnel report makes that gap visible and actionable.
+**Filters** narrow what a chart counts, using any standard or custom field, including date ranges on created and updated dates or on your own Date fields. A chart over contacts, organizations or services with a deal-based metric gets a second filter for the related deals, which is how you chart "won deal value per organization" without counting open deals.
 
-**Revenue forecast report.** A forward-looking projection of expected revenue based on pipeline value, stage-specific win probabilities, and expected close dates. Weighted pipeline forecasts replace guesswork with data-driven predictions. Review it weekly to adjust resource allocation and set realistic targets.
+**Chart styles** are vertical or horizontal bars, each with or without value labels, a doughnut or a radar chart. A live preview shows the result before you save.
 
-**Activity report.** A summary of tasks completed, emails sent, calls made, meetings logged, and notes added across the team. Activity reports help managers understand the effort behind the outcomes and identify coaching opportunities before they become performance problems.
+The second widget kind, the **Activity timeline**, is a newest-first feed of record changes, and on Pro and higher also messages and calendar events from connected accounts. You filter it by category, account or related records, for example "everything that happened on deals of my three largest clients".
 
-## How CRM Reporting Works in Customermates
+## Reports a small team uses, and how to build each
 
-Customermates gives you reporting through configurable dashboard widgets over your CRM data, without a separate BI tool. Widgets update as supported records change; an external AI client can query permitted data through MCP.
+These recipes assume the default Stage field plus two single-select fields you add to deals: "Lead source" and "Lost reason".
 
-**External AI clients can update and query CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use MCP to update allowed contacts, deal fields, and notes or query permitted records. With an external client, the subscription, model usage, and provider handling remain yours. On cloud plans, the hosted Mate assistant can also answer pipeline questions inside the CRM using monthly hosted AI credits.
+| Question | Element | Metric | Grouping | Filters |
+|---|---|---|---|---|
+| What is in the pipeline, by stage? | Deals | Deal value | Stage | Stage is not Won or Lost |
+| What is it worth if stage probabilities hold? | Deals | Weighted deal value | Stage | Stage is not Won or Lost |
+| Where does won business come from? | Deals | Deal value | Lead source | Stage is Won, custom "Closed on" date between the first and last day of the quarter |
+| Which clients bring the most revenue? | Organizations | Deal value | Each organization | Related deals: Stage is Won |
+| Which services sell? | Services | Deal value | Each service | Related deals: Stage is Won |
+| Why do we lose? | Deals | Count | Lost reason | Stage is Lost |
+| How much open work is there? | Tasks | Count | Status | Status is not Done or Archived |
 
-**Pipeline dashboards.** Build a dashboard of chart widgets (bar, doughnut, or radar) that show deal distribution across stages and pipeline value by stage. Widgets update automatically as deals progress, so you always see the current state of your business.
+Tasks have no built-in status or due date. The Status field in the last row is a single-select custom field that a new workspace starts with, and you can rename, change or delete it like any other field.
 
-**Revenue and deal charts.** Chart won and lost deals by sales representative, lead source, organization, or any custom field, over the date range you filter. Identify which channels deliver the highest-value deals.
+Two questions are better answered by a list than by a chart. **Who is working on which deals?** Switch the deals list to the board and group it by **Assigned**: each person gets a column with their deal count and totals. **How many deals did we open per month?** Group the deals table by created date, bucketed by month. Saved as views, both stay one click away; views are personal to the person who saves them.
 
-**Task and activity charts.** Chart tasks by assignee, linked record, or customer-defined custom fields to see the effort behind outcomes. Native tasks have no due or status fields; those values must be modeled in custom fields.
+## Which plan you need
 
-**Filter and segment by any field.** Every widget can be filtered and segmented by any standard or custom field. Want pipeline value for a specific region? Filter by your custom region field. Need to compare one quarter against another? Set the date range. The filtering is flexible enough to answer the specific questions your business asks.
+| Plan | Reporting features | Price |
+|---|---|---|
+| Starter | Chart widgets, activity timeline of record changes, weighted pipeline, grouped lists, XLSX export, REST, MCP | [[commercial.price.starter.monthly]] per user per month |
+| Pro | Starter plus messages and calendar events in the activity timeline, through the unified inbox | [[commercial.price.pro.monthly]] per user per month |
+| Business | Pro plus one team-wide timeline across every channel | [[commercial.price.business.monthly]] per user per month |
+| Self-hosted | Charts, weighted pipeline, export, REST and MCP on your own server; no inbox, Mate or routines | No licence fee |
 
-**Per-user dashboards.** Each user builds a personal dashboard. A sales rep tracks a pipeline and tasks; a manager configures their own broader view over permitted records. Dashboard configurations are personal, not shared team-wide objects.
+Mate uses hosted AI credits, included per active user and month on every Cloud plan; the [pricing page](/pricing) lists the amounts. A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month, and a five-person team on Pro pays [[commercial.price.pro.monthly.seats.5]]. There is no reporting add-on and no per-report charge.
 
-## Reporting Best Practices
+## Set up a weekly pipeline dashboard
 
-Getting reporting right is not just about having the tools. It is about building a reporting rhythm that drives action.
+<Steps>
+  <Step title="Check the stage probabilities">Open **My Company › Settings**, confirm that **Deal stage field** points to Stage, and adjust the win probability of each stage. **Total pipeline** and **Weighted pipeline** show the result right there.</Step>
+  <Step title="Add the fields your questions need">On any deal, press **Customize** and add a Single Select "Lead source" (Referral, LinkedIn, Website, Event), a Single Select "Lost reason" and a Date field "Closed on". A chart can only group by what you record.</Step>
+  <Step title="Create the first chart">On the **Dashboard**, press **Add widget**, choose **Chart**, set Element to Deals, Metric to weighted deal value and Grouping to Stage. Exclude Won and Lost on the **Filters** tab, then press **Create widget**.</Step>
+  <Step title="Add three more">Won deal value by Lead source, won deal value per organization, and a count of lost deals by Lost reason. Drag and resize them; the layout is saved for you.</Step>
+  <Step title="Share the setup, not the dashboard">Switch on **Share as a template** for each chart. A teammate picks it under **Start from a template** and gets their own copy, which counts only the records their role can read.</Step>
+</Steps>
 
-**Establish a review cadence.** Operational reports like pipeline status and activity summaries should be reviewed daily or weekly to catch issues early. Performance and KPI reports are more effective when reviewed weekly or monthly, as they show trends over time. Quarterly reports work best for strategic reviews and goal setting.
+The [dashboard guide](/docs/app-dashboard) documents every option in the widget editor.
 
-**Keep dashboards focused.** The most effective dashboards track five to seven key metrics, not fifty. Every widget should answer a specific question that drives a specific action. If a metric does not lead to a decision, remove it from the dashboard.
+## What Customermates reporting does not do, and what to use instead
 
-**Standardize definitions.** Make sure every team member agrees on what counts as a qualified deal, when a deal moves to the next stage, and how activities are logged. Inconsistent data entry produces unreliable reports. Clear definitions are the foundation of trustworthy analytics.
+Customermates publishes this page. Vendor details were checked on 8 October 2026 on the vendors' own pages.
 
-**Automate report delivery externally.** A separately operated n8n instance can schedule pipeline summaries through Slack or another provider, evaluate customer-defined thresholds, and deliver performance digests. On the cloud, a Mate routine can also run a saved prompt on a schedule, for example to summarize the pipeline. Customermates does not bundle n8n or Slack and has no alert engine.
+| You need | In Customermates | Where to look |
+|---|---|---|
+| Revenue forecasting beyond stage weights | Not available. The weighted pipeline multiplies each deal's value by the probability you set for its stage, nothing more. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional and Enterprise include forecasting; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) offers a forecast view |
+| A custom report builder with conversion rates, goals and many report types | Not available. Charts count and sum; they do not divide one stage by another. | HubSpot Sales Hub Professional (custom reports); Pipedrive Insights (custom reports, dashboards and goals) |
+| Charts over time, such as revenue per month | Not available as a chart. Group a list by month, or export. | Excel or another spreadsheet |
+| Your own BI on the raw data | No built-in connector to a BI tool | Self-hosted: your data sits in your own PostgreSQL, which [Metabase](https://www.metabase.com/docs/latest/databases/connecting) supports; its Open Source edition is free and self-hosted. Use a read-only database user, and expect to adjust queries after an upgrade, because the tables are the product's internal schema. |
+| A dashboard the whole team edits | Not available. Every dashboard is personal; templates give each person a copy. | |
+| Report emails on a schedule | Not built in | A routine in Customermates Cloud, or n8n, both described below |
 
-**Act on the data.** The best reporting system in the world is worthless if the insights do not lead to action. Every report review should end with specific next steps: deals to follow up on, processes to adjust, coaching conversations to have, or resources to reallocate.
+For a one-off analysis, export the list as an Excel workbook from the deals list's **Import and export** menu. The export takes the visible columns, filters and sort, and a [PivotTable](https://support.microsoft.com/en-us/office/create-a-pivottable-to-analyze-worksheet-data-a9a84538-bfe9-40a9-a8e9-f99134456576) does the rest. Export runs one record type at a time; the [records guide](/docs/app-records) lists the limits.
 
-## Common Reporting Use Cases
+## How reporting connects to Mate, MCP and the API
 
-**Weekly pipeline reviews.** Start each week with a clear picture of your pipeline. Review total value by stage, identify deals that have been stagnant too long, and prioritize follow-ups based on deal age and value. The dashboard gives your team a shared starting point for planning the week.
+**Mate (Customermates Cloud).** Mate has a read-only analysis tool for questions that need arithmetic across many records: a median, a ranking, a win rate, or a join between deals and organizations. It reads the records your role can see, computes in an isolated sandbox and changes nothing. Each question uses hosted AI credits. An example:
 
-**Monthly performance tracking.** Review supported deal counts and values month over month in personal dashboards. Conversion rates, cycle time, targets, and cross-user performance require customer-defined fields or calculations in a separate reporting system.
+```text
+For deals that reached Won or Lost since 1 July: what is the win rate per lead source, what is the median value of won deals, and which three organizations brought the most won value?
+```
 
-**Lead source analysis.** Store lead source in a custom field and chart supported deal counts or values by source. Calculate source conversion rates and attribution in a separate reporting system when your analysis requires derived metrics.
+The answer is a chat message, not a saved chart. Mate can also create or change dashboard widgets for you when you describe them.
 
-**Forecasting and planning.** Customermates multiplies each deal value by the probability you set for its stage, so dashboards show weighted deal values and weighted pipeline totals for your current deals. This is a deterministic calculation, not predictive forecasting; projections based on historical conversion rates belong in a separate reporting system.
+**Routines (Customermates Cloud).** A routine runs a saved instruction on a schedule, such as "Every Monday at 8:00, summarize the open pipeline by stage and list deals not updated in 30 days." It runs as you, its owner, with your access and credits, and the run summary stays on the routine. On Pro and higher it can also email that summary to you from your connected mailbox; Mate sends without asking again, so say "draft" in the instruction if you want to read it first. See [workflow automation](/features/workflow-automation) for triggers and limits.
 
-**Sales coaching inputs.** Use supported records and customer-defined fields as inputs for coaching. Cross-user performance comparisons, conversion rates, targets, and cycle metrics require a separate calculation or reporting system.
+**Your own AI client through MCP.** Claude, ChatGPT and other MCP clients use [[derived.mcp.tools.total]] tools on every plan and when self-hosting. When a client lists deals, the response includes the sum of deal value and weighted value across all matching deals, so "what is our weighted pipeline for organizations in Bavaria?" has an exact answer. The [MCP documentation](/docs/mcp) has the setup.
 
-## Why Choose Customermates for CRM Reporting
+**REST and webhooks.** If reports belong in another system, read records through the [REST API](/features/api) or receive a webhook on every change and keep your own reporting table up to date. [n8n](/docs/n8n) can do either on a schedule; it runs separately and is not part of Customermates.
 
-**Native dashboards for stored CRM data.** Personal dashboard widgets can visualize supported counts, values, and groupings without a separate BI tool. Derived metrics such as conversion rates, cycle time, attribution, or cross-user performance require fields or calculations maintained in a separate reporting system.
+## Frequently asked questions
 
-**Open source and transparent.** Your reporting runs on code you can inspect and extend. There are no black-box algorithms or hidden data transformations between your raw data and your reports.
+<Faq>
+<FaqItem question="What are typical CRM reports?">
+For a small team, five cover most decisions: pipeline value by stage, weighted pipeline, won revenue by lead source, revenue per client and lost deals by reason. All five are chart widgets in Customermates. Activity reports, conversion funnels and sales forecasts are common in larger CRMs; Customermates has an activity timeline but no funnel or forecast.
+</FaqItem>
 
-**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Customermates holds no compliance certification.
+<FaqItem question="Can Customermates forecast revenue?">
+Not in the predictive sense. It calculates a weighted pipeline: each deal's value times the win probability you set for its stage. Nothing learns from past deals or predicts close dates. If you need that, look at HubSpot Sales Hub Professional or Pipedrive's forecast view.
+</FaqItem>
 
-**Simple, fair pricing.** CRM reporting is included from [[commercial.price.starter.monthly]] per user per month (Starter tier). Dashboard chart widgets, filters, and MCP access for external AI clients are included at every tier. No per-report charges, and you can add as many widgets as you need.
+<FaqItem question="Can my team share one dashboard?">
+No. Dashboards and saved views are personal. You can share a chart with **Share as a template**, and each teammate starts their own copy from it. Their copy counts only the records their role can read, so two people can see different numbers in the same chart.
+</FaqItem>
 
-**Separate n8n for proactive reporting.** Connect your own n8n instance through documented interfaces to schedule digests, evaluate thresholds, and ask external providers to deliver alerts. The n8n runtime, provider accounts, limits, logs, and costs remain external.
+<FaqItem question="Can I export CRM reports to Excel?">
+You export records, not charts. Any list exports to an Excel workbook with its current filters, sort and visible columns, one record type at a time. CSV is not offered, so build the report with a PivotTable in Excel.
+</FaqItem>
 
-**Self-hostable application and database.** Deploy the Customermates application and PostgreSQL database on your own infrastructure. External AI, workflow, and delivery providers still receive any data your configuration sends; self-hosting is not a compliance certification.
+<FaqItem question="Which reports are included on the Starter plan?">
+All chart widgets, the weighted pipeline, grouped lists, the activity timeline of record changes and XLSX export are on Starter. Pro adds messages and calendar events to the timeline. Mate's analysis needs Customermates Cloud and hosted AI credits, which every Cloud plan includes.
+</FaqItem>
 
-## Get Started with CRM Reporting Today
-
-Setting up CRM reporting starts with personal dashboard widgets over permitted records. As your team records deals, contacts, and activities, configured widgets update with supported data. Create an account, add the fields your process needs, and build the views that answer your business questions.
+<FaqItem question="Can I build reports with ChatGPT or Claude instead?">
+Yes. Connect the client through MCP, and it can list and filter records, read the value totals of matching deals and create dashboard widgets. The model, its subscription and what it does with your data are governed by your AI provider, not by Customermates.
+</FaqItem>
+</Faq>

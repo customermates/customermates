@@ -67,6 +67,7 @@ vi.mock("@/core/fumadocs/source", async () => {
     blogSource: source("blog", ""),
     comparePagesSource: source("compare-pages", "/compare"),
     compareSource: source("compare", ""),
+    aboutSource: source("about", ""),
     contactSource: source("contact", ""),
     docsSource: source("docs", "/docs"),
     featurePagesSource: source("feature-pages", "/features"),

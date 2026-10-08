@@ -1,17 +1,17 @@
 ---
-title: "CRM Task Management: Assign, Link & Organize"
-description: "CRM task management with assignable tasks linked to contacts, organizations, deals, and services, plus typed custom fields, Kanban views, MCP, and REST."
+title: "CRM Task Management: Tasks Linked to Every Deal"
+description: "Tasks in Customermates link to contacts, organizations, deals and services, with assignees, notes and custom fields. No due dates or reminders built in."
 featureName: Task Management
 
 relatedHrefs:
-  - /features/sales
-  - /features/sales-automation
-  - /features/sales-tracking
-  - /features/self-hosted
+  - /features/follow-up
+  - /features/pipeline
+  - /features/workflow-automation
+  - /docs/app-records
 
 hero:
-  title: Task Management That Keeps Every Sales Action on Track
-  description: Create and assign tasks linked to contacts, organizations, deals, and services. Add typed custom fields, switch between table and Kanban views, and connect external automation through MCP, the API, or your own n8n instance.
+  title: CRM task management that keeps each to-do next to the client it belongs to
+  description: Create a task, assign it to one or more teammates and link it to the contact, organization, deal or service it is about. Add your own columns, work in a table or on a board, and let Mate or your own AI client create tasks for you.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to get started?
-  description: Get started with Customermates today and switch to an agentic Open-Source CRM built for flexible workflows.
+  action: Set up your task list
+  description: Add a Target date column, save a "My open tasks" view and a "Deals without a next step" view. Then decide whether you need a routine on top.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,78 +28,93 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## What Is CRM Task Management?
+CRM task management means the to-do lives on the customer record: "send the revised proposal" is attached to the deal and the contact it concerns, so whoever opens either one sees what is pending and who has it. In Customermates a task is its own record type. It has a name, notes, assigned users, links to contacts, organizations, deals and services, and any custom columns you add. That is all it has.
 
-CRM task management is the practice of creating, assigning, and tracking action items directly within the context of your customer relationships. Unlike standalone task management tools such as Asana, Todoist, or Monday, tasks in a CRM are linked to contacts, deals, and organizations. Every follow-up call, proposal, document request, or internal review is tied to the relationship it serves.
+There is no built-in due date, no reminder, no overdue alert and no recurring task. A new workspace does start with a **Status** column on tasks, but it is an ordinary Single Select custom field you can rename or replace. Customermates does not suit a team that plans its week around reminder pings and task deadlines. A CRM with scheduled activities fits better there, and the table below names two. If you want tasks that carry their client context and that an AI can create and update, read on.
 
-Without integrated task management, teams rely on separate apps, sticky notes, or memory. Follow-ups get missed, handoffs between reps create information gaps, and managers lose visibility into workload distribution. A CRM with built-in task management solves these problems by making tasks a natural part of the customer workflow.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What a task has">Name, notes, one or more assigned users, links to contacts, organizations, deals and services, plus your own custom columns.</SummaryItem>
+  <SummaryItem label="Plans">Tasks are part of every plan, from Starter to self-hosted. Mate and routines need Customermates Cloud and use hosted AI credits.</SummaryItem>
+  <SummaryItem label="Views">Table or board, grouped by any Single Select column, with personal saved views.</SummaryItem>
+  <SummaryItem label="Not included">No due dates, reminders, notifications, recurring tasks, dependencies, time tracking or Gantt charts.</SummaryItem>
+</ArticleSummary>
 
-Effective CRM task management means that work stays connected to the customer record it serves. The task, its assignees, its notes, and its related records remain available in one place instead of being scattered across separate lists.
+## What a task is in Customermates
 
-## How Task Management Works in Customermates
+| Part of a task | How it works |
+|---|---|
+| Name and notes | Notes are one rich-text field per task. They can hold checklists, images and tables, but they are not a versioned work log. |
+| Assigned | Any number of teammates. Filter by **Assigned** to see one person's workload, or use "has none" to find tasks nobody owns. |
+| Links | Contacts, organizations, deals and services. Each linked record shows its tasks, so a deal page lists what still has to happen. |
+| Custom columns | Date, date range, Single Select, currency, text, link, email and phone. Add a **Target date** or a **Priority** column if your process needs one. |
+| Status | Not a fixed field. New workspaces get a **Status** Single Select (Open, In Progress, Blocked, On Hold, Done, Archived) that you can edit. |
+| Board | Group by any Single Select column and drag cards between columns to change the value. |
 
-Customermates models tasks as first-class CRM records. Core task management is available on Starter and tasks can be linked to contacts, organizations, deals, and services. External AI clients connected through MCP can create, read, update, assign, and relate those task records.
+Customermates also creates one kind of task itself: when someone joins through your workspace's invitation link, an **Approve User** system task appears until an admin approves or deactivates them. The [records guide](/docs/app-records) covers it with every other list, filter and board control.
 
-**Task creation and assignment.** Create a named task, add notes, assign one or more users, and relate it to the CRM records that provide its context. The global task view keeps those records searchable and filterable.
+## Set up task management
 
-**Linked to contacts, deals, and organizations.** Every task can be linked to one or more contacts, organizations, or deals. When you view a contact, you see all related tasks. When you view a deal, you see what needs to happen to move it forward. This bidirectional connection keeps full context intact across your entire CRM.
+<Steps>
+  <Step title="Decide what a date means">Tasks have no due date field. On **Tasks**, add a custom column of type **Date** and name it for what you mean, such as "Target date". Leave it out if your team works from a list in priority order.</Step>
+  <Step title="Adjust the Status column">Open the board grouped by **Status** and edit the options. A small team often needs only Open, Waiting on client and Done. Add a **Priority** Single Select if you sort by importance rather than date.</Step>
+  <Step title="Create tasks where the work comes from">Click **Add** on **Tasks**, or link a task from the deal, contact or organization page. Assign it and link every record it concerns, so it shows up on each of them.</Step>
+  <Step title="Save a personal list">Filter **Assigned** to yourself and **Status** to everything except Done and Archived, sort by Target date ascending and save it as a view called "My open tasks". Saved views are personal, so each teammate saves their own.</Step>
+  <Step title="Catch deals with no next step">On **Deals**, filter **Tasks** "has none" and exclude your won and lost stages. Save it as "Deals without a next step". This list is the reason to keep tasks in the CRM rather than in a separate to-do app.</Step>
+</Steps>
 
-**Typed custom fields.** Tasks support the same custom-column system as other CRM records. Add a single-select column for a priority or workflow category, a date column for a target date, or another field type that matches your process.
+Coming from a spreadsheet or another tool? Tasks import from an XLSX workbook, with columns for name, notes, assigned users and linked records. Import contacts, organizations and deals first so the links can resolve; there is no CSV import.
 
-**Dates without a hidden scheduler.** Customermates has no built-in task due-date, reminder, or overdue-notification engine. If your process needs a target date, add a date custom column and save a personal view sorted by it. On the managed cloud, a routine can check that date on a schedule and have Mate list the tasks that need attention; alternatively, an external scheduler such as your own n8n can read the field through REST and deliver a message through a service you choose.
+## Let AI create and check tasks
 
-**Recurring work through external automation.** There is no native recurring-task scheduler. Your own n8n instance or another integration can create task records on a schedule through the REST API or MCP.
+**In Customermates Cloud**, Mate can create, assign and update tasks from a chat request, using hosted AI credits. "Create a task for Anna to send the revised proposal to Müller GmbH, link it to the Q4 retainer deal" is enough. A [routine](/docs/app-routines) runs a saved instruction on a schedule or on a record event, for example:
 
-**Kanban board view.** Add a single-select custom column and group tasks by that field in the Kanban view. Dragging a task between columns updates the selected value, so you can model a lightweight workflow without claiming a built-in task status.
+> Every Monday at 8:00: list my tasks whose Target date is before today and whose Status is not Done or Archived. Group them by linked organization and suggest the next action for each. Do not change or send anything.
 
-**Table view with filters.** The global task view supports search, filtering, sorting, pagination, and custom columns. Each user can save their own view configuration; saved views are not shared between users.
+Routines run as their owner, with that owner's access and credits, and you read the result in the run's details. Customermates sends no notification when a run finishes, so a routine does not replace a reminder unless someone opens it. Another useful routine reacts when a deal is updated and, if its stage is now Won, creates the onboarding tasks and links them to the deal.
 
-**Relations keep the context.** A task can point to contacts, organizations, deals, and services, and those records expose their related tasks. Team members can move between the work item and its customer context without duplicating either record.
+**With your own AI client**, Claude, ChatGPT or another client connected through [MCP](/docs/mcp) can use `create_tasks` and `update_tasks` against the same records. This works on self-hosted installations too, with your AI provider's costs instead of hosted credits.
 
-**Responsive web access.** Use the task view from a supported mobile browser through the responsive web interface. Customermates does not ship a native mobile app, offline record mode, or mobile push notifications.
+**With code**, the REST API exposes tasks, and [webhooks](/docs/webhooks) fire on `task.created`, `task.updated` and `task.deleted`. A scheduler you run yourself, such as n8n, can read a Target date through the API and send a message wherever you want. n8n is not bundled; see [workflow automation](/features/workflow-automation) for the options.
 
-**Automated task creation with your own n8n.** n8n is a separate community integration, not an embedded Customermates service. A workflow you operate can react to CRM events and create or update tasks through the community node or REST API.
+## Is Customermates a project management tool?
 
-## Task Management Use Cases for Sales Teams
+No. Tasks give a sales-to-delivery handoff its context: the onboarding steps for a won deal, the documents a client still owes, the internal review before a proposal goes out. They do not plan a project. There are no project records, task dependencies, subtasks, timelines, workload charts or time tracking.
 
-**Deal progression tasks.** Relate action items to the relevant deal and assign the people responsible. If you want tasks generated from a stage change, configure that logic in a customer-run automation.
+This page is published by Customermates. The comparison below lists vendor features as stated on their own pages on 8 October 2026.
 
-**Follow-up work after meetings.** Create a related task for the next action and add a custom date field if your team needs a target date. Customermates does not send reminders; a saved view sorted by that date, a cloud routine, or an external workflow covers the follow-up.
+| If you need | A better fit | Why |
+|---|---|---|
+| Dated to-dos with reminders inside the CRM | HubSpot or Pipedrive | HubSpot's to-dos have a due date and time, email reminders to the task owner, priority and a repeat setting. Pipedrive activities carry date, time and duration and are marked done, and Pipedrive names notifications and email reminders as part of its CRM. |
+| Project plans with dependencies and timelines | Asana, or Projects by Pipedrive | Asana offers task dependencies and Timeline and Gantt views from its Starter plan. Projects by Pipedrive has custom project phases; it is included on Premium and higher plans and a paid add-on on lower ones. |
+| Client tasks next to email, LinkedIn and WhatsApp threads, with AI that can act on them | Customermates | Tasks link to the same records as the [unified inbox](/features/unified-inbox) (Pro and higher), and Mate or an MCP client can work across both. |
 
-**Onboarding new customers.** Keep onboarding action items linked to the won deal and customer records. Teams that need an automatically generated checklist can build it in their own n8n workflow.
+If you deliver projects, keep Customermates for the client relationship and a project tool for the delivery work. A webhook on deal or task changes can pass the handoff across.
 
-**Team workload review.** Filter task records by assigned user and reassign work when responsibilities change. Custom columns can capture the categories your team wants to group or report on.
+## What it costs
 
-**Cross-department handoffs.** Assign tasks to the receiving team and relate them to the deal, contacts, and organization. The relationship links preserve context; automatic generation requires an external workflow.
+Tasks are included on every plan. A team of five on Starter pays [[commercial.price.starter.monthly.seats.5]] per month, which covers tasks, custom columns, boards and saved views. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and has no inbox. Pro, at [[commercial.price.pro.monthly.seats.5]] per month for five people, adds the unified inbox and [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user. Mate uses monthly hosted AI credits per active user; the amounts are on the [pricing page](/pricing). Billing is monthly. Self-hosting the open-source core costs no licence fee, and you run the server.
 
-## Key Benefits
+## FAQ
 
-**Context-rich task tracking.** Every task is connected to the contacts and deals it relates to. Team members never need to search for context because it is visible on the task and on the related records.
+<Faq>
+<FaqItem question="Does Customermates have task due dates and reminders?">
+No. Tasks have no due date field, no reminders and no notifications. Add a custom Date column, sort a saved view by it, and in Customermates Cloud let a routine list the tasks whose date has passed. Customermates sends no reminder emails; for those you need a CRM with scheduled activities or your own scheduler reading the API.
+</FaqItem>
+<FaqItem question="Can I track task status on a Kanban board?">
+Yes, through a Single Select column. New workspaces start with a **Status** column on tasks. Group the board by it and drag cards between columns; you can rename the options or group by a different column, such as Priority.
+</FaqItem>
+<FaqItem question="Can I use a CRM for project management?">
+For a handoff checklist linked to a won deal, yes. For project plans with dependencies, timelines or time tracking, use a project tool next to the CRM. Customermates has no project record type.
+</FaqItem>
+<FaqItem question="Is there a task management API?">
+Yes. Tasks are available through the REST API, the MCP tools `create_tasks` and `update_tasks`, and three task webhook events. The [API page](/features/api) has the details.
+</FaqItem>
+<FaqItem question="Can tasks be created automatically?">
+Not by a built-in rule. In Customermates Cloud a routine can create tasks when a record changes, using hosted AI credits. Anywhere else, a workflow you run can react to a webhook and create tasks through the API or MCP.
+</FaqItem>
+<FaqItem question="Can I see all tasks for one client?">
+Yes. Open the contact, organization or deal: its linked tasks are listed there. On **Tasks**, filter by the linked organization or group the table by it.
+</FaqItem>
+</Faq>
 
-**Team accountability and visibility.** Permissions determine who can read or manage tasks, while assignments and filters make responsibility visible. Custom fields let the company model the additional dimensions it needs.
-
-**External workflow tasks.** Customer-run n8n workflows can create tasks with assignees, relations, notes, and custom-field values when CRM events occur.
-
-**Flexible views for different work styles.** Table and Kanban views, grouping, and personal saved views let each user organize tasks their own way. There is no task calendar view.
-
-**Reduced tool sprawl.** Managing tasks inside your CRM eliminates the need for separate task management apps. Fewer tools means fewer context switches, less duplicate data entry, and simpler onboarding for new hires.
-
-**Integration-ready records.** REST, webhooks, MCP, and the external n8n community node provide building blocks for workflows that the core task model does not schedule itself.
-
-## Why Choose Customermates for Task Management
-
-**Integrated, not bolted on.** Task management in Customermates is deeply connected to contacts, deals, and pipelines. Tasks are first-class objects visible everywhere they are relevant, not a sidebar feature with loose links.
-
-**Core tasks from the entry tier.** Task records, relations, assignments, custom columns, filters, and data views are part of the core CRM on Starter. Recurring tasks and reminders are not built in; external workflows or cloud routines cover them.
-
-**Open-source flexibility.** Customermates is open source, so you can customize the task management system to fit your exact needs. Add custom fields, modify workflows, extend the API, or build integrations with external tools.
-
-**A clear deployment choice.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Self-hosted teams choose where the data lives and operate their own infrastructure.
-
-**n8n integration without bundling n8n.** REST and webhook access can drive workflows in an n8n instance you operate. Customermates does not include an n8n runtime or subscription.
-
-**Self-hostable for infrastructure control.** Deploy the core CRM on your own infrastructure. Any external automation service, including n8n, is deployed and governed separately.
-
-## Get Started with Task Management Today
-
-Start by creating task records, assigning teammates, and linking the relevant contacts, organizations, deals, or services. Add custom fields for the workflow dimensions you need, then connect an external automation or a cloud routine only if your process needs scheduled follow-up.
+Competitor details checked on 8 October 2026 against [HubSpot's task documentation](https://knowledge.hubspot.com/tasks/create-tasks), [Pipedrive's activities article](https://support.pipedrive.com/en/article/activities), [Pipedrive's task management page](https://www.pipedrive.com/de/products/project-management-software/crm-task-management), [Pipedrive's Projects article](https://support.pipedrive.com/en/article/projects-by-pipedrive) and [Asana's pricing page](https://asana.com/pricing).

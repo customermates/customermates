@@ -54,7 +54,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
   const MDX = page.data.body;
   const { hero, blogPost } = page.data;
-  const { backToBlog, date, by, tags } = blogPost;
+  const { backToBlog, date, by, tags, updated } = blogPost;
+  const dateFormat = { year: "numeric", month: "long", day: "numeric" } as const;
   const components = getMDXComponents({
     h1: ({ children, id }) => (
       <span aria-hidden="true" className="sr-only" id={id}>
@@ -79,6 +80,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
         schema={articleSchema({
           authorName: blogPost.author,
           datePublished: new Date(blogPost.date).toISOString(),
+          dateModified: updated ? new Date(updated).toISOString() : undefined,
           description: page.data.description,
           headline: page.data.title,
           locale,
@@ -118,12 +120,22 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                   <time className="flex items-center gap-2 whitespace-nowrap" dateTime={new Date(date).toISOString()}>
                     <Icon icon={Calendar} size="md" />
 
-                    {new Date(date).toLocaleDateString(formattingTagFor(locale), {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {new Date(date).toLocaleDateString(formattingTagFor(locale), dateFormat)}
                   </time>
+
+                  {updated ? (
+                    <>
+                      <span aria-hidden className="hidden sm:inline">
+                        •
+                      </span>
+
+                      <time className="whitespace-nowrap" dateTime={new Date(updated).toISOString()}>
+                        {t("Common.updatedOn", {
+                          date: new Date(updated).toLocaleDateString(formattingTagFor(locale), dateFormat),
+                        })}
+                      </time>
+                    </>
+                  ) : null}
 
                   <span aria-hidden className="hidden sm:inline">
                     •

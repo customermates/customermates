@@ -1,17 +1,17 @@
 ---
-title: "Follow-Up CRM: Keinen Lead verpassen"
-description: "Follow-Up CRM mit Aufgaben, die mit Kontakten, Organisationen und Deals verknüpft sind. Erinnerungen und Sequenzen laufen in separaten Systemen."
+title: "Follow-up CRM: Nachfassen mit Ansichten und KI"
+description: "Nachfassen im CRM: Datum für den nächsten Kontakt, Posteingang-Ansicht für unbeantwortete Nachrichten und in Customermates Cloud KI-Entwürfe."
 featureName: Follow-Up CRM
 
 relatedHrefs:
-  - /features/crm-integration
-  - /features/customer-service
-  - /features/email-integration
-  - /features/integrations
+  - /features/unified-inbox
+  - /features/task-management
+  - /blog/sales-follow-up-email
+  - /docs/app-routines
 
 hero:
-  title: Follow-Up CRM, das sicherstellt, dass kein Lead erkaltet
-  description: Verknüpfte Aufgaben und Kommunikationskontext halten Follow-Ups sichtbar. Unterstützte externe KI-Clients entwerfen einzelne Nachrichten über MCP; Erinnerungen, Multi-Channel-Sequenzen und Bulk-Outreach benötigen separate Workflows und Zustellanbieter.
+  title: Follow-up CRM, das zeigt, wer auf Ihre Antwort wartet und bei wem Sie nachfassen sollten
+  description: Halten Sie für jeden Kunden ein Datum für den nächsten Kontakt fest, sehen Sie E-Mail-, LinkedIn- und WhatsApp-Verläufe, in denen Sie zuletzt geschrieben und keine Antwort bekommen haben, und lassen Sie in Customermates Cloud Mate die Nachfass-Entwürfe schreiben. Wann sie versendet werden, entscheiden Sie.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Automatisierungsanleitung lesen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bereit, keine Deals mehr durch verpasste Follow-Ups zu verlieren?
-  description: Starten Sie mit verknüpften Aufgaben und gemeinsamem CRM-Kontext. Für Erinnerungen oder Sequenzen verbinden Sie einen separaten Workflow.
+  action: Ihre Nachfass-Liste in zehn Minuten
+  description: Legen Sie eine Datumsspalte „Nächster Kontakt" an, speichern Sie zwei Ansichten und ab Pro eine Posteingang-Ansicht für offene Antworten. Den Rest entwirft eine Routine am Montag.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Aufgaben entdecken
@@ -28,94 +28,97 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Was Follow-Up-Management in Customermates bedeutet
+Ein Follow-up CRM soll sicherstellen, dass Sie bei Kunden und Interessenten rechtzeitig nachfassen und dabei wissen, was zuletzt besprochen wurde. In Customermates geschieht das über Listen, die Sie öffnen, nicht über Hinweise, die Sie bekommen. Sie pflegen am Kontakt oder Deal ein Datum für den nächsten Kontakt, eine gespeicherte Ansicht sortiert alle danach, und ab Pro zeigt eine Ansicht im Posteingang jedes Gespräch, in dem Ihre Nachricht die letzte war und keine Antwort kam.
 
-Customermates gibt Teams gewöhnliche CRM-Aufgaben und Beziehungskontext. Eine Aufgabe hat Typ, Name, Notizen, Verantwortlichen und Verknüpfungen zu Kontakten, Organisationen, Deals oder Services. Sie erscheint in den Aufgabenansichten und kann auch über REST API und MCP erstellt oder aktualisiert werden.
+In Customermates Cloud schreibt Mate auf Wunsch die Nachfass-Nachricht, und eine Routine kann diese Prüfung jeden Montag ausführen. Beides verbraucht gehostete KI-Credits. Was es nicht gibt: Benachrichtigungen, Fälligkeitsdaten an Aufgaben, Überfällig-Hinweise oder automatische E-Mail-Sequenzen. Wenn Ihr Vertrieb darauf angewiesen ist, passt ein CRM mit eingebauten Aktivitäten und Sequenzen besser; die Tabelle weiter unten nennt zwei.
 
-Das aktuelle Task-Modell hat kein eingebautes Fälligkeitsfeld, keinen Erinnerungszeitplan, keinen Überfällig-Status und keinen Benachrichtigungstransport. Customermates behauptet deshalb nicht, dass es später selbstständig aufwacht und einen Nutzer erinnert. Wenn ein Ablauf Datumswerte braucht, speichern Sie das relevante Datum in einem Custom Field am verknüpften CRM-Datensatz und lassen einen getrennt betriebenen Scheduler über die Aktion entscheiden.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Prinzip">Eine eigene Spalte vom Typ Datum wie „Nächster Kontakt", danach sortierte Ansichten und ein Posteingang-Filter für Gespräche, in denen Sie auf Antwort warten.</SummaryItem>
+  <SummaryItem label="Tarife">Datumsspalten und gespeicherte Ansichten in jedem Tarif, auch selbst gehostet. Der Posteingang braucht Pro oder höher. Mate und Routinen gibt es nur in Customermates Cloud.</SummaryItem>
+  <SummaryItem label="KI-Hilfe">Mate entwirft Nachfass-Nachrichten aus Notizen und Gesprächsverlauf. Eine Routine erledigt das nach Zeitplan oder wenn sich ein Deal ändert.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine Benachrichtigungen, kein Fälligkeitsdatum an Aufgaben, keine Sequenzen und kein Massenversand. Sie öffnen die Liste; nichts meldet sich von selbst.</SummaryItem>
+</ArticleSummary>
 
-## Ein praktischer Follow-Up-Ablauf
+## So sieht Nachfassen in Customermates aus
 
-1. Erstellen Sie eine Aufgabe, die den nächsten Schritt eindeutig beschreibt.
-2. Weisen Sie sie dem verantwortlichen Workspace-Mitglied zu.
-3. Verknüpfen Sie den relevanten Kontakt, die Organisation, den Deal oder Service.
-4. Halten Sie das Ergebnis in Notizen fest oder aktualisieren Sie nach dem Gespräch den verknüpften Datensatz.
-5. Nutzen Sie Ansichten, Filter und Verantwortlichkeiten, um offene Arbeit im Team zu prüfen.
+| Frage | Wo Sie die Antwort finden | Tarif |
+|---|---|---|
+| Wen sollte ich diese Woche kontaktieren? | Gespeicherte Ansicht auf Kontakten oder Deals, sortiert nach der eigenen Spalte **Nächster Kontakt** | Jeder Tarif |
+| Welche Deals sind eingeschlafen? | Gespeicherte Ansicht auf Deals: **Aktualisiert am** mit **Älter als…** 14 Tage, **Phase** nicht Gewonnen oder Verloren | Jeder Tarif |
+| Wer hat auf meine letzte Nachricht nicht geantwortet? | Posteingang-Filter **Letzte Nachricht** = **Gesendet**, **Letzte Nachricht am** **Älter als…** 3 Tage | Pro und höher |
+| Was schreibe ich? | Mate am Kontakt oder Gespräch um einen Entwurf bitten, der auf Notizen und Verlauf beruht | Customermates Cloud, gehostete KI-Credits |
+| Geht das ohne mich? | Eine Routine, die jeden Montag die Liste erstellt und Entwürfe speichert | Customermates Cloud, gehostete KI-Credits |
 
-Customermates bietet zwei Mechanismen für Follow-ups: Aufgaben am Datensatz mit einer selbst definierten Datumsspalte und Webhooks, die Multi-Channel-Sequenzen in Ihrer eigenen n8n-Instanz auslösen. Eine eingebaute Erinnerung, die von sich aus benachrichtigt, gibt es nicht.
+Die Posteingang-Zeile zeigt, wo Sie nach Ihrer eigenen letzten Nachricht nachfassen sollten. **Letzte Nachricht** betrachtet die zuletzt tatsächlich gesendete oder empfangene Nachricht eines Gesprächs über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram hinweg; Entwürfe zählen nicht. Ein Gespräch, in dem Sie vor fünf Tagen zuletzt geschrieben und keine Antwort erhalten haben, erscheint dort. Die Einzelheiten stehen in der [Anleitung zu Posteingang-Filtern](/docs/app-inbox).
 
-**Aufgabenbasierte Follow-Ups.** Erstellen Sie eine mit Kontakt oder Deal verknüpfte Aufgabe und ergänzen Sie Betreff und Zuständigen. Follow-Up-Datum oder Priorität bilden Sie mit eigenen Feldern ab. Native Aufgaben haben weder Fälligkeitsdatum, Überfälligkeitszustand, Frist noch Priorität; Filter und externe Workflows können gespeicherte Werte nutzen.
+## Nachfassen einrichten
 
-**Extern ausgelöste Erinnerungen.** Ein separater Workflow kann protokollierte Aktivität oder kundendefinierte Datumswerte über API oder Webhooks auswerten, eine unterstützte Aufgabe erstellen oder über einen externen Anbieter eine Benachrichtigung senden. Customermates überwacht selbst keine Inaktivität und versendet keine Erinnerungen.
+<Steps>
+  <Step title="Datum für den nächsten Kontakt anlegen">Fügen Sie unter **Kontakte** oder **Deals** eine eigene Spalte vom Typ **Datum** hinzu und nennen Sie sie „Nächster Kontakt". Wenn Sie den Anlass festhalten möchten, ergänzen Sie eine Spalte vom Typ **Einzelauswahl** „Anlass" mit Optionen wie Angebot verschickt, Kontaktpflege, Verlängerung (die Spalte **Phase** an Deals enthält in einem neuen Arbeitsbereich unter anderem Angebot, Gewonnen und Verloren). Aufgaben haben kein eingebautes Fälligkeitsdatum; dieselbe Datumsspalte funktioniert dort ebenso.</Step>
+  <Step title="Wochenliste speichern">Öffnen Sie **Darstellung**, wählen Sie bei **Sortieren nach** die Spalte Nächster Kontakt und **Aufsteigend**, klicken Sie auf **Neue Ansicht** und nennen Sie sie „Nachfassen". Die ältesten Daten stehen oben. Filter auf eigenen Datumsspalten arbeiten mit festen Daten (**Vor…**, **Bis…**); die Sortierung hält die Liste aktuell, ohne dass Sie den Filter jede Woche anpassen.</Step>
+  <Step title="Ansicht für eingeschlafene Deals speichern">Filtern Sie unter **Deals** auf **Aktualisiert am** mit **Älter als…** 14 Tage und schließen Sie in der Spalte **Phase** Gewonnen und Verloren aus. So finden Sie Deals, die niemand angefasst hat, auch wenn kein Datum gepflegt wurde.</Step>
+  <Step title="Ansicht „Wartet auf Antwort“ speichern (ab Pro)">Filtern Sie im [einheitlichen Posteingang](/features/unified-inbox) auf **Letzte Nachricht** = **Gesendet** und **Letzte Nachricht am** **Älter als…** 3 Tage und speichern Sie das als „Wartet auf Antwort". Das Zeitfenster wandert mit dem Kalender, die Ansicht bleibt also richtig.</Step>
+  <Step title="Ergebnis festhalten">Notieren Sie nach jedem Kontakt in den Notizen des Datensatzes, was besprochen wurde, und verschieben Sie das Datum für den nächsten Kontakt. Der Verlauf des Datensatzes zeigt verknüpfte Nachrichten und Änderungen.</Step>
+</Steps>
 
-**Cloud-Routinen als Follow-Up-Prüfung.** In Customermates Cloud kann eine Mate-[Routine](/docs/app-routines) einen gespeicherten Prompt nach Zeitplan ausführen, etwa jeden Montag: Kontakte auflisten, deren Datum für den nächsten Kontakt überschritten ist, und für jeden eine kurze Nachricht zur Prüfung entwerfen. Routinen verbrauchen gehostete KI-Credits; Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]]. Beim Self-Hosting sind sie nicht verfügbar, und sie sind weder Erinnerungen noch Sequenzen.
+Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben Filtern ihre eigene Ansicht an.
 
-**Externe Multi-Channel-Workflows.** Nutzen Sie eine separate n8n-Instanz und Zustellanbieter für eine kundendefinierte Kadenz. Das native Postfach unterstützt einzelne Nachrichten über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram; Customermates hat keine Sequenz-Engine, kein Bulk-Outreach und keine Telefonie.
+## Nachfass-Entwürfe mit Mate (Customermates Cloud)
 
-**Externe verhaltensbasierte Trigger.** Ein separater E-Mail- oder Analytics-Anbieter kann Engagement-Ereignisse liefern; ein kundeneigener Workflow kann daraufhin ein einzelnes Follow-Up anfordern. Customermates besitzt keine native E-Mail-Öffnungs-, Websitebesuchs- oder Verhaltens-Sequenz-Engine.
+Mate ist der Assistent in Customermates Cloud und verbraucht gehostete KI-Credits. Bitten Sie ihn an einem Kontakt, Deal oder Gespräch zum Beispiel: „Bitte eine kurze Nachfass-Nachricht an Frau Becker zum Angebot vom 2. entwerfen, auf Basis des Verlaufs." Mate liest Notizen, das verknüpfte Gespräch und den Deal und speichert einen Entwurf, den Sie im Gespräch prüfen.
 
-**Erfasster Follow-Up-Kontext.** Unterstützte Nachrichten, Notizen und Aufgabenänderungen bleiben dort im passenden CRM-Kontext, wo sie erfasst werden. Prüfen Sie diesen Verlauf vor dem nächsten Kontakt; Aktivität aus externen Kanälen oder Workflows wird nicht automatisch vollständig übernommen.
+Eine [Routine](/docs/app-routines) führt eine gespeicherte Anweisung nach Zeitplan aus (**Wöchentlich**, zum Beispiel montags um 8:00 Uhr) oder wenn sich etwas ändert, etwa bei einem aktualisierten Deal oder einer eingehenden E-Mail. Sie läuft als ihr Besitzer, mit dessen Kanälen und Credits. Eine brauchbare Montagsanweisung:
 
-**Follow-Up-Kontext im Team.** Teammitglieder prüfen verknüpfte Aufgaben und filtern nach gespeicherten eigenen Werten. Native Aufgaben haben keine Fälligkeits- oder Überfälligkeitszustände; gespeicherte Ansichten sind persönlich statt teamweit geteilt.
+> Meine offenen Deals finden, deren Datum „Nächster Kontakt" heute oder früher liegt, dazu Gespräche im Posteingang, in denen meine letzte Nachricht älter als fünf Tage ist. Zu jedem einen kurzen Nachfass-Entwurf im Gespräch speichern. Nichts senden. Danach alle mit je einer Zeile Kontext auflisten.
 
-**Kalender- und E-Mail-Kontext.** Lesen Sie unterstützte Kalenderdaten und bearbeiten Sie einzelne E-Mail-Konversationen im einheitlichen Posteingang. Der Kalenderzugriff ist nur lesend; Customermates plant weder Follow-Up-E-Mails noch Buchungen.
+Der Satz „Nichts senden" ist wichtig. Mate sendet Nachrichten ohne erneute Rückfrage, wenn die Anweisung das verlangt, und eine unbeaufsichtigte Routine folgt ihrer Anweisung. Löschungen und einige Verwaltungsaktionen brauchen eine Freigabe, und eine Routine lehnt diese ab. Läufe pro Stunde und Credits pro Lauf sind begrenzt; die aktuellen Grenzen stehen in der Routinen-Anleitung.
 
-## KI-Unterstützung
+Ein Beispiel mit Ereignis: eine Routine mit **Wenn sich etwas ändert** für Deal-Aktualisierungen und der Anweisung „Wenn die Phase auf Angebot gewechselt ist: Nächster Kontakt auf fünf Werktage ab heute setzen und eine Aufgabe ‚Angebot nachfassen' anlegen, zugewiesen an die zugewiesenen Personen des Deals." Änderungen durch eine Routine lösen keine anderen Routinen aus, eine Schleife entsteht also nicht.
 
-Externe Follow-Up-Sequenzen balancieren Beharrlichkeit mit Relevanz. Diese Prinzipien wenden Sie in einem separaten Kampagnen- oder Zustellsystem an, das die Sequenzen ausführt.
+<AcquisitionCallout title="Was Nachfassen in Customermates nicht umfasst" variant="boundary">
+  Keine Benachrichtigungen oder Erinnerungs-E-Mails, kein Fälligkeitsdatum, kein Überfällig-Zustand und keine wiederkehrenden Aufgaben. Keine E-Mail-Sequenzen, keine Drip-Kampagnen und kein Massenversand; jede Nachricht wird einzeln geschrieben und gesendet. Gespeicherte Ansichten sind persönlich, keine geteilten Team-Ansichten. Selbst gehostete Installationen haben keinen Posteingang, kein Mate und keine Routinen.
+</AcquisitionCallout>
 
-Ein Agent kann bei der Entscheidung und Dokumentation des nächsten Schritts helfen. Seine Verfügbarkeit ist aber kein Erinnerungsdienst. Eine dauerhaft geplante Aktion braucht weiterhin einen externen Scheduler.
+## Wie das mit dem Rest zusammenhängt
 
-**Externes Outreach nach Segment personalisieren.** Ein separater Kampagnenanbieter kann seine Sequenz für VP Engineering oder Head of Marketing variieren. Speichern Sie Persona, Schmerzpunkt und Kaufphase in eigenen Feldern; Customermates selbst versendet einzelne Nachrichten statt Sequenzen.
+- **Posteingang (ab Pro):** Nachfass-Nachrichten werden über den ursprünglichen Kanal versendet. Ein Gespräch ist über seine Teilnehmer mit dem Kontakt verknüpft, der Verlauf erscheint also am Datensatz.
+- **MCP:** Ihr eigener KI-Client, etwa Claude oder ChatGPT, liest dieselben Ansichten und Gespräche über [[derived.mcp.tools.total]] MCP-Tools und speichert Entwürfe. Das funktioniert auch selbst gehostet, dort ohne Posteingang. Siehe [MCP-Anleitung](/docs/mcp).
+- **Webhooks und n8n:** Wenn Sie wirklich eine Benachrichtigung brauchen, etwa eine Nachricht im Team-Chat, sobald ein Datum überschritten ist, richten Sie das in n8n oder einem eigenen zeitgesteuerten Dienst über die REST-API ein. n8n ist ein separates Produkt mit eigenen Tarifen. Siehe [Workflow-Automatisierung](/features/workflow-automation).
 
-Aufgaben, Custom Fields, Webhooks, REST-API-Zugang und MCP gehören ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat zum Kern-CRM. Der verbundene einheitliche Posteingang beginnt mit Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat. Business für [[commercial.price.business.monthly]] pro Nutzer und Monat erhöht die Kapazität verbundener Konten und unterstützt geteilte Konten.
+## Wann ein anderes Tool besser passt
 
-Der selbst gehostete Community-Build enthält Aufgaben, API, Webhooks und MCP. Er enthält weder einen gebündelten n8n-Container noch den einheitlichen Posteingang der Managed Cloud oder den gehosteten Mate-Assistenten. Betreiben Sie jeden Automatisierungsdienst getrennt und sichern Sie dessen Zugangsdaten und Netzwerkzugriff selbst.
+Diese Seite stammt von Customermates; lesen Sie den Vergleich mit diesem Wissen.
 
-**Testen und iterieren.** Verfolgen Sie Öffnungs-, Antwort- und Konversionsraten im externen Sequenzanbieter. Testen Sie dort Betreffzeilen, Timing und Inhalte und nutzen Sie die Ergebnisse zur laufenden Verbesserung.
+| Wenn Sie das brauchen | Schauen Sie sich an | Warum |
+|---|---|---|
+| Automatische mehrstufige Nachfass-E-Mails, die bei einer Antwort enden können | HubSpot Sales Hub mit Sequenzen | HubSpot beschreibt Sequenzen als Folge zeitlich gesteuerter E-Mail-Vorlagen mit optionalen Erinnerungsaufgaben; Kontakte lassen sich bei einer Antwort oder Terminbuchung automatisch austragen |
+| Aktivitäten mit Fälligkeitsdatum und Überfällig-Zähler | Pipedrive | Pipedrive-Aktivitäten haben ein Fälligkeitsdatum, und das Aktivitäten-Symbol zählt überfällige und heute fällige Aktivitäten |
+| Nachfass-Listen, Ansicht unbeantworteter Gespräche und KI-Entwürfe zur Freigabe | Customermates | Ansichten und Posteingang-Filter wie oben beschrieben; Mate und Routinen in Customermates Cloud |
 
-### Hat eine Aufgabe ein Fälligkeitsdatum oder eine automatische Erinnerung?
+Angaben zu anderen Anbietern geprüft am 8. Oktober 2026 anhand der [HubSpot-Dokumentation zu Sequenzen](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), des [Pipedrive-Artikels zu Aktivitäten](https://support.pipedrive.com/en/article/activities) und des [Pipedrive-Artikels zum Überfällig-Zähler](https://support.pipedrive.com/en/article/what-is-the-red-number-on-the-activities-icon).
 
-Nein. Das aktuelle Task-Modell hat weder Fälligkeits- noch Erinnerungsfeld und plant keine Benachrichtigungen.
+## Was es kostet
 
-**Follow-Up-Lücken sichtbar machen.** Speichern Sie das nächste Aktionsdatum in einem eigenen Feld und prüfen Sie es in einer gefilterten Ansicht. Ein separat betriebener Scheduler kann es auswerten und extern eine Benachrichtigung senden; Customermates versendet keine native Erinnerung oder Inaktivitätswarnung.
+Gespeicherte Ansichten und Datumsspalten gibt es ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat. Die Ansicht „Wartet auf Antwort" braucht den Posteingang, der mit Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat beginnt; ein Team mit fünf Personen zahlt auf Pro [[commercial.price.pro.monthly.seats.5]] im Monat. Jeder Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate und Routinen, siehe [Preise](/pricing). Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer, Starter [[commercial.entitlement.starter.includedRoutinesPerUser]]. Abgerechnet wird monatlich.
 
-**Erinnerungen über eigene Automatisierung.** Ein kundenseitig betriebener Automatisierungsdienst kann über Webhooks und APIs Datensatzänderungen beobachten, Datumswerte aus Custom Fields lesen, Aufgaben erstellen oder einen Messaging-Dienst aufrufen. Customermates selbst führt den Timer nicht aus.
+## FAQ
 
-**Weniger Abhängigkeit vom Gedächtnis.** Verknüpfte Aufgaben und eigene Felder halten fest, was wann für wen passieren soll. Das CRM speichert die Werte; ein Mensch oder kundeneigener Workflow entscheidet, wann gehandelt wird.
+<Faq>
+<FaqItem question="Was bedeutet Follow-up im Vertrieb?">
+Follow-up heißt Nachfassen: der nächste Kontakt nach einem Gespräch, einem Angebot oder einer unbeantworteten Nachricht. Im CRM geht es darum, dass dieser Kontakt nicht vergessen wird und dass die Person, die nachfasst, den letzten Stand kennt.
+</FaqItem>
+<FaqItem question="Welches CRM eignet sich für Follow-ups?">
+Das hängt davon ab, wie Sie nachfassen. Wer vielen Leads dieselbe Abfolge aus drei E-Mails schickt, braucht ein Tool mit Sequenzen. Wer einige Dutzend Kunden persönlich über E-Mail, LinkedIn und WhatsApp betreut, braucht eine Liste, wer gerade wartet, und den Gesprächsverlauf daneben. Für den zweiten Fall ist Customermates gebaut.
+</FaqItem>
+<FaqItem question="Hat Customermates Erinnerungen oder Fälligkeitsdaten?">
+Nein. Es gibt keine Benachrichtigungen, und Aufgaben haben kein eingebautes Fälligkeitsdatum. Legen Sie eine eigene Datumsspalte an und sortieren Sie eine gespeicherte Ansicht danach. Wenn Sie eine Push-Benachrichtigung brauchen, kann n8n oder ein anderer zeitgesteuerter Dienst das Datum über die API lesen und Sie benachrichtigen.
+</FaqItem>
+<FaqItem question="Wie kann ich das Nachfassen im Vertrieb automatisieren?">
+Nicht als Sequenz. Eine Routine in Customermates Cloud schreibt nach Zeitplan einzelne Entwürfe, die Sie nach dem Lesen senden. Sie kann auch selbst senden, wenn die Anweisung das sagt, dann eine Nachricht pro Gespräch. Mehrstufige oder massenhafte Abfolgen brauchen ein eigenes Sequenz-Tool.
+</FaqItem>
+<FaqItem question="Wie funktioniert Nachfassen, wenn ich Customermates selbst hoste?">
+Mit der Spalte „Nächster Kontakt" und gespeicherten Ansichten, die zum Open-Source-Kern gehören. Selbst gehostet gibt es keinen Posteingang, kein Mate und keine Routinen. Entwürfe schreibt dann Ihr eigener KI-Client über MCP, zeitgesteuerte Aktionen laufen über Webhooks und n8n.
+</FaqItem>
+</Faq>
 
-**Erfasster Follow-Up-Kontext.** Unterstützte Nachrichten, Notizen und Aufgabenänderungen behalten Zeitstempel und Nutzerkontext, wo das Produkt sie erfasst. Nutzen Sie das für Coaching und Prozessprüfung, nicht als vollständigen Audit- oder Compliance-Nachweis.
-
-**Skalieren mit externen Outreach-Tools.** Mit wachsender Pipeline bewahrt Customermates den Kontext einzelner Vorgänge; automatisierter oder massenhafter Outreach läuft in einem separaten Kampagnen- oder Sequenzanbieter mit eigenen Limits und Schutzregeln.
-
-**Kalenderkontext, nur lesend.** Der verbundene Kalender in Customermates Cloud (ab Pro) ist eine schreibgeschützte CRM-Ansicht; Customermates bucht oder plant keine Follow-Up-Termine.
-
-**Neue-Lead-Follow-Up-Sequenz.** Ein kundeneigener externer Workflow kann eine zeitgesteuerte Kadenz in separaten Kanalanbietern starten: Tag 1 E-Mail, Tag 3 Anrufaktion, Tag 5 LinkedIn-Schritt, Tag 7 Mehrwert-E-Mail, Tag 14 Abschluss. Customermates speichert nur unterstützte CRM-Datensätze und einzelne Nachrichten.
-
-**Post-Meeting-Follow-Up.** Ein kundeneigener Workflow kann nach einem dokumentierten Ereignis eine unterstützte Aufgabe erstellen und das nächste Aktionsdatum in ein eigenes Feld schreiben. Erinnerung und Terminplanung bleiben in externen Anbietern.
-
-**Re-Engagement-Kampagnen.** Ein kundeneigener externer Workflow kann erfasste Aktivität nach 30, 60 oder 90 Tagen auswerten und einen separaten Kampagnenanbieter um eine Sequenz bitten. Customermates überwacht keine Inaktivität und versendet die Kontaktpunkte nicht.
-
-**Customer-Success-Check-ins.** Speichern Sie Quartals-, Jahres- oder Verlängerungsdaten in eigenen Feldern. Ein kundeneigener externer Scheduler kann diese Werte auswerten und über einen separaten Anbieter eine Erinnerung senden; Customermates plant das nicht selbst.
-
-**Stagnierender-Deal-Recovery.** Ein kundeneigener externer Workflow kann erfasste Deal-Aktivität auswerten, den Owner über einen separaten Anbieter informieren und eine unterstützte Recovery-Aufgabe erstellen. Customermates besitzt keinen nativen Inaktivitäts- oder Eskalations-Timer.
-
-**Post-Purchase-Onboarding.** Ein kundeneigener externer Workflow kann nach Deal-Abschluss einen separaten Zustellanbieter um eine Onboarding-Sequenz bitten. Der Anbieter besitzt Timing und Zustellung; Customermates speichert unterstützten Deal-, Aufgaben- und Nachrichtenkontext.
-
-## Warum Customermates für Follow-Up-Management?
-
-**Open-Source-Kern.** AGPL-Kern-CRM-Anwendung und verknüpftes Aufgabenmodell sind einsehbar. Erinnerungsplanung, Sequenzen, Zustellanbieter, externe KI-Clients und n8n-Workflows bleiben separate Systeme mit eigenen Bedingungen.
-
-**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
-
-**Einfache, faire CRM-Preise.** Kern-CRM und verknüpfte Aufgaben starten bei [[commercial.price.starter.monthly]] pro Nutzer und Monat; der einheitliche Posteingang startet mit Pro bei [[commercial.price.pro.monthly]]. Native Erinnerungen, Sequenzen und Sequenz-Zustellung sind nicht enthalten. Separate n8n-Instanz und Zustellanbieter haben eigene Pläne, Limits und Kosten.
-
-**Externe KI-Clients entwerfen einzelne Follow-ups.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] MCP-Tools nutzen, zulässigen Kontext lesen, eine Nachricht entwerfen und sie in einem Messaging-Tarif soweit erlaubt senden. Client, Modell und Abonnement stammen von Ihnen; in den Cloud-Tarifen kann zusätzlich der gehostete Mate-Assistent Follow-ups direkt im CRM entwerfen und fragt vor dem Senden nach Ihrer Bestätigung.
-
-**Separates n8n für fortgeschrittene Sequenzen.** Verbinden Sie Ihre n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Mehrstufiges Timing, Bedingungen und externe Zustellung laufen dort, nicht in Customermates; Tarif, Konnektoren, Logs, Limits und Kosten bleiben separat.
-
-**Self-hostbare Anwendung und Datenbank.** Betreiben Sie Customermates-Anwendung und PostgreSQL-Datenbank auf Ihrer Infrastruktur. Verbundene Workflow-, KI- und Messaging-Anbieter erhalten weiterhin die von Ihrer Konfiguration gesendeten Daten.
-
-## Starten Sie heute mit Follow-Up-Management
-
-Beginnen Sie heute mit Follow-Ups in Customermates. Erstellen Sie eine verknüpfte Aufgabe und speichern Sie die nächste Aktion in einem eigenen Feld. Verbinden Sie nur bei Bedarf einen separaten Erinnerungs- oder Outreach-Workflow; Customermates enthält weder automatisierte Sequenzen noch Bulk-Outreach. Registrieren Sie sich und starten Sie mit den CRM-Funktionen Ihres Tarifs.
+Wie Sie die Nachricht selbst formulieren, lesen Sie im Beitrag [Follow-up-E-Mails im Vertrieb schreiben](/blog/sales-follow-up-email).

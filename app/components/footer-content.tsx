@@ -94,6 +94,10 @@ export function FooterContent({ appMode, blogPosts = [], className, featureLinks
               {t("Common.actions.contact")}
             </AppLink>
 
+            <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/about">
+              {t("Footer.about")}
+            </AppLink>
+
             <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/affiliate">
               {t("NavigationBar.affiliate")} (35%)
             </AppLink>
@@ -188,13 +192,13 @@ export function FooterContent({ appMode, blogPosts = [], className, featureLinks
               </li>
 
               <li>
-                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/email-integration">
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/unified-inbox">
                   {t("NavigationBar.public.emailAndGmail")}
                 </AppLink>
               </li>
 
               <li>
-                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/slack-integration">
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/integrations">
                   {t("NavigationBar.public.providerSlack")}
                 </AppLink>
               </li>

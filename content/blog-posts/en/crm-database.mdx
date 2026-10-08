@@ -1,16 +1,23 @@
 ---
 title: "CRM Database: What It Is and How to Build One"
-description: "Learn what a CRM database is and how to build one from scratch. Covers data structure, cleaning, security, GDPR compliance, and a step-by-step setup guide."
+description: "A CRM database links people, companies, deals and tasks. See how the major CRMs model it, how to build your own, and how to keep it clean."
+
+relatedHrefs:
+  - /features/contact-management
+  - /blog/client-database-software
+  - /blog/excel-crm-template
+  - /docs/app-records
 
 hero:
-  title: "CRM Database: Build, Structure, and Manage Customer Data"
-  description: Your CRM database is the foundation of every customer interaction. Learn how to build it, what data to store, how to keep it clean, and when a dedicated CRM beats spreadsheets or standalone databases.
+  title: "CRM database: what it is and how to build one that stays clean"
+  description: A CRM database is a set of linked records about the people you work with, the companies they belong to and the deals and tasks between you. Here is how the major CRMs structure it, how to design and import your own, and which rules keep it accurate.
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-01-12
+  updated: 2026-10-08
   tags:
     - CRM Database
     - Customer Data
@@ -18,490 +25,173 @@ blogPost:
     - GDPR
 ---
 
-# CRM Database: How to Build, Structure, and Manage Your Customer Data
+# CRM database: what it is and how to build one that stays clean
 
-Your CRM database is the foundation of every customer interaction. This guide covers how to build one from scratch, what data to store, how to keep it clean and secure, and when a dedicated CRM beats spreadsheets, Excel, or a standalone database.
+A CRM database is the structured store behind a CRM: one record per person, one per company, one per deal, and the links between them, plus the history of what happened. The links are what separate it from a contact list. Open a company and you see its people, its open deals and the last conversation; open a deal and you see who is involved and what was offered.
 
-Every [CRM system](/blog/crm-systems) is built on a database. That database holds every piece of information about your customers, prospects, deals, and interactions. When the database is well-structured and clean, your sales and marketing teams operate with confidence. When it is messy, outdated, or incomplete, everything downstream breaks: emails go to the wrong people, reports show inaccurate numbers, and salespeople waste time on dead leads.
+You rarely build that database from scratch. You pick a CRM, decide which record types and fields you need, clean your existing data and import it in the right order. This guide covers that design work, shows how four CRMs model their data, and ends with a worked example. Customermates publishes this guide; other vendors' details come from their own documentation, linked at the end.
 
-According to [Gartner](https://www.gartner.com/en/information-technology/glossary/customer-relationship-management-crm), CRM is the world's largest enterprise software market, projected to exceed $80 billion by 2027. Yet many businesses struggle not with choosing a CRM but with building and maintaining the database that powers it. This guide explains how to get that part right.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What it is">Linked records for people, companies, deals and tasks, with typed fields and an activity history. A spreadsheet holds rows; a CRM database holds relationships.</SummaryItem>
+  <SummaryItem label="How to build one">Fix the record types first, then the fields you filter on, then one unique key per person. Clean before you import, and import companies before people.</SummaryItem>
+  <SummaryItem label="What breaks it">Duplicates, free-text fields that should be choices, and nobody owning the cleanup.</SummaryItem>
+  <SummaryItem label="Customermates">Five record types (contacts, organizations, deals, services, tasks) with typed custom columns, from [[commercial.price.starter.monthly]] per user per month in the cloud, or self-hosted under AGPL.</SummaryItem>
+</ArticleSummary>
 
-## What Is a CRM Database?
+## What a CRM database holds
 
-A CRM database is a structured collection of customer and prospect information stored within a Customer Relationship Management system. It organizes contacts, companies, deals, and every interaction into a relational format where records link to each other and build a complete picture of every customer relationship over time.
+Think of it as a handful of tables that point at each other. Most CRMs ship the same core set and differ in what they add around it.
 
-Unlike a flat spreadsheet or address book, a CRM database creates relationships between records. A contact belongs to a company. A deal links to both. An email, call, or meeting attaches to the contact, the deal, and the company simultaneously. This relational structure is what makes a CRM database fundamentally different from a list of names in a file.
+| Record type | What one record is | Typically linked to | Fields worth having |
+|---|---|---|---|
+| Person (contact) | One human you talk to | Their company, their deals, tasks, messages | First and last name, email, phone, role, how you met |
+| Company (organization, account) | One business or institution | Its people and deals | Name, segment, website, billing address |
+| Deal (opportunity) | One piece of potential or ongoing business | The people and companies involved, products or services sold | Stage, value, expected start, source |
+| Product or service | Something you sell at a price | The deals that include it | Name, price |
+| Task or activity | Something someone has to do or did | Any of the above | Assignee, notes |
 
-A well-built CRM database contains:
+Two design questions decide whether the database holds up later. Can one person belong to several companies (a consultant who sits on two boards, a freelancer working for three agencies)? And can one deal involve several people? If your CRM forces one company per person or one contact per deal, you will start writing workarounds into notes.
 
-- **Contact records**: Individual people with names, emails, phone numbers, job titles, communication preferences, and consent status
-- **Company records**: Organizations with industry, size, location, revenue, and other firmographic data
-- **Interaction history**: Every email, call, meeting, chat message, and note logged against the relevant contact or company
-- **Deal records**: Sales opportunities with values, stages, probabilities, expected close dates, and linked products or services
-- **Activity data**: Tasks completed, follow-ups scheduled, and workflow triggers fired
-- **Custom data**: Industry-specific fields that capture information unique to your business
-- **Consent and compliance records**: GDPR consent timestamps, legal basis for processing, and data subject requests
+The other half of a CRM database is history. Every change to a record and every linked email or message forms a timeline. That timeline is what lets a colleague take over a client without a handover meeting, and it is the part a spreadsheet cannot give you.
 
-### CRM Database Examples
+## CRM database examples: how four CRMs structure their data
 
-CRM databases look different depending on the industry and business model. Here are concrete examples:
+The record types tell you what a CRM was built for. This table compares the data model only, not price or quality.
 
-**B2B SaaS company**: Contacts linked to company accounts, with deal records tracking trial-to-paid conversions, monthly recurring revenue, contract renewal dates, and product usage data pulled from the application.
+| CRM | Standard record types | Your own record types |
+|---|---|---|
+| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Contacts and companies as the foundation, plus deals, leads, tickets, products, projects, tasks and more | Custom objects, which need an Enterprise subscription |
+| [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Standard objects such as Account, Contact, Lead and Opportunity | Custom objects "to store information that's specific to your company or industry" |
+| [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, deals, people, organizations, activities, products, projects and mail | The linked article names no custom object type; Projects is an add-on on Growth and lower plans and standard on Premium and Ultimate |
+| Customermates | Contacts, organizations, deals, services and tasks, renamable from presets | None: five fixed types with typed custom columns |
 
-**Real estate agency**: Property listings linked to buyer and seller contacts, with activity records for viewings, offers, and contract milestones. Custom fields for property type, square meters, price range, and neighborhood.
+The pattern: HubSpot and Salesforce let you add your own object types and configure them, on HubSpot with an Enterprise subscription. Pipedrive's data items stay close to the sales process. Customermates keeps five types and lets you rename them, so Contacts can read Clients and Deals can read Projects across the whole workspace.
 
-**E-commerce retailer**: Customer profiles enriched with purchase history, average order value, return rates, and support ticket history. Segments based on buying frequency and lifetime value.
+## CRM database, spreadsheet or plain database?
 
-**IT consulting firm**: Client contacts linked to project records, with custom fields for technology stack, hourly rates, contract value, and renewal dates. Activity tracking for billable vs. non-billable interactions.
+All three can hold customer data. The question is who maintains it and how much of the logic you want to build yourself.
 
-**Healthcare practice**: Patient contacts (with strict access controls) linked to appointment records, treatment history, and referral sources. GDPR/HIPAA compliance fields for consent management.
+| Choose | When | You give up |
+|---|---|---|
+| A spreadsheet | One person, a short list, no shared history needed | Links between people and companies, a per-client timeline, safe editing by several people |
+| A plain database or no-code tool (Airtable, Notion, Access, PostgreSQL) | Your records are not people and deals, or you need a model no CRM offers | You build the forms, relations, permissions and history yourself |
+| A CRM | Several people work with the same clients and you track deals, follow-ups or conversations | Some freedom in the data model; most cloud CRMs charge per user |
 
-These examples show that a CRM database is not one-size-fits-all. The core structure (contacts, companies, deals, activities) remains consistent, but the custom fields and relationships adapt to each business.
+If a sheet is where you are now, the [Excel CRM template guide](/blog/excel-crm-template) shows how far one goes and how to lay it out so the later import is easy. For choosing between the kinds of client database tools, see [client database software](/blog/client-database-software).
 
-## The 4 Types of CRM Databases
+## How to build a CRM database
 
-Not all CRM databases serve the same purpose. Understanding the four types helps you choose the right approach for your business.
+These steps apply to any CRM. The order matters more than the tool.
 
-### 1. Operational CRM Database
+<Steps>
+  <Step title="Write down the record types you need">Start with people, companies and deals. Add a separate type only when it has its own lifecycle. A product catalogue does; a meeting location does not.</Step>
+  <Step title="List the fields you will filter or report on">If nobody will ever filter on a field, it belongs in the notes. For each field pick a type: date, currency, email, phone, link, or a single choice from a fixed list. A "Segment" field as free text ends up with "Retainer", "retainer" and "Ret." within a month.</Step>
+  <Step title="Define your deal stages and what moves a deal">Five to seven stages with a written exit rule each, for example "Proposal: a written proposal has been sent". Stages without exit rules turn into opinions.</Step>
+  <Step title="Pick one unique key per person">Usually the email address. It is how you find duplicates before import and how the CRM matches incoming email to the right person.</Step>
+  <Step title="Clean the source data">One person per row, one kind of value per column, split full names into first and last name, remove duplicates by email, and delete people you no longer have a reason to keep.</Step>
+  <Step title="Import companies first, then people, then deals">Each later import can then link to records that already exist, matched by name. Test with 50 rows before the full file.</Step>
+  <Step title="Save the views people work from">"My open deals", "Clients without a company", "Not touched in 90 days". A database nobody looks at decays quietly.</Step>
+  <Step title="Name an owner for data quality">One person who runs the monthly check below. Without an owner, cleanup is everyone's job and therefore nobody's.</Step>
+</Steps>
 
-An operational CRM database supports day-to-day customer-facing processes: sales, marketing, and service. It is the most common type and the one most people mean when they say "CRM database."
+## When data does not fit contacts, companies or deals
 
-**Primary focus**: Automating and streamlining customer interactions
-**Key data**: Contacts, deals, tasks, emails, call logs, pipeline stages
-**Best for**: Sales teams managing pipelines, marketing teams running campaigns, service teams handling tickets
-**Examples**: Customermates, Salesforce Sales Cloud, HubSpot CRM, Pipedrive
+This is the most common design problem, and there are four honest answers.
 
-### 2. Analytical CRM Database
+1. **It describes an existing record.** A contract end date, a client segment, a LinkedIn URL. Add a typed custom field to that record type.
+2. **It is something you sell.** Put it in the product or service catalogue and link it to deals, so the deal value follows from what is in it.
+3. **It is text you read but never filter.** Meeting notes, background, preferences. Use the notes field.
+4. **It has its own lifecycle and relations.** Properties, vehicles, candidates, events. That is a custom object. HubSpot offers them on Enterprise, Salesforce on its platform, and no-code databases such as Airtable are built around them. Customermates does not have custom record types, so data like this belongs elsewhere.
 
-An analytical CRM database is optimized for reporting, data analysis, and business intelligence. It aggregates data from operational systems and transforms it into insights.
+## Worked example: a CRM database for a four-person consultancy
 
-**Primary focus**: Understanding customer behavior and business performance
-**Key data**: Aggregated sales metrics, customer lifetime value, churn rates, conversion funnels, cohort analyses
-**Best for**: Management teams making strategic decisions, data analysts building forecasts
-**Examples**: Salesforce Einstein Analytics, Microsoft Dynamics 365 Customer Insights, dedicated BI tools connected to CRM data
+Here is the same design in Customermates, set up the way the product works today. Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders.
 
-### 3. Collaborative CRM Database
+**Record types.** Under My Company › Settings › Data model, rename Contacts to Clients and Deals to Projects. Names are chosen from presets, not typed freely. Organizations, Services and Tasks keep their names.
 
-A collaborative CRM database focuses on sharing customer information across departments and external partners. It breaks down data silos between sales, marketing, service, and partner channels.
+**Custom columns.** Each column has a type: Text, Email, Phone, Link, Date, Date & Time, Date Range, Date & Time Range, Currency or Single Select.
 
-**Primary focus**: Ensuring every team has the same customer context
-**Key data**: Shared contact records, cross-departmental notes, partner access logs, communication history across channels
-**Best for**: Organizations where multiple departments interact with the same customers
-**Examples**: Customermates (with role-based sharing), Salesforce with Community Cloud, Monday CRM
+| Record type | Column | Type |
+|---|---|---|
+| Organizations | Segment (Retainer, Project, Former) | Single Select |
+| Organizations | Client since | Date |
+| Clients | Role | Text |
+| Clients | LinkedIn profile | Link |
+| Projects | Engagement period | Date Range |
+| Projects | Source (Referral, Inbound, Event) | Single Select |
 
-### 4. Strategic CRM Database
+**Relations.** A client can link to several organizations, and a project to several clients, organizations, services and assigned users. A project's value is the sum of its linked services, each price multiplied by its quantity, so "Strategy workshop" at one price and "Monthly retainer" times six add up on their own.
 
-A strategic CRM database combines operational and analytical capabilities with long-term customer relationship planning. It focuses on customer-centric strategy rather than transactional efficiency.
+**Stages.** A new workspace starts with a Stage field (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) whose win probabilities you set per stage. The weighted pipeline is the plain arithmetic of those percentages, not a prediction.
 
-**Primary focus**: Building long-term customer relationships and maximizing lifetime value
-**Key data**: Customer satisfaction scores, loyalty program data, relationship health indicators, strategic account plans
-**Best for**: Enterprises with complex, high-value customer relationships
-**Examples**: SAP CRM, Oracle CX, enterprise Salesforce implementations
+**Unique key.** Customermates refuses to link one email address to a second contact and shows "This channel is already linked to another contact." Global search (Cmd/Ctrl+K) finds a client by first name, last name, email address or company name.
 
-Most small and mid-sized businesses need an operational CRM database with basic analytical capabilities built in. Customermates delivers both: day-to-day pipeline and contact management plus dashboards with weighted pipeline values, all in one system from [[commercial.price.starter.monthly]]/user/month.
+**Import.** Use Import and export › Add from file with an .xlsx workbook, one record type at a time, in the order organizations, clients, projects. Link columns are matched by record name. CSV files are not accepted, so save them as .xlsx first. The [records documentation](/docs/app-records) has the full import rules.
 
-## Is Excel a CRM Database?
+**Views.** Save "Not touched in 90 days" by filtering Updated at with Older than… 90 days, and "Clients without an organization". Saved views are personal, so each colleague sets the same filters and saves their own view.
 
-This is one of the most common questions businesses ask, and the honest answer is: Excel can store customer data, but it is not a CRM database.
+**Cost.** Four people on Starter pay [[commercial.price.starter.monthly.seats.4]] per month. On Pro, which adds the [unified inbox](/features/unified-inbox) so each user's connected email, LinkedIn or WhatsApp account shows its conversations next to the client, it is [[commercial.price.pro.monthly.seats.4]] per month. Billing is monthly, and the trial runs [[commercial.trial.days]] days. Self-hosting the open-source core has no licence fee but no inbox and no Mate.
 
-Excel (and Google Sheets) can function as a basic contact list. Many businesses start there, and it works for a while. But spreadsheets break down as a CRM database for specific, predictable reasons:
+**A routine for data quality (Customermates Cloud).** Mate, the assistant in Customermates Cloud, uses hosted AI credits. A routine runs saved instructions on a schedule or on a record event, as the person who owns it; Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user. A weekly routine could carry this instruction:
 
-| Capability                                 | Excel / Google Sheets               | CRM Database                     |
-| ------------------------------------------ | ----------------------------------- | -------------------------------- |
-| Contact storage                            | Yes                                 | Yes                              |
-| Relational data (contact-to-company links) | No (manual workarounds)             | Built-in                         |
-| Automatic interaction tracking             | No                                  | Yes                              |
-| Pipeline visualization                     | No (manual charts)                  | Native drag-and-drop             |
-| Email integration                          | No                                  | Native                           |
-| Automation workflows                       | Limited (macros/scripts)            | Built-in or via n8n              |
-| Audit trail / GDPR compliance              | No                                  | Built-in                         |
-| Multi-user collaboration                   | Limited (conflicts, no permissions) | Real-time with role-based access |
-| Duplicate detection                        | Manual                              | Automatic                        |
-| Reporting dashboards                       | Manual chart creation               | Built-in and dynamic             |
+> Every Monday, list clients created in the last 7 days that have no linked organization or no email address, and list organizations with no Segment value. Report the lists in the run summary. Do not change any record and do not send any message.
 
-**When Excel works**: Fewer than 100 contacts, one person managing the data, simple processes with no pipeline tracking needed.
+The last sentence matters. Mate can send messages when an instruction asks for it, so a routine meant only to report has to say so. If you prefer your own AI client, Claude, ChatGPT and other MCP clients can query the same records through [[derived.mcp.tools.total]] [MCP tools](/docs/mcp), on Cloud and self-hosted.
 
-**When Excel fails**: More than 200 contacts, multiple team members accessing data, any need for pipeline visualization, follow-up automation, or compliance documentation. At this point, a spreadsheet becomes a liability. See our [Google Sheets CRM guide](/blog/google-sheets-crm) and [Excel CRM template guide](/blog/excel-crm-template) for a detailed comparison.
+## Keeping a CRM database clean
 
-**The real cost of staying in Excel**: The time your team spends maintaining spreadsheets, searching for information, and re-entering data is almost always more expensive than a CRM subscription. From [[commercial.price.starter.monthly]]/user/month, Customermates costs less than the hourly wage of the time wasted on spreadsheet management.
+Contact data goes stale as people change jobs and companies merge. A short routine with a named owner beats a yearly cleanup project.
 
-## CRM Database vs. Standalone Database
+| How often | Check | In Customermates |
+|---|---|---|
+| Weekly | New people without a company, new deals without a stage | Saved views, or the routine above |
+| Monthly | Records not updated in 90 days: still relevant? | Filter Updated at, Older than… 90 days |
+| Monthly | Free-text values that should be choices | Add a Single Select column, then set it on up to 100 selected records at once with Update |
+| Quarterly | People you no longer have a reason to keep | Delete them from the list or the record page |
+| Before any big change | A copy of what you have | Export each record type to .xlsx; there is no single whole-account export |
 
-Some businesses consider building a customer database from scratch using tools like MySQL, PostgreSQL, Airtable, or Supabase. This approach offers flexibility but requires significant effort for things a CRM handles out of the box:
+An exported workbook can be edited and read back in: its Record ID column updates the existing records instead of creating duplicates. That makes bulk corrections practical without an API.
 
-| Capability             | Standalone Database | CRM Database        |
-| ---------------------- | ------------------- | ------------------- |
-| Contact storage        | Yes                 | Yes                 |
-| Relational data model  | Manual setup        | Built-in            |
-| Interaction tracking   | Custom development  | Automatic           |
-| Pipeline visualization | Not included        | Native              |
-| Email integration      | Custom development  | Native              |
-| Automation workflows   | Custom development  | Built-in or via n8n |
-| Audit trail / GDPR     | Custom development  | Built-in            |
-| Reporting dashboards   | Custom development  | Built-in            |
-| Time to production     | Months              | Days                |
-| Ongoing maintenance    | Your responsibility | Vendor-managed      |
+## Personal data in a CRM database
 
-**Bottom line:** A standalone database makes sense only when your data model is so unusual that no CRM can accommodate it. For most businesses, a dedicated CRM with a flexible data model saves months of development and ongoing maintenance.
+In the EU, a CRM database of people is personal data under the [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Three principles from Article 5 translate directly into database design: keep only data that is "limited to what is necessary" (fewer fields), keep it accurate (the cleanup routine), and limit how long you store it (the quarterly deletion). Article 17 gives people the right to have their data erased, so you need to be able to find and delete one person completely. Article 28 requires a contract with any provider that stores the data for you.
 
-### Why Your CRM Database Matters
+For Customermates Cloud, the [data processing agreement](/dpa) is public, the application database is configured in the AWS Frankfurt region, and the [subprocessors](/subprocessors), US providers included, are listed. Customermates holds no compliance certification. If you need the data on your own server, [self-host the open-source core](/features/self-hosted).
 
-Your CRM database is the single source of truth for customer relationships. Every decision your sales and marketing teams make depends on the quality of this data. Accurate data means better segmentation, personalized outreach, reliable [sales pipeline](/blog/sales-pipeline) forecasts, and informed strategic decisions. Poor data means wasted effort, missed opportunities, and frustrated customers.
+## When Customermates is the wrong database
 
-Bad CRM data costs real money. Duplicate records mean multiple salespeople pursue the same prospect. Outdated contact information means emails bounce and calls go nowhere. Incomplete records mean salespeople enter meetings without context.
+- **You need your own record types** such as properties, candidates or events. Use a CRM with custom objects or a no-code database.
+- **You want documents stored on the record.** Records have no file attachments; notes can embed images and tables.
+- **You need field-level permissions.** Permissions apply per record type and action, not per field.
+- **You need one-click export of everything.** Export runs one record type at a time as .xlsx.
+- **You send newsletters from your customer list.** There is no mass email; use an email marketing tool.
 
-## How to Structure Your CRM Database
-
-### Define Your Data Model
-
-Before entering any data, plan your data model. Decide which objects (entities) you need and how they relate to each other:
-
-- **Contacts** belong to **Companies**
-- **Deals** are associated with **Contacts** and **Companies**
-- **Activities** (calls, emails, meetings) are linked to Deals, Contacts, or both
-- **Products/Services** can be linked to Deals
-- **Notes** and **Files** attach to any record
-
-A clear entity-relationship model prevents confusion later. If you are migrating from spreadsheets, map your columns to these entities before importing anything.
-
-### What Data Types to Store
-
-Not all data is equally valuable. Focus on these categories:
-
-**Identity data**: Who is the contact?
-
-- Full name, email, phone, job title, company, LinkedIn profile
-
-**Descriptive data**: What characterizes them?
-
-- Industry, company size, location, annual revenue, technology stack
-
-**Behavioral data**: What have they done?
-
-- Website visits, email opens, meeting attendance, support tickets, product usage
-
-**Transactional data**: What have they bought?
-
-- Purchase history, deal values, contract dates, recurring revenue
-
-**Qualitative data**: What is the relationship context?
-
-- Notes from calls, meeting summaries, preferences, objections raised
-
-**Compliance data**: What are you allowed to do?
-
-- Consent status, legal basis, opt-in dates, data subject requests
-
-Prioritize data your team will actually use. Fields nobody fills in are worse than no fields at all because they create the illusion of completeness.
-
-### Standard Fields vs. Custom Fields
-
-Every CRM comes with standard fields like name, email, phone, and company. But your business likely needs additional information. Custom fields let you capture industry-specific data:
-
-- A real estate CRM might need fields for property type, square meters, and listing date
-- An IT consulting CRM might need fields for technology stack, contract renewal date, and monthly recurring revenue
-- An agency CRM might need fields for project type, campaign budget, and client tier
-
-Customermates supports ten custom field types: text, link, email, phone, currency, single-select, date, date and time, date range, and date-and-time range. You can organize these fields into table and card views to keep interfaces clean and relevant.
-
-### Establish Naming Conventions
-
-Inconsistent data entry destroys database quality faster than anything else. Establish clear conventions:
-
-- **Company names**: "Customermates GmbH" not "customermates" or "Customermates GMBH"
-- **Phone numbers**: Use a consistent format like +49 123 456789
-- **Job titles**: Define a standard list to avoid variations like "CEO", "Chief Executive Officer", "Founder & CEO"
-- **Addresses**: Use a consistent format for country, state/region, and postal codes
-- **Tags and categories**: Create a controlled vocabulary instead of free-text tags
-
-Document these conventions and make them part of your onboarding process for new team members.
-
-### Plan for Relationships
-
-A CRM database is relational by nature. Plan these relationships carefully:
-
-- One contact can belong to one or multiple companies (e.g., consultants, board members)
-- One company can have multiple contacts
-- One deal can involve multiple contacts from the same company
-- Activities can be linked to contacts, companies, or deals
-- Products or services can be associated with deals
-
-Getting relationships right from the start prevents data silos and ensures your reporting reflects reality.
-
-## Building Your CRM Database: Step by Step
-
-### Step 1: Audit Your Existing Data
-
-Before importing anything, audit the data you already have. It probably lives in spreadsheets, email contacts, business card scanners, accounting systems, or legacy CRMs. Assess the quality:
-
-- **Completeness**: What percentage of records have all required fields filled?
-- **Accuracy**: How current is the information? When was it last verified?
-- **Consistency**: Are formats, naming conventions, and categories uniform?
-- **Duplication**: How many duplicate or near-duplicate records exist?
-
-### Step 2: Clean Before You Import
-
-Data cleaning is tedious but essential. It is far easier to clean data before import than after:
-
-1. **Remove duplicates**: Merge records that refer to the same person or company
-2. **Fix formatting**: Standardize phone numbers, addresses, and company names
-3. **Update outdated information**: Verify email addresses, check for bounced domains, confirm job titles
-4. **Fill gaps**: Where possible, enrich incomplete records with publicly available information
-5. **Delete irrelevant records**: Remove contacts who have no business relationship and no future potential
-
-### Step 3: Map Fields to Your CRM
-
-Create a mapping between your source data fields and your CRM fields. Decide where each piece of information goes, what needs to be transformed, and what can be discarded. A simple mapping table works:
-
-| Source Field | CRM Field              | Transformation     |
-| ------------ | ---------------------- | ------------------ |
-| Name         | First Name + Last Name | Split on space     |
-| Company      | Company Name           | Standardize format |
-| Tel          | Phone                  | Add country code   |
-| Status       | Deal Stage             | Map values         |
-
-### Step 4: Import in Batches
-
-Import your data in manageable batches (500-1,000 records at a time) rather than all at once. This lets you catch errors early and correct them before they propagate across your entire database.
-
-### Step 5: Verify After Import
-
-After each import batch, verify the data:
-
-- Check a random sample of 20-30 records manually
-- Confirm that relationships (contact-to-company, deal-to-contact) are correct
-- Verify that custom fields are populated and formatted correctly
-- Run a duplicate check against existing records
-- Test that segmentation filters return expected results
-
-### Step 6: Set Up Automations
-
-Once your data is clean and imported, configure automations to maintain quality going forward:
-
-- Automatic duplicate detection on new record creation
-- Required field validation before a deal can move to the next stage
-- Email verification workflows that flag bounced addresses
-- Activity reminders for records with no interaction in 30, 60, or 90 days
-- Data enrichment triggers that pull company information from public sources
-
-## CRM Database Maintenance and Data Hygiene
-
-A database that is not maintained actively decays. Contact information changes, people switch jobs, companies merge or close, and emails start bouncing. Without regular maintenance, your database becomes a liability instead of an asset.
-
-### Regular Data Hygiene Schedule
-
-Schedule regular data hygiene sessions. Monthly is a good starting cadence:
-
-- **Merge duplicate records** created by imports, web forms, or manual entry
-- **Update contact information** for key accounts and active deals
-- **Remove bounced contacts** whose emails consistently fail delivery
-- **Archive stale deals** that have been inactive for 90+ days
-- **Verify interaction logs** to ensure recent activities are properly recorded
-- **Review and clean tags/categories** to prevent tag sprawl
-
-### Data Decay Statistics
-
-CRM data decays faster than most businesses realize. Exact figures vary by study and industry, but the pattern is consistent:
-
-- A sizeable share of B2B contact data goes out of date every year as people change jobs and companies rebrand
-- Email addresses bounce once people leave, often without anyone noticing
-- Every import, web form, and manual entry adds duplicates unless someone checks
-- Decisions made on that data inherit its errors
-
-This makes the case for proactive, automated data hygiene rather than occasional manual cleanup.
-
-### Automated Data Quality with n8n
-
-Manual data hygiene does not scale. Use automation to maintain quality passively:
-
-- Flag records missing required fields (e.g., no email, no company)
-- Alert salespeople about contacts with no activity in 90 days
-- Automatically archive deals stuck in the same stage for too long
-- Deduplicate new entries against existing records on import
-- Validate email formats and flag obviously invalid addresses
-- Enrich records with external data sources (company size, industry classification)
-
-Customermates supports automated data quality workflows through its community node for [n8n](/features/workflow-automation), which you run separately. You can build visual automations that check for duplicates, validate data formats, enrich records from an external data source, and alert team members about quality issues, without writing code. [Learn more about n8n workflows](/blog/n8n-for-beginners-build-your-first-workflow)
-
-Beyond n8n, AI agents can operate the database directly through the native MCP integration ([[derived.mcp.tools.total]] tools). An agent (Claude, ChatGPT, or Gemini) with an API key can clean up duplicates, fill in fields from sources you provide, update records, and write notes within the permissions of the user it acts for, which turns routine data hygiene into a task an agent runs in minutes.
-
-### Assign Data Ownership
-
-Every record in your CRM database should have an owner. The owner is responsible for keeping that record accurate and up to date. Without ownership, records decay because nobody feels responsible for maintaining them. This is especially important for key accounts and active deals.
-
-## Segmentation: Making Your CRM Database Actionable
-
-A CRM database with 10,000 contacts is only useful if you can slice it meaningfully. Segmentation lets you group contacts based on shared characteristics and target them with relevant communication.
-
-### Common Segmentation Criteria
-
-- **Industry**: Target messaging by vertical
-- **Company size**: Differentiate between SMB and enterprise approaches
-- **Deal stage**: Send different content to prospects vs. active customers
-- **Geography**: Comply with regional regulations and customize by market
-- **Engagement level**: Identify hot leads vs. cold contacts based on recent activity
-- **Customer lifetime value**: Prioritize high-value relationships for personal outreach
-- **Lead source**: Analyze which channels produce the best customers
-- **Product interest**: Tailor communication based on which products or services a contact has shown interest in
-
-### Using Segments for Action
-
-Segments drive action across your entire business:
-
-- **Sales** can prioritize high-value segments for outbound campaigns and [follow-up sequences](/blog/sales-follow-up-email)
-- **Marketing** can personalize email campaigns by industry, company size, or engagement level
-- **Support** can route tickets based on customer tier or contract type
-- **Management** can analyze performance, conversion rates, and revenue by segment
-
-The key is building segments that directly map to actions your team takes. A segment nobody acts on is just a filter exercise.
-
-## Data Security and GDPR Compliance
-
-### GDPR Requirements for CRM Databases
-
-For European businesses, GDPR compliance is non-negotiable when managing a CRM database. Key requirements include:
-
-- **Lawful basis**: You need a legal basis for storing personal data (consent, legitimate interest, or contractual necessity)
-- **Data minimization**: Only collect data you actually need for a defined purpose
-- **Right to erasure**: You must be able to delete a person's data completely on request (Article 17)
-- **Right of access**: Individuals can request a copy of all data you hold about them (Article 15)
-- **Data portability**: Individuals can request their data in a machine-readable format (Article 20)
-- **Audit trail**: You need to demonstrate compliance through documentation and logging
-- **Data breach notification**: You must report breaches to the supervisory authority within 72 hours
-
-### Where Your Data Lives Matters
-
-The physical location of your CRM database has direct compliance implications. US-hosted CRM systems face legal uncertainty under European data protection law following the Schrems II ruling. Data transfers to the US require additional safeguards (Standard Contractual Clauses, adequacy decisions) that may not provide sufficient protection in practice.
-
-Self-hosted systems give you the most control: you decide where the data lives and which providers touch it. EU-hosted cloud services reduce the question but do not always remove it, because their subprocessors may include US providers, so read the subprocessor list.
-
-### How Customermates Handles Data Security
-
-Customermates addresses CRM database security and compliance directly:
-
-- **Cloud data location**: In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available
-- **Self-hosting option**: Deploy on your own infrastructure with Docker for complete control over data residency
-- **Built-in audit logging**: Changes are recorded in an audit log on every plan
-- **Role-based access control**: Define who can see, edit, or delete which record types
-- **Data export**: XLSX export per record type and the REST API support access and portability requests (GDPR Articles 15 and 20)
-- **No certification**: Customermates holds no ISO 27001 or SOC 2 certification
-- **Open source**: Inspect the code yourself to verify how your data is handled
-
-## CRM Database Comparison: Salesforce vs. HubSpot vs. Pipedrive vs. Customermates
-
-Choosing the right CRM database depends on your team size, budget, and data requirements. Here is how the major platforms compare:
-
-| Feature                 | Salesforce             | HubSpot              | Pipedrive       | Customermates                                     |
-| ----------------------- | ---------------------- | -------------------- | --------------- | ------------------------------------------------- |
-| **Starting price**      | $25/user/mo            | Free (limited)       | €14/user/mo     | From [[commercial.price.starter.monthly]]/user/mo |
-| **Custom fields**       | Unlimited (Enterprise) | Limited on free plan | Limited on Lite | Yes (10 field types)                              |
-| **Data hosting**        | Region depends on plan | Region depends on plan | Region depends on plan | Cloud DB in Frankfurt (AWS); US subprocessors listed |
-| **Self-hosting**        | No                     | No                   | No              | Yes (open source)                                 |
-| **Audit logging**       | Enterprise only        | Enterprise only      | Not available   | All plans                                         |
-| **API access**          | Yes                    | Yes (rate-limited)   | Yes             | Yes                                               |
-| **n8n integration**     | Via API                | Via API              | Via API         | Community node                                    |
-| **GDPR tools**          | Add-on                 | Add-on               | Basic           | DPA, audit log, XLSX export                       |
-| **Duplicate detection** | Yes                    | Yes                  | Basic           | Via search, API, or an AI agent                   |
-| **Setup complexity**    | High                   | Medium               | Low             | Low                                               |
-
-**Salesforce** offers the most powerful CRM database for enterprises with complex data models and large teams. But the complexity and cost make it overkill for most SMBs.
-
-**HubSpot** provides a free tier that works well for getting started, but the database capabilities are limited until you move to paid plans. Custom fields, advanced reporting, and audit logs require Marketing or Sales Hub Enterprise.
-
-**Pipedrive** focuses on sales pipeline management with a clean interface. The database capabilities are solid for sales teams but less suited for marketing or service use cases.
-
-**Customermates** delivers a complete CRM database with custom fields (ten types), a cloud database in the AWS Frankfurt region, self-hosting, audit logging, XLSX import and export, and an n8n community node from [[commercial.price.starter.monthly]]/user/month. Two features set it apart: AI agents operate the database directly through a native MCP integration (cleaning up and updating records), and a native unified inbox keeps email, LinkedIn, WhatsApp, Instagram, and Telegram conversations next to the contact (Pro tier and up).
-
-## CRM Database Best Practices
-
-### Start Simple, Expand Gradually
-
-Do not try to capture every possible data point from day one. Start with the fields your team actually needs and add more as your processes mature. Complexity you cannot maintain is worse than simplicity you use consistently.
-
-### Train Your Team
-
-Your CRM database is only as good as the people entering data into it. Train every user on data entry standards, explain why data quality matters, and make it easy to do the right thing. [CRM training best practices](/blog/crm-training)
-
-### Integrate Your Data Sources
-
-Connect your CRM database with other systems to reduce manual entry and keep data current:
-
-- [Email integration](/features/email-integration) (in Customermates: Gmail, Outlook, or IMAP mailboxes in the unified inbox on Pro and above)
-- Calendar access for meeting context (read-only in Customermates Pro)
-- Web form connections for lead capture, via your form tool and the API or n8n
-- Accounting system links for invoice and payment data
-- [n8n workflows](/features/workflow-automation) for connecting any tool with an API
-
-### Measure Data Quality
-
-What gets measured gets managed. Track metrics like:
-
-- Percentage of contacts with complete required fields
-- Duplicate rate (new duplicates created per month)
-- Email bounce rate
-- Records with no activity in 90+ days
-- Average time to update a record after a customer interaction
-
-### Back Up Regularly
-
-Your CRM database is a business-critical asset. Ensure it is backed up regularly and that you can restore it if needed. Self-hosted CRM systems like Customermates give you full control over backup frequency, storage location, and restore procedures.
-
-### Document Your Data Model
-
-Create a living document that describes your CRM database structure: which fields exist, what they mean, what values are acceptable, and how records relate to each other. This documentation is essential for onboarding new team members and for maintaining consistency as your database grows.
-
-## Frequently Asked Questions
+## Frequently asked questions
 
 <Faq>
 <FaqItem question="What is a CRM database?">
-A CRM database is the structured data layer within a Customer Relationship Management system. It stores contacts, companies, deals, interactions, and custom data in a relational format where records are linked to each other. Unlike a flat spreadsheet, a CRM database tracks the full history of every customer relationship and connects it to your sales pipeline, tasks, and communications.
+It is the store behind a CRM: records for people, companies, deals and tasks, linked to each other, with typed fields and a history of changes and conversations. The links and the history are what make it more than a contact list.
 </FaqItem>
 
-<FaqItem question="What are CRM database examples?">
-CRM database examples include a B2B SaaS company tracking contacts, trial conversions, and recurring revenue; a real estate agency managing property listings linked to buyer and seller contacts; an e-commerce business storing customer purchase history and lifetime value; and an IT consulting firm linking clients to project records with custom fields for technology stacks and contract dates. Every industry adapts the core CRM database structure (contacts, companies, deals, activities) to its specific needs.
-</FaqItem>
-
-<FaqItem question="What are the 4 types of CRM?">
-The four types of CRM databases are operational (day-to-day sales, marketing, and service processes), analytical (reporting, data analysis, and business intelligence), collaborative (sharing customer data across departments and partners), and strategic (long-term relationship planning and lifetime value optimization). Most small and mid-sized businesses need an operational CRM with built-in analytics, which is what platforms like Customermates provide.
+<FaqItem question="What is the difference between a database and a CRM?">
+A database stores whatever tables you design and leaves the forms, relations, permissions and history to you. A CRM is a database with that customer logic already built: people linked to companies and deals, pipeline stages, assignees and a timeline per record. You trade some freedom in the data model for not having to build it.
 </FaqItem>
 
 <FaqItem question="Is Excel a CRM database?">
-Excel can store contact data, but it is not a CRM database. Excel lacks relational data linking, automatic interaction tracking, pipeline visualization, email integration, automation workflows, audit trails, and multi-user access control. Spreadsheets work for fewer than 100 contacts managed by one person. Beyond that, a dedicated CRM database is more reliable, more efficient, and often cheaper when you factor in the time wasted on manual spreadsheet maintenance.
+No. Excel can hold a customer list, and for one person with a short list that is enough. It has no links between people and companies, no history per client and no safe way for several people to edit at once. A clean sheet with one kind of value per column still makes a good starting point for an import.
 </FaqItem>
 
-<FaqItem question="What is considered a CRM database?">
-A CRM database is any structured system that stores customer and prospect information in a relational format with interaction tracking. It must link contacts to companies, deals to contacts, and activities to all relevant records. It should include pipeline management, activity logging, and reporting capabilities. Systems that qualify include Salesforce, HubSpot, Pipedrive, Zoho CRM, Monday CRM, and Customermates. A spreadsheet or standalone contact list does not qualify as a CRM database because it lacks relational structure and interaction history.
+<FaqItem question="What are the four types of CRM?">
+The usual split is operational (running sales, service and marketing work), analytical (reporting on customer data), collaborative (sharing customer information across teams) and strategic (organizing the business around long-term customer relationships). All four use the same CRM database; they differ in what you do with it.
 </FaqItem>
 
-<FaqItem question="How do I build a CRM database?">
-Start by defining your data model (contacts, companies, deals, activities) and the relationships between them. Audit and clean your existing data, map it to your CRM fields, and import in batches. Verify each batch before importing the next. Establish naming conventions and data entry standards, then train your team. For most businesses, using a CRM like Customermates is faster and more reliable than building a custom database from scratch.
-</FaqItem>
-
-<FaqItem question="What data should I store in a CRM database?">
-Focus on five categories: identity data (name, email, phone), descriptive data (industry, company size, role), behavioral data (email opens, meetings, website visits), transactional data (deals, invoices, contract dates), and compliance data (consent status, legal basis). Only collect data your team will actually use. Empty fields create a false sense of completeness.
-</FaqItem>
-
-<FaqItem question="CRM database vs. spreadsheet: which is better?">
-Spreadsheets work for fewer than 200 contacts with simple processes. Beyond that, they break down: no relational data, no automation, no audit trail, no access control, and no interaction tracking. A CRM database links contacts to companies, deals to contacts, and activities to everything. It automates follow-ups, provides pipeline visibility, and scales with your team. See our [Google Sheets CRM guide](/blog/google-sheets-crm) for a detailed comparison.
-</FaqItem>
-
-<FaqItem question="How do I keep my CRM database clean?">
-Schedule monthly data hygiene sessions: merge duplicates, update key accounts, remove bounced contacts, archive stale deals, and review tags. Automate what you can: use n8n workflows to flag incomplete records, validate email formats, and alert owners about inactive contacts. Assign data ownership so every record has someone responsible for its accuracy.
-</FaqItem>
-
-<FaqItem question="Is a CRM database GDPR-compliant?">
-A CRM database can be GDPR-compliant if the system supports the necessary features: lawful basis tracking, data minimization, right to erasure, data portability, and audit logging. The hosting location and subprocessors matter too. In the Customermates cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Customermates is open source, can be self-hosted, and includes audit logging and role-based access control; whether your use is GDPR-compliant depends on how you, as controller, use it.
+<FaqItem question="How do I store data that doesn't fit contacts, companies or deals?">
+If it describes an existing record, add a typed custom field. If it is something you sell, use the product or service catalogue. If it is only read, use notes. If it has its own lifecycle and relations, you need custom objects, which HubSpot offers on Enterprise and Salesforce on its platform; Customermates has five fixed record types.
 </FaqItem>
 
 <FaqItem question="How much does a CRM database cost?">
-CRM database costs range from free (with significant limitations) to over $300/user/month for enterprise platforms like Salesforce. Most small and mid-sized businesses pay between $10 and $50 per user per month. Customermates costs from [[commercial.price.starter.monthly]]/user/month for the full core CRM, no add-ons needed for the basics. Self-hosting the open-source core has no licence cost. [Full CRM cost comparison](/blog/crm-cost)
+A spreadsheet or a self-hosted open-source CRM has no licence fee, but you pay in setup and maintenance time. Cloud CRMs mostly charge per user and month. In Customermates Cloud that is [[commercial.price.starter.monthly]] per user on Starter and [[commercial.price.pro.monthly]] on Pro with the unified inbox; see [pricing](/pricing).
 </FaqItem>
 </Faq>
 
-## Conclusion
-
-Your CRM database is not just a list of names and email addresses. It is the operational foundation of your customer relationships, your sales forecasts, and your strategic decisions. Build it with a clear data model, maintain it with regular hygiene, secure it with proper access controls, and host it where you know the data location and the subprocessors.
-
-The choice between building a custom database and using a dedicated CRM is straightforward for most businesses: a CRM gives you the data model, automation, reporting, and compliance features that would take months to build from scratch.
-
-Customermates gives you a flexible CRM database with custom fields across ten field types, powerful segmentation, data quality work via n8n (run separately) and AI agents (native MCP), full self-hosting control, and a cloud database in the AWS Frankfurt region with a DPA, from [[commercial.price.starter.monthly]] per user per month. [See pricing](/pricing)
+Vendor details checked on 8 October 2026 against [HubSpot's object documentation](https://knowledge.hubspot.com/records/understand-objects), [Salesforce Trailhead on standard and custom objects](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) and [Pipedrive's data organization article](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized).

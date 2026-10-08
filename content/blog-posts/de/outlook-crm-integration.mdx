@@ -1,432 +1,165 @@
 ---
-title: "Outlook CRM Integration: 8 CRMs für Microsoft 365"
-description: "Die besten CRMs mit Outlook-Integration: Customermates, HubSpot, Dynamics 365, Salesflare u. a. im Vergleich für Microsoft 365."
+title: "Outlook CRM: Add-in, Synchronisierung oder CRM-Posteingang"
+description: "So verbinden Sie Outlook mit einem CRM: Add-in in Outlook, serverseitige E-Mail-Synchronisierung oder Outlook-Mails im CRM. HubSpot, Dynamics 365, Pipedrive."
+
+relatedHrefs:
+  - /features/outlook-integration
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /blog/gmail-crm-integration
 
 hero:
-  title: "Outlook CRM Integration: Die 8 besten CRMs, die direkt in Ihrem Posteingang funktionieren"
-  description: Schluss mit dem Wechsel zwischen Outlook und CRM. Vergleichen Sie die besten Integrationen und finden Sie die passende Lösung für Ihr Team.
+  title: "Outlook und CRM verbinden: drei Wege der Integration und welcher zu Ihrem Team passt"
+  description: "Was ein Outlook-Add-in leistet und was die serverseitige Synchronisierung, was HubSpot, Microsoft Dynamics 365, Salesforce und Pipedrive für Outlook anbieten, warum das neue Outlook für Windows wichtig ist und wie Sie eine Integration vor dem Einsatz prüfen."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2025-12-18
+  updated: 2026-10-08
   tags:
     - Outlook CRM Integration
     - Microsoft 365 CRM
     - CRM-Vergleich
 ---
 
-# Outlook CRM Integration: Die 8 besten CRMs, die direkt in Ihrem Posteingang funktionieren
+# Outlook mit dem CRM verbinden: Add-in, serverseitige Synchronisierung oder eigener Posteingang
 
-Schluss mit dem Wechsel zwischen Outlook und CRM. Vergleichen Sie die besten Integrationen und finden Sie die passende Lösung für Ihr Team.
+Eine Outlook-CRM-Integration erledigt eine von zwei Aufgaben, gute Integrationen erledigen beide. Sie zeigt in Outlook neben der geöffneten E-Mail den passenden Kontakt und seine Deals. Und sie überträgt E-Mails und Termine aus Ihrem Microsoft-365-Postfach an den richtigen Kontakt im CRM. Die erste Aufgabe übernimmt ein Outlook-Add-in, die zweite läuft auf den Servern des CRM-Anbieters, ob Outlook geöffnet ist oder nicht.
 
-Ihr Vertriebsteam arbeitet bereits in Outlook. E-Mails, Kalendereinladungen, Besprechungsnotizen, alles findet in Microsoft 365 statt. Das Problem? Jedes Mal, wenn ein Mitarbeiter in einen separaten CRM-Tab wechselt, geht Kontext verloren, Dateneingaben werden übersprungen und Follow-ups geraten in Vergessenheit.
+Entscheidend ist also, wo Ihr Team arbeiten will. Wer Outlook beim Arbeiten kaum verlässt, braucht ein CRM mit gutem Add-in und serverseitiger Synchronisierung. Wer E-Mails lieber direkt am Deal beantwortet, neben LinkedIn- oder WhatsApp-Nachrichten, braucht ein CRM, das das Postfach selbst einbindet. Eine technische Prüfung betrifft alle: Das neue Outlook für Windows führt nur Web-Add-ins aus. Ältere COM- oder VSTO-Plug-ins funktionieren dort nicht mehr.
 
-Eine Outlook CRM Integration löst dieses Problem, indem Kundendaten in den Posteingang gebracht werden, oder der Posteingang ins CRM. Einige CRMs bieten native Outlook-Add-Ins mit Sidebar. Andere, wie Customermates, ziehen Ihre Outlook-Mails in einen [nativen einheitlichen Posteingang](/features/unified-inbox) im CRM (neben LinkedIn, WhatsApp, Instagram und Telegram) und lassen sich für Automatisierung mit Ihren eigenen [n8n-Workflows](/features/workflow-automation) verbinden. Was genau synchronisiert wird, zeigt die Seite zur [Outlook-Integration von Customermates](/features/outlook-integration).
+Dieser Leitfaden stammt von Customermates. Customermates, ein KI-CRM, geht den dritten Weg: Es hat kein Outlook-Add-in und holt Outlook-Mails stattdessen in den eigenen Posteingang. Die Angaben zu anderen Anbietern haben wir am 8. Oktober 2026 auf deren eigenen Seiten geprüft, die Links stehen am Ende.
 
-Dieser Leitfaden vergleicht 8 CRM-Systeme, die sich mit Microsoft Outlook integrieren lassen, erklärt die verschiedenen Integrationsansätze und hilft Ihnen bei der Auswahl der richtigen Lösung. Wenn Ihr Team mit Google Workspace arbeitet, lesen Sie den Leitfaden zur [Gmail CRM-Integration](/blog/gmail-crm-integration).
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Add-in">Ein Bereich in Outlook, um Datensätze nachzuschlagen, eine E-Mail zu protokollieren oder einen Kontakt anzulegen. Sinnvoll, wenn das Team Outlook nie verlässt.</SummaryItem>
+  <SummaryItem label="Serverseitige Synchronisierung">E-Mails und Termine landen im Hintergrund im CRM. Nur so bleiben Kontakte vollständig, auch wenn niemand auf „Protokollieren“ klickt.</SummaryItem>
+  <SummaryItem label="Postfach im CRM">Sie lesen und beantworten Outlook-Mails im CRM. Es gibt kein Add-in zu installieren oder zu pflegen, dafür arbeiten Sie an einem anderen Ort.</SummaryItem>
+  <SummaryItem label="Neues Outlook">Microsoft unterstützt COM- und VSTO-Add-ins im neuen Outlook für Windows nicht. Fragen Sie jeden Anbieter, ob sein Add-in ein Web-Add-in ist.</SummaryItem>
+  <SummaryItem label="Kontakte und Kalender">Ob Kontakte und Kalender in beide Richtungen synchronisiert werden, unterscheidet sich zwischen CRMs stärker als das Protokollieren von E-Mails.</SummaryItem>
+</ArticleSummary>
 
-## Was bedeutet "Outlook CRM Integration" konkret?
+## Drei Arten, Outlook und CRM zu verbinden
 
-Bevor wir Tools vergleichen, ist es hilfreich zu verstehen, wie eine Integration in der Praxis aussehen kann.
+| Art | Was sie leistet | Wo Sie arbeiten | Vor dem Kauf prüfen |
+|---|---|---|---|
+| Add-in in Outlook | Zeigt neben einer E-Mail den passenden Kontakt, Deals und Verlauf; protokolliert E-Mail oder Termin per Klick im CRM | Outlook | Läuft es in allen Ihren Outlook-Versionen (klassisch und neu unter Windows, Mac, Web, mobil)? Unterstützt es freigegebene Postfächer, falls Sie welche nutzen? |
+| Serverseitige Synchronisierung | Verbindet das Postfach über Exchange oder Microsoft 365 mit dem CRM und überträgt gesendete und empfangene Mails, oft auch Termine | Outlook, das CRM füllt sich nebenbei | Welche Ordner werden synchronisiert, wie schnell, was passiert mit privaten Mails, laufen Kontakte und Kalender in beide Richtungen? |
+| Postfach im CRM | Importiert das Postfach in den Posteingang des CRM, wo Sie lesen, antworten und ablegen | Im CRM | Können Sie Outlook parallel weiter nutzen? Werden Antworten von Ihrer eigenen Adresse versendet? Was passiert mit dem Kalender? |
 
-### Outlook Add-In / Sidebar
+Die meisten CRMs in der folgenden Tabelle kombinieren die ersten beiden: ein Add-in zum Nachschlagen und die Synchronisierung für vollständige Daten. Die dritte Art passt zu Teams, deren Kundengespräche über E-Mail und Messenger verteilt sind, weil das CRM dann alles in einer Liste zeigt.
 
-Der häufigste Ansatz. Ein CRM-Panel erscheint innerhalb von Outlook (meist auf der rechten Seite), sodass Vertriebsmitarbeiter Kontaktdetails einsehen, E-Mails protokollieren, Deals erstellen und Notizen hinzufügen können, ohne den Posteingang zu verlassen. HubSpot, Dynamics 365 und Salesflare bieten diese Variante an.
+## Was die gängigen CRMs für Outlook bieten
 
-### Hintergrund-Synchronisation von E-Mails und Kalender
+| CRM | In Outlook | Synchronisierung ins CRM | Gut zu wissen |
+|---|---|---|---|
+| HubSpot | Add-in „HubSpot Sales Office 365“, um E-Mails zu verfolgen und zu protokollieren und HubSpot-Vertriebstools im Posteingang zu nutzen | Für das Add-in muss Ihr Postfach mit HubSpot verbunden sein | HubSpot nennt das Add-in für alle Produkte und Tarife. Der Hilfeartikel listet das klassische und neue Outlook für Windows, das klassische und neue Outlook für Mac sowie Outlook im Web |
+| Microsoft Dynamics 365 Sales | Dynamics 365 App für Outlook auf Desktop, Web und Mobilgerät: E-Mails, Besprechungen und Termine mit Firma, Verkaufschance oder Fall verknüpfen | Die serverseitige Synchronisierung läuft etwa alle 15 Minuten im Hintergrund; Kontakte lassen sich zwischen Exchange und Dynamics 365 synchronisieren | Nicht unterstützt für freigegebene Postfächer in Microsoft 365. Sales Professional steht auf der US-Preisseite mit 65 US-Dollar pro Nutzer und Monat bei jährlicher Zahlung |
+| Salesforce | Die Outlook-Integration, ein Seitenbereich in Outlook | Einstein Activity Capture für E-Mails und Termine | Salesforce for Outlook, das ältere Desktop-Produkt, wird eingestellt; Salesforce empfiehlt stattdessen die Outlook-Integration und Einstein Activity Capture |
+| Pipedrive | Pipedrive for Outlook, eine Marketplace-App von Baymats AB für Desktop und Web; 7 Tage kostenlos, danach ein eigenes Abo | E-Mail-Synchronisierung ab Growth mit Office 365 / Outlook, Exchange (EWS) und IMAP; verknüpft Konversationen mit Deals, Leads oder Projekten | Die E-Mail-Synchronisierung meldet auch Öffnungen. Das Add-in ist ein Drittanbieterprodukt |
+| Customermates | Kein Add-in | Outlook-Postfach im Posteingang des CRM ab Pro in Customermates Cloud; Kalender nur lesend | Keine Synchronisierung der Outlook-Kontakte, keine Termine schreiben. Details unten |
 
-Das CRM synchronisiert E-Mails und Kalendertermine automatisch mit dem korrekten Kontaktdatensatz. Keine manuelle Protokollierung erforderlich. Dies läuft serverseitig, funktioniert also auch, wenn das Add-In nicht geöffnet ist.
+Preise ändern sich; den Preis für Dynamics 365 haben wir am 8. Oktober 2026 auf [Microsofts Preisseite](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing) geprüft.
 
-### Workflow-Automatisierung über n8n
+## Die Prüfung für das neue Outlook für Windows
 
-Ein flexiblerer Ansatz. Anstatt auf ein eingebautes Add-In zu setzen, verbinden Sie Outlook und CRM über [n8n](https://n8n.io/)-Workflows mit der Microsoft Graph API. So lassen sich Aktionen automatisieren: Deal-Statusänderungen lösen Outlook-E-Mails aus, neue Kontakte werden bidirektional synchronisiert oder Kalendertermine erzeugen CRM-Aktivitäten. Customermates kombiniert den Postfach-Sync im Posteingang mit diesem Modell: Eigene n8n-Workflows docken über Webhooks und die REST API an. Die Kalenderansicht in Customermates ist nur lesend; sie kann keine Termine anlegen, ändern oder planen.
+Microsofts Entwicklerdokumentation ist eindeutig: VSTO- und COM-Add-ins werden im neuen Outlook für Windows nicht unterstützt, Anbieter müssen auf ein Outlook-Web-Add-in umstellen. Das klassische Outlook für Windows führt sie weiterhin aus. Wechselt jemand zum neuen Client, installiert Outlook vorhandene Web-Gegenstücke bisheriger COM-Add-ins.
 
-### Native Microsoft-Ökosystem-Integration
+Zwei Details auf derselben Seite sind für die CRM-Auswahl wichtig. CRM- und Tracking-Dienste nennt Microsoft als unterstütztes Szenario für Web-Add-ins. Die bidirektionale Synchronisierung von E-Mail-Elementen gilt dagegen nur als teilweise unterstützt. Außerdem braucht der neue Client derzeit ein Geschäfts- oder Schulkonto von Microsoft 365 mit Exchange Online; lokale, hybride und souveräne Exchange-Konten werden noch nicht unterstützt.
 
-Microsoft Dynamics 365 stammt von Microsoft selbst und integriert sich daher nativ in Outlook, Teams, SharePoint und die gesamte Microsoft 365-Suite, ohne Drittanbieter-Konnektoren.
+Praktisch heißt das: Wenn Ihr Team auf das neue Outlook umsteigt, fragen Sie jeden Anbieter nach einem Web-Add-in und testen Sie es im neuen Client vor der Umstellung. Serverseitige Synchronisierung und ein Postfach im CRM hängen gar nicht vom Outlook-Client ab.
 
-## Kernfunktionen einer Outlook CRM Integration
+## Welcher Weg passt
 
-Nicht jede Integration ist gleich. Hier sind die 10 Funktionen, die bei der Wahl eines CRMs für Outlook am wichtigsten sind:
+| Ihre Situation | Darauf achten |
+|---|---|
+| Das Team arbeitet den ganzen Tag in Outlook und will kein zweites Fenster | Ein Add-in, das in allen Ihren Outlook-Versionen läuft, plus serverseitige Synchronisierung |
+| Sie nutzen Microsoft 365 mit eigener IT, Teams und Dataverse | Dynamics 365 Sales; das ist Microsofts eigenes CRM, und seine App für Outlook baut auf der serverseitigen Synchronisierung auf |
+| Outlook-Kontakte und CRM-Kontakte sollen identisch bleiben | Ein CRM mit Kontaktsynchronisierung in beide Richtungen, vorher mit Ihrem Adressbuch getestet |
+| Die meisten Kundengespräche laufen per E-Mail und über LinkedIn oder WhatsApp | Ein CRM, das das Postfach zusammen mit diesen Kanälen in einen Posteingang holt |
+| Ein Teampostfach wie vertrieb@ soll für mehrere Personen sichtbar sein | Unterstützung freigegebener Postfächer ausdrücklich prüfen; die Dynamics 365 App für Outlook etwa unterstützt freigegebene Postfächer in Microsoft 365 nicht |
+| Sie steigen auf das neue Outlook für Windows um | Nur Web-Add-ins, oder ein Weg, der kein Add-in braucht |
 
-1. **Sidebar / Add-In in Outlook:** CRM-Daten anzeigen und bearbeiten, ohne die App zu wechseln
-2. **Automatische E-Mail-Protokollierung:** E-Mails werden mit CRM-Kontaktdatensätzen synchronisiert
-3. **Kalender-Synchronisation:** Meetings und Termine erscheinen in der CRM-Timeline
-4. **Automatische Kontakterstellung:** Neue E-Mail-Kontakte werden automatisch ins CRM übernommen
-5. **E-Mail-Vorlagen:** Vorgefertigte Templates direkt aus Outlook versenden
-6. **E-Mail-Tracking (Öffnungen und Klicks):** Erfahren Sie, wann Interessenten reagieren
-7. **Deal-/Pipeline-Management aus dem Posteingang:** Deals direkt in Outlook erstellen und aktualisieren
-8. **Automatisierte Workflows:** Aktionen basierend auf CRM-Events auslösen (z. B. Follow-up senden)
-9. **Bidirektionale Kontakt-Synchronisation:** Änderungen in CRM oder Outlook bleiben synchron
-10. **Mobile Outlook-Unterstützung:** Integration funktioniert in Outlook-Mobile-Apps
+## So funktioniert Outlook in Customermates
 
-## Die 8 besten CRMs für Outlook Integration (2026 Ranking)
+Customermates geht den dritten Weg. Ab Pro in Customermates Cloud speist ein verbundenes Outlook-Konto den [einheitlichen CRM-Posteingang](/features/unified-inbox), neben LinkedIn, WhatsApp, Instagram und Telegram. Outlook können Sie weiter nutzen, wann Sie wollen; was Sie dort senden, erscheint trotzdem in der Konversation im CRM. Was genau synchronisiert wird, steht auf der Seite zur [Outlook-Integration](/features/outlook-integration).
 
-### 1. Customermates: Beste Wahl für KMU mit Automatisierungsfokus
+<Steps>
+  <Step title="Konto verbinden">Öffnen Sie **Mein Profil › Kanäle**, klicken Sie auf **Kanal verbinden** und wählen Sie **Outlook**. Sie melden sich auf einer gesicherten Verbindungsseite an, danach wird der Verlauf im Hintergrund importiert. Die Karte zeigt, ob E-Mail, Kalender oder beides verbunden ist.</Step>
+  <Step title="Ordner auswählen">Der Reiter **Ordner** des Kontos hat einen Schalter pro Ordner. Standardmäßig ist jeder Ordner aktiv außer Papierkorb, Junk oder Spam, Entwürfe und der Ordner mit allen Mails. Schalten Sie Ordner mit privater Post ab.</Step>
+  <Step title="Personen mit Kontakten verknüpfen">Öffnen Sie in einer Konversation die **Konversationseinstellungen** und klicken Sie neben einem Teilnehmer auf **Verknüpfen**, oder legen Sie den Kontakt dort neu an. Die Adresse wird dem Kontakt hinzugefügt, sodass jede Konversation mit ihr in seiner Zeitleiste erscheint.</Step>
+  <Step title="Signatur einrichten">Aktivieren Sie im Reiter **E-Mail** des Kontos **Signatur hinzufügen**. Sie wird an jede E-Mail angehängt, die von diesem Konto ausgeht, ob aus dem Posteingang, über die REST-API oder über MCP.</Step>
+  <Step title="Sichtbarkeit festlegen">Ein neues Konto ist privat. Mit Pro teilen Sie einzelne Konversationen; mit Business können Sie das ganze Konto teilen, zum Beispiel ein vertrieb@-Postfach, für alle, deren Rolle den Posteingang lesen darf.</Step>
+</Steps>
 
-**Preis:** [[commercial.price.pro.monthly]]/Nutzer/Monat (Pro-Stufe mit einheitlichem Posteingang; Kern-CRM ab [[commercial.price.starter.monthly]])
+Was danach synchronisiert wird und was nicht:
 
-**Integrationsansatz:** Nativer einheitlicher Posteingang (Outlook-Mails im CRM, Customermates Cloud ab Pro) plus Workflows in Ihrer separat betriebenen n8n-Instanz über die Microsoft Graph API
+| Outlook-Element | In Customermates |
+|---|---|
+| Gesendete und empfangene E-Mails | Ja, aus den aktivierten Ordnern. Antworten werden über das Outlook-Konto selbst versendet |
+| E-Mail in einen Ordner verschieben | Ja, bei Outlook- und IMAP-Konten auch im echten Postfach |
+| Kalendertermine | Nur lesend. Termine erscheinen in der Aktivitäten-Zeitleiste; Customermates legt keine Termine an, ändert oder bucht keine |
+| Outlook-Kontakte (Adressbuch) | Keine Synchronisierung, in keine Richtung. Kontakte entstehen durch Verknüpfen eines Teilnehmers oder im CRM |
+| Outlook-Aufgaben | Keine Synchronisierung |
 
-Customermates synchronisiert Ihr Outlook-Postfach in einen nativen einheitlichen Posteingang im CRM, neben LinkedIn, WhatsApp, Instagram und Telegram. Sobald Sie die Teilnehmer einer Konversation mit Kontakten verknüpft haben, erscheint jede Nachricht auf der Timeline des Kontakts. KI-Agenten können über jeden Kanal lesen und Antworten entwerfen; der Assistent Mate sendet erst nach Ihrer Bestätigung. Es gibt keine klassische Outlook-Sidebar; Sie arbeiten stattdessen aus dem CRM-Posteingang. Für tiefergehende Automatisierung verbinden Sie Ihre eigene n8n-Instanz über die Microsoft Graph API, um etwa E-Mails oder Deal-Updates aus CRM-Ereignissen auszulösen. Eine Kontakt-Synchronisation mit Outlook und E-Mail-Sequenzen bietet Customermates nicht.
+Berechtigungen, Entwürfe und Filter beschreibt die [Anleitung zum Posteingang](/docs/app-inbox) im Detail.
 
-**So funktioniert die Outlook-Integration:**
+### Nachfassen mit Mate oder Ihrem eigenen KI-Client
 
-1. Customermates sendet Webhooks an Ihre n8n-Instanz, wenn sich Deals, Kontakte oder Aktivitäten ändern
-2. n8n verarbeitet die Daten und interagiert mit Outlook über die Microsoft Graph API
-3. E-Mails werden von Ihrem echten Outlook-Konto gesendet (mit Ihrer Signatur und Ihrem Branding)
-4. Antworten landen im einheitlichen Posteingang, und Kalender des verbundenen Kontos werden in Customermates eingelesen; der Kalender ist nur lesend, n8n kann also keine Termine in Customermates zurückschreiben
+In Customermates Cloud fasst Mate eine Konversation zusammen oder entwirft eine Antwort und nutzt dafür gehostete KI-Credits. Eine Routine führt eine gespeicherte Anweisung aus, wenn etwas passiert. Für Outlook-Mails legen Sie eine Routine mit dem Auslöser **Wenn sich etwas ändert** an, wählen das Ereignis **E-Mail empfangen** und schreiben Anweisungen wie diese:
 
-**Was Sie automatisieren können:**
+> Bei jeder eingehenden E-Mail von einem Kontakt mit einem offenen Deal, bei dem ich zugewiesen bin: Konversation und Deal lesen. In der Konversation einen Antwortentwurf speichern, der die offene Frage beantwortet. Nichts senden. Fragt die E-Mail nach einem Termin, das im Entwurf vermerken, statt Zeiten vorzuschlagen.
 
-- Deal gewonnen → Bestätigungs-E-Mail wird via Outlook gesendet
-- Neuer Kontakt erstellt → Ihre eigene n8n-Instanz startet eine Willkommensserie über einen externen E-Mail-Dienst; Customermates selbst führt keine Sequenzen aus
-- Meeting gebucht → ein externer Workflow legt den Termin in Outlook an; Customermates zeigt verbundene Termine nur lesend an
-- Keine Antwort nach 3 Tagen → Ihr n8n-Workflow löst eine Follow-up-E-Mail aus
+Der Satz „Nichts senden“ ist wichtig. Eine Routine läuft im Namen ihres Besitzers mit dessen Kanälen, und Mate versendet E-Mails ohne weitere Rückfrage, wenn eine Anweisung das verlangt. Die aktuellen Grenzen stehen unter [Routinen](/docs/app-routines). Wenn Sie lieber Ihren eigenen KI-Client wie Claude oder ChatGPT nutzen, liest er Konversationen und speichert Entwürfe über MCP, mit Ihrem eigenen KI-Anbieter statt gehosteter Credits.
 
-**Zentrale Stärken:**
+### Was es kostet
 
-- Nativer einheitlicher Posteingang: Outlook-Mails plus LinkedIn, WhatsApp, Instagram und Telegram an einem Ort, von KI-Agenten bedienbar
-- Webhooks, REST API und ein n8n-Community-Node für Ihre separat betriebene n8n-Instanz
-- Volle Kontrolle über Automatisierungslogik (kein Vendor Lock-in)
-- Open Source; in der Cloud liegt die Datenbank in der AWS-Region Frankfurt, Unterauftragsverarbeiter sind offengelegt (der Posteingang läuft nur in der Cloud, nicht in selbst gehosteten Installationen)
-- Mit [[commercial.price.pro.monthly]]/Nutzer/Monat deutlich günstiger als die meisten Alternativen
-- Funktioniert mit Microsoft 365 Business und Enterprise
+Ein Team mit fünf Personen zahlt mit Pro [[commercial.price.pro.monthly.seats.5]] im Monat. Jede Person bekommt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto, genug für ein Outlook-Postfach pro Person. Ein ganzes Teampostfach zu teilen erfordert Business, für dieselben fünf Personen [[commercial.price.business.monthly.seats.5]] im Monat mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Person. Starter für [[commercial.price.starter.monthly]] pro Person hat keinen Posteingang und keine Outlook-Anbindung. Die monatlichen gehosteten KI-Credits pro aktivem Nutzer stehen unter [Preise](/pricing).
 
-**Einschränkung:** Kein Outlook-Sidebar-Add-In. Sie arbeiten aus dem eigenen einheitlichen Posteingang des CRM statt in Outlook.
+<AcquisitionCallout title="Wann Customermates nicht passt" variant="boundary">
+Es gibt kein Outlook-Add-in, CRM-Daten schlagen Sie also in Customermates nach, nicht in einem Seitenbereich in Outlook. Outlook-Kontakte und -Aufgaben werden nicht synchronisiert, Kalendertermine sind nur lesbar. Serienmails oder Massenversand bietet Customermates nicht. Eine selbst gehostete Installation hat weder Posteingang noch Outlook-Anbindung, sondern REST, Webhooks und MCP. Wenn Ihr Team in Outlook bleiben muss oder die Kontakte mit dem Exchange-Adressbuch in beide Richtungen abgleichen will, wählen Sie ein CRM mit Web-Add-in und serverseitiger Synchronisierung aus der Tabelle oben.
+</AcquisitionCallout>
 
-**Ideal für:** Kleine und mittelständische Unternehmen, die tiefgreifende Outlook-Automatisierung ohne Enterprise-Preise wollen.
+## Jede Outlook-Integration vor dem Einsatz testen
 
-### 2. Microsoft Dynamics 365 Sales: Beste native Microsoft-Integration
+1. Senden Sie aus Outlook eine E-Mail an einen bekannten Kontakt. Sie sollte innerhalb der vom Anbieter genannten Zeit beim Kontakt erscheinen.
+2. Antworten Sie vom Smartphone. Die Antwort sollte in derselben Konversation landen und keinen neuen Kontakt erzeugen.
+3. Schreiben Sie jemandem, der nicht im CRM ist. Legt das CRM selbst einen Kontakt an, fragt es nach oder ignoriert es die Mail, und was davon wollen Sie?
+4. Legen Sie eine private Mail in einen ausgeschlossenen Ordner. Sie darf im CRM nicht auftauchen.
+5. Erstellen Sie in Outlook einen Termin mit einem Kunden. Wo erscheint er, und ändert eine Bearbeitung im CRM den Termin in Outlook?
+6. Öffnen Sie das Add-in, falls es eines gibt, in jeder Outlook-Version Ihres Teams, auch im neuen Outlook für Windows.
 
-**Preis:** Ab 65 USD/Nutzer/Monat (Sales Professional)
+## Kann Outlook selbst ein CRM sein?
 
-**Integrationsansatz:** Natives Microsoft-Ökosystem
+Für eine Handvoll Kunden teilweise. Outlook hat Kontakte, Kategorien, Aufgaben und einen Kalender, und ein Ordner pro Kunde trägt erstaunlich weit. Es fehlen aber Deals mit Phase und Wert, eine Liste offener Deals pro Person und ein Verlauf, den eine Kollegin lesen kann, wenn Sie nicht da sind. Microsofts CRM ist Dynamics 365 Sales, das separat zu Microsoft 365 lizenziert wird. Sobald Sie mehr als ein paar Deals gleichzeitig verfolgen, macht ein mit Outlook verbundenes CRM weniger Arbeit als Ordner und Kategorien.
 
-Dynamics 365 stammt von Microsoft, daher ist die Outlook-Integration so tief wie bei keinem anderen System. Die Dynamics 365 App für Outlook ermöglicht es, CRM-Datensätze einzusehen, E-Mails zu tracken, Kontakte zu erstellen und Aktivitäten zu verknüpfen, alles über eine Sidebar in Outlook.
-
-**Zentrale Stärken:**
-
-- Tiefste native Outlook-Integration auf dem Markt
-- Vollständige Teams-, SharePoint- und OneDrive-Anbindung
-- Enterprise-Grade Compliance und Sicherheit
-- KI-gestützte Vertriebseinblicke via Copilot
-
-**Einschränkungen:**
-
-- Teuer für kleine Teams
-- Komplexes Setup und Administration
-- Erhebliche Einarbeitungszeit
-- Überdimensioniert für Unternehmen mit weniger als 50 Nutzern
-
-**Ideal für:** Mittelständische bis große Organisationen, die bereits in das Microsoft-Ökosystem investiert haben.
-
-### 3. HubSpot CRM: Beste kostenlose Outlook-Integration
-
-**Preis:** Kostenloses CRM; Sales Hub ab 20 €/Platz/Monat (Starter, Stand September 2026)
-
-**Integrationsansatz:** Outlook Add-In + Hintergrund-Synchronisation
-
-HubSpot bietet ein solides Outlook-Add-In, das Kontaktdetails anzeigt, E-Mails protokolliert und die Nutzung von Templates und Sequenzen direkt aus Outlook ermöglicht. Das kostenlose CRM beinhaltet bereits eine grundlegende Outlook-Integration, das ist selten.
-
-**Zentrale Stärken:**
-
-- Kostenlose Stufe beinhaltet Outlook-Add-In
-- Übersichtliche Sidebar-UI mit Kontakt-Timeline
-- E-Mail-Tracking (Öffnungen, Klicks) inklusive
-- Gute Template- und Sequenz-Unterstützung
-
-**Einschränkungen:**
-
-- Erweiterte Funktionen erfordern kostenpflichtigen Sales Hub
-- E-Mail-Tracking kann unzuverlässig sein
-- Kostenlose Stufe bietet eingeschränkte Automatisierung
-- Wird bei Skalierung teuer (100+ USD/Nutzer/Monat für Enterprise)
-
-**Ideal für:** Startups und kleine Teams, die ein kostenloses CRM mit grundlegender Outlook-Integration suchen.
-
-### 4. Salesflare: Beste automatische Datenerfassung
-
-**Preis:** Ab 49 USD/Nutzer/Monat (jährlich)
-
-**Integrationsansatz:** Outlook Add-In + intelligente E-Mail-Analyse
-
-Salesflare zeichnet sich durch automatische Datenanreicherung aus. Es extrahiert Kontaktinformationen aus E-Mail-Signaturen, verfolgt E-Mail-Öffnungen, protokolliert Konversationen und bewertet sogar die Beziehungsstärke, alles innerhalb von Outlook.
-
-**Zentrale Stärken:**
-
-- Automatische Kontakterstellung aus E-Mail-Austausch
-- E-Mail-Signatur-Parsing zur Datenanreicherung
-- Beziehungsstärke-Scoring
-- Saubere, minimalistische Outlook-Sidebar
-
-**Einschränkungen:**
-
-- Höherer Preis als viele Mitbewerber
-- Kleineres Ökosystem und weniger Drittanbieter-Integrationen
-- Eingeschränkte Anpassungsmöglichkeiten für komplexe Vertriebsprozesse
-- Keine kostenlose Stufe
-
-**Ideal für:** Kleine B2B-Vertriebsteams, die möchten, dass sich das CRM automatisch befüllt.
-
-### 5. eWay-CRM: Bestes Outlook-natives CRM
-
-**Preis:** Ab 28 USD/Nutzer/Monat
-
-**Integrationsansatz:** Vollständig in Outlook eingebettet
-
-eWay-CRM ist einzigartig, da das gesamte CRM in Outlook lebt. Es gibt keine separate Web-App. Sie verwalten Kontakte, Deals, Projekte und E-Mails vollständig innerhalb der Outlook-Oberfläche.
-
-**Zentrale Stärken:**
-
-- Kein Kontextwechsel, alles findet in Outlook statt
-- Deals, Kontakte, Projekte und E-Mail-Tracking an einem Ort
-- Funktioniert offline (Daten synchronisieren bei Wiederverbindung)
-- Vertraute Microsoft-Oberfläche reduziert Einarbeitungszeit
-
-**Einschränkungen:**
-
-- Desktop-fokussiert (Web und Mobile sind sekundär)
-- Eingeschränkte moderne API für eigene Integrationen
-- UI wirkt im Vergleich zu Cloud-nativen CRMs veraltet
-- Abhängig vom Outlook Desktop-Client
-
-**Ideal für:** Teams, die eine Single-App-Erfahrung wollen und Outlook nie verlassen möchten.
-
-### 6. Nimble: Bestes CRM für Social Selling + Outlook
-
-**Preis:** 29,90 USD/Nutzer/Monat
-
-**Integrationsansatz:** Outlook Add-In + Social-Media-Anreicherung
-
-Nimble kombiniert CRM mit Social-Media-Intelligence. Das Outlook-Add-In zeigt Kontaktdetails an, die mit LinkedIn-, Twitter- und Unternehmensdaten angereichert sind. Besonders beliebt bei Solopreneuren und Beratern.
-
-**Zentrale Stärken:**
-
-- Social-Media-Profilanreicherung direkt in Outlook
-- Einfache, übersichtliche Oberfläche
-- Gutes Kontaktmanagement und Tagging
-- Erschwinglich für Einzelpersonen
-
-**Einschränkungen:**
-
-- Eingeschränktes Pipeline- und Deal-Management
-- Grundlegende Automatisierung im Vergleich zu größeren CRMs
-- Minimales Reporting
-- Nicht ideal für größere Vertriebsteams
-
-**Ideal für:** Berater, Freelancer und kleine Teams mit Fokus auf beziehungsbasiertem Vertrieb.
-
-### 7. Nutshell: Einfachste Bedienung
-
-**Preis:** Ab 13 USD/Nutzer/Monat
-
-**Integrationsansatz:** Outlook Add-In + E-Mail-Synchronisation
-
-Nutshell bietet eine unkomplizierte Outlook-Integration mit E-Mail-Protokollierung, Kontakt-Sync und einer einfachen Sidebar. Es ist für Teams konzipiert, die ein CRM wollen, das ohne aufwendige Konfiguration funktioniert.
-
-**Zentrale Stärken:**
-
-- Sehr einfach einzurichten und zu bedienen
-- Übersichtliche Outlook-Sidebar für E-Mail-Protokollierung
-- Integrierte E-Mail-Sequenzen
-- Wettbewerbsfähige Preisgestaltung
-
-**Einschränkungen:**
-
-- Weniger erweiterte Funktionen als größere Plattformen
-- Eingeschränkte Anpassungsmöglichkeiten
-- Kleinerer App-Marktplatz
-- Grundlegendes Reporting in niedrigeren Preisstufen
-
-**Ideal für:** Kleine Teams, die Einfachheit über Funktionstiefe stellen.
-
-### 8. Pipedrive: Beste visuelle Pipeline + Outlook
-
-**Preis:** Ab 14 USD/Nutzer/Monat (jährlich)
-
-**Integrationsansatz:** Outlook Add-In + E-Mail-Synchronisation
-
-Pipedrive ist bekannt für seine visuelle Vertriebs-Pipeline. Die Outlook-Integration ermöglicht E-Mail-Protokollierung, Kontakt-Synchronisation und Deal-Management über eine Sidebar in Outlook.
-
-**Zentrale Stärken:**
-
-- Hervorragendes visuelles Pipeline-Management
-- Gutes Outlook-Add-In mit Deal-Erstellung
-- Starke E-Mail-Tracking-Funktionen
-- Wettbewerbsfähige Preise für kleine Teams
-
-**Einschränkungen:**
-
-- Outlook-Add-In kann langsam laden
-- E-Mail-Synchronisation mit gelegentlichen Verzögerungen
-- Eingeschränkte Marketing-Automatisierung
-- Reporting erfordert höhere Preisstufen
-
-**Ideal für:** Vertriebsorientierte Teams, die eine starke visuelle Pipeline neben Outlook-Integration wollen.
-
-## Vergleichstabelle: Outlook CRM Integration Funktionen
-
-| Funktion                       | Customermates                                                                              | Dynamics 365 | HubSpot           | Salesflare    | eWay-CRM      | Nimble        | Nutshell | Pipedrive |
-| ------------------------------ | ------------------------------------------------------------------------------------------ | ------------ | ----------------- | ------------- | ------------- | ------------- | -------- | --------- |
-| Outlook Sidebar / Add-In       | Nativer Posteingang                                                                        | Nativ        | Add-In            | Add-In        | Eingebettet   | Add-In        | Add-In   | Add-In    |
-| Auto. E-Mail-Protokollierung   | Ja (nativ)                                                                                 | Ja           | Ja                | Ja            | Ja            | Ja            | Ja       | Ja        |
-| Kalender-Sync                  | Nur lesende Ansicht                                                                        | Nativ        | Ja                | Ja            | Ja            | Eingeschränkt | Ja       | Ja        |
-| Automatische Kontakterstellung | Per Klick aus einem E-Mail-Teilnehmer                                                      | Ja           | Kostenpflichtig   | Ja            | Ja            | Ja            | Nein     | Nein      |
-| E-Mail-Vorlagen aus Outlook    | Über eigenes n8n                                                                           | Ja           | Ja                | Ja            | Ja            | Eingeschränkt | Ja       | Ja        |
-| E-Mail-Tracking                | Nein                                                                                       | Ja           | Ja                | Ja            | Ja            | Ja            | Ja       | Ja        |
-| Automatisierte Workflows       | Über Webhooks und eigenes n8n                                                              | Ja           | Kostenpflichtig   | Eingeschränkt | Eingeschränkt | Nein          | Basis    | Basis     |
-| Bidirektionale Kontakt-Sync    | Nein                                                                                       | Ja           | Ja                | Ja            | Ja            | Ja            | Ja       | Ja        |
-| Selbst-hostbar                 | Ja (ohne Posteingang)                                                                      | Nein         | Nein              | Nein          | On-Prem       | Nein          | Nein     | Nein      |
-| Preis/Nutzer/Monat             | Ab [[commercial.price.starter.monthly]] (E-Mail auf Pro, [[commercial.price.pro.monthly]]) | 65+ USD      | Kostenlos/20+ €   | 49+ USD       | 28+ USD       | 29,90 USD     | 13+ USD  | 14+ €     |
-
-## So richten Sie die Outlook CRM Integration mit Customermates und n8n ein
-
-Wenn Sie den Automatisierungs-Ansatz wählen, verbinden Sie Customermates in wenigen Schritten mit Outlook.
-
-### Schritt 1: Microsoft 365-Authentifizierung konfigurieren
-
-1. Erstellen Sie eine Azure AD App Registration im [Azure Portal](https://portal.azure.com/)
-2. Generieren Sie Client ID und Client Secret
-3. Fügen Sie Microsoft Graph API-Berechtigungen hinzu: `Mail.Send`, `Mail.Read`, `Calendars.ReadWrite`
-4. Führen Sie den OAuth 2.0-Flow in n8n durch, um den Zugriff zu autorisieren
-
-**Profi-Tipp:** Verwenden Sie ein dediziertes Microsoft 365-Dienstkonto für die Automatisierung. Dies trennt automatisierte E-Mails von persönlicher Korrespondenz und vereinfacht das Monitoring.
-
-### Schritt 2: Customermates mit n8n verbinden
-
-Customermates bietet einen separaten n8n-Community-Node. Alternativ legen Sie in den Customermates-Einstellungen einen Webhook an, der auf die URL Ihres n8n-Workflows zeigt, und wählen die unterstützten Ereignisse für Deals und Kontakte.
-
-### Schritt 3: Ihren ersten Outlook-Workflow erstellen
-
-Beginnen Sie mit einer einfachen Follow-up-Automatisierung:
-
-1. **Trigger:** Customermates-Webhook wird ausgelöst, wenn ein Deal auf "Angebot versendet" wechselt
-2. **Warten:** n8n pausiert 72 Stunden
-3. **Prüfen:** Customermates-API abfragen, hat sich der Deal-Status geändert?
-4. **Senden:** Falls noch "Angebot versendet," Follow-up-E-Mail via Microsoft Graph API senden
-5. **Protokollieren:** Versandbestätigung per REST API als Notiz zurück in Customermates schreiben
-
-So bleibt kein Angebot unbeantwortet liegen, ohne dass jemand manuell nachhalten muss.
-
-### Schritt 4: E-Mail-Vorlagen in Ihrer eigenen n8n-Instanz
-
-Erstellen Sie Templates in n8n mit Platzhaltern, die Live-Daten aus Customermates beziehen:
-
-```
-Betreff: {{firstName}}, Nachfrage zu Ihrem {{productName}}-Angebot
-
-Guten Tag {{firstName}},
-
-ich wollte mich bezüglich des {{productName}}-Angebots erkundigen,
-das ich Ihnen am {{proposalDate}} für {{companyName}} gesendet habe.
-
-Hätten Sie diese Woche 15 Minuten Zeit, um offene Fragen zu besprechen?
-
-Mit freundlichen Grüßen
-{{senderName}}
-```
-
-Jede E-Mail wird von Ihrem echten Outlook-Konto mit Ihrer Signatur versendet, Empfänger merken nicht, dass sie automatisiert wurde.
-
-### Schritt 5: Mit erweiterten Automatisierungen skalieren
-
-Sobald der Basis-Flow funktioniert, fügen Sie weitere Workflows hinzu:
-
-- **Neue Lead-Benachrichtigung:** Outlook-E-Mail an den Vertriebsleiter bei Erstellung eines hochwertigen Leads
-- **Meeting-Vorbereitung:** n8n legt 24 Stunden vor einem Meeting einen Outlook-Termin mit CRM-Notizen an (in Customermates bleibt der Kalender nur lesend)
-- **Gewinn-/Verlust-Benachrichtigungen:** Team-Benachrichtigung via Outlook beim Abschluss von Deals
-- **Re-Engagement:** Kontakte ohne Aktivität seit 30 Tagen an einen externen E-Mail-Dienst übergeben
-
-## Kann man Outlook als CRM nutzen?
-
-Technisch ja, aber für die meisten Teams ist es keine gute Lösung.
-
-Outlook bietet Kontakte, Kategorien, Aufgaben und Kalender. Manche nutzen Ordner und Kategorien, um Deals nachzuverfolgen. Microsoft bietet in einigen Business-Plänen sogar den "Outlook Customer Manager" an.
-
-Die Realität: Outlook fehlen Pipeline-Management, Reporting, Automatisierung und Collaboration-Funktionen. Sobald Sie mehr als 20 aktive Deals haben, wird ein echtes CRM unverzichtbar.
-
-**Was funktioniert:** Outlook als Kommunikationsebene nutzen, während ein dediziertes CRM (über Integration verbunden) die Daten, Pipeline und Automatisierung übernimmt.
-
-## Microsoft Graph API vs. Outlook Add-In: Welcher Integrationsansatz ist besser?
-
-Es gibt zwei grundlegend verschiedene Wege, wie CRMs sich mit Outlook verbinden:
-
-### Der Add-In-Ansatz (HubSpot, Salesflare, Pipedrive)
-
-- Läuft als Panel innerhalb von Outlook
-- Gut zum Anzeigen und manuellen Protokollieren von Daten
-- Eingeschränkte Automatisierungsmöglichkeiten
-- Abhängig davon, dass der Outlook-Client geöffnet ist
-
-### Der API-/n8n-Ansatz (Customermates mit eigenem n8n)
-
-- Läuft serverseitig über die Microsoft Graph API
-- Funktioniert rund um die Uhr, unabhängig davon, ob Outlook geöffnet ist
-- Volle Automatisierung: triggerbasierte E-Mails, Synchronisationen und Workflows
-- Mehr initiales Setup erforderlich
-- Größere Flexibilität und Kontrolle
-
-**Fazit:** Wenn Ihr Team hauptsächlich CRM-Daten beim Lesen von E-Mails einsehen muss, funktioniert ein Add-In gut. Wenn Sie repetitive E-Mail-Aufgaben automatisieren und Workflows erstellen möchten, die ohne menschliches Eingreifen laufen, ist der API-Ansatz über n8n leistungsfähiger.
-
-## Datenschutz und DSGVO
-
-Für europäische Unternehmen ist Datenschutz bei der Verbindung von CRM und E-Mail nicht verhandelbar.
-
-**Wichtige Aspekte:**
-
-- **Auftragsverarbeitungsverträge:** Stellen Sie sicher, dass Ihr CRM-Anbieter einen AV-Vertrag für Microsoft 365-Daten hat
-- **E-Mail-Protokollierung und Einwilligung:** Protokollieren Sie nur E-Mails von Kontakten mit entsprechender Einwilligung
-- **Datenstandort:** Microsoft 365 bietet EU-Datacenter-Hosting; prüfen Sie, ob Ihr CRM ebenfalls
-- **Self-Hosting-Option:** n8n kann auf EU-Infrastruktur selbst gehostet werden für volle Datenkontrolle
-- **Verschlüsselung:** Microsoft 365 nutzt standardmäßig TLS; stellen Sie sicher, dass Ihr CRM diesem Standard entspricht
-
-Wer Customermates und n8n selbst hostet, bestimmt den Speicherort der CRM-Daten selbst; nur Versand und Empfang laufen über Microsofts Infrastruktur. Der einheitliche Posteingang steht selbst gehostet allerdings nicht zur Verfügung. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
-
-## Häufig gestellte Fragen
+## FAQ
 
 <Faq>
-<FaqItem question="Gibt es ein CRM, das sich mit Outlook integrieren lässt?">
-Ja, viele CRMs integrieren sich mit Outlook. Die beliebtesten Optionen sind HubSpot (kostenloses Add-In), Microsoft Dynamics 365 (native Integration), Salesflare (automatische Datenerfassung) und Customermates (Outlook-E-Mails im einheitlichen Posteingang des CRM, plus eigene n8n-Workflows). Die beste Wahl hängt davon ab, ob Sie eine einfache Sidebar, tiefe Microsoft-Ökosystem-Integration oder vollständige E-Mail-Automatisierung benötigen.
+<FaqItem question="Wie verbinde ich Outlook mit einem CRM?">
+Bei den meisten CRMs in zwei Schritten. Zuerst verbinden Sie Ihr Postfach in den Einstellungen des CRM, damit E-Mails auf dem Server synchronisiert werden. Dann installieren Sie das Add-in des Anbieters aus dem Add-in-Katalog von Outlook, oder Ihre Microsoft-365-Administration verteilt es für alle. In Customermates gibt es kein Add-in: Sie verbinden das Outlook-Konto ab Pro unter **Mein Profil › Kanäle**, und die Mails erscheinen im Posteingang des CRM.
 </FaqItem>
 
-<FaqItem question="Wie integriere ich ein CRM mit Outlook?">
-Die meisten CRMs bieten ein Outlook-Add-In, das Sie über den Microsoft AppSource-Marktplatz oder die Einstellungsseite des CRMs installieren. In Customermates verbinden Sie Ihr Outlook-Konto ab dem Tarif Pro unter **Mein Profil › Kanäle**, sodass seine E-Mails im einheitlichen Posteingang erscheinen und seine Kalendertermine nur lesend auf den CRM-Timelines. Für Automatisierung darüber hinaus, etwa Outlook-E-Mails bei einer Deal-Änderung, verbinden Sie Ihre eigene n8n-Instanz über die Microsoft Graph API.
+<FaqItem question="Ist Outlook ein CRM, und hat Microsoft ein CRM?">
+Outlook ist kein CRM. Es ist ein E-Mail- und Kalenderprogramm mit Kontakten und Aufgaben, aber ohne Deals, Phasen oder Pipeline. Microsofts CRM ist Dynamics 365 Sales, ein eigenes Abonnement; Sales Professional steht auf Microsofts US-Preisseite mit 65 US-Dollar pro Nutzer und Monat bei jährlicher Zahlung.
 </FaqItem>
 
-<FaqItem question="Kann man Outlook als CRM verwenden?">
-Sie können Outlooks Kontakte, Aufgaben und Kategorien für grundlegendes Kontaktmanagement nutzen, aber es fehlen Pipeline-Tracking, Vertriebsreporting, Automatisierung und Team-Collaboration-Funktionen. Für alles über eine Handvoll Kontakte hinaus ist ein dediziertes CRM mit Outlook-Integration weitaus effektiver.
+<FaqItem question="Funktionieren CRM-Add-ins im neuen Outlook für Windows?">
+Nur Web-Add-ins. Microsoft schreibt, dass COM- und VSTO-Add-ins im neuen Outlook für Windows nicht unterstützt werden, während das klassische Outlook sie weiter ausführt. Der neue Client braucht derzeit außerdem ein Geschäfts- oder Schulkonto von Microsoft 365 mit Exchange Online.
 </FaqItem>
 
-<FaqItem question="Wird die Salesforce Outlook-Integration eingestellt?">
-Microsoft hat das Salesforce Outlook-Add-In für das Legacy-COM-Add-In-Modell zurückgezogen. Salesforce bietet jetzt die "Salesforce for Outlook" Desktop-Anwendung und die neuere "Outlook Integration" über den Salesforce AppExchange an. Prüfen Sie die Salesforce-Dokumentation für den aktuellen Stand, da sich der Integrationsansatz mehrfach geändert hat.
+<FaqItem question="Wird Salesforce for Outlook eingestellt?">
+Ja. Salesforce stellt Salesforce for Outlook, das ältere Desktop-Produkt, ein und empfiehlt die Outlook-Integration (einen Seitenbereich in Outlook) sowie Einstein Activity Capture für die Synchronisierung von E-Mails und Terminen. Das für Ihre Salesforce-Organisation geltende Datum steht in den Release Notes von Salesforce.
 </FaqItem>
 
-<FaqItem question="Was ist das günstigste CRM mit Outlook-Integration?">
-HubSpot bietet ein kostenloses CRM mit grundlegender Outlook-Integration. Bei kostenpflichtigen Plänen gehören Customermates (Outlook-Posteingang auf Pro für [[commercial.price.pro.monthly]]/Nutzer/Monat) und Nutshell mit 13 USD/Nutzer/Monat zu den erschwinglichsten Optionen mit solider Outlook-Anbindung. Pipedrive startet bei 14 €/Nutzer/Monat (jährliche Zahlung).
+<FaqItem question="Lässt sich HubSpot mit Outlook verbinden, und ist das kostenlos?">
+Ja. Das Add-in „HubSpot Sales Office 365“ verfolgt und protokolliert E-Mails und bringt HubSpot-Vertriebstools in Outlook. HubSpot führt es für alle Produkte und Tarife auf, und der Hilfeartikel nennt keine eigene Gebühr für das Add-in. Ihr Postfach muss zuvor mit HubSpot verbunden sein.
 </FaqItem>
 
-<FaqItem question="Hat Microsoft 365 ein integriertes CRM?">
-Microsoft 365 enthält kein vollwertiges CRM. Microsoft Dynamics 365 ist ein separates Produkt mit eigener Lizenzierung. Einige Microsoft 365 Business-Pläne beinhalten grundlegende Kontaktmanagement-Funktionen, die jedoch nicht mit einem dedizierten CRM-System vergleichbar sind.
-</FaqItem>
-
-<FaqItem question="Was ist das beste CRM für kleine Unternehmen mit Outlook?">
-Für kleine Unternehmen hängt die beste Wahl von den Prioritäten ab. Customermates (ab [[commercial.price.starter.monthly]]/Nutzer/Monat; Outlook-Posteingang auf Pro für [[commercial.price.pro.monthly]]) bietet die flexibelste Automatisierung über Webhooks und eine eigene n8n-Instanz. HubSpot bietet eine solide kostenlose Stufe. Nutshell und Pipedrive sind erschwinglich und einfach zu bedienen. Wenn Sie das CRM vollständig in Outlook eingebettet benötigen, ist eWay-CRM eine Überlegung wert.
+<FaqItem question="Kann ich CRM-Kontakte mit Outlook synchronisieren?">
+Manche CRMs können das. Dynamics 365 etwa synchronisiert Kontakte zwischen Exchange und der App. Customermates tut es nicht: Es ordnet Konversationen über die E-Mail-Adresse Kontakten zu, und Sie verknüpfen oder legen Kontakte im CRM an.
 </FaqItem>
 </Faq>
 
-## Fazit: Das richtige Outlook CRM für Ihren Workflow
-
-Die beste Outlook CRM Integration hängt davon ab, wie Ihr Team arbeitet:
-
-- **Outlook im CRM plus eigene Automatisierung?** Customermates bringt Outlook ab [[commercial.price.pro.monthly]]/Nutzer/Monat (Pro) in den Posteingang, Ihre separat betriebene n8n-Instanz übernimmt die Workflows
-- **Voll auf Microsoft gesetzt?** Dynamics 365 bietet die tiefste native Integration
-- **Kostenlos starten?** HubSpot CRM beinhaltet ein grundlegendes Outlook-Add-In ohne Kosten
-- **Keine manuelle Dateneingabe?** Salesflare erfasst Kontakte und E-Mails automatisch
-- **Outlook nie verlassen?** eWay-CRM bettet das gesamte CRM in Outlook ein
-
-Beginnen Sie mit der Identifikation Ihres größten Schmerzpunktes: Ist es manuelle Dateneingabe? Vergessene Follow-ups? Fehlende Pipeline-Sichtbarkeit? Die Antwort wird Sie zum richtigen Integrationsansatz führen.
-
-Für viele kleine und mittelständische Teams ist die Kombination eines erschwinglichen CRMs wie Customermates mit einer separat betriebenen n8n-Instanz ein gutes Preis-Leistungs-Verhältnis: Outlook-E-Mails liegen im CRM, und Workflows bauen Sie genau so, wie Ihr Prozess es braucht.
+Angaben zu anderen Anbietern geprüft am 8. Oktober 2026: [HubSpot-Anleitung zum Office-365-Add-in](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in), Microsofts [Übersicht zur Dynamics 365 App für Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview), [Systemanforderungen der App für Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/support-info-deployment), [Preise für Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing) und [Add-ins im neuen Outlook für Windows](https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/one-outlook), Salesforces [Leitfaden zur Einstellung von Salesforce for Outlook](https://help.salesforce.com/s/articleView?id=sales.outlookcrm_sfo_move_retire_prepare.htm&language=en_US&type=5), Pipedrives [Artikel zur E-Mail-Synchronisierung](https://support.pipedrive.com/en/article/email-sync) und [Eintrag zu Pipedrive for Outlook](https://www.pipedrive.com/en/marketplace/app/pipedrive-for-outlook/594c78d1bdbacfbc).

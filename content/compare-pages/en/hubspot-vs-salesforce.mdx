@@ -1,17 +1,17 @@
 ---
-title: "HubSpot vs Salesforce: CRM Comparison 2026"
-description: "HubSpot vs Salesforce compared on pricing, features, and data protection. See which CRM fits your team and discover a smarter third option."
+title: "HubSpot vs Salesforce: Pricing, Plans and Fit Compared"
+description: "HubSpot vs Salesforce for small teams: plan prices, onboarding fees, AI add-ons and EU hosting from both vendors' own pages, and who should pick which."
 competitorName: HubSpot
 competitor2Name: Salesforce
 relatedHrefs:
   - /compare/hubspot-alternative
   - /compare/salesforce-alternative
   - /compare/hubspot-vs-pipedrive
-  - /compare/pipedrive-vs-salesforce
+  - /compare/monday-vs-salesforce
 
 hero:
-  title: "HubSpot vs Salesforce: There Is a Simpler Way"
-  description: Compare HubSpot, Salesforce, and Customermates to find the right CRM for your team.
+  title: "HubSpot vs Salesforce: Which CRM Fits a Small Team?"
+  description: "HubSpot is the easier start for small teams: free for two users and billed monthly up to Professional. Salesforce suits teams that want quoting and forecasting in the mid tier and an EU-only operating option. Prices and plans from both vendors' own pages, checked on 8 October 2026."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -20,111 +20,69 @@ hero:
 comparison:
   competitorName: HubSpot
   competitor2Name: Salesforce
-  title: HubSpot vs Salesforce vs Customermates
+  title: HubSpot vs Salesforce, with Customermates for reference
   sections:
-  - title: Pricing & Setup
+  - title: Plans and billing
     features:
-    - name: Start & Setup
-      source: Browser sign-up
-      competitor: days to weeks
-      competitor2: weeks to months
-    - name: Starting price
-      source: From [[commercial.price.starter.monthly]] / month / user
-      competitor: Free / €20 Starter
-      competitor2: $25 Starter Suite
-    - name: Mid-tier price
-      source: "[[commercial.price.pro.monthly]] / month / user (Pro)"
-      competitor: €90 / seat Professional (annual)
-      competitor2: $100 Pro Suite
-    - name: Enterprise price
-      source: "[[commercial.price.business.monthly]] / month / user (Business)"
-      competitor: From €150 / seat Enterprise
-      competitor2: $195 Core (billed annually)
-    - name: Free start
-      source: true
-      competitor: free tier
-      competitor2: Free Suite ($0) and trial
-    - name: Credit card required
-      source: false
-      competitor: 'no'
-      competitor2: 'no'
-    - name: Hidden costs (add-ons, consulting)
+    - name: Free plan
+      source: "No; [[commercial.trial.days]]-day trial"
+      competitor: Free for up to 2 users
+      competitor2: Free Suite ($0)
+    - name: Entry plan, per user / month
+      source: "Starter [[commercial.price.starter.monthly]]"
+      competitor: Starter $20 list price
+      competitor2: Starter Suite $25
+    - name: Mid tier, per user / month
+      source: "Pro [[commercial.price.pro.monthly]]"
+      competitor: Professional $90 with annual commitment, $100 monthly
+      competitor2: Pro Suite $100, billed annually
+    - name: Upper tiers, per user / month
+      source: "Business [[commercial.price.business.monthly]], Enterprise custom"
+      competitor: Enterprise $150
+      competitor2: Core $195, Advanced $395, Max $550, billed annually
+    - name: Required one-time onboarding
       source: None
-      competitor: high (Marketing Hub separate)
-      competitor2: very high (Marketing Cloud sold separately)
-    - name: Total cost 50 users/year (mid-tier)
-      source: ~[[commercial.price.pro.monthly.seats.50.months.12]]
-      competitor: ~€55,470 (first year, incl. onboarding)
-      competitor2: ~$60,000 (Pro Suite)
-  - title: Core features
+      competitor: $1,500 on Professional, $3,500 on Enterprise
+      competitor2: None listed on the pricing page
+    - name: Billing cadence
+      source: Monthly only
+      competitor: Starter and Professional monthly or annual
+      competitor2: Starter Suite monthly or annual; Pro Suite and up annual
+  - title: Sales and AI
     features:
-    - name: Unlimited records
+    - name: Contacts, companies and deal pipeline
       source: true
-      competitor: limited per plan
-      competitor2: limited per plan
-    - name: Unlimited custom fields
-      source: true
-      competitor: limited per plan
-      competitor2: limited per plan
-    - name: Deals & pipelines
-      source: true
-      competitor: 'yes'
-      competitor2: 'yes'
-    - name: Contacts & organizations
-      source: true
-      competitor: 'yes'
-      competitor2: 'yes'
-    - name: Tasks & services
-      source: true
-      competitor: 'yes'
-      competitor2: 'yes'
-    - name: Mobile optimization
-      source: true
-      competitor: 'yes'
-      competitor2: 'yes'
-    - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-      source: Pro+, AI can operate it
-      competitor: email and chat; WhatsApp add-on
-      competitor2: email; social via add-ons
-    - name: AI agents operate the CRM (native MCP)
-      source: "[[derived.mcp.tools.total]] MCP tools (Claude, ChatGPT, Gemini)"
-      competitor: Remote MCP server (all accounts); Breeze AI
-      competitor2: Hosted MCP servers (Enterprise+); Agentforce add-on
-  - title: Data protection & security
+      competitor: true
+      competitor2: true
+    - name: Forecasting
+      source: Weighted pipeline from stage probabilities, no prediction
+      competitor: Professional and Enterprise
+      competitor2: Pro Suite and up
+    - name: AI in the plan
+      source: Mate in Customermates Cloud, using hosted AI credits per active user
+      competitor: "HubSpot Credits: 500 on Starter, 3,000 on Professional, 5,000 on Enterprise"
+      competitor2: Agentforce for Sales add-on from $125 per user / month on Core and Advanced; included in Max
+    - name: MCP for external AI clients
+      source: "Every plan and self-hosted, [[derived.mcp.tools.total]] tools"
+      competitor: Remote MCP server that reads and writes CRM records
+      competitor2: MCP servers; Headless 360 server in open beta for Claude, ChatGPT, Cursor and others
+  - title: Data and hosting
     features:
-    - name: GDPR documentation
-      source: DPA + SCCs; no certification
-      competitor: See vendor DPA
-      competitor2: See vendor DPA
-    - name: Hosting
-      source: Cloud database in Frankfurt (AWS)
-      competitor: US or EU data centre
-      competitor2: Region depends on contract
+    - name: Where data is hosted
+      source: Database configured in the AWS Frankfurt region
+      competitor: AWS in the US, Canada, Australia or Germany; paid plans can switch
+      competitor2: Hyperforce; the EU Operating Zone keeps data in the EU and Switzerland
     - name: Self-hosting
-      source: true
-      competitor: 'no'
-      competitor2: 'no'
-  - title: Integration & automation
-    features:
-    - name: n8n integration
-      source: Community node (n8n operated separately)
-      competitor: 'yes'
-      competitor2: limited
-    - name: API access
-      source: Full, every plan
-      competitor: yes, but plan-dependent
-      competitor2: yes, but plan-dependent
-    - name: Automation
-      source: No builder; webhooks, REST, n8n
-      competitor: yes, but plan-dependent
-      competitor2: yes, but plan-dependent
-    - name: Open source
-      source: true
-      competitor: 'no'
-      competitor2: 'no'
+      source: AGPL-3.0 core with Docker Compose, without inbox and Mate
+      competitor: false
+      competitor2: false
+    - name: Open-source licence
+      source: AGPL-3.0 core
+      competitor: false
+      competitor2: false
 cta:
-  action: Ready to get started?
-  description: Get started with Customermates today and switch to an agentic Open-Source CRM built for flexible workflows.
+  action: Neither suite feels right for your team?
+  description: "Try Customermates for [[commercial.trial.days]] days with one exported list and your own mailbox. You will know quickly whether a smaller CRM covers the work."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -132,111 +90,142 @@ cta:
   hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> HubSpot and Salesforce dominate the CRM market, but both carry trade-offs that hit growing teams the hardest. Salesforce is the enterprise powerhouse: incredibly capable, incredibly complex, and incredibly expensive once add-ons and consulting fees accumulate. HubSpot starts free and friendly, then escalates fast, gating core sales tools behind the Professional plan at €90 per seat/month (billed annually) plus a one-time €1,470 onboarding fee. Customermates offers a modern alternative built on two ideas: AI agents (Claude, ChatGPT, Gemini) operate the CRM directly through a native MCP integration with [[derived.mcp.tools.total]] tools, so deal stages, follow-ups, and contact notes stay current on their own, and a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram in one place the same agents can work. Every core CRM feature is included from [[commercial.price.starter.monthly]]/user/month, open-source, and ready as soon as you sign up.
+> For most small teams, HubSpot is the easier choice. It is free for up to two users, Professional can be paid month by month, and marketing, service and content hubs can be added to the same account later. Salesforce makes more sense when you want sales quoting and forecasting in the mid tier, an EU-only operating option, or a path towards editions with Agentforce and sales planning. At five seats the mid tiers cost about the same in year one: $6,900 for HubSpot Professional including its required onboarding, $6,000 for Salesforce Pro Suite. Customermates publishes this comparison and sells its own CRM, which appears only in the labelled third-option section. Every HubSpot and Salesforce detail comes from the vendors' own pages, checked on 8 October 2026.
 
-## Which is better HubSpot or Salesforce?
+## Which one should you choose?
 
-There is no universal answer because they solve different problems. HubSpot wins on usability, marketing features, total cost of ownership, and time-to-value. Salesforce wins on enterprise customization, advanced reporting, field service capabilities, and ecosystem depth. For most organizations under 500 employees, HubSpot delivers superior value at lower cost. But both platforms force growing teams into expensive upgrades long before the features justify the price.
+| Your situation | Better fit | Why |
+|---|---|---|
+| One or two people who want to start at $0 | HubSpot Free | Free for up to two users, no credit card |
+| You want the mid tier without an annual contract | HubSpot Professional | $100 per seat on monthly billing; Salesforce bills Pro Suite and up annually |
+| Marketing should work in the same account as sales | HubSpot | Marketing Hub, Service Hub and Content Hub are sold for the same account as Sales Hub |
+| You need quotes and forecasts without paying for a top tier | Salesforce Pro Suite | Sales quoting and forecasting are part of Pro Suite |
+| Customer data and support must stay inside the EU | Salesforce with the EU Operating Zone | Data is processed and stored in the EU and Switzerland, with EU-based support |
+| You expect to need Salesforce's planning and mapping tools later | Salesforce Max | Max adds Sales Planning, Maps and Salesforce Spiff |
+| Marketing already runs HubSpot and sales runs Salesforce | Both, connected | HubSpot's Salesforce connector needs a Professional or Enterprise hub |
+| A small client-facing team whose clients write on email, LinkedIn and WhatsApp | Look at a smaller CRM | See the third option below |
 
-Here is the short version:
+## What five seats cost
 
-- **Choose HubSpot** if you need native marketing automation (email campaigns, landing pages, lead scoring) tightly integrated with your CRM and are prepared for costs to scale steeply once you need Professional features.
-- **Choose Salesforce** if you operate a large organization with complex territory management, multi-departmental workflows, and have budget for consultants and dedicated administrators.
-- **Choose Customermates** if you want complete CRM functionality (contacts, deals, pipelines, webhooks and API) plus AI agents that operate the CRM through native MCP and a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram (Pro and up), from [[commercial.price.starter.monthly]]/user/month with a cloud database in Frankfurt or self-hosting and no core CRM feature gated behind a higher tier.
+Prices checked on 8 October 2026 from [HubSpot's Sales Hub pricing page](https://www.hubspot.com/pricing/sales) and [Salesforce's Sales Cloud pricing page](https://www.salesforce.com/sales/pricing/), in US dollars per seat or user per month. Salesforce lists the same figures in euros.
 
-## Setup and onboarding
+| Plan | Per seat / month | Five seats, first year |
+|---|---|---|
+| HubSpot Free | $0 | Not possible: Free covers two users |
+| HubSpot Starter | $20 list price | $1,200 |
+| HubSpot Professional | $90 with annual commitment | $6,900, including $1,500 onboarding |
+| HubSpot Enterprise | $150 | $12,500, including $3,500 onboarding |
+| Salesforce Starter Suite | $25 | $1,500 |
+| Salesforce Pro Suite | $100, billed annually | $6,000 |
+| Salesforce Core | $195, billed annually | $11,700 |
 
-Salesforce requires weeks to months of implementation. Most organizations hire certified Salesforce consultants or dedicated administrators to configure the system. The admin interface demands specialized knowledge, and the learning curve is steep. Implementation projects often take months and add consulting costs before the first user logs in.
+Five things change the arithmetic:
 
-HubSpot offers a smoother start with self-service configuration and is generally seen as easier to use. However, the breadth of the platform introduces its own complexity. Understanding lifecycle stages, property types, hub relationships, and lead scoring takes real investment. Many teams eventually hire HubSpot-certified partners.
+- **HubSpot's onboarding is a one-time fee.** From year two, five Professional seats cost $5,400 a year, less than Pro Suite. On monthly billing the same seats cost $500 a month.
+- **HubSpot showed a time-limited Starter price** of $7 per seat on 8 October 2026. Budget with the $20 list price, because offers end.
+- **HubSpot's pricing page depends on your region.** From Europe, hubspot.de and hubspot.com can show the bundled Customer Platform (all hubs together) in euros instead of Sales Hub: Starter 7 € as a time-limited offer (65% off the 20 € list price), Professional 90 € and Enterprise 175 € per seat and month, billed annually, with larger credit allowances. Those bundle prices are not comparable with the Sales Hub figures above.
+- **AI is priced differently.** HubSpot's paid plans include HubSpot Credits that power its AI agents and features; credits reset monthly and do not roll over. Salesforce says AI can be added to Core and above: Agentforce for Sales costs from $125 per user per month, at least $7,500 a year for five users. Max includes it.
+- **Salesforce support is tiered.** The Standard Success Plan is included. Premier costs 30% of net license fees; Core and the editions above it include Premier Success.
 
-Customermates' managed cloud is ready as soon as you sign up. Configure your deal stages, import records from XLSX workbooks, and start working with real data. The interface is built for clarity, not for showcasing feature breadth.
+Our [Salesforce pricing guide](/blog/salesforce-pricing) goes through every edition in more detail.
 
-## Pricing and total cost of ownership
+## Where HubSpot is stronger
 
-This is where the comparison matters most. Monthly per-user prices only tell part of the story.
+**A free start that works.** Two users get the CRM, email tracking and a meeting link at no cost. You can test HubSpot with real deals before anyone signs anything.
 
-**Salesforce Sales Cloud pricing (per user/month, [salesforce.com](https://www.salesforce.com/sales/pricing/), September 2026):**
+**Monthly billing up to Professional.** Starter and Professional can be paid month by month. A team that might shrink or switch is not tied to a twelve-month contract.
 
-- Free Suite: $0
-- Starter Suite: $25, billed monthly or annually
-- Pro Suite: $100, billed annually
-- Core: $195, billed annually
-- Advanced: $395, billed annually
-- Max: $550, billed annually
+**Automation and AI arrive early.** Starter already includes up to 50 workflows with restricted triggers and actions, and 500 HubSpot Credits a month.
 
-Note that Salesforce implemented a 6% price increase effective August 2025. On top of license fees, expect implementation costs and, in larger setups, a dedicated administrator. Marketing Cloud is a separate product, not included in Sales or Service Cloud pricing. Add-ons like CPQ and Einstein AI push costs even higher.
+**Room to add marketing.** HubSpot sells Marketing Hub, Service Hub, Content Hub and Data Hub as separate hubs for the same account. You can add email marketing next year without moving your contacts.
 
-**HubSpot Sales Hub pricing (per seat/month, [HubSpot pricing page](https://www.hubspot.com/pricing/sales), as of September 2026):**
+## Where Salesforce is stronger
 
-- Free: basic CRM for up to 2 users
-- Starter: €20/seat/month; removes branding, simple automation
-- Professional: €90/seat/month billed annually (€100 monthly), plus a one-time onboarding fee of €1,470; custom reporting, sequences, workflows
-- Enterprise: from €150/seat/month, plus a one-time onboarding fee of €3,420; custom objects, predictive lead scoring
+**More in the mid tier.** Pro Suite includes sales quoting and forecasting and allows greater customization. HubSpot keeps forecasting and custom reports for Professional, which costs about the same.
 
-The critical cost difference at scale: a 50-person team pays €54,000/year for HubSpot Professional seats (€55,470 in the first year with onboarding) versus $60,000/year with Salesforce Pro Suite, or $117,000/year on Core. But HubSpot's jump from Starter to Professional is where sticker shock hits. Features most teams consider standard (custom reporting, workflow automation, sequences) require the Professional plan at €90 per seat/month.
+**A longer runway.** Core adds Momentum and Premier Success. Advanced adds Backup & Recover, Data Detect and Security Center. Max bundles Agentforce for Sales, Sales Planning, Maps and Salesforce Spiff. Few small teams need these, but a company that will need them later avoids a migration.
 
-**Customermates pricing:**
+**An EU operating zone.** Salesforce's Hyperforce EU Operating Zone keeps customer data processed and stored in the EU and Switzerland, isolates access to that region and staffs support with EU-based personnel. HubSpot also has a data center in Germany, but its own FAQ says support staff and subprocessors in other regions may still process data.
 
-- Starter ([[commercial.price.starter.monthly]]/user/month), Pro ([[commercial.price.pro.monthly]]), Business ([[commercial.price.business.monthly]]), Enterprise (custom). Every core CRM feature is included at every tier; higher tiers add the unified inbox and a larger monthly hosted AI allowance. Billing is monthly.
-- A 50-person team on Pro costs [[commercial.price.pro.monthly.seats.50.months.12]]/year: still a fraction of HubSpot Professional (€55,470 in the first year) or Salesforce Pro Suite ($60,000).
-- No add-on fees, no escalating costs, no implementation consulting required, and no core CRM feature is ever gated.
+## Running HubSpot and Salesforce together
 
-## Is Salesforce comparable to HubSpot?
+If marketing works in HubSpot and sales in Salesforce, HubSpot's own connector syncs the two, with conditions:
 
-Yes, but they overlap less than most people assume. Salesforce is built for enterprises that need deep customization, complex workflows across multiple departments, and industry-specific solutions. HubSpot is built for marketing-led organizations that want an integrated platform from first website visit to closed deal.
+- It needs a Professional or Enterprise subscription of a HubSpot hub, such as Marketing Hub or Sales Hub.
+- Salesforce must be an edition with API access, or Salesforce Professional. Group Edition is not supported.
+- One contact sync can take up to four Salesforce API calls, and the integration has a daily API limit. Check your Salesforce API allowance before you sync a large database.
 
-Key differences:
+The combined setup therefore costs at least one HubSpot Professional subscription on top of your Salesforce licences. Before you connect two platforms, price out moving one team onto the other.
 
-- **Marketing**: HubSpot integrates marketing tools across all tiers, including email, landing pages, automation, and SEO tools. Salesforce requires purchasing separate Marketing Cloud products, which significantly increases total cost.
-- **Sales**: Both offer contact and deal management with email tracking. HubSpot includes pipeline management and meeting scheduling at lower tiers. Salesforce charges separately for CPQ features and meeting scheduling.
-- **Service**: Both provide ticketing and knowledge bases. Salesforce emphasizes AI-powered personalization and omnichannel routing with stronger field service capabilities. HubSpot prioritizes ease of use and CRM integration.
-- **Customization**: Salesforce offers virtually unlimited customization through custom objects, Apex code, and validation rules. HubSpot provides moderate customization within a structured hub framework.
+## EU data location and GDPR
 
-Customermates delivers what most teams actually need: contacts, organizations, deals, pipelines, tasks, services, MCP access for external AI clients, webhooks and the REST API on Starter, plus email integration via the unified inbox from Pro. No marketing bloat and no enterprise complexity: just effective CRM at a price that makes sense.
+**HubSpot** hosts on AWS in the US (East and West), Canada, Australia and Germany. An account gets a data center based on its IP address at sign-up, and accounts on Starter, Professional or Enterprise can move. Some data still leaves the region: usage data goes to the US, and subprocessors and support staff may process data elsewhere.
 
-## AI capabilities in 2026
+**Salesforce** runs on Hyperforce, its public cloud infrastructure. For EU-only processing, the EU Operating Zone adds the storage, access and support commitments described above. It covers a vetted set of Sales Cloud, Service Cloud and platform products, so confirm that yours are on the list.
 
-All three platforms now offer AI features, but access and pricing differ significantly.
+In both cases you are the controller. Sign the vendor's data processing agreement and read its subprocessor list before you import customer data.
 
-**Salesforce Einstein AI and Agentforce** provide lead scoring, opportunity insights, forecasting, and autonomous agents across multiple clouds. The Atlas Reasoning Engine powers complex decision-making, and Einstein Copilot handles generative AI tasks. However, many Einstein and Agentforce features sit in the higher editions or in add-ons, and Agentforce needs significant configuration. Salesforce also announced general availability of its Hosted MCP Servers on 29 April 2026 for Enterprise Edition orgs and above; some servers are still in beta.
+## A third option: Customermates
 
-**HubSpot Breeze AI** includes a copilot for email drafting and CRM summaries, autonomous agents for content and customer service, data enrichment via Clearbit acquisition, and built-in content generation tools. Breeze is simpler, integrated, and included in most plans, which suits mid-market teams. But predictive lead scoring and advanced AI require Professional or Enterprise. HubSpot's remote MCP server has been generally available to all HubSpot accounts since April 2026.
+This section describes our own product. Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. It suits teams that need neither a marketing suite nor sales-organization tooling, and whose client conversations run across several channels.
 
-**Customermates** takes a different shape: AI agents operate the CRM directly through a native MCP integration ([[derived.mcp.tools.total]] tools), so Claude, ChatGPT, or Gemini can move deal stages, draft follow-ups, and keep contact notes current, and from Pro the same agents work a unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram. MCP access for external AI clients is included at every tier from [[commercial.price.starter.monthly]]/user/month, with the monthly hosted AI allowance scaling by tier.
+**Conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into the CRM, next to the contacts and deals they concern. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter has no inbox.
 
-## Who is Salesforce's biggest competitor?
+**AI that does the CRM work.** In Customermates Cloud, Mate summarizes threads, drafts replies and updates records. It uses hosted AI credits, a monthly allowance per active user listed on the [pricing page](/pricing). Routines run a saved instruction on a schedule or when a record changes, as the person who owns them. If you prefer Claude, ChatGPT or another client, connect it through [MCP](/docs/mcp): [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs.
 
-HubSpot is widely considered Salesforce's biggest direct competitor in 2026, particularly in the SMB and mid-market segments. Other major competitors include Microsoft Dynamics 365, Zoho CRM, and Pipedrive. But the competitive landscape is shifting. A growing number of teams are moving away from both enterprise platforms toward modern, focused CRM tools like Customermates that deliver core functionality without the complexity and escalating costs.
+**Your choice of hosting.** The cloud database is configured in the AWS Frankfurt region, and a [DPA](/dpa) is available. The AGPL-3.0 core also runs on your own server; a [self-hosted install](/features/self-hosted) has REST, webhooks and MCP, but no inbox, no Mate and no hosted credits.
 
-## What are the downsides of HubSpot?
+**Cost.** Five users on Pro pay [[commercial.price.pro.monthly.seats.5]] a month, or [[commercial.price.pro.monthly.seats.5.months.12]] over twelve months. Billing is monthly, with no onboarding fee.
 
-HubSpot's most frequently cited downsides include:
+<AcquisitionCallout title="Where Customermates is the wrong choice" variant="boundary">
+There is no free plan, only a [[commercial.trial.days]]-day trial. Customermates has no email marketing, sequences or bulk email, no quotes, no lead scoring or enrichment, no native mobile apps and no SSO. It has five fixed record types (contacts, organizations, deals, services, tasks) and no custom objects. Saved views are personal. The weighted pipeline multiplies deal values by stage probabilities and does not predict revenue. If you need any of these, HubSpot or Salesforce is the better buy.
+</AcquisitionCallout>
 
-1. **Steep price jumps**: the gap between Starter (€20/seat) and Professional (€90/seat, billed annually) is significant, most useful features require Professional, and Professional adds a one-time onboarding fee.
-2. **Marketing-first design**: teams that only need CRM pay for marketing overhead they never use.
-3. **Contact tier pricing**: as your contact database grows, HubSpot charges more, even on marketing-free plans.
-4. **Limited customization**: compared to Salesforce, HubSpot restricts custom objects and complex workflows to Enterprise tier.
-5. **Phone support gating**: only available at Professional+ tiers. Free users are limited to documentation.
+### A worked setup for a five-person consultancy
 
-Customermates addresses the first four: transparent tiers from [[commercial.price.starter.monthly]]/user/month, CRM-focused design, no per-contact pricing, and open-source customization.
+Rename deals to "Projects" and give the stage field these options and probabilities: Lead 10%, Qualified 30%, Proposal sent 60%, Won 100%, Lost 0%. Add a single-select field "Source" with Referral, LinkedIn and Website. Each consultant saves a board of their open projects grouped by stage; the founder keeps a table grouped by assigned user, with the weighted total per group.
 
-## Data protection and hosting
+Each consultant also owns one routine, which runs in Customermates Cloud and uses hosted AI credits:
 
-HubSpot and Salesforce are US-based vendors. Both publish data processing agreements and subprocessor lists and offer EU data centre options for some services (HubSpot has run a German data centre since 2021 that paid accounts can choose); check which region and subprocessors apply to your account.
+> Every Friday at 16:00, find my projects in "Proposal sent" where the contact has not written for seven days. Save a short follow-up draft in my latest conversation with each contact. Do not send anything.
 
-In the managed cloud, the Customermates application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
+The last sentence matters. Mate sends messages when an instruction asks it to, so a routine meant only for drafts has to say so.
 
-## Integrations and automation
+### Moving over from HubSpot or Salesforce
 
-Salesforce has the AppExchange with thousands of integrations, and HubSpot boasts over 1,500 marketplace apps. Both ecosystems are powerful but introduce dependency: many integrations require paid plans, additional per-user fees, or marketplace subscriptions.
+<Steps>
+  <Step title="Export one object at a time">Export companies or accounts, contacts and deals or opportunities as separate files. Customermates reads Excel workbooks only; CSV files are not accepted, so save them as .xlsx first.</Step>
+  <Step title="Prepare fields and stages">Create custom fields for the properties you keep and set up the stage options with their probabilities before importing deals.</Step>
+  <Step title="Import in order">Import organizations first, then contacts, then deals. Link columns match records by name, so a contact's company finds the organization you imported before. The [records guide](/docs/app-records) lists the file limits.</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp, then set up a routine or connect your own AI client.</Step>
+</Steps>
 
-Customermates has no built-in automation builder. Webhooks and the full REST API are available on every plan without tier-gated endpoints, and a community node connects a separately operated n8n instance to many other services. Because Customermates is open-source, you can build custom integrations without waiting for marketplace availability.
+## Frequently asked questions
 
-## Scalability
+<Faq>
+<FaqItem question="Is HubSpot cheaper than Salesforce?">
+At the entry level, yes: a $20 list price per seat for HubSpot Starter against $25 for Salesforce Starter Suite. In the mid tier, five seats cost $6,900 in year one on HubSpot Professional (with onboarding) and $6,000 on Salesforce Pro Suite. From year two HubSpot is cheaper. Salesforce's Agentforce for Sales needs Core or higher and costs extra there, unless you buy Max.
+</FaqItem>
 
-A common concern: will a CRM starting at [[commercial.price.starter.monthly]]/month scale? Customermates is built on modern infrastructure that handles growing teams without performance degradation. The key difference is how you scale. With Salesforce and HubSpot, scaling means upgrading tiers and paying exponentially more for core functionality. With Customermates, you add users at the same tier price; messaging capacity and the monthly hosted AI allowance change if you move to Pro or Business. For teams that want to run it themselves, self-hosting the open-source core gives full control over the infrastructure, with the Starter feature set.
+<FaqItem question="Do HubSpot and Salesforce have free plans?">
+Both do. HubSpot's free tools cover up to two users with no credit card. Salesforce offers a Free Suite at $0 with basic account, contact, lead and opportunity management, and a free 30-day trial of Sales Cloud.
+</FaqItem>
 
-## Conclusion
+<FaqItem question="Can you use HubSpot and Salesforce together?">
+Yes, through HubSpot's Salesforce connector. You need a Professional or Enterprise HubSpot hub and a Salesforce edition with API access or Salesforce Professional; Group Edition is not supported. Each synced contact can use up to four Salesforce API calls.
+</FaqItem>
 
-HubSpot and Salesforce are proven platforms, but they represent an era of CRM built on complexity and escalating costs. Salesforce overwhelms with power most teams never need. HubSpot attracts with free tools that become expensive fast. Customermates provides a modern, transparent alternative: complete core CRM from [[commercial.price.starter.monthly]]/user/month, open-source, self-hostable, and ready as soon as you sign up. For teams that want results without enterprise overhead, it is the clear choice.
+<FaqItem question="Which is better for a small business?">
+For most small businesses HubSpot: two users are free, Professional can be paid monthly, and paid plans include AI credits. Pick Salesforce when the mid tier must already include quoting and forecasting, or when you need the EU Operating Zone.
+</FaqItem>
+
+<FaqItem question="Where do HubSpot and Salesforce store data for EU customers?">
+HubSpot assigns a data center by IP address at sign-up, with one in Germany on AWS; paid accounts can switch. Salesforce runs on Hyperforce and offers an EU Operating Zone that keeps processing, storage and support in the EU and Switzerland for vetted products.
+</FaqItem>
+
+<FaqItem question="Is there a simpler CRM than HubSpot or Salesforce?">
+That depends on what you would drop. Customermates covers contacts, organizations, deals and a multi-channel inbox for small client-facing teams, without marketing tools. If you mainly need a sales pipeline, our [Pipedrive vs Salesforce comparison](/compare/pipedrive-vs-salesforce) looks at another common option.
+</FaqItem>
+</Faq>
+
+Competitor details checked on 8 October 2026 against HubSpot's [Sales Hub pricing](https://www.hubspot.com/pricing/sales), [data hosting FAQ](https://knowledge.hubspot.com/account-security/hubspot-cloud-infrastructure-and-data-hosting-frequently-asked-questions), [Salesforce connector guide](https://knowledge.hubspot.com/salesforce/install-the-hubspot-salesforce-integration) and [MCP documentation](https://developers.hubspot.com/mcp), and against Salesforce's [Sales Cloud pricing](https://www.salesforce.com/sales/pricing/), [EU Operating Zone page](https://www.salesforce.com/platform/data-residence-eu-oz/) and [Headless 360 announcement](https://www.salesforce.com/news/stories/expanding-headless-360-enterprise-capabilities/).

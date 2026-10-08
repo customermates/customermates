@@ -1,17 +1,17 @@
 ---
-title: "CRM für Finanzberater: Kontakte & Follow-ups"
-description: "Interessenten, Kundenkontakte, Jahresgespräche und Empfehlungspartner verwalten. Flexibles CRM, keine Portfolio-, Depot- oder Compliance-Plattform."
+title: "CRM für Finanzberater und Baufinanzierungsvermittler"
+description: "Kundenverwaltung für kleine Finanzberatungen und Vermittler: Interessenten, Tippgeber, Termine für Jahresgespräche und Kundennachrichten neben Ihrem MVP."
 industryName: "Finanzberater"
 
 relatedHrefs:
-  - /for/accountants
   - /for/insurance-agents
-  - /for/mortgage-brokers
-  - /for/lawyers
+  - /for/accountants
+  - /features/unified-inbox
+  - /for/startups
 
 hero:
-  title: "Ein Beziehungs-CRM für Finanzberatung"
-  description: "Halten Sie Interessentenphasen, Kundenkontakte, Empfehlungsquellen und nächste Schritte sichtbar. Planung, Portfolio, Dokumentation und Compliance bleiben in den führenden Fachsystemen."
+  title: "Das CRM für Finanzberater, deren Neugeschäft aus Empfehlungen kommt"
+  description: "Interessenten, Tippgeber, Termine für Jahresgespräche und der nächste Schritt für jeden Kunden an einem Ort. Ab Pro stehen Gespräche per E-Mail, LinkedIn und WhatsApp direkt beim Kunden. Bestände, Beratungsdokumentation und Aufzeichnungspflichten bleiben in den Systemen, die dafür gebaut sind."
   buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
   buttonRightText: Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "Keine Kreditkarte erforderlich • [[commercial.trial.days]] Tage Pro testen"
 
 cta:
-  action: Prüfen Sie den Workflow vor der Datenübernahme
-  description: Sehen Sie, wie Kontakte, Organisationen, anpassbare Pipeline-Phasen und Aufgaben zu Ihrem Beratungsprozess passen, während Fachsysteme die regulierten Datensätze behalten.
+  action: Bilden Sie zuerst Ihre Interessenten- und Tippgeberpipeline ab
+  description: Importieren Sie eine Kundenliste aus Excel, legen Sie Phasen und das Feld für das nächste Jahresgespräch an und testen Sie den Ablauf mit Beispieldaten, bevor regulierte Daten umziehen.
   buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
   buttonRightText: Demo ansehen
@@ -28,125 +28,193 @@ cta:
   hint: "Beginnen Sie mit synthetischen Datensätzen und genehmigen Sie jeden echten Datenfluss bewusst."
 ---
 
-Ein **CRM für Finanzberater** sollte Beziehungen und nächste Schritte übersichtlicher machen. Es darf die Grenze zu regulierten Systemen für Portfolioberechnung, Beratungsdokumentation oder Depotführung nicht verwischen. Customermates übernimmt die Beziehungsebene und überlässt regulierte Aufgaben spezialisierten Plattformen.
+Customermates passt zu Finanzberatern und Baufinanzierungsvermittlern, die eine klare Interessentenpipeline brauchen, wissen wollen, welcher Tippgeber welchen Kunden gebracht hat, und sehen müssen, wer als Nächstes ein Jahresgespräch bekommt. Es passt nicht, wenn das CRM Bestandsdaten von Gesellschaften oder Depotbanken übernehmen, die Geeignetheitserklärung erzeugen oder Telefonate und Chats nach § 18a FinVermV aufzeichnen soll. Dafür ist das Maklerverwaltungsprogramm (MVP) oder die Beratungssoftware Ihres Pools die richtige Wahl, in der Baufinanzierung eine Plattform wie Europace. Diese Seite zeigt die Einrichtung für den ersten Fall und benennt die Grenzen.
+
+Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt. Kontakte, Organisationen und Deals liegen an einem Ort, ab dem Tarif Pro auch die Gespräche per E-Mail, LinkedIn und WhatsApp.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Geeignet für">
-    Beratungsunternehmen, die neben ihren bestehenden Finanzsystemen eine
-    anpassbare Interessenten- und Beziehungspipeline brauchen.
+  <SummaryItem label="Passt zu">
+    Unabhängigen Finanzberatern, kleinen Beratungsbüros und
+    Baufinanzierungsvermittlern, deren Neugeschäft aus Empfehlungen und dem
+    Kundenbestand kommt.
   </SummaryItem>
-  <SummaryItem label="Kernaufgabe">
-    Interessenten, Kundenkontakte, Empfehlungspartner, Chancen und die nächste
-    manuelle Aktion miteinander verbinden.
+  <SummaryItem label="Aufbau">
+    Kunden als Kontakte, Haushalte und Tippgeber als Organisationen, jedes
+    mögliche Mandat als Deal und ein Datumsfeld für das nächste Jahresgespräch.
   </SummaryItem>
-  <SummaryItem label="Funktionsumfang">
-    Kontakte, Organisationen, anpassbare Deal-Phasen, eigene Felder, Filter,
-    Kanban und verknüpfte Aufgaben.
+  <SummaryItem label="KI">
+    In Customermates Cloud bereitet Mate Gesprächslisten und Antwortentwürfe
+    vor und verbraucht dabei gehostete KI-Credits. Alternativ verbinden Sie
+    Ihren eigenen KI-Client über MCP.
   </SummaryItem>
-  <SummaryItem label="Systemgrenze">
-    Keine Portfolioführung, Depotfunktion, Finanzplanung, Beratungsakte,
-    Compliance-Zertifizierung oder native Depotbank-Anbindung.
+  <SummaryItem label="Nicht enthalten">
+    Bestandsübernahme, Depot- und Portfoliodaten, Beratungsdokumentation,
+    Aufzeichnung nach § 18a FinVermV, Antragsstrecke und eine mobile App.
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Beziehungs-CRM-Funktionen für die Finanzberatung">
-  <ProofItem label="Beziehungen">Kontakte und Organisationen</ProofItem>
-  <ProofItem label="Pipeline">Anpassbare Interessentenphasen</ProofItem>
-  <ProofItem label="Kontext">Typisierte eigene Felder</ProofItem>
-  <ProofItem label="Nachfassen">Verknüpfte Aufgaben</ProofItem>
-  <ProofItem label="Erweiterungen">REST, Webhooks und MCP</ProofItem>
-</ProofRail>
+## Was eine Finanzberatung von einem CRM braucht
 
-## Was ein Finanzberater-CRM leisten muss
+Unter „CRM für Finanzberater“ laufen zwei Aufgaben, die man trennen sollte. Die eine ist Beziehungsarbeit: Interessenten, Tippgeber, Gespräche und der nächste Schritt. Die andere ist regulierte Bestandsarbeit: Verträge und Depots, Risikoprofile, Geeignetheitserklärung, Beratungsprotokoll, unterschriebene Unterlagen und die Aufzeichnung der Kundenkommunikation. Ein MVP bündelt beides. Ein allgemeines CRM wie Customermates übernimmt nur die erste Aufgabe.
 
-Bei der Suche nach einem Finanzberater-CRM werden häufig zwei Bedürfnisse vermischt. Beziehungsmanagement umfasst Interessenten, bestehende Kundenbeziehungen, Tippgeber, Gespräche und nächste Schritte. Vermögensverwaltung umfasst dagegen Bestände, Portfoliowerte, Depotführung, Finanzpläne, Geeignetheit, regulierte Unterlagen und offizielle Aufbewahrung.
+Auf der Beziehungsseite hat die Finanzberatung Eigenheiten, mit denen ein gewöhnliches Vertriebs-CRM schlecht umgeht:
 
-Customermates ist ein allgemeines Beziehungs-CRM. Es organisiert die erste Gruppe und erhebt keinen Anspruch auf die zweite. Diese Abgrenzung ist wichtig beim Vergleich mit branchenspezifischen Plattformen, die Depotbankdaten, Haushaltsmodelle, Compliance-Archive oder Finanzplanungsanbindungen enthalten.
+- **Der Kunde ist oft ein Haushalt.** Zwei Partner, manchmal erwachsene Kinder oder ein Familienbetrieb, und ein gemeinsames Jahresgespräch.
+- **Jahresgespräche folgen dem Kalender, nicht der Pipeline.** Ein verpasstes Gespräch mit einem Bestandskunden kostet mehr als ein zögernder Interessent.
+- **Neugeschäft kommt über Tippgeber.** Steuerberater, Rechtsanwälte, Immobilienmakler und Kollegen empfehlen Kunden, und Sie wollen wissen, wer wen gebracht hat.
+- **Kommunikation ist reguliert.** Welchen Kanal Sie mit einem Anleger nutzen dürfen, ist zuerst eine Frage der Aufzeichnungspflicht und dann eine der Software.
 
-| Bedarf | Customermates | Finanz-Fachsystem |
-| --- | --- | --- |
-| Interessenten- und Kundenkontext | Kontakte, Organisationen, Beziehungen, Notizen und Aktivität | Regulierte Kundenakte |
-| Neugeschäftsprozess | Deals, eigene Phasen, Filter und Kanban | Beratungs- und Onboarding-Kontrollen |
-| Beziehungsmerkmale | Benutzerdefinierte Felder und Ansichten | Berechnete Portfolio- und Risikodaten |
-| Nächste Aktion | Aufgaben an CRM-Datensätzen | Terminplanung, Kalender für Jahresgespräche und beaufsichtigter Workflow |
-| Schnittstellen | REST, Webhooks, MCP und separate n8n-Option | Depotbank-, Planungs-, Dokumenten- und Compliance-Anbindungen |
+## So richten Finanzberater Customermates ein
 
-<AcquisitionCallout title="Ein Beziehungsdatensatz ist keine Compliance-Akte" variant="boundary">
-  Regulierte Beratung, Geeignetheitsnachweise, signierte Dokumente,
-  Portfolioauszüge, Bestände und das offizielle Kommunikationsarchiv bleiben in
-  den dafür freigegebenen Systemen. Notizen und eigene Felder in einem
-  allgemeinen CRM ersetzen diese Aufbewahrung nicht.
+Customermates hat fünf Datensatztypen. Die Zuordnung unten ist ein sinnvoller Weg; alle Feldnamen sind Beispiele, die Sie selbst anlegen.
+
+| Datensatztyp | Wofür | Beispiele für eigene Felder |
+|---|---|---|
+| Kontakte | Jeder Kunde und Interessent | Kundenstatus (Einzelauswahl: Interessent, Kunde, Ehemaliger Kunde), Nächstes Jahresgespräch (Datum), Bevorzugter Kanal (Einzelauswahl), Empfohlen von |
+| Organisationen | Haushalte, Firmenkunden und Tippgeber | Art (Einzelauswahl: Haushalt, Unternehmen, Tippgeber), Beruf des Tippgebers |
+| Deals | Jedes mögliche Mandat oder jede Finanzierungsanfrage | Phase, Sparte (Einzelauswahl: Finanzplanung, Geldanlage, Baufinanzierung, Absicherung), Entscheidung erwartet (Datum), Vorgangsnummer im Fachsystem |
+| Services | Ihre Leistungen mit Preis | Finanzplan, Honorarberatung pro Jahr, Vermittlung Baufinanzierung |
+| Aufgaben | Nächste Schritte, einer Person zugewiesen | Ein selbst angelegtes Feld „Erledigen bis“, denn Aufgaben haben kein eingebautes Fälligkeitsdatum |
+
+Ein Kontakt kann zu mehreren Organisationen gehören, also zugleich zu seinem Haushalt und zum Steuerberater, der ihn empfohlen hat. Unter **Mein Unternehmen › Einstellungen** benennen Sie Datensatztypen aus einer vorgegebenen Liste um, etwa Kontakte in Kunden, Deals in Chancen und Aufgaben in Follow-ups.
+
+### Phasen für das Neugeschäft
+
+Die Deal-Phase ist ein Einzelauswahl-Feld, das Sie selbst definieren, und jede Option bekommt eine Abschlusswahrscheinlichkeit. Ein Vorschlag: Empfehlung 10 %, Erstgespräch 25 %, Konzept besprochen 50 %, Unterlagen im Fachsystem 80 %, Gewonnen 100 %, Kein Abschluss 0 %. Der Deal-Wert ergibt sich aus den verknüpften Leistungen. Die Pipeline-Summe ergibt sich so aus Ihren eigenen Honoraren und Wahrscheinlichkeiten und ist keine Vorhersage. Auf dem [Pipeline-Board](/features/pipeline) ziehen Sie jeden Deal als Karte von Phase zu Phase.
+
+Beschränken Sie die Phasen auf den Vertrieb. „Unterlagen im Fachsystem“ heißt: Beratung, Antrag oder Depoteröffnung laufen jetzt im MVP oder auf der Plattform, und das CRM hält nur fest, dass es so weit ist.
+
+### Gespeicherte Ansichten für den Jahresrhythmus
+
+1. **Anstehende Jahresgespräche:** Kontakte mit Kundenstatus Kunde, sortiert nach Nächstes Jahresgespräch, früheste zuerst.
+2. **Offene Interessenten:** Deals in Erstgespräch oder Konzept besprochen, sortiert nach Entscheidung erwartet.
+3. **Liegengeblieben:** Deals, die seit mehr als 30 Tagen nicht geändert wurden, über den Datumsfilter **Älter als…** auf „Aktualisiert am“.
+4. **Nach Tippgeber:** Deals, gefiltert auf die verknüpfte Tippgeber-Organisation, damit Sie sehen, woher das Neugeschäft kommt.
+
+Eigene Datumsfelder filtern nach festen Daten. Eine Liste „nächste 30 Tage“ ist deshalb eine Sortierung nach dem Gesprächstermin, kein mitlaufendes Zeitfenster. Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben Filtern ihre eigene Ansicht an.
+
+### Kundengespräche in einem Posteingang (ab Pro)
+
+In Customermates Cloud bringt der [einheitliche Posteingang](/features/unified-inbox) ab Pro E-Mails aus Gmail, Outlook oder IMAP mit LinkedIn, WhatsApp, Instagram und Telegram zusammen; Sie antworten im ursprünglichen Kanal. Verknüpfen Sie einen Teilnehmer einmal mit einem Kontakt, dann erscheinen dessen Gespräche in der Chronik des Kunden. Gespräche aus Ihren eigenen Konten bleiben privat, bis Sie eine Unterhaltung freigeben oder ab Business das ganze Konto teilen.
+
+Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer. Wer Postfach und WhatsApp im Posteingang haben will, braucht Business mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Nutzer.
+
+<AcquisitionCallout title="Der Posteingang ist keine Aufzeichnung nach § 18a FinVermV" variant="boundary">
+  Finanzanlagenvermittler nach § 34f GewO müssen Telefongespräche und
+  sonstige elektronische Kommunikation aufzeichnen, sobald sie sich auf
+  Vermittlung oder Beratung zu Finanzanlagen beziehen, und die Aufzeichnungen
+  gegen nachträgliche Verfälschung sichern
+  ([§ 18a FinVermV](https://www.buzer.de/18a_FinVermV.htm)). Customermates
+  zeichnet nicht in diesem Sinne auf und archiviert nicht revisionssicher.
+  Verbinden Sie nur Kanäle, die Sie anderweitig rechtskonform aufzeichnen, und
+  klären Sie WhatsApp vorher mit Ihrem Haftungsdach oder Ihrer Rechtsberatung.
 </AcquisitionCallout>
 
-## Ein praktischer Workflow vom Interessenten zum Kunden
+### Eine wöchentliche Gesprächsliste mit Mate (Customermates Cloud)
 
-Bilden Sie ein mögliches Mandat als Deal ab, nicht als Portfolio oder Konto. Die Chance kann die Person, ihre Organisation, den Tippgeber und die besprochenen Leistungen miteinander verbinden. Die Phasen sollten den geschäftlichen Fortschritt beschreiben und nicht den Status regulierter Beratung.
+Mate ist der Assistent in Customermates Cloud und nutzt die monatlichen gehosteten KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer enthält. Eine [Routine](/docs/app-routines) ist eine gespeicherte Anweisung, die Mate nach Zeitplan oder bei einer Änderung an einem Datensatz ausführt. Wählen Sie **Nach Zeitplan**, unter **Wiederholung** **Wöchentlich**, montags um 08:00 Uhr, und geben Sie Anweisungen wie diese:
+
+```text
+Listen Sie alle Kontakte mit Kundenstatus „Kunde“ auf, deren Nächstes
+Jahresgespräch in den nächsten 30 Tagen liegt und die keine verknüpfte Aufgabe
+„Jahresgespräch vereinbaren“ haben. Legen Sie für jeden eine Aufgabe
+„Jahresgespräch vereinbaren“ an, verknüpft mit dem Kontakt und mir zugewiesen.
+Senden Sie keine Nachrichten. Schließen Sie mit einer Liste: Kunde, Haushalt,
+Termin, bevorzugter Kanal.
+```
+
+Mate versendet Nachrichten ohne Rückfrage, wenn Sie es dazu auffordern. Eine Routine, die nur vorbereiten soll, muss das deshalb ausdrücklich sagen. Unbeaufsichtigte Läufe lehnen alles ab, was eine Freigabe braucht, etwa Löschungen. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+
+Wenn Sie lieber mit Ihrem eigenen KI-Client arbeiten, verbinden Sie Claude, ChatGPT oder andere über [MCP](/docs/mcp), in jedem Tarif und auch bei Self-Hosting. Die Modellnutzung rechnet Ihr KI-Anbieter ab. Mate und MCP-Clients arbeiten mit CRM-Datensätzen im Rahmen Ihrer Berechtigungen; keiner von beiden berät zu Anlagen oder prüft die Geeignetheit.
+
+## Baufinanzierungsvermittler und Darlehensvermittler
+
+Die gleiche Einrichtung trägt auch eine Baufinanzierungsvermittlung, mit anderen Begriffen. Ein Deal ist die Anfrage, nicht der Darlehensantrag. Die Phasen lauten etwa Neue Anfrage, Bedarf geklärt, Angebote extern vorbereitet, Kunde entscheidet, Gewonnen und Beendet. Immobilienmakler, Bauträger und Steuerberater sind Tippgeber-Organisationen.
+
+Antrag, Bonitätsprüfung, Produktsuche, Bankeinreichung und die Unterlagen des Darlehensnehmers gehören auf Ihre Finanzierungsplattform, etwa [Europace](https://www.europace.de/). Europace nennt mehr als 800 Produktgeber, eine Bankenanbindung und eine Unterlagenakte. Customermates hat keine native Anbindung an Europace oder andere Plattformen. Bietet die Plattform eine Schnittstelle, kann ein selbst gebauter Ablauf über [REST-API und Webhooks](/features/api) eine Vorgangsnummer oder einen Status austauschen.
+
+## Was Customermates für Finanzberater nicht leistet
+
+- Keine Anbindung an Gesellschaften, Depotbanken, Pools, Vergleichsrechner oder Finanzierungsplattformen und keine Bestandsübernahme. Ein Vermögenswert in einem eigenen Feld ist nur, was jemand eingetragen hat.
+- Keine Geeignetheitserklärung, kein Beratungsprotokoll, keine E-Signatur und keine Aufzeichnung nach § 18a FinVermV.
+- Aufgaben haben kein Fälligkeitsdatum, keine Erinnerung und keine Benachrichtigung. Nutzen Sie ein Datumsfeld, eine sortierte Ansicht oder eine Routine.
+- Keine E-Mail-Sequenzen und kein Massenversand. Kundennachrichten schreiben Sie Gespräch für Gespräch.
+- Keine Dateiablage an Datensätzen; Unterlagen bleiben im Dokumentensystem, der Link steht in einem Feld.
+- Keine mobile App und keine Terminbuchung.
+
+Wenn einer dieser Punkte der Grund für Ihre Suche ist, nehmen Sie ein Werkzeug, das dafür gebaut ist: das MVP oder die Beratungssoftware Ihres Pools oder Haftungsdachs für Bestand, Beratungsdokumentation und Aufzeichnung, eine Finanzierungsplattform wie Europace für die Baufinanzierung. Für US-Berater listen Anbieter wie [Wealthbox](https://www.wealthbox.com/pricing/) (Haushalte in jedem Tarif, SOC 2 Type II) und [Redtail](https://www.redtailtechnology.com/pricing/) (Notizen mit Compliance-Archivierung, im Tarif Growth zusätzlich Textnachrichten mit Archivierung, Anbindung an Orion, Schwab und eMoney) diese Funktionen auf ihren Seiten. Customermates veröffentlicht diese Seite; die Angaben der Anbieter wurden am 8. Oktober 2026 auf deren eigenen Websites geprüft.
+
+Eine tragfähige Aufteilung sind zwei Systeme: Customermates für Interessenten, Tippgeber und Gespräche, das Fachsystem für alles Regulierte.
+
+## Was es kostet
+
+Die Preise gelten pro aktivem Nutzer und Monat bei monatlicher Zahlung. REST, Webhooks und MCP sind in jedem Tarif enthalten.
+
+| Büro | Tarif | Pro Monat |
+|---|---|---|
+| Einzelberater, Pipeline und Ansichten, ohne Posteingang | Starter | [[commercial.price.starter.monthly]] |
+| Einzelberater, ein Postfach im Posteingang | Pro | [[commercial.price.pro.monthly]] |
+| Einzelberater, Postfach und WhatsApp | Business | [[commercial.price.business.monthly]] |
+| Zwei Berater und eine Assistenz, je ein Postfach | Pro | [[commercial.price.pro.monthly.seats.3]] |
+
+Jeder Cloud-Tarif enthält zusätzlich monatliche gehostete KI-Credits pro aktivem Nutzer für Mate; die Mengen stehen auf der [Preisseite](/pricing). Den Open-Source-Kern auf dem eigenen Server zu betreiben kostet keine Lizenzgebühr, eine selbst gehostete Installation hat aber keinen Posteingang, kein Mate und keine Routinen.
+
+## Kundenliste übernehmen
 
 <Steps>
-  <Step title="Beziehungskontext erfassen">
-    Legen Sie den Kontakt an, ordnen Sie bei Bedarf die Organisation zu und
-    erfassen Sie Empfehlungsquelle oder Tippgeber, ohne eine vollständige
-    regulierte Kundenakte zu übernehmen.
+  <Step title="Aus dem bisherigen Werkzeug als Excel exportieren">
+    Customermates importiert Excel-Arbeitsmappen (.xlsx), jeweils einen
+    Datensatztyp. Lassen Sie Bestände, Risikoprofile und Unterlagen weg.
   </Step>
-  <Step title="Chancenphasen konfigurieren">
-    Nutzen Sie etwa „Neue Anfrage“, „Erstgespräch geplant“, „Zusammenarbeit
-    wird geprüft“, „Umfang besprochen“, „Gewonnen“ oder „Beendet“.
+  <Step title="Zuerst Organisationen importieren">
+    Haushalte und Tippgeber, mit ausgefülltem Feld Art. Öffnen Sie in der
+    Liste der Organisationen **Import und Export** und wählen Sie **Aus Datei
+    hinzufügen**.
   </Step>
-  <Step title="Wenige eigene Felder ergänzen">
-    Erfassen Sie Beziehungsklasse, bevorzugten Kontaktweg, Empfehlungsquelle,
-    den Monat des Jahresgesprächs oder eine Kennung aus dem Fachsystem.
+  <Step title="Kontakte importieren">
+    Mit einer Spalte für den Haushalts- oder Firmennamen, damit jeder Kontakt
+    seiner Organisation zugeordnet wird, dazu Kundenstatus und Nächstes
+    Jahresgespräch.
   </Step>
-  <Step title="Nächste Aktion am Datensatz halten">
-    Verknüpfen Sie eine Aufgabe für das nächste Nachfassen. Aufgaben haben
-    kein Fälligkeitsdatum, keine Wiederholung und keinen beaufsichtigten
-    Prüfprozess.
+  <Step title="Offene Chancen als Deals importieren">
+    Mit Phase und Datumsfeldern; verknüpfen Sie anschließend Leistungen, damit
+    jeder Deal einen Wert hat.
   </Step>
-  <Step title="Regulierte Arbeit ans Fachsystem übergeben">
-    Sobald Beratung, Onboarding, Depotführung oder Dokumentation beginnt, wird
-    der Prozess in der dafür zuständigen Plattform fortgeführt.
+  <Step title="Freigegebene Kanäle verbinden">
+    Ab Pro verbinden Sie Ihr Postfach unter **Mein Profil › Kanäle**, sobald
+    die Aufzeichnungsfrage geklärt ist.
   </Step>
 </Steps>
 
-## Jahresgespräche, Vermögensangaben und Haushalte
+Spalten und Grenzen des Imports beschreibt die [Anleitung zu Datensätzen](/docs/app-records).
 
-Den Monat des Jahresgesprächs oder einen Beziehungsstatus speichern Sie als eigenen Wert und nutzen ihn in gefilterten Ansichten. Ein von Ihnen betriebener Zeitplandienst oder ein separater [n8n-Workflow](/features/workflow-automation) kann aus einem Datum eine Aufgabe erzeugen. In der Cloud-Version kann eine [Routine](/docs/app-routines) des Mate-Assistenten nach Zeitplan die Kontakte auflisten, deren Jahresgespräch ansteht; Routinen verbrauchen gehostete KI-Credits und sind keine Erinnerungen. Customermates hat keine Erinnerungssequenz und keine automatische Einladung zum Jahresgespräch.
+## Kundendaten und Datenschutz
 
-Hält ein Team das verwaltete Vermögen eines Kunden als Referenzwert in einem eigenen Feld fest, bleibt dieser Wert manuell gepflegter Kontext. Customermates berechnet, synchronisiert oder prüft verwaltetes Vermögen nicht und gleicht es auch nicht ab. Das Feld ist weder Portfoliobuchhaltung noch Performancebericht noch Abrechnungsgrundlage.
-
-Kontakte und Organisationen können zusammengehörige Personen und Unternehmen darstellen. Es gibt jedoch kein finanzberaterspezifisches Haushaltsobjekt, keine Stiftungs- oder Trust-Verwaltung, keinen Begünstigtenprozess und keine automatische Ableitung von Beziehungen. Bilden Sie nur die für das CRM-Gespräch nötigen Verknüpfungen ab; die vollständige Finanzstruktur bleibt in der führenden Plattform.
-
-## Empfehlungspartner und Kundengespräche
-
-Steuerberater, Rechtsanwälte, Baufinanzierungsvermittler und andere Tippgeber können als Kontakte und Organisationen erfasst werden. Ein Feld für die Empfehlungsquelle und anpassbare Ansichten zeigen, woher neue Chancen kommen. Das CRM startet keine Empfehlungs-Kampagnen und berechnet Attribution nicht automatisch.
-
-Ab Pro bündelt der [einheitliche Posteingang](/features/unified-inbox) in der Cloud Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Sie verknüpfen Gespräche mit Kontakten; Beratungsakten oder Deals werden Nachrichten nicht zugeordnet. Massenversand oder E-Mail-Sequenzen gibt es nicht, und selbst gehostet gibt es keinen Posteingang.
-
-Ein externer KI-Client, den Sie über [MCP](/docs/mcp) verbinden, arbeitet im Rahmen der Berechtigungen des jeweiligen Nutzers mit CRM-Datensätzen. Er wird dadurch nicht zum Finanzplaner, Portfolioanalysten, Geeignetheitsprüfer oder Compliance-Verantwortlichen.
-
-## Daten-, Bereitstellungs- und Integrationsgrenzen
-
-In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter (auch aus den USA) stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst. Das ist keine DSGVO- oder Finanzdienstleistungszertifizierung; Customermates besitzt keine Zertifizierung. Verbundene Kanäle, externe KI-Clients und Automatisierungsanbieter haben eigene Grenzen. Berechtigungen gelten je Ressource und Aktion, nicht je Feld; den Lesezugriff können Sie auf zugewiesene Datensätze beschränken.
-
-Eigene Integrationen bauen Sie über [REST-API und Webhooks](/features/api), MCP oder den Community-Node für ein separat betriebenes n8n. Anbietervereinbarungen, Feldzuordnung, Prüfung, Wiederholungen, Dublettenbehandlung und Compliance verantworten Sie selbst. Native Anbindungen an Depotbanken, Portfolio-, Planungs- oder Aufsichtssysteme gibt es nicht.
-
-Starter enthält das Kern-CRM. Pro ergänzt den einheitlichen Posteingang mit einem verbundenen Konto pro Nutzer. Self-Hosting umfasst den Funktionsumfang von Starter, also ohne einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
+- In Customermates Cloud ist die primäre Produktionsdatenbank in der AWS-Region Frankfurt konfiguriert. Hosting und weitere Unterauftragsverarbeiter, darunter Anbieter aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors); ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
+- Berechtigungen gelten je Ressource und Aktion, nicht je Feld. Eine Rolle mit dem Lesezugriff **Zugewiesen** beschränkt Assistenz oder Untervermittler auf die Datensätze, die ihnen zugewiesen sind.
+- Das Audit-Log hält in jedem Tarif fest, wer welchen Datensatz geändert hat.
+- Customermates besitzt keine Zertifizierung wie ISO 27001 oder SOC 2. Verlangt Ihr Haftungsdach oder Pool eine solche Zertifizierung für das CRM, kommt Customermates für Sie nicht infrage.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Ist Customermates eine Portfolio- oder Vermögensverwaltungssoftware?">
-Nein. Customermates berechnet keine Performance, synchronisiert keine Bestände, gleicht keine Konten ab, verwahrt keine Vermögenswerte und erstellt keine Finanzpläne. Es ist ein anpassbares CRM für Beziehungen und geschäftliche Chancen.
+<FaqItem question="Welche CRM-Software ist für Finanzberater geeignet?">
+Das hängt davon ab, wie viel der regulierten Arbeit im selben Werkzeug liegen soll. Bestandsübernahme, Beratungsdokumentation und Aufzeichnung gehören in ein MVP oder die Software Ihres Pools. Für Interessenten, Tippgeber, Jahresgespräche und Kundengespräche über mehrere Kanäle passt ein allgemeines CRM wie Customermates daneben. Customermates ist unser eigenes Produkt; berücksichtigen Sie das.
 </FaqItem>
 
-<FaqItem question="Kann ein Finanzberater verwaltetes Vermögen in Customermates erfassen?">
-Ein manuell gepflegter Referenzwert kann in einem eigenen Feld stehen, wenn die Datenrichtlinie des Unternehmens dies erlaubt. Customermates berechnet, prüft oder synchronisiert diesen Wert nicht; der verbindliche Betrag bleibt im Portfolio- oder Depotsystem.
+<FaqItem question="Ersetzt Customermates ein Maklerverwaltungsprogramm?">
+Nein. Customermates übernimmt keine Bestände von Gesellschaften oder Depotbanken, verwaltet keine Verträge und erzeugt keine Beratungsdokumentation. Es ergänzt das MVP um Pipeline, Tippgeber und Gespräche.
 </FaqItem>
 
-<FaqItem question="Bietet Customermates Compliance-Aufbewahrung?">
-Nein. Regulierte Beratung, Geeignetheitsnachweise, signierte Dokumente, Aufsichtsunterlagen und das offizielle Kommunikationsarchiv bleiben in freigegebenen Systemen. Customermates besitzt keine Finanzdienstleistungs-Compliance-Zertifizierung.
+<FaqItem question="Darf ich mit Kunden über WhatsApp in Customermates schreiben?">
+Technisch geht das ab Pro in Customermates Cloud. Ob Sie es dürfen, entscheidet die Aufzeichnungspflicht: Für Finanzanlagenvermittler nach § 34f GewO verlangt § 18a FinVermV die Aufzeichnung von Telefonaten und elektronischer Kommunikation, die sich auf die Vermittlung von oder Beratung zu Finanzanlagen beziehen. Customermates ist dafür kein Aufzeichnungssystem. Nutzen Sie nur Kanäle, die Sie anderweitig rechtskonform aufzeichnen.
 </FaqItem>
 
-<FaqItem question="Ist Customermates nativ mit Depotbanken oder Planungstools verbunden?">
-Nein, native Anbindungen gibt es nicht. Wenn das andere System eine geeignete Schnittstelle anbietet, können Sie eine eigene Verbindung über REST, Webhooks, MCP oder einen separat betriebenen n8n-Workflow bauen.
+<FaqItem question="Eignet sich Customermates für Baufinanzierungsvermittler?">
+Für die Anfrage- und Tippgeberpipeline ja: Kontakte, Organisationen, eigene Phasen und Felder bilden Anfragen und Empfehlungspartner ab. Antrag, Produktsuche, Bonitätsprüfung und Bankeinreichung bleiben auf der Finanzierungsplattform; eine native Anbindung gibt es nicht.
+</FaqItem>
+
+<FaqItem question="Was kostet ein CRM für eine kleine Finanzberatung im Monat?">
+Bei Customermates zahlt ein Einzelberater [[commercial.price.starter.monthly]] im Monat mit Starter oder [[commercial.price.pro.monthly]] mit Pro und einem Postfach im Posteingang. Drei Nutzer mit Pro kosten [[commercial.price.pro.monthly.seats.3]] im Monat, bei monatlicher Zahlung.
 </FaqItem>
 </Faq>

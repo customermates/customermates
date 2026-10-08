@@ -1,17 +1,17 @@
 ---
-title: "CRM für Steuerberater: Mandanten, Fristen, Aufträge"
-description: "Open-Source-CRM für Steuerberater: Mandanten-Onboarding, Aufträge, Fristfelder und Unterlagenstatus in einer Pipeline, ab [[commercial.price.starter.monthly]] pro Nutzer und Monat."
+title: "CRM für Steuerberater: Mandanten, Aufträge, Unterlagen"
+description: "CRM für Steuerkanzleien neben DATEV: Mandanten, Aufträge je Periode und fehlende Unterlagen an einem Ort, mit Posteingang für E-Mail und WhatsApp ab Pro."
 industryName: "Steuerberater"
 
 relatedHrefs:
-  - /for/lawyers
+  - /for/professional-services
   - /for/financial-advisors
-  - /for/insurance-agents
-  - /for/mortgage-brokers
+  - /features/unified-inbox
+  - /for/law-firms
 
 hero:
-  title: "Das CRM für Steuerberater, das Ihre Kanzlei organisiert"
-  description: "Jeder Mandantenauftrag in einer Pipeline, jeder Mandant mit seiner Historie und, ab Pro, E-Mail, LinkedIn und WhatsApp in einem Posteingang. Ein fokussiertes Open-Source-CRM für Steuerkanzleien, neben DATEV und Ihrer Kanzleisoftware."
+  title: "Das CRM für Steuerberater, die Mandanten und Aufträge im Blick behalten wollen"
+  description: "Mandanten, laufende Aufträge und fehlende Unterlagen an einem Ort. Ab Pro landen E-Mail, LinkedIn und WhatsApp in einem Posteingang neben dem Mandanten, und in Customermates Cloud entwirft der Assistent Mate die Nachfragen nach Unterlagen zur Prüfung. Fristenkontrolle, Leistungserfassung und Abrechnung bleiben in DATEV oder Ihrer Kanzleisoftware."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bereit loszulegen?
-  description: Richten Sie Ihre Auftragsphasen ein, ergänzen Sie die Felder Ihrer Kanzlei und sehen Sie, welche Unterlagen noch fehlen.
+  action: Sehen Sie, welche Mandanten noch Unterlagen schulden
+  description: Importieren Sie Ihre Mandantenliste aus Excel, legen Sie Ihre Auftragsphasen an und speichern Sie die Ansichten für den Montagmorgen. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,169 +28,188 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Warum Steuerberater ein CRM brauchen
+In vielen Steuerkanzleien ist die fachliche Arbeit längst organisiert: DATEV oder eine andere Kanzleisoftware übernimmt Fristen, Leistungserfassung und Honorar. Was fehlt, ist oft der Blick auf die Mandantenbeziehung. Wer ist Ansprechpartner, welcher Auftrag wartet auf welche Unterlagen, was hat der Mandant letzte Woche per WhatsApp geschrieben? Customermates ist ein Open-Source-KI-CRM aus Deutschland, das genau diese Ebene für kleine Kanzleien abdeckt. Es ersetzt keine Kanzleisoftware. Wer alles in einem System will, findet weiter unten Anbieter, die dafür gebaut sind.
 
-Ein CRM für Steuerberater ist nicht dasselbe wie ein allgemeines Vertriebs-Tool. Steuerkanzleien verwalten langfristige Mandantenbeziehungen mit wiederkehrenden Fristen, sensiblen Unterlagen und Anforderungen, die sich jeden Monat, jedes Quartal und jedes Jahr wiederholen. Tabellen und E-Mail-Ordner halten damit nicht Schritt.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Passt für">
+    Kleine Steuerkanzleien und Buchhaltungsbüros, die DATEV oder ihre
+    Kanzleisoftware behalten und Mandanten, Aufträge und offene Unterlagen
+    übersichtlich führen wollen.
+  </SummaryItem>
+  <SummaryItem label="Aufbau">
+    Mandantenunternehmen als Organisationen, Personen als Kontakte, jeder
+    Auftrag je Periode als Deal mit Phase, Auftragsart und Datumsfeldern.
+  </SummaryItem>
+  <SummaryItem label="KI">
+    In Customermates Cloud fasst Mate einen Mandanten zusammen und speichert
+    Antwortentwürfe, mit gehosteten KI-Credits. Alternativ verbinden Sie Ihren
+    eigenen KI-Client über MCP.
+  </SummaryItem>
+  <SummaryItem label="Nicht enthalten">
+    Keine Fristenkontrolle, keine Leistungserfassung oder Honorarabrechnung,
+    keine GwG-Prüfung, kein Mandantenportal und keine Dateiablage am Datensatz.
+  </SummaryItem>
+</ArticleSummary>
 
-Durch die Vorgaben des [Steuerberatungsgesetzes (StBerG)](https://www.gesetze-im-internet.de/stberg/) und die Erwartungen der Mandanten an digitale Kommunikation sind die Anforderungen an Steuerberater gestiegen. Kanzleien, die auf manuelle Prozesse setzen, riskieren verpasste Fristen, verlorene Unterlagen und Mandanten, die zu einer besser organisierten Kanzlei wechseln.
+## Was eine Steuerkanzlei von einem CRM braucht
 
-Typische Probleme für Steuerkanzleien:
+- **Ein Mandant hat oft mehrere Ansprechpartner.** Der Geschäftsführer unterschreibt, die Buchhaltung schickt die Belege, bei der Einkommensteuer kommen beide Ehepartner dazu. Das gehört in einen Zusammenhang.
+- **Aufträge wiederholen sich.** Laufende Finanzbuchhaltung, Lohn, USt-Voranmeldung, Jahresabschluss, Einkommensteuererklärung. Jede Periode ist ein eigener Auftrag mit eigenem Stand.
+- **Der Engpass sind fehlende Unterlagen.** Ein großer Teil der Nacharbeit besteht aus „uns fehlen noch die Kontoauszüge für März“.
+- **Neue Mandanten kommen über Empfehlungen.** Die erste Anfrage landet im Postfach einer Mitarbeiterin und geht unter, wenn niemand sie nachhält.
+- **Mandantendaten unterliegen der Verschwiegenheit.** Mitarbeiter sollen die Mandanten sehen, die sie betreuen, und Änderungen müssen nachvollziehbar sein.
 
-- **Steuersaison-Überlastung**: Wenn alle Mandanten gleichzeitig Aufmerksamkeit brauchen, rutschen Dinge durch. Eine verpasste Abgabefrist bedeutet Verspätungszuschläge für den Mandanten und Vertrauensverlust für Ihre Kanzlei.
-- **Verstreute Mandantenkommunikation**: E-Mails, Telefonate, Portal-Nachrichten und handschriftliche Notizen in verschiedenen Systemen. Wenn ein Mandant anruft, findet niemand das vollständige Bild.
-- **Manuelles Onboarding**: Jeder neue Mandant braucht dieselben Schritte: Auftragsbestätigung, Vollmachten, Unterlagenanforderung, DATEV-Zugang. Ohne Übersicht weiß niemand, welcher Schritt noch offen ist.
-- **Kein Überblick über die Kanzlei**: Welche Mandanten haben ihre Unterlagen eingereicht? Wer fehlt noch? Ohne zentrale Sicht arbeiten Sie im Blindflug.
-- **Empfehlungen werden nicht nachverfolgt**: Ein zufriedener Mandant empfiehlt einen Bekannten. Ohne System zum Erfassen und Nachfassen geht neues Geschäft verloren.
-- **Keine Mandantensegmentierung**: Sie behandeln Einkommensteuererklärungen und Konzernabschlüsse gleich, obwohl sie völlig unterschiedliche Abläufe brauchen.
+## So richten Sie Customermates für eine Steuerkanzlei ein
 
-Ein Steuerberater-CRM strukturiert Mandantenbeziehungen, Auftragsphasen, Fristfelder und den Status von Unterlagen. Customermates ist dabei bewusst fokussiert: Es ist keine Kanzleisoftware, kein Dokumentenarchiv und kein Fristenkalender mit Erinnerungen. Es speichert Links oder Referenznummern zu Dateien in Ihrem Dokumentensystem und läuft neben DATEV oder Ihrer Kanzleisoftware.
+Customermates hat fünf Datensatztypen. Unter **Mein Unternehmen › Einstellungen** benennen Sie sie aus einer Vorschlagsliste um, zum Beispiel Deals in „Aufträge“, Services in „Leistungen“ und Organisationen in „Unternehmen“. Alle Feldnamen unten sind Beispiele.
 
-## Wie Customermates Steuerkanzleien hilft
+| Datensatztyp | Verwendet für | Beispielfelder |
+|---|---|---|
+| Organisationen | Mandantenunternehmen und Privatmandanten | Rechtsform (Einzelauswahl: Privatperson, Einzelunternehmen, GbR, GmbH, UG, Verein), Wirtschaftsjahr-Ende (Datum), DATEV-Mandantennummer (Text) |
+| Kontakte | Personen beim Mandanten | Rolle (Einzelauswahl: Geschäftsführung, Buchhaltung, Ehepartner, Empfehlungsgeber), Empfohlen von |
+| Deals bzw. Aufträge | Jeder Auftrag je Periode, etwa „Müller GmbH: Jahresabschluss 2026“ | Phase, Auftragsart, Unterlagen (Einzelauswahl: Vollständig, Teilweise, Ausstehend), Unterlagen angefordert am, Abgabe bis (Datum), Auftragsbestätigung (Link) |
+| Leistungen | Ihr Leistungsangebot mit Preis | Laufende Fibu, Lohnabrechnung, Jahresabschluss, Einkommensteuererklärung, Beratungsstunde |
+| Aufgaben | Nächste Schritte für eine Person | Ein selbst angelegtes Datumsfeld „Erledigen bis“, weil Aufgaben kein eingebautes Fälligkeitsdatum haben |
 
-Customermates gibt Ihrer Kanzlei eine zentrale Plattform für die Verwaltung jedes Mandantenauftrags: von der ersten Anfrage bis zur jahrelangen wiederkehrenden Zusammenarbeit.
+Die DATEV-Mandantennummer als Textfeld ist nützlich: Wer einen Mandanten in Customermates öffnet, findet ihn sofort in DATEV wieder.
 
-### Mandanten-Onboarding-Pipeline
+### Phasen für Aufträge
 
-Die Mandantenaufnahme ist einer der aufwändigsten Prozesse in jeder Steuerkanzlei. Die Phase eines Auftrags ist in Customermates ein Auswahlfeld, das Sie selbst konfigurieren. So bildet die [Pipeline](/features/pipeline) Ihre Aufnahme ab: „Erstanfrage“, „Angebot versendet“, „Auftragsbestätigung unterzeichnet“, „Vollmachten eingeholt“, „DATEV eingerichtet“, „Aktiver Mandant“.
+Die Phase ist ein Einzelauswahlfeld, das Sie selbst definieren, und jede Option kann eine Wahrscheinlichkeit tragen. Weil es nur ein Phasenfeld gibt, trennen Sie Neumandate und laufende Arbeit über das Feld Auftragsart. Eine Phasenliste für beides:
 
-Jeder Auftrag hat einen zuständigen Bearbeiter, und Aufgaben halten fest, was noch zu tun ist. Eine gespeicherte Ansicht, die Aufträge in der Phase „Angebot versendet“ nach letzter Änderung sortiert, zeigt, wo nachgefasst werden muss.
+Anfrage · Angebot versendet · Auftragsbestätigung unterzeichnet · Unterlagen angefordert · Unterlagen eingegangen · In Bearbeitung · In Prüfung · Übermittelt · Abgeschlossen
 
-### Steuersaison-Management
+Der Wert eines Auftrags ergibt sich aus den verknüpften Leistungen, Preis mal Menge. Gewichtete Summen ergeben sich fest aus Ihren eigenen Wahrscheinlichkeiten, eine Prognose ist das nicht. Auf dem [Pipeline-Board](/features/pipeline) ziehen Sie jeden Auftrag als Karte in die nächste Phase. Gruppiert nach „Zugewiesen“ sehen Sie, wie viel bei welchem Mitarbeiter liegt.
 
-Die Steuersaison ist der Moment, in dem ein CRM für Steuerkanzleien seinen Wert beweist. Da es nur eine Phasenspalte gibt, trennen Sie Onboarding und Steuersaison über ein eigenes Auswahlfeld „Auftragsart“ und gespeicherte Ansichten. Die Saisonphasen lauten dann etwa: „Unterlagen angefordert“, „Unterlagen eingegangen“, „In Bearbeitung“, „In Prüfung“, „Abgabebereit“, „Eingereicht“, „Abgeschlossen“.
+### Gespeicherte Ansichten für die Woche
 
-Filtern Sie nach einem Fristfeld, zuständigem Bearbeiter oder Mandantentyp. Sehen Sie auf einen Blick, welche Mandanten bei der Unterlagensammlung feststecken und welche zur Prüfung bereit sind. Bei 200 Steuererklärungen ist diese Übersicht der Unterschied zwischen strukturierter Abarbeitung und Chaos.
+1. **Unterlagen fehlen:** Aufträge in „Unterlagen angefordert“ mit Unterlagen „Teilweise“ oder „Ausstehend“, sortiert nach „Unterlagen angefordert am“, älteste zuerst.
+2. **Abgabe demnächst:** Aufträge außer „Übermittelt“ und „Abgeschlossen“, sortiert nach „Abgabe bis“. Eigene Datumsfelder kennen die Filter Vor, Nach und Zwischen, aber keinen relativen Zeitraum wie „nächste 30 Tage“. Sortieren Sie deshalb nach dem Datum oder setzen Sie einen festen Zeitraum.
+3. **Auftragsbestätigung offen:** Aufträge in „Angebot versendet“, sortiert nach letzter Änderung.
+4. **Meine Aufträge:** gefiltert auf Sie unter „Zugewiesen“.
 
-### Auftragsbestätigungen und Vollmachten nachverfolgen
+Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben Filtern ihre eigene Ansicht an.
 
-Verfolgen Sie Auftragsbestätigungen und Vollmachten als Teil Ihrer Mandanten-Pipeline, etwa mit Datumsfeldern für „versendet“ und „unterzeichnet“. Sehen Sie, welche Mandanten unterschrieben haben und bei wem Nachfassbedarf besteht. Customermates verschickt keine automatischen Erinnerungen. In der Cloud-Version kann eine [Routine](/docs/app-routines) des Mate-Assistenten jeden Montag nicht unterzeichnete Auftragsbestätigungen auflisten und Nachfass-E-Mails zur Prüfung entwerfen. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+### Mandantenkommunikation in einem Posteingang (ab Pro)
 
-### Unterlagenstatus pro Auftrag
+In Customermates Cloud mit Pro, Business oder Enterprise führt der [einheitliche Posteingang](/features/unified-inbox) E-Mail aus Gmail, Outlook oder IMAP mit LinkedIn, WhatsApp, Instagram und Telegram zusammen. Verknüpfen Sie einen Absender einmal mit einem Kontakt, dann erscheinen spätere Unterhaltungen mit dieser Adresse in der Historie des Mandanten. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Unterhaltungen aus Ihren eigenen Konten bleiben privat, bis Sie eine einzelne Unterhaltung teilen oder ab Business das ganze Konto. Belege, die Mandanten mitschicken, bleiben in der Unterhaltung im Posteingang.
 
-Verwenden Sie typisierte benutzerdefinierte Felder, um zu verfolgen, welche Unterlagen eingegangen sind und welche für jeden Auftrag noch ausstehen, zum Beispiel ein Auswahlfeld „Unterlagenstatus“ mit „Vollständig“, „Teilweise“ und „Ausstehend“. Ergänzen Sie Notizen sowie Links oder Referenznummern zu Dateien in Ihrem Dokumentensystem. Customermates lädt keine Dateien an Datensätze hoch.
+### Wöchentliche Nachfrage nach Unterlagen mit Mate (Customermates Cloud)
 
-### Wiederkehrende Aufträge
+Mate ist der Assistent in Customermates Cloud und nutzt gehostete KI-Credits; für den Posteingang braucht es Pro oder höher. Legen Sie eine [Routine](/docs/app-routines) an, stellen Sie **Wiederholung** auf **Wöchentlich**, Montag 08:00 Uhr, und geben Sie Anweisungen wie diese:
 
-Die meisten Anforderungen an ein CRM für Steuerberater drehen sich um wiederkehrende Arbeit: monatliche Buchhaltung, vierteljährliche USt-Voranmeldungen, jährliche Steuererklärungen, Jahresabschlüsse. Customermates legt wiederkehrende Aufträge nicht selbst an. Sie können dafür Leistungen (Services) mit Turnus-Feld pflegen, per [MCP](/docs/mcp) einen KI-Client die Aufträge des nächsten Zyklus anlegen lassen oder über die REST-API und ein separat betriebenes n8n einen Zeitplan von außen anstoßen.
+```text
+Aufgabe: Aufträge in der Phase „Unterlagen angefordert“ finden, bei denen
+Unterlagen „Teilweise“ oder „Ausstehend“ ist und „Unterlagen angefordert am“
+mehr als 10 Tage zurückliegt. Für jeden Auftrag die letzte Unterhaltung mit
+den Kontakten im Posteingang lesen und einen kurzen, höflichen
+Antwortentwurf in der Sie-Form speichern, der nach den fehlenden Unterlagen
+laut Notiz fragt. Nichts senden. Zum Schluss eine Liste ausgeben: Mandant,
+Auftrag, Tage seit Anforderung, Entwurf gespeichert ja oder nein.
+```
 
-### Mandantensegmentierung nach Leistungsart
+<AcquisitionCallout title="Entwürfe statt Versand" variant="boundary">
+  Mate und Routinen können E-Mails und Chatnachrichten ohne Rückfrage senden.
+  Schreiben Sie deshalb in die Anweisung, dass nur Entwürfe gespeichert
+  werden. Prüfen Sie jeden Entwurf im Posteingang und senden Sie ihn selbst.
+  Jeder Lauf hat eine Credit-Obergrenze, halten Sie die Liste also kurz.
+</AcquisitionCallout>
 
-Nicht alle Mandanten sind gleich. Mit [Kontaktmanagement](/features/contact-management) und benutzerdefinierten Auswahlfeldern segmentieren Sie Ihre Mandanten nach Leistungsart (Steuererklärung, Buchhaltung, Beratung, Jahresabschluss), Rechtsform (Einzelunternehmen, GmbH, UG, GbR, Verein), Umsatzklasse, Branche oder jeder anderen Dimension, die für Ihre Kanzlei relevant ist.
+Eine zweite Routine reagiert auf ein Ereignis: Wechselt die Phase eines Auftrags auf „Auftragsbestätigung unterzeichnet“, legt sie eine Aufgabe „Unterlagen anfordern“ an, verknüpft mit dem Auftrag und derselben Person zugewiesen. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
-Nutzen Sie Segmente in gespeicherten Ansichten, um Arbeit in der Steuersaison zu priorisieren und zu sehen, welche Leistungsbereiche den meisten Auftragswert bringen.
+Für die nächste Periode genügt eine Bitte im Chat: „Lege für jeden Auftrag mit Auftragsart Einkommensteuer in der Phase Übermittelt einen neuen Auftrag für das Folgejahr in der Phase Unterlagen angefordert an.“ Lieber mit eigenem KI-Client? Claude, ChatGPT oder andere Clients verbinden sich über [MCP](/docs/mcp), in jedem Tarif und auch bei selbst gehosteten Installationen.
 
-## Schlüsselfunktionen für Steuerkanzleien
+## Was Customermates für Steuerkanzleien nicht leistet
 
-### Pipeline-Kanban-Board
+- **Keine Fristenkontrolle.** Aufgaben haben weder Fälligkeitsdatum noch Erinnerung oder Benachrichtigung. Ein Feld „Abgabe bis“ und eine sortierte Ansicht zeigen, was ansteht; die verbindliche Fristenkontrolle gehört in Ihre Kanzleisoftware.
+- Keine Leistungserfassung, keine Honorarabrechnung nach StBVV, keine Angebote und keine elektronische Unterschrift. Den Link zur unterschriebenen Auftragsbestätigung legen Sie am Auftrag ab.
+- Keine Prüfung nach dem Geldwäschegesetz: Identifizierung und Risikoeinstufung bildet Customermates nicht ab.
+- Kein Mandantenportal und keine Dateiablage am Datensatz.
+- Keine fertige DATEV-Schnittstelle. Abgleiche bauen Sie über [REST-API und Webhooks](/features/workflow-automation) mit einem separat betriebenen n8n, soweit die Gegenseite eine Schnittstelle bietet.
+- Keine Mobile-App.
 
-Sehen Sie jeden Auftrag auf einen Blick auf einem visuellen [Kanban-Board](/features/pipeline). Spalten stehen für Phasen: „Unterlagen angefordert“, „Unterlagen eingegangen“, „In Bearbeitung“, „In Prüfung“, „Eingereicht“, „Abgeschlossen“. Verschieben Sie Aufträge per Drag-and-drop zwischen den Spalten. Filtern Sie nach Auftragsart, Fristfeld, zuständigem Mitarbeiter oder Mandantensegment, und speichern Sie die Ansicht für sich.
+Wenn einer dieser Punkte der Grund für Ihre Suche ist, sehen Sie sich ein Werkzeug an, das dafür gebaut ist. Diese Seite wird von Customermates veröffentlicht; die Herstellerangaben wurden am 8. Oktober 2026 auf den Websites der Anbieter geprüft.
 
-### Kontaktmanagement mit vollständiger Mandantenhistorie
+| Wenn Sie brauchen | Sehen Sie sich an | Was der Anbieter nennt |
+|---|---|---|
+| Kanzleiorganisation mit Fristüberwachung und Leistungserfassung | [DATEV Eigenorganisation comfort](https://www.datev.de/web/de/shop/produkt-details/eigenorganisation-comfort-61400) | Auftragsorientierte Kanzleisteuerung, Fristüberwachung mit Erinnerungsfunktion, Leistungserfassung mit Vergütungsvorschlägen auf Basis der StBVV, E-Rechnung |
+| Ein CRM speziell für Steuerkanzleien mit GwG-Prozess | [ballo.io](https://ballo.io/plattform) | CRM, Aufgaben- und Ressourcenplanung, integrierter GwG-Prozess, Angebot und Vertrag mit Online-Annahme, als Plattform neben DATEV |
+| Mandantenportal und Workflow aus einer Hand | [Canopy](https://www.getcanopy.com/pricing) | Mandantenportal, CRM, Dokumentenmanagement mit E-Signatur, Zeiterfassung und Abrechnung; englischsprachige Website, Preise in US-Dollar |
 
-Jeder Mandant hat ein Profil mit Kontaktdaten, Unternehmensinformationen, Auftragshistorie, Unterlagenstatusfeldern, externen Dokumentenlinks, Notizen und Aktivitätsverlauf. Verbundene E-Mail-Threads bleiben im Posteingang; ihre Teilnehmer können mit Kontakten verknüpft werden. Mehr zum [Kontaktmanagement](/features/contact-management).
+Eine sinnvolle Aufteilung: DATEV oder Ihre Kanzleisoftware für Fristen, Leistungen und Honorar, Customermates für Mandantenbeziehung, Auftragsstand und Kommunikation.
 
-### Einheitlicher Posteingang für die Mandantenkommunikation
+## Was es kostet
 
-In der Cloud-Version ab Pro liegen E-Mail (Gmail, Outlook, IMAP), LinkedIn und WhatsApp in einem [einheitlichen Posteingang](/features/email-integration) im CRM. Sie verknüpfen jede Unterhaltung mit dem richtigen Mandanten. Wenn ein Mandant eine Frage zu seiner USt-Voranmeldung stellt, hat Ihr Team den Kontext, ohne E-Mails weiterzuleiten. SMS und Telefonie sind keine Kanäle.
+Die Preise gelten pro Nutzer und Monat, monatlich abgerechnet. REST-API, Webhooks und MCP sind in jedem Tarif enthalten.
 
-### Anbindung an n8n und andere Tools
+| Kanzlei | Tarif | Pro Monat |
+|---|---|---|
+| Einzelkanzlei, ohne Posteingang | Starter | [[commercial.price.starter.monthly]] |
+| Einzelkanzlei, ein Postfach im Posteingang | Pro | [[commercial.price.pro.monthly]] |
+| Drei Personen, je ein Postfach | Pro | [[commercial.price.pro.monthly.seats.3]] |
+| Fünf Personen, ohne Posteingang | Starter | [[commercial.price.starter.monthly.seats.5]] |
+| Fünf Personen, je ein Postfach | Pro | [[commercial.price.pro.monthly.seats.5]] |
 
-Customermates hat keinen eigenen Automatisierungs-Baukasten. Automatisierung läuft über [Webhooks, REST-API](/features/workflow-automation) und den Community-Node für ein separat betriebenes n8n. Beispiele, die Sie dort selbst bauen:
+Jeder Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate; die Mengen stehen auf der [Preisseite](/pricing). Den Open-Source-Kern betreiben Sie ohne Lizenzgebühr auf eigenem Server, eine selbst gehostete Installation hat aber keinen Posteingang, kein Mate und keine Routinen.
 
-- **Fristenlisten**: Ein n8n-Workflow liest Aufträge mit einem Fristdatum in den nächsten 30 Tagen per REST und schickt Ihrem Team eine Liste.
-- **Auftragsbestätigungs-Nachfassen**: Ein Webhook meldet eine Phasenänderung; n8n startet in Ihrem E-Mail-Tool die passende Nachricht.
-- **Wiederkehrende Auftragserstellung**: n8n legt nach Zeitplan neue Aufträge für monatliche Buchhaltung oder jährliche Steuererklärungen per REST an.
-- **Onboarding-Schritte**: Bei einem neuen Mandanten legt n8n interne Aufgaben an.
+## Mandantenliste übernehmen
 
-### Dashboards und Auswertungen
+<Steps>
+  <Step title="Liste als Excel speichern">
+    Der Import liest Excel-Dateien (.xlsx), jeweils einen Datensatztyp.
+    CSV-Dateien liest der Import nicht, speichern Sie einen Export aus
+    DATEV oder einem anderen System vorher als .xlsx.
+  </Step>
+  <Step title="Erst Organisationen, dann Kontakte importieren">
+    Öffnen Sie in der Liste Import und Export, wählen Sie Aus Datei
+    hinzufügen und ordnen Sie die Spalten zu. Eine Spalte mit dem
+    Unternehmensnamen verknüpft Kontakte mit ihrer Organisation.
+  </Step>
+  <Step title="Laufende Aufträge als Deals importieren">
+    Übernehmen Sie Phase, Auftragsart und Datumsfelder und verknüpfen Sie
+    danach die Leistungen, damit jeder Auftrag seinen Wert erhält.
+  </Step>
+  <Step title="Ansichten und Routine anlegen">
+    Speichern Sie die vier Ansichten. Ab Pro verbinden Sie Ihr Postfach unter
+    Mein Profil › Kanäle und richten danach die wöchentliche Routine ein.
+  </Step>
+</Steps>
 
-Verfolgen Sie die Kanzlei mit [Dashboards](/features/reporting): Aufträge je Phase, Auftragswert je Leistungsart, Aufträge je Bearbeiter. Phasen können eine Wahrscheinlichkeit tragen; daraus berechnet Customermates gewichtete Werte. Das ist eine feste Rechnung aus Ihren eigenen Gewichten, keine Prognose.
+Mehr zum Import steht in der [Dokumentation zu Datensätzen](/docs/app-records).
 
-### KI-Agenten, die Ihr CRM bedienen
+## Mandantendaten und Verschwiegenheit
 
-Verbinden Sie Claude, ChatGPT oder einen anderen KI-Client über [MCP](/docs/mcp) ([[derived.mcp.tools.total]] Tools). Den KI-Client wählen und bezahlen Sie selbst. Agenten legen Mandantenakten an, verschieben Aufträge zwischen Phasen, protokollieren Notizen aus einem Gespräch, entwerfen Mandantenkommunikation und fassen Auftragsnotizen zusammen. In der Cloud-Version erledigt der eingebaute Mate-Assistent dasselbe in der App und fragt vor dem Senden oder Löschen nach Ihrer Bestätigung.
+- In Customermates Cloud ist die primäre Produktionsdatenbank in der AWS-Region Frankfurt konfiguriert. Hosting und weitere Unterauftragsverarbeiter, darunter US-Anbieter, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
+- Eine eigene Rolle mit Lesezugriff „Zugewiesen“ beschränkt Mitarbeiter auf die Datensätze, die ihnen zugewiesen sind. Das Audit-Log hält in jedem Tarif fest, wer welchen Datensatz geändert hat.
+- Customermates hat keine Zertifizierung wie ISO 27001 oder SOC 2.
+- Für externe Dienstleister gelten für Steuerberater die Anforderungen aus [§ 62a StBerG](https://www.gesetze-im-internet.de/stberg/__62a.html). Ob AVV und Unterauftragsverarbeiter dafür ausreichen, prüfen Sie für Ihre Kanzlei selbst; Customermates gibt dazu keine Zusage. Wer Steuerdaten in DATEV lässt und im CRM nur Auftragsstand und Kommunikation führt, verkleinert die Frage erheblich.
 
-### Datenschutz für Mandantendaten
-
-Finanzielle Mandantendaten verlangen angemessenen Schutz. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst. Rollen und Berechtigungen pro Ressource und Aktion sowie ein Audit-Log gibt es in jedem Tarif.
-
-## CRM für Steuerberater vs. Kanzleisoftware
-
-Eine häufige Frage ist, ob Steuerkanzleien ein CRM, eine Kanzleisoftware oder beides brauchen:
-
-- **Kanzleisoftware** (wie DATEV oder Addison) konzentriert sich auf die fachliche Ausführung: Steuererklärungen erstellen, Finanzbuchhaltung, Lohnabrechnung, elektronische Übermittlung, Fristenkontrolle.
-- **Ein CRM für Steuerberater** konzentriert sich auf die Mandantenbeziehung: Onboarding, Kommunikationshistorie, Auftragsverfolgung und Segmentierung.
-
-Customermates übernimmt die Beziehungsebene, die reine Kanzleisoftware nicht abdeckt. Eine fertige DATEV-Integration gibt es nicht; wer Daten abgleichen will, verbindet Customermates über REST-API, Webhooks oder ein separat betriebenes n8n mit den Schnittstellen seiner Kanzleisoftware.
-
-## Preise, die für Steuerberater funktionieren
-
-Steuerberater schätzen klare Zahlen. Customermates rechnet monatlich pro Nutzer ab:
-
-- **Starter ([[commercial.price.starter.monthly]] pro Nutzer pro Monat)**: Kontakte, Organisationen, Aufträge, Leistungen, Aufgaben, benutzerdefinierte Felder, Ansichten, REST-API, Webhooks und MCP
-- **Pro ([[commercial.price.pro.monthly]] pro Nutzer pro Monat)**: ergänzt den einheitlichen Posteingang für Mandanten-E-Mail, WhatsApp und LinkedIn
-- **Keine Gebühr pro Kontakt**: abgerechnet wird pro Nutzer
-- **Selbst hostbar**: Der Open-Source-Kern läuft mit Docker auf Ihrem eigenen Server ohne Lizenzkosten; Posteingang und Mate gibt es nur in der Cloud
-
-Eine Einzelkanzlei zahlt [[commercial.price.starter.monthly]] pro Monat in Starter. Eine Kanzlei mit 8 Mitarbeitern zahlt [[commercial.price.starter.monthly.seats.8]] pro Monat.
-
-Alle Details auf unserer [Preisseite](/pricing).
-
-## Integrationen für Steuerkanzleien
-
-Customermates verbindet sich mit den Tools, die Steuerkanzleien bereits nutzen:
-
-- **E-Mail**: Gmail-, Outlook- oder IMAP-Postfächer ab Pro im einheitlichen Posteingang verbinden; das ist kein Kontaktabgleich
-- **Kalender**: Ab Pro lesender Kalenderzugriff; Termine planen oder buchen Sie weiter in Ihrem Kalender
-- **Kanzleisoftware**: Anbindung an DATEV, Lexware Office, Addison oder andere Plattformen über REST-API, Webhooks oder ein separat betriebenes n8n
-- **Dokumentenreferenzen**: Links zu Dateien in Google Drive, Dropbox, OneDrive oder einem anderen Dokumentensystem speichern; diese Dienste sind weder eingebauter Speicher noch native Integrationen
-- **Interne Kommunikation**: Slack, Teams oder andere Messaging-Plattformen über Webhooks und n8n anbinden; eine native Integration gibt es nicht
-- **KI (MCP)**: Claude, ChatGPT oder andere KI-Clients für Mandanten-E-Mails und Zusammenfassungen
-
-## Erste Schritte
-
-So richten Sie Customermates für Ihre Steuerkanzlei ein:
-
-1. **Konto erstellen**: kostenlos, keine Kreditkarte nötig. Die ersten [[commercial.trial.days]] Tage sind kostenlos.
-2. **Mandanten importieren**: aus einer Excel-Datei (XLSX), jeweils ein Datensatztyp, oder über die REST-API. Einen CSV-Import gibt es nicht.
-3. **Pipeline einrichten**: die Phasen umbenennen (etwa „Unterlagen angefordert“, „In Bearbeitung“, „In Prüfung“, „Eingereicht“) und jeder Phase eine Wahrscheinlichkeit geben.
-4. **Benutzerdefinierte Felder hinzufügen**: zum Beispiel Wirtschaftsjahr, Rechtsform, Leistungsart, Honorarstruktur und Fristdaten.
-5. **Ansichten speichern**: etwa „Unterlagen fehlen“ oder „Frist in den nächsten 30 Tagen“, sortiert nach Ihrem Fristfeld.
-
-Hören Sie auf, Ihre Kanzlei mit Tabellen und Klebezetteln zu verwalten. Customermates hält jeden Mandanten und jeden Auftrag organisiert, damit Sie sich auf die Beratungsarbeit konzentrieren können, die Ihre Kanzlei wachsen lässt.
-
-## Häufig gestellte Fragen
+## Häufige Fragen
 
 <Faq>
-<FaqItem question="Was ist ein CRM für Steuerberater?">
-Ein CRM für Steuerberater ist ein System zur Mandantenbeziehungsverwaltung, das Steuerkanzleien hilft, Mandantendaten zu verwalten, Aufträge durch Phasen zu führen und den Stand von Unterlagen und Fristfeldern sichtbar zu machen. Anders als allgemeine Vertriebs-CRMs konzentriert sich ein Steuerberater-CRM auf langfristige Mandantenbeziehungen mit wiederkehrenden Leistungszyklen.
+<FaqItem question="Welche Software nutzen Steuerberater?">
+Im Kern meist eine Kanzleisoftware wie DATEV für Buchhaltung, Lohn, Steuererklärungen, Fristen und Honorar, dazu ein Dokumentenmanagement. Ein CRM kommt als eigene Ebene dazu, wenn mehrere Mitarbeiter Mandanten gemeinsam betreuen und Anfragen, Auftragsstand und Kommunikation übersichtlich sein sollen.
 </FaqItem>
 
-<FaqItem question="Brauchen kleine Steuerkanzleien ein CRM?">
-Oft ja. Kleinen Kanzleien fehlt häufig das Verwaltungspersonal, um Mandantenbeziehungen manuell zu pflegen. Ein CRM zeigt, welche Unterlagen fehlen und welche Aufträge in welcher Phase stehen. Spätestens in der Steuersaison wird diese Übersicht ohne System schwer.
+<FaqItem question="Was kostet ein CRM-System für eine Steuerkanzlei im Monat?">
+Bei Customermates zahlt eine Einzelkanzlei [[commercial.price.starter.monthly]] pro Monat in Starter oder [[commercial.price.pro.monthly]] in Pro mit einem Postfach im Posteingang. Eine Kanzlei mit fünf Personen zahlt in Pro [[commercial.price.pro.monthly.seats.5]] pro Monat. Es gibt keine Gebühr pro Kontakt und keine Jahresbindung.
 </FaqItem>
 
-<FaqItem question="Wie unterscheidet sich ein CRM von Kanzleisoftware?">
-Kanzleisoftware wie DATEV konzentriert sich auf die fachliche Ausführung: Steuererklärungen, Finanzbuchhaltung, Lohnabrechnung, Fristenkontrolle. Ein CRM konzentriert sich auf die Mandantenbeziehung: Onboarding, Kommunikationshistorie, Auftragsverfolgung und Segmentierung. Viele Kanzleien nutzen beides. Customermates deckt die CRM-Ebene ab.
+<FaqItem question="Ersetzt Customermates die Kanzleiorganisation in DATEV?">
+Nein. Fristüberwachung, Leistungserfassung und Honorarabrechnung bleiben in DATEV Eigenorganisation oder Ihrer Kanzleisoftware. Customermates ergänzt die Mandantenbeziehung: Ansprechpartner, Anfragen, Auftragsstand, fehlende Unterlagen und Unterhaltungen.
 </FaqItem>
 
-<FaqItem question="Kann Customermates sich mit DATEV, Lexware Office oder anderen Tools verbinden?">
-Nicht mit einer fertigen Integration. Customermates bietet eine REST-API, Webhooks und einen Community-Node für n8n, das Sie separat betreiben. Darüber können Sie Mandantendaten mit Tools abgleichen, die selbst eine Schnittstelle anbieten. Den Aufbau solcher Workflows übernehmen Sie oder Ihr Dienstleister.
+<FaqItem question="Kann Customermates an Abgabefristen denken?">
+Nicht selbst. Customermates verschickt keine Erinnerungen. Sie pflegen ein Datumsfeld „Abgabe bis“ am Auftrag und sortieren eine gespeicherte Ansicht danach. In Customermates Cloud kann eine Routine wöchentlich auflisten, was ansteht. Die verbindliche Fristenkontrolle bleibt in Ihrer Kanzleisoftware.
 </FaqItem>
 
-<FaqItem question="Wie steht Customermates zur DSGVO beim Umgang mit Mandanten-Finanzdaten?">
-Ob der Einsatz eines Tools DSGVO-konform ist, hängt davon ab, wie Ihre Kanzlei als Verantwortliche es nutzt. Customermates stellt einen [Auftragsverarbeitungsvertrag (AVV)](/dpa) bereit, legt alle [Unterauftragsverarbeiter](/subprocessors) offen, auch US-Anbieter mit Standardvertragsklauseln, und betreibt die Cloud-Datenbank in der AWS-Region Frankfurt. Eine Zertifizierung wie ISO 27001 hat Customermates nicht. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern auf eigener Infrastruktur.
+<FaqItem question="Gibt es eine DATEV-Schnittstelle?">
+Keine fertige. Customermates bietet REST-API, Webhooks und einen Community-Node für n8n, das Sie separat betreiben. Darüber gleichen Sie Daten mit Systemen ab, die selbst eine Schnittstelle anbieten. Für viele Kanzleien reicht schon die DATEV-Mandantennummer als Feld am Mandanten.
 </FaqItem>
 
-<FaqItem question="Erinnert Customermates an Abgabefristen?">
-Nein. Aufgaben haben kein Fälligkeitsdatum, und Customermates verschickt keine Erinnerungen. Sie können Fristen als Datumsfelder am Auftrag pflegen und eine gespeicherte Ansicht nach diesem Datum sortieren. In der Cloud-Version kann eine Routine regelmäßig anstehende Fristen auflisten. Die verbindliche Fristenkontrolle bleibt in Ihrer Kanzleisoftware.
-</FaqItem>
-
-<FaqItem question="Was kostet ein CRM für Steuerberater?">
-Customermates startet bei [[commercial.price.starter.monthly]] pro Nutzer pro Monat für das Kern-CRM; den einheitlichen Posteingang gibt es ab Pro für [[commercial.price.pro.monthly]] pro Nutzer pro Monat. Es gibt keine Gebühr pro Kontakt. Eine 5-Personen-Kanzlei in Starter zahlt [[commercial.price.starter.monthly.seats.5]] pro Monat.
-</FaqItem>
-
-<FaqItem question="Kann ich von einem anderen CRM zu Customermates wechseln?">
-Ja. Exportieren Sie Ihre Mandanten aus dem bisherigen System als Excel-Datei und importieren Sie sie als XLSX, jeweils einen Datensatztyp. Einen CSV-Import gibt es nicht. Für größere Datenmengen steht die REST-API bereit, und ein per MCP verbundener KI-Client kann beim Übertragen helfen.
+<FaqItem question="Hilft Customermates bei den Pflichten nach dem Geldwäschegesetz?">
+Nein, eine GwG-Prüfung mit Identifizierung und Risikoeinstufung bildet Customermates nicht ab. Sie können den Stand in einem Einzelauswahlfeld festhalten, die Prüfung selbst gehört in ein dafür gebautes Werkzeug. ballo.io nennt auf seiner Website einen integrierten GwG-Prozess.
 </FaqItem>
 </Faq>
+
+Herstellerangaben am 8. Oktober 2026 geprüft auf den Seiten von [DATEV](https://www.datev.de/web/de/shop/produkt-details/eigenorganisation-comfort-61400), [ballo.io](https://ballo.io/plattform) und [Canopy](https://www.getcanopy.com/pricing).

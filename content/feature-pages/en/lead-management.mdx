@@ -1,17 +1,17 @@
 ---
-title: "CRM Lead Management: Track, Qualify & Convert"
-description: "CRM lead management with a visual pipeline, custom qualification fields, and linked contacts. Scoring, routing, and nurture run in separate tools."
+title: "Lead Management Software for Small Teams"
+description: "Track every lead from first message to won deal: a stage field, a source field, saved views and conversations on the contact. No scoring or forms."
 featureName: Lead Management
 
 relatedHrefs:
-  - /features/outlook-integration
   - /features/pipeline
-  - /features/project-management
-  - /features/reporting
+  - /features/unified-inbox
+  - /features/workflow-automation
+  - /blog/client-qualification
 
 hero:
-  title: CRM and Lead Management That Turns Prospects Into Customers
-  description: Track every lead from first touch to closed deal. Supported external AI clients can update allowed records and draft individual follow-ups through MCP, the unified inbox captures supported conversations, and a visual pipeline keeps your team focused on what converts.
+  title: "Lead management software for small teams that win clients in conversations"
+  description: Customermates keeps each lead as a contact with a stage, a source and every email, LinkedIn or WhatsApp message beside it. Qualified leads become deals in a weighted pipeline. No scoring engine, no forms, no setup project.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to manage your leads better?
-  description: Start capturing, qualifying, and converting leads today with Customermates. Core lead management is included from day one on the Starter tier.
+  action: Put your open leads into one list this week
+  description: Import your lead list as an .xlsx workbook, add a Source field, save two views, and check within [[commercial.trial.days]] days whether fewer leads go quiet.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,112 +28,127 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## What Is CRM Lead Management?
+Lead management software keeps every potential client in one list, shows where each one stands and who is on it, and records how they found you. Customermates does this for small client-facing teams: a lead is a contact with a stage field, a source field and an assigned teammate, and once it is qualified you open a deal for it in the [pipeline](/features/pipeline).
 
-CRM lead management is the process of capturing, tracking, qualifying, and nurturing prospective customers through your sales pipeline until they convert. A lead management system replaces scattered spreadsheets and sticky notes with a centralized database where every lead's status, interactions, and next steps are visible to the entire team.
+What it leaves out matters just as much. Customermates scores no leads, enriches no records, hosts no web forms and routes nothing round-robin. If your leads arrive by the hundred from ads and forms, you need those engines, and the table further down names tools that have them.
 
-Structured lead tracking addresses the two most common leaks in a sales process: leads that fall through the cracks and follow-ups that never happen.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Every plan">Contacts with a ready-made stage field, custom fields for source and fit, personal saved views, table or board, Excel import, REST, webhooks and MCP. Self-hosted included.</SummaryItem>
+  <SummaryItem label="Pro and higher">Email, LinkedIn, WhatsApp, Instagram and Telegram conversations on the lead. Customermates Cloud only.</SummaryItem>
+  <SummaryItem label="Not included">No lead scoring, enrichment, web forms, automatic assignment, email sequences or reminders.</SummaryItem>
+</ArticleSummary>
 
-## Lead Management vs CRM: What's the Difference?
+## What lead management covers, and which parts Customermates does
 
-A lead management system focuses specifically on the sales process: capturing leads, qualifying them, and moving them toward a close. A full CRM (Customer Relationship Management) manages the entire customer lifecycle, including post-sale support, account management, and long-term relationship tracking.
+| Step | In Customermates | Needs another tool |
+|---|---|---|
+| Capture | Manual entry, Excel import, linking an inbox conversation to a new contact, REST, MCP | Web forms, chat widgets, ad lead forms |
+| Track | A stage field on contacts, deal stages with fixed weights, change history | |
+| Qualify | Your own criteria as custom fields, filled by people, Mate or your AI client | Automatic scores and firmographic data |
+| Assign | Assigned users on every contact and deal, set by hand or by an instruction | Round-robin or territory routing |
+| Follow up | Replies from the contact's own channel, drafts by Mate in Customermates Cloud | Multi-step email sequences |
+| Measure | Dashboard charts counting leads and deal value by any single-select field | Funnel conversion rates and multi-touch attribution |
 
-Think of lead management as the front end of CRM. Most modern CRM systems include lead management as a core module. Customermates combines both: a dedicated [pipeline](/features/pipeline) for lead management sales alongside full [contact management](/features/contact-management) for long-term customer relationships.
+For a consultancy, an agency or a founder who gets 10 to 50 new enquiries a month, the left column is usually the whole job. The right column belongs to marketing teams with high inbound volume.
 
-## How Lead Management Works in 5 Steps
+## How leads get into Customermates
 
-### Step 1: Capture leads
+- **By hand.** **Add** on the contacts list, a few fields, done.
+- **From a conversation (Pro and higher).** When an unknown address writes to your connected inbox, open **Thread settings**, click **Link** next to the person and choose **Create "…"**. Every later message from that address shows on the new contact. See the [unified inbox](/features/unified-inbox).
+- **From a spreadsheet.** Save your list as an .xlsx workbook and use **Import and export › Add from file**. Import organizations first, then contacts. A lead list bought from or built by an outside lead generation agency comes in the same way.
+- **From a website form you already run.** Your form tool or a separate [n8n workflow](/features/workflow-automation) calls the REST API and creates the contact with its source value. Customermates has no form builder of its own.
+- **From your AI client.** Claude, ChatGPT or another MCP client can create contacts from a pasted email signature or event list, with [[derived.mcp.tools.total]] tools available.
 
-Leads come from website forms, email inquiries, trade shows, referrals, social media, and direct messages. The Pro unified inbox brings supported conversations into the CRM. A separate [n8n workflow](/features/workflow-automation) can receive data from external forms and create supported records through REST, while a configured external AI client can create contacts or deals through MCP. Customermates has no native form or lead-routing engine.
+## Setting it up: a three-person consultancy
 
-### Step 2: Score and qualify
+A new workspace already has a single-select field **Sales Pipeline** on contacts with the options New, Contact, Qualified, In Progress, Won and Lost, and a **Stage** field on deals. You can rename both or edit the options in place.
 
-Not all leads are equal. Lead scoring ranks prospects based on engagement, company size, budget, and buying signals. A simple scoring model: assign points for actions (visited pricing page = +10, downloaded case study = +15, requested demo = +25) and prioritize leads above a threshold.
+<Steps>
+  <Step title="Name leads as leads">Under **My Company › Settings › Data model**, switch Contacts to **Leads** if your team talks that way. The change applies to the whole workspace.</Step>
+  <Step title="Add two fields on contacts">**Source** (Single Select: Referral, Website, LinkedIn, Event, Partner) and **Fit** (Single Select: Strong, Unclear, Poor). Keep the options few, so filters stay useful.</Step>
+  <Step title="Save two personal views">"New and unassigned": **Sales Pipeline** is New and **Assigned** has none. "My open leads": **Assigned** is you and **Sales Pipeline** is Contact, Qualified or In Progress, sorted by **Updated at**, oldest first.</Step>
+  <Step title="Work the board">Switch "My open leads" to the board, grouped by **Sales Pipeline**, and drag a card when the conversation moves on.</Step>
+  <Step title="Open a deal when it gets serious">Once a lead asks for a proposal, create a deal, link the contact and its organization, and add the services you would sell. The deal's value comes from those services and their quantities.</Step>
+</Steps>
 
-### Step 3: Assign to the right rep
+Saved views belong to the person who made them, so each colleague saves their own. The [records guide](/docs/app-records) documents filters, grouping and import.
 
-Route qualified leads by territory, industry, deal size, or workload in a separately operated [workflow automation](/features/workflow-automation) system. It can calculate the assignment and write supported fields through REST; Customermates has no native routing engine.
+## Tracking leads after the first reply
 
-### Step 4: Nurture and follow up
+A lead and its deal are separate records. There is no convert button: the contact stays in the list with its full history, and the deal carries the money.
 
-Most leads aren't ready to buy immediately. Value-add emails, case studies, and product updates can keep your company top of mind. Customermates connects to [email tools](/features/email-integration) and a separate n8n instance so external providers can run personalized [follow-up sequences](/blog/sales-follow-up-email) based on lead behavior.
+The default deal stages carry weights of 10, 20, 40, 60 and 80 percent for Prospecting through Negotiation, 100 for Won and 0 for Lost. With them, every deal gets a weighted value and the workspace shows a **Weighted pipeline** next to the **Total pipeline**. Those are fixed stage weights you set, not a prediction.
 
-### Step 5: Convert and analyze
+On the dashboard, a chart widget over contacts grouped by **Source** shows how many leads each channel brought. The same chart over deals, with a Source field on deals and the metric set to deal value, shows which channels bring money. Conversion rates between stages are not calculated; export the list to Excel if you want them.
 
-When a lead converts, the deal moves through your [pipeline stages](/features/pipeline). Post-conversion, analyze which lead sources, nurture sequences, and rep actions drove the highest conversion rates. Use these insights to optimize your lead management process continuously.
+To track leads in other systems as changes happen, webhooks fire on `contact.created`, `contact.updated` and `deal.updated`, among [[derived.webhooks.events.total]] events. A Slack message about a new lead runs through n8n or your own endpoint; there is no native Slack integration. Every change to a lead lands in its history, which roles with **Audit Log** read access can see.
 
-## Key Features of a Lead Management System
+## Mate and routines on new leads (Customermates Cloud)
 
-| Feature | Customermates | HubSpot | Salesforce | Pipedrive |
-|---------|--------------|---------|------------|-----------|
-| Visual pipeline | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Native lead scoring | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Native automated lead assignment | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Native email nurture sequences | <StatusUnavailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Custom fields (10 types) | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Source attribution | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Price (per user/month) | From [[commercial.price.starter.monthly]] | $90+ | $25+ | $14+ |
+In Customermates Cloud, Mate, the hosted assistant, uses hosted AI credits and works on leads in plain language: "Show me every lead with Source LinkedIn and Sales Pipeline Contact that was last updated more than two weeks ago, and draft a short follow-up in each lead's conversation. Do not send anything."
 
-Compare directly: [vs HubSpot](/compare/hubspot-alternative) · [vs Salesforce](/compare/salesforce-alternative) · [vs Pipedrive](/compare/pipedrive-alternative)
+A [routine](/docs/app-routines) runs a saved instruction on its own. Set the trigger to **When something changes** with the event **Contact Created**, and give it an instruction such as:
 
-## Why Lead Management Matters for Sales
+```text
+A new lead was just created. Read the contact and any linked conversation. If Source is empty and the conversation shows where they came from, set Source. Set Fit to Unclear if it is empty. Draft a reply in the conversation but do not send it. Do not change Assigned.
+```
 
-**No more lost leads.** Without a system, leads slip between email inboxes, call notes, and memory. A centralized lead management system ensures every prospect is tracked and every next step is recorded.
+The routine runs as its owner and sees what that person sees. Mate sends messages without asking for approval when an instruction tells it to, so a routine that should only draft has to say so, as this one does. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
-**Faster response times.** [Research from Harvard Business Review](https://hbr.org/2011/03/the-short-life-of-online-sales-leads) shows that responding to a lead within 5 minutes makes you 21x more likely to qualify them. Capturing leads and assigning them through a connected workflow helps you get there.
+Self-hosted, there is no Mate. Your own AI client does the same reading and writing through MCP, billed by your AI provider.
 
-**Data-driven decisions.** Which lead sources produce the highest conversion rates? Which reps close fastest? Which nurture sequences work? Lead management analytics answer these questions with data instead of gut feeling.
+## What it does not do
 
-**Scalable sales process.** When your team is two people, you can manage leads in your head. At five, things start slipping. At ten, chaos. A lead management system scales with your team without requiring more administrative overhead.
+- No lead scoring and no data enrichment. A Fit field holds what your team decides.
+- No embedded web forms or chat widgets.
+- No automatic assignment rules. A routine can follow your written rule ("assign leads from Event to Jana"), but it is an instruction, not a routing engine.
+- No email sequences, drip campaigns or mass email. Follow-ups are single messages.
+- No reminders or due dates on tasks. Put a date in a custom field and filter on it.
+- No mobile app. The web app works on narrow screens.
 
-## Use Cases
+## Which kind of tool fits
 
-**B2B sales teams** use lead management to track long sales cycles with multiple stakeholders. Custom fields capture decision-maker roles, budget timelines, and competitive evaluations. Pipeline stages map to the actual buying process.
+Customermates publishes this page. Vendor details were checked on 8 October 2026 on the official pages linked at the end.
 
-**Agencies** manage both client leads and their clients' lead generation campaigns. One configurable stage column plus a single-select client and campaign-source field, grouped in saved views, give agencies clear visibility into stored performance data.
+| Your situation | Look at |
+|---|---|
+| Inbound volume high enough that leads need scores | HubSpot Sales Hub, which lists lead scoring on its pricing page, or Zoho CRM, with scoring rules from the Standard edition |
+| Leads that should be distributed automatically | HubSpot Sales Hub, which lists lead form routing on its pricing page, or Zoho CRM, with assignment rules from the Professional edition |
+| Unqualified leads kept apart from deals, with a convert step | Pipedrive's Leads Inbox |
+| A free start for up to 3 users, with web forms | Zoho CRM's free edition, up to 5,000 records |
+| A lead generation agency handing leads to its clients | noCRM, which transfers qualified leads into client pipelines |
+| A small team whose leads arrive as conversations and that wants AI and open source | Customermates |
 
-**E-commerce businesses** track leads from abandoned carts, product inquiries, and wholesale requests. Nurture sequences in an external provider re-engage prospects with targeted offers based on browsing behavior.
+## What it costs
 
-**Startups** need fast, lightweight lead management that doesn't require weeks of setup. Customermates gets a [startup's CRM](/for/startups) running quickly, with leads imported from an Excel workbook (XLSX) or brought in through the API or n8n, and a visual pipeline you configure yourself.
+A solo consultant on Starter pays [[commercial.price.starter.monthly]] a month, without the inbox. Three people on Pro pay [[commercial.price.pro.monthly.seats.3]] a month and get conversations on the lead, with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user. Billing is monthly and per user, never per lead or per contact. Each Cloud plan includes monthly hosted AI credits per active user; see [pricing](/pricing).
 
-## Why Choose Customermates for Lead Management
-
-**CRM records and open interfaces.** Customermates manages supported lead and customer data in configurable pipelines. Capture, nurturing, and routing can be handled by separate providers connected through REST, webhooks, MCP, or n8n.
-
-**External AI clients can do allowed data entry.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to create records, move deal stages, or draft one follow-up where permitted. The client, model, and subscription are yours, and Customermates adds no enrichment or lead-scoring service; on cloud plans the hosted Mate assistant can also create records inside the CRM.
-
-**Separate n8n automation supported.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. External forms, scoring, assignment, nurture, notifications, connectors, runtime, logs, limits, and costs remain outside Customermates.
-
-**Open-source core.** Inspect or extend the AGPL core CRM application, or [self-host it](/features/self-hosted) with PostgreSQL and the Starter feature set. External providers remain separate.
-
-**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
-
-**From [[commercial.price.starter.monthly]]/user/month.** Lead management, [pipeline](/features/pipeline), [contact management](/features/contact-management), custom fields, REST, webhooks, and MCP access start with Starter. n8n and AI clients remain separate. The unified inbox starts with Pro at [[commercial.price.pro.monthly]]/user/month, and shared team accounts with Business at [[commercial.price.business.monthly]]. [See pricing →](/pricing)
-
-## Frequently Asked Questions
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is CRM lead management?">
-CRM lead management is the process of using customer relationship management software to capture, track, qualify, and nurture sales leads through a pipeline. It centralizes all lead data (source, interactions, status, next steps), so sales teams can prioritize high-value prospects and plan follow-ups.
+<FaqItem question="What is lead management software?">
+Software that holds every potential customer in one place with their status, source, owner and history, so nobody is forgotten between first contact and signed deal. Larger suites add scoring, forms, routing and nurture campaigns on top.
 </FaqItem>
 
-<FaqItem question="What is the difference between CRM and lead management?">
-Lead management focuses on the sales acquisition process: capturing and converting prospects into customers. CRM manages the full customer lifecycle, including post-sale relationships, support, and retention. Most modern CRMs include lead management as a core feature. Customermates combines both in one platform starting at [[commercial.price.starter.monthly]]/user/month.
+<FaqItem question="What is the difference between lead tracking and lead management?">
+Lead tracking records where a lead came from and where it stands now. Lead management also covers capturing, qualifying, assigning and following up. In Customermates both happen on the contact: Source answers the first question, the stage field the second.
 </FaqItem>
 
-<FaqItem question="How do I choose a lead management system?">
-Look for: visual pipeline management, lead scoring, follow-ups through your own automation, integration with your email and marketing tools, and transparent pricing. For European businesses, a DPA, a disclosed subprocessor list, and transparent data locations matter. Avoid systems that lock automation behind expensive upgrades.
+<FaqItem question="What is the best CRM for lead management?">
+It depends on volume. With hundreds of form leads a month, scoring and routing matter, and HubSpot Sales Hub or the paid editions of Zoho CRM offer them. With a few dozen enquiries that turn into conversations, the stage, the source and the message history matter more, which is what Customermates is built around.
 </FaqItem>
 
-<FaqItem question="Can I automate lead management?">
-Yes, through separate tools. Connect your own [n8n automation](/features/workflow-automation) to calculate scoring or assignment, receive external forms, and coordinate nurture or notifications with external providers. Customermates supplies CRM records and open interfaces, not those engines. [See how n8n works →](/n8n-crm)
+<FaqItem question="Can Customermates integrate lead tracking with my website or ads?">
+Through the REST API, n8n or your form tool's own webhook, yes: they create the contact and write UTM or campaign values into custom fields. Customermates has no form builder and no ad platform connection of its own.
+</FaqItem>
+
+<FaqItem question="Can I import leads from an external lead generation provider?">
+Yes. Save the delivered list as an .xlsx workbook and import it, or let the provider create contacts through the API. Customermates does not generate or buy leads.
+</FaqItem>
+
+<FaqItem question="Is there free lead management software?">
+HubSpot's free CRM tools allow 2 users and 1,000 contacts, Zoho CRM's free edition 3 users and 5,000 records. Customermates has no free Cloud plan, but its AGPL core runs [self-hosted](/features/self-hosted) without a licence fee, without the inbox and without Mate.
 </FaqItem>
 </Faq>
 
-## Start Managing Leads Today
-
-Import existing leads from an Excel workbook (XLSX, one record type at a time and within row limits), or create records through a customer-run REST integration, a separate n8n workflow, or a supported external AI client over MCP. Configure your pipeline stages and start tracking prospects; external runtimes and providers remain separate.
-
-[Try Customermates free →](/auth/signup)
+Third-party details checked on 8 October 2026: [HubSpot Sales Hub pricing](https://www.hubspot.com/pricing/sales), [HubSpot CRM pricing](https://www.hubspot.com/pricing/crm), [Pipedrive Leads Inbox](https://support.pipedrive.com/en/article/leads-inbox), [Zoho CRM free edition](https://www.zoho.com/crm/free-crm.html), [Zoho CRM edition comparison](https://www.zoho.com/crm/comparison.html), [noCRM for lead generation agencies](https://www.nocrm.io/de/solutions/leadgenerierung).

@@ -1,17 +1,17 @@
 ---
-title: "Kontaktverwaltung Software: Kunden und Firmen im CRM"
-description: "Kontaktverwaltung und Kundenverwaltung im CRM: Kontakte und Firmen verknüpfen, eigene Felder, Excel-Import, Verlauf aller Gespräche. Open Source, ab [[commercial.price.starter.monthly]]."
-featureName: Kundenverwaltung
+title: "Kontaktmanagement-Software zur Kundenverwaltung"
+description: "Kontaktverwaltung im CRM: Personen mit Firmen, Deals und Gesprächen verknüpfen, eigene Felder, Excel-Import und Rollen. Ab [[commercial.price.starter.monthly]] pro Nutzer."
+featureName: Kontaktverwaltung
 
 relatedHrefs:
-  - /features/outlook-integration
+  - /features/unified-inbox
+  - /docs/app-records
   - /features/pipeline
-  - /features/project-management
-  - /features/reporting
+  - /features/simple-crm
 
 hero:
-  title: "Kontaktverwaltung Software: Alle Kunden und Firmen an einem Ort"
-  description: Kontakte, Organisationen, Deals und Gespräche hängen in Customermates zusammen. Importieren Sie Ihre Excel-Liste, ergänzen Sie eigene Felder und sehen Sie bei jedem Kontakt, wer zuletzt mit ihm gesprochen hat.
+  title: "Kontaktverwaltung, die Personen, Firmen und Gespräche zusammenhält"
+  description: Customermates speichert jeden Kontakt mit den Organisationen, für die er arbeitet, mit Deals, Aufgaben, Notizen und Kanälen. Sie importieren Ihre Excel-Liste, legen eigene Felder an und sehen ab Pro E-Mails, LinkedIn- und WhatsApp-Nachrichten direkt am Kontakt.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Die eigene Kundenliste importieren
-  description: Laden Sie Ihre Excel-Liste hoch, ordnen Sie die Spalten Ihren Feldern zu und prüfen Sie in [[commercial.trial.days]] Tagen, ob Ihr Team damit besser arbeitet.
+  action: Die eigene Kontaktliste im Test übernehmen
+  description: Speichern Sie Ihren Export aus Outlook, Google oder Excel als .xlsx, ordnen Sie die Spalten Feldern und Kanälen zu und prüfen Sie im kostenlosen Testzeitraum, ob Ihr Team Kontakte schneller findet.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,148 +28,140 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Was ist Kontaktverwaltung Software?
+Eine Kontaktmanagement-Software hält alle Personen und Firmen, mit denen Ihr Unternehmen zu tun hat, in einer gemeinsamen Liste fest, zusammen mit dem, was mit ihnen passiert ist. In Customermates hängt jeder Kontakt an den Organisationen, für die er arbeitet, an seinen Deals und Aufgaben, an den zuständigen Kolleginnen und Kollegen und an den E-Mail-Adressen und Messenger-Konten, über die Sie ihn erreichen.
 
-Eine Kontaktverwaltung Software speichert alle Personen und Firmen, mit denen Ihr Unternehmen zu tun hat, und hält fest, was mit ihnen passiert ist. Anders als ein Adressbuch oder eine Excel-Liste verknüpft sie jeden Kontakt mit seiner Firma, seinen Verkaufschancen, Aufgaben und Gesprächen. Im Alltag heißt das: Sie öffnen einen Kontakt und sehen sofort, wer zuletzt mit ihm gesprochen hat, welches Angebot offen ist und was als Nächstes ansteht.
+Ob Sie es Kontaktverwaltung, Kundenverwaltung oder Kundendatenbank nennen: Diese Datensätze und Verknüpfungen gibt es in jedem Plan, auch selbst gehostet. Die Gespräche selbst brauchen den [einheitlichen Posteingang](/features/unified-inbox), den es in Customermates Cloud ab Pro gibt.
 
-Die Begriffe werden oft gemischt: Kontaktverwaltung, Kundenverwaltung, Adressverwaltung oder Kundendatenbank meinen im Kern dasselbe. Ist die Kontaktverwaltung Teil eines CRM, kommen Vertriebspipeline, Aufgaben und Auswertungen dazu. Customermates ist ein solches CRM, die Kontaktverwaltung ist sein Fundament.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="In jedem Plan">Kontakte und Organisationen, zehn Feldtypen, Filter, persönliche Ansichten, Tabelle oder Board, Rollen, Excel-Import und -Export, REST, Webhooks und MCP.</SummaryItem>
+  <SummaryItem label="Ab Pro">E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Gespräche am Kontakt. Nur in der Cloud.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Kein Adressbuch-Abgleich, kein Zusammenführen von Dubletten, keine Tags, keine Dateianhänge an Datensätzen, keine Erinnerungen.</SummaryItem>
+</ArticleSummary>
 
-## Kontaktverwaltung Software im Vergleich
+## Was ein Kontakt und eine Organisation speichern
 
-Stand: September 2026, Preise laut Anbieterseite.
+| | Kontakt | Organisation |
+|---|---|---|
+| Feste Felder | Vorname, Nachname, Notizen | Name, Notizen |
+| Kanäle | E-Mail-Adressen, WhatsApp-Nummer, LinkedIn-, Instagram- und Telegram-Konto | Keine |
+| Verknüpfungen | Organisationen (auch mehrere), Deals, Aufgaben, zugewiesene Nutzer | Kontakte, Deals, Aufgaben, zugewiesene Nutzer |
+| Eigene Felder | Felder der zehn Typen | Felder der zehn Typen |
 
-| | Customermates | CentralStationCRM | HubSpot Smart CRM | Pipedrive |
-| --- | --- | --- | --- | --- |
-| Preismodell | [[commercial.price.starter.monthly]] pro Nutzer und Monat | Pakete, z. B. Team: 24 € pro Monat für 3 Nutzer | Kostenlos für 2 Nutzer, danach pro Lizenz | Ab 14 € pro Nutzer und Monat (jährlich) |
-| Kostenloser Plan | Nein | 3 Nutzer, 200 Kontakte | 2 Nutzer | Nein |
-| Obergrenze für Kontakte | Keine tarifabhängige Grenze | Je nach Paket, z. B. 3.000 im Team-Paket | Siehe Anbieter | Je nach Plan |
-| Speicherort | Datenbank in AWS Frankfurt | Deutschland | EU-Rechenzentrum wählbar (bezahlte Konten) | EU-Rechenzentren, Standort nicht garantiert |
-| Selbst betreiben | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| Open Source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+Die Feldtypen heißen Text, Einzelauswahl, Datum, Datumsbereich, Datum & Uhrzeit, Datums- und Uhrzeitbereich, Währung, E-Mail, Telefon und Link. Eine Festnetz- oder Mobilnummer ohne WhatsApp kommt in ein Feld vom Typ Telefon. Notizen sind ein formatierbares Textfeld pro Datensatz, auch mit Tabellen und Bildern.
 
-Quellen: [CentralStationCRM Preise](https://centralstationcrm.de/plans), [HubSpot Preise](https://www.hubspot.de/pricing/sales), [Pipedrive Preise](https://www.pipedrive.com/de/pricing).
+Eine E-Mail-Adresse oder ein Konto gehört im Workspace zu genau einem Kontakt; einen zweiten Kontakt mit derselben Adresse speichert Customermates nicht. Die globale Suche (Cmd/Strg+K) findet Kontakte über den Namen, jede Kanaladresse und die verknüpfte Organisation, eigene Felder erreichen Sie über Filter.
 
-**CentralStationCRM** ist ein einfaches deutsches CRM, speichert Kundendaten laut Anbieter in Deutschland und rechnet mit Paketpreisen ab, die nach Nutzern und Kontakten gestaffelt sind. Für kleine Teams mit überschaubarer Kundenliste eine solide Wahl.
+## Firmenkontakte und Accounts zentral verwalten
 
-**HubSpot** ist für zwei Nutzer kostenlos und wird mit wachsendem Team deutlich teurer. Details in [HubSpot Alternative](/compare/hubspot-alternative).
+Wenn Sie Kundenfirmen betreuen statt einzelner Personen, ist die Organisation Ihr Account. Unter **Mein Unternehmen › Einstellungen › Datenmodell** benennen Sie die Datensatztypen für den ganzen Workspace um, aus festen Vorschlägen: Organisationen in Unternehmen oder Accounts, Kontakte in Kunden, Personen oder Leads. Die Bezeichnung „Klienten“ ist nicht darunter.
 
-**Pipedrive** stellt die Pipeline in den Mittelpunkt, die Kontaktverwaltung dient dem Vertrieb. Alle Preise in [Pipedrive Preise](/blog/pipedrive-pricing), der Vergleich in [Pipedrive Alternative](/compare/pipedrive-alternative).
+Für die Betreuung von Kundenfirmen reichen drei Bausteine. Ein Einzelauswahlfeld **Rolle** am Kontakt hält fest, wer entscheidet, wer das Tagesgeschäft übernimmt und wer in der Buchhaltung sitzt. Ein Datumsfeld **Vertragsende** an der Organisation hält fest, wann der Vertrag ausläuft. Und das Deal-Board, gruppiert nach Organisation, zeigt je Account die Zahl der Deals und ihren Gesamtwert. Eine Bewertung der Kundenbeziehung (Health Score) oder ein Abwanderungsrisiko berechnet Customermates nicht; wenn Ihr Team Accounts einstuft, pflegen Sie das in einem Einzelauswahlfeld.
 
-**Rechnungsprogramme wie Lexware Office oder sevDesk** speichern ebenfalls Kunden, allerdings für die Rechnung, nicht für den Vertrieb. Viele kleine Unternehmen nutzen deshalb beides: Buchhaltung für Rechnungen, CRM für Anfragen, Gespräche und Verkaufschancen.
+## Beispiel: ein Beratungsteam mit fünf Personen
 
-## So funktioniert die Kontaktverwaltung in Customermates
+<Steps>
+  <Step title="Datensatztypen benennen">Stellen Sie im **Datenmodell** Kontakte auf Kunden und Organisationen auf Accounts um, wenn Ihr Team so spricht.</Step>
+  <Step title="Vier Felder anlegen">Am Kontakt: **Beziehung** (Einzelauswahl: Interessent, Aktiver Kunde, Ehemaliger Kunde, Empfehlungsgeber) und **Rolle** (Entscheider, Tagesgeschäft, Buchhaltung). An der Organisation: **Vertragsende** (Datum) und **Quelle** (Einzelauswahl: Empfehlung, Messe, Website, Kaltakquise).</Step>
+  <Step title="Drei persönliche Ansichten speichern">„Meine aktiven Kunden“: **Zugewiesen** sind Sie selbst, **Beziehung** ist Aktiver Kunde. „Ohne Organisation“: **Organisationen** hat keine, zum Aufräumen nach dem Import. „Lange nicht bearbeitet“: **Aktualisiert am** älter als 90 Tage.</Step>
+  <Step title="Eine Ansicht als Board zeigen">Gruppieren Sie Kontakte nach **Beziehung** und ziehen Sie eine Karte von Interessent zu Aktiver Kunde, sobald jemand unterschreibt.</Step>
+  <Step title="Rechte festlegen">Stellen Sie im Rolleneditor für **Kontakte** unter **Lesen** die Option **Zugewiesen** ein, wenn jemand nur die eigenen Kunden sehen soll, sonst **Alle**.</Step>
+</Steps>
 
-### Kontakte und Organisationen
+„Lange nicht bearbeitet“ schaut auf die letzte Änderung am Datensatz, nicht auf die letzte Nachricht. Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben Filtern ihre eigene Ansicht an. Alle Bedienelemente beschreibt die [Anleitung zu Datensätzen](/docs/app-records).
 
-Kontakte sind Personen, Organisationen sind Firmen. Jeder Kontakt lässt sich mit einer oder mehreren Organisationen, Deals, Aufgaben und zuständigen Nutzern verknüpfen. So sehen Sie beides: die Person und das ganze Kundenunternehmen mit allen Ansprechpartnern.
+## Kontakte aus Excel, Outlook oder Google übernehmen
 
-Zu jedem Kontakt speichern Sie die Kanäle, über die Sie ihn erreichen: E-Mail-Adresse, WhatsApp-Nummer, LinkedIn, Instagram oder Telegram. Über diese Kanäle ordnet Customermates Nachrichten aus dem [Posteingang](/features/unified-inbox) automatisch dem richtigen Kontakt zu.
+<Steps>
+  <Step title="Exportieren und umwandeln">Outlook und Google Kontakte liefern ihre Exportdatei als kommagetrennte Textdatei (Google auch als vCard). Öffnen Sie sie in Excel und speichern Sie sie als .xlsx, denn Customermates importiert nur XLSX-Arbeitsmappen.</Step>
+  <Step title="Vorher aufräumen">Entfernen Sie doppelte Zeilen und teilen Sie die Liste in eine Arbeitsmappe für Organisationen und eine für Kontakte. Ein Import lässt sich nicht rückgängig machen.</Step>
+  <Step title="Organisationen importieren">Öffnen Sie unter **Organisationen** das Menü **Import und Export › Aus Datei hinzufügen**, ordnen Sie die Spalten zu und importieren Sie.</Step>
+  <Step title="Kontakte importieren">Ordnen Sie Vor- und Nachname zu, beide sind Pflicht, die E-Mail-Spalte dem Kanal E-Mail, die Firmenspalte den **Organisationen** (Abgleich über den Namen, Groß- und Kleinschreibung egal) und den Rest eigenen Feldern. Fehlerhafte Zeilen können Sie überspringen und später nachtragen.</Step>
+  <Step title="In großen Mengen korrigieren">Exportieren Sie die Liste, bearbeiten Sie sie in Excel und importieren Sie sie erneut: Die Spalte **Datensatz-ID** aktualisiert bestehende Datensätze, statt neue anzulegen.</Step>
+</Steps>
 
-### Eigene Felder
+Eine Datei fasst derzeit bis zu 10.000 Zeilen und 10 MB. Kanäle übernimmt der Import nur bei neuen Kontakten. Einen laufenden Abgleich gibt es nicht, nach dem Import sind Ihr Outlook- oder Google-Adressbuch und Customermates getrennte Listen.
 
-Jedes Unternehmen erfasst andere Daten. In Customermates legen Sie eigene Felder an, in jedem Plan und ohne Obergrenze pro Plan. Zehn Feldtypen stehen bereit:
+## Gespräche am Kontakt (ab Pro)
 
-- Text und Einfachauswahl
-- Datum, Datumsbereich, Datum mit Uhrzeit und Bereich mit Uhrzeit
-- Währung
-- E-Mail, Telefon und Link
+In Customermates Cloud verbinden Sie ab Pro Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram oder Telegram, und Gespräche werden über die Kanäle dem richtigen Kontakt zugeordnet. Schreibt eine unbekannte Adresse, klicken Sie im Posteingang bei dieser Person auf **Verknüpfen** und wählen den Kontakt oder legen ihn an. Danach erscheint jedes Gespräch mit dieser Adresse, nicht nur das aktuelle, im Verlauf des Kontakts.
 
-Eine Festnetznummer speichern Sie zum Beispiel in einem Feld vom Typ Telefon. Einfachauswahlfelder eignen sich für Segmente wie Branche, Region, Lead-Quelle oder Kundenstatus.
+Sie sehen Gespräche aus Ihren eigenen Kanälen und die, die Kolleginnen und Kollegen mit dem CRM teilen. Im Business-Plan lässt sich ein ganzer Kanal teilen, dann stehen die Gespräche mehrerer Teammitglieder mit einem Kunden im selben Verlauf. Im Starter-Plan und selbst gehostet speichern und durchsuchen Sie Kanäle, einen Posteingang gibt es dort nicht.
 
-### Suchen, filtern, Ansichten speichern
+## KI in der Kontaktverwaltung: Mate und MCP
 
-- **Suche** über die Kontaktliste
-- **Filter** mit mehreren Bedingungen, die alle zutreffen müssen
-- **Gruppierung** nach einem Einfachauswahlfeld, einer Verknüpfung wie der Organisation oder nach Datum
-- **Gespeicherte Ansichten** mit Filtern, Sortierung und Spalten, persönlich pro Nutzer
-- **Tabelle oder Board** je nach Arbeitsweise
+In Customermates Cloud bearbeitet Mate, der gehostete Assistent, Kontakte auf Zuruf und verbraucht dabei gehostete KI-Credits:
 
-So bauen Sie Segmente wie "alle Agenturen in NRW mit offenem Deal über 5.000 €" und öffnen sie mit einem Klick wieder.
+```text
+Kontakte für alle Personen in dieser E-Mail-Signatur anlegen und mit der Organisation Hartmann Consulting verknüpfen. Rolle: die Geschäftsführerin als Entscheider, alle anderen als Tagesgeschäft. Vorher prüfen, ob einer der Kontakte schon existiert.
+```
 
-### Verlauf pro Kontakt
+Anlegen und Ändern erledigt Mate ohne Rückfrage, das Löschen eines Kontakts bestätigen Sie jedes Mal. Eine [Routine](/docs/app-routines), ebenfalls nur in der Cloud, führt eine Anweisung zum Beispiel jeden Montag aus: „Alle Accounts auflisten, deren Vertragsende in den nächsten 60 Tagen liegt. Keine Datensätze ändern.“
 
-Jeder Kontakt zeigt, was passiert ist: Nachrichten aus dem Posteingang, Notizen, verknüpfte Deals und Aufgaben. Neue Kolleginnen lesen sich in Minuten ein, und bei Urlaub oder Krankheit geht kein Wissen verloren. Änderungen an Datensätzen protokolliert das Audit-Log, das in jedem Plan enthalten ist.
+In jedem Plan, auch selbst gehostet, kann Ihr eigener KI-Client wie Claude oder ChatGPT Kontakte über MCP suchen, anlegen und ändern, mit [[derived.mcp.tools.total]] Tools und abgerechnet über Ihren KI-Anbieter. Webhooks melden `contact.created`, `contact.updated` und `contact.deleted`.
 
-### Excel-Import und -Export
+## Rechte, Speicherort und DSGVO
 
-Die meisten Teams kommen mit einer Excel-Liste. Der Import-Assistent liest Excel-Arbeitsmappen (`.xlsx`) mit bis zu 10.000 Zeilen, lässt Sie die Spalten Ihren Feldern und Kanälen zuordnen, prüft jede Zeile und legt die Kontakte an. Zeilen mit Fehlern können Sie überspringen und später nachholen. Eine Spalte mit der Datensatz-ID aktualisiert bestehende Kontakte, statt neue anzulegen. CSV-Dateien speichern Sie vorher als `.xlsx`.
+Jede Rolle legt pro Datensatztyp fest, ob sie **Alle**, nur **Zugewiesen** oder **Keine** Datensätze lesen darf und ob sie **Verwalten** darf. Für den Export brauchen Sie Leserechte, für den Import **Verwalten**. Den Änderungsverlauf eines Datensatzes sehen Rollen mit Lesezugriff **Alle** auf das **Audit-Log**, etwa Admin. Rechte gelten für ganze Datensatztypen, nicht für einzelne Felder.
 
-Der Export schreibt die aktuelle Liste mit Ihren Filtern und Spalten in eine Excel-Datei. Die genauen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records). Für größere Übernahmen gibt es die REST-API.
+In Customermates Cloud ist die Produktivdatenbank in der AWS-Region Frankfurt konfiguriert. Die eingesetzten Dienstleister, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), den [Auftragsverarbeitungsvertrag](/dpa) finden Sie online. Eine Zertifizierung hat Customermates nicht. Sollen Kontaktdaten Ihre eigenen Server nicht verlassen, betreiben Sie den AGPL-Kern [selbst](/features/self-hosted), ohne Posteingang und ohne Mate.
 
-### Mehrere Kontakte auf einmal bearbeiten
+## Was Customermates nicht kann
 
-Markieren Sie bis zu 100 Kontakte und setzen oder leeren Sie ein eigenes Feld für alle gleichzeitig, etwa um nach einer Messe den Status "Messekontakt 2026" zu vergeben.
+- Kein Abgleich mit Outlook, Google oder dem Adressbuch im Smartphone, in keine Richtung.
+- Kein Zusammenführen von Dubletten. Bereinigen Sie die Liste vor dem Import.
+- Keine Tags und keine Mehrfachauswahl. Einzelauswahlfelder halten je einen Wert.
+- Keine Dateianhänge an Datensätzen. Anhänge von Nachrichten bleiben im Gespräch im Posteingang.
+- Keine Erinnerungen, Fälligkeitsdaten oder Wiedervorlagen. Daten speichern Sie in eigenen Feldern, eine Routine in der Cloud listet die verstrichenen auf.
+- Keine Newsletter, Massenmails, Sequenzen oder Anreicherung von Firmendaten.
+- Keine App für iOS oder Android. Customermates läuft im Browser.
 
-### Rollen und Berechtigungen
+Klientenakten aus Therapie, Pflege oder Sozialarbeit mit Gesundheitsdaten gehören in eine spezialisierte Fachsoftware, nicht in ein allgemeines CRM.
 
-Legen Sie pro Rolle fest, wer Kontakte lesen, bearbeiten oder löschen darf. Der Export braucht Leserechte, der Import Verwaltungsrechte.
+## Welche Lösung passt
 
-## Kontaktverwaltung und DSGVO
+Diese Seite veröffentlicht Customermates. Die Angaben zu anderen Anbietern haben wir am 8. Oktober 2026 auf den am Ende verlinkten offiziellen Seiten geprüft.
 
-Wer Kundendaten speichert, muss wissen, wo sie liegen und wer sie verarbeitet. Bei Customermates liegt die Datenbank der Cloud-Version in der AWS-Region Frankfurt. Eingesetzte Dienstleister, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), den [Auftragsverarbeitungsvertrag](/dpa) finden Sie online. Eine Zertifizierung haben wir nicht.
+| Ihre Lage | Passende Lösung |
+|---|---|
+| Eine Person braucht Namen, Nummern und E-Mail-Adressen | Die Kontakte in Outlook oder Google Kontakte, die zum Konto gehören |
+| Kostenloser Start mit bis zu 2 Nutzern und 1.000 Kontakten | Die kostenlosen CRM-Tools von HubSpot |
+| Kostenloser Start mit bis zu 3 Nutzern und 5.000 Datensätzen | Die kostenlose Edition von Zoho CRM |
+| Speicherung in Deutschland, Pakete nach Nutzern und Kontakten | CentralStationCRM, etwa Team: 24 € im Monat zzgl. MwSt. für 3 Nutzer und 3.000 Kontakte |
+| Größere Vertriebsorganisation auf Microsoft 365 | Dynamics 365 Sales, ab 65 $ pro Nutzer und Monat bei Zahlung pro Jahr |
+| Kleines Team mit viel Kundenkontakt, das Gespräche, KI und Open Source beim Kontakt haben will | Customermates |
 
-Wenn Kundendaten Ihr Haus nicht verlassen dürfen, betreiben Sie Customermates [selbst](/features/self-hosted). Die selbst betriebene Version enthält die komplette Kontaktverwaltung mit API und MCP, der Posteingang und der gehostete Assistent laufen nur in der Cloud.
+Weitere Programme nebeneinander zeigt der [Vergleich von Kundendatenbank-Software](/blog/client-database-software).
 
-Praktisch für Auskunftsanfragen: Weil alle Daten zu einer Person an einem Kontakt hängen, sehen Sie schnell, was Sie gespeichert haben. Die Auskunft selbst und die Löschfristen bleiben Ihre Aufgabe als Verantwortlicher.
+## Was es kostet
 
-## KI in der Kontaktverwaltung
-
-In der Cloud-Version pflegt der Assistent Mate Kontakte auf Zuruf: "Lege Frau Krüger von der Müller GmbH als Kontakt an und verknüpfe sie mit dem Deal Hallenbeleuchtung." Löschen und Senden führt Mate erst nach Ihrer Bestätigung aus. Externe KI-Clients wie Claude oder ChatGPT greifen über MCP auf dieselben Kontakte zu, mit [[derived.mcp.tools.total]] Tools, in jedem Plan. Mehr dazu in der [MCP-Dokumentation](/docs/mcp).
-
-## Kontaktverwaltung für verschiedene Branchen
-
-### Agenturen
-
-Mehrere Ansprechpartner pro Kunde: Marketingleitung für Briefings, Geschäftsführung für Verträge, Projektleitung fürs Tagesgeschäft. Verknüpfen Sie alle mit der Organisation und dem laufenden Deal. Nützliche Felder: Retainer-Volumen, zuständiger Account Manager, Kundenstatus.
-
-### Handwerk und Dienstleister vor Ort
-
-Schnell den richtigen Kunden finden, auch unterwegs im Browser. Nützliche Felder: Objektadresse, Gebäudetyp, letzte Wartung, Wartungsvertrag ja oder nein. Mehr dazu auf der Seite [CRM für Handwerker](/for/tradespeople).
-
-### Beratung
-
-Das Netzwerk ist das Kapital. Neben Mandanten verwalten Sie Empfehlungsgeber und frühere Kontakte. Nützliche Felder: Branche, Beratungsschwerpunkt, Vertragsende, "Empfehlung möglich".
-
-## Kontaktverwaltung vs. Excel
-
-| Kriterium | Excel oder Google Tabellen | Kontaktverwaltung im CRM |
-| --- | --- | --- |
-| Mehrere Personen gleichzeitig | Versionskonflikte, keine Rechte | Gleichzeitiger Zugriff mit Rollen |
-| Firma, Kontakt, Deal verknüpfen | Über Tabellenblätter und Copy-Paste | Verknüpfte Datensätze |
-| Gesprächsverlauf | Nicht vorhanden | Pro Kontakt sichtbar |
-| Rechte | Datei ganz oder gar nicht | Pro Datensatztyp und Aktion |
-| Übergang | Liste ist schon da | Excel-Import mit Spaltenzuordnung |
-
-Excel ist ein guter Start. Wenn Kollegen fragen, wo die aktuelle Kundenliste liegt, oder zwei Personen denselben Kunden anrufen, ist es Zeit für den Wechsel. Wie Sie Ihre Liste vorher sauber aufbauen, zeigt unsere [Excel CRM Vorlage](/blog/excel-crm-template).
+Eine Beraterin allein zahlt im Starter-Plan [[commercial.price.starter.monthly]] im Monat, mit [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine. Fünf Personen im Pro-Plan zahlen [[commercial.price.pro.monthly.seats.5]] im Monat und bekommen den Posteingang mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenen Konto pro Nutzer. Abgerechnet wird monatlich pro Nutzer, nie pro Kontakt. Jeder Cloud-Plan enthält monatliche gehostete KI-Credits pro aktivem Nutzer, Details auf der Seite [Preise](/pricing).
 
 ## Häufige Fragen
 
 <Faq>
-<FaqItem question="Was kostet eine Kontaktverwaltung Software?">
-Von kostenlos mit Nutzer- und Kontaktlimits bis über 100 € pro Nutzer und Monat. Customermates kostet [[commercial.price.starter.monthly]] (Starter), [[commercial.price.pro.monthly]] (Pro) oder [[commercial.price.business.monthly]] (Business) pro Nutzer und Monat, die Kontaktverwaltung ist in jedem Plan gleich. Einen Überblick gibt [CRM Kosten](/blog/crm-cost).
+<FaqItem question="Was ist der Unterschied zwischen Kontaktverwaltung und CRM?">
+CRM steht für Customer Relationship Management, auf Deutsch Kundenbeziehungsmanagement. Eine Kontaktverwaltung speichert Personen, Firmen und den Verlauf mit ihnen. Ein CRM ergänzt die Arbeit drumherum: Deals in einer Pipeline, Aufgaben, Auswertungen und Schnittstellen. In Customermates sind die Kontakte die Grundlage, an der Deals, Aufgaben und der Posteingang hängen.
 </FaqItem>
 
-<FaqItem question="Gibt es kostenlose Kontaktverwaltung Software?">
-Ja, zum Beispiel HubSpot für zwei Nutzer oder CentralStationCRM für drei Nutzer und 200 Kontakte. Customermates hat keinen kostenlosen Plan, Sie können es aber als Open Source selbst betreiben. Mehr dazu in [Kostenloses CRM](/blog/free-crm).
+<FaqItem question="Welches Programm eignet sich für die Adressverwaltung?">
+Für eine Person reichen die Kontakte in Outlook oder Google Kontakte; Outlook kennt dazu Kontaktlisten, früher Kontaktgruppen genannt. Sobald mehrere Personen dieselben Kunden betreuen, Firmen und Ansprechpartner zusammengehören oder Gespräche nachvollziehbar sein sollen, ist ein CRM die bessere Wahl.
 </FaqItem>
 
-<FaqItem question="Kann ich Kontakte aus Excel importieren?">
-Ja. Der Import-Assistent liest `.xlsx`-Dateien mit bis zu 10.000 Zeilen, ordnet Spalten Ihren Feldern zu und prüft jede Zeile vor dem Import. CSV-Dateien speichern Sie vorher als Excel-Arbeitsmappe.
+<FaqItem question="Kann ich Kontakte aus Excel, Outlook oder Google übernehmen?">
+Ja, über eine Excel-Arbeitsmappe. Exportieren Sie aus Outlook oder Google Kontakte eine CSV-Datei; da der Import kein CSV annimmt, speichern Sie sie vorher in Excel als .xlsx. Importieren Sie zuerst die Organisationen, dann die Kontakte, damit die Firmenspalte verknüpft wird.
 </FaqItem>
 
 <FaqItem question="Wie viele Kontakte kann ich verwalten?">
-Customermates rechnet pro Nutzer ab und setzt keine tarifabhängige Obergrenze für Kontakte. Ein Import umfasst bis zu 10.000 Zeilen pro Datei, ein Export die ersten 50.000 Datensätze der aktuellen Ansicht.
+Die Pläne setzen keine Obergrenze für Kontakte, 300 und 30.000 Kontakte kosten gleich viel. Eine Importdatei fasst derzeit bis zu 10.000 Zeilen, ein Export die ersten 50.000 Datensätze der aktuellen Ansicht.
 </FaqItem>
 
-<FaqItem question="Was ist der Unterschied zwischen Kontaktverwaltung und CRM?">
-Die Kontaktverwaltung ist der Kern eines CRM. Ein CRM ergänzt Verkaufschancen mit Pipeline, Aufgaben, Auswertungen und Integrationen. Was ein CRM insgesamt ausmacht, erklärt [Was ist CRM?](/blog/what-is-crm).
+<FaqItem question="Ist die Kontaktverwaltung in Customermates DSGVO-konform?">
+Das hängt von Ihrer Verarbeitung ab, also von Rechtsgrundlage, Löschfristen und Zugriffsrechten. Customermates liefert dafür den Auftragsverarbeitungsvertrag, die Liste der Unterauftragsverarbeiter, Rollen pro Datensatztyp und ein Audit-Log in jedem Plan. Die Produktivdatenbank der Cloud ist in der AWS-Region Frankfurt konfiguriert. Wer die volle Kontrolle braucht, hostet selbst. Eine Zertifizierung gibt es nicht.
 </FaqItem>
 
-<FaqItem question="Wo werden meine Kontaktdaten gespeichert?">
-In der Cloud-Version in einer Datenbank in der AWS-Region Frankfurt. Eingesetzte Dienstleister stehen in der Liste der Unterauftragsverarbeiter. Alternativ betreiben Sie Customermates selbst und bestimmen den Speicherort.
+<FaqItem question="Gibt es kostenlose Software für die Kontaktverwaltung?">
+Outlook- und Google-Kontakte sind im Konto enthalten. Die kostenlosen CRM-Tools von HubSpot erlauben 2 Nutzer und 1.000 Kontakte, die kostenlose Edition von Zoho CRM 3 Nutzer und 5.000 Datensätze, das Starter-Paket von CentralStationCRM 3 Nutzer und 200 Kontakte. Customermates hat keinen kostenlosen Cloud-Plan, der AGPL-Kern läuft selbst gehostet aber ohne Lizenzgebühr.
 </FaqItem>
 </Faq>
 
-## Jetzt mit der Kontaktverwaltung starten
-
-Legen Sie ein Konto an, importieren Sie Ihre Excel-Liste und laden Sie Ihr Team ein. [Customermates [[commercial.trial.days]] Tage kostenlos testen →](/auth/signup)
+Angaben zu anderen Anbietern geprüft am 8. Oktober 2026: [Outlook-Kontakte](https://support.microsoft.com/de-de/office/erstellen-anzeigen-und-bearbeiten-von-kontakten-und-kontaktlisten-in-outlook-88ff6c60-0a1d-4b54-8c9d-9e1a71bc3023), [Outlook-Export](https://support.microsoft.com/de-de/office/exportieren-von-kontakten-aus-outlook-10f09abd-643c-4495-bb80-543714eca73f), [Google-Kontakte-Export](https://support.google.com/contacts/answer/7199294?hl=de), [HubSpot-Preise](https://www.hubspot.com/pricing/crm), [Zoho CRM kostenlose Edition](https://www.zoho.com/crm/free-crm.html), [CentralStationCRM-Preise](https://centralstationcrm.de/preise), [Dynamics 365 Sales Preise](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).

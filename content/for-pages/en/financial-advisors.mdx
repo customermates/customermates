@@ -1,17 +1,17 @@
 ---
-title: "CRM for Financial Advisors: Clients & Follow-Ups"
-description: "Manage advisor prospects, client contacts, review follow-ups, and referral partners. A flexible CRM, not a portfolio, custody, or compliance system."
+title: "CRM for Financial Advisors and Mortgage Brokers"
+description: "A CRM for small advisory and mortgage practices: prospects, referral partners, review dates and client conversations, beside your regulated systems."
 industryName: "Financial Advisors"
 
 relatedHrefs:
-  - /for/accountants
   - /for/insurance-agents
-  - /for/mortgage-brokers
-  - /for/lawyers
+  - /for/accountants
+  - /features/unified-inbox
+  - /for/startups
 
 hero:
-  title: "A Relationship CRM for Advisory Practices"
-  description: "Keep prospect stages, client contacts, referral sources, and next actions visible. Continue to use your planning, portfolio, document, and compliance systems as the authoritative record."
+  title: "A CRM for Financial Advisors Who Grow Through Referrals"
+  description: "Keep prospects, introducers, review dates and the next step for every client in one place. From Pro, email, LinkedIn and WhatsApp conversations sit next to the client record. Portfolio data, advice records and the compliance archive stay in the systems built for them."
   buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the demo
@@ -19,8 +19,8 @@ hero:
   hint: "No credit card required • [[commercial.trial.days]]-day Pro trial"
 
 cta:
-  action: Evaluate the workflow before moving client data
-  description: See how contacts, organizations, configurable deal stages, and tasks fit your advisory process while specialist systems retain regulated records.
+  action: Map your prospect and referral pipeline first
+  description: Import a client list from Excel, set your stages and the review-date field, and test the workflow with sample records before any regulated data moves.
   buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the demo
@@ -28,124 +28,191 @@ cta:
   hint: "Use synthetic records first, then approve every real data flow deliberately."
 ---
 
-A **CRM for financial advisors** should make relationships and next actions easier to manage. It should not blur the line between relationship context and the regulated systems that calculate portfolios, document advice, or hold client assets. Customermates provides the first layer and leaves the second to specialist platforms.
+Customermates fits a financial advisor or mortgage broker who needs a clear prospect pipeline, a record of who referred whom and a list of which clients are due a review. It does not fit a firm that wants its CRM to pull custodian feeds, hold the compliance archive or run the advice process. For that, an advisor-specific system such as Redtail or Wealthbox, or the platform of your network or pool, is the better choice. This page shows the setup for the first case and names the tools for the second.
+
+Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams. It keeps contacts, organizations and deals together and, from the Pro plan, the email, LinkedIn and WhatsApp conversations around them.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Best for">
-    Advisory practices that need a configurable prospect and relationship
-    pipeline beside their existing financial systems.
+  <SummaryItem label="Fits">
+    Independent advisors, small planning firms and mortgage brokers whose new
+    business comes from referrals and existing clients.
   </SummaryItem>
-  <SummaryItem label="Core job">
-    Connect prospects, client contacts, referral partners, opportunities, and
-    the next manual action.
+  <SummaryItem label="Setup">
+    Clients as contacts, households and referral partners as organizations,
+    each prospective engagement as a deal, and a date field for the next review.
   </SummaryItem>
-  <SummaryItem label="What is included">
-    Contacts, organizations, configurable deal stages, custom fields, filters,
-    kanban, and linked tasks.
+  <SummaryItem label="AI">
+    In Customermates Cloud, Mate prepares review lists and reply drafts, using
+    hosted AI credits. Or connect your own AI client through MCP.
   </SummaryItem>
-  <SummaryItem label="System boundary">
-    No portfolio accounting, custody, financial planning, advice archive,
-    compliance certification, or native custodian connection.
+  <SummaryItem label="Not included">
+    Custodian or portfolio feeds, financial planning, suitability records, a
+    compliance archive, loan origination and a mobile app.
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Relationship CRM capabilities for advisory practices">
-  <ProofItem label="Relationships">Contacts and organizations</ProofItem>
-  <ProofItem label="Pipeline">Configurable prospect stages</ProofItem>
-  <ProofItem label="Context">Typed custom fields</ProofItem>
-  <ProofItem label="Follow-up">Record-linked tasks</ProofItem>
-  <ProofItem label="Extensions">REST, webhooks and MCP</ProofItem>
-</ProofRail>
+## What an advisory practice needs from a CRM
 
-## What financial-advisor CRM buyers usually need
+"CRM for financial advisors" covers two jobs that are easy to blur. One is relationship work: prospects, introducers, conversations and the next step. The other is regulated operations: holdings, portfolio values, risk profiles, suitability documentation, signed forms and the record of every client communication. Advisor-specific CRMs bundle both. A general CRM like Customermates does the first job only.
 
-Advisor CRM searches often combine two different needs. Relationship management covers prospective clients, existing relationships, introducers, conversations, and next actions. Wealth-management operations cover holdings, portfolio values, custody, financial plans, suitability, regulated documents, and official recordkeeping.
+On the relationship side, advisory work has a few habits a generic sales CRM handles badly:
 
-Customermates is a general relationship CRM. It can organize the first group without claiming to provide the second. That distinction matters when comparing it with advisor-specific platforms that include custodian feeds, household models, compliance archives, or financial-planning integrations.
+- **The client is often a household.** Two partners, sometimes adult children or a family business, and one review meeting for all of them.
+- **Reviews follow a calendar, not a pipeline.** Existing clients need an annual or semi-annual review, and missing one costs more than a slow prospect.
+- **New business comes through introducers.** Accountants, lawyers, estate agents and other advisors send clients, and you want to know who sent whom.
+- **Communication is regulated.** Which channel you may use with a client is a compliance question before it is a software question.
 
-| Need | Customermates | Specialist financial system |
-| --- | --- | --- |
-| Prospect and client context | Contacts, organizations, relations, notes, and activity | Regulated client file |
-| New-business workflow | Deals, configurable stages, filters, and kanban | Advice and onboarding controls |
-| Relationship attributes | User-defined fields and views | Calculated portfolio and risk data |
-| Next action | Tasks linked to CRM records | Booking, review calendar, and supervised workflow |
-| Interfaces | REST, webhooks, MCP, and separate n8n option | Custodian, planning, document, and compliance connectors |
+## A setup for advisors in Customermates
 
-<AcquisitionCallout title="A relationship record is not a compliance record" variant="boundary">
-  Keep regulated advice, suitability evidence, signed documents, portfolio
-  statements, holdings, and the official communication archive in systems
-  approved for those purposes. Notes and custom fields in a general CRM do not
-  replace that recordkeeping.
+Customermates has five record types. The mapping below is one sensible way to use them; every field name is an example you create yourself.
+
+| Record type | Used for | Example custom fields |
+|---|---|---|
+| Contacts | Each client or prospect | Client status (single select: Prospect, Client, Former client), Next review (date), Preferred channel (single select), Referred by |
+| Organizations | Households, client businesses and referral partners | Type (single select: Household, Business, Referral partner), Partner profession |
+| Deals | Each prospective engagement or mortgage enquiry | Stage, Engagement type (single select: Planning, Investment advice, Mortgage, Insurance), Decision expected (date), External reference |
+| Services | What you offer, with a price | Financial plan, Annual retainer, Mortgage advice fee |
+| Tasks | Next steps assigned to a person | A "Due on" date field you add, since tasks have no built-in due date |
+
+A contact can belong to several organizations, so one client can sit in a household and be linked to the accountant who introduced them. Under **My Company › Settings** you can rename record types from a preset list, for example Contacts to Clients, Deals to Opportunities and Tasks to Follow-ups.
+
+### Stages for new business
+
+The deal stage is a single-select field you define, and each option carries a win probability. A starting point: Introduction 10%, Discovery meeting 25%, Proposal discussed 50%, Paperwork in specialist system 80%, Won 100%, Not proceeding 0%. The deal's value comes from linked services, so a pipeline total is arithmetic from your own fee and probabilities, not a prediction. The [pipeline board](/features/pipeline) shows each deal as a card you drag between stages.
+
+Keep the stages commercial. "Paperwork in specialist system" means the advice, application or onboarding now runs elsewhere, and the CRM only records that it happened.
+
+### Saved views for the review cycle
+
+1. **Reviews coming up:** contacts with Client status Client, sorted by Next review, earliest first.
+2. **Prospects waiting:** deals in Discovery meeting or Proposal discussed, sorted by Decision expected.
+3. **Stalled:** deals whose last update is older than 30 days, using the **Older than…** date filter.
+4. **By introducer:** deals filtered to those linked to a referral partner organization, to see where new business comes from.
+
+Custom date fields filter by fixed dates, so a "next 30 days" list is a sort on Next review rather than a moving window. Saved views are personal, so each colleague sets the same filters and saves their own view.
+
+### Client conversations in one inbox (Pro and above)
+
+In Customermates Cloud on Pro, Business and Enterprise, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with LinkedIn, WhatsApp, Instagram and Telegram, and you reply on the original channel. Link a participant to a contact once, and that person's conversations show on the client's timeline. Conversations from your own accounts stay private until you share a thread, or share the whole account on Business and above.
+
+Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user. An advisor who wants a mailbox and WhatsApp in the inbox needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]].
+
+<AcquisitionCallout title="The inbox is not your books-and-records archive" variant="boundary">
+  US securities rules treat business messages as records. On 14 August 2024 the
+  [SEC charged 26 broker-dealers and investment advisers](https://www.sec.gov/newsroom/press-releases/2024-98)
+  for failing to preserve "off-channel" communications. Customermates does not
+  record, retain or supervise messages for regulatory purposes. Connect only
+  channels your firm approves and archives elsewhere, and ask your compliance
+  officer before you link WhatsApp.
 </AcquisitionCallout>
 
-## A practical prospect-to-client workflow
+### A weekly review list with Mate (Customermates Cloud)
 
-Represent a prospective engagement as a deal, not as a portfolio or account. The opportunity can connect the individual, their organization where relevant, the introducer, and the services under discussion. The stages should reflect commercial progress rather than regulated advice status.
+Mate is the assistant inside Customermates Cloud and runs on the monthly hosted AI credits each cloud plan includes per active user. A [routine](/docs/app-routines) is a saved instruction Mate runs on a schedule or when a record changes. Choose **On a schedule**, **Every week** under **Repeats**, Monday at 08:00, with instructions like these:
+
+```text
+List contacts with Client status "Client" whose Next review date falls in
+the next 30 days and who have no linked task named "Book review". For each,
+create a task "Book review" linked to the contact and assigned to me.
+Do not send any messages. End with a list: client, household, next review
+date, preferred channel.
+```
+
+Mate sends messages without asking first when told to, so a routine that should only prepare work has to say so. Unattended runs refuse anything that needs approval, such as deletions. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
+
+If you would rather use your own AI client, Claude, ChatGPT and others connect through [MCP](/docs/mcp) on every plan and on self-hosted installations. Your AI provider bills the model use. Mate and MCP clients work with CRM records within your permissions; neither gives investment advice or checks suitability.
+
+## Mortgage brokers and finance brokers
+
+The same setup works for a mortgage practice, with one change in vocabulary. A deal is the enquiry, not the loan application. Stages might run New enquiry, Requirements confirmed, Options prepared externally, Client deciding, Won and Closed. Estate agents, builders and accountants are referral-partner organizations.
+
+Applications, credit checks, product sourcing, bank submission and the borrower's documents belong in your loan-origination system or, in Germany, a platform such as [Europace](https://www.europace.de/), which lists more than 800 product providers and an application workflow with a document file. Customermates has no native connection to either. If the platform has an API, a workflow you build with the [REST API and webhooks](/features/api) can pass a reference number or status between them.
+
+## What Customermates does not do for advisors
+
+- No custodian, portfolio, planning or loan-origination connector, and no calculated assets under management. An AUM figure in a custom field is only what someone typed.
+- No suitability or advice documentation, no e-signature and no communication archive.
+- Tasks have no due dates, reminders or notifications. Use a date field, a sorted view or a routine.
+- No email sequences or bulk mailing. Client messages are written one conversation at a time.
+- No file storage on records; keep documents in your document system and its link in a field.
+- No mobile app and no calendar booking.
+
+If one of these is the reason you are shopping, look at a tool built for it. Customermates publishes this page. Vendor details and prices were checked on 8 October 2026 on each vendor's own website, linked in the table.
+
+| If you need | Look at | What the vendor's site lists |
+|---|---|---|
+| An advisor CRM with households and a mobile app | [Wealthbox](https://www.wealthbox.com/pricing/) | Basic $59, Pro $75, Premier $99 per user per month, Enterprise on request; households on every plan; iOS and Android app; SOC 2 Type II; 14-day trial |
+| Compliant note archiving, compliant texting and custodian integrations | [Redtail](https://www.redtailtechnology.com/pricing/) | Launch $45 per user per month billed monthly or $39 billed yearly (up to 5 users), with compliant note archiving; Growth $65 monthly or $59 yearly, adding compliant texting (Speak); [integrations](https://www.redtailtechnology.com/) with Orion, Schwab and eMoney |
+| Mortgage sourcing, bank connections and applications in Germany | [Europace](https://www.europace.de/) | Marketplace with more than 800 product providers, bank connection and an application document file |
+
+A workable split is two systems: Customermates for prospects, introducers and conversations, and the advisor or mortgage platform for regulated work.
+
+## What it costs
+
+Prices are per active user per month, billed monthly. REST, webhooks and MCP are on every plan.
+
+| Practice | Plan | Per month |
+|---|---|---|
+| Solo advisor, pipeline and review views, no inbox | Starter | [[commercial.price.starter.monthly]] |
+| Solo advisor, one mailbox in the inbox | Pro | [[commercial.price.pro.monthly]] |
+| Solo advisor, mailbox plus WhatsApp | Business | [[commercial.price.business.monthly]] |
+| Two advisors and a paraplanner, one mailbox each | Pro | [[commercial.price.pro.monthly.seats.3]] |
+
+Each cloud plan adds monthly hosted AI credits per active user for Mate; see the [pricing page](/pricing). Running the open-source core on your own server has no licence fee, but a self-hosted installation has no inbox, no Mate and no routines.
+
+## Moving your client list in
 
 <Steps>
-  <Step title="Capture the relationship context">
-    Create the contact, associate the relevant organization, and record the
-    referral source or introducer without importing a full regulated client
-    file.
+  <Step title="Export from your current tool as Excel">
+    Customermates imports Excel workbooks (.xlsx), one record type at a time.
+    Leave portfolio data, risk profiles and documents out.
   </Step>
-  <Step title="Configure the opportunity stages">
-    Use stages such as new inquiry, discovery planned, evaluating fit, scope
-    discussed, won, or closed.
+  <Step title="Import organizations first">
+    Households and referral partners, with the Type field filled in. On the
+    Organizations list, open **Import and export** and choose **Add from file**.
   </Step>
-  <Step title="Add a few custom fields">
-    Store values such as relationship tier, preferred contact method, referral
-    source, review month, or an external-system reference.
+  <Step title="Import contacts">
+    Include a column with the household or company name so each contact links
+    to its organization, plus Client status and Next review.
   </Step>
-  <Step title="Keep the next action with the record">
-    Attach a task for the next manual follow-up. Tasks have no due dates,
-    recurring schedules, or supervised review workflow.
+  <Step title="Import open opportunities as deals">
+    Include stage and dates, then link services so each deal has a value.
   </Step>
-  <Step title="Hand regulated work to the specialist system">
-    Once advice, onboarding, custody, or documentation begins, continue that
-    process in the platform that owns it.
+  <Step title="Connect approved channels">
+    On Pro or higher, connect your mailbox under **My Profile › Channels** once
+    compliance has approved it.
   </Step>
 </Steps>
 
-## Reviews, AUM references, and households
+Details on columns and limits are in the [records guide](/docs/app-records).
 
-A review month or relationship status can be stored as a custom value and used in filtered views. A customer-operated scheduler or separate [n8n workflow](/features/workflow-automation) can create a task from an approved date source. Customermates has no native scheduler, reminder sequence, or automated review campaign.
+## Client data
 
-If a team keeps an AUM reference in a custom field, it remains manually supplied context. Customermates does not calculate, synchronize, reconcile, or verify assets under management. Do not use that field as a portfolio ledger, performance report, or billing authority.
-
-Contacts and organizations can represent related people and entities, but there is no advisor-specific household object, trust administration, beneficiary workflow, or automatic relationship inference. Build only the associations needed for the CRM conversation and keep the complete financial structure in the authoritative platform.
-
-## Referral partners and individual conversations
-
-Accountants, attorneys, mortgage brokers, and other introducers can be represented as contacts and organizations. A referral-source field and configurable views help a user review where opportunities came from. The CRM does not run referral-request campaigns or calculate attribution automatically.
-
-On Pro and above, the [unified inbox](/features/unified-inbox) on Customermates Cloud brings in conversations from email, LinkedIn, WhatsApp, Instagram, and Telegram. You link conversations to contacts; messages are not attached to advice records or deals. There is no bulk outreach or sequence engine, and self-hosted deployments do not include the inbox.
-
-An external AI client connected through [MCP](/docs/mcp) works with CRM records within the connecting user's permissions. It does not become a financial planner, portfolio analyst, suitability engine, or compliance reviewer.
-
-## Data, deployment, and integration boundaries
-
-In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. That is not a GDPR or financial-services certification, and Customermates holds none. Connected channels, external AI clients, and automation providers have their own boundaries. If you need full control over where data lives, self-host the open-source core. Permissions apply per resource and action, not per field, and read access can be limited to the records a user is assigned to.
-
-Customer-built integrations can use the [REST API and webhooks](/features/api), MCP, or the separate n8n community integration. You own provider contracts, field mapping, validation, retries, duplicate handling, and compliance. There is no native custodian, portfolio, planning, or regulatory connector.
-
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosting includes the Starter feature set, without the unified inbox. See the [pricing page](/pricing) for current plan details.
+- In Customermates Cloud the primary production database is configured in the AWS Frankfurt region. Hosting and other subprocessors, US providers among them, are on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available.
+- Permissions apply per resource and action, not per field. A role with **Assigned** read access limits a paraplanner or associate to the records assigned to them.
+- The audit log records who changed which record, on every plan.
+- Customermates holds no certification such as SOC 2 or ISO 27001. If your broker-dealer, network or regulator requires one for a CRM, Customermates is not an option for you.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="Is Customermates portfolio-management software?">
-No. It does not calculate performance, synchronize holdings, reconcile accounts, custody assets, or create financial plans. It is a configurable CRM for relationships and commercial opportunities.
+<FaqItem question="What software do financial advisors usually use?">
+An advisory practice usually runs several systems: a CRM, financial-planning software, a portfolio or custodian platform and an archive for communications. Advisor-specific CRMs such as Redtail and Wealthbox connect to that stack. Customermates covers the CRM part for practices that want a simpler relationship tool and keep the rest in specialist systems.
 </FaqItem>
 
-<FaqItem question="Can a financial advisor track AUM in Customermates?">
-A manually maintained AUM reference can be stored in a custom field if the firm's data policy allows it. Customermates does not calculate, verify, or synchronize that value, so the authoritative amount remains in the portfolio or custody system.
+<FaqItem question="What is the best CRM for finance brokers?">
+It depends on how much of the regulated process you want in one tool. If applications, product sourcing and lender submission should live with the client record, use your loan-origination platform's CRM. If you need a separate pipeline for enquiries and referral partners, a general CRM such as Customermates works beside it. Customermates is our own product, so weigh that.
 </FaqItem>
 
-<FaqItem question="Does Customermates provide compliance recordkeeping?">
-No. Keep regulated advice, suitability evidence, signed documents, supervisory records, and the official communication archive in approved systems. Customermates carries no financial-services compliance certification.
+<FaqItem question="Can I track households and assets under management?">
+Model a household as an organization and link each member as a contact. An AUM figure can sit in a currency field, but Customermates does not calculate, sync or verify it, so the authoritative value stays in the portfolio or custody system.
 </FaqItem>
 
-<FaqItem question="Does Customermates integrate with custodians or planning tools?">
-No, there is no native connector. You can build your own connection through REST, webhooks, MCP, or a separately operated n8n workflow when the other system exposes a suitable interface.
+<FaqItem question="Can I message clients on WhatsApp through Customermates?">
+Technically yes, from the Pro plan in Customermates Cloud. Whether you may is a compliance question: regulators expect business communications to be preserved, and Customermates is not a recordkeeping archive. Use only channels your firm approves and captures elsewhere.
+</FaqItem>
+
+<FaqItem question="How much does a CRM for a small advisory practice cost?">
+On Customermates, a solo advisor pays [[commercial.price.starter.monthly]] per month on Starter, or [[commercial.price.pro.monthly]] on Pro with one mailbox in the inbox. Three users on Pro come to [[commercial.price.pro.monthly.seats.3]] per month, billed monthly.
 </FaqItem>
 </Faq>

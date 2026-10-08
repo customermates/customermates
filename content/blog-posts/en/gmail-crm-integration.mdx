@@ -1,189 +1,167 @@
 ---
-title: "Gmail CRM Integration: Email Sync and Workflows"
-description: "How a Gmail CRM integration actually works: add-on, mailbox sync or API. Google's scope rules, Workspace limits, and a step-by-step Customermates setup."
+title: "Gmail CRM Integration: Sidebar, Sync or API"
+description: "How a Gmail CRM integration works: a sidebar in Gmail, a mailbox sync or an API workflow. Google's scope and sending rules, vendor fit and a worked setup."
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /blog/outlook-crm-integration
+  - /docs/app-inbox
+  - /blog/customer-interaction-management
 
 hero:
-  title: "Gmail CRM Integration: How It Works and What to Check"
-  description: "The three ways a CRM connects to Gmail, what each one can and cannot see, the Google rules that shape every integration, and exactly how a Gmail account works inside the Customermates inbox."
+  title: "Gmail CRM Integration: How It Works and Which Kind Fits Your Team"
+  description: "The three ways a CRM connects to Gmail, what Google allows each of them to do, how Streak, HubSpot, Copper, Pipedrive and Customermates approach it, and a step-by-step setup with a sending limit check."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2025-12-13
+  updated: 2026-10-08
   tags:
     - Gmail CRM Integration
     - Google Workspace CRM
     - Email Integration
 ---
 
-# Gmail CRM Integration: How It Works and What to Check
+# Connecting Gmail to a CRM: three architectures and what to check
 
-A **Gmail CRM integration** connects a Gmail or Google Workspace mailbox to the system that holds your contacts and deals, so an email thread and the customer record it belongs to stop sitting in two places. Every product in this category promises that. They deliver it in very different ways, and the difference decides what your team can actually do: read the CRM while writing an email, see every customer email from inside the CRM, or let an automation or AI client act on both.
+A Gmail CRM integration works in one of three ways. The CRM appears as a panel inside Gmail, the CRM reads the mailbox on its server and shows the threads next to your contacts and deals, or you build a workflow between the Gmail API and the CRM's API. Choose by where your team spends the day: people who live in Gmail are happiest with a sidebar, and teams that work from the customer record want the mailbox sync.
 
-This guide explains the three integration architectures, the Google rules every vendor has to follow, the questions worth asking before you connect a mailbox, and how a Gmail account works in [Customermates](/features/email-integration) step by step. Disclosure: Customermates publishes this guide.
+Two things Google controls apply to every option: reading mail requires a restricted Gmail scope that the vendor must have verified, and a Workspace admin can block the app outright. Mail a CRM sends through your account also counts against Gmail's daily sending limit.
+
+Customermates, an AI-native CRM, publishes this guide and uses the mailbox-sync model. Vendor details below were checked on 8 October 2026 on the vendors' own pages, linked in the text.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Three architectures">
-    A sidebar inside Gmail, a mailbox sync that pulls threads into the CRM, or
-    an API workflow you build. Each sees and does different things.
-  </SummaryItem>
-  <SummaryItem label="Google sets the rules">
-    Reading mail needs restricted Gmail scopes, and Workspace admins decide
-    which third-party apps may use them.
-  </SummaryItem>
-  <SummaryItem label="Customermates approach">
-    A connected Gmail account feeds the unified inbox on Customermates Cloud
-    from Pro, next to LinkedIn, WhatsApp, Instagram and Telegram.
-  </SummaryItem>
-  <SummaryItem label="Boundaries">
-    No Gmail sidebar, read-only calendar data, no sequences, and no inbox in
-    self-hosted installations.
-  </SummaryItem>
+  <SummaryItem label="Sidebar">The CRM sits next to the open email. Good for logging and lookups while you write. Streak, HubSpot and Copper work this way.</SummaryItem>
+  <SummaryItem label="Mailbox sync">The CRM reads the account and shows every synced thread on the contact, including mail nobody logged. Pipedrive's Sales Inbox and the Customermates inbox work this way.</SummaryItem>
+  <SummaryItem label="Google's rules">Reading mail needs restricted scopes and Google's verification. Workspace admins can mark an app as trusted, limited or blocked.</SummaryItem>
+  <SummaryItem label="Customermates">Gmail is a channel of the unified inbox in Customermates Cloud from Pro. There is no Gmail sidebar, and self-hosted installations have no inbox.</SummaryItem>
 </ArticleSummary>
 
 ## The three ways a CRM connects to Gmail
 
-### 1. A sidebar or add-on inside Gmail
+| | Sidebar or extension in Gmail | Mailbox sync into the CRM | API workflow you build |
+|---|---|---|---|
+| Where you work | Inside Gmail | Inside the CRM | Wherever the workflow writes |
+| Mail nobody logged | Depends on the product | Shown, within the synced folders | Only what the workflow fetches |
+| Setup | Install an extension, sign in | Authorize the account once | Build, test and maintain |
+| Who holds Google's verification | The vendor | The vendor or its provider | You |
+| Typical failure | Logging depends on each person | A thread visible to more people than intended | A workflow that stops without anyone noticing |
 
-The CRM appears as a panel next to the open email. You look up the sender, log the message, or create a record without leaving Gmail. Streak goes furthest and runs its whole pipeline inside the Gmail interface; HubSpot, Copper and Pipedrive offer Gmail extensions or add-ons next to their own web apps.
+**Sidebar.** You look up the sender, log the message or create a record without leaving Gmail. Check whether logging is automatic or one message at a time, and which browser the extension needs. HubSpot's extension is built for Chrome, and Copper's runs in Gmail on the desktop.
 
-- **Good for:** people who spend their day in Gmail and want CRM context while they write.
-- **Watch for:** what gets logged automatically versus one message at a time, and whether the panel works in the Gmail mobile app or only on the web.
+**Mailbox sync.** The CRM reads threads from the account on its server. Replies go out through the same Gmail account, so they appear in your Sent folder. Check which folders sync, who else can read a synced thread, and how threads are matched to contacts.
 
-### 2. Mailbox sync into the CRM
+**API workflow.** You connect the Gmail API to the CRM's API or webhooks with a tool such as n8n or your own code. A stage change can send a message; an incoming email can create a record. You own the OAuth app, the error handling and Google's verification.
 
-You authorize the mailbox once, and the CRM reads threads from it on the server. Conversations appear in the CRM next to the contact, and replies go out through the same Gmail account, so they sit in your Sent folder as usual. This is the model Customermates uses.
+## How common Gmail CRMs connect
 
-- **Good for:** teams that work from the customer record and want every conversation there, including messages nobody remembered to log.
-- **Watch for:** which folders sync, who else can read a synced thread, and how the CRM decides which contact a thread belongs to.
+This table describes each product's approach on its own pages. It is not a ranking. Customermates appears as one entry because it publishes this guide.
 
-### 3. An API or workflow integration you build
+| Product | How it connects to Gmail | Fits teams that | Source |
+|---|---|---|---|
+| Streak | Runs inside Gmail. The free plan has email and link tracking and mail merge but no CRM pipelines; pipelines start with the paid Pro plan. | Want the whole pipeline in the Gmail window | [Streak pricing](https://www.streak.com/pricing) |
+| HubSpot | The HubSpot Sales Chrome extension tracks and logs emails sent from Gmail and shows HubSpot records in the inbox. HubSpot lists it for all products and plans. | Already run HubSpot, or want a free start with logging | [HubSpot knowledge base](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-chrome-extension) |
+| Copper | A Chrome extension brings Copper into Gmail and Google Calendar on desktop, next to Google Contacts and Drive integrations. | Run their whole company on Google Workspace | [Copper pricing](https://www.copper.com/pricing) |
+| Pipedrive | Email sync shows Gmail conversations in Pipedrive's Sales Inbox, on Growth and higher plans. | Want a pipeline-first CRM with email in the CRM | [Pipedrive email sync](https://support.pipedrive.com/en/article/email-sync) |
+| Customermates | Gmail syncs into a unified inbox next to Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram, on Pro and higher in Customermates Cloud. | Talk to clients on more than one channel and work from the record | [Unified inbox](/features/unified-inbox) |
 
-You connect the Gmail API to the CRM's API or webhooks with a workflow tool such as n8n, or with your own code. A deal stage change can send a Gmail message; an incoming email can create a record. You decide exactly what moves.
-
-- **Good for:** specific, repeatable automations that the product does not offer.
-- **Watch for:** you own the OAuth app, the error handling and the maintenance. Google's verification rules below apply to your app, not to the CRM vendor.
-
-| Question                              | Sidebar / add-on              | Mailbox sync                   | API workflow you build          |
-| ------------------------------------- | ----------------------------- | ------------------------------ | ------------------------------- |
-| Where you work                        | Inside Gmail                  | Inside the CRM                 | Wherever the workflow reports   |
-| Sees mail nobody logged               | Depends on the product        | Yes, within synced folders     | Only what your workflow fetches |
-| Setup effort                          | Install and sign in           | Connect the account once       | Build, test and maintain        |
-| Who operates the Google OAuth app     | The vendor                    | The vendor or its provider     | You                             |
-| Typical risk                          | Inconsistent manual logging   | Over-sharing synced threads    | Silent workflow failures        |
+If Gmail is the only channel and nobody wants to leave the Gmail window, a sidebar product is the simpler choice. A sync-based CRM pays off when several people share clients, or when half of the conversation happens on WhatsApp or LinkedIn.
 
 ## The Google rules behind every Gmail integration
 
-Two things on Google's side shape what any vendor can offer.
+**Scopes.** Google classifies `gmail.readonly`, `gmail.modify` and full `https://mail.google.com/` access as [restricted scopes](https://developers.google.com/workspace/gmail/api/auth/scopes). They require restricted-scope OAuth verification, and an app that stores or transmits that data on servers must also pass a security assessment. Composing drafts (`gmail.compose`) is restricted as well. Only send-only access (`gmail.send`) is a sensitive scope, which needs OAuth app verification but not the security assessment that restricted scopes require for server-side storage. If you build your own integration, plan for this before you write code.
 
-**Gmail scopes.** Google classifies the scopes that read, modify or fully access a mailbox (for example `gmail.readonly`, `gmail.modify` and full `mail.google.com` access) as [restricted scopes](https://developers.google.com/workspace/gmail/api/auth/scopes). An app that uses them must pass Google's restricted-scope verification, and one that stores or transmits that data on its servers must also complete a security assessment. Sending only (`gmail.send`) is a sensitive scope with lighter requirements. If you build your own integration, budget for this; if you buy one, the vendor or its provider carries it.
+**Admin controls.** In Google Workspace, an admin decides per app whether it is [trusted, limited or blocked](https://knowledge.workspace.google.com/admin/apps/control-which-apps-access-google-workspace-data). A limited app cannot use restricted services, and admins can also block a list of high-risk Gmail scopes. When a connection works for one colleague and fails for another, check these settings before you debug the CRM.
 
-**Workspace admin controls.** In Google Workspace, an administrator can restrict which third-party apps may access Google data. If a connection fails for one user but works for another, check the organization's API access controls before debugging the CRM.
+**Sending limits.** Google Workspace allows 2,000 messages per user per day, 1,500 for mail merge and 500 on a trial account, with at most 500 external recipients per message, according to [Google's sending-limits page](https://knowledge.workspace.google.com/admin/gmail/gmail-sending-limits-in-google-workspace). The limits apply over a rolling 24 hours. A personal Gmail account hits its limit above 500 emails a day, per [Gmail Help](https://support.google.com/mail/answer/22839?hl=en). Mail your CRM sends through the account counts too.
 
-**Sending limits.** Google Workspace allows up to 2,000 messages per user per day on paid accounts, 1,500 for mail merge and 500 during a trial, with a maximum of 500 external recipients per message, according to [Google's sending-limits page](https://knowledge.workspace.google.com/admin/gmail/gmail-sending-limits-in-google-workspace) (checked 27 September 2026). Mail a CRM sends through your Gmail account counts against those limits.
+## Questions to ask before you connect a mailbox
 
-## What to check before you connect a mailbox
+1. **Which folders sync?** Archive, spam and the all-mail folder behave differently across products.
+2. **Who can read a synced thread?** Private by default, shared per thread, or open to the whole workspace?
+3. **How are threads matched to contacts?** By address, by domain, or by hand?
+4. **Where do replies come from?** Your real Gmail address and signature, or a relay?
+5. **What does the CRM do with Google Calendar?** Show events, or also create them?
+6. **What happens when you disconnect?** Does the imported mail stay in the CRM or get deleted?
 
-1. **Which folders sync?** Archive, spam and all-mail folders behave differently across products.
-2. **Who can read a synced thread?** Private by default, shared per thread, or visible to the whole workspace?
-3. **How are threads matched to contacts?** By email address, by domain, or by hand?
-4. **Where do replies come from?** Your real Gmail address and signature, or a relay address?
-5. **What happens to calendar data?** Read-only display, or can the CRM create and change events?
-6. **What can automation and AI do?** Read only, draft for review, or send?
-7. **What happens when you disconnect?** Which data stays in the CRM and which disappears?
+For Customermates, the answers follow.
 
 ## How Gmail works in Customermates
 
-Customermates connects Gmail as a channel of its [unified inbox](/features/unified-inbox). The inbox runs on Customermates Cloud and needs a plan with messaging: Pro, Business, Enterprise or a trial. Each member can connect [[commercial.entitlement.pro.includedAccountsPerUser]] connected account on Pro and [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts on Business; see [pricing](/pricing).
+Gmail is one channel of the [unified inbox](/features/unified-inbox) in Customermates Cloud. It needs a plan with messaging: Pro, Business, Enterprise or a trial. Each member connects [[commercial.entitlement.pro.includedAccountsPerUser]] account on Pro and up to [[commercial.entitlement.business.includedAccountsPerUser]] on Business; Starter has no inbox. Details are on the [pricing page](/pricing).
 
 <Steps>
-  <Step title="Connect the account">
-    Open **My Profile › Channels**, choose **Connect channel** and pick
-    **Gmail**. You authorize through the hosted sign-in flow; the channel card
-    then shows whether email, calendar or both are connected.
-  </Step>
-  <Step title="Choose the folders">
-    On the account's **Folders** tab, every folder is on by default except
-    trash, junk or spam, drafts and the all-mail folder. Turn a folder on if
-    mail from it, for example an archive, should appear in the inbox.
-  </Step>
-  <Step title="Link participants to contacts">
-    Open **Thread settings** on a conversation and **Link** each participant
-    to an existing contact or create a new one. The address is added to the
-    contact, so every conversation with it appears on that contact's
-    timeline.
-  </Step>
-  <Step title="Decide who sees what">
-    Conversations from your Gmail account are private by default. Share a
-    single conversation with the team from its header, or, on Business and
-    Enterprise, share the whole account.
-  </Step>
-  <Step title="Reply and write new email">
-    Reply from the conversation, or start a new email from the **New message**
-    icon next to a contact's address. Mail goes out from your Gmail account,
-    with the signature you set on the account's **Email** tab.
-  </Step>
+  <Step title="Connect the account">Open **My Profile › Channels**, click **Connect channel** and pick **Gmail**. You sign in to Google on a secure connection page and return to **Channels**. The card shows whether email, calendar or both are connected, and your history imports in the background. Use the **IMAP** entry only for mail accounts that are not Gmail or Outlook.</Step>
+  <Step title="Choose the folders">On the account's **Folders** tab, every folder is on except trash, junk or spam, drafts and the all-mail folder. Switch on an archive folder if those conversations should appear.</Step>
+  <Step title="Link participants to contacts">Open **Thread settings** from the chip in a conversation's header and click **Link** next to each participant. Pick an existing contact or create one. The address is added to the contact, so every conversation with it lands on that contact's timeline.</Step>
+  <Step title="Decide who sees what">Your conversations are private by default; admins cannot read them either. Share a single conversation with the switch in **Thread settings**, or, on Business and Enterprise, share the whole account under **Visibility** on its **Details** tab.</Step>
+  <Step title="Set the signature and reply">Set the signature on the account's **Email** tab; it is added to every email from that account. Reply in the conversation, or start a new email with the **New message** icon next to a contact's address.</Step>
 </Steps>
 
-A few Gmail-specific details from the [inbox guide](/docs/app-inbox):
+A few Gmail details from the [inbox guide](/docs/app-inbox):
 
-- **Folders are read-only for Gmail.** Outlook and IMAP conversations can be moved to another folder from the CRM; a Gmail conversation shows its folder as a read-only chip.
-- **Thread state is shared.** **Unread**, **Open**, **Closed** and **Spam** are one value for everyone who can see the conversation, and setting a state never sends anything to the other side.
-- **Drafts are one per conversation.** A saved draft is visible in the inbox and can be sent, edited or discarded later. Drafts cannot keep attachments.
+- **Labels are read-only.** Outlook and IMAP conversations can be moved to another folder from the CRM. A Gmail conversation shows its labels but has no move option.
+- **State is shared.** **Unread**, **Open**, **Closed** and **Spam** are one value for everyone who sees the conversation. Setting **Spam** does not report anything to Google.
+- **One draft per conversation.** **Save as draft** under **More send options** keeps a message for later. Drafts cannot keep files, so attach them when you send.
+- **A shared address is connected once.** If a colleague already connected `sales@` in your workspace, a second connection is refused with **Account already connected**. The owner shares it instead.
+- **Disconnecting deletes the import.** **Disconnect** removes the account and permanently deletes the conversations, messages and calendar events Customermates imported from it. A shared account disappears for your teammates too.
 
-<AcquisitionCallout title="What this integration does not do" variant="boundary">
-  There is no Gmail sidebar or Chrome extension. Connected calendar data is
-  read-only: Customermates shows events but does not create, change or book
-  them. There are no sequences or bulk sends, because messaging is one-to-one:
-  each message goes to one conversation. Self-hosted installations have no inbox at all; there you
-  would use the REST API, webhooks or your own workflow instead.
+<AcquisitionCallout title="What the Gmail integration does not do" variant="boundary">
+  There is no Gmail sidebar or Chrome extension. Calendar data is shown, never written: Customermates does not create, change or book events. Messages are written one at a time, so there is no mail merge or campaign sending. Self-hosted installations have no inbox; there, Gmail is a workflow you build on the REST API and webhooks.
 </AcquisitionCallout>
 
-## AI on top of the Gmail inbox
+### Worked example: a three-person consultancy
 
-Because Gmail conversations sit next to CRM records, an AI client can use both. External clients such as Claude or ChatGPT connect through [MCP](/docs/mcp) and use tools like `get_messaging_threads` to read conversations, `save_message_draft` to prepare a reply for review, and `send_email` to send one. Customermates registers [[derived.mcp.tools.total]] MCP tools in total; the messaging tools need a plan with messaging.
+Three consultants each connect their Google Workspace address on Pro. That costs [[commercial.price.pro.monthly.seats.3]] per month for the team. Each consultant keeps client mail private and shares the conversations that a colleague needs to see. Every client contact is linked once, so the contact page shows the full email history next to open deals.
 
-A practical, reversible first workflow: ask the client to read the latest thread with a contact, summarize it into a note on the deal, and save a reply as a draft. You read the draft in the inbox and press **Send** yourself. The MCP server instructions tell clients to ask before sending, but that confirmation happens in the client, not as a second approval on the server, so check how your client handles it. Mate, the assistant inside Customermates Cloud, requires a fresh approval for every send.
+In Customermates Cloud, each consultant can add a routine that runs when a client writes. Routines spend hosted AI credits from the owner's monthly allowance, and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user. Under **Routines**, click **Add**, choose **When something changes** and select the **Email Received** event. Then write the instruction:
 
-## Gmail integration for automation
+> When an email arrives from a contact linked to an open deal, add a two-sentence summary to that deal's notes. Save a reply as a draft and do not send it. Ignore newsletters and automated mail.
 
-If a workflow must react to CRM changes, use [webhooks](/docs/webhooks): Customermates emits [[derived.webhooks.events.total]] event types for records and messaging, which a separately operated n8n instance or your own service can consume. The [n8n community node](/docs/n8n) and the REST API cover the other direction. That is architecture 3 from above, running next to the synced inbox rather than replacing it.
+The last two sentences matter. A routine runs as its owner with the owner's channels, and Mate may send email without asking. If you want only drafts, the instruction has to say so. The draft waits in the conversation until the consultant sends it. Limits on runs and credits are in the [routines guide](/docs/app-routines).
+
+## AI clients and automation on top of Gmail
+
+If you use Claude, ChatGPT or another AI client, connect it through [MCP](/docs/mcp). It can read Gmail conversations, save a draft for review and send email, using the same permissions as your account. The server tells clients to confirm before sending, but that check happens in the client, not on the server. Test how your client handles it with a draft first. External clients use your own AI provider, not hosted credits.
+
+For deterministic automation, [webhooks](/docs/webhooks) report [[derived.webhooks.events.total]] event types, including [[derived.webhooks.events.messaging]] messaging events such as an ingested email. A separately run n8n instance can consume them through the [n8n community node](/docs/n8n), for example to post a message elsewhere when a client replies. n8n is not included with Customermates.
 
 ## Can you use Gmail as a CRM?
 
-For a handful of conversations, labels, stars and Google Contacts go a long way. They stop working when several people share customers, when you need deal stages and values, or when conversations happen outside email. Gmail has no pipeline, no deal values and no shared history per customer across channels. At that point, keep Gmail as the place mail is sent and received, and let a CRM hold the record. If your customers also write on WhatsApp or LinkedIn, see how a [customer communication management](/blog/customer-communication-management) setup brings those channels together.
+For one person and a few dozen clients, labels, stars and Google Contacts can carry you. Gmail has no deal stages, no deal values and no record that a colleague can open to see the full history with a client. The [Google Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) lists CRM apps from other vendors under Sales & CRM, for example Streak, Zoho CRM and Insightly. Once a second person shares clients with you, keep Gmail for sending and receiving and let a CRM hold the [contact and deal records](/features/contact-management).
 
 ## Frequently asked questions
 
 <Faq>
+<FaqItem question="Is there a free CRM for Gmail?">
+HubSpot lists its Sales Chrome extension for Gmail for all its plans, and Streak has a free plan with email tracking but without CRM pipelines. Customermates connects Gmail on Pro and higher; you can test it in the [[commercial.trial.days]]-day trial. The self-hosted version is free under AGPL but has no inbox.
+</FaqItem>
+
 <FaqItem question="How do I connect Gmail to Customermates?">
-On Customermates Cloud with Pro, Business, Enterprise or a trial, open **My Profile › Channels**, choose **Connect channel**, pick **Gmail** and complete the sign-in. Conversations from the folders switched on for that account then appear in the Inbox.
+On Customermates Cloud with Pro, Business, Enterprise or a trial, open **My Profile › Channels**, click **Connect channel**, pick **Gmail** and sign in to Google. Conversations from the folders switched on for that account then appear in the Inbox.
+</FaqItem>
+
+<FaqItem question="Do I need IMAP or POP3 to connect Gmail?">
+No. In Customermates you pick the **Gmail** entry and sign in to Google. The **IMAP** entry is for other mail accounts, and Customermates does not offer POP3.
 </FaqItem>
 
 <FaqItem question="Does Customermates have a Gmail sidebar or Chrome extension?">
 No. Customermates brings Gmail conversations into the CRM instead of putting the CRM inside Gmail. You read, reply and link threads to contacts in the Customermates inbox.
 </FaqItem>
 
-<FaqItem question="Can other team members read my Gmail conversations?">
-Not by default. Conversations from your account are private until you share a single conversation or, on Business and Enterprise, share the whole account. A teammate's private conversations never appear for anyone else, admins included.
+<FaqItem question="Can my team read my Gmail conversations?">
+Not by default. Your conversations stay private until you share a single conversation or, on Business and Enterprise, the whole account. A teammate's private conversations never appear for anyone else, admins included.
 </FaqItem>
 
 <FaqItem question="Does the integration sync Google Calendar?">
-Calendar data from a connected Google account can be read into Customermates, but only for display. Customermates does not create, change or book calendar events.
-</FaqItem>
-
-<FaqItem question="Does the Gmail integration work in self-hosted Customermates?">
-No. The inbox and connected channels are part of Customermates Cloud. A self-hosted installation includes the core CRM, REST, webhooks and MCP, so any Gmail connection there is a workflow you build and operate.
-</FaqItem>
-
-<FaqItem question="Can I send email campaigns or sequences from Gmail through the CRM?">
-No. Messaging in Customermates is one-to-one, with no bulk sends. Campaigns and sequences belong in a dedicated email provider, which you can connect to CRM events through webhooks.
+A connected Google account can also bring calendar events into Customermates on Pro and higher, for display only. Customermates does not create, change or book events.
 </FaqItem>
 
 <FaqItem question="How many emails can I send through Gmail per day?">
-Google limits paid Workspace accounts to 2,000 messages per user per day and trial accounts to 500, according to Google's sending-limits page. Mail you send through Customermates from your Gmail account counts against those limits.
+Google Workspace allows 2,000 messages per user per day on paid accounts and 500 on trial accounts. Personal Gmail accounts hit a limit above 500 a day. Mail you send through any CRM from your Gmail account counts against those limits.
 </FaqItem>
 </Faq>
 
-For Microsoft 365 mailboxes, the same questions apply; see the [Outlook CRM integration guide](/blog/outlook-crm-integration).
+Outlook works the same way in Customermates; the [Outlook CRM integration guide](/blog/outlook-crm-integration) covers the Microsoft 365 side.
