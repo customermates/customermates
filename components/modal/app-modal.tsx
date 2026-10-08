@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
 import type { AppModalActionProps } from "./app-modal-action";
 
@@ -24,6 +24,16 @@ import { AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-act
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
 export type AppModalActions = readonly AppModalActionProps[];
+
+type AppModalSurface = "dialog" | "drawer" | "sheet";
+
+const AppModalSurfaceContext = createContext<AppModalSurface>("dialog");
+
+export function AppModalTitle({ className, children }: { className?: string; children: ReactNode }) {
+  const surface = useContext(AppModalSurfaceContext);
+  const Title = surface === "sheet" ? SheetTitle : surface === "drawer" ? DrawerTitle : DialogTitle;
+  return <Title className={className}>{children}</Title>;
+}
 
 export type ModalSize = "sm" | "md" | "lg" | "xl" | "3xl" | "5xl";
 
@@ -49,6 +59,7 @@ type SharedProps = {
   side?: "left" | "right";
   bodyClassName?: string;
   focusContentOnOpen?: boolean;
+  titleInContent?: boolean;
   guardsUnsavedChanges?: boolean;
 };
 
@@ -159,7 +170,7 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
-              <SheetTitle>{title}</SheetTitle>
+              {props.titleInContent ? null : <SheetTitle>{title}</SheetTitle>}
 
               {description ? <SheetDescription>{description}</SheetDescription> : null}
             </VisuallyHidden.Root>
@@ -168,7 +179,9 @@ export const AppModal = observer((props: Props) => {
 
             <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
               <AppModalCloseContext.Provider value={modalClose}>
-                <SheetBody className={props.bodyClassName}>{children}</SheetBody>
+                <SheetBody className={props.bodyClassName}>
+                  <AppModalSurfaceContext.Provider value="sheet">{children}</AppModalSurfaceContext.Provider>
+                </SheetBody>
               </AppModalCloseContext.Provider>
             </OverlayDismissGuardContext.Provider>
           </SheetContent>
@@ -193,7 +206,7 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
-              <DialogTitle>{title}</DialogTitle>
+              {props.titleInContent ? null : <DialogTitle>{title}</DialogTitle>}
 
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </VisuallyHidden.Root>
@@ -201,7 +214,9 @@ export const AppModal = observer((props: Props) => {
             <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
             <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
-              <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
+              <AppModalCloseContext.Provider value={modalClose}>
+                <AppModalSurfaceContext.Provider value="dialog">{children}</AppModalSurfaceContext.Provider>
+              </AppModalCloseContext.Provider>
             </OverlayDismissGuardContext.Provider>
           </DialogContent>
         </Dialog>
@@ -221,7 +236,7 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
-              <DrawerTitle>{title}</DrawerTitle>
+              {props.titleInContent ? null : <DrawerTitle>{title}</DrawerTitle>}
 
               {description ? <DrawerDescription>{description}</DrawerDescription> : null}
             </VisuallyHidden.Root>
@@ -229,7 +244,9 @@ export const AppModal = observer((props: Props) => {
             <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
             <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
-              <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
+              <AppModalCloseContext.Provider value={modalClose}>
+                <AppModalSurfaceContext.Provider value="drawer">{children}</AppModalSurfaceContext.Provider>
+              </AppModalCloseContext.Provider>
             </OverlayDismissGuardContext.Provider>
           </DrawerContent>
         </Drawer>

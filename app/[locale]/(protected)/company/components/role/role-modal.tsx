@@ -56,7 +56,11 @@ export const RoleModal = observer(({ store }: Props) => {
   const { form, isLoading, canDeleteRole, isSystemRole, isOwnRole, canManage } = store;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
-  const manageLabels = { create: t("RoleModal.create"), update: t("RoleModal.edit"), delete: t("RoleModal.delete") };
+  const manageLabels = {
+    create: t("RoleModal.create"),
+    update: t("RoleModal.edit"),
+    delete: t("Common.actions.delete"),
+  };
   const readLabels = { all: t("RoleModal.readAll"), own: t("RoleModal.readOwn"), none: t("RoleModal.readNone") };
   const dash = <span className="text-sm text-muted-foreground">—</span>;
 

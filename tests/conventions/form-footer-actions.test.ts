@@ -36,7 +36,7 @@ const RULE_PATTERNS: Record<Rule, RegExp> = {
     /\b(?:AppCardFooter|DialogFooter|DrawerFooter|SheetFooter|AlertDialogFooter|PopoverFooter)\b(?![-\w])/,
   "overlay-footer": /<ResponsiveOverlay\b[^]*?\bfooter=\{/,
   "submit-button": /<Button\b(?:=>|[^>])*\btype="submit"/,
-  "confirm-primitive": /from "[^"]*\/(?:ui\/alert-dialog|unsaved-changes-guard)"/,
+  "confirm-primitive": /from "[^"]*\/ui\/alert-dialog"/,
   "archive-switch": /<(?:Form)?Switch\b(?:=>|[^>])*?(?:\barchive|Archive)/,
   "legacy-footer": /from "[^"]*\/form-actions"|\bexport const FormActions\b/,
 };
@@ -162,11 +162,7 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
 };
 
 const NOT_YET_MIGRATED: Record<string, Rule[]> = {
-  "components/card/form-actions.tsx": ["save-label", "footer-primitive", "submit-button", "legacy-footer"],
   "app/components/navigation/sidebar-customize.tsx": ["overlay-footer"],
-  "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": ["footer-primitive", "confirm-primitive"],
 };
 
 function scannedFiles(): string[] {

@@ -37,9 +37,7 @@ function importFindings(sources: SourceFile[], modulePattern: RegExp) {
 
 const TABS_OWNERS = new Set(["components/ui/segmented-control.tsx"]);
 
-const TABS_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": "I1 r4: list page sidebar list",
-};
+const TABS_ALLOWLIST: Allowlist = {};
 
 describe("rule 57: sections and segments instead of tab bars", () => {
   it("renders the Tabs primitive and the tabbed editor only through the shared segmented control", () => {
@@ -54,9 +52,7 @@ const OVERLAY_PRIMITIVE_EXEMPTIONS: Allowlist = {
   "app/components/app-sidebar.tsx": "the mobile sidebar is the navigation shell, not a dialog or drawer",
 };
 
-const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": "I1 r4 / I5 r2: confirm dialog",
-};
+const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {};
 
 describe("rules 31 and 35: dialogs and drawers through the shared overlay components", () => {
   it("imports the raw dialog, drawer and sheet primitives only inside the shared overlay components", () => {
@@ -248,14 +244,7 @@ function topBarFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const TOP_BAR_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/company/components/subscription/subscription-view.tsx": "I19: billing page actions",
-  "app/[locale]/(protected)/profile/components/api-keys-page-view.tsx":
-    "I19: API keys Add through the shared top-bar action buttons",
-  "app/[locale]/(protected)/configure/components/configure-page-view.tsx": "I1 r4: ConfigureTopBarActions buttons",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx": "I19: VerifyEmailAction button",
-  "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx": "I19: ConnectAction button",
-};
+const TOP_BAR_ALLOWLIST: Allowlist = {};
 
 describe("rules 5, 6 and 58: top-bar actions and view chips through their shared components", () => {
   it("builds every top-bar action node from DataViewToolbar or the shared top-bar action buttons", () => {
@@ -323,9 +312,7 @@ function stringLiteralFindings(sources: SourceFile[], pattern: RegExp) {
   return findings;
 }
 
-const COLOR_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": "I1 r4 / I5 r2: scrim token",
-};
+const COLOR_ALLOWLIST: Allowlist = {};
 
 describe("rule 58: colors only through design tokens", () => {
   it("uses no Tailwind palette colors or literal color values outside the token owners", () => {

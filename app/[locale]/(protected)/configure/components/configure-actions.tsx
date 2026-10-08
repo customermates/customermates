@@ -8,17 +8,11 @@ import { observer } from "mobx-react-lite";
 import { History, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { FormActions } from "@/components/card/form-actions";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { Button } from "@/components/ui/button";
+import { TopBarMenuButton, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { IntlLink } from "@/i18n/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 import { recordChannelsBinding } from "@/features/records/record-channels";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
@@ -57,117 +51,80 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   const deletion = useConfigurationDeletion(onDeleted);
   if (!canManage) return <div className="flex shrink-0 items-center gap-1">{ai}</div>;
   if (selected && general.original?.id === selected.id && general.hasUnsavedChanges)
-    return <FormActions formId={generalFormId} store={general} variant="topbar" />;
+    return <FormFooterActions formId={generalFormId} placement="topbar" store={general} />;
 
   return (
     <div className="flex shrink-0 items-center gap-1">
       {ai}
 
       {!selected && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              aria-label={t("RecordModel.configurationDeletion.configureActions")}
-              disabled={disabled}
-              size="icon-sm"
-              variant="secondary"
-            >
-              <MoreHorizontal aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
+        <TopBarMenuButton
+          disabled={disabled}
+          icon={MoreHorizontal}
+          label={t("RecordModel.configurationDeletion.configureActions")}
+        >
+          <DropdownMenuItem asChild>
+            <IntlLink href="/configure/deleted">
+              <History aria-hidden="true" />
 
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <IntlLink href="/configure/deleted">
-                <History aria-hidden="true" />
-
-                {t("RecordModel.configurationDeletion.recentlyDeleted")}
-              </IntlLink>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {t("RecordModel.configurationDeletion.recentlyDeleted")}
+            </IntlLink>
+          </DropdownMenuItem>
+        </TopBarMenuButton>
       )}
 
       {selected && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-label={t("RecordModel.listActions")} disabled={disabled} size="icon-sm" variant="secondary">
-              <MoreHorizontal aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
+        <TopBarMenuButton disabled={disabled} icon={MoreHorizontal} label={t("RecordModel.listActions")}>
+          <DropdownMenuItem onSelect={onSharedDefaults}>
+            <LayoutList aria-hidden="true" />
 
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={onSharedDefaults}>
-              <LayoutList aria-hidden="true" />
+            {t("RecordModel.sharedDefaults")}
+          </DropdownMenuItem>
 
-              {t("RecordModel.sharedDefaults")}
-            </DropdownMenuItem>
+          <DropdownMenuSeparator />
 
-            <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <IntlLink href="/configure/deleted">
+              <History aria-hidden="true" />
 
-            <DropdownMenuItem asChild>
-              <IntlLink href="/configure/deleted">
-                <History aria-hidden="true" />
+              {t("RecordModel.configurationDeletion.recentlyDeleted")}
+            </IntlLink>
+          </DropdownMenuItem>
 
-                {t("RecordModel.configurationDeletion.recentlyDeleted")}
-              </IntlLink>
-            </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={deletion.isBusy}
+            variant="destructive"
+            onSelect={() =>
+              runUserAction(() =>
+                deletion.requestDelete(model, { kind: "type", id: selected.id }, selected.pluralLabel),
+              )
+            }
+          >
+            <Trash2 aria-hidden="true" />
 
-            <DropdownMenuItem
-              disabled={deletion.isBusy}
-              variant="destructive"
-              onSelect={() =>
-                runUserAction(() =>
-                  deletion.requestDelete(model, { kind: "type", id: selected.id }, selected.pluralLabel),
-                )
-              }
-            >
-              <Trash2 aria-hidden="true" />
-
-              {t("RecordModel.configurationDeletion.deleteList")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            {t("RecordModel.configurationDeletion.deleteList")}
+          </DropdownMenuItem>
+        </TopBarMenuButton>
       )}
 
       {selected ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-label={t("Common.actions.add")} className="h-8" disabled={disabled} size="sm">
-              <Plus aria-hidden="true" className="size-3.5" />
+        <TopBarMenuButton primary disabled={disabled} icon={Plus} label={t("Common.actions.add")}>
+          <DropdownMenuItem onSelect={() => onAdd("list")}>
+            <List aria-hidden="true" />
 
-              <span className="hidden sm:inline">{t("Common.actions.add")}</span>
-            </Button>
-          </DropdownMenuTrigger>
+            {t("RecordModel.addMenu.list")}
+          </DropdownMenuItem>
 
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => onAdd("list")}>
-              <List aria-hidden="true" />
+          <DropdownMenuSeparator />
 
-              {t("RecordModel.addMenu.list")}
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <ConfigureListAddItems
-              channels={!recordChannelsBinding(model, selected.id)}
-              sublist={canAddSublist && !selected.embedded}
-              onAdd={onAdd}
-            />
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <ConfigureListAddItems
+            channels={!recordChannelsBinding(model, selected.id)}
+            sublist={canAddSublist && !selected.embedded}
+            onAdd={onAdd}
+          />
+        </TopBarMenuButton>
       ) : (
-        <Button
-          aria-label={t("Common.actions.add")}
-          className="h-8"
-          disabled={disabled}
-          size="sm"
-          onClick={() => onAdd("list")}
-        >
-          <Plus aria-hidden="true" className="size-3.5" />
-
-          <span className="hidden sm:inline">{t("Common.actions.add")}</span>
-        </Button>
+        <TopBarPrimaryButton disabled={disabled} label={t("Common.actions.add")} onClick={() => onAdd("list")} />
       )}
     </div>
   );

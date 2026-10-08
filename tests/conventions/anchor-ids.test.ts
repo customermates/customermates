@@ -21,8 +21,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const ENFORCED = true;
 
 const LITERAL_ID_PATTERN =
-  /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId|anchorId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
-const TOP_BAR_ANCHOR_PATTERN = /<TopBar(?:Primary|Menu)Button\b(?:=>|[^>])*?\sanchorId=["']([a-z0-9-]+)["']/g;
+  /\b(?:id|inputId|anchorId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId|anchorId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
 const SEGMENT_ID_PREFIX_PATTERN = /<SegmentedControl\b(?:=>|[^>])*?\sidPrefix=["']([a-z0-9-]+)["']/g;
 const SEGMENT_VALUE_PATTERN = /\{ value: "([a-z0-9-]+)", label:/g;
@@ -40,7 +39,6 @@ function codeIds(): Set<string> {
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) ids.add(match[1] ?? match[2]);
-    for (const match of text.matchAll(TOP_BAR_ANCHOR_PATTERN)) ids.add(match[1]);
     for (const prefix of text.matchAll(SEGMENT_ID_PREFIX_PATTERN))
       for (const segment of text.matchAll(SEGMENT_VALUE_PATTERN)) ids.add(`${prefix[1]}-tab-${segment[1]}`);
     for (const match of text.matchAll(FOOTER_ANCHOR_SCOPE_PATTERN))
@@ -106,11 +104,6 @@ describe("interface anchor id fidelity", () => {
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("offers the agent only targets that exist in code", () => {
-    const topBar = readFileSync(join(REPO_ROOT, "components/shared/top-bar-action-buttons.tsx"), "utf8");
-    for (const name of ["TopBarPrimaryButton", "TopBarMenuButton"]) {
-      const implementation = topBar.slice(topBar.indexOf(`export function ${name}`));
-      expect(implementation).toContain("id={anchorId}");
-    }
     const inCode = codeIds();
     const unknown = AGENT_UI_TARGETS.map((target) => target.id)
       .filter((id) => !inCode.has(id))

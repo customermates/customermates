@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 
 import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
@@ -23,6 +24,7 @@ type Props = {
 };
 
 const InboxSurfaceContent = observer(function InboxSurface({ children, threads }: Props) {
+  const t = useTranslations();
   const { messagingThreadsStore, messagingThreadDetailStore } = useRootStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -49,7 +51,12 @@ const InboxSurfaceContent = observer(function InboxSurface({ children, threads }
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <DataViewViewsRail joinsTopBar detailParam="threadId" store={messagingThreadsStore} />
+      <DataViewViewsRail
+        joinsTopBar
+        countLabel={(count) => t("DataView.views.conversationCount", { count })}
+        detailParam="threadId"
+        store={messagingThreadsStore}
+      />
 
       {children}
     </div>

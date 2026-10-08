@@ -16,11 +16,11 @@ import "@/styles/react-grid-layout.css";
 
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { PageState } from "@/components/page-state/page-state";
 import { connectDataViewUrlSync } from "@/components/data-view/data-view-url-sync";
 import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
-import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -128,13 +128,11 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   const topBarActions = useMemo(
     () =>
       pageState !== "loading" && pageState !== "error" && canAddWidget ? (
-        <div className="flex items-center gap-1">
-          <TopBarPrimaryButton
-            anchorId="dashboard-add-widget"
-            label={t("Dashboard.addCard")}
-            onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
-          />
-        </div>
+        <TopBarPrimaryButton
+          anchorId="dashboard-add-widget"
+          label={t("Dashboard.addCard")}
+          onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
+        />
       ) : null,
     [canAddWidget, pageState, t, widgetModalStore],
   );
