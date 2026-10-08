@@ -4,9 +4,10 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-import type { CalculatedValue, RecordFieldView } from "@/features/records/record-model.schema";
+import type { CalculatedValue, RecordFieldView, RecordMember } from "@/features/records/record-model.schema";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { MemberChip } from "@/components/chip/member-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { toChipColor } from "@/constants/chip-colors";
 
@@ -40,10 +41,12 @@ export function useRecordValueFormat() {
 export const RecordValue = observer(function RecordValue({
   result,
   field,
+  members = [],
   wrap = false,
 }: {
   result?: CalculatedValue;
   field: RecordFieldView;
+  members?: RecordMember[];
   wrap?: boolean;
 }) {
   const intl = useHydratedIntlStore();
@@ -110,6 +113,9 @@ export const RecordValue = observer(function RecordValue({
     );
   }
   if (value.kind === "richText") return null;
-  if (value.kind === "member") return <span>{t("RecordModel.member")}</span>;
+  if (value.kind === "member") {
+    const member = members.find((user) => user.id === value.value);
+    return member ? <MemberChip member={member} /> : <AppChip>{t("RecordModel.member")}</AppChip>;
+  }
   return <span className={wrap ? "whitespace-pre-wrap break-words" : "truncate"}>{value.value}</span>;
 });

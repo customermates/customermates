@@ -147,7 +147,7 @@ test("rejects malformed and invalid typed imports without partial records and ac
   expect(accepted.records).toBe(2);
   expect(accepted.receipts).toBe(baseline.receipts + 1);
   await page.reload();
-  for (const name of names) await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  for (const name of names) await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   expect((await importState(database, companyId, typeId, ids)).records).toBe(2);
   expect(errors).toEqual([]);
 });

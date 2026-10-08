@@ -3,6 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { test, expect } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data });
@@ -49,7 +50,7 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
 
-  await page.getByRole("button", { name, exact: true }).click();
+  await openRecordDetails(page, name);
   const customize = rail.getByRole("button", { name: "Customize", exact: true });
   await expect(customize).toHaveText("");
   await expect(customize).toHaveAttribute("aria-pressed", "false");
@@ -65,7 +66,7 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   await rail.getByRole("button", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(drawer).not.toBeVisible();
-  await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
 });
 
 test("single select inputs show the selected option as a chip", async ({ page, companyId }) => {
@@ -138,18 +139,18 @@ test("record tables edit cells in place, open linked chips and offer row actions
 
   const actions = row.locator("[data-record-row-actions]");
   await expect(actions).toHaveCSS("opacity", testInfo.project.name === "mobile" ? "1" : "0");
-  await row.getByRole("button", { name: `Open details for ${name}`, exact: true }).focus();
+  await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).focus();
   await expect(actions).toHaveCSS("opacity", "1");
   await page.keyboard.press("Enter");
+  await expect(page.getByRole("menuitem")).toHaveText(["Open details", "Delete"]);
+  await page.getByRole("menuitem", { name: "Open details", exact: true }).press("Enter");
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
   await drawer.getByRole("button", { name: "Close", exact: true }).click();
   await expect(drawer).not.toBeVisible();
 
   await row.hover();
   await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
-  await expect(page.getByRole("menuitem", { name: "Open page", exact: true })).toBeVisible();
-  await page.keyboard.press("Escape");
-  await row.getByRole("button", { name: `Delete ${name}`, exact: true }).click();
+  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(row).toHaveCount(0);
 });
@@ -234,7 +235,7 @@ test("record drawer tabs remember the last tab and flag invalid fields on other 
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
 
-  await page.getByRole("button", { name: "Example organization", exact: true }).click();
+  await openRecordDetails(page, "Example organization");
   await expect(drawer.getByRole("tab", { name: "Notes" })).toHaveAttribute("data-state", "active");
   await page.setViewportSize({ width: 360, height: 800 });
   const list = drawer.locator('[data-slot="segmented-control-list"]');

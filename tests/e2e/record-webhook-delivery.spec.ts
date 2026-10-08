@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 test("delivers a custom-record event to a loopback receiver and retries a transient failure", async ({
   page,
@@ -175,11 +176,11 @@ test("delivers only deleted records that matched the webhook filter before remov
     expect(hook.rows).toHaveLength(1);
     await page.goto(`/en/records/${typeId}`);
     for (const [title, recordId] of projects) {
-      await page.getByRole("button", { name: title, exact: true }).click();
+      await openRecordDetails(page, title);
       await dialog.getByRole("button", { name: "Delete", exact: true }).click();
       await page.getByRole("alertdialog").getByRole("button", { name: "Delete", exact: true }).click();
       await expect(dialog).not.toBeVisible();
-      await expect(page.getByRole("button", { name: title, exact: true })).not.toBeVisible();
+      await expect(page.getByRole("link", { name: title, exact: true })).not.toBeVisible();
       await expect
         .poll(
           async () => {
