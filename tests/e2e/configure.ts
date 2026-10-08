@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
 
-export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Channels" | "Activity connection";
-export type ConfigureSection = "Fields" | "Relationships" | "Activity connections";
+export type ConfigureAddItem = "List" | "Field" | "Calculation" | "Relationship" | "Channels";
+export type ConfigureSection = "Fields" | "Relationships";
 
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

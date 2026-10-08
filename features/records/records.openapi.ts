@@ -218,7 +218,7 @@ export const recordApiPaths = {
   "/v1/model/deleted": {
     post: operation(
       "readRecentlyDeletedConfiguration",
-      "Read lists, fields, relationships and activity connections in Recently deleted",
+      "Read lists, fields and relationships in Recently deleted",
       ReadRecentlyDeletedSchema,
       RecentlyDeletedSchema,
     ),

@@ -19,7 +19,6 @@ export function liveRecordModel(model: RecordModel): RecordModel {
   const relationships = model.relationships.filter(
     (relation) => !relation.archived && types.has(relation.sourceTypeId) && types.has(relation.targetTypeId),
   );
-  const relationIds = new Set(relationships.map((relation) => relation.id));
   return {
     ...model,
     types: model.types
@@ -33,9 +32,6 @@ export function liveRecordModel(model: RecordModel): RecordModel {
     relationships,
     capabilities: model.capabilities.filter(
       (binding) => types.has(binding.typeId) && !(binding.kind === "channels" && binding.enabled === false),
-    ),
-    activityPaths: model.activityPaths.filter(
-      (path) => !path.archived && types.has(path.typeId) && path.path.every((step) => relationIds.has(step.relationId)),
     ),
   };
 }

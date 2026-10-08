@@ -4,7 +4,6 @@ export const FOCUS_KINDS = [
   "list",
   "field",
   "relationship",
-  "activityPath",
   "routine",
   "webhook",
   "widget",
@@ -24,7 +23,6 @@ export function focusHref(target: FocusTarget & { typeId?: string }): string {
   if (target.kind === "list") return `/configure?${focus}`;
   if (target.kind === "field") return `/configure?typeId=${target.typeId}&tab=fields&${focus}`;
   if (target.kind === "relationship") return `/configure?typeId=${target.typeId}&tab=relationships&${focus}`;
-  if (target.kind === "activityPath") return `/configure?typeId=${target.typeId}&tab=activity&${focus}`;
   if (target.kind === "routine") return `/routines?${focus}`;
   if (target.kind === "webhook") return `/company/webhooks?${focus}`;
   if (target.kind === "widget") return `/dashboard?${focus}`;

@@ -161,7 +161,6 @@ describeDatabase("unique configuration names migration", { timeout: 240000 }, ()
     await client.query(await readMigration(UNIQUE_NAMES_MIGRATION));
 
     const after = await currentModel(client, companyId);
-    expect(RecordModelSchema.safeParse(after).success).toBe(true);
     expect(duplicateNameIssues(after, { ...after, types: [], fields: [], relationships: [] })).toEqual([]);
     expect(find(after.types, "contact").label).toBe("Contact");
     expect(find(after.types, "organization").label).toBe("CONTACT (3)");
@@ -189,5 +188,8 @@ describeDatabase("unique configuration names migration", { timeout: 240000 }, ()
 
     await client.query(await readMigration(UNIQUE_NAMES_MIGRATION));
     expect(await currentModel(client, companyId)).toEqual(after);
+    for (const migration of await migrationNames((entry) => entry > UNIQUE_NAMES_MIGRATION))
+      await client.query(await readMigration(migration));
+    expect(RecordModelSchema.safeParse(await currentModel(client, companyId)).success).toBe(true);
   });
 });

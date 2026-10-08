@@ -45,8 +45,6 @@ import { ModelChangeRecovery } from "./model-change-recovery";
 import { TypeSettingsFields } from "./type-modal";
 import { recordFieldTypeKey } from "@/features/records/record-input-value";
 
-type ActivityPath = RecordModelView["activityPaths"][number];
-
 type Props = {
   model: RecordModelView;
   selected: RecordType;
@@ -58,7 +56,6 @@ type Props = {
   onEditChannels: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onEditRelationshipPath: (path: RecordRelationshipPath) => void;
-  onEditActivity: (path: ActivityPath) => void;
 };
 
 function ConfigureGroup({
@@ -206,7 +203,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   onEditChannels,
   onEditRelationship,
   onEditRelationshipPath,
-  onEditActivity,
 }: Props) {
   const t = useTranslations();
   const dndId = useId();
@@ -228,7 +224,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     (relation) => relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id,
   );
   const paths = selected.relationshipPaths ?? [];
-  const activity = model.activityPaths.filter((path) => path.typeId === selected.id);
   const listStatus = !selected.embedded && !selected.navigationVisible ? t("RecordModel.hiddenList") : null;
   const fieldSource = (field: RecordFieldView) => {
     const source = configureFieldSource(model, field);
@@ -360,35 +355,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                         interactive={interactive}
                         label={path.label}
                         onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                empty
-              )}
-            </ConfigureGroup>
-          ),
-        },
-        {
-          id: "activity",
-          label: t("RecordModel.activityConnections"),
-          content: (
-            <ConfigureGroup
-              description={t("RecordModel.activityConnectionsHelp")}
-              title={t("RecordModel.activityConnections")}
-            >
-              {activity.length ? (
-                <ul className="divide-y divide-border">
-                  {activity.map((path) => (
-                    <li key={path.id} data-focus-target={`activityPath:${path.id}`}>
-                      <ConfigureRow
-                        detail={
-                          configurePathLists(model, selected.id, path.path).join(" → ") || t("RecordModel.thisList")
-                        }
-                        interactive={interactive}
-                        label={path.label}
-                        onOpen={canManage ? () => onEditActivity(path) : undefined}
                       />
                     </li>
                   ))}

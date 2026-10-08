@@ -2749,6 +2749,8 @@ test("keeps retained values restricted after a delegated manager converts fields
           targetCardinality: "many",
           onSourceDelete: "unlink",
           onTargetDelete: "unlink",
+          messagesOnSource: false,
+          messagesOnTarget: false,
           archived: false,
         },
       },
