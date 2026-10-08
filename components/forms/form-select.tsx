@@ -20,6 +20,7 @@ import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "./selection-lo
 export type FormSelectItem = {
   value: string;
   label: string;
+  textValue?: string;
   disabled?: boolean;
   color?: ChipColor;
   startContent?: ReactNode;
@@ -153,7 +154,12 @@ export const FormSelect = observer(
             ) : (
               <>
                 {items?.map((item) => (
-                  <SelectItem key={item.value} disabled={item.disabled} textValue={item.label} value={item.value}>
+                  <SelectItem
+                    key={item.value}
+                    disabled={item.disabled}
+                    textValue={item.textValue ?? item.label}
+                    value={item.value}
+                  >
                     {item.color ? (
                       <span className="flex items-center gap-2">
                         <AppChip variant={item.color}>{item.label}</AppChip>

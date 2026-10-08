@@ -37,11 +37,11 @@ export const RecordEditor = observer(function RecordEditorDrawer({ store }: { st
       <AppModal
         focusContentOnOpen
         guardsUnsavedChanges
+        sheet
         bodyClassName="flex flex-col overflow-hidden px-0"
         focusReturnFallback={store.focusReturnFallback}
         focusReturnTarget={store.focusReturnTarget}
         open={store.isOpen}
-        side="left"
         title={type?.label ?? t("RecordModel.record")}
         onClose={requestClose}
       >

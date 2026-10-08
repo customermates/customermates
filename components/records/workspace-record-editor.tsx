@@ -13,9 +13,9 @@ export const WorkspaceRecordEditor = observer(function WorkspaceRecordEditor() {
   return (
     <>
       <AppModal
+        sheet
         bodyClassName="flex items-center gap-2 px-6 text-sm"
         open={store.isOpening}
-        side="left"
         title={t("PageState.loading")}
         onClose={() => store.close()}
         onCloseAutoFocus={(event) => {

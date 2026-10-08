@@ -56,7 +56,7 @@ type SharedProps = {
   focusReturnTarget?: HTMLElement | null;
   focusReturnFallback?: HTMLElement | null;
   onCloseAutoFocus?: (event: Event) => void;
-  side?: "left" | "right";
+  sheet?: boolean;
   bodyClassName?: string;
   focusContentOnOpen?: boolean;
   titleInContent?: boolean;
@@ -154,13 +154,13 @@ export const AppModal = observer((props: Props) => {
 
   return (
     <>
-      {props.side ? (
+      {props.sheet ? (
         <Sheet open={isOpen} onOpenChange={handleOpenChange}>
           <SheetContent
             className={cn("w-full gap-0 bg-background sm:max-w-[640px]", layerClassName)}
             data-overlay-action-count={hasActions ? actionCount : undefined}
             data-overlay-actions={hasActions ? "" : undefined}
-            side={props.side}
+            side="right"
             onBlur={releaseFocus}
             onEscapeKeyDown={keepOpenForAssistantSurface}
             onInteractOutside={keepOpenForAssistantSurface}

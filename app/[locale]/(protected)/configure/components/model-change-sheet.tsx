@@ -39,10 +39,10 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
   usePreviewBlockers(store.isOpen ? store.preview : null, store.model);
   return (
     <AppModal
+      sheet
       titleInContent
       actions={actions}
       bodyClassName="flex flex-col overflow-hidden px-0"
-      side="right"
       store={store}
       title={title}
     >

@@ -227,7 +227,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
               key={cell.id}
               className={
                 columnId === "__actions"
-                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:bg-background focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
+                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
                   : isSelectionCell
                     ? "w-10"
                     : undefined

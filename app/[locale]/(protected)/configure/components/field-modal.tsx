@@ -21,10 +21,11 @@ import { RecordOperationProgress } from "@/components/records/record-operation-p
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormInput } from "@/components/forms/form-input";
-import { CHIP_COLORS } from "@/constants/chip-colors";
+import { CHIP_COLORS, toChipColor } from "@/constants/chip-colors";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/core/utils/cn";
 import { RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
@@ -407,6 +408,12 @@ export const FieldModal = observer(function FieldModal({
       : null;
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
+  const optionGrid = cn(
+    "grid items-start gap-2",
+    optionMetadata
+      ? "grid-cols-[minmax(0,1fr)_6rem_2.25rem] [grid-template-areas:'name_name_del'_'color_prob_.'] @md/options:grid-cols-[minmax(0,1fr)_9rem_6rem_2.25rem] @md/options:[grid-template-areas:'name_color_prob_del']"
+      : "grid-cols-[minmax(0,1fr)_8rem_2.25rem] [grid-template-areas:'name_color_del'] @md/options:grid-cols-[minmax(0,1fr)_9rem_2.25rem]",
+  );
   const triggerValueLabel = () => {
     const trigger = store.triggerField;
     const value = store.form.triggerValue;
@@ -680,47 +687,50 @@ export const FieldModal = observer(function FieldModal({
               summary={t("RecordModel.optionCount", { count: store.form.options.length })}
               title={t("RecordModel.options")}
             >
-              <div className="space-y-3">
+              <div className="@container/options space-y-3">
                 {store.form.options.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("RecordModel.noOptions")}</p>
                 ) : (
-                  <div aria-hidden className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                    <span className="min-w-0 flex-1">{t("RecordModel.option")}</span>
+                  <div aria-hidden className={cn(optionGrid, "text-xs font-medium text-muted-foreground")}>
+                    <span className="truncate [grid-area:name]">{t("RecordModel.option")}</span>
 
-                    <span className="w-36">{t("RecordModel.color")}</span>
+                    <span className="truncate [grid-area:color]">{t("RecordModel.color")}</span>
 
-                    {optionMetadata && <span className="w-24">{t("RecordModel.probability")}</span>}
-
-                    <span className="w-9" />
+                    {optionMetadata && (
+                      <span className="truncate [grid-area:prob]">{t("RecordModel.probability")}</span>
+                    )}
                   </div>
                 )}
 
                 {store.form.options.map((option, index) => (
                   <div key={option.id} className="space-y-3">
-                    <div className="flex items-start gap-2">
+                    <div className={optionGrid}>
                       <FormInput
                         aria-label={t("RecordModel.option")}
-                        containerClassName="min-w-0 flex-1"
+                        containerClassName="min-w-0 [grid-area:name]"
                         id={`options.${index}.label`}
                         label={null}
                       />
 
                       <FormSelect
                         ariaLabel={t("RecordModel.color")}
-                        containerClassName="w-36"
+                        containerClassName="min-w-0 [grid-area:color]"
                         id={`options.${index}.color`}
                         items={CHIP_COLORS.map((color) => ({
                           value: color,
-                          label: t(`Common.colors.${color}`),
+                          label: option.label.trim() || t(`Common.colors.${color}`),
+                          textValue: t(`Common.colors.${color}`),
+                          description: option.label.trim() ? t(`Common.colors.${color}`) : undefined,
                           color,
                         }))}
                         label={null}
+                        value={toChipColor(option.color)}
                       />
 
                       {optionMetadata && (
                         <FormInput
                           aria-label={t("RecordModel.probability")}
-                          containerClassName="w-24"
+                          containerClassName="min-w-0 [grid-area:prob]"
                           id={`options.${index}.probability`}
                           inputMode="decimal"
                           label={null}
@@ -729,6 +739,7 @@ export const FieldModal = observer(function FieldModal({
 
                       <Button
                         aria-label={t("RecordModel.removeOption")}
+                        className="[grid-area:del]"
                         disabled={store.isDisabled}
                         size="icon"
                         type="button"

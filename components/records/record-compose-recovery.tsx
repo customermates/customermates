@@ -15,9 +15,9 @@ export const RecordComposeRecovery = observer(function RecordComposeRecovery() {
   useNavigationGuard(compose, open);
   return (
     <AppModal
+      sheet
       bodyClassName="px-4 pb-4"
       open={open}
-      side="left"
       title={t("EntityChannels.tooltipStartNewThread")}
       onClose={() => {
         if (compose.isLoading) return;
