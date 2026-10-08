@@ -4,37 +4,31 @@ heading: "Build Customermates workflows in n8n"
 description: "Build visual workflows from generic CRM record events and the record API."
 ---
 
-Connect n8n with a Webhook node for CRM changes and HTTP Request nodes for the Customermates REST API. The MCP endpoint is also available for clients that speak JSON-RPC. The separate [Customermates community node](https://github.com/customermates/n8n-nodes-crm) may have its own release schedule; check that it supports the configurable record API before using its dedicated CRM operations.
+Connect n8n with a Webhook node for CRM changes and HTTP Request nodes for the Customermates REST API; the MCP endpoint is there for JSON-RPC clients. The separate [Customermates community node](https://github.com/customermates/n8n-nodes-crm) has its own release schedule, so check that it supports the configurable record API before using its CRM operations.
 
-## When does n8n fit?
+## When does n8n fit? [#when-does-n8n-fit]
 
-- Your team prefers visual flows over code.
-- You need to transform record events before sending them to another service.
-- You already run n8n for other automations.
+n8n fits when your team prefers visual flows over code, when record events need transforming before they go to another service, or when you already run n8n for other automations. For conversational CRM work, use [MCP](/docs/mcp) alongside or instead.
 
-For conversational CRM work, use [MCP](/docs/mcp) alongside or instead.
-
-## How do I trigger n8n from CRM changes?
+## How do I trigger n8n from CRM changes? [#how-do-i-trigger-n8n-from-crm-changes]
 
 <Steps>
 <Step title="Add a Webhook node in n8n">
 Copy the URL it generates.
 </Step>
 <Step title="Subscribe in Customermates">
-Go to **My Company → Webhooks**, click **Add**, and paste the URL. Select `record.created`, `record.updated`, or `record.deleted`, then choose the record types and optional filters to watch. Add a signing secret and save. Creating a webhook needs **Create** on **API & Webhooks**.
+Open [Webhooks](app:company/webhooks), click [Add](app:company/webhooks?focus=add) and paste the URL. Under **Events**, select **Record created**, **Record updated** or **Record deleted**, then choose the list and optional filters to watch. Add a **Secret** and click **Save**. Creating a webhook needs **Create** on **API & Webhooks**.
 </Step>
 <Step title="Handle the payload">
-Verify the signature, then use the event ID and stable `typeId`/`recordId` reference from the record event payload in downstream steps.
+Verify the signature, then use the event ID and the stable `typeId`/`recordId` reference from the record event payload in downstream steps.
 </Step>
 </Steps>
 
-The [webhook guide](/docs/webhooks) documents payloads, retries, and signature verification. Deliveries can arrive out of order or repeat; deduplicate by event ID.
-
-**Link:** `/company/webhooks`. **Mate:** open **Webhooks**, use **Add**, then set **URL**, **Events**, the record source, and **Secret**.
+[Webhooks](/docs/webhooks) documents payloads, retries and signature verification. Deliveries can arrive out of order or repeat; deduplicate by event ID.
 
 ## How do I create, read, update or delete records from n8n? [#how-do-i-write-to-customermates-from-n8n]
 
-Use an **HTTP Request** node with an `x-api-key` credential and JSON matching the [OpenAPI spec](/docs/openapi). The record routes work for starter and customer-created types:
+Use an **HTTP Request** node with an `x-api-key` credential and JSON matching the [OpenAPI spec](/docs/openapi). The record routes work for starter lists and lists you create yourself:
 
 | Goal | Method and path |
 |---|---|
@@ -47,35 +41,33 @@ Use an **HTTP Request** node with an `x-api-key` credential and JSON matching th
 
 **Breaking change:** these routes replaced the former entity-specific endpoints and the `/api/v2` prefix, which were removed. Update HTTP Request nodes that still call a contact, organization, deal, service or task endpoint.
 
-The base URL is the address at which you open Customermates. A mutation uses a stable `typeId`, an idempotency key and the expected configuration revision; updates and deletes also carry the record reference and expected version. Fields are typed assignments, and links name a relationship definition. A deletion may require a current impact preview hash. See [filter syntax](/docs/filter-syntax) for query shapes.
+The base URL is the address at which you open Customermates. A mutation carries a stable `typeId`, an idempotency key and the expected configuration revision; updates and deletes also carry the record reference and expected version. Fields are typed assignments, and links name a relationship definition. A deletion may require a current impact preview hash. See [filter syntax](/docs/filter-syntax) for query shapes.
 
-## How do I call MCP tools from n8n?
+## How do I call MCP tools from n8n? [#how-do-i-call-mcp-tools-from-n8n]
 
-Send `POST <BASE_URL>/api/v1/mcp` with `Content-Type: application/json`, `Accept: application/json, text/event-stream`, and your `x-api-key` credential. For example, to discover record types:
+Send `POST <BASE_URL>/api/v1/mcp` with `Content-Type: application/json`, `Accept: application/json, text/event-stream` and your `x-api-key` credential. For example, to discover record types:
 
 ```json
 {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"discover_record_types","arguments":{}}}
 ```
 
-The result may arrive as a server-sent event; parse the JSON-RPC `data:` line. A tool refusal has `result.isError: true`. Arguments outside a tool's schema are rejected before execution. Use `get_record_model` to read IDs, `query_crm_records` to query, and `mutate_crm_record` to change a record or link. See the [MCP catalog](/docs/mcp#tool-catalog).
+The result may arrive as a server-sent event; parse the JSON-RPC `data:` line. A tool refusal has `result.isError: true`, and arguments outside a tool's schema are rejected before execution. Use `get_record_model` to read IDs, `query_crm_records` to query and `mutate_crm_record` to change a record or link. See the [MCP catalog](/docs/mcp#tool-catalog).
 
-## How do I run scheduled jobs?
+## How do I run scheduled jobs? [#how-do-i-run-scheduled-jobs]
 
-n8n's schedule trigger plus the record API can find records matching a saved query, export them, or apply a validated mutation. A [Customermates routine](/docs/app-routines) can instead run the assistant on a schedule inside the product. Deal stages, task priorities, and custom types are workspace configuration; discover their IDs before filtering or writing.
+n8n's schedule trigger plus the record API can find records matching a saved query, export them or apply a validated mutation. A [Customermates routine](/docs/app-routines) can instead run Mate on a schedule inside the product. Deal stages, task priorities and your own lists are workspace configuration; discover their IDs before filtering or writing.
 
-## How does authentication work?
+## How does authentication work? [#how-does-authentication-work]
 
-Create an API key under **My Profile → API & Connectors**. Store it as an n8n **Header Auth** credential named `x-api-key` and reuse that credential across nodes. The key inherits its owner's permissions. A wrong, expired, or deleted key receives an authentication failure; an inactive owner cannot act. See [API keys](/docs/api-keys).
+Open [API keys](app:profile/api-keys) and create a key with [Add](app:profile/api-keys?focus=generate). Store it as an n8n **Header Auth** credential named `x-api-key` and reuse that credential across nodes. The key acts with its owner's permissions. A wrong, expired or deleted key gets an authentication failure, and a key of an inactive owner cannot act. See [API keys](/docs/api-keys).
 
-**Link:** `/profile/api-keys`. **Mate:** open **API & Connectors** and create a **Standard API key** if the role has **Create** on **API & Webhooks**.
-
-## What are the common gotchas?
+## What are the common gotchas? [#what-are-the-common-gotchas]
 
 - **Relationships:** use `mutate_crm_record` with `link` or `unlink`; do not send legacy arrays such as `organizationIds`.
 - **Retries:** reuse the same idempotency key for the exact same mutation payload. A changed payload needs a new key.
 - **Webhooks:** deliveries are not strictly ordered or exactly once. Deduplicate by event ID and use the payload timestamp for ordering.
 
-## Next
+## Next [#next]
 
 - [Webhooks](/docs/webhooks): event payloads and delivery.
 - [OpenAPI](/docs/openapi): REST contracts.
