@@ -27,6 +27,10 @@ export const RecordComposeRecovery = observer(function RecordComposeRecovery() {
         });
       }}
     >
+      <p aria-hidden className="pt-4 pb-3 text-base font-semibold">
+        {t("EntityChannels.tooltipStartNewThread")}
+      </p>
+
       {compose.form.provider && <ContactComposePopover provider={compose.form.provider} />}
     </AppModal>
   );
