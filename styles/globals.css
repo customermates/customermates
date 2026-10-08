@@ -35,6 +35,7 @@
 );
 
 @theme inline {
+  --color-scrim: var(--scrim);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -318,6 +319,7 @@
    --keyboard-inset stays 0px unless a visual-viewport listener sets it. Baking it in
    now means iOS keyboard handling is additive later with no CSS change. */
 :root {
+  --scrim: #000000;
   --viewport-block: 100vh;
   --viewport-gutter: 1rem;
   --keyboard-inset: 0px;

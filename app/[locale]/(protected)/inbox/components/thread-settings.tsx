@@ -15,9 +15,7 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
 import { AppModal } from "@/components/modal";
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
@@ -62,7 +60,18 @@ export const ThreadSettings = observer(
       <>
         <ClickableChip
           aria-label={t("Inbox.settings.title")}
-          className={cn("h-8 bg-secondary shadow-xs", showBadge && "rounded-r-none")}
+          className="h-8 bg-secondary shadow-xs"
+          endContent={
+            showBadge ? (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                <UserPlus aria-hidden className="size-3.5" />
+
+                {unlinkedCount}
+
+                <span className="sr-only">{t("Inbox.unlinkedParticipants")}</span>
+              </span>
+            ) : undefined
+          }
           size="md"
           startContent={
             linkable.length > 0 ? (
@@ -91,26 +100,6 @@ export const ThreadSettings = observer(
             {isShared ? t("Inbox.shareToCrmShared") : t("Inbox.shareToCrmPrivate")}
           </span>
         </ClickableChip>
-
-        {showBadge && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                aria-label={t("Inbox.unlinkedParticipants")}
-                className="-ml-1 h-8 gap-1 rounded-l-none px-2"
-                type="button"
-                variant="softPrimary"
-                onClick={() => threadParticipantsStore.setOpen(true)}
-              >
-                <UserPlus className="size-3.5" />
-
-                <span className="text-xs font-medium">{unlinkedCount}</span>
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("Inbox.unlinkedParticipants")}</TooltipContent>
-          </Tooltip>
-        )}
 
         <AppModal
           open={threadParticipantsStore.isOpen}
