@@ -4,17 +4,10 @@ import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { findAgentUiTarget } from "@/ee/agent-chat/ui-targets";
-import { FOCUS_KINDS, FOCUS_PARAM, focusKey, type FocusKind, type FocusTarget } from "./focus-href";
+import { FOCUS_PARAM, focusKey, parseFocus, type FocusKind, type FocusTarget } from "./focus-href";
 
 const HIGHLIGHT_MS = 2400;
 const WAIT_MS = 6000;
-
-function readFocus(value: string | null): FocusTarget | null {
-  const separator = value?.indexOf(":") ?? -1;
-  if (!value || separator < 0) return null;
-  const kind = value.slice(0, separator) as FocusKind;
-  return FOCUS_KINDS.includes(kind) ? { kind, id: value.slice(separator + 1) } : null;
-}
 
 function clearFocusParam() {
   const url = new URL(window.location.href);
@@ -51,7 +44,7 @@ export function useFocusTarget(kinds: readonly FocusKind[], open: (target: Focus
   });
   useEffect(() => {
     if (!value) handled.current = null;
-    const target = readFocus(value);
+    const target = parseFocus(value);
     if (!ready || !target || !kinds.includes(target.kind) || handled.current === value) return;
     if (!openRef.current(target)) return;
     handled.current = value;

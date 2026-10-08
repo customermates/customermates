@@ -55,12 +55,13 @@ function sharedActionWordViolations(messages: Messages) {
 }
 
 const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
+  "AgentChat.approval.rejectAction":
+    "the Mate approval card's reject decision; Common.actions.cancel stays reserved for the shared footer",
   "RecordModel.operators.add": "the arithmetic operator Add in calculations, not the Add action",
   "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
 
 const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
-  "AgentChat.approval.rejectAction": "final sweep: Mate approval Cancel through Common.actions.cancel",
   "RoleModal.delete": "I19: role Delete through Common.actions.delete",
   "Subscription.refresh": "I19: billing Refresh through Common.actions.refresh",
 };
@@ -108,17 +109,9 @@ const GERMAN_TERM_EXEMPTIONS: Allowlist = {
 };
 
 const GERMAN_TERM_ALLOWLIST: Allowlist = {
-  "Audit Log": "final sweep: one German term (Audit-Protokoll or Audit-Log)",
-  "Capture value": "final sweep: one German term (Wert erfassen)",
   Admin: "I19: the Admin navigation entry disappears with the Settings area",
-  Conversation: "final sweep: one German term (Unterhaltung or Konversation)",
-  "Jump to latest": "final sweep: one German term for Mate and Inbox",
-  "Knowledge Base pages": "final sweep: one German term (Wissensdatenbank-Seiten)",
-  Owner: "final sweep: one German term (Inhaber, Besitzer or Eigentümer/in)",
   Plan: "I19: Plan becomes Billing (rule 51), with one German term",
   Relationship: "I1r4: one German term (Beziehung or Verknüpfung)",
-  Signature: "final sweep: one German term (Signatur or Unterschrift)",
-  Type: "final sweep: one German term (Typ or Art)",
   Workspace: "I19: one German term (Arbeitsbereich or Workspace)",
 };
 

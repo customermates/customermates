@@ -697,7 +697,6 @@
       "finalizing": "Completamento e salvataggio delle modifiche…",
       "history": "Cronologia chat",
       "imageNotAvailable": "Immagine non disponibile",
-      "jumpToLatest": "Vai ai messaggi più recenti",
       "linkCopied": "Link copiato",
       "loadChatFailed": "Non è stato possibile caricare la chat. Selezionarla di nuovo per riprovare.",
       "loadingChat": "Caricamento della chat…",
@@ -850,6 +849,7 @@
       "delete": "Elimina",
       "discard": "Scarta",
       "expand": "Espandi",
+      "jumpToLatest": "Vai ai messaggi più recenti",
       "labelHistory": "Cronologia",
       "loadMore": "Carica altro",
       "open": "Apri",
@@ -2264,7 +2264,6 @@
     },
     "groupThread": "Gruppo ({count, plural, one {# membro} other {# membri}})",
     "hideQuotedText": "Nascondi il testo citato",
-    "jumpToLatest": "Vai al più recente",
     "lastMessageDirections": {
       "inbound": "Ricevuto",
       "outbound": "Inviato"

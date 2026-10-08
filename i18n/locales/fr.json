@@ -697,7 +697,6 @@
       "finalizing": "Finalisation et enregistrement des modifications…",
       "history": "Historique des chats",
       "imageNotAvailable": "Image non disponible",
-      "jumpToLatest": "Aller aux derniers messages",
       "linkCopied": "Lien copié",
       "loadChatFailed": "La discussion n’a pas pu être chargée. Sélectionnez-la à nouveau pour réessayer.",
       "loadingChat": "Chargement de la discussion…",
@@ -850,6 +849,7 @@
       "delete": "Supprimer",
       "discard": "Abandonner",
       "expand": "Agrandir",
+      "jumpToLatest": "Aller aux derniers messages",
       "labelHistory": "Historique",
       "loadMore": "Charger plus",
       "open": "Ouvrir",
@@ -2264,7 +2264,6 @@
     },
     "groupThread": "Groupe ({count, plural, one {# membre} other {# membres}})",
     "hideQuotedText": "Masquer le texte cité",
-    "jumpToLatest": "Aller au plus récent",
     "lastMessageDirections": {
       "inbound": "Reçu",
       "outbound": "Envoyé"

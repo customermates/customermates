@@ -41,7 +41,7 @@ export function chatUiCopy(t: ChatTranslator) {
     deletePermanently: t("AgentChat.ui.deletePermanently"),
     editQueued: t("AgentChat.ui.editQueued"),
     history: t("AgentChat.ui.history"),
-    jumpToLatest: t("AgentChat.ui.jumpToLatest"),
+    jumpToLatest: t("Common.actions.jumpToLatest"),
     loadChatFailed: t("AgentChat.ui.loadChatFailed"),
     loadMoreChats: t("AgentChat.ui.loadMoreChats"),
     loadOlderMessages: t("AgentChat.ui.loadOlderMessages"),
