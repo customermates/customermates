@@ -114,10 +114,7 @@ function animatedBlurFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const ANIMATED_BLUR_ALLOWLIST: Allowlist = {
-  "components/ui/sheet.tsx": "I25: the sheet overlay fades a backdrop blur in and out; drop the blur (WebKit, I11)",
-  "components/page-state/page-state.tsx": "I25: the empty state halo animates a blurred layer; drop the blur",
-};
+const ANIMATED_BLUR_ALLOWLIST: Allowlist = {};
 
 describe("rule 12: overlays never animate a blur", () => {
   it("never combines a blur or backdrop blur with an animation or transition on one element", () => {
@@ -239,13 +236,13 @@ function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
 
 const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
   "app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view.tsx":
-    "delivery log: entries are neither opened as an entity nor deleted",
+    "webhook deliveries are a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/audit/operator-audit-page-view.tsx":
-    "operator audit log: entries are neither opened as an entity nor deleted",
+    "the operator audit is a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/users/operator-users-page-view.tsx":
-    "operator console table, outside rule 59 (members, roles, webhooks, routines)",
+    "internal back-office surface with its own guarded flows, not customer UI",
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx":
-    "operator console table, outside rule 59 (members, roles, webhooks, routines)",
+    "internal back-office surface with its own guarded flows, not customer UI",
 };
 
 const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {

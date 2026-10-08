@@ -178,7 +178,7 @@ export class IntlStore {
     }).format(date);
   }
 
-  formatDescriptiveLongDate(date: Date | undefined): string {
+  formatDescriptiveLongDate(date: Date | undefined, options?: { timeZone?: string }): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";
 
@@ -186,6 +186,7 @@ export class IntlStore {
       year: "numeric" as const,
       month: "long" as const,
       day: "numeric" as const,
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
     }).format(date);
   }
 
