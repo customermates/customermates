@@ -127,7 +127,9 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   await expect(node.locator("[data-configure-sublist-explanation]")).toBeVisible();
   await expect(page.locator("[data-configure-sublist-group]")).toHaveCount(1);
   await expect(node.getByRole("button", { name: "Add to Milestones", exact: true })).toBeVisible();
-  await node.getByRole("button", { name: "Add to Milestones", exact: true }).click();
+  await node.getByRole("button", { name: "Add to Milestones", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("menu")).toBeVisible();
   await expect(page.getByRole("menuitem", { name: "Sub-list", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
   expect(errors).toEqual([]);
