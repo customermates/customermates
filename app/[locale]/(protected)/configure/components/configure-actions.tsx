@@ -57,7 +57,15 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   const deletion = useConfigurationDeletion(onDeleted);
   if (!canManage) return <div className="flex shrink-0 items-center gap-1">{ai}</div>;
   if (selected && general.original?.id === selected.id && general.hasUnsavedChanges)
-    return <FormFooterActions formId={generalFormId} placement="topbar" store={general} />;
+    return (
+      <FormFooterActions
+        editable
+        dirty={general.hasUnsavedChanges && !general.isReadOnly}
+        formId={generalFormId}
+        placement="topbar"
+        store={general}
+      />
+    );
 
   return (
     <div className="flex shrink-0 items-center gap-1">

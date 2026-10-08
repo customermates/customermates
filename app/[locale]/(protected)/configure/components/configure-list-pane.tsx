@@ -292,7 +292,14 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 )}
               </ConfigureGroup>
 
-              {editingGeneral && <FormFooterActions formId={generalFormId} store={general} />}
+              {editingGeneral && (
+                <FormFooterActions
+                  editable
+                  dirty={general.hasUnsavedChanges && !general.isReadOnly}
+                  formId={generalFormId}
+                  store={general}
+                />
+              )}
             </>
           ),
         },
