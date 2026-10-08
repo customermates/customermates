@@ -17,7 +17,7 @@ n8n fits when your team prefers visual flows over code, when record events need 
 Copy the URL it generates.
 </Step>
 <Step title="Subscribe in Customermates">
-Open [Webhooks](app:company/webhooks), click [Add](app:company/webhooks?focus=add) and paste the URL. Under **Events**, select **Record created**, **Record updated** or **Record deleted**, then choose the list and optional filters to watch. Add a **Secret** and click **Save**. Creating a webhook needs **Create** on **API & Webhooks**.
+Open [Webhooks](app:settings/webhooks), click [Add](app:settings/webhooks?focus=add) and paste the URL. Under **Events**, select **Record created**, **Record updated** or **Record deleted**, then choose the list and optional filters to watch. Add a **Secret** and click **Save**. Creating a webhook needs **Create** on **API & Webhooks**.
 </Step>
 <Step title="Handle the payload">
 Verify the signature, then use the event ID and the stable `typeId`/`recordId` reference from the record event payload in downstream steps.
@@ -59,7 +59,7 @@ n8n's schedule trigger plus the record API can find records matching a saved que
 
 ## How does authentication work? [#how-does-authentication-work]
 
-Open [API keys](app:profile/api-keys) and create a key with [Add](app:profile/api-keys?focus=generate). Store it as an n8n **Header Auth** credential named `x-api-key` and reuse that credential across nodes. The key acts with its owner's permissions. A wrong, expired or deleted key gets an authentication failure, and a key of an inactive owner cannot act. See [API keys](/docs/api-keys).
+Open [API keys](app:settings/api-keys) and create a key with [Add](app:settings/api-keys?focus=generate). Store it as an n8n **Header Auth** credential named `x-api-key` and reuse that credential across nodes. The key acts with its owner's permissions. A wrong, expired or deleted key gets an authentication failure, and a key of an inactive owner cannot act. See [API keys](/docs/api-keys).
 
 ## What are the common gotchas? [#what-are-the-common-gotchas]
 

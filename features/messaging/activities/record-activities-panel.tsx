@@ -22,7 +22,7 @@ export function useRecordActivityViews(record: RecordRef | null, viewSyncToUrl: 
   const params = useSearchParams();
   const viewPathname = record
     ? `/${locale}/records/${record.typeId}/${record.recordId}`
-    : `/${locale}/company/activity`;
+    : `/${locale}/settings/activity`;
   const requestedView =
     viewSyncToUrl && params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
   const [store] = useState(

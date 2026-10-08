@@ -14,7 +14,7 @@ import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/components/modal/use-navigation-guard", () => ({ useNavigationGuard: vi.fn() }));
-vi.mock("@/app/[locale]/(protected)/profile/connected-accounts/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(account)/channels/actions", () => ({
   setConnectedAccountSignatureAction: vi.fn(),
 }));
 vi.mock("@/components/editor/email-markdown-editor", () => ({
@@ -39,13 +39,13 @@ vi.mock("@/features/messaging/email-frame", () => ({ EmailFrame: () => null }));
 vi.mock("@/ee/messaging/outbound/email-signature", () => ({
   composeEmailBodies: () => ({ html: "<p>Preview</p>", text: "Preview" }),
 }));
-vi.mock("@/app/[locale]/(protected)/profile/components/signature-template-picker", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(account)/components/signature-template-picker", () => ({
   SignatureTemplatePicker: () => null,
 }));
-vi.mock("@/app/[locale]/(protected)/profile/components/signature-layout-options", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(account)/components/signature-layout-options", () => ({
   SignatureLayoutOptions: () => null,
 }));
-vi.mock("@/app/[locale]/(protected)/profile/components/signature-color-field", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(account)/components/signature-color-field", () => ({
   EmailLinkColorField: () => null,
 }));
 vi.mock("@/components/forms/form-select", () => ({ FormSelect: () => null }));
@@ -55,8 +55,8 @@ vi.mock("@/components/forms/form-switch", () => ({
   FormSwitch: ({ children }: { children?: ReactNode }) => children ?? null,
 }));
 
-import { AccountSignature } from "@/app/[locale]/(protected)/profile/components/account-signature";
-import { AccountSignatureStore } from "@/app/[locale]/(protected)/profile/components/account-signature.store";
+import { AccountSignature } from "@/app/[locale]/(protected)/settings/(account)/components/account-signature";
+import { AccountSignatureStore } from "@/app/[locale]/(protected)/settings/(account)/components/account-signature.store";
 
 const roots = new Set<Root>();
 

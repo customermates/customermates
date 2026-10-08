@@ -90,30 +90,30 @@ vi.mock("@/app/[locale]/(protected)/services/components/use-service-columns", ()
 vi.mock("@/app/[locale]/(protected)/tasks/components/use-task-columns", () => ({
   useTaskColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/company/components/user/use-member-columns", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/user/use-member-columns", () => ({
   useMemberColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/company/components/role/use-role-columns", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/role/use-role-columns", () => ({
   useRoleColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/company/components/webhook/use-webhook-columns", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-columns", () => ({
   useWebhookColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns", () => ({
   useWebhookDeliveryColumns: () => [],
 }));
 vi.mock("@/app/[locale]/(protected)/routines/components/use-routine-columns", () => ({
   useRoutineColumns: () => [],
 }));
 
-vi.mock("@/app/[locale]/(protected)/company/components/role/role-modal", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/role/role-modal", () => ({
   RoleModal: () => createElement("div", { "data-role-modal": true }),
 }));
 
-import { RolesPageView } from "@/app/[locale]/(protected)/company/components/role/roles-page-view";
-import { MembersPageView } from "@/app/[locale]/(protected)/company/components/user/members-page-view";
-import { WebhookDeliveriesPageView } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view";
-import { WebhooksPageView } from "@/app/[locale]/(protected)/company/components/webhook/webhooks-page-view";
+import { RolesPageView } from "@/app/[locale]/(protected)/settings/(workspace)/components/role/roles-page-view";
+import { MembersPageView } from "@/app/[locale]/(protected)/settings/(workspace)/components/user/members-page-view";
+import { WebhookDeliveriesPageView } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view";
+import { WebhooksPageView } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-view";
 import { RoutinesPageView } from "@/app/[locale]/(protected)/routines/components/routines-page-view";
 
 type Store = ReturnType<typeof store>;
@@ -192,7 +192,7 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
       generateInviteLink: harness.generateInvite,
       open: harness.inviteOpen,
     },
-    roleModalStore: { add: harness.roleAdd, editRole: harness.roleEdit },
+    roleModalStore: { add: harness.roleAdd, allows: () => false, editRole: harness.roleEdit },
     userModalStore: { loadById: harness.userLoad },
     webhookDeliveryModalStore: {
       onInitOrRefresh: harness.webhookDeliveryInit,
@@ -202,7 +202,7 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
       openForCreate: harness.routineCreate,
       openForEdit: harness.routineEdit,
     },
-    webhookModalStore: { openWith: harness.webhookOpen },
+    webhookModalStore: { allows: () => false, openWith: harness.webhookOpen },
     [key]: value,
     ...extras,
   };

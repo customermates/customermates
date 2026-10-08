@@ -143,7 +143,7 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
     rules: ["footer-primitive", "overlay-footer", "confirm-primitive"],
     reason: "test-only gallery that renders the raw overlay primitives",
   },
-  "app/[locale]/(protected)/company/components/company-invite/invite-by-email-form.tsx": {
+  "app/[locale]/(protected)/settings/(workspace)/components/company-invite/invite-by-email-form.tsx": {
     rules: ["submit-button"],
     reason: "sends invitations, an action form without saved state",
   },
@@ -155,15 +155,13 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
     rules: ["overlay-footer"],
     reason: "filters apply immediately; the footer only holds Clear",
   },
-  "app/[locale]/(protected)/profile/components/connect-upsell-modal.tsx": {
+  "app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx": {
     rules: ["footer-primitive", "cancel-label"],
     reason: "upgrade prompt with a plans call to action, not a save form",
   },
 };
 
-const NOT_YET_MIGRATED: Record<string, Rule[]> = {
-  "app/components/navigation/sidebar-customize.tsx": ["overlay-footer"],
-};
+const NOT_YET_MIGRATED: Record<string, Rule[]> = {};
 
 function scannedFiles(): string[] {
   return SCANNED_DIRECTORIES.flatMap((directory) =>

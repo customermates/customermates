@@ -30,8 +30,8 @@ import {
   getConnectedAccountsAction,
   getMessagingFilterOptionsAction,
 } from "@/app/[locale]/(protected)/actions";
-import { getUsersAction, resolveUserOptionsAction } from "@/app/[locale]/(protected)/company/actions";
-import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
+import { getUsersAction, resolveUserOptionsAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
 import {
   THREAD_STATE_CHIP_COLOR,
   ThreadStateDot,

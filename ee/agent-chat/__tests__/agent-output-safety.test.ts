@@ -20,7 +20,7 @@ import {
 
 const SAVED_VIEW_STREAMING_CASES = (() => {
   const viewId = "00000000-0000-4000-8000-000000000001";
-  const url = `/de/company/webhook-deliveries?view=${viewId}`;
+  const url = `/de/settings/webhooks/deliveries?view=${viewId}`;
   const timelineUrl = `/records/50000000-0000-4000-8000-000000000001/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
   const longTitle = "padding ".repeat(65);
   const prefix = "A safe introduction. ".repeat(8);
@@ -45,7 +45,7 @@ const SAVED_VIEW_STREAMING_CASES = (() => {
     `${prefix}[External](<https://example.invalid ${timelineUrl}> "${longTitle}")${suffix}`,
     `${prefix}[View](${url} "${longTitle}")${suffix}`,
     `${prefix}*[View](${url} "${longTitle}")*${suffix}`,
-    `${prefix}[View](\\/de/company/webhook-deliveries\\?view\\=${viewId} "${longTitle}")${suffix}`,
+    `${prefix}[View](\\/de/settings/webhooks/deliveries\\?view\\=${viewId} "${longTitle}")${suffix}`,
     `${prefix}[Link][ref]\n\n[ref]: https://example.invalid\n  "${timelineUrl} ${longTitle}"\n${suffix}`,
     `${prefix}\n> [Link][ref]\n>\n> [ref]: https://example.invalid\n>   "${timelineUrl} ${longTitle}"\n${suffix}`,
     `${prefix}\n- [Link][ref]\n\n  [ref]: https://example.invalid\n    "${timelineUrl} ${longTitle}"\n${suffix}`,
@@ -140,7 +140,7 @@ describe("agent client-visible output safety", () => {
       [`/other-/wiki?page=${id}`, id],
       [`//example.com/wiki?page=${id}`, id],
       [`/pt/wiki?page=${id}`, id],
-      [`/company/webhooks?id=${id}`, id],
+      [`/settings/webhooks?id=${id}`, id],
       [`/wiki?page=${id}&other=true`, id],
       [`/wiki?page=${id}#fragment`, id],
       [`/WIKI?page=${id}`, id],
@@ -267,18 +267,18 @@ describe("agent client-visible output safety", () => {
         expect(sanitizeAgentVisibleText(sanitizeAgentVisibleText(answer))).toBe(expected);
       }
     }
-    expect(sanitizeAgentVisibleText(`[All](/company/webhooks?view=__all__)`)).toBe("All");
-    expect(sanitizeAgentVisibleText(`[Status:Open](/company/webhooks?view=${viewId})`)).toBe("Status:Open");
-    expect(sanitizeAgentVisibleText(`Created:[Open](/company/webhooks?view=${viewId})`)).toBe("Created:Open");
-    expect(sanitizeAgentVisibleText(`You can view [Contacts with Deals](/company/webhooks?view=${viewId}).`)).toBe(
+    expect(sanitizeAgentVisibleText(`[All](/settings/webhooks?view=__all__)`)).toBe("All");
+    expect(sanitizeAgentVisibleText(`[Status:Open](/settings/webhooks?view=${viewId})`)).toBe("Status:Open");
+    expect(sanitizeAgentVisibleText(`Created:[Open](/settings/webhooks?view=${viewId})`)).toBe("Created:Open");
+    expect(sanitizeAgentVisibleText(`You can view [Contacts with Deals](/settings/webhooks?view=${viewId}).`)).toBe(
       "You can view Contacts with Deals.",
     );
     expect(
       sanitizeAgentVisibleText(
-        `[**Contacts** \`with deals\`](/company/webhooks?view=${viewId}) [![Contacts icon](https://example.com/icon.png)](/company/webhooks?view=${viewId})`,
+        `[**Contacts** \`with deals\`](/settings/webhooks?view=${viewId}) [![Contacts icon](https://example.com/icon.png)](/settings/webhooks?view=${viewId})`,
       ),
     ).toBe("Contacts with deals Contacts icon");
-    expect(sanitizeAgentVisibleText(`[&lt;scr&lt;script&gt;ipt&gt;](/company/webhooks?view=${viewId})`)).toBe(
+    expect(sanitizeAgentVisibleText(`[&lt;scr&lt;script&gt;ipt&gt;](/settings/webhooks?view=${viewId})`)).toBe(
       "scrscriptipt",
     );
     for (const surfaceKey of OPERATOR_DATA_VIEW_SURFACE_KEYS) {
@@ -303,9 +303,9 @@ describe("agent client-visible output safety", () => {
   it("neutralizes bare, autolink, and reference-style All-view destinations", () => {
     const origin = "http://localhost:4016";
     const cases = [
-      ["/company/webhooks?view=__all__", "/company/webhooks?view=[internal reference]", undefined],
-      [`<${origin}/en/company/webhooks?view=__all__>`, "/company/webhooks?view=[internal reference]", origin],
-      ["[All][v]\n\n[v]: /company/webhooks?view=__all__", "All\n\n", undefined],
+      ["/settings/webhooks?view=__all__", "/settings/webhooks?view=[internal reference]", undefined],
+      [`<${origin}/en/settings/webhooks?view=__all__>`, "/settings/webhooks?view=[internal reference]", origin],
+      ["[All][v]\n\n[v]: /settings/webhooks?view=__all__", "All\n\n", undefined],
     ] as const;
 
     for (const [source, expected, appBaseUrl] of cases) {
@@ -324,24 +324,24 @@ describe("agent client-visible output safety", () => {
     const viewId = "00000000-0000-4000-8000-000000000001";
     const recordId = "00000000-0000-4000-8000-000000000002";
     const rejected = [
-      `https://example.com/company/webhooks?view=${viewId}`,
-      `//example.com/company/webhooks?view=${viewId}`,
+      `https://example.com/settings/webhooks?view=${viewId}`,
+      `//example.com/settings/webhooks?view=${viewId}`,
       `/unknown?view=${viewId}`,
-      `/xx/company/webhooks?view=${viewId}`,
+      `/xx/settings/webhooks?view=${viewId}`,
       `/CONTACTS?view=${viewId}`,
-      `/company/webhooks?record=${viewId}`,
-      `/company/webhooks?view=${viewId}&searchTerm=secret`,
-      `/company/webhooks?searchTerm=secret&view=${viewId}`,
-      `/company/webhooks?view=${viewId}#details`,
-      `/company/webhooks?view=${viewId}/details`,
-      `/company/webhooks?view=${viewId}%20`,
-      `/company/webhooks?view=${viewId}x`,
+      `/settings/webhooks?record=${viewId}`,
+      `/settings/webhooks?view=${viewId}&searchTerm=secret`,
+      `/settings/webhooks?searchTerm=secret&view=${viewId}`,
+      `/settings/webhooks?view=${viewId}#details`,
+      `/settings/webhooks?view=${viewId}/details`,
+      `/settings/webhooks?view=${viewId}%20`,
+      `/settings/webhooks?view=${viewId}x`,
       `https://example.invalid/(/records/50000000-0000-4000-8000-000000000001/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})`,
       `https://example.invalid/x](/records/50000000-0000-4000-8000-000000000001/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})`,
       `//example.invalid/x](/records/50000000-0000-4000-8000-000000000001/${viewId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline})`,
     ];
     for (const url of rejected) expect(sanitizeAgentVisibleText(`[View](${url})`)).not.toContain(viewId);
-    const valid = `/company/webhooks?view=${viewId}`;
+    const valid = `/settings/webhooks?view=${viewId}`;
     expect(sanitizeAgentVisibleText(`Raw ${viewId}; [View](${valid}).`)).toBe("Raw [internal reference]; View.");
     expect(sanitizeAgentVisibleText(`[External](https://example.com${valid})`)).toBe("External");
     expect(sanitizeAgentVisibleText(`[Inexact](${valid}&searchTerm=secret)`)).toBe("Inexact");
@@ -369,13 +369,13 @@ describe("agent client-visible output safety", () => {
     expect(
       sanitizeAgentVisibleText(`[View](\\/records/50000000-0000-4000-8000-000000000001\\?view\\=${viewId})`),
     ).not.toContain(viewId);
-    expect(sanitizeAgentVisibleText("/company/webhooks?view=00000000-0000-4")).toBe(
-      "/company/webhooks?view=[internal reference]",
+    expect(sanitizeAgentVisibleText("/settings/webhooks?view=00000000-0000-4")).toBe(
+      "/settings/webhooks?view=[internal reference]",
     );
   });
 
   it("redacts secret assignments and private content even when they contain a saved-view URL", () => {
-    const url = "/company/webhooks?view=00000000-0000-4000-8000-000000000001";
+    const url = "/settings/webhooks?view=00000000-0000-4000-8000-000000000001";
     expect(sanitizeAgentVisibleText(`password=${url}; Safe.`)).toBe("password=[redacted]; Safe.");
     expect(sanitizeAgentVisibleText(`password=[View](${url}); Safe.`)).not.toContain("00000000");
     expect(sanitizeAgentVisibleText(`<analysis>[View](${url})</analysis>Safe.`)).toBe("Safe.");
@@ -416,16 +416,16 @@ describe("agent client-visible output safety", () => {
   it("preserves sentence punctuation around bare links and canonicalizes bare same-app URLs", () => {
     const origin = "http://localhost:4016";
     const viewId = "00000000-0000-4000-8000-000000000001";
-    const relative = `/company/webhooks?view=${viewId}`;
+    const relative = `/settings/webhooks?view=${viewId}`;
     const sources = [
-      [`Created ${relative}.`, `Created /company/webhooks?view=[internal reference].`],
+      [`Created ${relative}.`, `Created /settings/webhooks?view=[internal reference].`],
       [
         `Created ${relative}, then selected it.`,
-        `Created /company/webhooks?view=[internal reference], then selected it.`,
+        `Created /settings/webhooks?view=[internal reference], then selected it.`,
       ],
-      [`Created ${relative}; open it now.`, `Created /company/webhooks?view=[internal reference]; open it now.`],
-      [`Created ${origin}/de${relative}.`, `Created /company/webhooks?view=[internal reference].`],
-      [`Created <${origin}/de${relative}>.`, `Created /company/webhooks?view=[internal reference].`],
+      [`Created ${relative}; open it now.`, `Created /settings/webhooks?view=[internal reference]; open it now.`],
+      [`Created ${origin}/de${relative}.`, `Created /settings/webhooks?view=[internal reference].`],
+      [`Created <${origin}/de${relative}>.`, `Created /settings/webhooks?view=[internal reference].`],
     ] as const;
 
     for (const [source, expected] of sources) {
@@ -443,8 +443,8 @@ describe("agent client-visible output safety", () => {
     (kind) => {
       const viewId = "00000000-0000-4000-8000-000000000001";
       const token = `${"x".repeat(20_000)}${kind === "plain" ? "" : kind}${"y".repeat(20_000)}`;
-      const source = `${token} Open /company/webhooks?view=${viewId}. Raw ${viewId}. End.`;
-      const expected = `${token} Open /company/webhooks?view=[internal reference]. Raw [internal reference]. End.`;
+      const source = `${token} Open /settings/webhooks?view=${viewId}. Raw ${viewId}. End.`;
+      const expected = `${token} Open /settings/webhooks?view=[internal reference]. Raw [internal reference]. End.`;
       expect(sanitizeAgentVisibleText(source)).toBe(expected);
       for (const split of [1, source.indexOf("?view=") + 6, source.indexOf(viewId) + 1, source.length - 1]) {
         const sanitizer = new AgentVisibleTextStreamSanitizer();
@@ -473,7 +473,7 @@ describe("agent client-visible output safety", () => {
   );
 
   it("keeps only the inert label when replaying persisted model-authored saved-view links", () => {
-    const text = "Open [My view](/company/webhooks?view=00000000-0000-4000-8000-000000000001).";
+    const text = "Open [My view](/settings/webhooks?view=00000000-0000-4000-8000-000000000001).";
     const parts = [{ type: "text", text }];
     expect(clientSafeAgentMessageParts(parts, { sanitizeText: true })).toEqual([
       { type: "text", text: "Open My view." },
@@ -482,7 +482,7 @@ describe("agent client-visible output safety", () => {
 
   it("unwraps an already-redacted persisted saved-view link on replay and at every stream split", () => {
     const source =
-      "You can view the new list here: [Contacts with Deals](/company/webhooks?view=[internal reference]).";
+      "You can view the new list here: [Contacts with Deals](/settings/webhooks?view=[internal reference]).";
     const expected = "You can view the new list here: Contacts with Deals.";
 
     expect(clientSafeAgentMessageParts([{ type: "text", text: source }], { sanitizeText: true })).toEqual([
@@ -493,7 +493,7 @@ describe("agent client-visible output safety", () => {
       const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
       expect(visible, `split ${split}`).toBe(expected);
     }
-    expect(sanitizeAgentVisibleText("[Contacts](/company/webhooks?view=%5Binternal%20reference%5D)")).toBe("Contacts");
+    expect(sanitizeAgentVisibleText("[Contacts](/settings/webhooks?view=%5Binternal%20reference%5D)")).toBe("Contacts");
     expect(
       sanitizeAgentVisibleText(
         "[Contacts](\\/records/50000000-0000-4000-8000-000000000001\\?view\\=\\[internal reference\\])",
@@ -505,7 +505,7 @@ describe("agent client-visible output safety", () => {
       ),
     ).toBe("Timeline");
 
-    const external = "[External](https://example.com/company/webhooks?view=[internal reference])";
+    const external = "[External](https://example.com/settings/webhooks?view=[internal reference])";
     const unknown = "[Unknown](/unknown?view=[internal reference])";
     expect(sanitizeAgentVisibleText(external)).toBe(external);
     expect(sanitizeAgentVisibleText(unknown)).toBe(unknown);
@@ -692,7 +692,7 @@ describe("agent client-visible output safety", () => {
         `Route: /records/60000000-0000-4000-8000-000000000002/${dealId}`,
         "Route: /records/[internal reference]/[internal reference]",
       ],
-      ["Go to [Webhooks](/company/webhooks).", "Go to [Webhooks](/company/webhooks)."],
+      ["Go to [Webhooks](/settings/webhooks).", "Go to [Webhooks](/settings/webhooks)."],
     ] as const;
 
     for (const [source, expected] of cases) {
@@ -714,18 +714,18 @@ describe("agent client-visible output safety", () => {
     const timelineUrl = `/records/60000000-0000-4000-8000-000000000002/${dealId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
     const cases = [
       [
-        `Open [CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId}) or [Pipeline view](/company/webhooks?view=${viewId}).`,
+        `Open [CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId}) or [Pipeline view](/settings/webhooks?view=${viewId}).`,
         `Open [CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId}) or Pipeline view.`,
       ],
       [
-        `Open [CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId}) then /company/webhooks?view=${viewId} next.`,
-        `Open [CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId}) then /company/webhooks?view=[internal reference] next.`,
+        `Open [CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId}) then /settings/webhooks?view=${viewId} next.`,
+        `Open [CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId}) then /settings/webhooks?view=[internal reference] next.`,
       ],
       [
         `[Activity](${timelineUrl}) and [CRM Rollout](/de/records/60000000-0000-4000-8000-000000000002/${dealId})`,
         `Activity and [CRM Rollout](/de/records/60000000-0000-4000-8000-000000000002/${dealId})`,
       ],
-      [`[CRM Rollout](/company/webhooks?record=${dealId})`, "CRM Rollout"],
+      [`[CRM Rollout](/settings/webhooks?record=${dealId})`, "CRM Rollout"],
       [`[CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId}?tab=notes)`, "CRM Rollout"],
       [`![CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${dealId})`, "CRM Rollout"],
       [
@@ -876,7 +876,7 @@ describe("agent client-visible output safety", () => {
       [`[Deal [Q3]](/records/60000000-0000-4000-8000-000000000002/${dealId})`, "Deal [Q3]"],
       [`[Deal \\] x](</records/60000000-0000-4000-8000-000000000002/${dealId}>)`, "Deal ] x"],
       [`[Deal ${dealId}](/records/60000000-0000-4000-8000-000000000002/${dealId})`, "Deal [internal reference]"],
-      ["Go to [Webhooks](/company/webhooks).", "Go to [Webhooks](/company/webhooks)."],
+      ["Go to [Webhooks](/settings/webhooks).", "Go to [Webhooks](/settings/webhooks)."],
     ] as const;
 
     for (const [source, expected] of cases) {

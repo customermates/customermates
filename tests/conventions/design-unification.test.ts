@@ -225,7 +225,7 @@ function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
 }
 
 const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
-  "app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view.tsx":
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx":
     "webhook deliveries are a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/audit/operator-audit-page-view.tsx":
     "the operator audit is a read-only log: no delete, so a row menu would only repeat the row click",
@@ -235,12 +235,7 @@ const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
     "internal back-office surface with its own guarded flows, not customer UI",
 };
 
-const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/company/components/user/members-page-view.tsx": "I20: rule 59 row menu on members",
-  "app/[locale]/(protected)/company/components/role/roles-page-view.tsx": "I20: rule 59 row menu on roles",
-  "app/[locale]/(protected)/company/components/webhook/webhooks-page-view.tsx": "I20: rule 59 row menu on webhooks",
-  "app/[locale]/(protected)/routines/components/routines-page-view.tsx": "I20: rule 59 row menu on routines",
-};
+const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {};
 
 describe("I2 round 3 and rule 59: row click opens, every table has the row menu with Open details and Delete", () => {
   it("builds every table row and card menu with the shared row actions", () => {

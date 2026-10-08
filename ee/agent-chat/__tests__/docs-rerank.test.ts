@@ -174,7 +174,7 @@ describe("docs re-rank classifier spec", () => {
   it("strips markdown marks and link targets from option text", () => {
     expect(
       docsRerankPlainText(
-        "Use `x-api-key` in [the header](/docs/api-keys) of [API keys](http://localhost:4000/profile/api-keys) | done",
+        "Use `x-api-key` in [the header](/docs/api-keys) of [API keys](http://localhost:4000/settings/api-keys) | done",
       ),
     ).toBe("Use x-api-key in the header of API keys done");
   });
@@ -486,7 +486,7 @@ describe("query-focused section-ranking evidence", () => {
             headingPath: ["Mailbox status"],
             text:
               "Background. ".repeat(80) +
-              "\nPermission issue means the mailbox needs to be [reactivated](http://localhost:4000/profile/connected-accounts).",
+              "\nPermission issue means the mailbox needs to be [reactivated](http://localhost:4000/settings/channels).",
           },
         },
       ],
@@ -504,9 +504,7 @@ describe("query-focused section-ranking evidence", () => {
       section: {
         pageTitle: "Connections",
         headingPath: ["Mailbox status"],
-        text:
-          "Background. ".repeat(80) +
-          "\n[Reactivation](http://localhost:4000/profile/connected-accounts) restores access.",
+        text: "Background. ".repeat(80) + "\n[Reactivation](http://localhost:4000/settings/channels) restores access.",
       },
     }));
     const [question] = docsRankSpec(candidates, "docs", "reactivation access").questions;
@@ -963,7 +961,7 @@ describe("requested documentation question and destination evidence", () => {
       section: {
         pageTitle: "Workspace",
         headingPath: ["Destination"],
-        text: `Open [${label}](http://localhost:4000/profile/api-keys) for this destination.`,
+        text: `Open [${label}](http://localhost:4000/settings/api-keys) for this destination.`,
       },
     }));
     const options = docsRankSpec(candidates, "docs", "destination page address").questions[0].options;

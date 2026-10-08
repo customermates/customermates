@@ -20,6 +20,8 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
 import type { FocusKind } from "@/components/focus/focus-href";
 import { useFocusTarget } from "@/components/focus/focus-target";
 
@@ -37,6 +39,24 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
   useDataViewSync(routinesStore, initialRoutines);
   const columns = useRoutineColumns();
   const t = useTranslations();
+  const { showDeleteConfirmation } = useDeleteConfirmation();
+  const rowActions = useCallback(
+    (routine: RoutineDto) => (
+      <RecordRowActions
+        name={routine.name}
+        onDelete={
+          routineModalStore.isAdmin
+            ? async () => {
+                await routineModalStore.openForEdit(routine);
+                showDeleteConfirmation(() => routineModalStore.delete(), routine.name);
+              }
+            : undefined
+        }
+        onOpen={() => runUserAction(() => routineModalStore.openForEdit(routine))}
+      />
+    ),
+    [routineModalStore, showDeleteConfirmation],
+  );
   const view = resolveDataViewView(routinesStore.viewMode, routinesStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
@@ -124,6 +144,7 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
       body = (
         <DataViewContent
           columns={columns}
+          rowActions={rowActions}
           store={routinesStore}
           view={view}
           onRowClick={(item) => runUserAction(() => routineModalStore.openForEdit(item))}

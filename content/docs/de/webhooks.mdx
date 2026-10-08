@@ -12,7 +12,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen, et
 
 ## Wie lege ich einen Webhook an? [#how-do-i-create-a-webhook]
 
-Öffnen Sie [Webhooks](app:company/webhooks), klicken Sie auf [Hinzufügen](app:company/webhooks?focus=add), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein und klicken Sie auf **Speichern**.
+Öffnen Sie [Webhooks](app:settings/webhooks), klicken Sie auf [Hinzufügen](app:settings/webhooks?focus=add), füllen Sie den Dialog **Webhook** aus, tragen Sie die **URL** ein und klicken Sie auf **Speichern**.
 
 | Feld | Wirkung |
 | --- | --- |
@@ -24,7 +24,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen, et
 | **Body-Vorlage** | Optionales JSON-Dokument, das den Standardumschlag ersetzt. |
 | **Aktiviert** | Standardmäßig eingeschaltet. Ein deaktivierter Webhook erhält nichts und behält seine Konfiguration, Sie können ihn also pausieren, ohne ihn zu löschen. |
 
-Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten ihn und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf **Löschen** und bestätigen; seine bisherigen Zustellungen bleiben im Reiter [Zustellungen](app:company/webhook-deliveries) erhalten. Die Liste zeigt **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Die [Suche](app:company/webhooks?focus=search) durchsucht die URL, die [Filter](app:company/webhooks?focus=filter) decken Erstellungs- und Änderungsdatum ab.
+Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten ihn und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf **Löschen** und bestätigen; seine bisherigen Zustellungen bleiben im Reiter [Zustellungen](app:settings/webhooks/deliveries) erhalten. Die Liste zeigt **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Die [Suche](app:settings/webhooks?focus=search) durchsucht die URL, die [Filter](app:settings/webhooks?focus=filter) decken Erstellungs- und Änderungsdatum ab.
 
 Verwenden Sie einen HTTPS-Endpunkt. Reines `http://` wird für jeden Host nur akzeptiert, solange der Webhook keine eigenen Header hat. Mit eigenen Headern muss die URL `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Das wird beim Speichern und erneut vor jeder Zustellung geprüft.
 
@@ -52,7 +52,7 @@ Sobald Sie ein Datensatzereignis wählen, zeigt der Dialog die Datensatzquelle: 
 
 ## Wer kann Webhooks sehen und ändern? [#who-can-see-and-change-webhooks]
 
-Den Zugriff legt die Zeile **API & Webhooks** einer Rolle unter [Rollen](app:company/roles) fest.
+Den Zugriff legt die Zeile **API & Webhooks** einer Rolle unter [Rollen](app:settings/roles) fest.
 
 | Einstellung bei **API & Webhooks** | Was Mitglieder mit dieser Rolle tun können |
 | --- | --- |
@@ -62,7 +62,7 @@ Den Zugriff legt die Zeile **API & Webhooks** einer Rolle unter [Rollen](app:com
 | **Lesen** **Alle** plus **Bearbeiten** | Webhooks bearbeiten und gespeicherte Werte von **Secret** und **Eigene Header** sehen. |
 | **Lesen** **Alle** plus **Löschen** | Webhooks löschen. |
 
-Dieselbe Zeile steuert auch [API-Schlüssel](app:profile/api-keys). Eine Rolle, die eigene API-Keys anlegen oder löschen darf, darf also auch jeden Webhook im Workspace anlegen oder löschen. Die Rolle **Admin** darf alles. Webhooks sind an keinen Tarif gebunden und funktionieren in jedem Cloud-Tarif sowie selbstgehostet. Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und in Mate; dort fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
+Dieselbe Zeile steuert auch [API-Schlüssel](app:settings/api-keys). Eine Rolle, die eigene API-Keys anlegen oder löschen darf, darf also auch jeden Webhook im Workspace anlegen oder löschen. Die Rolle **Admin** darf alles. Webhooks sind an keinen Tarif gebunden und funktionieren in jedem Cloud-Tarif sowie selbstgehostet. Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und in Mate; dort fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
 
 ## Wie sieht der Payload aus? [#what-does-the-payload-look-like]
 
@@ -146,7 +146,7 @@ Zustellungen werden mit dem Ereignis-Payload erfasst, nicht mit dem gerenderten 
 
 ## Wie sende ich an Slack, Discord oder n8n? [#how-do-i-send-to-slack-discord-or-n8n]
 
-Jedes Rezept nennt URL, eigene Header und Body-Vorlage, die Sie nach [Hinzufügen](app:company/webhooks?focus=add) in Webhooks eintragen. Setzen Sie in jedem Fall ein Secret; ein Empfänger, der es nicht prüfen kann, ignoriert den Header.
+Jedes Rezept nennt URL, eigene Header und Body-Vorlage, die Sie nach [Hinzufügen](app:settings/webhooks?focus=add) in Webhooks eintragen. Setzen Sie in jedem Fall ein Secret; ein Empfänger, der es nicht prüfen kann, ignoriert den Header.
 
 ### Claude-Code-Routinen [#claude-code-routines]
 
@@ -236,7 +236,7 @@ function verify(rawBody: string, received: string, secret: string) {
 
 Eine Zustellung schlägt fehl, wenn der HTTP-Status außerhalb von 2xx liegt, die Request nach 5 Sekunden timeoutet oder keine Antwort eintrifft. Customermates wiederholt Timeouts, Netzwerkfehler, 5xx-Responses sowie 408, 425 und 429 automatisch, mit bis zu 10 Versuchen insgesamt und wachsenden Pausen von höchstens einer Stunde. Andere 4xx-Responses, etwa 400, 401, 403, 404 und 422, werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Eine Zustellung schlägt außerdem schon vor dem Senden fehl, mit Status-Code 422, wenn Header an eine Adresse gehen würden, die sie nicht erlaubt, oder die Body-Vorlage nicht gerendert werden kann.
 
-Jede Zustellung wird im Reiter [Zustellungen](app:company/webhook-deliveries) von Webhooks protokolliert, die neueste zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Die [Suche](app:company/webhook-deliveries?focus=search) durchsucht Ereignis und URL, die [Filter](app:company/webhook-deliveries?focus=filter) decken Ereignis, URL und Erstellungsdatum ab. Über MCP nutzen Sie `manage_webhooks` mit `action: "list_deliveries"`. Zustellungen bleiben erhalten, solange der Workspace besteht.
+Jede Zustellung wird im Reiter [Zustellungen](app:settings/webhooks/deliveries) von Webhooks protokolliert, die neueste zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Die [Suche](app:settings/webhooks/deliveries?focus=search) durchsucht Ereignis und URL, die [Filter](app:settings/webhooks/deliveries?focus=filter) decken Ereignis, URL und Erstellungsdatum ab. Über MCP nutzen Sie `manage_webhooks` mit `action: "list_deliveries"`. Zustellungen bleiben erhalten, solange der Workspace besteht.
 
 Wiederholungen laufen innerhalb derselben Zustellung und erzeugen keine weiteren Einträge: Jeder Eintrag zeigt das letzte Ergebnis, kann also **Fehlgeschlagen** zeigen, während noch Wiederholungen ausstehen, und zu **Zugestellt** wechseln, sobald eine gelingt.
 
@@ -258,7 +258,7 @@ Bei `record.deleted` enthält `data.record` die eindeutige `ref`, die zulässige
 
 ## Wie untersuche ich eine fehlgeschlagene Zustellung? [#how-do-i-debug-a-delivery]
 
-- Suchen Sie die Zustellung unter [Zustellungen](app:company/webhook-deliveries) und öffnen Sie sie, um die **Ereignis-Details** zu sehen.
+- Suchen Sie die Zustellung unter [Zustellungen](app:settings/webhooks/deliveries) und öffnen Sie sie, um die **Ereignis-Details** zu sehen.
 - Nutzen Sie [webhook.site](https://webhook.site) beim Testen als Einweg-Empfänger.
 - `manage_webhooks` mit `action: "list_deliveries"` unterstützt `searchTerm` auf URL und Ereignisname.
 - Customermates speichert nur den HTTP-Status-Code und den Statustext, den Ihr Empfänger zurückgegeben hat (zum Beispiel `404` und `Not Found`), angezeigt als **Status-Code** und **Antwort-Nachricht** in **Ereignis-Details**. Der Response-Body wird nicht gespeichert, protokollieren Sie ihn also auf der Empfängerseite. Ohne Antwort zeigt **Status-Code** einen Strich (in der Liste bleibt die Spalte leer) und **Antwort-Nachricht** nennt die Ursache, etwa den Timeout.
@@ -297,7 +297,7 @@ Fünfzehn typspezifische Bezeichner sind stillgelegt. Sie bleiben nur erhalten, 
 
 ### Messaging-Events [#messaging-events]
 
-Messaging-Ereignisse feuern bei eingehender Provider-Aktivität auf verbundenen Konten. **Ereignisse** bietet sie in jedem Workspace an, sie feuern aber nur, wo [Kanäle](app:profile/connected-accounts) verbunden sind, und das setzt die Cloud und einen Tarif mit Messaging voraus. `actorId` ist `null`. `data` referenziert Provider-Records per id (`entityId` für die betroffene Nachricht, den Thread, Kalender, Kalendertermin oder die Verbindung, dazu `connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Datensätze einzubetten. Ein Messaging-Ereignis wird nur gespeichert, solange ein Webhook oder eine Event-Routine es abonniert.
+Messaging-Ereignisse feuern bei eingehender Provider-Aktivität auf verbundenen Konten. **Ereignisse** bietet sie in jedem Workspace an, sie feuern aber nur, wo [Kanäle](app:settings/channels) verbunden sind, und das setzt die Cloud und einen Tarif mit Messaging voraus. `actorId` ist `null`. `data` referenziert Provider-Records per id (`entityId` für die betroffene Nachricht, den Thread, Kalender, Kalendertermin oder die Verbindung, dazu `connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Datensätze einzubetten. Ein Messaging-Ereignis wird nur gespeichert, solange ein Webhook oder eine Event-Routine es abonniert.
 
 | Event | Wann es feuert |
 | --- | --- |

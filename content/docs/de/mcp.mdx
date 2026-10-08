@@ -36,7 +36,7 @@ Der Endpoint und API-Keys stehen in jedem Tarif und auf selbst gehosteten Instan
 
 <Steps>
 <Step title="API-Key erstellen">
-Öffnen Sie in den Einstellungen [API-Schlüssel](app:profile/api-keys) und klicken Sie auf [Hinzufügen](app:profile/api-keys?focus=generate). Wählen Sie **Schnellverbindungen** für das geführte Setup von Claude, ChatGPT & Codex, Cursor oder Gemini, oder **Standard-API-Key** (**Name**, optional **Läuft ab**) für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren. Zum Anlegen braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, und die Seite braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
+Öffnen Sie in den Einstellungen [API-Schlüssel](app:settings/api-keys) und klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate). Wählen Sie **Schnellverbindungen** für das geführte Setup von Claude, ChatGPT & Codex, Cursor oder Gemini, oder **Standard-API-Key** (**Name**, optional **Läuft ab**) für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren. Zum Anlegen braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, und die Seite braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
 </Step>
 <Step title="Client auf den Endpoint zeigen lassen">
 Dem Client `POST <BASE_URL>/api/v1/mcp` mit dem `x-api-key`-Header geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides in der Tabelle unten enthalten die genaue Konfiguration.
@@ -74,7 +74,7 @@ Wählen Sie **Neue Seite**, geben Sie einen Titel ein und schreiben Sie im visue
 
 Um eine andere Seite zu verlinken, nutzen Sie die Link-Funktion des Editors oder **Seitenlink kopieren** unter **Seitenaktionen**. Es sind gewöhnliche Markdown-Links, und beim Umbenennen bleibt die Adresse erhalten; ein separater Index oder Verknüpfungsmetadaten sind nicht nötig.
 
-Die Rechte folgen der Zeile **Wissensdatenbank** Ihrer Rolle: Leserechte erlauben das Anzeigen, **Erstellen**, **Bearbeiten** und **Löschen** erlauben das Anlegen, das Bearbeiten und Umordnen oder das Löschen von Seiten, und jedes schließt Leserechte ein. Ändert jemand anderes die Seite vor Ihrem Speichern, wird Ihr veralteter Stand abgelehnt, und Ihre Änderungen bleiben sichtbar, damit Sie sie abgleichen können. Löschen ist endgültig. Änderungen erscheinen unter [Aktivität](app:company/activity); ihre Wissensdatenbank-Inhalte sehen Sie nur mit Zugriff auf **Audit-Log** und Wissensdatenbank-Leserechten. Das Aktivitätsprotokoll bietet keine Wiederherstellung.
+Die Rechte folgen der Zeile **Wissensdatenbank** Ihrer Rolle: Leserechte erlauben das Anzeigen, **Erstellen**, **Bearbeiten** und **Löschen** erlauben das Anlegen, das Bearbeiten und Umordnen oder das Löschen von Seiten, und jedes schließt Leserechte ein. Ändert jemand anderes die Seite vor Ihrem Speichern, wird Ihr veralteter Stand abgelehnt, und Ihre Änderungen bleiben sichtbar, damit Sie sie abgleichen können. Löschen ist endgültig. Änderungen erscheinen unter [Aktivität](app:settings/activity); ihre Wissensdatenbank-Inhalte sehen Sie nur mit Zugriff auf **Audit-Log** und Wissensdatenbank-Leserechten. Das Aktivitätsprotokoll bietet keine Wiederherstellung.
 
 ### Betriebsleitfaden, Verfahren und Wissen [#page-types]
 
@@ -611,7 +611,7 @@ Rollen mit Systemberechtigungen und Zugriff auf beliebige konfigurierte Datensat
 **Kann Daten löschen.** Pflicht: `action`. Optional: `roleId`, `typeIds`, `role`, `deletion`.
 {/* /mcp-catalog */}
 
-Kein Tool liest das Abonnement, den Tarif, die Nutzerplätze oder die Abrechnung oder ändert den Tarif, und keines legt API-Keys an oder löscht sie; auch `get_workspace_context` liefert keine Tarif- oder Testphasendaten. Rollen verwalten Sie mit `manage_roles` oder unter [Rollen](app:company/roles). Die abgerechneten Nutzerplätze folgen der Zahl der Mitglieder mit Status **Aktiv**: Eine Statusänderung mit `manage_team` ändert also wie in der App die Zahl der Nutzerplätze ([wie Nutzerplätze gezählt werden](/docs/app-company#how-are-seats-counted-and-billed)). Das Abonnement verwalten Sie unter [Abrechnung](app:company/subscription) (nur Cloud), Keys unter [API-Schlüssel](app:profile/api-keys).
+Kein Tool liest das Abonnement, den Tarif, die Nutzerplätze oder die Abrechnung oder ändert den Tarif, und keines legt API-Keys an oder löscht sie; auch `get_workspace_context` liefert keine Tarif- oder Testphasendaten. Rollen verwalten Sie mit `manage_roles` oder unter [Rollen](app:settings/roles). Die abgerechneten Nutzerplätze folgen der Zahl der Mitglieder mit Status **Aktiv**: Eine Statusänderung mit `manage_team` ändert also wie in der App die Zahl der Nutzerplätze ([wie Nutzerplätze gezählt werden](/docs/app-company#how-are-seats-counted-and-billed)). Das Abonnement verwalten Sie unter [Abrechnung](app:settings/billing) (nur Cloud), Keys unter [API-Schlüssel](app:settings/api-keys).
 
 ### Support [#support]
 
@@ -682,7 +682,7 @@ Tarife lehnen auf demselben Weg ab. Messaging-, Kalender- und Social-Tools brauc
 
 <Faq>
 <FaqItem question="Wie authentifiziere ich mich am MCP-Endpoint?">
-Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys legen Sie unter [API-Schlüssel](app:profile/api-keys) mit [Hinzufügen](app:profile/api-keys?focus=generate) an. Jeder Key trägt Ihre eigenen Rechte, ein Client kann also nie mehr als Sie selbst.
+Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys legen Sie unter [API-Schlüssel](app:settings/api-keys) mit [Hinzufügen](app:settings/api-keys?focus=generate) an. Jeder Key trägt Ihre eigenen Rechte, ein Client kann also nie mehr als Sie selbst.
 </FaqItem>
 <FaqItem question="Welche AI-Clients können sich verbinden?">
 Für Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex, Cursor und die Gemini CLI sind unter [Client verbinden](#connect-a-client) Verbindungswege dokumentiert. Ein anderer Client kann funktionieren, wenn er MCP über Streamable HTTP und die benötigte Authentifizierung unterstützt; prüfen Sie vor der Nutzung Kompatibilität und Umgang mit Anweisungen.

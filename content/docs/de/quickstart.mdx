@@ -10,7 +10,7 @@ Legen Sie einen Account an, verbinden Sie einen KI-Client und legen Sie los. Cla
 
 [Registrieren Sie sich](/auth/signup) ohne Kreditkarte. Die ersten [[commercial.trial.days]] Tage sind eine kostenlose Testphase des Pro-Tarifs.
 
-Damit Sie nach der Testphase weiter Zugriff haben, wählen Sie vor ihrem Ende einen Tarif unter [Plan](app:company/subscription?focus=plan-picker); siehe [was passiert, wenn die Testphase endet](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) und [welche Tarife es gibt](/docs/app-company#which-plans-are-there). Zum Wählen eines Tarifs braucht Ihre Rolle **Bearbeiten** in der Zeile **Unternehmen**. Die Rolle **Admin**, die erhält, wer den Workspace anlegt, hat es. Eine [selbst gehostete](/docs/self-hosting) Instanz hat keine Testphase und keinen Tarif.
+Damit Sie nach der Testphase weiter Zugriff haben, wählen Sie vor ihrem Ende einen Tarif unter [Abrechnung](app:settings/billing?focus=plan-picker); siehe [was passiert, wenn die Testphase endet](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) und [welche Tarife es gibt](/docs/app-company#which-plans-are-there). Zum Wählen eines Tarifs braucht Ihre Rolle **Bearbeiten** in der Zeile **Unternehmen**. Die Rolle **Admin**, die erhält, wer den Workspace anlegt, hat es. Eine [selbst gehostete](/docs/self-hosting) Instanz hat keine Testphase und keinen Tarif.
 
 ## Wie verbinde ich Claude oder ChatGPT? [#how-do-i-connect-claude-or-chatgpt]
 
@@ -25,7 +25,7 @@ Beim Verbinden brieft der Server den Client über seine Tools und Ihren Workspac
 
 ## Wie verbinde ich ein CLI oder einen Editor? [#how-do-i-connect-a-cli-or-editor]
 
-Öffnen Sie [API-Schlüssel](app:profile/api-keys), klicken Sie auf [Hinzufügen](app:profile/api-keys?focus=generate) und wählen Sie **Standard-API-Key**, oder wählen Sie Ihren Client unter **Schnellverbindungen**, um den Key zusammen mit seinem Setup-Snippet zu erhalten. Kopieren Sie den Key sofort: Er wird nur einmal angezeigt. Zum Anlegen eines Keys braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**; die Rolle **Admin** hat es. Details: [API-Keys](/docs/api-keys). Dann folgen Sie den Schritten Ihres Clients:
+Öffnen Sie [API-Schlüssel](app:settings/api-keys), klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) und wählen Sie **Standard-API-Key**, oder wählen Sie Ihren Client unter **Schnellverbindungen**, um den Key zusammen mit seinem Setup-Snippet zu erhalten. Kopieren Sie den Key sofort: Er wird nur einmal angezeigt. Zum Anlegen eines Keys braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**; die Rolle **Admin** hat es. Details: [API-Keys](/docs/api-keys). Dann folgen Sie den Schritten Ihres Clients:
 
 - [Claude Code](/docs/connect-cli#claude-code): ein Terminal-Befehl
 - [Cursor](/docs/connect-cli#cursor): Settings-UI, zwei Klicks
@@ -42,9 +42,9 @@ Der Agent meldet, was er getan und was sich geändert hat. Deal-Phasen und ander
 
 ## Wie teste ich einen Webhook? [#how-do-i-test-a-webhook]
 
-Optional, um andere Tools bei Änderungen im CRM zu benachrichtigen: Öffnen Sie [Webhooks](app:company/webhooks) und klicken Sie auf [Hinzufügen](app:company/webhooks?focus=add). Tragen Sie unter **URL** einen Einweg-Endpoint von [webhook.site](https://webhook.site) ein, wählen Sie unter **Ereignisse** **Datensatz erstellt** und **Datensatz aktualisiert**, wählen Sie die zu beobachtenden Listen und klicken Sie auf **Speichern**. Zum Anlegen eines Webhooks braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, wie bei API-Keys.
+Optional, um andere Tools bei Änderungen im CRM zu benachrichtigen: Öffnen Sie [Webhooks](app:settings/webhooks) und klicken Sie auf [Hinzufügen](app:settings/webhooks?focus=add). Tragen Sie unter **URL** einen Einweg-Endpoint von [webhook.site](https://webhook.site) ein, wählen Sie unter **Ereignisse** **Datensatz erstellt** und **Datensatz aktualisiert**, wählen Sie die zu beobachtenden Listen und klicken Sie auf **Speichern**. Zum Anlegen eines Webhooks braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, wie bei API-Keys.
 
-Legen Sie jetzt einen Kontakt an oder ändern Sie einen Deal. Innerhalb von Sekunden kommt die Zustellung mit voller Payload auf webhook.site an und erscheint unter [Zustellungen](app:company/webhook-deliveries). Mehr unter [Webhooks](/docs/webhooks).
+Legen Sie jetzt einen Kontakt an oder ändern Sie einen Deal. Innerhalb von Sekunden kommt die Zustellung mit voller Payload auf webhook.site an und erscheint unter [Zustellungen](app:settings/webhooks/deliveries). Mehr unter [Webhooks](/docs/webhooks).
 
 ## Weiter [#next]
 

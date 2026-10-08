@@ -9,7 +9,7 @@ import {
 
 describe("agent page context", () => {
   it("names the captured Members All target separately from the user's linked-deal filter", () => {
-    const route = "/en/company/members?view=__all__&viewSurface=users-card-store&viewAction=update";
+    const route = "/en/settings/members?view=__all__&viewSurface=users-card-store&viewAction=update";
     expect(agentViewRequestTarget(route)).toEqual({
       kind: "target",
       action: "update",
@@ -31,7 +31,7 @@ describe("agent page context", () => {
   });
 
   it("rejects a surface that does not own the captured pathname", () => {
-    const route = "/en/company/members?view=__all__&viewSurface=webhooks-card-store&viewAction=update";
+    const route = "/en/settings/members?view=__all__&viewSurface=webhooks-card-store&viewAction=update";
     expect(agentViewRequestTarget(route)).toEqual({ kind: "invalid" });
     expect(
       agentViewRequestMismatch(route, {
@@ -44,14 +44,14 @@ describe("agent page context", () => {
   });
 
   it.each([
-    "/en/company/members?view=__all__&viewSurface=entity-timeline&viewAction=update",
+    "/en/settings/members?view=__all__&viewSurface=entity-timeline&viewAction=update",
     "/en/records/50000000-0000-4000-8000-000000000001/not-a-record?view=__all__&viewSurface=entity-timeline&viewAction=update",
-    "/en/company/members/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=update",
+    "/en/settings/members/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=update",
   ])("rejects timeline context outside an entity record page: %s", (route) => {
     expect(agentViewRequestTarget(route)).toEqual({ kind: "invalid" });
   });
 
-  it.each([null, "/en/company/members", "/en/company/members?view=__all__&viewSurface=users-card-store"])(
+  it.each([null, "/en/settings/members", "/en/settings/members?view=__all__&viewSurface=users-card-store"])(
     "keeps ordinary page context unscoped: %s",
     (route) => {
       expect(agentViewRequestTarget(route)).toEqual({ kind: "ordinary" });
@@ -59,21 +59,21 @@ describe("agent page context", () => {
   );
 
   it.each([
-    "/en/company/members?view=__all__&viewSurface=not-a-surface&viewAction=update",
-    "/en/company/members?view=invalid&viewSurface=users-card-store&viewAction=update",
+    "/en/settings/members?view=__all__&viewSurface=not-a-surface&viewAction=update",
+    "/en/settings/members?view=invalid&viewSurface=users-card-store&viewAction=update",
     "//external.invalid?view=__all__&viewSurface=users-card-store&viewAction=update",
-    "/en/company/members?view=__all__&viewSurface=users-card-store&viewAction=oops",
-    "/en/company/members?view=__all__&viewSurface=users-card-store&viewAction=update&viewAction=create",
-    "/en/company/members?view=__all__&view=__all__&viewSurface=users-card-store&viewAction=update",
-    "/en/company/members?view=__all__&viewSurface=users-card-store&viewSurface=webhooks-card-store&viewAction=update",
-    "/en/company/members?viewAction=update",
+    "/en/settings/members?view=__all__&viewSurface=users-card-store&viewAction=oops",
+    "/en/settings/members?view=__all__&viewSurface=users-card-store&viewAction=update&viewAction=create",
+    "/en/settings/members?view=__all__&view=__all__&viewSurface=users-card-store&viewAction=update",
+    "/en/settings/members?view=__all__&viewSurface=users-card-store&viewSurface=webhooks-card-store&viewAction=update",
+    "/en/settings/members?viewAction=update",
   ])("rejects malformed request context instead of silently removing the target: %s", (route) => {
     expect(agentViewRequestTarget(route)).toEqual({ kind: "invalid" });
     expect(agentViewRequestMismatch(route, { action: "update" })).toContain("invalid view context");
   });
 
   it("does not lose the request target when a route has a fragment", () => {
-    const route = "/en/company/members?view=__all__&viewSurface=users-card-store&viewAction=update#details";
+    const route = "/en/settings/members?view=__all__&viewSurface=users-card-store&viewAction=update#details";
     expect(agentViewRequestTarget(route)).toMatchObject({ kind: "target", action: "update" });
     expect(agentViewRequestMismatch(route, { action: "create", surfaceKey: "webhooks-card-store" })).toContain(
       "No change",
@@ -82,7 +82,7 @@ describe("agent page context", () => {
 
   it("does not let creation select an unrelated existing view", () => {
     expect(
-      agentViewRequestMismatch("/en/company/members?view=__all__&viewSurface=users-card-store&viewAction=create", {
+      agentViewRequestMismatch("/en/settings/members?view=__all__&viewSurface=users-card-store&viewAction=create", {
         action: "select",
         surfaceKey: "users-card-store",
         viewKey: "__all__",
@@ -91,7 +91,7 @@ describe("agent page context", () => {
   });
 
   it("blocks custom-field mutations that try to manufacture a filter for an Ask AI view request", () => {
-    const route = "/en/company/members?view=__all__&viewSurface=users-card-store&viewAction=update";
+    const route = "/en/settings/members?view=__all__&viewSurface=users-card-store&viewAction=update";
     const createColumn = {
       action: "apply",
       intent: "create",
@@ -105,7 +105,7 @@ describe("agent page context", () => {
     );
     expect(agentViewToolMismatch(route, "configure_record_model", { action: "apply" })).toContain("no change was made");
     expect(agentViewToolMismatch(route, "configure_record_model", { action: "preview" })).toBeNull();
-    expect(agentViewToolMismatch("/en/company/members", "configure_record_model", createColumn)).toBeNull();
+    expect(agentViewToolMismatch("/en/settings/members", "configure_record_model", createColumn)).toBeNull();
   });
 
   it("escapes route attributes without adding another context element", () => {

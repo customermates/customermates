@@ -34,11 +34,11 @@ describe("get_docs_page", () => {
       title: "Fixture",
       description: "",
       content:
-        "---\ntitle: Fixture\n---\nOpen [Contacts](app:records/contact) or [Roles](app:company/roles?focus=add).",
+        "---\ntitle: Fixture\n---\nOpen [Contacts](app:records/contact) or [Roles](app:settings/roles?focus=add).",
     });
 
     expect(markdown).toBe(
-      "Open [Contacts](http://localhost:4000/open/records/contact) or [Roles](http://localhost:4000/company/roles?focus=control%3Acompany-roles-add).",
+      "Open [Contacts](http://localhost:4000/open/records/contact) or [Roles](http://localhost:4000/settings/roles?focus=control%3Asettings-roles-add).",
     );
   });
 
@@ -117,7 +117,7 @@ describe("search and fetch", () => {
         readFileSync(join(process.cwd(), "content", "docs", locale, "mcp-catalog-summaries.json"), "utf8"),
       ) as Record<string, string>;
       for (const tool of ["search_docs", "get_docs_page", "search", "fetch"]) {
-        expect(summaries[tool], `${tool} (${locale})`).not.toContain("`/company/subscription`");
+        expect(summaries[tool], `${tool} (${locale})`).not.toContain("`/settings/billing`");
         expect(summaries[tool], `${tool} (${locale})`).toContain("`BASE_URL`");
       }
     }

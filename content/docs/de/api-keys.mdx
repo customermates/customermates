@@ -7,7 +7,7 @@ API-Keys authentifizieren Clients für das Model Context Protocol (MCP) und die 
 
 ## API-Key anlegen: Wie lege ich einen API-Key an? [#how-do-i-create-an-api-key]
 
-Öffnen Sie in den Einstellungen [API-Schlüssel](app:profile/api-keys) und klicken Sie auf [Hinzufügen](app:profile/api-keys?focus=generate). Der Dialog **API-Key hinzufügen** bietet zwei Wege:
+Öffnen Sie in den Einstellungen [API-Schlüssel](app:settings/api-keys) und klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate). Der Dialog **API-Key hinzufügen** bietet zwei Wege:
 
 - **Standard-API-Key**: Geben Sie unter **Name** an, wo der Key eingesetzt wird, zum Beispiel `Claude Desktop, privater Laptop` (bis zu 255 Zeichen), wählen Sie optional unter **Läuft ab** ein Datum und klicken Sie auf **Speichern**. Der Key wird einmal unter **API-Schlüssel erfolgreich erstellt** angezeigt; kopieren Sie ihn, bevor Sie den Dialog schließen.
 - **Schnellverbindungen**: Wählen Sie **Claude**, **ChatGPT & Codex**, **Cursor** oder **Gemini** und dann die Einrichtung, die zu Ihrer Nutzung passt. Bei einer lokalen Einrichtung (**Claude Code oder Desktop**, dann **Claude Code** oder **Claude Desktop**; **Codex CLI oder IDE**; Cursor oder Gemini) klicken Sie auf **API-Key erstellen**: Der Dialog legt den Key an und zeigt das Setup-Snippet dieses Clients mit bereits eingesetztem Key. **Claude-Konto** und **ChatGPT-App** verbinden sich stattdessen per OAuth und legen keinen Key an. Schließen Sie den Dialog, wenn Sie fertig sind.
@@ -18,12 +18,12 @@ Keys gehören dem Nutzer, der sie angelegt hat, und erben dessen Berechtigungen.
 
 ## Wer kann API-Keys anlegen und sehen? [#who-can-create-and-see-api-keys]
 
-Die Seite API-Keys richtet sich nach der Zeile **API & Webhooks** Ihrer Rolle. Diese Zeile setzt ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** unter [Rollen](app:company/roles):
+Die Seite API-Keys richtet sich nach der Zeile **API & Webhooks** Ihrer Rolle. Diese Zeile setzt ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** unter [Rollen](app:settings/roles):
 
 - **Lesen** **Alle** zeigt API-Keys in den Einstellungen und listet Ihre eigenen Keys. Mit **Keine** ist der Eintrag ausgeblendet und die Seite lässt sich nicht öffnen.
 - **Erstellen** blendet **Hinzufügen** ein, und **Löschen** erlaubt das Löschen von Keys. Ohne beide sehen Sie vorhandene Keys, können aber keine anlegen oder löschen.
 
-Eine neue Rolle startet ohne angehakte Checkbox und mit **Lesen** **Keine**; ohne Anpassung können also nur Mitglieder mit der eingebauten Rolle **Admin** API-Keys anlegen. Dieselbe Zeile öffnet auch [Webhooks](app:company/webhooks) und deren Zustellungen. Wer sie für API-Keys vergibt, lässt das Mitglied also auch jeden Webhook des Workspace sehen und mit **Erstellen**, **Bearbeiten** oder **Löschen** ändern.
+Eine neue Rolle startet ohne angehakte Checkbox und mit **Lesen** **Keine**; ohne Anpassung können also nur Mitglieder mit der eingebauten Rolle **Admin** API-Keys anlegen. Dieselbe Zeile öffnet auch [Webhooks](app:settings/webhooks) und deren Zustellungen. Wer sie für API-Keys vergibt, lässt das Mitglied also auch jeden Webhook des Workspace sehen und mit **Erstellen**, **Bearbeiten** oder **Löschen** ändern.
 
 Jede Person sieht nur ihre eigenen Keys. Niemand, auch nicht die Rolle **Admin**, kann die Keys eines anderen Mitglieds auflisten oder löschen. Kein Assistenten- oder MCP-Tool legt API-Keys an, listet oder löscht sie; verwaltet werden sie nur auf der Seite API-Keys, und der gehostete Assistent kann Ihnen höchstens diese Seite öffnen.
 
@@ -49,11 +49,11 @@ Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum w
 
 ## Wie kann ich einen Key widerrufen, löschen oder rotieren? [#how-do-i-revoke-delete-or-rotate-a-key]
 
-Klicken Sie unter [API-Schlüssel](app:profile/api-keys) auf die Karte des Keys und wählen Sie **Löschen**; nach der Bestätigung funktioniert der Key sofort nicht mehr. Zum Löschen brauchen Sie **Löschen** auf **API & Webhooks**. Eine separate Rotate- oder Revoke-Aktion gibt es nicht: Zum Rotieren legen Sie einen neuen Key an, aktualisieren jeden Client, der den alten genutzt hat, und löschen dann den alten Key.
+Klicken Sie unter [API-Schlüssel](app:settings/api-keys) auf die Karte des Keys und wählen Sie **Löschen**; nach der Bestätigung funktioniert der Key sofort nicht mehr. Zum Löschen brauchen Sie **Löschen** auf **API & Webhooks**. Eine separate Rotate- oder Revoke-Aktion gibt es nicht: Zum Rotieren legen Sie einen neuen Key an, aktualisieren jeden Client, der den alten genutzt hat, und löschen dann den alten Key.
 
 Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist, wenn ein Teammitglied mit Zugriff das Team verlässt oder wenn Sie einen Leak vermuten. Ein Key pro Client erlaubt es, einen einzelnen Client zu löschen, ohne die anderen zu brechen. Im Audit-Log trennt er sie nicht, denn dort steht der Nutzer, dem ein Key gehört, nicht der Key selbst. Bewahren Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager auf, nie in einer Config-Datei, die Sie committen.
 
-Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, öffnen Sie [Mitglieder](app:company/members), öffnen das Mitglied, setzen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**; sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Danach wird jeder Aufruf mit den Keys dieses Mitglieds abgelehnt, der Workspace-Daten liest oder ändert. Seiner Rolle die Berechtigung **API & Webhooks** zu entziehen, reicht nicht: Das blendet die Seite und ihre Schaltfläche **Hinzufügen** aus, aber bereits vorhandene Keys funktionieren weiter.
+Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, öffnen Sie [Mitglieder](app:settings/members), öffnen das Mitglied, setzen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**; sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Danach wird jeder Aufruf mit den Keys dieses Mitglieds abgelehnt, der Workspace-Daten liest oder ändert. Seiner Rolle die Berechtigung **API & Webhooks** zu entziehen, reicht nicht: Das blendet die Seite und ihre Schaltfläche **Hinzufügen** aus, aber bereits vorhandene Keys funktionieren weiter.
 
 ## Welches Format hat ein Key, und wie lang darf sein Name sein? [#what-is-the-key-format]
 

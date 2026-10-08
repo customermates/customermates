@@ -118,7 +118,7 @@ Die App verschickt Bestätigungslinks, Passwort-Resets und Einladungen per E-Mai
 
 Klicken Sie den Bestätigungslink in der E-Mail innerhalb von 24 Stunden an. Ein Konto, das 24 Stunden nach der Registrierung noch nicht bestätigt ist, wird auf **E-Mail-Verifizierung** festgehalten, wo **Verifizierungs-E-Mail erneut senden** einen neuen Link schickt.
 
-Öffnen Sie dann [Mitglieder](app:company/members), laden Sie Teammitglieder mit [Hinzufügen](app:company/members?focus=add) ein, geben Sie sie dort nach der Registrierung frei, und legen Sie unter [Rollen](app:company/roles) fest, was sie dürfen; siehe [Mitglieder und Rollen](/docs/app-company).
+Öffnen Sie dann [Mitglieder](app:settings/members), laden Sie Teammitglieder mit [Hinzufügen](app:settings/members?focus=add) ein, geben Sie sie dort nach der Registrierung frei, und legen Sie unter [Rollen](app:settings/roles) fest, was sie dürfen; siehe [Mitglieder und Rollen](/docs/app-company).
 
 ## Wer kann sich auf meiner Instanz registrieren? [#who-can-sign-up-on-my-instance]
 
@@ -126,7 +126,7 @@ Jede Person, die Ihre `BASE_URL` erreicht, kann sich registrieren; die Registrie
 
 Soll die Instanz nur einem Team dienen, beschränken Sie den Zugang, zum Beispiel mit einem VPN, einer IP-Allowlist oder einer Authentifizierung am Reverse-Proxy; MCP- und REST-Clients brauchen dann denselben Zugang.
 
-Teammitglieder kommen über eine Einladung hinzu: [Hinzufügen](app:company/members?focus=add) unter [Mitglieder](app:company/members) öffnet **Benutzer einladen** mit den Tabs **Link teilen** und **E-Mails senden**. Neue Mitglieder warten mit dem Status **Wartet auf Genehmigung**, bis ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** sie öffnet, ihnen eine **Rolle** gibt und **Status** auf **Aktiv** setzt.
+Teammitglieder kommen über eine Einladung hinzu: [Hinzufügen](app:settings/members?focus=add) unter [Mitglieder](app:settings/members) öffnet **Benutzer einladen** mit den Tabs **Link teilen** und **E-Mails senden**. Neue Mitglieder warten mit dem Status **Wartet auf Genehmigung**, bis ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** sie öffnet, ihnen eine **Rolle** gibt und **Status** auf **Aktiv** setzt.
 
 ## Können sich Nutzer mit Google oder Microsoft anmelden? [#can-users-sign-in-with-google-or-microsoft]
 
@@ -138,7 +138,7 @@ Entfernen Sie in `.env` das `#` vor den Zeilen der Anbieter, die Sie nutzen, tra
 
 Der MCP-Endpunkt ist `<BASE_URL>/api/v1/mcp`, zum Beispiel `https://crm.example.com/api/v1/mcp`. Es gibt zwei Wege der Authentifizierung:
 
-- **API-Key** im Header `x-api-key`, für Clients auf Ihrem Rechner: Claude Code, Claude Desktop, Codex, Cursor und Gemini CLI. Legen Sie den Key mit [Hinzufügen](app:profile/api-keys?focus=generate) unter [API-Schlüssel](app:profile/api-keys) an; **Schnellverbindungen** zeigt dort den Einrichtungsausschnitt mit der Adresse, unter der Sie die App geöffnet haben. Der Client muss die URL nur erreichen, eine Adresse im lokalen Netz funktioniert also. Siehe [CLI- und Editor-Clients verbinden](/docs/connect-cli).
+- **API-Key** im Header `x-api-key`, für Clients auf Ihrem Rechner: Claude Code, Claude Desktop, Codex, Cursor und Gemini CLI. Legen Sie den Key mit [Hinzufügen](app:settings/api-keys?focus=generate) unter [API-Schlüssel](app:settings/api-keys) an; **Schnellverbindungen** zeigt dort den Einrichtungsausschnitt mit der Adresse, unter der Sie die App geöffnet haben. Der Client muss die URL nur erreichen, eine Adresse im lokalen Netz funktioniert also. Siehe [CLI- und Editor-Clients verbinden](/docs/connect-cli).
 - **OAuth-Anmeldung**, für Clients, die sich aus der Cloud ihres Anbieters verbinden, etwa ein benutzerdefinierter Connector in Claude. Diese brauchen eine `BASE_URL`, die aus dem Internet über HTTPS erreichbar ist. Siehe [Claude und ChatGPT verbinden](/docs/connect-custom-connector).
 
 Der gehostete In-App-Assistent ist nur in der Cloud verfügbar: Mate gibt es auf Self-Hosted-Instanzen nicht. Externes MCP nutzt Ihren eigenen KI-Anbieter. Enterprise-SSO und White-Labeling sind in keiner Variante implementiert.

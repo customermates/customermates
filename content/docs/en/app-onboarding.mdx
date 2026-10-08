@@ -11,34 +11,34 @@ The wizard for a new workspace has four steps, shown as **You**, **Knowledge**, 
 
 <Steps>
 <Step title="Your profile">
-Enter **First Name**, **Last Name** and **Country**; the email shows your sign-in address and cannot be changed here. On Customermates Cloud you also accept the terms. **Continue** saves the profile, creates the workspace and moves on. Once saved, the wizard cannot return to this step; change your name or country later in [Profile & preferences](app:profile/settings).
+Enter **First Name**, **Last Name** and **Country**; the email shows your sign-in address and cannot be changed here. On Customermates Cloud you also accept the terms. **Continue** saves the profile, creates the workspace and moves on. Once saved, the wizard cannot return to this step; change your name or country later in [Profile & preferences](app:settings/profile).
 </Step>
 <Step title="Knowledge Base">
 Optionally enter your company website and choose **Build my Knowledge Base**: Mate reads the site and writes starter pages, and you watch the progress and Mate's conversation inline. This needs hosted Mate; without it you write pages yourself later in the [Knowledge Base](app:wiki). The language defaults to your browser language, or to the language of existing pages. Unreadable pages are skipped, and pages already created stay if writing stops. While the import runs, **Continue while Mate works** moves on and leaves it running; **Not now** skips the import. See [Knowledge Base setup](/docs/mcp#set-up-from-your-homepage).
 </Step>
 <Step title="Invite your team">
-**Share link** (open by default) shows an invitation link to copy: anyone with it can join, and it is valid for 7 days. **Send emails** takes up to 20 addresses, separated by a comma or Enter, and **Send invitations** emails them the link. **Next** moves on with or without invitations; **Back** returns to the Knowledge Base step, except after a reload. You can invite people later with [Add](app:company/members?focus=add) on Members.
+**Share link** (open by default) shows an invitation link to copy: anyone with it can join, and it is valid for 7 days. **Send emails** takes up to 20 addresses, separated by a comma or Enter, and **Send invitations** emails them the link. **Next** moves on with or without invitations; **Back** returns to the Knowledge Base step, except after a reload. You can invite people later with [Add](app:settings/members?focus=add) on Members.
 </Step>
 <Step title="Connect your AI">
-Connect an external AI client (Claude, ChatGPT and Codex, Cursor or Gemini) to your workspace's [MCP endpoint](/docs/mcp). Local setups (Claude Code, Claude Desktop, Codex, Cursor, Gemini) create an API key for that client that expires after 365 days and show its setup snippet with the expiry date; the Claude account and ChatGPT app methods sign in through a connector and create no key. On the client list, **Back** returns to the invite step and **Finish** completes onboarding without a connection. After choosing a client, **Back** returns to the list, and **Finish** becomes available once the key is created or a connector method is picked. The same setup stays available later; keys are managed on [API keys](app:profile/api-keys), and the in-app [Assistant](/docs/app-assistant) works without any of this.
+Connect an external AI client (Claude, ChatGPT and Codex, Cursor or Gemini) to your workspace's [MCP endpoint](/docs/mcp). Local setups (Claude Code, Claude Desktop, Codex, Cursor, Gemini) create an API key for that client that expires after 365 days and show its setup snippet with the expiry date; the Claude account and ChatGPT app methods sign in through a connector and create no key. On the client list, **Back** returns to the invite step and **Finish** completes onboarding without a connection. After choosing a client, **Back** returns to the list, and **Finish** becomes available once the key is created or a connector method is picked. The same setup stays available later; keys are managed on [API keys](app:settings/api-keys), and the in-app [Assistant](/docs/app-assistant) works without any of this.
 </Step>
 </Steps>
 
 ## What does an invited person see? [#what-does-an-invited-person-see]
 
-Someone who opens an invitation sees only the profile step, without the progress bar, with **Invitation from ...** naming the inviter. After **Continue** they are registered with status **Waiting for approval** and every sign-in lands on **Waiting for Approval** (or first on **Email Verification**, if their email is still unverified 24 hours after registering). They never see the Knowledge Base, invite or AI steps. Someone whose role has **Edit** on **Users & Roles**, or an **Admin**, opens the person on [Members](app:company/members), assigns a **Role** and sets the **Status** to **Active**; only then can they work in the workspace.
+Someone who opens an invitation sees only the profile step, without the progress bar, with **Invitation from ...** naming the inviter. After **Continue** they are registered with status **Waiting for approval** and every sign-in lands on **Waiting for Approval** (or first on **Email Verification**, if their email is still unverified 24 hours after registering). They never see the Knowledge Base, invite or AI steps. Someone whose role has **Edit** on **Users & Roles**, or an **Admin**, opens the person on [Members](app:settings/members), assigns a **Role** and sets the **Status** to **Active**; only then can they work in the workspace.
 
 ## Frequently asked questions [#frequently-asked-questions]
 
 <Faq>
 <FaqItem question="Can I skip parts of the onboarding?">
-Yes, everything after the profile: **Not now** skips the website import, **Next** leaves the invite step without sending anything, and **Finish** on the AI client list completes onboarding without a connection. Invite people later on [Members](app:company/members?focus=add) and manage AI keys on [API keys](app:profile/api-keys). The profile step is required.
+Yes, everything after the profile: **Not now** skips the website import, **Next** leaves the invite step without sending anything, and **Finish** on the AI client list completes onboarding without a connection. Invite people later on [Members](app:settings/members?focus=add) and manage AI keys on [API keys](app:settings/api-keys). The profile step is required.
 </FaqItem>
 <FaqItem question="Can I go back to the profile step?">
-No. Once the profile is saved, the wizard cannot return to it. Change your name, country and other personal settings later in [Profile & preferences](app:profile/settings).
+No. Once the profile is saved, the wizard cannot return to it. Change your name, country and other personal settings later in [Profile & preferences](app:settings/profile).
 </FaqItem>
 <FaqItem question="What happens to people who register through the invitation link?">
-They join with status **Waiting for approval**, whether they used the shared link or an email invitation, and see **Waiting for Approval** until someone whose role has **Edit** on **Users & Roles**, or an **Admin**, assigns a role and sets them to **Active** on [Members](app:company/members). The link stays valid for 7 days.
+They join with status **Waiting for approval**, whether they used the shared link or an email invitation, and see **Waiting for Approval** until someone whose role has **Edit** on **Users & Roles**, or an **Admin**, assigns a role and sets them to **Active** on [Members](app:settings/members). The link stays valid for 7 days.
 </FaqItem>
 <FaqItem question="Do I need to connect an AI client to use the assistant?">
 No. The built-in Assistant works without any external client. The AI step connects external tools such as Claude or Cursor to your workspace through MCP.

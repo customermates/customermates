@@ -29,9 +29,6 @@
     "privacyLink": "Dettagli sulla privacy",
     "title": "Aiutaci a capire cosa funziona"
   },
-  "ActivityPage": {
-    "title": "Attività"
-  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -749,7 +746,6 @@
     "title": "Crea una chiave API"
   },
   "ApiKeysCard": {
-    "title": "API e connettori",
     "unnamed": "Senza nome"
   },
   "AuditLogModal": {
@@ -1352,7 +1348,8 @@
       "copiedToClipboard": "{value} copiato negli appunti",
       "copyFailed": "Copia negli appunti non riuscita",
       "deleted": "Eliminato",
-      "unexpectedError": "Si è verificato un errore. Riprova."
+      "unexpectedError": "Si è verificato un errore. Riprova.",
+      "updated": "Aggiornato"
     },
     "pageNumber": "Pagina {page}",
     "providers": {
@@ -2492,15 +2489,12 @@
     "addEntity": "Aggiungi {entity}",
     "addPickerDescription": "Scegli il tipo di record che vuoi creare.",
     "addPickerTitle": "Crea nuovo…",
-    "admin": "Amministrazione",
     "affiliate": "Programma di affiliazione",
-    "connectedAccounts": "Canali",
     "dashboard": "Dashboard",
     "data": "Dati",
     "docs": "Documentazione",
     "features": "Funzionalità",
     "inbox": "Posta in arrivo",
-    "members": "Membri",
     "operator": "Console operatore",
     "overview": "Panoramica",
     "pricing": "Prezzi",
@@ -2554,9 +2548,7 @@
     "routines": "Routine",
     "search": "Cerca",
     "settings": "Impostazioni",
-    "subscription": "Abbonamento",
-    "wiki": "Base di conoscenza",
-    "workspace": "Area di lavoro"
+    "wiki": "Base di conoscenza"
   },
   "NotFoundPage": {
     "body": "Siamo stati avvisati automaticamente che questa pagina è andata in vacanza. La rintracceremo e la riporteremo presto qui!",
@@ -3617,8 +3609,7 @@
   },
   "RolesCard": {
     "custom": "Personalizzato",
-    "system": "Sistema",
-    "title": "Ruoli"
+    "system": "Sistema"
   },
   "RoutineAdministration": {
     "help": "Come amministratore aziendale, puoi sospendere o eliminare questa routine, ma non puoi modificarla, testarla né eseguirla.",
@@ -3778,19 +3769,43 @@
     "tuesday": "Martedì",
     "wednesday": "Mercoledì"
   },
+  "SettingsNav": {
+    "account": "Account",
+    "activity": "Attività",
+    "apiKeys": "Chiavi API",
+    "billing": "Fatturazione",
+    "channels": "Canali",
+    "deliveries": "Consegne",
+    "members": "Membri",
+    "profile": "Profilo e preferenze",
+    "roles": "Ruoli",
+    "webhooks": "Webhook",
+    "workspace": "Workspace"
+  },
   "SidebarCustomize": {
     "deleteSection": "Elimina sezione",
-    "emptySection": "Trascina qui gli elementi",
+    "deleteSectionEmpty": "La sezione è vuota, quindi nessun elemento viene spostato.",
+    "deleteSectionMoves": "I suoi elementi tornano al loro posto predefinito nella barra laterale; gli elementi nascosti restano nascosti:",
+    "deleteSectionTitle": "Eliminare la sezione «{section}»?",
+    "dragItem": "Sposta {item}",
+    "dragSection": "Sposta la sezione {section}",
+    "emptySection": "Trascina qui gli elementi o usa Sposta nella sezione",
     "hide": "Nascondi dalla barra laterale",
+    "hint": "Trascina le maniglie per riordinare elementi e sezioni, oppure usa i menu …. Fai clic sul nome di una sezione personale per rinominarla.",
     "itemActions": "Opzioni per {item}",
     "moveDown": "Sposta giù",
+    "movesBackTo": "{item} torna in {section}",
     "moveToSection": "Sposta nella sezione",
     "moveUp": "Sposta su",
     "newSection": "Nuova sezione",
     "newSectionName": "Nuova sezione",
     "rename": "Rinomina",
     "reset": "Ripristina predefinito",
+    "resetDone": "Barra laterale ripristinata",
+    "resetMessage": "Le tue sezioni personali, l'ordine e gli elementi nascosti tornano a quelli predefiniti. Le barre laterali delle altre persone non cambiano.",
+    "resetTitle": "Ripristinare la barra laterale?",
     "sectionActions": "Opzioni per {section}",
+    "sectionDeleted": "Sezione eliminata",
     "sectionName": "Nome della sezione",
     "show": "Mostra {item}",
     "title": "Personalizza barra laterale"
@@ -3837,7 +3852,7 @@
       "planManage": "Sincronizzato con la fatturazione. Usa «{billing}» per apportare modifiche.",
       "planPicker": "Scegli un piano qui sotto per avviare o modificare l’abbonamento.",
       "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
-      "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{company}».",
+      "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{members}».",
       "trialEndsManage": "Definita dal periodo di prova. Usa «{billing}» per gestire l’abbonamento.",
       "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
       "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento."
@@ -3944,14 +3959,13 @@
     "title": "La tua prova inizia qui"
   },
   "UserAvatar": {
-    "company": "La mia azienda",
-    "darkMode": "Tema scuro",
     "documentation": "Documentazione",
     "home": "Home",
-    "lightMode": "Tema chiaro",
-    "profile": "Il mio profilo",
-    "settings": "Impostazioni",
-    "signOut": "Esci"
+    "language": "Lingua",
+    "menu": "Menu personale",
+    "sendFeedback": "Invia feedback",
+    "signOut": "Esci",
+    "theme": "Tema"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Definisce la lingua dell'interfaccia: etichette, pulsanti e così via.",
@@ -3978,8 +3992,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "I tentativi di consegna appariranno qui quando viene attivato un webhook.",
-    "emptyTitle": "Ancora nessuna consegna",
-    "title": "Invii recenti"
+    "emptyTitle": "Ancora nessuna consegna"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Creato il",
@@ -4013,8 +4026,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Aggiungi un webhook per inviare gli eventi dello spazio di lavoro ai tuoi sistemi.",
-    "emptyTitle": "Ancora nessun webhook",
-    "title": "Webhook"
+    "emptyTitle": "Ancora nessun webhook"
   },
   "Wiki": {
     "conflict": "Questa pagina è cambiata. Le tue modifiche sono ancora qui. Ricarica per usare l’ultima versione.",
@@ -4124,5 +4136,9 @@
     },
     "tryAnother": "Prova un altro sito",
     "unavailable": "La configurazione con Mate non è disponibile al momento. Potrai creare pagine in seguito dalla base di conoscenza."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Invita membri",
+    "label": "Menu del workspace"
   }
 }

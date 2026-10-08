@@ -30,6 +30,7 @@ import { resolveDataViewPageState, type DataViewPageState } from "@/components/d
 import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { ThreadRow } from "./thread-row";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 type Props = {
   canConnect: boolean;
@@ -106,7 +107,7 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
           {canConnect && (
             <TopBarPrimaryButton
               count={channelsNeedingAction}
-              href="/profile/connected-accounts"
+              href={settingsHref("channels")}
               icon={Cable}
               label={t("ConnectedAccountsCard.title")}
             />
@@ -205,7 +206,7 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
               fallback={
                 canConnect ? (
                   <Button asChild size="sm" variant="secondary">
-                    <Link href="/profile/connected-accounts">
+                    <Link href={settingsHref("channels")}>
                       <Cable className="size-3.5" />
 
                       {t("ConnectedAccountsCard.title")}

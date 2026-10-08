@@ -105,11 +105,7 @@ const GERMAN_TERM_EXEMPTIONS: Allowlist = {
   Services: "the Services starter list and the operator's service statistics",
 };
 
-const GERMAN_TERM_ALLOWLIST: Allowlist = {
-  Admin: "I19: the Admin navigation entry disappears with the Settings area",
-  Plan: "I19: Plan becomes Billing (rule 51), with one German term",
-  Workspace: "I19: one German term (Arbeitsbereich or Workspace)",
-};
+const GERMAN_TERM_ALLOWLIST: Allowlist = {};
 
 describe("one German term per concept (owner 2026-10-08)", () => {
   it("translates each short English label with one German label", () => {
@@ -157,14 +153,7 @@ function retiredTermViolations(units: TextUnit[]) {
     .sort();
 }
 
-const RETIRED_TERM_ALLOWLIST: Allowlist = {
-  "i18n/locales/de.json#company-settings": "I19: Settings area names (rule 43)",
-  "i18n/locales/de.json#my-company": "I19: Settings area names (rule 43)",
-  "i18n/locales/de.json#my-profile": "I19: Profile & preferences or Channels in Settings (rule 43)",
-  "i18n/locales/en.json#company-settings": "I19: Settings area names (rule 43)",
-  "i18n/locales/en.json#my-company": "I19: Settings area names (rule 43)",
-  "i18n/locales/en.json#my-profile": "I19: Profile & preferences or Channels in Settings (rule 43)",
-};
+const RETIRED_TERM_ALLOWLIST: Allowlist = {};
 
 describe("rules 30, 33, 43, 50 and 51: retired UI names leave messages and docs", () => {
   it("names no retired UI place or action in the messages or the product docs", () => {

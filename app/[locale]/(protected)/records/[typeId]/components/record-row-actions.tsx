@@ -2,7 +2,6 @@
 
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordsStore } from "./records.store";
-import type { useRecordDeletion } from "./use-record-deletion";
 
 import { useRef } from "react";
 import { observer } from "mobx-react-lite";
@@ -27,21 +26,17 @@ export function recordRowName(store: RecordsStore, record: RecordRow) {
 }
 
 export const RecordRowActions = observer(function RecordRowActions({
-  store,
-  record,
-  deletion,
+  name,
   onOpen,
+  onDelete,
 }: {
-  store: RecordsStore;
-  record: RecordRow;
-  deletion: ReturnType<typeof useRecordDeletion>;
-  onOpen: (record: RecordRow, returnFocusTo: HTMLElement | null) => void;
+  name: string;
+  onOpen: (returnFocusTo: HTMLElement | null) => void;
+  onDelete?: () => unknown;
 }) {
   const t = useTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
   const openedDetails = useRef(false);
-  const name = recordRowName(store, record);
-  const canDelete = store.presentation.permittedActions.includes("delete") && !record.protectedKind;
   const moreLabel = t("RecordModel.moreActions", { name });
   return (
     <div
@@ -72,7 +67,7 @@ export const RecordRowActions = observer(function RecordRowActions({
           <DropdownMenuItem
             onSelect={() => {
               openedDetails.current = true;
-              onOpen(record, trigger.current);
+              onOpen(trigger.current);
             }}
           >
             <PanelLeftOpen className="size-4" />
@@ -80,13 +75,8 @@ export const RecordRowActions = observer(function RecordRowActions({
             {t("RecordModel.openDetails")}
           </DropdownMenuItem>
 
-          {canDelete && (
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={() =>
-                runUserAction(() => deletion.requestDeletion(record, store.presentation.model.revision, name))
-              }
-            >
+          {onDelete && (
+            <DropdownMenuItem variant="destructive" onSelect={() => runUserAction(onDelete)}>
               <Trash2 className="size-4" />
 
               {t("Common.actions.delete")}

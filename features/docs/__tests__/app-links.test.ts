@@ -30,8 +30,8 @@ describe("app links", () => {
   });
 
   it("resolves a fixed page and its controls without a workspace", () => {
-    expect(path("app:company/roles", false)).toBe("/company/roles");
-    expect(path("app:company/roles?focus=add", false)).toBe("/company/roles?focus=control%3Acompany-roles-add");
+    expect(path("app:settings/roles", false)).toBe("/settings/roles");
+    expect(path("app:settings/roles?focus=add", false)).toBe("/settings/roles?focus=control%3Asettings-roles-add");
     expect(path("app:dashboard?focus=add-widget", false)).toBe("/dashboard?focus=control%3Adashboard-add-widget");
   });
 
@@ -43,44 +43,44 @@ describe("app links", () => {
   it("rejects places and focus targets the resolver does not know", () => {
     expect(parseAppLink("app:records/projects")).toBeNull();
     expect(parseAppLink("app:records/contact?focus=layout-board")).toBeNull();
-    expect(parseAppLink("app:company/roles?focus=nonexistent")).toBeNull();
-    expect(parseAppLink("app:company/unknown")).toBeNull();
+    expect(parseAppLink("app:settings/roles?focus=nonexistent")).toBeNull();
+    expect(parseAppLink("app:settings/unknown")).toBeNull();
     expect(parseAppLink("app:configure/contact?focus=add")).toBeNull();
-    expect(parseAppLink("/company/roles")).toBeNull();
+    expect(parseAppLink("/settings/roles")).toBeNull();
   });
 
   it("renders public links and refuses an unknown one", () => {
-    const markdown = "Open [Contacts](app:records/contact) and [Roles](app:company/roles).";
+    const markdown = "Open [Contacts](app:records/contact) and [Roles](app:settings/roles).";
 
-    expect(appLinkHrefs(markdown)).toEqual(["app:records/contact", "app:company/roles"]);
+    expect(appLinkHrefs(markdown)).toEqual(["app:records/contact", "app:settings/roles"]);
     expect(resolvePublicAppLinks(markdown, BASE)).toBe(
-      `Open [Contacts](${BASE}/open/records/contact) and [Roles](${BASE}/company/roles).`,
+      `Open [Contacts](${BASE}/open/records/contact) and [Roles](${BASE}/settings/roles).`,
     );
     expect(() => resolvePublicAppLinks("[x](app:nowhere)")).toThrow("Unknown app link: app:nowhere");
   });
 
   it("turns public links in a tool result into the reader's own paths", () => {
-    const text = resolvePublicAppLinks("[Add](app:records/contact?focus=add), [Roles](app:company/roles)", BASE);
+    const text = resolvePublicAppLinks("[Add](app:records/contact?focus=add), [Roles](app:settings/roles)", BASE);
 
     expect(localizeAppLinks(text, BASE, workspace)).toBe(
-      `[Add](/records/${CONTACTS}?focus=control%3Arecords%3A${CONTACTS}%3Aadd), [Roles](/company/roles)`,
+      `[Add](/records/${CONTACTS}?focus=control%3Arecords%3A${CONTACTS}%3Aadd), [Roles](/settings/roles)`,
     );
     expect(localizeAppLinks(`[Docs](${BASE}/en/docs/app-records)`, BASE, workspace)).toBe(
       `[Docs](${BASE}/en/docs/app-records)`,
     );
-    for (const kept of [`${BASE}/open/records/contact?focus=add&x=1`, `${BASE}/company/roles#top`])
+    for (const kept of [`${BASE}/open/records/contact?focus=add&x=1`, `${BASE}/settings/roles#top`])
       expect(localizeAppLinks(`[x](${kept})`, BASE, workspace)).toBe(`[x](${kept})`);
   });
 
   it("lets navigation open only resolved app link paths", () => {
     expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control%3Arecords%3A${CONTACTS}%3Aadd`)).toBe(true);
     expect(isResolvedAppLinkPath(`/configure?focus=list%3A${CONTACTS}`)).toBe(true);
-    expect(isResolvedAppLinkPath("/company/roles?focus=control%3Acompany-roles-add")).toBe(true);
-    expect(isResolvedAppLinkPath("/company/roles")).toBe(true);
+    expect(isResolvedAppLinkPath("/settings/roles?focus=control%3Asettings-roles-add")).toBe(true);
+    expect(isResolvedAppLinkPath("/settings/roles")).toBe(true);
     expect(isResolvedAppLinkPath("/operator/users")).toBe(false);
-    expect(isResolvedAppLinkPath("/company/roles?x=1")).toBe(false);
-    expect(isResolvedAppLinkPath("https://evil.example/company/roles")).toBe(false);
-    expect(isResolvedAppLinkPath("//evil.example/company/roles")).toBe(false);
+    expect(isResolvedAppLinkPath("/settings/roles?x=1")).toBe(false);
+    expect(isResolvedAppLinkPath("https://evil.example/settings/roles")).toBe(false);
+    expect(isResolvedAppLinkPath("//evil.example/settings/roles")).toBe(false);
     expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control%3Arecords%3A${OTHER}%3Aadd`)).toBe(false);
     expect(isResolvedAppLinkPath(`/records/${CONTACTS}?focus=control%3Arecords%3A${CONTACTS}%3Alayout-board`)).toBe(
       false,

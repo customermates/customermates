@@ -35,7 +35,7 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: feedback.toastZodErrorTree,
 }));
 
-vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(account)/actions", () => ({
   createApiKeyAction: vi.fn(),
 }));
 

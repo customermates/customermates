@@ -35,17 +35,17 @@ Three ways, all resolving to the same user and company context:
 
 ## Does Customermates support SSO or SAML? [#does-customermates-support-sso-or-saml]
 
-No. Enterprise single sign-on with your own identity provider over SAML or OIDC is not implemented, in the cloud or self-hosted. Members sign in with email and password, or with a Google or Microsoft account where the instance has those providers configured; on a self-hosted instance you set them up yourself, see [Self-hosting](/docs/self-hosting). To end a member's access, open them in [Members](app:company/members) and set **Status** to **Inactive**.
+No. Enterprise single sign-on with your own identity provider over SAML or OIDC is not implemented, in the cloud or self-hosted. Members sign in with email and password, or with a Google or Microsoft account where the instance has those providers configured; on a self-hosted instance you set them up yourself, see [Self-hosting](/docs/self-hosting). To end a member's access, open them in [Members](app:settings/members) and set **Status** to **Inactive**.
 
 ## How is authorization decided? [#how-is-authorization-decided]
 
-A role in [Roles](app:company/roles) grants **Create**, **Edit**, **Delete** and **Read access** **All**, **Assigned** or **None** separately for each list, including lists you created. Editing and deleting require both the action permission and access to the record. Workspace permissions use the same columns, with a dash where an action does not apply. **Edit** on **Data model** is separate from record access and role administration: a schema manager cannot expand grants without **Edit** on **Users & Roles**. The built-in **Admin** role has every permission. Record and configuration writes recheck permissions and revisions inside the workspace transaction. API keys inherit their owner's current permissions; there is no per-key scoping.
+A role in [Roles](app:settings/roles) grants **Create**, **Edit**, **Delete** and **Read access** **All**, **Assigned** or **None** separately for each list, including lists you created. Editing and deleting require both the action permission and access to the record. Workspace permissions use the same columns, with a dash where an action does not apply. **Edit** on **Data model** is separate from record access and role administration: a schema manager cannot expand grants without **Edit** on **Users & Roles**. The built-in **Admin** role has every permission. Record and configuration writes recheck permissions and revisions inside the workspace transaction. API keys inherit their owner's current permissions; there is no per-key scoping.
 
 ## How do I stop the API keys of a former member? [#how-do-i-stop-the-api-keys-of-a-former-member]
 
-The **API & Webhooks** permission controls the [API keys](app:profile/api-keys) and [Webhooks](app:company/webhooks) pages, including the [Deliveries](app:company/webhook-deliveries) tab, and the key and webhook operations behind them, not the use of a key. A call made with an existing key, or through an OAuth connection, is checked against the owner's permissions on the records it touches. Removing **API & Webhooks** from a role therefore hides its members' keys from them but leaves those keys working.
+The **API & Webhooks** permission controls the [API keys](app:settings/api-keys) and [Webhooks](app:settings/webhooks) pages, including the [Deliveries](app:settings/webhooks/deliveries) tab, and the key and webhook operations behind them, not the use of a key. A call made with an existing key, or through an OAuth connection, is checked against the owner's permissions on the records it touches. Removing **API & Webhooks** from a role therefore hides its members' keys from them but leaves those keys working.
 
-To stop a member's keys, open the member in [Members](app:company/members), set **Status** to **Inactive** and click **Save**. This needs **Edit** and **Read access** **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with an inactive member's keys that reads or changes workspace data is refused. Nobody can list or delete another member's keys.
+To stop a member's keys, open the member in [Members](app:settings/members), set **Status** to **Inactive** and click **Save**. This needs **Edit** and **Read access** **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with an inactive member's keys that reads or changes workspace data is refused. Nobody can list or delete another member's keys.
 
 ## How does external AI access work? [#how-does-external-ai-access-work]
 
@@ -83,11 +83,11 @@ The published self-hosted image sets no error reporting address and turns off Ne
 - A webhook URL may use plain `http://` for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, except for `localhost`, `127.0.0.1` and `::1`; this is checked when the webhook is saved and again before each delivery.
 - Webhook URLs are not limited to public addresses: the server sends requests to any host it can reach, including internal services on its network. On self-host, restrict the app container's outbound network if internal services must stay unreachable, and give **Create** and **Edit** on **API & Webhooks** only to trusted roles.
 
-You manage webhooks in [Webhooks](app:company/webhooks); see [Webhooks](/docs/webhooks).
+You manage webhooks in [Webhooks](app:settings/webhooks); see [Webhooks](/docs/webhooks).
 
 ## What does the Activity log record? [#what-does-the-audit-log-record]
 
-[Activity](app:company/activity) is the workspace's Activity log. Every change is written to it with its actor, its kind, the affected element and its payload, in the same transaction as the change itself. Record changes carry field-level previous and current values; updates to roles, webhooks, routines and connected accounts carry a field-level diff, and creates, deletes and member saves carry a snapshot. Configuration changes to the data model and to record access by role are kept with the configuration revision they produced. User registrations, record exports and accepted legal documents are recorded as well. The actor is kept even after the user is removed, and automated changes are recorded as system or as the routine owner. A failed write leaves no entry. The Activity log is included on every cloud plan and in the self-hosted edition alike.
+[Activity](app:settings/activity) is the workspace's Activity log. Every change is written to it with its actor, its kind, the affected element and its payload, in the same transaction as the change itself. Record changes carry field-level previous and current values; updates to roles, webhooks, routines and connected accounts carry a field-level diff, and creates, deletes and member saves carry a snapshot. Configuration changes to the data model and to record access by role are kept with the configuration revision they produced. User registrations, record exports and accepted legal documents are recorded as well. The actor is kept even after the user is removed, and automated changes are recorded as system or as the routine owner. A failed write leaves no entry. The Activity log is included on every cloud plan and in the self-hosted edition alike.
 
 ## What is not in the Activity log? [#what-is-not-in-the-audit-log]
 
@@ -95,11 +95,11 @@ Messaging events are not part of the Activity log; they are kept only as deliver
 
 ## Who can read the Activity log, and where? [#who-can-read-the-audit-log-and-where]
 
-Open [Activity](app:company/activity); see [Activity](/docs/app-company#activity-tab). Access needs **Read access** **All** on the **Audit Log** row of your role, which offers no **Create**, **Edit** or **Delete**; the **Admin** role always has it. The page shows record changes, admin and system events and configuration changes, and can be filtered by kind. Record changes follow the reader's record access. The same permission shows the Activity log in a record's **Activities** view.
+Open [Activity](app:settings/activity); see [Activity](/docs/app-company#activity-tab). Access needs **Read access** **All** on the **Audit Log** row of your role, which offers no **Create**, **Edit** or **Delete**; the **Admin** role always has it. The page shows record changes, admin and system events and configuration changes, and can be filtered by kind. Record changes follow the reader's record access. The same permission shows the Activity log in a record's **Activities** view.
 
 ## How long are Activity log entries kept, and can I export them? [#how-long-are-audit-entries-kept-and-can-i-export-them]
 
-Entries are not deleted automatically; they are kept as long as the workspace exists. [Activity](app:company/activity) has no export action. The activity timeline, its REST endpoint and its MCP tool return the same entries under the same permission.
+Entries are not deleted automatically; they are kept as long as the workspace exists. [Activity](app:settings/activity) has no export action. The activity timeline, its REST endpoint and its MCP tool return the same entries under the same permission.
 
 ## Where do I report a vulnerability? [#where-do-i-report-a-vulnerability]
 

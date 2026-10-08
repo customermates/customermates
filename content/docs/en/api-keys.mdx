@@ -7,7 +7,7 @@ API keys authenticate Model Context Protocol (MCP) and REST clients against your
 
 ## How do I create an API key? [#how-do-i-create-an-api-key]
 
-Open [API keys](app:profile/api-keys) in Settings and click [Add](app:profile/api-keys?focus=generate). The **Add an API key** dialog offers two routes:
+Open [API keys](app:settings/api-keys) in Settings and click [Add](app:settings/api-keys?focus=generate). The **Add an API key** dialog offers two routes:
 
 - **Standard API key**: enter a **Name** that says where the key is used, for example `Claude Desktop, personal laptop` (up to 255 characters), optionally pick a date under **Expires in**, and click **Save**. The key is shown once under **API key created successfully**; copy it before you close the dialog.
 - **Quick connections**: pick **Claude**, **ChatGPT & Codex**, **Cursor** or **Gemini**, then the setup that matches where you use it. For a local setup (**Claude Code or Desktop**, then **Claude Code** or **Claude Desktop**; **Codex CLI or IDE**; Cursor or Gemini), click **Create API key**: the dialog creates the key and shows that client's setup snippet with the key already filled in. **Claude account** and **ChatGPT App** connect through OAuth instead and create no key. Click **Done** when you are finished.
@@ -18,12 +18,12 @@ Keys belong to the user who created them and inherit that user's permissions.
 
 ## Who can create and see API keys? [#who-can-create-and-see-api-keys]
 
-The API keys page follows the **API & Webhooks** row of your role, which a member with **Edit** on **Users & Roles** sets under [Roles](app:company/roles):
+The API keys page follows the **API & Webhooks** row of your role, which a member with **Edit** on **Users & Roles** sets under [Roles](app:settings/roles):
 
 - **Read access** **All** shows API keys in Settings and lists your own keys. With **None**, the entry is hidden and the page cannot be opened.
 - **Create** adds the **Add** button, and **Delete** lets you delete keys. Without them, you can see keys you already have but cannot create or delete any.
 
-A new role starts with no checkbox ticked and **Read access** **None**, so out of the box only members with the built-in **Admin** role can create API keys. The same row also opens [Webhooks](app:company/webhooks) and its deliveries, so granting it for API keys also lets the member see every webhook of the workspace and, with **Create**, **Edit** or **Delete**, change them.
+A new role starts with no checkbox ticked and **Read access** **None**, so out of the box only members with the built-in **Admin** role can create API keys. The same row also opens [Webhooks](app:settings/webhooks) and its deliveries, so granting it for API keys also lets the member see every webhook of the workspace and, with **Create**, **Edit** or **Delete**, change them.
 
 Everyone sees only their own keys. Nobody, including the **Admin** role, can list or delete another member's keys. No assistant or MCP tool creates, lists or deletes API keys; they are managed only on the API keys page, and the hosted assistant can at most open it for you.
 
@@ -49,11 +49,11 @@ A **Standard API key** expires only if you pick a date under **Expires in**; the
 
 ## How do I revoke, delete or rotate a key? [#how-do-i-revoke-delete-or-rotate-a-key]
 
-On [API keys](app:profile/api-keys), click the key's card and choose **Delete**; after you confirm, the key stops working immediately. Deleting needs **Delete** on **API & Webhooks**. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
+On [API keys](app:settings/api-keys), click the key's card and choose **Delete**; after you confirm, the key stops working immediately. Deleting needs **Delete** on **API & Webhooks**. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
 
 Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete a single client without breaking the others. It does not separate them in the audit log, which names the user a key belongs to, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 
-Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:company/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with that member's keys that reads or changes workspace data is then refused. Taking **API & Webhooks** away from their role is not enough: it hides the page and its **Add** button, but keys they already hold keep working.
+Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with that member's keys that reads or changes workspace data is then refused. Taking **API & Webhooks** away from their role is not enough: it hides the page and its **Add** button, but keys they already hold keep working.
 
 ## What is the key format, and how long can a key name be? [#what-is-the-key-format]
 

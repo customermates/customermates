@@ -1,14 +1,15 @@
 import { z } from "zod";
 import { SURFACE, type DataViewSurfaceKey, type BuiltinDataViewSurfaceKey } from "./data-view-keys";
+import { settingsHref, WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
 
 export const DATA_VIEW_PATHS: Readonly<Record<BuiltinDataViewSurfaceKey, string | null>> = Object.freeze({
-  [SURFACE.users]: "/company/members",
-  [SURFACE.roles]: "/company/roles",
-  [SURFACE.webhooks]: "/company/webhooks",
-  [SURFACE.webhookDeliveries]: "/company/webhook-deliveries",
+  [SURFACE.users]: settingsHref("members"),
+  [SURFACE.roles]: settingsHref("roles"),
+  [SURFACE.webhooks]: settingsHref("webhooks"),
+  [SURFACE.webhookDeliveries]: WEBHOOK_DELIVERIES_HREF,
   [SURFACE.messagingThreads]: "/inbox",
   [SURFACE.entityTimeline]: null,
-  [SURFACE.activity]: "/company/activity",
+  [SURFACE.activity]: settingsHref("activity"),
   [SURFACE.operatorUsers]: "/operator/users",
   [SURFACE.operatorWorkspaces]: "/operator/workspaces",
   [SURFACE.operatorAudit]: "/operator/audit",

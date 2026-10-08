@@ -19,7 +19,7 @@ import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-p
 import { toChipColor } from "@/constants/chip-colors";
 import { Editor } from "@/components/editor/editor";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { getUsersAction } from "../../../company/actions";
+import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 
 export const RecordInputField = observer(function RecordInputField({
   field,

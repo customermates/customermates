@@ -85,7 +85,7 @@ describe("technical-id loading contract", () => {
     expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("options.options");
     expect(read("components/data-view/data-kanban-view.tsx")).not.toContain("KANBAN_EMPTY_GROUP_KEY");
     expect(read("app/[locale]/(protected)/dashboard/components/widget-label.ts")).toContain("UUID_LABEL.test");
-    expect(read("app/[locale]/(protected)/profile/components/account-folders.tsx")).not.toContain(
+    expect(read("app/[locale]/(protected)/settings/(account)/components/account-folders.tsx")).not.toContain(
       "folder.name ?? folder.id",
     );
     expect(read("app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx")).not.toContain(

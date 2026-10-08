@@ -7,7 +7,7 @@ Workspace settings cover everything that affects the whole workspace rather than
 
 ## Where are the workspace settings? [#what-lives-on-the-company-screen]
 
-Open **Settings** from the workspace menu or press G then S. The settings nav groups the pages under **Workspace**: [Members](app:company/members), [Roles](app:company/roles), [Billing](app:company/subscription) (Cloud only), [Activity](app:company/activity) and [Webhooks](app:company/webhooks). **Back** returns to your work.
+Open **Settings** from the workspace menu or press G then S. The settings nav groups the pages under **Workspace**: [Members](app:settings/members), [Roles](app:settings/roles), [Billing](app:settings/billing) (Cloud only), [Activity](app:settings/activity) and [Webhooks](app:settings/webhooks). **Back** returns to your work.
 
 Your role decides what you see. A page your role cannot read is missing from the nav, and opening it directly lands on the [Dashboard](app:dashboard). On a page you can read but not change, **Add**, **Save** and **Delete** are missing and dialogs open read-only. Role changes apply on the member's next page load or API call. The built-in **Admin** role sees and changes everything.
 
@@ -22,11 +22,11 @@ On Cloud, when the Terms or the DPA change, members see **Legal documents update
 
 ## Members [#members-tab]
 
-[Members](app:company/members) lists everyone in the workspace with **Name**, **Email**, **Role**, **Status**, **Updated at** and **Created at**. [Search](app:company/members?focus=search) and [filter](app:company/members?focus=filter) by status and dates. Inviting needs **Users & Roles** **Create**; approving and editing others needs **Users & Roles** **Edit** with read access **All**.
+[Members](app:settings/members) lists everyone in the workspace with **Name**, **Email**, **Role**, **Status**, **Updated at** and **Created at**. [Search](app:settings/members?focus=search) and [filter](app:settings/members?focus=filter) by status and dates. Inviting needs **Users & Roles** **Create**; approving and editing others needs **Users & Roles** **Edit** with read access **All**.
 
 ### How do I invite people, and when does the invitation link expire? [#how-do-invitations-work]
 
-Click [Add](app:company/members?focus=add) on Members (or **Invite members** in the workspace menu). The **Invite User** dialog has two tabs:
+Click [Add](app:settings/members?focus=add) on Members (or **Invite members** in the workspace menu). The **Invite User** dialog has two tabs:
 
 - **Share link** shows one **Invitation link** for the whole workspace with a copy button. It is valid for 7 days ("Expires on" with the date) and reused until then; the first time the dialog opens after it expired, a new link is created. Anyone with the link can register, and it cannot be revoked early.
 - **Send emails** takes 1 to 20 addresses, separated by a comma or Enter. **Send invitations** emails each address the workspace link once and confirms with "Sent 3 invitations." (with the actual count).
@@ -35,22 +35,22 @@ People who register join with status **Waiting for approval** and no role, and s
 
 ### How do I approve, edit, deactivate or remove a member? [#how-do-i-approve-deactivate-or-edit-a-member]
 
-In [Members](app:company/members), click the member's row to open the **User** dialog: **Email** (read-only), **First Name**, **Last Name**, **Country** and **Role** (required), **Avatar URL** (optional, a publicly accessible image) and **Status**.
+In [Members](app:settings/members), click the member's row to open the **User** dialog: **Email** (read-only), **First Name**, **Last Name**, **Country** and **Role** (required), **Avatar URL** (optional, a publicly accessible image) and **Status**.
 
 - **Approve:** choose a **Role**, set **Status** to **Active** and click **Save**. The member can sign in right away and counts as a billed seat.
 - **Remove:** members cannot be deleted; set **Status** to **Inactive**. That blocks their sign-in ("Your account is currently inactive. Please contact your administrator to reactivate your account."), their API keys and MCP connections, removes their seat from billing, pauses their routines, and the daily job deletes their connected messaging accounts. **Waiting for approval** cannot be chosen; only an invitation sets it.
-- Your own row opens read-only: change your name in [Profile & preferences](app:profile/settings) and ask another member with **Users & Roles** **Edit** to change your role or status.
+- Your own row opens read-only: change your name in [Profile & preferences](app:settings/profile) and ask another member with **Users & Roles** **Edit** to change your role or status.
 - The workspace always keeps at least one **Active** member with the **Admin** role; a save that would remove the last one fails with "At least one user must be a system administrator."
 
-Every save is recorded in [Activity](app:company/activity).
+Every save is recorded in [Activity](app:settings/activity).
 
 ## Roles [#roles-tab]
 
-A role is a set of permissions every member with that role gets. [Roles](app:company/roles) lists them with **Name**, **Type** (**System** for the built-in **Admin**, **Custom** for all others) and **Description**. Creating needs **Users & Roles** **Create**, editing **Edit**, deleting **Delete**.
+A role is a set of permissions every member with that role gets. [Roles](app:settings/roles) lists them with **Name**, **Type** (**System** for the built-in **Admin**, **Custom** for all others) and **Description**. Creating needs **Users & Roles** **Create**, editing **Edit**, deleting **Delete**.
 
 ### How do I create a custom role, for example to restrict a member to assigned records? [#how-does-the-role-editor-work]
 
-Click [Add](app:company/roles?focus=add), or click a row to edit. The **Role** editor has three tabs; a tab with an invalid field shows a red dot:
+Click [Add](app:settings/roles?focus=add), or click a row to edit. The **Role** editor has three tabs; a tab with an invalid field shows a red dot:
 
 - **General**: **Name** (required, up to 255 characters) and **Description** (required, up to 500 characters).
 - **Workspace**: one row per workspace permission in the **Resource** column.
@@ -62,10 +62,10 @@ Every row has **Create**, **Edit** and **Delete** checkboxes (under **Manage** o
 |---|---|
 | **API & Webhooks** | **Create** creates API keys and webhooks and resends deliveries; **Edit** edits webhooks and shows their secret; **Delete** deletes keys and webhooks; **All** shows keys, webhooks and deliveries. |
 | **Users & Roles** | **Create** invites members and creates roles (with their starting record access); **Edit** edits members, their approval tasks and roles, including record access and access presets; **Delete** deletes roles. **All** shows every member and the roles, **Assigned** only your own member row, **None** hides both pages. |
-| **Company** | **Edit** only: uses billing on [Billing](app:company/subscription). |
+| **Company** | **Edit** only: uses billing on [Billing](app:settings/billing). |
 | **Data model** | **Edit** only: configures lists, fields, relationships and calculations, without record access or role administration. |
 | **Knowledge Base** | **Create**, **Edit** (and move), **Delete** pages; ticking any of them forces **All**. |
-| **Audit Log** | Read only: [Activity](app:company/activity) and the change history on records. |
+| **Audit Log** | Read only: [Activity](app:settings/activity) and the change history on records. |
 | **Inbox messages** (Cloud) | **Create** connects accounts and sends, drafts and starts conversations; **Edit** changes accounts, threads, conversation state and record links; **Delete** disconnects accounts and discards drafts. Also limited by the plan. |
 | **Routines** (Cloud) | **Create**, **Edit** (and run or test now), **Delete**; deleting a routine or pausing someone else's also needs the **Admin** role. **All** or **Assigned** (own routines). |
 
@@ -79,11 +79,11 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 
 - You cannot edit your own role: its editor shows "This role is assigned to you and cannot be edited. Ask another administrator to change it."
 - **Delete** appears only for a custom role no member has, inactive members included. Move everyone to another role and remove the role from access presets first.
-- Changes apply to every member with the role on their next page load or API call and are recorded in [Activity](app:company/activity).
+- Changes apply to every member with the role on their next page load or API call and are recorded in [Activity](app:settings/activity).
 
-## Plan [#subscription-tab]
+## Billing [#subscription-tab]
 
-[Billing](app:company/subscription) shows the plan, status, seats and billing of a Cloud workspace; self-hosted installs have no plan, and the page redirects to the Dashboard. Customermates bills through Lemon Squeezy, which runs checkout and the customer portal.
+[Billing](app:settings/billing) shows the plan, status, seats and billing of a Cloud workspace; self-hosted installs have no plan, and the page redirects to the Dashboard. Customermates bills through Lemon Squeezy, which runs checkout and the customer portal.
 
 | Field | What it shows |
 |---|---|
@@ -96,7 +96,7 @@ The workspace menu shows the plan with its status, for example **Pro · Trial ·
 
 ### Who can manage billing? [#who-can-manage-billing]
 
-On [Billing](app:company/subscription), roles with **Company** **Edit** and the **Admin** role see the plan picker, **Manage with Lemon Squeezy** and **Refresh**. Everyone else sees the values read-only with a hint to ask a workspace administrator. Set the **Company** row in [Roles](app:company/roles).
+On [Billing](app:settings/billing), roles with **Company** **Edit** and the **Admin** role see the plan picker, **Manage with Lemon Squeezy** and **Refresh**. Everyone else sees the values read-only with a hint to ask a workspace administrator. Set the **Company** row in [Roles](app:settings/roles).
 
 ### What does each subscription status mean? [#what-does-each-subscription-status-mean]
 
@@ -124,19 +124,19 @@ Every plan includes the full CRM, the activity log, the API, the MCP server and 
 
 ### How do I choose or change a plan? [#how-do-i-choose-or-change-a-plan]
 
-Before the first checkout (in practice during the trial), the [plan picker](app:company/subscription?focus=plan-picker) shows cards for **Starter**, **Pro** and **Business** (**Most popular**) with price, features, connected accounts, routines and AI credits per user. Clicking a card opens the Lemon Squeezy checkout for as many seats as there are **Active** members. Billing starts at checkout, even with trial days left; after payment you return to Plan, which updates once Lemon Squeezy confirms.
+Before the first checkout (in practice during the trial), the [plan picker](app:settings/billing?focus=plan-picker) shows cards for **Starter**, **Pro** and **Business** (**Most popular**) with price, features, connected accounts, routines and AI credits per user. Clicking a card opens the Lemon Squeezy checkout for as many seats as there are **Active** members. Billing starts at checkout, even with trial days left; after payment you return to Plan, which updates once Lemon Squeezy confirms.
 
-After the first checkout the picker does not come back: change the plan with [Manage with Lemon Squeezy](app:company/subscription?focus=manage). Enterprise workspaces never see the picker.
+After the first checkout the picker does not come back: change the plan with [Manage with Lemon Squeezy](app:settings/billing?focus=manage). Enterprise workspaces never see the picker.
 
 ### How do I cancel, change the payment method or get invoices? [#how-do-i-cancel-change-the-payment-method-or-get-invoices]
 
-Click [Manage with Lemon Squeezy](app:company/subscription?focus=manage). It appears once the workspace has a self-serve subscription (not during a trial before checkout, never on Enterprise) and opens the Lemon Squeezy customer portal in the same tab, where you change the plan, update the payment method, download invoices and cancel. If no portal exists, the page shows "The billing portal is not available for this workspace. Contact support to make changes."
+Click [Manage with Lemon Squeezy](app:settings/billing?focus=manage). It appears once the workspace has a self-serve subscription (not during a trial before checkout, never on Enterprise) and opens the Lemon Squeezy customer portal in the same tab, where you change the plan, update the payment method, download invoices and cancel. If no portal exists, the page shows "The billing portal is not available for this workspace. Contact support to make changes."
 
-Portal changes reach Customermates automatically. If Plan still shows old values, [Refresh](app:company/subscription?focus=refresh) re-reads status, plan, seats and dates ("Subscription refreshed successfully"). A cancellation shows as **Cancelled**, with the same limits as **Past Due**.
+Portal changes reach Customermates automatically. If Plan still shows old values, [Refresh](app:settings/billing?focus=refresh) re-reads status, plan, seats and dates ("Subscription refreshed successfully"). A cancellation shows as **Cancelled**, with the same limits as **Past Due**.
 
 ### How are seats counted and billed? [#how-are-seats-counted-and-billed]
 
-A seat is a member with status **Active**; **Waiting for approval** and **Inactive** members are not billed. Checkout takes the count at that moment, and every later status change on [Members](app:company/members) sends the new count to Lemon Squeezy right away: "You pay per active user. Seat changes are prorated on your next invoice." To lower the bill, set members who no longer need access to **Inactive**. Enterprise seats are not synced.
+A seat is a member with status **Active**; **Waiting for approval** and **Inactive** members are not billed. Checkout takes the count at that moment, and every later status change on [Members](app:settings/members) sends the new count to Lemon Squeezy right away: "You pay per active user. Seat changes are prorated on your next invoice." To lower the bill, set members who no longer need access to **Inactive**. Enterprise seats are not synced.
 
 ### What happens when the trial ends or a payment fails? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
@@ -153,19 +153,19 @@ A paid workspace that stays **Unpaid** or **Expired** for 3 days has all members
 
 ### What happens to connected accounts when the plan changes? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-When Lemon Squeezy reports a different plan, Customermates removes each user's newest connected accounts beyond the new allowance. Starter includes [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every account is removed; the first checkout from the trial counts as a change from Pro. Members with the **Admin** role get an email listing the removed accounts; the rest stay in [Channels](app:profile/connected-accounts). Routines above the allowance are kept, because the allowance applies only when a routine is created.
+When Lemon Squeezy reports a different plan, Customermates removes each user's newest connected accounts beyond the new allowance. Starter includes [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every account is removed; the first checkout from the trial counts as a change from Pro. Members with the **Admin** role get an email listing the removed accounts; the rest stay in [Channels](app:settings/channels). Routines above the allowance are kept, because the allowance applies only when a routine is created.
 
 ### How does an Enterprise workspace differ? [#how-does-an-enterprise-workspace-differ]
 
-Enterprise is set up with Customermates and billed by invoice. Plan shows only **Plan** and "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes." Self-service checkout is refused and member status changes are not sent to billing.
+Enterprise is set up with Customermates and billed by invoice. Billing shows only **Plan** and "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes." Self-service checkout is refused and member status changes are not sent to billing.
 
 ### Where do upgrade buttons lead? [#where-do-upgrade-buttons-lead]
 
-On Starter, the [Inbox](app:inbox) and [Channels](app:profile/connected-accounts) show **Upgrade to unlock messaging** with **Upgrade your plan**. At the connected-account limit, Pro users see **Upgrade to connect more accounts** with **View plans**, as does the hosted assistant's credit notice. All open [Billing](app:company/subscription), where only roles with **Company** **Edit** can act.
+On Starter, the [Inbox](app:inbox) and [Channels](app:settings/channels) show **Upgrade to unlock messaging** with **Upgrade your plan**. At the connected-account limit, Pro users see **Upgrade to connect more accounts** with **View plans**, as does the hosted assistant's credit notice. All open [Billing](app:settings/billing), where only roles with **Company** **Edit** can act.
 
 ## Activity: where do I find the audit log and change history? [#activity-tab]
 
-[Activity](app:company/activity) is the workspace's event log: who changed which record, setting or configuration, and when, newest first. Each entry shows the previous and the current value inline; the same entries appear on a record's **Activities** view, such as a contact's, the dashboard activity widget and in Mate. Filter by kind:
+[Activity](app:settings/activity) is the workspace's event log: who changed which record, setting or configuration, and when, newest first. Each entry shows the previous and the current value inline; the same entries appear on a record's **Activities** view, such as a contact's, the dashboard activity widget and in Mate. Filter by kind:
 
 - **Record changes**: creates, updates and deletes of records with field values.
 - **Admin and system**: members, roles, webhooks, routines, connected accounts, Knowledge Base pages, legal notices and exports. Webhook secrets and header values are redacted.
@@ -175,13 +175,13 @@ Reading it needs **Audit Log** read access **All**. Record changes follow your r
 
 ## Webhooks [#webhooks-tab]
 
-[Webhooks](app:company/webhooks) sends workspace events to your systems; payloads, signatures and retries are on [Webhooks](/docs/webhooks). Opening it needs **API & Webhooks** read access **All**; adding needs **Create**, editing **Edit**, deleting **Delete**. Available on every plan and self-hosted.
+[Webhooks](app:settings/webhooks) sends workspace events to your systems; payloads, signatures and retries are on [Webhooks](/docs/webhooks). Opening it needs **API & Webhooks** read access **All**; adding needs **Create**, editing **Edit**, deleting **Delete**. Available on every plan and self-hosted.
 
-Click [Add](app:company/webhooks?focus=add), or a row to edit. The **Webhook** dialog has **URL**, **Description**, **Events**, **Secret**, **Custom headers**, **Body template** and **Enabled**. For record events you also choose the lists and filters, and **Record access owner**: deliveries use that member's current permissions, and only an administrator can choose someone else. Clearing **Enabled** pauses deliveries without deleting the webhook. Without **Edit**, the secret and header values show as `********`. **Delete** asks for confirmation; past deliveries stay. [Search](app:company/webhooks?focus=search) matches the URL.
+Click [Add](app:settings/webhooks?focus=add), or a row to edit. The **Webhook** dialog has **URL**, **Description**, **Events**, **Secret**, **Custom headers**, **Body template** and **Enabled**. For record events you also choose the lists and filters, and **Record access owner**: deliveries use that member's current permissions, and only an administrator can choose someone else. Clearing **Enabled** pauses deliveries without deleting the webhook. Without **Edit**, the secret and header values show as `********`. **Delete** asks for confirmation; past deliveries stay. [Search](app:settings/webhooks?focus=search) matches the URL.
 
 ### Where do I see webhook deliveries? [#deliveries-tab]
 
-The [Deliveries](app:company/webhook-deliveries) tab lists one row per delivery, newest first, with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**. Click a row for **Event Details**: status (**Pending**, then **Delivered** or **Failed**), status code, response message and payload. Payloads cover every record, including records your role cannot open. **Resend** (delivered or failed deliveries, **API & Webhooks** **Create**) sends the stored payload again as a new delivery with the current secret, headers and body template.
+The [Deliveries](app:settings/webhooks/deliveries) tab lists one row per delivery, newest first, with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**. Click a row for **Event Details**: status (**Pending**, then **Delivered** or **Failed**), status code, response message and payload. Payloads cover every record, including records your role cannot open. **Resend** (delivered or failed deliveries, **API & Webhooks** **Create**) sends the stored payload again as a new delivery with the current secret, headers and body template.
 
 ## Where is the currency set? [#where-is-the-currency-set]
 
@@ -197,7 +197,7 @@ Open the list in [Configure](app:configure/deal), change **Name** and **Plural n
 
 ## For agents [#tips-for-agents]
 
-Prefer [MCP](/docs/mcp) tools: `manage_team` invites (always with approval) and updates members (`update_member`; for **Waiting for approval** pass a `roleId` and status `active`), `list_users` reads members, `manage_roles` reads and saves roles with the current revision (resources `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages`, `routines`; actions `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` manages webhooks and deliveries, and `get_record_model` and `configure_record_model` change lists, currencies and calculations. No tool reads or changes the plan or the invitation link; send the user to [Billing](app:company/subscription) or [Members](app:company/members).
+Prefer [MCP](/docs/mcp) tools: `manage_team` invites (always with approval) and updates members (`update_member`; for **Waiting for approval** pass a `roleId` and status `active`), `list_users` reads members, `manage_roles` reads and saves roles with the current revision (resources `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages`, `routines`; actions `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` manages webhooks and deliveries, and `get_record_model` and `configure_record_model` change lists, currencies and calculations. No tool reads or changes the plan or the invitation link; send the user to [Billing](app:settings/billing) or [Members](app:settings/members).
 
 ## Related [#related]
 

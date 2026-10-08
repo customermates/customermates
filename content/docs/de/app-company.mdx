@@ -7,7 +7,7 @@ Die Workspace-Einstellungen umfassen alles, was den ganzen Workspace betrifft un
 
 ## Wo finde ich die Workspace-Einstellungen? [#what-lives-on-the-company-screen]
 
-Öffnen Sie **Einstellungen** über das Workspace-Menü oder drücken Sie G, dann S. Die Einstellungsnavigation fasst unter **Workspace** diese Seiten zusammen: [Mitglieder](app:company/members), [Rollen](app:company/roles), [Abrechnung](app:company/subscription) (nur Cloud), [Aktivität](app:company/activity) und [Webhooks](app:company/webhooks). **Zurück** bringt Sie zu Ihrer Arbeit.
+Öffnen Sie **Einstellungen** über das Workspace-Menü oder drücken Sie G, dann S. Die Einstellungsnavigation fasst unter **Workspace** diese Seiten zusammen: [Mitglieder](app:settings/members), [Rollen](app:settings/roles), [Abrechnung](app:settings/billing) (nur Cloud), [Aktivität](app:settings/activity) und [Webhooks](app:settings/webhooks). **Zurück** bringt Sie zu Ihrer Arbeit.
 
 Ihre Rolle bestimmt, was Sie sehen. Eine Seite, die Ihre Rolle nicht lesen darf, fehlt in der Navigation, und ein direkter Aufruf landet auf dem [Dashboard](app:dashboard). Auf einer Seite, die Sie lesen, aber nicht ändern dürfen, fehlen **Hinzufügen**, **Speichern** und **Löschen**, und Dialoge öffnen schreibgeschützt. Rollenänderungen gelten beim nächsten Seitenaufruf oder API-Aufruf des Mitglieds. Die eingebaute Rolle **Admin** sieht und ändert alles.
 
@@ -22,11 +22,11 @@ Ihre Rolle bestimmt, was Sie sehen. Eine Seite, die Ihre Rolle nicht lesen darf,
 
 ## Mitglieder [#members-tab]
 
-[Mitglieder](app:company/members) listet alle Personen im Workspace mit **Name**, **E-Mail**, **Rolle**, **Status**, **Aktualisiert am** und **Erstellt am**. [Suchen](app:company/members?focus=search) und [filtern](app:company/members?focus=filter) Sie nach Status und Datum. Einladen erfordert **Benutzer & Rollen** **Erstellen**; andere genehmigen und bearbeiten erfordert **Benutzer & Rollen** **Bearbeiten** mit Leserecht **Alle**.
+[Mitglieder](app:settings/members) listet alle Personen im Workspace mit **Name**, **E-Mail**, **Rolle**, **Status**, **Aktualisiert am** und **Erstellt am**. [Suchen](app:settings/members?focus=search) und [filtern](app:settings/members?focus=filter) Sie nach Status und Datum. Einladen erfordert **Benutzer & Rollen** **Erstellen**; andere genehmigen und bearbeiten erfordert **Benutzer & Rollen** **Bearbeiten** mit Leserecht **Alle**.
 
 ### Wie lade ich Personen ein, und wie lange gilt der Einladungslink? [#how-do-invitations-work]
 
-Klicken Sie auf Mitglieder auf [Hinzufügen](app:company/members?focus=add) (oder **Mitglieder einladen** im Workspace-Menü). Der Dialog **Benutzer einladen** hat zwei Tabs:
+Klicken Sie auf Mitglieder auf [Hinzufügen](app:settings/members?focus=add) (oder **Mitglieder einladen** im Workspace-Menü). Der Dialog **Benutzer einladen** hat zwei Tabs:
 
 - **Link teilen** zeigt einen **Einladungslink** für den ganzen Workspace mit Kopier-Button. Er gilt 7 Tage ("Läuft am" mit Datum ab) und wird bis dahin wiederverwendet; öffnet sich der Dialog nach Ablauf zum ersten Mal, entsteht ein neuer Link. Jeder mit dem Link kann sich registrieren, und er lässt sich nicht vorzeitig widerrufen.
 - **E-Mails senden** nimmt 1 bis 20 Adressen an, getrennt durch Komma oder Enter. **Einladungen senden** schickt jeder Adresse den Workspace-Link einmal und bestätigt mit der Anzahl der gesendeten Einladungen.
@@ -35,22 +35,22 @@ Wer sich registriert, tritt mit dem Status **Wartet auf Genehmigung** und ohne R
 
 ### Wie genehmige, bearbeite, deaktiviere oder entferne ich ein Mitglied? [#how-do-i-approve-deactivate-or-edit-a-member]
 
-Klicken Sie in [Mitglieder](app:company/members) auf die Zeile des Mitglieds, um den Dialog **Benutzer** zu öffnen: **E-Mail** (schreibgeschützt), **Vorname**, **Nachname**, **Land** und **Rolle** (Pflicht), **Avatar-URL** (optional, ein öffentlich erreichbares Bild) und **Status**.
+Klicken Sie in [Mitglieder](app:settings/members) auf die Zeile des Mitglieds, um den Dialog **Benutzer** zu öffnen: **E-Mail** (schreibgeschützt), **Vorname**, **Nachname**, **Land** und **Rolle** (Pflicht), **Avatar-URL** (optional, ein öffentlich erreichbares Bild) und **Status**.
 
 - **Genehmigen:** Wählen Sie eine **Rolle**, setzen Sie **Status** auf **Aktiv** und klicken Sie **Speichern**. Das Mitglied kann sich sofort anmelden und zählt als abgerechneter Nutzerplatz.
 - **Entfernen:** Mitglieder lassen sich nicht löschen; setzen Sie **Status** auf **Inaktiv**. Das sperrt die Anmeldung ("Dein Konto ist derzeit inaktiv. Kontaktiere deinen Administrator, um dein Konto zu reaktivieren."), die API-Keys und MCP-Verbindungen des Mitglieds, entfernt den Nutzerplatz aus der Abrechnung, pausiert seine Routinen, und der tägliche Job löscht seine verbundenen Messaging-Konten. **Wartet auf Genehmigung** lässt sich nicht wählen; nur eine Einladung setzt diesen Status.
-- Ihre eigene Zeile öffnet schreibgeschützt: Ihren Namen ändern Sie unter [Profil & Einstellungen](app:profile/settings), Ihre Rolle oder Ihren Status ändert ein anderes Mitglied mit **Benutzer & Rollen** **Bearbeiten**.
+- Ihre eigene Zeile öffnet schreibgeschützt: Ihren Namen ändern Sie unter [Profil & Einstellungen](app:settings/profile), Ihre Rolle oder Ihren Status ändert ein anderes Mitglied mit **Benutzer & Rollen** **Bearbeiten**.
 - Der Workspace behält immer mindestens ein **Aktives** Mitglied mit der Rolle **Admin**; ein Speichern, das das letzte entfernen würde, schlägt mit "Mindestens ein Nutzer muss Systemadministrator sein." fehl.
 
-Jedes Speichern wird in [Aktivität](app:company/activity) festgehalten.
+Jedes Speichern wird in [Aktivität](app:settings/activity) festgehalten.
 
 ## Rollen [#roles-tab]
 
-Eine Rolle ist ein Satz von Berechtigungen, den jedes Mitglied mit dieser Rolle erhält. [Rollen](app:company/roles) listet sie mit **Name**, **Typ** (**System** für die eingebaute Rolle **Admin**, **Benutzerdefiniert** für alle anderen) und **Beschreibung**. Anlegen erfordert **Benutzer & Rollen** **Erstellen**, Bearbeiten **Bearbeiten**, Löschen **Löschen**.
+Eine Rolle ist ein Satz von Berechtigungen, den jedes Mitglied mit dieser Rolle erhält. [Rollen](app:settings/roles) listet sie mit **Name**, **Typ** (**System** für die eingebaute Rolle **Admin**, **Benutzerdefiniert** für alle anderen) und **Beschreibung**. Anlegen erfordert **Benutzer & Rollen** **Erstellen**, Bearbeiten **Bearbeiten**, Löschen **Löschen**.
 
 ### Wie lege ich eine eigene Rolle an, etwa um ein Mitglied auf zugewiesene Datensätze zu beschränken? [#how-does-the-role-editor-work]
 
-Klicken Sie auf [Hinzufügen](app:company/roles?focus=add) oder zum Bearbeiten auf eine Zeile. Der Editor **Rolle** hat drei Tabs; ein Tab mit einem ungültigen Feld zeigt einen roten Punkt:
+Klicken Sie auf [Hinzufügen](app:settings/roles?focus=add) oder zum Bearbeiten auf eine Zeile. Der Editor **Rolle** hat drei Tabs; ein Tab mit einem ungültigen Feld zeigt einen roten Punkt:
 
 - **Allgemein**: **Name** (Pflicht, bis 255 Zeichen) und **Beschreibung** (Pflicht, bis 500 Zeichen).
 - **Workspace**: eine Zeile je Workspace-Berechtigung in der Spalte **Ressource**.
@@ -62,10 +62,10 @@ Jede Zeile hat die Kontrollkästchen **Erstellen**, **Bearbeiten** und **Lösche
 |---|---|
 | **API & Webhooks** | **Erstellen** legt API-Keys und Webhooks an und sendet Zustellungen erneut; **Bearbeiten** bearbeitet Webhooks und zeigt ihr Secret; **Löschen** löscht Keys und Webhooks; **Alle** zeigt Keys, Webhooks und Zustellungen. |
 | **Benutzer & Rollen** | **Erstellen** lädt Mitglieder ein und legt Rollen an (mit ihrem anfänglichen Datensatzzugriff); **Bearbeiten** bearbeitet Mitglieder, ihre Genehmigungsaufgaben und Rollen, einschließlich Datensatzzugriff und Zugriffsvorlagen; **Löschen** löscht Rollen. **Alle** zeigt alle Mitglieder und die Rollen, **Zugewiesen** nur Ihre eigene Mitgliedszeile, **Keine** blendet beide Seiten aus. |
-| **Unternehmen** | Nur **Bearbeiten**: nutzt die Abrechnung unter [Abrechnung](app:company/subscription). |
+| **Unternehmen** | Nur **Bearbeiten**: nutzt die Abrechnung unter [Abrechnung](app:settings/billing). |
 | **Datenmodell** | Nur **Bearbeiten**: konfiguriert Listen, Felder, Verknüpfungen und Berechnungen, ohne Datensatzzugriff oder Rollenverwaltung. |
 | **Wissensdatenbank** | **Erstellen**, **Bearbeiten** (und Verschieben), **Löschen** von Seiten; jedes davon erzwingt **Alle**. |
-| **Audit-Log** | Nur Lesen: [Aktivität](app:company/activity) und der Änderungsverlauf an Datensätzen. |
+| **Audit-Log** | Nur Lesen: [Aktivität](app:settings/activity) und der Änderungsverlauf an Datensätzen. |
 | **Inbox-Nachrichten** (Cloud) | **Erstellen** verbindet Konten und sendet, entwirft und beginnt Unterhaltungen; **Bearbeiten** ändert Konten, Threads, Unterhaltungsstatus und Datensatzverknüpfungen; **Löschen** trennt Konten und verwirft Entwürfe. Zusätzlich durch den Plan begrenzt. |
 | **Routinen** (Cloud) | **Erstellen**, **Bearbeiten** (und jetzt ausführen oder testen), **Löschen**; eine Routine löschen oder die eines anderen pausieren erfordert zusätzlich die Rolle **Admin**. **Alle** oder **Zugewiesen** (eigene Routinen). |
 
@@ -79,15 +79,15 @@ Jeder Workspace startet mit einer eingebauten Rolle, **Admin**, die die Person e
 
 - Ihre eigene Rolle können Sie nicht bearbeiten: Ihr Editor zeigt "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern."
 - **Löschen** erscheint nur bei einer benutzerdefinierten Rolle, die kein Mitglied hat, inaktive eingeschlossen. Verschieben Sie zuerst alle auf eine andere Rolle und entfernen Sie die Rolle aus Zugriffsvorlagen.
-- Änderungen gelten für jedes Mitglied mit der Rolle beim nächsten Seitenaufruf oder API-Aufruf und werden in [Aktivität](app:company/activity) festgehalten.
+- Änderungen gelten für jedes Mitglied mit der Rolle beim nächsten Seitenaufruf oder API-Aufruf und werden in [Aktivität](app:settings/activity) festgehalten.
 
-## Plan [#subscription-tab]
+## Abrechnung [#subscription-tab]
 
-[Abrechnung](app:company/subscription) zeigt Tarif, Status, Nutzerplätze und Abrechnung eines Cloud-Workspace; selbst gehostete Installationen haben keinen Plan, und die Seite leitet zum Dashboard um. Customermates rechnet über Lemon Squeezy ab, das Checkout und Kundenportal betreibt.
+[Abrechnung](app:settings/billing) zeigt Tarif, Status, Nutzerplätze und Abrechnung eines Cloud-Workspace; selbst gehostete Installationen haben keinen Plan, und die Seite leitet zum Dashboard um. Customermates rechnet über Lemon Squeezy ab, das Checkout und Kundenportal betreibt.
 
 | Feld | Was es zeigt |
 |---|---|
-| **Plan** | **Starter**, **Pro**, **Business** oder **Enterprise** mit Status-Chip, aus der Abrechnung synchronisiert |
+| **Tarif** | **Starter**, **Pro**, **Business** oder **Enterprise** mit Status-Chip, aus der Abrechnung synchronisiert |
 | **Testphase endet** | Das Ende der kostenlosen Testphase, nur im Status **Testphase** |
 | **Ende des aktuellen Abrechnungszeitraums** | Das Verlängerungsdatum, nach einer Kündigung das Enddatum des Abonnements |
 | **Aktive Nutzerplätze** | Abgerechnete Nutzerplätze; vor dem ersten Checkout die Zahl der **Aktiven** Mitglieder |
@@ -96,7 +96,7 @@ Das Workspace-Menü zeigt den Tarif mit seinem Status, etwa **Pro · Testphase �
 
 ### Wer darf die Abrechnung verwalten? [#who-can-manage-billing]
 
-Auf [Abrechnung](app:company/subscription) sehen Rollen mit **Unternehmen** **Bearbeiten** und die Rolle **Admin** die Tarifauswahl, **Verwalten mit Lemon Squeezy** und **Aktualisieren**. Alle anderen sehen die Werte schreibgeschützt mit dem Hinweis, eine Workspace-Administration zu fragen. Die Zeile **Unternehmen** setzen Sie unter [Rollen](app:company/roles).
+Auf [Abrechnung](app:settings/billing) sehen Rollen mit **Unternehmen** **Bearbeiten** und die Rolle **Admin** die Tarifauswahl, **Verwalten mit Lemon Squeezy** und **Aktualisieren**. Alle anderen sehen die Werte schreibgeschützt mit dem Hinweis, eine Workspace-Administration zu fragen. Die Zeile **Unternehmen** setzen Sie unter [Rollen](app:settings/roles).
 
 ### Was bedeuten die Abo-Status? [#what-does-each-subscription-status-mean]
 
@@ -124,19 +124,19 @@ Jeder Tarif enthält das vollständige CRM, das Aktivitätsprotokoll, die API, d
 
 ### Wie wähle oder wechsle ich einen Tarif? [#how-do-i-choose-or-change-a-plan]
 
-Vor dem ersten Checkout (in der Praxis während der Testphase) zeigt die [Tarifauswahl](app:company/subscription?focus=plan-picker) Karten für **Starter**, **Pro** und **Business** (**Am beliebtesten**) mit Preis, Funktionen, verbundenen Konten, Routinen und KI-Credits pro Nutzer. Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie es **Aktive** Mitglieder gibt. Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind; nach der Zahlung kehren Sie zu Plan zurück, der sich aktualisiert, sobald Lemon Squeezy bestätigt.
+Vor dem ersten Checkout (in der Praxis während der Testphase) zeigt die [Tarifauswahl](app:settings/billing?focus=plan-picker) Karten für **Starter**, **Pro** und **Business** (**Am beliebtesten**) mit Preis, Funktionen, verbundenen Konten, Routinen und KI-Credits pro Nutzer. Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie es **Aktive** Mitglieder gibt. Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind; nach der Zahlung kehren Sie zu Plan zurück, der sich aktualisiert, sobald Lemon Squeezy bestätigt.
 
-Nach dem ersten Checkout erscheint die Auswahl nicht wieder: Wechseln Sie den Tarif über [Verwalten mit Lemon Squeezy](app:company/subscription?focus=manage). Enterprise-Workspaces sehen die Auswahl nie.
+Nach dem ersten Checkout erscheint die Auswahl nicht wieder: Wechseln Sie den Tarif über [Verwalten mit Lemon Squeezy](app:settings/billing?focus=manage). Enterprise-Workspaces sehen die Auswahl nie.
 
 ### Wie kündige ich, ändere die Zahlungsmethode oder erhalte Rechnungen? [#how-do-i-cancel-change-the-payment-method-or-get-invoices]
 
-Klicken Sie auf [Verwalten mit Lemon Squeezy](app:company/subscription?focus=manage). Der Button erscheint, sobald der Workspace ein Self-Service-Abonnement hat (nicht während einer Testphase vor dem Checkout, nie bei Enterprise), und öffnet das Lemon-Squeezy-Kundenportal im selben Tab. Dort wechseln Sie den Tarif, ändern die Zahlungsmethode, laden Rechnungen herunter und kündigen. Gibt es kein Portal, meldet die Seite, dass das Abrechnungsportal für diesen Workspace nicht verfügbar ist und Änderungen über den Support laufen.
+Klicken Sie auf [Verwalten mit Lemon Squeezy](app:settings/billing?focus=manage). Der Button erscheint, sobald der Workspace ein Self-Service-Abonnement hat (nicht während einer Testphase vor dem Checkout, nie bei Enterprise), und öffnet das Lemon-Squeezy-Kundenportal im selben Tab. Dort wechseln Sie den Tarif, ändern die Zahlungsmethode, laden Rechnungen herunter und kündigen. Gibt es kein Portal, meldet die Seite, dass das Abrechnungsportal für diesen Workspace nicht verfügbar ist und Änderungen über den Support laufen.
 
-Änderungen im Portal erreichen Customermates automatisch. Zeigt Plan noch alte Werte, liest [Aktualisieren](app:company/subscription?focus=refresh) Status, Tarif, Nutzerplätze und Daten neu ein ("Abonnement erfolgreich aktualisiert"). Eine Kündigung erscheint als **Gekündigt**, mit denselben Einschränkungen wie **Überfällig**.
+Änderungen im Portal erreichen Customermates automatisch. Zeigt Plan noch alte Werte, liest [Aktualisieren](app:settings/billing?focus=refresh) Status, Tarif, Nutzerplätze und Daten neu ein ("Abonnement erfolgreich aktualisiert"). Eine Kündigung erscheint als **Gekündigt**, mit denselben Einschränkungen wie **Überfällig**.
 
 ### Wie werden Nutzerplätze gezählt und abgerechnet? [#how-are-seats-counted-and-billed]
 
-Ein Nutzerplatz ist ein Mitglied mit dem Status **Aktiv**; Mitglieder mit **Wartet auf Genehmigung** oder **Inaktiv** werden nicht abgerechnet. Der Checkout übernimmt die Zahl in diesem Moment, und jede spätere Statusänderung unter [Mitglieder](app:company/members) schickt die neue Zahl sofort an Lemon Squeezy: "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet." Um die Rechnung zu senken, setzen Sie Mitglieder, die keinen Zugang mehr brauchen, auf **Inaktiv**. Enterprise-Nutzerplätze werden nicht synchronisiert.
+Ein Nutzerplatz ist ein Mitglied mit dem Status **Aktiv**; Mitglieder mit **Wartet auf Genehmigung** oder **Inaktiv** werden nicht abgerechnet. Der Checkout übernimmt die Zahl in diesem Moment, und jede spätere Statusänderung unter [Mitglieder](app:settings/members) schickt die neue Zahl sofort an Lemon Squeezy: "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet." Um die Rechnung zu senken, setzen Sie Mitglieder, die keinen Zugang mehr brauchen, auf **Inaktiv**. Enterprise-Nutzerplätze werden nicht synchronisiert.
 
 ### Was passiert, wenn die Testphase endet oder eine Zahlung ausbleibt? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
@@ -153,19 +153,19 @@ Ein bezahlter Workspace, der 3 Tage lang **Unbezahlt** oder **Abgelaufen** bleib
 
 ### Was passiert mit verbundenen Konten bei einem Tarifwechsel? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-Meldet Lemon Squeezy einen anderen Tarif, entfernt Customermates bei jedem Nutzer die neuesten verbundenen Konten über dem neuen Kontingent. Starter enthält [[commercial.entitlement.starter.includedAccountsPerUser]] pro Nutzer, also wird jedes Konto entfernt; der erste Checkout aus der Testphase gilt als Wechsel von Pro. Mitglieder mit der Rolle **Admin** erhalten eine E-Mail mit den entfernten Konten; die übrigen bleiben unter [Kanäle](app:profile/connected-accounts). Routinen über dem Kontingent bleiben erhalten, weil das Kontingent nur beim Anlegen einer Routine gilt.
+Meldet Lemon Squeezy einen anderen Tarif, entfernt Customermates bei jedem Nutzer die neuesten verbundenen Konten über dem neuen Kontingent. Starter enthält [[commercial.entitlement.starter.includedAccountsPerUser]] pro Nutzer, also wird jedes Konto entfernt; der erste Checkout aus der Testphase gilt als Wechsel von Pro. Mitglieder mit der Rolle **Admin** erhalten eine E-Mail mit den entfernten Konten; die übrigen bleiben unter [Kanäle](app:settings/channels). Routinen über dem Kontingent bleiben erhalten, weil das Kontingent nur beim Anlegen einer Routine gilt.
 
 ### Was ist bei Enterprise anders? [#how-does-an-enterprise-workspace-differ]
 
-Enterprise wird mit Customermates eingerichtet und per Rechnung abgerechnet. Plan zeigt nur **Plan** und "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen." Ein Self-Service-Checkout wird abgelehnt, und Statusänderungen von Mitgliedern gehen nicht an die Abrechnung.
+Enterprise wird mit Customermates eingerichtet und per Rechnung abgerechnet. Abrechnung zeigt nur **Tarif** und "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen." Ein Self-Service-Checkout wird abgelehnt, und Statusänderungen von Mitgliedern gehen nicht an die Abrechnung.
 
 ### Wohin führen die Upgrade-Buttons? [#where-do-upgrade-buttons-lead]
 
-Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle](app:profile/connected-accounts) **Upgrade nötig, um Messaging freizuschalten** mit **Tarif upgraden**. Am Kontenlimit sehen Pro-Nutzer **Upgrade, um mehr Konten zu verbinden** mit **Tarife ansehen**, ebenso der Credit-Hinweis des gehosteten Assistenten. Alle öffnen [Abrechnung](app:company/subscription), wo nur Rollen mit **Unternehmen** **Bearbeiten** handeln können.
+Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle](app:settings/channels) **Upgrade nötig, um Messaging freizuschalten** mit **Tarif upgraden**. Am Kontenlimit sehen Pro-Nutzer **Upgrade, um mehr Konten zu verbinden** mit **Tarife ansehen**, ebenso der Credit-Hinweis des gehosteten Assistenten. Alle öffnen [Abrechnung](app:settings/billing), wo nur Rollen mit **Unternehmen** **Bearbeiten** handeln können.
 
 ## Aktivität: Wo finde ich das Audit-Log und den Änderungsverlauf? [#activity-tab]
 
-[Aktivität](app:company/activity) ist das Ereignisprotokoll des Workspace: wer welchen Datensatz, welche Einstellung oder Konfiguration wann geändert hat, das Neueste zuerst. Jeder Eintrag zeigt den vorherigen und den aktuellen Wert direkt; dieselben Einträge erscheinen in der Ansicht **Aktivitäten** eines Datensatzes, etwa eines Kontakts, im Aktivitäts-Widget des Dashboards und in Mate. Filtern Sie nach Art:
+[Aktivität](app:settings/activity) ist das Ereignisprotokoll des Workspace: wer welchen Datensatz, welche Einstellung oder Konfiguration wann geändert hat, das Neueste zuerst. Jeder Eintrag zeigt den vorherigen und den aktuellen Wert direkt; dieselben Einträge erscheinen in der Ansicht **Aktivitäten** eines Datensatzes, etwa eines Kontakts, im Aktivitäts-Widget des Dashboards und in Mate. Filtern Sie nach Art:
 
 - **Datensatzänderungen**: Anlegen, Ändern und Löschen von Datensätzen mit Feldwerten.
 - **Verwaltung und System**: Mitglieder, Rollen, Webhooks, Routinen, verbundene Konten, Seiten der Wissensdatenbank, rechtliche Hinweise und Exporte. Webhook-Secrets und Header-Werte werden unkenntlich gemacht.
@@ -175,13 +175,13 @@ Lesen erfordert **Audit-Log** mit Leserecht **Alle**. Datensatzänderungen folge
 
 ## Webhooks [#webhooks-tab]
 
-[Webhooks](app:company/webhooks) sendet Workspace-Ereignisse an Ihre Systeme; Payloads, Signaturen und Wiederholungen stehen unter [Webhooks](/docs/webhooks). Öffnen erfordert **API & Webhooks** mit Leserecht **Alle**; Anlegen **Erstellen**, Bearbeiten **Bearbeiten**, Löschen **Löschen**. Verfügbar in jedem Tarif und selbst gehostet.
+[Webhooks](app:settings/webhooks) sendet Workspace-Ereignisse an Ihre Systeme; Payloads, Signaturen und Wiederholungen stehen unter [Webhooks](/docs/webhooks). Öffnen erfordert **API & Webhooks** mit Leserecht **Alle**; Anlegen **Erstellen**, Bearbeiten **Bearbeiten**, Löschen **Löschen**. Verfügbar in jedem Tarif und selbst gehostet.
 
-Klicken Sie auf [Hinzufügen](app:company/webhooks?focus=add) oder zum Bearbeiten auf eine Zeile. Der Dialog **Webhook** hat **URL**, **Beschreibung**, **Ereignisse**, **Secret**, **Eigene Header**, **Body-Vorlage** und **Aktiviert**. Für Datensatzereignisse wählen Sie zusätzlich Listen und Filter sowie das **Zugriffsberechtigte Mitglied**: Zustellungen nutzen dessen aktuelle Berechtigungen, und nur Administratoren können ein anderes Mitglied wählen. Ohne Haken bei **Aktiviert** pausieren Zustellungen, ohne dass der Webhook gelöscht wird. Ohne **Bearbeiten** erscheinen Secret und Header-Werte als `********`. **Löschen** fragt nach einer Bestätigung; vergangene Zustellungen bleiben erhalten. Die [Suche](app:company/webhooks?focus=search) durchsucht die URL.
+Klicken Sie auf [Hinzufügen](app:settings/webhooks?focus=add) oder zum Bearbeiten auf eine Zeile. Der Dialog **Webhook** hat **URL**, **Beschreibung**, **Ereignisse**, **Secret**, **Eigene Header**, **Body-Vorlage** und **Aktiviert**. Für Datensatzereignisse wählen Sie zusätzlich Listen und Filter sowie das **Zugriffsberechtigte Mitglied**: Zustellungen nutzen dessen aktuelle Berechtigungen, und nur Administratoren können ein anderes Mitglied wählen. Ohne Haken bei **Aktiviert** pausieren Zustellungen, ohne dass der Webhook gelöscht wird. Ohne **Bearbeiten** erscheinen Secret und Header-Werte als `********`. **Löschen** fragt nach einer Bestätigung; vergangene Zustellungen bleiben erhalten. Die [Suche](app:settings/webhooks?focus=search) durchsucht die URL.
 
 ### Wo sehe ich die Zustellungen der Webhooks? [#deliveries-tab]
 
-Der Tab [Zustellungen](app:company/webhook-deliveries) listet eine Zeile je Zustellung, die neueste zuerst, mit **URL**, **Ereignis**, **Element**, **Status**, **Status-Code** und **Erstellt am**. Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, dann **Zugestellt** oder **Fehlgeschlagen**), Status-Code, Antwort-Nachricht und Payload. Payloads umfassen jeden Datensatz, auch solche, die Ihre Rolle nicht öffnen darf. **Erneut senden** (bei zugestellten oder fehlgeschlagenen Zustellungen, **API & Webhooks** **Erstellen**) schickt die gespeicherte Payload als neue Zustellung, mit aktuellem Secret, Headern und Body-Vorlage.
+Der Tab [Zustellungen](app:settings/webhooks/deliveries) listet eine Zeile je Zustellung, die neueste zuerst, mit **URL**, **Ereignis**, **Element**, **Status**, **Status-Code** und **Erstellt am**. Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, dann **Zugestellt** oder **Fehlgeschlagen**), Status-Code, Antwort-Nachricht und Payload. Payloads umfassen jeden Datensatz, auch solche, die Ihre Rolle nicht öffnen darf. **Erneut senden** (bei zugestellten oder fehlgeschlagenen Zustellungen, **API & Webhooks** **Erstellen**) schickt die gespeicherte Payload als neue Zustellung, mit aktuellem Secret, Headern und Body-Vorlage.
 
 ## Wo wird die Währung festgelegt? [#where-is-the-currency-set]
 
@@ -197,7 +197,7 @@ Es gibt keine Workspace-Währung: Jedes Geldfeld hat seine eigene. Öffnen Sie [
 
 ## Für Agents [#tips-for-agents]
 
-Nutzen Sie bevorzugt die [MCP](/docs/mcp)-Tools: `manage_team` lädt ein (immer mit Freigabe) und ändert Mitglieder (`update_member`; bei **Wartet auf Genehmigung** eine `roleId` und den Status `active` übergeben), `list_users` liest Mitglieder, `manage_roles` liest und speichert Rollen mit der aktuellen Revision (Ressourcen `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages`, `routines`; Aktionen `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` verwaltet Webhooks und Zustellungen, und `get_record_model` und `configure_record_model` ändern Listen, Währungen und Berechnungen. Kein Tool liest oder ändert den Plan oder den Einladungslink; verweisen Sie auf [Abrechnung](app:company/subscription) oder [Mitglieder](app:company/members).
+Nutzen Sie bevorzugt die [MCP](/docs/mcp)-Tools: `manage_team` lädt ein (immer mit Freigabe) und ändert Mitglieder (`update_member`; bei **Wartet auf Genehmigung** eine `roleId` und den Status `active` übergeben), `list_users` liest Mitglieder, `manage_roles` liest und speichert Rollen mit der aktuellen Revision (Ressourcen `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages`, `routines`; Aktionen `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` verwaltet Webhooks und Zustellungen, und `get_record_model` und `configure_record_model` ändern Listen, Währungen und Berechnungen. Kein Tool liest oder ändert den Plan oder den Einladungslink; verweisen Sie auf [Abrechnung](app:settings/billing) oder [Mitglieder](app:settings/members).
 
 ## Verwandt [#related]
 

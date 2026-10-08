@@ -570,11 +570,11 @@ describe("search and page section coherence", () => {
   });
 
   it.each([
-    { query: "webhooks page URL", anchor: "webhooks-tab", link: "[Webhooks](http://localhost:4000/company/webhooks)" },
+    { query: "webhooks page URL", anchor: "webhooks-tab", link: "[Webhooks](http://localhost:4000/settings/webhooks)" },
     {
       query: "link to the members page",
       anchor: "members-tab",
-      link: "[Members](http://localhost:4000/company/members)",
+      link: "[Members](http://localhost:4000/settings/members)",
     },
   ])(
     "retains a chosen child section's destination app link within the page excerpt cap: $anchor",
@@ -626,7 +626,7 @@ describe("search and page section coherence", () => {
     expect(markdown.split("\n")[0]).toContain(primary.headingPath.at(-1));
     expect(markdown.length).toBeLessThanOrEqual(1_400);
     expect(markdown).toContain(
-      "\n[Webhooks](http://localhost:4000/company/webhooks) sends workspace events to your systems",
+      "\n[Webhooks](http://localhost:4000/settings/webhooks) sends workspace events to your systems",
     );
   });
 
@@ -700,7 +700,7 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-do-i-connect-a-channel",
       query: "Fehler beim Verbinden des Gmail-Kanals",
       facts: [
-        "Klicken Sie auf [Kanal verbinden](http://localhost:4000/profile/connected-accounts?focus=control%3Aprofile-connected-accounts-connect)",
+        "Klicken Sie auf [Kanal verbinden](http://localhost:4000/settings/channels?focus=control%3Asettings-channels-connect)",
         "**Konto bereits verbunden** heißt, ein Mitglied des Workspace hat es schon verbunden",
         "Bei jedem anderen Fehler beginnen Sie erneut mit **Kanal verbinden**",
       ],
@@ -714,7 +714,7 @@ describe("authoritative action and condition excerpts", () => {
         "Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät",
         "erneuert sich im Hintergrund",
         "ohne diese Berechtigung fügen Sie die URL wie oben ein",
-        "[API-Schlüssel](http://localhost:4000/profile/api-keys)",
+        "[API-Schlüssel](http://localhost:4000/settings/api-keys)",
       ],
     },
     {
@@ -726,7 +726,7 @@ describe("authoritative action and condition excerpts", () => {
         "**Zugewiesen** (dem Mitglied zugewiesene Datensätze oder seine eigene Mitgliedszeile oder Routinen) oder **Keine**",
         "Datensätze bearbeiten oder löschen erfordert zusätzlich Zugriff auf den jeweiligen Datensatz",
         "**Datensatztypen**: eine Zeile je Liste unter ihrem aktuellen Namen",
-        "Klicken Sie auf [Hinzufügen](http://localhost:4000/company/roles?focus=control%3Acompany-roles-add)",
+        "Klicken Sie auf [Hinzufügen](http://localhost:4000/settings/roles?focus=control%3Asettings-roles-add)",
       ],
     },
     {

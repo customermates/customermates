@@ -11,8 +11,8 @@ test("shows admin and configuration history on the workspace activity page and f
     if (!isBenignPageError(error.message)) errors.push(error.message);
   });
 
-  await page.goto("/en/company/roles");
-  await page.locator("#company-roles-add").click();
+  await page.goto("/en/settings/roles");
+  await page.locator("#settings-roles-add").click();
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Activity auditors");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Reads the workspace history");
@@ -25,7 +25,7 @@ test("shows admin and configuration history on the workspace activity page and f
   await role.getByRole("button", { name: "Save", exact: true }).click();
   await expect(role).not.toBeVisible();
 
-  await page.goto("/en/company/activity");
+  await page.goto("/en/settings/activity");
   const admin = page.getByRole("button", { name: /Role Created/ }).first();
   const configuration = page.getByRole("button", { name: /Record access changed .*Activity auditors/ }).first();
   await expect(admin).toBeVisible();

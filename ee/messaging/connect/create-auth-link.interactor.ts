@@ -26,6 +26,7 @@ import { signHostedAuthState } from "../webhook-signature";
 import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS } from "./connect-channels";
 import type { CreateHostedAuthLinkRepo } from "./create-hosted-auth-link.repo";
 import type { CreateAuthLinkSubscriptionRepo } from "./create-auth-link-subscription.repo";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
@@ -69,7 +70,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     try {
       link = await this.messagingService.createAuthLink({
         providers: [...entry.providers],
-        redirectUri: `${baseUrl}/profile/connected-accounts`,
+        redirectUri: `${baseUrl}${settingsHref("channels")}`,
         expiresOn,
         state,
         ...(entry.config ? { config: entry.config } : {}),

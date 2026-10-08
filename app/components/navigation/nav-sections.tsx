@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AppLink } from "@/components/shared/app-link";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
@@ -74,6 +75,43 @@ export function useResolvedSidebar(groups: NavGroup[]) {
   const { sidebarLayoutStore } = useRootStore();
   const layout = sidebarLayoutStore.layout;
   return useMemo(() => resolveSidebar(defaultSections(groups), layout), [groups, layout]);
+}
+
+export function useDeleteSidebarSection(groups: NavGroup[]) {
+  const t = useTranslations();
+  const { sidebarLayoutStore } = useRootStore();
+  const { showConfirmation } = useDeleteConfirmation();
+  const titles = new Map(groups.flatMap((group) => group.items.map((item) => [item.key, item.title])));
+  const homes = new Map(groups.flatMap((group) => group.items.map((item) => [item.key, group.label])));
+
+  return (sectionId: string, label: string) => {
+    const current = () => resolveSidebar(defaultSections(groups), sidebarLayoutStore.layout);
+    const moving = (current().sections.find((section) => section.id === sectionId)?.items ?? []).filter((item) =>
+      titles.has(item),
+    );
+    showConfirmation({
+      title: t("SidebarCustomize.deleteSectionTitle", { section: label }),
+      message: moving.length > 0 ? t("SidebarCustomize.deleteSectionMoves") : t("SidebarCustomize.deleteSectionEmpty"),
+      details: moving.map((item) =>
+        t("SidebarCustomize.movesBackTo", { item: titles.get(item) ?? item, section: homes.get(item) ?? "" }),
+      ),
+      confirmLabel: t("SidebarCustomize.deleteSection"),
+      successKey: "SidebarCustomize.sectionDeleted",
+      onConfirm: () => sidebarLayoutStore.save(sidebarLayoutOf(removeSidebarSection(current(), sectionId))),
+    });
+  };
+}
+
+export function useContextMenu() {
+  const [open, setOpen] = useState(false);
+  return {
+    menu: { open, onOpenChange: setOpen },
+    onContextMenu: (event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setOpen(true);
+    },
+  };
 }
 
 export function sectionLabel(groups: NavGroup[], section: { id: string; name: string | null }) {
@@ -124,6 +162,7 @@ function SortableNavItem({
   const section = sectionOfItem(resolved, item.key);
   const visible = section?.items.filter((candidate) => !resolved.hidden.has(candidate)) ?? [];
   const index = visible.indexOf(item.key);
+  const contextMenu = useContextMenu();
   const itemProps = {
     ref: sortable.setNodeRef,
     className: cn(sortable.isDragging && "z-10 rounded-md bg-sidebar-accent shadow-md"),
@@ -134,10 +173,10 @@ function SortableNavItem({
       event.preventDefault();
       event.stopPropagation();
     },
-    ...(customizable ? sortable.listeners : {}),
+    ...(customizable ? { ...sortable.listeners, onContextMenu: contextMenu.onContextMenu } : {}),
   };
   const action = customizable && (
-    <DropdownMenu modal={false}>
+    <DropdownMenu modal={false} {...contextMenu.menu}>
       <DropdownMenuTrigger asChild>
         <SidebarMenuAction showOnHover aria-label={t("SidebarCustomize.itemActions", { item: item.title })}>
           <MoreHorizontal />
@@ -270,6 +309,7 @@ type SectionProps = {
   children: React.ReactNode;
   onChange: (next: ResolvedSidebar) => void;
   onEdit: (editing: boolean) => void;
+  onDelete: () => void;
 };
 
 function NavSection({
@@ -287,9 +327,11 @@ function NavSection({
   children,
   onChange,
   onEdit,
+  onDelete,
 }: SectionProps) {
   const t = useTranslations();
   const droppable = useDroppable({ id: SECTION_DROP_PREFIX + id });
+  const contextMenu = useContextMenu();
 
   return (
     <SidebarGroup data-sidebar-section={id} data-sidebar-section-label={label}>
@@ -313,6 +355,7 @@ function NavSection({
             aria-expanded={!collapsed}
             type="button"
             onClick={() => onChange(updateSidebarSection(resolved, id, { collapsed: !collapsed }))}
+            onContextMenu={contextMenu.onContextMenu}
           >
             <span className="min-w-0 truncate">{label}</span>
 
@@ -328,7 +371,7 @@ function NavSection({
       )}
 
       {customizable && !editing && (
-        <DropdownMenu modal={false}>
+        <DropdownMenu modal={false} {...contextMenu.menu}>
           <DropdownMenuTrigger asChild>
             <SidebarGroupAction
               aria-label={t("SidebarCustomize.sectionActions", { section: label })}
@@ -361,7 +404,7 @@ function NavSection({
               <>
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem variant="destructive" onSelect={() => onChange(removeSidebarSection(resolved, id))}>
+                <DropdownMenuItem variant="destructive" onSelect={onDelete}>
                   {t("SidebarCustomize.deleteSection")}
                 </DropdownMenuItem>
               </>
@@ -391,6 +434,7 @@ export const NavSections = observer(({ groups, customizable, selectedKey, pathna
   const stored = useResolvedSidebar(groups);
   const [dragging, setDragging] = useState<ResolvedSidebar | null>(null);
   const { editingSection, setEditingSection } = sidebarLayoutStore;
+  const deleteSection = useDeleteSidebarSection(groups);
   const dropClickUntil = useRef(0);
   const resolved = customizable ? (dragging ?? stored) : resolveSidebar(defaultSections(groups), null);
   const items = useMemo(
@@ -492,6 +536,7 @@ export const NavSections = observer(({ groups, customizable, selectedKey, pathna
             resolved={resolved}
             shown={shownSections}
             onChange={save}
+            onDelete={() => deleteSection(section.id, sectionLabel(groups, section))}
             onEdit={(editing) => setEditingSection(editing ? section.id : null)}
           >
             <SortableContext items={keys} strategy={verticalListSortingStrategy}>

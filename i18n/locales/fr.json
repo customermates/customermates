@@ -29,9 +29,6 @@
     "privacyLink": "Détails de confidentialité",
     "title": "Aidez-nous à comprendre ce qui fonctionne"
   },
-  "ActivityPage": {
-    "title": "Activité"
-  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -749,7 +746,6 @@
     "title": "Créer une clé API"
   },
   "ApiKeysCard": {
-    "title": "API et connecteurs",
     "unnamed": "Sans nom"
   },
   "AuditLogModal": {
@@ -1352,7 +1348,8 @@
       "copiedToClipboard": "{value} copié dans le presse-papiers",
       "copyFailed": "Échec de la copie dans le presse-papiers",
       "deleted": "Supprimé",
-      "unexpectedError": "Une erreur est survenue. Veuillez réessayer."
+      "unexpectedError": "Une erreur est survenue. Veuillez réessayer.",
+      "updated": "Mis à jour"
     },
     "pageNumber": "Page {page}",
     "providers": {
@@ -2492,15 +2489,12 @@
     "addEntity": "Ajouter {entity}",
     "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
     "addPickerTitle": "Créer…",
-    "admin": "Administration",
     "affiliate": "Programme d'affiliation",
-    "connectedAccounts": "Canaux",
     "dashboard": "Tableau de bord",
     "data": "Données",
     "docs": "Documentation",
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
-    "members": "Membres",
     "operator": "Console opérateur",
     "overview": "Aperçu",
     "pricing": "Tarifs",
@@ -2554,9 +2548,7 @@
     "routines": "Routines",
     "search": "Rechercher",
     "settings": "Paramètres",
-    "subscription": "Abonnement",
-    "wiki": "Base de connaissances",
-    "workspace": "Espace de travail"
+    "wiki": "Base de connaissances"
   },
   "NotFoundPage": {
     "body": "Nous avons été automatiquement informés que cette page est partie en vacances. Nous allons la retrouver et la ramener bientôt.",
@@ -3617,8 +3609,7 @@
   },
   "RolesCard": {
     "custom": "Personnalisé",
-    "system": "Système",
-    "title": "Rôles"
+    "system": "Système"
   },
   "RoutineAdministration": {
     "help": "En tant qu’administrateur de l’entreprise, vous pouvez suspendre ou supprimer cette routine, mais vous ne pouvez pas la modifier, la tester ni l’exécuter.",
@@ -3778,19 +3769,43 @@
     "tuesday": "Mardi",
     "wednesday": "Mercredi"
   },
+  "SettingsNav": {
+    "account": "Compte",
+    "activity": "Activité",
+    "apiKeys": "Clés API",
+    "billing": "Facturation",
+    "channels": "Canaux",
+    "deliveries": "Livraisons",
+    "members": "Membres",
+    "profile": "Profil et préférences",
+    "roles": "Rôles",
+    "webhooks": "Webhooks",
+    "workspace": "Espace de travail"
+  },
   "SidebarCustomize": {
     "deleteSection": "Supprimer la section",
-    "emptySection": "Faites glisser des éléments ici",
+    "deleteSectionEmpty": "La section est vide, aucun élément n'est déplacé.",
+    "deleteSectionMoves": "Ses éléments retournent à leur place par défaut dans votre barre latérale ; les éléments masqués restent masqués :",
+    "deleteSectionTitle": "Supprimer la section « {section} » ?",
+    "dragItem": "Déplacer {item}",
+    "dragSection": "Déplacer la section {section}",
+    "emptySection": "Glissez des éléments ici ou utilisez Déplacer vers la section",
     "hide": "Masquer de la barre latérale",
+    "hint": "Faites glisser les poignées pour réorganiser les éléments et les sections, ou utilisez les menus …. Cliquez sur le nom d'une section personnelle pour la renommer.",
     "itemActions": "Options pour {item}",
     "moveDown": "Descendre",
+    "movesBackTo": "{item} retourne dans {section}",
     "moveToSection": "Déplacer vers la section",
     "moveUp": "Monter",
     "newSection": "Nouvelle section",
     "newSectionName": "Nouvelle section",
     "rename": "Renommer",
     "reset": "Rétablir par défaut",
+    "resetDone": "Barre latérale réinitialisée",
+    "resetMessage": "Vos sections personnelles, l'ordre et les éléments masqués reviennent aux valeurs par défaut. Les barres latérales des autres personnes ne changent pas.",
+    "resetTitle": "Réinitialiser la barre latérale ?",
     "sectionActions": "Options pour {section}",
+    "sectionDeleted": "Section supprimée",
     "sectionName": "Nom de la section",
     "show": "Afficher {item}",
     "title": "Personnaliser la barre latérale"
@@ -3837,7 +3852,7 @@
       "planManage": "Synchronisé avec la facturation. Utilisez « {billing} » pour le modifier.",
       "planPicker": "Choisissez une offre ci-dessous pour démarrer ou modifier l’abonnement.",
       "planReadOnly": "Synchronisé avec la facturation. Demandez les modifications à un administrateur de l’espace de travail.",
-      "quantity": "Synchronisé avec le nombre de membres actifs de l’espace de travail. Les administrateurs peuvent activer ou désactiver des membres dans « {company} ».",
+      "quantity": "Synchronisé avec le nombre de membres actifs de l’espace de travail. Les administrateurs peuvent activer ou désactiver des membres dans « {members} ».",
       "trialEndsManage": "Définie par la période d’essai. Utilisez « {billing} » pour gérer l’abonnement.",
       "trialEndsPicker": "Définie par la période d’essai. Choisissez une offre avant cette date pour continuer sans interruption.",
       "trialEndsReadOnly": "Définie par la période d’essai. Demandez à un administrateur de l’espace de travail de gérer l’abonnement."
@@ -3944,14 +3959,13 @@
     "title": "Bienvenue dans votre essai"
   },
   "UserAvatar": {
-    "company": "Mon entreprise",
-    "darkMode": "Mode sombre",
     "documentation": "Documentation",
     "home": "Accueil",
-    "lightMode": "Mode clair",
-    "profile": "Mon profil",
-    "settings": "Paramètres",
-    "signOut": "Se déconnecter"
+    "language": "Langue",
+    "menu": "Menu personnel",
+    "sendFeedback": "Envoyer un avis",
+    "signOut": "Se déconnecter",
+    "theme": "Thème"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Détermine la langue de l'interface : libellés, boutons, etc.",
@@ -3978,8 +3992,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Les tentatives de livraison apparaîtront ici dès qu’un webhook sera déclenché.",
-    "emptyTitle": "Aucune livraison pour le moment",
-    "title": "Livraisons récentes"
+    "emptyTitle": "Aucune livraison pour le moment"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Créé le",
@@ -4013,8 +4026,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Ajoutez un webhook pour envoyer les événements de l’espace de travail à vos systèmes.",
-    "emptyTitle": "Aucun webhook pour le moment",
-    "title": "Webhooks"
+    "emptyTitle": "Aucun webhook pour le moment"
   },
   "Wiki": {
     "conflict": "Cette page a changé. Vos modifications sont toujours là. Rechargez pour utiliser la dernière version.",
@@ -4124,5 +4136,9 @@
     },
     "tryAnother": "Essayer un autre site",
     "unavailable": "La configuration avec Mate n’est pas disponible pour le moment. Vous pourrez créer des pages plus tard depuis la base de connaissances."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Inviter des membres",
+    "label": "Menu de l'espace de travail"
   }
 }
