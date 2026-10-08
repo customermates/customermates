@@ -25,13 +25,7 @@ function sourceFromText(file: string, text: string): SourceFile {
   return {
     file,
     text,
-    ast: ts.createSourceFile(
-      file,
-      text,
-      ts.ScriptTarget.Latest,
-      true,
-      ts.ScriptKind.TSX,
-    ),
+    ast: ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX),
   };
 }
 
@@ -57,17 +51,14 @@ function listIconVariables(source: SourceFile) {
 function classNameOf(node: ts.Node, source: SourceFile) {
   if (!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) return "";
   const attribute = attributesOf(node).properties.find(
-    (property) =>
-      ts.isJsxAttribute(property) &&
-      property.name.getText(source.ast) === "className",
+    (property) => ts.isJsxAttribute(property) && property.name.getText(source.ast) === "className",
   );
   return attribute?.getText(source.ast) ?? "";
 }
 
 function enclosingElement(node: ts.Node) {
   for (let parent = node.parent; parent; parent = parent.parent)
-    if (ts.isJsxElement(parent) && parent.openingElement !== node)
-      return parent;
+    if (ts.isJsxElement(parent) && parent.openingElement !== node) return parent;
   return undefined;
 }
 
@@ -75,10 +66,7 @@ function accentedListIconFindings(sources: SourceFile[]) {
   const findings: Finding[] = [];
 
   for (const source of sources) {
-    const iconNames = new Set([
-      ...listIconVariables(source),
-      ...LIST_ICON_COMPONENTS,
-    ]);
+    const iconNames = new Set([...listIconVariables(source), ...LIST_ICON_COMPONENTS]);
     visit(source.ast, (node) => {
       const tag = tagNameOf(node);
       if (!tag || !iconNames.has(tag)) return;
@@ -86,9 +74,7 @@ function accentedListIconFindings(sources: SourceFile[]) {
       const parent = enclosingElement(element);
       const classes = `${classNameOf(node, source)} ${parent ? classNameOf(parent, source) : ""}`;
       if (ACCENT_TILE.test(classes))
-        findings.push(
-          finding(source, node.getStart(source.ast), node.getText(source.ast)),
-        );
+        findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
     });
   }
 
@@ -107,9 +93,7 @@ describe("rule 28: list icons in the plain sidebar style", () => {
       "tile.tsx",
       'const Icon = recordTypeIcon(icon);\nconst a = <span className="bg-primary/10"><Icon /></span>;\nconst b = <span className="text-muted-foreground"><Icon /></span>;',
     );
-    expect(accentedListIconFindings([source]).map(({ line }) => line)).toEqual([
-      2,
-    ]);
+    expect(accentedListIconFindings([source]).map(({ line }) => line)).toEqual([2]);
   });
 });
 
@@ -122,24 +106,17 @@ function animatedBlurFindings(sources: SourceFile[]) {
   for (const source of sources)
     visit(source.ast, (node) => {
       if (!ts.isStringLiteralLike(node)) return;
-      const classes = node.text
-        .split(/\s+/)
-        .map((name) => name.replace(/^[\w-]+(?:\[[^\]]*\])?:/g, ""));
-      const blurred = classes.some(
-        (name) => BLUR.test(name) && !name.endsWith("-none"),
-      );
-      if (blurred && MOTION.test(node.text))
-        findings.push(finding(source, node.getStart(source.ast), node.text));
+      const classes = node.text.split(/\s+/).map((name) => name.replace(/^[\w-]+(?:\[[^\]]*\])?:/g, ""));
+      const blurred = classes.some((name) => BLUR.test(name) && !name.endsWith("-none"));
+      if (blurred && MOTION.test(node.text)) findings.push(finding(source, node.getStart(source.ast), node.text));
     });
 
   return findings;
 }
 
 const ANIMATED_BLUR_ALLOWLIST: Allowlist = {
-  "components/ui/sheet.tsx":
-    "I25: the sheet overlay fades a backdrop blur in and out; drop the blur (WebKit, I11)",
-  "components/page-state/page-state.tsx":
-    "I25: the empty state halo animates a blurred layer; drop the blur",
+  "components/ui/sheet.tsx": "I25: the sheet overlay fades a backdrop blur in and out; drop the blur (WebKit, I11)",
+  "components/page-state/page-state.tsx": "I25: the empty state halo animates a blurred layer; drop the blur",
 };
 
 describe("rule 12: overlays never animate a blur", () => {
@@ -156,8 +133,7 @@ describe("rule 12: overlays never animate a blur", () => {
   });
 });
 
-const LOCAL_FILTER_UI =
-  /\bRecordWidget(?:Field|Related)Filters\b|["'`]RecordWidgets\.(?:add|remove)Filter["'`]/;
+const LOCAL_FILTER_UI = /\bRecordWidget(?:Field|Related)Filters\b|["'`]RecordWidgets\.(?:add|remove)Filter["'`]/;
 
 const LOCAL_FILTER_UI_ALLOWLIST: Allowlist = {
   "app/[locale]/(protected)/dashboard/components/record-widget-filters.tsx":
@@ -166,16 +142,12 @@ const LOCAL_FILTER_UI_ALLOWLIST: Allowlist = {
     "I3r3b: widget editor filters through the shared Filters palette",
   "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx":
     "I3r3b: activity widget filters through the shared Filters palette",
-  "components/records/record-trigger-fields.tsx":
-    "I3r3b: routine trigger filters through the shared Filters palette",
+  "components/records/record-trigger-fields.tsx": "I3r3b: routine trigger filters through the shared Filters palette",
 };
 
 describe("rule 32: one filter design everywhere", () => {
   it("builds view, widget, routine and activity filters only with the shared Filters palette", () => {
-    enforce(
-      patternFindings(PRODUCT_SOURCES, LOCAL_FILTER_UI),
-      LOCAL_FILTER_UI_ALLOWLIST,
-    );
+    enforce(patternFindings(PRODUCT_SOURCES, LOCAL_FILTER_UI), LOCAL_FILTER_UI_ALLOWLIST);
   });
 });
 
@@ -188,16 +160,9 @@ function handBuiltFocusLinkFindings(sources: SourceFile[]) {
   for (const source of sources) {
     if (source.file === FOCUS_TARGET_OWNER) continue;
     visit(source.ast, (node) => {
-      if (
-        !ts.isStringLiteralLike(node) &&
-        !ts.isTemplateLiteralToken(node) &&
-        !ts.isTemplateHead(node)
-      )
-        return;
+      if (!ts.isStringLiteralLike(node) && !ts.isTemplateLiteralToken(node) && !ts.isTemplateHead(node)) return;
       if (HAND_BUILT_FOCUS_LINK.test(node.text))
-        findings.push(
-          finding(source, node.getStart(source.ast), node.getText(source.ast)),
-        );
+        findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
     });
   }
 
@@ -206,8 +171,7 @@ function handBuiltFocusLinkFindings(sources: SourceFile[]) {
 
 const FOCUS_LINK_ALLOWLIST: Allowlist = {
   "features/docs/app-links.ts": "I21: build docs app links with focusHref",
-  "app/components/agent-chat/ui-control.store.ts":
-    "final sweep: recognize focus links through focus-target.ts",
+  "app/components/agent-chat/ui-control.store.ts": "final sweep: recognize focus links through focus-target.ts",
 };
 
 describe("rule 36: one open-and-highlight mechanism", () => {
@@ -220,8 +184,6 @@ describe("rule 36: one open-and-highlight mechanism", () => {
       "link.ts",
       'const a = "/configure?focus=field:1";\nconst b = `${path}?focus=${focus}`;',
     );
-    expect(
-      handBuiltFocusLinkFindings([source]).map(({ line }) => line),
-    ).toEqual([1, 2]);
+    expect(handBuiltFocusLinkFindings([source]).map(({ line }) => line)).toEqual([1, 2]);
   });
 });

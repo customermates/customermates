@@ -5,40 +5,30 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+
 type Allowlist = Readonly<Record<string, string>>;
 type Messages = Readonly<Record<string, string>>;
 
 function flattenMessages(value: unknown, prefix = ""): [string, string][] {
   if (typeof value === "string") return [[prefix, value]];
   if (typeof value !== "object" || value === null) return [];
-  return Object.entries(value).flatMap(([key, child]) =>
-    flattenMessages(child, prefix ? `${prefix}.${key}` : key),
-  );
+  return Object.entries(value).flatMap(([key, child]) => flattenMessages(child, prefix ? `${prefix}.${key}` : key));
 }
 
 function messagesOf(locale: string): Messages {
   const path = join(REPO_ROOT, "i18n", "locales", `${locale}.json`);
-  return Object.fromEntries(
-    flattenMessages(JSON.parse(readFileSync(path, "utf8")) as unknown),
-  );
+  return Object.fromEntries(flattenMessages(JSON.parse(readFileSync(path, "utf8")) as unknown));
 }
 
 const EN = messagesOf("en");
 const DE = messagesOf("de");
 
-function enforce(
-  violations: string[],
-  allowlist: Allowlist,
-  exemptions: Allowlist = {},
-) {
+function enforce(violations: string[], allowlist: Allowlist, exemptions: Allowlist = {}) {
   const current = violations.filter((violation) => !(violation in exemptions));
   expect(current.filter((violation) => !(violation in allowlist))).toEqual([]);
-  expect(
-    Object.keys(allowlist).filter((entry) => !current.includes(entry)),
-  ).toEqual([]);
-  expect(
-    Object.keys(exemptions).filter((entry) => !violations.includes(entry)),
-  ).toEqual([]);
+  expect(Object.keys(allowlist).filter((entry) => !current.includes(entry))).toEqual([]);
+  expect(Object.keys(exemptions).filter((entry) => !violations.includes(entry))).toEqual([]);
 }
 
 const SHARED_ACTION_KEYS = [
@@ -57,36 +47,24 @@ const SHARED_ACTION_KEYS = [
 ];
 
 function sharedActionWordViolations(messages: Messages) {
-  const sharedWords = new Set(
-    SHARED_ACTION_KEYS.map((key) => messages[key]).filter(Boolean),
-  );
+  const sharedWords = new Set(SHARED_ACTION_KEYS.map((key) => messages[key]).filter(Boolean));
   return Object.entries(messages)
-    .filter(
-      ([key, value]) =>
-        !SHARED_ACTION_KEYS.includes(key) && sharedWords.has(value),
-    )
+    .filter(([key, value]) => !SHARED_ACTION_KEYS.includes(key) && sharedWords.has(value))
     .map(([key]) => key)
     .sort();
 }
 
 const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
-  "RecordModel.operators.add":
-    "the arithmetic operator Add in calculations, not the Add action",
-  "ResetPasswordForm.resetPasswordCta":
-    "public sign-in page call to action that sets a new password",
+  "RecordModel.operators.add": "the arithmetic operator Add in calculations, not the Add action",
+  "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
 
 const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
-  "AgentChat.approval.rejectAction":
-    "final sweep: Mate approval Cancel through Common.actions.cancel",
-  "AgentChat.tourUi.back":
-    "final sweep: Mate tour Back through Common.actions.back",
-  "GlobalSearch.clearRecent":
-    "final sweep: search Clear through Common.actions.clear",
-  "GlobalSearch.loadMore":
-    "final sweep: search Load more through Common.actions.loadMore",
-  "Inbox.compose.draftDiscard":
-    "I25: draft Discard through Common.actions.discard",
+  "AgentChat.approval.rejectAction": "final sweep: Mate approval Cancel through Common.actions.cancel",
+  "AgentChat.tourUi.back": "final sweep: Mate tour Back through Common.actions.back",
+  "GlobalSearch.clearRecent": "final sweep: search Clear through Common.actions.clear",
+  "GlobalSearch.loadMore": "final sweep: search Load more through Common.actions.loadMore",
+  "Inbox.compose.draftDiscard": "I25: draft Discard through Common.actions.discard",
   "Inbox.refresh": "I25: inbox Refresh through Common.actions.refresh",
   "OnboardingWizard.back": "I25: onboarding Back through Common.actions.back",
   "RoleModal.delete": "I19: role Delete through Common.actions.delete",
@@ -95,11 +73,7 @@ const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
 
 describe("rules 30 and 58: shared action words come from one key", () => {
   it("labels the shared action words only through their Common.actions key", () => {
-    enforce(
-      sharedActionWordViolations(EN),
-      SHARED_ACTION_WORD_ALLOWLIST,
-      SHARED_ACTION_WORD_EXEMPTIONS,
-    );
+    enforce(sharedActionWordViolations(EN), SHARED_ACTION_WORD_ALLOWLIST, SHARED_ACTION_WORD_EXEMPTIONS);
   });
 
   it("recognizes a duplicated action word", () => {
@@ -128,8 +102,7 @@ function divergentGermanLabels(english: Messages, german: Messages) {
 
 const GERMAN_TERM_EXEMPTIONS: Allowlist = {
   Add: "the Add action (Hinzufügen) and the arithmetic operator (Addieren)",
-  Cancelled:
-    "an aborted Mate action, a cancelled meeting and a terminated subscription",
+  Cancelled: "an aborted Mate action, a cancelled meeting and a terminated subscription",
   Contact: "the Contact list and the Contacted stage of a contact",
   Done: "the Done button (Fertig) and the done task status (Erledigt)",
   Layout: "the table layout and an email signature template",
@@ -146,8 +119,7 @@ const GERMAN_TERM_ALLOWLIST: Allowlist = {
   Admin: "I19: the Admin navigation entry disappears with the Settings area",
   Conversation: "final sweep: one German term (Unterhaltung or Konversation)",
   "Jump to latest": "final sweep: one German term for Mate and Inbox",
-  "Knowledge Base pages":
-    "final sweep: one German term (Wissensdatenbank-Seiten)",
+  "Knowledge Base pages": "final sweep: one German term (Wissensdatenbank-Seiten)",
   Owner: "final sweep: one German term (Inhaber, Besitzer or Eigentümer/in)",
   Plan: "I19: Plan becomes Billing (rule 51), with one German term",
   Relationship: "I1r4: one German term (Beziehung or Verknüpfung)",
@@ -158,19 +130,12 @@ const GERMAN_TERM_ALLOWLIST: Allowlist = {
 
 describe("one German term per concept (owner 2026-10-08)", () => {
   it("translates each short English label with one German label", () => {
-    enforce(
-      divergentGermanLabels(EN, DE),
-      GERMAN_TERM_ALLOWLIST,
-      GERMAN_TERM_EXEMPTIONS,
-    );
+    enforce(divergentGermanLabels(EN, DE), GERMAN_TERM_ALLOWLIST, GERMAN_TERM_EXEMPTIONS);
   });
 
   it("recognizes a concept translated two ways", () => {
     expect(
-      divergentGermanLabels(
-        { a: "Owner", b: "Owner", c: "Save" },
-        { a: "Inhaber", b: "Besitzer", c: "Speichern" },
-      ),
+      divergentGermanLabels({ a: "Owner", b: "Owner", c: "Save" }, { a: "Inhaber", b: "Besitzer", c: "Speichern" }),
     ).toEqual(["Owner"]);
   });
 });
@@ -188,13 +153,11 @@ const RETIRED_TERMS: Readonly<Record<string, RegExp>> = {
 type TextUnit = { file: string; text: string };
 
 function wordingCorpus(): TextUnit[] {
-  const messages = ["en", "de"].map((locale) => ({
+  const messages = CONTENT_LOCALES.map((locale) => ({
     file: `i18n/locales/${locale}.json`,
-    text: Object.values(locale === "en" ? EN : DE).join("\n"),
+    text: Object.values(messagesOf(locale)).join("\n"),
   }));
-  const docs = walkFiles(join(REPO_ROOT, "content", "docs"), (path) =>
-    path.endsWith(".mdx"),
-  ).map((path) => ({
+  const docs = walkFiles(join(REPO_ROOT, "content", "docs"), (path) => path.endsWith(".mdx")).map((path) => ({
     file: relative(REPO_ROOT, path),
     text: readFileSync(path, "utf8"),
   }));
@@ -212,134 +175,76 @@ function retiredTermViolations(units: TextUnit[]) {
 }
 
 const RETIRED_TERM_ALLOWLIST: Allowlist = {
-  "content/docs/de/api-keys.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/api-keys.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/app-assistant.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/app-assistant.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/app-company.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/app-company.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/app-dashboard.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/app-dashboard.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/app-inbox.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/app-inbox.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/app-onboarding.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/app-onboarding.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/app-profile.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/app-profile.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/app-records.mdx#company-settings":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/app-routines.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/architecture-security.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/connect-cli.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/connect-cli.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/connect-custom-connector.mdx#my-company":
-    "I21: Settings area names (rule 43)",
+  "content/docs/de/api-keys.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/api-keys.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/app-assistant.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/app-assistant.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/app-company.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/app-company.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/app-dashboard.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/app-dashboard.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/app-inbox.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/app-inbox.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/app-onboarding.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/app-onboarding.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/app-profile.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/app-profile.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/app-records.mdx#company-settings": "I21: Settings area names (rule 43)",
+  "content/docs/de/app-routines.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/architecture-security.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/connect-cli.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/connect-cli.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/connect-custom-connector.mdx#my-company": "I21: Settings area names (rule 43)",
   "content/docs/de/connect-custom-connector.mdx#my-profile":
     "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/de/mcp.mdx#my-company": "I21: Settings area names (rule 43)",
-  "content/docs/de/mcp.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/mcp.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/de/n8n.mdx#my-company": "I21: Settings area names (rule 43)",
-  "content/docs/de/n8n.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/quickstart.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/quickstart.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/self-hosting.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/self-hosting.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/de/webhooks.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/de/webhooks.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/api-keys.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/api-keys.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/app-assistant.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/app-assistant.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/app-company.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/app-company.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/app-dashboard.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/app-dashboard.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/app-inbox.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/app-inbox.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/app-onboarding.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/app-onboarding.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/app-profile.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/app-profile.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/app-records.mdx#company-settings":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/app-routines.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/architecture-security.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/connect-cli.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/connect-cli.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/connect-custom-connector.mdx#my-company":
-    "I21: Settings area names (rule 43)",
+  "content/docs/de/n8n.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/quickstart.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/quickstart.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/self-hosting.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/self-hosting.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/de/webhooks.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/de/webhooks.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/api-keys.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/api-keys.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/app-assistant.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/app-assistant.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/app-company.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/app-company.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/app-dashboard.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/app-dashboard.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/app-inbox.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/app-inbox.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/app-onboarding.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/app-onboarding.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/app-profile.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/app-profile.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/app-records.mdx#company-settings": "I21: Settings area names (rule 43)",
+  "content/docs/en/app-routines.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/architecture-security.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/connect-cli.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/connect-cli.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/connect-custom-connector.mdx#my-company": "I21: Settings area names (rule 43)",
   "content/docs/en/connect-custom-connector.mdx#my-profile":
     "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/en/mcp.mdx#my-company": "I21: Settings area names (rule 43)",
-  "content/docs/en/mcp.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/mcp.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/en/n8n.mdx#my-company": "I21: Settings area names (rule 43)",
-  "content/docs/en/n8n.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/quickstart.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/quickstart.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/self-hosting.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/self-hosting.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "content/docs/en/webhooks.mdx#my-company":
-    "I21: Settings area names (rule 43)",
-  "content/docs/en/webhooks.mdx#my-profile":
-    "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/n8n.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/quickstart.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/quickstart.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/self-hosting.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/self-hosting.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
+  "content/docs/en/webhooks.mdx#my-company": "I21: Settings area names (rule 43)",
+  "content/docs/en/webhooks.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "i18n/locales/de.json#company-settings": "I19: Settings area names (rule 43)",
   "i18n/locales/de.json#my-company": "I19: Settings area names (rule 43)",
-  "i18n/locales/de.json#my-profile":
-    "I19: Profile & preferences or Channels in Settings (rule 43)",
+  "i18n/locales/de.json#my-profile": "I19: Profile & preferences or Channels in Settings (rule 43)",
   "i18n/locales/en.json#company-settings": "I19: Settings area names (rule 43)",
   "i18n/locales/en.json#my-company": "I19: Settings area names (rule 43)",
-  "i18n/locales/en.json#my-profile":
-    "I19: Profile & preferences or Channels in Settings (rule 43)",
+  "i18n/locales/en.json#my-profile": "I19: Profile & preferences or Channels in Settings (rule 43)",
 };
 
 describe("rules 30, 33, 43, 50 and 51: retired UI names leave messages and docs", () => {
