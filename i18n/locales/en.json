@@ -3600,7 +3600,6 @@
   },
   "RoleModal": {
     "create": "Create",
-    "delete": "Delete",
     "edit": "Edit",
     "manageAccess": "Manage",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
@@ -3884,7 +3883,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Active seats",
-    "refresh": "Refresh",
     "refreshSuccess": "Subscription refreshed successfully",
     "seatBillingNote": "You pay per active user. Seat changes are prorated on your next invoice.",
     "status": {

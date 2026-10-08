@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { KeyRound, Plus } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { useLayoutEffect, useMemo } from "react";
 
 import { Alert } from "@/components/shared/alert";
@@ -15,6 +15,7 @@ import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -39,18 +40,11 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
   const topBarActions = useMemo(
     () =>
       pageState !== "loading" && pageState !== "error" && canManage ? (
-        <Button
-          aria-label={t("Common.actions.add")}
-          className="h-8"
-          id="profile-api-keys-generate"
-          size="sm"
-          variant="default"
+        <TopBarPrimaryButton
+          anchorId="profile-api-keys-generate"
+          label={t("Common.actions.add")}
           onClick={() => apiKeyModalStore.add()}
-        >
-          <Plus className="size-3.5" />
-
-          <span className="hidden sm:inline">{t("Common.actions.add")}</span>
-        </Button>
+        />
       ) : null,
     [apiKeyModalStore, canManage, pageState, t],
   );

@@ -61,10 +61,7 @@ const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
   "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
 
-const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
-  "RoleModal.delete": "I19: role Delete through Common.actions.delete",
-  "Subscription.refresh": "I19: billing Refresh through Common.actions.refresh",
-};
+const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {};
 
 describe("rules 30 and 58: shared action words come from one key", () => {
   it("labels the shared action words only through their Common.actions key", () => {

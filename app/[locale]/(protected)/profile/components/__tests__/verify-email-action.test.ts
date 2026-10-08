@@ -11,11 +11,11 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 import { VerifyEmailAction } from "../verify-email-action";
 
 describe("VerifyEmailAction", () => {
-  it("keeps the resend action named when its visible label is hidden at narrow widths", () => {
+  it("names the icon-only resend action in the top bar", () => {
     const markup = renderToStaticMarkup(createElement(VerifyEmailAction));
 
     expect(markup).toContain('id="profile-settings-verify-email"');
     expect(markup).toContain('aria-label="EmailVerification.resend"');
-    expect(markup).toContain('<span class="hidden sm:inline">EmailVerification.resend</span>');
+    expect(markup).toContain("lucide-mail-warning");
   });
 });

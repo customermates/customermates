@@ -3600,7 +3600,6 @@
   },
   "RoleModal": {
     "create": "Crear",
-    "delete": "Eliminar",
     "edit": "Editar",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
@@ -3884,7 +3883,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Plazas activas",
-    "refresh": "Actualizar",
     "refreshSuccess": "Suscripción actualizada correctamente",
     "seatBillingNote": "Pagas por usuario activo. Los cambios de plazas se prorratean en tu próxima factura.",
     "status": {
