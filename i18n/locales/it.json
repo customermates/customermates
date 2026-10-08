@@ -795,7 +795,6 @@
       "versions": "Versioni dei documenti",
       "visibility": "Visibilità"
     },
-    "noValue": "Nessun valore",
     "relationsAdded": "Relazioni aggiunte nel campo «{field}»",
     "relationsDeleted": "Relazioni rimosse dal campo «{field}»",
     "unchangedLines": "{count, plural, one {# riga invariata} other {# righe invariate}}"
@@ -2995,7 +2994,6 @@
     "aggregation": "Aggregazione",
     "allowManualOverride": "Consenti un valore sostitutivo manuale",
     "ascending": "Crescente",
-    "assignedMembers": "Membri assegnati",
     "assignedTo": "Assegnato a",
     "attribute": "Nome dell’attributo",
     "behavior": "Origine del valore",

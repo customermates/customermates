@@ -4,7 +4,7 @@ import type { EventLog } from "@/generated/prisma";
 import type { RecordRevisionChange } from "@/features/records/record-revision.schema";
 import type { MessagingMessage } from "../messaging.schema";
 import type { RecordActivitiesInput } from "./record-activities.schema";
-import type { ActivityKind, ActivityThreadRef, ActivityCalendarEvent } from "./activities.schema";
+import type { ActivityKind, ActivityMemberDto, ActivityThreadRef, ActivityCalendarEvent } from "./activities.schema";
 import type { RecordActivityIndexRow } from "./record-activity-query";
 
 export type RecordActivityActor = { firstName: string; lastName: string; email: string; avatarUrl: string | null };
@@ -28,6 +28,7 @@ export interface RecordActivitiesRepo {
     roleNames: Map<string, string>;
   }>;
   hasHistoryCompanyWide(ref: RecordRef): Promise<boolean>;
+  membersCompanyWide(ids: string[]): Promise<ActivityMemberDto[]>;
   messagesCompanyWide(ids: string[]): Promise<RecordActivityMessage[]>;
   activitiesCompanyWide(ids: string[]): Promise<
     Array<{
