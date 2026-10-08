@@ -171,7 +171,6 @@ function handBuiltFocusLinkFindings(sources: SourceFile[]) {
 
 const FOCUS_LINK_ALLOWLIST: Allowlist = {
   "features/docs/app-links.ts": "I21: build docs app links with focusHref",
-  "app/components/agent-chat/ui-control.store.ts": "final sweep: recognize focus links through focus-target.ts",
 };
 
 describe("rule 36: one open-and-highlight mechanism", () => {
