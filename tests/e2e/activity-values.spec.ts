@@ -3,6 +3,7 @@ import type { Locator, Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 function chip(scope: Locator, label: string) {
   return scope.locator('[data-slot="badge"]').filter({ hasText: new RegExp(`^${label}$`) });
@@ -70,7 +71,6 @@ test("renders change values with the shared value renderers on every activity su
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Value readers");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Reads tasks");
-  await role.getByRole("tab", { name: "Record types", exact: true }).click();
   await role
     .locator("[data-record-permission]")
     .filter({ hasText: /^Tasks/ })
@@ -147,7 +147,7 @@ test("renders change values with the shared value renderers on every activity su
   await closeEntry(page, widgetEntryOpened);
 
   await page.goto(`/en/records/${dealTypeId}`);
-  await page.getByRole("button", { name: "Value renderer deal", exact: true }).click();
+  await openRecordDetails(page, "Value renderer deal");
   const drawer = page.getByRole("dialog").first();
   await drawer.getByRole("tab", { name: "History", exact: true }).click();
   const { detail: historyEntry, ...historyEntryOpened } = await openEntry(page, drawer, /Record created/);
