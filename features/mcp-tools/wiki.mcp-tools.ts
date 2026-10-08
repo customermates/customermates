@@ -6,16 +6,18 @@ import { z } from "zod";
 import {
   getCreateWikiPagesInteractor,
   getDeleteWikiPageInteractor,
+  getGetWikiKnowledgeGapsInteractor,
   getGetWikiPageInteractor,
   getGetWikiPagesInteractor,
   getSearchWikiKnowledgeInteractor,
   getUpdateWikiPageInteractor,
 } from "@/core/di";
+import { slugifyHeading } from "@/core/utils/search-text";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE } from "@/features/wiki/wiki-page-chunk";
 import { extractWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
-import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
+import { wikiMarkdownSections, wikiOutline } from "@/features/wiki/wiki-markdown-sections";
 import { WikiPageKindSchema, WIKI_TITLE_MAX_LENGTH, type WikiPageKind } from "@/features/wiki/wiki.schema";
 import { env } from "@/env";
 
@@ -33,6 +35,9 @@ import {
 
 const WIKI_MCP_TEXT_TARGET_LENGTH = 5_500;
 const WIKI_MCP_PAGE_SIZE = 5;
+const WIKI_MCP_ANCHOR_HINTS = 30;
+export const WIKI_NO_ADEQUATE_SECTION =
+  "No Knowledge Base section adequately answers this query. Do not guess: say the Knowledge Base does not cover it, or ask for details.";
 
 const MarkdownInputSchema = z
   .string()
@@ -60,6 +65,7 @@ const SearchSchema = z.object({
 const GetSchema = z.object({
   id: z.uuid(),
   offset: z.coerce.number().int().min(0).default(0),
+  anchor: z.string().trim().min(1).max(200).optional(),
 });
 const PageInputSchema = z.object({
   title: z.string().trim().min(1).max(WIKI_TITLE_MAX_LENGTH),
@@ -90,13 +96,14 @@ const DeleteSchema = z.object({
 
 const ManageWikiPagesSchema = z.object({
   action: z
-    .enum(["list", "search", "get", "create", "update", "delete"])
+    .enum(["list", "search", "get", "create", "update", "delete", "gaps"])
     .describe(
-      "list: page, kind; search: query, page; get: id, offset; create: pages, requireEmpty; update: id, expectedUpdatedAt, fields; delete: id, expectedUpdatedAt.",
+      "list: page, kind; search: query, page; get: id, offset or anchor; create: pages, requireEmpty; update: id, expectedUpdatedAt, fields; delete: id, expectedUpdatedAt; gaps: none.",
     ),
   id: z.uuid().optional().describe("Page id."),
   query: z.string().optional().describe("Search terms."),
   offset: z.coerce.number().int().min(0).optional().describe("Hit offset or prior nextOffset."),
+  anchor: z.string().optional().describe("Section anchor from search; get returns only that section."),
   page: mcpPage(),
   pages: z.array(PageInputSchema).min(1).max(5).optional().describe("Created atomically."),
   requireEmpty: z.boolean().optional().describe("Only into an empty Knowledge Base."),
@@ -145,6 +152,19 @@ export const ManageWikiPagesOutputSchema = z.looseObject({
     .optional(),
   didYouMean: z.array(z.string()).optional(),
   retrieval: z.enum(["semantic", "keyword"]).optional(),
+  noAdequateSection: z.boolean().optional(),
+  hint: z.string().optional(),
+  section: z.string().optional(),
+  gaps: z
+    .array(
+      z.looseObject({
+        query: z.string(),
+        count: z.number(),
+        firstSeenAt: z.string(),
+        lastSeenAt: z.string(),
+      }),
+    )
+    .optional(),
   deleted: z.boolean().optional(),
 });
 
@@ -188,8 +208,15 @@ function wikiPageChunk(
     updatedAt: Date;
   } & WikiPageKindFields,
   requestedOffset: number,
+  section?: { end: number; label: string },
 ) {
-  const discoveredLinks = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
+  const limit = section?.end ?? page.markdown.length;
+  const source = page.markdown.slice(0, limit);
+  const discoveredLinks = extractWikiPageLinks(
+    section ? source.slice(requestedOffset) : page.markdown,
+    env.BASE_URL,
+    6,
+  );
   let links = discoveredLinks.slice(0, 5);
   let outlineTruncated = false;
   const payload = (offset: number, end: number, outline: WikiOutlineEntry[]) =>
@@ -198,8 +225,9 @@ function wikiPageChunk(
       title: page.title,
       url: wikiPageUrl(env.BASE_URL, page.id),
       ...wikiPageKindOutput(page),
+      ...(section ? { section: section.label } : {}),
       offset,
-      nextOffset: end < page.markdown.length ? end : null,
+      nextOffset: end < limit ? end : null,
       totalChars: page.markdown.length,
       createdAt: page.createdAt,
       updatedAt: page.updatedAt,
@@ -207,11 +235,11 @@ function wikiPageChunk(
       linksTruncated: discoveredLinks.length > links.length,
       ...(outlineTruncated ? { outlineTruncated: true } : {}),
       ...(outline.length > 0 ? { outline } : {}),
-      markdownChunk: page.markdown.slice(offset, end),
+      markdownChunk: source.slice(offset, end),
     });
   const chunk = (outline: WikiOutlineEntry[]) =>
     boundedWikiChunk(
-      page.markdown,
+      source,
       requestedOffset,
       (start, stop) => encodeToToon(payload(start, stop, outline)).length <= WIKI_MCP_TEXT_TARGET_LENGTH,
       env.BASE_URL,
@@ -223,7 +251,7 @@ function wikiPageChunk(
     links = links.slice(0, -1);
   const plain = chunk([]);
   if (!plain) return null;
-  const headings = plain.offset === 0 && plain.end < page.markdown.length ? wikiOutline(page.markdown) : [];
+  const headings = !section && plain.offset === 0 && plain.end < limit ? wikiOutline(page.markdown) : [];
   const outline: WikiOutlineEntry[] = [];
   for (const heading of headings) {
     if (
@@ -285,7 +313,21 @@ function wikiSearchResult(result: WikiPageSearchResult) {
     ),
     ...(result.didYouMean ? { didYouMean: result.didYouMean } : {}),
     ...(result.retrieval ? { retrieval: result.retrieval } : {}),
+    ...(result.abstained ? { noAdequateSection: true, hint: WIKI_NO_ADEQUATE_SECTION } : {}),
   });
+}
+
+function wikiAnchorSection(markdown: string, anchor: string) {
+  const sections = wikiMarkdownSections(markdown).filter((section) => section.level > 0);
+  const anchors = sections.map((section) => slugifyHeading(section.path.at(-1) ?? ""));
+  const index = anchors.indexOf(anchor);
+  if (index < 0) return { anchors: [...new Set(anchors.filter(Boolean))] };
+  const found = sections[index];
+  return {
+    offset: found.offset,
+    end: found.end,
+    label: found.path.join(" > "),
+  };
 }
 
 export const manageWikiPagesTool = {
@@ -295,7 +337,8 @@ export const manageWikiPagesTool = {
     "Knowledge Base of company facts, processes, voice and support guidance. " +
     "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
     "list: 5 per page, guide pinned first, remaining pages in saved order; search: follow hasMore to continue; total is a lower bound unless totalIsExact. Returns snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
-    "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes. " +
+    "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes; anchor reads one section. " +
+    "gaps: questions the Knowledge Base could not answer (editors). " +
     "delete moves the page to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId. " +
     "Link pages as /wiki?page=<id>; ids survive renames.",
   annotations: {
@@ -340,8 +383,23 @@ export const manageWikiPagesTool = {
       if (!outcome.ok) return mcpInteractorFailure(outcome.error);
       if (!outcome.data) return customMcpFailure(CustomErrorCode.wikiPageNotFound, undefined, ["id"]);
 
-      const chunk = wikiPageChunk(outcome.data, parsed.data.offset);
+      const anchored = parsed.data.anchor ? wikiAnchorSection(outcome.data.markdown, parsed.data.anchor) : null;
+      if (anchored && anchored.offset === undefined) {
+        return mcpMessageFailure(
+          `Unknown section anchor "${parsed.data.anchor}". Anchors: ${anchored.anchors.slice(0, WIKI_MCP_ANCHOR_HINTS).join(", ")}`,
+        );
+      }
+      const chunk =
+        anchored?.offset !== undefined
+          ? wikiPageChunk(outcome.data, Math.max(anchored.offset, Math.min(parsed.data.offset, anchored.end)), anchored)
+          : wikiPageChunk(outcome.data, parsed.data.offset);
       return chunk ? toonResult(chunk) : mcpMessageFailure(WIKI_CHUNK_SIZE_FAILURE);
+    }
+
+    if (params.action === "gaps") {
+      return runInteractor(getGetWikiKnowledgeGapsInteractor().invoke(), ({ items }) =>
+        toonResult({ gaps: formatDatesInResponse(items) }),
+      );
     }
 
     if (params.action === "create") {
