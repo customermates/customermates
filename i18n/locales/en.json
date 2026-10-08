@@ -3050,6 +3050,21 @@
       "short": "Email, phone, social"
     },
     "channelsHelp": "Add email addresses, phone numbers, and social accounts to records in this list. An identifier can link to several records.",
+    "clickAction": "On click",
+    "clickActions": {
+      "email": {
+        "copy": "Copy address",
+        "open": "Open in mail app"
+      },
+      "phone": {
+        "copy": "Copy number",
+        "open": "Call number"
+      },
+      "url": {
+        "copy": "Copy link",
+        "open": "Open link"
+      }
+    },
     "color": "Color",
     "conditionIf": "Condition",
     "conditionOtherwise": "Otherwise",

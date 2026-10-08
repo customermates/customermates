@@ -36,7 +36,7 @@ import { isResolvedField } from "./configure-model";
 import { CalculationPath } from "./calculation-path";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
-import { MULTIPLE_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { CONTACT_VALUE_TYPES, MULTIPLE_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { recordChannelsBinding } from "@/features/records/record-channels";
 import { channelsAvatarAvailable, channelsFieldOperations } from "./channels-field";
 
@@ -52,6 +52,7 @@ const initial = () => ({
   providerAvatar: false,
   currency: "eur",
   decimalPlaces: "",
+  onClick: "open" as "open" | "copy",
   expression: {
     kind: "literal",
     value: { kind: "decimal", value: "0", currency: null },
@@ -124,6 +125,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             publishedSummary: field.publishedSummary,
             decimalPlaces: field.format?.decimalPlaces?.toString() ?? "",
             currency: field.format?.currency?.toLowerCase() ?? initial().currency,
+            onClick: field.format?.onClick ?? "open",
             ...(field.behavior.kind === "input"
               ? {
                   hasDefaultValue: field.behavior.defaultValue !== undefined && field.behavior.defaultValue !== null,
@@ -357,6 +359,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
           ["number", "currency"].includes(form.valueType) && form.decimalPlaces.trim() !== ""
             ? Number(form.decimalPlaces)
             : null,
+        onClick: CONTACT_VALUE_TYPES.includes(form.valueType) ? form.onClick : null,
       },
       options:
         form.valueType === "select"
@@ -539,6 +542,17 @@ export const FieldModal = observer(function FieldModal({
 
             {store.form.valueType === "currency" && (
               <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
+            )}
+
+            {store.form.valueType !== "channels" && CONTACT_VALUE_TYPES.includes(store.form.valueType) && (
+              <FormSelect
+                id="onClick"
+                items={(["open", "copy"] as const).map((value) => ({
+                  value,
+                  label: t(`RecordModel.clickActions.${store.form.valueType}.${value}`),
+                }))}
+                label={t("RecordModel.clickAction")}
+              />
             )}
 
             {["number", "currency"].includes(store.form.valueType) && (
