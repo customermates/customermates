@@ -44043,10 +44043,12 @@
                                   ]
                                 },
                                 "messagesOnSource": {
+                                  "default": false,
                                   "type": "boolean",
                                   "description": "Show the messages of directly linked target records on each source record's activity timeline."
                                 },
                                 "messagesOnTarget": {
+                                  "default": false,
                                   "type": "boolean",
                                   "description": "Show the messages of directly linked source records on each target record's activity timeline."
                                 },
@@ -44064,9 +44066,7 @@
                                 "sourceCardinality",
                                 "targetCardinality",
                                 "onSourceDelete",
-                                "onTargetDelete",
-                                "messagesOnSource",
-                                "messagesOnTarget"
+                                "onTargetDelete"
                               ],
                               "additionalProperties": false
                             }
@@ -46251,10 +46251,12 @@
                                   ]
                                 },
                                 "messagesOnSource": {
+                                  "default": false,
                                   "type": "boolean",
                                   "description": "Show the messages of directly linked target records on each source record's activity timeline."
                                 },
                                 "messagesOnTarget": {
+                                  "default": false,
                                   "type": "boolean",
                                   "description": "Show the messages of directly linked source records on each target record's activity timeline."
                                 },
@@ -46272,9 +46274,7 @@
                                 "sourceCardinality",
                                 "targetCardinality",
                                 "onSourceDelete",
-                                "onTargetDelete",
-                                "messagesOnSource",
-                                "messagesOnTarget"
+                                "onTargetDelete"
                               ],
                               "additionalProperties": false
                             }

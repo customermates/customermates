@@ -123,8 +123,23 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
   );
 }
 
-function CommandEmpty({ ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
-  return <CommandPrimitive.Empty className="py-6 text-center text-sm" data-slot="command-empty" {...props} />;
+function CommandEmpty({
+  persistent = false,
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Empty> & { persistent?: boolean }) {
+  if (persistent) {
+    return (
+      <div className={cn("py-6 text-center text-sm", className)} data-slot="command-empty" role="status" {...props} />
+    );
+  }
+  return (
+    <CommandPrimitive.Empty
+      className={cn("py-6 text-center text-sm", className)}
+      data-slot="command-empty"
+      {...props}
+    />
+  );
 }
 
 function CommandGroup({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Group>) {

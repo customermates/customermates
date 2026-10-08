@@ -1,6 +1,7 @@
 import { addFromConfigure, followConfigureLink, saveDrawer } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { openRecordDetails } from "./record-rows";
 
 test("edits duplicate embedded items, live and saved prices, and weighted totals through the generic UI", async ({
   page,
@@ -43,7 +44,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await page.getByRole("option", { name: "Proposal", exact: true }).click();
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialogs).not.toBeVisible();
-  await page.getByRole("button", { name: "Local opportunity", exact: true }).click();
+  await openRecordDetails(page, "Local opportunity");
   await expect(dialogs.getByRole("region", { name: "Line items" })).toBeVisible();
   for (const [name, service, quantity] of [
     ["A first", "Service A", "1"],
@@ -119,7 +120,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await page.getByRole("option", { name: "Offered services", exact: true }).click();
   if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
   else await page.keyboard.press("Escape");
-  await expect(page.getByRole("button", { name: "Local opportunity", exact: true })).toHaveCount(2);
+  await expect(page.getByRole("link", { name: "Local opportunity", exact: true })).toHaveCount(2);
   await expect
     .poll(async () => {
       const preferences = await database.query('SELECT grouping FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
@@ -136,10 +137,10 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   });
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("button", { name: "Reset to shared defaults", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Local opportunity", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("link", { name: "Local opportunity", exact: true })).toHaveCount(1);
   const changeLivePrice = async (price: string) => {
     await openRecords("service");
-    await page.getByRole("button", { name: "Service A", exact: true }).click();
+    await openRecordDetails(page, "Service A");
     await dialogs.getByRole("textbox", { name: "Price", exact: false }).fill(price);
     await dialogs.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialogs).not.toBeVisible();
@@ -147,7 +148,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await changeLivePrice("1200");
   await expect.poll(totals).toEqual({ Value: "3000", Quantity: "5", "Weighted value": "1800" });
   await openRecords("deal");
-  await page.getByRole("button", { name: "Local opportunity", exact: true }).click();
+  await openRecordDetails(page, "Local opportunity");
   for (const name of ["A first", "A second"]) {
     await dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name, exact: true }).click();
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
@@ -181,7 +182,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await changeLivePrice("1400");
   await expect.poll(totals).toEqual({ Value: "2600", Quantity: "5", "Weighted value": "1560" });
   await openRecords("deal");
-  await page.getByRole("button", { name: "Local opportunity", exact: true }).click();
+  await openRecordDetails(page, "Local opportunity");
   await dialogs.getByRole("combobox", { name: "Stage", exact: true }).click();
   await page.getByRole("option", { name: "Lost", exact: true }).click();
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
@@ -193,7 +194,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   expect(lines.rows).toEqual([{ count: 3 }]);
   await expect(dialogs).not.toBeVisible();
   await openRecords("service");
-  await page.getByRole("button", { name: "Service A", exact: true }).click();
+  await openRecordDetails(page, "Service A");
   await dialogs.getByRole("button", { name: "Delete", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("Services: 1; Line items: 2");
