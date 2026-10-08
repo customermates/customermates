@@ -792,21 +792,24 @@ function ConfigureGraphCanvas({
       if (!node) return;
       const pane = element.getBoundingClientRect();
       const nodeBox = node.getBoundingClientRect();
-      const box = nodeBox.width <= pane.width - REVEAL_MARGIN * 2 ? nodeBox : target.getBoundingClientRect();
+      const targetBox = target.getBoundingClientRect();
+      const fits = (size: number, room: number) => size <= room - REVEAL_MARGIN * 2;
+      const horizontal = fits(nodeBox.width, pane.width) ? nodeBox : targetBox;
+      const vertical = fits(nodeBox.height, pane.height) ? nodeBox : targetBox;
       const offset = (start: number, end: number, low: number, high: number) =>
         start < low + REVEAL_MARGIN
           ? low + REVEAL_MARGIN - start
           : end > high - REVEAL_MARGIN
             ? high - REVEAL_MARGIN - end
             : 0;
-      const dx = offset(box.left, box.right, pane.left, pane.right);
-      const dy = offset(box.top, box.bottom, pane.top, pane.bottom);
+      const dx = offset(horizontal.left, horizontal.right, pane.left, pane.right);
+      const dy = offset(vertical.top, vertical.bottom, pane.top, pane.bottom);
       if (!dx && !dy) return;
       const viewport = flow.getViewport();
       void flow.setViewport({ ...viewport, x: viewport.x + dx, y: viewport.y + dy }).catch(reportApplicationError);
     };
     const onFocus = (event: FocusEvent) => {
-      if (event.target instanceof Element) reveal(event.target);
+      if (event.target instanceof Element && event.target.matches(":focus-visible")) reveal(event.target);
     };
     const onScroll = (event: Event) => {
       const scroller = event.target;
