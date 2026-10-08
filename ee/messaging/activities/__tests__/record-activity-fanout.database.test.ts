@@ -41,11 +41,11 @@ const { RecordActivitiesInputSchema } = await import("@/ee/messaging/activities/
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const companies: string[] = [];
-const serviceId = randomUUID();
+const organizationId = randomUUID();
 const personId = randomUUID();
 const canonical = "activity-fanout@example.test";
 const alias = "activity-fanout-alias@example.test";
-const siblings = Array.from({ length: 600 }, () => ({ deal: randomUUID(), line: randomUUID() }));
+const siblings = Array.from({ length: 600 }, () => randomUUID());
 let database: Client;
 let workspace: Awaited<ReturnType<typeof createWorkspace>>;
 let foreign: Awaited<ReturnType<typeof createWorkspace>>;
@@ -53,7 +53,7 @@ let canonicalMessage: Awaited<ReturnType<typeof createMessage>>;
 let aliasMessage: Awaited<ReturnType<typeof createMessage>>;
 let directMessage: Awaited<ReturnType<typeof createMessage>>;
 let foreignMessage: Awaited<ReturnType<typeof createMessage>>;
-let serviceEventId: string;
+let organizationEventId: string;
 
 function fixtureClient() {
   return getTransactionClient<AppPrismaClient>() ?? prisma;
@@ -102,12 +102,11 @@ async function createWorkspace() {
   await runWithTenant(admin, () =>
     runInTransaction(async () => {
       await repo.saveModel(createCrmPreset(seed.company.id), admin.id);
-      await repo.setGrants(id("service"), [{ roleId: seed.memberRole.id, actions: ["readAll"] }]);
-      await repo.setGrants(id("deal"), [{ roleId: seed.memberRole.id, actions: ["readOwn"] }]);
+      await repo.setGrants(id("organization"), [{ roleId: seed.memberRole.id, actions: ["readAll"] }]);
       await repo.setGrants(id("contact"), [{ roleId: seed.memberRole.id, actions: ["readOwn"] }]);
       await fixtureClient().crmRecord.createMany({
         data: [
-          { companyId: seed.company.id, typeId: id("service"), id: serviceId },
+          { companyId: seed.company.id, typeId: id("organization"), id: organizationId },
           { companyId: seed.company.id, typeId: id("contact"), id: personId },
         ],
       });
@@ -205,7 +204,7 @@ async function queryActivity(user: TenantUser) {
   );
   expect(context.policy.actor?.id).toBe(user.id);
   const input = RecordActivitiesInputSchema.parse({
-    scope: { records: [{ typeId: workspace.id("service"), recordId: serviceId }], typeIds: [] },
+    scope: { records: [{ typeId: workspace.id("organization"), recordId: organizationId }], typeIds: [] },
     kinds: ["record", "audit", "message", "activity", "calendar_event"],
     limit: 100,
   });
@@ -226,12 +225,12 @@ async function queryActivity(user: TenantUser) {
 
 function expectedEntries(...messages: Array<{ id: string }>) {
   return [
-    { kind: "record", id: serviceEventId },
+    { kind: "record", id: organizationEventId },
     ...messages.map((message) => ({ kind: "message", id: message.id })),
   ].sort((a, b) => a.id.localeCompare(b.id));
 }
 
-describeDatabase("record activity with 600 matching line items", { timeout: 30000 }, () => {
+describeDatabase("record activity of an organization with 600 linked contacts", { timeout: 30000 }, () => {
   beforeAll(async () => {
     if (!databaseUrl) throw new Error("Owned local database required");
     database = new Client({ connectionString: databaseUrl });
@@ -241,45 +240,28 @@ describeDatabase("record activity with 600 matching line items", { timeout: 3000
     await runWithTenant(workspace.admin, () =>
       runInTransaction(async () => {
         await fixtureClient().crmRecord.createMany({
-          data: siblings.flatMap(({ deal, line }) => [
-            { companyId: workspace.companyId, typeId: workspace.id("deal"), id: deal },
-            { companyId: workspace.companyId, typeId: workspace.id("lineItem"), id: line },
-          ]),
+          data: siblings.map((contact) => ({
+            companyId: workspace.companyId,
+            typeId: workspace.id("contact"),
+            id: contact,
+          })),
         });
         await fixtureClient().recordLink.createMany({
-          data: siblings.flatMap(({ deal, line }) => [
-            {
-              companyId: workspace.companyId,
-              relationId: workspace.id("lineItem.service"),
-              sourceTypeId: workspace.id("lineItem"),
-              sourceId: line,
-              targetTypeId: workspace.id("service"),
-              targetId: serviceId,
-            },
-            {
-              companyId: workspace.companyId,
-              relationId: workspace.id("lineItem.deal"),
-              sourceTypeId: workspace.id("lineItem"),
-              sourceId: line,
-              targetTypeId: workspace.id("deal"),
-              targetId: deal,
-            },
-            {
-              companyId: workspace.companyId,
-              relationId: workspace.id("deal.contacts"),
-              sourceTypeId: workspace.id("deal"),
-              sourceId: deal,
-              targetTypeId: workspace.id("contact"),
-              targetId: personId,
-            },
-          ]),
+          data: [personId, ...siblings].map((contact) => ({
+            companyId: workspace.companyId,
+            relationId: workspace.id("contact.organizations"),
+            sourceTypeId: workspace.id("contact"),
+            sourceId: contact,
+            targetTypeId: workspace.id("organization"),
+            targetId: organizationId,
+          })),
         });
         const event = await fixtureClient().eventLog.create({
           data: {
             companyId: workspace.companyId,
             subjectKind: "record",
-            subjectTypeId: workspace.id("service"),
-            subjectId: serviceId,
+            subjectTypeId: workspace.id("organization"),
+            subjectId: organizationId,
             actorId: workspace.admin.id,
             causeId: randomUUID(),
             kind: "record.created",
@@ -287,7 +269,7 @@ describeDatabase("record activity with 600 matching line items", { timeout: 3000
             deliveredAt: new Date(),
           },
         });
-        serviceEventId = event.id;
+        organizationEventId = event.id;
       }),
     );
     canonicalMessage = await createMessage(workspace, canonical);
@@ -299,8 +281,8 @@ describeDatabase("record activity with 600 matching line items", { timeout: 3000
         data: {
           companyId: workspace.companyId,
           threadId: directMessage.threadId,
-          typeId: workspace.id("service"),
-          recordId: serviceId,
+          typeId: workspace.id("organization"),
+          recordId: organizationId,
         },
       }),
     );
@@ -320,19 +302,18 @@ describeDatabase("record activity with 600 matching line items", { timeout: 3000
       fixtureClient().recordLink.count({
         where: {
           companyId: workspace.companyId,
-          relationId: workspace.id("lineItem.service"),
-          sourceTypeId: workspace.id("lineItem"),
-          targetTypeId: workspace.id("service"),
-          targetId: serviceId,
+          relationId: workspace.id("contact.organizations"),
+          targetTypeId: workspace.id("organization"),
+          targetId: organizationId,
         },
       }),
     );
-    expect(matchingLinks).toBe(600);
+    expect(matchingLinks).toBe(601);
     const result = await queryActivity(workspace.admin);
-    expect(result.scope).toHaveLength(2);
+    expect(result.scope).toHaveLength(602);
     expect(result.scope).toEqual(
       expect.arrayContaining([
-        { typeId: workspace.id("service"), id: serviceId, audit: true, messaging: false, threading: true },
+        { typeId: workspace.id("organization"), id: organizationId, audit: true, messaging: false, threading: true },
         { typeId: workspace.id("contact"), id: personId, audit: false, messaging: true, threading: true },
       ]),
     );
@@ -341,44 +322,23 @@ describeDatabase("record activity with 600 matching line items", { timeout: 3000
     );
   });
 
-  it("requires readOwn access at both the embedded parent and person while retaining independent thread context", async () => {
-    const permittedDeal = siblings.at(0)?.deal;
-    if (!permittedDeal) throw new Error("Fan-out fixture required");
-    const assign = (typeId: string, recordId: string) => ({
+  it("requires readOwn access at the linked person while retaining independent thread context", async () => {
+    const assignment = {
       companyId: workspace.companyId,
-      typeId,
-      recordId,
+      typeId: workspace.id("contact"),
+      recordId: personId,
       userId: workspace.member.id,
-    });
-    await runWithTenant(workspace.admin, () =>
-      fixtureClient().recordAssignment.createMany({
-        data: [assign(workspace.id("deal"), permittedDeal), assign(workspace.id("contact"), personId)],
-      }),
+    };
+    const restricted = await queryActivity(workspace.member);
+    expect(restricted.scope.map((row) => row.typeId)).toEqual([workspace.id("organization")]);
+    expect(restricted.index.map(({ kind, id }) => ({ kind, id })).sort((a, b) => a.id.localeCompare(b.id))).toEqual(
+      expectedEntries(directMessage),
     );
+    await runWithTenant(workspace.admin, () => fixtureClient().recordAssignment.create({ data: assignment }));
     const readable = await queryActivity(workspace.member);
+    expect(readable.scope.map((row) => row.id).sort()).toEqual([organizationId, personId].sort());
     expect(readable.index.map(({ kind, id }) => ({ kind, id })).sort((a, b) => a.id.localeCompare(b.id))).toEqual(
       expectedEntries(canonicalMessage, aliasMessage, directMessage),
     );
-    await runWithTenant(workspace.admin, () =>
-      fixtureClient().recordAssignment.deleteMany({
-        where: assign(workspace.id("deal"), permittedDeal),
-      }),
-    );
-    const parentRestricted = await queryActivity(workspace.member);
-    expect(parentRestricted.scope.map((row) => row.typeId)).toEqual([workspace.id("service")]);
-    expect(
-      parentRestricted.index.map(({ kind, id }) => ({ kind, id })).sort((a, b) => a.id.localeCompare(b.id)),
-    ).toEqual(expectedEntries(directMessage));
-    await runWithTenant(workspace.admin, () =>
-      runInTransaction(async () => {
-        await fixtureClient().recordAssignment.create({ data: assign(workspace.id("deal"), permittedDeal) });
-        await fixtureClient().recordAssignment.deleteMany({ where: assign(workspace.id("contact"), personId) });
-      }),
-    );
-    const personRestricted = await queryActivity(workspace.member);
-    expect(personRestricted.scope.map((row) => row.typeId)).toEqual([workspace.id("service")]);
-    expect(
-      personRestricted.index.map(({ kind, id }) => ({ kind, id })).sort((a, b) => a.id.localeCompare(b.id)),
-    ).toEqual(expectedEntries(directMessage));
   });
 });

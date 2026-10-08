@@ -71,7 +71,6 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
       onSubmit: action,
       isSystemRole: computed,
       isOwnRole: computed,
-      isDisabledOrSystemRole: computed,
       hasUsersAssigned: computed,
       canDeleteRole: computed,
     });
@@ -88,9 +87,6 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
       this.context?.role?.isSystemRole ??
         this.rootStore.rolesStore.items.find((role) => role.id === this.form.id)?.isSystemRole,
     );
-  }
-  get isDisabledOrSystemRole() {
-    return this.isDisabled;
   }
   get hasUsersAssigned() {
     return Boolean(this.rootStore.rolesStore.items.find((role) => role.id === this.form.id)?.hasUsersAssigned);

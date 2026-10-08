@@ -5,11 +5,14 @@ test("opens a docs app link in the reader's own workspace", async ({ page, compa
   const contacts = presetId(companyId, "contact");
 
   await page.goto("/en/open/records/contact?focus=add");
-  await expect(page).toHaveURL(`/en/records/${contacts}?focus=control:records:${contacts}:add`);
-  await expect(page.locator("#records-add")).toBeVisible();
+  await expect(page.locator("#records-add")).toHaveAttribute("data-focus-highlight", "");
+  await expect(page).toHaveURL(`/en/records/${contacts}`);
 
   await page.goto("/en/open/configure/deal");
-  await expect(page).toHaveURL(new RegExp(`/en/configure\\?typeId=${presetId(companyId, "deal")}`));
+  await expect(page.locator(`[data-focus-target="list:${presetId(companyId, "deal")}"]`)).toHaveAttribute(
+    "data-focus-highlight",
+    "",
+  );
 });
 
 test("shows not found for an app link the resolver does not know", async ({ page }) => {

@@ -27,6 +27,7 @@ const root = {
 const presentation = {
   model,
   linkColors: {},
+  linkIcons: {},
   typeId: id("deal"),
   canManageSchema: true,
   permittedActions: ["readAll", "update"],
@@ -56,6 +57,7 @@ const item: RecordRow = {
   fields: [],
   assignedUserIds: [],
   assignedUsers: [],
+  memberUsers: [],
   relationships: [],
 };
 const params = {

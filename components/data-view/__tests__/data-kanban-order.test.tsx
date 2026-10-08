@@ -107,6 +107,7 @@ function groupingResult(overrides: Partial<GroupingResult> = {}): GroupingResult
 export function boardStore(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
   return {
     customColumns: [STORED_COLUMN_WHOSE_ARRAY_ORDER_DISAGREES_WITH_THE_SERVER],
+    columnWidths: {},
     entityType: "deal",
     hiddenColumns: [],
     isGrouped: true,

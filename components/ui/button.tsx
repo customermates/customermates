@@ -19,6 +19,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         softPrimary: "bg-primary/20 text-primary hover:bg-primary/35",
         softDestructive: "bg-destructive/20 text-destructive hover:bg-destructive/35",
+        ghostDestructive: "text-destructive hover:bg-destructive/10 hover:text-destructive",
         destructiveOutline:
           "border border-destructive/40 bg-input-background text-destructive shadow-xs hover:bg-destructive/10 hover:border-destructive",
       },

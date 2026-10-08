@@ -737,7 +737,6 @@
     "addDescription": "Crea una clave para tu propia integración o elige un cliente de IA para recibir una configuración guiada.",
     "addTitle": "Añadir una clave de API",
     "backToOptions": "Todas las opciones de claves de API",
-    "done": "Listo",
     "expiresIn": "Caduca en",
     "expiresInPlaceholder": "Nunca caduca",
     "keyCreated": "Clave de API creada",
@@ -776,7 +775,6 @@
       "prompt": "Instrucciones",
       "publishSummary": "Resumen publicado",
       "putAccessPreset": "Plantilla de acceso",
-      "putActivityPath": "Ruta de actividad",
       "putCapability": "Funcionalidad",
       "putField": "Campo",
       "putRelationship": "Relación",
@@ -792,7 +790,6 @@
       "versions": "Versiones de documentos",
       "visibility": "Visibilidad"
     },
-    "noValue": "Sin valor",
     "relationsAdded": "Elementos añadidos en {field}",
     "relationsDeleted": "Elementos eliminados de {field}",
     "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
@@ -867,9 +864,7 @@
       "hidePassword": "Ocultar contraseña",
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
-      "switchToBoardView": "Cambiar a la vista de tablero",
       "switchToBoardViewDisabled": "Esta lista no tiene ningún campo por el que agrupar",
-      "switchToTableView": "Cambiar a la vista de tabla",
       "themeSwitcher": "Selector de tema",
       "tooltipFields": "Apariencia",
       "tooltipFilters": "Filtros"
@@ -1240,7 +1235,10 @@
         "equals": "=",
         "gt": ">",
         "gte": "≥",
+        "hasAllOf": "tiene todos de",
+        "hasAnyOf": "tiene alguno de",
         "hasNone": "no tiene ninguno",
+        "hasNoneOf": "no tiene ninguno de",
         "hasSome": "tiene alguno",
         "hasUnset": "no totalmente vinculado",
         "in": "es uno de",
@@ -1560,7 +1558,6 @@
     "emailPreviewLink": "Enlace de ejemplo",
     "emailPreviewSample": "Así se verá el texto de tu correo.",
     "emailPreviewTitle": "Vista previa",
-    "emailSave": "Guardar ajustes de correo",
     "emailSaved": "Ajustes de correo guardados",
     "emailSignatureContent": "Contenido de la firma",
     "emailSignatureDescription": "Se añade automáticamente a los correos enviados desde esta cuenta.",
@@ -1733,13 +1730,13 @@
         "showFilters": "Mostrar el número de actividades y los filtros",
         "showMetricAndFilters": "Mostrar la métrica y los filtros"
       },
-      "create": "Crear widget",
       "danger": {
         "deleteLabel": "Eliminar el widget {name}"
       },
       "editTitle": "Editar «{name}»",
       "kind": {
         "activityTimelineDescription": "Sigue en orden cronológico los cambios en registros, los mensajes y la actividad de cuentas y calendario.",
+        "change": "Elegir otro widget",
         "chartDescription": "Compara los datos del CRM en un gráfico.",
         "description": "Elige un formato y selecciona tú mismo los datos.",
         "scratchTitle": "Empezar desde cero",
@@ -1749,10 +1746,13 @@
         "incomplete": "Completa la configuración de datos para ver una vista previa.",
         "live": "Vista previa en vivo",
         "size": "Tamaño en el panel {w} × {h}",
-        "title": "Vista previa",
         "untitled": "Widget sin título"
       },
-      "save": "Guardar cambios",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Ninguno} one {1 activo} other {# activos}}",
+        "filters": "Filtros",
+        "grouping": "Agrupación"
+      },
       "settings": "Configuración del widget",
       "sharing": {
         "template": "Compartir como plantilla"
@@ -1868,6 +1868,7 @@
     "groupOverflow": "Solo se muestran {count} grupos",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Sin valor",
+    "resizeBoardColumns": "Cambiar el ancho de las columnas del tablero. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer.",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "rowActions": "Acciones de fila",
@@ -2456,7 +2457,6 @@
     "text": "Cargando..."
   },
   "MassActions": {
-    "apply": "Aplicar a la selección",
     "clearField": "Vaciar campo",
     "delete": "Eliminar la selección",
     "keepInView": "Conservar solo las filas visibles",
@@ -2969,15 +2969,12 @@
   "RecordModel": {
     "access": "Acceso",
     "accessDescription": "Solo los administradores pueden acceder a esta lista, salvo que selecciones un acceso predefinido aprobado.",
-    "activityConnections": "Conexiones de actividad",
-    "activityConnectionsHelp": "Elige qué registros vinculados aportan mensajes y cambios al historial de actividad de esta lista. Se siguen aplicando los permisos de mensajes y registros.",
     "addAttribute": "Añadir atributo",
     "addEmbedded": "Añadir {type}",
     "addField": "Añadir campo",
     "addGroupSummary": "Añadir resumen",
     "addInput": "Añadir entrada",
     "addMenu": {
-      "activityConnection": "Conexión de actividad",
       "calculation": "Cálculo",
       "field": "Campo",
       "list": "Lista",
@@ -2989,7 +2986,6 @@
     "aggregation": "Agregación",
     "allowManualOverride": "Permitir un valor de reemplazo manual",
     "ascending": "Ascendente",
-    "assignedMembers": "Miembros asignados",
     "assignedTo": "Asignado a",
     "attribute": "Nombre del atributo",
     "behavior": "Origen del valor",
@@ -3001,6 +2997,7 @@
       "snapshot": "Guardado en un evento"
     },
     "board": "Tablero",
+    "calculatedReadOnly": "{field} se calcula y no se puede editar.",
     "calculationError": "Cálculo no disponible",
     "calculationInput": "Entrada {number}",
     "calculationNavigation": "Navegación del cálculo",
@@ -3074,7 +3071,6 @@
         "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}"
       },
       "configureActions": "Acciones de Configurar",
-      "deleteActivityPath": "Eliminar conexión de actividad",
       "deleteColumn": "Eliminar columna",
       "deleteColumnMessage": "La columna de registros relacionados {name} se quita de {list}.",
       "deleteColumnTitle": "¿Eliminar la columna {name}?",
@@ -3097,7 +3093,6 @@
       },
       "kind": "Tipo",
       "kinds": {
-        "activityPath": "Conexión de actividad",
         "channels": "Campo de canales",
         "field": "Campo",
         "relationship": "Relación",
@@ -3109,7 +3104,7 @@
       "openConfigure": "Abrir Configurar",
       "recentlyDeleted": "Eliminados recientemente",
       "recentlyDeletedEmpty": "No se ha eliminado nada",
-      "recentlyDeletedHelp": "Las listas, campos, relaciones, conexiones de actividad y campos de canales eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
+      "recentlyDeletedHelp": "Las listas, campos, relaciones y campos de canales eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
       "removed": {
         "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
         "hidden": "Contiene registros que no puede ver.",
@@ -3313,9 +3308,9 @@
     },
     "iconSearch": "Buscar iconos",
     "identityChannels": "Canales",
-    "includeAudit": "Incluir cambios de registros",
-    "includeMessages": "Incluir mensajes",
     "invalidConfiguration": "Este cambio requiere revisión antes de aplicarlo.",
+    "invalidPhone": "Introduce un número de teléfono en formato internacional, por ejemplo +4930123456.",
+    "invalidValue": "Introduce un valor válido.",
     "lineFields": {
       "amount": "Importe",
       "effectivePrice": "Precio unitario",
@@ -3330,7 +3325,7 @@
     "linkedType": "Vincular a",
     "linkRecord": "Vincular un registro",
     "listActions": "Acciones de la lista",
-    "listCounts": "{fields, plural, one {# campo} other {# campos}} · {relationships, plural, one {# relación} other {# relaciones}} · {activity, plural, one {# conexión de actividad} other {# conexiones de actividad}}",
+    "listCounts": "{fields, plural, one {# campo} other {# campos}} · {relationships, plural, one {# relación} other {# relaciones}}",
     "listUnavailable": "Esta lista no está disponible. Elige otra lista.",
     "member": "Miembro",
     "missing": "Sin valor",
@@ -3343,12 +3338,13 @@
     "no": "No",
     "noGrouping": "Sin agrupación",
     "noneYet": "Todavía ninguno",
+    "noOptions": "Todavía no hay opciones. Añade la primera opción para elegir.",
     "onePerLine": "Introduce un valor por línea.",
     "onSourceDelete": "Al eliminar este registro",
     "onTargetDelete": "Al eliminar el registro vinculado",
+    "openDetails": "Abrir detalles",
     "openPage": "Abrir página",
     "openRecord": "Abrir {name}",
-    "openRecordDetails": "Abrir detalles de {name}",
     "operation": "Cálculo",
     "operationCancelled": "El cambio se canceló.",
     "operationFailed": "El cambio falló. El estado completo anterior sigue activo.",
@@ -3376,6 +3372,7 @@
     "oppositeLabel": "Etiqueta en el otro lado",
     "option": "Opción",
     "optionAttribute": "Atributo de la opción",
+    "optionCount": "{count, plural, =0 {Sin opciones} one {# opción} other {# opciones}}",
     "options": "Opciones",
     "pinnedFields": "Campos de detalle fijados",
     "pluralDescription": "Se muestra en la navegación y en los títulos de lista. Se sugiere a partir del nombre hasta que lo cambies.",
@@ -3477,7 +3474,6 @@
     "summaryField": "Campo del resumen",
     "systemActor": "Sistema",
     "table": "Tabla",
-    "thisList": "Esta lista",
     "triggerField": "Cuando cambie este campo",
     "triggerValue": "A este valor",
     "types": {
@@ -3489,6 +3485,7 @@
       "dateTimeRange": "Intervalo de fechas y horas",
       "email": "Correo electrónico",
       "member": "Miembro",
+      "multiSelect": "Opción múltiple",
       "number": "Número",
       "phone": "Teléfono",
       "richText": "Texto con formato",
@@ -3540,6 +3537,7 @@
     "noRecordsInPeriod": "Sin registros",
     "notes": "Sobre estas cifras",
     "operators": {
+      "all": "Tiene todos de",
       "between": "Entre",
       "contains": "Contiene",
       "empty": "Está vacío",
@@ -3557,7 +3555,6 @@
       "startsWith": "Empieza por"
     },
     "overall": "Total: {value}",
-    "preview": "Vista previa de la medida",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {
@@ -3602,9 +3599,7 @@
   },
   "RoleModal": {
     "create": "Crear",
-    "delete": "Eliminar",
     "edit": "Editar",
-    "general": "General",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
     "readAccess": "Acceso de lectura",
@@ -3796,7 +3791,6 @@
     "account": "Cuenta",
     "activity": "Actividad",
     "apiKeys": "Claves de API",
-    "back": "Volver",
     "billing": "Facturación",
     "channels": "Canales",
     "deliveries": "Entregas",
@@ -3876,7 +3870,7 @@
       "planManage": "Se sincroniza con la facturación. Usa «{billing}» para hacer cambios.",
       "planPicker": "Elige un plan abajo para iniciar o cambiar la suscripción.",
       "planReadOnly": "Se sincroniza con la facturación. Pide los cambios a un administrador del espacio de trabajo.",
-      "quantity": "Se sincroniza con el número de miembros activos del espacio de trabajo. Los administradores pueden activar o desactivar miembros en «{company}».",
+      "quantity": "Se sincroniza con el número de miembros activos del espacio de trabajo. Los administradores pueden activar o desactivar miembros en «{members}».",
       "trialEndsManage": "Lo determina el periodo de prueba. Usa «{billing}» para gestionar la suscripción.",
       "trialEndsPicker": "Lo determina el periodo de prueba. Elige un plan antes de esta fecha para continuar sin interrupciones.",
       "trialEndsReadOnly": "Lo determina el periodo de prueba. Pide a un administrador del espacio de trabajo que gestione la suscripción."
@@ -3911,7 +3905,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Plazas activas",
-    "refresh": "Actualizar",
     "refreshSuccess": "Suscripción actualizada correctamente",
     "seatBillingNote": "Pagas por usuario activo. Los cambios de plazas se prorratean en tu próxima factura.",
     "status": {
@@ -3984,7 +3977,6 @@
     "title": "Te damos la bienvenida a tu prueba"
   },
   "UserAvatar": {
-    "company": "Mi empresa",
     "documentation": "Documentación",
     "home": "Inicio",
     "language": "Idioma",

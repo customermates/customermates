@@ -25,9 +25,9 @@ Roles are edited under **My Company › Roles** by a member whose role has **Edi
 
 ## Profile settings page [#settings-tab]
 
-The profile **Settings** page holds your name, avatar, language, formats and theme. Route `/settings/profile`, sidebar entry **Settings**. Every signed-in member can open it, whatever the role, and the form changes only your own profile. Save or discard with **Save** (`#settings-profile-save`) and **Reset** (`#settings-profile-reset`) below the form; both buttons appear once the form has unsaved changes. **Save** stores all fields at once.
+The profile **Settings** page holds your name, avatar, language, formats and theme. Route `/settings/profile`, sidebar entry **Settings**. Every signed-in member can open it, whatever the role, and the form changes only your own profile. Save or discard with **Save** (`#settings-profile-save`) and **Reset** (`#settings-profile-reset`) below the form; **Save** is always there and becomes active once the form has unsaved changes, and **Reset** appears only then. **Save** stores all fields at once.
 
-**Link:** the link to the profile **Settings** page, `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`; `highlight_element` also takes the field ids below without `#`, `settings-profile-verify-email` while your email is unverified, and `settings-profile-save` and `settings-profile-reset`, which are on screen only once the form has unsaved changes.
+**Link:** the link to the profile **Settings** page, `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`; `highlight_element` also takes the field ids below without `#`, `settings-profile-verify-email` while your email is unverified, `settings-profile-save`, and `settings-profile-reset`, which is on screen only once the form has unsaved changes.
 
 ### How do I change my name, avatar, language or theme?
 
@@ -46,7 +46,7 @@ The header above the form shows your name, your email address, **Email verified*
 
 The avatar menu at the bottom of the sidebar has a **Dark Mode** or **Light Mode** switch that also saves your theme, and **Sign Out**.
 
-**Link:** `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`, then `highlight_element` with the field id in this table without `#`, for example `settings-profile-first-name`, `settings-profile-avatar-url` or `settings-profile-theme`, and `settings-profile-save` once something changed. The header and the avatar menu have no target, so Mate names them.
+**Link:** `/settings/profile`. **Mate:** `navigate` and `highlight_element` with `nav-settings-profile`, then `highlight_element` with the field id in this table without `#`, for example `settings-profile-first-name`, `settings-profile-avatar-url` or `settings-profile-theme`, and `settings-profile-save`. The header and the avatar menu have no target, so Mate names them.
 
 ### How do I verify my email address or resend the verification email? [#how-do-i-verify-my-email-address]
 
@@ -92,7 +92,7 @@ Channels are the email, LinkedIn, WhatsApp, Instagram and Telegram accounts that
 | Details tab | Channel dialog | `#connected-account-tab-details` (**Details**) | **Provider**, **Status**, **Visibility**, **Owner**, **Folders**, **Connected** and **Last synced** |
 | Share or unshare | Details tab | `#connected-account-visibility` | The **Visibility** switch between **Private** and **Shared**; owner only |
 | Email tab | Channel dialog | `#connected-account-tab-email` (**Email**) | Appearance and signature; only on a Gmail, Outlook or IMAP account you own |
-| Signature and save | Email tab | `#connected-account-signature` (**Add a signature**) / `#connected-account-email-save` (**Save email settings**) | The signature switch, and the button that stores the tab once something changed |
+| Signature and save | Email tab | `#connected-account-signature` (**Add a signature**) / `#connected-account-email-save` (**Save**) | The signature switch, and the button that stores the tab once something changed |
 | Folders tab | Channel dialog | `#connected-account-tab-folders` (**Folders** with a count, for example **Folders 4/6**) | One switch per folder; only when the account reports folders |
 | Reactivate, resync or disconnect | Channel dialog | `#connected-account-reactivate` / `#connected-account-resync` / `#connected-account-disconnect` | Owner only, with **Edit** on **Inbox messages** for **Reactivate** and **Resync** and **Delete** for **Disconnect**; **Reactivate** or **Resync** depending on the status |
 
@@ -173,7 +173,7 @@ By default every folder is on except trash, junk or spam, drafts and the all-mai
 
 ### How do I change the font, link colour and signature of outgoing emails? [#email-appearance-and-signature]
 
-The **Email** tab sets how emails sent from that account look: font, font size, link colour and signature. It appears only on a Gmail, Outlook or IMAP account you own, editing needs **Edit** on **Inbox messages**, and **Save email settings** stores both sections.
+The **Email** tab sets how emails sent from that account look: font, font size, link colour and signature. It appears only on a Gmail, Outlook or IMAP account you own, editing needs **Edit** on **Inbox messages**, and **Save** stores both sections.
 
 | Field | Options | Default |
 |---|---|---|
@@ -188,7 +188,7 @@ The signature is off for a new account; switch on **Add a signature** to edit it
 
 While **Add a signature** is on, the saved signature is added below every email sent from that account, whether it is sent from the Inbox, the REST API or an MCP tool, HTML bodies included, so agents must not repeat the signature in the message body.
 
-**Link:** `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`; once the user has opened the channel, `highlight_element` takes `connected-account-tab-email` for the **Email** tab (`#connected-account-tab-email`, email accounts you own), and on that open tab `connected-account-signature` for **Add a signature** (`#connected-account-signature`) and `connected-account-email-save` for **Save email settings** (`#connected-account-email-save`). The appearance and layout fields are not highlight targets, so Mate names them.
+**Link:** `/settings/channels`. **Mate:** `navigate` and `highlight_element` with `nav-settings-channels`; once the user has opened the channel, `highlight_element` takes `connected-account-tab-email` for the **Email** tab (`#connected-account-tab-email`, email accounts you own), and on that open tab `connected-account-signature` for **Add a signature** (`#connected-account-signature`) and `connected-account-email-save` for **Save** (`#connected-account-email-save`). The appearance and layout fields are not highlight targets, so Mate names them.
 
 ### How do I reactivate, resync or disconnect a channel?
 

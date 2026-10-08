@@ -11,9 +11,7 @@ A record query identifies one `typeId`. Its `filters` test fields on that type; 
 
 ## How do I filter a list in the app?
 
-Open a record type and use **Filters** in the list toolbar. Pick a field, condition, and value. The list updates and the current view retains the selection. Use **Clear** to remove the filters. The same controls work for a customer-created type. A saved view presents the same records; it does not copy them.
-
-**Link:** a record list under `/records/<type-id>`, whether a starter list such as **Deals** or a customer-created type. **Mate:** navigate to the list and open its **Filters** control.
+Open the list, for example [Deals](app:records/deal), and click [Filters](app:records/deal?focus=filter). Pick a field under **Filter by** or type its name in **Add filter…**; linked lists such as Organizations are listed there too. Choose the condition, then the values, and the list updates right away. Active filters appear as chips at the top; remove one with its ×, or remove all with **Clear**. **Ask AI** in the same popover turns a description in your own words into filters. Lists you create yourself work the same way, and a saved view shows the same records rather than copying them.
 
 ## What does a filter rule look like, and can I combine rules with OR? [#what-does-a-filter-rule-look-like]
 
@@ -64,7 +62,7 @@ Relationship filters are separate from field filters. Specify `relationId`, `dir
 
 ### How do I filter by a custom field, and which operators work on it? [#which-operators-work-on-custom-columns]
 
-Use the field's ID from `get_record_model`, never its editable label. An input, formula, lookup, or rollup field can be filtered when its value type supports the operator and the reader may access the value. Select filters use stable option IDs. The same rule applies to seeded fields and fields on customer-created types.
+Use the field's ID from `get_record_model`, never its editable label. An input, formula, lookup, or rollup field can be filtered when its value type supports the operator and the reader may access the value. Select filters use stable option IDs. A multiple choice field takes `in` (has any of the options), `all` (has all of them), `notIn` (has none of them, including records without a value), `empty`, and `notEmpty`; it cannot be sorted. The same rule applies to seeded fields and fields on customer-created types.
 
 ## Which field names can I use?
 

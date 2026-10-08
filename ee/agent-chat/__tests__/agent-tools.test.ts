@@ -1361,7 +1361,7 @@ describe("agent tools", () => {
     };
 
     expect(result.result).toBe(
-      `To add a contact, open [Contacts](/records/${contacts}) and click [Add](/records/${contacts}?focus=control:records:${contacts}:add).`,
+      `To add a contact, open [Contacts](/records/${contacts}) and click [Add](/records/${contacts}?focus=control%3Arecords%3A${contacts}%3Aadd).`,
     );
   });
 

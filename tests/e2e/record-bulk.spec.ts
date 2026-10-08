@@ -30,13 +30,13 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
     await dialog.getByRole("textbox", { name: "Price", exact: false }).fill(price);
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
-    await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   }
   const select = async () => {
     for (const name of ["Selected A", "Selected B"])
       await page
         .getByRole("row")
-        .filter({ has: page.getByRole("button", { name, exact: true }) })
+        .filter({ has: page.getByRole("link", { name, exact: true }) })
         .getByRole("checkbox")
         .check();
     await expect(page.locator("[data-record-mass-actions]")).toContainText("2 items selected");
@@ -48,7 +48,7 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
-  await page.getByRole("button", { name: "Apply to selected", exact: true }).click();
+  await page.getByRole("dialog", { name: "Update", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-record-mass-actions]")).not.toBeVisible();
   const prices = () =>
     database.query(
@@ -69,9 +69,9 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("Services: 2");
   await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Selected A", exact: true })).not.toBeVisible();
-  await expect(page.getByRole("button", { name: "Selected B", exact: true })).not.toBeVisible();
-  await expect(page.getByRole("button", { name: "Unselected C", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Selected A", exact: true })).not.toBeVisible();
+  await expect(page.getByRole("link", { name: "Selected B", exact: true })).not.toBeVisible();
+  await expect(page.getByRole("link", { name: "Unselected C", exact: true })).toBeVisible();
   expect((await prices()).rows).toEqual([{ name: "Unselected C", price: "30" }]);
   expect(errors).toEqual([]);
 });
@@ -91,7 +91,7 @@ test("shows a conflict and leaves every selected record unchanged when another t
     await dialog.getByRole("textbox", { name: "Price", exact: false }).fill("10");
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
-    await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   }
   await page.getByRole("checkbox", { name: "Select all rows", exact: true }).check();
   const ref = (
@@ -127,7 +127,7 @@ test("shows a conflict and leaves every selected record unchanged when another t
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("50");
-  await page.getByRole("button", { name: "Apply to selected", exact: true }).click();
+  await page.getByRole("dialog", { name: "Update", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-sonner-toast]")).toContainText("changed");
   await expect(page.locator("[data-record-mass-actions]")).toContainText("2 items selected");
   const prices = await database.query(
@@ -219,7 +219,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   expect(initial).toHaveLength(3);
   await page.goto(`/en/records/${typeId}`);
   const selection = page.locator("[data-record-mass-actions]");
-  const row = (name: string) => page.getByRole("row").filter({ has: page.getByRole("button", { name, exact: true }) });
+  const row = (name: string) => page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
   const selectPair = async () => {
     for (const name of ["Selected A", "Selected B"]) await row(name).getByRole("checkbox").check();
     await expect(selection).toContainText("2 items selected");
@@ -231,8 +231,8 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   await expect(search).toBeVisible();
   await expect(search).toBeEnabled();
   await search.fill("Selected A");
-  await expect(page.getByRole("button", { name: "Selected A", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Selected B", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Selected A", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Selected B", exact: true })).toHaveCount(0);
   await expect(selection).toContainText("1 not in the current view");
   await selection.getByRole("button", { name: "Keep only rows in view", exact: true }).click();
   await expect(selection).toContainText("1 item selected");
@@ -244,12 +244,12 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   await expect(row("Selected A").getByRole("checkbox")).not.toBeChecked();
   expect(await read()).toEqual(initial);
   await search.fill("");
-  await expect(page.getByRole("button", { name: "Other C", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Other C", exact: true })).toBeVisible();
   await expect(row("Selected B").getByRole("checkbox")).not.toBeChecked();
   await selectPair();
   await search.fill("Other C");
-  await expect(page.getByRole("button", { name: "Selected A", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Selected B", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Selected A", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Selected B", exact: true })).toHaveCount(0);
   await expect(selection).toContainText("2 items selected");
   await expect(selection).toContainText("2 not in the current view");
   await selection.getByRole("button", { name: "Update", exact: true }).click();
@@ -288,7 +288,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     .toBe(true);
   await page.screenshot({ path: testInfo.outputPath("bulk-clear-off-view.png"), animations: "disabled" });
   await page.reload();
-  await expect(page.getByRole("button", { name: "Selected A", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Selected A", exact: true })).toBeVisible();
   await expect(selection).not.toBeVisible();
   expect(await read()).toEqual(cleared);
   expect(errors).toEqual([]);

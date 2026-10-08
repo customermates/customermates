@@ -37,7 +37,7 @@ const SubscriptionViewContent = observer(({ initialSubscription }: Props) => {
       <div className="flex items-center gap-1">
         {showRefresh && (
           <Button
-            aria-label={t("Subscription.refresh")}
+            aria-label={t("Common.actions.refresh")}
             className="h-8"
             id="settings-billing-refresh"
             size="sm"
@@ -46,7 +46,7 @@ const SubscriptionViewContent = observer(({ initialSubscription }: Props) => {
           >
             <RefreshCw className="size-3.5" />
 
-            <span className="hidden sm:inline">{t("Subscription.refresh")}</span>
+            <span className="hidden sm:inline">{t("Common.actions.refresh")}</span>
           </Button>
         )}
 

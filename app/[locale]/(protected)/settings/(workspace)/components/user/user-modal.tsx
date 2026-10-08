@@ -15,7 +15,7 @@ import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { FormActions } from "@/components/card/form-actions";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { USER_STATUS_OPTIONS } from "@/constants/user-statuses";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLink } from "@/components/shared/app-link";
@@ -94,7 +94,7 @@ export const CompanyUserModal = observer(() => {
             />
           </AppCardBody>
 
-          <FormActions showInitially anchorScope="member-modal" store={store} />
+          <FormFooterActions anchorScope="member-modal" store={store} />
         </AppCard>
       </AppForm>
     </AppModal>

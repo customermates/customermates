@@ -4,7 +4,7 @@ import type { RecentlyDeleted } from "@/features/records/get-recently-deleted.in
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Activity, AtSign, History, Link2, List, RotateCcw, TextCursorInput, Trash2 } from "lucide-react";
+import { AtSign, History, Link2, List, RotateCcw, TextCursorInput, Trash2 } from "lucide-react";
 
 import { AppModal } from "@/components/modal";
 import { PageState } from "@/components/page-state/page-state";
@@ -22,7 +22,6 @@ const KIND_ICONS = {
   type: List,
   field: TextCursorInput,
   relationship: Link2,
-  activityPath: Activity,
   channels: AtSign,
 };
 

@@ -23,7 +23,8 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useWebhookColumns } from "./use-webhook-columns";
 import { WebhooksPageSkeleton } from "./webhooks-page-skeleton";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
+import type { FocusKind } from "@/components/focus/focus-href";
+import { useFocusTarget } from "@/components/focus/focus-target";
 
 type Props = { initialWebhooks: GetResult<WebhookDto> };
 

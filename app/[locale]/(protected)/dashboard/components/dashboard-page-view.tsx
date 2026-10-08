@@ -37,7 +37,8 @@ import {
 } from "./widget-interaction";
 import { WidgetModal } from "./widget-modal";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
+import type { FocusKind } from "@/components/focus/focus-href";
+import { useFocusTarget } from "@/components/focus/focus-target";
 
 const ResponsiveGridLayout = dynamic(
   () =>

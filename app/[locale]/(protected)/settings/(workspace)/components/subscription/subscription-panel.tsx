@@ -98,7 +98,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
 
             <FormOutputField
               description={t("Subscription.seatBillingNote")}
-              help={t("Subscription.fieldHelp.quantity", { company: t("UserAvatar.company") })}
+              help={t("Subscription.fieldHelp.quantity", { members: t("SettingsNav.members") })}
               label={t("Subscription.quantity")}
             >
               {seats.toString()}

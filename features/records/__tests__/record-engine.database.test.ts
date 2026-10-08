@@ -21,6 +21,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
+import { recordChannelsEnabled } from "../record-channels";
 
 vi.mock("@/env", () => ({
   env: {
@@ -66,6 +67,7 @@ const { QueryRecordMeasureInteractor } = await import("../query-record-measure.i
 const { GetRecordChoicesInteractor, RecordChoicesSchema } = await import("../get-record-choices.interactor");
 const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { RecordQuerySchema } = await import("../record-query.schema");
+const { RecordScalarSchema } = await import("../record-model.schema");
 const { RecordConfigurationService, calculationDependencyHash } = await import("../configuration.service");
 const { ConfigureRecordsProviderInteractor } = await import("../configure-records-provider.interactor");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
@@ -1090,6 +1092,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             targetCardinality: "many",
             onSourceDelete: "unlink",
             onTargetDelete: "unlink",
+            messagesOnSource: false,
+            messagesOnTarget: false,
             archived: false,
           },
         },
@@ -2643,6 +2647,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                 targetCardinality: "many",
                 onSourceDelete: "unlink",
                 onTargetDelete: "cascade",
+                messagesOnSource: false,
+                messagesOnTarget: false,
                 archived: false,
               },
             },
@@ -5094,13 +5100,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         companyId: f.company.id,
         userId: f.admin.id,
         entityId: f.member.id,
-        payload: {
-          firstName: "Member",
-          lastName: "Test",
-          country: "de",
-          avatarUrl: null,
-          status: "active",
-        },
+        payload: { changes: { status: { previous: "pendingAuthorization", current: "active" } } },
       }),
     );
     expect(await f.run(() => getMembershipTaskService().getSystemTasksCount())).toBe(1);
@@ -5379,9 +5379,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(configured, JSON.stringify(configured)).toMatchObject({ ok: true });
     const model = await f.run(() => f.repo.getModel());
     const type = recordInvariant(model.types.find((type) => type.pluralLabel === "Projects"));
-    expect(
-      model.activityPaths.some((path) => path.typeId === type.id && path.includeAudit && path.path.length === 0),
-    ).toBe(true);
     const created = await f.mutation(
       {
         action: "create",
@@ -6133,9 +6130,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect((await resolve())[0].records[0]?.ref).toEqual(ref);
     expect((await f.readRecord(ref)).identities?.[0]?.id).toBe(identityId);
-    expect((await f.run(() => f.repo.getModel())).activityPaths).toEqual(
-      expect.arrayContaining([expect.objectContaining({ typeId, path: [], includeMessages: true })]),
-    );
+    expect(recordChannelsEnabled(await f.run(() => f.repo.getModel()), typeId)).toBe(true);
     const membership = recordInvariant(
       f.model.capabilities.find((binding) => binding.kind === "membershipAuthorization"),
     );
@@ -8420,6 +8415,180 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ],
       },
     });
+  });
+
+  it("stores, filters, groups and converts multiple choice values", async () => {
+    const f = await fixture();
+    const tags = randomUUID();
+    const tier = randomUUID();
+    const option = (id: string) => ({ id, label: id.toUpperCase(), color: null, attributes: [] });
+    const field = (id: string, label: string, multiple: boolean, options: string[]) => ({
+      id,
+      typeId: f.id("organization"),
+      label,
+      valueType: "select" as const,
+      multiple,
+      behavior: { kind: "input" as const },
+      required: false,
+      archived: false,
+      position: 10,
+      options: options.map(option),
+    });
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [
+            { operation: "putField", field: field(tags, "Tags", true, ["alpha", "beta", "gamma"]) },
+            { operation: "putField", field: field(tier, "Tier", false, ["gold", "silver"]) },
+          ],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const create = async (name: string, values: Array<{ fieldId: string; value: RecordScalar }>) => {
+      const result = await f.mutation(
+        {
+          action: "create",
+          typeId: f.id("organization"),
+          fields: [{ fieldId: f.id("organization.name"), value: textValue(name) }, ...values],
+        },
+        f.admin,
+        randomUUID(),
+        2,
+      );
+      expect(result, JSON.stringify(result)).toMatchObject({ ok: true, data: { status: "completed" } });
+    };
+    await create("Both tags", [
+      { fieldId: tags, value: { kind: "selectList", value: ["beta", "alpha"] } },
+      { fieldId: tier, value: { kind: "select", value: "gold" } },
+    ]);
+    await create("Beta only", [{ fieldId: tags, value: { kind: "selectList", value: ["beta"] } }]);
+    await create("Untagged", []);
+    for (const value of [
+      { kind: "selectList", value: ["delta"] },
+      { kind: "select", value: "alpha" },
+      { kind: "textList", value: ["alpha"] },
+    ] as RecordScalar[]) {
+      expect(
+        await f.mutation(
+          {
+            action: "create",
+            typeId: f.id("organization"),
+            fields: [
+              { fieldId: f.id("organization.name"), value: textValue("Rejected") },
+              { fieldId: tags, value },
+            ],
+          },
+          f.admin,
+          randomUUID(),
+          2,
+        ),
+      ).toMatchObject({ ok: false });
+    }
+    expect(RecordScalarSchema.safeParse({ kind: "selectList", value: ["alpha", "alpha"] }).success).toBe(false);
+    const names = async (filters: unknown[], sort: unknown[] = []) => {
+      const result = await f.run(() =>
+        f.query.invoke(RecordQuerySchema.parse({ typeId: f.id("organization"), filters, sort })),
+      );
+      if (!result.ok) return null;
+      return result.data.records
+        .map((record) => {
+          const name = record.fields.find((value) => value.fieldId === f.id("organization.name"))?.result;
+          return name?.state === "value" && name.value.kind === "text" ? name.value.value : "";
+        })
+        .filter((name) => ["Both tags", "Beta only", "Untagged"].includes(name))
+        .sort();
+    };
+    const choose = (...ids: string[]) => ids.map((id) => ({ kind: "select", value: id }));
+    expect(await names([{ fieldId: tags, operator: "in", value: null, values: choose("alpha") }])).toEqual([
+      "Both tags",
+    ]);
+    expect(await names([{ fieldId: tags, operator: "in", value: null, values: choose("beta") }])).toEqual([
+      "Beta only",
+      "Both tags",
+    ]);
+    expect(await names([{ fieldId: tags, operator: "all", value: null, values: choose("alpha", "beta") }])).toEqual([
+      "Both tags",
+    ]);
+    expect(await names([{ fieldId: tags, operator: "notIn", value: null, values: choose("alpha") }])).toEqual([
+      "Beta only",
+      "Untagged",
+    ]);
+    expect(await names([{ fieldId: tags, operator: "empty", value: null }])).toEqual(["Untagged"]);
+    expect(await names([{ fieldId: tags, operator: "notEmpty", value: null }])).toEqual(["Beta only", "Both tags"]);
+    expect(await names([{ fieldId: tags, operator: "in", value: null, values: choose("delta") }])).toBeNull();
+    expect(await names([], [{ fieldId: tags, direction: "asc" }])).toBeNull();
+    const read = await f.run(() =>
+      f.query.invoke(
+        RecordQuerySchema.parse({
+          typeId: f.id("organization"),
+          filters: [{ fieldId: tags, operator: "all", value: null, values: choose("alpha", "beta") }],
+        }),
+      ),
+    );
+    if (!read.ok) throw new Error("Query failed");
+    expect(read.data.records[0].fields.find((value) => value.fieldId === tags)?.result).toEqual({
+      state: "value",
+      value: { kind: "selectList", value: ["beta", "alpha"] },
+    });
+    const grouped = await f.run(() =>
+      f.measure.invoke(
+        RecordMeasureSchema.parse({
+          source: { typeId: f.id("organization") },
+          aggregation: "count",
+          valueFieldId: null,
+          groupBy: { fieldId: tags, path: [] },
+        }),
+      ),
+    );
+    if (!grouped.ok) throw new Error(JSON.stringify(grouped));
+    const countFor = (id: string | null) =>
+      grouped.data.groups.find((group) =>
+        id === null
+          ? group.label.state === "missing"
+          : group.label.state === "value" && group.label.value.kind === "select" && group.label.value.value === id,
+      )?.result;
+    expect(countFor("alpha")).toMatchObject({ state: "value", value: { kind: "decimal", value: "1" } });
+    expect(countFor("beta")).toMatchObject({ state: "value", value: { kind: "decimal", value: "2" } });
+    expect(countFor("gamma")).toBeUndefined();
+    const model = await f.run(() => f.repo.getModel());
+    const stored = (id: string) =>
+      omit(recordInvariant(model.fields.find((candidate) => candidate.id === id)), "publishedSummary");
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 2,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "putField", field: { ...stored(tier), multiple: true } }],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const converted = await f.run(() =>
+      f.query.invoke(
+        RecordQuerySchema.parse({
+          typeId: f.id("organization"),
+          filters: [{ fieldId: tier, operator: "in", value: null, values: choose("gold") }],
+        }),
+      ),
+    );
+    if (!converted.ok) throw new Error("Query failed");
+    expect(converted.data.records[0].fields.find((value) => value.fieldId === tier)?.result).toEqual({
+      state: "value",
+      value: { kind: "selectList", value: ["gold"] },
+    });
+    const single = { operation: "putField" as const, field: { ...stored(tags), multiple: false } };
+    expect(
+      await f.run(() => f.preview.invoke({ expectedRevision: 3, idempotencyKey: randomUUID(), operations: [single] })),
+    ).toMatchObject({
+      ok: true,
+      data: { issues: expect.arrayContaining([expect.objectContaining({ code: "existing_values_incompatible" })]) },
+    });
+    expect(
+      await f.run(() =>
+        f.configure.invoke({ expectedRevision: 3, idempotencyKey: randomUUID(), operations: [single] }),
+      ),
+    ).toMatchObject({ ok: false });
   });
 
   it("calculates exact line totals, live and saved pricing, missing and zero probabilities", async () => {
@@ -11849,6 +12018,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             targetCardinality: "many",
             onSourceDelete: "unlink",
             onTargetDelete: "restrict",
+            messagesOnSource: false,
+            messagesOnTarget: false,
             archived: false,
           },
         },
@@ -12474,6 +12645,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               targetCardinality: "many",
               onSourceDelete: "unlink",
               onTargetDelete: "unlink",
+              messagesOnSource: false,
+              messagesOnTarget: false,
               archived: false,
             },
           },
@@ -13080,7 +13253,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).rejects.toThrow();
   });
 
-  it("uses declared multi-hop activity paths without crossing record, account or folder access", async () => {
+  it("shows directly linked records' messages per relationship switch without crossing record, account or folder access", async () => {
     const f = await fixture();
     const created = await f.mutation({
       action: "create",
@@ -13102,7 +13275,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     if (!created.ok || created.data.status !== "completed") throw new Error("Person fixture failed");
     const person = recordInvariant(created.data.refs[0]);
-    const service = await f.create("service", "Service");
     const deal = await f.create(
       "deal",
       "Deal",
@@ -13115,25 +13287,18 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       ],
     );
-    for (const name of ["First", "Second"]) {
-      await f.create(
-        "lineItem",
-        name,
-        [],
-        [
-          {
-            relationId: f.id("lineItem.deal"),
-            direction: "outgoing",
-            record: deal,
-          },
-          {
-            relationId: f.id("lineItem.service"),
-            direction: "outgoing",
-            record: service,
-          },
-        ],
-      );
-    }
+    const organization = await f.create(
+      "organization",
+      "Organization",
+      [],
+      [{ relationId: f.id("contact.organizations"), direction: "incoming", record: person }],
+    );
+    const task = await f.create(
+      "task",
+      "Task",
+      [],
+      [{ relationId: f.id("task.contacts"), direction: "outgoing", record: person }],
+    );
     const account = await f.run(() =>
       prisma.connectedAccount.create({
         data: {
@@ -13249,8 +13414,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     await f.run(() =>
       runInTransaction(async () => {
-        await f.repo.setGrants(service.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
-        await f.repo.setGrants(person.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
+        for (const ref of [deal, organization, task])
+          await f.repo.setGrants(ref.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }]);
         await prisma.rolePermission.create({
           data: {
             companyId: f.company.id,
@@ -13262,7 +13427,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     const request: Partial<RecordActivitiesInput> = {
-      scope: { records: [service], typeIds: [] },
+      scope: { records: [deal], typeIds: [] },
       kinds: ["message", "activity", "calendar_event"],
     };
     expect(await f.timeline(request, f.member)).toMatchObject({
@@ -13270,7 +13435,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: { items: [] },
     });
     await f.run(() =>
-      runInTransaction(() => f.repo.setGrants(deal.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+      runInTransaction(() => f.repo.setGrants(person.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
     );
     const visible = await f.timeline(request, f.member);
     if (!visible.ok) throw new Error(JSON.stringify(visible.error));
@@ -13285,6 +13450,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       },
     });
     expect(JSON.stringify(visible.data)).not.toContain("cached-secret");
+    const ids = async (ref: RecordRef) => {
+      const result = await f.timeline({ ...request, scope: { records: [ref], typeIds: [] } }, f.member);
+      if (!result.ok) throw new Error(JSON.stringify(result.error));
+      return result.data.items.map((entry) => entry.id).sort();
+    };
+    expect(await ids(organization)).toEqual([message.id, meeting.id, socialActivity.id].sort());
+    expect(await ids(task)).toEqual([]);
     const filtered = async (filters: NonNullable<RecordActivitiesInput["filters"]>) => {
       const result = await f.timeline({ ...request, filters }, f.member);
       if (!result.ok) throw new Error(JSON.stringify(result.error));
@@ -13494,10 +13666,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     const current = await f.run(() => f.repo.getModel());
     const changed = structuredClone(current);
-    const path = recordInvariant(
-      changed.activityPaths.find((path) => path.typeId === service.typeId && path.includeMessages),
+    const relationship = recordInvariant(
+      changed.relationships.find((relationship) => relationship.id === f.id("deal.contacts")),
     );
-    path.archived = true;
+    relationship.messagesOnSource = false;
     await f.run(() =>
       runInTransaction(() => f.repo.saveModel({ ...changed, revision: current.revision + 1 }, f.admin.id)),
     );
@@ -15733,6 +15905,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             targetCardinality: "many",
             onSourceDelete: "unlink",
             onTargetDelete: "cascade",
+            messagesOnSource: false,
+            messagesOnTarget: false,
           },
         },
         {
@@ -16118,6 +16292,8 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
               targetCardinality: "many",
               onSourceDelete: "unlink",
               onTargetDelete: "unlink",
+              messagesOnSource: false,
+              messagesOnTarget: false,
               archived: false,
             },
           },
@@ -16662,6 +16838,8 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
               targetCardinality: "many",
               onSourceDelete: "unlink",
               onTargetDelete: "unlink",
+              messagesOnSource: false,
+              messagesOnTarget: false,
               archived: false,
             },
           },

@@ -5,8 +5,9 @@ import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRow } from "@/features/records/record-presentation";
-import type { MutateRecordInput } from "@/features/records/record-query.schema";
+import type { MutateRecordInput, RecordLinkChange } from "@/features/records/record-query.schema";
 import type { RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldSaveOutcome } from "./record-field-value-editor";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
@@ -161,8 +162,15 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       !this.pendingBoardOperation
     );
   }
-  updateRecordField = async (record: RecordRow, fieldId: string, value: RecordScalar | null): Promise<boolean> => {
-    if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return false;
+  updateRecordField = (record: RecordRow, fieldId: string, value: RecordScalar | null) =>
+    this.updateRecord(record, { fields: [{ fieldId, value }] });
+  updateRecordLinks = (record: RecordRow, linkChanges: RecordLinkChange[]) =>
+    this.updateRecord(record, { fields: [], linkChanges });
+  private updateRecord = async (
+    record: RecordRow,
+    changes: { fields: { fieldId: string; value: RecordScalar | null }[]; linkChanges?: RecordLinkChange[] },
+  ): Promise<RecordFieldSaveOutcome> => {
+    if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return { saved: false };
     this.movingRecords.add(record.id);
     try {
       const result = await mutateRecordAction({
@@ -172,17 +180,18 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
           action: "update",
           ref: { typeId: record.ref.typeId, recordId: record.ref.recordId },
           expectedVersion: record.version,
-          fields: [{ fieldId, value }],
+          ...changes,
         },
       });
       if (!result.ok) {
+        if (result.failure?.kind === "validation") return { saved: false, invalid: result.error.errors };
         toastZodErrorTree(result.error);
         await this.refresh();
-        return false;
+        return { saved: false };
       }
       if (result.data.status === "pending") this.setBoardOperation(result.data.operationId);
       else await this.rootStore.recordWorkspaceStore.invalidate();
-      return true;
+      return { saved: true };
     } finally {
       this.movingRecords.delete(record.id);
     }

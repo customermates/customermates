@@ -737,7 +737,6 @@
     "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
     "addTitle": "API-Key hinzufügen",
     "backToOptions": "Alle API-Key-Optionen",
-    "done": "Fertig",
     "expiresIn": "Läuft ab",
     "expiresInPlaceholder": "Läuft nie ab",
     "keyCreated": "API-Schlüssel erfolgreich erstellt",
@@ -776,7 +775,6 @@
       "prompt": "Anweisungen",
       "publishSummary": "Veröffentlichte Zusammenfassung",
       "putAccessPreset": "Zugriffsvorlage",
-      "putActivityPath": "Aktivitätspfad",
       "putCapability": "Funktion",
       "putField": "Feld",
       "putRelationship": "Beziehung",
@@ -792,7 +790,6 @@
       "versions": "Dokumentversionen",
       "visibility": "Sichtbarkeit"
     },
-    "noValue": "Kein Wert",
     "relationsAdded": "{field} hinzugefügt",
     "relationsDeleted": "{field} entfernt",
     "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
@@ -867,9 +864,7 @@
       "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
-      "switchToBoardView": "Zur Board-Ansicht wechseln",
       "switchToBoardViewDisabled": "Diese Liste hat kein Feld zum Gruppieren",
-      "switchToTableView": "Zur Tabellenansicht wechseln",
       "themeSwitcher": "Darstellungsmodus-Umschalter",
       "tooltipFields": "Darstellung",
       "tooltipFilters": "Filter"
@@ -1230,7 +1225,7 @@
         "timelineThreadId": "Konversation",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
-        "workspaceId": "Arbeitsbereich",
+        "workspaceId": "Workspace",
         "workspaceTags": "Schlagwörter"
       },
       "operators": {
@@ -1240,7 +1235,10 @@
         "equals": "=",
         "gt": ">",
         "gte": "≥",
+        "hasAllOf": "enthält alle von",
+        "hasAnyOf": "enthält eines von",
         "hasNone": "hat keine",
+        "hasNoneOf": "enthält keines von",
         "hasSome": "hat welche",
         "hasUnset": "nicht vollständig verknüpft",
         "in": "ist in",
@@ -1381,7 +1379,7 @@
     "stageProbability": "Phasenwahrscheinlichkeit",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer in den <link>Unternehmenseinstellungen</link>, um diese Aufgabe zu lösen."
+        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer unter <link>Mitglieder</link>, um diese Aufgabe zu erledigen."
       }
     },
     "table": {
@@ -1451,7 +1449,7 @@
         "user": "Benutzer",
         "users": "Zugewiesen",
         "weightedValue": "Gewichteter Wert",
-        "workspace": "Arbeitsbereich"
+        "workspace": "Workspace"
       },
       "fields": "Felder",
       "groupBy": "Gruppieren nach",
@@ -1560,7 +1558,6 @@
     "emailPreviewLink": "Beispiellink",
     "emailPreviewSample": "So sieht dein E-Mail-Text aus.",
     "emailPreviewTitle": "Vorschau",
-    "emailSave": "E-Mail-Einstellungen speichern",
     "emailSaved": "E-Mail-Einstellungen gespeichert",
     "emailSignatureContent": "Signaturinhalt",
     "emailSignatureDescription": "Wird automatisch an E-Mails angefügt, die über dieses Konto gesendet werden.",
@@ -1733,13 +1730,13 @@
         "showFilters": "Aktivitätsanzahl und Filter anzeigen",
         "showMetricAndFilters": "Kennzahl und Filter anzeigen"
       },
-      "create": "Widget erstellen",
       "danger": {
         "deleteLabel": "Widget löschen: {name}"
       },
       "editTitle": "„{name}“ bearbeiten",
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
+        "change": "Anderes Widget wählen",
         "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
         "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
         "scratchTitle": "Von Grund auf neu",
@@ -1749,10 +1746,13 @@
         "incomplete": "Vervollständigen Sie die Dateneinstellungen, um eine Vorschau zu sehen.",
         "live": "Live-Vorschau",
         "size": "Dashboard-Größe {w} × {h}",
-        "title": "Vorschau",
         "untitled": "Unbenanntes Widget"
       },
-      "save": "Änderungen speichern",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Keine} one {1 aktiv} other {# aktiv}}",
+        "filters": "Filter",
+        "grouping": "Gruppierung"
+      },
       "settings": "Widget-Einstellungen",
       "sharing": {
         "template": "Als Vorlage freigeben"
@@ -1868,6 +1868,7 @@
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Kein Wert",
+    "resizeBoardColumns": "Breite der Board-Spalten ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "rowActions": "Zeilenaktionen",
@@ -2020,7 +2021,7 @@
     "ariaStartThread": "{provider} Nachricht verfassen",
     "ariaUnlink": "{provider}-Kanal entfernen",
     "compose": {
-      "noAccount": "Kein nutzbares {provider} Konto verbunden. Verbinde eines unter Mein Profil."
+      "noAccount": "Kein nutzbares {provider} Konto verbunden. Verbinde eines unter Einstellungen › Kanäle."
     },
     "emptyHint": "Noch keine Kanäle. Füge eine E-Mail, LinkedIn, WhatsApp, … hinzu",
     "heading": "Kanäle",
@@ -2456,7 +2457,6 @@
     "text": "Laden..."
   },
   "MassActions": {
-    "apply": "Auf Auswahl anwenden",
     "clearField": "Feld leeren",
     "delete": "Ausgewählte löschen",
     "keepInView": "Nur sichtbare Zeilen behalten",
@@ -2969,15 +2969,12 @@
   "RecordModel": {
     "access": "Zugriff",
     "accessDescription": "Nur Administratoren können auf diese Liste zugreifen, sofern keine freigegebene Zugriffsvorlage ausgewählt wird.",
-    "activityConnections": "Aktivitätsverbindungen",
-    "activityConnectionsHelp": "Wähle aus, welche verknüpften Datensätze Nachrichten und Änderungen zur Aktivitätenübersicht dieser Liste beitragen. Nachrichten- und Datensatzberechtigungen gelten weiterhin.",
     "addAttribute": "Attribut hinzufügen",
     "addEmbedded": "{type} hinzufügen",
     "addField": "Feld hinzufügen",
     "addGroupSummary": "Übersicht hinzufügen",
     "addInput": "Eingabe hinzufügen",
     "addMenu": {
-      "activityConnection": "Aktivitätsverbindung",
       "calculation": "Berechnung",
       "field": "Feld",
       "list": "Liste",
@@ -2989,7 +2986,6 @@
     "aggregation": "Zusammenfassung",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
     "ascending": "Aufsteigend",
-    "assignedMembers": "Zugewiesene Mitglieder",
     "assignedTo": "Zugewiesen an",
     "attribute": "Attributname",
     "behavior": "Wertquelle",
@@ -3001,6 +2997,7 @@
       "snapshot": "Bei einem Ereignis gespeichert"
     },
     "board": "Board",
+    "calculatedReadOnly": "{field} wird berechnet und kann nicht bearbeitet werden.",
     "calculationError": "Berechnung nicht verfügbar",
     "calculationInput": "Eingabe {number}",
     "calculationNavigation": "Berechnungsnavigation",
@@ -3074,7 +3071,6 @@
         "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}"
       },
       "configureActions": "Aktionen für Konfigurieren",
-      "deleteActivityPath": "Aktivitätsverbindung löschen",
       "deleteColumn": "Spalte löschen",
       "deleteColumnMessage": "Die Spalte {name} mit verknüpften Datensätzen wird aus {list} entfernt.",
       "deleteColumnTitle": "Spalte {name} löschen?",
@@ -3097,7 +3093,6 @@
       },
       "kind": "Art",
       "kinds": {
-        "activityPath": "Aktivitätsverbindung",
         "channels": "Kanalfeld",
         "field": "Feld",
         "relationship": "Beziehung",
@@ -3109,7 +3104,7 @@
       "openConfigure": "Konfigurieren öffnen",
       "recentlyDeleted": "Zuletzt gelöscht",
       "recentlyDeletedEmpty": "Es wurde nichts gelöscht",
-      "recentlyDeletedHelp": "Gelöschte Listen, Felder, Beziehungen, Aktivitätsverbindungen und Kanalfelder bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
+      "recentlyDeletedHelp": "Gelöschte Listen, Felder, Beziehungen und Kanalfelder bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
       "removed": {
         "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
         "hidden": "Enthält Datensätze, die Sie nicht sehen können.",
@@ -3313,9 +3308,9 @@
     },
     "iconSearch": "Symbole suchen",
     "identityChannels": "Kanäle",
-    "includeAudit": "Datensatzänderungen einbeziehen",
-    "includeMessages": "Nachrichten einbeziehen",
     "invalidConfiguration": "Diese Änderung muss vor dem Anwenden überprüft werden.",
+    "invalidPhone": "Gib eine Telefonnummer im internationalen Format ein, zum Beispiel +4930123456.",
+    "invalidValue": "Gib einen gültigen Wert ein.",
     "lineFields": {
       "amount": "Betrag",
       "effectivePrice": "Einzelpreis",
@@ -3330,7 +3325,7 @@
     "linkedType": "Verknüpfen mit",
     "linkRecord": "Datensatz verknüpfen",
     "listActions": "Listenaktionen",
-    "listCounts": "{fields, plural, one {# Feld} other {# Felder}} · {relationships, plural, one {# Beziehung} other {# Beziehungen}} · {activity, plural, one {# Aktivitätsverbindung} other {# Aktivitätsverbindungen}}",
+    "listCounts": "{fields, plural, one {# Feld} other {# Felder}} · {relationships, plural, one {# Beziehung} other {# Beziehungen}}",
     "listUnavailable": "Diese Liste ist nicht verfügbar. Wählen Sie eine andere Liste.",
     "member": "Mitglied",
     "missing": "Kein Wert",
@@ -3343,12 +3338,13 @@
     "no": "Nein",
     "noGrouping": "Keine Gruppierung",
     "noneYet": "Noch keine",
+    "noOptions": "Noch keine Optionen. Füge die erste Option zur Auswahl hinzu.",
     "onePerLine": "Einen Wert pro Zeile eingeben.",
     "onSourceDelete": "Beim Löschen dieses Datensatzes",
     "onTargetDelete": "Beim Löschen des verknüpften Datensatzes",
+    "openDetails": "Details öffnen",
     "openPage": "Seite öffnen",
     "openRecord": "{name} öffnen",
-    "openRecordDetails": "Details zu {name} öffnen",
     "operation": "Berechnung",
     "operationCancelled": "Die Änderung wurde abgebrochen.",
     "operationFailed": "Die Änderung ist fehlgeschlagen. Der vorherige vollständige Stand bleibt aktiv.",
@@ -3376,6 +3372,7 @@
     "oppositeLabel": "Bezeichnung auf der Gegenseite",
     "option": "Option",
     "optionAttribute": "Optionsattribut",
+    "optionCount": "{count, plural, =0 {Keine Optionen} one {# Option} other {# Optionen}}",
     "options": "Optionen",
     "pinnedFields": "Angeheftete Detailfelder",
     "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis Sie ihn ändern.",
@@ -3477,7 +3474,6 @@
     "summaryField": "Feld für die Übersicht",
     "systemActor": "System",
     "table": "Tabelle",
-    "thisList": "Diese Liste",
     "triggerField": "Wenn sich dieses Feld ändert",
     "triggerValue": "Auf diesen Wert",
     "types": {
@@ -3489,6 +3485,7 @@
       "dateTimeRange": "Datums- und Zeitbereich",
       "email": "E-Mail",
       "member": "Mitglied",
+      "multiSelect": "Mehrfachauswahl",
       "number": "Zahl",
       "phone": "Telefon",
       "richText": "Formatierter Text",
@@ -3540,6 +3537,7 @@
     "noRecordsInPeriod": "Keine Datensätze",
     "notes": "Zu diesen Zahlen",
     "operators": {
+      "all": "Enthält alle von",
       "between": "Zwischen",
       "contains": "Enthält",
       "empty": "Ist leer",
@@ -3557,7 +3555,6 @@
       "startsWith": "Beginnt mit"
     },
     "overall": "Insgesamt: {value}",
-    "preview": "Kennzahl prüfen",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {
@@ -3602,9 +3599,7 @@
   },
   "RoleModal": {
     "create": "Erstellen",
-    "delete": "Löschen",
     "edit": "Bearbeiten",
-    "general": "Allgemein",
     "manageAccess": "Verwalten",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
     "readAccess": "Lesen",
@@ -3796,7 +3791,6 @@
     "account": "Konto",
     "activity": "Aktivität",
     "apiKeys": "API-Schlüssel",
-    "back": "Zurück",
     "billing": "Abrechnung",
     "channels": "Kanäle",
     "deliveries": "Zustellungen",
@@ -3876,7 +3870,7 @@
       "planManage": "Wird mit der Abrechnung synchronisiert. Verwende „{billing}“ für Änderungen.",
       "planPicker": "Wähle unten einen Tarif, um das Abonnement zu starten oder zu ändern.",
       "planReadOnly": "Wird mit der Abrechnung synchronisiert. Bitte eine Workspace-Administration um Änderungen.",
-      "quantity": "Wird mit der Anzahl aktiver Workspace-Mitglieder synchronisiert. Eine Workspace-Administration kann Mitglieder unter „{company}“ aktivieren oder deaktivieren.",
+      "quantity": "Wird mit der Anzahl aktiver Workspace-Mitglieder synchronisiert. Eine Workspace-Administration kann Mitglieder unter „{members}“ aktivieren oder deaktivieren.",
       "trialEndsManage": "Wird durch den Testzeitraum festgelegt. Verwalte das Abonnement über „{billing}“.",
       "trialEndsPicker": "Wird durch den Testzeitraum festgelegt. Wähle vor diesem Datum einen Tarif, um Unterbrechungen zu vermeiden.",
       "trialEndsReadOnly": "Wird durch den Testzeitraum festgelegt. Bitte eine Workspace-Administration, das Abonnement zu verwalten."
@@ -3902,7 +3896,7 @@
       "routinesPerUser": "{routines, plural, one {# Routine pro Nutzer} other {# Routinen pro Nutzer}}",
       "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer"
     },
-    "plan": "Plan",
+    "plan": "Tarif",
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
@@ -3911,7 +3905,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Aktive Nutzerplätze",
-    "refresh": "Aktualisieren",
     "refreshSuccess": "Abonnement erfolgreich aktualisiert",
     "seatBillingNote": "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet.",
     "status": {
@@ -3984,14 +3977,13 @@
     "title": "Willkommen in deiner Testphase"
   },
   "UserAvatar": {
-    "company": "Mein Unternehmen",
     "documentation": "Dokumentation",
     "home": "Startseite",
     "language": "Sprache",
     "menu": "Persönliches Menü",
     "sendFeedback": "Feedback senden",
     "signOut": "Abmelden",
-    "theme": "Design"
+    "theme": "Darstellung"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Steuert die UI-Sprache: Beschriftungen, Schaltflächen, etc.",

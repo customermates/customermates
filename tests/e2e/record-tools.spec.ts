@@ -207,7 +207,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
       displayOptions: { displayType: "verticalBarChart", showLegend: true },
     });
     await page.goto(`/en${view.link}`);
-    await expect(page.getByRole("button", { name: "Protocol project", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Protocol project", exact: true })).toBeVisible();
     await expect(
       page.locator("#global-data-views").getByRole("link", { name: "Protocol projects", exact: true }),
     ).toHaveAttribute("aria-current", "page");

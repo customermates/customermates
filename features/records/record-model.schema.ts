@@ -68,6 +68,16 @@ const ValidatedRecordScalarSchema = z.union([
     })
     .strict(),
   z.object({ kind: z.literal("select"), value: z.string().min(1).max(200) }).strict(),
+  z
+    .object({
+      kind: z.literal("selectList"),
+      value: z
+        .array(z.string().min(1).max(200))
+        .min(1)
+        .max(100)
+        .refine((ids) => new Set(ids).size === ids.length, "Each option can be selected once"),
+    })
+    .strict(),
   z.object({ kind: z.literal("member"), value: z.uuid() }).strict(),
   z
     .object({
@@ -87,6 +97,7 @@ export const RecordScalarSchema = z
       "dateTime",
       "range",
       "select",
+      "selectList",
       "member",
       "richText",
     ]),
@@ -278,7 +289,12 @@ export const RecordFieldSchema = z
     valueType: RecordValueTypeSchema,
     behavior: FieldBehaviorSchema,
     required: z.boolean(),
-    multiple: z.boolean().optional(),
+    multiple: z
+      .boolean()
+      .optional()
+      .describe(
+        "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior.",
+      ),
     format: z
       .object({
         color: z.string().max(64).nullable().optional(),
@@ -320,6 +336,12 @@ export const RecordRelationshipSchema = z
     targetCardinality: z.enum(["one", "many"]),
     onSourceDelete: z.enum(["unlink", "restrict", "cascade"]),
     onTargetDelete: z.enum(["unlink", "restrict", "cascade"]),
+    messagesOnSource: z
+      .boolean()
+      .describe("Show the messages of directly linked target records on each source record's activity timeline."),
+    messagesOnTarget: z
+      .boolean()
+      .describe("Show the messages of directly linked source records on each target record's activity timeline."),
     archived: z.boolean().describe("True while the item is in Recently deleted."),
   })
   .strict();
@@ -396,27 +418,6 @@ export const RecordCapabilitySchema = z
     ),
   })
   .strict();
-export const RecordActivityPathSchema = z
-  .object({
-    id: z.uuid(),
-    typeId: z.uuid(),
-    label: z.string().trim().min(1).max(200),
-    path: z
-      .array(
-        z
-          .object({
-            relationId: z.uuid(),
-            direction: z.enum(["incoming", "outgoing"]),
-          })
-          .strict(),
-      )
-      .max(6),
-    includeMessages: z.boolean(),
-    includeAudit: z.boolean(),
-    archived: z.boolean().describe("True while the item is in Recently deleted."),
-  })
-  .strict();
-
 export const RecordModelSchema = z
   .object({
     revision: z.number().int().nonnegative(),
@@ -425,7 +426,6 @@ export const RecordModelSchema = z
     relationships: z.array(RecordRelationshipSchema),
     accessPresets: z.array(RecordAccessPresetSchema).default([]),
     capabilities: z.array(RecordCapabilitySchema).default([]),
-    activityPaths: z.array(RecordActivityPathSchema).default([]),
   })
   .strict();
 export type RecordModel = z.infer<typeof RecordModelSchema>;
@@ -487,6 +487,7 @@ export const RecordDtoSchema = z
     fields: z.array(z.object({ fieldId: z.uuid(), result: CalculatedValueSchema }).strict()),
     assignedUserIds: z.array(z.uuid()),
     assignedUsers: z.array(RecordMemberSchema).default([]),
+    memberUsers: z.array(RecordMemberSchema).default([]),
     relationships: z.array(RecordRelationshipSummarySchema).default([]),
     relationshipPaths: z.array(RecordPathSummarySchema).optional(),
     identities: z.array(RecordIdentitySchema).optional(),

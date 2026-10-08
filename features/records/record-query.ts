@@ -291,6 +291,15 @@ export function compileRecordQuery(
     }
     if (filter.operator === "between" || filter.operator === "inLastDays" || filter.operator === "notInLastDays")
       throw new Error("Temporal operator requires a date field");
+    if (field.valueType === "select" && field.multiple) {
+      if (filter.operator !== "in" && filter.operator !== "notIn" && filter.operator !== "all")
+        throw new Error("Multiple choice query must be validated before compilation");
+      const ids = (filter.values ?? []).flatMap((value) => (value.kind === "select" ? [value.value] : []));
+      const chosen = ids.length ? Prisma.sql`ARRAY[${Prisma.join(ids)}]::text[]` : Prisma.sql`ARRAY[]::text[]`;
+      const holds = Prisma.sql`EXISTS (SELECT 1 FROM "RecordValue" value WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}.id AND value."fieldId" = ${field.id} AND value.state = 'value' AND value."textListValue" ${Prisma.raw(filter.operator === "all" ? "@>" : "&&")} ${chosen})`;
+      conditions.push(filter.operator === "notIn" ? Prisma.sql`NOT (${holds})` : holds);
+      continue;
+    }
     if (filter.operator === "in" || filter.operator === "notIn") {
       const choices = (filter.values ?? []).map((value) => {
         const currency =
@@ -338,6 +347,7 @@ export function compileRecordQuery(
       filter.value.kind === "decimal" && filter.value.currency
         ? Prisma.sql`AND EXISTS (SELECT 1 FROM "RecordValue" value WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}."id" AND value."fieldId" = ${field.id} AND value."currency" = ${filter.value.currency})`
         : Prisma.empty;
+    if (filter.operator === "all") throw new Error("Only multiple choice fields support the all operator");
     const comparison = Prisma.sql`(${expression} ${Prisma.raw(operators[filter.operator])} ${scalarParameter(filter.value)} ${currency})`;
     conditions.push(filter.operator === "ne" ? Prisma.sql`NOT COALESCE(${comparison}, FALSE)` : comparison);
   }

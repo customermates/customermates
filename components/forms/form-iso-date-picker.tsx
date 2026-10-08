@@ -33,6 +33,7 @@ type Props = {
   clearable?: boolean;
   value?: string;
   onValueChange?: (value: string | undefined) => void;
+  onPicked?: () => void;
   className?: string;
   containerClassName?: string;
 };
@@ -49,6 +50,7 @@ export const FormIsoDatePicker = observer(
     clearable = true,
     value: controlledValue,
     onValueChange,
+    onPicked,
     className,
     containerClassName,
   }: Props) => {
@@ -101,6 +103,13 @@ export const FormIsoDatePicker = observer(
       if (!dateOnly && parsed) next.setHours(parsed.getHours(), parsed.getMinutes(), parsed.getSeconds(), 0);
 
       commit(next);
+      finishPick();
+    }
+
+    function finishPick() {
+      if (!dateOnly || !onPicked) return;
+      setOpen(false);
+      onPicked();
     }
 
     function handleTimeChange(value: string) {
@@ -119,6 +128,7 @@ export const FormIsoDatePicker = observer(
       const next = compute(baseToday);
       if (!dateOnly && parsed) next.setHours(parsed.getHours(), parsed.getMinutes(), parsed.getSeconds(), 0);
       commit(next);
+      finishPick();
     }
 
     const timeValue = parsed ? localTimeValue(parsed) : "";

@@ -14,7 +14,7 @@ import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { validateNotes } from "@/core/validation/validate-notes";
-import { scalarMatchesType } from "./record-model-validation";
+import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
 import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
@@ -40,7 +40,7 @@ export function normalizeRecordScalar(value: RecordScalar | null, field: RecordF
     return null;
   }
   if (!scalarMatchesType(value, field.valueType, field.multiple)) reject(CustomErrorCode.recordValueInvalid);
-  if (value.kind === "select" && !field.options.some((option) => option.id === value.value))
+  if (!selectedOptionIds(value).every((id) => field.options.some((option) => option.id === id)))
     reject(CustomErrorCode.recordValueInvalid);
   if (field.required && value.kind === "text" && !value.value.trim()) reject(CustomErrorCode.recordValueInvalid);
   if (value.kind === "richText") {

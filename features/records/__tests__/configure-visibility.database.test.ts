@@ -233,7 +233,6 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     expect(model.fields.every((field) => field.typeId === id("contact"))).toBe(true);
     expect(model.relationships).toEqual([]);
     expect(model.accessPresets).toEqual([]);
-    expect(model.activityPaths.every((path) => path.typeId === id("contact"))).toBe(true);
     expect(model.capabilities.every((binding) => binding.typeId === id("contact"))).toBe(true);
   });
 

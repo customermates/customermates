@@ -37,6 +37,7 @@ export function calculationDependencyHash(field: RecordField, model: RecordModel
       id: definition.id,
       typeId: definition.typeId,
       valueType: definition.valueType,
+      multiple: definition.multiple ?? false,
       behavior: definition.behavior,
       options: definition.options
         .map((option) => ({
@@ -132,7 +133,6 @@ export class RecordConfigurationService extends UserAccessor {
       if (operation.operation === "putRelationship") register(operation.relationship.id);
       if (operation.operation === "putAccessPreset") register(operation.preset.id);
       if (operation.operation === "putCapability") register(operation.capability.id);
-      if (operation.operation === "putActivityPath") register(operation.activityPath.id);
     }
     for (const operation of input.operations) {
       if (operation.operation === "createType") {
@@ -261,15 +261,6 @@ export class RecordConfigurationService extends UserAccessor {
             position: required ? 0 : 1,
           });
         }
-        model.activityPaths.push({
-          id: deterministicId(this.companyId, `activities:${id}:self`),
-          typeId: id,
-          label: operation.pluralLabel,
-          path: [],
-          includeMessages: false,
-          includeAudit: true,
-          archived: false,
-        });
         if (operation.accessPresetId) {
           const preset = model.accessPresets.find(
             (preset) => preset.id === resolve(operation.accessPresetId ?? "") && !preset.archived,
@@ -362,33 +353,6 @@ export class RecordConfigurationService extends UserAccessor {
         )
           throw new RecordWriteError(CustomErrorCode.recordProtected, "authorization");
         upsert(model.capabilities, binding);
-        if (binding.kind === "channels" && binding.enabled !== false && (!existing || existing.enabled === false)) {
-          const selfId = deterministicId(this.companyId, `activities:${binding.typeId}:self`);
-          const self = model.activityPaths.find((path) => path.id === selfId);
-          const type = model.types.find((type) => type.id === binding.typeId);
-          if (self) self.includeMessages = true;
-          else if (type) {
-            model.activityPaths.push({
-              id: selfId,
-              typeId: type.id,
-              label: type.pluralLabel,
-              path: [],
-              includeMessages: true,
-              includeAudit: true,
-              archived: false,
-            });
-          }
-        }
-      }
-      if (operation.operation === "putActivityPath") {
-        const path = resolveDefinition(operation.activityPath) as Omit<
-          RecordModel["activityPaths"][number],
-          "archived"
-        >;
-        upsert(model.activityPaths, {
-          ...path,
-          archived: current.activityPaths.find((before) => before.id === path.id)?.archived ?? false,
-        });
       }
     }
     const lifecycle = input.operations.some(isLifecycleOperation)
