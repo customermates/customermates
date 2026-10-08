@@ -1,0 +1,474 @@
+{
+  "scope": "Final verification evidence for PR #203: last rerun on the final head, the final checks that led to it, the final-head visual pass and migration rehearsal on a fresh scratch copy of the sanitized production copy, and the last full four-browser matrix. Aggregates only.",
+  "finalHead": "3ffa8658f770d00a82bc9e1bd0f94c1e31695477",
+  "finalTree": "b1d378c270c268699974ca10545378a791d075c5",
+  "testedSourceNote": "The commit that adds this receipt changes only tests/e2e/review/2026-10-09-final-summary.json and the tests/e2e/README.md receipt link.",
+  "runtime": {
+    "host": "Ubuntu 24.04 x86_64 SSH VM, 16 vCPU, 64 GB, shared with the integration pipeline",
+    "node": "24.18.0",
+    "postgres": "17.8 (pgvector 0.8.1 image)",
+    "browsers": "Playwright chromium, webkit and mobile (iPhone 13 WebKit); production builds; one worker, zero retries, then one rerun of failed cases only"
+  },
+  "lastRerun3ffa8658f": {
+    "productionBuildId": "Mhh4XsaWku72ggjBjmqIy",
+    "specs": [
+      "record-field-controls (unchanged spec)",
+      "activity-values",
+      "contact-click-action",
+      "membership-tasks",
+      "records",
+      "settings-members",
+      "configure-graph-round4"
+    ],
+    "lanes": {
+      "chromium": {
+        "stats": {
+          "expected": 16,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [],
+        "failedAgainOnRerun": [],
+        "passedOnRerun": []
+      },
+      "webkit": {
+        "stats": {
+          "expected": 16,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [],
+        "failedAgainOnRerun": [],
+        "passedOnRerun": []
+      },
+      "mobile": {
+        "stats": {
+          "expected": 16,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [],
+        "failedAgainOnRerun": [],
+        "passedOnRerun": []
+      },
+      "smoke": {
+        "stats": {
+          "expected": 26,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [],
+        "failedAgainOnRerun": [],
+        "passedOnRerun": []
+      }
+    },
+    "languageNavigationUnitTests": {
+      "file": "i18n/__tests__/locale-preference.test.ts",
+      "total": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0
+    },
+    "migrations": "No migration or schema change since 7226f3514; the final migration rehearsal below applies."
+  },
+  "finalCheckEf3d95e62": {
+    "productionBuildId": "I2_U1Od2A16pi-Bwugb1l",
+    "lanes": {
+      "chromium": {
+        "stats": {
+          "expected": 13,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [],
+        "failedAgainOnRerun": [],
+        "passedOnRerun": []
+      },
+      "webkit": {
+        "stats": {
+          "expected": 12,
+          "unexpected": 1,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "settings-members.spec.ts:4"
+        ],
+        "failedAgainOnRerun": [],
+        "passedOnRerun": [
+          "settings-members.spec.ts:4"
+        ]
+      },
+      "mobile": {
+        "stats": {
+          "expected": 12,
+          "unexpected": 1,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "record-roles.spec.ts:5"
+        ],
+        "failedAgainOnRerun": [],
+        "passedOnRerun": [
+          "record-roles.spec.ts:5"
+        ]
+      },
+      "smoke": {
+        "stats": {
+          "expected": 25,
+          "unexpected": 1,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "record-field-controls.spec.ts:57"
+        ],
+        "failedAgainOnRerun": [
+          "record-field-controls.spec.ts:57"
+        ],
+        "passedOnRerun": []
+      }
+    },
+    "designConventions": {
+      "files": 6,
+      "total": 57,
+      "passed": 57,
+      "failed": 0
+    },
+    "smokeFailure": "record-field-controls.spec.ts:57: product accessibility regression (colour chip preview inside the option accessible name), fixed by I30b; spec unchanged.",
+    "visualRecheck": {
+      "C3 options editor": "pass (mobile full-width names, chip picker on a second row, no header overlap; desktop separate columns)",
+      "C4 members row menu": "pass (Open details + red Delete for another member)",
+      "rule 60 drawer side": "pass (right-anchored at 1280; full width on phones)",
+      "mobile row actions": "pass (0 of 280 cells covered or truncated)"
+    }
+  },
+  "finalHead7226f3514": {
+    "productionBuildId": "ovAu8kXUWrNTpo7TqRSds",
+    "lanes": {
+      "chromium": {
+        "stats": {
+          "expected": 24,
+          "unexpected": 3,
+          "skipped": 1,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "membership-tasks.spec.ts:6",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "failedAgainOnRerun": [
+          "membership-tasks.spec.ts:6",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "passedOnRerun": []
+      },
+      "webkit": {
+        "stats": {
+          "expected": 24,
+          "unexpected": 3,
+          "skipped": 1,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "membership-tasks.spec.ts:6",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "failedAgainOnRerun": [
+          "membership-tasks.spec.ts:6",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "passedOnRerun": []
+      },
+      "mobile": {
+        "stats": {
+          "expected": 20,
+          "unexpected": 6,
+          "skipped": 2,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "configure-graph-round4.spec.ts:35",
+          "configure-graph-round4.spec.ts:90",
+          "contact-click-action.spec.ts:6",
+          "membership-tasks.spec.ts:6",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "failedAgainOnRerun": [
+          "configure-graph-round4.spec.ts:35",
+          "configure-graph-round4.spec.ts:90",
+          "contact-click-action.spec.ts:6",
+          "membership-tasks.spec.ts:6",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "passedOnRerun": []
+      },
+      "smoke": {
+        "stats": {
+          "expected": 26,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "failedFirstPass": [],
+        "failedAgainOnRerun": [],
+        "passedOnRerun": []
+      }
+    },
+    "ledgerVisualPass": {
+      "C1 choice chips": "pass for record lists (partial coverage)",
+      "C2 activity entry": "partial (shared entry markup; prev -> current arrow only in an expanded entry, not captured)",
+      "C3 repeating rows": "failed on mobile at 7226f3514, passes at ef3d95e62",
+      "C4 table row menu": "failed for Members at 7226f3514, passes at ef3d95e62",
+      "C5 Ctrl/Cmd+K and +J": "partial (Linux Playwright browsers only; real Windows/macOS browsers are a human step)",
+      "C6 nested overlays": "pass (Esc)",
+      "C7 drawer header order": "pass (record and field drawers)",
+      "C8 widget subtitles": "pass",
+      "C9 no disabled menu entries": "pass (administrator)",
+      "ownerReviewPoint": "model-change-sheet is a full-width side sheet on narrow screens"
+    }
+  },
+  "finalMigrationRehearsal7226f3514": {
+    "basis": "Fresh scratch clone of the frozen sanitized production-copy baseline (145 workspaces, 117 legacy ledger entries), all seven migrations through the loopback-guarded runtime with providers paused; independent expectations from plain SQL on the untouched legacy clone.",
+    "firstDeploySeconds": 15.43,
+    "blockedConnections": 0,
+    "secondDeployNoPendingMigrations": true,
+    "schemaEqualsPrismaSchema": true,
+    "ledger": {
+      "ledgerEntries": 124,
+      "ledgerFinished": 124,
+      "ledgerUnfinishedOrRolledBack": 0,
+      "newMigrationsFinished": 7
+    },
+    "eventLog": {
+      "eventLogRows": 195,
+      "carriedMissing": 0,
+      "unexpectedEventRows": 0,
+      "fieldMismatches": 0,
+      "bySubjectKind": {
+        "connected_account": 39,
+        "legal": 156
+      },
+      "auditLogTable": false,
+      "recordEventTable": false,
+      "webhookDeliveries": 11118,
+      "webhookDeliveriesWithEventId": 0
+    },
+    "rolePermissions": {
+      "rolePermissions": 46,
+      "missingVsIndependentExpectation": 0,
+      "unexpectedVsIndependentExpectation": 0
+    },
+    "fieldCurrency": {
+      "workspacesWithSchemaState": 145,
+      "checked": 870,
+      "missingStarterFields": 0,
+      "currencyMismatchVsLegacyCompanyCurrency": 0,
+      "currentSnapshotChecked": 870,
+      "currentSnapshotMismatch": 0
+    },
+    "p13nSettings": {
+      "settingsColumn": 1,
+      "settingsNonNull": 0,
+      "p13nRows": 183
+    },
+    "widgetDashboardViews": {
+      "viewIdColumn": 1,
+      "viewIdSet": 0,
+      "widgets": 0,
+      "index": 1,
+      "foreignKey": 1
+    },
+    "uniqueNames": {
+      "duplicates": {
+        "lists": 0,
+        "fields": 0,
+        "relationshipEnds": 0,
+        "options": 0
+      },
+      "definitionMirror": {
+        "types": 870,
+        "typeMismatch": 0,
+        "fields": 3983,
+        "fieldMismatch": 0,
+        "relationships": 1305,
+        "relationshipMismatch": 0,
+        "missingRows": 0
+      },
+      "secondRunChangedAnything": false
+    },
+    "activitySources": {
+      "after": {
+        "companies": 145,
+        "revisions": 145,
+        "revisions_with_paths": 0,
+        "paths": 0,
+        "on_source": 145,
+        "on_target": 145,
+        "definitions_on": 290,
+        "changes_with_paths": 0
+      },
+      "switches": {
+        "companiesChecked": 145,
+        "snapshotsChecked": 145,
+        "definitionMirrorMismatches": 0,
+        "starterSwitchMismatches": 0,
+        "otherRelationshipsSwitchedOn": 0,
+        "snapshotSwitchMismatchesVsStarter": 0,
+        "operationsTargetingActivityPath": 0,
+        "deletionsNamingActivityPath": 0,
+        "helperSchemaLeft": 0
+      },
+      "secondRunChangedAnything": false
+    },
+    "tableCounts": {
+      "retainedChanged": [
+        {
+          "table": "DataView",
+          "before": 13,
+          "after": 7
+        },
+        {
+          "table": "P13n",
+          "before": 672,
+          "after": 183
+        },
+        {
+          "table": "RolePermission",
+          "before": 156,
+          "after": 46
+        },
+        {
+          "table": "Widget",
+          "before": 421,
+          "after": 0
+        }
+      ],
+      "retainedUnchanged": 45,
+      "genericRecords": {
+        "CrmRecord": 8564,
+        "RecordValue": 64243,
+        "RecordLink": 5703,
+        "RecordAssignment": 2836,
+        "RecordIdentity": 5233
+      }
+    }
+  },
+  "lastFullMatrixE92e5ead5": {
+    "productionBuildId": "k8bhFpARh8OVv9gtjZMXf",
+    "specs": 57,
+    "projects": [
+      "chromium",
+      "webkit",
+      "mobile"
+    ],
+    "lanes": {
+      "chromium": {
+        "stats": {
+          "expected": 117,
+          "unexpected": 4,
+          "skipped": 1,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "record-configuration-recovery.spec.ts:135",
+          "record-configuration-recovery.spec.ts:267",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "failedAgainOnRerun": [
+          "record-configuration-recovery.spec.ts:135",
+          "record-configuration-recovery.spec.ts:267",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "passedOnRerun": []
+      },
+      "webkit": {
+        "stats": {
+          "expected": 115,
+          "unexpected": 6,
+          "skipped": 1,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "configure-graph-round4.spec.ts:90",
+          "inbox-records.spec.ts:5",
+          "record-configuration-recovery.spec.ts:135",
+          "record-configuration-recovery.spec.ts:267",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "failedAgainOnRerun": [
+          "configure-graph-round4.spec.ts:90",
+          "record-configuration-recovery.spec.ts:135",
+          "record-configuration-recovery.spec.ts:267",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "passedOnRerun": [
+          "inbox-records.spec.ts:5"
+        ]
+      },
+      "mobile": {
+        "stats": {
+          "expected": 103,
+          "unexpected": 7,
+          "skipped": 12,
+          "flaky": 0
+        },
+        "failedFirstPass": [
+          "configure-graph-round4.spec.ts:35",
+          "configure-graph-round4.spec.ts:90",
+          "contact-click-action.spec.ts:6",
+          "record-configuration-recovery.spec.ts:135",
+          "record-configuration-recovery.spec.ts:267",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "failedAgainOnRerun": [
+          "configure-graph-round4.spec.ts:35",
+          "configure-graph-round4.spec.ts:90",
+          "contact-click-action.spec.ts:6",
+          "record-configuration-recovery.spec.ts:135",
+          "record-configuration-recovery.spec.ts:267",
+          "record-identity.spec.ts:5",
+          "records.spec.ts:15"
+        ],
+        "passedOnRerun": []
+      }
+    },
+    "followUp": "Every first-time failure was routed and rechecked on 7226f3514, ef3d95e62 and 3ffa8658f (see the sections above)."
+  },
+  "copyDestruction": {
+    "status": "held",
+    "reason": "Held until the coordinator confirms; the sanitized loopback copy and its private expectations remain on the VM (0700, loopback-only)."
+  },
+  "remainingHumanSteps": [
+    "real Windows and macOS browser check of Ctrl/Cmd+K and +J (C5)",
+    "owner's deep exploratory UI session",
+    "owner review of model-change-sheet on narrow screens",
+    "Code Owner review",
+    "PR merge",
+    "release-window selection",
+    "confirm and run the copy destruction"
+  ],
+  "previousReceipts": [
+    "2026-10-06-summary.json and its rehearsal receipt (4223d7deb)",
+    "2026-10-07/08 interim receipts"
+  ],
+  "copiedRecordsIdentifiersEmailsValuesFingerprintsIncluded": false,
+  "generatedAtUtc": "2026-10-08T23:37:07.196006+00:00"
+}
