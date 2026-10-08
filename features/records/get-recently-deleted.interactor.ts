@@ -56,14 +56,9 @@ export class GetRecentlyDeletedInteractor extends AuthenticatedInteractor<
         const deletions = await this.records.getConfigurationDeletions();
         const archivedTypes = new Set(model.types.filter((type) => type.archived).map((type) => type.id));
         const deletedNow = (target: { kind: string; id: string }) =>
-          (target.kind === "type"
-            ? model.types
-            : target.kind === "field"
-              ? model.fields
-              : target.kind === "relationship"
-                ? model.relationships
-                : model.activityPaths
-          ).some((item) => item.id === target.id && item.archived) ||
+          (target.kind === "type" ? model.types : target.kind === "field" ? model.fields : model.relationships).some(
+            (item) => item.id === target.id && item.archived,
+          ) ||
           model.capabilities.some(
             (binding) => target.kind === "channels" && binding.id === target.id && binding.enabled === false,
           );
@@ -86,9 +81,6 @@ export class GetRecentlyDeletedInteractor extends AuthenticatedInteractor<
           ...model.relationships
             .filter((relation) => relation.archived)
             .map((relation) => ({ kind: "relationship" as const, id: relation.id })),
-          ...model.activityPaths
-            .filter((path) => path.archived && !archivedTypes.has(path.typeId))
-            .map((path) => ({ kind: "activityPath" as const, id: path.id })),
           ...model.capabilities
             .filter(
               (binding) =>

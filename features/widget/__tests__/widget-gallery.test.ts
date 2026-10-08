@@ -90,6 +90,8 @@ function relation(sourceTypeId: string, targetTypeId: string): RecordRelationshi
     targetCardinality: "many",
     onSourceDelete: "unlink",
     onTargetDelete: "unlink",
+    messagesOnSource: false,
+    messagesOnTarget: false,
     archived: false,
   };
 }

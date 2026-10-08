@@ -9,13 +9,12 @@ import {
   RecordRelationshipSchema,
   RecordAccessPresetSchema,
   RecordCapabilitySchema,
-  RecordActivityPathSchema,
   RecordGrantSchema,
   ExpressionBudgetSchema,
   RecordGroupSummaryDefinitionSchema,
 } from "./record-model.schema";
 
-export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship", "activityPath", "channels"] as const;
+export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship", "channels"] as const;
 export const ConfigurationTargetSchema = z.object({ kind: z.enum(CONFIGURATION_TARGET_KINDS), id: z.uuid() }).strict();
 export type ConfigurationTarget = z.infer<typeof ConfigurationTargetSchema>;
 export const DeletionReferenceSchema = z
@@ -311,26 +310,6 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .strict(),
             z
               .object({
-                operation: z.literal("putActivityPath"),
-                activityPath: RecordActivityPathSchema.extend({
-                  archived: LiveDefinitionSchema,
-                  id: ConfigurationReferenceSchema,
-                  typeId: ConfigurationReferenceSchema,
-                  path: z
-                    .array(
-                      z
-                        .object({
-                          relationId: ConfigurationReferenceSchema,
-                          direction: z.enum(["incoming", "outgoing"]),
-                        })
-                        .strict(),
-                    )
-                    .max(6),
-                }),
-              })
-              .strict(),
-            z
-              .object({
                 operation: z.literal("publishSummary"),
                 fieldId: ConfigurationReferenceSchema,
                 published: z.boolean(),
@@ -341,7 +320,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({ operation: z.literal("delete"), target: ConfigurationTargetSchema })
               .strict()
               .describe(
-                "Move a list, field, relationship, activity connection or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+                "Move a list, field, relationship or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
               ),
             z
               .object({ operation: z.literal("restore"), target: ConfigurationTargetSchema })

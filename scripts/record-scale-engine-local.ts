@@ -309,6 +309,8 @@ try {
             targetCardinality: "many",
             onSourceDelete: "restrict",
             onTargetDelete: "unlink",
+            messagesOnSource: false,
+            messagesOnTarget: false,
             archived: false,
           },
         },

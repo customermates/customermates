@@ -49,7 +49,7 @@ function referenceChip(reference: DeletionReference, model: RecordModelView | nu
       href: focusHref({ kind: "list", id: reference.id }),
     };
   }
-  if (reference.kind === "field" || reference.kind === "relationship" || reference.kind === "activityPath") {
+  if (reference.kind === "field" || reference.kind === "relationship") {
     return {
       label: reference.label,
       icon: reference.kind,

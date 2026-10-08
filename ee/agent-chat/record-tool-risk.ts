@@ -40,10 +40,6 @@ export function recordToolRisk(name: string, input: unknown): RecordToolRisk | n
       const field = object(operation.field);
       if (field.archived !== true && isNewDefinitionReference(field.id)) continue;
     }
-    if (operation.operation === "putActivityPath") {
-      const activityPath = object(operation.activityPath);
-      if (activityPath.archived !== true && isNewDefinitionReference(activityPath.id)) continue;
-    }
     if (operation.operation === "putRelationship") {
       const relationship = object(operation.relationship);
       if (

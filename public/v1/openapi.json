@@ -42208,6 +42208,14 @@
                               "cascade"
                             ]
                           },
+                          "messagesOnSource": {
+                            "type": "boolean",
+                            "description": "Show the messages of directly linked target records on each source record's activity timeline."
+                          },
+                          "messagesOnTarget": {
+                            "type": "boolean",
+                            "description": "Show the messages of directly linked source records on each target record's activity timeline."
+                          },
                           "archived": {
                             "type": "boolean",
                             "description": "True while the item is in Recently deleted."
@@ -42223,6 +42231,8 @@
                           "targetCardinality",
                           "onSourceDelete",
                           "onTargetDelete",
+                          "messagesOnSource",
+                          "messagesOnTarget",
                           "archived"
                         ],
                         "additionalProperties": false
@@ -42350,76 +42360,6 @@
                         ],
                         "additionalProperties": false
                       }
-                    },
-                    "activityPaths": {
-                      "default": [],
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          },
-                          "typeId": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          },
-                          "label": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 200
-                          },
-                          "path": {
-                            "maxItems": 6,
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "relationId": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                },
-                                "direction": {
-                                  "type": "string",
-                                  "enum": [
-                                    "incoming",
-                                    "outgoing"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "relationId",
-                                "direction"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "includeMessages": {
-                            "type": "boolean"
-                          },
-                          "includeAudit": {
-                            "type": "boolean"
-                          },
-                          "archived": {
-                            "type": "boolean",
-                            "description": "True while the item is in Recently deleted."
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "typeId",
-                          "label",
-                          "path",
-                          "includeMessages",
-                          "includeAudit",
-                          "archived"
-                        ],
-                        "additionalProperties": false
-                      }
                     }
                   },
                   "required": [
@@ -42428,8 +42368,7 @@
                     "fields",
                     "relationships",
                     "accessPresets",
-                    "capabilities",
-                    "activityPaths"
+                    "capabilities"
                   ],
                   "additionalProperties": false
                 }
@@ -42502,7 +42441,7 @@
     "/v1/model/deleted": {
       "post": {
         "operationId": "readRecentlyDeletedConfiguration",
-        "summary": "Read lists, fields, relationships and activity connections in Recently deleted",
+        "summary": "Read lists, fields and relationships in Recently deleted",
         "tags": [
           "records"
         ],
@@ -42551,7 +42490,6 @@
                                   "type",
                                   "field",
                                   "relationship",
-                                  "activityPath",
                                   "channels"
                                 ]
                               },
@@ -43954,6 +43892,14 @@
                                     "cascade"
                                   ]
                                 },
+                                "messagesOnSource": {
+                                  "type": "boolean",
+                                  "description": "Show the messages of directly linked target records on each source record's activity timeline."
+                                },
+                                "messagesOnTarget": {
+                                  "type": "boolean",
+                                  "description": "Show the messages of directly linked source records on each target record's activity timeline."
+                                },
                                 "archived": {
                                   "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                   "type": "boolean"
@@ -43968,7 +43914,9 @@
                                 "sourceCardinality",
                                 "targetCardinality",
                                 "onSourceDelete",
-                                "onTargetDelete"
+                                "onTargetDelete",
+                                "messagesOnSource",
+                                "messagesOnTarget"
                               ],
                               "additionalProperties": false
                             }
@@ -44159,109 +44107,6 @@
                           "properties": {
                             "operation": {
                               "type": "string",
-                              "const": "putActivityPath"
-                            },
-                            "activityPath": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "anyOf": [
-                                    {
-                                      "type": "string",
-                                      "format": "uuid",
-                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                    },
-                                    {
-                                      "type": "string",
-                                      "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
-                                    }
-                                  ]
-                                },
-                                "typeId": {
-                                  "anyOf": [
-                                    {
-                                      "type": "string",
-                                      "format": "uuid",
-                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                    },
-                                    {
-                                      "type": "string",
-                                      "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
-                                    }
-                                  ]
-                                },
-                                "label": {
-                                  "type": "string",
-                                  "minLength": 1,
-                                  "maxLength": 200
-                                },
-                                "path": {
-                                  "maxItems": 6,
-                                  "type": "array",
-                                  "items": {
-                                    "type": "object",
-                                    "properties": {
-                                      "relationId": {
-                                        "anyOf": [
-                                          {
-                                            "type": "string",
-                                            "format": "uuid",
-                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                          },
-                                          {
-                                            "type": "string",
-                                            "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
-                                          }
-                                        ]
-                                      },
-                                      "direction": {
-                                        "type": "string",
-                                        "enum": [
-                                          "incoming",
-                                          "outgoing"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "relationId",
-                                      "direction"
-                                    ],
-                                    "additionalProperties": false
-                                  }
-                                },
-                                "includeMessages": {
-                                  "type": "boolean"
-                                },
-                                "includeAudit": {
-                                  "type": "boolean"
-                                },
-                                "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "typeId",
-                                "label",
-                                "path",
-                                "includeMessages",
-                                "includeAudit"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "activityPath"
-                          ],
-                          "additionalProperties": false
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
                               "const": "publishSummary"
                             },
                             "fieldId": {
@@ -44310,7 +44155,6 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath",
                                     "channels"
                                   ]
                                 },
@@ -44332,7 +44176,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field, relationship, activity connection or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
+                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -44350,7 +44194,6 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath",
                                     "channels"
                                   ]
                                 },
@@ -44390,7 +44233,6 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath",
                                     "channels"
                                   ]
                                 },
@@ -44638,7 +44480,6 @@
                                       "type",
                                       "field",
                                       "relationship",
-                                      "activityPath",
                                       "channels",
                                       "routine",
                                       "webhook",
@@ -44676,7 +44517,6 @@
                                       "type",
                                       "field",
                                       "relationship",
-                                      "activityPath",
                                       "channels",
                                       "routine",
                                       "webhook",
@@ -44728,7 +44568,6 @@
                                       "type",
                                       "field",
                                       "relationship",
-                                      "activityPath",
                                       "channels",
                                       "routine",
                                       "webhook",
@@ -44766,7 +44605,6 @@
                                       "type",
                                       "field",
                                       "relationship",
-                                      "activityPath",
                                       "channels",
                                       "routine",
                                       "webhook",
@@ -46247,6 +46085,14 @@
                                     "cascade"
                                   ]
                                 },
+                                "messagesOnSource": {
+                                  "type": "boolean",
+                                  "description": "Show the messages of directly linked target records on each source record's activity timeline."
+                                },
+                                "messagesOnTarget": {
+                                  "type": "boolean",
+                                  "description": "Show the messages of directly linked source records on each target record's activity timeline."
+                                },
                                 "archived": {
                                   "description": "Always false. Use the delete operation to move an item to Recently deleted.",
                                   "type": "boolean"
@@ -46261,7 +46107,9 @@
                                 "sourceCardinality",
                                 "targetCardinality",
                                 "onSourceDelete",
-                                "onTargetDelete"
+                                "onTargetDelete",
+                                "messagesOnSource",
+                                "messagesOnTarget"
                               ],
                               "additionalProperties": false
                             }
@@ -46452,109 +46300,6 @@
                           "properties": {
                             "operation": {
                               "type": "string",
-                              "const": "putActivityPath"
-                            },
-                            "activityPath": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "anyOf": [
-                                    {
-                                      "type": "string",
-                                      "format": "uuid",
-                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                    },
-                                    {
-                                      "type": "string",
-                                      "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
-                                    }
-                                  ]
-                                },
-                                "typeId": {
-                                  "anyOf": [
-                                    {
-                                      "type": "string",
-                                      "format": "uuid",
-                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                    },
-                                    {
-                                      "type": "string",
-                                      "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
-                                    }
-                                  ]
-                                },
-                                "label": {
-                                  "type": "string",
-                                  "minLength": 1,
-                                  "maxLength": 200
-                                },
-                                "path": {
-                                  "maxItems": 6,
-                                  "type": "array",
-                                  "items": {
-                                    "type": "object",
-                                    "properties": {
-                                      "relationId": {
-                                        "anyOf": [
-                                          {
-                                            "type": "string",
-                                            "format": "uuid",
-                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                          },
-                                          {
-                                            "type": "string",
-                                            "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
-                                          }
-                                        ]
-                                      },
-                                      "direction": {
-                                        "type": "string",
-                                        "enum": [
-                                          "incoming",
-                                          "outgoing"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "relationId",
-                                      "direction"
-                                    ],
-                                    "additionalProperties": false
-                                  }
-                                },
-                                "includeMessages": {
-                                  "type": "boolean"
-                                },
-                                "includeAudit": {
-                                  "type": "boolean"
-                                },
-                                "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "typeId",
-                                "label",
-                                "path",
-                                "includeMessages",
-                                "includeAudit"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "activityPath"
-                          ],
-                          "additionalProperties": false
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
                               "const": "publishSummary"
                             },
                             "fieldId": {
@@ -46603,7 +46348,6 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath",
                                     "channels"
                                   ]
                                 },
@@ -46625,7 +46369,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field, relationship, activity connection or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
+                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -46643,7 +46387,6 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath",
                                     "channels"
                                   ]
                                 },
@@ -46683,7 +46426,6 @@
                                     "type",
                                     "field",
                                     "relationship",
-                                    "activityPath",
                                     "channels"
                                   ]
                                 },

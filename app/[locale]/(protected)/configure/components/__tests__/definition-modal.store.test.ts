@@ -10,7 +10,6 @@ vi.mock("../../../records/actions", () => ({
 }));
 import { FieldModalStore } from "../field-modal";
 import { applyRecordConfigurationAction, previewRecordConfigurationAction } from "../../../records/actions";
-import { ActivityPathModalStore } from "../activity-path-modal";
 import { TypeModalStore } from "../type-modal";
 import { RelationshipModalStore } from "../relationship-modal";
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
@@ -57,14 +56,6 @@ describe("configuration modal contracts", () => {
     expect(relationOperation.operation === "putRelationship" && relationOperation.relationship).toEqual(
       relationDefinition,
     );
-    const activity = recordInvariant(model.activityPaths[0]);
-    const activityStore = new ActivityPathModalStore(root, model, vi.fn());
-    activityStore.edit(model, activity.typeId, activity);
-    const activityOperation = validate(activityStore.operations()).operations[0];
-    const activityDefinition = omit(activity, "archived");
-    expect(activityOperation.operation === "putActivityPath" && activityOperation.activityPath).toEqual(
-      activityDefinition,
-    );
   });
   it("preserves and edits generic option metadata while retaining explicit zero probability", () => {
     const model = createCrmPreset(company);
@@ -96,34 +87,32 @@ describe("configuration modal contracts", () => {
     const operation = validate(store.operations()).operations[0];
     expect(operation.operation === "putField" && operation.field.behavior).toEqual(field.behavior);
   });
-  it("edits activity paths without dropping relationship directions or auditing choices", () => {
+  it("keeps the message switches of an edited relationship", () => {
     const model = createCrmPreset(company);
-    const path = recordInvariant(
-      model.activityPaths.find((path) => path.typeId === id("organization") && path.path.length),
+    const relation = recordInvariant(
+      model.relationships.find((relation) => relation.id === id("contact.organizations")),
     );
-    const store = new ActivityPathModalStore(root, model, vi.fn());
-    store.edit(model, id("organization"), path);
-    store.onChange("includeMessages", false);
+    const store = new RelationshipModalStore(root, model, vi.fn());
+    store.edit(model, relation.sourceTypeId, relation);
+    store.onChange("targetLabel", "People");
     const operation = validate(store.operations()).operations[0];
-    const definition = omit(path, "archived");
-    expect(operation.operation === "putActivityPath" && operation.activityPath).toEqual({
-      ...definition,
-      includeMessages: false,
+    expect(operation.operation === "putRelationship" && operation.relationship).toEqual({
+      ...omit(relation, "archived"),
+      targetLabel: "People",
+      messagesOnSource: false,
+      messagesOnTarget: true,
     });
   });
-  it("creates an explicit self activity path with both supported sources", () => {
+  it("creates relationships without message switches", () => {
     const model = createCrmPreset(company);
-    const store = new ActivityPathModalStore(root, model, vi.fn());
-    store.edit(model, id("organization"));
-    store.onChange("label", "Direct activities");
+    const store = new RelationshipModalStore(root, model, vi.fn());
+    store.edit(model, id("deal"), undefined, id("service"));
+    store.onChange("sourceLabel", "Offered services");
+    store.onChange("targetLabel", "Offered in deals");
     const operation = validate(store.operations()).operations[0];
-    expect(operation.operation === "putActivityPath" && operation.activityPath).toEqual({
-      id: "$activityPath",
-      typeId: id("organization"),
-      label: "Direct activities",
-      path: [],
-      includeMessages: true,
-      includeAudit: true,
+    expect(operation.operation === "putRelationship" && operation.relationship).toMatchObject({
+      messagesOnSource: false,
+      messagesOnTarget: false,
     });
   });
 });

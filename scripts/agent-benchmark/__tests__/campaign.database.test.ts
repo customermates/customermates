@@ -4,6 +4,7 @@ import { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from "@/tests/helpers/legacy-migration-database";
 
 import type { EpisodeArtifact } from "../episode";
 import type { JudgeVerdict } from "../judge";
@@ -28,27 +29,45 @@ const describeDatabase = databaseUrl ? describe : describe.skip;
 
 describeDatabase("agent benchmark ledger", () => {
   let pool: Pool;
+  let database: Awaited<ReturnType<typeof createLegacyMigrationDatabase>> | undefined;
   const campaignIds: string[] = [];
   const productCompanyIds: string[] = [];
 
-  beforeAll(() => {
+  beforeAll(async () => {
     if (!databaseUrl) throw new Error("Database URL is required.");
-    pool = new Pool({ connectionString: databaseUrl });
-  });
+    // Recovery takes table-wide SHARE locks; tenant IDs cannot isolate parallel suites.
+    const fixture = await createLegacyMigrationDatabase(databaseUrl);
+    database = fixture;
+    try {
+      await applyConfigurableRecordsMigration(fixture.client);
+      pool = new Pool({ connectionString: fixture.url });
+    } catch (error) {
+      database = undefined;
+      await fixture.close();
+      throw error;
+    }
+  }, 120_000);
 
   afterAll(async () => {
     vi.unstubAllGlobals();
-    if (campaignIds.length) {
-      await pool.query("DELETE FROM local_agent_benchmark.charge WHERE campaign_id = ANY($1::uuid[])", [campaignIds]);
-      await pool.query("DELETE FROM local_agent_benchmark.episode WHERE campaign_id = ANY($1::uuid[])", [campaignIds]);
-      await pool.query("DELETE FROM local_agent_benchmark.campaign WHERE id = ANY($1::uuid[])", [campaignIds]);
+    try {
+      if (campaignIds.length) {
+        await pool.query("DELETE FROM local_agent_benchmark.charge WHERE campaign_id = ANY($1::uuid[])", [campaignIds]);
+        await pool.query("DELETE FROM local_agent_benchmark.episode WHERE campaign_id = ANY($1::uuid[])", [campaignIds]);
+        await pool.query("DELETE FROM local_agent_benchmark.campaign WHERE id = ANY($1::uuid[])", [campaignIds]);
+      }
+      if (productCompanyIds.length)
+        await pool.query('DELETE FROM "Company" WHERE "id" = ANY($1::text[])', [
+          productCompanyIds,
+        ]);
+    } finally {
+      try {
+        await pool?.end();
+      } finally {
+        await database?.close();
+      }
     }
-    if (productCompanyIds.length)
-      await pool.query('DELETE FROM "Company" WHERE "id" = ANY($1::text[])', [
-        productCompanyIds,
-      ]);
-    await pool.end();
-  });
+  }, 120_000);
 
   it.each(["prepared", "running"] as const)(
     "recovers a stranded %s episode, preserves its charge, and leaves the row retryable",

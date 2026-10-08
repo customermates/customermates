@@ -336,6 +336,12 @@ export const RecordRelationshipSchema = z
     targetCardinality: z.enum(["one", "many"]),
     onSourceDelete: z.enum(["unlink", "restrict", "cascade"]),
     onTargetDelete: z.enum(["unlink", "restrict", "cascade"]),
+    messagesOnSource: z
+      .boolean()
+      .describe("Show the messages of directly linked target records on each source record's activity timeline."),
+    messagesOnTarget: z
+      .boolean()
+      .describe("Show the messages of directly linked source records on each target record's activity timeline."),
     archived: z.boolean().describe("True while the item is in Recently deleted."),
   })
   .strict();
@@ -412,27 +418,6 @@ export const RecordCapabilitySchema = z
     ),
   })
   .strict();
-export const RecordActivityPathSchema = z
-  .object({
-    id: z.uuid(),
-    typeId: z.uuid(),
-    label: z.string().trim().min(1).max(200),
-    path: z
-      .array(
-        z
-          .object({
-            relationId: z.uuid(),
-            direction: z.enum(["incoming", "outgoing"]),
-          })
-          .strict(),
-      )
-      .max(6),
-    includeMessages: z.boolean(),
-    includeAudit: z.boolean(),
-    archived: z.boolean().describe("True while the item is in Recently deleted."),
-  })
-  .strict();
-
 export const RecordModelSchema = z
   .object({
     revision: z.number().int().nonnegative(),
@@ -441,7 +426,6 @@ export const RecordModelSchema = z
     relationships: z.array(RecordRelationshipSchema),
     accessPresets: z.array(RecordAccessPresetSchema).default([]),
     capabilities: z.array(RecordCapabilitySchema).default([]),
-    activityPaths: z.array(RecordActivityPathSchema).default([]),
   })
   .strict();
 export type RecordModel = z.infer<typeof RecordModelSchema>;
