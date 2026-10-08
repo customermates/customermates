@@ -385,19 +385,18 @@ describe("tool result truncation is never silent", () => {
 });
 
 describe("agent turn budget reasoning settings", () => {
-  it("carries the entry's reasoning effort and thinking level into the turn budget", () => {
+  it("carries the entry's reasoning effort into the turn budget", () => {
     const budget = resolveAgentTurnBudget({
-      model: { ...BALANCED, reasoningEffort: "low", thinkingLevel: "medium" },
+      model: { ...BALANCED, reasoningEffort: "high" },
       availableMicrocents: 500 * CREDIT,
     });
 
-    expect(budget).toEqual(expect.objectContaining({ reasoningEffort: "low", thinkingLevel: "medium" }));
+    expect(budget).toEqual(expect.objectContaining({ reasoningEffort: "high" }));
   });
 
   it("omits the reasoning keys entirely for a model without them", () => {
     const budget = resolveAgentTurnBudget({ model: CHEAPER, availableMicrocents: 500 * CREDIT });
 
     expect(budget).not.toHaveProperty("reasoningEffort");
-    expect(budget).not.toHaveProperty("thinkingLevel");
   });
 });

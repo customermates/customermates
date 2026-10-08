@@ -9,7 +9,7 @@ export {
   agentModelWorstCasePromptTokens,
   isAgentModelWithinBudgetEnvelope,
 } from "./agent-model";
-export type { AgentModelEntry, AgentReasoningEffort, AgentThinkingLevel } from "./agent-model";
+export type { AgentModelEntry, AgentReasoningEffort } from "./agent-model";
 
 export const SHIPPED_AGENT_MODEL_KEY = "balanced";
 export type AgentModelKey = typeof SHIPPED_AGENT_MODEL_KEY;

@@ -9,7 +9,6 @@ import {
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
 } from "@/ee/agent-chat/agent-model";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
-import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 
@@ -84,10 +83,7 @@ export async function generateStructuredObject<T>(args: {
       ...(args.model.reasoningEffort ? { reasoning: args.model.reasoningEffort } : {}),
       maxRetries: 0,
       abortSignal: AbortSignal.timeout(args.timeoutMs ?? TIMEOUT_MS),
-      providerOptions: {
-        ...getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
-        ...googleThinkingProviderOptions(args.model),
-      },
+      providerOptions: getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
     });
     const usage = result.usage;
     const reading = readAgentProviderCharge(result.providerMetadata, args.model.servingProvider);

@@ -34,7 +34,6 @@ import {
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
-import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
@@ -1537,10 +1536,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
         ...(payload.turnBudget.reasoningEffort ? { reasoning: payload.turnBudget.reasoningEffort } : {}),
-        providerOptions: {
-          ...getAgentProviderOptions(payload.turnBudget.servingProvider, payload.turnBudget.inferenceRegion),
-          ...googleThinkingProviderOptions(payload.turnBudget),
-        },
+        providerOptions: getAgentProviderOptions(payload.turnBudget.servingProvider, payload.turnBudget.inferenceRegion),
         prepareStep: async ({ messages: stepMessages }) => {
           settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
