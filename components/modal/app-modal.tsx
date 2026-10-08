@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
 import type { AppModalActionProps } from "./app-modal-action";
 
@@ -25,6 +25,16 @@ import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./a
 
 export type AppModalActions = readonly AppModalActionProps[];
 
+type AppModalSurface = "dialog" | "drawer" | "sheet";
+
+const AppModalSurfaceContext = createContext<AppModalSurface>("dialog");
+
+export function AppModalTitle({ className, children }: { className?: string; children: ReactNode }) {
+  const surface = useContext(AppModalSurfaceContext);
+  const Title = surface === "sheet" ? SheetTitle : surface === "drawer" ? DrawerTitle : DialogTitle;
+  return <Title className={className}>{children}</Title>;
+}
+
 export type ModalSize = "sm" | "md" | "lg" | "xl" | "3xl" | "5xl";
 
 const sizeClassMap: Record<ModalSize, string> = {
@@ -39,6 +49,7 @@ const sizeClassMap: Record<ModalSize, string> = {
 type SharedProps = {
   title: ReactNode;
   presentation?: "dialog" | "sheet";
+  titleInContent?: boolean;
   actions?: AppModalActions;
   description?: ReactNode;
   layerClassName?: string;
@@ -80,7 +91,17 @@ function focusFirstContentControl(event: Event) {
 }
 
 export const AppModal = observer((props: Props) => {
-  const { title, actions = [], description, layerClassName, size = "md", presentation = "dialog", children } = props;
+  const {
+    title,
+    actions = [],
+    description,
+    layerClassName,
+    size = "md",
+    presentation = "dialog",
+    titleInContent = false,
+    children,
+  } = props;
+
   const store = hasStore(props) ? props.store : undefined;
   const clientReady = useClientReady();
   const isOpen = clientReady && (hasStore(props) ? props.store.isOpen : props.open);
@@ -130,14 +151,15 @@ export const AppModal = observer((props: Props) => {
     if (!next && !dismissGuard.shouldKeepOpen()) requestClose();
   }
 
+  const surface: AppModalSurface = presentation === "sheet" ? "sheet" : layout.wide ? "dialog" : "drawer";
   const content = (
-    <>
+    <AppModalSurfaceContext.Provider value={surface}>
       <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
       <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
         <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
       </OverlayDismissGuardContext.Provider>
-    </>
+    </AppModalSurfaceContext.Provider>
   );
 
   return (
@@ -159,7 +181,7 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
-              <SheetTitle>{title}</SheetTitle>
+              {titleInContent ? null : <SheetTitle>{title}</SheetTitle>}
 
               {description ? <SheetDescription>{description}</SheetDescription> : null}
             </VisuallyHidden.Root>
@@ -187,7 +209,7 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
-              <DialogTitle>{title}</DialogTitle>
+              {titleInContent ? null : <DialogTitle>{title}</DialogTitle>}
 
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </VisuallyHidden.Root>
@@ -211,7 +233,7 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
-              <DrawerTitle>{title}</DrawerTitle>
+              {titleInContent ? null : <DrawerTitle>{title}</DrawerTitle>}
 
               {description ? <DrawerDescription>{description}</DrawerDescription> : null}
             </VisuallyHidden.Root>

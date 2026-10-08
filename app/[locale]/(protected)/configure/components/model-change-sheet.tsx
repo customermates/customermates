@@ -12,7 +12,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { AppModal } from "@/components/modal";
+import { AppModal, AppModalTitle } from "@/components/modal";
 import { usePreviewBlockers } from "./use-preview-blockers";
 
 type SheetStore = BaseModalStore & {
@@ -38,10 +38,10 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
 }) {
   usePreviewBlockers(store.isOpen ? store.preview : null, store.model);
   return (
-    <AppModal actions={actions} presentation="sheet" store={store} title={title}>
+    <AppModal titleInContent actions={actions} presentation="sheet" store={store} title={title}>
       <AppCard>
         <AppCardHeader>
-          <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">{title}</h2>
+          <AppModalTitle className="min-w-0 flex-1 truncate text-lg font-semibold">{title}</AppModalTitle>
         </AppCardHeader>
 
         <AppCardBody>{children}</AppCardBody>
