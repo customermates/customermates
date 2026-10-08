@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import type { RootStore } from "@/core/stores/root.store";
 
-import { act, createElement } from "react";
+import { act, createElement, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -20,7 +20,7 @@ vi.mock("@/components/ai-elements/message", () => ({
   MessageResponse: ({ children }: { children: ReactNode }) => createElement("span", null, children),
 }));
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { AgentTourOverlay } from "@/app/components/agent-chat/agent-tour-overlay";
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
 
@@ -30,16 +30,17 @@ let container: HTMLDivElement;
 let reactRoot: Root;
 
 function ChannelDialogTabs() {
-  return createElement(
-    Tabs,
-    { defaultValue: "email" },
-    createElement(
-      TabsList,
-      null,
-      createElement(TabsTrigger, { id: "channel-tab-email", value: "email" }, "Email"),
-      createElement(TabsTrigger, { id: "channel-tab-details", value: "details" }, "Details"),
-    ),
-  );
+  const [value, setValue] = useState("email");
+  return createElement(SegmentedControl<string>, {
+    idPrefix: "channel",
+    items: [
+      { value: "email", label: "Email" },
+      { value: "details", label: "Details" },
+    ],
+    label: "Channel",
+    value,
+    onValueChange: setValue,
+  });
 }
 
 function tourControl(id: string) {
