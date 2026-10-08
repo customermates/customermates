@@ -21,3 +21,14 @@ export function recordDetailLayoutIsValid(typeId: string, layout: RecordDetailLa
     (keys) => new Set(keys).size === keys.length && keys.every((id) => available.has(id)),
   );
 }
+
+export function cleanRecordDetailLayout(typeId: string, layout: RecordDetailLayout, model: RecordModel) {
+  const available = new Set(recordColumns(typeId, model).map((column) => column.id));
+  const keep = (keys: string[]) => [...new Set(keys)].filter((id) => available.has(id));
+  const cleaned = {
+    pinnedFields: keep(layout.pinnedFields),
+    hiddenFields: keep(layout.hiddenFields),
+    fieldOrder: keep(layout.fieldOrder),
+  };
+  return recordDetailLayoutIsValid(typeId, cleaned, model) ? cleaned : null;
+}

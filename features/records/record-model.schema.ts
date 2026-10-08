@@ -308,7 +308,7 @@ export const RecordFieldSchema = z
       })
       .strict()
       .optional(),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
     publishedSummary: z.boolean(),
     options: z.array(
       z
@@ -336,7 +336,7 @@ export const RecordRelationshipSchema = z
     targetCardinality: z.enum(["one", "many"]),
     onSourceDelete: z.enum(["unlink", "restrict", "cascade"]),
     onTargetDelete: z.enum(["unlink", "restrict", "cascade"]),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
   })
   .strict();
 export type RecordRelationship = z.infer<typeof RecordRelationshipSchema>;
@@ -361,7 +361,7 @@ export const RecordTypeSchema = z
     parentRelationshipId: z.uuid().nullable().default(null),
     embedded: z.boolean(),
     navigationVisible: z.boolean().default(true),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
     position: z.number().int().nonnegative(),
     defaults: z
       .object({
@@ -429,7 +429,7 @@ export const RecordActivityPathSchema = z
       .max(6),
     includeMessages: z.boolean(),
     includeAudit: z.boolean(),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
   })
   .strict();
 

@@ -22,6 +22,7 @@ import {
   getGetRecordModelInteractor,
   getApplyRecordConfigurationInteractor,
   getPreviewRecordConfigurationInteractor,
+  getGetRecentlyDeletedInteractor,
   getMutateRecordInteractor,
   getGetRecordInteractor,
   getGetRecordEditorInteractor,
@@ -92,6 +93,9 @@ async function serializeResultWithFailure<T>(result: Validated<T> | Promise<Awai
         error: z.treeifyError(resolved.error),
         failure: serializeInteractorFailure(resolved.error),
       };
+}
+export async function getRecentlyDeletedAction() {
+  return serializeResultWithFailure(getGetRecentlyDeletedInteractor().invoke({}));
 }
 export async function previewRecordConfigurationAction(change: ConfigurationChange) {
   return serializeResultWithFailure(getPreviewRecordConfigurationInteractor().invoke(change));

@@ -9,15 +9,35 @@ import { createRoot } from "react-dom/client";
 import { action, observable, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const harness = vi.hoisted(() => ({ globalSearchModalStore: null as unknown, openEntity: vi.fn() }));
+const harness = vi.hoisted(() => ({
+  globalSearchModalStore: null as unknown,
+  openEntity: vi.fn(),
+  mateEnabled: false,
+  pages: {} as Record<string, string>,
+  openWithDraft: vi.fn(),
+  submitDraft: vi.fn(),
+  push: vi.fn(),
+}));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     globalSearchModalStore: harness.globalSearchModalStore,
     recordWorkspaceStore: { open: harness.openEntity },
+    addPickerStore: { openFrom: vi.fn() },
+    agentChatEnabled: harness.mateEnabled,
+    agentChatStore: {
+      enabled: harness.mateEnabled,
+      open: vi.fn(),
+      openWithDraft: harness.openWithDraft,
+      submitDraft: harness.submitDraft,
+    },
+    keyboardShortcutsStore: { destinations: { pages: harness.pages, lists: [] } },
+    navigationGuard: { tryNavigate: (navigate: () => void) => navigate() },
+    viewPickerStore: { surface: null },
   }),
 }));
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: harness.push }) }));
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
 
 const ALEXEJ = recordSearchHit("contact", "10000000-0000-4000-8000-000000000001", "Alexej Sofr");
@@ -99,6 +119,11 @@ beforeEach(() => {
   );
   Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: vi.fn() });
   harness.openEntity.mockReset();
+  harness.openWithDraft.mockReset();
+  harness.submitDraft.mockReset();
+  harness.push.mockReset();
+  harness.mateEnabled = false;
+  harness.pages = {};
   container = document.createElement("div");
   document.body.append(container);
   reactRoot = createRoot(container);
@@ -197,5 +222,26 @@ describe("GlobalSearchModal highlighted hit", () => {
     press("ArrowUp");
 
     expectHighlighted("Amin Hassan");
+  });
+
+  it("puts Ask Mate on top, hands the typed question over with Tab and lists pages with their keys", async () => {
+    harness.mateEnabled = true;
+    harness.pages = { dashboard: "/dashboard" };
+    const store = await openWith([]);
+    const options = () => [...document.querySelectorAll<HTMLElement>("[cmdk-item]")].map((item) => item.textContent);
+
+    expect(options()[0]).toContain("AgentChat.askAi");
+    expect(options().some((text) => text?.includes("KeyboardShortcuts.actions.goDashboard"))).toBe(true);
+    expect(document.querySelector('[data-shortcut="goDashboard"]')).not.toBeNull();
+
+    await showResults(store, "who owns BMW", [TUI]);
+    expect(options()[0]).toContain("GlobalSearch.askMateWith");
+    expectHighlighted("TUI");
+
+    press("Tab");
+
+    expect(harness.openWithDraft).toHaveBeenCalledWith("who owns BMW");
+    expect(harness.submitDraft).toHaveBeenCalledOnce();
+    expect(store.close).toHaveBeenCalled();
   });
 });

@@ -217,6 +217,7 @@ export function validateRecordModel(model: RecordModel): {
     const paths = type.relationshipPaths ?? [];
     if (new Set(paths.map((path) => path.id)).size !== paths.length)
       issues.push({ code: "duplicate_definition_id", typeId: type.id });
+    if (type.archived) continue;
     for (const path of paths) {
       if (path.archived) continue;
       const steps = resolveRecordPath(type.id, path.path, model);
@@ -238,6 +239,7 @@ export function validateRecordModel(model: RecordModel): {
     }
   }
   for (const type of model.types) {
+    if (type.archived) continue;
     const summaries = new Set<string>();
     for (const summary of type.defaults.groupSummaries ?? []) {
       const field = fields.get(summary.fieldId);
@@ -283,6 +285,7 @@ export function validateRecordModel(model: RecordModel): {
     }
   }
   for (const type of model.types) {
+    if (type.archived) continue;
     const visited = new Set<string>();
     let current = type;
     while (current.parentRelationshipId) {
@@ -352,7 +355,7 @@ export function validateRecordModel(model: RecordModel): {
       });
     }
     const type = types.get(binding.typeId);
-    if (!type || (type.archived && !(binding.kind === "channels" && binding.enabled === false)))
+    if (!type || (type.archived && binding.kind === "membershipAuthorization"))
       issues.push({ code: "capability_requires_type", typeId: binding.typeId });
     if (binding.kind === "membershipAuthorization" && type?.embedded)
       issues.push({ code: "capability_requires_type", typeId: binding.typeId });
@@ -417,7 +420,7 @@ export function validateRecordModel(model: RecordModel): {
         issues.push({ code: "invalid_default", fieldId: field.id });
       continue;
     }
-    if (field.archived) continue;
+    if (field.archived || types.get(field.typeId)?.archived) continue;
     if (field.behavior.kind === "snapshot" && field.behavior.capture === "whenChanged") {
       const trigger = fields.get(field.behavior.triggerFieldId ?? "");
       if (

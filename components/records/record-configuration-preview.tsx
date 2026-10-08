@@ -7,18 +7,6 @@ import type { RecordModelView } from "@/features/records/record-model.schema";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-const ISSUE_MESSAGES = {
-  existing_values_incompatible: "RecordModel.existingValuesIncompatible",
-  saved_view_incompatible: "RecordModel.savedViewIncompatible",
-  detail_layout_incompatible: "RecordModel.detailLayoutIncompatible",
-  summary_approval_required: "RecordModel.summaryApprovalRequired",
-  deletion_requires_read_all: "RecordModel.deletionRequiresReadAll",
-  duplicate_list_name: "RecordModel.duplicateListName",
-  duplicate_field_name: "RecordModel.duplicateFieldName",
-  duplicate_option_label: "RecordModel.duplicateOptionLabel",
-  duplicate_relationship_label: "RecordModel.duplicateRelationshipLabel",
-} as const;
-
 export function RecordConfigurationPreview({
   preview,
   model,
@@ -29,36 +17,30 @@ export function RecordConfigurationPreview({
   renewal?: { fieldIds: string[]; approved: boolean; disabled: boolean; onChange: (approved: boolean) => void };
 }) {
   const t = useTranslations();
+  const approvals = preview.issues.filter((issue) => issue.code === "summary_approval_required");
   return (
     <div className="space-y-2 text-sm" role="status">
-      <p className={preview.valid ? "font-medium" : "font-medium text-destructive"}>
-        {!preview.valid
-          ? t("RecordModel.invalidConfiguration")
-          : preview.affectedRecords === null
+      {preview.valid && (
+        <p className="font-medium">
+          {preview.affectedRecords === null
             ? t("RecordModel.previewReadyHidden")
             : t("RecordModel.previewReady", { count: preview.affectedRecords })}
-      </p>
+        </p>
+      )}
+
+      {approvals.map((issue, index) => {
+        const label = model.fields.find((field) => field.id === issue.fieldId)?.label;
+        return (
+          <p key={index}>
+            {label && <span className="font-medium">{label}: </span>}
+
+            {t("RecordModel.summaryApprovalRequired")}
+          </p>
+        );
+      })}
 
       {preview.dataValidation === "staged" && (
         <p className="text-muted-foreground">{t("RecordModel.stagedValidation")}</p>
-      )}
-
-      {preview.issues.length > 0 && (
-        <ul className="space-y-1">
-          {preview.issues.map((issue, index) => {
-            const label =
-              model.fields.find((field) => field.id === issue.fieldId)?.label ??
-              model.relationships.find((relation) => relation.id === issue.relationId)?.sourceLabel ??
-              model.types.find((type) => type.id === issue.typeId)?.pluralLabel;
-            return (
-              <li key={index}>
-                {label && <span className="font-medium">{label}: </span>}
-
-                {t(ISSUE_MESSAGES[issue.code as keyof typeof ISSUE_MESSAGES] ?? "RecordModel.dependencyHelp")}
-              </li>
-            );
-          })}
-        </ul>
       )}
 
       {renewal && (

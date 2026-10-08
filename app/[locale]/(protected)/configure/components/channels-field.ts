@@ -6,7 +6,7 @@ import { recordChannelsBinding } from "@/features/records/record-channels";
 export function channelsFieldOperations(
   model: RecordModelView,
   typeId: string,
-  form: { archived: boolean; providerAvatar: boolean },
+  form: { providerAvatar: boolean },
   newBindingId: string,
 ): ConfigurationChange["operations"] {
   const binding = recordChannelsBinding(model, typeId);
@@ -17,7 +17,7 @@ export function channelsFieldOperations(
         ...(binding ?? { id: newBindingId, fields: [] }),
         kind: "channels",
         typeId,
-        enabled: !form.archived,
+        enabled: true,
         providerAvatar: form.providerAvatar,
       },
     },

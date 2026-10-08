@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
@@ -30,7 +30,7 @@ import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import { useDefinitionDeletion } from "./use-definition-deletion";
+import { useConfigurationDeletion } from "./use-configuration-deletion";
 import { CalculationInput } from "./calculation-input";
 import { isResolvedField } from "./configure-model";
 import { CalculationPath } from "./calculation-path";
@@ -49,7 +49,6 @@ const initial = () => ({
   behavior: "input" as RecordField["behavior"]["kind"],
   required: false,
   multiple: false,
-  archived: false,
   providerAvatar: false,
   currency: "eur",
   decimalPlaces: "",
@@ -122,7 +121,6 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             behavior: field.behavior.kind,
             required: field.required,
             multiple: field.multiple ?? false,
-            archived: field.archived,
             publishedSummary: field.publishedSummary,
             decimalPlaces: field.format?.decimalPlaces?.toString() ?? "",
             currency: field.format?.currency?.toLowerCase() ?? initial().currency,
@@ -177,7 +175,6 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return {
       ...initial(),
       valueType: "channels" as const,
-      archived: binding.enabled === false,
       providerAvatar: binding.providerAvatar ?? false,
     };
   }
@@ -347,7 +344,6 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       behavior,
       required: form.required,
       multiple: MULTIPLE_VALUE_TYPES.includes(form.valueType) && form.multiple,
-      archived: form.archived,
       position:
         this.original?.position ??
         Math.max(
@@ -397,11 +393,15 @@ export const FieldModal = observer(function FieldModal({
   onDeleted: () => Promise<void>;
 }) {
   const t = useTranslations();
-  const deletion = useDefinitionDeletion(onDeleted);
-  const archived = store.original?.archived ? store.original : null;
-  const activeChannels = store.channels?.enabled !== false ? store.channels : null;
-  const deletedChannels = store.channels?.enabled === false ? store.channels : null;
-  const editing = Boolean(store.original || store.channels);
+  const deletion = useConfigurationDeletion(onDeleted);
+  const original = store.original;
+  const channels = store.channels;
+  const editing = Boolean(original || channels);
+  const deleteTarget = original
+    ? { target: { kind: "field" as const, id: original.id }, name: original.label }
+    : channels
+      ? { target: { kind: "channels" as const, id: channels.id }, name: t("EntityChannels.heading") }
+      : null;
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
   const triggerValueLabel = () => {
@@ -426,45 +426,16 @@ export const FieldModal = observer(function FieldModal({
     <ModelChangeSheet
       actions={[
         ...(askAi ? [askAi] : []),
-        ...(activeChannels
-          ? [
-              {
-                id: "delete-channels",
-                icon: Trash2,
-                label: t("Common.actions.delete"),
-                variant: "destructive" as const,
-                busy: deletion.isUpdatingChannels,
-                disabled: store.isLoading || store.isReadOnly,
-                onClick: () => deletion.requestChannelsRemoval(store.model, activeChannels),
-              },
-            ]
-          : []),
-        ...(deletedChannels
-          ? [
-              {
-                id: "restore-channels",
-                icon: RotateCcw,
-                label: t("RecordModel.channelsField.restore"),
-                busy: deletion.isUpdatingChannels,
-                disabled: store.isLoading || store.isReadOnly,
-                onClick: () => deletion.restoreChannels(store.model, deletedChannels),
-              },
-            ]
-          : []),
-        ...(archived || deletedChannels
+        ...(deleteTarget
           ? [
               {
                 id: "delete-field",
                 icon: Trash2,
-                label: t("RecordModel.permanentDeletion.deleteField"),
+                label: t("RecordModel.configurationDeletion.deleteField"),
                 variant: "destructive" as const,
-                busy: deletion.isPreviewing,
+                busy: deletion.isBusy,
                 disabled: store.isLoading || store.isReadOnly,
-                onClick: () =>
-                  deletion.requestDeletion(
-                    store.model,
-                    archived ? { field: archived } : { channels: deletedChannels as ChannelsBinding },
-                  ),
+                onClick: () => deletion.requestDelete(store.model, deleteTarget.target, deleteTarget.name),
               },
             ]
           : []),
@@ -602,8 +573,6 @@ export const FieldModal = observer(function FieldModal({
             {["text", "email", "phone", "url"].includes(store.form.valueType) && (
               <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
             )}
-
-            {store.original && <FormSwitch id="archived" label={t("RecordModel.archiveField")} />}
           </>
 
           {store.form.behavior !== "input" && (

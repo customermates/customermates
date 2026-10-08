@@ -96,6 +96,7 @@ const ACTION_TAGS = new Set([
 
 const DELETE_LABEL = /\bt\(\s*["'`][\w.]*\.(?:\w*D|d)elete\w*["'`]/;
 const TRASH_ICON = /<Trash\w*\b|\bicon[:=]\s*\{?\s*Trash\w*\b/;
+const NAVIGATION = /\bhref=/;
 const DESTRUCTIVE_VARIANT = /[dD]estructive/;
 
 function isDeleteAction(text: string) {
@@ -166,7 +167,8 @@ function destructiveActionFindings(sources: SourceFile[]) {
     visit(source.ast, (node) => {
       if (!isActionElement(node) && !isActionDescriptor(node)) return;
       const text = node.getText(source.ast);
-      if (!isDeleteAction(text) || hasDestructiveVariant(node) || containsNestedDeleteAction(source, node)) return;
+      if (!isDeleteAction(text) || NAVIGATION.test(text)) return;
+      if (hasDestructiveVariant(node) || containsNestedDeleteAction(source, node)) return;
       findings.push(finding(source, node.getStart(source.ast), text));
     });
 
@@ -392,14 +394,10 @@ describe("rule 58: icons from the shared icon set", () => {
   });
 });
 
-const KEY_CAP_OWNERS = new Set(["components/keyboard/shortcut-keys.tsx"]);
+const KEY_CAP_OWNERS = new Set(["components/keyboard/shortcut-keys.tsx", "components/keyboard/key-matching.ts"]);
 const RAW_KEY_HINT = /<kbd\b|&#8984;|⌘|\\u2318/;
 
-const KEY_CAP_ALLOWLIST: Allowlist = {
-  "app/components/navigation/nav-header.tsx": "I22: sidebar quick action key hints",
-  "app/components/global-search-modal.tsx": "I22: Cmd+K palette key hints",
-  "app/components/app-sidebar.tsx": "I22: Ask Mate key hint from the shortcut registry",
-};
+const KEY_CAP_ALLOWLIST: Allowlist = {};
 
 describe("rule 52: key hints only through the shared key caps", () => {
   it("renders keyboard hints only inside the shared key cap component", () => {

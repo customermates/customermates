@@ -69,3 +69,29 @@ export function recordMeasureIssue(measure: RecordMeasure, model: RecordModel): 
 export function recordMeasureIsValid(measure: RecordMeasure, model: RecordModel): boolean {
   return recordMeasureIssue(measure, model) === null;
 }
+
+export function cleanRecordMeasure(measure: RecordMeasure, model: RecordModel): RecordMeasure | null {
+  const query = RecordQuerySchema.parse(measure.source);
+  const keeps = <T>(items: T[] | undefined, key: "filters" | "relationships" | "relatedFilters") =>
+    items?.filter(
+      (item) =>
+        !invalidRecordQueryPart({ ...query, filters: [], relationships: [], relatedFilters: [], [key]: [item] }, model),
+    );
+  const source = {
+    ...measure.source,
+    filters: keeps(measure.source.filters, "filters") ?? [],
+    relationships: keeps(measure.source.relationships, "relationships") ?? [],
+    ...(measure.source.relatedFilters
+      ? { relatedFilters: keeps(measure.source.relatedFilters, "relatedFilters") }
+      : {}),
+  };
+  const withoutGroupFilter = measure.groupBy
+    ? { ...measure, source, groupBy: { ...measure.groupBy, filter: undefined } }
+    : null;
+  const candidates = [
+    { ...measure, source },
+    ...(withoutGroupFilter ? [withoutGroupFilter] : []),
+    { ...measure, source, groupBy: null },
+  ];
+  return candidates.find((candidate) => recordMeasureIssue(candidate, model) === null) ?? null;
+}
