@@ -3,7 +3,7 @@ import type { RecordActivitiesInput, RecordActivitiesResult } from "./record-act
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordIdentityReader } from "@/features/records/record-identity-reader";
-import type { RecordHistoryReader } from "@/features/records/record-history-reader";
+import type { RecordHistoryChanges, RecordHistoryReader } from "@/features/records/record-history-reader";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Validated } from "@/core/validation/validation.utils";
 import type {
@@ -201,11 +201,32 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
               records: context("configuration", String(revision.revision)),
             });
           }
+          const recordChanges = [];
           for (const event of events.filter((event) => event.subjectKind === "record")) {
             const parsed = RecordEventPayloadSchema.safeParse(event.payload);
             if (!parsed.success) continue;
             const changes = await this.history.redact(parsed.data, model, policy);
             if (!changes || !["record.created", "record.updated", "record.deleted"].includes(event.kind)) continue;
+            recordChanges.push({ event, changes });
+          }
+          const memberIds = (changes: NonNullable<RecordHistoryChanges>) => [
+            ...(changes.assignments ? [...changes.assignments.before, ...changes.assignments.after] : []),
+            ...changes.fields.flatMap((field) =>
+              [field.before, field.after].flatMap((side) =>
+                side?.value.state === "value" && side.value.value.kind === "member" ? [side.value.value.value] : [],
+              ),
+            ),
+          ];
+          const members = await this.activities.membersCompanyWide([
+            ...new Set(recordChanges.flatMap(({ changes }) => memberIds(changes))),
+          ]);
+          for (const { event, changes } of recordChanges) {
+            const referenced = new Set(memberIds(changes));
+            const linkedTypes = new Set(
+              changes.related.flatMap((relation) =>
+                [...relation.before, ...relation.after].map((record) => record.ref.typeId),
+              ),
+            );
             entries.set(`record:${event.id}`, {
               kind: "record",
               id: event.id,
@@ -213,6 +234,12 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
               actor: event.actor,
               event: event.kind as "record.created" | "record.updated" | "record.deleted",
               changes,
+              members: members.filter((member) => referenced.has(member.id)),
+              lists: Object.fromEntries(
+                model.types
+                  .filter((type) => linkedTypes.has(type.id))
+                  .map((type) => [type.id, { icon: type.icon, color: type.color ?? null }]),
+              ),
               records: context("record", event.id),
             });
           }

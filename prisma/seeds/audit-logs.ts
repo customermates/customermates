@@ -171,12 +171,13 @@ export function buildSyntheticAuditLogFixtures(args: {
         DomainEvent.USER_UPDATED,
         user.id,
         {
-          avatarUrl: user.avatarUrl,
-          country: user.country,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          roleId: user.roleId,
-          status: user.status,
+          changes: {
+            status: { previous: "pendingAuthorization", current: user.status },
+            role: {
+              previous: null,
+              current: snapshot.roles.find((role) => role.id === user.roleId)?.name ?? null,
+            },
+          },
         },
         user.updatedAt,
       );

@@ -5099,13 +5099,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         companyId: f.company.id,
         userId: f.admin.id,
         entityId: f.member.id,
-        payload: {
-          firstName: "Member",
-          lastName: "Test",
-          country: "de",
-          avatarUrl: null,
-          status: "active",
-        },
+        payload: { changes: { status: { previous: "pendingAuthorization", current: "active" } } },
       }),
     );
     expect(await f.run(() => getMembershipTaskService().getSystemTasksCount())).toBe(1);

@@ -1,138 +1,22 @@
 "use client";
 
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
-import type { MessagingProvider } from "@/generated/prisma";
 
-import { ArrowRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Fragment, type ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-
-import { getProviderIcon } from "@/ee/messaging/provider-icon";
-import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
 import { hasNotesDiff, NotesDiff } from "./notes-diff";
-import { isEmpty, partitionRelationIds } from "@/features/event/audit-changes";
+import { partitionRelationIds } from "@/features/event/audit-changes";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
-import { AvatarStack } from "@/components/shared/avatar-stack";
-import { Icon } from "@/components/shared/icon";
-import { countryLabelForLocale } from "@/constants/countries";
-import { getCurrencyLabel } from "@/constants/currencies";
-import { runUserAction } from "@/core/errors/report-application-error";
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import type { AppLocale } from "@/i18n/locale-registry";
 import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { auditEventTone } from "@/components/entity-detail/audit-event-tone";
-import { WikiPageKindSchema } from "@/features/wiki/wiki.schema";
-
-type AvatarItem = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl?: string | null;
-  email?: string | null;
-};
-
-const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
-
-const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
-
-function isPrimitive(value: unknown): boolean {
-  return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
-}
-
-const STRUCTURAL_KEYS = new Set(["id", "columnId", "createdAt", "updatedAt"]);
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function describeEntries(value: Record<string, unknown>): string {
-  return Object.entries(value)
-    .filter(([entryKey, entryValue]) => !STRUCTURAL_KEYS.has(entryKey) && !isEmpty(entryValue))
-    .map(([entryKey, entryValue]) => `${humanizeKey(entryKey)}: ${describeInline(entryValue)}`)
-    .join(" \u00B7 ");
-}
-
-function describeInline(value: unknown): string {
-  if (isPrimitive(value)) return String(value);
-  if (Array.isArray(value)) {
-    if (value.every(isPrimitive)) return value.join(", ");
-    return value.map((item) => (isPlainObject(item) ? describeEntries(item) : String(item))).join(" \u00B7 ");
-  }
-  if (isPlainObject(value)) return describeEntries(value);
-  return String(value);
-}
-
-function humanizeKey(key: string): string {
-  const words = key
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/[_-]+/g, " ")
-    .trim()
-    .split(/\s+/);
-
-  return words.map((word, index) => (index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word)).join(" ");
-}
-
-function StructuredValue({ value }: { value: unknown }) {
-  const rows = Array.isArray(value)
-    ? value.map((item) => (isPlainObject(item) ? describeEntries(item) : String(item)))
-    : isPlainObject(value)
-      ? Object.entries(value)
-          .filter(([entryKey, entryValue]) => !STRUCTURAL_KEYS.has(entryKey) && !isEmpty(entryValue))
-          .map(([entryKey, entryValue]) => `${humanizeKey(entryKey)}: ${describeInline(entryValue)}`)
-      : [String(value)];
-
-  const visible = rows.filter((row) => row.length > 0);
-  if (visible.length === 0) return <span className="break-words">{JSON.stringify(value)}</span>;
-  if (visible.length === 1) return <span className="break-words">{visible[0]}</span>;
-
-  return (
-    <ul className="space-y-0.5">
-      {visible.map((row) => (
-        <li key={row} className="break-words">
-          {row}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function formatUnknownValue(value: unknown): string {
-  if (isPrimitive(value)) return String(value);
-  if (Array.isArray(value) && value.every(isPrimitive)) return value.join(", ");
-  return JSON.stringify(value) ?? "";
-}
-
-export function InlineChange({ previous, current }: { previous: ReactNode; current: ReactNode }) {
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="min-w-0 text-subdued">{previous}</div>
-
-      <Icon className="text-subdued shrink-0 self-center" icon={ArrowRight} size="sm" />
-
-      <div className="min-w-0">{current}</div>
-    </div>
-  );
-}
-
-export function ChangeRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div>
-      <span className="text-muted-foreground text-xs">{label}</span>
-
-      <div className="mt-1 text-sm">{children}</div>
-    </div>
-  );
-}
+import { auditValueDescriptor } from "./change-value-descriptor";
+import { ChangeRow, ChangeValue, InlineChange, useChangeValueLabels } from "./change-value";
 
 type Props = {
   entry: Extract<ActivityEntryDto, { kind: "audit" | "configuration" }>;
@@ -140,10 +24,9 @@ type Props = {
 
 export const AuditDetail = observer(({ entry }: Props) => {
   const t = useTranslations();
-  const locale = useLocale() as AppLocale;
   const columnLabel = useCanonicalColumnLabel();
-  const { userModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
+  const labels = useChangeValueLabels();
   const isWikiEvent = entry.event.startsWith("wiki_page.");
 
   function fieldLabel(field: string): string {
@@ -152,113 +35,9 @@ export const AuditDetail = observer(({ entry }: Props) => {
     return columnLabel(field);
   }
 
-  function grantActionLabel(action: string): string {
-    if (action === "readOwn") return `${t("RoleModal.readAccess")}: ${t("RoleModal.readOwn")}`;
-    if (action === "readAll") return `${t("RoleModal.readAccess")}: ${t("RoleModal.readAll")}`;
-    return t(action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create");
-  }
-
-  function legalDocumentLabel(document: string): string {
-    return t.has(`LegalDocumentNotice.documents.${document}`)
-      ? t(`LegalDocumentNotice.documents.${document}`)
-      : document;
-  }
-
-  function formatDateValue(value: unknown): string {
-    if (typeof value !== "string") return String(value);
-    if (DATE_ONLY.test(value)) return intlStore.formatNumericalLongDate(new Date(`${value}T00:00:00`));
-    if (ISO_DATE_TIME.test(value)) return intlStore.formatNumericalShortDateTime(new Date(value));
-    return value;
-  }
-
-  function renderValue(key: string, value: unknown): string | JSX.Element {
-    if (isEmpty(value)) return t("AuditLogModal.noValue");
-
-    if (isWikiEvent && key === "kind") {
-      const kind = WikiPageKindSchema.safeParse(value);
-      if (kind.success) return t(`Wiki.kind.${kind.data}`);
-    }
-
-    switch (key) {
-      case "identifiers":
-        return (
-          <AppChipStack
-            items={(
-              value as {
-                id?: string;
-                provider: MessagingProvider;
-                value: string;
-              }[]
-            ).map((identifier) => {
-              const ProviderIcon = getProviderIcon(identifier.provider);
-              return {
-                id: identifier.id ?? `${identifier.provider}:${identifier.value}`,
-                label: channelDisplayLabel(identifier.provider, identifier.value) || identifier.value,
-                startContent: <ProviderIcon className="size-4 shrink-0" />,
-              };
-            })}
-            size="sm"
-          />
-        );
-      case "notes":
-      case "markdown":
-        try {
-          const markdown = typeof value === "string" ? value : serializeJSONToMarkdown(value as object);
-          return (
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
-            </div>
-          );
-        } catch {
-          return t("AuditLogModal.noValue");
-        }
-      case "users":
-        return (
-          <AvatarStack
-            items={value as AvatarItem[]}
-            onAvatarClick={(user) => runUserAction(() => userModalStore.loadById(user.id))}
-          />
-        );
-      case "firstName":
-      case "lastName":
-      case "name":
-        return String(value);
-      case "country":
-        return countryLabelForLocale(String(value), locale);
-      case "currency":
-        return getCurrencyLabel(String(value), locale);
-      case "grants":
-        return (value as string[]).map(grantActionLabel).join(", ");
-      case "changedDocuments":
-        return (value as string[]).map((document) => legalDocumentLabel(document)).join(", ");
-      case "versions":
-        return (
-          <ul className="space-y-0.5">
-            {Object.entries(value as Record<string, unknown>).map(([document, version]) => (
-              <li key={document} className="break-words">
-                {`${legalDocumentLabel(document)}: ${formatDateValue(version)}`}
-              </li>
-            ))}
-          </ul>
-        );
-      case "provider":
-        return t.has(`Common.providers.${String(value)}`) ? t(`Common.providers.${String(value)}`) : String(value);
-      case "removalReason":
-        return t.has(`AccountRemovalReason.${String(value)}`)
-          ? t(`AccountRemovalReason.${String(value)}`)
-          : String(value);
-      case "status":
-        return t.has(`Common.userStatuses.${String(value)}`)
-          ? t(`Common.userStatuses.${String(value)}`)
-          : String(value);
-      default:
-        if (typeof value === "string" && (ISO_DATE_TIME.test(value) || DATE_ONLY.test(value)))
-          return formatDateValue(value);
-        if (!isPrimitive(value) && !(Array.isArray(value) && value.every(isPrimitive)))
-          return <StructuredValue value={value} />;
-        return formatUnknownValue(value);
-    }
-  }
+  const renderValue = (key: string, value: unknown) => (
+    <ChangeValue value={auditValueDescriptor(key, value, labels, { isWikiEvent })} />
+  );
 
   const authorName =
     `${entry.actor.firstName} ${entry.actor.lastName}`.trim() || entry.actor.email || t("RecordModel.systemActor");
@@ -308,21 +87,13 @@ export const AuditDetail = observer(({ entry }: Props) => {
       return (
         <Fragment key={key}>
           {removed.length > 0 && (
-            <ChangeRow
-              label={t("AuditLogModal.relationsDeleted", {
-                field: change.field,
-              })}
-            >
+            <ChangeRow label={t("AuditLogModal.relationsDeleted", { field: change.field })}>
               {renderValue(change.key, removed)}
             </ChangeRow>
           )}
 
           {added.length > 0 && (
-            <ChangeRow
-              label={t("AuditLogModal.relationsAdded", {
-                field: change.field,
-              })}
-            >
+            <ChangeRow label={t("AuditLogModal.relationsAdded", { field: change.field })}>
               {renderValue(change.key, added)}
             </ChangeRow>
           )}
