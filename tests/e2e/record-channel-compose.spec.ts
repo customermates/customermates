@@ -6,7 +6,7 @@ import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { recordItem } from "./record-rows";
+import { openRecordDetails, recordItem } from "./record-rows";
 
 test("opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally", async ({
   page,
@@ -463,11 +463,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect.poll(async () => (await readDrafts()).length).toBe(0);
   await expect(conversation.getByRole("button", { name: "Edit", exact: true })).not.toBeVisible();
   await navigateType(typeId);
-  await page
-    .getByRole("row")
-    .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByRole("button", { name: "Channel company 1", exact: true })
-    .click();
+  await openRecordDetails(page, "Channel company 1");
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Channel company 1");
@@ -503,11 +499,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   for (const key of ["contact", "organization"]) await navigateType(presetId(companyId, key));
-  await page
-    .getByRole("row")
-    .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByRole("button", { name: "Channel company 1", exact: true })
-    .click();
+  await openRecordDetails(page, "Channel company 1");
   await activateCompose(
     drawer
       .locator('[data-record-channel-key="mail:first-channel@example.test"]')
@@ -529,11 +521,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(drawer).not.toBeVisible();
   await expect(recovered).toHaveCount(0);
   await navigateType(typeId);
-  await page
-    .getByRole("row")
-    .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByRole("button", { name: "Channel company 1", exact: true })
-    .click();
+  await openRecordDetails(page, "Channel company 1");
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
@@ -553,11 +541,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(recovered).toHaveCount(0);
   await expect.poll(async () => (await readDrafts()).length).toBe(0);
   if (new URL(page.url()).pathname !== `/en/records/${typeId}`) await navigateType(typeId);
-  await page
-    .getByRole("row")
-    .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByRole("button", { name: "Channel company 1", exact: true })
-    .click();
+  await openRecordDetails(page, "Channel company 1");
   await activateCompose(
     drawer
       .locator('[data-record-channel-key="mail:first-channel@example.test"]')
