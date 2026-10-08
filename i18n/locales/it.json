@@ -2469,7 +2469,7 @@
     "scopeStale": "I filtri sono cambiati da quando hai fatto questa selezione.",
     "searchFieldPlaceholder": "Cerca tra i campi…",
     "selectedCount": "{count, plural, one {# elemento selezionato} other {# elementi selezionati}}",
-    "update": "Aggiorna"
+    "edit": "Modifica"
   },
   "McpConsentCard": {
     "approve": "Approva",
