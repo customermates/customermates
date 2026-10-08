@@ -2,19 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { Folder, FolderInput, Loader2 } from "lucide-react";
+import { Folder, FolderInput } from "lucide-react";
 import { Action, Resource } from "@/generated/prisma";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
+import { TopBarMenuButton } from "@/components/shared/top-bar-action-buttons";
 import { TruncatedText } from "@/components/shared/truncated-text";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -37,42 +30,26 @@ export const ThreadFolderMenu = observer(() => {
   const label = t("Inbox.folders.moveConversation");
 
   return (
-    <DropdownMenu>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button
-              data-thread-folder-move
-              aria-label={label}
-              disabled={moving}
-              id="inbox-thread-folder"
-              size="icon-sm"
-              type="button"
-              variant="secondary"
-            >
-              {moving ? <Loader2 className="size-3.5 animate-spin" /> : <FolderInput className="size-3.5" />}
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
+    <TopBarMenuButton
+      data-thread-folder-move
+      anchorId="inbox-thread-folder"
+      busy={moving}
+      icon={FolderInput}
+      label={label}
+    >
+      <DropdownMenuLabel>{label}</DropdownMenuLabel>
 
-        <TooltipContent>{moving ? t("PageState.loading") : label}</TooltipContent>
-      </Tooltip>
+      {targets.map((entry) => (
+        <DropdownMenuItem
+          key={entry.id}
+          disabled={moving}
+          onSelect={() => runUserAction(() => detail.moveToFolder(entry.id))}
+        >
+          <Folder />
 
-      <DropdownMenuContent align="end" aria-label={label} aria-labelledby="inbox-thread-folder">
-        <DropdownMenuLabel>{label}</DropdownMenuLabel>
-
-        {targets.map((entry) => (
-          <DropdownMenuItem
-            key={entry.id}
-            disabled={moving}
-            onSelect={() => runUserAction(() => detail.moveToFolder(entry.id))}
-          >
-            <Folder />
-
-            <TruncatedText className="max-w-64">{entry.name}</TruncatedText>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <TruncatedText className="max-w-64">{entry.name}</TruncatedText>
+        </DropdownMenuItem>
+      ))}
+    </TopBarMenuButton>
   );
 });

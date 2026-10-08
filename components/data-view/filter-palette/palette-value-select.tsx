@@ -131,11 +131,7 @@ export const PaletteValueSelect = observer(function PaletteValueSelect({
             <CommandGroup
               key={group.key}
               data-filter-option-group={group.key || undefined}
-              heading={
-                group.label ? (
-                  <TruncatedText>{group.label}</TruncatedText>
-                ) : undefined
-              }
+              heading={group.label ? <TruncatedText>{group.label}</TruncatedText> : undefined}
             >
               {group.items.map((item) => {
                 const isSelected = selected.includes(item.key);

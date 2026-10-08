@@ -9,7 +9,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { TopBarAddButton, TopBarMenuButton } from "@/components/shared/top-bar-action-buttons";
+import { TopBarPrimaryButton, TopBarMenuButton } from "@/components/shared/top-bar-action-buttons";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DataViewDisplayOptions } from "./header/display-options";
@@ -95,7 +95,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
         {actions}
 
         {onAdd && !store.isDisabled && (
-          <TopBarAddButton
+          <TopBarPrimaryButton
             anchorId={anchorScope ? `${anchorScope}-add` : undefined}
             label={addLabel ?? t("Common.actions.add")}
             onClick={onAdd}

@@ -246,11 +246,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                 <CommandGroup
                   key={group.key}
                   data-filter-option-group={group.key || undefined}
-                  heading={
-                    group.label ? (
-                      <TruncatedText>{group.label}</TruncatedText>
-                    ) : undefined
-                  }
+                  heading={group.label ? <TruncatedText>{group.label}</TruncatedText> : undefined}
                 >
                   {group.items.map((item) => {
                     const selected = selectedKeys.includes(item.key);

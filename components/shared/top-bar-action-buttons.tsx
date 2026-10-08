@@ -88,29 +88,57 @@ export function TopBarActionButtons({ actions }: { actions: readonly AppModalAct
   return orderAppModalActions(actions).map((action) => <TopBarActionButton key={action.id} action={action} />);
 }
 
-export function TopBarAddButton({
+export function TopBarPrimaryButton({
   label,
+  icon: Icon = Plus,
   anchorId,
-  onClick,
+  count,
+  disabled,
+  ...target
 }: {
   label: string;
+  icon?: LucideIcon;
   anchorId?: string;
-  onClick: () => void;
-}) {
+  count?: number;
+  disabled?: boolean;
+} & ({ onClick: () => void } | { href: string })) {
+  const content = (
+    <>
+      <Icon aria-hidden className="size-3.5" />
+
+      <span className="hidden sm:inline">{label}</span>
+
+      {count ? (
+        <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums">
+          {count}
+        </span>
+      ) : null}
+    </>
+  );
+
+  if ("href" in target) {
+    return (
+      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size="sm" variant="default">
+        <IntlLink href={target.href} id={anchorId}>
+          {content}
+        </IntlLink>
+      </Button>
+    );
+  }
+
   return (
     <Button
       aria-label={label}
       className="h-8"
       data-slot="top-bar-action"
+      disabled={disabled}
       id={anchorId}
       size="sm"
       type="button"
       variant="default"
-      onClick={onClick}
+      onClick={target.onClick}
     >
-      <Plus aria-hidden className="size-3.5" />
-
-      <span className="hidden sm:inline">{label}</span>
+      {content}
     </Button>
   );
 }
@@ -119,31 +147,43 @@ export function TopBarMenuButton({
   icon: Icon,
   label,
   anchorId,
+  busy = false,
   children,
   ...props
 }: {
   icon: LucideIcon;
   label: string;
   anchorId?: string;
+  busy?: boolean;
   children: ReactNode;
   "data-transfer-menu"?: string;
+  "data-thread-folder-move"?: boolean;
 }) {
+  const ActiveIcon = busy ? LoaderCircle : Icon;
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          aria-label={label}
-          className="h-8"
-          data-slot="top-bar-action"
-          id={anchorId}
-          size="icon-sm"
-          type="button"
-          variant="secondary"
-          {...props}
-        >
-          <Icon aria-hidden className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button
+              aria-label={label}
+              className="h-8"
+              data-slot="top-bar-action"
+              disabled={busy}
+              id={anchorId}
+              size="icon-sm"
+              type="button"
+              variant="secondary"
+              {...props}
+            >
+              <ActiveIcon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
 
       <DropdownMenuContent align="end" aria-labelledby={anchorId}>
         {children}
