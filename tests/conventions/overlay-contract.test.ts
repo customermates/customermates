@@ -104,13 +104,7 @@ const DOCUMENTED_OVERLAY_TYPES = [
   "CommandDialog",
 ];
 
-const OVERLAY_FOOTER_COMPONENTS = [
-  "DialogFooter",
-  "DrawerFooter",
-  "SheetFooter",
-  "AlertDialogFooter",
-  "PopoverFooter",
-];
+const OVERLAY_FOOTER_COMPONENTS = ["DialogFooter", "DrawerFooter", "SheetFooter", "AlertDialogFooter", "PopoverFooter"];
 
 const OVERLAY_FOOTER_DIVIDER = new RegExp(
   `<(?:${OVERLAY_FOOTER_COMPONENTS.join("|")})\\b(?:(?!>).)*\\bborder-(?:t|b)\\b(?:(?!>).)*>`,
@@ -183,7 +177,7 @@ const OVERLAY_FOOTER_BLOCK = /<AppCardFooter\b[^>]*>[\s\S]*?<\/AppCardFooter>/g;
  * Components that render their own AppCardFooter. Wrapping one in a second footer doubles the
  * padding and the safe-area inset, and neither is visible in a static read of the call site.
  */
-const SELF_FOOTERING_COMPONENTS = /<(?:FormActions|FormFooterActions)\b/;
+const SELF_FOOTERING_COMPONENTS = /<FormFooterActions\b/;
 
 function nestedOverlayFooterViolations(sources: { file: string; text: string }[]) {
   const found: string[] = [];
@@ -243,16 +237,20 @@ describe("overlay contract", () => {
     expect(found, `Use var(--safe-top|right|bottom|left) from styles/globals.css:\n${found.join("\n")}`).toEqual([]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("routes floating surfaces through a collision-aware primitive", () => {
-    const found = violations(
-      (line) => FIXED_FLOATING_SURFACE.test(line.text),
-      (file) => FIXED_SURFACE_ALLOWLIST.has(file),
-    );
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "routes floating surfaces through a collision-aware primitive",
+    () => {
+      const found = violations(
+        (line) => FIXED_FLOATING_SURFACE.test(line.text),
+        (file) => FIXED_SURFACE_ALLOWLIST.has(file),
+      );
 
-    expect(found, `Compose Popover, Dialog, Sheet or Drawer instead of a raw fixed layer:\n${found.join("\n")}`).toEqual(
-      [],
-    );
-  });
+      expect(
+        found,
+        `Compose Popover, Dialog, Sheet or Drawer instead of a raw fixed layer:\n${found.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has no detached absolute dropdown panels", () => {
     const found = violations((line) => DETACHED_ABSOLUTE_PANEL.test(line.text));
@@ -400,10 +398,10 @@ describe("overlay contract", () => {
   });
 
   it("never nests a shared footer inside another overlay footer", () => {
-    // FormActions renders its own AppCardFooter, so wrapping it in one applies p-6 pt-0 twice
+    // FormFooterActions renders its own AppCardFooter, so wrapping it in one applies p-6 pt-0 twice
     // and the drawer and sheet safe-area inset twice, both of which are in-* descendant
     // variants that match at any depth. It also leaves a bare padded strip for a reader whose
-    // FormActions returns null. The footer belongs beside AppCardBody, not around FormActions.
+    // FormFooterActions returns null. The footer belongs beside AppCardBody, not around FormFooterActions.
     const violations = nestedOverlayFooterViolations(
       sourceFiles().map((file) => ({ file: relative(REPO_ROOT, file), text: readFileSync(file, "utf8") })),
     );
@@ -416,24 +414,25 @@ describe("overlay contract", () => {
     // The probe lives here rather than in a fixture file, because sourceFiles() walks __tests__.
     expect(
       nestedOverlayFooterViolations([
-        { file: "bad.tsx", text: "<AppCardFooter>\n  <FormActions store={s} />\n</AppCardFooter>" },
+        { file: "bad.tsx", text: "<AppCardFooter>\n  <FormFooterActions store={s} />\n</AppCardFooter>" },
       ]),
     ).toHaveLength(1);
-    expect(
-      nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormActions store={s} />" }]),
-    ).toHaveLength(0);
+    expect(nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormFooterActions store={s} />" }])).toHaveLength(
+      0,
+    );
   });
 
   it("keeps delegated sheet card footers above the bottom safe area", () => {
     const appCardFooter = readFileSync(join(REPO_ROOT, "components/card/app-card-footer.tsx"), "utf8");
 
-    expect(appCardFooter).toContain(
-      "in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]",
-    );
+    expect(appCardFooter).toContain("in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]");
   });
 
   it("keeps task-overlay headers and action footers divider-free", () => {
-    const entityDetail = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx"), "utf8");
+    const entityDetail = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx"),
+      "utf8",
+    );
     const responsiveOverlay = readFileSync(join(REPO_ROOT, "components/modal/responsive-overlay.tsx"), "utf8");
     const footerViolations = sourcePatternViolations(OVERLAY_FOOTER_DIVIDER);
 
@@ -469,7 +468,10 @@ describe("overlay contract", () => {
     expect(focusTarget).toContain("[data-overlay-surface][data-state='closed']");
     expect(focusTarget).toContain("element.focus({ preventScroll: true })");
 
-    const entityDrawer = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"), "utf8");
+    const entityDrawer = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"),
+      "utf8",
+    );
     expect(entityDrawer).toContain("focusReturnTarget={store.focusReturnTarget}");
     expect(entityDrawer).toContain("focusReturnFallback={store.focusReturnFallback}");
 
