@@ -4,6 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, selectConfigureList } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 async function applyConfiguration(page: Page) {
   await saveDrawer(page);
@@ -157,7 +158,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await dialog.getByRole("textbox", { name: /^Price(?: \*)?$/ }).fill(price);
       await dialog.getByRole("button", { name: "Save", exact: true }).click();
       await expect(dialog).not.toBeVisible();
-      await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+      await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
     }
     await expect.poll(serviceValues).toEqual({
       "Calculation A/Original price": money("1000"),
@@ -171,7 +172,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await selectOption(page, "Stage", "Proposal");
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
-    await page.getByRole("button", { name: "Configured opportunity", exact: true }).click();
+    await openRecordDetails(page, "Configured opportunity");
     for (const [name, service, quantity] of [["Calculated A", "Calculation A", "2"], ["Calculated B", "Calculation B", "3"]]) {
       await dialog.getByRole("button", { name: "Add Line item", exact: true }).click();
       await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
@@ -200,7 +201,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
 
   const changePrice = async (price: string) => {
     await openRecordList(page, id("service"));
-    await page.getByRole("button", { name: "Calculation A", exact: true }).click();
+    await openRecordDetails(page, "Calculation A");
     const original = dialog.locator(`[data-entity-field="${originalPriceId}"]`);
     await original.getByText("€1,000.00", { exact: true }).scrollIntoViewIfNeeded();
     await expect(original.getByText("€1,000.00", { exact: true })).toBeVisible();
@@ -221,7 +222,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     });
     await expect.poll(dealValues).toEqual({ "Configured opportunity/Value": money("3000"), "Configured opportunity/Weighted value": money("1800") });
     await openRecordList(page, id("deal"));
-    await page.getByRole("button", { name: "Configured opportunity", exact: true }).click();
+    await openRecordDetails(page, "Configured opportunity");
     await dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }).click();
     const lookup = dialog.last().locator(`[data-entity-field="${catalogPriceId}"]`);
     await lookup.getByText("€1,200.00", { exact: true }).scrollIntoViewIfNeeded();
@@ -242,7 +243,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     expect((await readModel(database, companyId)).fields.find((field) => field.id === id("deal.totalValue"))?.behavior).toEqual({ kind: "input" });
     await expect.poll(dealValues).toEqual({ "Configured opportunity/Value": money("3000"), "Configured opportunity/Weighted value": money("1800") });
     await openRecordList(page, id("deal"));
-    await page.getByRole("button", { name: "Configured opportunity", exact: true }).click();
+    await openRecordDetails(page, "Configured opportunity");
     const value = dialog.getByRole("textbox", { name: "Value", exact: true });
     await expect(value).toHaveValue("3000");
     await value.fill("4000");
@@ -273,12 +274,11 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
     await page.getByRole("option", { name: "Weighted value", exact: true }).click();
     await selectOption(page, "Group by", "No grouping");
-    await expect(dialog.getByRole("tablist")).toHaveCount(0);
-    await expect(dialog.getByRole("heading", { name: "Filters, none active", exact: true })).toBeAttached();
-    await expect(dialog.getByRole("region", { name: "Appearance", exact: true })).toBeAttached();
+    await expect(dialog.getByRole("tablist", { name: "Widget settings", exact: true })).toHaveCount(1);
+    await expect(dialog.locator("#widget-config-filters")).toBeVisible();
+    await expect(dialog.getByRole("tab", { name: "Appearance", exact: true })).toBeVisible();
     await dialog.getByRole("textbox", { name: "Name", exact: false }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-settings.png"), animations: "disabled" });
-    await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
     await expect(dialog.getByText("Overall: €2,400.00", { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("weighted-widget-editor-preview.png"), animations: "disabled" });
     await dialog.locator("#widget-modal-save").click();

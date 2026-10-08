@@ -22,6 +22,9 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => mocks);
 vi.mock("@/app/actions", () => ({}));
+vi.mock("@/core/utils/background-task.service", () => ({}));
+const rootHolder = vi.hoisted(() => ({ current: undefined as unknown }));
+vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => rootHolder.current }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
 vi.mock("@/core/errors/sentry-client", () => ({ captureError: mocks.report }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
@@ -34,6 +37,7 @@ import { RecordEditorStore } from "../record-editor.store";
 import { RecordDetailPersonalization } from "../record-detail-personalization";
 import { RecordPageActions } from "../record-editor-actions";
 import { TopBarActionsProvider, useTopBarActions } from "@/app/components/topbar-actions-context";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const views = new Set<Root>();
 const layouts = new Set<RecordDetailLayoutStore>();
@@ -89,9 +93,11 @@ function harness(readOnly = false) {
     navigationGuard,
     threadComposeStore: compose,
   } as unknown as RootStore;
+  rootHolder.current = root;
   const context: RecordEditorContext = {
     model: createCrmPreset(companyId),
     linkColors: {},
+    linkIcons: {},
     typeId,
     permittedActions: readOnly ? ["readAll"] : ["readAll", "update", "delete"],
     canManageSchema: false,
@@ -106,6 +112,7 @@ function harness(readOnly = false) {
     fields: [{ fieldId: nameId, result: { state: "value", value: { kind: "text", value: "Saved name" } } }],
     assignedUserIds: [],
     assignedUsers: [],
+    memberUsers: [],
     relationships: [],
   };
   const editor = new RecordEditorStore(root, context, () => Promise.resolve(), true);
@@ -135,18 +142,22 @@ function harness(readOnly = false) {
   act(() =>
     view.render(
       createElement(
-        TopBarActionsProvider,
+        TooltipProvider,
         null,
-        createElement(Toolbar),
         createElement(
-          RecordDetailPersonalization,
-          { store: editor },
-          createElement(RecordPageActions, {
-            store: editor,
-            formId: "record-form",
-            name: "Saved name",
-            deletion: { isPreviewing: false, requestDeletion: vi.fn(), requestMany: vi.fn() },
-          }),
+          TopBarActionsProvider,
+          null,
+          createElement(Toolbar),
+          createElement(
+            RecordDetailPersonalization,
+            { store: editor },
+            createElement(RecordPageActions, {
+              store: editor,
+              formId: "record-form",
+              name: "Saved name",
+              deletion: { isPreviewing: false, requestDeletion: vi.fn(), requestMany: vi.fn() },
+            }),
+          ),
         ),
       ),
     ),

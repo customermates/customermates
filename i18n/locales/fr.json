@@ -780,7 +780,6 @@
       "prompt": "Consignes",
       "publishSummary": "Résumé publié",
       "putAccessPreset": "Modèle d’accès",
-      "putActivityPath": "Chemin d’activité",
       "putCapability": "Fonctionnalité",
       "putField": "Champ",
       "putRelationship": "Relation",
@@ -870,9 +869,7 @@
       "hidePassword": "Masquer le mot de passe",
       "selectOption": "Sélectionner une option",
       "showPassword": "Afficher le mot de passe",
-      "switchToBoardView": "Passer à la vue board",
       "switchToBoardViewDisabled": "Cette liste ne contient aucun champ de regroupement",
-      "switchToTableView": "Passer à la vue tableau",
       "themeSwitcher": "Sélecteur de thème",
       "tooltipFields": "Apparence",
       "tooltipFilters": "Filtres"
@@ -1738,13 +1735,13 @@
         "showFilters": "Afficher le nombre d'activités et les filtres",
         "showMetricAndFilters": "Afficher l'indicateur et les filtres"
       },
-      "create": "Créer le widget",
       "danger": {
         "deleteLabel": "Supprimer le widget {name}"
       },
       "editTitle": "Modifier « {name} »",
       "kind": {
         "activityTimelineDescription": "Suivez les modifications d'enregistrements, les messages et l'activité des comptes ou agendas dans l'ordre chronologique.",
+        "change": "Choisir un autre widget",
         "chartDescription": "Comparez vos données CRM dans un graphique.",
         "description": "Choisissez un format et sélectionnez vous-même les données.",
         "scratchTitle": "Partir de zéro",
@@ -1754,10 +1751,13 @@
         "incomplete": "Complétez les paramètres de données pour afficher un aperçu.",
         "live": "Aperçu en direct",
         "size": "Taille sur le tableau de bord {w} × {h}",
-        "title": "Aperçu",
         "untitled": "Widget sans titre"
       },
-      "save": "Enregistrer les modifications",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Aucun} one {1 actif} other {# actifs}}",
+        "filters": "Filtres",
+        "grouping": "Regroupement"
+      },
       "settings": "Paramètres du widget",
       "sharing": {
         "template": "Partager comme modèle"
@@ -1873,6 +1873,7 @@
     "groupOverflow": "Seuls {count} groupes sont affichés",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Aucune valeur",
+    "resizeBoardColumns": "Redimensionner les colonnes du tableau. Faites glisser ou utilisez les flèches ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "rowActions": "Actions de ligne",
@@ -2461,7 +2462,6 @@
     "text": "Chargement..."
   },
   "MassActions": {
-    "apply": "Appliquer à la sélection",
     "clearField": "Vider le champ",
     "delete": "Supprimer la sélection",
     "keepInView": "Conserver uniquement les lignes visibles",
@@ -2979,15 +2979,12 @@
   "RecordModel": {
     "access": "Accès",
     "accessDescription": "Seuls les administrateurs ont accès à cette liste, sauf si vous sélectionnez un accès prédéfini approuvé.",
-    "activityConnections": "Connexions des activités",
-    "activityConnectionsHelp": "Choisissez les fiches liées dont les messages et modifications apparaissent dans les activités de cette liste. Les autorisations des messages et des fiches restent applicables.",
     "addAttribute": "Ajouter un attribut",
     "addEmbedded": "Ajouter {type}",
     "addField": "Ajouter un champ",
     "addGroupSummary": "Ajouter une synthèse",
     "addInput": "Ajouter une entrée",
     "addMenu": {
-      "activityConnection": "Connexion d’activité",
       "calculation": "Calcul",
       "field": "Champ",
       "list": "Liste",
@@ -3010,6 +3007,7 @@
       "snapshot": "Enregistré lors d’un événement"
     },
     "board": "Tableau Kanban",
+    "calculatedReadOnly": "{field} est calculé et ne peut pas être modifié.",
     "calculationError": "Calcul indisponible",
     "calculationInput": "Entrée {number}",
     "calculationNavigation": "Navigation du calcul",
@@ -3098,7 +3096,6 @@
         "widget": "{count, plural, one {{target} est retiré des filtres ou du regroupement du widget {consumers}.} other {{target} est retiré des filtres ou du regroupement de # widgets : {consumers}.}}"
       },
       "configureActions": "Actions de Configurer",
-      "deleteActivityPath": "Supprimer la connexion d’activité",
       "deleteColumn": "Supprimer la colonne",
       "deleteColumnMessage": "La colonne d’enregistrements liés {name} est retirée de {list}.",
       "deleteColumnTitle": "Supprimer la colonne {name} ?",
@@ -3121,7 +3118,6 @@
       },
       "kind": "Type",
       "kinds": {
-        "activityPath": "Connexion d’activité",
         "channels": "Champ des canaux",
         "field": "Champ",
         "relationship": "Relation",
@@ -3133,7 +3129,7 @@
       "openConfigure": "Ouvrir Configurer",
       "recentlyDeleted": "Supprimés récemment",
       "recentlyDeletedEmpty": "Rien n’a été supprimé",
-      "recentlyDeletedHelp": "Les listes, champs, relations, connexions d’activité et champs des canaux supprimés restent ici jusqu’à ce que vous les restauriez ou les supprimiez définitivement.",
+      "recentlyDeletedHelp": "Les listes, champs, relations et champs des canaux supprimés restent ici jusqu’à ce que vous les restauriez ou les supprimiez définitivement.",
       "removed": {
         "grants": "{count, plural, one {# droit de rôle} other {# droits de rôle}}",
         "hidden": "Contient des fiches que vous ne pouvez pas voir.",
@@ -3337,9 +3333,9 @@
     },
     "iconSearch": "Rechercher des icônes",
     "identityChannels": "Canaux",
-    "includeAudit": "Inclure les modifications des fiches",
-    "includeMessages": "Inclure les messages",
     "invalidConfiguration": "Cette modification doit être vérifiée avant son application.",
+    "invalidPhone": "Saisissez un numéro de téléphone au format international, par exemple +4930123456.",
+    "invalidValue": "Saisissez une valeur valide.",
     "lineFields": {
       "amount": "Montant",
       "effectivePrice": "Prix unitaire",
@@ -3354,7 +3350,7 @@
     "linkedType": "Lier à",
     "linkRecord": "Lier un enregistrement",
     "listActions": "Actions de la liste",
-    "listCounts": "{fields, plural, one {# champ} other {# champs}} · {relationships, plural, one {# relation} other {# relations}} · {activity, plural, one {# connexion d’activité} other {# connexions d’activité}}",
+    "listCounts": "{fields, plural, one {# champ} other {# champs}} · {relationships, plural, one {# relation} other {# relations}}",
     "listUnavailable": "Cette liste n’est pas disponible. Choisissez une autre liste.",
     "member": "Membre",
     "missing": "Aucune valeur",
@@ -3371,9 +3367,9 @@
     "onePerLine": "Saisissez une valeur par ligne.",
     "onSourceDelete": "À la suppression de cette fiche",
     "onTargetDelete": "À la suppression de la fiche liée",
+    "openDetails": "Ouvrir les détails",
     "openPage": "Ouvrir la page",
     "openRecord": "Ouvrir {name}",
-    "openRecordDetails": "Ouvrir les détails de {name}",
     "operation": "Calcul",
     "operationCancelled": "La modification a été annulée.",
     "operationFailed": "La modification a échoué. L’état complet précédent reste actif.",
@@ -3503,7 +3499,6 @@
     "summaryField": "Champ de la synthèse",
     "systemActor": "Système",
     "table": "Tableau",
-    "thisList": "Cette liste",
     "triggerField": "Quand ce champ change",
     "triggerValue": "À cette valeur",
     "types": {
@@ -3585,7 +3580,6 @@
       "startsWith": "Commence par"
     },
     "overall": "Total : {value}",
-    "preview": "Aperçu de la mesure",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {

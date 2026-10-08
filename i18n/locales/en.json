@@ -780,7 +780,6 @@
       "prompt": "Instructions",
       "publishSummary": "Published summary",
       "putAccessPreset": "Access preset",
-      "putActivityPath": "Activity path",
       "putCapability": "Capability",
       "putField": "Field",
       "putRelationship": "Relationship",
@@ -870,9 +869,7 @@
       "hidePassword": "Hide password",
       "selectOption": "Select an option",
       "showPassword": "Show password",
-      "switchToBoardView": "Switch to board view",
       "switchToBoardViewDisabled": "This list has no field to group by",
-      "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
       "tooltipFields": "Appearance",
       "tooltipFilters": "Filters"
@@ -1738,13 +1735,13 @@
         "showFilters": "Show activity count and filters",
         "showMetricAndFilters": "Show metric and filters"
       },
-      "create": "Create widget",
       "danger": {
         "deleteLabel": "Delete widget {name}"
       },
       "editTitle": "Edit {name}",
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
+        "change": "Choose another widget",
         "chartDescription": "Compare CRM data in a visual chart.",
         "description": "Pick a format and choose the data yourself.",
         "scratchTitle": "Start from scratch",
@@ -1754,10 +1751,13 @@
         "incomplete": "Complete the data settings to see a preview.",
         "live": "Live preview",
         "size": "Dashboard size {w} × {h}",
-        "title": "Preview",
         "untitled": "Untitled widget"
       },
-      "save": "Save changes",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {None} one {1 active} other {# active}}",
+        "filters": "Filters",
+        "grouping": "Grouping"
+      },
       "settings": "Widget settings",
       "sharing": {
         "template": "Share as a template"
@@ -1873,6 +1873,7 @@
     "groupOverflow": "Only {count} groups are shown",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "No value",
+    "resizeBoardColumns": "Resize the board columns. Drag or use the arrow keys; double-tap or press Enter to reset.",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
     "rowActions": "Row actions",
@@ -2461,7 +2462,6 @@
     "text": "Loading..."
   },
   "MassActions": {
-    "apply": "Apply to selected",
     "clearField": "Clear field",
     "delete": "Delete selected",
     "keepInView": "Keep only rows in view",
@@ -2979,15 +2979,12 @@
   "RecordModel": {
     "access": "Access",
     "accessDescription": "Only administrators can access this list unless you select an approved access preset.",
-    "activityConnections": "Activity connections",
-    "activityConnectionsHelp": "Choose which linked records contribute messages and changes to this list’s activity timeline. Message and record permissions still apply.",
     "addAttribute": "Add attribute",
     "addEmbedded": "Add {type}",
     "addField": "Add field",
     "addGroupSummary": "Add summary",
     "addInput": "Add input",
     "addMenu": {
-      "activityConnection": "Activity connection",
       "calculation": "Calculation",
       "field": "Field",
       "list": "List",
@@ -3010,6 +3007,7 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
+    "calculatedReadOnly": "{field} is calculated and can’t be edited.",
     "calculationError": "Calculation unavailable",
     "calculationInput": "Input {number}",
     "calculationNavigation": "Calculation navigation",
@@ -3098,7 +3096,6 @@
         "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}"
       },
       "configureActions": "Configure actions",
-      "deleteActivityPath": "Delete activity connection",
       "deleteColumn": "Delete column",
       "deleteColumnMessage": "The related-record column {name} is removed from {list}.",
       "deleteColumnTitle": "Delete column {name}?",
@@ -3121,7 +3118,6 @@
       },
       "kind": "Type",
       "kinds": {
-        "activityPath": "Activity connection",
         "channels": "Channels field",
         "field": "Field",
         "relationship": "Relationship",
@@ -3133,7 +3129,7 @@
       "openConfigure": "Open Configure",
       "recentlyDeleted": "Recently deleted",
       "recentlyDeletedEmpty": "Nothing has been deleted",
-      "recentlyDeletedHelp": "Deleted lists, fields, relationships, activity connections and Channels fields stay here until you restore them or delete them permanently.",
+      "recentlyDeletedHelp": "Deleted lists, fields, relationships and Channels fields stay here until you restore them or delete them permanently.",
       "removed": {
         "grants": "{count, plural, one {# role grant} other {# role grants}}",
         "hidden": "It contains records you can't see.",
@@ -3337,9 +3333,9 @@
     },
     "iconSearch": "Search icons",
     "identityChannels": "Channels",
-    "includeAudit": "Include record changes",
-    "includeMessages": "Include messages",
     "invalidConfiguration": "This change needs attention before it can be applied.",
+    "invalidPhone": "Enter a phone number in international format, for example +4930123456.",
+    "invalidValue": "Enter a valid value.",
     "lineFields": {
       "amount": "Amount",
       "effectivePrice": "Unit price",
@@ -3354,7 +3350,7 @@
     "linkedType": "Link to",
     "linkRecord": "Link a record",
     "listActions": "List actions",
-    "listCounts": "{fields, plural, one {# field} other {# fields}} · {relationships, plural, one {# relationship} other {# relationships}} · {activity, plural, one {# activity connection} other {# activity connections}}",
+    "listCounts": "{fields, plural, one {# field} other {# fields}} · {relationships, plural, one {# relationship} other {# relationships}}",
     "listUnavailable": "This list is not available. Choose another list.",
     "member": "Member",
     "missing": "No value",
@@ -3371,9 +3367,9 @@
     "onePerLine": "Enter one value per line.",
     "onSourceDelete": "When this record is deleted",
     "onTargetDelete": "When the linked record is deleted",
+    "openDetails": "Open details",
     "openPage": "Open page",
     "openRecord": "Open {name}",
-    "openRecordDetails": "Open details for {name}",
     "operation": "Calculation",
     "operationCancelled": "The change was cancelled.",
     "operationFailed": "The change failed. The previous complete state is still active.",
@@ -3503,7 +3499,6 @@
     "summaryField": "Summary field",
     "systemActor": "System",
     "table": "Table",
-    "thisList": "This list",
     "triggerField": "When this field changes",
     "triggerValue": "To this value",
     "types": {
@@ -3585,7 +3580,6 @@
       "startsWith": "Starts with"
     },
     "overall": "Overall: {value}",
-    "preview": "Preview measure",
     "previewFailed": "The preview could not be loaded. Try again.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {

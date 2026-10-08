@@ -30,6 +30,7 @@ state.setUser.mockImplementation((user: { id: string } | null) => {
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
+    get: (key: string) => state.searchParams[key]?.[0] ?? null,
     getAll: (key: string) => state.searchParams[key] ?? [],
   }),
 }));

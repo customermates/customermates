@@ -59,6 +59,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
 
   return (
     <DataKanbanView
+      cardActions={rowActions}
       cardHref={rowHref}
       className="animate-page-result-in motion-reduce:animate-none"
       columns={resolvedColumns}

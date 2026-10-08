@@ -14,7 +14,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema, RecordReadSchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
 import { recordWriteFailure } from "./mutate-record.interactor";
-import { recordDto } from "./query-records.interactor";
+import { recordDto, withMemberUsers } from "./query-records.interactor";
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -52,7 +52,11 @@ export class GetRecordInteractor extends AuthenticatedInteractor<RecordRead, Rec
         try {
           const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
           const visible = await this.records.getVisibleFields(ref, model, access);
-          const data = recordDto(record, model, visible, policy.memberScope);
+          const [data] = await withMemberUsers(
+            [recordDto(record, model, visible, policy.memberScope)],
+            this.records,
+            policy.memberScope,
+          );
           if (recordChannelsEnabled(model, ref.typeId))
             data.identities = await this.records.getIdentitiesCompanyWide(ref);
           if (input.includeRelationships?.length) {

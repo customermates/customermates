@@ -10,6 +10,7 @@ import {
   confirmDeletion,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { nativeResponseCheckpointState, observeNativeResponse } from "./native-response-checkpoint";
 import { presetId } from "../../features/records/crm-preset";
@@ -244,7 +245,7 @@ test("paginates and retries record and widget history, restores a personal timel
   );
   await expect(linkedHistory.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await expect(linkedHistory.locator("ol > li")).toHaveCount(0);
-  await page.getByRole("button", { name, exact: true }).click();
+  await openRecordDetails(page, name);
   const drawer = page.getByRole("dialog", { name: "Service", exact: true });
   await expect(drawer).toBeVisible();
   const parentUrl = page.url();
@@ -450,6 +451,11 @@ function transportEvidence(page: Page) {
     },
   };
 }
+async function openWidgetFilters(page: Page) {
+  const trigger = page.getByRole("dialog").locator("#widget-config-filters");
+  if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
+}
+
 async function select(page: Page, selector: string, name: string, scope: Locator = page.getByRole("dialog")) {
   await scope.locator(selector).click();
   await page.getByRole("option", { name, exact: true }).click();
@@ -477,8 +483,6 @@ async function expectChartPreview(page: Page, total: string, groups: Record<stri
   await expect(dialog.locator("svg.recharts-surface")).toBeVisible();
 }
 async function chartPreview(page: Page, total: string, groups: Record<string, string>) {
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true }).click();
   await expectChartPreview(page, total, groups);
 }
 test("uses Average, Minimum and Maximum at record grain, groups through relationships, edits group colors and retries an owned preview", async ({
@@ -638,11 +642,6 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     .check();
   await expect(dialog.getByRole("button", { name: "Colors", exact: true })).toHaveCount(0);
   await expectChartPreview(page, "€10.00", { New: "€5.00", Won: "€12.50" });
-  await expect(dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true })).toBeEnabled();
-  previewFault = true;
-  await dialog.getByRole("button", { name: english.RecordWidgets.preview, exact: true }).click();
-  await expect(dialog.getByRole("alert")).toHaveText(english.RecordWidgets.previewFailed);
-  await chartPreview(page, "€10.00", { New: "€5.00", Won: "€12.50" });
   const fills = async () => [
     ...new Set(
       await dialog
@@ -667,7 +666,12 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   await expect.poll(fills).toHaveLength(2);
   await expect(dialog.getByRole("alert")).toHaveCount(0);
   await dialog.getByRole("tab", { name: english.Dashboard.widgetEditor.tabs.data, exact: true }).click();
+  previewFault = true;
   await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers.min);
+  const previewError = dialog.locator("[data-preview-error]");
+  await expect(previewError.getByRole("alert")).toHaveText(english.RecordWidgets.previewFailed);
+  await previewError.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
+  await expect(previewError).toHaveCount(0);
   await chartPreview(page, "€5.00", { New: "€5.00", Won: "€5.00" });
   await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers.max);
   await chartPreview(page, "€20.00", { New: "€5.00", Won: "€20.00" });
@@ -730,7 +734,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
     await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers[aggregation]);
     await chartPreview(page, total, groups);
-    await dialog.getByRole("button", { name: "Save changes", exact: true }).click();
+    await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
     const saved = await database.query('SELECT measure FROM "Widget" WHERE "companyId"=$1 AND name=$2', [
       companyId,
@@ -792,30 +796,7 @@ async function messageFixtures(
 }
 async function activityPreview(page: Page, present: string[], absent: string[]) {
   const dialog = page.getByRole("dialog");
-  const response = page.waitForResponse(
-    (response) => {
-      const args = nextArguments(response.request());
-      return (
-        args?.length === 1 &&
-        typeof args[0] === "object" &&
-        args[0] !== null &&
-        "scope" in args[0] &&
-        "limit" in args[0] &&
-        args[0].limit === 25
-      );
-    },
-    { timeout: 15000 },
-  );
-  await dialog
-    .getByRole("button", {
-      name: english.Dashboard.widgetEditor.preview.title,
-      exact: true,
-    })
-    .click();
-  expect((await response).status()).toBe(200);
-  await expect(
-    dialog.getByRole("button", { name: english.Dashboard.widgetEditor.preview.title, exact: true }),
-  ).toBeEnabled();
+  await expect(dialog.locator('[data-preview-current="true"]')).toHaveCount(1);
   if (present.length) await expect(dialog.locator('[data-slot="widget-preview"] ol')).toHaveCount(1);
   for (const body of present) await expect(dialog.getByText(body, { exact: true })).toBeVisible();
   for (const body of absent) await expect(dialog.getByText(body, { exact: true })).toHaveCount(0);
@@ -882,6 +863,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   ])
     await toggleMultiple(page, '[id="activityQuery.kinds"]', kind);
   await activityPreview(page, [entries[0].body], [entries[1].body]);
+  await openWidgetFilters(page);
   await select(page, "#activity-add-filter", english.RecordActivityWidgets.filterKinds.record);
   await select(page, '[id="activityQuery.filters[0].typeId"]', "Organizations");
   await activityPreview(page, [entries[0].body], [entries[1].body]);
@@ -920,6 +902,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
     entries.map((entry) => entry.body),
     [],
   );
+  await openWidgetFilters(page);
   await select(page, "#activity-add-filter", english.RecordActivityWidgets.filterKinds.record);
   await select(page, '[id="activityQuery.filters[0].typeId"]', "Organizations");
   await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.hasNone);
@@ -1151,7 +1134,7 @@ test("retains readable list content after a failed refresh and retries the empty
     );
   const before = (await values()).rows;
   await page.goto(`/en/records/${service.typeId}`);
-  await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   const search = page.locator("#records-search");
   if ((page.viewportSize()?.width ?? 0) < 1024)
     await page.getByRole("button", { name: english.Common.table.search, exact: true }).click();
@@ -1188,7 +1171,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await search.fill("retained-response-failure");
   await expect.poll(() => evidence.faults.length).toBe(1);
   await expect(page.locator('[data-page-state="loading"]')).toHaveCount(0);
-  await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
   await expect(search).toHaveValue("retained-response-failure");
   await search.fill("completed-empty-search");
@@ -1197,7 +1180,7 @@ test("retains readable list content after a failed refresh and retries the empty
       exact: true,
     }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
   const surfaceKey = recordSurfaceKey(service.typeId);
   const saveAction = serverActionIds("app/actions.ts", "saveDataViewStateAction");
@@ -1236,7 +1219,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(error.getByRole("heading", { name: english.ErrorCard.title, exact: true })).toBeVisible();
   await expect(search).toHaveValue(name);
   await error.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
-  await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   await expect(error).toHaveCount(0);
   expect(matchingReads).toBe(2);
   expect((await values()).rows).toEqual(before);
@@ -1271,7 +1254,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await page.unrouteAll({ behavior: "wait" });
   await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
   await page.reload();
-  await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   await expect(search).toHaveValue(name);
   await page.screenshot({
     path: testInfo.outputPath("recovered-list-error-state.png"),
@@ -1424,7 +1407,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   for (const name of ["Recovery service", "Recovery second"]) {
     await page
       .getByRole("row")
-      .filter({ has: page.getByRole("button", { name, exact: true }) })
+      .filter({ has: page.getByRole("link", { name, exact: true }) })
       .getByRole("checkbox")
       .check();
   }
@@ -1437,7 +1420,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
   const beforeBulk = await receiptCount();
   bulkFaultsRemaining = 2;
-  await page.getByRole("button", { name: "Apply to selected", exact: true }).click();
+  await page.getByRole("dialog", { name: "Update", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Update", exact: true })).not.toBeVisible();
   await expect(mass.getByRole("button", { name: english.ErrorCard.retry, exact: true })).toBeVisible();
   expect(await receiptCount()).toBe(beforeBulk + 1);

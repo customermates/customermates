@@ -38,7 +38,7 @@ describe("get_docs_page", () => {
     });
 
     expect(markdown).toBe(
-      "Open [Contacts](http://localhost:4000/open/records/contact) or [Roles](http://localhost:4000/company/roles?focus=control:company-roles-add).",
+      "Open [Contacts](http://localhost:4000/open/records/contact) or [Roles](http://localhost:4000/company/roles?focus=control%3Acompany-roles-add).",
     );
   });
 
