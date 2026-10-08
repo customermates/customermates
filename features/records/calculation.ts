@@ -58,6 +58,7 @@ function propagated(values: CalculatedValue[]): CalculatedValue | undefined {
 function scalarValue(value: RecordScalar): string | boolean {
   switch (value.kind) {
     case "textList":
+    case "selectList":
       return JSON.stringify(value.value);
     case "range":
       return JSON.stringify([value.start, value.end]);

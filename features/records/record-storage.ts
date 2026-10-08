@@ -46,6 +46,7 @@ export function encodeRecordValue(result: CalculatedValue) {
   const scalar = result.value;
   switch (scalar.kind) {
     case "textList":
+    case "selectList":
       row.textListValue = scalar.value;
       break;
     case "decimal":
@@ -80,7 +81,7 @@ export function decodeRecordValue(row: RecordValue | undefined, field: RecordFie
   if (field.multiple) {
     return CalculatedValueSchema.parse({
       state: "value",
-      value: { kind: "textList", value: row.textListValue },
+      value: { kind: field.valueType === "select" ? "selectList" : "textList", value: row.textListValue },
     });
   }
   let value: RecordScalar;

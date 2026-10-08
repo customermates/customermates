@@ -165,7 +165,7 @@ export const queryRecordsV2Tool = {
   name: "query_crm_records",
   title: "Query records",
   description:
-    "Query an accessible type with typed filters, relationships, locale-aware sorting and database pagination. Optional grouping supports select choices, booleans, members, relationships and date buckets, with per-group pages. Read its schema first; reuse returned group keys for further pages. Calculated, restricted, missing and failed values are distinct. Decimal values use strings.",
+    "Query an accessible type with typed filters, relationships, locale-aware sorting and database pagination. Multiple choice fields filter with in (any of), all and notIn (none of) and cannot be sorted or grouped here. Optional grouping supports single choices, booleans, members, relationships and date buckets, with per-group pages. Read its schema first; reuse returned group keys for further pages. Calculated, restricted, missing and failed values are distinct. Decimal values use strings.",
   inputSchema: RecordQuerySchema,
   outputSchema: RecordQueryResultSchema,
   annotations: read,
@@ -209,7 +209,7 @@ export const queryRecordMeasureV2Tool = {
   name: "query_crm_measure",
   title: "Calculate a report measure",
   description:
-    "Aggregate one contribution per source record at an explicit grain. Grouping across relationships or by system:assignedTo uses full attribution, so group totals can exceed the distinct overall total. For a time series, group by a date or dateTime field, system:createdAt or system:updatedAt with groupBy.dateInterval (day, week, month, quarter or year; ISO weeks start Monday) and an IANA groupBy.timeZone; only periods with records are returned, in chronological order. Use line items as the source for service contributions and quantities. Restricted inputs stay restricted; mixed currencies return an error.",
+    "Aggregate one contribution per source record at an explicit grain. Grouping across relationships, by system:assignedTo or by a multiple choice field uses full attribution, so group totals can exceed the distinct overall total. For a time series, group by a date or dateTime field, system:createdAt or system:updatedAt with groupBy.dateInterval (day, week, month, quarter or year; ISO weeks start Monday) and an IANA groupBy.timeZone; only periods with records are returned, in chronological order. Use line items as the source for service contributions and quantities. Restricted inputs stay restricted; mixed currencies return an error.",
   inputSchema: RecordMeasureSchema,
   outputSchema: RecordMeasureResultSchema,
   annotations: read,

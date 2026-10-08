@@ -43,6 +43,7 @@ import {
 } from "./configure-model";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { TypeSettingsFields } from "./type-modal";
+import { recordFieldTypeKey } from "@/features/records/record-input-value";
 
 type ActivityPath = RecordModelView["activityPaths"][number];
 
@@ -290,7 +291,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                       {fields.map((field) => (
                         <SortableField key={field.id} enabled={reorderEnabled} id={field.id} label={field.label}>
                           <ConfigureRow
-                            detail={`${t(`RecordModel.types.${field.valueType}`)} · ${fieldSource(field)}`}
+                            detail={`${t(`RecordModel.types.${recordFieldTypeKey(field)}`)} · ${fieldSource(field)}`}
                             interactive={interactive}
                             label={field.label}
                             leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
