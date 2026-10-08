@@ -3,16 +3,16 @@
 import { useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, ArrowRight, CalendarIcon, KeyRound, Trash2 } from "lucide-react";
+import { ArrowRight, CalendarIcon, ChevronLeft, KeyRound, Trash2 } from "lucide-react";
 
 import { AiConnectionFlow } from "@/components/ai-connection/ai-connection-flow";
 import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { FormInput } from "@/components/forms/form-input";
 import { Calendar, focusCalendarDay } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -98,8 +98,7 @@ export const ApiKeyModal = observer(() => {
   const t = useTranslations();
   const { apiKeyModalStore, apiKeysStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const { aiConnectionStore, createdKey, creationPath, isLoading, close, hasUnsavedChanges, mode, viewingKey } =
-    apiKeyModalStore;
+  const { aiConnectionStore, createdKey, creationPath, isLoading, close, mode, viewingKey } = apiKeyModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   const isView = mode === "view" && viewingKey !== null;
@@ -191,7 +190,27 @@ export const ApiKeyModal = observer(() => {
                   }, viewingKey.name?.trim() || undefined),
               },
             ]
-          : []
+          : isPlain && !createdKey
+            ? [
+                {
+                  id: "api-key-back",
+                  label: t("Common.actions.back"),
+                  icon: ChevronLeft,
+                  disabled: isLoading,
+                  onClick: apiKeyModalStore.backToOptions,
+                },
+              ]
+            : isWizard && aiConnectionStore.route.screen !== "providers"
+              ? [
+                  {
+                    id: "api-key-wizard-back",
+                    label: t("Common.actions.back"),
+                    icon: ChevronLeft,
+                    disabled: aiConnectionStore.isCreating,
+                    onClick: aiConnectionStore.backToProviders,
+                  },
+                ]
+              : []
       }
       size="xl"
       store={apiKeyModalStore}
@@ -249,46 +268,7 @@ export const ApiKeyModal = observer(() => {
             ) : null}
           </AppCardBody>
 
-          {isPlain && !createdKey ? (
-            <AppCardFooter>
-              <Button disabled={isLoading} type="button" variant="secondary" onClick={apiKeyModalStore.backToOptions}>
-                <ArrowLeft aria-hidden />
-
-                {t("Common.actions.back")}
-              </Button>
-
-              <Button disabled={isLoading || !hasUnsavedChanges} id="api-key-save" type="submit">
-                {t("Common.actions.save")}
-              </Button>
-            </AppCardFooter>
-          ) : null}
-
-          {isWizard ? (
-            <AppCardFooter>
-              {aiConnectionStore.route.screen === "providers" ? (
-                <Button disabled={aiConnectionStore.isCreating} variant="secondary" onClick={close}>
-                  {t("Common.actions.cancel")}
-                </Button>
-              ) : (
-                <Button
-                  disabled={aiConnectionStore.isCreating}
-                  type="button"
-                  variant="secondary"
-                  onClick={aiConnectionStore.backToProviders}
-                >
-                  <ArrowLeft aria-hidden />
-
-                  {t("Common.actions.back")}
-                </Button>
-              )}
-
-              {aiConnectionStore.route.screen !== "providers" ? (
-                <Button disabled={!aiConnectionStore.canFinish} type="button" onClick={close}>
-                  {t("ApiKeyModal.done")}
-                </Button>
-              ) : null}
-            </AppCardFooter>
-          ) : null}
+          {isPlain && !createdKey ? <FormFooterActions anchorScope="api-key" /> : null}
         </AppCard>
       </AppForm>
     </AppModal>

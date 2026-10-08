@@ -26,12 +26,9 @@ test("configures a role for a new type, preserves granular rights after rename a
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Project coordinators");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Create and read assigned projects");
   const projectGrant = role.locator(`[data-record-permission="${typeId}"]`);
-  const recordTypesTab = role.getByRole("tab", { name: "Record types", exact: true });
-  await recordTypesTab.click();
   await expect(projectGrant.getByRole("radio", { name: "None", exact: true })).toBeChecked();
   await projectGrant.getByRole("radio", { name: "Assigned", exact: true }).check();
   await projectGrant.getByRole("checkbox", { name: "Create", exact: true }).check();
-  await role.getByRole("tab", { name: "Workspace", exact: true }).click();
   const dataModel = role.locator('[data-resource-permission="dataModel"]');
   await expect(dataModel.getByRole("checkbox")).toHaveCount(1);
   await dataModel.getByRole("checkbox", { name: "Edit", exact: true }).check();
@@ -72,7 +69,6 @@ test("configures a role for a new type, preserves granular rights after rename a
   ).toEqual(["readAll", "readOwn", "update", "create", "delete"]);
   await page.reload();
   await page.getByRole("button", { name: "Project coordinators", exact: true }).click();
-  await recordTypesTab.click();
   await expect(projectGrant.getByRole("checkbox", { name: "Create", exact: true })).toBeChecked();
   await expect(projectGrant.getByRole("checkbox", { name: "Edit", exact: true })).not.toBeChecked();
   await expect(projectGrant.getByRole("checkbox", { name: "Delete", exact: true })).not.toBeChecked();
@@ -95,7 +91,6 @@ test("configures a role for a new type, preserves granular rights after rename a
   await page.goto("/en/company/roles");
   await page.getByRole("button", { name: "Project coordinators", exact: true }).click();
   await expect(role).toBeVisible();
-  await recordTypesTab.click();
   await projectGrant.scrollIntoViewIfNeeded();
   await expect(projectGrant.getByText("Initiatives", { exact: true })).toBeVisible();
   if (testInfo.project.name === "mobile")

@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { expect, test, isBenignPageError } from "./fixtures";
+import { openRecordDetails, recordItem } from "./record-rows";
 
 test("resolves a protected task through member approval and rejects ordinary record edits", async ({
   page,
@@ -33,7 +34,7 @@ test("resolves a protected task through member approval and rejects ordinary rec
     if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   await page.goto(`/en/records/${typeId}`);
-  await page.getByRole("button", { name: title, exact: true }).click();
+  await openRecordDetails(page, title);
   const task = page.getByRole("dialog", { name: "Task", exact: true });
   await expect(
     task.getByText("This is a system task that cannot be manually deleted.", { exact: false }),
@@ -88,6 +89,6 @@ test("resolves a protected task through member approval and rejects ordinary rec
   ).toBe(1);
   expect((await database.query("SELECT to_regclass('\"Task\"') AS table")).rows[0].table).toBeNull();
   await page.goto(`/en/records/${typeId}`);
-  await expect(page.getByRole("button", { name: title, exact: true })).toHaveCount(0);
+  await expect(recordItem(page, title)).toHaveCount(0);
   expect(errors).toEqual([]);
 });
