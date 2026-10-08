@@ -66,6 +66,8 @@ async function createLabList(page: Page, contactTypeId: string) {
           targetCardinality: "many",
           onSourceDelete: "unlink",
           onTargetDelete: "unlink",
+          messagesOnSource: false,
+          messagesOnTarget: false,
           archived: false,
         },
       },

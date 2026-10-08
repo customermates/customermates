@@ -32,7 +32,11 @@ async function savedExpanded(database: Client, companyId: string) {
   return ((result.rows[0]?.settings as { expanded?: string[] } | undefined)?.expanded ?? []) as string[];
 }
 
-test("graph nodes share one structure with an Add menu and in-place expansion", async ({ page, database, companyId }) => {
+test("graph nodes share one structure with an Add menu and in-place expansion", async ({
+  page,
+  database,
+  companyId,
+}) => {
   const errors = captureErrors(page);
   const dealId = presetId(companyId, "deal");
   await openConfigure(page);
@@ -57,7 +61,13 @@ test("graph nodes share one structure with an Add menu and in-place expansion", 
   }
 
   await deal.getByRole("button", { name: "Add to Deals", exact: true }).click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Field", "Calculated field", "Relationship", "Channels", "Sub-list"]);
+  await expect(page.getByRole("menuitem")).toHaveText([
+    "Field",
+    "Calculated field",
+    "Relationship",
+    "Channels",
+    "Sub-list",
+  ]);
   await page.getByRole("menuitem", { name: "Relationship", exact: true }).click();
   const drawer = configureDrawer(page);
   await expect(drawer.locator("[data-relationship-side=source]")).toContainText("Deals");

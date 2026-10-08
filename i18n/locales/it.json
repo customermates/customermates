@@ -3405,8 +3405,11 @@
     "relationshipChange": "{count} relazioni modificate",
     "relationshipEditor": {
       "cardinality": "Quanti record sono collegati",
+      "messagesHelp": "I messaggi provengono da record collegati con canali o da conversazioni collegate. I permessi su record e messaggi restano validi.",
       "onDelete": "All'eliminazione",
       "otherList": "la lista collegata",
+      "showMessagesOn": "Mostra i loro messaggi in {list}",
+      "showMessagesOnSide": "Mostra i loro messaggi in {list} ({side})",
       "shownOn": "Mostrato nei record di {list}",
       "thisList": "Questa lista"
     },

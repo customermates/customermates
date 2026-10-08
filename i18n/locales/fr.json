@@ -3405,8 +3405,11 @@
     "relationshipChange": "{count} relations modifiées",
     "relationshipEditor": {
       "cardinality": "Nombre d’enregistrements liés",
+      "messagesHelp": "Les messages proviennent d’éléments liés avec des canaux ou de conversations liées. Les droits sur les éléments et les messages s’appliquent toujours.",
       "onDelete": "À la suppression",
       "otherList": "la liste liée",
+      "showMessagesOn": "Afficher leurs messages dans {list}",
+      "showMessagesOnSide": "Afficher leurs messages dans {list} ({side})",
       "shownOn": "Affiché sur les enregistrements de {list}",
       "thisList": "Cette liste"
     },

@@ -2,9 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
-import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
+import { AppModal } from "@/components/modal/app-modal";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { ContactComposePopover } from "@/app/[locale]/(protected)/records/[typeId]/components/contact-compose-popover";
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
@@ -14,36 +12,26 @@ export const RecordComposeRecovery = observer(function RecordComposeRecovery() {
   const t = useTranslations();
   const compose = root.threadComposeStore;
   const open = compose.isDetachedNewThread && root.appMode !== "self-hosted";
-  const focusReturn = useOverlayFocusReturn(open);
   useNavigationGuard(compose, open);
   return (
-    <Sheet
+    <AppModal
+      bodyClassName="px-4 pb-4"
       open={open}
-      onOpenChange={(next) => {
-        if (next || compose.isLoading) return;
+      side="left"
+      title={t("EntityChannels.tooltipStartNewThread")}
+      onClose={() => {
+        if (compose.isLoading) return;
         const isCurrent = compose.captureContext();
         root.navigationGuard.tryNavigate(() => {
           if (isCurrent() && !compose.isLoading) compose.discardNewThread();
         });
       }}
     >
-      <SheetContent
-        aria-describedby={undefined}
-        className="w-full bg-background sm:max-w-[640px]"
-        side="left"
-        onBlur={releaseFocusToAssistantSurface}
-        onEscapeKeyDown={keepOpenForAssistantSurface}
-        onInteractOutside={keepOpenForAssistantSurface}
-        {...focusReturn}
-      >
-        <SheetHeader>
-          <SheetTitle>{t("EntityChannels.tooltipStartNewThread")}</SheetTitle>
-        </SheetHeader>
+      <p aria-hidden className="pt-4 pb-3 text-base font-semibold">
+        {t("EntityChannels.tooltipStartNewThread")}
+      </p>
 
-        <SheetBody className="px-4 pb-4">
-          {compose.form.provider && <ContactComposePopover provider={compose.form.provider} />}
-        </SheetBody>
-      </SheetContent>
-    </Sheet>
+      {compose.form.provider && <ContactComposePopover provider={compose.form.provider} />}
+    </AppModal>
   );
 });
