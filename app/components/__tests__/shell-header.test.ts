@@ -7,6 +7,12 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/components/ui/separator", () => ({
   Separator: () => createElement("span", { "data-separator": true }),
 }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/components/ui/tooltip", () => ({
+  Tooltip: ({ children }: { children: unknown }) => children,
+  TooltipTrigger: ({ children }: { children: unknown }) => children,
+  TooltipContent: () => null,
+}));
 vi.mock("@/components/ui/sidebar", () => ({
   SidebarTrigger: () => createElement("button", { "data-sidebar-trigger": true }),
 }));

@@ -1897,6 +1897,9 @@
       "name": "Nom",
       "namePlaceholder": "Nom de la vue",
       "nameRequired": "Saisissez un nom pour la vue.",
+      "pickerEmpty": "Aucune vue correspondante",
+      "pickerPlaceholder": "Trouver une vue…",
+      "pickerTitle": "Changer de vue",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}"
     }
@@ -2137,10 +2140,12 @@
     "title": "Mot de passe oublié"
   },
   "GlobalSearch": {
+    "askMateWith": "Demander à Mate : {question}",
     "clearRecent": "Effacer",
     "emptyDescription": "Recherchez des fiches dans les listes auxquelles vous avez accès.",
     "emptyTitle": "Trouvez tout dans votre espace de travail",
     "groupRecent": "Ouverts récemment",
+    "hintAskMate": "Demander à Mate",
     "hintNavigate": "Naviguer",
     "hintOpen": "Ouvrir",
     "loading": "Recherche...",
@@ -2370,6 +2375,44 @@
     "stepsTitle": "Comment rejoindre l'espace de travail",
     "subtitle": "Un administrateur de l'espace de travail doit inviter {email}.",
     "title": "Rejoindre un espace de travail existant"
+  },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Ajouter un enregistrement ou une liste",
+      "askMate": "Demander à Mate",
+      "close": "Fermer la boîte de dialogue ou le panneau du dessus",
+      "goConfigure": "Configurer",
+      "goDashboard": "Tableau de bord",
+      "goInbox": "Boîte de réception",
+      "goKnowledgeBase": "Base de connaissances",
+      "goList": "Listes selon leur position dans votre barre latérale",
+      "goRoutines": "Routines",
+      "goSettings": "Paramètres",
+      "save": "Enregistrer le formulaire ouvert",
+      "search": "Rechercher",
+      "searchAlias": "Rechercher",
+      "shortcuts": "Afficher les raccourcis clavier",
+      "switchView": "Changer de vue dans une liste",
+      "toggleSidebar": "Afficher ou masquer la barre latérale"
+    },
+    "groups": {
+      "create": "Créer",
+      "forms": "Formulaires",
+      "general": "Général",
+      "listsAndViews": "Listes et vues",
+      "navigation": "Navigation"
+    },
+    "noMatches": "Aucun raccourci ne correspond à votre recherche.",
+    "or": "ou",
+    "pendingGo": "Aller à… appuyez sur une lettre ou un numéro de liste",
+    "searchLabel": "Rechercher des raccourcis",
+    "searchPlaceholder": "Rechercher des raccourcis…",
+    "singleKey": {
+      "description": "C, /, V, ? et les séquences G. Désactivez-les si vous utilisez la saisie vocale ou appuyez sur des touches par erreur.",
+      "label": "Raccourcis à une touche"
+    },
+    "then": "puis",
+    "title": "Raccourcis clavier"
   },
   "LegalDocumentNotice": {
     "contractBody": "Nous avons mis à jour les documents juridiques indiqués ci-dessous. Veuillez les examiner pour le client professionnel et faire procéder à leur acceptation électronique par un administrateur système habilité.",

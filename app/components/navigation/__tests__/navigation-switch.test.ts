@@ -45,6 +45,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     subscriptionStore: { setSubscription: state.setSubscription },
     recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
     sidebarLayoutStore: { setLayout: () => undefined },
+    keyboardShortcutsStore: { setPreferences: () => undefined },
     userStore: {
       get user() {
         return state.currentUser;
