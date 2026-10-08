@@ -7,14 +7,16 @@ Workspace settings cover everything that affects the whole workspace rather than
 
 ## Where are the workspace settings? [#what-lives-on-the-company-screen]
 
-Open **Settings** from the workspace menu or press G then S. The settings nav groups the pages under **Workspace**: [Members](app:company/members), [Roles](app:company/roles), [Billing](app:company/subscription) (Cloud only), [Activity](app:company/activity) and [Webhooks](app:company/webhooks). **Back** returns to your work.
+Click **Customermates** at the top of the sidebar to open the workspace menu and choose **Settings**, or press G then S. Settings opens on [Profile & preferences](app:profile/settings), and the sidebar switches to the settings nav: your own pages under **Account**, the workspace pages under **Workspace**: [Members](app:company/members), [Roles](app:company/roles), [Billing](app:company/subscription) (Cloud only), [Activity](app:company/activity) and [Webhooks](app:company/webhooks). **Back** at the top of the nav returns to the page you came from.
+
+The workspace menu holds, from top to bottom, **Invite members** (needs **Users & Roles** **Create**), **Members**, **Settings**, **Billing** with the plan chip (Cloud only) and, for Customermates operators only, **Operator Console**.
 
 Your role decides what you see. A page your role cannot read is missing from the nav, and opening it directly lands on the [Dashboard](app:dashboard). On a page you can read but not change, **Add**, **Save** and **Delete** are missing and dialogs open read-only. Role changes apply on the member's next page load or API call. The built-in **Admin** role sees and changes everything.
 
 | Page | Needed to open it |
 |---|---|
 | Members, Roles | **Users & Roles** read access **All** (**Assigned** shows Members with only your own row) |
-| Plan | Every member; billing controls need **Company** **Edit** |
+| Billing | Every member; billing controls need **Company** **Edit** |
 | Activity | **Audit Log** read access **All** |
 | Webhooks | **API & Webhooks** read access **All** |
 
@@ -81,7 +83,7 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 - **Delete** appears only for a custom role no member has, inactive members included. Move everyone to another role and remove the role from access presets first.
 - Changes apply to every member with the role on their next page load or API call and are recorded in [Activity](app:company/activity).
 
-## Plan [#subscription-tab]
+## Billing [#subscription-tab]
 
 [Billing](app:company/subscription) shows the plan, status, seats and billing of a Cloud workspace; self-hosted installs have no plan, and the page redirects to the Dashboard. Customermates bills through Lemon Squeezy, which runs checkout and the customer portal.
 
@@ -92,7 +94,7 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 | **Current period ends** | The renewal date, or after a cancellation the date the subscription ends |
 | **Active seats** | Billed seats; before the first checkout the number of **Active** members |
 
-The workspace menu shows the plan with its status, for example **Pro · Trial · 3 days left**, and opens Billing.
+The **Billing** entry in the workspace menu shows the plan with its status, for example **Pro · Trial · 3 days left** (only the plan name while the status is **Active**), and opens Billing.
 
 ### Who can manage billing? [#who-can-manage-billing]
 
@@ -124,7 +126,7 @@ Every plan includes the full CRM, the activity log, the API, the MCP server and 
 
 ### How do I choose or change a plan? [#how-do-i-choose-or-change-a-plan]
 
-Before the first checkout (in practice during the trial), the [plan picker](app:company/subscription?focus=plan-picker) shows cards for **Starter**, **Pro** and **Business** (**Most popular**) with price, features, connected accounts, routines and AI credits per user. Clicking a card opens the Lemon Squeezy checkout for as many seats as there are **Active** members. Billing starts at checkout, even with trial days left; after payment you return to Plan, which updates once Lemon Squeezy confirms.
+Before the first checkout (in practice during the trial), the [plan picker](app:company/subscription?focus=plan-picker) shows cards for **Starter**, **Pro** and **Business** (**Most popular**) with price, features, connected accounts, routines and AI credits per user. Clicking a card opens the Lemon Squeezy checkout for as many seats as there are **Active** members. Billing starts at checkout, even with trial days left; after payment you return to Billing, which updates once Lemon Squeezy confirms.
 
 After the first checkout the picker does not come back: change the plan with [Manage with Lemon Squeezy](app:company/subscription?focus=manage). Enterprise workspaces never see the picker.
 
@@ -132,7 +134,7 @@ After the first checkout the picker does not come back: change the plan with [Ma
 
 Click [Manage with Lemon Squeezy](app:company/subscription?focus=manage). It appears once the workspace has a self-serve subscription (not during a trial before checkout, never on Enterprise) and opens the Lemon Squeezy customer portal in the same tab, where you change the plan, update the payment method, download invoices and cancel. If no portal exists, the page shows "The billing portal is not available for this workspace. Contact support to make changes."
 
-Portal changes reach Customermates automatically. If Plan still shows old values, [Refresh](app:company/subscription?focus=refresh) re-reads status, plan, seats and dates ("Subscription refreshed successfully"). A cancellation shows as **Cancelled**, with the same limits as **Past Due**.
+Portal changes reach Customermates automatically. If Billing still shows old values, [Refresh](app:company/subscription?focus=refresh) re-reads status, plan, seats and dates ("Subscription refreshed successfully"). A cancellation shows as **Cancelled**, with the same limits as **Past Due**.
 
 ### How are seats counted and billed? [#how-are-seats-counted-and-billed]
 
@@ -140,7 +142,7 @@ A seat is a member with status **Active**; **Waiting for approval** and **Inacti
 
 ### What happens when the trial ends or a payment fails? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
-While the status is **Unpaid** or **Expired**, or the trial has passed its end date, every page shows **Subscription Required** ("Workspace access is paused"). Roles with **Company** **Edit** get the plan picker to start a new checkout (Enterprise: a manual billing note); everyone else sees "A company administrator must restore the subscription". **Contact Support** emails support, **Retry** reloads. Once the subscription is usable again, you land on Plan.
+While the status is **Unpaid** or **Expired**, or the trial has passed its end date, every page shows **Subscription Required** ("Workspace access is paused"). Roles with **Company** **Edit** get the plan picker to start a new checkout (Enterprise: a manual billing note); everyone else sees "A company administrator must restore the subscription". **Contact Support** emails support, **Retry** reloads. Once the subscription is usable again, you land on Billing.
 
 After a trial ends without checkout, a daily job at 09:00 UTC:
 
@@ -157,7 +159,7 @@ When Lemon Squeezy reports a different plan, Customermates removes each user's n
 
 ### How does an Enterprise workspace differ? [#how-does-an-enterprise-workspace-differ]
 
-Enterprise is set up with Customermates and billed by invoice. Plan shows only **Plan** and "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes." Self-service checkout is refused and member status changes are not sent to billing.
+Enterprise is set up with Customermates and billed by invoice. Billing shows only **Plan** and "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes." Self-service checkout is refused and member status changes are not sent to billing.
 
 ### Where do upgrade buttons lead? [#where-do-upgrade-buttons-lead]
 
@@ -181,7 +183,7 @@ Click [Add](app:company/webhooks?focus=add), or a row to edit. The **Webhook** d
 
 ### Where do I see webhook deliveries? [#deliveries-tab]
 
-The [Deliveries](app:company/webhook-deliveries) tab lists one row per delivery, newest first, with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**. Click a row for **Event Details**: status (**Pending**, then **Delivered** or **Failed**), status code, response message and payload. Payloads cover every record, including records your role cannot open. **Resend** (delivered or failed deliveries, **API & Webhooks** **Create**) sends the stored payload again as a new delivery with the current secret, headers and body template.
+The [Deliveries](app:company/webhook-deliveries) tab at the top of Webhooks (next to **Webhooks**) lists one row per delivery, newest first, with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**. Click a row for **Event Details**: status (**Pending**, then **Delivered** or **Failed**), status code, response message and payload. Payloads cover every record, including records your role cannot open. **Resend** (delivered or failed deliveries, **API & Webhooks** **Create**) sends the stored payload again as a new delivery with the current secret, headers and body template.
 
 ## Where is the currency set? [#where-is-the-currency-set]
 

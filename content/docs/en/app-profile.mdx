@@ -5,7 +5,7 @@ description: "Your personal Customermates settings: name, language, formats, the
 
 ## What belongs to you rather than the workspace? [#what-lives-on-the-profile-screen]
 
-The Account part of Settings holds three pages: [Profile & preferences](app:profile/settings) (name, avatar, language, formats, theme, shortcuts), [Channels](app:profile/connected-accounts) (the accounts that feed the [Inbox](/docs/app-inbox)) and [API keys](app:profile/api-keys) (keys for MCP and REST clients). Open them from the personal menu on your avatar, or press G then S for Settings. Changes here affect only you, except a channel you share with the workspace.
+The Account part of Settings holds three pages: [Profile & preferences](app:profile/settings) (name, avatar, language, formats, theme), [Channels](app:profile/connected-accounts) (the accounts that feed the [Inbox](/docs/app-inbox)) and [API keys](app:profile/api-keys) (keys for MCP and REST clients). Click your avatar at the bottom of the sidebar and choose **Profile & preferences**, or choose **Settings** in the workspace menu (**Customermates** at the top of the sidebar) or press G then S; each opens Profile & preferences, and the settings nav lists the other pages. **Back** at the top of that nav returns to where you were. Changes here affect only you, except a channel you share with the workspace.
 
 Every member sees Profile & preferences. Channels needs **Read access** **All** on your role's **Inbox messages** row and exists on Customermates Cloud only. API keys needs **Read access** **All** on **API & Webhooks**. A new custom role starts with **None** on both rows; roles are edited in [Roles](app:company/roles), see [App guide, Company](/docs/app-company).
 
@@ -24,15 +24,15 @@ Change any field in [Profile & preferences](app:profile/settings) and click **Sa
 | [Formatting Locale](app:profile/settings?focus=formatting-locale) | The same choices; how numbers, dates and amounts are written, independent of the display language. **System** follows the display language |
 | [Theme](app:profile/settings?focus=theme) | **System**, **Dark** or **Light** |
 
-The theme can also be switched under **Theme** in the personal menu. The header above the form shows your email, verification status, member status and role; these are read-only here. Role and status, and your name, country and avatar, can also be set by a member with **Edit** on **Users & Roles** in [Members](app:company/members).
+**Theme** and **Language** can also be switched in the personal menu. The header above the form shows your email, verification status, member status and role; these are read-only here. Role and status, and your name, country and avatar, can also be set by a member with **Edit** on **Users & Roles** in [Members](app:company/members).
 
 ### How do I turn off single-key shortcuts? [#keyboard-shortcut-preferences]
 
-Switch off **Single-key shortcuts** in Profile & preferences or in the **Keyboard shortcuts** dialog (press ?). It disables C, /, V, ? and the G sequences, which helps with speech input or accidental key presses. Shortcuts with Cmd/Ctrl and Esc keep working. The full list is in [Keyboard shortcuts](/docs/app-dashboard#keyboard-shortcuts).
+Switch off **Single-key shortcuts** in the **Keyboard shortcuts** dialog (press ? or choose **Keyboard shortcuts** in the personal menu). It disables C, /, V, ? and the G sequences, which helps with speech input or accidental key presses. Shortcuts with Cmd/Ctrl and Esc keep working. The full list is in [Keyboard shortcuts](/docs/app-dashboard#keyboard-shortcuts).
 
 ### How do I verify my email address or resend the verification email? [#how-do-i-verify-my-email-address]
 
-While your address is unverified, the sidebar shows **Email not verified**, which opens Profile & preferences with [Resend verification email](app:profile/settings?focus=verify-email). A new account works for 24 hours without verification; after that every page leads to the verification screen until you confirm the link in the email.
+While your address is unverified, your avatar in the sidebar and the **Profile & preferences** entry in the personal menu show **Email not verified**; Profile & preferences then offers [Resend verification email](app:profile/settings?focus=verify-email). A new account works for 24 hours without verification; after that every page leads to the verification screen until you confirm the link in the email.
 
 ### What can I not change here, such as my password? [#what-can-i-not-change-here]
 
@@ -121,5 +121,5 @@ Over MCP and in Mate, `update_workspace_settings` with `target: "profile"` chang
 
 - [API keys](/docs/api-keys): creating, using, expiring and deleting keys.
 - [App guide, Inbox](/docs/app-inbox): the screen your channels feed.
-- [App guide, Company](/docs/app-company): roles, members and the plan.
+- [App guide, Company](/docs/app-company): members, roles and billing.
 - [CLI and editors](/docs/connect-cli): where a generated key goes for Claude Code, Codex and Cursor.

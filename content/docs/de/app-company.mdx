@@ -7,14 +7,16 @@ Die Workspace-Einstellungen umfassen alles, was den ganzen Workspace betrifft un
 
 ## Wo finde ich die Workspace-Einstellungen? [#what-lives-on-the-company-screen]
 
-Öffnen Sie **Einstellungen** über das Workspace-Menü oder drücken Sie G, dann S. Die Einstellungsnavigation fasst unter **Workspace** diese Seiten zusammen: [Mitglieder](app:company/members), [Rollen](app:company/roles), [Abrechnung](app:company/subscription) (nur Cloud), [Aktivität](app:company/activity) und [Webhooks](app:company/webhooks). **Zurück** bringt Sie zu Ihrer Arbeit.
+Klicken Sie oben in der Seitenleiste auf **Customermates**, um das Workspace-Menü zu öffnen, und wählen Sie **Einstellungen**, oder drücken Sie G, dann S. Die Einstellungen öffnen sich auf [Profil & Einstellungen](app:profile/settings), und die Seitenleiste wechselt zur Einstellungsnavigation: Ihre eigenen Seiten unter **Konto**, die Workspace-Seiten unter **Workspace**: [Mitglieder](app:company/members), [Rollen](app:company/roles), [Abrechnung](app:company/subscription) (nur Cloud), [Aktivität](app:company/activity) und [Webhooks](app:company/webhooks). **Zurück** oben in der Navigation führt zur Seite zurück, von der Sie kamen.
+
+Das Workspace-Menü enthält von oben nach unten **Mitglieder einladen** (erfordert **Benutzer & Rollen** **Erstellen**), **Mitglieder**, **Einstellungen**, **Abrechnung** mit dem Tarif-Chip (nur Cloud) und, nur für Customermates-Operatoren, **Operator-Konsole**.
 
 Ihre Rolle bestimmt, was Sie sehen. Eine Seite, die Ihre Rolle nicht lesen darf, fehlt in der Navigation, und ein direkter Aufruf landet auf dem [Dashboard](app:dashboard). Auf einer Seite, die Sie lesen, aber nicht ändern dürfen, fehlen **Hinzufügen**, **Speichern** und **Löschen**, und Dialoge öffnen schreibgeschützt. Rollenänderungen gelten beim nächsten Seitenaufruf oder API-Aufruf des Mitglieds. Die eingebaute Rolle **Admin** sieht und ändert alles.
 
 | Seite | Zum Öffnen nötig |
 |---|---|
 | Mitglieder, Rollen | **Benutzer & Rollen** mit Leserecht **Alle** (**Zugewiesen** zeigt Mitglieder nur mit Ihrer eigenen Zeile) |
-| Plan | Jedes Mitglied; die Abrechnungs-Controls erfordern **Unternehmen** **Bearbeiten** |
+| Abrechnung | Jedes Mitglied; die Abrechnungs-Controls erfordern **Unternehmen** **Bearbeiten** |
 | Aktivität | **Audit-Log** mit Leserecht **Alle** |
 | Webhooks | **API & Webhooks** mit Leserecht **Alle** |
 
@@ -81,18 +83,18 @@ Jeder Workspace startet mit einer eingebauten Rolle, **Admin**, die die Person e
 - **Löschen** erscheint nur bei einer benutzerdefinierten Rolle, die kein Mitglied hat, inaktive eingeschlossen. Verschieben Sie zuerst alle auf eine andere Rolle und entfernen Sie die Rolle aus Zugriffsvorlagen.
 - Änderungen gelten für jedes Mitglied mit der Rolle beim nächsten Seitenaufruf oder API-Aufruf und werden in [Aktivität](app:company/activity) festgehalten.
 
-## Plan [#subscription-tab]
+## Abrechnung [#subscription-tab]
 
 [Abrechnung](app:company/subscription) zeigt Tarif, Status, Nutzerplätze und Abrechnung eines Cloud-Workspace; selbst gehostete Installationen haben keinen Plan, und die Seite leitet zum Dashboard um. Customermates rechnet über Lemon Squeezy ab, das Checkout und Kundenportal betreibt.
 
 | Feld | Was es zeigt |
 |---|---|
-| **Plan** | **Starter**, **Pro**, **Business** oder **Enterprise** mit Status-Chip, aus der Abrechnung synchronisiert |
+| **Tarif** | **Starter**, **Pro**, **Business** oder **Enterprise** mit Status-Chip, aus der Abrechnung synchronisiert |
 | **Testphase endet** | Das Ende der kostenlosen Testphase, nur im Status **Testphase** |
 | **Ende des aktuellen Abrechnungszeitraums** | Das Verlängerungsdatum, nach einer Kündigung das Enddatum des Abonnements |
 | **Aktive Nutzerplätze** | Abgerechnete Nutzerplätze; vor dem ersten Checkout die Zahl der **Aktiven** Mitglieder |
 
-Das Workspace-Menü zeigt den Tarif mit seinem Status, etwa **Pro · Testphase · noch 3 Tage**, und öffnet Abrechnung.
+Der Eintrag **Abrechnung** im Workspace-Menü zeigt den Tarif mit seinem Status, etwa **Pro · Testphase · noch 3 Tage** (bei Status **Aktiv** nur den Tarifnamen), und öffnet Abrechnung.
 
 ### Wer darf die Abrechnung verwalten? [#who-can-manage-billing]
 
@@ -124,7 +126,7 @@ Jeder Tarif enthält das vollständige CRM, das Aktivitätsprotokoll, die API, d
 
 ### Wie wähle oder wechsle ich einen Tarif? [#how-do-i-choose-or-change-a-plan]
 
-Vor dem ersten Checkout (in der Praxis während der Testphase) zeigt die [Tarifauswahl](app:company/subscription?focus=plan-picker) Karten für **Starter**, **Pro** und **Business** (**Am beliebtesten**) mit Preis, Funktionen, verbundenen Konten, Routinen und KI-Credits pro Nutzer. Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie es **Aktive** Mitglieder gibt. Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind; nach der Zahlung kehren Sie zu Plan zurück, der sich aktualisiert, sobald Lemon Squeezy bestätigt.
+Vor dem ersten Checkout (in der Praxis während der Testphase) zeigt die [Tarifauswahl](app:company/subscription?focus=plan-picker) Karten für **Starter**, **Pro** und **Business** (**Am beliebtesten**) mit Preis, Funktionen, verbundenen Konten, Routinen und KI-Credits pro Nutzer. Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie es **Aktive** Mitglieder gibt. Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind; nach der Zahlung kehren Sie zu Abrechnung zurück, die sich aktualisiert, sobald Lemon Squeezy bestätigt.
 
 Nach dem ersten Checkout erscheint die Auswahl nicht wieder: Wechseln Sie den Tarif über [Verwalten mit Lemon Squeezy](app:company/subscription?focus=manage). Enterprise-Workspaces sehen die Auswahl nie.
 
@@ -132,7 +134,7 @@ Nach dem ersten Checkout erscheint die Auswahl nicht wieder: Wechseln Sie den Ta
 
 Klicken Sie auf [Verwalten mit Lemon Squeezy](app:company/subscription?focus=manage). Der Button erscheint, sobald der Workspace ein Self-Service-Abonnement hat (nicht während einer Testphase vor dem Checkout, nie bei Enterprise), und öffnet das Lemon-Squeezy-Kundenportal im selben Tab. Dort wechseln Sie den Tarif, ändern die Zahlungsmethode, laden Rechnungen herunter und kündigen. Gibt es kein Portal, meldet die Seite, dass das Abrechnungsportal für diesen Workspace nicht verfügbar ist und Änderungen über den Support laufen.
 
-Änderungen im Portal erreichen Customermates automatisch. Zeigt Plan noch alte Werte, liest [Aktualisieren](app:company/subscription?focus=refresh) Status, Tarif, Nutzerplätze und Daten neu ein ("Abonnement erfolgreich aktualisiert"). Eine Kündigung erscheint als **Gekündigt**, mit denselben Einschränkungen wie **Überfällig**.
+Änderungen im Portal erreichen Customermates automatisch. Zeigt Abrechnung noch alte Werte, liest [Aktualisieren](app:company/subscription?focus=refresh) Status, Tarif, Nutzerplätze und Daten neu ein ("Abonnement erfolgreich aktualisiert"). Eine Kündigung erscheint als **Gekündigt**, mit denselben Einschränkungen wie **Überfällig**.
 
 ### Wie werden Nutzerplätze gezählt und abgerechnet? [#how-are-seats-counted-and-billed]
 
@@ -140,7 +142,7 @@ Ein Nutzerplatz ist ein Mitglied mit dem Status **Aktiv**; Mitglieder mit **Wart
 
 ### Was passiert, wenn die Testphase endet oder eine Zahlung ausbleibt? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
-Solange der Status **Unbezahlt** oder **Abgelaufen** ist oder die Testphase ihr Enddatum überschritten hat, zeigt jede Seite **Abonnement erforderlich** ("Der Zugriff auf den Arbeitsbereich ist pausiert"). Rollen mit **Unternehmen** **Bearbeiten** erhalten die Tarifauswahl für einen neuen Checkout (Enterprise: einen Hinweis auf manuelle Abrechnung); alle anderen sehen, dass ein Unternehmensadministrator das Abonnement wiederherstellen muss. **Support kontaktieren** schreibt dem Support, **Erneut versuchen** lädt neu. Sobald das Abonnement wieder nutzbar ist, landen Sie auf Plan.
+Solange der Status **Unbezahlt** oder **Abgelaufen** ist oder die Testphase ihr Enddatum überschritten hat, zeigt jede Seite **Abonnement erforderlich** ("Der Zugriff auf den Arbeitsbereich ist pausiert"). Rollen mit **Unternehmen** **Bearbeiten** erhalten die Tarifauswahl für einen neuen Checkout (Enterprise: einen Hinweis auf manuelle Abrechnung); alle anderen sehen, dass ein Unternehmensadministrator das Abonnement wiederherstellen muss. **Support kontaktieren** schreibt dem Support, **Erneut versuchen** lädt neu. Sobald das Abonnement wieder nutzbar ist, landen Sie auf Abrechnung.
 
 Endet eine Testphase ohne Checkout, erledigt ein täglicher Job um 09:00 UTC:
 
@@ -157,7 +159,7 @@ Meldet Lemon Squeezy einen anderen Tarif, entfernt Customermates bei jedem Nutze
 
 ### Was ist bei Enterprise anders? [#how-does-an-enterprise-workspace-differ]
 
-Enterprise wird mit Customermates eingerichtet und per Rechnung abgerechnet. Plan zeigt nur **Plan** und "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen." Ein Self-Service-Checkout wird abgelehnt, und Statusänderungen von Mitgliedern gehen nicht an die Abrechnung.
+Enterprise wird mit Customermates eingerichtet und per Rechnung abgerechnet. Abrechnung zeigt nur **Tarif** und "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen." Ein Self-Service-Checkout wird abgelehnt, und Statusänderungen von Mitgliedern gehen nicht an die Abrechnung.
 
 ### Wohin führen die Upgrade-Buttons? [#where-do-upgrade-buttons-lead]
 
@@ -181,7 +183,7 @@ Klicken Sie auf [Hinzufügen](app:company/webhooks?focus=add) oder zum Bearbeite
 
 ### Wo sehe ich die Zustellungen der Webhooks? [#deliveries-tab]
 
-Der Tab [Zustellungen](app:company/webhook-deliveries) listet eine Zeile je Zustellung, die neueste zuerst, mit **URL**, **Ereignis**, **Element**, **Status**, **Status-Code** und **Erstellt am**. Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, dann **Zugestellt** oder **Fehlgeschlagen**), Status-Code, Antwort-Nachricht und Payload. Payloads umfassen jeden Datensatz, auch solche, die Ihre Rolle nicht öffnen darf. **Erneut senden** (bei zugestellten oder fehlgeschlagenen Zustellungen, **API & Webhooks** **Erstellen**) schickt die gespeicherte Payload als neue Zustellung, mit aktuellem Secret, Headern und Body-Vorlage.
+Der Tab [Zustellungen](app:company/webhook-deliveries) oben auf Webhooks (neben **Webhooks**) listet eine Zeile je Zustellung, die neueste zuerst, mit **URL**, **Ereignis**, **Element**, **Status**, **Status-Code** und **Erstellt am**. Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, dann **Zugestellt** oder **Fehlgeschlagen**), Status-Code, Antwort-Nachricht und Payload. Payloads umfassen jeden Datensatz, auch solche, die Ihre Rolle nicht öffnen darf. **Erneut senden** (bei zugestellten oder fehlgeschlagenen Zustellungen, **API & Webhooks** **Erstellen**) schickt die gespeicherte Payload als neue Zustellung, mit aktuellem Secret, Headern und Body-Vorlage.
 
 ## Wo wird die Währung festgelegt? [#where-is-the-currency-set]
 
