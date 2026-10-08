@@ -134,13 +134,13 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           reservedMicrocents: reservedCredits * CREDIT,
           planSnapshot: "starter",
           subscriptionStatusSnapshot: "active",
-          allowanceMicrocentsSnapshot: 200 * CREDIT,
+          allowanceMicrocentsSnapshot: 100 * CREDIT,
           periodStart: anchor,
           periodEnd: anchor,
         }),
       );
 
-    await reserve(197);
+    await reserve(97);
 
     const outcomes = await Promise.allSettled([reserve(1), reserve(1), reserve(1), reserve(1), reserve(1)]);
     const accepted = outcomes.filter((outcome) => outcome.status === "fulfilled").length;
@@ -157,7 +157,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     );
     const reservedTotal = rows.reduce((total, row) => total + Number(row.reservedMicrocents), 0);
 
-    expect(reservedTotal).toBe(200 * CREDIT);
+    expect(reservedTotal).toBe(100 * CREDIT);
     expect(rows.every((row) => row.state === "reserved")).toBe(true);
   });
 
@@ -173,10 +173,10 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           companyId,
           userId,
           sessionId: randomUUID(),
-          reservedMicrocents: 201 * CREDIT,
+          reservedMicrocents: 101 * CREDIT,
           planSnapshot: "starter",
           subscriptionStatusSnapshot: "active",
-          allowanceMicrocentsSnapshot: 200 * CREDIT,
+          allowanceMicrocentsSnapshot: 100 * CREDIT,
           periodStart: anchor,
           periodEnd: anchor,
         }),
@@ -202,7 +202,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         reservedMicrocents: 8 * CREDIT,
         planSnapshot: "starter",
         subscriptionStatusSnapshot: "active",
-        allowanceMicrocentsSnapshot: 200 * CREDIT,
+        allowanceMicrocentsSnapshot: 100 * CREDIT,
         periodStart: anchor,
         periodEnd: anchor,
       }),
@@ -253,7 +253,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const empty = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     if (!empty) throw new Error("Expected a workspace credit pool.");
-    expect(empty).toMatchObject({ limitMicrocents: 400 * CREDIT, usedMicrocents: 0, usable: true, plan: "starter" });
+    expect(empty).toMatchObject({ limitMicrocents: 200 * CREDIT, usedMicrocents: 0, usable: true, plan: "starter" });
 
     await runWithoutTenant(() =>
       prisma.agentCreditAdjustment.create({
@@ -277,7 +277,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         reservedMicrocents: 1_234_567,
         planSnapshot: "starter",
         subscriptionStatusSnapshot: "active",
-        allowanceMicrocentsSnapshot: 200 * CREDIT,
+        allowanceMicrocentsSnapshot: 100 * CREDIT,
         periodStart: empty.periodStart,
         periodEnd: empty.periodEnd,
       }),
@@ -309,10 +309,10 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     );
 
     await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
-      limitMicrocents: 402_500_000,
+      limitMicrocents: 202_500_000,
       usedMicrocents: 1_234_609,
       unassignedMicrocents: 42,
-      memberLimitMicrocents: { [userId]: 200 * CREDIT, [colleagueId]: 202_500_000 },
+      memberLimitMicrocents: { [userId]: 100 * CREDIT, [colleagueId]: 102_500_000 },
       usable: true,
     });
     await expect(
@@ -427,7 +427,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     if (!pool) throw new Error("Expected a workspace credit pool.");
-    expect(pool.limitMicrocents).toBe(400 * CREDIT);
+    expect(pool.limitMicrocents).toBe(200 * CREDIT);
     const reserve = (payer: string, reservedMicrocents: number) =>
       runWithoutTenant(() =>
         repo.reserveUsageEventUnscoped({
@@ -438,7 +438,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           reservedMicrocents,
           planSnapshot: "starter",
           subscriptionStatusSnapshot: "active",
-          allowanceMicrocentsSnapshot: 200 * CREDIT,
+          allowanceMicrocentsSnapshot: 100 * CREDIT,
           periodStart: pool.periodStart,
           periodEnd: pool.periodEnd,
         }),
@@ -463,20 +463,20 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       );
     const service = new AgentUsageService(repo);
 
-    await reserve(userId, 200 * CREDIT);
-    await expect(indexing(150 * CREDIT)).resolves.toEqual(expect.any(String));
+    await reserve(userId, 100 * CREDIT);
+    await expect(indexing(75 * CREDIT)).resolves.toEqual(expect.any(String));
     await expect(runWithoutTenant(() => service.getUsageSummary(colleagueId, now))).resolves.toMatchObject({
-      creditsUsed: 75,
-      creditsRemaining: 50,
-      creditsLimit: 200,
+      creditsUsed: 37.5,
+      creditsRemaining: 25,
+      creditsLimit: 100,
     });
 
-    await expect(reserve(colleagueId, 50 * CREDIT + 1)).rejects.toThrow(/exceeds the current allowance/);
-    await expect(reserve(colleagueId, 50 * CREDIT)).resolves.toBe(true);
+    await expect(reserve(colleagueId, 25 * CREDIT + 1)).rejects.toThrow(/exceeds the current allowance/);
+    await expect(reserve(colleagueId, 25 * CREDIT)).resolves.toBe(true);
     await expect(indexing(1)).resolves.toBeNull();
 
     const committed = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
-    expect(committed).toMatchObject({ usedMicrocents: 400 * CREDIT, limitMicrocents: 400 * CREDIT });
+    expect(committed).toMatchObject({ usedMicrocents: 200 * CREDIT, limitMicrocents: 200 * CREDIT });
   });
 
   it.each([
@@ -515,19 +515,19 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
             reservedMicrocents,
             planSnapshot: "starter",
             subscriptionStatusSnapshot: "active",
-            allowanceMicrocentsSnapshot: 200 * CREDIT,
+            allowanceMicrocentsSnapshot: 100 * CREDIT,
             periodStart: pool.periodStart,
             periodEnd: pool.periodEnd,
           }),
         );
 
-      await expect(reserve(userId, 200 * CREDIT)).resolves.toBe(true);
+      await expect(reserve(userId, 100 * CREDIT)).resolves.toBe(true);
       await runWithoutTenant(() => prisma.user.update({ where: { id: userId }, data: change }));
 
       await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
-        limitMicrocents: 200 * CREDIT,
+        limitMicrocents: 100 * CREDIT,
         usedMicrocents: 0,
-        memberLimitMicrocents: { [colleagueId]: 200 * CREDIT },
+        memberLimitMicrocents: { [colleagueId]: 100 * CREDIT },
       });
       const indexingHold = await runWithoutTenant(() =>
         repo.reserveRetrievalUsageUnscoped({
@@ -537,7 +537,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
             userId: null,
             planSnapshot: "starter",
             subscriptionStatusSnapshot: "active",
-            allowanceMicrocentsSnapshot: 200 * CREDIT,
+            allowanceMicrocentsSnapshot: 100 * CREDIT,
             periodStart: pool.periodStart,
             periodEnd: pool.periodEnd,
           },
@@ -547,11 +547,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         }),
       );
       expect(indexingHold).toEqual(expect.any(String));
-      await expect(reserve(colleagueId, 190 * CREDIT + 1)).rejects.toThrow(/exceeds the current allowance/);
-      await expect(reserve(colleagueId, 190 * CREDIT)).resolves.toBe(true);
+      await expect(reserve(colleagueId, 90 * CREDIT + 1)).rejects.toThrow(/exceeds the current allowance/);
+      await expect(reserve(colleagueId, 90 * CREDIT)).resolves.toBe(true);
       await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
-        limitMicrocents: 200 * CREDIT,
-        usedMicrocents: 200 * CREDIT,
+        limitMicrocents: 100 * CREDIT,
+        usedMicrocents: 100 * CREDIT,
         unassignedMicrocents: 10 * CREDIT,
       });
     },
@@ -694,13 +694,13 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           reservedMicrocents,
           planSnapshot: "starter",
           subscriptionStatusSnapshot: "active",
-          allowanceMicrocentsSnapshot: 200 * CREDIT,
+          allowanceMicrocentsSnapshot: 100 * CREDIT,
           periodStart: anchor,
           periodEnd: anchor,
         }),
       );
 
-    await reserve(199 * CREDIT + 249_999);
+    await reserve(99 * CREDIT + 249_999);
     await expect(reserve(750_002)).rejects.toThrow(/exceeds the current allowance/);
     await expect(reserve(750_001)).resolves.toBe(true);
 
@@ -712,8 +712,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       }),
     );
     expect(rows).toEqual([
-      { reservedMicrocents: 199_249_999n, allowanceMicrocentsSnapshot: 200_000_000n },
-      { reservedMicrocents: 750_001n, allowanceMicrocentsSnapshot: 200_000_000n },
+      { reservedMicrocents: 99_249_999n, allowanceMicrocentsSnapshot: 100_000_000n },
+      { reservedMicrocents: 750_001n, allowanceMicrocentsSnapshot: 100_000_000n },
     ]);
   });
 
