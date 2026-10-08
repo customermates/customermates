@@ -66,10 +66,10 @@ describe("agent credit periods", () => {
 
 describe("agent credit entitlements", () => {
   it.each([
-    [SubscriptionPlan.starter, 200],
-    [SubscriptionPlan.pro, 600],
-    [SubscriptionPlan.business, 2_000],
-    [SubscriptionPlan.max, 4_000],
+    [SubscriptionPlan.starter, 100],
+    [SubscriptionPlan.pro, 300],
+    [SubscriptionPlan.business, 1_000],
+    [SubscriptionPlan.max, 2_000],
   ])("grants %s plan credits", (plan, limit) => {
     expect(entitlement({ plan }).limitMicrocents).toBe(limit * CREDIT);
   });
@@ -100,9 +100,9 @@ describe("agent credit entitlements", () => {
   });
 
   it("applies signed current-period adjustments after seat proration", () => {
-    expect(entitlement({ adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(675 * CREDIT);
-    expect(entitlement({ adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(525 * CREDIT);
-    expect(entitlement({ adjustmentMicrocents: 2_500_000 }).limitMicrocents).toBe(602_500_000);
+    expect(entitlement({ adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(375 * CREDIT);
+    expect(entitlement({ adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(225 * CREDIT);
+    expect(entitlement({ adjustmentMicrocents: 2_500_000 }).limitMicrocents).toBe(302_500_000);
   });
 
   it("applies signed current-period adjustments to trial allowances", () => {
@@ -111,8 +111,8 @@ describe("agent credit entitlements", () => {
       trialEndDate: new Date("2026-08-13T12:00:00.000Z"),
     } as const;
 
-    expect(entitlement({ ...trial, adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(675 * CREDIT);
-    expect(entitlement({ ...trial, adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(525 * CREDIT);
+    expect(entitlement({ ...trial, adjustmentMicrocents: 75 * CREDIT }).limitMicrocents).toBe(375 * CREDIT);
+    expect(entitlement({ ...trial, adjustmentMicrocents: -75 * CREDIT }).limitMicrocents).toBe(225 * CREDIT);
   });
 
   it("does not let an adjustment bypass missing Enterprise configuration", () => {
@@ -192,10 +192,10 @@ describe("workspace credit rate", () => {
   }
 
   it("reports the plan rate for a paid workspace", () => {
-    expect(rate({ plan: SubscriptionPlan.starter })).toBe(200);
-    expect(rate({ plan: SubscriptionPlan.pro })).toBe(600);
-    expect(rate({ plan: SubscriptionPlan.business })).toBe(2_000);
-    expect(rate({ plan: SubscriptionPlan.max })).toBe(4_000);
+    expect(rate({ plan: SubscriptionPlan.starter })).toBe(100);
+    expect(rate({ plan: SubscriptionPlan.pro })).toBe(300);
+    expect(rate({ plan: SubscriptionPlan.business })).toBe(1_000);
+    expect(rate({ plan: SubscriptionPlan.max })).toBe(2_000);
   });
 
   it("reports the trial rate whatever the plan says, until the trial ends", () => {
@@ -354,6 +354,6 @@ describe("agentUsageMultiplier", () => {
   });
 
   it("grants the Max allowance from the same base", () => {
-    expect(entitlement({ plan: SubscriptionPlan.max }).limitMicrocents).toBe(4_000 * CREDIT);
+    expect(entitlement({ plan: SubscriptionPlan.max }).limitMicrocents).toBe(2_000 * CREDIT);
   });
 });

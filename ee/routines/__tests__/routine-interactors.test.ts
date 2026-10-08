@@ -36,7 +36,7 @@ import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { PruneRoutineRunsInteractor } from "../prune-routine-runs.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
-import { RoutineLimitExceededError, routineMaxCreditsPerRun, type RoutineCountLimit } from "../routine-run-limits";
+import { RoutineLimitExceededError, type RoutineCountLimit } from "../routine-run-limits";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ForbiddenError } from "@/core/errors/app-errors";
 
@@ -575,15 +575,8 @@ describe("StartRoutineRunInteractor", () => {
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledBefore(sendAgentMessage.invokeRoutine);
   });
 
-  it.each([
-    ["starter", 10_000_000],
-    ["pro", 10_000_000],
-    ["business", 10_000_000],
-    ["max", 20_000_000],
-    ["enterprise", 10_000_000],
-    [null, 10_000_000],
-  ] as const)("caps a %s workspace's routine run at its plan's per-run ceiling", async (plan, ceiling) => {
-    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({ run: { plan } });
+  it("caps every routine run at the fixed ten-credit ceiling", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     const interactor = new StartRoutineRunInteractor(
       repo as never,
       conversations as never,
@@ -594,13 +587,8 @@ describe("StartRoutineRunInteractor", () => {
     await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ creditCeilingMicrocents: ceiling }),
+      expect.objectContaining({ creditCeilingMicrocents: 10_000_000 }),
     );
-  });
-
-  it("doubles only the Max per-run routine ceiling", () => {
-    expect(routineMaxCreditsPerRun("max")).toBe(2 * routineMaxCreditsPerRun("business"));
-    expect(routineMaxCreditsPerRun(null)).toBe(routineMaxCreditsPerRun("starter"));
   });
 
   it("lets a read-own routine owner start an admitted background run", async () => {

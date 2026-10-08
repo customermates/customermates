@@ -1524,7 +1524,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         providerStartedAt: startedAt,
         planSnapshot: "pro",
         subscriptionStatusSnapshot: "active",
-        allowanceMicrocentsSnapshot: 600_000_000,
+        allowanceMicrocentsSnapshot: 300_000_000,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       },

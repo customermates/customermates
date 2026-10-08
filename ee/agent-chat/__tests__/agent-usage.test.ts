@@ -105,9 +105,9 @@ describe("AgentUsageService summary", () => {
 
     expect(summary).toEqual({
       creditsUsed: 123.456789,
-      creditsRemaining: 476.543211,
-      creditsLimit: 600,
-      usedPct: 21,
+      creditsRemaining: 176.543211,
+      creditsLimit: 300,
+      usedPct: 41,
       plan: SubscriptionPlan.pro,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       resetAt: new Date("2026-08-15T10:30:00.000Z"),
@@ -118,7 +118,7 @@ describe("AgentUsageService summary", () => {
   });
 
   it("is not exhausted while a fraction of a credit remains", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - 1 }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 300 * CREDIT - 1 }));
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
@@ -137,7 +137,7 @@ describe("AgentUsageService summary", () => {
     const summary = await service.getUsageSummary("user-1", NOW);
 
     expect(summary.creditsUsed).toBe(250);
-    expect(summary.creditsLimit).toBe(200);
+    expect(summary.creditsLimit).toBe(100);
     expect(summary.creditsRemaining).toBe(0);
     expect(summary.usedPct).toBe(100);
     expect(summary.blockedReason).toBe("credits_exhausted");
@@ -158,8 +158,8 @@ describe("AgentUsageService summary", () => {
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
-    expect(summary.creditsLimit).toBe(600);
-    expect(summary.creditsRemaining).toBe(599);
+    expect(summary.creditsLimit).toBe(300);
+    expect(summary.creditsRemaining).toBe(299);
     expect(summary.usageMultiplier).toBe(3);
   });
 
@@ -195,8 +195,8 @@ describe("AgentUsageService summary", () => {
 
     await expect(service.getUsageSummary("user-1", NOW)).resolves.toMatchObject({
       creditsUsed: 100,
-      creditsLimit: 575,
-      creditsRemaining: 475,
+      creditsLimit: 275,
+      creditsRemaining: 175,
       blockedReason: null,
     });
   });
@@ -213,8 +213,8 @@ describe("AgentUsageService summary", () => {
 
     expect(summary).toMatchObject({
       creditsUsed: 100,
-      creditsLimit: 675,
-      creditsRemaining: 575,
+      creditsLimit: 375,
+      creditsRemaining: 275,
     });
     expect(summary).not.toHaveProperty("adjustments");
     expect(summary).not.toHaveProperty("reason");
@@ -276,12 +276,12 @@ describe("AgentUsageService summary", () => {
 
 describe("AgentUsageService retrieval refusal", () => {
   it("labels exhausted allowance as credits", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 300 * CREDIT }));
     await expect(service.retrievalRefusal("user-1", CREDIT, NOW)).resolves.toBe("credits");
   });
 
   it("labels a reservation larger than the remaining headroom as credits", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 599 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 299 * CREDIT }));
     await expect(service.retrievalRefusal("user-1", 2 * CREDIT, NOW)).resolves.toBe("credits");
   });
 
@@ -307,7 +307,7 @@ describe("AgentUsageService retrieval refusal", () => {
 describe("AgentUsageService admission and ledger", () => {
   it("admits and bounds a final fully reservable turn", async () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - required }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 300 * CREDIT - required }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -319,7 +319,7 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("does not start a round when the remaining credits cannot cover its hard provider ceiling", async () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT - required + 1 }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 300 * CREDIT - required + 1 }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -331,7 +331,7 @@ describe("AgentUsageService admission and ledger", () => {
   });
 
   it("does not reserve when the allowance is exhausted", async () => {
-    const service = new AgentUsageService(makeRepo({ usedMicrocents: 600 * CREDIT }));
+    const service = new AgentUsageService(makeRepo({ usedMicrocents: 300 * CREDIT }));
 
     const admission = await service.prepareTurn("user-1", NOW, {
       model: MODEL,
@@ -364,7 +364,7 @@ describe("AgentUsageService admission and ledger", () => {
         reservedMicrocents: admission.reservation?.reservedMicrocents,
         planSnapshot: SubscriptionPlan.pro,
         subscriptionStatusSnapshot: SubscriptionStatus.active,
-        allowanceMicrocentsSnapshot: 600 * CREDIT,
+        allowanceMicrocentsSnapshot: 300 * CREDIT,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       }),
@@ -810,7 +810,7 @@ describe("AgentUsageService admission and ledger", () => {
       purpose: "wikiRetrieval",
       companyId: "company-1",
       userId: "user-1",
-      allowanceMicrocentsSnapshot: 600 * CREDIT,
+      allowanceMicrocentsSnapshot: 300 * CREDIT,
     });
   });
 
@@ -939,9 +939,9 @@ describe("AgentUsageService admission and ledger", () => {
     ).getUsageSummary("user-1", NOW);
 
     expect(summary).toMatchObject({
-      creditsUsed: 70,
-      creditsRemaining: 530,
-      creditsLimit: 600,
+      creditsUsed: 40,
+      creditsRemaining: 260,
+      creditsLimit: 300,
     });
   });
 
@@ -953,7 +953,7 @@ describe("AgentUsageService admission and ledger", () => {
     expect(summary).toMatchObject({
       creditsUsed: 0,
       creditsRemaining: 10,
-      creditsLimit: 600,
+      creditsLimit: 300,
     });
   });
 

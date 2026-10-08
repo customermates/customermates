@@ -13,7 +13,7 @@ import {
   PURCHASABLE_PLAN_IDS,
   RECOMMENDED_PLAN_ID,
 } from "@/core/commercial/plan-catalog";
-import { routineMaxCreditsPerRun } from "@/ee/routines/routine-run-limits";
+import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
 
 const ROOT = process.cwd();
 
@@ -49,7 +49,7 @@ describe("hosted AI pricing contract", () => {
   );
 
   it("derives every self-serve allowance from one base and a per-plan multiplier", () => {
-    expect(HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER).toBe(200);
+    expect(HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER).toBe(100);
     const multipliers = Object.fromEntries(
       PLAN_IDS.map((plan) => [plan, PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier]),
     );
@@ -112,18 +112,17 @@ describe("hosted AI pricing contract", () => {
     }
   });
 
-  it("states the routine per-run cap as a share of the Starter allowance", () => {
-    const starterShare = (routineMaxCreditsPerRun("starter") / HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER) * 100;
-    const maxShare = (routineMaxCreditsPerRun("max") / HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER) * 100;
-    expect([starterShare, maxShare]).toEqual([5, 10]);
+  it("states the fixed routine per-run cap as a share of the Starter allowance", () => {
+    const starterShare = (DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN / HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER) * 100;
+    expect(starterShare).toBe(10);
 
     for (const docs of [assistantEn, routinesEn]) {
       expect(docs).toContain(`${starterShare}% of a Starter allowance`);
-      expect(docs).toMatch(new RegExp(`${maxShare}% on Max`));
+      expect(docs).not.toMatch(/% on Max/);
     }
     for (const docs of [assistantDe, routinesDe]) {
       expect(docs).toContain(`${starterShare} % eines Starter-Kontingents`);
-      expect(docs).toMatch(new RegExp(`${maxShare} % bei Max`));
+      expect(docs).not.toMatch(/% bei Max/);
     }
   });
 

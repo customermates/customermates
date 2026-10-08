@@ -945,17 +945,11 @@ export class PrismaRoutineRepo
         triggerPayload: true,
         executedByUserId: true,
         routine: { select: ROUTINE_SELECT },
-        company: { select: { subscription: { select: { plan: true } } } },
       },
     });
     if (!run) return null;
 
-    const { company, ...stored } = run;
-    return {
-      ...stored,
-      plan: company.subscription?.plan ?? null,
-      routine: (await this.withRecordTriggers([routineDto(stored.routine)], run.companyId))[0],
-    };
+    return { ...run, routine: (await this.withRecordTriggers([routineDto(run.routine)], run.companyId))[0] };
   }
 
   @BypassTenantGuard

@@ -168,7 +168,7 @@ describe("catalog-backed pricing rendering", () => {
     expect(html).toMatch(/149(?:&nbsp;|\u00a0| )€/);
     expect(html.match(/<button/g)).toHaveLength(4);
     expect(html).toContain("20x Mate usage");
-    expect(html).not.toMatch(/\b(?:200|600|2,000|4,000)\b/);
+    expect(html).not.toMatch(/\b(?:300|1,000|2,000)\b/);
     expect(html).not.toContain("Subscription.picker.checkoutUnavailable");
     expect(html).not.toContain('role="button"');
 
