@@ -1,86 +1,117 @@
 ---
-title: "Mein Unternehmen: Abrechnung, Rollen, Team, Audit-Log"
-description: "Mein Unternehmen ist die Workspace-Administration in Customermates: Abonnement und Abrechnung, Mitglieder, Rollen, Webhooks, Zustellungen, Audit-Log."
+title: "Workspace-Einstellungen: Mitglieder, Rollen, Abrechnung"
+description: "Workspace-Einstellungen in Customermates: Mitglieder einladen, Rollen festlegen, Abrechnung verwalten, das Aktivitätsprotokoll lesen und Webhooks einrichten."
 ---
 
-Customermates ist ein Open-Source-CRM mit integriertem MCP-Server. Diese Seite dokumentiert den Bereich **Mein Unternehmen** der Web-App Seite für Seite, für Menschen und für KI-Agents, die die UI steuern: was jede Einstellung bewirkt, wer sie ändern darf und wo Sie sie finden.
+Die Workspace-Einstellungen umfassen alles, was den ganzen Workspace betrifft und nicht einen einzelnen Datensatz: das Team mit seinen Berechtigungen, den Plan, das Aktivitätsprotokoll und ausgehende Webhooks.
 
-## Was liegt unter Mein Unternehmen? [#what-lives-on-the-company-screen]
+## Wo finde ich die Workspace-Einstellungen? [#what-lives-on-the-company-screen]
 
-Die workspace-weite Administration: das Abonnement (nur Cloud), das Team mit seinen Berechtigungen, ausgehende Webhooks mit ihrer Zustellungshistorie und der Audit-Trail. Alles, was den ganzen Workspace betrifft und nicht einen einzelnen Datensatz, liegt hier.
+Öffnen Sie **Einstellungen** über das Workspace-Menü oder drücken Sie G, dann S. Die Einstellungsnavigation fasst unter **Workspace** diese Seiten zusammen: [Mitglieder](app:company/members), [Rollen](app:company/roles), [Abrechnung](app:company/subscription) (nur Cloud), [Aktivität](app:company/activity) und [Webhooks](app:company/webhooks). **Zurück** bringt Sie zu Ihrer Arbeit.
 
-In der Sidebar steht **Mein Unternehmen** (`#nav-company`) in der Gruppe **Workspace** neben **Mein Profil**. Der Eintrag ist ein Umschalter: Ein Klick klappt die Liste seiner Seiten auf oder zu und öffnet selbst keine Seite. Beim Aufklappen schließt sich die andere aufgeklappte Gruppe, und solange Sie auf einer seiner Seiten sind, ist er von selbst geöffnet. Jede Seite hat ihre eigene Route, und die Adresse im Browser stellt ihr die Sprache voran (Beispiel: `/de/company/members`). Die Breadcrumb-Navigation zeigt **Mein Unternehmen** › Seitenname; der erste Teil öffnet die erste Seite, die Sie sehen dürfen, der zweite wechselt zwischen den Nachbarseiten.
+Ihre Rolle bestimmt, was Sie sehen. Eine Seite, die Ihre Rolle nicht lesen darf, fehlt in der Navigation, und ein direkter Aufruf landet auf dem [Dashboard](app:dashboard). Auf einer Seite, die Sie lesen, aber nicht ändern dürfen, fehlen **Hinzufügen**, **Speichern** und **Löschen**, und Dialoge öffnen schreibgeschützt. Rollenänderungen gelten beim nächsten Seitenaufruf oder API-Aufruf des Mitglieds. Die eingebaute Rolle **Admin** sieht und ändert alles.
 
-Routen sind relativ und ohne Sprachpräfix: Sie gelten auf der Adresse, unter der der Workspace läuft, und die App ergänzt die Sprache des Nutzers, sodass `/company/subscription` auf Deutsch `/de/company/subscription` öffnet. Für einen vollständigen Link setzen Sie die Route hinter den Ursprung der `url`, die `search_docs`, `get_docs_page` und `fetch` zurückgeben; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz. `highlight_element` von Mate nimmt außerdem jedes Navigationsziel an: `nav-company` zeigt auf den Umschalter **Mein Unternehmen**, jedes andere auf den Sidebar-Eintrag seiner Seite. Ein Sidebar-Eintrag lässt sich nur hervorheben, solange **Mein Unternehmen** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat. **Hinzufügen**-Ziele gibt es nur für Rollen, die dort erstellen dürfen, und die Layout-Ziele nur, solange die Anzeigeoptionen geöffnet sind. Abrechnungsziele erscheinen nur für Rollen mit **Unternehmen** **Bearbeiten**, und ein Dialogziel nur, solange sein Dialog geöffnet ist: Öffnet ein Control den Dialog, ist es die Voraussetzung des Ziels, und Mate bittet darum, es zuerst zu öffnen. Öffnet eine Zeile den Dialog, nennt `list_ui_targets` diese Zeile als Voraussetzung (zum Beispiel `a member row`); Zeilen haben kein Ziel, deshalb bittet Mate darum, die Zeile anzuklicken.
+| Seite | Zum Öffnen nötig |
+|---|---|
+| Mitglieder, Rollen | **Benutzer & Rollen** mit Leserecht **Alle** (**Zugewiesen** zeigt Mitglieder nur mit Ihrer eigenen Zeile) |
+| Plan | Jedes Mitglied; die Abrechnungs-Controls erfordern **Unternehmen** **Bearbeiten** |
+| Aktivität | **Audit-Log** mit Leserecht **Alle** |
+| Webhooks | **API & Webhooks** mit Leserecht **Alle** |
 
-Abonnement gibt es nur in der Cloud. Aktivität erfordert Leserecht **Alle** auf **Audit-Log**, Webhooks und Letzte Zustellungen erfordern Leserecht **Alle** auf **API & Webhooks**. Das Leserecht für **Benutzer & Rollen** bestimmt, ob Mitglieder und Rollen erscheinen: **Zugewiesen** beschränkt die Mitgliederliste auf die eigene Zeile, **Keine** blendet beide Seiten aus. Das Abonnement ist für jede Rolle sichtbar, die mit einer Zeile **Unternehmen** gespeichert wurde, was der Rolleneditor immer tut; Änderungen erfordern **Unternehmen** **Bearbeiten**. Anlegen, Bearbeiten und Löschen erfordern die passende Checkbox **Erstellen**, **Bearbeiten** oder **Löschen** in der Zeile der Seite. Die eingebaute Rolle **Admin** sieht und ändert alles.
+Ändern sich in der Cloud die AGB oder der AVV, sehen Mitglieder **Rechtsdokumente aktualisiert** mit **AGB und AVV prüfen** und dem Datum, bis zu dem zugestimmt werden muss. Zustimmen kann nur ein Mitglied mit der Rolle **Admin**, indem es das Kontrollkästchen setzt und **Akzeptieren und fortfahren** klickt; alle anderen sehen, dass ein Unternehmensadministrator bis zu diesem Datum zustimmen muss. Stimmt niemand rechtzeitig zu, öffnet jede Seite diesen Bildschirm, bis ein Admin zustimmt.
 
-| Seite | Route | Navigationsziel | Highlight-Ziele auf der Seite | Erklärt in |
-|---|---|---|---|---|
-| **Abonnement** | `/company/subscription` | `nav-company-subscription` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Abonnement](#subscription-tab) |
-| **Mitglieder** | `/company/members` | `nav-company-members`, auch `nav-company` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Benutzer einladen** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **Benutzer** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-cancel` | [Mitglieder](#members-tab) |
-| **Rollen** | `/company/roles` | `nav-company-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board`; im Editor `role-modal-save`, `role-modal-cancel`, `role-modal-delete` | [Rollen](#roles-tab) |
-| **Aktivität** | `/company/activity` | `nav-company-activity` | Keine | [Aktivität](#activity-tab) |
-| **Webhooks** | `/company/webhooks` | `nav-company-webhooks` | `company-webhooks-add`, `company-webhooks-search`, `company-webhooks-filter`, `company-webhooks-display-options`, `company-webhooks-layout-table`, `company-webhooks-layout-board`; im Dialog `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template`, `webhook-modal-enabled`, `webhook-modal-save`, `webhook-modal-cancel`, `webhook-modal-delete` | [Webhooks](#webhooks-tab) |
-| **Letzte Zustellungen** | `/company/webhook-deliveries` | `nav-company-webhook-deliveries` | `company-webhook-deliveries-search`, `company-webhook-deliveries-filter`, `company-webhook-deliveries-display-options`, `company-webhook-deliveries-layout-table`, `company-webhook-deliveries-layout-board`; in **Ereignis-Details** `webhook-delivery-modal-resend` | [Letzte Zustellungen](#deliveries-tab) |
-| **Abonnement erforderlich** | `/subscription-expired` | Keines | Keine, Mate ist dort nicht verfügbar | [Ende der Testphase oder ausbleibende Zahlung](#what-happens-when-the-trial-ends-or-a-payment-fails) |
-| **Rechtsdokumente aktualisiert** | `/legal-update` | Keines | Keine, Mate ist dort nicht verfügbar | [Mitglieder ohne Berechtigung](#what-does-a-member-without-a-permission-see) |
+## Mitglieder [#members-tab]
 
-### Was sieht ein Mitglied ohne Berechtigung? [#what-does-a-member-without-a-permission-see]
+[Mitglieder](app:company/members) listet alle Personen im Workspace mit **Name**, **E-Mail**, **Rolle**, **Status**, **Aktualisiert am** und **Erstellt am**. [Suchen](app:company/members?focus=search) und [filtern](app:company/members?focus=filter) Sie nach Status und Datum. Einladen erfordert **Benutzer & Rollen** **Erstellen**; andere genehmigen und bearbeiten erfordert **Benutzer & Rollen** **Bearbeiten** mit Leserecht **Alle**.
 
-Ein Mitglied ohne Berechtigung sieht weniger Seiten und Controls:
+### Wie lade ich Personen ein, und wie lange gilt der Einladungslink? [#how-do-invitations-work]
 
-- Eine Seite, die die Rolle nicht lesen darf, fehlt in der Sidebar, und wer ihre URL direkt öffnet, landet auf dem **Dashboard**.
-- Auf einer Seite, die die Rolle lesen, aber nicht ändern darf, fehlt **Hinzufügen** ohne **Erstellen**, haben Formulare und Dialoge ohne die Aktion, die das Speichern braucht, weder **Speichern** noch **Abbrechen** oder **Zurücksetzen**, fehlt **Löschen** ohne **Löschen**, und Formulare und Dialoge öffnen sich schreibgeschützt.
-- In der Cloud zeigt jede Seite stattdessen **Abonnement erforderlich**, solange das Abonnement unbezahlt oder abgelaufen ist oder die Testphase vorbei ist; siehe [was passiert, wenn die Testphase endet](#what-happens-when-the-trial-ends-or-a-payment-fails).
-- Ändern sich in der Cloud die AGB oder der AVV, zeigt die Sidebar **Rechtsdokumente aktualisiert** mit **AGB und AVV prüfen** und dem Datum, bis zu dem zugestimmt werden muss. Zustimmen kann nur ein Mitglied mit der Rolle **Admin**, auf dem Screen **Rechtsdokumente aktualisiert** (`/legal-update`), indem es das Kontrollkästchen bestätigt und **Akzeptieren und fortfahren** klickt; alle anderen sehen "Ein Unternehmensadministrator muss bis zum" genannten Datum akzeptieren. Stimmt niemand rechtzeitig zu, öffnet jede Seite diesen Bildschirm, bis ein Admin zustimmt.
-- Rollenänderungen gelten beim nächsten Seitenaufruf oder API-Aufruf des Mitglieds.
+Klicken Sie auf Mitglieder auf [Hinzufügen](app:company/members?focus=add) (oder **Mitglieder einladen** im Workspace-Menü). Der Dialog **Benutzer einladen** hat zwei Tabs:
 
-**Link:** `/dashboard`, wohin eine Seite führt, die die Rolle nicht lesen darf, und `/legal-update` für **Rechtsdokumente aktualisiert**, die sich nur öffnet, solange eine Zustimmung aussteht. **Mate:** `navigate` und `highlight_element` mit `nav-dashboard` für das Dashboard; **Rechtsdokumente aktualisiert** hat kein Ziel, und Mate ist dort nicht verfügbar, kann also nur den Link nennen; das Kontrollkästchen `#legal-acceptance` ist eine Element-Id, die Mate nicht hervorheben kann.
+- **Link teilen** zeigt einen **Einladungslink** für den ganzen Workspace mit Kopier-Button. Er gilt 7 Tage ("Läuft am" mit Datum ab) und wird bis dahin wiederverwendet; öffnet sich der Dialog nach Ablauf zum ersten Mal, entsteht ein neuer Link. Jeder mit dem Link kann sich registrieren, und er lässt sich nicht vorzeitig widerrufen.
+- **E-Mails senden** nimmt 1 bis 20 Adressen an, getrennt durch Komma oder Enter. **Einladungen senden** schickt jeder Adresse den Workspace-Link einmal und bestätigt mit der Anzahl der gesendeten Einladungen.
 
-## Seite Abonnement: Tarif und Abrechnung [#subscription-tab]
+Wer sich registriert, tritt mit dem Status **Wartet auf Genehmigung** und ohne Rolle bei und sieht **Warten auf Genehmigung**, bis jemand genehmigt. Jede Registrierung legt außerdem in [Aufgaben](app:records/task) eine Genehmigungsaufgabe für Mitglieder an, deren Leserecht auf **Aufgaben** **Alle** ist; sie verschwindet, sobald das Mitglied genehmigt oder auf Inaktiv gesetzt ist. Ein abgelaufener oder veränderter Link zeigt einen Fehler mit der Bitte, einen neuen anzufordern.
 
-Der Link zur Abrechnung ist die Seite **Abonnement**: Sie zeigt Tarif, Status, Nutzerplätze und Abrechnung des Workspace. Route `/company/subscription`, Sidebar-Id `#nav-company-subscription` (**Abonnement**), nur Cloud: Auf einer Self-Hosted-Installation ist der Eintrag ausgeblendet, die URL leitet zum Dashboard um, und es gibt kein Abonnement. Jedes Mitglied kann die Seite öffnen. Wer die Abrechnungselemente nutzen darf, steht unter [Wer darf die Abrechnung verwalten?](#who-can-manage-billing). Customermates rechnet über Lemon Squeezy ab, den Zahlungsanbieter hinter Checkout und Kundenportal.
+### Wie genehmige, bearbeite, deaktiviere oder entferne ich ein Mitglied? [#how-do-i-approve-deactivate-or-edit-a-member]
+
+Klicken Sie in [Mitglieder](app:company/members) auf die Zeile des Mitglieds, um den Dialog **Benutzer** zu öffnen: **E-Mail** (schreibgeschützt), **Vorname**, **Nachname**, **Land** und **Rolle** (Pflicht), **Avatar-URL** (optional, ein öffentlich erreichbares Bild) und **Status**.
+
+- **Genehmigen:** Wählen Sie eine **Rolle**, setzen Sie **Status** auf **Aktiv** und klicken Sie **Speichern**. Das Mitglied kann sich sofort anmelden und zählt als abgerechneter Nutzerplatz.
+- **Entfernen:** Mitglieder lassen sich nicht löschen; setzen Sie **Status** auf **Inaktiv**. Das sperrt die Anmeldung ("Dein Konto ist derzeit inaktiv. Kontaktiere deinen Administrator, um dein Konto zu reaktivieren."), die API-Keys und MCP-Verbindungen des Mitglieds, entfernt den Nutzerplatz aus der Abrechnung, pausiert seine Routinen, und der tägliche Job löscht seine verbundenen Messaging-Konten. **Wartet auf Genehmigung** lässt sich nicht wählen; nur eine Einladung setzt diesen Status.
+- Ihre eigene Zeile öffnet schreibgeschützt: Ihren Namen ändern Sie unter [Profil & Einstellungen](app:profile/settings), Ihre Rolle oder Ihren Status ändert ein anderes Mitglied mit **Benutzer & Rollen** **Bearbeiten**.
+- Der Workspace behält immer mindestens ein **Aktives** Mitglied mit der Rolle **Admin**; ein Speichern, das das letzte entfernen würde, schlägt mit "Mindestens ein Nutzer muss Systemadministrator sein." fehl.
+
+Jedes Speichern wird in [Aktivität](app:company/activity) festgehalten.
+
+## Rollen [#roles-tab]
+
+Eine Rolle ist ein Satz von Berechtigungen, den jedes Mitglied mit dieser Rolle erhält. [Rollen](app:company/roles) listet sie mit **Name**, **Typ** (**System** für die eingebaute Rolle **Admin**, **Benutzerdefiniert** für alle anderen) und **Beschreibung**. Anlegen erfordert **Benutzer & Rollen** **Erstellen**, Bearbeiten **Bearbeiten**, Löschen **Löschen**.
+
+### Wie lege ich eine eigene Rolle an, etwa um ein Mitglied auf zugewiesene Datensätze zu beschränken? [#how-does-the-role-editor-work]
+
+Klicken Sie auf [Hinzufügen](app:company/roles?focus=add) oder zum Bearbeiten auf eine Zeile. Der Editor **Rolle** hat drei Tabs; ein Tab mit einem ungültigen Feld zeigt einen roten Punkt:
+
+- **Allgemein**: **Name** (Pflicht, bis 255 Zeichen) und **Beschreibung** (Pflicht, bis 500 Zeichen).
+- **Workspace**: eine Zeile je Workspace-Berechtigung in der Spalte **Ressource**.
+- **Datensatztypen**: eine Zeile je Liste unter ihrem aktuellen Namen. Listen in **Zuletzt gelöscht** erscheinen nicht. Neue Rollen starten ohne Zugriff auf Datensätze; vergeben Sie nur die Listen, die sie brauchen. Unterlisten wie Positionen teilen den Zugriff ihres übergeordneten Datensatzes und haben keine eigene Zeile.
+
+Jede Zeile hat die Kontrollkästchen **Erstellen**, **Bearbeiten** und **Löschen** (auf schmalen Bildschirmen unter **Verwalten**) und **Lesen**: **Alle** (alles, was die Zeile abdeckt), **Zugewiesen** (dem Mitglied zugewiesene Datensätze oder seine eigene Mitgliedszeile oder Routinen) oder **Keine**. Eine Zelle, die nicht zutrifft, zeigt einen Strich. Datensätze bearbeiten oder löschen erfordert zusätzlich Zugriff auf den jeweiligen Datensatz.
+
+| Workspace-Zeile | Was sie steuert |
+|---|---|
+| **API & Webhooks** | **Erstellen** legt API-Keys und Webhooks an und sendet Zustellungen erneut; **Bearbeiten** bearbeitet Webhooks und zeigt ihr Secret; **Löschen** löscht Keys und Webhooks; **Alle** zeigt Keys, Webhooks und Zustellungen. |
+| **Benutzer & Rollen** | **Erstellen** lädt Mitglieder ein und legt Rollen an (mit ihrem anfänglichen Datensatzzugriff); **Bearbeiten** bearbeitet Mitglieder, ihre Genehmigungsaufgaben und Rollen, einschließlich Datensatzzugriff und Zugriffsvorlagen; **Löschen** löscht Rollen. **Alle** zeigt alle Mitglieder und die Rollen, **Zugewiesen** nur Ihre eigene Mitgliedszeile, **Keine** blendet beide Seiten aus. |
+| **Unternehmen** | Nur **Bearbeiten**: nutzt die Abrechnung unter [Abrechnung](app:company/subscription). |
+| **Datenmodell** | Nur **Bearbeiten**: konfiguriert Listen, Felder, Verknüpfungen und Berechnungen, ohne Datensatzzugriff oder Rollenverwaltung. |
+| **Wissensdatenbank** | **Erstellen**, **Bearbeiten** (und Verschieben), **Löschen** von Seiten; jedes davon erzwingt **Alle**. |
+| **Audit-Log** | Nur Lesen: [Aktivität](app:company/activity) und der Änderungsverlauf an Datensätzen. |
+| **Inbox-Nachrichten** (Cloud) | **Erstellen** verbindet Konten und sendet, entwirft und beginnt Unterhaltungen; **Bearbeiten** ändert Konten, Threads, Unterhaltungsstatus und Datensatzverknüpfungen; **Löschen** trennt Konten und verwirft Entwürfe. Zusätzlich durch den Plan begrenzt. |
+| **Routinen** (Cloud) | **Erstellen**, **Bearbeiten** (und jetzt ausführen oder testen), **Löschen**; eine Routine löschen oder die eines anderen pausieren erfordert zusätzlich die Rolle **Admin**. **Alle** oder **Zugewiesen** (eigene Routinen). |
+
+Eine neue Rolle, einen neuen Webhook oder eine neue Routine speichern erfordert **Erstellen**, eine bestehende **Bearbeiten**. Zugriffsvorlagen legen Mitglieder mit **Benutzer & Rollen** **Bearbeiten** fest; wer das Datenmodell verwaltet, kann eine Vorlage nur beim Anlegen einer Liste anwenden, und Zugriffe auf bestehende Listen erweitert nur **Benutzer & Rollen** **Bearbeiten**. Inbox-Nachrichten und Routinen sind bei selbst gehosteten Installationen ausgeblendet.
+
+### Was ist die Rolle Admin? [#what-is-the-admin-role]
+
+Jeder Workspace startet mit einer eingebauten Rolle, **Admin**, die die Person erhält, die ihn angelegt hat. Sie besteht jede Berechtigungsprüfung, und ihr Editor öffnet schreibgeschützt mit "Dies ist eine System-Rolle und kann nicht bearbeitet oder gelöscht werden." Der Workspace muss mindestens ein **Aktives** Mitglied mit dieser Rolle behalten, und nur ihre Mitglieder können Routinen löschen oder die Routine eines anderen pausieren.
+
+### Welche Regeln gelten beim Bearbeiten von Rollen? [#what-are-the-rules-for-editing-roles]
+
+- Ihre eigene Rolle können Sie nicht bearbeiten: Ihr Editor zeigt "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern."
+- **Löschen** erscheint nur bei einer benutzerdefinierten Rolle, die kein Mitglied hat, inaktive eingeschlossen. Verschieben Sie zuerst alle auf eine andere Rolle und entfernen Sie die Rolle aus Zugriffsvorlagen.
+- Änderungen gelten für jedes Mitglied mit der Rolle beim nächsten Seitenaufruf oder API-Aufruf und werden in [Aktivität](app:company/activity) festgehalten.
+
+## Plan [#subscription-tab]
+
+[Abrechnung](app:company/subscription) zeigt Tarif, Status, Nutzerplätze und Abrechnung eines Cloud-Workspace; selbst gehostete Installationen haben keinen Plan, und die Seite leitet zum Dashboard um. Customermates rechnet über Lemon Squeezy ab, das Checkout und Kundenportal betreibt.
 
 | Feld | Was es zeigt |
 |---|---|
-| **Plan** | Den aktuellen Tarif, **Starter**, **Pro**, **Business** oder **Enterprise**, mit einem Status-Chip. Schreibgeschützt: Er wird mit der Abrechnung synchronisiert und ändert sich über die Tarifauswahl oder das Kundenportal. |
-| **Testphase endet** | Das Enddatum der kostenlosen Testphase. Nur sichtbar, solange der Status **Testphase** ist. |
-| **Ende des aktuellen Abrechnungszeitraums** | Das Ende des laufenden Abrechnungszeitraums, synchronisiert von Lemon Squeezy: das Verlängerungsdatum oder nach einer Kündigung das Datum, an dem das Abonnement endet. Sichtbar, sobald die Abrechnung es gesetzt hat. |
-| **Aktive Nutzerplätze** | Die Zahl der abgerechneten Nutzerplätze. Vor dem ersten Checkout zeigt sie die Zahl der Mitglieder mit Status **Aktiv**. Der Hinweis darunter lautet „Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet.“ |
+| **Plan** | **Starter**, **Pro**, **Business** oder **Enterprise** mit Status-Chip, aus der Abrechnung synchronisiert |
+| **Testphase endet** | Das Ende der kostenlosen Testphase, nur im Status **Testphase** |
+| **Ende des aktuellen Abrechnungszeitraums** | Das Verlängerungsdatum, nach einer Kündigung das Enddatum des Abonnements |
+| **Aktive Nutzerplätze** | Abgerechnete Nutzerplätze; vor dem ersten Checkout die Zahl der **Aktiven** Mitglieder |
 
-Die obere Leiste enthält **Aktualisieren** (`#company-subscription-refresh`) und **Verwalten mit Lemon Squeezy** (`#company-subscription-manage`), und die Tarifauswahl unter den Feldern trägt `#company-subscription-plan-picker`. Tarifpreise und Kontingente stehen unter [Welche Tarife gibt es?](#which-plans-are-there), die Credits für die gehostete KI je Tarif unter [Wie viele Credits enthält jeder Tarif?](/docs/app-assistant#plans-and-credits).
-
-**Link:** der Link zur Seite **Abonnement**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`; `highlight_element` nimmt außerdem `company-subscription-refresh`, `company-subscription-manage` und `company-subscription-plan-picker` an, jeweils nur für Rollen mit **Unternehmen** **Bearbeiten** sichtbar, und nur im Abonnementstatus, der sie anbietet. Die Felder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Selbstgehostet bietet `list_ui_targets` die Ziele weiterhin an, die Seite leitet aber zum Dashboard um.
+Das Workspace-Menü zeigt den Tarif mit seinem Status, etwa **Pro · Testphase · noch 3 Tage**, und öffnet Abrechnung.
 
 ### Wer darf die Abrechnung verwalten? [#who-can-manage-billing]
 
-Nur Rollen mit angehaktem **Unternehmen** **Bearbeiten** sowie die Rolle **Admin** sehen die Abrechnungselemente: die Tarifauswahl, **Verwalten mit Lemon Squeezy** und **Aktualisieren**. Alle anderen sehen die Werte schreibgeschützt mit dem Hinweis, eine Workspace-Administration zu fragen. Die Zeile **Unternehmen** der Rolle wird unter **Mein Unternehmen › Rollen** gesetzt.
-
-**Link:** `/company/subscription`, und für die Zeile **Unternehmen** der Rolle `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription` oder `nav-company-roles`; die Zeilen der Rollen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Auf [Abrechnung](app:company/subscription) sehen Rollen mit **Unternehmen** **Bearbeiten** und die Rolle **Admin** die Tarifauswahl, **Verwalten mit Lemon Squeezy** und **Aktualisieren**. Alle anderen sehen die Werte schreibgeschützt mit dem Hinweis, eine Workspace-Administration zu fragen. Die Zeile **Unternehmen** setzen Sie unter [Rollen](app:company/roles).
 
 ### Was bedeuten die Abo-Status? [#what-does-each-subscription-status-mean]
 
-Der Status-Chip neben **Plan** zeigt einen von sechs Status. Die App setzt **Testphase**, wenn ein Cloud-Workspace angelegt wird; jeder andere Status kommt von Lemon Squeezy oder aus einer Korrektur durch den Customermates-Support. Im Workspace kann ihn niemand setzen.
+**Testphase** setzt die App beim Anlegen eines Cloud-Workspace; jeder andere Status kommt von Lemon Squeezy oder vom Customermates-Support.
 
-| Status | Bedeutung | Auswirkung auf den Workspace |
-|---|---|---|
-| **Testphase** | Die kostenlose Testphase: [[commercial.trial.days]] Tage mit Pro-Funktionen ab der Registrierung | Alles funktioniert bis **Testphase endet** |
-| **Aktiv** | Bezahlt und aktuell | Alles, was der Tarif enthält, funktioniert |
-| **Überfällig** | Lemon Squeezy meldet eine überfällige Zahlung | Die Seiten bleiben offen, aber Posteingang und Messaging, das Verbinden von Kanälen, geteilte Konten und der gehostete Assistent werden abgelehnt, und die Credits für die gehostete KI fallen auf 0 |
-| **Gekündigt** | Das Abonnement wurde gekündigt | Wie Überfällig |
-| **Unbezahlt** | Lemon Squeezy meldet das Abonnement als unbezahlt | Jede Seite leitet zu **Abonnement erforderlich** um |
-| **Abgelaufen** | Das Abonnement ist beendet | Jede Seite leitet zu **Abonnement erforderlich** um |
+| Status | Wirkung |
+|---|---|
+| **Testphase** | [[commercial.trial.days]] Tage mit Pro-Funktionen; alles funktioniert bis **Testphase endet** |
+| **Aktiv** | Bezahlt; alles im Tarif Enthaltene funktioniert |
+| **Überfällig**, **Gekündigt** | Seiten bleiben offen, aber Posteingang und Messaging, das Verbinden von Kanälen, geteilte Konten und der gehostete Assistent werden abgelehnt, und die gehosteten KI-Credits fallen auf 0 |
+| **Unbezahlt**, **Abgelaufen** | Jede Seite zeigt **Abonnement erforderlich** |
 
-Eine Testphase, deren Enddatum ohne Checkout verstrichen ist, gilt ebenfalls als abgelaufen. Abgelehnte Aktionen bei Messaging und Kanälen melden „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“ Der gehostete Assistent wird dagegen abgeschaltet, sodass **Mate fragen** aus der Sidebar verschwindet.
+Eine Testphase nach ihrem Enddatum ohne Checkout gilt ebenfalls als abgelaufen. Abgelehnte Kanalaktionen zeigen "Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase."
 
-Der Chip unter dem Namen Customermates in der Sidebar zeigt den Tarifnamen, solange der Status **Aktiv** ist, sonst den Tarif mit seinem Status, zum Beispiel **Pro · Testphase · noch 3 Tage**, **noch 1 Tag** oder **endet heute**. Er ist grün, wird bei 3 oder weniger Testtagen gelb und ist bei jedem anderen Status rot. Ein Klick öffnet **Mein Unternehmen › Abonnement**. Self-Hosted-Installationen zeigen keinen Chip.
-
-**Link:** `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`; der Status-Chip und der Tarif-Chip in der Sidebar sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
-
-### Welche Tarife gibt es, und welche Preise haben sie? [#which-plans-are-there]
-
-Customermates Cloud hat vier Tarife, **Starter**, **Pro**, **Business** und **Enterprise**, und eine kostenlose Testphase von [[commercial.trial.days]] Tagen mit Pro-Funktionen.
+### Welche Tarife gibt es, und was kosten sie? [#which-plans-are-there]
 
 | Tarif | Preis pro Nutzerplatz und Monat | Verbundene Konten pro Nutzer | Routinen pro Nutzer | Posteingang und Messaging | Geteilte Konten |
 |---|---|---|---|---|---|
@@ -89,269 +120,87 @@ Customermates Cloud hat vier Tarife, **Starter**, **Pro**, **Business** und **En
 | Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Ja | Ja |
 | Enterprise | Auf Anfrage | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Ja | Ja |
 
-Jeder Tarif enthält das vollständige CRM, das Audit-Log, die API, den MCP-Server und den gehosteten Assistenten. Starter, Pro und Business werden monatlich pro Nutzerplatz in Euro abgerechnet; einen anderen Abrechnungszeitraum gibt es nicht. Credits für gehostete KI pro aktivem Nutzer und Monat: Starter 200, Pro 500, Business 1.200, Enterprise nach Vertrag und 500 während der Testphase. Jede Anfrage wird mit ihren genauen Anbieterkosten abgerechnet und auf eine Nachkommastelle angezeigt; siehe [Wie viele Credits enthält jeder Tarif?](/docs/app-assistant#plans-and-credits).
+Jeder Tarif enthält das vollständige CRM, das Aktivitätsprotokoll, die API, den MCP-Server und den gehosteten Assistenten. Starter, Pro und Business werden monatlich pro Nutzerplatz in Euro abgerechnet; einen anderen Abrechnungszeitraum gibt es nicht. Gehostete KI-Credits pro aktivem Nutzer und Monat: Starter 200, Pro 500, Business 1.200, Enterprise laut Vertrag, 500 in der Testphase; siehe [Tarife und Credits](/docs/app-assistant#plans-and-credits).
 
-**Link:** `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, danach `highlight_element` mit `company-subscription-plan-picker` für die Tarifkarten, solange die Tarifauswahl angezeigt wird; das Ziel umrahmt alle Karten, deshalb nennt Mate den Tarif beim Namen.
+### Wie wähle oder wechsle ich einen Tarif? [#how-do-i-choose-or-change-a-plan]
 
-### Wie wähle oder wechsle ich einen Tarif, etwa für ein Upgrade? [#how-do-i-choose-or-change-a-plan]
+Vor dem ersten Checkout (in der Praxis während der Testphase) zeigt die [Tarifauswahl](app:company/subscription?focus=plan-picker) Karten für **Starter**, **Pro** und **Business** (**Am beliebtesten**) mit Preis, Funktionen, verbundenen Konten, Routinen und KI-Credits pro Nutzer. Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie es **Aktive** Mitglieder gibt. Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind; nach der Zahlung kehren Sie zu Plan zurück, der sich aktualisiert, sobald Lemon Squeezy bestätigt.
 
-Um einen Tarif zu wählen oder zu wechseln, auch für ein Upgrade, nutzen Sie die Tarifauswahl oder nach dem ersten Checkout **Verwalten mit Lemon Squeezy**. Solange der Workspace noch kein Lemon-Squeezy-Abonnement hat, in der Praxis also während der Testphase, sehen Rollen mit **Unternehmen** **Bearbeiten** unter den Feldern die Tarifauswahl: Karten für **Starter**, **Pro** und **Business**, die letzte mit **Am beliebtesten** markiert. Jede Karte zeigt den Preis pro Nutzer und Monat, die Funktionen, die verbundenen Konten pro Nutzer (die Zeile entfällt, wenn ein Tarif keine verbundenen Konten enthält, wie bei Starter), die Routinen pro Nutzer sowie die Credits für die gehostete KI pro aktivem Nutzer und Monat.
-
-Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie der Workspace Mitglieder mit Status **Aktiv** hat. Nach der Zahlung führt Lemon Squeezy Sie auf die Seite **Abonnement** zurück, und Tarif, Status und Nutzerplätze aktualisieren sich, sobald Lemon Squeezy die Zahlung bestätigt. Der Checkout fügt keine zweite Testphase hinzu: Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind.
-
-Nach dem ersten Checkout erscheint die Tarifauswahl nicht von selbst wieder; den Tarif wechseln Sie dann über **Verwalten mit Lemon Squeezy**. Enterprise-Workspaces sehen die Auswahl nie, und ein Checkout wird mit „Enterprise-Workspaces werden manuell abgerechnet und können keinen Self-Service-Checkout starten.“ abgelehnt.
-
-**Link:** `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, danach `highlight_element` mit `company-subscription-plan-picker`, solange die Tarifauswahl angezeigt wird; das Ziel umrahmt alle drei Karten, deshalb nennt Mate die Karte, die Sie anklicken. Nach dem ersten Checkout zeigt `company-subscription-manage` stattdessen auf **Verwalten mit Lemon Squeezy**.
+Nach dem ersten Checkout erscheint die Auswahl nicht wieder: Wechseln Sie den Tarif über [Verwalten mit Lemon Squeezy](app:company/subscription?focus=manage). Enterprise-Workspaces sehen die Auswahl nie.
 
 ### Wie kündige ich, ändere die Zahlungsmethode oder erhalte Rechnungen? [#how-do-i-cancel-change-the-payment-method-or-get-invoices]
 
-Nutzen Sie **Verwalten mit Lemon Squeezy** in der oberen Leiste, auf schmalen Bildschirmen nur als Lemon-Squeezy-Symbol. Der Button erscheint für Rollen mit **Unternehmen** **Bearbeiten**, sobald der Workspace ein Self-Service-Abonnement bei Lemon Squeezy hat, also nicht während einer Testphase vor dem Checkout und nie bei Enterprise. Er öffnet das Kundenportal von Lemon Squeezy für das Abonnement des Workspace, den Ort für die Abrechnung: Für den Tarifwechsel, die Aktualisierung der Zahlungsmethode, den Abruf von Rechnungen und die Kündigung ist das Portal da. Ein Klick auf den Button holt den Portal-Link in diesem Moment und öffnet das Portal im selben Tab. Hat Lemon Squeezy kein Portal für das Abonnement, zeigt die Seite „Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.“
+Klicken Sie auf [Verwalten mit Lemon Squeezy](app:company/subscription?focus=manage). Der Button erscheint, sobald der Workspace ein Self-Service-Abonnement hat (nicht während einer Testphase vor dem Checkout, nie bei Enterprise), und öffnet das Lemon-Squeezy-Kundenportal im selben Tab. Dort wechseln Sie den Tarif, ändern die Zahlungsmethode, laden Rechnungen herunter und kündigen. Gibt es kein Portal, meldet die Seite, dass das Abrechnungsportal für diesen Workspace nicht verfügbar ist und Änderungen über den Support laufen.
 
-Änderungen im Portal erreichen Customermates automatisch. Zeigt die Seite noch alte Werte, liest **Aktualisieren** das Abonnement erneut von Lemon Squeezy (Status, Tarif, Nutzerplätze und Daten) und bestätigt mit „Abonnement erfolgreich aktualisiert“. Der Button erscheint für dieselben Rollen, sobald der Workspace ein Abonnement bei Lemon Squeezy hat, außer während einer Testphase und bei Enterprise. Sobald Lemon Squeezy eine Kündigung meldet, zeigt der Status **Gekündigt**: Wie bei **Überfällig** werden Posteingang und Messaging, das Verbinden von Kanälen, geteilte Konten und der gehostete Assistent abgelehnt. Ein Tarif mit weniger verbundenen Konten entfernt Konten; siehe [Tarifwechsel](#what-happens-to-connected-accounts-when-the-plan-changes).
-
-Mitglieder ohne **Unternehmen** **Bearbeiten** sehen keinen der beiden Buttons. Der gehostete Assistent und MCP-Clients können Tarif, Status, Nutzerplätze oder andere Abrechnungsdaten weder lesen noch ändern.
-
-**Link:** `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, danach `highlight_element` mit `company-subscription-manage` für **Verwalten mit Lemon Squeezy** oder `company-subscription-refresh` für **Aktualisieren**; beide erscheinen nur für Rollen mit **Unternehmen** **Bearbeiten** und für die Rolle **Admin**, **Verwalten mit Lemon Squeezy** erst, wenn der Workspace ein Self-Service-Abonnement bei Lemon Squeezy hat, und **Aktualisieren**, sobald er ein Abonnement bei Lemon Squeezy hat, außerhalb der Testphase, keiner von beiden bei Enterprise.
+Änderungen im Portal erreichen Customermates automatisch. Zeigt Plan noch alte Werte, liest [Aktualisieren](app:company/subscription?focus=refresh) Status, Tarif, Nutzerplätze und Daten neu ein ("Abonnement erfolgreich aktualisiert"). Eine Kündigung erscheint als **Gekündigt**, mit denselben Einschränkungen wie **Überfällig**.
 
 ### Wie werden Nutzerplätze gezählt und abgerechnet? [#how-are-seats-counted-and-billed]
 
-Ein Nutzerplatz ist ein Mitglied mit Status **Aktiv**. Mitglieder mit Status **Wartet auf Genehmigung** oder **Inaktiv** werden nicht berechnet. Der Checkout übernimmt die Zahl der aktiven Mitglieder in diesem Moment. Danach schickt jede Statusänderung unter **Mitglieder** oder über `manage_team` die neue Zahl aktiver Mitglieder sofort an Lemon Squeezy, und laut Hinweis in der App werden Änderungen an den Nutzerplätzen anteilig mit der nächsten Rechnung verrechnet. Enterprise-Nutzerplätze werden nicht mit der Abrechnung synchronisiert.
+Ein Nutzerplatz ist ein Mitglied mit dem Status **Aktiv**; Mitglieder mit **Wartet auf Genehmigung** oder **Inaktiv** werden nicht abgerechnet. Der Checkout übernimmt die Zahl in diesem Moment, und jede spätere Statusänderung unter [Mitglieder](app:company/members) schickt die neue Zahl sofort an Lemon Squeezy: "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet." Um die Rechnung zu senken, setzen Sie Mitglieder, die keinen Zugang mehr brauchen, auf **Inaktiv**. Enterprise-Nutzerplätze werden nicht synchronisiert.
 
-Um die Rechnung zu senken, setzen Sie Mitglieder, die keinen Zugang mehr brauchen, unter [Mitglieder](#members-tab) auf **Inaktiv**. Das pausiert auch die Routinen, die ihnen gehören, und entfernt ihre verbundenen Messaging-Konten beim nächsten täglichen Lauf.
+### Was passiert, wenn die Testphase endet oder eine Zahlung ausbleibt? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
-**Link:** `/company/subscription` für **Aktive Nutzerplätze**, und `/company/members`, um einen Status zu ändern. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription` oder `nav-company-members`; **Aktive Nutzerplätze** und die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Hat die Person eine Mitgliedszeile geöffnet, zeigt `member-modal-status` auf **Status** und `member-modal-save` auf **Speichern** (Rollen mit **Benutzer & Rollen** **Bearbeiten**).
+Solange der Status **Unbezahlt** oder **Abgelaufen** ist oder die Testphase ihr Enddatum überschritten hat, zeigt jede Seite **Abonnement erforderlich** ("Der Zugriff auf den Arbeitsbereich ist pausiert"). Rollen mit **Unternehmen** **Bearbeiten** erhalten die Tarifauswahl für einen neuen Checkout (Enterprise: einen Hinweis auf manuelle Abrechnung); alle anderen sehen, dass ein Unternehmensadministrator das Abonnement wiederherstellen muss. **Support kontaktieren** schreibt dem Support, **Erneut versuchen** lädt neu. Sobald das Abonnement wieder nutzbar ist, landen Sie auf Plan.
 
-### Was passiert, wenn die kostenlose Testphase endet oder eine Zahlung ausbleibt, und warum bin ich ausgesperrt? [#what-happens-when-the-trial-ends-or-a-payment-fails]
+Endet eine Testphase ohne Checkout, erledigt ein täglicher Job um 09:00 UTC:
 
-Ist der Status **Unbezahlt** oder **Abgelaufen** oder hat die Testphase ihr Enddatum überschritten, öffnet jede Seite **Abonnement erforderlich** (`/subscription-expired`) mit dem Untertitel **Der Zugriff auf den Arbeitsbereich ist pausiert**. **Überfällig** und **Gekündigt** sperren die Seiten nicht. Was die Seite anbietet, hängt von der Rolle ab:
+1. innerhalb des ersten Tages eine E-Mail mit dem Angebot, die Testphase zu verlängern,
+2. nach einem Tag das Löschen aller verbundenen Messaging-Konten,
+3. nach 3 bis 4 Tagen eine Erinnerung,
+4. nach 6 bis 7 Tagen das Setzen aller Mitglieder, Admins eingeschlossen, auf **Inaktiv** mit E-Mail. Danach kann sich niemand mehr anmelden, deshalb läuft die Wiederherstellung über den Customermates-Support.
 
-| Wer | Was die Seite anbietet |
-|---|---|
-| Rollen mit **Unternehmen** **Bearbeiten** und **Admin**, bei Starter, Pro oder Business | Die Tarifauswahl für einen neuen Checkout sowie **Support kontaktieren** |
-| Dieselben Rollen bei Enterprise | Einen Hinweis, dass der Workspace manuell abgerechnet wird, **Support kontaktieren** und **Erneut versuchen** |
-| Alle anderen | „Ein Unternehmensadministrator muss das Abonnement wiederherstellen.“, **Support kontaktieren** und **Erneut versuchen** |
+Ein bezahlter Workspace, der 3 Tage lang **Unbezahlt** oder **Abgelaufen** bleibt, hat alle Mitglieder auf **Inaktiv** gesetzt, und ihre verbundenen Konten werden gelöscht. Bis dahin ist nur die Web-App pausiert: API-Keys und MCP-Verbindungen arbeiten weiter und Webhooks feuern weiter, während Messaging, Kanäle und der gehostete Assistent sofort stoppen.
 
-**Support kontaktieren** öffnet eine E-Mail an den Customermates-Support mit dem Betreff „Abonnement-Anfrage“; **Erneut versuchen** lädt die Seite neu. Sobald das Abonnement wieder nutzbar ist, leitet die Seite zu **Mein Unternehmen** › **Abonnement** weiter. Solange sie angezeigt wird, prüfen **Suchen**, **Mate fragen** und **Hinzufügen** in der Sidebar nur den Zugang erneut.
+### Was passiert mit verbundenen Konten bei einem Tarifwechsel? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-Ein täglicher Job um 09:00 UTC führt nach dem Ende einer Testphase ohne Checkout diese Schritte aus:
-
-1. Innerhalb des ersten Tages bietet eine E-Mail an, die Testphase zu verlängern.
-2. Nach einem Tag wird jedes verbundene Messaging-Konto im Workspace gelöscht.
-3. Nach 3 bis 4 Tagen folgt eine Erinnerungs-E-Mail.
-4. Nach 6 bis 7 Tagen wird jedes Mitglied, Administratoren eingeschlossen, auf **Inaktiv** gesetzt und per E-Mail informiert. Danach kann sich niemand mehr anmelden, und der Zugang lässt sich nur noch über den Customermates-Support wiederherstellen.
-
-Bleibt ein bezahlter Workspace 3 Tage lang **Unbezahlt** oder **Abgelaufen**, werden alle Mitglieder mit einer E-Mail auf **Inaktiv** gesetzt, und derselbe tägliche Job löscht danach ihre verbundenen Konten.
-
-Bis dahin ist nur die Web-App gesperrt. Solange die Mitglieder nicht auf **Inaktiv** gesetzt sind, lesen und ändern ihre API-Keys und MCP-Verbindungen weiterhin Datensätze, und Webhooks feuern für diese Änderungen weiter; Messaging, Kanäle und der gehostete Assistent stoppen, sobald das Abonnement nicht mehr nutzbar ist.
-
-**Link:** `/subscription-expired` für **Abonnement erforderlich**; die Seite öffnet sich nur, solange der Zugriff pausiert ist, sonst leitet sie zu `/company/subscription` um. **Mate:** kein Ziel, und Mate ist auf dieser Seite nicht verfügbar, kann also nur die URL nennen; die Tarifkarten tragen auch hier `#company-subscription-plan-picker`, Mate kann sie aber nicht hervorheben, und **Support kontaktieren** und **Erneut versuchen** haben keine Id.
-
-### Was passiert mit verbundenen Konten bei einem Tarifwechsel, etwa zu Starter? [#what-happens-to-connected-accounts-when-the-plan-changes]
-
-Meldet Lemon Squeezy einen anderen Tarif, über die automatische Synchronisierung oder **Aktualisieren**, entfernt Customermates bei jedem Nutzer die neuesten verbundenen Konten über dem Kontingent pro Nutzer des neuen Tarifs. Das Kontingent von Starter beträgt [[commercial.entitlement.starter.includedAccountsPerUser]] pro Nutzer, also wird jedes verbundene Konto entfernt. Der erste Checkout aus der Testphase zählt als Wechsel von Pro: Die Wahl von Starter entfernt jedes verbundene Konto. Mitglieder mit der Rolle **Admin** erhalten eine E-Mail, die die entfernten Konten auflistet. Routinen über dem neuen Kontingent bleiben erhalten, weil das Kontingent nur beim Anlegen einer Routine gilt.
-
-**Link:** `/company/subscription`, und die verbleibenden Konten unter `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription` oder `nav-profile-connected-accounts`, dazu `highlight_element` mit `company-subscription-refresh` für **Aktualisieren**; die Kontokarten sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Meldet Lemon Squeezy einen anderen Tarif, entfernt Customermates bei jedem Nutzer die neuesten verbundenen Konten über dem neuen Kontingent. Starter enthält [[commercial.entitlement.starter.includedAccountsPerUser]] pro Nutzer, also wird jedes Konto entfernt; der erste Checkout aus der Testphase gilt als Wechsel von Pro. Mitglieder mit der Rolle **Admin** erhalten eine E-Mail mit den entfernten Konten; die übrigen bleiben unter [Kanäle](app:profile/connected-accounts). Routinen über dem Kontingent bleiben erhalten, weil das Kontingent nur beim Anlegen einer Routine gilt.
 
 ### Was ist bei Enterprise anders? [#how-does-an-enterprise-workspace-differ]
 
-Ein **Enterprise**-Workspace wird mit Customermates eingerichtet und per Rechnung abgerechnet. Die Seite zeigt **Plan** und den Hinweis „Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.“ **Testphase endet**, **Ende des aktuellen Abrechnungszeitraums**, **Aktive Nutzerplätze**, die Tarifauswahl, **Aktualisieren** und **Verwalten mit Lemon Squeezy** sind ausgeblendet, der Self-Service-Checkout wird abgelehnt, und Statusänderungen von Mitgliedern gehen nicht an die Abrechnung.
-
-**Link:** `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`; **Plan** und der Enterprise-Hinweis sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Enterprise wird mit Customermates eingerichtet und per Rechnung abgerechnet. Plan zeigt nur **Plan** und "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen." Ein Self-Service-Checkout wird abgelehnt, und Statusänderungen von Mitgliedern gehen nicht an die Abrechnung.
 
 ### Wohin führen die Upgrade-Buttons? [#where-do-upgrade-buttons-lead]
 
-Bei Starter zeigen der Posteingang und **Mein Profil** › **Kanäle** den Hinweis **Upgrade nötig, um Messaging freizuschalten** mit dem Button **Tarif upgraden**. Ein Pro-Nutzer am Kontenlimit sieht **Upgrade, um mehr Konten zu verbinden** mit **Tarife ansehen**, und der Credit-Hinweis des gehosteten Assistenten zeigt ebenfalls **Tarife ansehen**. Alle führen zu **Mein Unternehmen** › **Abonnement**. Handeln können dort nur Rollen mit **Unternehmen** **Bearbeiten**, und sobald der Workspace ein Abonnement hat, läuft ein Upgrade über **Verwalten mit Lemon Squeezy**.
+Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle](app:profile/connected-accounts) **Upgrade nötig, um Messaging freizuschalten** mit **Tarif upgraden**. Am Kontenlimit sehen Pro-Nutzer **Upgrade, um mehr Konten zu verbinden** mit **Tarife ansehen**, ebenso der Credit-Hinweis des gehosteten Assistenten. Alle öffnen [Abrechnung](app:company/subscription), wo nur Rollen mit **Unternehmen** **Bearbeiten** handeln können.
 
-**Link:** `/company/subscription`; die Buttons stehen auf `/inbox` und `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, `nav-inbox` oder `nav-profile-connected-accounts`; **Tarif upgraden** und **Tarife ansehen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+## Aktivität: Wo finde ich das Audit-Log und den Änderungsverlauf? [#activity-tab]
+
+[Aktivität](app:company/activity) ist das Ereignisprotokoll des Workspace: wer welchen Datensatz, welche Einstellung oder Konfiguration wann geändert hat, das Neueste zuerst. Jeder Eintrag zeigt den vorherigen und den aktuellen Wert direkt; dieselben Einträge erscheinen in der Ansicht **Aktivitäten** eines Datensatzes, etwa eines Kontakts, im Aktivitäts-Widget des Dashboards und in Mate. Filtern Sie nach Art:
+
+- **Datensatzänderungen**: Anlegen, Ändern und Löschen von Datensätzen mit Feldwerten.
+- **Verwaltung und System**: Mitglieder, Rollen, Webhooks, Routinen, verbundene Konten, Seiten der Wissensdatenbank, rechtliche Hinweise und Exporte. Webhook-Secrets und Header-Werte werden unkenntlich gemacht.
+- **Konfiguration**: Listen, Felder, Verknüpfungen und Datensatzzugriff je Rolle.
+
+Lesen erfordert **Audit-Log** mit Leserecht **Alle**. Datensatzänderungen folgen Ihrem Datensatzzugriff, und Einträge der Wissensdatenbank erfordern Leserecht auf die Wissensdatenbank. Klicken Sie auf einen Eintrag für Details; persönliche Ansichten speichern Sie wie bei Listen. Einträge werden unbegrenzt aufbewahrt, Nachrichten erscheinen hier nie, und der Verlauf beginnt mit dem Upgrade auf konfigurierbare Datensätze. Verfügbar in jedem Tarif und selbst gehostet.
+
+## Webhooks [#webhooks-tab]
+
+[Webhooks](app:company/webhooks) sendet Workspace-Ereignisse an Ihre Systeme; Payloads, Signaturen und Wiederholungen stehen unter [Webhooks](/docs/webhooks). Öffnen erfordert **API & Webhooks** mit Leserecht **Alle**; Anlegen **Erstellen**, Bearbeiten **Bearbeiten**, Löschen **Löschen**. Verfügbar in jedem Tarif und selbst gehostet.
+
+Klicken Sie auf [Hinzufügen](app:company/webhooks?focus=add) oder zum Bearbeiten auf eine Zeile. Der Dialog **Webhook** hat **URL**, **Beschreibung**, **Ereignisse**, **Secret**, **Eigene Header**, **Body-Vorlage** und **Aktiviert**. Für Datensatzereignisse wählen Sie zusätzlich Listen und Filter sowie das **Zugriffsberechtigte Mitglied**: Zustellungen nutzen dessen aktuelle Berechtigungen, und nur Administratoren können ein anderes Mitglied wählen. Ohne Haken bei **Aktiviert** pausieren Zustellungen, ohne dass der Webhook gelöscht wird. Ohne **Bearbeiten** erscheinen Secret und Header-Werte als `********`. **Löschen** fragt nach einer Bestätigung; vergangene Zustellungen bleiben erhalten. Die [Suche](app:company/webhooks?focus=search) durchsucht die URL.
+
+### Wo sehe ich die Zustellungen der Webhooks? [#deliveries-tab]
+
+Der Tab [Zustellungen](app:company/webhook-deliveries) listet eine Zeile je Zustellung, die neueste zuerst, mit **URL**, **Ereignis**, **Element**, **Status**, **Status-Code** und **Erstellt am**. Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, dann **Zugestellt** oder **Fehlgeschlagen**), Status-Code, Antwort-Nachricht und Payload. Payloads umfassen jeden Datensatz, auch solche, die Ihre Rolle nicht öffnen darf. **Erneut senden** (bei zugestellten oder fehlgeschlagenen Zustellungen, **API & Webhooks** **Erstellen**) schickt die gespeicherte Payload als neue Zustellung, mit aktuellem Secret, Headern und Body-Vorlage.
 
 ## Wo wird die Währung festgelegt? [#where-is-the-currency-set]
 
-Es gibt keine workspace-weite Währung. Jedes Geldfeld hat seine eigene Währung: Öffnen Sie **Konfigurieren** (`#nav-configure-records`), wählen Sie die Liste, öffnen Sie das Feld und wählen Sie **Währung**. Neue Workspaces starten ihre Geldfelder (Preis der Leistung, Preise und Betrag der Positionen, Wert und gewichteter Wert des Deals) in EUR. Eine Änderung der Feldwährung rechnet gespeicherte Beträge nicht um; Beträge behalten die Währung, in der sie erfasst oder berechnet wurden, und Summen über verschiedene Währungen zeigen einen Währungskonflikt statt einer Summe.
+Es gibt keine Workspace-Währung: Jedes Geldfeld hat seine eigene. Öffnen Sie [Konfigurieren](app:configure), dann die Liste und das Geldfeld, und wählen Sie **Währung**. Neue Workspaces starten Geldfelder in EUR. Eine Änderung der Feldwährung rechnet gespeicherte Beträge nicht um, und Summen über verschiedene Währungen zeigen einen Währungskonflikt statt einer Summe. Felder konfigurieren erfordert **Datenmodell** **Bearbeiten**.
 
-**Datenmodell → Bearbeiten** berechtigt zur Konfiguration von Feldern; dieses Recht lässt sich separat vergeben und gewährt weder Zugriff auf Datensätze noch die Berechtigung, Rollenzugriffe auszuweiten. Der Assistent ändert die Währung eines Feldes über `configure_record_model`, mit denselben Prüfungen wie die Oberfläche.
+### Wie funktionieren Phasenwahrscheinlichkeiten und Summen? [#how-do-stage-probabilities-and-totals-work]
 
-**Link:** `/configure`. **Mate:** `nav-configure-records` öffnet die Seite.
+Öffnen Sie [Konfigurieren für Deals](app:configure/deal), öffnen Sie das Feld für die Phase und setzen Sie **Wahrscheinlichkeit %** an jeder Option. **Gewichteter Wert** multipliziert den Wert mit der Phasenwahrscheinlichkeit und teilt durch 100; null Prozent ergeben null, ohne Wahrscheinlichkeit bleibt er leer. Änderungen zeigen eine Vorschau der Abhängigkeiten und berechnen betroffene Datensätze neu. Für Pipeline-Summen legen Sie auf dem [Dashboard](app:dashboard) ein Diagramm-Widget an, das den Wert oder **Gewichteter Wert** summiert, auf Wunsch nach Phase gruppiert. Siehe [gewichtete Pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
-### Wo lege ich Phasenwahrscheinlichkeiten für die Gewichtung fest, und wie funktionieren Summen? [#how-do-stage-probabilities-and-totals-work]
+### Wie benenne ich eine Liste wie Deals um? [#how-do-i-rename-record-types-in-the-data-model]
 
-Öffnen Sie **Konfigurieren**, wählen Sie **Deals** und bearbeiten Sie das Auswahlfeld für die Phase. Jede Option kann eine Wahrscheinlichkeit enthalten. Die mitgelieferte Berechnung **Gewichteter Wert** multipliziert den berechneten Deal-Wert mit der Wahrscheinlichkeit der gewählten Phase und teilt durch 100. Null Prozent ergeben null; ohne Wahrscheinlichkeit bleibt der gewichtete Wert leer. Änderungen an Wahrscheinlichkeiten oder Berechnungen erhalten eine Vorschau ihrer Abhängigkeiten und berechnen betroffene Datensätze neu. Die Formel kann geändert und der Deal-Wert stattdessen manuell eingegeben werden. Für Pipeline-Summen legen Sie auf dem Dashboard ein Diagramm-Widget an, das **Wert** oder **Gewichteter Wert** summiert, optional nach Phase gruppiert. Ein separates Formular dafür gibt es nicht.
+Öffnen Sie die Liste in [Konfigurieren](app:configure/deal), ändern Sie **Name** und **Pluralname** unter **Allgemein** und klicken Sie **Speichern**. Jede Liste lässt sich umbenennen; Datensätze, Verknüpfungen, Ansichten, Widgets und API-Verweise bleiben verbunden. Listennamen müssen eindeutig sein, unabhängig von Groß- und Kleinschreibung und Akzenten. Eine gelöschte Liste wandert nach **Zuletzt gelöscht** in Konfigurieren, wo Sie sie **Wiederherstellen** oder **Endgültig löschen** können.
 
-**Link:** `/configure` für Phasen und Berechnungen; `/dashboard` für Summen. Siehe [gewichtete Pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+## Für Agents [#tips-for-agents]
 
-### Wo benenne ich den Datensatztyp Deals um, zum Beispiel Deals in Opportunities? [#how-do-i-rename-record-types-in-the-data-model]
-
-Öffnen Sie **Konfigurieren**, wählen Sie die Liste in der linken Leiste und ändern Sie **Name** und **Navigationsbezeichnung** unter **Allgemein**; danach **Speichern** oben in der Leiste. Sie können jeden der fünf mitgelieferten oder einen selbst erstellten Typ umbenennen. Die Namen sind frei bearbeitbar; stabile Typ-Ids halten Datensätze, Verknüpfungen, Ansichten, Widgets und API-Verweise verbunden. Der Assistent kann dieselbe geprüfte Konfiguration mit `get_record_model` und `configure_record_model` ändern. Dafür ist **Datenmodell → Bearbeiten** nötig.
-
-**Link:** `/configure`. **Mate:** `nav-configure-records` öffnet die Seite.
-
-## Seite Mitglieder [#members-tab]
-
-Die Seite **Mitglieder** listet die Personen im Workspace. Route `/company/members`, Sidebar-Id `#nav-company-members` (**Mitglieder**). Mit Leserecht **Alle** auf **Benutzer & Rollen** zeigt die Liste alle Mitglieder, mit **Zugewiesen** nur die eigene Zeile; **Keine** blendet die Seite aus. Einladen erfordert **Erstellen** auf **Benutzer & Rollen**; Genehmigen und Bearbeiten anderer Mitglieder erfordern **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**, weil **Zugewiesen** nur die eigene Zeile zeigt. Die Rolle **Admin** darf beides. Die Spalten sind **Name**, **E-Mail**, **Rolle**, **Status**, **Aktualisiert am** und **Erstellt am**.
-
-| Aktion | Wo | Anchor-Id | Was passiert |
-|---|---|---|---|
-| Mitglieder einladen | Mitglieder-Toolbar, **Hinzufügen** | `#company-members-add` | Öffnet den Dialog **Benutzer einladen** |
-| Einladungslink teilen | **Benutzer einladen**, Tab **Link teilen**, beim Öffnen des Dialogs aktiv | `#invite-modal-tab-link` (**Link teilen**) / `#invite-modal-link` (**Einladungslink**) / `#invite-modal-copy-link` (Kopier-Button) | Zeigt den **Einladungslink** mit Kopier-Button und Ablaufdatum |
-| Per E-Mail einladen | **Benutzer einladen**, Tab **E-Mails senden**, Adressfeld, **Einladungen senden** | `#invite-modal-tab-email` (**E-Mails senden**) / `#invite-modal-emails` (Adressfeld) / `#invite-modal-send` (**Einladungen senden**) | Schickt den Workspace-Link an bis zu 20 Adressen |
-| Mitglied bearbeiten oder genehmigen | Klick auf die Zeile, Dialog **Benutzer** | Felder in der Tabelle unten; `#member-modal-save` (**Speichern**) / `#member-modal-cancel` (**Abbrechen**) | **Speichern** übernimmt Rolle, Status und Profilfelder; **Abbrechen** schließt den Dialog und fragt vor dem Verwerfen von Änderungen |
-| Suchen, filtern, Anzeigeoptionen | Mitglieder-Toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | Listen-Controls; gefiltert wird nach Status, Aktualisierungs- und Erstellungsdatum |
-| Layout | Popover **Darstellung** | `#company-members-layout-table` (**Tabelle**) / `#company-members-layout-board` (**Board**) | Die Tabelle ist das einzige nutzbare Layout; das Board-Control ist vorhanden, aber deaktiviert, weil Mitglieder nichts zum Gruppieren haben |
-
-**Link:** der Link zur Seite **Mitglieder**, `/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-company-members`; `highlight_element` nimmt außerdem die Toolbar-Ids aus dieser Tabelle an, `company-members-add` nur für Rollen mit **Benutzer & Rollen** **Erstellen**. In **Benutzer einladen** nimmt es `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link` und `invite-modal-tab-email` an (Voraussetzung `company-members-add`) sowie `invite-modal-emails` und `invite-modal-send` (Voraussetzung `invite-modal-tab-email`). Im Dialog **Benutzer** nimmt es die Feld-Ids `member-modal-*` an (schreibgeschützt für Rollen ohne **Benutzer & Rollen** **Bearbeiten**), dazu `member-modal-save` und `member-modal-cancel`, diese nur für Rollen mit **Bearbeiten**. Der Dialog öffnet sich über eine Zeile, deshalb nennt `list_ui_targets` als Voraussetzung `a member row` statt einer Ziel-Id, und Mate bittet darum, die Zeile anzuklicken. Zeilen haben kein Ziel, deshalb nennt Mate sie beim Namen.
-
-### Wie funktionieren Einladungen, und wie lange bleibt der Einladungslink aktiv? [#how-do-invitations-work]
-
-Um ein Teammitglied einzuladen, klicken Sie auf der Seite **Mitglieder** auf **Hinzufügen**; der Dialog **Benutzer einladen** hat zwei Tabs. **Link teilen** zeigt einen **Einladungslink** der Form `/invitation/{token}` für den ganzen Workspace. Er ist 7 Tage gültig, zeigt sein Ablaufdatum („Läuft am“ mit Datum) und wird bis dahin wiederverwendet; öffnet sich der Dialog nach dem Ablauf zum ersten Mal, entsteht ein neuer Link. Wer den Link hat, kann sich registrieren, und es gibt keinen Button, um ihn vorzeitig zu widerrufen.
-
-**E-Mails senden** lädt Personen per E-Mail ein: Der Tab nimmt 1 bis 20 Adressen auf einmal, getrennt durch Komma oder Enter, und schreibt jede Adresse einmal an. **Einladungen senden** schickt jeder Adresse denselben Workspace-Link und bestätigt mit „3 Einladungen gesendet.“ (mit der tatsächlichen Zahl).
-
-Wer sich über den Link registriert, tritt mit Status **Wartet auf Genehmigung** und ohne Rolle bei und sieht bis zur Genehmigung den Screen **Warten auf Genehmigung**. Ein abgelaufener oder veränderter Link zeigt einen Fehler, der dazu auffordert, bei einer Administration einen neuen Link anzufordern. Jede Registrierung legt außerdem unter **Aufgaben** eine Aufgabe **Benutzer genehmigen** an, sichtbar für Mitglieder mit Leserecht **Alle** auf **Aufgaben**; sie verschwindet, sobald das Mitglied genehmigt oder auf Inaktiv gesetzt ist.
-
-Die Aktion `invite` von `manage_team` im gehosteten Assistenten verschickt dieselben E-Mails und fragt vorher immer um Freigabe, weil sie echte Personen per E-Mail erreicht. Kein Tool liefert den Einladungslink.
-
-**Link:** `/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-company-members`, danach `highlight_element` mit `company-members-add` für **Hinzufügen**. Bei geöffnetem Dialog (Voraussetzung `company-members-add`) nimmt es `invite-modal-tab-link` für **Link teilen**, `invite-modal-link` für den **Einladungslink**, `invite-modal-copy-link` für den Kopier-Button und `invite-modal-tab-email` für **E-Mails senden** an; bei geöffnetem Tab (Voraussetzung `invite-modal-tab-email`) `invite-modal-emails` für die Adressen und `invite-modal-send` für **Einladungen senden**. Das Ablaufdatum hat kein Ziel, deshalb nennt Mate es beim Namen.
-
-### Wie genehmige, bearbeite, deaktiviere oder entferne ich ein Mitglied? [#how-do-i-approve-deactivate-or-edit-a-member]
-
-Um ein Mitglied zu genehmigen, zu bearbeiten oder zu deaktivieren, öffnet ein Klick auf seine Zeile den Dialog **Benutzer**:
-
-| Feld | Id | Regeln |
-|---|---|---|
-| **E-Mail** | `#member-modal-email` | Schreibgeschützt; sie identifiziert das Mitglied |
-| **Vorname**, **Nachname** | `#member-modal-first-name`, `#member-modal-last-name` | Pflichtfelder |
-| **Land** | `#member-modal-country` | Pflichtfeld |
-| **Rolle** | `#member-modal-role` | Pflichtfeld; listet jede Rolle, die eingebaute als **Admin** |
-| **Avatar-URL** | `#member-modal-avatar-url` | Optionaler Link zu einem öffentlich erreichbaren Bild |
-| **Status** | `#member-modal-status` | **Aktiv** oder **Inaktiv**; **Wartet auf Genehmigung** entsteht nur durch eine Einladung und ist nicht wählbar |
-
-Zum Genehmigen wählen Sie eine **Rolle**, setzen **Status** auf **Aktiv** und klicken auf **Speichern**. Das Mitglied kann sich sofort anmelden und zählt als abgerechneter Nutzerplatz.
-
-Mitglieder lassen sich nicht löschen; um jemanden zu entfernen, etwa einen Nutzer, der das Unternehmen verlassen hat, setzen Sie ihn auf **Inaktiv**. Das sperrt seine Anmeldung („Dein Konto ist derzeit inaktiv. Kontaktiere deinen Administrator, um dein Konto zu reaktivieren.“) und jeden seiner API-Keys und jede MCP-Verbindung, entfernt seinen Nutzerplatz aus der Abrechnung und pausiert die Routinen, die ihm gehören; der tägliche Job löscht zudem seine verbundenen Messaging-Konten. **Inaktiv** ist der Weg, den Zugang zu beenden.
-
-- Ihre eigene Zeile öffnet sich schreibgeschützt mit „Du kannst dein eigenes Benutzerkonto in deinen Einstellungen bearbeiten.“ Ihren Namen ändern Sie unter **Mein Profil** › **Einstellungen**; Ihre Rolle oder Ihren Status muss ein anderes Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** ändern.
-- Der Workspace behält immer mindestens ein Mitglied mit Status **Aktiv** und der Rolle **Admin**. Ein Speichern, das das letzte entfernen würde, scheitert mit „Mindestens ein Nutzer muss Systemadministrator sein.“
-- Änderungen gelten beim nächsten Seitenaufruf oder API-Aufruf des Mitglieds, und jedes Speichern wird im Audit-Log protokolliert.
-
-Die Aktion `update_member` von `manage_team` ändert Rolle und Status eines Mitglieds ohne Freigabeabfrage; für ein Mitglied mit **Wartet auf Genehmigung** übergeben Sie sowohl eine `roleId` als auch den Status `active`. Name, Land und Avatar anderer Mitglieder ändern Sie nur in diesem Dialog. `list_users` liefert die Mitglieder, die Ihre Rolle lesen darf.
-
-**Link:** `/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-company-members`; Zeilen haben keine Id, deshalb nennt Mate die Zeile beim Namen. Hat die Person den Dialog **Benutzer** über eine Zeile geöffnet, nimmt `highlight_element` die Feld-Ids dieser Tabelle ohne `#` an, schreibgeschützt für Rollen ohne **Benutzer & Rollen** **Bearbeiten** und auf Ihrer eigenen Zeile, dazu `member-modal-save` für **Speichern** und `member-modal-cancel` für **Abbrechen** (nur Rollen mit **Bearbeiten**).
-
-## Seite Rollen [#roles-tab]
-
-Die Seite **Rollen** listet die Rollen des Workspace. Route `/company/roles`, Sidebar-Id `#nav-company-roles` (**Rollen**). Eine Rolle ist ein Satz von Berechtigungen, den jedes Mitglied mit dieser Rolle erhält. Mitglieder mit Leserecht auf **Benutzer & Rollen** können die Liste öffnen, mit den Spalten **Name**, **Typ** und **Beschreibung**; **Typ** lautet **System** für die eingebaute Rolle **Admin** und **Benutzerdefiniert** für alle anderen. Zum Anlegen von Rollen braucht es **Erstellen** auf **Benutzer & Rollen**, zum Bearbeiten **Bearbeiten** und zum Löschen **Löschen**; die Rolle **Admin** darf alle drei.
-
-| Aktion | Wo | Anchor-Id | Was passiert |
-|---|---|---|---|
-| Rolle hinzufügen | Rollen-Toolbar, **Hinzufügen** | `#company-roles-add` | Öffnet den Editor **Rolle** mit den Vorgaben für eine neue Rolle |
-| Rolle bearbeiten | Klick auf eine Zeile | keine | Öffnet den Editor **Rolle**; **Speichern** und **Zurücksetzen** stehen in seiner Fußzeile |
-| Speichern oder verwerfen | Fußzeile des Editors **Rolle** | `#role-modal-save` (**Speichern**) / `#role-modal-cancel` (**Abbrechen**) | **Speichern** übernimmt Name, Beschreibung und Berechtigungen; **Abbrechen** schließt den Editor und fragt vor dem Verwerfen von Änderungen; die Rolle **Admin** und Ihre eigene Rolle sind schreibgeschützt und haben keine Fußzeile |
-| Rolle löschen | Editor **Rolle**, **Löschen** | `#role-modal-delete` (**Löschen**) | Nur für eine gespeicherte benutzerdefinierte Rolle, die kein Mitglied hat, mit Bestätigung |
-| Anzeigeoptionen | Rollen-Toolbar | `#company-roles-display-options` | Listen-Controls |
-| Layout | Popover **Darstellung** | `#company-roles-layout-table` (**Tabelle**) / `#company-roles-layout-board` (**Board**) | Nur Tabelle; das Board-Control ist deaktiviert |
-
-**Link:** der Link zur Seite **Rollen**, `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`; `highlight_element` nimmt außerdem `company-roles-add` (Rollen mit **Benutzer & Rollen** **Erstellen**), `company-roles-display-options` und die Layout-Ids an. Die Rollenliste hat weder Suchfeld noch Filter. Im Editor **Rolle** nimmt es `role-modal-save` und `role-modal-cancel` an (Rollen mit **Erstellen** für eine neue oder **Bearbeiten** für eine gespeicherte Rolle; Voraussetzung `company-roles-add` für eine neue Rolle, sonst öffnet die Person eine Zeile) sowie `role-modal-delete` für **Löschen** (eine gespeicherte benutzerdefinierte Rolle ohne Mitglieder; die Person öffnet zuerst ihre Zeile). Zeilen haben kein Ziel, deshalb nennt Mate sie beim Namen.
-
-### Wie kann ich eine eigene Rolle im Rollen-Editor anlegen, etwa um ein Mitglied auf zugewiesene Datensätze zu beschränken? [#how-does-the-role-editor-work]
-
-Der Editor **Rolle** hat drei Tabs: **Allgemein** mit **Name** (Pflichtfeld, bis 255 Zeichen) und **Beschreibung** (Pflichtfeld, bis 500 Zeichen), **Workspace** mit den Workspace-Berechtigungen in der Spalte **Ressource** und **Datensatztypen** mit einer Zeile je Datensatztyp. Ein Tab mit einem ungültigen Feld zeigt einen roten Punkt.
-
-Jeder Datensatztyp hat getrennte Schalter **Erstellen**, **Bearbeiten** und **Löschen** sowie **Lesen**, und jede Workspace-Zeile hat dieselben Spalten:
-
-- **Alle** erlaubt das Lesen von allem, was die Zeile abdeckt, bei einem Datensatztyp aller Datensätze dieses Typs im Workspace.
-- **Zugewiesen** erlaubt das Lesen der dem Mitglied zugewiesenen Datensätze, bei einer Workspace-Zeile der eigenen Mitgliederzeile oder der eigenen Routinen.
-- **Keine** gewährt kein Leserecht.
-
-Eine Zelle, die für eine Zeile nicht gilt, zeigt einen Strich (`—`). Auf schmalen Bildschirmen steht über den drei Checkboxen die Beschriftung **Verwalten**. Bearbeiten und Löschen eines Datensatzes erfordern zusätzlich Zugriff auf den jeweiligen Datensatz. Die Liste enthält eigene Typen und verwendet deren aktuelle Namen. Eine Umbenennung von Projekte zu Initiativen erhält die Rechte. Listen unter „Zuletzt gelöscht“ erscheinen hier nicht. Neue Rollen haben zunächst keinen Datensatzzugriff. Eingebettete Einträge wie Deal-Positionen übernehmen den Zugriff ihres übergeordneten Datensatzes und haben keine eigene Zeile.
-
-Die Zeilen der Workspace-Berechtigungen bieten diese Zellen an; jede andere Zelle zeigt den Strich:
-
-| Zeile | Erstellen | Bearbeiten | Löschen | Lesen | Was sie steuert |
-|---|---|---|---|---|---|
-| **API & Webhooks** | Angeboten | Angeboten | Angeboten | Alle, Keine | **Erstellen** legt API-Keys und Webhooks an und stellt eine Webhook-Zustellung erneut zu. **Bearbeiten** bearbeitet Webhooks und zeigt ihr gespeichertes Secret. **Löschen** löscht API-Keys und Webhooks. **Alle** zeigt Keys, Webhooks und Zustellungen. Bestehende Keys nutzen die aktuellen Datensatzrechte ihres Besitzers. |
-| **Benutzer & Rollen** | Angeboten | Angeboten | Angeboten | Alle, Zugewiesen, Keine | Mitglieder und Rollen; **Zugewiesen** beschränkt die Mitgliederliste auf die eigene Zeile. Details unten. |
-| **Unternehmen** | Strich | Angeboten | Strich | Strich | **Bearbeiten** ändert die Workspace-Einstellungen und nutzt die Abrechnung: Tarifauswahl und Checkout, **Verwalten mit Lemon Squeezy** und **Aktualisieren**. |
-| **Datenmodell** | Strich | Angeboten | Strich | Strich | **Bearbeiten** konfiguriert Typen, Felder, Beziehungen und Berechnungen. Dies gewährt weder Datensatzzugriff noch Rollenverwaltung. |
-| **Wissensdatenbank** | Angeboten | Angeboten | Angeboten | Alle, Keine | **Erstellen** legt Seiten an, auch die Einrichtung über die Homepage. **Bearbeiten** bearbeitet und verschiebt Seiten. **Löschen** löscht Seiten. Jede dieser Checkboxen erzwingt **Lesen** **Alle**. |
-| **Audit-Log** | Strich | Strich | Strich | Alle, Keine | Audit-Seiten und erlaubter Datensatzverlauf; nur lesend. |
-| **Inbox-Nachrichten** (nur Cloud) | Angeboten | Angeboten | Angeboten | Alle, Keine | Verbundene Konten, Senden und Änderungen an Konversationen; Details unten. Zusätzlich abhängig von Tarif und Konto- und Inbox-Zugriff. |
-| **Routinen** (nur Cloud) | Angeboten | Angeboten | Angeboten | Alle, Zugewiesen, Keine | **Erstellen** legt Routinen an. **Bearbeiten** bearbeitet Routinen und führt sie sofort oder als Test aus. **Löschen** löscht Routinen; in der App erfordert das Löschen einer Routine oder das Pausieren einer fremden weiterhin die Rolle **Admin**. **Alle** zeigt jede Routine, **Zugewiesen** die eigenen. |
-
-Bei **Benutzer & Rollen** lädt **Erstellen** Mitglieder ein, per Einladungslink oder E-Mail, und legt Rollen an. **Bearbeiten** bearbeitet Mitglieder (Angaben, Status und Rolle sowie die Freigabeaufgaben für neue Mitglieder) und Rollen, einschließlich ihres Zugriffs auf Datensatztypen und der Zugriffsvorlagen. **Löschen** löscht Rollen. **Lesen** **Alle** zeigt das gesamte Mitgliederverzeichnis und die Rollen, **Zugewiesen** nur Ihre eigene Mitgliederzeile, und **Keine** blendet beide Seiten aus. **Erstellen** umfasst auch den Datensatzzugriff, mit dem eine neue Rolle startet; den Datensatzzugriff einer bestehenden Rolle zu ändern erfordert **Bearbeiten**.
-
-Bei **Inbox-Nachrichten** verbindet **Erstellen** Konten, sendet E-Mails und Chatnachrichten, startet Chats, speichert Entwürfe, sendet LinkedIn-Kontaktanfragen und speichert Personen in Sales-Navigator-Listen. **Bearbeiten** ändert verbundene Konten (neu verbinden, neu synchronisieren, Signatur, Sichtbarkeit und synchronisierte Ordner), aktualisiert die Inbox, verschiebt Threads und synchronisiert sie neu, ändert den Zustand einer Unterhaltung (gelesen, ungelesen oder Status), nimmt Kontaktanfragen an oder zieht sie zurück und verknüpft Unterhaltungen mit Datensätzen oder löst die Verknüpfung. **Löschen** trennt Konten und verwirft Entwürfe.
-
-Einen neuen Webhook, eine neue Routine oder eine neue Rolle zu speichern erfordert **Erstellen**, einen bestehenden Eintrag zu speichern **Bearbeiten**. Rollen, die es vor diesen Spalten schon gab, wurden ohne Rechtegewinn oder Rechteverlust übernommen: Eine Zeile, die die Rolle vorher verwalten durfte, hat jetzt jede angebotene Checkbox angehakt.
-
-Delegierte Datenmodell-Verwalter können eine Zugriffsvorlage nur beim Anlegen eines neuen Typs anwenden. **Bearbeiten** auf **Benutzer & Rollen** legt die Vorlagen fest, und eine Vorlage darf die eigene Rolle des Anlegenden enthalten. Zusätzliche Rechte zu vergeben erfordert **Benutzer & Rollen** **Bearbeiten**. Auf Self-Hosted-Installationen sind Inbox-Nachrichten und Routinen ausgeblendet. Das Ändern von Rollennamen oder Datensatzrechten erhält unveränderte Systemberechtigungen.
-
-**Link:** `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`, danach `highlight_element` mit `company-roles-add` für eine neue Rolle; bei geöffnetem Editor zeigen `role-modal-save` und `role-modal-cancel` auf **Speichern** und **Abbrechen** und `role-modal-delete` auf **Löschen**, wo es angeboten wird. Die Felder und die Berechtigungszeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
-
-### Was ist die Admin-Rolle, und kann ich sie bearbeiten? [#what-is-the-admin-role]
-
-Jeder Workspace beginnt mit einer eingebauten Rolle, **Admin**, die die Person erhält, die den Workspace angelegt hat. Sie besteht jede Berechtigungsprüfung, zeigt in jeder Zeile jede angebotene Checkbox angehakt und **Lesen** **Alle**, und ihr Editor öffnet sich schreibgeschützt mit „Dies ist eine System-Rolle und kann nicht bearbeitet oder gelöscht werden.“ Niemand kann sie ändern oder löschen. Der Workspace muss mindestens ein Mitglied mit Status **Aktiv** und dieser Rolle behalten, und nur Mitglieder mit ihr können Routinen löschen oder die Routine eines anderen pausieren.
-
-**Link:** `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`; die Zeile **Admin** hat kein Ziel, deshalb nennt Mate sie beim Namen. Hat die Person sie geöffnet, zeigt `role-modal-save` auf das deaktivierte **Speichern** des schreibgeschützten Editors, für Rollen mit **Benutzer & Rollen** **Bearbeiten**.
-
-### Welche Regeln gelten beim Bearbeiten von Rollen, und warum kann ich meine eigene nicht bearbeiten? [#what-are-the-rules-for-editing-roles]
-
-- Ihre eigene Rolle können Sie nicht bearbeiten. Ihr Editor öffnet sich schreibgeschützt mit „Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.“
-- **Löschen** erscheint nur für eine benutzerdefinierte Rolle ohne Mitglieder, inaktive Mitglieder eingeschlossen. Weisen Sie vorher allen eine andere Rolle zu und entfernen Sie Verweise aus Zugriffsvorlagen.
-- Änderungen gelten für jedes Mitglied mit der Rolle beim nächsten Seitenaufruf oder API-Aufruf und werden im Audit-Log protokolliert.
-- `manage_roles` liest, erstellt, bearbeitet und löscht Rollen über dieselben geprüften Operationen. Lesen Sie zuerst die Rolle und die aktuelle Konfigurationsrevision; speichern Sie mit dieser Revision und einem Idempotenzschlüssel. Systemberechtigungen haben dieselbe Form und dasselbe Vokabular wie Datensatzrechte: `permissions: [{ "resource": "api", "actions": ["create", "readAll"] }]` neben `recordGrants: [{ "typeId": "…", "actions": [...] }]`. Die Aktionen sind `create`, `update` (angezeigt als **Bearbeiten**), `delete`, `readAll` und `readOwn` (angezeigt als **Zugewiesen**), die Ressourcenschlüssel `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages` und `routines`. Jede angegebene Ressource und jeder angegebene Typ ersetzt die bisherigen Aktionen, nicht angegebene behalten ihre, und `actions: []` entzieht den Zugriff; eine Aktion, die eine Ressource nicht anbietet, wird abgelehnt. Löschen erfordert im Assistenten eine Bestätigung. `manage_team` weist Mitgliedern bestehende Rollen zu.
-
-**Link:** `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`; Zeilen haben kein Ziel, deshalb nennt Mate sie beim Namen. Bei geöffnetem Editor zeigt `role-modal-save` auf **Speichern**, bei Ihrer eigenen Rolle deaktiviert, und `role-modal-delete` auf **Löschen**, wo es angeboten wird.
-
-## Seite Webhooks: Webhook-Einstellungen [#webhooks-tab]
-
-Der Link zur Webhooks-Seite öffnet die Webhook-Einstellungen des Workspace. Route `/company/webhooks`, Sidebar-Id `#nav-company-webhooks` (**Webhooks**). Ausgehende Event-Subscriptions; Payloads, Signaturen, Retries und die Regeln für jedes Feld sind unter [Webhooks](/docs/webhooks) dokumentiert. Zum Öffnen der Seite braucht Ihre Rolle Leserecht **Alle** auf **API & Webhooks**; Anlegen erfordert **Erstellen** auf **API & Webhooks**, Bearbeiten **Bearbeiten** und Löschen **Löschen**. Wer die Seite öffnen kann, kann auch den Dialog eines Webhooks schreibgeschützt öffnen; ohne **Bearbeiten** erscheinen Secret und jeder Header-Wert als `********`, die Header-Namen bleiben sichtbar. Verfügbar in jedem Tarif und selbstgehostet.
-
-| Aktion | Wo | Anchor-Id | Was passiert |
-|---|---|---|---|
-| Webhook erstellen | Webhooks-Toolbar, **Hinzufügen** | `#company-webhooks-add` | Öffnet den Dialog **Webhook** mit **URL**, **Beschreibung**, **Ereignisse**, **Secret**, **Eigene Header**, **Body-Vorlage** und **Aktiviert** |
-| Webhook ausfüllen | Webhook-Dialog | `#webhook-modal-url` / `#webhook-modal-description` / `#webhook-modal-events` / `#webhook-modal-secret` / `#webhook-modal-headers` / `#webhook-modal-body-template` / `#webhook-modal-enabled` | Die Felder in dieser Reihenfolge; ohne **Bearbeiten** (bei einem neuen Webhook **Erstellen**) schreibgeschützt |
-| Webhook speichern | Footer des Webhook-Dialogs | `#webhook-modal-save` (**Speichern**) / `#webhook-modal-cancel` (**Abbrechen**) | Abonniert die URL auf die gewählten Ereignisse; ohne Haken bei **Aktiviert** pausieren die Zustellungen, ohne dass der Webhook gelöscht wird |
-| Webhook löschen | Webhook-Dialog, **Löschen** | `#webhook-modal-delete` (**Löschen**) | Entfernt die Subscription nach einer Bestätigung; frühere Zustellungen bleiben unter Letzte Zustellungen |
-| Suchen, filtern, Anzeigeoptionen | Webhooks-Toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | Listen-Controls; die Suche vergleicht die URL |
-| Layout | Popover **Darstellung** | `#company-webhooks-layout-table` (**Tabelle**) / `#company-webhooks-layout-board` (**Board**) | Nur Tabelle; das Board-Control ist deaktiviert |
-
-**Link:** der Link zur Seite **Webhooks**, `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`; `highlight_element` nimmt außerdem die Toolbar-Ids aus dieser Tabelle an, `company-webhooks-add` nur für Rollen mit **API & Webhooks** **Erstellen**. Im Dialog **Webhook** (Voraussetzung `company-webhooks-add`, sonst öffnet die Person eine Zeile) nimmt es die Feld-Ids dieser Tabelle ohne `#` an, dazu `webhook-modal-save` und `webhook-modal-cancel` für Rollen mit **Erstellen** auf **API & Webhooks** bei einem neuen oder **Bearbeiten** bei einem gespeicherten Webhook und `webhook-modal-delete` für **Löschen** bei einem gespeicherten Webhook, für Rollen mit **Löschen**. Zeilen haben kein Ziel, deshalb nennt Mate sie beim Namen.
-
-## Wo ist die Seite Letzte Zustellungen, das Zustellprotokoll der Webhooks? [#deliveries-tab]
-
-Die Seite **Letzte Zustellungen** ist das Zustellprotokoll der Webhooks. Route `/company/webhook-deliveries`, Sidebar-Id `#nav-company-webhook-deliveries` (**Letzte Zustellungen**). Zum Öffnen braucht Ihre Rolle Leserecht **Alle** auf **API & Webhooks**. Eine Zeile pro Zustellung mit **URL**, **Ereignis**, **Element**, **Status**, **Status-Code** und **Erstellt am**, die neueste zuerst; die Suche vergleicht Ereignis und URL. Ein Klick auf eine Zeile öffnet **Ereignis-Details** mit dem Status (**Ausstehend**, bis der erste Versuch abgeschlossen ist, danach **Zugestellt** oder **Fehlgeschlagen**), dem Status-Code, der Antwort-Nachricht und der Ereignis-Payload. Die Payloads umfassen jeden Datensatz im Workspace, auch solche, die die Rolle der betrachtenden Person nicht öffnen darf.
-
-**Erneut senden** (`#webhook-delivery-modal-resend`) in **Ereignis-Details** erscheint bei zugestellten und fehlgeschlagenen Zustellungen für Rollen mit **Erstellen** auf **API & Webhooks**. Es sendet die gespeicherte Payload als neue Zustellung, mit dem aktuellen Secret, den Headern und der Body-Vorlage der URL; die ursprüngliche Zeile bleibt unverändert.
-
-| Aktion | Wo | Anchor-Id | Was passiert |
-|---|---|---|---|
-| Suchen, filtern, Anzeigeoptionen | Zustellungen-Toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | Listen-Controls |
-| Layout | Popover **Darstellung** | `#company-webhook-deliveries-layout-table` (**Tabelle**) / `#company-webhook-deliveries-layout-board` (**Board**) | Nur Tabelle; das Board-Control ist deaktiviert |
-
-**Link:** der Link zur Seite **Letzte Zustellungen**, `/company/webhook-deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhook-deliveries`; `highlight_element` nimmt außerdem die Toolbar-Ids aus dieser Tabelle an und `webhook-delivery-modal-resend` für **Erneut senden**, sobald eine Zustellungszeile geöffnet ist. Zeilen und der Rest von **Ereignis-Details** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
-
-## Seite Aktivität: Wo finde ich das Audit-Log und den Änderungsverlauf, wer hat was wann geändert? [#activity-tab]
-
-Die Seite **Aktivität** ist der Änderungsverlauf des Workspace: wer welchen Datensatz, welche Einstellung oder welche Konfiguration wann geändert hat. Route `/company/activity`, Sidebar-Id `#nav-company-activity` (**Aktivität**). Es ist derselbe Aktivitäts-Feed wie auf Datensatzseiten, mit dem ganzen Workspace als Bereich, neueste Einträge zuerst. Jeder Eintrag hat eine Art, nach der Sie filtern können:
-
-- **Datensatzänderungen**: Erstellen, Ändern und Löschen von Datensätzen mit feldweisen Vorher- und Nachher-Werten.
-- **Verwaltung und System**: Mitglieder, Rollen, Webhooks, Routinen, verbundene Konten, Wissensdatenbank-Seiten, Rechtshinweise und Exporte. Rollenänderungen zeigen ein Diff, das Speichern von Mitgliedern und Einstellungen eine Momentaufnahme, und Webhook-Secrets sowie Header-Werte werden geschwärzt.
-- **Konfiguration**: Änderungen am Datenmodell (Typen, Felder, Beziehungen, Zusammenfassungen) und am Datensatzzugriff je Rolle, aus **Konfigurieren** und beim Speichern von Rollen.
-
-Zum Lesen braucht Ihre Rolle Leserecht **Alle** auf **Audit-Log** oder die Rolle **Admin**; dieselbe Berechtigung zeigt den Änderungsverlauf auf Datensatzseiten. Datensatzänderungen folgen den Datensatzrechten der lesenden Person, ein Datensatz, den die Rolle nicht lesen darf, erscheint also nicht, und Wissensdatenbank-Einträge brauchen Leserecht auf die Wissensdatenbank. Ein Klick auf einen Eintrag öffnet seine Details. Gespeicherte Ansichten und der Filter liegen in der oberen Leiste, wie bei Datensatzlisten. Einträge werden nicht zeitgesteuert gelöscht, und Messaging-Events erscheinen hier nie. Der Verlauf beginnt mit dem Upgrade auf konfigurierbare Datensätze; aus der Zeit davor wurden nur Nachweise zu Rechtsdokumenten und Ereignisse verbundener Konten übernommen. Verfügbar in jedem Tarif und selbstgehostet.
-
-**Link:** der Link zum Audit-Log, der Seite **Aktivität**, `/company/activity`. **Mate:** `navigate` und `highlight_element` mit `nav-company-activity`; die Einträge sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
-
-## Tipps für Agents [#tips-for-agents]
-
-- Jeder Abschnitt oben schließt mit seiner Route und den Ids, die Mate verwenden kann; für einen vollständigen Link setzen Sie die Route hinter den Ursprung der `url`, die `search_docs`, `get_docs_page` und `fetch` zurückgeben. **Abonnement erforderlich** und **Rechtsdokumente aktualisiert** haben kein Ziel, und Mate ist dort nicht verfügbar; geben Sie deshalb ihren Link weiter.
-- `#nav-company` klappt die Sidebar-Gruppe nur auf oder zu und öffnet selbst keine Seite. `navigate` im gehosteten Assistenten Mate öffnet jede Seite hier, die die Rolle öffnen darf, über ihre Sidebar-Id, und `nav-company` selbst öffnet **Mitglieder**; auch eine Toolbar-Id funktioniert und öffnet ihre Seite. Eine Seite, die die Rolle nicht öffnen darf, lehnt `navigate` ab, statt auf dem Dashboard zu landen. Mate kann die Sidebar-Einträge, Toolbar-Controls, Buttons und Tarifkarten des Abonnements, Formular-Buttons sowie die oben genannten Dialogfelder und Dialog-Buttons hervorheben. `list_ui_targets` listet die Ziele unabhängig von Rolle und Tarif, deshalb kann ein **Hinzufügen**- oder Abrechnungsziel auf dem Bildschirm fehlen.
-- Dialogziele (jede Id `invite-modal-*`, `member-modal-*`, `role-modal-*` und `webhook-modal-*` sowie `webhook-delivery-modal-resend`) gibt es nur, solange ihr Dialog geöffnet ist. `list_ui_targets` nennt die Voraussetzung: `company-members-add` für **Benutzer einladen**, `invite-modal-tab-email` für `invite-modal-emails` und `invite-modal-send`, `company-roles-add` für `role-modal-save` und `role-modal-cancel` und `company-webhooks-add` für die Webhook-Felder, `webhook-modal-save` und `webhook-modal-cancel`. Der Dialog **Benutzer**, **Ereignis-Details**, `role-modal-delete` und `webhook-modal-delete` brauchen eine Zeile, die die Person öffnet, und `list_ui_targets` nennt diese Zeile als Voraussetzung (`a member row`, `a delivery row`, `a role row`, `a webhook row`); Zeilen haben kein Ziel, lassen Sie die Person also zuerst die Zeile anklicken. Mate kann keine Zeile anklicken, kein Feld ausfüllen und keinen Dialog absenden.
-- Zeilen tragen nie Ids. Navigieren Sie zu einer Seite über ihre URL (zum Beispiel `/company/webhooks`) und öffnen Sie eine Zeile per Klick. Bearbeitet wird in Dialogen, nicht in einem Drawer.
-- Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert: `configure_record_model` ändert CRM-Typen, Feldwährungen und Berechnungen, `manage_roles` ändert berechtigte Rollenzugriffe, `manage_team` lädt Mitglieder ein und aktualisiert sie, und `manage_webhooks` verwaltet Webhooks und Zustellungen.
-- Kein Tool liest oder ändert das Abonnement oder den Einladungslink. Bei Fragen wie „Welchen Tarif haben wir?“ oder „Wie kündige ich?“ verweisen Sie auf **Mein Unternehmen** › **Abonnement**.
+Nutzen Sie bevorzugt die [MCP](/docs/mcp)-Tools: `manage_team` lädt ein (immer mit Freigabe) und ändert Mitglieder (`update_member`; bei **Wartet auf Genehmigung** eine `roleId` und den Status `active` übergeben), `list_users` liest Mitglieder, `manage_roles` liest und speichert Rollen mit der aktuellen Revision (Ressourcen `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages`, `routines`; Aktionen `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` verwaltet Webhooks und Zustellungen, und `get_record_model` und `configure_record_model` ändern Listen, Währungen und Berechnungen. Kein Tool liest oder ändert den Plan oder den Einladungslink; verweisen Sie auf [Abrechnung](app:company/subscription) oder [Mitglieder](app:company/members).
 
 ## Verwandt [#related]
 
 - [Webhooks](/docs/webhooks)
-- [App-Guide, Profil](/docs/app-profile)
+- [App-Anleitung Profil](/docs/app-profile)
 - [Tarife und Credits](/docs/app-assistant#plans-and-credits)
