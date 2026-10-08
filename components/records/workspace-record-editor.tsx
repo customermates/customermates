@@ -18,6 +18,9 @@ export const WorkspaceRecordEditor = observer(function WorkspaceRecordEditor() {
         open={store.isOpening}
         title={t("PageState.loading")}
         onClose={() => store.close()}
+        onCloseAutoFocus={(event) => {
+          if (store.editor?.isOpen) event.preventDefault();
+        }}
       >
         <span className="flex items-center gap-2" role="status">
           <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />

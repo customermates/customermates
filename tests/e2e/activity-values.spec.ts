@@ -44,7 +44,7 @@ test("renders change values with the shared value renderers on every activity su
   );
 
   await page.goto("/en/settings/members");
-  await page.getByRole("button", { name: /Invited Member/ }).click();
+  await page.locator('[data-slot="data-row-open"]').filter({ hasText: "Invited Member" }).click();
   const member = page.getByRole("dialog", { name: "User", exact: true });
   await member.locator("#member-modal-status").click();
   await page.getByRole("option", { name: "Active", exact: true }).click();
