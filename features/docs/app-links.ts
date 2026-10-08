@@ -144,7 +144,8 @@ function isResolvedListPath(path: string): boolean {
   if (!url) return false;
   if (url.pathname === "/configure") {
     const focus = onlyParam(url, "focus");
-    return Boolean(focus?.startsWith("list:")) && z.uuid().safeParse(focus.slice("list:".length)).success;
+    if (!focus?.startsWith("list:")) return false;
+    return z.uuid().safeParse(focus.slice("list:".length)).success;
   }
   const [, area, typeId, ...rest] = url.pathname.split("/");
   if (area !== "records" || rest.length > 0 || !z.uuid().safeParse(typeId).success) return false;
