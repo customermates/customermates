@@ -55,9 +55,6 @@ const OVERLAY_PRIMITIVE_EXEMPTIONS: Allowlist = {
 };
 
 const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx": "I2 r3: record drawer on AppModal",
-  "components/records/workspace-record-editor.tsx": "I2 r3: record drawer on AppModal",
-  "components/records/record-compose-recovery.tsx": "I2 r3: compose recovery on the shared dialog",
   "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": "I1 r4 / I5 r2: confirm dialog",
 };
 

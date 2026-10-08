@@ -88,7 +88,6 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
 
 const CONTROLLED_FOCUS_RETURN_SURFACES = [
   "components/modal/app-modal.tsx",
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx",
   "components/modal/confirm-dialog.tsx",
   "components/ui/command.tsx",
 ];
@@ -471,8 +470,8 @@ describe("overlay contract", () => {
     expect(focusTarget).toContain("element.focus({ preventScroll: true })");
 
     const entityDrawer = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"), "utf8");
-    expect(entityDrawer).toContain("store.focusReturnTarget, store.focusReturnFallback");
-    expect(entityDrawer).toContain("{...focusReturn}");
+    expect(entityDrawer).toContain("focusReturnTarget={store.focusReturnTarget}");
+    expect(entityDrawer).toContain("focusReturnFallback={store.focusReturnFallback}");
 
     const appSidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
     expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");
