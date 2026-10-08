@@ -342,6 +342,35 @@ describe("gated-tools", () => {
     }
   });
 
+  it("lets every read-only action of a multiplexed tool run without approval", () => {
+    for (const name of AGENT_APPROVAL_POLICY_TOOL_NAMES) {
+      const identity = internalToolIdentity(name);
+      const tool = ALL_MCP_TOOLS.find((candidate) => candidate.name === name) ?? { name, annotations: {} };
+      for (const action of readOnlyActionsForTool(identity) ?? []) {
+        expect(`${name} ${action} ${approvalFreeActionsForTool(identity)?.includes(action)}`).toBe(
+          `${name} ${action} true`,
+        );
+        expect(`${name} ${action} ${approvalNeeded(tool, { action })}`).toBe(`${name} ${action} false`);
+        expect(`${name} ${action} ${isReadOnlyAgentToolCall(name, tool, { action })}`).toBe(`${name} ${action} true`);
+        expect(`${name} ${action} ${describeInternalTool(name, { action }).risk}`).toBe(`${name} ${action} read`);
+      }
+    }
+  });
+
+  it("treats Knowledge Base gaps as an approval-free read", () => {
+    const wiki = ALL_MCP_TOOLS.find((tool) => tool.name === "manage_wiki_pages")!;
+    expect(approvalNeeded(wiki, { action: "gaps" })).toBe(false);
+    expect(isReadOnlyAgentToolCall("manage_wiki_pages", wiki, { action: "gaps" })).toBe(true);
+    expect(describeInternalTool("manage_wiki_pages", { action: "gaps" })).toMatchObject({
+      kind: "records.read",
+      resource: "wiki",
+      risk: "read",
+    });
+    expect(requiresApprovalOnSurface(internalToolIdentity("manage_wiki_pages"), wiki, { action: "gaps" }, "routine")).toBe(
+      false,
+    );
+  });
+
   it("keeps known read tools ungated", () => {
     const readOnly = new Set(readOnlyNames());
 

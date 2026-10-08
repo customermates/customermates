@@ -52,8 +52,8 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     readOnlyActions: ["list", "runs"],
   },
   manage_wiki_pages: {
-    approvalFreeActions: ["list", "search", "get", "create", "update"],
-    readOnlyActions: ["list", "search", "get"],
+    approvalFreeActions: ["list", "search", "get", "gaps", "create", "update"],
+    readOnlyActions: ["list", "search", "get", "gaps"],
   },
   move_email_thread: { approvalFree: true },
   linkedin_manage_sales_lists: {
