@@ -26,6 +26,8 @@ const relation: RecordRelationship = {
   targetCardinality: "many",
   onSourceDelete: "unlink",
   onTargetDelete: "unlink",
+  messagesOnSource: false,
+  messagesOnTarget: false,
   archived: false,
 };
 const first: RecordRef = { typeId: relation.sourceTypeId, recordId: "10000000-0000-4000-8000-000000000004" };
@@ -61,7 +63,7 @@ function editor(ref = first, summaries: RecordChoice[] = [], isReadOnly = false)
       ],
     },
     stageLink: vi.fn(),
-    presentation: { linkColors: {} },
+    presentation: { linkColors: {}, linkIcons: {}, model: { types: [] } },
     rootStore: { recordWorkspaceStore: { open: vi.fn() } },
   } as unknown as RecordEditorStore;
 }

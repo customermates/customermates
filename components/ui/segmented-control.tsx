@@ -12,6 +12,9 @@ export type SegmentedControlItem<Value extends string> = {
   label: ReactNode;
   invalid?: boolean;
   invalidLabel?: string;
+  disabled?: boolean;
+  id?: string;
+  controls?: string | false;
 };
 
 type Props<Value extends string> = {
@@ -63,7 +66,9 @@ export function SegmentedControl<Value extends string>({
               )}
               data-invalid={item.invalid || undefined}
               data-slot="segmented-control-item"
-              {...(idPrefix ? { id: segmentId(idPrefix, item.value) } : {})}
+              disabled={item.disabled}
+              {...(item.controls === undefined ? {} : { "aria-controls": item.controls || undefined })}
+              {...(item.id ? { id: item.id } : idPrefix ? { id: segmentId(idPrefix, item.value) } : {})}
               value={item.value}
             >
               <span className="truncate">{item.label}</span>

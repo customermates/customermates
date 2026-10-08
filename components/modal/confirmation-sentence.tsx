@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 
-import { Activity, LayoutDashboard, Link2, Repeat, Table2, TextCursorInput, Webhook } from "lucide-react";
+import { LayoutDashboard, Link2, Repeat, Table2, TextCursorInput, Webhook } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
@@ -11,7 +11,7 @@ import { IntlLink } from "@/i18n/navigation";
 export type ConfirmationChip = {
   label: string;
   href: string;
-  icon: "field" | "relationship" | "activityPath" | "routine" | "webhook" | "widget" | "view" | { list: string };
+  icon: "field" | "relationship" | "routine" | "webhook" | "widget" | "view" | { list: string };
 };
 
 export type ConfirmationSentence = ReadonlyArray<string | ConfirmationChip>;
@@ -19,7 +19,6 @@ export type ConfirmationSentence = ReadonlyArray<string | ConfirmationChip>;
 const KIND_ICONS: Record<Exclude<ConfirmationChip["icon"], { list: string }>, LucideIcon> = {
   field: TextCursorInput,
   relationship: Link2,
-  activityPath: Activity,
   routine: Repeat,
   webhook: Webhook,
   widget: LayoutDashboard,

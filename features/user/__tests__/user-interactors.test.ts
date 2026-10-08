@@ -698,11 +698,12 @@ describe("UpdateUserDetailsInteractor", () => {
       DomainEvent.USER_UPDATED,
       expect.objectContaining({
         entityId: USER_ID,
-        payload: expect.objectContaining({
-          firstName: "Janet",
-          lastName: "Doe",
-          country: "de",
-        }),
+        payload: {
+          changes: {
+            firstName: { previous: "Test", current: "Janet" },
+            lastName: { previous: "User", current: "Doe" },
+          },
+        },
       }),
     );
   });
@@ -723,9 +724,17 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(mockEventService.publish).toHaveBeenCalledWith(
       DomainEvent.USER_UPDATED,
       expect.objectContaining({
-        payload: expect.objectContaining({ firstName: "Janet" }),
+        payload: { changes: expect.objectContaining({ firstName: { previous: "Test", current: "Janet" } }) },
       }),
     );
+  });
+
+  it("publishes nothing when the saved profile keeps its name and country", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User", country: "de" });
+    const result: any = await createInteractor().invoke({ theme: "dark" } as never);
+
+    expect(result.ok).toBe(true);
+    expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 
   it("returns { ok: true, data: details }", async () => {

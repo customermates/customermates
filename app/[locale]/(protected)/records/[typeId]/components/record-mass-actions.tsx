@@ -18,25 +18,26 @@ const BulkFieldEditor = observer(function BulkFieldEditor({
   records,
   field,
   onApplied,
+  onCancel,
 }: {
   records: RecordsStore;
   field: RecordFieldView;
   onApplied: () => void;
+  onCancel: () => void;
 }) {
-  const t = useTranslations();
   const [store] = useState(
     () =>
       new RecordFieldValueStore(
         records.rootStore,
         field,
         undefined,
-        (value) => records.bulkUpdateField(field.id, value),
+        async (value) => ({ saved: await records.bulkUpdateField(field.id, value) }),
         onApplied,
       ),
   );
   return (
     <div className="px-3 py-2.5">
-      <RecordFieldValueEditor busy={records.isBulkMutating} store={store} submitLabel={t("MassActions.apply")} />
+      <RecordFieldValueEditor busy={records.isBulkMutating} store={store} onCancel={onCancel} />
     </div>
   );
 });
@@ -122,7 +123,13 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
           }}
         >
           {active ? (
-            <BulkFieldEditor key={active.id} field={active} records={store} onApplied={close} />
+            <BulkFieldEditor
+              key={active.id}
+              field={active}
+              records={store}
+              onApplied={close}
+              onCancel={() => setActiveId(null)}
+            />
           ) : (
             <div className="flex flex-col divide-y divide-border">
               {fields.length > 6 && (
@@ -168,12 +175,12 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
           id="mass-delete"
           size="sm"
           type="button"
-          variant="secondary"
+          variant="destructiveOutline"
           onClick={() =>
             runUserAction(() => deletion.requestMany(store.selectionTargets, store.presentation.model.revision))
           }
         >
-          <Trash2 className="size-4 text-destructive" />
+          <Trash2 className="size-4" />
 
           {t("MassActions.delete")}
         </Button>

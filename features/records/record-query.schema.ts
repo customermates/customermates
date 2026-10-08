@@ -29,12 +29,13 @@ export const RecordFilterSchema = z
         "notEmpty",
         "in",
         "notIn",
+        "all",
         "between",
         "inLastDays",
         "notInLastDays",
       ])
       .describe(
-        "between uses two inclusive date endpoints in values; inLastDays and notInLastDays use a positive whole day count in value as a decimal without currency. Range contains tests a point; gt/gte test its start, lt/lte its end. Relative windows begin at UTC midnight that many days before the query clock: inLastDays includes later dates, notInLastDays matches only earlier ones.",
+        "For multiple choice fields in, all and notIn take option values and match records holding any, all or none of them. between uses two inclusive date endpoints in values; inLastDays and notInLastDays use a positive whole day count in value as a decimal without currency. Range contains tests a point; gt/gte test its start, lt/lte its end. Relative windows begin at UTC midnight that many days before the query clock: inLastDays includes later dates, notInLastDays matches only earlier ones.",
       ),
     value: RecordScalarSchema.nullable(),
     values: z.array(RecordScalarSchema).max(100).optional(),

@@ -52,7 +52,8 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   await openConfigure(page, id("deal"));
   const pane = page.locator("[data-configure-list-pane]");
   const general = page.getByRole("region", { name: "General", exact: true });
-  await expect(pane).toContainText(/\d+ fields · \d+ relationships · \d+ activity connections/);
+  await expect(pane).toContainText(/\d+ fields · \d+ relationships/);
+  await expect(pane).not.toContainText("activity connection");
   const icon = general.getByRole("button", { name: "Icon", exact: true });
   await expect(icon).toContainText("Growth");
   await icon.click();
@@ -129,7 +130,6 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
     "Relationship",
     "Channels",
     "Sub-list",
-    "Activity connection",
   ]);
   await page.keyboard.press("Escape");
 
@@ -147,7 +147,6 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   for (const [item, title] of [
     ["Field", "Add field"],
     ["Relationship", "Relationship"],
-    ["Activity connection", "Activity connections"],
     ["List", "Create list"],
   ] as const) {
     await addFromConfigure(page, item);

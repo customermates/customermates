@@ -1,15 +1,8 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
 
-export type ConfigureAddItem =
-  | "List"
-  | "Field"
-  | "Calculated field"
-  | "Sub-list"
-  | "Relationship"
-  | "Channels"
-  | "Activity connection";
-export type ConfigureSection = "Fields" | "Relationships" | "Activity connections";
+export type ConfigureAddItem = "List" | "Field" | "Calculated field" | "Sub-list" | "Relationship" | "Channels";
+export type ConfigureSection = "Fields" | "Relationships";
 
 const escapePattern = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -65,9 +58,18 @@ export function configureRow(page: Page, section: ConfigureSection, label: strin
 }
 
 export async function openDrawerTab(page: Page, name: string) {
-  const tab = configureDrawer(page).getByRole("tab", { name, exact: true });
-  if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
-  await expect(tab).toHaveAttribute("aria-selected", "true");
+  const drawer = configureDrawer(page);
+  await expect(drawer.getByRole("button", { name: "Save", exact: true }).first()).toBeVisible();
+  const tab = drawer.getByRole("tab", { name, exact: true });
+  if (await tab.count()) {
+    if ((await tab.getAttribute("aria-selected")) !== "true") await tab.click();
+    await expect(tab).toHaveAttribute("aria-selected", "true");
+    return;
+  }
+  const section = drawer.locator('[data-slot="collapsible-section-trigger"]').filter({ hasText: name });
+  if (!(await section.count())) return;
+  if ((await section.getAttribute("aria-expanded")) !== "true") await section.click();
+  await expect(section).toHaveAttribute("aria-expanded", "true");
 }
 
 export async function openDrawerSection(page: Page, name: string) {

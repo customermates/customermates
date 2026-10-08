@@ -66,7 +66,9 @@ test("graph nodes share one structure with an Add menu and in-place expansion", 
 
   await deal.getByRole("button", { name: "Add to Deals", exact: true }).click();
   await page.getByRole("menuitem", { name: "Calculated field", exact: true }).click();
-  await expect(drawer.getByRole("tab", { name: "Calculation", exact: true })).toBeVisible();
+  await expect(
+    drawer.locator("[data-slot=collapsible-section-trigger]").filter({ hasText: "Calculation" }),
+  ).toBeVisible();
   await drawer.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(drawer).not.toBeVisible();
 
@@ -105,6 +107,8 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
     sourceCardinality: "one",
     targetCardinality: "many",
     onTargetDelete: "cascade",
+    messagesOnSource: false,
+    messagesOnTarget: false,
   });
 
   await openConfigure(page);

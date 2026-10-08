@@ -11,9 +11,7 @@ Eine Datensatzabfrage nennt einen `typeId`. `filters` prüfen Felder dieses Typs
 
 ## Wie filtere ich eine Liste in der App? [#how-do-i-filter-a-list-in-the-app]
 
-Öffnen Sie einen Datensatztyp und wählen Sie **Filter** in der Listenleiste. Wählen Sie Feld, Bedingung und Wert. Die Liste aktualisiert sich; die aktuelle Ansicht merkt sich die Auswahl. **Alle entfernen** löscht die Filter. Dieselben Bedienelemente funktionieren für selbst angelegte Typen. Eine gespeicherte Ansicht kopiert keine Datensätze.
-
-**Link:** eine Liste unter `/records/<type-id>`, etwa die Startliste **Deals** oder ein selbst angelegter Typ. **Mate:** zur Liste navigieren und **Filter** öffnen.
+Öffnen Sie die Liste, zum Beispiel [Deals](app:records/deal), und klicken Sie auf [Filter](app:records/deal?focus=filter). Wählen Sie unter **Filtern nach** ein Feld oder tippen Sie seinen Namen in **Filter hinzufügen…**; verknüpfte Listen wie Organisationen stehen dort ebenfalls. Wählen Sie die Bedingung und dann die Werte, und die Liste aktualisiert sich sofort. Aktive Filter erscheinen oben als Chips; einen entfernen Sie mit seinem ×, alle mit **Leeren**. **KI fragen** im selben Fenster macht aus einer Beschreibung in eigenen Worten Filter. Selbst angelegte Listen funktionieren genauso, und eine gespeicherte Ansicht zeigt dieselben Datensätze, statt sie zu kopieren.
 
 ## Wie sieht eine Filterregel aus, und kann ich Filter mit ODER verknüpfen? [#what-does-a-filter-rule-look-like]
 
@@ -66,7 +64,7 @@ Kontakte ohne Organisation finden Sie mit der Kontakt-Organisations-Beziehung, `
 
 ### Wie filtere ich nach einem eigenen Feld, und welche Operatoren wirken darauf? [#which-operators-work-on-custom-columns]
 
-Verwenden Sie die Feld-ID aus `get_record_model` und niemals die veränderbare Beschriftung. Ein Eingabe-, Formel-, Lookup- oder Rollup-Feld ist filterbar, wenn sein Werttyp den Operator unterstützt und die lesende Person den Wert sehen darf. Auswahlfilter nutzen stabile Options-IDs. Das gilt für Startfelder und selbst angelegte Typen gleichermaßen.
+Verwenden Sie die Feld-ID aus `get_record_model` und niemals die veränderbare Beschriftung. Ein Eingabe-, Formel-, Lookup- oder Rollup-Feld ist filterbar, wenn sein Werttyp den Operator unterstützt und die lesende Person den Wert sehen darf. Auswahlfilter nutzen stabile Options-IDs. Ein Mehrfachauswahl-Feld unterstützt `in` (enthält eine der Optionen), `all` (enthält alle), `notIn` (enthält keine, auch Datensätze ohne Wert), `empty` und `notEmpty`; es lässt sich nicht sortieren. Das gilt für Startfelder und selbst angelegte Typen gleichermaßen.
 
 ## Welche Feldnamen kann ich nutzen? [#which-field-names-can-i-use]
 

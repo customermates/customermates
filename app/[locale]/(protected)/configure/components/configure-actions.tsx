@@ -5,7 +5,7 @@ import type { RecordModelView, RecordType } from "@/features/records/record-mode
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
-import { Activity, History, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { History, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { FormActions } from "@/components/card/form-actions";
@@ -24,7 +24,7 @@ import { recordChannelsBinding } from "@/features/records/record-channels";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
 import { ConfigureListAddItems, type ConfigureListAddKind } from "./configure-add-menu";
 
-export type ConfigureAddKind = "list" | "activity" | ConfigureListAddKind;
+export type ConfigureAddKind = "list" | ConfigureListAddKind;
 
 type Props = {
   ai: ReactNode;
@@ -154,12 +154,6 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
               sublist={canAddSublist && !selected.embedded}
               onAdd={onAdd}
             />
-
-            <DropdownMenuItem onSelect={() => onAdd("activity")}>
-              <Activity aria-hidden="true" />
-
-              {t("RecordModel.addMenu.activityConnection")}
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (

@@ -173,7 +173,14 @@ export const FILTER_OPERATOR_GROUPS = {
     FilterOperatorKey.lt,
     FilterOperatorKey.lte,
   ],
-  multiValue: [FilterOperatorKey.in, FilterOperatorKey.notIn, FilterOperatorKey.between],
+  multiValue: [
+    FilterOperatorKey.in,
+    FilterOperatorKey.notIn,
+    FilterOperatorKey.between,
+    FilterOperatorKey.hasAnyOf,
+    FilterOperatorKey.hasAllOf,
+    FilterOperatorKey.hasNoneOf,
+  ],
   relativeWindow: [FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays],
   noValue: [
     FilterOperatorKey.isNull,
@@ -197,7 +204,7 @@ export const FILTER_SYNTAX = {
   },
   values: {
     singleValue: "one string",
-    multiValue: "string array; between needs exactly two values",
+    multiValue: "string array; between takes two",
     relativeWindow: "positive integer number of days",
     noValue: "omit value",
   },

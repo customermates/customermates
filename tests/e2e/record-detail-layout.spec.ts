@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { test, expect, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 test("persists personal detail pins, visibility and keyboard order without losing the record draft", async ({
@@ -20,7 +21,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Layout company");
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
-  await page.getByRole("button", { name: "Layout company", exact: true }).click();
+  await openRecordDetails(page, "Layout company");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Draft stays here");
   await drawer.getByRole("button", { name: "Pin Name to the overview", exact: true }).click();
   await expect(drawer.locator(`[data-summary-field="${nameId}"]`)).toContainText("Draft stays here");
@@ -71,7 +72,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await page.reload();
-  await page.getByRole("button", { name: "Draft stays here", exact: true }).click();
+  await openRecordDetails(page, "Draft stays here");
   await expect(drawer.locator(`[data-summary-field="${nameId}"]`)).toContainText("Draft stays here");
   await expect(drawer.locator('[data-sortable-field="system:updatedAt"]')).not.toBeVisible();
   await page.screenshot({

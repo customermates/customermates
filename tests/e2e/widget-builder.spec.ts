@@ -60,7 +60,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   ]);
   expect(real[1]).toBe(2 * 124 + 16);
   expect(size && Math.abs(size.height - (real[1] * size.width) / real[0])).toBeLessThan(2);
-  expect(size && size.width).toBeGreaterThan(real[0]);
+  expect(size && Math.abs(size.width - real[0])).toBeLessThan(2);
   expect(size && size.height).toBeLessThan((page.viewportSize()?.height ?? 0) * 0.8);
 
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Open value overview");

@@ -46,8 +46,7 @@ import {
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { configureCardinality } from "./configure-graph-model";
 import { TypeSettingsFields } from "./type-modal";
-
-type ActivityPath = RecordModelView["activityPaths"][number];
+import { recordFieldTypeKey } from "@/features/records/record-input-value";
 
 type Props = {
   model: RecordModelView;
@@ -61,7 +60,6 @@ type Props = {
   onAddRelationship: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onEditRelationshipPath: (path: RecordRelationshipPath) => void;
-  onEditActivity: (path: ActivityPath) => void;
 };
 
 function ConfigureGroup({
@@ -210,7 +208,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   onAddRelationship,
   onEditRelationship,
   onEditRelationshipPath,
-  onEditActivity,
 }: Props) {
   const t = useTranslations();
   const dndId = useId();
@@ -236,7 +233,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     (relation) => relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id,
   );
   const paths = selected.relationshipPaths ?? [];
-  const activity = model.activityPaths.filter((path) => path.typeId === selected.id);
   const listStatus = !selected.embedded && !selected.navigationVisible ? t("RecordModel.hiddenList") : null;
   const fieldSource = (field: RecordFieldView) => {
     const source = configureFieldSource(model, field);
@@ -312,7 +308,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                       {fields.map((field) => (
                         <SortableField key={field.id} enabled={reorderEnabled} id={field.id} label={field.label}>
                           <ConfigureRow
-                            detail={`${t(`RecordModel.types.${field.valueType}`)} · ${fieldSource(field)}`}
+                            detail={`${t(`RecordModel.types.${recordFieldTypeKey(field)}`)} · ${fieldSource(field)}`}
                             interactive={interactive}
                             label={field.label}
                             leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
@@ -400,35 +396,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 </ul>
               ) : (
                 relationshipsEmpty
-              )}
-            </ConfigureGroup>
-          ),
-        },
-        {
-          id: "activity",
-          label: t("RecordModel.activityConnections"),
-          content: (
-            <ConfigureGroup
-              description={t("RecordModel.activityConnectionsHelp")}
-              title={t("RecordModel.activityConnections")}
-            >
-              {activity.length ? (
-                <ul className="divide-y divide-border">
-                  {activity.map((path) => (
-                    <li key={path.id} data-focus-target={`activityPath:${path.id}`}>
-                      <ConfigureRow
-                        detail={
-                          configurePathLists(model, selected.id, path.path).join(" → ") || t("RecordModel.thisList")
-                        }
-                        interactive={interactive}
-                        label={path.label}
-                        onOpen={canManage ? () => onEditActivity(path) : undefined}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                empty
               )}
             </ConfigureGroup>
           ),

@@ -184,16 +184,6 @@ const NOT_YET_MIGRATED: Record<string, Rule[]> = {
   "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["legacy-footer"],
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["legacy-footer"],
   "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": ["footer-primitive", "confirm-primitive"],
-  "app/[locale]/(protected)/dashboard/components/widget-modal.tsx": [
-    "footer-primitive",
-    "submit-button",
-    "legacy-footer",
-  ],
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor-actions.tsx": ["save-label", "submit-button"],
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx": ["footer-primitive"],
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx": ["confirm-primitive"],
-  "app/[locale]/(protected)/records/[typeId]/components/record-field-value-editor.tsx": ["submit-button"],
-  "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx": ["save-label"],
 };
 
 function scannedFiles(): string[] {
@@ -240,8 +230,6 @@ const SAVE_LIKE_KEY_EXEMPT: Record<string, string> = {
 };
 const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>([
   "ConnectedAccountsCard.emailSave",
-  "Dashboard.widgetEditor.save",
-  "MassActions.apply",
   "MassActions.update",
 ]);
 

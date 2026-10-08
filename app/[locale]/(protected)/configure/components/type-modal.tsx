@@ -228,6 +228,8 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
             targetCardinality: "many",
             onSourceDelete: "unlink",
             onTargetDelete: "cascade",
+            messagesOnSource: false,
+            messagesOnTarget: false,
             archived: false,
           },
         },

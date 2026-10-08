@@ -73,6 +73,10 @@ export function expressionSummary(
         label("option")
       );
     }
+    if (value.kind === "selectList") {
+      const options = model.fields.flatMap((field) => field.options);
+      return value.value.map((id) => options.find((option) => option.id === id)?.label ?? label("option")).join(", ");
+    }
     if (value.kind === "member") return label("member");
     return value.kind === "decimal" && value.currency ? `${value.value} ${value.currency}` : value.value;
   }

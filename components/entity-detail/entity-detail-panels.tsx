@@ -6,7 +6,7 @@ import type { ResizablePanelDefinition } from "@/components/layout/resizable-pan
 import { ResizablePanelGroup } from "@/components/layout/resizable-panels";
 import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
 import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { cn } from "@/core/utils/cn";
 
 type DetailPanel = "details" | "notes" | "activities";
@@ -104,7 +104,7 @@ export function EntityDetailPanels({
         aria-label={
           hasTabs && isSplit ? (panel.key === "activities" ? t("Common.actions.labelHistory") : panel.label) : undefined
         }
-        aria-labelledby={hasTabs && !isSplit ? `${id}-${panel.key}-tab` : undefined}
+        aria-labelledby={hasTabs && !isSplit ? `${id}-tab-${panel.key}` : undefined}
         className={cn(
           "min-w-0 flex-col bg-background",
           selectedPanel === panel.key ? "flex" : "hidden",
@@ -130,25 +130,18 @@ export function EntityDetailPanels({
             data-detail-panel-switcher
             className="sticky top-0 z-10 border-b border-border bg-background @6xl/detail:hidden"
           >
-            <Tabs value={selectedPanel} onValueChange={(value) => setActivePanel(value as DetailPanel)}>
-              <TabsList
-                aria-label={t("EntityDetail.overview")}
-                className="h-13 w-full justify-stretch gap-0 rounded-none p-0 group-data-[orientation=horizontal]/tabs:h-13"
-                variant="line"
-              >
-                {panels.map((panel) => (
-                  <TabsTrigger
-                    key={panel.key}
-                    aria-controls={`${id}-${panel.key}-panel`}
-                    className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
-                    id={`${id}-${panel.key}-tab`}
-                    value={panel.key}
-                  >
-                    {panel.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+            <SegmentedControl
+              idPrefix={id}
+              items={panels.map((panel) => ({
+                value: panel.key,
+                label: panel.label,
+                controls: `${id}-${panel.key}-panel`,
+              }))}
+              label={t("EntityDetail.overview")}
+              listClassName="mx-4 my-2 w-auto"
+              value={selectedPanel}
+              onValueChange={(value) => setActivePanel(value)}
+            />
           </div>
         )}
 

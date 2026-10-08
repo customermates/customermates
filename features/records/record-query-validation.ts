@@ -77,7 +77,7 @@ export function invalidRecordQueryPart(
       values.some((value) => value.kind !== "select" || !field.options.some((option) => option.id === value.value))
     )
       return "filters";
-    if (["in", "notIn"].includes(filter.operator)) {
+    if (["in", "notIn", "all"].includes(filter.operator)) {
       if (!filter.values || filter.values.some((value) => !scalarMatchesType(value, field.valueType))) return "filters";
       continue;
     }
@@ -90,7 +90,12 @@ export function invalidRecordQueryPart(
   for (const sort of query.sort) {
     if (sort.fieldId === "system:createdAt" || sort.fieldId === "system:updatedAt") continue;
     const field = fields.get(sort.fieldId);
-    if (!field || ["richText", "dateRange", "dateTimeRange"].includes(field.valueType)) return "sort";
+    if (
+      !field ||
+      ["richText", "dateRange", "dateTimeRange"].includes(field.valueType) ||
+      (field.valueType === "select" && field.multiple)
+    )
+      return "sort";
   }
   for (const filter of query.relationships) {
     const relation = model.relationships.find((relation) => relation.id === filter.relationId && !relation.archived);

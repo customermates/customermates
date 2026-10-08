@@ -70,12 +70,7 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: {
-      firstName: string;
-      lastName: string;
-      country: CountryCode;
-      status?: Status;
-      avatarUrl: string | null;
-      roleId?: string;
+      changes: Record<string, { previous: unknown; current: unknown }>;
     };
   };
   [DomainEvent.ROLE_CREATED]: {

@@ -67,14 +67,6 @@ export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<ty
             ),
             accessPresets: policy.canManageSchema || policy.canManageRoles ? model.accessPresets : [],
             capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
-            activityPaths: model.activityPaths.filter(
-              (path) =>
-                ids.has(path.typeId) &&
-                path.path.every((step) => {
-                  const relation = model.relationships.find((relation) => relation.id === step.relationId);
-                  return relation && accessible.has(relation.sourceTypeId) && accessible.has(relation.targetTypeId);
-                }),
-            ),
             relationships: model.relationships.filter(
               (relation) =>
                 accessible.has(relation.sourceTypeId) &&

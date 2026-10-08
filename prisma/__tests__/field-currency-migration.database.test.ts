@@ -13,6 +13,7 @@ import {
 } from "@/tests/helpers/legacy-migration-database";
 
 const FIELD_CURRENCY_MIGRATION = "20261007000000_field_currency";
+const ACTIVITY_SOURCES_MIGRATION = "20261007040000_activity_sources";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];
@@ -46,7 +47,7 @@ async function currencyFields(client: Client, companyId: string) {
   return {
     definitions,
     snapshot,
-    model: RecordModelSchema.parse(revision.snapshot),
+    model: () => RecordModelSchema.parse(revision.snapshot),
   };
 }
 
@@ -76,17 +77,18 @@ describeDatabase("field currency migration", { timeout: 240000 }, () => {
     expect(before.definitions.find((field) => field.id === swiss.columns.budget)?.currency).toBe("USD");
 
     await client.query(await readMigration(FIELD_CURRENCY_MIGRATION));
+    await client.query(await readMigration(ACTIVITY_SOURCES_MIGRATION));
 
     const after = await currencyFields(client, swiss.companyId);
     expect(after.definitions).toEqual(after.snapshot);
     for (const id of starter) expect(after.definitions.find((field) => field.id === id)?.currency, id).toBe("CHF");
     expect(after.definitions.find((field) => field.id === swiss.columns.budget)?.currency).toBe("USD");
-    expect(validateRecordModel(after.model).issues).toEqual([]);
+    expect(validateRecordModel(after.model()).issues).toEqual([]);
     const euroFields = await currencyFields(client, euro.companyId);
     expect(
       new Set(euroFields.definitions.filter((field) => field.id !== euro.columns.budget).map((f) => f.currency)),
     ).toEqual(new Set(["EUR"]));
-    expect(validateRecordModel(euroFields.model).issues).toEqual([]);
+    expect(validateRecordModel(euroFields.model()).issues).toEqual([]);
     expect(
       await rows(
         client,

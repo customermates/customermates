@@ -780,7 +780,6 @@
       "prompt": "Anweisungen",
       "publishSummary": "Veröffentlichte Zusammenfassung",
       "putAccessPreset": "Zugriffsvorlage",
-      "putActivityPath": "Aktivitätspfad",
       "putCapability": "Funktion",
       "putField": "Feld",
       "putRelationship": "Beziehung",
@@ -796,7 +795,6 @@
       "versions": "Dokumentversionen",
       "visibility": "Sichtbarkeit"
     },
-    "noValue": "Kein Wert",
     "relationsAdded": "{field} hinzugefügt",
     "relationsDeleted": "{field} entfernt",
     "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
@@ -871,9 +869,7 @@
       "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
-      "switchToBoardView": "Zur Board-Ansicht wechseln",
       "switchToBoardViewDisabled": "Diese Liste hat kein Feld zum Gruppieren",
-      "switchToTableView": "Zur Tabellenansicht wechseln",
       "themeSwitcher": "Darstellungsmodus-Umschalter",
       "tooltipFields": "Darstellung",
       "tooltipFilters": "Filter"
@@ -1244,7 +1240,10 @@
         "equals": "=",
         "gt": ">",
         "gte": "≥",
+        "hasAllOf": "enthält alle von",
+        "hasAnyOf": "enthält eines von",
         "hasNone": "hat keine",
+        "hasNoneOf": "enthält keines von",
         "hasSome": "hat welche",
         "hasUnset": "nicht vollständig verknüpft",
         "in": "ist in",
@@ -1736,13 +1735,13 @@
         "showFilters": "Aktivitätsanzahl und Filter anzeigen",
         "showMetricAndFilters": "Kennzahl und Filter anzeigen"
       },
-      "create": "Widget erstellen",
       "danger": {
         "deleteLabel": "Widget löschen: {name}"
       },
       "editTitle": "„{name}“ bearbeiten",
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
+        "change": "Anderes Widget wählen",
         "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
         "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
         "scratchTitle": "Von Grund auf neu",
@@ -1752,10 +1751,13 @@
         "incomplete": "Vervollständigen Sie die Dateneinstellungen, um eine Vorschau zu sehen.",
         "live": "Live-Vorschau",
         "size": "Dashboard-Größe {w} × {h}",
-        "title": "Vorschau",
         "untitled": "Unbenanntes Widget"
       },
-      "save": "Änderungen speichern",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Keine} one {1 aktiv} other {# aktiv}}",
+        "filters": "Filter",
+        "grouping": "Gruppierung"
+      },
       "settings": "Widget-Einstellungen",
       "sharing": {
         "template": "Als Vorlage freigeben"
@@ -1871,6 +1873,7 @@
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Kein Wert",
+    "resizeBoardColumns": "Breite der Board-Spalten ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "rowActions": "Zeilenaktionen",
@@ -2459,7 +2462,6 @@
     "text": "Laden..."
   },
   "MassActions": {
-    "apply": "Auf Auswahl anwenden",
     "clearField": "Feld leeren",
     "delete": "Ausgewählte löschen",
     "keepInView": "Nur sichtbare Zeilen behalten",
@@ -2977,15 +2979,12 @@
   "RecordModel": {
     "access": "Zugriff",
     "accessDescription": "Nur Administratoren können auf diese Liste zugreifen, sofern keine freigegebene Zugriffsvorlage ausgewählt wird.",
-    "activityConnections": "Aktivitätsverbindungen",
-    "activityConnectionsHelp": "Wähle aus, welche verknüpften Datensätze Nachrichten und Änderungen zur Aktivitätenübersicht dieser Liste beitragen. Nachrichten- und Datensatzberechtigungen gelten weiterhin.",
     "addAttribute": "Attribut hinzufügen",
     "addEmbedded": "{type} hinzufügen",
     "addField": "Feld hinzufügen",
     "addGroupSummary": "Übersicht hinzufügen",
     "addInput": "Eingabe hinzufügen",
     "addMenu": {
-      "activityConnection": "Aktivitätsverbindung",
       "calculation": "Berechnetes Feld",
       "channels": "Kanäle",
       "field": "Feld",
@@ -3000,7 +2999,6 @@
     "aggregation": "Zusammenfassung",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
     "ascending": "Aufsteigend",
-    "assignedMembers": "Zugewiesene Mitglieder",
     "assignedTo": "Zugewiesen an",
     "attribute": "Attributname",
     "behavior": "Wertquelle",
@@ -3012,6 +3010,7 @@
       "snapshot": "Bei einem Ereignis gespeichert"
     },
     "board": "Board",
+    "calculatedReadOnly": "{field} wird berechnet und kann nicht bearbeitet werden.",
     "calculationError": "Berechnung nicht verfügbar",
     "calculationInput": "Eingabe {number}",
     "calculationNavigation": "Berechnungsnavigation",
@@ -3085,7 +3084,6 @@
         "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}"
       },
       "configureActions": "Aktionen für Konfigurieren",
-      "deleteActivityPath": "Aktivitätsverbindung löschen",
       "deleteColumn": "Spalte löschen",
       "deleteColumnMessage": "Die Spalte {name} mit verknüpften Datensätzen wird aus {list} entfernt.",
       "deleteColumnTitle": "Spalte {name} löschen?",
@@ -3108,7 +3106,6 @@
       },
       "kind": "Art",
       "kinds": {
-        "activityPath": "Aktivitätsverbindung",
         "channels": "Kanalfeld",
         "field": "Feld",
         "relationship": "Beziehung",
@@ -3120,7 +3117,7 @@
       "openConfigure": "Konfigurieren öffnen",
       "recentlyDeleted": "Zuletzt gelöscht",
       "recentlyDeletedEmpty": "Es wurde nichts gelöscht",
-      "recentlyDeletedHelp": "Gelöschte Listen, Felder, Beziehungen, Aktivitätsverbindungen und Kanalfelder bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
+      "recentlyDeletedHelp": "Gelöschte Listen, Felder, Beziehungen und Kanalfelder bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
       "removed": {
         "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
         "hidden": "Enthält Datensätze, die Sie nicht sehen können.",
@@ -3325,9 +3322,9 @@
     },
     "iconSearch": "Symbole suchen",
     "identityChannels": "Kanäle",
-    "includeAudit": "Datensatzänderungen einbeziehen",
-    "includeMessages": "Nachrichten einbeziehen",
     "invalidConfiguration": "Diese Änderung muss vor dem Anwenden überprüft werden.",
+    "invalidPhone": "Gib eine Telefonnummer im internationalen Format ein, zum Beispiel +4930123456.",
+    "invalidValue": "Gib einen gültigen Wert ein.",
     "lineFields": {
       "amount": "Betrag",
       "effectivePrice": "Einzelpreis",
@@ -3342,7 +3339,7 @@
     "linkedType": "Verknüpfen mit",
     "linkRecord": "Datensatz verknüpfen",
     "listActions": "Listenaktionen",
-    "listCounts": "{fields, plural, one {# Feld} other {# Felder}} · {relationships, plural, one {# Beziehung} other {# Beziehungen}} · {activity, plural, one {# Aktivitätsverbindung} other {# Aktivitätsverbindungen}}",
+    "listCounts": "{fields, plural, one {# Feld} other {# Felder}} · {relationships, plural, one {# Beziehung} other {# Beziehungen}}",
     "listUnavailable": "Diese Liste ist nicht verfügbar. Wählen Sie eine andere Liste.",
     "member": "Mitglied",
     "missing": "Kein Wert",
@@ -3355,12 +3352,13 @@
     "no": "Nein",
     "noGrouping": "Keine Gruppierung",
     "noneYet": "Noch keine",
+    "noOptions": "Noch keine Optionen. Füge die erste Option zur Auswahl hinzu.",
     "onePerLine": "Einen Wert pro Zeile eingeben.",
     "onSourceDelete": "Beim Löschen dieses Datensatzes",
     "onTargetDelete": "Beim Löschen des verknüpften Datensatzes",
+    "openDetails": "Details öffnen",
     "openPage": "Seite öffnen",
     "openRecord": "{name} öffnen",
-    "openRecordDetails": "Details zu {name} öffnen",
     "operation": "Berechnung",
     "operationCancelled": "Die Änderung wurde abgebrochen.",
     "operationFailed": "Die Änderung ist fehlgeschlagen. Der vorherige vollständige Stand bleibt aktiv.",
@@ -3388,6 +3386,7 @@
     "oppositeLabel": "Bezeichnung auf der Gegenseite",
     "option": "Option",
     "optionAttribute": "Optionsattribut",
+    "optionCount": "{count, plural, =0 {Keine Optionen} one {# Option} other {# Optionen}}",
     "options": "Optionen",
     "pinnedFields": "Angeheftete Detailfelder",
     "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis Sie ihn ändern.",
@@ -3491,7 +3490,6 @@
     "summaryField": "Feld für die Übersicht",
     "systemActor": "System",
     "table": "Tabelle",
-    "thisList": "Diese Liste",
     "triggerField": "Wenn sich dieses Feld ändert",
     "triggerValue": "Auf diesen Wert",
     "types": {
@@ -3503,6 +3501,7 @@
       "dateTimeRange": "Datums- und Zeitbereich",
       "email": "E-Mail",
       "member": "Mitglied",
+      "multiSelect": "Mehrfachauswahl",
       "number": "Zahl",
       "phone": "Telefon",
       "richText": "Formatierter Text",
@@ -3554,6 +3553,7 @@
     "noRecordsInPeriod": "Keine Datensätze",
     "notes": "Zu diesen Zahlen",
     "operators": {
+      "all": "Enthält alle von",
       "between": "Zwischen",
       "contains": "Enthält",
       "empty": "Ist leer",
@@ -3571,7 +3571,6 @@
       "startsWith": "Beginnt mit"
     },
     "overall": "Insgesamt: {value}",
-    "preview": "Kennzahl prüfen",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
     "quarterLabel": "Q{quarter} {year}",
     "ranked": {
