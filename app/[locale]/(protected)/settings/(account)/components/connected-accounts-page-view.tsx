@@ -28,6 +28,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState, type ResourcePageState } from "@/components/page-state/resource-page-state";
@@ -84,11 +85,72 @@ const CONNECT_CHANNEL_OPTIONS: {
 
 const FEATURED_PROVIDERS: MessagingProvider[] = ["whatsapp", "linkedin", "google"];
 
-const ConnectAction = observer(({ id, variant = "default" }: { id: string; variant?: "default" | "secondary" }) => {
+const ConnectProviderStack = ({ onPrimary }: { onPrimary: boolean }) => {
+  const overflowCount = new Set(CONNECT_CHANNEL_OPTIONS.map((option) => option.icon)).size - FEATURED_PROVIDERS.length;
+
+  return (
+    <span className="-space-x-1.5 flex items-center">
+      {FEATURED_PROVIDERS.map((provider) => {
+        const ChannelIcon = getProviderIcon(provider);
+        return (
+          <ChannelIcon
+            key={provider}
+            className={cn("size-5 rounded-full ring-2", onPrimary ? "ring-primary" : "ring-secondary")}
+          />
+        );
+      })}
+
+      {overflowCount > 0 && (
+        <span
+          className={cn(
+            "flex size-5 items-center justify-center rounded-full text-[10px] font-medium ring-2",
+            onPrimary
+              ? "bg-primary-foreground text-primary ring-primary"
+              : "bg-background text-muted-foreground ring-secondary",
+          )}
+        >
+          +{overflowCount}
+        </span>
+      )}
+    </span>
+  );
+};
+
+const ConnectMenuItems = observer(() => {
   const t = useTranslations();
   const { connectedAccountsStore } = useRootStore();
-  const overflowCount = new Set(CONNECT_CHANNEL_OPTIONS.map((option) => option.icon)).size - FEATURED_PROVIDERS.length;
-  const isSecondary = variant === "secondary";
+
+  return CONNECT_CHANNEL_OPTIONS.map((option) => {
+    const ChannelIcon = getProviderIcon(option.icon);
+    return (
+      <DropdownMenuItem
+        key={option.key}
+        onClick={() => runUserAction(() => connectedAccountsStore.connectAccount(option.key))}
+      >
+        <ChannelIcon className="size-4" />
+
+        {t(option.labelKey)}
+      </DropdownMenuItem>
+    );
+  });
+});
+
+const ConnectTopBarAction = () => {
+  const t = useTranslations();
+
+  return (
+    <TopBarPrimaryButton
+      anchorId="settings-channels-connect"
+      label={t("ConnectedAccountsCard.connectAccount")}
+      leading={<ConnectProviderStack onPrimary />}
+      menu={<ConnectMenuItems />}
+    />
+  );
+};
+
+const ConnectEmptyStateAction = () => {
+  const t = useTranslations();
+  const id = "settings-channels-connect-empty";
 
   return (
     <DropdownMenu>
@@ -98,55 +160,20 @@ const ConnectAction = observer(({ id, variant = "default" }: { id: string; varia
           className="h-8"
           id={id}
           size="sm"
-          variant={variant}
+          variant="secondary"
         >
-          <span className="-space-x-1.5 flex items-center">
-            {FEATURED_PROVIDERS.map((provider) => {
-              const ChannelIcon = getProviderIcon(provider);
-              return (
-                <ChannelIcon
-                  key={provider}
-                  className={cn("size-5 rounded-full ring-2", isSecondary ? "ring-secondary" : "ring-primary")}
-                />
-              );
-            })}
-
-            {overflowCount > 0 && (
-              <span
-                className={cn(
-                  "flex size-5 items-center justify-center rounded-full text-[10px] font-medium ring-2",
-                  isSecondary
-                    ? "bg-background text-muted-foreground ring-secondary"
-                    : "bg-primary-foreground text-primary ring-primary",
-                )}
-              >
-                +{overflowCount}
-              </span>
-            )}
-          </span>
+          <ConnectProviderStack onPrimary={false} />
 
           <span className="hidden sm:inline">{t("ConnectedAccountsCard.connectAccount")}</span>
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" aria-labelledby={id}>
-        {CONNECT_CHANNEL_OPTIONS.map((option) => {
-          const ChannelIcon = getProviderIcon(option.icon);
-          return (
-            <DropdownMenuItem
-              key={option.key}
-              onClick={() => runUserAction(() => connectedAccountsStore.connectAccount(option.key))}
-            >
-              <ChannelIcon className="size-4" />
-
-              {t(option.labelKey)}
-            </DropdownMenuItem>
-          );
-        })}
+        <ConnectMenuItems />
       </DropdownMenuContent>
     </DropdownMenu>
   );
-});
+};
 
 const ConnectedAccountsAlert = () => {
   const t = useTranslations();
@@ -195,7 +222,7 @@ const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }:
   const topBarActions = useMemo(
     () =>
       pageState !== "locked" && pageState !== "loading" && pageState !== "error" && canConnect ? (
-        <ConnectAction id="settings-channels-connect" />
+        <ConnectTopBarAction />
       ) : null,
     [canConnect, pageState],
   );
@@ -234,9 +261,7 @@ const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }:
         <PageState
           action={
             <AgentStarterActions
-              fallback={
-                canConnect ? <ConnectAction id="settings-channels-connect-empty" variant="secondary" /> : undefined
-              }
+              fallback={canConnect ? <ConnectEmptyStateAction /> : undefined}
               pageId="connected-accounts"
               state="empty"
               surface="page"

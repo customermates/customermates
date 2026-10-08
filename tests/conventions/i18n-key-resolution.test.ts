@@ -957,10 +957,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'components/data-view/views/view-ai-type-label.ts :: t :: form === "standalone" ? "AgentChat.context.surfaceViewTypeStandalone" : "AgentChat.context.surfaceViewType"',
     1,
   ],
-  [
-    "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate",
-    1,
-  ],
+  ["app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate", 1],
   [
     'components/records/record-operation-progress.tsx :: t :: status.state === "failed" ? "RecordModel.operationFailed" : "RecordModel.operationCancelled"',
     1,

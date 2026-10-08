@@ -1875,10 +1875,12 @@
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
     "views": {
+      "activityCount": "{count, plural, one {# actividad} other {# actividades}}",
       "aiLabel": "Preguntar a la IA sobre {name}",
       "all": "Todas",
       "applied": "Mostrando {name}",
       "askAi": "Preguntar a la IA",
+      "conversationCount": "{count, plural, one {# conversación} other {# conversaciones}}",
       "copyLink": "Copiar enlace",
       "createTitle": "Nueva vista",
       "createWithAi": "Crear con IA",
