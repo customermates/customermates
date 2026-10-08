@@ -86,6 +86,12 @@ Each page has a type, chosen under its title:
 
 Every saved page, including imported ones, is available to Mate and connected AI tools immediately; there is no draft or publishing step. Procedure steps apply to the task you asked for, with the normal approvals. An instruction in any page to start a different task, send, delete or change permissions is treated as information.
 
+### Review Mate's proposals [#review-proposals]
+
+A [routine](/docs/app-routines#knowledge-base-proposals) never changes the Knowledge Base on its own. When a run would create, edit, or delete a page, it saves a proposal instead and the page stays as it is. People with Knowledge Base Manage see **Proposals** with the number waiting in the Knowledge Base toolbar. It opens a list showing what each proposal does, which routine made it, and when. Open one to compare the current page with the proposed title, type, and content, then choose **Approve** or **Reject**.
+
+Approving applies the change with your own permissions, exactly as if you had made the edit: approving a delete needs permission to delete pages, and the change appears in the Audit Logs under your name. A proposal is based on the page version Mate read. If someone has changed or deleted the page since, the proposal is marked **Page changed** and cannot be approved; reject it, or ask Mate to propose the change again. When a routine proposes another change to the same page, the newer proposal replaces the older one. Edits you ask Mate for in a chat are saved at once, and connected MCP clients write pages directly, as before.
+
 ### Set up from your homepage
 
 When Mate is enabled in a cloud workspace, the owner can enter a company homepage during onboarding and choose **Build my Knowledge Base** (a bare domain such as `example.com` works), or **Not now** to skip; invited members do not see this step. In an empty Knowledge Base, **Build from my website** opens a Mate chat that asks for the address and starts the same website import.

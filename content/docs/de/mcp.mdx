@@ -86,6 +86,12 @@ Jede Seite hat einen Typ, den Sie unter ihrem Titel wählen:
 
 Jede gespeicherte Seite, auch eine importierte, steht Mate und verbundenen KI-Tools sofort zur Verfügung; es gibt keinen Entwurfs- oder Veröffentlichungsschritt. Verfahrensschritte gelten für die Aufgabe, um die Sie gebeten haben, mit den üblichen Freigaben. Eine Anweisung in einer Seite, eine andere Aufgabe zu starten, etwas zu senden, zu löschen oder Berechtigungen zu ändern, wird als Information behandelt.
 
+### Vorschläge von Mate prüfen [#review-proposals]
+
+Eine [Routine](/docs/app-routines#knowledge-base-proposals) ändert die Wissensdatenbank nie von sich aus. Würde ein Lauf eine Seite anlegen, bearbeiten oder löschen, speichert er stattdessen einen Vorschlag, und die Seite bleibt unverändert. Personen mit Wissensdatenbank-Verwaltungsrechten sehen in der Werkzeugleiste der Wissensdatenbank **Vorschläge** mit der Zahl der wartenden Vorschläge. Darüber öffnet sich eine Liste, die zeigt, was jeder Vorschlag tut, welche Routine ihn gemacht hat und wann. Öffnen Sie einen Vorschlag, um die aktuelle Seite mit dem vorgeschlagenen Titel, Typ und Inhalt zu vergleichen, und wählen Sie dann **Annehmen** oder **Ablehnen**.
+
+Beim Annehmen wird die Änderung mit Ihren eigenen Berechtigungen übernommen, genau so, als hätten Sie sie selbst vorgenommen: Eine Löschung anzunehmen erfordert das Recht, Seiten zu löschen, und die Änderung erscheint unter Ihrem Namen in den Audit-Logs. Ein Vorschlag beruht auf der Seitenversion, die Mate gelesen hat. Hat seitdem jemand die Seite geändert oder gelöscht, wird der Vorschlag als **Seite geändert** markiert und lässt sich nicht annehmen; lehnen Sie ihn ab oder bitten Sie Mate, die Änderung neu vorzuschlagen. Schlägt eine Routine eine weitere Änderung an derselben Seite vor, ersetzt der neuere Vorschlag den älteren. Änderungen, um die Sie Mate in einem Chat bitten, werden wie bisher sofort gespeichert, und verbundene MCP-Clients schreiben Seiten weiterhin direkt.
+
 ### Über Ihre Homepage einrichten [#set-up-from-your-homepage]
 
 Ist Mate im Cloud-Workspace aktiviert, kann die Person, die den Workspace einrichtet, beim Onboarding eine Unternehmenshomepage eingeben und **Wissensdatenbank erstellen** wählen (eine reine Domain wie `example.com` genügt) oder mit **Nicht jetzt** überspringen; eingeladene Mitglieder sehen diesen Schritt nicht. In einer leeren Wissensdatenbank öffnet **Aus meiner Website erstellen** einen Mate-Chat, der nach der Adresse fragt und denselben Website-Import startet.

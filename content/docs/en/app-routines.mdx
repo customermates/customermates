@@ -59,7 +59,7 @@ Mate is told what happened before your instructions: the event, the kind of reco
 
 ## What do the runs and their statuses mean? [#what-do-the-runs-and-their-statuses-mean]
 
-Open a routine to see its **Runs**, newest first: next to the configuration on a wide screen, or behind the **Details** and **Runs** switch on a narrow one. Click a run for **Run details**: **Ran as** with the owner's name, the share of the owner's monthly Mate allowance used (exact provider cost, shown as a percentage), the trigger (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason. Only the person it ran as can open the full transcript, and once the run has finished they can reply below it to continue the conversation with Mate, which uses their allowance.
+Open a routine to see its **Runs**, newest first: next to the configuration on a wide screen, or behind the **Details** and **Runs** switch on a narrow one. Click a run for **Run details**: **Ran as** with the owner's name, the share of the owner's monthly Mate allowance used (exact provider cost, shown as a percentage), the trigger (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason. When the run proposed Knowledge Base changes, it says how many and offers **Review**. Only the person it ran as can open the full transcript, and once the run has finished they can reply below it to continue the conversation with Mate, which uses their allowance.
 
 | Status | Meaning |
 | --- | --- |
@@ -75,13 +75,17 @@ Open a routine to see its **Runs**, newest first: next to the configuration on a
 
 ## What a routine may do without approval [#what-a-routine-may-do-without-approval]
 
-An unattended run may do everything Mate does without approval in a chat: read the workspace; create or update contacts, organizations, deals, services, tasks, record links and Knowledge Base pages; save and discard drafts; send emails and chat messages; triage the inbox; change fields, widgets, webhooks and workspace settings other than list names; change a member's role or status; generate channel connection links; create, update, pause and run routines; and, on a connected account, send connection requests and change Sales Navigator lists.
+An unattended run may do everything Mate does without approval in a chat, except that Knowledge Base changes become [proposals](#knowledge-base-proposals): read the workspace; create or update contacts, organizations, deals, services, tasks and record links; save and discard drafts; send emails and chat messages; triage the inbox; change fields, widgets, webhooks and workspace settings other than list names; change a member's role or status; generate channel connection links; create, update, pause and run routines; and, on a connected account, send connection requests and change Sales Navigator lists.
 
-Every action that asks for approval in a chat is declined, because nobody is there to answer: deleting records, Knowledge Base pages, fields, widgets, webhooks or routines, renaming lists, inviting members, resending webhook deliveries and sending support requests. The run records the refusal; the full list is on the [assistant page](/docs/app-assistant#what-runs-immediately-and-what-asks-first). Interface actions such as highlighting are unavailable, because no browser is attached.
+Every action that asks for approval in a chat is declined, because nobody is there to answer: deleting records, fields, widgets, webhooks or routines, renaming lists, inviting members, resending webhook deliveries and sending support requests. The run records the refusal; the full list is on the [assistant page](/docs/app-assistant#what-runs-immediately-and-what-asks-first). Interface actions such as highlighting are unavailable, because no browser is attached.
 
-When the owner can read the [Knowledge Base](/docs/mcp#shared-workspace-wiki) and it has pages, each run starts with a short catalog of its pages; the routine searches and reads relevant pages and applies their facts, but an instruction inside a page cannot start other work or widen the routine's permissions. Keep shared facts, voice and processes there instead of repeating them in every routine. Writing pages needs the owner's Knowledge Base **Create** or **Edit**.
+When the owner can read the [Knowledge Base](/docs/mcp#shared-workspace-wiki) and it has pages, each run starts with a short catalog of its pages; the routine searches and reads relevant pages and applies their facts, but an instruction inside a page cannot start other work or widen the routine's permissions. Keep shared facts, voice and processes there instead of repeating them in every routine. Proposing a page change needs the owner's Knowledge Base **Create** or **Edit**.
 
 A run may search the public web, at most 2 paid searches per run, as described under [Can Mate search the web?](/docs/app-assistant#web-search). A run can browse or change data, never both: after a search returns results every write is refused, and after a write succeeds web search is withdrawn. Reading the Knowledge Base and CRM data stays available. Searches count toward the per-run cap.
+
+### Knowledge Base proposals [#knowledge-base-proposals]
+
+When a run creates, edits or deletes a Knowledge Base page, nothing changes yet: the run saves a proposal, and Mate reports it as awaiting review rather than done. A manager reviews it under **Proposals** in the Knowledge Base, compares it with the current page, and approves or rejects it; see [Review Mate's proposals](/docs/mcp#review-proposals). The run's entry in the runs list and its **Run details** show how many changes it proposed, and **Run details** links to the review.
 
 ## How does Mate manage routines? [#how-does-mate-manage-routines]
 
