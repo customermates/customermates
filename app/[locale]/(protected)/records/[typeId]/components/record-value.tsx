@@ -9,16 +9,17 @@ import type { CalculatedValue, RecordFieldView } from "@/features/records/record
 import { AppChip } from "@/components/chip/app-chip";
 import { toChipColor } from "@/constants/chip-colors";
 
+export function EmptyValue() {
+  return <span className="text-muted-foreground">—</span>;
+}
+
 type DecimalFormat = { currency?: string | null; compact?: boolean; maximumFractionDigits?: number };
 
 export function useRecordValueFormat() {
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;
   return {
-    decimal: (
-      value: string | number,
-      { currency = null, compact = false, maximumFractionDigits }: DecimalFormat = {},
-    ) =>
+    decimal: (value: string | number, { currency = null, compact = false, maximumFractionDigits }: DecimalFormat = {}) =>
       new Intl.NumberFormat(locale, {
         style: currency ? "currency" : "decimal",
         ...(currency ? { currency } : {}),
@@ -35,14 +36,16 @@ export function useRecordValueFormat() {
 export const RecordValue = observer(function RecordValue({
   result,
   field,
+  wrap = false,
 }: {
   result?: CalculatedValue;
   field: RecordFieldView;
+  wrap?: boolean;
 }) {
   const intl = useHydratedIntlStore();
-  const format = useRecordValueFormat();
+  const valueFormat = useRecordValueFormat();
   const t = useTranslations();
-  if (!result || result.state === "missing") return <span className="text-muted-foreground">—</span>;
+  if (!result || result.state === "missing") return <EmptyValue />;
   if (result.state === "restricted")
     return <span className="text-muted-foreground">{t("RecordModel.restricted")}</span>;
   if (result.state === "error") return <span className="text-destructive">{t("RecordModel.calculationError")}</span>;
@@ -58,7 +61,7 @@ export const RecordValue = observer(function RecordValue({
   if (value.kind === "decimal") {
     return (
       <span className="font-mono tabular-nums">
-        {format.decimal(value.value, {
+        {valueFormat.decimal(value.value, {
           currency: value.currency,
           maximumFractionDigits: field.format?.decimalPlaces ?? (value.currency ? 2 : 10),
         })}
@@ -90,5 +93,5 @@ export const RecordValue = observer(function RecordValue({
   }
   if (value.kind === "richText") return null;
   if (value.kind === "member") return <span>{t("RecordModel.member")}</span>;
-  return <span className="truncate">{value.value}</span>;
+  return <span className={wrap ? "whitespace-pre-wrap break-words" : "truncate"}>{value.value}</span>;
 });

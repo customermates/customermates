@@ -169,6 +169,8 @@ describeDatabase("deactivating a teammate and the routines it disables", { timeo
 
     expect(rows.map((row) => row.kind)).toEqual(["user.updated"]);
     expect(rows[0].actorId).toBe(admin);
-    expect(rows[0].payload).toMatchObject({ status: Status.inactive });
+    expect(rows[0].payload).toMatchObject({
+      changes: { status: { previous: Status.active, current: Status.inactive } },
+    });
   });
 });

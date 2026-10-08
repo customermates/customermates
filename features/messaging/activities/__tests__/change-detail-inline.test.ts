@@ -34,8 +34,16 @@ vi.mock("../activities-row", () => ({
   TypeBadge: () => null,
 }));
 vi.mock("@/app/[locale]/(protected)/records/[typeId]/components/record-value", () => ({
-  RecordValue: ({ result }: { result: { state: string; value?: { text?: string } } }) =>
-    result.state === "value" ? (result.value?.text ?? "rich") : result.state,
+  EmptyValue: () => "—",
+  RecordValue: ({ result }: { result: { state: string; value?: { text?: string; value?: unknown } } }) =>
+    result.state === "value" ? String(result.value?.text ?? result.value?.value ?? "rich") : result.state,
+}));
+vi.mock("@/components/shared/avatar-stack", () => ({
+  AvatarStack: ({ items }: { items: Array<{ firstName: string }> }) => items.map((item) => item.firstName).join(","),
+}));
+vi.mock("@/components/chip/app-chip-stack", () => ({
+  AppChipStack: ({ items, variant }: { items: Array<{ label: string }>; variant?: string }) =>
+    `${variant ?? "default"}:${items.map((item) => item.label).join(",")}`,
 }));
 vi.mock("@/components/card/app-card", () => ({ AppCard: passthrough }));
 vi.mock("@/components/card/app-card-body", () => ({ AppCardBody: passthrough }));
@@ -92,6 +100,8 @@ function renderRecord(fields: unknown[]) {
       links: [],
       related: [],
     },
+    members: [],
+    lists: {},
   } as unknown as Extract<ActivityEntryDto, { kind: "record" }>;
   return renderToStaticMarkup(createElement(RecordAuditDetail, { entry }));
 }
@@ -108,13 +118,22 @@ describe("change detail", () => {
         assignments: { before: [], after: ["user-1"] },
         identities: null,
         links: [],
-        related: [],
+        related: [
+          {
+            label: "Deals",
+            before: [],
+            after: [{ ref: { typeId: "type-deals", recordId: "deal-1" }, title: "Renewal" }],
+          },
+        ],
       },
+      members: [{ id: "user-1", firstName: "Ada", lastName: "Lovelace", avatarUrl: null }],
+      lists: { "type-deals": { icon: "handshake", color: "info" } },
     } as unknown as Extract<ActivityEntryDto, { kind: "record" }>;
     const markup = renderToStaticMarkup(createElement(RecordAuditDetail, { entry }));
 
     expect(markup).toMatch(new RegExp(`Name.*Old name.*${ARROW}.*New name`));
-    expect(markup).toMatch(new RegExp(`RecordModel.assignedMembers.*0.*${ARROW}.*1`));
+    expect(markup).toMatch(new RegExp(`RecordModel.assignedTo.*—.*${ARROW}.*Ada`));
+    expect(markup).toMatch(new RegExp(`Deals.*—.*${ARROW}.*info:Renewal`));
     expect(markup).not.toContain("RecordModel.previousValue");
     expect(markup).not.toContain("rounded-md border p-3");
   });
@@ -132,12 +151,8 @@ describe("change detail", () => {
         }),
       );
 
-    expect(render(DomainEvent.WEBHOOK_CREATED)).toMatch(
-      new RegExp(`AuditLogModal.noValue.*${ARROW}.*https://receiver.example`),
-    );
-    expect(render(DomainEvent.WEBHOOK_DELETED)).toMatch(
-      new RegExp(`https://receiver.example.*${ARROW}.*AuditLogModal.noValue`),
-    );
+    expect(render(DomainEvent.WEBHOOK_CREATED)).toMatch(new RegExp(`—.*${ARROW}.*https://receiver.example`));
+    expect(render(DomainEvent.WEBHOOK_DELETED)).toMatch(new RegExp(`https://receiver.example.*${ARROW}.*—`));
   });
 
   it("shows a record access change per type and role as previous → current", () => {
@@ -171,7 +186,7 @@ describe("change detail", () => {
 
     expect(markup).toContain("42");
     expect(markup).not.toContain(ARROW);
-    expect(markup).not.toContain("AuditLogModal.noValue");
+    expect(markup).not.toContain("—");
   });
 
   it("diffs rich text by line, skips a change without a visible difference and falls back for restricted values", () => {
@@ -190,7 +205,7 @@ describe("change detail", () => {
     const restricted = renderRecord([
       { fieldId: "notes-1", before: richText("notes-1", null), after: richText("notes-1", "Visible") },
     ]);
-    expect(restricted).toMatch(new RegExp(`restricted.*${ARROW}.*rich`));
+    expect(restricted).toMatch(new RegExp(`restricted.*${ARROW}.*Visible`));
     expect(restricted).not.toContain("bg-success/10");
   });
 });
