@@ -1,3 +1,4 @@
+import { openFilterPalette, pickPaletteField, choosePaletteValue } from "./filter-palette";
 import { randomUUID } from "node:crypto";
 import type { Page, Locator } from "@playwright/test";
 import type { Client } from "pg";
@@ -70,16 +71,14 @@ async function openWidgetFilters(page: Page) {
   if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
 }
 
-async function addFilter(page: Page, kind: "provider" | "account" | "thread", index: number, value: string) {
+async function addFilter(page: Page, kind: "provider" | "account" | "thread", _index: number, value: string) {
   await openWidgetFilters(page);
-  await page
-    .locator(':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"])[role="dialog"]')
-    .locator("#activity-add-filter")
-    .click();
-  await page
-    .getByRole("option", { name: englishMessages.RecordActivityWidgets.filterKinds[kind], exact: true })
-    .click();
-  await chooseMultiple(page, `[id="activityQuery.filters[${index}].values"]`, value);
+  await choosePaletteValue(
+    page,
+    "widget-activity-filters",
+    { provider: "provider", account: "connectedAccountId", thread: "timelineThreadId" }[kind],
+    value,
+  );
 }
 
 async function previewMessages(page: Page, present: string[], absent: string[] = []) {
@@ -91,16 +90,22 @@ async function previewMessages(page: Page, present: string[], absent: string[] =
 
 async function todayBound(page: Page, key: "after" | "before", time: string) {
   await openWidgetFilters(page);
-  await page
-    .locator(':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"])[role="dialog"]')
-    .locator(`[id="activityQuery.${key}"]`)
-    .click();
-  const calendar = page.locator('[data-slot="popover-content"][data-state="open"]');
+  await openFilterPalette(page, "widget-activity-filters");
+  await pickPaletteField(page, `activity:${key}`);
+  await page.locator(`[data-palette-value="${key === "after" ? "gte" : "lte"}"]`).click();
+  await page.locator('[id="draft.value"]').click();
+  const calendar = page
+    .locator('[data-slot="popover-content"]')
+    .filter({ has: page.locator('[id="draft.value-time"]') });
   await calendar.getByRole("button", { name: englishMessages.Common.datePresets.today, exact: true }).click();
-  await calendar.locator(`[id="activityQuery.${key}-time"]`).fill(time);
-  await calendar.locator(`[id="activityQuery.${key}-time"]`).press("Enter");
+  await calendar.locator('[id="draft.value-time"]').fill(time);
+  await calendar.locator('[id="draft.value-time"]').press("Enter");
   await page.keyboard.press("Escape");
   await expect(calendar).toHaveCount(0);
+  await page.locator("#filter-palette-back").click();
+  await page.locator("#filter-palette-back").click();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
 }
 
 test("shows contact messages on organizations and applies provider, channel, conversation and date filters to a persisted widget", async ({
@@ -284,6 +289,22 @@ test("shows contact messages on organizations and applies provider, channel, con
   await expect(card.getByText(selectedBody, { exact: true })).toBeVisible();
   for (const body of [wrongProviderBody, wrongAccountBody, wrongThreadBody, oldBody, futureBody])
     await expect(card.getByText(body, { exact: true })).toHaveCount(0);
+  await page.getByRole("heading", { name: widgetName, exact: true }).click();
+  await openWidgetFilters(page);
+  await openFilterPalette(page, "widget-activity-filters");
+  await expect(page.locator("[data-palette-active-filters]")).toContainText(accounts[0].name);
+  await expect(page.locator("[data-palette-active-filters]")).toContainText(threads[0].subject);
+  await page.locator('[data-filter-index="2"]').click();
+  await expect(page.locator(`[data-palette-value="${selectedThread}"]`)).toHaveAttribute(
+    "data-palette-selected",
+    "true",
+  );
+  await expect(page.locator(`[data-palette-value="${selectedThread}"]`)).toContainText(threads[0].subject);
+  await page.locator("#filter-palette-back").click();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("activity-widget-persisted-filters.png"), fullPage: true });
   const openInInbox = page.getByRole("link", { name: englishMessages.ContactHistory.ariaOpenInInbox, exact: true });
   const messageDetail = page.getByRole("dialog").filter({ has: openInInbox });

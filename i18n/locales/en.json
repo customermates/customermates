@@ -1250,6 +1250,7 @@
         "isNull": "is empty",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "Does not equal",
         "notIn": "not in",
         "notInLastDays": "older than",
         "startsWith": "Starts with"
@@ -2951,21 +2952,11 @@
     "after": "From",
     "allRecords": "Leave records empty to include every accessible record of this type.",
     "before": "Until",
-    "clearConversation": "Clear conversation filter",
     "filterKinds": {
-      "account": "Channel",
-      "provider": "Provider",
-      "record": "Related records",
-      "source": "Activity type",
-      "thread": "Conversation"
-    },
-    "operators": {
-      "hasNone": "Has no linked record",
-      "hasSome": "Has a linked record",
-      "in": "Includes any of",
-      "notIn": "Excludes all of"
+      "provider": "Provider"
     },
     "records": "Records",
+    "savedFilters": "Saved scope filters",
     "scopeHelp": "Leave the scope empty for all accessible activity. Selected types and records are combined; additional filters must all match.",
     "types": "Record types"
   },
@@ -3534,14 +3525,7 @@
     "triggerFiltersHelp": "Leave empty to match every record."
   },
   "RecordWidgets": {
-    "addFilter": "Add filter",
-    "addRelatedFilter": "Add a linked-record filter",
     "attribution": "A record can appear in several groups. Group totals may exceed the overall total.",
-    "filterDays": "Number of days",
-    "filterFrom": "From",
-    "filterOperator": "Condition",
-    "filterUntil": "Until",
-    "filterValue": "Value",
     "funnelClosedStage": "{label}: {value}, a lost stage shown outside the funnel.",
     "funnelTooltip": "{value} ({conversion} of the previous step)",
     "group": "Group by",
@@ -3563,24 +3547,6 @@
     "measure": "Measure",
     "noRecordsInPeriod": "No records",
     "notes": "About these numbers",
-    "operators": {
-      "all": "Has all of",
-      "between": "Between",
-      "contains": "Contains",
-      "empty": "Is empty",
-      "eq": "Equals",
-      "gt": "Greater than",
-      "gte": "At least",
-      "in": "Is one of",
-      "inLastDays": "In the last days",
-      "lt": "Less than",
-      "lte": "At most",
-      "ne": "Does not equal",
-      "notEmpty": "Is not empty",
-      "notIn": "Is not one of",
-      "notInLastDays": "Older than (days)",
-      "startsWith": "Starts with"
-    },
     "overall": "Overall: {value}",
     "previewFailed": "The preview could not be loaded. Try again.",
     "quarterLabel": "Q{quarter} {year}",
@@ -3593,10 +3559,7 @@
     },
     "recordCount": "{count, plural, one {# record} other {# records}}",
     "relatedAny": "At least one accessible linked record matches",
-    "relatedFilterHelp": "All conditions in a linked-record filter apply to the same record. Only records you can access are considered.",
-    "relatedMatch": "Linked records",
     "relatedNone": "No accessible linked records match",
-    "removeFilter": "Remove filter",
     "search": "Search records",
     "signedChart": "Negative values are shown as a list. Choose a bar chart to plot them.",
     "source": "Records from",

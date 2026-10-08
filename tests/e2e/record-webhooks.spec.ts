@@ -1,3 +1,4 @@
+import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
@@ -78,7 +79,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   await webhook.locator('[id="recordTrigger.changedFieldIds"]').click();
   await page.getByRole("option", { name: field.rows[0].label, exact: true }).click();
   await page.keyboard.press("Escape");
-  await webhook.locator('[id="recordTrigger.query.search"]').fill("Ready");
+  await setPaletteText(page, "record-trigger-filters", "query:search", "Ready");
   await webhook.getByRole("button", { name: "Save", exact: true }).click();
   await expect(webhook).not.toBeVisible();
   const saved = await database.query(
@@ -96,7 +97,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   await page.getByRole("button", { name: receiverUrl, exact: true }).click();
   await expect(webhook.getByRole("combobox", { name: "Records from", exact: false })).toContainText("Projects");
   await expect(webhook.locator('[id="recordTrigger.changedFieldIds"]')).toContainText(field.rows[0].label);
-  await expect(webhook.locator('[id="recordTrigger.query.search"]')).toHaveValue("Ready");
+  await expectPaletteText(page, "record-trigger-filters", "query:search", "Ready");
   await webhook
     .locator("[data-record-trigger]")
     .screenshot({ path: testInfo.outputPath("custom-type-webhook.png"), animations: "disabled" });

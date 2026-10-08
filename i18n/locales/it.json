@@ -1250,6 +1250,7 @@
         "isNull": "è vuoto",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "È diverso da",
         "notIn": "non è uno di",
         "notInLastDays": "più vecchio di",
         "startsWith": "Inizia con"
@@ -2951,21 +2952,11 @@
     "after": "Da",
     "allRecords": "Senza selezione vengono inclusi tutti i record accessibili di questo tipo.",
     "before": "Fino a",
-    "clearConversation": "Rimuovi filtro conversazione",
     "filterKinds": {
-      "account": "Canale",
-      "provider": "Fornitore",
-      "record": "Record correlati",
-      "source": "Tipo di attività",
-      "thread": "Conversazione"
-    },
-    "operators": {
-      "hasNone": "Non ha record collegati",
-      "hasSome": "Ha un record collegato",
-      "in": "Include almeno uno di",
-      "notIn": "Esclude tutti"
+      "provider": "Fornitore"
     },
     "records": "Record",
+    "savedFilters": "Filtri di ambito salvati",
     "scopeHelp": "Senza selezione vengono mostrate tutte le attività accessibili. I tipi e i record selezionati vengono combinati; tutti i filtri aggiuntivi devono corrispondere.",
     "types": "Tipi di record"
   },
@@ -3534,14 +3525,7 @@
     "triggerFiltersHelp": "Lascia vuoto per includere tutti i record."
   },
   "RecordWidgets": {
-    "addFilter": "Aggiungi filtro",
-    "addRelatedFilter": "Aggiungi filtro sui record collegati",
     "attribution": "Un record può apparire in più gruppi. La somma dei gruppi può superare il totale complessivo.",
-    "filterDays": "Numero di giorni",
-    "filterFrom": "Da",
-    "filterOperator": "Condizione",
-    "filterUntil": "Fino a",
-    "filterValue": "Valore",
     "funnelClosedStage": "{label}: {value}, una fase persa mostrata fuori dall’imbuto.",
     "funnelTooltip": "{value} ({conversion} del passaggio precedente)",
     "group": "Raggruppa per",
@@ -3563,24 +3547,6 @@
     "measure": "Misura",
     "noRecordsInPeriod": "Nessun record",
     "notes": "Informazioni su questi numeri",
-    "operators": {
-      "all": "Ha tutti",
-      "between": "Tra",
-      "contains": "Contiene",
-      "empty": "È vuoto",
-      "eq": "È uguale a",
-      "gt": "Maggiore di",
-      "gte": "Almeno",
-      "in": "È uno di",
-      "inLastDays": "Negli ultimi giorni",
-      "lt": "Minore di",
-      "lte": "Al massimo",
-      "ne": "È diverso da",
-      "notEmpty": "Non è vuoto",
-      "notIn": "Non è uno di",
-      "notInLastDays": "Più vecchio di (giorni)",
-      "startsWith": "Inizia con"
-    },
     "overall": "Totale: {value}",
     "previewFailed": "Impossibile caricare l’anteprima. Riprova.",
     "quarterLabel": "T{quarter} {year}",
@@ -3593,10 +3559,7 @@
     },
     "recordCount": "{count, plural, one {# record} other {# record}}",
     "relatedAny": "Almeno un record collegato accessibile corrisponde",
-    "relatedFilterHelp": "Tutte le condizioni di un filtro sui record collegati si applicano allo stesso record. Vengono considerati solo i record a cui hai accesso.",
-    "relatedMatch": "Record collegati",
     "relatedNone": "Nessun record collegato accessibile corrisponde",
-    "removeFilter": "Rimuovi filtro",
     "search": "Cerca record",
     "signedChart": "I valori negativi sono mostrati in un elenco. Scegli un grafico a barre per rappresentarli.",
     "source": "Record da",

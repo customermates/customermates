@@ -1,3 +1,4 @@
+import { openFilterPalette, pickPaletteField } from "./filter-palette";
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import type { Page, Locator, Request, Route, TestInfo } from "@playwright/test";
@@ -115,14 +116,10 @@ test("paginates and retries record and widget history, restores a personal timel
     ).rows;
   const beforeJournal = await journal();
   expect(beforeJournal).toHaveLength(29);
-  const faults = new Set([
-    "record history",
-    "older record history",
-    "dashboard collection",
-    "widget history",
-    "older widget history",
-  ]);
+  const faults = new Set(["older record history", "dashboard collection", "widget history", "older widget history"]);
   let dashboardFaultArmed = false;
+  let recordHistoryFails = true;
+  let widgetHistoryArmed = false;
   await page.route("**/*", async (route) => {
     const args = nextArguments(route.request());
     if (!args) return route.fallback();
@@ -134,20 +131,20 @@ test("paginates and retries record and widget history, restores a personal timel
         const scope = input.scope as { records?: RecordRef[]; typeIds?: string[] };
         if (JSON.stringify(scope.records) === JSON.stringify([ref]) && input.cursor !== null)
           label = "older record history";
-        if (JSON.stringify(scope.typeIds) === JSON.stringify([typeId]))
+        if (widgetHistoryArmed && JSON.stringify(scope.typeIds) === JSON.stringify([typeId]))
           label = input.cursor === null ? "widget history" : "older widget history";
       }
     }
     if (
       dashboardFaultArmed &&
-      args.length === 0 &&
       invokesServerAction(
         route.request(),
         serverActionIds("app/[locale]/(protected)/dashboard/actions.ts", "refreshWidgetsAction"),
       )
     )
       label = "dashboard collection";
-    if (label && faults.delete(label)) await evidence.failResponse(route, label);
+    if (label === "record history" && recordHistoryFails) await evidence.failResponse(route, label);
+    else if (label && faults.delete(label)) await evidence.failResponse(route, label);
     else await route.fallback();
   });
   await page.goto(`/en/records/${ref.typeId}/${ref.recordId}`);
@@ -157,6 +154,7 @@ test("paginates and retries record and widget history, restores a personal timel
   const retry = history.getByRole("button", { name: english.ErrorCard.retry, exact: true });
   const older = history.getByRole("button", { name: english.EntityTimeline.loadOlder, exact: true });
   await expect(retry).toBeVisible();
+  recordHistoryFails = false;
   await retry.click();
   await expect(rows).toHaveCount(25);
   await expect(retry).toHaveCount(0);
@@ -362,6 +360,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await expect(dialog).toHaveCount(0);
   const dashboardError = page.locator('main [data-page-state="error"][role="alert"]');
   await expect(dashboardError).toBeVisible();
+  widgetHistoryArmed = true;
   await dashboardError.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
   await expect(dashboardError).toHaveCount(0);
   const card = page
@@ -592,11 +591,12 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   await dialog.locator("#widget-kind-chart").click();
   const name = "Related price aggregates";
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
-  let schemaFault = true;
+  const modelAction = serverActionIds("app/[locale]/(protected)/records/actions.ts", "getRecordModelAction");
+  let schemaFault = false;
   let previewFault = false;
   await page.route("**/*", async (route) => {
     const args = nextArguments(route.request());
-    if (schemaFault && JSON.stringify(args) === JSON.stringify([[id("service")]])) {
+    if (schemaFault && invokesServerAction(route.request(), modelAction)) {
       schemaFault = false;
       await evidence.failResponse(route, "widget schema");
     } else if (
@@ -610,6 +610,8 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
       await evidence.failResponse(route, "widget preview");
     } else await route.fallback();
   });
+  await expect(dialog.getByText(english.RecordWidgets.loadingSchema, { exact: true })).toHaveCount(0);
+  schemaFault = true;
   await select(page, '[id="measure.source.typeId"]', "Services");
   const schemaRetry = dialog.getByRole("button", { name: english.ErrorCard.retry, exact: true });
   await expect(schemaRetry).toBeVisible();
@@ -678,19 +680,11 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   await select(page, '[id="measure.aggregation"]', english.RecordModel.reducers.sum);
   await chartPreview(page, "€30.00", { New: "€10.00", Won: "€25.00" });
   await expect(dialog.getByText(english.RecordWidgets.attribution, { exact: true })).toBeVisible();
-  await expect(
-    dialog.getByRole("button", {
-      name: english.RecordWidgets.removeFilter,
-      exact: true,
-    }),
-  ).toHaveCount(2);
-  await dialog
-    .getByRole("button", {
-      name: english.RecordWidgets.removeFilter,
-      exact: true,
-    })
-    .nth(1)
-    .click();
+  const removeStep = (label: string) =>
+    dialog.getByRole("button", { name: english.RecordModel.removePathStep.replace("{label}", label), exact: true });
+  await expect(removeStep("Line items")).toHaveCount(1);
+  await expect(removeStep("Deal")).toHaveCount(1);
+  await removeStep("Deal").click();
   await expect(dialog.locator("#widget-group-field")).toContainText(english.RecordWidgets.groupRecord);
   await select(page, "#widget-group-path", "Deal");
   await select(page, "#widget-group-field", "Stage");
@@ -863,11 +857,24 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   ])
     await toggleMultiple(page, '[id="activityQuery.kinds"]', kind);
   await activityPreview(page, [entries[0].body], [entries[1].body]);
-  await openWidgetFilters(page);
-  await select(page, "#activity-add-filter", english.RecordActivityWidgets.filterKinds.record);
-  await select(page, '[id="activityQuery.filters[0].typeId"]', "Organizations");
+  const editRecordFilter = async (operator: "in" | "notIn" | "hasSome" | "hasNone", record?: string) => {
+    await openWidgetFilters(page);
+    await openFilterPalette(page, "widget-activity-filters");
+    const existing = page.locator('[data-filter-index="0"]');
+    if (await existing.count()) await existing.click();
+    else await pickPaletteField(page, `activity:record:${id("organization")}`);
+    await page.locator("[data-palette-operator-trigger]").click();
+    await page.getByRole("menuitem", { name: english.Common.filters.operators[operator], exact: true }).click();
+    if (record) {
+      await page.locator("#filter-palette-search").getByRole("combobox").fill(record);
+      await page.getByRole("option", { name: record, exact: true }).click();
+    }
+    await page.locator("#filter-palette-back").click();
+    await page.keyboard.press("Escape");
+  };
+  await editRecordFilter("hasSome");
   await activityPreview(page, [entries[0].body], [entries[1].body]);
-  await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.hasNone);
+  await editRecordFilter("hasNone");
   await activityPreview(
     page,
     [],
@@ -876,10 +883,9 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await expect(dialog.locator('[data-slot="widget-preview"] ol > li')).toHaveCount(0);
   await toggleMultiple(page, `#activity-scope-${id("contact")}`, entries[0].name);
   await activityPreview(page, [entries[1].body], [entries[0].body]);
-  await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.in);
-  await toggleMultiple(page, '[id="activityQuery.filters[0].recordIds"]', "Activity scope organization");
+  await editRecordFilter("in", "Activity scope organization");
   await activityPreview(page, [entries[0].body], [entries[1].body]);
-  await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.notIn);
+  await editRecordFilter("notIn");
   await activityPreview(page, [entries[1].body], [entries[0].body]);
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.record);
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.messages);
@@ -891,21 +897,15 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   await expect(dialog.getByText(entries[1].name, { exact: true })).toBeVisible();
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.messages);
   await toggleMultiple(page, '[id="activityQuery.kinds"]', english.EntityTimeline.types.record);
-  await dialog
-    .getByRole("button", {
-      name: english.RecordWidgets.removeFilter,
-      exact: true,
-    })
-    .click();
+  await openFilterPalette(page, "widget-activity-filters");
+  await page.locator('[data-palette-remove-filter="0"]').click();
+  await page.keyboard.press("Escape");
   await activityPreview(
     page,
     entries.map((entry) => entry.body),
     [],
   );
-  await openWidgetFilters(page);
-  await select(page, "#activity-add-filter", english.RecordActivityWidgets.filterKinds.record);
-  await select(page, '[id="activityQuery.filters[0].typeId"]', "Organizations");
-  await select(page, '[id="activityQuery.filters[0].operator"]', english.RecordActivityWidgets.operators.hasNone);
+  await editRecordFilter("hasNone");
   await activityPreview(page, [entries[1].body], [entries[0].body]);
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
@@ -1420,7 +1420,10 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
   const beforeBulk = await receiptCount();
   bulkFaultsRemaining = 2;
-  await page.getByRole("dialog", { name: "Edit", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Edit", exact: true })
+    .getByRole("button", { name: "Save", exact: true })
+    .click();
   await expect(page.getByRole("dialog", { name: "Edit", exact: true })).not.toBeVisible();
   await expect(mass.getByRole("button", { name: english.ErrorCard.retry, exact: true })).toBeVisible();
   expect(await receiptCount()).toBe(beforeBulk + 1);

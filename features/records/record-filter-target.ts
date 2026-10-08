@@ -1,6 +1,12 @@
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { RecordField, RecordModel, RecordRelationship, RecordScalar } from "./record-model.schema";
+import type {
+  RecordField,
+  RecordFieldView,
+  RecordModelView,
+  RecordRelationship,
+  RecordScalar,
+} from "./record-model.schema";
 import type { RecordQuery } from "./record-query.schema";
 import type { RecordPathStep } from "./record-relationship-path.schema";
 
@@ -11,7 +17,7 @@ import { filterScalar, recordColumnPresentation, recordFilterableFields } from "
 
 type RecordFilter = RecordQuery["filters"][number];
 type RecordRelatedFilter = NonNullable<RecordQuery["relatedFilters"]>[number];
-type QueryFilters = Pick<RecordQuery, "filters" | "relationships" | "relatedFilters">;
+export type QueryFilters = Pick<RecordQuery, "filters" | "relationships" | "relatedFilters" | "search">;
 type SystemLabels = {
   createdAt: string;
   updatedAt: string;
@@ -62,7 +68,7 @@ export function parseRelatedRecordKey(key: string): RecordPathStep[] | null {
   return key.startsWith(RELATED_RECORD_PREFIX) ? decodePath(key.slice(RELATED_RECORD_PREFIX.length)) : null;
 }
 
-function liveRelationships(model: RecordModel) {
+function liveRelationships(model: RecordModelView) {
   return model.relationships.filter((relation) => !relation.archived);
 }
 
@@ -73,7 +79,7 @@ function stepFrom(relation: RecordRelationship, direction: RecordPathStep["direc
   };
 }
 
-function pathEnd(model: RecordModel, typeId: string, path: RecordPathStep[]) {
+export function recordFilterPathEnd(model: RecordModelView, typeId: string, path: RecordPathStep[]) {
   let current = typeId;
   const labels: string[] = [];
   for (const step of path) {
@@ -88,7 +94,7 @@ function pathEnd(model: RecordModel, typeId: string, path: RecordPathStep[]) {
   return { typeId: current, label: labels.join(" › ") };
 }
 
-function outgoingSteps(model: RecordModel, typeId: string): RecordPathStep[] {
+function outgoingSteps(model: RecordModelView, typeId: string): RecordPathStep[] {
   return liveRelationships(model).flatMap((relation) =>
     (["outgoing", "incoming"] as const).flatMap((direction) =>
       (direction === "outgoing" ? relation.sourceTypeId : relation.targetTypeId) === typeId
@@ -98,27 +104,30 @@ function outgoingSteps(model: RecordModel, typeId: string): RecordPathStep[] {
   );
 }
 
-function reachablePaths(model: RecordModel, typeId: string, extra: RecordPathStep[][]): RecordPathStep[][] {
+function reachablePaths(model: RecordModelView, typeId: string, extra: RecordPathStep[][]): RecordPathStep[][] {
   const paths: RecordPathStep[][] = [];
   const visit = (path: RecordPathStep[], at: string) => {
     if (path.length) paths.push(path);
     if (path.length === MAX_RELATED_DEPTH) return;
     for (const step of outgoingSteps(model, at)) {
-      const end = pathEnd(model, typeId, [...path, step]);
+      const end = recordFilterPathEnd(model, typeId, [...path, step]);
       if (end) visit([...path, step], end.typeId);
     }
   };
   visit([], typeId);
   const known = new Set(paths.map(encodePath));
-  return [...paths, ...extra.filter((path) => !known.has(encodePath(path)) && pathEnd(model, typeId, path))];
+  return [
+    ...paths,
+    ...extra.filter((path) => !known.has(encodePath(path)) && recordFilterPathEnd(model, typeId, path)),
+  ];
 }
 
-function typeFields(model: RecordModel, typeId: string): RecordField[] {
+function typeFields(model: RecordModelView, typeId: string): RecordFieldView[] {
   return model.fields.filter((field) => field.typeId === typeId && !field.archived);
 }
 
 export function recordFilterTarget(
-  model: RecordModel,
+  model: RecordModelView,
   typeId: string,
   labels: SystemLabels,
   existing: Pick<RecordQuery, "relatedFilters"> = {},
@@ -138,7 +147,7 @@ export function recordFilterTarget(
     { id: "system:updatedAt", label: labels.updatedAt, type: "dateTime" },
     { id: "system:assignedTo", label: labels.assignedTo, type: "member" },
     ...outgoingSteps(model, typeId).flatMap((step) => {
-      const end = pathEnd(model, typeId, [step]);
+      const end = recordFilterPathEnd(model, typeId, [step]);
       return end
         ? [
             {
@@ -156,7 +165,7 @@ export function recordFilterTarget(
     typeId,
     (existing.relatedFilters ?? []).map((filter) => filter.path),
   ).flatMap((path) => {
-    const end = pathEnd(model, typeId, path);
+    const end = recordFilterPathEnd(model, typeId, path);
     if (!end) return [];
     const fields = recordFilterableFields(typeFields(model, end.typeId)).filter(
       (entry) => !entry.field.startsWith("system:"),
@@ -217,17 +226,20 @@ function scalarText(scalar: RecordScalar | null | undefined): string {
 function toPaletteFilter(filter: RecordFilter, field: string): Filter | null {
   switch (filter.operator) {
     case "eq":
-      return {
-        field,
-        operator: FilterOperatorKey.equals,
-        value: scalarText(filter.value),
-      };
-    case "ne":
-      return {
-        field,
-        operator: FilterOperatorKey.notIn,
-        value: [scalarText(filter.value)],
-      };
+    case "ne": {
+      const selection = filter.value && ["select", "member", "boolean"].includes(filter.value.kind);
+      return selection
+        ? {
+            field,
+            operator: filter.operator === "eq" ? FilterOperatorKey.in : FilterOperatorKey.notIn,
+            value: [scalarText(filter.value)],
+          }
+        : {
+            field,
+            operator: filter.operator === "eq" ? FilterOperatorKey.equals : FilterOperatorKey.notEquals,
+            value: scalarText(filter.value),
+          };
+    }
     case "empty":
       return { field, operator: FilterOperatorKey.isNull };
     case "notEmpty":
@@ -319,6 +331,7 @@ export function recordQueryToPaletteFilters(query: QueryFilters): {
 
 const SINGLE_OPERATORS = {
   [FilterOperatorKey.equals]: "eq",
+  [FilterOperatorKey.notEquals]: "ne",
   [FilterOperatorKey.contains]: "contains",
   [FilterOperatorKey.startsWith]: "startsWith",
   [FilterOperatorKey.gt]: "gt",
@@ -327,7 +340,7 @@ const SINGLE_OPERATORS = {
   [FilterOperatorKey.lte]: "lte",
 } as const;
 
-function fieldShape(model: RecordModel, fieldId: string): Pick<RecordField, "valueType" | "format"> | null {
+function fieldShape(model: RecordModelView, fieldId: string): Pick<RecordField, "valueType" | "format"> | null {
   if (fieldId === "system:createdAt" || fieldId === "system:updatedAt")
     return { valueType: "dateTime", format: undefined };
   if (fieldId === "system:assignedTo") return { valueType: "member", format: undefined };
@@ -335,7 +348,7 @@ function fieldShape(model: RecordModel, fieldId: string): Pick<RecordField, "val
   return field ? { valueType: field.valueType, format: field.format } : null;
 }
 
-function toRecordFilter(filter: Filter, fieldId: string, model: RecordModel): RecordFilter | null {
+function toRecordFilter(filter: Filter, fieldId: string, model: RecordModelView): RecordFilter | null {
   const shape = fieldShape(model, fieldId);
   if (!shape) return null;
   const scalar = (raw: string) => filterScalar(raw, shape);
@@ -377,6 +390,7 @@ function toRecordFilter(filter: Filter, fieldId: string, model: RecordModel): Re
         values: filter.value.map(scalar),
       };
     case FilterOperatorKey.equals:
+    case FilterOperatorKey.notEquals:
     case FilterOperatorKey.contains:
     case FilterOperatorKey.startsWith:
     case FilterOperatorKey.gt:
@@ -409,9 +423,9 @@ function linkOperator(filter: Filter): {
 export function paletteFiltersToRecordQuery(
   filters: Filter[],
   retained: RecordRelatedFilter[],
-  model: RecordModel,
+  model: RecordModelView,
 ): QueryFilters {
-  const query: Required<QueryFilters> = {
+  const query: Required<Omit<QueryFilters, "search">> = {
     filters: [],
     relationships: [],
     relatedFilters: [],

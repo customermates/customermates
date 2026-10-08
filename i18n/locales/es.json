@@ -1250,6 +1250,7 @@
         "isNull": "está vacío",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "No es igual a",
         "notIn": "no es uno de",
         "notInLastDays": "más antiguo que",
         "startsWith": "Empieza por"
@@ -2951,21 +2952,11 @@
     "after": "Desde",
     "allRecords": "Sin selección se incluyen todos los registros accesibles de este tipo.",
     "before": "Hasta",
-    "clearConversation": "Borrar filtro de conversación",
     "filterKinds": {
-      "account": "Canal",
-      "provider": "Proveedor",
-      "record": "Registros relacionados",
-      "source": "Tipo de actividad",
-      "thread": "Conversación"
-    },
-    "operators": {
-      "hasNone": "No tiene registros vinculados",
-      "hasSome": "Tiene un registro vinculado",
-      "in": "Incluye cualquiera de",
-      "notIn": "Excluye todos"
+      "provider": "Proveedor"
     },
     "records": "Registros",
+    "savedFilters": "Filtros de alcance guardados",
     "scopeHelp": "Sin selección se muestran todas las actividades accesibles. Los tipos y registros seleccionados se combinan; todos los filtros adicionales deben coincidir.",
     "types": "Tipos de registro"
   },
@@ -3534,14 +3525,7 @@
     "triggerFiltersHelp": "Déjalo vacío para incluir todos los registros."
   },
   "RecordWidgets": {
-    "addFilter": "Añadir filtro",
-    "addRelatedFilter": "Añadir filtro de registros vinculados",
     "attribution": "Un registro puede aparecer en varios grupos. La suma de los grupos puede superar el total.",
-    "filterDays": "Número de días",
-    "filterFrom": "Desde",
-    "filterOperator": "Condición",
-    "filterUntil": "Hasta",
-    "filterValue": "Valor",
     "funnelClosedStage": "{label}: {value}, una etapa perdida que se muestra fuera del embudo.",
     "funnelTooltip": "{value} ({conversion} del paso anterior)",
     "group": "Agrupar por",
@@ -3563,24 +3547,6 @@
     "measure": "Medida",
     "noRecordsInPeriod": "Sin registros",
     "notes": "Sobre estas cifras",
-    "operators": {
-      "all": "Tiene todos de",
-      "between": "Entre",
-      "contains": "Contiene",
-      "empty": "Está vacío",
-      "eq": "Es igual a",
-      "gt": "Mayor que",
-      "gte": "Como mínimo",
-      "in": "Es uno de",
-      "inLastDays": "En los últimos días",
-      "lt": "Menor que",
-      "lte": "Como máximo",
-      "ne": "No es igual a",
-      "notEmpty": "No está vacío",
-      "notIn": "No es uno de",
-      "notInLastDays": "Más antiguo que (días)",
-      "startsWith": "Empieza por"
-    },
     "overall": "Total: {value}",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
     "quarterLabel": "T{quarter} {year}",
@@ -3593,10 +3559,7 @@
     },
     "recordCount": "{count, plural, one {# registro} other {# registros}}",
     "relatedAny": "Coincide al menos un registro vinculado accesible",
-    "relatedFilterHelp": "Todas las condiciones de un filtro de registros vinculados se aplican al mismo registro. Solo se consideran los registros a los que tienes acceso.",
-    "relatedMatch": "Registros vinculados",
     "relatedNone": "No coincide ningún registro vinculado accesible",
-    "removeFilter": "Eliminar filtro",
     "search": "Buscar registros",
     "signedChart": "Los valores negativos se muestran en una lista. Elige un gráfico de barras para representarlos.",
     "source": "Registros de",

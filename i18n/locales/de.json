@@ -1250,6 +1250,7 @@
         "isNull": "ist leer",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "Ist nicht gleich",
         "notIn": "ist nicht in",
         "notInLastDays": "älter als",
         "startsWith": "Beginnt mit"
@@ -2951,21 +2952,11 @@
     "after": "Von",
     "allRecords": "Ohne Datensatzauswahl werden alle zugänglichen Datensätze dieses Typs einbezogen.",
     "before": "Bis",
-    "clearConversation": "Unterhaltungsfilter entfernen",
     "filterKinds": {
-      "account": "Kanal",
-      "provider": "Anbieter",
-      "record": "Verknüpfte Datensätze",
-      "source": "Aktivitätstyp",
-      "thread": "Unterhaltung"
-    },
-    "operators": {
-      "hasNone": "Hat keinen verknüpften Datensatz",
-      "hasSome": "Hat einen verknüpften Datensatz",
-      "in": "Enthält mindestens einen von",
-      "notIn": "Schließt alle aus"
+      "provider": "Anbieter"
     },
     "records": "Datensätze",
+    "savedFilters": "Gespeicherte Bereichsfilter",
     "scopeHelp": "Ohne Auswahl werden alle zugänglichen Aktivitäten angezeigt. Ausgewählte Typen und Datensätze werden zusammengefasst; zusätzliche Filter müssen alle zutreffen.",
     "types": "Datensatztypen"
   },
@@ -3534,14 +3525,7 @@
     "triggerFiltersHelp": "Leer lassen, um alle Datensätze zu erfassen."
   },
   "RecordWidgets": {
-    "addFilter": "Filter hinzufügen",
-    "addRelatedFilter": "Filter für verknüpfte Datensätze hinzufügen",
     "attribution": "Ein Datensatz kann in mehreren Gruppen erscheinen. Gruppensummen können die Gesamtsumme übersteigen.",
-    "filterDays": "Anzahl der Tage",
-    "filterFrom": "Von",
-    "filterOperator": "Bedingung",
-    "filterUntil": "Bis",
-    "filterValue": "Wert",
     "funnelClosedStage": "{label}: {value}, eine verlorene Phase außerhalb des Trichters.",
     "funnelTooltip": "{value} ({conversion} des vorherigen Schritts)",
     "group": "Gruppieren nach",
@@ -3563,24 +3547,6 @@
     "measure": "Kennzahl",
     "noRecordsInPeriod": "Keine Datensätze",
     "notes": "Zu diesen Zahlen",
-    "operators": {
-      "all": "Enthält alle von",
-      "between": "Zwischen",
-      "contains": "Enthält",
-      "empty": "Ist leer",
-      "eq": "Ist gleich",
-      "gt": "Größer als",
-      "gte": "Mindestens",
-      "in": "Ist einer von",
-      "inLastDays": "In den letzten Tagen",
-      "lt": "Kleiner als",
-      "lte": "Höchstens",
-      "ne": "Ist nicht gleich",
-      "notEmpty": "Ist nicht leer",
-      "notIn": "Ist keiner von",
-      "notInLastDays": "Älter als (Tage)",
-      "startsWith": "Beginnt mit"
-    },
     "overall": "Insgesamt: {value}",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
     "quarterLabel": "Q{quarter} {year}",
@@ -3593,10 +3559,7 @@
     },
     "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
     "relatedAny": "Mindestens ein zugänglicher verknüpfter Datensatz trifft zu",
-    "relatedFilterHelp": "Alle Bedingungen eines Filters für verknüpfte Datensätze gelten für denselben Datensatz. Nur Datensätze, auf die du Zugriff hast, werden berücksichtigt.",
-    "relatedMatch": "Verknüpfte Datensätze",
     "relatedNone": "Kein zugänglicher verknüpfter Datensatz trifft zu",
-    "removeFilter": "Filter entfernen",
     "search": "Datensätze suchen",
     "signedChart": "Negative Werte werden als Liste angezeigt. Wähle ein Balkendiagramm zur Darstellung.",
     "source": "Datensätze aus",
