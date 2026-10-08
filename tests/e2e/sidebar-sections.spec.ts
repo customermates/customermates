@@ -109,9 +109,9 @@ test("the customize dialog reorders, renames and deletes sections with visible h
   await expect(dialog.getByRole("button", { name: "Move section Data", exact: true })).toBeVisible();
 
   const dataItems = () =>
-    dialog.locator('[data-customize-section="Data"] [data-customize-item]').evaluateAll((rows) =>
-      rows.map((row) => row.getAttribute("data-customize-item")),
-    );
+    dialog
+      .locator('[data-customize-section="Data"] [data-customize-item]')
+      .evaluateAll((rows) => rows.map((row) => row.getAttribute("data-customize-item")));
   const before = await dataItems();
   const tasks = await dialog
     .locator("[data-customize-item]")
@@ -142,12 +142,12 @@ test("the customize dialog reorders, renames and deletes sections with visible h
     await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2 + 10, { steps: 4 });
     await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 12 });
     await page.mouse.up();
-    await expect(later.locator('[data-customize-item]')).toHaveCount(1);
+    await expect(later.locator("[data-customize-item]")).toHaveCount(1);
   } else {
     await dialog.getByRole("button", { name: "Options for Contacts", exact: true }).click();
     await page.getByRole("menuitem", { name: "Move to section", exact: true }).click();
     await page.getByRole("menuitem", { name: "Later", exact: true }).click();
-    await expect(later.locator('[data-customize-item]')).toHaveCount(1);
+    await expect(later.locator("[data-customize-item]")).toHaveCount(1);
   }
 
   await later.getByRole("button", { name: "Later", exact: true }).click();
