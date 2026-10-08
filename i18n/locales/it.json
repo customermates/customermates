@@ -1878,10 +1878,12 @@
     "selectGroup": "Seleziona il gruppo {group}",
     "selectRow": "Seleziona la riga {id}",
     "views": {
+      "activityCount": "{count, plural, one {# attività} other {# attività}}",
       "aiLabel": "Chiedi all’IA della vista {name}",
       "all": "Tutte",
       "applied": "Visualizzazione di {name}",
       "askAi": "Chiedi all'IA",
+      "conversationCount": "{count, plural, one {# conversazione} other {# conversazioni}}",
       "copyLink": "Copia link",
       "createTitle": "Nuova vista",
       "createWithAi": "Crea con IA",
@@ -3624,7 +3626,6 @@
   },
   "RoleModal": {
     "create": "Crea",
-    "delete": "Elimina",
     "edit": "Modifica",
     "manageAccess": "Gestione",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",
@@ -3908,7 +3909,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Postazioni attive",
-    "refresh": "Aggiorna",
     "refreshSuccess": "Abbonamento aggiornato correttamente",
     "seatBillingNote": "Paghi per utente attivo. Le modifiche alle postazioni vengono conteggiate proporzionalmente sulla prossima fattura.",
     "status": {

@@ -109,7 +109,7 @@ export function useChangeValueLabels(): ChangeValueLabels {
         if (action === "readOwn") return `${t("RoleModal.readAccess")}: ${t("RoleModal.readOwn")}`;
         if (action === "readAll") return `${t("RoleModal.readAccess")}: ${t("RoleModal.readAll")}`;
         return t(
-          action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create",
+          action === "update" ? "RoleModal.edit" : action === "delete" ? "Common.actions.delete" : "RoleModal.create",
         );
       },
       resource: (code: string) => (t.has(`RoleModal.resources.${code}`) ? t(`RoleModal.resources.${code}`) : code),

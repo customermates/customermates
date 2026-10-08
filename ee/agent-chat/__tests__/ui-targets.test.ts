@@ -41,7 +41,8 @@ function rendersLiteralId(source: string, id: string) {
     footerScope !== undefined &&
     new RegExp(`<FormFooterActions\\b(?:=>|[^>])*?\\sanchorScope="${footerScope}"`).test(source);
   return (
-    rendersFooterId || [`id="${id}"`, `inputId="${id}"`, `anchorId: "${id}"`].some((form) => source.includes(form))
+    rendersFooterId ||
+    [`id="${id}"`, `inputId="${id}"`, `anchorId="${id}"`, `anchorId: "${id}"`].some((form) => source.includes(form))
   );
 }
 

@@ -1878,10 +1878,12 @@
     "selectGroup": "Gruppe {group} auswählen",
     "selectRow": "Zeile {id} auswählen",
     "views": {
+      "activityCount": "{count, plural, one {# Aktivität} other {# Aktivitäten}}",
       "aiLabel": "KI zu {name} fragen",
       "all": "Alle",
       "applied": "{name} wird angezeigt",
       "askAi": "KI fragen",
+      "conversationCount": "{count, plural, one {# Unterhaltung} other {# Unterhaltungen}}",
       "copyLink": "Link kopieren",
       "createTitle": "Neue Ansicht",
       "createWithAi": "Mit KI erstellen",
@@ -3624,7 +3626,6 @@
   },
   "RoleModal": {
     "create": "Erstellen",
-    "delete": "Löschen",
     "edit": "Bearbeiten",
     "manageAccess": "Verwalten",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
@@ -3908,7 +3909,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Aktive Nutzerplätze",
-    "refresh": "Aktualisieren",
     "refreshSuccess": "Abonnement erfolgreich aktualisiert",
     "seatBillingNote": "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet.",
     "status": {
