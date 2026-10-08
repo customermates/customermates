@@ -42,7 +42,8 @@ export function recordColumns<F extends RecordFieldView = RecordField>(
       kind: "field",
       id: field.id,
       label: field.label,
-      sortable: !["dateRange", "dateTimeRange"].includes(field.valueType),
+      sortable:
+        !["dateRange", "dateTimeRange"].includes(field.valueType) && !(field.valueType === "select" && field.multiple),
       field,
     }));
   for (const relation of model.relationships) {

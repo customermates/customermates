@@ -8,6 +8,9 @@ import { FormInput } from "@/components/forms/form-input";
 import { FormDecimalInput } from "@/components/forms/form-decimal-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormSelect } from "@/components/forms/form-select";
+import { FormAutocomplete } from "@/components/forms/form-autocomplete";
+import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
+import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
@@ -44,6 +47,35 @@ export const RecordInputField = observer(function RecordInputField({
           onChange={(value) => store?.onChange(id, value)}
         />
       </div>
+    );
+  }
+  if (field.valueType === "select" && field.multiple) {
+    const options = field.options.map((option) => ({
+      id: option.id,
+      label: option.label,
+      color: toChipColor(option.color),
+    }));
+    return (
+      <FormAutocomplete
+        {...shared}
+        ariaLabel={label ?? field.label}
+        items={options}
+        renderValue={(selected) =>
+          selected.map((entry) => (
+            <AppChip key={entry.key} variant={entry.data?.color ?? "secondary"}>
+              {entry.data?.label ?? t("RecordModel.unavailableOption")}
+            </AppChip>
+          ))
+        }
+        selectionMode="multiple"
+      >
+        {(option) =>
+          FormAutocompleteItem({
+            textValue: option.label,
+            children: <AppChip variant={option.color}>{option.label}</AppChip>,
+          })
+        }
+      </FormAutocomplete>
     );
   }
   if (field.valueType === "select") {

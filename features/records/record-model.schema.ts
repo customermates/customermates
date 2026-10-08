@@ -68,6 +68,16 @@ const ValidatedRecordScalarSchema = z.union([
     })
     .strict(),
   z.object({ kind: z.literal("select"), value: z.string().min(1).max(200) }).strict(),
+  z
+    .object({
+      kind: z.literal("selectList"),
+      value: z
+        .array(z.string().min(1).max(200))
+        .min(1)
+        .max(100)
+        .refine((ids) => new Set(ids).size === ids.length, "Each option can be selected once"),
+    })
+    .strict(),
   z.object({ kind: z.literal("member"), value: z.uuid() }).strict(),
   z
     .object({
@@ -87,6 +97,7 @@ export const RecordScalarSchema = z
       "dateTime",
       "range",
       "select",
+      "selectList",
       "member",
       "richText",
     ]),
@@ -278,7 +289,12 @@ export const RecordFieldSchema = z
     valueType: RecordValueTypeSchema,
     behavior: FieldBehaviorSchema,
     required: z.boolean(),
-    multiple: z.boolean().optional(),
+    multiple: z
+      .boolean()
+      .optional()
+      .describe(
+        "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior.",
+      ),
     format: z
       .object({
         color: z.string().max(64).nullable().optional(),
