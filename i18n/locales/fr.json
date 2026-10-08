@@ -3050,6 +3050,21 @@
       "short": "E-mail, téléphone, réseaux"
     },
     "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
+    "clickAction": "Au clic",
+    "clickActions": {
+      "email": {
+        "copy": "Copier l’adresse",
+        "open": "Ouvrir dans l’app de messagerie"
+      },
+      "phone": {
+        "copy": "Copier le numéro",
+        "open": "Appeler le numéro"
+      },
+      "url": {
+        "copy": "Copier le lien",
+        "open": "Ouvrir le lien"
+      }
+    },
     "color": "Couleur",
     "conditionIf": "Condition",
     "conditionOtherwise": "Sinon",

@@ -60,6 +60,9 @@ const ACTIVITY_EVENTS = [
   ...CONFIGURATION_ACTIVITY_EVENTS,
 ];
 const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
+const CLICK_ACTION_KEYS = ["email", "phone", "url"].flatMap((kind) =>
+  ["open", "copy"].map((action) => `RecordModel.clickActions.${kind}.${action}`),
+);
 const RECORD_VALUE_TYPE_KEYS = [...RecordValueTypeSchema.options, "multiSelect"].map(
   (value) => `RecordModel.types.${value}`,
 );
@@ -555,6 +558,9 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
   ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
+  ["RecordModel.clickActions.${*}.${*}", CLICK_ACTION_KEYS],
+  ["RecordModel.clickActions.${*}.open", CLICK_ACTION_KEYS.filter((key) => key.endsWith(".open"))],
+  ["RecordModel.clickActions.${*}.copy", CLICK_ACTION_KEYS.filter((key) => key.endsWith(".copy"))],
   [
     "RecordModel.cardinality.${*}",
     ["oneToOne", "oneToMany", "manyToOne", "manyToMany"].map((value) => `RecordModel.cardinality.${value}`),
@@ -699,6 +705,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: Common.colors.${color}",
+  "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.clickActions.${store.form.valueType}.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${store.form.behavior}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.types.${value}",
@@ -794,6 +801,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx :: t :: KeyboardShortcuts.groups.${group}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.planNames.${plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.status.${status}",
+  "components/records/contact-value.tsx :: t :: RecordModel.clickActions.${kind}.copy",
+  "components/records/contact-value.tsx :: t :: RecordModel.clickActions.${kind}.open",
   "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.choices.${tool}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.install.instruction.${tool}",
