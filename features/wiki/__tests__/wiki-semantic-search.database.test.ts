@@ -1,5 +1,6 @@
 import type { TenantUser } from "@/features/user/user.schema";
 import type { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
+import type { WikiSummaryService } from "@/ee/wiki-retrieval/wiki-summary.service";
 
 import { randomUUID } from "node:crypto";
 
@@ -91,7 +92,11 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     );
     return id;
   };
-  const indexAll = (tenant: TenantUser, service: WikiEmbeddingService, summaries = fakeSummaries()) =>
+  const indexAll = (
+    tenant: TenantUser,
+    service: WikiEmbeddingService,
+    summaries: Pick<WikiSummaryService, "summarize"> = fakeSummaries(),
+  ) =>
     runWithTenant(tenant, async () => {
       const indexer = new WikiSemanticIndexService(new PrismaWikiSectionRepo(), service, summaries);
       let indexed = 0;
@@ -223,6 +228,60 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
       { id, summary: "Holiday Calendar in one sentence." },
       { id: imported, summary: null },
     ]);
+  });
+
+  it("skips a page whose summary fails once per content hash, still indexes it and moves on", async () => {
+    const earlier = await insert(user, "Expense Policy", "Receipts within 30 days.", 0);
+    const broken = await insert(user, "Broken Page", "## Closures\n\nThe office closes for the holiday.", 2);
+    const later = await insert(user, "Incident Runbook", "Page the on-call for an outage.", 1);
+    const summarize = vi.fn((_grant: unknown, page: { title: string }) =>
+      Promise.resolve(
+        page.title === "Broken Page"
+          ? { status: "failed" as const }
+          : {
+              status: "generated" as const,
+              summary: `${page.title} in one sentence.`,
+            },
+      ),
+    );
+    const summaryCalls = () => summarize.mock.calls.filter(([, page]) => page.title === "Broken Page").length;
+
+    expect(await indexAll(user, fakeEmbeddings().service, { summarize })).toBe(3);
+    expect(summaryCalls()).toBe(1);
+    expect((await sectionRows(earlier)).rowCount).toBeGreaterThan(0);
+    expect((await sectionRows(later)).rowCount).toBeGreaterThan(0);
+    const brokenRows = await sectionRows(broken);
+    expect(brokenRows.rowCount).toBeGreaterThan(0);
+    expect(brokenRows.rows.every((row) => row.summary === null && row.dims === WIKI_EMBEDDING_DIMENSIONS)).toBe(true);
+
+    await client.query('UPDATE "WikiPageSection" SET "embeddingVersion" = $2 WHERE "pageId" = $1', [
+      broken,
+      "old/version",
+    ]);
+    expect(await indexAll(user, fakeEmbeddings().service, { summarize })).toBe(1);
+    expect(summaryCalls()).toBe(1);
+
+    await client.query(
+      `UPDATE "WikiPage" SET "markdown" = "markdown" || E'\n\nAlso on New Year.', "updatedAt" = now() WHERE "id" = $1`,
+      [broken],
+    );
+    await indexAll(user, fakeEmbeddings().service, { summarize });
+    expect(summaryCalls()).toBe(2);
+  });
+
+  it("stops without marking the page when the summary provider is unavailable", async () => {
+    const first = await insert(user, "Expense Policy", "Receipts within 30 days.", 1);
+    const second = await insert(user, "Incident Runbook", "Page the on-call for an outage.", 0);
+    const summarize = vi.fn(() => Promise.resolve({ status: "unavailable" as const }));
+
+    expect(await indexAll(user, fakeEmbeddings().service, { summarize })).toBe(0);
+    expect(summarize).toHaveBeenCalledTimes(1);
+    const stored = await client.query('SELECT "summaryContentHash" FROM "WikiPage" WHERE "id" = ANY($1)', [
+      [first, second],
+    ]);
+    expect(stored.rows).toEqual([{ summaryContentHash: null }, { summaryContentHash: null }]);
+    expect((await sectionRows(first)).rowCount).toBe(0);
+    expect((await sectionRows(second)).rowCount).toBe(0);
   });
 
   it("gives each concurrent indexer different pages and drops a result when the page changed meanwhile", async () => {

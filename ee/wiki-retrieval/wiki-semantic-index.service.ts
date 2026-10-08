@@ -36,8 +36,8 @@ export class WikiSemanticIndexService extends UserAccessor {
         let summary = currentWikiSummary(page);
         if (wikiSummaryNeeded(page)) {
           const generated = await this.summaries.summarize(grant, page);
-          if (generated.status === "failed") return { indexed, remaining: false };
-          summary = generated.summary;
+          if (generated.status === "unavailable") return { indexed, remaining: false };
+          summary = generated.status === "generated" ? generated.summary : null;
           const stored = await this.repo.storeSummary({
             pageId: page.id,
             pageUpdatedAt: page.updatedAt,
