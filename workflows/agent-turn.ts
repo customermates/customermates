@@ -81,7 +81,7 @@ import {
   readAgentProviderRateLimit,
   readAgentProviderRoundCharge,
 } from "@/ee/agent-chat/agent-provider-error";
-import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { isReadOnlyAgentToolCall, requiresApprovalOnSurface } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
@@ -286,6 +286,7 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
     pageRoute: payload.pageRoute,
+    conversationId: payload.conversationId,
     latestUserMessage: payload.messages.findLast((message) => message.role === "user")?.text ?? null,
     runInCallerContext: (run) =>
       runAsBackgroundTenant(payload.userId, () => {
@@ -1511,10 +1512,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     return (
                       prepared.ok &&
                       shell.gated &&
-                      requiresApproval(
+                      requiresApprovalOnSurface(
                         internalToolIdentity(shell.name),
                         { annotations: shell.annotations },
                         prepared.input,
+                        surface,
                       )
                     );
                   },

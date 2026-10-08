@@ -1,8 +1,10 @@
 import type { AgentToolIdentity } from "./tool-identity";
+import type { AgentSurface } from "./agent-surface-policy";
 
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 import { agentToolIdentityKey, internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 import { recordToolRisk } from "./record-tool-risk";
+import { isWikiProposalWrite } from "./agent-wiki-proposal-policy";
 
 export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) {
   return tool.annotations?.readOnlyHint === true;
@@ -117,4 +119,14 @@ export function requiresApproval(
 
   const action = fields.action;
   return typeof action !== "string" || !policy.approvalFreeActions.includes(action);
+}
+
+export function requiresApprovalOnSurface(
+  identity: AgentToolIdentity,
+  tool: { annotations?: Record<string, boolean> },
+  input: unknown,
+  surface: AgentSurface | undefined,
+) {
+  if (isWikiProposalWrite(identity, input, surface)) return false;
+  return requiresApproval(identity, tool, input);
 }

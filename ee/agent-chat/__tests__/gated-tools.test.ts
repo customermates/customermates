@@ -18,6 +18,7 @@ import {
   isReadOnlyAgentToolCall,
   isReadOnlyTool,
   requiresApproval,
+  requiresApprovalOnSurface,
   AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES,
 } from "../gated-tools";
 import { agentToolIdentityKey, internalToolIdentity, parseAgentToolIdentityKey } from "../tool-identity";
@@ -469,5 +470,22 @@ describe("tool identity", () => {
 
     expect(parseAgentToolIdentityKey("not-a-source::acme::search")).toBeNull();
     expect(parseAgentToolIdentityKey("external-mcp::acme")).toBeNull();
+  });
+});
+
+describe("Knowledge Base proposals on the routine surface", () => {
+  const wiki = ALL_MCP_TOOLS.find((tool) => tool.name === "manage_wiki_pages");
+
+  it("lets routine Knowledge Base writes reach the proposal path instead of an approval that cannot be answered", () => {
+    if (!wiki) throw new Error("manage_wiki_pages is not registered");
+    const identity = internalToolIdentity("manage_wiki_pages");
+    expect(requiresApprovalOnSurface(identity, wiki, { action: "delete" }, "chat")).toBe(true);
+    expect(requiresApprovalOnSurface(identity, wiki, { action: "delete" }, undefined)).toBe(true);
+    for (const action of ["create", "update", "delete"])
+      expect(requiresApprovalOnSurface(identity, wiki, { action }, "routine")).toBe(false);
+    expect(requiresApprovalOnSurface(identity, wiki, { action: "unknown" }, "routine")).toBe(true);
+    expect(
+      requiresApprovalOnSurface(internalToolIdentity("manage_routines"), wiki, { action: "delete" }, "routine"),
+    ).toBe(true);
   });
 });
