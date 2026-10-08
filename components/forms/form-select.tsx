@@ -20,7 +20,7 @@ import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "./selection-lo
 export type FormSelectItem = {
   value: string;
   label: string;
-  textValue?: string;
+  chipLabel?: string;
   disabled?: boolean;
   color?: ChipColor;
   startContent?: ReactNode;
@@ -129,7 +129,7 @@ export const FormSelect = observer(
                   <SelectionValueSkeleton />
                 ) : selectedItem ? (
                   selectedItem.color ? (
-                    <AppChip variant={selectedItem.color}>{selectedItem.label}</AppChip>
+                    <AppChip variant={selectedItem.color}>{selectedItem.chipLabel ?? selectedItem.label}</AppChip>
                   ) : (
                     <>
                       {selectedItem.startContent}
@@ -154,15 +154,14 @@ export const FormSelect = observer(
             ) : (
               <>
                 {items?.map((item) => (
-                  <SelectItem
-                    key={item.value}
-                    disabled={item.disabled}
-                    textValue={item.textValue ?? item.label}
-                    value={item.value}
-                  >
+                  <SelectItem key={item.value} disabled={item.disabled} textValue={item.label} value={item.value}>
                     {item.color ? (
                       <span className="flex items-center gap-2">
-                        <AppChip variant={item.color}>{item.label}</AppChip>
+                        <AppChip aria-hidden={item.chipLabel ? true : undefined} variant={item.color}>
+                          {item.chipLabel ?? item.label}
+                        </AppChip>
+
+                        {item.chipLabel && <span className="text-xs text-muted-foreground">{item.label}</span>}
 
                         {item.description && <span className="text-xs text-muted-foreground">{item.description}</span>}
                       </span>
