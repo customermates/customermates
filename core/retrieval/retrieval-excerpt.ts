@@ -185,8 +185,7 @@ export function retrievalExcerpt(args: {
   if (
     heading &&
     relevant[0] > 0 &&
-    (relevant[0] >= Math.max(0, ...relevant) ||
-      units[0].text.length <= ((maxChars - heading.length - 2) * 2) / 3)
+    (relevant[0] >= Math.max(0, ...relevant) || units[0].text.length <= ((maxChars - heading.length - 2) * 2) / 3)
   ) {
     picked.set(0, units[0].text);
     if (render(units, picked, heading).length <= maxChars) {

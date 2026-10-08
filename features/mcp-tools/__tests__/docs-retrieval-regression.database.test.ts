@@ -288,10 +288,11 @@ it("keeps the hosted route and section expectations aligned with the current doc
   for (const [locale, query, expected, route] of SECTION_QUESTIONS) {
     const section = localeSections(locale).find((candidate) => `${candidate.slug}#${candidate.anchor}` === expected);
     if (!section) misses.push(`${locale} "${query}": no section ${expected}`);
-    else if (route && !links(section.text).includes(route))
+    else if (route && !links(section.text).includes(route)) {
       misses.push(
         `${locale} "${query}": ${expected} does not link ${route} (links: ${links(section.text).replace(/\n/g, " ")})`,
       );
+    }
   }
   expect(misses, misses.join("\n")).toEqual([]);
 });
