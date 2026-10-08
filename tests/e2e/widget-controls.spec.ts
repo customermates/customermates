@@ -34,7 +34,9 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-kind-chart").click();
-  await dialog.getByRole("button", { name: englishMessages.Common.actions.back, exact: true }).click();
+  await dialog
+    .getByRole("button", { name: englishMessages.Dashboard.widgetEditor.kind.change, exact: true })
+    .click();
   await expect(dialog.locator("#widget-modal-kind")).toBeVisible();
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
   await expect(dialog.locator("#widget-kind-chart")).toBeFocused();
@@ -50,7 +52,6 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await dialog.getByRole("tab", { name: "Appearance", exact: true }).click();
   await dialog.getByRole("switch", { name: "Share as a template", exact: true }).check();
   await dialog.getByRole("switch", { name: "Show metric and filters", exact: true }).uncheck();
-  await dialog.getByRole("button", { name: "Preview measure", exact: true }).click();
   await expect(dialog.locator("svg.recharts-surface")).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
@@ -87,7 +88,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
       const firstColor = page.getByRole("menuitemcheckbox", { name: "Color 4", exact: true });
       if ((await firstColor.getAttribute("aria-checked")) === "true") await firstColor.click();
       await page.keyboard.press("Escape");
-      const save = dialog.getByRole("button", { name: "Save changes", exact: true });
+      const save = dialog.getByRole("button", { name: "Save", exact: true });
       if (await save.isEnabled()) {
         await save.click();
         await expect(dialog).not.toBeVisible();
@@ -197,7 +198,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   expect(copied.isTemplate).toBe(false);
   await edit("Independent copied chart");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Edited copied chart");
-  await dialog.getByRole("button", { name: "Save changes", exact: true }).click();
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   expect(await read("Complete chart controls")).toHaveLength(1);
   await edit("Edited copied chart");
@@ -258,7 +259,6 @@ test("preserves widget previews and accessible draft confirmations across respon
     await widget.getByRole("textbox", { name: "Name", exact: true }).fill("Keep this responsive widget draft");
     await widget.getByRole("combobox", { name: "Records from", exact: true }).click();
     await page.getByRole("option", { name: "Services", exact: true }).click();
-    await widget.getByRole("button", { name: "Preview measure", exact: true }).click();
     await expect(preview).toBeVisible();
     await widget.getByRole("button", { name: "Close", exact: true }).click();
     await expect(guard).toBeVisible();

@@ -1738,13 +1738,13 @@
         "showFilters": "Mostra il numero di attività e i filtri",
         "showMetricAndFilters": "Mostra la metrica e i filtri"
       },
-      "create": "Crea widget",
       "danger": {
         "deleteLabel": "Elimina il widget {name}"
       },
       "editTitle": "Modifica «{name}»",
       "kind": {
         "activityTimelineDescription": "Segui in ordine cronologico le modifiche ai record, i messaggi e le attività di account e calendario.",
+        "change": "Scegli un altro widget",
         "chartDescription": "Confronta i dati del CRM in un grafico.",
         "description": "Scegli un formato e seleziona tu i dati.",
         "scratchTitle": "Parti da zero",
@@ -1754,10 +1754,13 @@
         "incomplete": "Completa le impostazioni dei dati per vedere un’anteprima.",
         "live": "Anteprima dal vivo",
         "size": "Dimensione nella dashboard {w} × {h}",
-        "title": "Anteprima",
         "untitled": "Widget senza titolo"
       },
-      "save": "Salva le modifiche",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Nessuno} one {1 attivo} other {# attivi}}",
+        "filters": "Filtri",
+        "grouping": "Raggruppamento"
+      },
       "settings": "Impostazioni del widget",
       "sharing": {
         "template": "Condividi come modello"
@@ -3570,7 +3573,6 @@
       "startsWith": "Inizia con"
     },
     "overall": "Totale: {value}",
-    "preview": "Anteprima della misura",
     "previewFailed": "Impossibile caricare l’anteprima. Riprova.",
     "quarterLabel": "T{quarter} {year}",
     "ranked": {

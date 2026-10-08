@@ -11,6 +11,7 @@ import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toChipColor } from "@/constants/chip-colors";
 import { getChartColors } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { RankedTable } from "./ranked-table";
@@ -62,14 +63,10 @@ export function RecordWidgetChart({
 }: RecordWidgetChartProps) {
   const t = useTranslations();
   const locale = useHydratedIntlStore().formattingLocale;
+  const valueFormat = useRecordValueFormat();
   const { resolvedTheme } = useTheme();
   const interval = measure.groupBy?.dateInterval;
-  const formatDecimal = (value: string, currency: string | null) =>
-    new Intl.NumberFormat(locale, {
-      style: currency ? "currency" : "decimal",
-      ...(currency ? { currency } : {}),
-      maximumFractionDigits: 20,
-    }).format(value as unknown as number);
+  const formatDecimal = (value: string, currency: string | null) => valueFormat.decimal(value, { currency });
   const bucketYears = new Set(
     (data?.groups ?? []).flatMap((group) =>
       group.label.state === "value" && group.label.value.kind === "date"
@@ -82,20 +79,16 @@ export function RecordWidgetChart({
     const year = date.getUTCFullYear();
     if (interval === "quarter") return t("RecordWidgets.quarterLabel", { quarter: bucketQuarter(start), year });
     if (interval === "year") return String(year);
-    if (interval === "month") {
-      return new Intl.DateTimeFormat(locale, {
-        month: short ? "short" : "long",
-        year: "numeric",
-        timeZone: "UTC",
-      }).format(date);
-    }
+    if (interval === "month")
+      return valueFormat.date(date, { month: short ? "short" : "long", year: "numeric", timeZone: "UTC" });
+
     if (interval === "week" && short) return t("RecordWidgets.weekShort", isoWeek(start));
-    const formatted = new Intl.DateTimeFormat(locale, {
+    const formatted = valueFormat.date(date, {
       ...(short
         ? { month: "short", day: "numeric", ...(bucketYears.size > 1 ? { year: "numeric" } : {}) }
         : { dateStyle: "medium" }),
       timeZone: "UTC",
-    }).format(date);
+    });
     return interval === "week" ? t("RecordWidgets.weekOf", { date: formatted }) : formatted;
   };
   const format = (result: CalculatedValue): string => {
@@ -110,10 +103,10 @@ export function RecordWidgetChart({
     if (value.kind === "boolean") return t(`RecordModel.${value.value ? "yes" : "no"}`);
     if (value.kind === "date" && interval && typeof value.value === "string") return formatBucket(value.value, false);
     if (value.kind === "date" || value.kind === "dateTime") {
-      return new Intl.DateTimeFormat(locale, {
+      return valueFormat.date(new Date(String(value.value)), {
         dateStyle: "medium",
         ...(String(value.value).length === 10 ? { timeZone: "UTC" } : {}),
-      }).format(new Date(String(value.value)));
+      });
     }
     if (["text", "email", "phone", "url"].includes(value.kind) && "value" in value) return String(value.value);
     return t("RecordModel.missing");
@@ -287,16 +280,15 @@ export function RecordWidgetChart({
       };
     });
     fallback = steps.length === 0 || ordered.some((row) => row.value === null || row.value < 0) || fallback;
-    const percent = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 });
     const conversions = funnelConversions(ordered.map((row) => row.value ?? 0));
     seriesPoints = ordered.map((row, index) => {
       const conversion = conversions[index];
       return point(row, {
-        detail: conversion === null ? row.formatted : `${row.formatted} · ${percent.format(conversion)}`,
+        detail: conversion === null ? row.formatted : `${row.formatted} · ${valueFormat.percent(conversion)}`,
         formattedValue:
           conversion === null
             ? row.formatted
-            : t("RecordWidgets.funnelTooltip", { value: row.formatted, conversion: percent.format(conversion) }),
+            : t("RecordWidgets.funnelTooltip", { value: row.formatted, conversion: valueFormat.percent(conversion) }),
       });
     });
   }
