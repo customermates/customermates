@@ -90,7 +90,7 @@ describe("RoleModalStore delete availability", () => {
     const store = makeStore(makeRole({ isSystemRole: true }));
 
     expect(store.isReadOnly).toBe(true);
-    expect(store.isDisabledOrSystemRole).toBe(true);
+    expect(store.isDisabled).toBe(true);
     expect(store.canDeleteRole).toBe(false);
   });
 
@@ -148,7 +148,7 @@ describe("RoleModalStore own-role guard", () => {
 
     expect(store.isOwnRole).toBe(true);
     expect(store.isReadOnly).toBe(true);
-    expect(store.isDisabledOrSystemRole).toBe(true);
+    expect(store.isDisabled).toBe(true);
     expect(store.canDeleteRole).toBe(false);
   });
 
@@ -157,7 +157,7 @@ describe("RoleModalStore own-role guard", () => {
 
     expect(store.isOwnRole).toBe(false);
     expect(store.isReadOnly).toBe(false);
-    expect(store.isDisabledOrSystemRole).toBe(false);
+    expect(store.isDisabled).toBe(false);
   });
 
   it("never submits the role assigned to the signed-in user", async () => {

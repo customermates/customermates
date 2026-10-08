@@ -1,12 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Clipboard } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { FormLabel } from "@/components/forms/form-label";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
@@ -22,6 +23,7 @@ import { InviteByEmailForm } from "./invite-by-email-form";
 
 export const CompanyInviteModal = observer(() => {
   const t = useTranslations();
+  const [method, setMethod] = useState<"link" | "email">("link");
 
   const { companyInviteModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -49,18 +51,17 @@ export const CompanyInviteModal = observer(() => {
         </AppCardHeader>
 
         <AppCardBody>
-          <Tabs defaultValue="link">
-            <TabsList>
-              <TabsTrigger id="invite-modal-tab-link" value="link">
-                {t("OnboardingWizard.invite.tabs.link")}
-              </TabsTrigger>
-
-              <TabsTrigger id="invite-modal-tab-email" value="email">
-                {t("OnboardingWizard.invite.tabs.email")}
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent aria-labelledby="invite-modal-tab-link" className="mt-3" value="link">
+          <SegmentedControl
+            idPrefix="invite-modal"
+            items={[
+              { value: "link", label: t("OnboardingWizard.invite.tabs.link") },
+              { value: "email", label: t("OnboardingWizard.invite.tabs.email") },
+            ]}
+            label={t("CompanyInviteModal.title")}
+            value={method}
+            onValueChange={setMethod}
+          >
+            <SegmentedControlPanel value="link">
               <div className="space-y-1.5">
                 <FormLabel htmlFor="invite-modal-link">{t("CompanyInviteModal.label")}</FormLabel>
 
@@ -87,12 +88,12 @@ export const CompanyInviteModal = observer(() => {
 
                 <p className="text-subdued text-xs">{getDescription()}</p>
               </div>
-            </TabsContent>
+            </SegmentedControlPanel>
 
-            <TabsContent aria-labelledby="invite-modal-tab-email" className="mt-3" value="email">
+            <SegmentedControlPanel value="email">
               <InviteByEmailForm />
-            </TabsContent>
-          </Tabs>
+            </SegmentedControlPanel>
+          </SegmentedControl>
         </AppCardBody>
       </AppCard>
     </AppModal>

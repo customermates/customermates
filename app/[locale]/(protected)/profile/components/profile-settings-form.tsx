@@ -14,7 +14,7 @@ import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
-import { FormActions } from "@/components/card/form-actions";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
@@ -180,7 +180,7 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
           />
         </div>
 
-        <FormActions anchorScope="profile-settings" store={store} />
+        <FormFooterActions anchorScope="profile-settings" store={store} />
       </div>
     </AppForm>
   );

@@ -12,7 +12,6 @@ export type AnchorPage = {
 export type FormAnchorPage = AnchorPage & {
   discard: "reset" | "cancel";
   resetOpener?: string;
-  hiddenUntilDirty?: boolean;
 };
 
 export type AnchorControl = {
@@ -51,7 +50,6 @@ export const FORM_PAGES: FormAnchorPage[] = [
     scope: "profile-settings",
     route: "/profile/settings",
     label: "profile settings form",
-    hiddenUntilDirty: true,
     discard: "reset",
   },
   {
@@ -59,21 +57,21 @@ export const FORM_PAGES: FormAnchorPage[] = [
     route: "/company/members",
     label: "member dialog (roles with Manage only)",
     opener: "a member row",
-    discard: "reset",
+    discard: "cancel",
   },
   {
     scope: "webhook-modal",
     route: "/company/webhooks",
     label: "webhook dialog (roles with API Manage only; open it first)",
     opener: "company-webhooks-add",
-    discard: "reset",
+    discard: "cancel",
   },
   {
     scope: "role-modal",
     route: "/company/roles",
-    label: "role dialog (roles with Manage only; disabled for the system role and your own role; open it first)",
+    label: "role dialog (roles with Manage only; not shown for the system role and your own role; open it first)",
     opener: "company-roles-add",
-    discard: "reset",
+    discard: "cancel",
   },
   {
     scope: "widget-modal",
