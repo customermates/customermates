@@ -3414,8 +3414,11 @@
     "relationshipChange": "{count} Beziehungen geändert",
     "relationshipEditor": {
       "cardinality": "Wie viele Datensätze verknüpft sind",
+      "messagesHelp": "Nachrichten stammen von verknüpften Datensätzen mit Kanälen oder verknüpften Unterhaltungen. Berechtigungen für Datensätze und Nachrichten gelten weiterhin.",
       "onDelete": "Beim Löschen",
       "otherList": "der verknüpften Liste",
+      "showMessagesOn": "Nachrichten anzeigen in {list}",
+      "showMessagesOnSide": "Nachrichten anzeigen in {list} ({side})",
       "shownOn": "Wird bei Datensätzen in {list} angezeigt",
       "thisList": "Diese Liste"
     },

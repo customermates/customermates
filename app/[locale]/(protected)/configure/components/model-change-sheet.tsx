@@ -38,7 +38,14 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
 }) {
   usePreviewBlockers(store.isOpen ? store.preview : null, store.model);
   return (
-    <AppModal titleInContent actions={actions} presentation="sheet" store={store} title={title}>
+    <AppModal
+      titleInContent
+      actions={actions}
+      bodyClassName="flex flex-col overflow-hidden px-0"
+      side="right"
+      store={store}
+      title={title}
+    >
       <AppCard>
         <AppCardHeader>
           <AppModalTitle className="min-w-0 flex-1 truncate text-lg font-semibold">{title}</AppModalTitle>

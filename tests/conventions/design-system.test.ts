@@ -52,11 +52,7 @@ const OVERLAY_PRIMITIVE_EXEMPTIONS: Allowlist = {
   "app/components/app-sidebar.tsx": "the mobile sidebar is the navigation shell, not a dialog or drawer",
 };
 
-const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx": "I2 r3: record drawer on AppModal",
-  "components/records/workspace-record-editor.tsx": "I2 r3: record drawer on AppModal",
-  "components/records/record-compose-recovery.tsx": "I2 r3: compose recovery on the shared dialog",
-};
+const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {};
 
 describe("rules 31 and 35: dialogs and drawers through the shared overlay components", () => {
   it("imports the raw dialog, drawer and sheet primitives only inside the shared overlay components", () => {
