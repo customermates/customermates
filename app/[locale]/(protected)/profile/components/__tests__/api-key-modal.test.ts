@@ -5,6 +5,8 @@ import { createElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { AppModalCloseContext } from "@/components/modal/app-modal-close-context";
+
 const testContext = vi.hoisted(() => ({
   rootStore: null as RootStore | null,
 }));
@@ -46,7 +48,11 @@ vi.mock("@/components/modal", () => ({
             ),
           )
         : null,
-      children,
+      createElement(
+        AppModalCloseContext.Provider,
+        { value: { requestClose: vi.fn(), guardsUnsavedChanges: true } },
+        children,
+      ),
     ),
 }));
 
@@ -144,9 +150,8 @@ describe("ApiKeyModal add wizard", () => {
     expect(html.match(/data-api-key-option="plain"/g)).toHaveLength(1);
     expect(html.match(/data-provider=/g)).toHaveLength(4);
     expect(html).toContain("ApiKeyModal.quickTitle");
-    expect(html).toContain("Common.actions.cancel");
+    expect(html).not.toContain("Common.actions.cancel");
     expect(html).not.toContain("Common.actions.back");
-    expect(html).not.toContain("ApiKeyModal.done");
     expect(html).not.toContain("OnboardingWizard.ai.choices.skip");
     expect(html).not.toContain("OnboardingWizard.finish");
   });
@@ -156,7 +161,7 @@ describe("ApiKeyModal add wizard", () => {
 
     expect(html).toContain("Common.actions.back");
     expect(html).not.toContain("ApiKeyModal.backToOptions");
-    expect(html).not.toContain("Common.actions.cancel");
+    expect(html).toContain("Common.actions.cancel");
     expect(html).toContain('id="api-key-name"');
     expect(html).toContain('id="api-key-expires"');
     expect(html).toContain("ApiKeyModal.expiresInPlaceholder");
@@ -209,14 +214,13 @@ describe("ApiKeyModal add wizard", () => {
     expect(html).toMatch(/<p[^>]*>OnboardingWizard\.ai\.install\.expiryNote<\/p>/);
   });
 
-  it("promotes quick-connection titles into the modal header and moves Back into the footer", () => {
+  it("promotes quick-connection titles into the modal header and moves Back into its header actions", () => {
     const html = renderModal("wizard", "openai");
 
     expect(html.match(/OnboardingWizard\.ai\.screen\.openai\.title/g)).toHaveLength(1);
     expect(html).toContain("OnboardingWizard.ai.openai.methods.chatgpt.title");
     expect(html).toContain("OnboardingWizard.ai.openai.methods.codex.title");
     expect(html).toContain("Common.actions.back");
-    expect(html).toContain("ApiKeyModal.done");
     expect(html).not.toContain("Common.actions.cancel");
     expect(html).not.toContain("ApiKeyModal.backToOptions");
     expect(html).not.toContain("<h2>OnboardingWizard.ai.screen.setup.title</h2>");

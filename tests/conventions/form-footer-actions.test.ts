@@ -163,23 +163,6 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
 
 const NOT_YET_MIGRATED: Record<string, Rule[]> = {
   "components/card/form-actions.tsx": ["save-label", "footer-primitive", "submit-button", "legacy-footer"],
-  "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx": [
-    "save-label",
-    "cancel-label",
-    "footer-primitive",
-    "submit-button",
-  ],
-  "app/[locale]/(protected)/company/components/role/role-modal.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/company/components/user/user-modal.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/profile/components/account-signature.tsx": ["submit-button"],
-  "app/[locale]/(protected)/profile/components/api-key-modal.tsx": [
-    "save-label",
-    "cancel-label",
-    "footer-primitive",
-    "submit-button",
-  ],
   "app/components/navigation/sidebar-customize.tsx": ["overlay-footer"],
   "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["legacy-footer"],
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["legacy-footer"],
@@ -244,7 +227,6 @@ const SAVE_LIKE_KEY_EXEMPT: Record<string, string> = {
   "DataTransfer.recordImport.update": "names an import mode option, not a button",
 };
 const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>([
-  "ConnectedAccountsCard.emailSave",
   "Dashboard.widgetEditor.save",
   "MassActions.apply",
   "MassActions.update",

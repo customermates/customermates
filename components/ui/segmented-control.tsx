@@ -93,10 +93,12 @@ function segmentId(idPrefix: string, value: string) {
 
 export function SegmentedControlPanel({
   value,
+  forceMount,
   className,
   children,
 }: {
   value: string;
+  forceMount?: boolean;
   className?: string;
   children: ReactNode;
 }) {
@@ -104,8 +106,9 @@ export function SegmentedControlPanel({
   return (
     <TabsPrimitive.Content
       {...(idPrefix ? { "aria-labelledby": segmentId(idPrefix, value) } : {})}
-      className={cn("min-h-0 flex-1 outline-none", className)}
+      className={cn("min-h-0 flex-1 outline-none", forceMount && "data-[state=inactive]:hidden", className)}
       data-slot="segmented-control-panel"
+      forceMount={forceMount || undefined}
       value={value}
     >
       {children}
