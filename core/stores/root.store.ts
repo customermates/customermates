@@ -1,22 +1,22 @@
 import type { AppMode } from "@/core/config/environment";
 import type { BaseModalStore } from "../base/base-modal.store";
 
-import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/company/components/company-invite/company-invite-modal.store";
-import { InviteByEmailStore } from "@/app/[locale]/(protected)/company/components/company-invite/invite-by-email.store";
+import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/company-invite/company-invite-modal.store";
+import { InviteByEmailStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/company-invite/invite-by-email.store";
 import { SidebarLayoutStore } from "@/app/components/navigation/sidebar-layout.store";
 import { AddPickerStore } from "@/app/components/navigation/add-picker.store";
 import { ViewPickerStore } from "@/components/data-view/views/view-picker.store";
 import { KeyboardShortcutsStore } from "@/app/components/keyboard-shortcuts/keyboard-shortcuts.store";
-import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
-import { RoleModalStore } from "@/app/[locale]/(protected)/company/components/role/role-modal.store";
-import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/roles.store";
-import { SubscriptionStore } from "@/app/[locale]/(protected)/company/components/subscription/subscription.store";
-import { UserModalStore } from "@/app/[locale]/(protected)/company/components/user/user-modal.store";
-import { UsersStore } from "@/app/[locale]/(protected)/company/components/user/users.store";
-import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries.store";
-import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.store";
-import { WebhookModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-modal.store";
-import { WebhooksStore } from "@/app/[locale]/(protected)/company/components/webhook/webhooks.store";
+import { FeedbackModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.store";
+import { RoleModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/role/role-modal.store";
+import { RolesStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/role/roles.store";
+import { SubscriptionStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription.store";
+import { UserModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/user/user-modal.store";
+import { UsersStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/user/users.store";
+import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries.store";
+import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-delivery-modal.store";
+import { WebhookModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-modal.store";
+import { WebhooksStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks.store";
 import { WidgetModalStore } from "@/app/[locale]/(protected)/dashboard/components/widget-modal.store";
 import { WidgetsStore } from "@/app/[locale]/(protected)/dashboard/components/widgets.store";
 import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
@@ -29,13 +29,13 @@ import { StepProfileStore } from "@/app/[locale]/(protected)/onboarding/wizard/c
 import { OperatorAuditStore } from "@/app/[locale]/(protected)/operator/components/audit/operator-audit.store";
 import { OperatorUsersStore } from "@/app/[locale]/(protected)/operator/components/users/operator-users.store";
 import { OperatorWorkspacesStore } from "@/app/[locale]/(protected)/operator/components/workspaces/operator-workspaces.store";
-import { ApiKeyModalStore } from "@/app/[locale]/(protected)/profile/components/api-key-modal.store";
-import { ApiKeysStore } from "@/app/[locale]/(protected)/profile/components/api-keys.store";
-import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/profile/components/connect-upsell-modal.store";
-import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/profile/components/connected-account-modal.store";
-import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/profile/components/connected-accounts.store";
-import { ProfileSettingsStore } from "@/app/[locale]/(protected)/profile/components/profile-settings.store";
-import { UserStore } from "@/app/[locale]/(protected)/profile/components/user.store";
+import { ApiKeyModalStore } from "@/app/[locale]/(protected)/settings/(account)/components/api-key-modal.store";
+import { ApiKeysStore } from "@/app/[locale]/(protected)/settings/(account)/components/api-keys.store";
+import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.store";
+import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/settings/(account)/components/connected-account-modal.store";
+import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/settings/(account)/components/connected-accounts.store";
+import { ProfileSettingsStore } from "@/app/[locale]/(protected)/settings/(account)/components/profile-settings.store";
+import { UserStore } from "@/app/[locale]/(protected)/settings/(account)/components/user.store";
 import { RoutineModalStore } from "@/app/[locale]/(protected)/routines/components/routine-modal.store";
 import { RoutinesStore } from "@/app/[locale]/(protected)/routines/components/routines.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/subscription-expired/components/subscription-expired.store";
@@ -48,7 +48,6 @@ import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
 import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
 import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
 import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
-import { FilterPaletteStore } from "@/components/data-view/filter-palette/filter-palette.store";
 import { LayoutStore } from "@/components/layout/layout.store";
 import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
 import { LoadingOverlayStore } from "@/components/shared/loading-overlay.store";
@@ -123,7 +122,6 @@ export class RootStore {
   private _widgetModalStore?: WidgetModalStore;
   private _feedbackModalStore?: FeedbackModalStore;
   private _timelineDetailModalStore?: TimelineDetailModalStore;
-  private _filterPaletteStore?: FilterPaletteStore;
   private _agentChatStore?: AgentChatStore;
   private _agentUiControlStore?: AgentUiControlStore;
 
@@ -181,10 +179,6 @@ export class RootStore {
 
   get threadParticipantsStore() {
     return (this._threadParticipantsStore ??= new ThreadParticipantsStore(this));
-  }
-
-  get filterPaletteStore() {
-    return (this._filterPaletteStore ??= new FilterPaletteStore(this));
   }
 
   get widgetsStore() {

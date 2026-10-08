@@ -4,15 +4,11 @@ heading: "Customermates-Workflows in n8n erstellen"
 description: "Visuelle Abläufe mit generischen CRM-Datensatzereignissen und der Datensatz-API erstellen."
 ---
 
-Verbinden Sie n8n über einen Webhook-Node für CRM-Änderungen und HTTP-Request-Nodes für die Customermates-REST-API. Für JSON-RPC-Clients gibt es außerdem den MCP-Endpunkt. Der separate [Customermates Community Node](https://github.com/customermates/n8n-nodes-crm) hat möglicherweise einen eigenen Veröffentlichungsplan; prüfen Sie, ob er die konfigurierbare Datensatz-API unterstützt, bevor Sie seine CRM-Aktionen nutzen.
+Verbinden Sie n8n über einen Webhook-Node für CRM-Änderungen und HTTP-Request-Nodes für die Customermates-REST-API; für JSON-RPC-Clients gibt es den MCP-Endpunkt. Der separate [Customermates Community Node](https://github.com/customermates/n8n-nodes-crm) hat einen eigenen Veröffentlichungsplan; prüfen Sie daher, ob er die konfigurierbare Datensatz-API unterstützt, bevor Sie seine CRM-Aktionen nutzen.
 
 ## Wann passt n8n? [#when-does-n8n-fit]
 
-- Ihr Team bevorzugt visuelle Abläufe statt Code.
-- Sie möchten Datensatzereignisse vor der Weitergabe an andere Dienste umwandeln.
-- Sie verwenden n8n bereits für andere Automationen.
-
-Für CRM-Arbeit im Gespräch können Sie [MCP](/docs/mcp) ergänzend oder stattdessen verwenden.
+n8n passt, wenn Ihr Team visuelle Abläufe statt Code bevorzugt, wenn Datensatzereignisse vor der Weitergabe an andere Dienste umgewandelt werden sollen oder wenn Sie n8n bereits für andere Automationen verwenden. Für CRM-Arbeit im Gespräch können Sie [MCP](/docs/mcp) ergänzend oder stattdessen verwenden.
 
 ## Wie löse ich n8n durch CRM-Änderungen aus? [#how-do-i-trigger-n8n-from-crm-changes]
 
@@ -21,20 +17,18 @@ Für CRM-Arbeit im Gespräch können Sie [MCP](/docs/mcp) ergänzend oder stattd
 Kopieren Sie die erzeugte URL.
 </Step>
 <Step title="In Customermates abonnieren">
-Öffnen Sie **Mein Unternehmen → Webhooks**, klicken Sie **Hinzufügen** und fügen Sie die URL ein. Wählen Sie `record.created`, `record.updated` oder `record.deleted`, dann die zu beobachtenden Datensatztypen und optional Filter. Fügen Sie ein Signatur-Secret hinzu und speichern Sie. Zum Anlegen brauchen Sie **Erstellen** für **API & Webhooks**.
+Öffnen Sie [Webhooks](app:settings/webhooks), klicken Sie auf [Hinzufügen](app:settings/webhooks?focus=add) und fügen Sie die URL ein. Wählen Sie unter **Ereignisse** **Datensatz erstellt**, **Datensatz aktualisiert** oder **Datensatz gelöscht**, dann die zu beobachtende Liste und optional Filter. Tragen Sie ein **Secret** ein und klicken Sie auf **Speichern**. Zum Anlegen brauchen Sie **Erstellen** bei **API & Webhooks**.
 </Step>
 <Step title="Payload verarbeiten">
-Prüfen Sie die Signatur und verwenden Sie in weiteren Schritten die Ereignis-ID und die stabile `typeId`/`recordId`-Referenz aus der Payload des Datensatzereignisses.
+Prüfen Sie die Signatur und verwenden Sie in weiteren Schritten die Ereignis-ID und die stabile `typeId`/`recordId`-Referenz aus dem Payload des Datensatzereignisses.
 </Step>
 </Steps>
 
-Der [Webhook-Guide](/docs/webhooks) beschreibt Payloads, Wiederholungen und Signaturprüfung. Zustellungen können mehrfach oder in anderer Reihenfolge eintreffen; deduplizieren Sie anhand der Ereignis-ID.
-
-**Link:** `/company/webhooks`. **Mate:** **Webhooks** öffnen, **Hinzufügen** wählen und **URL**, **Ereignisse**, Datensatzquelle und **Secret** setzen.
+[Webhooks](/docs/webhooks) beschreibt Payloads, Wiederholungen und Signaturprüfung. Zustellungen können mehrfach oder in anderer Reihenfolge eintreffen; deduplizieren Sie anhand der Ereignis-ID.
 
 ## Wie kann ich aus n8n Datensätze anlegen, lesen, ändern oder löschen? [#how-do-i-write-to-customermates-from-n8n]
 
-Verwenden Sie einen **HTTP Request**-Node mit einer `x-api-key`-Credential und JSON gemäß der [OpenAPI-Spezifikation](/docs/openapi). Die Datensatz-Routen funktionieren für Starttypen und selbst angelegte Typen:
+Verwenden Sie einen **HTTP Request**-Node mit einer `x-api-key`-Credential und JSON gemäß der [OpenAPI-Spezifikation](/docs/openapi). Die Datensatz-Routen funktionieren für Startlisten und selbst angelegte Listen:
 
 | Ziel | Methode und Pfad |
 |---|---|
@@ -47,7 +41,7 @@ Verwenden Sie einen **HTTP Request**-Node mit einer `x-api-key`-Credential und J
 
 **Breaking Change:** Diese Routen ersetzen die früheren entitätsspezifischen Endpunkte und das Präfix `/api/v2`, die entfernt wurden. Passen Sie HTTP-Request-Nodes an, die noch einen Endpunkt für Kontakte, Organisationen, Deals, Leistungen oder Aufgaben aufrufen.
 
-Die Basis-URL ist die Adresse, unter der Sie Customermates öffnen. Eine Mutation enthält eine stabile `typeId`, einen Idempotenzschlüssel und die erwartete Konfigurationsrevision. Änderungen und Löschungen enthalten außerdem Datensatzreferenz und erwartete Version. Felder sind typisierte Zuweisungen; Verknüpfungen nennen ihre Beziehungsdefinition. Eine Löschung kann den Hash einer aktuellen Auswirkungs-Vorschau verlangen. Abfrageformen stehen unter [Filtersyntax](/docs/filter-syntax).
+Die Basis-URL ist die Adresse, unter der Sie Customermates öffnen. Eine Mutation enthält eine stabile `typeId`, einen Idempotenzschlüssel und die erwartete Konfigurationsrevision; Änderungen und Löschungen enthalten außerdem Datensatzreferenz und erwartete Version. Felder sind typisierte Zuweisungen, Verknüpfungen nennen ihre Beziehungsdefinition. Eine Löschung kann den Hash einer aktuellen Auswirkungs-Vorschau verlangen. Abfrageformen stehen unter [Filtersyntax](/docs/filter-syntax).
 
 ## Wie rufe ich MCP-Tools aus n8n auf? [#how-do-i-call-mcp-tools-from-n8n]
 
@@ -57,23 +51,21 @@ Senden Sie `POST <BASE_URL>/api/v1/mcp` mit `Content-Type: application/json`, `A
 {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"discover_record_types","arguments":{}}}
 ```
 
-Das Ergebnis kann als Server-Sent Event eintreffen; parsen Sie die JSON-RPC-Zeile `data:`. Eine Tool-Ablehnung enthält `result.isError: true`. Argumente außerhalb des Tool-Schemas werden vor der Ausführung abgelehnt. `get_record_model` liest IDs, `query_crm_records` fragt ab, und `mutate_crm_record` ändert Datensätze oder Verknüpfungen. Siehe [MCP-Katalog](/docs/mcp#tool-catalog).
+Das Ergebnis kann als Server-Sent Event eintreffen; parsen Sie die JSON-RPC-Zeile `data:`. Eine Tool-Ablehnung enthält `result.isError: true`, und Argumente außerhalb des Tool-Schemas werden vor der Ausführung abgelehnt. `get_record_model` liest IDs, `query_crm_records` fragt ab, und `mutate_crm_record` ändert Datensätze oder Verknüpfungen. Siehe [MCP-Katalog](/docs/mcp#tool-catalog).
 
 ## Wie führe ich geplante Jobs aus? [#how-do-i-run-scheduled-jobs]
 
-Mit dem Zeitplan-Trigger von n8n und der Datensatz-API können Sie passende Datensätze finden, exportieren oder validiert ändern. Eine [Customermates Routine](/docs/app-routines) kann den Assistenten stattdessen innerhalb des Produkts nach Zeitplan ausführen. Deal-Phasen, Task-Prioritäten und eigene Typen sind Workspace-Konfiguration; ermitteln Sie vor dem Filtern oder Schreiben ihre IDs.
+Mit dem Zeitplan-Trigger von n8n und der Datensatz-API können Sie passende Datensätze finden, exportieren oder validiert ändern. Eine [Customermates-Routine](/docs/app-routines) kann stattdessen Mate innerhalb des Produkts nach Zeitplan ausführen. Deal-Phasen, Task-Prioritäten und eigene Listen sind Workspace-Konfiguration; ermitteln Sie vor dem Filtern oder Schreiben ihre IDs.
 
 ## Wie funktioniert die Authentifizierung? [#how-does-authentication-work]
 
-Erstellen Sie unter **Mein Profil → API & Konnektoren** einen API-Key. Speichern Sie ihn als n8n-**Header Auth**-Credential namens `x-api-key` und verwenden Sie dieselbe Credential in allen Nodes. Der Key erbt die Rechte seines Besitzers. Ein falscher, abgelaufener oder gelöschter Key führt zu einem Authentifizierungsfehler; ein inaktiver Besitzer kann nicht handeln. Siehe [API-Keys](/docs/api-keys).
-
-**Link:** `/profile/api-keys`. **Mate:** **API & Konnektoren** öffnen und, falls die Rolle es erlaubt, einen **Standard API-Key** erstellen.
+Öffnen Sie [API-Schlüssel](app:settings/api-keys) und erstellen Sie mit [Hinzufügen](app:settings/api-keys?focus=generate) einen Key. Speichern Sie ihn als n8n-**Header Auth**-Credential namens `x-api-key` und verwenden Sie dieselbe Credential in allen Nodes. Der Key handelt mit den Rechten seines Besitzers. Ein falscher, abgelaufener oder gelöschter Key führt zu einem Authentifizierungsfehler, und der Key eines inaktiven Besitzers kann nicht handeln. Siehe [API-Keys](/docs/api-keys).
 
 ## Was sind häufige Stolperfallen? [#what-are-the-common-gotchas]
 
 - **Beziehungen:** Verwenden Sie `mutate_crm_record` mit `link` oder `unlink` statt alter Arrays wie `organizationIds`.
-- **Wiederholungen:** Nutzen Sie für exakt dieselbe Mutation denselben Idempotenzschlüssel. Eine geänderte Payload braucht einen neuen Schlüssel.
-- **Webhooks:** Zustellungen sind weder strikt geordnet noch genau einmalig. Deduplizieren Sie nach Ereignis-ID und verwenden Sie den Zeitstempel der Payload zur Ordnung.
+- **Wiederholungen:** Nutzen Sie für exakt dieselbe Mutation denselben Idempotenzschlüssel. Ein geänderter Payload braucht einen neuen Schlüssel.
+- **Webhooks:** Zustellungen sind weder strikt geordnet noch genau einmalig. Deduplizieren Sie nach Ereignis-ID und verwenden Sie den Zeitstempel des Payloads zur Ordnung.
 
 ## Weiter [#next]
 

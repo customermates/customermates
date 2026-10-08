@@ -29,9 +29,6 @@
     "privacyLink": "Détails de confidentialité",
     "title": "Aidez-nous à comprendre ce qui fonctionne"
   },
-  "ActivityPage": {
-    "title": "Activité"
-  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -749,7 +746,6 @@
     "title": "Créer une clé API"
   },
   "ApiKeysCard": {
-    "title": "API et connecteurs",
     "unnamed": "Sans nom"
   },
   "AuditLogModal": {
@@ -1250,6 +1246,7 @@
         "isNull": "est vide",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "Est différent de",
         "notIn": "hors de",
         "notInLastDays": "plus ancien que",
         "startsWith": "Commence par"
@@ -1351,7 +1348,8 @@
       "copiedToClipboard": "{value} copié dans le presse-papiers",
       "copyFailed": "Échec de la copie dans le presse-papiers",
       "deleted": "Supprimé",
-      "unexpectedError": "Une erreur est survenue. Veuillez réessayer."
+      "unexpectedError": "Une erreur est survenue. Veuillez réessayer.",
+      "updated": "Mis à jour"
     },
     "pageNumber": "Page {page}",
     "providers": {
@@ -1878,10 +1876,12 @@
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
+      "activityCount": "{count, plural, one {# activité} other {# activités}}",
       "aiLabel": "Interroger l’IA sur {name}",
       "all": "Toutes",
       "applied": "Affichage de {name}",
       "askAi": "Demander à l'IA",
+      "conversationCount": "{count, plural, one {# discussion} other {# discussions}}",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
       "createWithAi": "Créer avec l’IA",
@@ -2211,7 +2211,6 @@
       "ccLabel": "Cc",
       "createContact": "Créer \"{query}\"",
       "draftAttachmentsUnsupported": "Supprimez les pièces jointes avant d'enregistrer ce brouillon.",
-      "draftDiscard": "Abandonner",
       "draftDiscardFailed": "Impossible d'abandonner le brouillon",
       "draftEdit": "Modifier",
       "draftSaved": "Brouillon enregistré. Vous le trouverez dans la boîte de réception.",
@@ -2296,7 +2295,6 @@
     "previewVideo": "🎥 Vidéo",
     "previewVoice": "🎙️ Message vocal",
     "rateLimited": "Ce canal a atteint sa limite de débit. Vous pouvez réessayer {retryAfter, select, later {plus tard} other {{retryAfter}}}.",
-    "refresh": "Actualiser",
     "refreshDone": "Boîte de réception actualisée.",
     "refreshNeedsReconnect": "{count, plural, one {# canal doit} other {# canaux doivent}} être reconnecté(s) avant de pouvoir se synchroniser. Ouvrez Canaux pour les reconnecter.",
     "refreshPartial": "{count, plural, one {# canal n’a pas pu} other {# canaux n’ont pas pu}} être actualisé(s). La boîte de réception affiche la dernière synchronisation.",
@@ -2458,14 +2456,14 @@
   "MassActions": {
     "clearField": "Vider le champ",
     "delete": "Supprimer la sélection",
+    "edit": "Modifier",
     "keepInView": "Conserver uniquement les lignes visibles",
     "limitReached": "Vous pouvez sélectionner jusqu'à {limit} enregistrements à la fois.",
     "noMatchingFields": "Aucun champ ne correspond à votre recherche.",
     "offView": "{count, plural, one {# hors de la vue actuelle} other {# hors de la vue actuelle}}",
     "scopeStale": "Les filtres ont changé depuis cette sélection.",
     "searchFieldPlaceholder": "Rechercher des champs…",
-    "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}",
-    "update": "Mettre à jour"
+    "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}"
   },
   "McpConsentCard": {
     "approve": "Approuver",
@@ -2491,15 +2489,12 @@
     "addEntity": "Ajouter {entity}",
     "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
     "addPickerTitle": "Créer…",
-    "admin": "Administration",
     "affiliate": "Programme d'affiliation",
-    "connectedAccounts": "Canaux",
     "dashboard": "Tableau de bord",
     "data": "Données",
     "docs": "Documentation",
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
-    "members": "Membres",
     "operator": "Console opérateur",
     "overview": "Aperçu",
     "pricing": "Tarifs",
@@ -2553,9 +2548,7 @@
     "routines": "Routines",
     "search": "Rechercher",
     "settings": "Paramètres",
-    "subscription": "Abonnement",
-    "wiki": "Base de connaissances",
-    "workspace": "Espace de travail"
+    "wiki": "Base de connaissances"
   },
   "NotFoundPage": {
     "body": "Nous avons été automatiquement informés que cette page est partie en vacances. Nous allons la retrouver et la ramener bientôt.",
@@ -2683,7 +2676,6 @@
         }
       }
     },
-    "back": "Retour",
     "continue": "Continuer",
     "finish": "Terminer",
     "invite": {
@@ -2952,21 +2944,11 @@
     "after": "À partir de",
     "allRecords": "Sans sélection, tous les enregistrements accessibles de ce type sont inclus.",
     "before": "Jusqu’au",
-    "clearConversation": "Effacer le filtre de conversation",
     "filterKinds": {
-      "account": "Canal",
-      "provider": "Fournisseur",
-      "record": "Enregistrements liés",
-      "source": "Type d’activité",
-      "thread": "Conversation"
-    },
-    "operators": {
-      "hasNone": "Ne possède aucun enregistrement lié",
-      "hasSome": "Possède un enregistrement lié",
-      "in": "Inclut au moins un de",
-      "notIn": "Exclut tous les éléments"
+      "provider": "Fournisseur"
     },
     "records": "Enregistrements",
+    "savedFilters": "Filtres de périmètre enregistrés",
     "scopeHelp": "Sans sélection, toutes les activités accessibles sont affichées. Les types et enregistrements sélectionnés sont réunis ; tous les filtres supplémentaires doivent correspondre.",
     "types": "Types d’enregistrements"
   },
@@ -2979,14 +2961,17 @@
     "addGroupSummary": "Ajouter une synthèse",
     "addInput": "Ajouter une entrée",
     "addMenu": {
-      "calculation": "Calcul",
+      "calculation": "Champ calculé",
+      "channels": "Canaux",
       "field": "Champ",
       "list": "Liste",
-      "relationship": "Relation"
+      "relationship": "Relation",
+      "sublist": "Sous-liste"
     },
     "addOption": "Ajouter une option",
     "addPathStep": "Ajouter une étape de relation",
     "addProbability": "Ajouter une probabilité",
+    "addRelationship": "Ajouter une relation",
     "aggregation": "Agrégation",
     "allowManualOverride": "Autoriser une valeur de remplacement manuelle",
     "ascending": "Croissant",
@@ -3050,6 +3035,21 @@
       "short": "E-mail, téléphone, réseaux"
     },
     "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
+    "clickAction": "Au clic",
+    "clickActions": {
+      "email": {
+        "copy": "Copier l’adresse",
+        "open": "Ouvrir dans l’app de messagerie"
+      },
+      "phone": {
+        "copy": "Copier le numéro",
+        "open": "Appeler le numéro"
+      },
+      "url": {
+        "copy": "Copier le lien",
+        "open": "Ouvrir le lien"
+      }
+    },
     "color": "Couleur",
     "conditionIf": "Condition",
     "conditionOtherwise": "Sinon",
@@ -3129,6 +3129,7 @@
     "contactFullName": "Nom complet",
     "createdAt": "Créé le",
     "createList": "Créer une liste",
+    "createSublist": "Nouvelle sous-liste de {list}",
     "currency": "Devise",
     "decimalPlaces": "Décimales",
     "decimalPlacesHelp": "Laissez vide pour utiliser le format par défaut. Cela modifie l’affichage des valeurs, pas leur calcul.",
@@ -3181,7 +3182,7 @@
       "accountEdge": "Synchronise les conversations dans {list}",
       "accounts": "Comptes connectés",
       "accountUnit": "{count, plural, one {compte} other {comptes}}",
-      "addFieldTo": "Ajouter un champ à {list}",
+      "addTo": "Ajouter à {list}",
       "calculatedFrom": "à partir de {sources}",
       "calculationEdge": "Calculé à partir de cette liste : {fields}",
       "connectDescription": "Connectez Gmail, Outlook ou un autre canal pour intégrer les conversations à vos listes.",
@@ -3192,14 +3193,14 @@
       "help": "Sélectionnez une liste ou un champ pour le modifier, la pastille d’une ligne pour modifier une relation, ou faites glisser le point d’une liste vers une autre pour les relier.",
       "helpReadOnly": "Sélectionnez une liste pour l’ouvrir. Les lignes montrent comment les listes sont liées et d’où viennent les valeurs calculées.",
       "label": "Graphique des listes, champs et comptes connectés",
-      "manage": "Gérer",
       "moreAccounts": "{count, plural, one {# autre compte} other {# autres comptes}}",
       "moreFields": "{count, plural, one {# autre champ} other {# autres champs}}",
-      "partOf": "Fait partie de {list}",
       "recordsRestricted": "Nombre d’enregistrements indisponible",
       "recordUnit": "{count, plural, one {enregistrement} other {enregistrements}}",
       "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
       "resetLayout": "Réinitialiser la disposition",
+      "showFewer": "Afficher moins",
+      "sublistOf": "Sous-liste de {list}",
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"
     },
@@ -3413,8 +3414,11 @@
     "relationshipChange": "{count} relations modifiées",
     "relationshipEditor": {
       "cardinality": "Nombre d’enregistrements liés",
+      "messagesHelp": "Les messages proviennent d’éléments liés avec des canaux ou de conversations liées. Les droits sur les éléments et les messages s’appliquent toujours.",
       "onDelete": "À la suppression",
       "otherList": "la liste liée",
+      "showMessagesOn": "Afficher leurs messages dans {list}",
+      "showMessagesOnSide": "Afficher leurs messages dans {list} ({side})",
       "shownOn": "Affiché sur les enregistrements de {list}",
       "thisList": "Cette liste"
     },
@@ -3422,6 +3426,7 @@
     "relationshipPath": "Via des fiches liées",
     "relationshipPathHelp": "Affiche les fiches accessibles via des relations existantes. Modifiez les liens sous-jacents pour changer ces fiches.",
     "relationships": "Relations",
+    "relationshipsEmpty": "Aucune relation pour l’instant. Reliez cette liste à une autre pour voir les éléments liés ensemble.",
     "reloadLists": "Recharger les listes",
     "removeGroupSummary": "Supprimer la synthèse",
     "removeInput": "Supprimer l’entrée",
@@ -3473,6 +3478,7 @@
         "singular": "Tâche"
       }
     },
+    "sublistExplanation": "Chaque entrée appartient à un élément {parent}, se modifie à l’intérieur, partage ses accès et est supprimée avec lui.",
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
     "summaryField": "Champ de la synthèse",
@@ -3511,14 +3517,7 @@
     "triggerFiltersHelp": "Laissez vide pour inclure tous les enregistrements."
   },
   "RecordWidgets": {
-    "addFilter": "Ajouter un filtre",
-    "addRelatedFilter": "Ajouter un filtre sur les enregistrements liés",
     "attribution": "Un enregistrement peut apparaître dans plusieurs groupes. Leur somme peut dépasser le total.",
-    "filterDays": "Nombre de jours",
-    "filterFrom": "À partir de",
-    "filterOperator": "Condition",
-    "filterUntil": "Jusqu’au",
-    "filterValue": "Valeur",
     "funnelClosedStage": "{label} : {value}, une étape perdue affichée hors de l’entonnoir.",
     "funnelTooltip": "{value} ({conversion} de l’étape précédente)",
     "group": "Grouper par",
@@ -3540,24 +3539,6 @@
     "measure": "Mesure",
     "noRecordsInPeriod": "Aucun enregistrement",
     "notes": "À propos de ces chiffres",
-    "operators": {
-      "all": "Contient tous",
-      "between": "Entre",
-      "contains": "Contient",
-      "empty": "Est vide",
-      "eq": "Est égal à",
-      "gt": "Supérieur à",
-      "gte": "Au moins",
-      "in": "Est parmi",
-      "inLastDays": "Au cours des derniers jours",
-      "lt": "Inférieur à",
-      "lte": "Au plus",
-      "ne": "Est différent de",
-      "notEmpty": "N’est pas vide",
-      "notIn": "N’est pas parmi",
-      "notInLastDays": "Plus ancien que (jours)",
-      "startsWith": "Commence par"
-    },
     "overall": "Total : {value}",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
     "quarterLabel": "T{quarter} {year}",
@@ -3570,10 +3551,7 @@
     },
     "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
     "relatedAny": "Au moins un enregistrement lié accessible correspond",
-    "relatedFilterHelp": "Toutes les conditions d’un filtre sur les enregistrements liés s’appliquent au même enregistrement. Seuls les enregistrements auxquels vous avez accès sont pris en compte.",
-    "relatedMatch": "Enregistrements liés",
     "relatedNone": "Aucun enregistrement lié accessible ne correspond",
-    "removeFilter": "Supprimer le filtre",
     "search": "Rechercher des enregistrements",
     "signedChart": "Les valeurs négatives sont affichées dans une liste. Choisissez un graphique à barres pour les tracer.",
     "source": "Enregistrements de",
@@ -3603,7 +3581,6 @@
   },
   "RoleModal": {
     "create": "Créer",
-    "delete": "Supprimer",
     "edit": "Modifier",
     "manageAccess": "Gérer",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
@@ -3632,8 +3609,7 @@
   },
   "RolesCard": {
     "custom": "Personnalisé",
-    "system": "Système",
-    "title": "Rôles"
+    "system": "Système"
   },
   "RoutineAdministration": {
     "help": "En tant qu’administrateur de l’entreprise, vous pouvez suspendre ou supprimer cette routine, mais vous ne pouvez pas la modifier, la tester ni l’exécuter.",
@@ -3793,19 +3769,43 @@
     "tuesday": "Mardi",
     "wednesday": "Mercredi"
   },
+  "SettingsNav": {
+    "account": "Compte",
+    "activity": "Activité",
+    "apiKeys": "Clés API",
+    "billing": "Facturation",
+    "channels": "Canaux",
+    "deliveries": "Livraisons",
+    "members": "Membres",
+    "profile": "Profil et préférences",
+    "roles": "Rôles",
+    "webhooks": "Webhooks",
+    "workspace": "Espace de travail"
+  },
   "SidebarCustomize": {
     "deleteSection": "Supprimer la section",
-    "emptySection": "Faites glisser des éléments ici",
+    "deleteSectionEmpty": "La section est vide, aucun élément n'est déplacé.",
+    "deleteSectionMoves": "Ses éléments retournent à leur place par défaut dans votre barre latérale ; les éléments masqués restent masqués :",
+    "deleteSectionTitle": "Supprimer la section « {section} » ?",
+    "dragItem": "Déplacer {item}",
+    "dragSection": "Déplacer la section {section}",
+    "emptySection": "Glissez des éléments ici ou utilisez Déplacer vers la section",
     "hide": "Masquer de la barre latérale",
+    "hint": "Faites glisser les poignées pour réorganiser les éléments et les sections, ou utilisez les menus …. Cliquez sur le nom d'une section personnelle pour la renommer.",
     "itemActions": "Options pour {item}",
     "moveDown": "Descendre",
+    "movesBackTo": "{item} retourne dans {section}",
     "moveToSection": "Déplacer vers la section",
     "moveUp": "Monter",
     "newSection": "Nouvelle section",
     "newSectionName": "Nouvelle section",
     "rename": "Renommer",
     "reset": "Rétablir par défaut",
+    "resetDone": "Barre latérale réinitialisée",
+    "resetMessage": "Vos sections personnelles, l'ordre et les éléments masqués reviennent aux valeurs par défaut. Les barres latérales des autres personnes ne changent pas.",
+    "resetTitle": "Réinitialiser la barre latérale ?",
     "sectionActions": "Options pour {section}",
+    "sectionDeleted": "Section supprimée",
     "sectionName": "Nom de la section",
     "show": "Afficher {item}",
     "title": "Personnaliser la barre latérale"
@@ -3852,7 +3852,7 @@
       "planManage": "Synchronisé avec la facturation. Utilisez « {billing} » pour le modifier.",
       "planPicker": "Choisissez une offre ci-dessous pour démarrer ou modifier l’abonnement.",
       "planReadOnly": "Synchronisé avec la facturation. Demandez les modifications à un administrateur de l’espace de travail.",
-      "quantity": "Synchronisé avec le nombre de membres actifs de l’espace de travail. Les administrateurs peuvent activer ou désactiver des membres dans « {company} ».",
+      "quantity": "Synchronisé avec le nombre de membres actifs de l’espace de travail. Les administrateurs peuvent activer ou désactiver des membres dans « {members} ».",
       "trialEndsManage": "Définie par la période d’essai. Utilisez « {billing} » pour gérer l’abonnement.",
       "trialEndsPicker": "Définie par la période d’essai. Choisissez une offre avant cette date pour continuer sans interruption.",
       "trialEndsReadOnly": "Définie par la période d’essai. Demandez à un administrateur de l’espace de travail de gérer l’abonnement."
@@ -3887,7 +3887,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Sièges actifs",
-    "refresh": "Actualiser",
     "refreshSuccess": "Abonnement actualisé",
     "seatBillingNote": "Vous payez par utilisateur actif. Les changements de sièges sont calculés au prorata sur votre prochaine facture.",
     "status": {
@@ -3960,14 +3959,13 @@
     "title": "Bienvenue dans votre essai"
   },
   "UserAvatar": {
-    "company": "Mon entreprise",
-    "darkMode": "Mode sombre",
     "documentation": "Documentation",
     "home": "Accueil",
-    "lightMode": "Mode clair",
-    "profile": "Mon profil",
-    "settings": "Paramètres",
-    "signOut": "Se déconnecter"
+    "language": "Langue",
+    "menu": "Menu personnel",
+    "sendFeedback": "Envoyer un avis",
+    "signOut": "Se déconnecter",
+    "theme": "Thème"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Détermine la langue de l'interface : libellés, boutons, etc.",
@@ -3994,8 +3992,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Les tentatives de livraison apparaîtront ici dès qu’un webhook sera déclenché.",
-    "emptyTitle": "Aucune livraison pour le moment",
-    "title": "Livraisons récentes"
+    "emptyTitle": "Aucune livraison pour le moment"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Créé le",
@@ -4029,8 +4026,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Ajoutez un webhook pour envoyer les événements de l’espace de travail à vos systèmes.",
-    "emptyTitle": "Aucun webhook pour le moment",
-    "title": "Webhooks"
+    "emptyTitle": "Aucun webhook pour le moment"
   },
   "Wiki": {
     "conflict": "Cette page a changé. Vos modifications sont toujours là. Rechargez pour utiliser la dernière version.",
@@ -4140,5 +4136,9 @@
     },
     "tryAnother": "Essayer un autre site",
     "unavailable": "La configuration avec Mate n’est pas disponible pour le moment. Vous pourrez créer des pages plus tard depuis la base de connaissances."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Inviter des membres",
+    "label": "Menu de l'espace de travail"
   }
 }

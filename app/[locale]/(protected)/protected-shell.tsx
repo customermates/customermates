@@ -4,14 +4,14 @@ import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 
-import { FeedbackModal } from "./company/components/feedback/feedback-modal";
-import { CompanyUserModal } from "./company/components/user/user-modal";
-import { CompanyInviteModal } from "./company/components/company-invite/company-invite-modal";
-import { WebhookDeliveryModal } from "./company/components/webhook/webhook-delivery-modal";
-import { WebhookModal } from "./company/components/webhook/webhook-modal";
+import { FeedbackModal } from "./settings/(workspace)/components/feedback/feedback-modal";
+import { CompanyUserModal } from "./settings/(workspace)/components/user/user-modal";
+import { CompanyInviteModal } from "./settings/(workspace)/components/company-invite/company-invite-modal";
+import { WebhookDeliveryModal } from "./settings/(workspace)/components/webhook/webhook-delivery-modal";
+import { WebhookModal } from "./settings/(workspace)/components/webhook/webhook-modal";
 import { RoutineModal } from "./routines/components/routine-modal";
-import { ApiKeyModal } from "./profile/components/api-key-modal";
-import { ConnectUpsellModal } from "./profile/components/connect-upsell-modal";
+import { ApiKeyModal } from "./settings/(account)/components/api-key-modal";
+import { ConnectUpsellModal } from "./settings/(account)/components/connect-upsell-modal";
 
 import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
@@ -28,7 +28,7 @@ import { KeyboardShortcutsDialog } from "@/app/components/keyboard-shortcuts/key
 import { ViewPicker } from "@/components/data-view/views/view-picker";
 
 const ConnectedAccountModal = dynamic(
-  () => import("./profile/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
+  () => import("./settings/(account)/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
   { ssr: false },
 );
 const WorkspaceRecordEditor = dynamic(

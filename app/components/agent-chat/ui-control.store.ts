@@ -7,6 +7,7 @@ import { BaseStore } from "@/core/base/base.store";
 import {
   agentRouteVisible,
   agentSidebarGroupId,
+  SETTINGS_MENU_TARGET,
   findAgentNavigationTarget,
   findAgentUiTarget,
   isToolbarSearchTarget,
@@ -143,14 +144,16 @@ function sidebarRevealStep(target: AgentUiTarget) {
   const group = agentSidebarGroupId(target.id);
   const anchor = document.getElementById(group ?? target.id);
   const groupClosed = group !== null && document.getElementById(target.id) === null;
+  const openGroup = (where: string) =>
+    group === SETTINGS_MENU_TARGET ? `open ${group}${where} and choose Settings` : `open ${group}${where}`;
   if (!anchor) {
     const groupOpensItself = currentAppPathname()?.startsWith(`/${target.route.split("/")[1]}/`) ?? false;
-    const thenOpenGroup = group && !groupOpensItself ? `, then open ${group} in it` : "";
+    const thenOpenGroup = group && !groupOpensItself ? `, then ${openGroup(" in it")}` : "";
     return `open the sidebar with the sidebar button at the top left of the header${thenOpenGroup}`;
   }
   if (anchor.closest('[data-collapsible="icon"]'))
-    return `expand the collapsed sidebar with the sidebar button at the top left of the header${groupClosed ? `, then open ${group} in it` : ""}`;
-  return groupClosed ? `open ${group} in the sidebar` : null;
+    return `expand the collapsed sidebar with the sidebar button at the top left of the header${groupClosed ? `, then ${openGroup(" in it")}` : ""}`;
+  return groupClosed ? openGroup(" in the sidebar") : null;
 }
 
 export class AgentUiControlStore extends BaseStore {

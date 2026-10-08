@@ -6,6 +6,7 @@ import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openRecordDetails, recordItem } from "./record-rows";
 
 test("opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally", async ({
   page,
@@ -156,17 +157,10 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       hasOpenedRecord = true;
     } else {
       await navigateType(typeId);
-      await page
-        .getByRole("row")
-        .filter({ has: page.getByText(`Channel company ${index + 1}`, { exact: true }) })
-        .getByRole("button", { name: `Channel company ${index + 1}`, exact: true })
+      await recordItem(page, `Channel company ${index + 1}`)
+        .getByRole("link", { name: `Channel company ${index + 1}`, exact: true })
         .click();
-      const recordDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
-      // Drain this drawer's reads so the held page responses belong to its newly mounted editor.
-      await waitForRelationshipReads(recordDrawer);
-      await recordDrawer.getByRole("link", { name: "Open page", exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[index].recordId}$`));
-      await expect(recordDrawer).toHaveCount(0);
     }
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
@@ -184,7 +178,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   };
   if (testInfo.project.name === "chromium") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.bringToFront();
-  const copy = channelRow().getByRole("button", { name: "Copy", exact: true });
+  const copy = channelRow().getByRole("button", { name: "Copy address", exact: true });
   if (testInfo.project.name === "webkit") await copy.press("Enter");
   else if (testInfo.project.name === "mobile") await copy.tap();
   else await copy.click();
@@ -199,7 +193,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     const headers = request.headers();
     return (
       new URL(response.url()).origin === applicationOrigin &&
-      new URL(response.url()).pathname === "/en/profile/connected-accounts" &&
+      new URL(response.url()).pathname === "/en/settings/channels" &&
       request.method() === "GET" &&
       headers["next-router-prefetch"] === "1" &&
       headers["next-router-state-tree"] !== undefined &&
@@ -352,7 +346,9 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     await route.fulfill({ response });
   });
   await openRecord(1);
-  const pendingLinkedFields = page.locator('[data-entity-field^="relationship:"] [aria-busy="true"]');
+  const pendingLinkedFields = page
+    .locator('[data-entity-field^="relationship:"]')
+    .filter({ has: page.locator('[aria-busy="true"]') });
   await expect.poll(() => releaseChoices.length).toBeGreaterThan(0);
   await expect(pendingLinkedFields).toHaveCount(relationCount);
   const beforeChoiceLoad = await start().boundingBox();
@@ -467,13 +463,10 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect.poll(async () => (await readDrafts()).length).toBe(0);
   await expect(conversation.getByRole("button", { name: "Edit", exact: true })).not.toBeVisible();
   await navigateType(typeId);
-  await page
-    .getByRole("row")
-    .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByRole("button", { name: "Channel company 1", exact: true })
-    .click();
+  await openRecordDetails(page, "Channel company 1");
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
   await expect(drawer).toBeVisible();
+  await waitForRelationshipReads(drawer);
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Channel company 1");
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
   await expect(drawer.getByRole("button", { name: "Hide Channels from details", exact: true })).toBeVisible();
@@ -507,11 +500,8 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   for (const key of ["contact", "organization"]) await navigateType(presetId(companyId, key));
-  await page
-    .getByRole("row")
-    .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByRole("button", { name: "Channel company 1", exact: true })
-    .click();
+  await openRecordDetails(page, "Channel company 1");
+  await waitForRelationshipReads(drawer);
   await activateCompose(
     drawer
       .locator('[data-record-channel-key="mail:first-channel@example.test"]')
@@ -533,11 +523,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(drawer).not.toBeVisible();
   await expect(recovered).toHaveCount(0);
   await navigateType(typeId);
-  await page
-    .getByRole("row")
-    .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByRole("button", { name: "Channel company 1", exact: true })
-    .click();
+  await openRecordDetails(page, "Channel company 1");
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[0].recordId}$`));
   await expect(drawer).toHaveCount(0);
@@ -557,11 +543,8 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   await expect(recovered).toHaveCount(0);
   await expect.poll(async () => (await readDrafts()).length).toBe(0);
   if (new URL(page.url()).pathname !== `/en/records/${typeId}`) await navigateType(typeId);
-  await page
-    .getByRole("row")
-    .filter({ has: page.getByText("Channel company 1", { exact: true }) })
-    .getByRole("button", { name: "Channel company 1", exact: true })
-    .click();
+  await openRecordDetails(page, "Channel company 1");
+  await waitForRelationshipReads(drawer);
   await activateCompose(
     drawer
       .locator('[data-record-channel-key="mail:first-channel@example.test"]')

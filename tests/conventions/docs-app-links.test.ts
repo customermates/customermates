@@ -19,48 +19,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
  * NOT_YET_CONVERTED lists pages still written the old way. It may only shrink: a listed page
  * that no longer violates the convention fails until it is removed from the list.
  */
-const NOT_YET_CONVERTED = new Set<string>([
-  "de/api-keys",
-  "de/app-assistant",
-  "de/app-company",
-  "de/app-dashboard",
-  "de/app-inbox",
-  "de/app-onboarding",
-  "de/app-profile",
-  "de/app-records",
-  "de/app-routines",
-  "de/app-search",
-  "de/architecture-security",
-  "de/concepts",
-  "de/connect-cli",
-  "de/connect-custom-connector",
-  "de/mcp",
-  "de/messaging-rate-limits",
-  "de/n8n",
-  "de/quickstart",
-  "de/self-hosting",
-  "de/webhooks",
-  "en/api-keys",
-  "en/app-assistant",
-  "en/app-company",
-  "en/app-dashboard",
-  "en/app-inbox",
-  "en/app-onboarding",
-  "en/app-profile",
-  "en/app-records",
-  "en/app-routines",
-  "en/app-search",
-  "en/architecture-security",
-  "en/concepts",
-  "en/connect-cli",
-  "en/connect-custom-connector",
-  "en/mcp",
-  "en/messaging-rate-limits",
-  "en/n8n",
-  "en/quickstart",
-  "en/self-hosting",
-  "en/webhooks",
-]);
+const NOT_YET_CONVERTED = new Set<string>([]);
 
 const LINK_BLOCK = /\*\*(?:Link|Mate):\*\*/;
 const DOM_ID = /(?<![\w/(\[#])#[a-z][a-z0-9]*(?:-[a-z0-9]+)+/;
@@ -162,10 +121,10 @@ describe("docs app links", () => {
     expect(appLinkViolations("**Link:** the Roles page.")).toHaveLength(1);
     expect(appLinkViolations("Search uses `#records-search`.")).toHaveLength(1);
     expect(appLinkViolations("Navigate with `nav-records:<typeId>`.")).toHaveLength(1);
-    expect(appLinkViolations("Highlight `company-roles-add`.")).toHaveLength(1);
+    expect(appLinkViolations("Highlight `settings-roles-add`.")).toHaveLength(1);
     expect(appLinkViolations("Open [Projects](app:records/project).")).toHaveLength(1);
-    expect(appLinkViolations("Open `/company/roles` or `/records/<typeId>`.")).toHaveLength(1);
-    expect(appLinkViolations('Open [Roles](app:company/roles "Roles").')).toHaveLength(1);
+    expect(appLinkViolations("Open `/settings/roles` or `/records/<typeId>`.")).toHaveLength(1);
+    expect(appLinkViolations('Open [Roles](app:settings/roles "Roles").')).toHaveLength(1);
     expect(appLinkViolations("The API lives at `/v1/records`.")).toEqual([]);
     expect(
       appLinkViolations(

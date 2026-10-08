@@ -30,7 +30,7 @@ describe("suggestionPageId", () => {
   });
 
   it("maps the connected-accounts profile page despite the profile prefix", () => {
-    expect(suggestionPageId("/profile/connected-accounts")).toBe("connected-accounts");
+    expect(suggestionPageId("/settings/channels")).toBe("connected-accounts");
   });
 
   it("falls back to default for unknown routes, detail pages under other segments, and the literal default segment", () => {

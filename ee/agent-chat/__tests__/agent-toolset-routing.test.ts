@@ -120,7 +120,7 @@ describe("toolsetsForRequest", () => {
   });
 
   it("routes by the current page and strips the locale prefix", () => {
-    expect([...toolsetsForRequest({ text: "What is this?", pageRoute: "/de/company/webhooks" })]).toEqual([
+    expect([...toolsetsForRequest({ text: "What is this?", pageRoute: "/de/settings/webhooks" })]).toEqual([
       "webhooks",
       "admin",
     ]);

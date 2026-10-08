@@ -3,6 +3,7 @@ import type { Locator, Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect, isBenignPageError } from "./fixtures";
+import { openRecordDetails } from "./record-rows";
 
 function chip(scope: Locator, label: string) {
   return scope.locator('[data-slot="badge"]').filter({ hasText: new RegExp(`^${label}$`) });
@@ -42,7 +43,7 @@ test("renders change values with the shared value renderers on every activity su
     [memberId, companyId, roleId, `${memberId}@example.test`],
   );
 
-  await page.goto("/en/company/members");
+  await page.goto("/en/settings/members");
   await page.getByRole("button", { name: /Invited Member/ }).click();
   const member = page.getByRole("dialog", { name: "User", exact: true });
   await member.locator("#member-modal-status").click();
@@ -51,8 +52,8 @@ test("renders change values with the shared value renderers on every activity su
   await expect(member).not.toBeVisible();
 
   const receiverUrl = `http://127.0.0.1:49999/${randomUUID()}`;
-  await page.goto("/en/company/webhooks");
-  await page.locator("#company-webhooks-add").click();
+  await page.goto("/en/settings/webhooks");
+  await page.locator("#settings-webhooks-add").click();
   const webhook = page.getByRole("dialog");
   await webhook.locator("#webhook-modal-url").fill(receiverUrl);
   await webhook.locator("#webhook-modal-events").click();
@@ -65,12 +66,11 @@ test("renders change values with the shared value renderers on every activity su
   await webhook.getByRole("button", { name: "Save", exact: true }).click();
   await expect(webhook).not.toBeVisible();
 
-  await page.goto("/en/company/roles");
-  await page.locator("#company-roles-add").click();
+  await page.goto("/en/settings/roles");
+  await page.locator("#settings-roles-add").click();
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Value readers");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Reads tasks");
-  await role.getByRole("tab", { name: "Record types", exact: true }).click();
   await role
     .locator("[data-record-permission]")
     .filter({ hasText: /^Tasks/ })
@@ -97,7 +97,7 @@ test("renders change values with the shared value renderers on every activity su
   );
   const wonColor = won?.color ?? "secondary";
 
-  await page.goto("/en/company/activity");
+  await page.goto("/en/settings/activity");
   const feed = page.locator('[data-slot="feed-container"]');
 
   const { detail: userEntry, ...userEntryOpened } = await openEntry(page, feed, /User Updated/);
@@ -147,7 +147,7 @@ test("renders change values with the shared value renderers on every activity su
   await closeEntry(page, widgetEntryOpened);
 
   await page.goto(`/en/records/${dealTypeId}`);
-  await page.getByRole("button", { name: "Value renderer deal", exact: true }).click();
+  await openRecordDetails(page, "Value renderer deal");
   const drawer = page.getByRole("dialog").first();
   await drawer.getByRole("tab", { name: "History", exact: true }).click();
   const { detail: historyEntry, ...historyEntryOpened } = await openEntry(page, drawer, /Record created/);

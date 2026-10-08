@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { toLocalIso } from "@/components/forms/iso-date-values";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { toChipColor } from "@/constants/chip-colors";
-import { getUsersAction } from "../../company/actions";
+import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import {
   expressionAt,
   expressionTypeId,

@@ -1,3 +1,4 @@
+import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
@@ -25,7 +26,7 @@ test("keeps migrated multi-type webhook sources when editing delivery settings",
     'INSERT INTO "RecordEventSubscription" ("companyId", id, kind, "ownerUserId", "typeId", events, "changedFieldIds", query, sources, revision, enabled) VALUES ($1, $2, $3, $4, NULL, $5, $6, NULL, $7::jsonb, 1, true)',
     [companyId, id, "webhook", workspace.userId, ["record.updated"], [], JSON.stringify(sources)],
   );
-  await page.goto("/en/company/webhooks");
+  await page.goto("/en/settings/webhooks");
   await page.getByRole("button", { name: url, exact: true }).click();
   const modal = page.getByRole("dialog");
   await expect(modal.getByText(/Services · Record updated/)).toBeVisible();
@@ -65,8 +66,8 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   );
   expect(field.rows).toHaveLength(1);
   const receiverUrl = "http://127.0.0.1:49999/project-events";
-  await page.goto("/en/company/webhooks");
-  await page.locator("#company-webhooks-add").click();
+  await page.goto("/en/settings/webhooks");
+  await page.locator("#settings-webhooks-add").click();
   const webhook = page.getByRole("dialog");
   await webhook.locator("#webhook-modal-url").fill(receiverUrl);
   await webhook.locator("#webhook-modal-description").fill("Project delivery");
@@ -78,7 +79,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   await webhook.locator('[id="recordTrigger.changedFieldIds"]').click();
   await page.getByRole("option", { name: field.rows[0].label, exact: true }).click();
   await page.keyboard.press("Escape");
-  await webhook.locator('[id="recordTrigger.query.search"]').fill("Ready");
+  await setPaletteText(page, "record-trigger-filters", "query:search", "Ready");
   await webhook.getByRole("button", { name: "Save", exact: true }).click();
   await expect(webhook).not.toBeVisible();
   const saved = await database.query(
@@ -96,7 +97,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   await page.getByRole("button", { name: receiverUrl, exact: true }).click();
   await expect(webhook.getByRole("combobox", { name: "Records from", exact: false })).toContainText("Projects");
   await expect(webhook.locator('[id="recordTrigger.changedFieldIds"]')).toContainText(field.rows[0].label);
-  await expect(webhook.locator('[id="recordTrigger.query.search"]')).toHaveValue("Ready");
+  await expectPaletteText(page, "record-trigger-filters", "query:search", "Ready");
   await webhook
     .locator("[data-record-trigger]")
     .screenshot({ path: testInfo.outputPath("custom-type-webhook.png"), animations: "disabled" });

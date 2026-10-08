@@ -123,7 +123,7 @@ afterEach(() => {
 describe("DataTable row click focus return", () => {
   it.each([
     ["a button", undefined],
-    ["a link", (item: Item) => `/company/webhooks/${item.id}`],
+    ["a link", (item: Item) => `/settings/webhooks/${item.id}`],
   ])(
     "returns focus to the row's open control, rendered as %s, after a dialog opened from another cell closes",
     async (_kind, rowHref) => {
@@ -143,7 +143,7 @@ describe("DataTable row click focus return", () => {
 
   it.each([
     ["a button", undefined],
-    ["a link", (item: Item) => `/company/webhooks/${item.id}`],
+    ["a link", (item: Item) => `/settings/webhooks/${item.id}`],
   ])(
     "returns focus to the row's open control, rendered as %s, when a click on it did not focus it",
     async (_kind, rowHref) => {

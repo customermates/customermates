@@ -1,80 +1,76 @@
 ---
 title: "CRM-Datenmodell: Datensätze, Beziehungen, Berechnungen"
-description: "Wie Start- und eigene Datensatztypen, Felder, Verknüpfungen, Deal-Werte, Rechte, Widgets und Webhooks zusammenwirken."
+description: "Wie Listen, Felder, Beziehungen, Deal-Werte, Rechte, Widgets und Webhooks zusammenwirken."
 ---
 
-Customermates speichert CRM-Informationen als konfigurierte Datensatztypen. Kontakte, Organisationen, Deals, Services und Aufgaben sind die fünf Startkonfigurationen. Ein Workspace kann Projekte, Bewerbungen und andere Typen ohne neue Datenbanktabelle oder App-Version anlegen. Jeder Datensatz hat eine stabile Typ-ID und Datensatz-ID; Bezeichnungen können sich ändern, ohne Referenzen zu ändern. Eine gespeicherte Ansicht zeigt Datensätze anders an und dupliziert sie nicht.
+Customermates speichert CRM-Daten in konfigurierbaren Listen. Ein Workspace beginnt mit Kontakten, Organisationen, Deals, Services und Aufgaben und kann eigene anlegen, etwa Projekte oder Bewerbungen, ganz ohne neue App-Version. Jeder Datensatz behält eine stabile ID, daher bricht das Umbenennen einer Liste oder eines Felds keine Referenz. Eine gespeicherte Ansicht zeigt Datensätze einer Liste, ohne sie zu kopieren.
 
 ## Welche Datensatztypen gibt es, und mit welchen beginnt ein Workspace? [#which-five-record-types-exist]
 
-| Starttyp | Zweck | Anfängliches Verhalten |
+| Startliste | Zweck | Beginnt mit |
 | --- | --- | --- |
-| Kontakt | Person | Name, indizierte Kanäle, Notizen, Zuweisungen |
-| Organisation | Firma oder Account | Name, Notizen, Zuweisungen |
-| Deal | Verkaufschance | Name, Service-Positionen, berechneter Wert und Menge, optional gewichteter Wert |
-| Service | Angebot oder Katalogeintrag | Name, aktueller Einzelpreis |
-| Aufgabe | Arbeitsschritt | Name, Zuweisungen, Status-Auswahlfeld; Genehmigungsaufgaben behalten geschützte Aktionen |
+| [Kontakte](app:records/contact) | Personen | Name, Kanäle, Notizen, Zuweisungen |
+| [Organisationen](app:records/organization) | Firmen oder Accounts | Name, Notizen, Zuweisungen |
+| [Deals](app:records/deal) | Verkaufschancen | Name, Positionen, berechneter Wert und Menge, optional gewichteter Wert |
+| [Services](app:records/service) | Angebote oder Katalogeinträge | Name, aktueller Einzelpreis |
+| [Aufgaben](app:records/task) | Arbeitsschritte | Name, Zuweisungen, Status; Genehmigungsaufgaben behalten geschützte Aktionen |
 
-Startvorlagen und eigene Typen verwenden dieselbe Engine. Felder, Beziehungen und Darstellung lassen sich erweitern. Ein Feld **Kanäle** lässt sich jedem Typ hinzufügen und verknüpft indizierte Kennungen mit seinen Datensätzen; eine Kennung kann zu mehreren Datensätzen gehören. Gewöhnliche Telefon- und E-Mail-Felder nehmen nicht an der Zuordnung teil. Aktionen zur Genehmigung von Mitgliedschaften bleiben geschützt. Aktuelle Typ- und Feld-IDs liefern `discover_record_types` und `get_record_model`.
+Startlisten sind gewöhnliche Listen: Felder, Beziehungen und Darstellung lassen sich wie bei jeder eigenen Liste erweitern oder ändern. Um Nachrichten Datensätzen zuzuordnen, fügen Sie einer Liste ein Feld **Kanäle** hinzu (E-Mails, Telefonnummern und Profile); eine Kennung kann zu mehreren Datensätzen passen. Gewöhnliche E-Mail- und Telefonfelder nehmen an der Zuordnung nicht teil.
 
 ## Wie wird der Gesamtwert eines Deals berechnet? [#how-is-a-deals-total-value-calculated]
 
-Ein Deal enthält eingebettete Service-Positionen. Jede Position hat Service, Menge, Preismodus und wirksamen Einzelpreis. **Positionswert = Menge × wirksamer Einzelpreis**. Die Positionswerte ergeben den Deal-Wert, die Mengen ergeben die Gesamtmenge. Derselbe Service darf mehrfach vorkommen. Bei Live-Preisen wirken spätere Änderungen des Service-Preises; ein gespeicherter Preis bleibt wie er erfasst wurde. Geldbeträge verwenden Dezimalarithmetik, und verschiedene Währungen werden nicht stillschweigend addiert.
+Die **Positionen** eines Deals sind eine Unterliste von Deals: Jede Position gehört zu einem Deal, wird darin bearbeitet, teilt seinen Zugriff und wird mit ihm entfernt. Jede Position hat Service, Menge, Preismodus und wirksamen Einzelpreis. **Positionswert = Menge × wirksamer Einzelpreis**. Der Deal-Wert ist die Summe der Positionswerte, die Deal-Menge die Summe der Mengen. Derselbe Service darf auf mehreren Positionen stehen. Bei Live-Preisen wirken spätere Änderungen des Service-Preises; ein gespeicherter Preis bleibt, wie er erfasst wurde. Jedes Geldfeld trägt seine eigene Währung, und Beträge in verschiedenen Währungen werden nie stillschweigend addiert.
 
-Die Summe entsteht durch konfigurierte Rollup- und Formelfelder. Ein Schema-Verwalter kann sie nach einer Vorschau der abhängigen Datensätze und Widgets ändern oder einen Wert manuell erfassen lassen. Fehlender Eingangswert, eingeschränkt sichtbarer Wert, Null und Berechnungsfehler sind unterschiedliche Zustände. Siehe [gewichtete Pipeline](#how-does-a-weighted-pipeline-work).
+Die Summe ist eine konfigurierte Berechnung. Ein Schema-Verwalter kann sie nach einer Vorschau der betroffenen Datensätze und Widgets ändern oder in einen manuellen Wert umwandeln. Fehlender Eingangswert, ein Wert, den Sie nicht sehen dürfen, Null und Berechnungsfehler sind unterschiedliche Zustände. Siehe [gewichtete Pipeline](#how-does-a-weighted-pipeline-work).
 
 ## Wie verknüpfen Beziehungen Datensätze, etwa einen Kontakt mit mehreren Organisationen? [#how-do-relationships-link-records]
 
-Beziehungen verbinden konfigurierte Typen. Jede Richtung hat eine eigene Bezeichnung, und die Kardinalität erlaubt einen oder mehrere Datensätze je Seite. Ein Kontakt kann zum Beispiel mehreren Organisationen zugeordnet sein; ein Projekt kann Kontakte und Deals verknüpfen. Zulässige Links erscheinen auf beiden Datensatzseiten. Die Service-Position eines Deals ist ein eingebetteter Datensatz mit Links zu Deal und Service sowie Menge und Preis.
+Eine Beziehung verbindet zwei Listen. Jede Seite hat eine eigene Bezeichnung und erlaubt einen oder mehrere Datensätze; so kann ein Kontakt zu mehreren Organisationen gehören und ein Projekt Kontakte und Deals verknüpfen. Beide Datensätze zeigen die Verknüpfung. Im Datensatzformular ist eine Beziehung ein Feld: Datensätze wählen, dann auf **Speichern** klicken. Auf der [Konfigurationsseite](app:configure/contact) einer Liste legen Sie eine über **Hinzufügen** → **Verknüpfung** an oder indem Sie in [Konfigurieren](app:configure) von einer Liste zur anderen ziehen. Der Drawer der Beziehung hat außerdem je Richtung einen Schalter, der die Nachrichten der verknüpften Datensätze auf der anderen Liste zeigt.
 
-Der Link zwischen einem Deal und einem Service wird als eigene Position mit Menge gespeichert. Derselbe Service kann in einem Deal zweimal mit unterschiedlichen Mengen oder gespeicherten Preisen vorkommen.
-
-Im Datensatzformular erscheint eine Beziehung als beschriftetes Relations-Feld. Wählen Sie die Datensätze, dann speichern Sie.
-
-Das Backend prüft Typen, Workspace, Kardinalität, Duplikate und Löschverhalten. Bei mehreren verknüpften Datensätzen braucht ein Lookup oder Rollup eine Aggregation wie Summe oder Anzahl. MCP-Clients verknüpfen oder entfernen Links über `mutate_crm_record` mit stabilen Beziehungs-IDs aus `get_record_model`. Jede Referenz enthält `typeId` und `recordId`.
+Die App prüft Listentypen, Kardinalität, Duplikate und das Verhalten beim Löschen. Ein Lookup oder Rollup über mehrere verknüpfte Datensätze braucht eine Aggregation wie Summe oder Anzahl.
 
 ## Was sind Felder, und welche Feldtypen gibt es? [#what-are-custom-columns]
 
-Jeder Typ beginnt mit vorbereiteten Feldern, und ein Workspace kann eigene Felder hinzufügen; Tabellenansichten zeigen Felder als Spalten. Ein Feld hat einen **Werttyp** und ein **Verhalten**. Werttypen sind Text, Rich Text, Zahl, Währung, Boolean, Datum, Datum mit Uhrzeit, Datumsbereich, Zeitraum, Auswahl, E-Mail, Telefon, URL und Mitglied. Text-, E-Mail-, Telefon- und URL-Felder können mehrere Werte enthalten. Ein Auswahlfeld ist eine **Einzelauswahl** oder eine **Mehrfachauswahl**, die eine geordnete Liste von Options-IDs speichert, jede höchstens einmal. Auswahloptionen haben stabile IDs und bearbeitbare Bezeichnungen. Eine Einzelauswahl lässt sich ohne Datenverlust in eine Mehrfachauswahl umstellen; zurück geht es nur, solange jeder Datensatz höchstens eine Option enthält.
+Jede Liste beginnt mit einigen Feldern, und Sie können eigene hinzufügen; Tabellen zeigen sie als Spalten. Feldtypen sind Text, Formatierter Text, Zahl, Geldbetrag, Ja oder nein, Datum, Datum und Uhrzeit, Datumsbereich, Datums- und Zeitbereich, Einzelauswahl, Mehrfachauswahl, E-Mail, Telefon, Webadresse und Mitglied. Text-, E-Mail-, Telefon- und Webadressfelder können **Mehrere Werte erlauben**; E-Mail-, Telefon- und Webadressfelder können ihren Wert beim Klick öffnen oder kopieren. Das legen Sie unter **Beim Klicken** fest: **Öffnen** (Standard) startet eine E-Mail oder einen Anruf oder öffnet den Link, **Kopieren** kopiert den Wert. Eine Kopierschaltfläche steht immer neben dem Wert, und ein Klick auf den leeren Teil einer Tabellenzelle bearbeitet den Wert weiterhin. Auswahloptionen behalten beim Umbenennen eine stabile ID. Der Wechsel von Einzelauswahl zu Mehrfachauswahl behält alle Werte; zurück geht es nur, solange jeder Datensatz höchstens eine Option hat.
 
-Das Verhalten ist manuelle Eingabe, Formel, Lookup über eine Beziehung, Rollup über verknüpfte Datensätze oder Snapshot bei einem konfigurierten Ereignis. Formeln verwenden eine geprüfte, deterministische Ausdruckssprache und führen weder beliebiges JavaScript noch SQL aus. Die Engine lehnt Zyklen, unpassende Werte und zu teure Definitionen ab. Eigene Felder können je nach Berechtigung in Filtern, Sortierung, Ansichten, Widgets, Routinen und Assistent-Aktionen genutzt werden.
+Ein Feld wird von Hand erfasst oder berechnet: als Formel, Lookup über eine Beziehung, Rollup über verknüpfte Datensätze oder Snapshot zu einem konfigurierten Ereignis. Formeln nutzen eine geprüfte Ausdruckssprache und führen nie beliebigen Code aus; Zyklen, unpassende Typen und zu teure Definitionen werden abgelehnt. Felder lassen sich je nach Zugriff in Filtern, Sortierung, Ansichten, Widgets, Routinen und Mate nutzen.
 
 ## Wie lege ich eigene Felder an, ändere oder lösche sie, etwa das Deal-Phasenfeld? [#how-do-i-add-change-or-delete-a-custom-column]
 
-Öffnen Sie **Konfigurieren** (`/configure`), wählen Sie eine Liste in der linken Leiste und bearbeiten Sie ihre Felder; **Hinzufügen** oben in der Leiste legt auch Berechnungen und Beziehungen an, und **Karte** zeigt, wie Listen verbunden sind. Der Feld-Editor öffnet sich neben der Liste und bietet Werttyp, manuelles oder berechnetes Verhalten, Optionen, Formatierung und einen verständlichen Berechnungseditor. Vor dem Übernehmen zeigt eine Vorschau die betroffenen Datensätze, Ansichten, Widgets, Routinen und Formeln. Unverträgliche Änderungen bleiben gesperrt, bis ihre Abhängigkeiten aufgelöst sind. Um eine Liste, ein Feld oder eine Beziehung zu löschen, verwenden Sie **Löschen** im zugehörigen Menü oder Editor. Die Bestätigung nennt die Ansichtsspalten, Filter und Widget-Gruppierungen, die automatisch entfernt werden, sowie jede Berechnung, Routine, jeden Webhook und jedes Widget, das das Element noch verwendet; jeder Name verlinkt auf das Element, damit Sie es zuerst ändern können. Gelöschte Elemente landen unter **Zuletzt gelöscht** in **Konfigurieren**, wo Sie sie wiederherstellen oder nach Eingabe des Namens endgültig löschen können; endgültiges Löschen entfernt auch die gespeicherten Werte und bei einer Liste deren Datensätze und Verknüpfungen.
+Öffnen Sie [Konfigurieren](app:configure), das alle Listen als Graph zeigt, und öffnen Sie eine Liste, zum Beispiel [Kontakte](app:configure/contact). Ihr Menü **Hinzufügen** legt ein Feld, ein berechnetes Feld, eine Verknüpfung, ein Feld **Kanäle** oder eine Unterliste an, jeweils in einem eigenen Drawer. Das Deal-Phasenfeld liegt auf der [Konfigurationsseite von Deals](app:configure/deal). Vor dem Übernehmen zeigt eine Vorschau die betroffenen Datensätze, Ansichten, Widgets, Routinen und Formeln, und Änderungen, die etwas brechen würden, bleiben gesperrt, bis Sie das auflösen.
 
-Um ein eigenes Feld zu Kontakten hinzuzufügen, wählen Sie unter **Konfigurieren** die Liste **Kontakte** und dann **Hinzufügen** → **Feld**. Die gleiche Funktion steht bei jedem anderen Typ zur Verfügung. Um ein eigenes Feld zu bearbeiten oder zu löschen, öffnen Sie es im Feld-Editor und ändern seine Einstellungen oder wählen **Feld löschen**.
+Um ein eigenes Feld, eine Liste oder eine Beziehung zu löschen, verwenden Sie **Löschen** im Drawer oder im Menü der Seite. Die Bestätigung nennt die Referenzen, die automatisch entfernt werden (Ansichtsfilter, Spalten, Sortierungen, Widget-Filter), und blockiert nur bei Dingen, die sonst falsch rechnen würden, etwa Berechnungen und Routinen. Gelöschte Elemente landen unter **Zuletzt gelöscht** in Konfigurieren, wo Sie sie **Wiederherstellen** oder nach Eingabe des Namens **Endgültig löschen** können; endgültiges Löschen entfernt auch die gespeicherten Werte und bei einer Liste deren Datensätze und Verknüpfungen.
 
-Schema-Bearbeitung ist von Datensatz-Bearbeitung getrennt. Admins können sie delegieren; größere Rollenzugriffe brauchen weiterhin die Rollenverwaltung. Über MCP liest `get_record_model` das Schema und `configure_record_model` prüft und übernimmt eine Änderung mit erwarteter Revision und Idempotenzschlüssel. Eine veraltete Revision braucht eine neue Vorschau.
+Namen sind eindeutig: Listennamen, Feldnamen innerhalb einer Liste, Beziehungsbezeichnungen je Seite und Optionsbezeichnungen je Feld, ohne Rücksicht auf Groß- und Kleinschreibung und Akzente. Die Verwaltung des Datenmodells ist ein eigenes Recht, getrennt vom Bearbeiten von Datensätzen; sie gibt weder Datensatzzugriff noch Rollenverwaltung.
 
-**Link:** `/configure`. **Mate:** zu `nav-configure-records` navigieren; der Assistent kann dieselbe validierte Änderung mit `configure_record_model` ausführen.
+## Wie funktioniert eine gewichtete Pipeline, und wie wird der gewichtete Wert berechnet? [#how-does-a-weighted-pipeline-work]
 
-## Wie funktioniert eine gewichtete Pipeline? [#how-does-a-weighted-pipeline-work]
+**Gewichteter Deal-Wert = Deal-Wert × Phasenwahrscheinlichkeit / 100**. Die Phasen sind ein Feld vom Typ Einzelauswahl, dessen Optionen je eine Wahrscheinlichkeit von 0 bis 100 Prozent tragen. Ein Deal über 2.600 bei 60 Prozent zählt 1.560; eine Null-Prozent-Phase zählt null, und eine fehlende Wahrscheinlichkeit lässt den gewichteten Wert leer. Ein geänderter Live-Service-Preis berechnet abhängige Werte neu; ein gespeicherter Angebotspreis nicht.
 
-Ein konfiguriertes Auswahlfeld kann Deal-Phasen enthalten. Jede Option kann eine Wahrscheinlichkeit zwischen 0 und 100 Prozent tragen. **Gewichteter Deal-Wert = Deal-Wert × Phasenwahrscheinlichkeit / 100**. Ein Deal über 2.600 bei 60 Prozent zählt 1.560; eine Null-Prozent-Phase ergibt Null, eine fehlende Wahrscheinlichkeit keinen gewichteten Wert. Ein geänderter Live-Service-Preis berechnet abhängige Werte neu; ein gespeicherter Angebotspreis nicht.
-
-Ein Schema-Verwalter bearbeitet Optionen, Wahrscheinlichkeiten oder die Formel unter **Konfigurieren**. Die Abhängigkeitsvorschau zeigt Auswirkungen auf Deals und Widgets. Die Freigabe einer Zusammenfassung aus eingeschränkt lesbaren Eingängen erfordert eine ausdrückliche Admin-Entscheidung; sonst sehen Leser ohne Zugriff einen eingeschränkten Wert statt einer offengelegten Summe.
-
-**Link:** `/configure`. **Mate:** `get_record_model` lesen und `configure_record_model` nach Prüfung der Vorschau verwenden.
+Ein Schema-Verwalter bearbeitet Phasen, Wahrscheinlichkeiten oder die Formel auf der [Konfigurationsseite von Deals](app:configure/deal), und die Vorschau zeigt die Auswirkung auf bestehende Deals und Widgets. Wer nicht jeden Eingangswert einer Berechnung lesen darf, sieht statt der Summe einen eingeschränkten Wert, und die Formel selbst sieht nur, wer alle ihre Eingangswerte lesen darf.
 
 ## Was sind Widgets? [#what-are-widgets]
 
-Ein Diagramm-Widget wählt Quelltyp, Aggregation und Wertfeld, optionale Filter, Gruppierung und Darstellung. Es kann etwa Deal-Werte nach Phase summieren oder Projekte nach Besitzer zählen. Eine Summe zählt jeden Quelldatensatz auf der gewählten Ebene einmal. Ein Deal mit zwei Organisationen kann beiden Gruppen vollständig zugerechnet werden; die Summe der Gruppen kann daher den eindeutigen Gesamtwert überschreiten. Für Service-Beiträge dienen Positionen als Ebene. Widgets beachten dieselben Datensatz- und Berechtigungsregeln wie Listen. Aktivitäts-Widgets zeigen einen Verlauf statt einer Summe. Siehe [Dashboard](/docs/app-dashboard).
+Ein Diagramm-Widget im [Dashboard](app:dashboard) wählt eine Liste, eine Aggregation und ein Wertfeld, optionale Filter, eine Gruppierung und eine Darstellung, etwa die Summe des Deal-Werts nach Phase oder die Anzahl der Projekte nach Besitzer. Jeder Datensatz zählt einmal auf der Liste, aus der er stammt; ein Deal mit zwei Organisationen zählt in beiden Gruppen voll, daher können Gruppensummen die Gesamtsumme übersteigen. Service-Diagramme zählen Positionen. Widgets folgen denselben Zugriffsregeln wie Listen. Aktivitäts-Widgets zeigen einen Verlauf statt einer Zahl. Siehe [Dashboard](/docs/app-dashboard).
 
 ## Was sind Webhooks? [#what-are-webhooks]
 
-Ein Workspace kann Webhooks oder Routinen für Datensatzereignisse eines oder mehrerer konfigurierter Typen abonnieren, optional gefiltert nach stabilen Typ- und Feld-IDs. Zustellung erfolgt nach Commit der Datensatztransaktion. Ein fehlgeschlagener HTTP-Aufruf kann mit derselben Ereignis- und Zustellungs-ID wiederholt werden; externe Zustellung ist nicht exakt einmal garantiert. Berechtigungen werden vor dem Senden erneut geprüft, und historische Zustellungsansichten werden für den Leser geschwärzt. Siehe [Webhooks](/docs/webhooks).
+Ein [Webhook](app:settings/webhooks) oder eine Routine kann Datensatzereignisse einer oder mehrerer Listen abonnieren, optional nach Feldern gefiltert. Zustellungen werden eingereiht, nachdem die Änderung gespeichert ist. Eine fehlgeschlagene Zustellung wird mit derselben Ereignis- und Zustellungs-ID wiederholt, ein Empfänger kann ein Ereignis also mehr als einmal sehen. Der Zugriff wird beim Senden erneut geprüft, und frühere Zustellungen werden für die betrachtende Person geschwärzt. Siehe [Webhooks](/docs/webhooks).
 
 ## Was sind Notizen, und sind sie Markdown? [#what-are-notes]
 
-Notizen sind Rich Text am Datensatz. Der Editor speichert ein validiertes Dokument und keine reine Markdown-Zeichenfolge. Die generische Datensatz-API liest das Dokument und schreibt es als typisierten Rich-Text-Feldwert. Eine Text- oder Markdown-Darstellung an anderer Stelle ist eine Umwandlung dieses Dokuments und keine zweite Datenquelle.
+Notizen sind formatierter Text am Datensatz, gespeichert als geprüftes Dokument und nicht als Markdown-Zeichenfolge. Wo Notizen als reiner Text oder Markdown erscheinen, ist das eine Umwandlung desselben Dokuments, keine zweite Kopie.
 
 ## Wer sind Nutzer, Rollen und die Company, und was bedeutet Lesen Zugewiesen? [#who-are-users-roles-and-the-company]
 
-Nutzer sind Mitglieder eines Workspaces. Rollen vergeben Erstellen, Lesen, Bearbeiten und Löschen je konfiguriertem Typ. **Alle** umfasst alle zulässigen Datensätze des Typs, **Zugewiesen** nur die dem Mitglied zugewiesenen, **Keine** gewährt keinen Lesezugriff. Bearbeiten und Löschen erfordern ebenfalls Zugriff auf den jeweiligen Datensatz. Datenmodell-Verwaltung ist ein eigenes Recht und gibt weder Datensatz- noch Rollenverwaltungsrechte. Neue Typen starten mit eingeschränktem Zugriff. Jede Abfrage, Berechnung, jeder Export, jedes Widget und Assistent-Tool beachtet Workspace und Leserrechte.
+Mitglieder sind die Personen in einem Workspace. [Rollen](app:settings/roles) vergeben Erstellen, Lesen, Bearbeiten und Löschen je Liste. Lesen **Alle** umfasst jeden Datensatz der Liste, **Zugewiesen** nur die dem Mitglied zugewiesenen, **Keine** nichts. Bearbeiten und Löschen erfordern außerdem Zugriff auf den jeweiligen Datensatz. Neue Listen starten ohne Zugriff. Jede Suche, Berechnung, jeder Export, jedes Widget und jede Antwort von Mate beachtet den Zugriff der lesenden Person.
 
 ## Weiter [#next]
 
 - [CRM-Datensätze](/docs/app-records): Listen, Editor und Ansichten.
 - [Filter-Syntax](/docs/filter-syntax): Filter und Beziehungsoperatoren.
-- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): generische Tools für Datensätze und Konfiguration.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): Tools für Datensätze und Konfiguration.
+
+## Für Agents [#for-agents]
+
+Listen- und Feld-IDs liefern `discover_record_types` und `get_record_model`. Jede Datensatzreferenz enthält `typeId` und `recordId`. Verknüpfungen setzen oder entfernen Sie mit `mutate_crm_record` und Beziehungs-IDs aus `get_record_model`. Notizen werden als typisierter Rich-Text-Feldwert geschrieben. `configure_record_model` prüft und übernimmt eine Schema-Änderung mit erwarteter Revision und Idempotenzschlüssel; eine veraltete Revision braucht eine neue Vorschau.

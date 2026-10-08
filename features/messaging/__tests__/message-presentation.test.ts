@@ -520,7 +520,7 @@ describe("Inbox and activity consumers", () => {
     expect(harness.sendDraft).toHaveBeenCalledExactlyOnceWith(message);
     expect(harness.loadDraft).toHaveBeenCalledOnce();
     expect(harness.send).not.toHaveBeenCalled();
-    act(() => button("Inbox.compose.draftDiscard").click());
+    act(() => button("Common.actions.discard").click());
     expect(harness.discardDraft).toHaveBeenCalledWith(message.id, message.draftRevision);
   });
 
@@ -529,7 +529,7 @@ describe("Inbox and activity consumers", () => {
     const message = { ...BASE, isDraft: true, draftRevision: "2026-09-05T12:00:00.000Z" };
     render(createElement(MessageItem, { message, isMine: true, accountOwner: null }));
 
-    for (const label of ["Inbox.compose.draftEdit", "Inbox.compose.draftDiscard"])
+    for (const label of ["Inbox.compose.draftEdit", "Common.actions.discard"])
       expect(container.querySelector(`button[aria-label="${label}"]`)).toBeNull();
     expect(container.textContent).not.toContain("Inbox.compose.draftSendNow");
   });

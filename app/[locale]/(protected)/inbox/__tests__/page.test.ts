@@ -59,7 +59,7 @@ describe("InboxPage subscription lock", () => {
 
     expect(overlay.type).toBe("locked-feature-overlay");
     expect(overlay.props).toMatchObject({
-      ctaHref: "/company/subscription",
+      ctaHref: "/settings/billing",
       description: "ConnectedAccountsCard.paidSubscriptionRequired",
     });
     expect(mocks.getThreads).not.toHaveBeenCalled();

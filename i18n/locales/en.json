@@ -29,9 +29,6 @@
     "privacyLink": "Privacy details",
     "title": "Help us learn what works"
   },
-  "ActivityPage": {
-    "title": "Activity"
-  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -634,7 +631,7 @@
           "empty": {
             "first-wiki-page": {
               "label": "Build from my website",
-              "prompt": "Build my Knowledge Base from my company website."
+              "prompt": "Build my Knowledge Base from our website."
             },
             "wiki-structure": {
               "label": "Suggest a Knowledge Base structure",
@@ -749,7 +746,6 @@
     "title": "Create API Key"
   },
   "ApiKeysCard": {
-    "title": "API & Connectors",
     "unnamed": "Unnamed"
   },
   "AuditLogModal": {
@@ -1250,6 +1246,7 @@
         "isNull": "is empty",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "Does not equal",
         "notIn": "not in",
         "notInLastDays": "older than",
         "startsWith": "Starts with"
@@ -1351,7 +1348,8 @@
       "copiedToClipboard": "{value} copied to clipboard",
       "copyFailed": "Failed to copy to clipboard",
       "deleted": "Deleted",
-      "unexpectedError": "Something went wrong. Please try again."
+      "unexpectedError": "Something went wrong. Please try again.",
+      "updated": "Updated"
     },
     "pageNumber": "Page {page}",
     "providers": {
@@ -1381,7 +1379,7 @@
     "stageProbability": "Stage probability",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task."
+        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>Members</link> to resolve this task."
       }
     },
     "table": {
@@ -1878,10 +1876,12 @@
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
     "views": {
+      "activityCount": "{count, plural, one {# activity} other {# activities}}",
       "aiLabel": "Ask AI about {name}",
       "all": "All",
       "applied": "Showing {name}",
       "askAi": "Ask AI",
+      "conversationCount": "{count, plural, one {# conversation} other {# conversations}}",
       "copyLink": "Copy link",
       "createTitle": "New view",
       "createWithAi": "Create with AI",
@@ -2023,7 +2023,7 @@
     "ariaStartThread": "Compose {provider} message",
     "ariaUnlink": "Unlink {provider} channel",
     "compose": {
-      "noAccount": "No usable {provider} account is connected. Connect one under My Profile."
+      "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels."
     },
     "emptyHint": "No channels yet. Add an email, LinkedIn, WhatsApp, …",
     "heading": "Channels",
@@ -2211,7 +2211,6 @@
       "ccLabel": "Cc",
       "createContact": "Create \"{query}\"",
       "draftAttachmentsUnsupported": "Remove attachments before saving this draft.",
-      "draftDiscard": "Discard",
       "draftDiscardFailed": "Couldn't discard the draft",
       "draftEdit": "Edit",
       "draftSaved": "Draft saved. Find it in the inbox.",
@@ -2296,7 +2295,6 @@
     "previewVideo": "🎥 Video",
     "previewVoice": "🎙️ Voice message",
     "rateLimited": "This channel hit its rate limit. You can try again {retryAfter, select, later {later} other {{retryAfter}}}.",
-    "refresh": "Refresh",
     "refreshDone": "Inbox refreshed.",
     "refreshNeedsReconnect": "{count, plural, one {# channel needs} other {# channels need}} reconnecting before it can sync. Open Channels to reconnect.",
     "refreshPartial": "{count, plural, one {# channel} other {# channels}} couldn't be refreshed. The inbox shows what was synced before.",
@@ -2458,14 +2456,14 @@
   "MassActions": {
     "clearField": "Clear field",
     "delete": "Delete selected",
+    "edit": "Edit",
     "keepInView": "Keep only rows in view",
     "limitReached": "You can select up to {limit} records at a time.",
     "noMatchingFields": "No fields match your search.",
     "offView": "{count, plural, one {# not in the current view} other {# not in the current view}}",
     "scopeStale": "The filters changed since you made this selection.",
     "searchFieldPlaceholder": "Search fields…",
-    "selectedCount": "{count, plural, one {# item selected} other {# items selected}}",
-    "update": "Update"
+    "selectedCount": "{count, plural, one {# item selected} other {# items selected}}"
   },
   "McpConsentCard": {
     "approve": "Approve",
@@ -2491,15 +2489,12 @@
     "addEntity": "Add {entity}",
     "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
-    "admin": "Admin",
     "affiliate": "Affiliate Program",
-    "connectedAccounts": "Channels",
     "dashboard": "Dashboard",
     "data": "Data",
     "docs": "Documentation",
     "features": "Features",
     "inbox": "Inbox",
-    "members": "Members",
     "operator": "Operator Console",
     "overview": "Overview",
     "pricing": "Pricing",
@@ -2553,9 +2548,7 @@
     "routines": "Routines",
     "search": "Search",
     "settings": "Settings",
-    "subscription": "Subscription",
-    "wiki": "Knowledge Base",
-    "workspace": "Workspace"
+    "wiki": "Knowledge Base"
   },
   "NotFoundPage": {
     "body": "We've been automatically notified that this page went on vacation. We'll track it down and bring it back soon!",
@@ -2683,7 +2676,6 @@
         }
       }
     },
-    "back": "Back",
     "continue": "Continue",
     "finish": "Finish",
     "invite": {
@@ -2952,21 +2944,11 @@
     "after": "From",
     "allRecords": "Leave records empty to include every accessible record of this type.",
     "before": "Until",
-    "clearConversation": "Clear conversation filter",
     "filterKinds": {
-      "account": "Channel",
-      "provider": "Provider",
-      "record": "Related records",
-      "source": "Activity type",
-      "thread": "Conversation"
-    },
-    "operators": {
-      "hasNone": "Has no linked record",
-      "hasSome": "Has a linked record",
-      "in": "Includes any of",
-      "notIn": "Excludes all of"
+      "provider": "Provider"
     },
     "records": "Records",
+    "savedFilters": "Saved scope filters",
     "scopeHelp": "Leave the scope empty for all accessible activity. Selected types and records are combined; additional filters must all match.",
     "types": "Record types"
   },
@@ -2979,14 +2961,17 @@
     "addGroupSummary": "Add summary",
     "addInput": "Add input",
     "addMenu": {
-      "calculation": "Calculation",
+      "calculation": "Calculated field",
+      "channels": "Channels",
       "field": "Field",
       "list": "List",
-      "relationship": "Relationship"
+      "relationship": "Relationship",
+      "sublist": "Sub-list"
     },
     "addOption": "Add option",
     "addPathStep": "Add a relationship step",
     "addProbability": "Add probability",
+    "addRelationship": "Add relationship",
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
     "ascending": "Ascending",
@@ -3050,6 +3035,21 @@
       "short": "Email, phone, social"
     },
     "channelsHelp": "Add email addresses, phone numbers, and social accounts to records in this list. An identifier can link to several records.",
+    "clickAction": "On click",
+    "clickActions": {
+      "email": {
+        "copy": "Copy address",
+        "open": "Open in mail app"
+      },
+      "phone": {
+        "copy": "Copy number",
+        "open": "Call number"
+      },
+      "url": {
+        "copy": "Copy link",
+        "open": "Open link"
+      }
+    },
     "color": "Color",
     "conditionIf": "Condition",
     "conditionOtherwise": "Otherwise",
@@ -3129,6 +3129,7 @@
     "contactFullName": "Name",
     "createdAt": "Created at",
     "createList": "Create list",
+    "createSublist": "New sub-list of {list}",
     "currency": "Currency",
     "decimalPlaces": "Decimal places",
     "decimalPlacesHelp": "Leave empty for the default. This changes how values are displayed, not how they are calculated.",
@@ -3181,7 +3182,7 @@
       "accountEdge": "Syncs conversations into {list}",
       "accounts": "Connected accounts",
       "accountUnit": "{count, plural, one {account} other {accounts}}",
-      "addFieldTo": "Add field to {list}",
+      "addTo": "Add to {list}",
       "calculatedFrom": "from {sources}",
       "calculationEdge": "Calculated from this list: {fields}",
       "connectDescription": "Connect Gmail, Outlook or another channel to bring conversations into your lists.",
@@ -3192,14 +3193,14 @@
       "help": "Select a list or field to edit it, select the chip on a line to edit a relationship, or drag from the dot on one list to another to connect them.",
       "helpReadOnly": "Select a list to open it. Lines show how lists are related and where calculated values come from.",
       "label": "Graph of lists, fields and connected accounts",
-      "manage": "Manage",
       "moreAccounts": "{count, plural, one {# more account} other {# more accounts}}",
       "moreFields": "{count, plural, one {# more field} other {# more fields}}",
-      "partOf": "Part of {list}",
       "recordsRestricted": "Record count not available",
       "recordUnit": "{count, plural, one {record} other {records}}",
       "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
       "resetLayout": "Reset layout",
+      "showFewer": "Show fewer",
+      "sublistOf": "Sub-list of {list}",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out"
     },
@@ -3413,8 +3414,11 @@
     "relationshipChange": "{count} relationships changed",
     "relationshipEditor": {
       "cardinality": "How many records link",
+      "messagesHelp": "Messages come from linked records with Channels or linked conversations. Record and message permissions still apply.",
       "onDelete": "When deleted",
       "otherList": "the linked list",
+      "showMessagesOn": "Show their messages on {list}",
+      "showMessagesOnSide": "Show their messages on {list} ({side})",
       "shownOn": "Shown on records in {list}",
       "thisList": "This list"
     },
@@ -3422,6 +3426,7 @@
     "relationshipPath": "Through linked records",
     "relationshipPathHelp": "Show records reached through existing relationships. Edit the underlying links to change these records.",
     "relationships": "Relationships",
+    "relationshipsEmpty": "No relationships yet. Link this list to another list to see related records together.",
     "reloadLists": "Reload lists",
     "removeGroupSummary": "Remove summary",
     "removeInput": "Remove input",
@@ -3473,6 +3478,7 @@
         "singular": "Task"
       }
     },
+    "sublistExplanation": "Each entry belongs to one {parent} record, is edited inside it, shares its access and is removed with it.",
     "summaryAggregation": "Calculation",
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
     "summaryField": "Summary field",
@@ -3511,14 +3517,7 @@
     "triggerFiltersHelp": "Leave empty to match every record."
   },
   "RecordWidgets": {
-    "addFilter": "Add filter",
-    "addRelatedFilter": "Add a linked-record filter",
     "attribution": "A record can appear in several groups. Group totals may exceed the overall total.",
-    "filterDays": "Number of days",
-    "filterFrom": "From",
-    "filterOperator": "Condition",
-    "filterUntil": "Until",
-    "filterValue": "Value",
     "funnelClosedStage": "{label}: {value}, a lost stage shown outside the funnel.",
     "funnelTooltip": "{value} ({conversion} of the previous step)",
     "group": "Group by",
@@ -3540,24 +3539,6 @@
     "measure": "Measure",
     "noRecordsInPeriod": "No records",
     "notes": "About these numbers",
-    "operators": {
-      "all": "Has all of",
-      "between": "Between",
-      "contains": "Contains",
-      "empty": "Is empty",
-      "eq": "Equals",
-      "gt": "Greater than",
-      "gte": "At least",
-      "in": "Is one of",
-      "inLastDays": "In the last days",
-      "lt": "Less than",
-      "lte": "At most",
-      "ne": "Does not equal",
-      "notEmpty": "Is not empty",
-      "notIn": "Is not one of",
-      "notInLastDays": "Older than (days)",
-      "startsWith": "Starts with"
-    },
     "overall": "Overall: {value}",
     "previewFailed": "The preview could not be loaded. Try again.",
     "quarterLabel": "Q{quarter} {year}",
@@ -3570,10 +3551,7 @@
     },
     "recordCount": "{count, plural, one {# record} other {# records}}",
     "relatedAny": "At least one accessible linked record matches",
-    "relatedFilterHelp": "All conditions in a linked-record filter apply to the same record. Only records you can access are considered.",
-    "relatedMatch": "Linked records",
     "relatedNone": "No accessible linked records match",
-    "removeFilter": "Remove filter",
     "search": "Search records",
     "signedChart": "Negative values are shown as a list. Choose a bar chart to plot them.",
     "source": "Records from",
@@ -3603,7 +3581,6 @@
   },
   "RoleModal": {
     "create": "Create",
-    "delete": "Delete",
     "edit": "Edit",
     "manageAccess": "Manage",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
@@ -3632,8 +3609,7 @@
   },
   "RolesCard": {
     "custom": "Custom",
-    "system": "System",
-    "title": "Roles"
+    "system": "System"
   },
   "RoutineAdministration": {
     "help": "As a company administrator, you can pause or delete this routine, but you cannot edit, test, or run it.",
@@ -3793,19 +3769,43 @@
     "tuesday": "Tuesday",
     "wednesday": "Wednesday"
   },
+  "SettingsNav": {
+    "account": "Account",
+    "activity": "Activity",
+    "apiKeys": "API keys",
+    "billing": "Billing",
+    "channels": "Channels",
+    "deliveries": "Deliveries",
+    "members": "Members",
+    "profile": "Profile & preferences",
+    "roles": "Roles",
+    "webhooks": "Webhooks",
+    "workspace": "Workspace"
+  },
   "SidebarCustomize": {
     "deleteSection": "Delete section",
-    "emptySection": "Drag items here",
+    "deleteSectionEmpty": "The section is empty, so no items move.",
+    "deleteSectionMoves": "Its items move back to their default place in your sidebar; hidden items stay hidden:",
+    "deleteSectionTitle": "Delete section “{section}”?",
+    "dragItem": "Move {item}",
+    "dragSection": "Move section {section}",
+    "emptySection": "Drag items here or use Move to section",
     "hide": "Hide from sidebar",
+    "hint": "Drag the handles to reorder items and sections, or use the … menus. Click a personal section's name to rename it.",
     "itemActions": "Options for {item}",
     "moveDown": "Move down",
+    "movesBackTo": "{item} moves back to {section}",
     "moveToSection": "Move to section",
     "moveUp": "Move up",
     "newSection": "New section",
     "newSectionName": "New section",
     "rename": "Rename",
     "reset": "Reset to default",
+    "resetDone": "Sidebar reset to default",
+    "resetMessage": "Your personal sections, order and hidden items return to the default. Other people's sidebars are not affected.",
+    "resetTitle": "Reset sidebar to default?",
     "sectionActions": "Options for {section}",
+    "sectionDeleted": "Section deleted",
     "sectionName": "Section name",
     "show": "Show {item}",
     "title": "Customize sidebar"
@@ -3852,7 +3852,7 @@
       "planManage": "Synced from billing. Use {billing} to make changes.",
       "planPicker": "Choose a plan below to start or change the subscription.",
       "planReadOnly": "Synced from billing. Ask a workspace administrator to make changes.",
-      "quantity": "Synced to the number of active workspace members. Workspace administrators can activate or deactivate members in {company}.",
+      "quantity": "Synced to the number of active workspace members. Workspace administrators can activate or deactivate members in {members}.",
       "trialEndsManage": "Set by the trial period. Use {billing} to manage the subscription.",
       "trialEndsPicker": "Set by the trial period. Choose a plan before this date to continue without interruption.",
       "trialEndsReadOnly": "Set by the trial period. Ask a workspace administrator to manage the subscription."
@@ -3887,7 +3887,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Active seats",
-    "refresh": "Refresh",
     "refreshSuccess": "Subscription refreshed successfully",
     "seatBillingNote": "You pay per active user. Seat changes are prorated on your next invoice.",
     "status": {
@@ -3960,14 +3959,13 @@
     "title": "Welcome to your trial"
   },
   "UserAvatar": {
-    "company": "My Company",
-    "darkMode": "Dark Mode",
     "documentation": "Documentation",
     "home": "Home",
-    "lightMode": "Light Mode",
-    "profile": "My Profile",
-    "settings": "Settings",
-    "signOut": "Sign Out"
+    "language": "Language",
+    "menu": "Personal menu",
+    "sendFeedback": "Send feedback",
+    "signOut": "Sign Out",
+    "theme": "Theme"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Controls the UI language: labels, buttons, etc.",
@@ -3994,8 +3992,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Delivery attempts appear here once a webhook fires.",
-    "emptyTitle": "No deliveries yet",
-    "title": "Recent Deliveries"
+    "emptyTitle": "No deliveries yet"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Created At",
@@ -4029,8 +4026,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Add a webhook to send workspace events to your systems.",
-    "emptyTitle": "No webhooks yet",
-    "title": "Webhooks"
+    "emptyTitle": "No webhooks yet"
   },
   "Wiki": {
     "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",
@@ -4140,5 +4136,9 @@
     },
     "tryAnother": "Try another website",
     "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Invite members",
+    "label": "Workspace menu"
   }
 }

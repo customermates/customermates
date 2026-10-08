@@ -19,6 +19,7 @@ import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay
 import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
 import { unwrapValidated } from "@/core/validation/validation.utils";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -68,7 +69,7 @@ export default async function InboxPage({ searchParams }: Props) {
   return (
     <PageContainer padded={false}>
       <LockedFeatureOverlay
-        ctaHref="/company/subscription"
+        ctaHref={settingsHref("billing")}
         ctaLabel={t("MessagingUpsell.cta")}
         description={
           messaging.state === "locked" && messaging.reason === "subscription"

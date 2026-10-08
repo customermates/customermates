@@ -344,7 +344,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-profile",
     anchors: ["app-profile#how-do-i-verify-my-email-address"],
     alternatives: [],
-    fact: "Open My Profile > Settings (/profile/settings), for example from Email not verified in the sidebar, and press Resend verification email in the top bar.",
+    fact: "Open My Profile > Settings (/settings/profile), for example from Email not verified in the sidebar, and press Resend verification email in the top bar.",
   },
   {
     id: "de-es-11",
@@ -546,7 +546,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-company",
     anchors: ["app-company#deliveries-tab"],
     alternatives: ["webhooks#how-do-i-debug-a-delivery", "webhooks#how-do-retries-and-failed-deliveries-work"],
-    fact: "On My Company > Recent Deliveries (/company/webhook-deliveries), the webhook delivery log, where each delivery shows its status (Delivered or Failed) and status code.",
+    fact: "On My Company > Recent Deliveries (/settings/webhooks/deliveries), the webhook delivery log, where each delivery shows its status (Delivered or Failed) and status code.",
   },
   {
     id: "de-it-07",

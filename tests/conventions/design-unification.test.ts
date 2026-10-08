@@ -114,10 +114,7 @@ function animatedBlurFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const ANIMATED_BLUR_ALLOWLIST: Allowlist = {
-  "components/ui/sheet.tsx": "I25: the sheet overlay fades a backdrop blur in and out; drop the blur (WebKit, I11)",
-  "components/page-state/page-state.tsx": "I25: the empty state halo animates a blurred layer; drop the blur",
-};
+const ANIMATED_BLUR_ALLOWLIST: Allowlist = {};
 
 describe("rule 12: overlays never animate a blur", () => {
   it("never combines a blur or backdrop blur with an animation or transition on one element", () => {
@@ -135,15 +132,7 @@ describe("rule 12: overlays never animate a blur", () => {
 
 const LOCAL_FILTER_UI = /\bRecordWidget(?:Field|Related)Filters\b|["'`]RecordWidgets\.(?:add|remove)Filter["'`]/;
 
-const LOCAL_FILTER_UI_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/dashboard/components/record-widget-filters.tsx":
-    "I3r3b: widget filter rows move to the shared Filters palette",
-  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx":
-    "I3r3b: widget editor filters through the shared Filters palette",
-  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx":
-    "I3r3b: activity widget filters through the shared Filters palette",
-  "components/records/record-trigger-fields.tsx": "I3r3b: routine trigger filters through the shared Filters palette",
-};
+const LOCAL_FILTER_UI_ALLOWLIST: Allowlist = {};
 
 describe("rule 32: one filter design everywhere", () => {
   it("builds view, widget, routine and activity filters only with the shared Filters palette", () => {
@@ -169,9 +158,7 @@ function handBuiltFocusLinkFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const FOCUS_LINK_ALLOWLIST: Allowlist = {
-  "features/docs/app-links.ts": "I21: build docs app links with focusHref",
-};
+const FOCUS_LINK_ALLOWLIST: Allowlist = {};
 
 describe("rule 36: one open-and-highlight mechanism", () => {
   it("builds and reads ?focus= links only through focus-target.ts", () => {
@@ -238,7 +225,7 @@ function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
 }
 
 const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
-  "app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view.tsx":
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx":
     "webhook deliveries are a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/audit/operator-audit-page-view.tsx":
     "the operator audit is a read-only log: no delete, so a row menu would only repeat the row click",
@@ -248,12 +235,7 @@ const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
     "internal back-office surface with its own guarded flows, not customer UI",
 };
 
-const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/company/components/user/members-page-view.tsx": "I20: rule 59 row menu on members",
-  "app/[locale]/(protected)/company/components/role/roles-page-view.tsx": "I20: rule 59 row menu on roles",
-  "app/[locale]/(protected)/company/components/webhook/webhooks-page-view.tsx": "I20: rule 59 row menu on webhooks",
-  "app/[locale]/(protected)/routines/components/routines-page-view.tsx": "I20: rule 59 row menu on routines",
-};
+const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {};
 
 describe("I2 round 3 and rule 59: row click opens, every table has the row menu with Open details and Delete", () => {
   it("builds every table row and card menu with the shared row actions", () => {

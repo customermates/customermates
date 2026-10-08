@@ -72,6 +72,10 @@ vi.mock("next-intl", async (importOriginal) => {
             values ? `${key}(${Object.values(values).join(",")})` : key,
   };
 });
+vi.mock("@/components/data-view/filter-palette/use-filter-palette", () => ({
+  useFilterPalette: () => harness.palette,
+}));
+
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     agentChatStore: harness.agent,

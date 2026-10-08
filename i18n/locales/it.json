@@ -29,9 +29,6 @@
     "privacyLink": "Dettagli sulla privacy",
     "title": "Aiutaci a capire cosa funziona"
   },
-  "ActivityPage": {
-    "title": "Attività"
-  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -749,7 +746,6 @@
     "title": "Crea una chiave API"
   },
   "ApiKeysCard": {
-    "title": "API e connettori",
     "unnamed": "Senza nome"
   },
   "AuditLogModal": {
@@ -1250,6 +1246,7 @@
         "isNull": "è vuoto",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "È diverso da",
         "notIn": "non è uno di",
         "notInLastDays": "più vecchio di",
         "startsWith": "Inizia con"
@@ -1351,7 +1348,8 @@
       "copiedToClipboard": "{value} copiato negli appunti",
       "copyFailed": "Copia negli appunti non riuscita",
       "deleted": "Eliminato",
-      "unexpectedError": "Si è verificato un errore. Riprova."
+      "unexpectedError": "Si è verificato un errore. Riprova.",
+      "updated": "Aggiornato"
     },
     "pageNumber": "Pagina {page}",
     "providers": {
@@ -1878,10 +1876,12 @@
     "selectGroup": "Seleziona il gruppo {group}",
     "selectRow": "Seleziona la riga {id}",
     "views": {
+      "activityCount": "{count, plural, one {# attività} other {# attività}}",
       "aiLabel": "Chiedi all’IA della vista {name}",
       "all": "Tutte",
       "applied": "Visualizzazione di {name}",
       "askAi": "Chiedi all'IA",
+      "conversationCount": "{count, plural, one {# conversazione} other {# conversazioni}}",
       "copyLink": "Copia link",
       "createTitle": "Nuova vista",
       "createWithAi": "Crea con IA",
@@ -2211,7 +2211,6 @@
       "ccLabel": "Cc",
       "createContact": "Crea \"{query}\"",
       "draftAttachmentsUnsupported": "Rimuovi gli allegati prima di salvare questa bozza.",
-      "draftDiscard": "Scarta",
       "draftDiscardFailed": "Impossibile scartare la bozza",
       "draftEdit": "Modifica",
       "draftSaved": "Bozza salvata. La trovi nella posta in arrivo.",
@@ -2296,7 +2295,6 @@
     "previewVideo": "🎥 Video",
     "previewVoice": "🎙️ Messaggio vocale",
     "rateLimited": "Questo canale ha raggiunto il limite di frequenza. Puoi riprovare {retryAfter, select, later {più tardi} other {{retryAfter}}}.",
-    "refresh": "Aggiorna",
     "refreshDone": "Posta in arrivo aggiornata.",
     "refreshNeedsReconnect": "{count, plural, one {# canale deve} other {# canali devono}} essere ricollegati prima di potersi sincronizzare. Apri Canali per ricollegarli.",
     "refreshPartial": "{count, plural, one {Non è stato possibile aggiornare # canale} other {Non è stato possibile aggiornare # canali}}. La posta in arrivo mostra l’ultima sincronizzazione.",
@@ -2458,14 +2456,14 @@
   "MassActions": {
     "clearField": "Svuota campo",
     "delete": "Elimina gli elementi selezionati",
+    "edit": "Modifica",
     "keepInView": "Mantieni solo le righe visibili",
     "limitReached": "Puoi selezionare fino a {limit} record alla volta.",
     "noMatchingFields": "Nessun campo corrisponde alla tua ricerca.",
     "offView": "{count, plural, one {# non nella vista corrente} other {# non nella vista corrente}}",
     "scopeStale": "I filtri sono cambiati da quando hai fatto questa selezione.",
     "searchFieldPlaceholder": "Cerca tra i campi…",
-    "selectedCount": "{count, plural, one {# elemento selezionato} other {# elementi selezionati}}",
-    "update": "Aggiorna"
+    "selectedCount": "{count, plural, one {# elemento selezionato} other {# elementi selezionati}}"
   },
   "McpConsentCard": {
     "approve": "Approva",
@@ -2491,15 +2489,12 @@
     "addEntity": "Aggiungi {entity}",
     "addPickerDescription": "Scegli il tipo di record che vuoi creare.",
     "addPickerTitle": "Crea nuovo…",
-    "admin": "Amministrazione",
     "affiliate": "Programma di affiliazione",
-    "connectedAccounts": "Canali",
     "dashboard": "Dashboard",
     "data": "Dati",
     "docs": "Documentazione",
     "features": "Funzionalità",
     "inbox": "Posta in arrivo",
-    "members": "Membri",
     "operator": "Console operatore",
     "overview": "Panoramica",
     "pricing": "Prezzi",
@@ -2553,9 +2548,7 @@
     "routines": "Routine",
     "search": "Cerca",
     "settings": "Impostazioni",
-    "subscription": "Abbonamento",
-    "wiki": "Base di conoscenza",
-    "workspace": "Area di lavoro"
+    "wiki": "Base di conoscenza"
   },
   "NotFoundPage": {
     "body": "Siamo stati avvisati automaticamente che questa pagina è andata in vacanza. La rintracceremo e la riporteremo presto qui!",
@@ -2683,7 +2676,6 @@
         }
       }
     },
-    "back": "Indietro",
     "continue": "Continua",
     "finish": "Fine",
     "invite": {
@@ -2952,21 +2944,11 @@
     "after": "Da",
     "allRecords": "Senza selezione vengono inclusi tutti i record accessibili di questo tipo.",
     "before": "Fino a",
-    "clearConversation": "Rimuovi filtro conversazione",
     "filterKinds": {
-      "account": "Canale",
-      "provider": "Fornitore",
-      "record": "Record correlati",
-      "source": "Tipo di attività",
-      "thread": "Conversazione"
-    },
-    "operators": {
-      "hasNone": "Non ha record collegati",
-      "hasSome": "Ha un record collegato",
-      "in": "Include almeno uno di",
-      "notIn": "Esclude tutti"
+      "provider": "Fornitore"
     },
     "records": "Record",
+    "savedFilters": "Filtri di ambito salvati",
     "scopeHelp": "Senza selezione vengono mostrate tutte le attività accessibili. I tipi e i record selezionati vengono combinati; tutti i filtri aggiuntivi devono corrispondere.",
     "types": "Tipi di record"
   },
@@ -2979,14 +2961,17 @@
     "addGroupSummary": "Aggiungi riepilogo",
     "addInput": "Aggiungi input",
     "addMenu": {
-      "calculation": "Calcolo",
+      "calculation": "Campo calcolato",
+      "channels": "Canali",
       "field": "Campo",
       "list": "Lista",
-      "relationship": "Relazione"
+      "relationship": "Relazione",
+      "sublist": "Sottoelenco"
     },
     "addOption": "Aggiungi opzione",
     "addPathStep": "Aggiungi un passaggio di relazione",
     "addProbability": "Aggiungi probabilità",
+    "addRelationship": "Aggiungi relazione",
     "aggregation": "Aggregazione",
     "allowManualOverride": "Consenti un valore sostitutivo manuale",
     "ascending": "Crescente",
@@ -3050,6 +3035,21 @@
       "short": "E-mail, telefono, social"
     },
     "channelsHelp": "Aggiungi indirizzi e-mail, numeri di telefono e account social ai record di questa lista. Un identificatore può essere collegato a più record.",
+    "clickAction": "Al clic",
+    "clickActions": {
+      "email": {
+        "copy": "Copia indirizzo",
+        "open": "Apri nell’app di posta"
+      },
+      "phone": {
+        "copy": "Copia numero",
+        "open": "Chiama il numero"
+      },
+      "url": {
+        "copy": "Copia link",
+        "open": "Apri link"
+      }
+    },
     "color": "Colore",
     "conditionIf": "Condizione",
     "conditionOtherwise": "Altrimenti",
@@ -3129,6 +3129,7 @@
     "contactFullName": "Nome completo",
     "createdAt": "Creato il",
     "createList": "Crea elenco",
+    "createSublist": "Nuovo sottoelenco di {list}",
     "currency": "Valuta",
     "decimalPlaces": "Cifre decimali",
     "decimalPlacesHelp": "Lascia vuoto per usare il formato predefinito. Cambia la visualizzazione dei valori, non il loro calcolo.",
@@ -3181,7 +3182,7 @@
       "accountEdge": "Sincronizza le conversazioni in {list}",
       "accounts": "Account collegati",
       "accountUnit": "{count, plural, one {account} other {account}}",
-      "addFieldTo": "Aggiungi campo a {list}",
+      "addTo": "Aggiungi a {list}",
       "calculatedFrom": "da {sources}",
       "calculationEdge": "Calcolato da questa lista: {fields}",
       "connectDescription": "Collega Gmail, Outlook o un altro canale per portare le conversazioni nelle tue liste.",
@@ -3192,14 +3193,14 @@
       "help": "Seleziona una lista o un campo per modificarlo, il chip su una linea per modificare una relazione oppure trascina dal punto di una lista a un’altra per collegarle.",
       "helpReadOnly": "Seleziona una lista per aprirla. Le linee mostrano come sono collegate le liste e da dove provengono i valori calcolati.",
       "label": "Grafico di liste, campi e account collegati",
-      "manage": "Gestisci",
       "moreAccounts": "{count, plural, one {# altro account} other {altri # account}}",
       "moreFields": "{count, plural, one {# altro campo} other {altri # campi}}",
-      "partOf": "Parte di {list}",
       "recordsRestricted": "Numero di record non disponibile",
       "recordUnit": "{count, plural, one {record} other {record}}",
       "relationshipLabel": "{label}: {source} verso {target}, {cardinality}",
       "resetLayout": "Ripristina layout",
+      "showFewer": "Mostra meno",
+      "sublistOf": "Sottoelenco di {list}",
       "zoomIn": "Ingrandisci",
       "zoomOut": "Riduci"
     },
@@ -3413,8 +3414,11 @@
     "relationshipChange": "{count} relazioni modificate",
     "relationshipEditor": {
       "cardinality": "Quanti record sono collegati",
+      "messagesHelp": "I messaggi provengono da record collegati con canali o da conversazioni collegate. I permessi su record e messaggi restano validi.",
       "onDelete": "All'eliminazione",
       "otherList": "la lista collegata",
+      "showMessagesOn": "Mostra i loro messaggi in {list}",
+      "showMessagesOnSide": "Mostra i loro messaggi in {list} ({side})",
       "shownOn": "Mostrato nei record di {list}",
       "thisList": "Questa lista"
     },
@@ -3422,6 +3426,7 @@
     "relationshipPath": "Tramite record collegati",
     "relationshipPathHelp": "Mostra i record raggiungibili tramite relazioni esistenti. Modifica i collegamenti sottostanti per cambiare questi record.",
     "relationships": "Relazioni",
+    "relationshipsEmpty": "Ancora nessuna relazione. Collega questo elenco a un altro per vedere insieme i record correlati.",
     "reloadLists": "Ricarica le liste",
     "removeGroupSummary": "Rimuovi riepilogo",
     "removeInput": "Rimuovi input",
@@ -3473,6 +3478,7 @@
         "singular": "Attività"
       }
     },
+    "sublistExplanation": "Ogni voce appartiene a un record di {parent}, si modifica al suo interno, ne condivide l’accesso e viene eliminata con esso.",
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",
     "summaryField": "Campo del riepilogo",
@@ -3511,14 +3517,7 @@
     "triggerFiltersHelp": "Lascia vuoto per includere tutti i record."
   },
   "RecordWidgets": {
-    "addFilter": "Aggiungi filtro",
-    "addRelatedFilter": "Aggiungi filtro sui record collegati",
     "attribution": "Un record può apparire in più gruppi. La somma dei gruppi può superare il totale complessivo.",
-    "filterDays": "Numero di giorni",
-    "filterFrom": "Da",
-    "filterOperator": "Condizione",
-    "filterUntil": "Fino a",
-    "filterValue": "Valore",
     "funnelClosedStage": "{label}: {value}, una fase persa mostrata fuori dall’imbuto.",
     "funnelTooltip": "{value} ({conversion} del passaggio precedente)",
     "group": "Raggruppa per",
@@ -3540,24 +3539,6 @@
     "measure": "Misura",
     "noRecordsInPeriod": "Nessun record",
     "notes": "Informazioni su questi numeri",
-    "operators": {
-      "all": "Ha tutti",
-      "between": "Tra",
-      "contains": "Contiene",
-      "empty": "È vuoto",
-      "eq": "È uguale a",
-      "gt": "Maggiore di",
-      "gte": "Almeno",
-      "in": "È uno di",
-      "inLastDays": "Negli ultimi giorni",
-      "lt": "Minore di",
-      "lte": "Al massimo",
-      "ne": "È diverso da",
-      "notEmpty": "Non è vuoto",
-      "notIn": "Non è uno di",
-      "notInLastDays": "Più vecchio di (giorni)",
-      "startsWith": "Inizia con"
-    },
     "overall": "Totale: {value}",
     "previewFailed": "Impossibile caricare l’anteprima. Riprova.",
     "quarterLabel": "T{quarter} {year}",
@@ -3570,10 +3551,7 @@
     },
     "recordCount": "{count, plural, one {# record} other {# record}}",
     "relatedAny": "Almeno un record collegato accessibile corrisponde",
-    "relatedFilterHelp": "Tutte le condizioni di un filtro sui record collegati si applicano allo stesso record. Vengono considerati solo i record a cui hai accesso.",
-    "relatedMatch": "Record collegati",
     "relatedNone": "Nessun record collegato accessibile corrisponde",
-    "removeFilter": "Rimuovi filtro",
     "search": "Cerca record",
     "signedChart": "I valori negativi sono mostrati in un elenco. Scegli un grafico a barre per rappresentarli.",
     "source": "Record da",
@@ -3603,7 +3581,6 @@
   },
   "RoleModal": {
     "create": "Crea",
-    "delete": "Elimina",
     "edit": "Modifica",
     "manageAccess": "Gestione",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",
@@ -3632,8 +3609,7 @@
   },
   "RolesCard": {
     "custom": "Personalizzato",
-    "system": "Sistema",
-    "title": "Ruoli"
+    "system": "Sistema"
   },
   "RoutineAdministration": {
     "help": "Come amministratore aziendale, puoi sospendere o eliminare questa routine, ma non puoi modificarla, testarla né eseguirla.",
@@ -3793,19 +3769,43 @@
     "tuesday": "Martedì",
     "wednesday": "Mercoledì"
   },
+  "SettingsNav": {
+    "account": "Account",
+    "activity": "Attività",
+    "apiKeys": "Chiavi API",
+    "billing": "Fatturazione",
+    "channels": "Canali",
+    "deliveries": "Consegne",
+    "members": "Membri",
+    "profile": "Profilo e preferenze",
+    "roles": "Ruoli",
+    "webhooks": "Webhook",
+    "workspace": "Workspace"
+  },
   "SidebarCustomize": {
     "deleteSection": "Elimina sezione",
-    "emptySection": "Trascina qui gli elementi",
+    "deleteSectionEmpty": "La sezione è vuota, quindi nessun elemento viene spostato.",
+    "deleteSectionMoves": "I suoi elementi tornano al loro posto predefinito nella barra laterale; gli elementi nascosti restano nascosti:",
+    "deleteSectionTitle": "Eliminare la sezione «{section}»?",
+    "dragItem": "Sposta {item}",
+    "dragSection": "Sposta la sezione {section}",
+    "emptySection": "Trascina qui gli elementi o usa Sposta nella sezione",
     "hide": "Nascondi dalla barra laterale",
+    "hint": "Trascina le maniglie per riordinare elementi e sezioni, oppure usa i menu …. Fai clic sul nome di una sezione personale per rinominarla.",
     "itemActions": "Opzioni per {item}",
     "moveDown": "Sposta giù",
+    "movesBackTo": "{item} torna in {section}",
     "moveToSection": "Sposta nella sezione",
     "moveUp": "Sposta su",
     "newSection": "Nuova sezione",
     "newSectionName": "Nuova sezione",
     "rename": "Rinomina",
     "reset": "Ripristina predefinito",
+    "resetDone": "Barra laterale ripristinata",
+    "resetMessage": "Le tue sezioni personali, l'ordine e gli elementi nascosti tornano a quelli predefiniti. Le barre laterali delle altre persone non cambiano.",
+    "resetTitle": "Ripristinare la barra laterale?",
     "sectionActions": "Opzioni per {section}",
+    "sectionDeleted": "Sezione eliminata",
     "sectionName": "Nome della sezione",
     "show": "Mostra {item}",
     "title": "Personalizza barra laterale"
@@ -3852,7 +3852,7 @@
       "planManage": "Sincronizzato con la fatturazione. Usa «{billing}» per apportare modifiche.",
       "planPicker": "Scegli un piano qui sotto per avviare o modificare l’abbonamento.",
       "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
-      "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{company}».",
+      "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{members}».",
       "trialEndsManage": "Definita dal periodo di prova. Usa «{billing}» per gestire l’abbonamento.",
       "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
       "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento."
@@ -3887,7 +3887,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Postazioni attive",
-    "refresh": "Aggiorna",
     "refreshSuccess": "Abbonamento aggiornato correttamente",
     "seatBillingNote": "Paghi per utente attivo. Le modifiche alle postazioni vengono conteggiate proporzionalmente sulla prossima fattura.",
     "status": {
@@ -3960,14 +3959,13 @@
     "title": "La tua prova inizia qui"
   },
   "UserAvatar": {
-    "company": "La mia azienda",
-    "darkMode": "Tema scuro",
     "documentation": "Documentazione",
     "home": "Home",
-    "lightMode": "Tema chiaro",
-    "profile": "Il mio profilo",
-    "settings": "Impostazioni",
-    "signOut": "Esci"
+    "language": "Lingua",
+    "menu": "Menu personale",
+    "sendFeedback": "Invia feedback",
+    "signOut": "Esci",
+    "theme": "Tema"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Definisce la lingua dell'interfaccia: etichette, pulsanti e così via.",
@@ -3994,8 +3992,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "I tentativi di consegna appariranno qui quando viene attivato un webhook.",
-    "emptyTitle": "Ancora nessuna consegna",
-    "title": "Invii recenti"
+    "emptyTitle": "Ancora nessuna consegna"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Creato il",
@@ -4029,8 +4026,7 @@
   },
   "WebhooksCard": {
     "emptyBody": "Aggiungi un webhook per inviare gli eventi dello spazio di lavoro ai tuoi sistemi.",
-    "emptyTitle": "Ancora nessun webhook",
-    "title": "Webhook"
+    "emptyTitle": "Ancora nessun webhook"
   },
   "Wiki": {
     "conflict": "Questa pagina è cambiata. Le tue modifiche sono ancora qui. Ricarica per usare l’ultima versione.",
@@ -4140,5 +4136,9 @@
     },
     "tryAnother": "Prova un altro sito",
     "unavailable": "La configurazione con Mate non è disponibile al momento. Potrai creare pagine in seguito dalla base di conoscenza."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Invita membri",
+    "label": "Menu del workspace"
   }
 }

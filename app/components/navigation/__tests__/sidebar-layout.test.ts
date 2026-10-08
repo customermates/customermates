@@ -43,7 +43,7 @@ describe("personal sidebar layout", () => {
     expect(resolved.sections.map((section) => [section.id, section.name, section.items, section.collapsed])).toEqual([
       ["custom:1", "Sales", ["records:b"], false],
       ["data", null, ["configure-records", "records:a", "records:new"], false],
-      ["overview", null, ["inbox", "dashboard"], true],
+      ["overview", null, ["dashboard", "inbox"], true],
       ["workspace", null, ["profile"], false],
     ]);
     expect([...resolved.hidden]).toEqual(["dashboard"]);
@@ -77,7 +77,7 @@ describe("personal sidebar layout", () => {
     resolved = setSidebarItemHidden(resolved, "inbox", true);
     expect(sidebarLayoutOf(resolved)).toEqual({
       sections: [
-        { id: "overview", items: ["inbox", "dashboard"] },
+        { id: "overview", items: ["dashboard", "inbox"] },
         { id: "data", items: ["records:b", "records:a", "configure-records", "records:later"] },
         { id: "workspace", items: ["profile"] },
         { id: "admin", items: ["operator"] },
@@ -86,15 +86,15 @@ describe("personal sidebar layout", () => {
     });
   });
 
-  it("adds a personal section after another section and returns its items home when deleted", () => {
+  it("adds a personal section after another section and returns its items to their default place when deleted", () => {
     let resolved = addSidebarSection(resolveSidebar(defaults, null), "custom:2", "Pinned", "overview");
     resolved = moveSidebarItem(resolved, "records:a", "custom:2");
     expect(resolved.sections.map((section) => section.id)).toEqual(["overview", "custom:2", "data", "workspace"]);
     const stored = sidebarLayoutOf(removeSidebarSection(resolved, "custom:2"));
     expect(resolveSidebar(defaults, stored).sections[1]?.items).toEqual([
+      "records:a",
       "records:b",
       "configure-records",
-      "records:a",
     ]);
   });
 });

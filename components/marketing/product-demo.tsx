@@ -19,9 +19,9 @@ export const PRODUCT_DEMO_PATHS = [
   DEMO_RECORD_LIST_PATHS.contacts,
   DEMO_RECORD_LIST_PATHS.organizations,
   DEMO_RECORD_LIST_PATHS.tasks,
-  "/profile/api-keys",
-  "/profile/connected-accounts",
-  "/company/webhooks",
+  "/settings/api-keys",
+  "/settings/channels",
+  "/settings/webhooks",
 ] as const;
 
 export type ProductDemoPath = (typeof PRODUCT_DEMO_PATHS)[number];
@@ -65,17 +65,17 @@ const COPY = {
         "Open one seeded task",
         "Review its owner and linked records",
       ],
-      "/profile/api-keys": [
+      "/settings/api-keys": [
         "Review the API-key controls",
         "Check how a key is created",
         "Review key status and access",
       ],
-      "/profile/connected-accounts": [
+      "/settings/channels": [
         "Review the available providers",
         "Open one connected account",
         "Check its sharing and sync state",
       ],
-      "/company/webhooks": [
+      "/settings/webhooks": [
         "Review the configured endpoints",
         "Open the create-webhook flow",
         "Inspect the available event choices",
@@ -92,9 +92,9 @@ const COPY = {
       "/inbox": "Customermates unified inbox with synthetic sample data",
       [DEMO_RECORD_LIST_PATHS.organizations]: "Customermates organization list with synthetic sample data",
       [DEMO_RECORD_LIST_PATHS.tasks]: "Customermates task workspace with synthetic sample data",
-      "/profile/api-keys": "Customermates API-key settings with synthetic sample data",
-      "/profile/connected-accounts": "Customermates connected-account settings with synthetic sample data",
-      "/company/webhooks": "Customermates webhook settings with synthetic sample data",
+      "/settings/api-keys": "Customermates API-key settings with synthetic sample data",
+      "/settings/channels": "Customermates connected-account settings with synthetic sample data",
+      "/settings/webhooks": "Customermates webhook settings with synthetic sample data",
     },
   },
   de: {
@@ -133,17 +133,17 @@ const COPY = {
         "Öffnen Sie eine Beispielaufgabe",
         "Prüfen Sie Verantwortliche und Verknüpfungen",
       ],
-      "/profile/api-keys": [
+      "/settings/api-keys": [
         "Prüfen Sie die API-Key-Verwaltung",
         "Öffnen Sie den Erstellungsablauf",
         "Prüfen Sie Status und Zugriff",
       ],
-      "/profile/connected-accounts": [
+      "/settings/channels": [
         "Prüfen Sie die verfügbaren Anbieter",
         "Öffnen Sie ein verbundenes Konto",
         "Prüfen Sie Freigabe und Synchronisierung",
       ],
-      "/company/webhooks": [
+      "/settings/webhooks": [
         "Prüfen Sie die konfigurierten Endpunkte",
         "Öffnen Sie den Webhook-Dialog",
         "Prüfen Sie die verfügbaren Ereignisse",
@@ -160,9 +160,9 @@ const COPY = {
       "/inbox": "Einheitlicher Customermates-Posteingang mit synthetischen Beispieldaten",
       [DEMO_RECORD_LIST_PATHS.organizations]: "Customermates-Unternehmensliste mit synthetischen Beispieldaten",
       [DEMO_RECORD_LIST_PATHS.tasks]: "Customermates-Aufgabenbereich mit synthetischen Beispieldaten",
-      "/profile/api-keys": "Customermates-API-Key-Einstellungen mit synthetischen Beispieldaten",
-      "/profile/connected-accounts": "Einstellungen für verbundene Customermates-Konten mit Beispieldaten",
-      "/company/webhooks": "Customermates-Webhook-Einstellungen mit synthetischen Beispieldaten",
+      "/settings/api-keys": "Customermates-API-Key-Einstellungen mit synthetischen Beispieldaten",
+      "/settings/channels": "Einstellungen für verbundene Customermates-Konten mit Beispieldaten",
+      "/settings/webhooks": "Customermates-Webhook-Einstellungen mit synthetischen Beispieldaten",
     },
   },
 } as const satisfies Record<ContentLocale, DemoCopy>;

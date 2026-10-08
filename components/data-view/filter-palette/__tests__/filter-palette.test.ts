@@ -173,6 +173,7 @@ function openPalette(table: ReturnType<typeof tableStore>) {
 function render(table: ReturnType<typeof tableStore>) {
   return renderToStaticMarkup(
     createElement(FilterPalette, {
+      palette: harness.palette.current as FilterPaletteStore,
       store: table as unknown as BaseDataViewStore<HasId>,
     }),
   );

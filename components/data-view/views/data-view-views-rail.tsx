@@ -39,6 +39,7 @@ import { useViewAi } from "./use-view-ai";
 
 type Props<E extends HasId> = {
   allLabel?: string;
+  countLabel?: (count: number) => string;
   allowDuplicate?: boolean;
   deleteNotice?: (view: DataViewChipDto) => ViewDeleteNotice;
   joinsTopBar?: boolean;
@@ -62,6 +63,7 @@ const VIEW_FOCUS_KINDS: FocusKind[] = ["view"];
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
   allLabel,
   allowDuplicate = true,
+  countLabel,
   deleteNotice,
   joinsTopBar = false,
   detailParam,
@@ -144,9 +146,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
       {isActive && store.pagination && (
         <span className="block text-[11px] text-muted-foreground">
-          {t("DataView.views.recordCount", {
-            count: store.pagination.total ?? 0,
-          })}
+          {(countLabel ?? ((count: number) => t("DataView.views.recordCount", { count })))(store.pagination.total ?? 0)}
         </span>
       )}
     </>

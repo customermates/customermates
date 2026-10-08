@@ -67,8 +67,8 @@ const tenantUser = createMockUser({
   companyId,
   email: `saved-view-roundtrip-${userId}@example.com`,
 });
-const VIEW_ROUTE = `/en/company/members?view=__all__&viewSurface=${SURFACE.users}&viewAction=update`;
-const VIEW_HREF = "/company/members?view=__all__";
+const VIEW_ROUTE = `/en/settings/members?view=__all__&viewSurface=${SURFACE.users}&viewAction=update`;
+const VIEW_HREF = "/settings/members?view=__all__";
 const VIEW_CONTEXT = {
   reference: {
     kind: "dataView" as const,
@@ -104,7 +104,7 @@ describeDatabase("saved-view Assistant persistence round trip", { timeout: 120_0
       data: {
         action: "update",
         surfaceKey: SURFACE.users,
-        path: "/company/members",
+        path: "/settings/members",
         viewKey: "__all__",
         state: { viewMode: "card" },
         link: VIEW_HREF,

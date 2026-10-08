@@ -6,6 +6,7 @@ import { createContext, useContext } from "react";
 import { Tabs as TabsPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
+import { useIsWiderThan } from "@/hooks/use-media-query";
 
 export type SegmentedControlItem<Value extends string> = {
   value: Value;
@@ -22,13 +23,23 @@ type Props<Value extends string> = {
   items: readonly SegmentedControlItem<Value>[];
   label: string;
   idPrefix?: string;
+  orientation?: "horizontal" | "vertical";
   className?: string;
   listClassName?: string;
   children?: ReactNode;
   onValueChange: (value: Value) => void;
 };
 
-export function SegmentedControl<Value extends string>({
+export function SegmentedControl<Value extends string>({ orientation = "horizontal", ...props }: Props<Value>) {
+  return orientation === "vertical" ? <SidebarSegments {...props} /> : <Segments {...props} sidebar={false} />;
+}
+
+function SidebarSegments<Value extends string>(props: Omit<Props<Value>, "orientation">) {
+  const isWide = useIsWiderThan("md");
+  return <Segments {...props} sidebar={isWide} />;
+}
+
+function Segments<Value extends string>({
   value,
   items,
   label,
@@ -36,21 +47,30 @@ export function SegmentedControl<Value extends string>({
   className,
   listClassName,
   children,
+  sidebar,
   onValueChange,
-}: Props<Value>) {
+}: Omit<Props<Value>, "orientation"> & { sidebar: boolean }) {
   return (
     <SegmentIdPrefixContext.Provider value={idPrefix}>
       <TabsPrimitive.Root
         activationMode="automatic"
-        className={cn("flex min-h-0 flex-col gap-3", className)}
+        className={cn(
+          "flex min-h-0 flex-col gap-3",
+          sidebar && "grid grid-cols-[10rem_minmax(0,1fr)] items-start gap-6",
+          className,
+        )}
+        data-orientation={sidebar ? "vertical" : "horizontal"}
         data-slot="segmented-control"
+        orientation={sidebar ? "vertical" : "horizontal"}
         value={value}
         onValueChange={(next) => onValueChange(next as Value)}
       >
         <TabsPrimitive.List
           aria-label={label}
           className={cn(
-            "grid h-8 w-full shrink-0 auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 text-muted-foreground",
+            sidebar
+              ? "flex w-full shrink-0 flex-col gap-0.5 text-muted-foreground"
+              : "grid h-8 w-full shrink-0 auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 text-muted-foreground",
             listClassName,
           )}
           data-slot="segmented-control-list"
@@ -61,8 +81,9 @@ export function SegmentedControl<Value extends string>({
               className={cn(
                 "inline-flex min-w-0 items-center justify-center gap-1.5 rounded-md px-2 text-sm font-medium whitespace-nowrap transition-colors outline-none",
                 "hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset disabled:pointer-events-none disabled:opacity-50",
-                "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-                "dark:data-[state=active]:bg-accent",
+                sidebar
+                  ? "h-8 justify-start px-2.5 data-[state=active]:bg-accent data-[state=active]:text-foreground"
+                  : "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm dark:data-[state=active]:bg-accent",
               )}
               data-invalid={item.invalid || undefined}
               data-slot="segmented-control-item"

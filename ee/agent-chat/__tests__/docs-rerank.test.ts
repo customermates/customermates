@@ -171,10 +171,12 @@ afterEach(() => {
 });
 
 describe("docs re-rank classifier spec", () => {
-  it("strips link lines, markdown marks and link targets from option text", () => {
-    expect(docsRerankPlainText("**Link:** /x\nUse `x-api-key` in [the header](/docs/api-keys) | done")).toBe(
-      "Use x-api-key in the header done",
-    );
+  it("strips markdown marks and link targets from option text", () => {
+    expect(
+      docsRerankPlainText(
+        "Use `x-api-key` in [the header](/docs/api-keys) of [API keys](http://localhost:4000/settings/api-keys) | done",
+      ),
+    ).toBe("Use x-api-key in the header of API keys done");
   });
 
   it("reads only a candidate key as the choice", () => {
@@ -470,11 +472,11 @@ describe("query-focused section-ranking evidence", () => {
       "They cover configurable records, record-model management, workspace, saved views, the Knowledge Base, messaging",
     );
     expect(question.options.s0).toContain("widgets, routines, webhooks, admin and support");
-    expect(question.options.s0).toContain("discover schemas, query and change records");
+    expect(question.options.s0).toContain("MCP tools, all enabled by default");
     expect(optionEvidence(question.options.s0).length).toBeLessThanOrEqual(478);
   });
 
-  it("includes a matching detail after a long introduction and keeps the page route", () => {
+  it("includes a matching detail after a long introduction and keeps its inline app link text", () => {
     const [question] = docsRankSpec(
       [
         {
@@ -484,7 +486,7 @@ describe("query-focused section-ranking evidence", () => {
             headingPath: ["Mailbox status"],
             text:
               "Background. ".repeat(80) +
-              "\nPermission issue means the mailbox needs to be reactivated.\n**Link:** `/profile/accounts`. **Mate:** navigate with an internal target.",
+              "\nPermission issue means the mailbox needs to be [reactivated](http://localhost:4000/settings/channels).",
           },
         },
       ],
@@ -492,53 +494,17 @@ describe("query-focused section-ranking evidence", () => {
       "mailbox permission issue",
     ).questions;
     expect(question.options.s0).toContain("Permission issue means the mailbox needs to be reactivated.");
-    expect(question.options.s0).toContain("/profile/accounts");
-    expect(question.options.s0).not.toContain("internal target");
+    expect(question.options.s0).not.toContain("http://localhost:4000");
     expect(optionEvidence(question.options.s0).length).toBeLessThanOrEqual(800);
   });
 
-  it("preserves underscores and query delimiters in navigation evidence", () => {
-    const spec = docsRankSpec([
-      {
-        id: 0,
-        section: {
-          pageTitle: "Contacts",
-          headingPath: ["All records"],
-          text: "Choose this list.\n**Link:** `/contacts?view=__all__&order=created_at`.",
-        },
-      },
-    ]);
-    expect(spec.questions[0].options.s0).toContain("/contacts?view=__all__&order=created_at");
-  });
-
-  it("shows multiple page routes rather than discarding the explicit link evidence", () => {
-    const [question] = docsRankSpec(
-      [
-        {
-          id: 7,
-          section: {
-            pageTitle: "Lists",
-            headingPath: ["Where are the lists?"],
-            text: "Choose the relevant list.\n**Link:** **Companies** `/companies`, **People** `/people`. **Mate:** Additional navigation guidance.",
-          },
-        },
-      ],
-      "docs",
-      "company page URL",
-    ).questions;
-    expect(question.options.s7).toContain("/companies");
-    expect(question.options.s7).toContain("/people");
-    expect(question.options.s7).not.toContain("Additional navigation guidance");
-  });
-  it("bounds combined evidence while preserving every candidate's own route and matching detail", () => {
+  it("bounds combined evidence while preserving every candidate's own matching detail", () => {
     const candidates = Array.from({ length: 120 }, (_, id) => ({
       id,
       section: {
         pageTitle: "Connections",
         headingPath: ["Mailbox status"],
-        text:
-          "Background. ".repeat(80) +
-          "\nReactivation restores access.\n**Link:** `/profile/accounts`. **Mate:** Additional navigation guidance.",
+        text: "Background. ".repeat(80) + "\n[Reactivation](http://localhost:4000/settings/channels) restores access.",
       },
     }));
     const [question] = docsRankSpec(candidates, "docs", "reactivation access").questions;
@@ -548,8 +514,7 @@ describe("query-focused section-ranking evidence", () => {
       const option = question.options[`s${id}`];
       const excerpt = optionEvidence(option);
       expect(excerpt).toContain("Reactivation restores access.");
-      expect(excerpt).toContain("/profile/accounts");
-      expect(excerpt).not.toContain("Additional navigation guidance");
+      expect(excerpt).not.toContain("http://localhost:4000");
       expect(excerpt.length).toBeLessThanOrEqual(id < 20 ? 400 : 80);
       characters += excerpt.length;
     }
@@ -558,17 +523,21 @@ describe("query-focused section-ranking evidence", () => {
   it("gives fused high-rank sections enough evidence to retain complete operation details", () => {
     const instruction =
       "Link the record to its related service, then enter a quantity for that relationship and save both changes in the record drawer.";
+    const source = instruction.replace(
+      "related service",
+      "related [service](http://localhost:4000/open/records/service)",
+    );
     const candidates = Array.from({ length: 120 }, (_, id) => ({
       id,
       section: {
         pageTitle: "Records",
         headingPath: ["Relationships"],
-        text: `Background. ${"filler ".repeat(80)}\n${instruction}\n**Link:** \`/records\`.`,
+        text: `Background. ${"filler ".repeat(80)}\n${source}`,
       },
     }));
     const [question] = docsRankSpec(candidates, "docs", "service quantity relationship").questions;
     expect(question.options.s2).toContain(instruction);
-    expect(question.options.s2).toContain("/records");
+    expect(question.options.s2).not.toContain("http://localhost:4000");
     expect(optionEvidence(question.options.s119).length).toBeLessThanOrEqual(80);
   });
   it("does not spend a small sibling excerpt on its already supplied section heading", () => {
@@ -629,8 +598,7 @@ describe("real small sibling evidence", () => {
     const option = docsRankSpec(candidates, "docs", "Can users only see their own contacts?").questions[0].options.s119;
     const evidence = optionEvidence(option);
     expect(evidence).toMatch(/assigned|member|records/iu);
-    expect(evidence).toContain("Link: /company/roles");
-    expect(evidence).not.toBe("Link: /company/roles");
+    expect(evidence).not.toContain("http://localhost:4000");
     expect(evidence.length).toBeLessThanOrEqual(80);
   });
 });
@@ -640,18 +608,18 @@ describe("initial channel errors and existing channel recovery evidence", () => 
     {
       locale: "en" as const,
       query: "Error connecting my Gmail channel",
-      initialAction: /initial connection error.*Connect channel/iu,
-      existingAction: /existing channel.*owner.*Reactivate/iu,
+      setupAction: "Click Connect channel and pick an entry",
+      errorAction: "On any other error, start again from Connect channel.",
     },
     {
       locale: "de" as const,
       query: "Fehler beim Verbinden des Gmail-Kanals",
-      initialAction: /Fehler beim ersten Verbinden.*Kanal verbinden/iu,
-      existingAction: /vorhandenen Kanals.*Besitzer.*Reaktivieren/iu,
+      setupAction: "Klicken Sie auf Kanal verbinden und wählen Sie einen Eintrag",
+      errorAction: "Bei jedem anderen Fehler beginnen Sie erneut mit Kanal verbinden.",
     },
   ])(
-    "keeps distinct setup and owner recovery conditions in $locale",
-    ({ locale, query, initialAction, existingAction }) => {
+    "keeps the setup action and its initial error recovery in $locale",
+    ({ locale, query, setupAction, errorAction }) => {
       const setup = docsCorpusSections("docs", locale).find(
         (section) => section.slug === "app-profile" && section.anchor === "how-do-i-connect-a-channel",
       );
@@ -671,9 +639,9 @@ describe("initial channel errors and existing channel recovery evidence", () => 
       }));
       const options = docsRankSpec(candidates, "docs", query).questions[0].options;
       const evidence = optionEvidence(options.s0);
-      expect(evidence).toMatch(initialAction);
-      expect(evidence).toMatch(existingAction);
-      expect(evidence).toContain("Link: /profile/connected-accounts");
+      expect(evidence).toContain(setupAction);
+      expect(evidence).toContain(errorAction);
+      expect(evidence).not.toContain("http://localhost:4000");
       expect(evidence.length).toBeLessThanOrEqual(400);
       let totalEvidenceChars = 0;
       for (const candidate of candidates) {
@@ -691,13 +659,21 @@ describe("section ranker lifetime", () => {
     const seen: (SectionRanker | undefined)[] = [];
     vi.spyOn(searchDocsTool, "execute").mockImplementation(() => {
       seen.push(currentSectionRanker("docs"));
-      return Promise.resolve({ text: "matches: none", structuredContent: { results: [], total: 0 } });
+      return Promise.resolve({
+        text: "matches: none",
+        structuredContent: { results: [], total: 0 },
+      });
     });
     vi.spyOn(getDocsPageTool, "execute").mockImplementation(() => {
       seen.push(currentSectionRanker("docs"));
       return Promise.resolve({
         text: "Guide",
-        structuredContent: { title: "Guide", url: "/guide", markdown: "Guide", excerpt: true },
+        structuredContent: {
+          title: "Guide",
+          url: "/guide",
+          markdown: "Guide",
+          excerpt: true,
+        },
       });
     });
     type ExecutableTools = Record<
@@ -707,16 +683,27 @@ describe("section ranker lifetime", () => {
       }
     >;
     const first = getAgentAiTools(deps("Create a webhook")) as unknown as ExecutableTools;
-    await first.search_docs.execute(INPUT, { toolCallId: "search", messages: [] });
+    await first.search_docs.execute(INPUT, {
+      toolCallId: "search",
+      messages: [],
+    });
     await first.get_docs_page.execute(
-      { slug: "webhooks", query: "create webhook", locale: "en", source: "docs" },
+      {
+        slug: "webhooks",
+        query: "create webhook",
+        locale: "en",
+        source: "docs",
+      },
       {
         toolCallId: "get",
         messages: [],
       },
     );
     const second = getAgentAiTools(deps("Create a webhook")) as unknown as ExecutableTools;
-    await second.search_docs.execute(INPUT, { toolCallId: "other-turn", messages: [] });
+    await second.search_docs.execute(INPUT, {
+      toolCallId: "other-turn",
+      messages: [],
+    });
     expect(seen[0]).toBeTypeOf("function");
     expect(seen[1]).toBe(seen[0]);
     expect(seen[2]).not.toBe(seen[0]);
@@ -748,14 +735,16 @@ describe("canonical webhook secret permissions", () => {
     {
       locale: "en" as const,
       query: "Who can see saved webhook secrets?",
-      visibility: "only to the Admin role or roles with Edit on API & Webhooks",
-      readOnly: "Read access All alone shows ********",
+      visibility: "Read access All plus Edit: Edit webhooks and see saved Secret and Custom headers values.",
+      readOnly: "Read access All, no checkbox ticked: A saved Secret and each Custom headers value appear as ********",
     },
     {
       locale: "de" as const,
       query: "Wer kann gespeicherte Webhook-Secrets sehen?",
-      visibility: "nur die Rolle Admin oder Rollen mit Bearbeiten bei API & Webhooks",
-      readOnly: "Lesen Alle allein zeigt ********",
+      visibility:
+        "Lesen Alle plus Bearbeiten: Webhooks bearbeiten und gespeicherte Werte von Secret und Eigene Header sehen.",
+      readOnly:
+        "Lesen Alle, keine Checkbox angehakt: Ein gespeichertes Secret und jeder Wert unter Eigene Header erscheinen als ********",
     },
   ])("keeps the complete $locale grant and read-only boundary", ({ locale, query, visibility, readOnly }) => {
     const section = docsCorpusSections("docs", locale).find(
@@ -765,13 +754,19 @@ describe("canonical webhook secret permissions", () => {
     const candidates = Array.from({ length: 120 }, (_, id) => ({
       id,
       locale,
-      section: id === 0 ? section : { pageTitle: "Unrelated", headingPath: ["History"], text: "Unrelated history." },
+      section:
+        id === 0
+          ? section
+          : {
+              pageTitle: "Unrelated",
+              headingPath: ["History"],
+              text: "Unrelated history.",
+            },
     }));
     const [question] = docsRankSpec(candidates, "docs", query).questions;
     const evidence = optionEvidence(question.options.s0);
     expect(evidence).toContain(visibility);
     expect(evidence).toContain(readOnly);
-    expect(evidence).toContain("Link: /company/webhooks");
     expect(evidence.length).toBeLessThanOrEqual(400);
     expect(Object.keys(question.options)).toHaveLength(121);
     let characters = 0;
@@ -791,10 +786,9 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "How do I set up pipeline stages?",
       anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
       controls: [
-        "A stage or status is a configured select field",
-        "To set up pipeline stages, add or edit a select field on Deals",
-        "board grouping field",
-        "Link: /records/<typeId>",
+        "Stage and status are Single choice fields.",
+        "To edit the stages or their probabilities, open the field in Configure for Deals",
+        "Drag the card to another column on the Deals or Tasks board",
       ],
     },
     {
@@ -802,10 +796,9 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "Wie richte ich Pipeline-Phasen ein?",
       anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
       controls: [
-        "Phase und Status sind konfigurierte Auswahlfelder",
-        "Für Pipeline-Phasen legen Sie bei Deals ein Auswahlfeld an",
-        "Gruppierungsfeld des Boards",
-        "Link: /records/<typeId>",
+        "Phase und Status sind Felder vom Typ Einzelauswahl.",
+        "Um Phasen oder ihre Wahrscheinlichkeiten zu bearbeiten, öffnen Sie das Feld unter Konfigurieren für Deals",
+        "Ziehen Sie die Karte auf dem Board von Deals oder Aufgaben in eine andere Spalte",
       ],
     },
     {
@@ -813,9 +806,8 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "How do I sort tasks by due date?",
       anchor: "how-do-i-switch-between-table-and-board-view",
       controls: [
-        "To sort a list by a custom field, open Appearance → Sort by",
-        "a Tasks list by a configured due date",
-        "Link: /records/<typeId>",
+        "In Appearance, choose Table or Board.",
+        "Sort by sorts by any field, including custom and calculated ones",
       ],
     },
     {
@@ -823,9 +815,8 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "Wie sortiere ich Aufgaben nach Fälligkeit?",
       anchor: "how-do-i-switch-between-table-and-board-view",
       controls: [
-        "Um nach einem benutzerdefinierten Feld zu sortieren, öffnen Sie Darstellung → Sortieren nach",
-        "Aufgaben nach einem konfigurierten Fälligkeitsdatum",
-        "Link: /records/<typeId>",
+        "Wählen Sie unter Darstellung Tabelle oder Board.",
+        "Sortieren nach sortiert nach jedem Feld, auch nach benutzerdefinierten und berechneten",
       ],
     },
   ])(
@@ -840,10 +831,15 @@ describe("complete record procedures in bounded classifier evidence", () => {
       }).find((candidate) => candidate.anchor === anchor);
       expect(section).toBeDefined();
       if (!section) throw new Error("Expected public record procedure section");
-      const candidates = Array.from({ length: 120 }, (_, id) => ({ id, section, locale }));
+      const candidates = Array.from({ length: 120 }, (_, id) => ({
+        id,
+        section,
+        locale,
+      }));
       const [question] = docsRankSpec(candidates, "docs", query).questions;
       const evidence = optionEvidence(question.options.s0);
       for (const control of controls) expect(evidence).toContain(control);
+      expect(evidence).not.toContain("http://localhost:4000");
       expect(evidence.length).toBeLessThanOrEqual(400);
     },
   );
@@ -855,35 +851,39 @@ describe("channel connection prerequisites in bounded classifier evidence", () =
       locale: "en" as const,
       query: "Error connecting my Gmail channel",
       controls: [
-        "existing channel card",
-        "only its owner",
-        "failed initial connection",
-        "Connect channel",
-        "Reactivate",
+        "Open a channel you own:",
+        "Reactivate (for Reconnect needed, Permission issue, Error, Stopped)",
+        "goes to the connection page for the same account and back.",
       ],
     },
     {
       locale: "de" as const,
       query: "Fehler beim Verbinden des Gmail-Kanals",
-      controls: ["vorhandene Kanal-Karte", "nur der Besitzer", "erste Verbinden", "Kanal verbinden", "Reaktivieren"],
+      controls: [
+        "Öffnen Sie einen eigenen Kanal:",
+        "Reaktivieren (bei Erneute Verbindung nötig, Berechtigungsproblem, Fehler, Gestoppt)",
+        "führt zur Verbindungsseite für dasselbe Konto und zurück.",
+      ],
     },
     {
       locale: "en" as const,
       query: "My initial email connection failed",
       controls: [
-        "existing channel card",
-        "only its owner",
-        "failed initial connection",
-        "Connect channel",
-        "Reactivate",
+        "Open a channel you own:",
+        "Reactivate (for Reconnect needed, Permission issue, Error, Stopped)",
+        "goes to the connection page for the same account and back.",
       ],
     },
     {
       locale: "de" as const,
       query: "Das erste Verbinden meines E-Mail-Kanals schlägt fehl",
-      controls: ["vorhandene Kanal-Karte", "nur der Besitzer", "erste Verbinden", "Kanal verbinden", "Reaktivieren"],
+      controls: [
+        "Öffnen Sie einen eigenen Kanal:",
+        "Reaktivieren (bei Erneute Verbindung nötig, Berechtigungsproblem, Fehler, Gestoppt)",
+        "führt zur Verbindungsseite für dasselbe Konto und zurück.",
+      ],
     },
-  ])("retains both initial and existing channel states in $locale", ({ locale, query, controls }) => {
+  ])("retains the owner condition and the statuses Reactivate recovers in $locale", ({ locale, query, controls }) => {
     const page = rawDocsManifest.docs[locale]["app-profile"];
     const section = splitSections({
       slug: "app-profile",
@@ -893,7 +893,11 @@ describe("channel connection prerequisites in bounded classifier evidence", () =
     }).find((candidate) => candidate.anchor === "how-do-i-reactivate-resync-or-disconnect-a-channel");
     expect(section).toBeDefined();
     if (!section) throw new Error("Expected public channel recovery section");
-    const candidates = Array.from({ length: 120 }, (_, id) => ({ id, section, locale }));
+    const candidates = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      section,
+      locale,
+    }));
     const [question] = docsRankSpec(candidates, "docs", query).questions;
     const evidence = optionEvidence(question.options.s0);
     for (const control of controls) expect(evidence).toContain(control);
@@ -920,7 +924,11 @@ describe("connection renewal evidence", () => {
       section:
         id === 0
           ? section
-          : { pageTitle: "Independent workspace section", headingPath: ["Other topic"], text: "Other details." },
+          : {
+              pageTitle: "Independent workspace section",
+              headingPath: ["Other topic"],
+              text: "Other details.",
+            },
     }));
     const excerpt = optionEvidence(docsRankSpec(candidates, "docs", query).questions[0].options.s0);
     expect(excerpt).toContain(renewal);
@@ -947,33 +955,32 @@ describe("requested documentation question and destination evidence", () => {
     });
   });
 
-  it("retains different human destination labels when two sections share the same route", () => {
+  it("retains different human destination labels when two inline app links share the same target", () => {
     const candidates: RankableSection[] = ["Credential collection", "Workspace directory"].map((label, id) => ({
       id,
       section: {
         pageTitle: "Workspace",
         headingPath: ["Destination"],
-        text: `Open this destination.\n**Link:** **${label}**, \`/workspace/keys\`. **Mate:** private-command-target`,
+        text: `Open [${label}](http://localhost:4000/settings/api-keys) for this destination.`,
       },
     }));
     const options = docsRankSpec(candidates, "docs", "destination page address").questions[0].options;
 
-    expect(options.s0).toContain("Destination: Credential collection");
-    expect(options.s1).toContain("Destination: Workspace directory");
+    expect(options.s0).toContain("Open Credential collection for this destination.");
+    expect(options.s1).toContain("Open Workspace directory for this destination.");
     for (const option of [options.s0, options.s1]) {
-      expect(option).toContain("Link: /workspace/keys");
-      expect(option).not.toContain("private-command-target");
+      expect(option).not.toContain("http://localhost:4000");
       expect(optionEvidence(option).length).toBeLessThanOrEqual(800);
     }
   });
 
-  it("keeps own facts and routes inside the unchanged120-candidate evidence envelope", () => {
+  it("keeps own facts beside long inline app link labels inside the unchanged 120-candidate evidence envelope", () => {
     const candidates: RankableSection[] = Array.from({ length: 120 }, (_, id) => ({
       id,
       section: {
         pageTitle: "Records",
         headingPath: ["Stored relation"],
-        text: `A relation stores quantity.\n**Link:** **${"Destination label ".repeat(30)}**, \`/records\`. **Mate:** private-command-target`,
+        text: `A relation stores quantity.\nOpen [${"Destination label ".repeat(30).trim()}](http://localhost:4000/open/records/deal).`,
       },
     }));
     const options = docsRankSpec(candidates, "docs", "relation quantity").questions[0].options;
@@ -983,8 +990,7 @@ describe("requested documentation question and destination evidence", () => {
     for (const { id } of candidates) {
       const evidence = optionEvidence(options[`s${id}`]);
       expect(evidence).toContain("A relation stores quantity.");
-      expect(evidence).toContain("Link: /records");
-      expect(evidence).not.toContain("private-command-target");
+      expect(evidence).not.toContain("http://localhost:4000");
       expect(evidence.length).toBeLessThanOrEqual(id < 20 ? 400 : 80);
       total += evidence.length;
     }
@@ -993,7 +999,7 @@ describe("requested documentation question and destination evidence", () => {
 });
 
 describe("matching opening instructions in a full classifier pool", () => {
-  it("retains the primary German key creation introduction before later success and client setup text", () => {
+  it("retains the primary German key creation introduction before later client setup text", () => {
     const section = docsCorpusSections("docs", "de").find(
       (candidate) => candidate.slug === "api-keys" && candidate.anchor === "how-do-i-create-an-api-key",
     );
@@ -1012,10 +1018,12 @@ describe("matching opening instructions in a full classifier pool", () => {
     }));
     const [question] = docsRankSpec(candidates, "docs", "Wie erstelle ich einen API-Schlüssel?").questions;
     const evidence = optionEvidence(question.options.s0);
-    expect(evidence).toContain("Zum Anlegen eines API-Keys öffnen Sie Mein Profil");
-    expect(evidence).toContain("erfolgreich erstellt");
-    expect(evidence.indexOf("Zum Anlegen")).toBeLessThan(evidence.indexOf("erfolgreich erstellt"));
-    expect(evidence).toContain("Link: /profile/api-keys");
+    expect(evidence).toContain("Öffnen Sie in den Einstellungen API-Schlüssel und klicken Sie auf Hinzufügen.");
+    expect(evidence).toContain("klicken Sie auf API-Key erstellen");
+    expect(evidence.indexOf("Öffnen Sie in den Einstellungen")).toBeLessThan(
+      evidence.indexOf("klicken Sie auf API-Key erstellen"),
+    );
+    expect(evidence).not.toContain("http://localhost:4000");
     expect(Object.keys(question.options)).toHaveLength(121);
     let characters = 0;
     for (const candidate of candidates) {

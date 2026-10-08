@@ -59,7 +59,7 @@ export const DOCS_HELDOUT: readonly DocsHeldoutItem[] = [
       "architecture-security#what-does-the-audit-log-record",
       "architecture-security#who-can-read-the-audit-log-and-where",
     ],
-    fact: "My Company > Activity (/company/activity) records who changed or deleted which record, setting or configuration and when; reading it needs Audit Log read access All or the Admin role.",
+    fact: "My Company > Activity (/settings/activity) records who changed or deleted which record, setting or configuration and when; reading it needs Audit Log read access All or the Admin role.",
   },
   {
     id: "dh-en-04",

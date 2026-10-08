@@ -2,37 +2,38 @@
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
-import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 import type { SidebarUser } from "./navigation/sidebar-user";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
 import {
   Settings2,
-  Building,
-  MessageCircle,
-  FileText,
+  Settings,
+  CreditCard,
   Inbox,
-  Mail,
   Plus,
   LayoutGrid,
   Repeat,
   ShieldCheck,
-  UserCircle,
+  UserPlus,
+  Users,
   RotateCcw,
   BookOpen,
 } from "lucide-react";
-import { Resource, Theme as ThemeEnum } from "@/generated/prisma";
+import { Action, Locale, Resource } from "@/generated/prisma";
+import { DISPLAY_LANGUAGE_VALUES } from "@/i18n/user-locale";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { AppLink } from "@/components/shared/app-link";
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { Icon } from "@/components/shared/icon";
@@ -45,12 +46,14 @@ import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { NavHeader } from "./navigation/nav-header";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
-import { visibleSubroutes } from "./navigation/workspace-sections";
+import { SETTINGS_SECTIONS, type SettingsSection, visibleSubroutes } from "./navigation/settings-sections";
+import { SETTINGS_ENTRY_HREF, settingsHref } from "./navigation/settings-routes";
+import { AreaNav, type AreaNavGroup } from "./navigation/area-nav";
 import { NavSections, useResolvedSidebar } from "./navigation/nav-sections";
 import { shortcutDestinations } from "./navigation/shortcut-destinations";
 import { SidebarCustomize } from "./navigation/sidebar-customize";
 import { NavSecondary } from "./navigation/nav-secondary";
-import { NavUser } from "./navigation/nav-user";
+import { NavUser, type ThemeChoice } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { sidebarUserCanAccess } from "./navigation/sidebar-user";
@@ -126,11 +129,13 @@ const FullAppSidebar = observer(
   }: SidebarContentProps) => {
     const t = useTranslations();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
     const {
       addPickerStore,
+      companyInviteModalStore,
       feedbackModalStore,
       globalSearchModalStore,
       keyboardShortcutsStore,
@@ -148,13 +153,19 @@ const FullAppSidebar = observer(
     const onInbox = intlPathname === "/inbox";
 
     const { isMobile, setOpenMobile } = useSidebar();
-    const { resolvedTheme, setTheme } = useTheme();
+    const { theme, setTheme } = useTheme();
     const subscriptionStatus = subscription?.status ?? null;
     const subscriptionPlan = subscription?.plan ?? null;
     const [selectedKey, setSelectedKey] = useState<string | null>(recordNavigationKey(intlPathname));
 
-    function handleThemeChange() {
-      const next = resolvedTheme === "dark" ? ThemeEnum.light : ThemeEnum.dark;
+    const area = restricted ? null : areaOf(intlPathname, operatorConsoleVisible);
+    const [lastWorkPath, setLastWorkPath] = useState("/dashboard");
+    const [customizeOpen, setCustomizeOpen] = useState(false);
+    useEffect(() => {
+      if (!area) setLastWorkPath(`${intlPathname}${window.location.search}`);
+    }, [area, intlPathname, searchParams]);
+
+    function handleThemeChange(next: ThemeChoice) {
       setTheme(next);
       if (!restricted) runUserAction(() => userStore.updateTheme(next));
     }
@@ -188,8 +199,6 @@ const FullAppSidebar = observer(
 
     const navGroups: NavGroup[] = useMemo(() => {
       const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
-      const profileSubroutes = visibleSubroutes("profile", rootStore.appMode, canAccess);
-      const companySubroutes = visibleSubroutes("company", rootStore.appMode, canAccess);
 
       return [
         {
@@ -252,73 +261,40 @@ const FullAppSidebar = observer(
               : []),
           ],
         },
-        {
-          key: "workspace",
-          label: t("NavigationBar.workspace"),
-          items: [
-            {
-              key: "profile",
-              title: t("UserAvatar.profile"),
-              href: `/profile/${profileSubroutes[0]?.slug ?? "settings"}`,
-              icon: UserCircle,
-              visible: profileSubroutes.length > 0,
-              items: profileSubroutes.map((subroute) => ({
-                key: `profile-${subroute.slug}`,
-                title: t(subroute.labelKey),
-                href: `/profile/${subroute.slug}`,
-                icon: subroute.slug === "connected-accounts" ? Mail : UserCircle,
-                visible: true,
-                badge: subroute.slug === "connected-accounts" ? channelsNeedingActionCount : undefined,
-              })),
-            },
-            {
-              key: "company",
-              title: t("UserAvatar.company"),
-              href: `/company/${companySubroutes[0]?.slug ?? "members"}`,
-              icon: Building,
-              visible: companySubroutes.length > 0,
-              items: companySubroutes.map((subroute) => ({
-                key: `company-${subroute.slug}`,
-                title: t(subroute.labelKey),
-                href: `/company/${subroute.slug}`,
-                icon: Building,
-                visible: true,
-              })),
-            },
-          ].filter((i) => i.visible),
-        },
-        {
-          key: "admin",
-          label: t("NavigationBar.admin"),
-          items: [
-            {
-              key: "operator",
-              title: t("NavigationBar.operator"),
-              href: `/operator/${OPERATOR_SUBROUTES[0]?.slug ?? "overview"}`,
-              icon: ShieldCheck,
-              visible: operatorConsoleVisible,
-              items: OPERATOR_SUBROUTES.map((subroute) => ({
-                key: `operator-${subroute.slug}`,
-                title: t(subroute.labelKey),
-                href: `/operator/${subroute.slug}`,
-                icon: ShieldCheck,
-                visible: true,
-              })),
-            },
-          ].filter((i) => i.visible),
-        },
       ].filter((g) => g.items.length > 0);
-    }, [
-      operatorConsoleVisible,
-      t,
-      recordWorkspaceStore.navigation,
-      rootStore.appMode,
-      subscriptionStatus,
-      user,
-      systemTaskCount,
-      currentUnreadThreadCount,
-      channelsNeedingActionCount,
-    ]);
+    }, [t, recordWorkspaceStore.navigation, rootStore.appMode, user, systemTaskCount, currentUnreadThreadCount]);
+
+    const areaGroups: AreaNavGroup[] = useMemo(() => {
+      if (area === "operator") {
+        return [
+          {
+            key: "operator",
+            label: t("NavigationBar.operator"),
+            items: OPERATOR_SUBROUTES.map((subroute) => ({
+              key: `operator-${subroute.slug}`,
+              title: t(subroute.labelKey),
+              href: `/operator/${subroute.slug}`,
+              icon: subroute.icon,
+            })),
+          },
+        ];
+      }
+      if (area !== "settings") return [];
+      const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
+      return (Object.keys(SETTINGS_SECTIONS) as SettingsSection[])
+        .map((section) => ({
+          key: section,
+          label: section === "account" ? t("SettingsNav.account") : t("SettingsNav.workspace"),
+          items: visibleSubroutes(section, rootStore.appMode, canAccess).map((subroute) => ({
+            key: `settings-${subroute.slug}`,
+            title: t(subroute.labelKey),
+            href: settingsHref(subroute.slug),
+            icon: subroute.icon,
+            badge: subroute.slug === "channels" ? channelsNeedingActionCount : undefined,
+          })),
+        }))
+        .filter((group) => group.items.length > 0);
+    }, [area, t, user, rootStore.appMode, channelsNeedingActionCount]);
 
     const resolvedSidebar = useResolvedSidebar(navGroups);
 
@@ -327,8 +303,8 @@ const FullAppSidebar = observer(
       [keyboardShortcutsStore, navGroups, resolvedSidebar],
     );
 
-    const secondaryItems: NavSecondaryItem[] = [
-      ...(recordWorkspaceStore.navigationRefreshFailed && !restricted
+    const secondaryItems: NavSecondaryItem[] =
+      recordWorkspaceStore.navigationRefreshFailed && !restricted
         ? [
             {
               key: "record-navigation-retry",
@@ -337,35 +313,17 @@ const FullAppSidebar = observer(
               onSelect: () => runUserAction(recordWorkspaceStore.refreshNavigation),
             },
           ]
-        : []),
-      {
-        key: "documentation",
-        title: t("UserAvatar.documentation"),
-        icon: FileText,
-        href: restricted ? "/dashboard" : "/docs",
-        prefetch: false,
-      },
-      {
-        key: "feedback",
-        title: t("Common.inputs.feedback"),
-        icon: MessageCircle,
-        onSelect: (invoker) => {
-          if (restricted) {
-            closeMobileSidebar(recheckAccountState);
-            return;
-          }
+        : [];
 
-          closeMobileSidebar(() => {
-            feedbackModalStore.onInitOrRefresh({
-              type: FeedbackType.general,
-              feedback: "",
-            });
-            const sidebarTrigger = document.getElementById("sidebar-trigger");
-            feedbackModalStore.openFrom(invoker, sidebarTrigger);
-          });
-        },
-      },
-    ];
+    function openFeedback(invoker: HTMLElement) {
+      closeMobileSidebar(() => {
+        feedbackModalStore.onInitOrRefresh({
+          type: FeedbackType.general,
+          feedback: "",
+        });
+        feedbackModalStore.openFrom(invoker, document.getElementById("sidebar-trigger"));
+      });
+    }
 
     const addItems: AddPickerItem[] = (recordWorkspaceStore.navigation?.types ?? [])
       .filter((type) => type.canCreate)
@@ -389,13 +347,105 @@ const FullAppSidebar = observer(
         : assistantRouteSyncStatus === "refreshing"
           ? t("AgentChat.ui.routeSyncRefreshing")
           : t("AgentChat.ui.finalizing");
-    const planSubtitle = buildPlanSubtitle(
-      isCloudHosted ? subscriptionStatus : null,
-      isCloudHosted ? subscriptionPlan : null,
-      trialDaysLeft,
-      emailVerified,
+    const planChip = resolvePlanChip(
+      {
+        status: isCloudHosted ? subscriptionStatus : null,
+        plan: isCloudHosted ? subscriptionPlan : null,
+        trialDaysLeft,
+      },
       t,
-      router.push,
+    );
+    const planChipNode = planChip ? (
+      <AppChip className="h-[16px] px-1 text-[10px]" variant={planChip.variant}>
+        {planChip.label}
+      </AppChip>
+    ) : undefined;
+    const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
+    const workspaceRoutes = visibleSubroutes("workspace", rootStore.appMode, canAccess).map(
+      (subroute) => subroute.slug,
+    );
+    const workspaceMenu = restricted ? null : (
+      <>
+        {userStore.can(Resource.users, Action.create) && (
+          <DropdownMenuItem
+            id="workspace-menu-invite"
+            onSelect={() =>
+              closeMobileSidebar(() => {
+                runUserAction(() => companyInviteModalStore.generateInviteLink());
+                companyInviteModalStore.open();
+              })
+            }
+          >
+            <UserPlus />
+
+            <span>{t("WorkspaceMenu.inviteMembers")}</span>
+          </DropdownMenuItem>
+        )}
+
+        {workspaceRoutes.includes("members") && (
+          <DropdownMenuItem asChild>
+            <AppLink
+              appearance="unstyled"
+              href={settingsHref("members")}
+              id="workspace-menu-members"
+              onClick={() => closeMobileSidebar()}
+            >
+              <Users />
+
+              <span>{t("SettingsNav.members")}</span>
+            </AppLink>
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuItem asChild>
+          <AppLink
+            appearance="unstyled"
+            href={SETTINGS_ENTRY_HREF}
+            id="workspace-menu-settings"
+            onClick={() => closeMobileSidebar()}
+          >
+            <Settings />
+
+            <span>{t("NavigationBar.settings")}</span>
+          </AppLink>
+        </DropdownMenuItem>
+
+        {workspaceRoutes.includes("billing") && (
+          <DropdownMenuItem asChild>
+            <AppLink
+              appearance="unstyled"
+              href={settingsHref("billing")}
+              id="workspace-menu-billing"
+              onClick={() => closeMobileSidebar()}
+            >
+              <CreditCard />
+
+              <span className="flex-1">{t("SettingsNav.billing")}</span>
+
+              {planChipNode}
+            </AppLink>
+          </DropdownMenuItem>
+        )}
+
+        {operatorConsoleVisible && (
+          <>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem asChild>
+              <AppLink
+                appearance="unstyled"
+                href={`/operator/${OPERATOR_SUBROUTES[0]?.slug ?? "overview"}`}
+                id="workspace-menu-operator"
+                onClick={() => closeMobileSidebar()}
+              >
+                <ShieldCheck />
+
+                <span>{t("NavigationBar.operator")}</span>
+              </AppLink>
+            </DropdownMenuItem>
+          </>
+        )}
+      </>
     );
 
     return (
@@ -416,13 +466,12 @@ const FullAppSidebar = observer(
                 : undefined
             }
             brandName="Customermates"
-            brandSubtitle={planSubtitle}
-            homeHref={
-              restricted ? "/dashboard" : rootStore.appMode === "demo" ? "https://customermates.com" : "/dashboard"
-            }
             logoAlt={t("Common.imageAlt.logo")}
             overlaysDisabled={!restricted && !recordWorkspaceStore.routeReady(intlPathname)}
+            quickActions={!area}
             searchLabel={t("NavigationBar.search")}
+            workspaceMenu={workspaceMenu}
+            workspaceMenuLabel={t("WorkspaceMenu.label")}
             onAdd={(invoker) => {
               if (restricted) {
                 closeMobileSidebar(recheckAccountState);
@@ -454,31 +503,61 @@ const FullAppSidebar = observer(
           <SidebarContent>
             {legalStatus ? <LegalUpdateAlert status={legalStatus} onNavigate={() => closeMobileSidebar()} /> : null}
 
-            <NavSections
-              customizable={!restricted}
-              groups={navGroups}
-              pathname={intlPathname}
-              selectedKey={restricted ? null : selectedKey}
-              onNavigate={(key) => closeMobileSidebar(restricted ? undefined : () => setSelectedKey(key))}
-            />
+            {area ? (
+              <AreaNav
+                area={area === "settings" ? t("NavigationBar.settings") : t("NavigationBar.operator")}
+                backHref={lastWorkPath}
+                backLabel={t("Common.actions.back")}
+                groups={areaGroups}
+                pathname={intlPathname}
+                onNavigate={() => closeMobileSidebar()}
+              />
+            ) : (
+              <NavSections
+                customizable={!restricted}
+                groups={navGroups}
+                pathname={intlPathname}
+                selectedKey={restricted ? null : selectedKey}
+                onNavigate={(key) => closeMobileSidebar(restricted ? undefined : () => setSelectedKey(key))}
+              />
+            )}
 
-            <NavSecondary
-              className="mt-auto"
-              items={secondaryItems}
-              leading={restricted ? null : <SidebarCustomize groups={navGroups} />}
-            />
+            {secondaryItems.length > 0 && <NavSecondary className="mt-auto" items={secondaryItems} />}
           </SidebarContent>
 
           <SidebarFooter>
             <NavUser
+              customizable={!area}
+              docsHref="/docs"
+              emailVerified={emailVerified}
               labels={{
+                menu: t("UserAvatar.menu"),
+                profile: t("SettingsNav.profile"),
+                notVerified: t("EmailVerification.notVerified"),
+                theme: t("UserAvatar.theme"),
+                themes: {
+                  system: t("Common.themes.system"),
+                  light: t("Common.themes.light"),
+                  dark: t("Common.themes.dark"),
+                },
+                language: t("UserAvatar.language"),
+                documentation: t("UserAvatar.documentation"),
+                feedback: t("UserAvatar.sendFeedback"),
+                customizeSidebar: t("SidebarCustomize.title"),
                 signOut: t("UserAvatar.signOut"),
-                lightMode: t("UserAvatar.lightMode"),
-                darkMode: t("UserAvatar.darkMode"),
                 keyboardShortcuts: t("KeyboardShortcuts.title"),
               }}
-              theme={resolvedTheme}
+              language={userStore.user?.displayLanguage ?? Locale.system}
+              languages={DISPLAY_LANGUAGE_VALUES.map((value) => ({
+                value,
+                label: value === Locale.system ? t("Common.locales.system") : t(`Common.locales.${value}`),
+              }))}
+              profileHref={settingsHref("profile")}
+              restricted={restricted}
+              theme={theme === "light" || theme === "dark" ? theme : "system"}
               user={user}
+              onCustomizeSidebar={() => closeMobileSidebar(() => setCustomizeOpen(true))}
+              onFeedback={openFeedback}
               onKeyboardShortcuts={
                 restricted
                   ? undefined
@@ -490,6 +569,14 @@ const FullAppSidebar = observer(
                         ),
                       )
               }
+              onLanguageChange={(value) =>
+                closeMobileSidebar(() =>
+                  runUserAction(() =>
+                    userStore.updateDisplayLanguage(value as Locale, `${intlPathname}${window.location.search}`),
+                  ),
+                )
+              }
+              onNavigate={() => closeMobileSidebar()}
               onSignOut={() =>
                 closeMobileSidebar(() => {
                   runUserAction(handleSignOut);
@@ -499,6 +586,8 @@ const FullAppSidebar = observer(
             />
           </SidebarFooter>
         </Sidebar>
+
+        {!restricted && <SidebarCustomize groups={navGroups} open={customizeOpen} onOpenChange={setCustomizeOpen} />}
 
         {!restricted ? (
           <AddPickerDrawer
@@ -594,55 +683,9 @@ function AddPickerDrawer({
   );
 }
 
-function buildPlanSubtitle(
-  status: SubscriptionStatus | null,
-  plan: SubscriptionPlan | null,
-  trialDaysLeft: number | null,
-  emailVerified: boolean | null,
-  t: (key: string, values?: Record<string, string | number>) => string,
-  navigate: (href: string) => void,
-): React.ReactNode {
-  const chipButton = (href: string, children: React.ReactNode) => (
-    <button
-      className="flex min-w-0 shrink rounded-md outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
-      type="button"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        navigate(href);
-      }}
-    >
-      {children}
-    </button>
-  );
-
-  const planModel = resolvePlanChip({ status, plan, trialDaysLeft }, t);
-  const planChip = planModel
-    ? chipButton(
-        planModel.href,
-        <AppChip className="h-[16px] px-1 text-[10px]" variant={planModel.variant}>
-          {planModel.label}
-        </AppChip>,
-      )
-    : null;
-
-  const verificationChip =
-    emailVerified === false
-      ? chipButton(
-          "/profile/settings",
-          <AppChip className="h-[16px] px-1 text-[10px]" variant="warning">
-            {t("EmailVerification.notVerified")}
-          </AppChip>,
-        )
-      : null;
-
-  if (!planChip && !verificationChip) return undefined;
-
-  return (
-    <>
-      {planChip}
-
-      {verificationChip}
-    </>
-  );
+function areaOf(pathname: string, operatorConsoleVisible: boolean): "settings" | "operator" | null {
+  const first = pathname.split("/")[1];
+  if (first === "settings") return "settings";
+  if (first === "operator" && operatorConsoleVisible) return "operator";
+  return null;
 }

@@ -26,11 +26,6 @@ const groups: NavGroup[] = [
       item("configure-records", "/configure"),
     ],
   },
-  {
-    key: "workspace",
-    label: "Workspace",
-    items: [item("profile", "/profile/settings")],
-  },
 ];
 
 const defaults = groups.map((group) => ({
@@ -39,13 +34,13 @@ const defaults = groups.map((group) => ({
 }));
 
 describe("shortcut destinations", () => {
-  it("maps fixed pages that are in the sidebar and lists in default order", () => {
+  it("maps fixed pages in the sidebar, the settings entry and lists in default order", () => {
     expect(shortcutDestinations(groups, resolveSidebar(defaults, null))).toEqual({
       pages: {
         dashboard: "/dashboard",
         inbox: "/inbox",
         configure: "/configure",
-        settings: "/profile/settings",
+        settings: "/settings/profile",
       },
       lists: ["/records/a", "/records/b", "/records/c"],
     });

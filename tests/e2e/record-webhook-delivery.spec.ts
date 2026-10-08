@@ -1,3 +1,4 @@
+import { setPaletteText } from "./filter-palette";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { addFromConfigure, openConfigure } from "./configure";
@@ -45,8 +46,8 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     );
     expect(field.rows).toHaveLength(1);
 
-    await page.goto("/en/company/webhooks");
-    await page.locator("#company-webhooks-add").click();
+    await page.goto("/en/settings/webhooks");
+    await page.locator("#settings-webhooks-add").click();
     const webhook = page.getByRole("dialog");
     await webhook.locator("#webhook-modal-url").fill(receiverUrl);
     await webhook.locator("#webhook-modal-events").click();
@@ -93,7 +94,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
         }),
       ]);
 
-    await page.goto("/en/company/webhook-deliveries");
+    await page.goto("/en/settings/webhooks/deliveries");
     await expect(page.getByText(receiverUrl).first()).toBeVisible();
     await expect(page.getByText("Delivered", { exact: true }).first()).toBeVisible();
     expect(errors).toEqual([]);
@@ -157,15 +158,15 @@ test("delivers only deleted records that matched the webhook filter before remov
       projects.set(title, persisted.rows[0].recordId);
     }
 
-    await page.goto("/en/company/webhooks");
-    await page.locator("#company-webhooks-add").click();
+    await page.goto("/en/settings/webhooks");
+    await page.locator("#settings-webhooks-add").click();
     await dialog.locator("#webhook-modal-url").fill(receiverUrl);
     await dialog.locator("#webhook-modal-events").click();
     await page.getByRole("option", { name: "Record deleted", exact: true }).click();
     await page.keyboard.press("Escape");
     await dialog.getByRole("combobox", { name: "Records from", exact: false }).click();
     await page.getByRole("option", { name: "Projects", exact: true }).click();
-    await dialog.locator('[id="recordTrigger.query.search"]').fill("Ready");
+    await setPaletteText(page, "record-trigger-filters", "query:search", "Ready");
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
     const hook = await database.query('SELECT id FROM "Webhook" WHERE "companyId"=$1 AND url=$2', [
@@ -226,7 +227,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       typeId,
     ]);
     expect(remaining.rows).toEqual([]);
-    await page.goto("/en/company/webhook-deliveries");
+    await page.goto("/en/settings/webhooks/deliveries");
     await expect(page.getByText(receiverUrl).first()).toBeVisible();
     await expect(page.getByText("Delivered", { exact: true }).first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("filtered-deletion-delivery.png"), animations: "disabled" });

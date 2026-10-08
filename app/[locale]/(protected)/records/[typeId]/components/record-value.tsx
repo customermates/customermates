@@ -9,7 +9,9 @@ import type { CalculatedValue, RecordFieldView, RecordMember } from "@/features/
 import { AppChip } from "@/components/chip/app-chip";
 import { MemberChip } from "@/components/chip/member-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
+import { ContactValue } from "@/components/records/contact-value";
 import { toChipColor } from "@/constants/chip-colors";
+import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 
 export function EmptyValue() {
   return <span className="text-muted-foreground">—</span>;
@@ -78,6 +80,22 @@ export const RecordValue = observer(function RecordValue({
     );
   }
   if (value.kind === "boolean") return <span>{value.value ? t("RecordModel.yes") : t("RecordModel.no")}</span>;
+  if ((value.kind === "text" || value.kind === "textList") && CONTACT_VALUE_TYPES.includes(field.valueType)) {
+    const values = value.kind === "text" ? [value.value] : value.value;
+    return (
+      <span className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-2">
+        {values.map((entry, index) => (
+          <ContactValue
+            key={`${entry}-${index}`}
+            action={field.format?.onClick ?? "open"}
+            kind={field.valueType as "email" | "phone" | "url"}
+            value={entry}
+            wrap={wrap}
+          />
+        ))}
+      </span>
+    );
+  }
   if (value.kind === "textList") return <span>{value.value.join(", ")}</span>;
   if (value.kind === "decimal") {
     return (

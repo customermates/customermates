@@ -1,37 +1,33 @@
 ---
 title: "API Keys for MCP and REST Clients"
-description: "How to create an API key under My Profile, the role permission it needs, the x-api-key header, when keys expire, and how to delete or rotate a key."
+description: "How to create an API key in Settings, the role permission it needs, the x-api-key header, when keys expire, and how to delete or rotate a key."
 ---
 
 API keys authenticate Model Context Protocol (MCP) and REST clients against your Customermates CRM. Create one key per client, store it in an environment variable, and delete it when the device or the teammate that held it goes away.
 
-## How do I create an API key?
+## How do I create an API key? [#how-do-i-create-an-api-key]
 
-To create an API key, open **My Profile** in the **Workspace** group of the sidebar, choose **API & Connectors** (`/profile/api-keys`), and press **Add** in the top bar. The **Add an API key** dialog offers two routes:
+Open [API keys](app:settings/api-keys) in Settings and click [Add](app:settings/api-keys?focus=generate). The **Add an API key** dialog offers two routes:
 
-- **Standard API key**: enter a **Name** that says where the key is used, for example `Claude Desktop, personal laptop` (up to 255 characters), optionally pick a date under **Expires in**, and press **Save**. The key is shown once under **API key created successfully**; copy it before you close the dialog.
-- **Quick connections**: pick **Claude**, **ChatGPT & Codex**, **Cursor** or **Gemini**, then the setup that matches where you use it. For a local setup (**Claude Code or Desktop**, then **Claude Code** or **Claude Desktop**; **Codex CLI or IDE**; Cursor or Gemini), press **Create API key**: the dialog creates the key and shows that client's setup snippet with the key already filled in. **Claude account** and **ChatGPT App** connect through OAuth instead and create no key. Close the dialog when you are finished.
+- **Standard API key**: enter a **Name** that says where the key is used, for example `Claude Desktop, personal laptop` (up to 255 characters), optionally pick a date under **Expires in**, and click **Save**. The key is shown once under **API key created successfully**; copy it before you close the dialog.
+- **Quick connections**: pick **Claude**, **ChatGPT & Codex**, **Cursor** or **Gemini**, then the setup that matches where you use it. For a local setup (**Claude Code or Desktop**, then **Claude Code** or **Claude Desktop**; **Codex CLI or IDE**; Cursor or Gemini), click **Create API key**: the dialog creates the key and shows that client's setup snippet with the key already filled in. **Claude account** and **ChatGPT App** connect through OAuth instead and create no key. Click **Done** when you are finished.
 
-A key created by **Quick connections** is named after its client (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` or `Gemini`) and expires 365 days after creation; you cannot choose another name or date there. Below the setup snippet the dialog shows the date and time the key expires, and the key card lists it under **Expires at**. The AI step of the onboarding wizard uses the same setup and creates its keys the same way. A key's name and expiry cannot be changed after it is created.
+A key created by **Quick connections** is named after its client (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` or `Gemini`) and expires 365 days after creation; you cannot choose another name or date there. The dialog shows the expiry below the setup snippet. The AI step of the onboarding wizard creates its keys the same way. A key's name and expiry cannot be changed after it is created.
 
 Keys belong to the user who created them and inherit that user's permissions.
 
-**Link:** the link to the API keys page, `/profile/api-keys`, titled **API & Connectors**. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**), then in the dialog `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name` for **Name**, `api-key-expires` for **Expires in** and `api-key-save` for **Save** (prerequisite `api-key-option-standard`; **Save** is enabled once something changed). The **Quick connections** tiles and their setup steps are not highlight targets, so Mate names them.
+## Who can create and see API keys? [#who-can-create-and-see-api-keys]
 
-## Who can create and see API keys?
+The API keys page follows the **API & Webhooks** row of your role, which a member with **Edit** on **Users & Roles** sets under [Roles](app:settings/roles):
 
-The **API & Connectors** page and its **Add** button follow the **API & Webhooks** row of your role, which a member with **Edit** on **Users & Roles** sets under **My Company → Roles**:
-
-- **Read access** **All** shows **API & Connectors** in the sidebar and lists your own keys. With **None**, the entry is hidden and the page cannot be opened.
+- **Read access** **All** shows API keys in Settings and lists your own keys. With **None**, the entry is hidden and the page cannot be opened.
 - **Create** adds the **Add** button, and **Delete** lets you delete keys. Without them, you can see keys you already have but cannot create or delete any.
 
-A new role starts with no checkbox ticked and **Read access** **None**, so out of the box only members with the built-in **Admin** role can create API keys. The same row also opens **My Company → Webhooks** and **My Company → Recent Deliveries**, so granting it for API keys also lets the member see every webhook of the workspace and, with **Create**, **Edit** or **Delete**, change them.
+A new role starts with no checkbox ticked and **Read access** **None**, so out of the box only members with the built-in **Admin** role can create API keys. The same row also opens [Webhooks](app:settings/webhooks) and its deliveries, so granting it for API keys also lets the member see every webhook of the workspace and, with **Create**, **Edit** or **Delete**, change them.
 
-Everyone sees only their own keys. Nobody, including the **Admin** role, can list or delete another member's keys. No assistant or MCP tool creates, lists or deletes API keys; they are managed only on **My Profile → API & Connectors** (`/profile/api-keys`), and the hosted assistant can at most open that page for you.
+Everyone sees only their own keys. Nobody, including the **Admin** role, can list or delete another member's keys. No assistant or MCP tool creates, lists or deletes API keys; they are managed only on the API keys page, and the hosted assistant can at most open it for you.
 
 The custom connector for Claude and ChatGPT signs in over OAuth and needs neither an API key nor the **API & Webhooks** permission. See [Connect with a custom connector](/docs/connect-custom-connector).
-
-**Link:** `/profile/api-keys`, and for the role's **API & Webhooks** row `/company/roles`. **Mate:** `navigate` with `nav-profile-api-keys` or `nav-company-roles`; `highlight_element` with `nav-profile-api-keys` on a **My Profile** page and with `nav-company-roles` on a **My Company** page, because a sidebar entry can be highlighted only while its group is expanded, and with `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Create**); the role rows are not highlight targets, so Mate names them.
 
 ## How do I use a key, and which header does it go in? [#how-do-i-use-a-key]
 
@@ -49,31 +45,25 @@ The `Accept: application/json, text/event-stream` header is required by the MCP 
 
 ## How long does a key last, and do keys expire? [#do-keys-expire]
 
-A **Standard API key** expires only if you pick a date under **Expires in**. The default, **Never expires**, keeps the key valid until you delete it. A date must lie between 1 and 365 days ahead. A key created by **Quick connections** (a quick connection key), including those from the onboarding wizard, lasts 365 days: it always expires 365 days after creation. The expiry cannot be extended: before it passes, create a new key and update the client. The key card shows **Created at**, **Expires at** (**Never** when unset) and **Last used**.
+A **Standard API key** expires only if you pick a date under **Expires in**; the default, **Never expires**, keeps it valid until you delete it. A date must lie between 1 and 365 days ahead. A key from **Quick connections** (a quick connection key), including those from the onboarding wizard, is valid for 365 days: it always expires 365 days after creation. Expiry cannot be extended: before it passes, create a new key and update the client. Each key card shows **Created at**, **Expires at** (**Never** when unset) and **Last used**.
 
-**Link:** `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; in the dialog that **Add** opens, `api-key-expires` highlights **Expires in** (prerequisite `api-key-option-standard`). The key cards and the **Quick connections** tiles are not highlight targets, so Mate names them.
+## How do I revoke, delete or rotate a key? [#how-do-i-revoke-delete-or-rotate-a-key]
 
-## How do I revoke, delete or rotate a key?
-
-Open the key from its card and choose **Delete**; a confirmation follows and the key stops working immediately. Deleting needs **Delete** on **API & Webhooks**. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
+On [API keys](app:settings/api-keys), click the key's card and choose **Delete**; after you confirm, the key stops working immediately. Deleting needs **Delete** on **API & Webhooks**. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
 
 Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete a single client without breaking the others. It does not separate them in the audit log, which names the user a key belongs to, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 
-Only the owner can delete a key. To stop the keys of a member who leaves, open **My Company → Members**, open the member, set **Status** to **Inactive** and save; this needs **Edit** and read access **All** on **Users & Roles**, you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with that member's keys that reads or changes workspace data is then refused. Taking **API & Webhooks** away from their role is not enough: it hides the page and its **Add** button, but keys they already hold keep working.
-
-**Link:** `/profile/api-keys`, and for deactivating a member `/company/members`. **Mate:** `navigate` with `nav-profile-api-keys` or `nav-company-members`; `highlight_element` with `nav-profile-api-keys` on a **My Profile** page and with `nav-company-members` on a **My Company** page, because a sidebar entry can be highlighted only while its group is expanded; the key cards and the member rows are not highlight targets, so Mate names them. Once the user has opened a key from its card, `highlight_element` takes `api-key-delete` for **Delete**; once a member row is open, it takes `member-modal-status` for **Status** and `member-modal-save` for **Save** (roles with **Users & Roles** **Edit**).
+Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with that member's keys that reads or changes workspace data is then refused. Taking **API & Webhooks** away from their role is not enough: it hides the page and its **Add** button, but keys they already hold keep working.
 
 ## What is the key format, and how long can a key name be? [#what-is-the-key-format]
 
 A key's **Name** is 1 to 255 characters long. Keys are 64 characters of ASCII letters (`a-z A-Z`), generated by the better-auth API key plugin and stored hashed. The full key is shown only at creation and cannot be displayed again.
 
-**Link:** `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; in the dialog that **Add** opens, `api-key-name` highlights **Name** (prerequisite `api-key-option-standard`).
-
 ## What permissions does a key have, and can I restrict its scope to read-only? [#what-permissions-does-a-key-have]
 
-Everything its owner can do, and nothing more. There is no per-key permission scoping. A key cannot be limited to read-only access. Every call is checked against the owner's current role, so a change to that role, for example moving the member from the **Admin** role to a custom role with fewer rights, applies to their keys on the next call. If the owner's **Status** is **Inactive**, every call with their keys that reads or changes workspace data is refused.
+Everything its owner can do, and nothing more. There is no per-key permission scoping, so a key cannot be limited to read-only access. Every call is checked against the owner's current role, so a change to that role, for example moving the member from the **Admin** role to a custom role with fewer rights, applies to their keys on the next call. If the owner's **Status** is **Inactive**, every call with their keys that reads or changes workspace data is refused.
 
-## Next
+## Next [#next]
 
 - [Quickstart](/docs/quickstart): first end-to-end run.
 - [MCP overview](/docs/mcp): what a key unlocks.
