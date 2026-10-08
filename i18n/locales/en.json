@@ -796,7 +796,6 @@
       "versions": "Document versions",
       "visibility": "Visibility"
     },
-    "noValue": "No value",
     "relationsAdded": "{field} Added",
     "relationsDeleted": "{field} Removed",
     "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}"
@@ -2997,7 +2996,6 @@
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
     "ascending": "Ascending",
-    "assignedMembers": "Assigned members",
     "assignedTo": "Assigned to",
     "attribute": "Attribute name",
     "behavior": "Value source",

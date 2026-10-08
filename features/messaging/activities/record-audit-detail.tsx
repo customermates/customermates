@@ -2,15 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
-import type { RecordField } from "@/features/records/record-model.schema";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppChipStack } from "@/components/chip/app-chip-stack";
-import { RecordValue } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { DetailHeader, IdentityAvatar, TypeBadge, auditCategory } from "./activities-row";
 import { resolveActorName } from "./activity-row-labels";
-import { ChangeRow, InlineChange } from "./audit-detail";
+import { ChangeRow, ChangeValue, InlineChange } from "./change-value";
+import { membersDescriptor, recordsDescriptor, recordValueDescriptor } from "./change-value-descriptor";
 import { hasNotesDiff, NotesDiff } from "./notes-diff";
 
 type FieldSide = Extract<ActivityEntryDto, { kind: "record" }>["changes"]["fields"][number]["before"];
@@ -31,28 +29,27 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
   const intl = useHydratedIntlStore();
   const category = auditCategory(entry.event);
   const identities = entry.changes.identities;
-  const noValue = t("AuditLogModal.noValue");
-  const chips = (items: Array<{ key: string; label: string }>) =>
-    items.length ? <AppChipStack items={items.map(({ key, label }) => ({ id: key, label }))} size="sm" /> : noValue;
-  const relationChips = (records: Entry["changes"]["related"][number]["before"]) =>
-    records.map((record) => ({ key: `${record.ref.typeId}:${record.ref.recordId}`, label: record.title }));
-  const render = (value: Entry["changes"]["fields"][number]["before"]) => {
-    if (!value) return noValue;
-    const field: RecordField = {
-      id: value.fieldId,
-      typeId: entry.changes.ref.typeId,
-      label: value.label,
-      valueType: value.valueType,
-      behavior: { kind: "input" },
-      required: false,
-      archived: false,
-      publishedSummary: false,
-      position: 0,
-      format: value.format,
-      options: value.options,
-    };
-    return <RecordValue field={field} result={value.value} />;
-  };
+  const typeId = entry.changes.ref.typeId;
+  const formerMember = t("RecordModel.member");
+  const field = (side: FieldSide) => (
+    <ChangeValue value={recordValueDescriptor(side, typeId, entry.members, formerMember)} />
+  );
+  const identityChips = (side: NonNullable<typeof identities>["before"]) => (
+    <ChangeValue
+      value={
+        side.length
+          ? {
+              kind: "choices",
+              choices: side.map((identity) => ({
+                id: identity.id,
+                label: identity.value,
+                provider: identity.provider,
+              })),
+            }
+          : { kind: "empty" }
+      }
+    />
+  );
   return (
     <AppCard>
       <DetailHeader
@@ -87,27 +84,28 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
               {richText ? (
                 <NotesDiff current={current} previous={previous} />
               ) : (
-                <InlineChange current={render(change.after)} previous={render(change.before)} />
+                <InlineChange current={field(change.after)} previous={field(change.before)} />
               )}
             </ChangeRow>
           );
         })}
 
         {entry.changes.assignments && (
-          <ChangeRow label={t("RecordModel.assignedMembers")}>
+          <ChangeRow label={t("RecordModel.assignedTo")}>
             <InlineChange
-              current={entry.changes.assignments.after.length}
-              previous={entry.changes.assignments.before.length}
+              current={
+                <ChangeValue value={membersDescriptor(entry.changes.assignments.after, entry.members, formerMember)} />
+              }
+              previous={
+                <ChangeValue value={membersDescriptor(entry.changes.assignments.before, entry.members, formerMember)} />
+              }
             />
           </ChangeRow>
         )}
 
         {identities && (
           <ChangeRow label={t("RecordModel.identityChannels")}>
-            <InlineChange
-              current={chips(identities.after.map((identity) => ({ key: identity.id, label: identity.value })))}
-              previous={chips(identities.before.map((identity) => ({ key: identity.id, label: identity.value })))}
-            />
+            <InlineChange current={identityChips(identities.after)} previous={identityChips(identities.before)} />
           </ChangeRow>
         )}
 
@@ -118,8 +116,8 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
         {entry.changes.related.map((relation) => (
           <ChangeRow key={relation.label} label={relation.label}>
             <InlineChange
-              current={chips(relationChips(relation.after))}
-              previous={chips(relationChips(relation.before))}
+              current={<ChangeValue value={recordsDescriptor(relation.after, entry.lists)} />}
+              previous={<ChangeValue value={recordsDescriptor(relation.before, entry.lists)} />}
             />
           </ChangeRow>
         ))}
