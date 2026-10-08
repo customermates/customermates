@@ -22,7 +22,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { FormFieldHelp } from "@/components/forms/form-field-help";
-import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -381,9 +381,13 @@ const WikiPageViewContent = observer(function WikiPageView({
           className="@container/wiki flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto"
           id="wiki-document-panel"
         >
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
-              <SheetTrigger asChild>
+          <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
+            <ResponsiveOverlay
+              align="start"
+              open={mobileOpen}
+              popoverClassName="flex h-96 w-80 flex-col p-0"
+              title={t("Wiki.pagesLabel")}
+              trigger={
                 <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
                   <BookOpen aria-hidden="true" className="shrink-0" />
 
@@ -391,17 +395,12 @@ const WikiPageViewContent = observer(function WikiPageView({
 
                   <ChevronDown aria-hidden="true" className="shrink-0" />
                 </Button>
-              </SheetTrigger>
-            </div>
-
-            <SheetContent aria-describedby={undefined} className="gap-0" side="left">
-              <SheetHeader>
-                <SheetTitle>{t("Wiki.pagesLabel")}</SheetTitle>
-              </SheetHeader>
-
-              <SheetBody className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">{pageList}</SheetBody>
-            </SheetContent>
-          </Sheet>
+              }
+              onOpenChange={setMobileOpen}
+            >
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{pageList}</div>
+            </ResponsiveOverlay>
+          </div>
 
           {((store.allows(Action.create) && initialSetupState.status === "failed") || (setupActive && hasDocument)) && (
             <div className="mx-auto w-full max-w-6xl px-6 py-3 md:px-10">

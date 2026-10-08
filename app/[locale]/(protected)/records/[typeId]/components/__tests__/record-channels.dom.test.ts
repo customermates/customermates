@@ -10,6 +10,7 @@ import type { RecordDetailLayoutResult } from "@/features/records/record-detail-
 const context = vi.hoisted(() => ({ root: null as unknown as RootStore, composeBody: false }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => context.root }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/hooks/use-media-query", () => ({ useIsWiderThan: () => true }));
 vi.mock("../contact-compose-popover", () => ({
   ContactComposePopover: () =>
     context.composeBody ? createElement("input", { "aria-label": "Local compose body" }) : null,

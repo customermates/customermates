@@ -27,6 +27,7 @@ export const DiscoveredRecordTypesSchema = z
     schemaRevision: z.number().int(),
     canManageSchema: z.boolean(),
     canPublishSummary: z.boolean().optional(),
+    canManageRoles: z.boolean().optional(),
     total: z.number().int(),
     types: z.array(
       z
@@ -95,6 +96,7 @@ export class DiscoverRecordTypesInteractor extends AuthenticatedInteractor<
             schemaRevision: model.revision,
             canManageSchema: policy.canManageSchema,
             canPublishSummary: policy.isAdmin,
+            canManageRoles: policy.canManageRoles,
             total: types.length,
             types: page.map((type) => ({
               id: type.id,

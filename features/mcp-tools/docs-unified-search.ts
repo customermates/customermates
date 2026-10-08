@@ -424,36 +424,6 @@ export async function unifiedDocsExcerpt(
             locale: page.locale,
           })
         : "";
-    const link = second?.text
-      .split("\n")
-      .find((line) => line.startsWith("**Link:**"))
-      ?.split("**Mate:**")[0]
-      .trimEnd();
-    if (
-      second &&
-      search.chosen?.includes(second) &&
-      !first.text.split("\n").some((line) => line.startsWith("**Link:**")) &&
-      !(secondary.length > DOCS_EXCERPT_MIN_PART && secondary.split("\n").includes(link ?? ""))
-    ) {
-      if (link) {
-        const metadata = [excerptHeading(second), link].filter(Boolean).join("\n\n");
-        const primaryChars = DOCS_PAGE_EXCERPT_CHARS - metadata.length - 2;
-        if (
-          metadata.length <= Math.floor(DOCS_PAGE_EXCERPT_CHARS / 3) &&
-          primaryChars > heading.length + DOCS_EXCERPT_MIN_PART
-        ) {
-          const primary = retrievalExcerpt({
-            heading,
-            markdown: first.text,
-            query,
-            maxChars: primaryChars,
-            locale: page.locale,
-          });
-          return `${primary}\n\n${metadata}`;
-        }
-        return lead;
-      }
-    }
     return secondary.length > DOCS_EXCERPT_MIN_PART ? `${lead}\n\n${secondary}` : lead;
   } finally {
     stopwatch.finish();

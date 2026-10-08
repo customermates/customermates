@@ -83,7 +83,7 @@ export function appLinkPath(link: ParsedAppLink, workspace: AppLinkWorkspace | n
   }
 
   const openPath = `${APP_LINK_OPEN_ROUTE}/${link.place}`;
-  if (!workspace) return link.focus ? `${openPath}?focus=${link.focus}` : openPath;
+  if (!workspace) return link.focus ? `${openPath}?${new URLSearchParams({ focus: link.focus })}` : openPath;
   const typeId = workspace.listId(link.preset);
   if (link.kind === "configure") return focusHref({ kind: "list", id: typeId });
   return link.focus ? focusHref({ kind: "control", id: `records:${typeId}:${link.focus}` }) : `/records/${typeId}`;

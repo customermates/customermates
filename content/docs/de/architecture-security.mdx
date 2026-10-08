@@ -1,6 +1,6 @@
 ---
-title: "CRM-Sicherheit: Mandantentrennung und Audit-Logs"
-description: "Aufbau von Customermates, Isolation der Workspace-Daten, Authentifizierung per API-Key und MCP-OAuth, Inhalt des Audit-Logs und Meldeweg für Schwachstellen."
+title: "CRM-Sicherheit: Mandantentrennung und Aktivitätsprotokoll"
+description: "Aufbau von Customermates, Datenisolation je Workspace, Anmeldung per API-Key und MCP-OAuth, Inhalt des Aktivitätsprotokolls, Meldeweg für Schwachstellen."
 ---
 
 Jedes Unternehmen ist ein isolierter Mandant in einer gemeinsamen PostgreSQL-Datenbank. Jeder Datensatz gehört zu genau einem Unternehmen, API-Keys und OAuth-Verbindungen handeln als der Nutzer, der sie erstellt oder autorisiert hat, und KI-Agents sehen nur, was dieser Nutzer sehen darf.
@@ -17,13 +17,13 @@ Jedes Unternehmen ist ein isolierter Mandant in einer gemeinsamen PostgreSQL-Dat
 
 ## Wie funktioniert die Mandantentrennung (Multi-Tenancy)? [#how-does-multi-tenancy-keep-each-tenant-isolated]
 
-Die Daten jedes Mandanten sind getrennt: Alle Unternehmen teilen sich eine Datenbank, und jeder Datensatz trägt die ID seines Unternehmens. Die Trennung wird auf drei Ebenen erzwungen:
+Alle Unternehmen teilen sich eine Datenbank, und jeder Datensatz trägt die ID seines Unternehmens. Die Trennung wird auf drei Ebenen erzwungen:
 
 1. **Interactors**: Jede fachliche Operation läuft als angemeldeter Nutzer und filtert nach dessen Unternehmen.
 2. **Query-Guard**: Eine Prisma-Erweiterung bricht mit einem Fehler ab, wenn eine Abfrage auf eine Workspace-Tabelle die aktuelle Unternehmens-ID nicht im Filter hat oder ein anderes Unternehmen nennt, und wenn eine neue Zeile die ID eines anderen Unternehmens trägt. Nur die Authentifizierungstabellen sind ausgenommen (Anmeldeidentitäten, Anmeldekonten, Sitzungen, Bestätigungstokens, API-Keys sowie die MCP-OAuth-Clients, -Tokens und -Zustimmungen), und einige ausdrücklich markierte Systemoperationen umgehen den Guard.
 3. **`@TenantInteractor`**: ermittelt den aktiven Nutzer, weist inaktive Mitglieder ab, prüft die Rollenberechtigung und öffnet den Mandantenkontext, den der Query-Guard liest.
 
-Eine Self-Hosted-Instanz kann mehrere Workspaces nebeneinander mit derselben Trennung enthalten. Mandantenübergreifendes Lesen ist über die öffentliche Oberfläche nicht möglich. In der gehosteten Cloud kann eine Operator-Konsole des Anbieters für den Support mandantenübergreifend lesen; sie ist auf ein freigeschaltetes Operator-Konto beschränkt, verweigert den Dienst außerhalb des Cloud-Modus und schreibt jeden Lese- und Schreibzugriff in ein separates internes Log. Eine Self-Hosted-Installation hat keine solche Konsole. Der gehostete Assistent läuft im selben Rahmen: Er kann nur lesen und ändern, was der anfragende Nutzer darf.
+Eine Self-Hosted-Instanz kann mehrere Workspaces nebeneinander mit derselben Trennung enthalten. Mandantenübergreifendes Lesen ist über die öffentliche Oberfläche nicht möglich. In der gehosteten Cloud kann eine Operator-Konsole des Anbieters für den Support mandantenübergreifend lesen; sie ist auf ein freigeschaltetes Operator-Konto beschränkt, verweigert den Dienst außerhalb des Cloud-Modus und schreibt jeden Lese- und Schreibzugriff in ein separates internes Log. Eine Self-Hosted-Installation hat keine solche Konsole. Der gehostete Assistent Mate läuft im selben Rahmen: Er kann nur lesen und ändern, was der anfragende Nutzer darf.
 
 ## Wie authentifizieren sich Clients? [#how-do-clients-authenticate]
 
@@ -35,36 +35,30 @@ Drei Wege, die alle auf denselben Nutzer- und Unternehmenskontext auflösen:
 
 ## Unterstützt Customermates SSO oder SAML? [#does-customermates-support-sso-or-saml]
 
-Nein. Enterprise-Single-Sign-on mit Ihrem eigenen Identity-Provider über SAML oder OIDC ist nicht implementiert, weder in der Cloud noch beim Self-Hosting. Mitglieder melden sich mit E-Mail und Passwort an oder mit einem Google- oder Microsoft-Konto, sofern die Instanz diese Anbieter eingerichtet hat; auf einer Self-Hosted-Instanz richten Sie sie selbst ein, siehe [Self-Hosting](/docs/self-hosting). Um den Zugang eines Mitglieds zu beenden, setzen Sie seinen Status unter **Mein Unternehmen** › **Mitglieder** auf **Inaktiv**.
-
-**Link:** die Seite **Mitglieder**, `/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-company-members`; nachdem eine Mitgliederzeile geöffnet ist, heben `member-modal-status` und `member-modal-save` **Status** und **Speichern** im Dialog **Benutzer** hervor (Rollen mit **Bearbeiten** bei **Benutzer & Rollen**); die Zeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Nein. Enterprise-Single-Sign-on mit Ihrem eigenen Identity-Provider über SAML oder OIDC ist nicht implementiert, weder in der Cloud noch beim Self-Hosting. Mitglieder melden sich mit E-Mail und Passwort an oder mit einem Google- oder Microsoft-Konto, sofern die Instanz diese Anbieter eingerichtet hat; auf einer Self-Hosted-Instanz richten Sie sie selbst ein, siehe [Self-Hosting](/docs/self-hosting). Um den Zugang eines Mitglieds zu beenden, öffnen Sie es unter [Mitglieder](app:company/members) und setzen **Status** auf **Inaktiv**.
 
 ## Wie wird die Autorisierung entschieden? [#how-is-authorization-decided]
 
-Rollen unter **Mein Unternehmen** › **Rollen** vergeben **Erstellen**, **Bearbeiten**, **Löschen** und das Leserecht **Alle**, **Zugewiesen** oder **Keine** getrennt für jeden Datensatztyp, einschließlich eigener Typen. Bearbeiten und Löschen erfordern die Aktionsberechtigung und Zugriff auf den Datensatz. Workspace-Berechtigungen nutzen dieselben Spalten **Erstellen**, **Bearbeiten**, **Löschen** und **Lesen**, mit einem Strich, wo eine Aktion nicht gilt. **Datenmodell** **Bearbeiten** ist von Datensatzzugriff und Rollenverwaltung getrennt; ohne **Benutzer & Rollen** **Bearbeiten** dürfen Datenmodell-Verwalter keine zusätzlichen Rechte vergeben. Die System-Rolle **Admin** hat alle Rechte. Datensatz- und Konfigurationsänderungen prüfen Rechte und Revisionen erneut innerhalb der Workspace-Transaktion. API-Keys erben die aktuellen Rechte ihres Besitzers; ein Scoping pro Key gibt es nicht.
-
-**Link:** die Seite **Rollen**, `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`; `company-roles-add` hebt **Hinzufügen** für Rollen mit **Erstellen** bei **Benutzer & Rollen** hervor, und im geöffneten Dialog **Rolle** heben `role-modal-save` und `role-modal-cancel` **Speichern** und **Abbrechen** hervor, und `role-modal-delete` hebt **Löschen** bei einer gespeicherten eigenen Rolle hervor, die kein Mitglied nutzt; die Berechtigungszeilen und Felder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Eine Rolle unter [Rollen](app:company/roles) vergibt **Erstellen**, **Bearbeiten**, **Löschen** und **Lesen** **Alle**, **Zugewiesen** oder **Keine** getrennt für jede Liste, einschließlich selbst angelegter Listen. Bearbeiten und Löschen erfordern die Aktionsberechtigung und Zugriff auf den Datensatz. Workspace-Berechtigungen nutzen dieselben Spalten, mit einem Strich, wo eine Aktion nicht gilt. **Bearbeiten** bei **Datenmodell** ist von Datensatzzugriff und Rollenverwaltung getrennt: Ohne **Bearbeiten** bei **Benutzer & Rollen** dürfen Datenmodell-Verwalter keine zusätzlichen Rechte vergeben. Die eingebaute Rolle **Admin** hat alle Rechte. Datensatz- und Konfigurationsänderungen prüfen Rechte und Revisionen erneut innerhalb der Workspace-Transaktion. API-Keys erben die aktuellen Rechte ihres Besitzers; ein Scoping pro Key gibt es nicht.
 
 ## Wie stoppe ich die API-Keys eines ehemaligen Mitglieds? [#how-do-i-stop-the-api-keys-of-a-former-member]
 
-Die Berechtigung **API & Webhooks** steuert die Seiten **API & Konnektoren**, **Webhooks** und **Letzte Zustellungen** und die Key- und Webhook-Operationen dahinter (einschließlich `manage_webhooks`), nicht die Nutzung eines Keys. Ein Aufruf mit einem bestehenden Key oder über eine OAuth-Verbindung wird gegen die Berechtigungen des Besitzers auf den betroffenen Datensätzen geprüft. Entziehen Sie einer Rolle **API & Webhooks**, sehen ihre Mitglieder ihre Keys also nicht mehr, die Keys funktionieren aber weiter.
+Die Berechtigung **API & Webhooks** steuert die Seiten [API-Schlüssel](app:profile/api-keys) und [Webhooks](app:company/webhooks) samt dem Tab [Zustellungen](app:company/webhook-deliveries) und die Key- und Webhook-Operationen dahinter, nicht die Nutzung eines Keys. Ein Aufruf mit einem bestehenden Key oder über eine OAuth-Verbindung wird gegen die Berechtigungen des Besitzers auf den betroffenen Datensätzen geprüft. Entziehen Sie einer Rolle **API & Webhooks**, sehen ihre Mitglieder ihre Keys also nicht mehr, die Keys funktionieren aber weiter.
 
-Um die Keys eines Mitglieds zu stoppen, öffnen Sie das Mitglied unter **Mein Unternehmen** › **Mitglieder** und setzen **Status** auf **Inaktiv**. Dafür braucht Ihre Rolle **Bearbeiten** und Leserecht **Alle** bei **Benutzer & Rollen**; sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Jeder Aufruf mit den Keys eines inaktiven Mitglieds, der Workspace-Daten liest oder ändert, wird abgelehnt. Niemand kann die Keys eines anderen Mitglieds auflisten oder löschen.
-
-**Link:** die Seite **Mitglieder**, `/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-company-members`; nachdem eine Mitgliederzeile geöffnet ist, heben `member-modal-status` und `member-modal-save` **Status** und **Speichern** im Dialog **Benutzer** hervor (Rollen mit **Bearbeiten** bei **Benutzer & Rollen**); die Zeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Um die Keys eines Mitglieds zu stoppen, öffnen Sie das Mitglied unter [Mitglieder](app:company/members), setzen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür braucht Ihre Rolle **Bearbeiten** und **Lesen** **Alle** bei **Benutzer & Rollen**; sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Jeder Aufruf mit den Keys eines inaktiven Mitglieds, der Workspace-Daten liest oder ändert, wird abgelehnt. Niemand kann die Keys eines anderen Mitglieds auflisten oder löschen.
 
 ## Wie funktioniert externer KI-Zugriff? [#how-does-external-ai-access-work]
 
-MCP-Anfragen nutzen denselben Authentifizierungs- und Autorisierungspfad. Wenn ein Agent über MCP handelt:
+MCP-Anfragen nutzen denselben Authentifizierungs- und Autorisierungspfad:
 
-- Er ruft `/api/v1/mcp` mit einem API-Key oder einem OAuth-Bearer-Token auf.
+- Der Agent ruft `<BASE_URL>/api/v1/mcp` mit einem API-Key oder einem OAuth-Bearer-Token auf.
 - Der Server ermittelt Nutzer und Unternehmen aus dem Credential.
 - Jeder Tool-Aufruf läuft in einem mandantenbezogenen Kontext.
 - Validierungsfehler liefern strukturierte Meldungen mit Hinweisen zur Behebung und verraten keine internen Schema-Details. Unerwartete Fehler liefern nur eine allgemeine Meldung.
 
-Die MCP-Oberfläche ergänzt Eingabe-Schutzregeln, die Tool-Aufrufe absichern:
+Die MCP-Oberfläche ergänzt Eingabe-Schutzregeln:
 
-- `mutate_crm_record` ändert jeweils einen typisierten Datensatz oder eine Verknüpfung. Jede Referenz enthält Typ-ID und Datensatz-ID; Verknüpfungen nennen zusätzlich die Beziehungsdefinition. Ausgelassene Felder bleiben unverändert, `null` leert ein optionales Eingabefeld ausdrücklich. Berechnete Felder sind nicht direkt beschreibbar.
+- Ein Schreibvorgang ändert jeweils einen typisierten Datensatz oder eine Verknüpfung. Jede Referenz enthält Typ-ID und Datensatz-ID; Verknüpfen und Lösen nennen zusätzlich die Beziehungsdefinition. Ausgelassene Felder bleiben unverändert, `null` leert ein optionales Eingabefeld ausdrücklich. Berechnete Felder sind nicht direkt beschreibbar.
 - Das Backend prüft Typ, Workspace, Datensatzrechte, Version und Konfigurationsrevision während der Schreibtransaktion. Eine Referenz auf einen anderen Typ oder Workspace kann ein Update nicht umleiten.
 - Zum Löschen sind eine Datensatzreferenz und ein aktueller Hash der Auswirkungs-Vorschau erforderlich; ein Löschen per Filter gibt es nicht.
 
@@ -85,37 +79,35 @@ Das veröffentlichte Self-Hosted-Image setzt keine Adresse für Fehlerberichte u
 
 ## Wie sind Webhook-Secrets und Webhook-Ziele abgesichert? [#how-are-webhook-secrets-and-destinations-secured]
 
-- Webhook-Secrets und die Werte eigener Header liegen ungehasht in Postgres, weil sie abrufbar sein müssen, um ausgehende Anfragen zu signieren und zu senden. REST-API und MCP geben sie nie zurück, das Audit-Log schwärzt sie, und der Dialog **Webhook** zeigt sie nur der Rolle **Admin** und Rollen mit **Bearbeiten** bei **API & Webhooks**; eine Rolle mit nur **Lesen** **Alle** sieht an ihrer Stelle `********`. Wenn Sie sie woanders halten wollen, betreiben Sie Customermates selbst mit Ihrem eigenen Secret-Manager.
+- Webhook-Secrets und die Werte eigener Header liegen ungehasht in Postgres, weil sie abrufbar sein müssen, um ausgehende Anfragen zu signieren und zu senden. REST-API und MCP geben sie nie zurück, das Aktivitätsprotokoll schwärzt sie, und ein geöffneter Webhook zeigt sie nur der Rolle **Admin** und Rollen mit **Bearbeiten** bei **API & Webhooks**; eine Rolle mit nur **Lesen** **Alle** sieht an ihrer Stelle `********`. Wenn Sie sie woanders halten wollen, betreiben Sie Customermates selbst mit Ihrem eigenen Secret-Manager.
 - Eine Webhook-URL darf für jeden Host reines `http://` verwenden, solange der Webhook keine eigenen Header hat. Ein Webhook mit eigenen Headern muss `https://` verwenden, ausgenommen `localhost`, `127.0.0.1` und `::1`; das wird beim Speichern des Webhooks und erneut vor jeder Zustellung geprüft.
-- Webhook-URLs sind nicht auf öffentliche Adressen beschränkt: Der Server sendet Anfragen an jeden Host, den er erreicht, auch an interne Dienste in seinem Netz. Beschränken Sie beim Self-Hosting den ausgehenden Netzverkehr des App-Containers, wenn interne Dienste unerreichbar bleiben müssen, und geben Sie **Erstellen** und **Bearbeiten** bei **API & Webhooks** nur vertrauenswürdigen Rollen. Siehe [Webhooks](/docs/webhooks).
+- Webhook-URLs sind nicht auf öffentliche Adressen beschränkt: Der Server sendet Anfragen an jeden Host, den er erreicht, auch an interne Dienste in seinem Netz. Beschränken Sie beim Self-Hosting den ausgehenden Netzverkehr des App-Containers, wenn interne Dienste unerreichbar bleiben müssen, und geben Sie **Erstellen** und **Bearbeiten** bei **API & Webhooks** nur vertrauenswürdigen Rollen.
 
-**Link:** die Seite **Webhooks**, `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`; `company-webhooks-add` hebt **Hinzufügen** für Rollen mit **Erstellen** bei **API & Webhooks** hervor. Im geöffneten Dialog **Webhook** heben `webhook-modal-url`, `webhook-modal-secret` und `webhook-modal-headers` **URL**, **Secret** und **Eigene Header** hervor, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-body-template` und `webhook-modal-enabled` heben **Beschreibung**, **Ereignisse**, **Body-Vorlage** und **Aktiviert** hervor, `webhook-modal-save` hebt **Speichern** hervor, und `webhook-modal-delete` hebt **Löschen** bei einem gespeicherten Webhook hervor. Die Zeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Webhooks verwalten Sie unter [Webhooks](app:company/webhooks); siehe [Webhooks](/docs/webhooks).
 
-## Was erfasst das Audit-Log? [#what-does-the-audit-log-record]
+## Was erfasst das Aktivitätsprotokoll? [#what-does-the-audit-log-record]
 
-Jede Änderung wird mit Verursacher, Art, betroffenem Element und Payload in ein gemeinsames Ereignisprotokoll geschrieben, in derselben Transaktion wie die Änderung selbst. Datensatzänderungen tragen feldweise Vorher- und Nachher-Werte; Aktualisierungen an Rollen, Webhooks, Routinen und verbundenen Konten enthalten ein feldweises Diff, Erstellungen, Löschungen sowie das Speichern von Mitgliedern eine Momentaufnahme. Konfigurationsänderungen am Datenmodell und am Datensatzzugriff je Rolle bleiben mit der Konfigurationsrevision erhalten, die sie erzeugt haben. Der Verursacher bleibt auch erhalten, wenn die Person entfernt wird, und automatische Änderungen werden als System oder als Eigentümer der Routine erfasst. Registrierungen von Nutzern, Datensatz-Exporte und akzeptierte Rechtsdokumente werden ebenfalls erfasst. Ein fehlgeschlagener Schreibvorgang hinterlässt keinen Eintrag. Das Audit-Log ist in jedem Cloud-Tarif und ebenso in der Self-Hosted-Edition enthalten.
+[Aktivität](app:company/activity) ist das Aktivitätsprotokoll des Workspace. Jede Änderung wird dort mit Verursacher, Art, betroffenem Element und Payload geschrieben, in derselben Transaktion wie die Änderung selbst. Datensatzänderungen tragen feldweise vorherige und aktuelle Werte; Aktualisierungen an Rollen, Webhooks, Routinen und verbundenen Konten enthalten ein feldweises Diff, Erstellungen, Löschungen sowie das Speichern von Mitgliedern eine Momentaufnahme. Konfigurationsänderungen am Datenmodell und am Datensatzzugriff je Rolle bleiben mit der Konfigurationsrevision erhalten, die sie erzeugt haben. Registrierungen von Nutzern, Datensatz-Exporte und akzeptierte Rechtsdokumente werden ebenfalls erfasst. Der Verursacher bleibt auch erhalten, wenn die Person entfernt wird, und automatische Änderungen werden als System oder als Eigentümer der Routine erfasst. Ein fehlgeschlagener Schreibvorgang hinterlässt keinen Eintrag. Der Aktivitätsprotokoll ist in jedem Cloud-Tarif und ebenso in der Self-Hosted-Edition enthalten.
 
-**Link:** die Seite **Aktivität**, `/company/activity`. **Mate:** `navigate` und `highlight_element` mit `nav-company-activity`; die Einträge sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+## Was steht nicht im Aktivitätsprotokoll? [#what-is-not-in-the-audit-log]
 
-## Was steht nicht im Audit-Log? [#what-is-not-in-the-audit-log]
+Messaging-Ereignisse gehören nicht zum Aktivitätsprotokoll; sie werden nur als Zustellungseinträge gespeichert, solange ein Webhook oder eine Event-Routine sie abonniert. Anmeldeereignisse, der Lebenszyklus von API-Keys, Abo-Änderungen, gespeicherte Ansichten, Widgets, Agent-Konversationen und Operator-Aktionen des Anbieters werden ebenfalls nicht protokolliert. Webhook-Secrets und Header-Werte werden in Webhook-Einträgen geschwärzt. Ein Eintrag aus einem automatisierten Prozess, etwa das Entfernen eines verbundenen Kontos nach Ablauf der Testphase, nennt die betroffene Person, nicht eine ausführende.
 
-Messaging-Ereignisse gehören nicht zum Audit-Log; sie werden nur als Zustellungseinträge gespeichert, solange ein Webhook oder eine Event-Routine sie abonniert. Anmeldeereignisse, der Lebenszyklus von API-Keys, Abo-Änderungen, gespeicherte Ansichten, Widgets, Agent-Konversationen und Operator-Aktionen des Anbieters werden ebenfalls nicht protokolliert. Webhook-Secrets und Header-Werte werden in Webhook-Einträgen geschwärzt. Ein Eintrag aus einem automatisierten Prozess, etwa das Entfernen eines verbundenen Kontos nach Ablauf der Testphase, nennt die betroffene Person, nicht eine ausführende.
+## Wer kann das Aktivitätsprotokoll sehen, und wo? [#who-can-read-the-audit-log-and-where]
 
-## Wer kann das Audit-Log sehen, und wo? [#who-can-read-the-audit-log-and-where]
+Öffnen Sie [Aktivität](app:company/activity); siehe [Aktivität](/docs/app-company#activity-tab). Der Zugriff braucht **Lesen** **Alle** in der Zeile **Audit-Log** Ihrer Rolle, die weder **Erstellen** noch **Bearbeiten** noch **Löschen** anbietet; die Rolle **Admin** hat ihn immer. Die Seite zeigt Datensatzänderungen, Verwaltungs- und Systemereignisse sowie Konfigurationsänderungen und lässt sich nach Art filtern. Datensatzänderungen folgen den Datensatzrechten der lesenden Person. Dieselbe Berechtigung blendet den Aktivitätsprotokoll in der Ansicht **Aktivitäten** eines Datensatzes ein.
 
-Sie finden es unter **Mein Unternehmen** › **Aktivität**; siehe die Seite [Unternehmen](/docs/app-company#activity-tab). Der Zugriff braucht **Lesen** **Alle** in der Zeile **Audit-Log** Ihrer Rolle, die weder **Erstellen** noch **Bearbeiten** noch **Löschen** anbietet; die Rolle **Admin** hat ihn immer. Die Seite zeigt Datensatzänderungen, Verwaltungs- und Systemereignisse sowie Konfigurationsänderungen und lässt sich nach Art filtern. Datensatzänderungen folgen den Datensatzrechten der lesenden Person. Dieselbe Berechtigung blendet den Änderungsverlauf auf Datensatzseiten ein.
+## Wie lange bleiben Einträge im Aktivitätsprotokoll erhalten, und kann ich sie exportieren? [#how-long-are-audit-entries-kept-and-can-i-export-them]
 
-**Link:** die Seite **Aktivität**, `/company/activity`. **Mate:** `navigate` und `highlight_element` mit `nav-company-activity`; die Einträge sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
-
-## Wie lange bleiben Audit-Einträge erhalten, und kann ich sie exportieren? [#how-long-are-audit-entries-kept-and-can-i-export-them]
-
-Einträge werden nicht automatisch gelöscht; sie bleiben erhalten, solange der Workspace besteht. Die Seite **Aktivität** bietet keinen Export. Der Aktivitätsverlauf, sein REST-Endpunkt und das Tool `get_activities` liefern dieselben Einträge mit derselben Berechtigung.
-
-**Link:** die Seite **Aktivität**, `/company/activity`. **Mate:** `navigate` und `highlight_element` mit `nav-company-activity`; die Seite hat keinen Export-Button, den Mate hervorheben könnte.
+Einträge werden nicht automatisch gelöscht; sie bleiben erhalten, solange der Workspace besteht. [Aktivität](app:company/activity) bietet keinen Export. Der Aktivitätsverlauf, sein REST-Endpunkt und sein MCP-Tool liefern dieselben Einträge mit derselben Berechtigung.
 
 ## Wo melde ich Sicherheitslücken (Vulnerabilities)? [#where-do-i-report-a-vulnerability]
 
 Schreiben Sie an `mail@customermates.com`. Wir bemühen uns um eine Eingangsbestätigung innerhalb eines Werktags. Ein Bug-Bounty-Programm gibt es nicht.
+
+## Für Agents [#for-agents]
+
+Schreibvorgänge an Datensätzen laufen über MCP mit `mutate_crm_record`, Webhook-Operationen mit `manage_webhooks`, und Audit-Einträge liest `get_activities`.
 
 ## Weiter [#next]
 
