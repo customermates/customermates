@@ -292,7 +292,7 @@ export const RecordFieldSchema = z
       })
       .strict()
       .optional(),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
     publishedSummary: z.boolean(),
     options: z.array(
       z
@@ -320,7 +320,7 @@ export const RecordRelationshipSchema = z
     targetCardinality: z.enum(["one", "many"]),
     onSourceDelete: z.enum(["unlink", "restrict", "cascade"]),
     onTargetDelete: z.enum(["unlink", "restrict", "cascade"]),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
   })
   .strict();
 export type RecordRelationship = z.infer<typeof RecordRelationshipSchema>;
@@ -345,7 +345,7 @@ export const RecordTypeSchema = z
     parentRelationshipId: z.uuid().nullable().default(null),
     embedded: z.boolean(),
     navigationVisible: z.boolean().default(true),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
     position: z.number().int().nonnegative(),
     defaults: z
       .object({
@@ -413,7 +413,7 @@ export const RecordActivityPathSchema = z
       .max(6),
     includeMessages: z.boolean(),
     includeAudit: z.boolean(),
-    archived: z.boolean(),
+    archived: z.boolean().describe("True while the item is in Recently deleted."),
   })
   .strict();
 
@@ -429,6 +429,23 @@ export const RecordModelSchema = z
   })
   .strict();
 export type RecordModel = z.infer<typeof RecordModelSchema>;
+
+const withoutFormula = { expression: CalculationExpressionSchema.optional() };
+export const FieldBehaviorViewSchema = z.discriminatedUnion("kind", [
+  FieldBehaviorSchema.options[0],
+  FieldBehaviorSchema.options[1].extend(withoutFormula),
+  FieldBehaviorSchema.options[2].extend(withoutFormula),
+  FieldBehaviorSchema.options[3].extend(withoutFormula),
+  FieldBehaviorSchema.options[4].extend(withoutFormula),
+]);
+export const RecordFieldViewSchema = RecordFieldSchema.extend({
+  behavior: FieldBehaviorViewSchema.describe(
+    "Calculated fields omit expression, triggerFieldId and triggerValue when the caller cannot read every input.",
+  ),
+});
+export type RecordFieldView = z.infer<typeof RecordFieldViewSchema>;
+export const RecordModelViewSchema = RecordModelSchema.extend({ fields: z.array(RecordFieldViewSchema) });
+export type RecordModelView = z.infer<typeof RecordModelViewSchema>;
 
 export const RecordFieldAssignmentSchema = z
   .object({ fieldId: z.uuid(), value: RecordScalarSchema.nullable() })

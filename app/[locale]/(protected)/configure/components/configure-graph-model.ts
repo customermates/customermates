@@ -1,4 +1,9 @@
-import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
+import type {
+  RecordFieldView,
+  RecordModelView,
+  RecordRelationship,
+  RecordType,
+} from "@/features/records/record-model.schema";
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 
 import { recordChannelsEnabled } from "@/features/records/record-channels";
@@ -26,7 +31,7 @@ export type ConfigureGraphSource = {
 };
 
 type ConfigureGraphField = {
-  field: RecordField;
+  field: RecordFieldView;
   calculated: boolean;
   sources: string[];
 };
@@ -36,7 +41,7 @@ export type ConfigureGraphList = {
   recordCount: number | null | undefined;
   parentId: string | null;
   fields: ConfigureGraphField[];
-  channels: { deleted: boolean } | null;
+  channels: RecordModelView["capabilities"][number] | null;
 };
 
 export type ConfigureGraphEdge =
@@ -65,8 +70,8 @@ export function configureCardinality(
   return `${left}To${right}`;
 }
 
-export function configureCalculationSources(model: RecordModel, field: RecordField) {
-  if (field.behavior.kind === "input") return { sources: [], lists: [] };
+export function configureCalculationSources(model: RecordModelView, field: RecordFieldView) {
+  if (field.behavior.kind === "input" || !field.behavior.expression) return { sources: [], lists: [] };
   const { expression } = field.behavior;
   const lists = new Set(
     [...expressionRelationshipDependencies(expression)].flatMap((relationId) => {
@@ -75,29 +80,30 @@ export function configureCalculationSources(model: RecordModel, field: RecordFie
     }),
   );
   const listLabel = (typeId: string) => model.types.find((type) => type.id === typeId)?.pluralLabel;
-  const sources = new Set<string>();
+  const sources = new Map<string, string>();
+  const listsWithFields = new Set<string>();
   for (const fieldId of expressionFieldDependencies(expression)) {
     const source = model.fields.find((candidate) => candidate.id === fieldId);
     if (!source) continue;
     const list = source.typeId === field.typeId ? undefined : listLabel(source.typeId);
-    sources.add(list ? `${list} · ${source.label}` : source.label);
+    if (list) listsWithFields.add(source.typeId);
+    sources.set(source.id, list ? `${list} · ${source.label}` : source.label);
   }
   for (const typeId of lists) {
     const label = listLabel(typeId);
-    if (label && ![...sources].some((source) => source.startsWith(`${label} · `))) sources.add(label);
+    if (label && !listsWithFields.has(typeId)) sources.set(typeId, label);
   }
-  return { sources: [...sources], lists: [...lists] };
+  return { sources: [...sources.values()], lists: [...lists] };
 }
 
 export function configureGraphData(
-  model: RecordModel,
+  model: RecordModelView,
   catalog: ConfigureGraphCatalog,
   accounts: ConfigureGraphSource[],
-  showArchived: boolean,
   connectPrompt = false,
 ): ConfigureGraphData {
   const counts = new Map(catalog.map((type) => [type.id, type]));
-  const types = configureLists(model, showArchived);
+  const types = configureLists(model);
   const visible = new Set(types.map((type) => type.id));
   const calculations = new Map<string, { source: string; target: string; fields: string[] }>();
   const lists = types.map((type) => ({
@@ -105,7 +111,7 @@ export function configureGraphData(
     recordCount: counts.get(type.id)?.recordCount,
     parentId: configureParentId(model, type),
     fields: model.fields
-      .filter((field) => field.typeId === type.id && (!field.archived || showArchived))
+      .filter((field) => field.typeId === type.id)
       .sort((left, right) => left.position - right.position)
       .map((field) => {
         const calculated = field.behavior.kind !== "input";
@@ -119,15 +125,10 @@ export function configureGraphData(
         }
         return { field, calculated, sources };
       }),
-    channels: configureChannelsField(model, type.id, showArchived),
+    channels: configureChannelsField(model, type.id),
   }));
   const relationships: ConfigureGraphEdge[] = model.relationships
-    .filter(
-      (relation) =>
-        (!relation.archived || showArchived) &&
-        visible.has(relation.sourceTypeId) &&
-        visible.has(relation.targetTypeId),
-    )
+    .filter((relation) => visible.has(relation.sourceTypeId) && visible.has(relation.targetTypeId))
     .map((relation) => ({
       kind: "relationship",
       id: `relationship:${relation.id}`,
@@ -147,13 +148,11 @@ export function configureGraphData(
     carrier.calculatedFields.push(...entry.fields);
     return false;
   });
-  const channelLists = types.filter((type) => !type.archived && recordChannelsEnabled(model, type.id));
-  const calendarLists = types.filter(
-    (type) =>
-      !type.archived &&
-      model.capabilities.some(
-        (binding) => binding.kind === "calendar" && binding.enabled !== false && binding.typeId === type.id,
-      ),
+  const channelLists = types.filter((type) => recordChannelsEnabled(model, type.id));
+  const calendarLists = types.filter((type) =>
+    model.capabilities.some(
+      (binding) => binding.kind === "calendar" && binding.enabled !== false && binding.typeId === type.id,
+    ),
   );
   const targets = new Set(
     accounts.length

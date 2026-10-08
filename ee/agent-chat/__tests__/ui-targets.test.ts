@@ -6,7 +6,7 @@ import { join } from "node:path";
 
 import { REPO_ROOT, walkFiles } from "@/tests/conventions/walk";
 
-import { CONTROL_PAGES, FORM_PAGES } from "../ui-anchors";
+import { CONTROL_PAGES, FORM_PAGES, formDiscardSuffix } from "../ui-anchors";
 import {
   AGENT_UI_TARGETS,
   NavigationUiTargetIdSchema,
@@ -30,13 +30,19 @@ function componentSource(): string {
 }
 
 function rendersLiteralId(source: string, id: string) {
-  return [`id="${id}"`, `inputId="${id}"`, `anchorId: "${id}"`].some((form) => source.includes(form));
+  const footerScope = /^(.+)-(?:save|cancel|reset)$/.exec(id)?.[1];
+  const rendersFooterId =
+    footerScope !== undefined &&
+    new RegExp(`<FormFooterActions\\b(?:=>|[^>])*?\\sanchorScope="${footerScope}"`).test(source);
+  return (
+    rendersFooterId || [`id="${id}"`, `inputId="${id}"`, `anchorId: "${id}"`].some((form) => source.includes(form))
+  );
 }
 
 const controlTargetIds = CONTROL_PAGES.flatMap((page) =>
   page.controls.map((control) => `${page.scope}-${control.control}`),
 );
-const formTargetIds = FORM_PAGES.flatMap((page) => [`${page.scope}-save`, `${page.scope}-reset`]);
+const formTargetIds = FORM_PAGES.flatMap((page) => [`${page.scope}-save`, `${page.scope}${formDiscardSuffix(page)}`]);
 
 describe("agent interface targets", () => {
   it("accepts only registered interface targets", () => {
@@ -146,17 +152,19 @@ describe("agent interface targets", () => {
     }
   });
 
-  it("points dialog save and reset at what opens the dialog", () => {
+  it("points dialog save and cancel or reset at what opens the dialog", () => {
     for (const page of FORM_PAGES) {
       const save = findAgentUiTarget(`${page.scope}-save`);
-      const reset = findAgentUiTarget(`${page.scope}-reset`);
+      const discard = findAgentUiTarget(`${page.scope}${formDiscardSuffix(page)}`);
       expect(save?.route, page.scope).toBe(page.route);
-      expect(reset?.route, page.scope).toBe(page.route);
+      expect(discard?.route, page.scope).toBe(page.route);
       expect(save?.prerequisite, page.scope).toBe(page.opener);
-      expect(reset?.prerequisite, page.scope).toBe(page.resetOpener ?? page.opener);
+      expect(discard?.prerequisite, page.scope).toBe(page.resetOpener ?? page.opener);
     }
     expect(findAgentUiTarget("role-modal-save")?.prerequisite).toBe("company-roles-add");
     expect(findAgentUiTarget("webhook-modal-reset")?.prerequisite).toBe("company-webhooks-add");
+    expect(findAgentUiTarget("routine-modal-cancel")?.prerequisite).toBe("routines-add");
+    expect(findAgentUiTarget("routine-modal-reset")).toBeNull();
     for (const id of ["member-modal-save", "member-modal-reset"])
       expect(findAgentUiTarget(id)?.prerequisite, id).toBe("a member row");
     expect(findAgentUiTarget("widget-modal-save")?.prerequisite).toBe("widget-modal-kind");

@@ -29,7 +29,10 @@ describe("agent chat surface contract", () => {
     expect(read("chat-ui.tsx")).toContain("OVERLAY_TOPMOST_LAYER_CLASS");
     expect(read("usage-ring.tsx")).toContain("OVERLAY_TOPMOST_LAYER_CLASS");
     expect(read("agent-tour-overlay.tsx")).toContain("OVERLAY_TOPMOST_LAYER_CLASS");
-    expect(read("conversation-history.tsx")).toContain("layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}");
+    expect(read("conversation-history.tsx")).toContain("<ConfirmDialog");
+    expect(readFileSync(join(process.cwd(), "components/modal/confirm-dialog.tsx"), "utf8")).toContain(
+      "overlayClassName={OVERLAY_TOPMOST_LAYER_CLASS}",
+    );
   });
 
   it("uses one icon-only context picker for click and slash entry", () => {

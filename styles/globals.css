@@ -267,6 +267,27 @@
   }
 }
 
+@keyframes focus-target-highlight {
+  0%,
+  60% {
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+  100% {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+
+[data-focus-highlight] {
+  animation: focus-target-highlight 2.4s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-focus-highlight] {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+}
+
 @keyframes collapsible-down {
   from {
     height: 0;

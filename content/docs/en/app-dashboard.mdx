@@ -12,6 +12,10 @@ The Dashboard is the landing screen after sign-in. It shows configurable widgets
 
 **Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `nav-dashboard` or `dashboard-add-widget`; inside the editor `widget-modal-kind` (the two kinds on step 1), `widget-modal-save` (**Create widget** on step 2, **Save changes** when editing) and `widget-modal-reset` (**Reset**, when editing with unsaved changes) are targets too, while the tabs, switches and widgets are not, so Mate names them.
 
+## Can I have several dashboards? [#dashboard-views]
+
+Yes. The view tabs above the dashboard switch between the main dashboard and your own named dashboards, for example one per site or purpose; **New view** adds one. Each view keeps its own widgets and arrangement, and a link to a view opens that dashboard. A widget you add lands on the view you are looking at. Views are personal. Deleting a view moves its widgets back to the main dashboard, and the confirmation names them.
+
 ## Which widget types exist, and which charts can they show? [#which-widget-types-exist]
 
 Press **Add widget** (`#dashboard-add-widget`) to choose one of two widget types, a **Chart**, which aggregates one record type into bars, a doughnut or a radar, or an **Activity timeline**, or a template a teammate shared:
@@ -68,7 +72,7 @@ Each person can arrange their own sidebar; nobody else sees the change. Drag an 
 | Add widget | Page header | `#dashboard-add-widget` | Opens the widget modal |
 | Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K); see [Global search](/docs/app-search) |
 | Search field | Search modal | `#global-search-input` | Finds accessible records across configured types |
-| Create a record | Top of sidebar | `#nav-add` | Opens the record type picker |
+| Create a record | Top of sidebar | `#nav-add` | Opens the record type picker (also C) |
 | Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
 | Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
 | Customize sidebar | Sidebar footer | `#nav-customize-sidebar` | Shows or hides entries, creates a personal section or resets your sidebar to the default |
@@ -77,9 +81,33 @@ Each person can arrange their own sidebar; nobody else sees the change. Drag an 
 | Verify your email | Under the brand name | none | **Email not verified** is shown until you confirm your address; opens **My Profile › Settings** |
 | Personal settings | Workspace group | `#nav-profile` | **My Profile** expands or collapses **Settings**, **Channels** and **API & Connectors**; see [My Profile](/docs/app-profile) |
 | Workspace administration | Workspace group | `#nav-company` | **My Company** expands or collapses **Subscription**, **Settings**, **Members**, **Roles**, **Activity**, **Webhooks** and **Recent Deliveries**; see [My Company](/docs/app-company) |
-| Theme and sign-out | Sidebar footer, your name | none | **Dark Mode** or **Light Mode** switches and saves your theme; **Sign Out** ends the session |
+| Theme and sign-out | Sidebar footer, your name | none | **Dark Mode** or **Light Mode** switches and saves your theme; **Keyboard shortcuts** lists every shortcut; **Sign Out** ends the session |
 
 **Link:** the sidebar appears everywhere in the app; the **Dashboard** is `/dashboard`. **Mate:** `navigate` and `highlight_element` with each `nav-*` id in this section that your role can open, except `nav-search`, `nav-documentation` and `nav-feedback`, which it can only highlight, and `#nav-add` and `#nav-assistant`, which are not targets; entries under **My Profile** and **My Company** can be highlighted only while their group is expanded. The plan chip, **Email not verified** and the menu under your name are not highlight targets, so Mate names them.
+
+## Which keyboard shortcuts are there? [#keyboard-shortcuts]
+
+Press **?** anywhere in the app, or choose **Keyboard shortcuts** in the menu under your name, to see every shortcut with the keys for your computer: Mac shows ⌘, Windows and Linux show Ctrl. The list has a search field, so you can type "view" or "G" to find a shortcut. Shortcuts with Cmd or Ctrl work everywhere, even while you type. Single keys and G sequences only work when no text field has focus.
+
+| Group | Shortcut | What it does |
+| --- | --- | --- |
+| General | Cmd+K (Mac) or Ctrl+K, or / | Opens [Global search](/docs/app-search) |
+| General | Cmd+J (Mac) or Ctrl+J | Opens or closes the [AI assistant](/docs/app-assistant); in search, type a question and press Tab to ask it directly |
+| General | ? | Shows the keyboard shortcuts |
+| General | Cmd+\ (Mac) or Ctrl+\ | Shows or hides the sidebar |
+| Navigation | G then D | Goes to the [Dashboard](/docs/app-dashboard) |
+| Navigation | G then I | Goes to the [Inbox](/docs/app-inbox) |
+| Navigation | G then K | Goes to the Knowledge Base |
+| Navigation | G then R | Goes to [Routines](/docs/app-routines) |
+| Navigation | G then C | Goes to Configure, where you change [the data model](/docs/app-records), if your role allows it |
+| Navigation | G then S | Goes to your [settings](/docs/app-profile) |
+| Create | C | Opens **Add**, the same picker as **Add** in the sidebar |
+| Lists and views | G then 1 to 9 | Opens the first to ninth list in your own sidebar order; hidden lists are skipped |
+| Lists and views | V | On a list, opens a searchable picker of its [saved views](/docs/app-records) |
+| Forms | Cmd+Enter (Mac) or Ctrl+Enter | Saves the open form |
+| Forms | Esc | Closes the topmost dialog or drawer |
+
+Global search also lists the shortcuts it offers: **Ask Mate** on top, the saved views of the list you are on, the pages you can go to and **Add**, each with its key on the right. After G you have about one second for the second key; a small hint shows that the app is waiting. Single keys do nothing while a menu or dialog is open or while an input method is composing text. If you use speech input or press keys by accident, turn off **Single-key shortcuts** at the bottom of the **Keyboard shortcuts** dialog; Cmd/Ctrl shortcuts keep working. The setting is personal and follows you to every device.
 
 ## What happens on first run?
 

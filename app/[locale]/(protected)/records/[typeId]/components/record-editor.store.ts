@@ -4,7 +4,7 @@ import { cloneDeep, omit } from "lodash";
 import type { RootStore } from "@/core/stores/root.store";
 import type {
   RecordDto,
-  RecordField,
+  RecordFieldView,
   RecordScalar,
   RecordRef,
   CalculatedValue,
@@ -436,10 +436,10 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       existing ? current.filter((entry) => entry !== existing) : [...current, { ...change, title }],
     );
   };
-  private scalar(field: RecordField): RecordScalar | null {
+  private scalar(field: RecordFieldView): RecordScalar | null {
     return recordInputValue(toJS(this.form.values[field.id]), field);
   }
-  previewValue = (field: RecordField): CalculatedValue => {
+  previewValue = (field: RecordFieldView): CalculatedValue => {
     const stored = this.record?.fields.find((value) => value.fieldId === field.id)?.result;
     if (stored?.state === "restricted") return stored;
     if (!isRecordFieldWritable(field)) return stored ?? { state: "missing" };

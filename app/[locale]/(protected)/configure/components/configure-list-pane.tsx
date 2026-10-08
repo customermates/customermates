@@ -2,7 +2,13 @@
 
 import type { ReactNode } from "react";
 import type { DragEndEvent } from "@dnd-kit/core";
-import type { RecordField, RecordModel, RecordRelationship, RecordType } from "@/features/records/record-model.schema";
+import type {
+  RecordField,
+  RecordFieldView,
+  RecordModelView,
+  RecordRelationship,
+  RecordType,
+} from "@/features/records/record-model.schema";
 import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
 import type { TypeModalStore } from "./type-modal";
 
@@ -22,27 +28,31 @@ import { ChevronRight, GripVertical } from "lucide-react";
 import { FormActions } from "@/components/card/form-actions";
 import { AppForm } from "@/components/forms/form-context";
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
+import { usePreviewBlockers } from "./use-preview-blockers";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
 
-import { configureChannelsField, configureCounts, configureFieldSource, configurePathLists } from "./configure-model";
+import {
+  configureChannelsField,
+  configureCounts,
+  configureFieldSource,
+  configurePathLists,
+  isResolvedField,
+} from "./configure-model";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { TypeSettingsFields } from "./type-modal";
 
-type ActivityPath = RecordModel["activityPaths"][number];
+type ActivityPath = RecordModelView["activityPaths"][number];
 
 type Props = {
-  model: RecordModel;
+  model: RecordModelView;
   selected: RecordType;
   general: TypeModalStore;
   generalFormId: string;
   canManage: boolean;
   interactive: boolean;
-  showArchived: boolean;
-  onToggleArchived: () => void;
   onEditField: (field: RecordField) => void;
   onEditChannels: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
@@ -142,6 +152,7 @@ function SortableField({
       ref={sortable.setNodeRef}
       className={cn("group relative bg-card", sortable.isDragging && "z-10 shadow-md")}
       data-configure-field={id}
+      data-focus-target={`field:${id}`}
       style={{ transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
     >
       {enabled && (
@@ -190,8 +201,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   generalFormId,
   canManage,
   interactive,
-  showArchived,
-  onToggleArchived,
   onEditField,
   onEditChannels,
   onEditRelationship,
@@ -210,37 +219,17 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   const order = editingGeneral
     ? general.form.fieldOrder
     : model.fields.filter((field) => field.typeId === selected.id).map((field) => field.id);
-  const fields = order.flatMap((id) =>
-    model.fields.filter(
-      (field) => field.id === id && field.typeId === selected.id && (!field.archived || showArchived),
-    ),
-  );
-  const channels = configureChannelsField(model, selected.id, showArchived);
+  const fields = order.flatMap((id) => model.fields.filter((field) => field.id === id && field.typeId === selected.id));
+  const channels = configureChannelsField(model, selected.id);
   const reorderEnabled = editingGeneral && interactive && !general.isDisabled;
+  usePreviewBlockers(editingGeneral && general.hasUnsavedChanges ? general.preview : null, general.model);
   const relations = model.relationships.filter(
-    (relation) =>
-      (!relation.archived || showArchived) &&
-      (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
+    (relation) => relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id,
   );
-  const paths = (selected.relationshipPaths ?? []).filter((path) => !path.archived || showArchived);
-  const activity = model.activityPaths.filter(
-    (path) => path.typeId === selected.id && (!path.archived || showArchived),
-  );
-  const hasArchivedParts =
-    model.fields.some((field) => field.typeId === selected.id && field.archived) ||
-    configureChannelsField(model, selected.id, true)?.deleted === true ||
-    model.relationships.some(
-      (relation) =>
-        relation.archived && (relation.sourceTypeId === selected.id || relation.targetTypeId === selected.id),
-    ) ||
-    (selected.relationshipPaths ?? []).some((path) => path.archived) ||
-    model.activityPaths.some((path) => path.typeId === selected.id && path.archived);
-  const listStatus = selected.archived
-    ? t("RecordModel.archived")
-    : !selected.embedded && !selected.navigationVisible
-      ? t("RecordModel.hiddenList")
-      : null;
-  const fieldSource = (field: RecordField) => {
+  const paths = selected.relationshipPaths ?? [];
+  const activity = model.activityPaths.filter((path) => path.typeId === selected.id);
+  const listStatus = !selected.embedded && !selected.navigationVisible ? t("RecordModel.hiddenList") : null;
+  const fieldSource = (field: RecordFieldView) => {
     const source = configureFieldSource(model, field);
     switch (source.kind) {
       case "input":
@@ -299,19 +288,13 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                   <SortableContext items={fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
                     <ul className="divide-y divide-border">
                       {fields.map((field) => (
-                        <SortableField
-                          key={field.id}
-                          enabled={reorderEnabled && !field.archived}
-                          id={field.id}
-                          label={field.label}
-                        >
+                        <SortableField key={field.id} enabled={reorderEnabled} id={field.id} label={field.label}>
                           <ConfigureRow
                             detail={`${t(`RecordModel.types.${field.valueType}`)} · ${fieldSource(field)}`}
                             interactive={interactive}
                             label={field.label}
                             leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
-                            status={field.archived ? t("RecordModel.archived") : null}
-                            onOpen={canManage ? () => onEditField(field) : undefined}
+                            onOpen={canManage && isResolvedField(field) ? () => onEditField(field) : undefined}
                           />
                         </SortableField>
                       ))}
@@ -323,7 +306,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                             interactive={interactive}
                             label={t("EntityChannels.heading")}
                             leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
-                            status={channels.deleted ? t("RecordModel.channelsField.deleted") : null}
                             onOpen={canManage ? onEditChannels : undefined}
                           />
                         </li>
@@ -350,12 +332,15 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                       (type) => type.id === (outgoing ? relation.targetTypeId : relation.sourceTypeId),
                     );
                     return (
-                      <li key={relation.id} data-configure-relationship-row={relation.id}>
+                      <li
+                        key={relation.id}
+                        data-configure-relationship-row={relation.id}
+                        data-focus-target={`relationship:${relation.id}`}
+                      >
                         <ConfigureRow
                           detail={other?.pluralLabel}
                           interactive={interactive}
                           label={outgoing ? relation.sourceLabel : relation.targetLabel}
-                          status={relation.archived ? t("RecordModel.archived") : null}
                           onOpen={canManage ? () => onEditRelationship(relation) : undefined}
                         />
                       </li>
@@ -373,7 +358,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                           .join(" · ")}
                         interactive={interactive}
                         label={path.label}
-                        status={path.archived ? t("RecordModel.archived") : null}
                         onOpen={canManage ? () => onEditRelationshipPath(path) : undefined}
                       />
                     </li>
@@ -396,14 +380,13 @@ export const ConfigureListPane = observer(function ConfigureListPane({
               {activity.length ? (
                 <ul className="divide-y divide-border">
                   {activity.map((path) => (
-                    <li key={path.id}>
+                    <li key={path.id} data-focus-target={`activityPath:${path.id}`}>
                       <ConfigureRow
                         detail={
                           configurePathLists(model, selected.id, path.path).join(" → ") || t("RecordModel.thisList")
                         }
                         interactive={interactive}
                         label={path.label}
-                        status={path.archived ? t("RecordModel.archived") : null}
                         onOpen={canManage ? () => onEditActivity(path) : undefined}
                       />
                     </li>
@@ -435,12 +418,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
             </p>
           </div>
         </div>
-
-        {hasArchivedParts && (
-          <Button aria-pressed={showArchived} size="sm" type="button" variant="ghost" onClick={onToggleArchived}>
-            {showArchived ? t("RecordModel.hideArchived") : t("RecordModel.showArchived")}
-          </Button>
-        )}
       </div>
 
       {editingGeneral && (

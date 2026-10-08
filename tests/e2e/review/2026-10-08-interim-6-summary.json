@@ -1,0 +1,109 @@
+{
+  "scope": "Sixth interim checkpoint of PR #203 at pr203/integration 911d1c4fc (adds I5 round 2: one delete model with recently deleted and dependency dialogs; no migration or schema change since 0513f4a98). Slim coordinator scope: production build and a production-mode Chromium smoke of eight key specs; the migration smoke of 0513f4a98 applies unchanged. Not final verification; the full four-browser matrix, served hubs and the full migration re-rehearsal belong to the final source.",
+  "checkpoint": "interim",
+  "testedCommit": "911d1c4fca5ebceb66d320d61a165976c9577719",
+  "testedTree": "a01e64a0c3ae076050a1a7a0cecf8edd3c2143e1",
+  "testedSourceNote": "The commit that adds this receipt changes only tests/e2e/review/2026-10-08-interim-6-summary.json and the tests/e2e/README.md receipt link.",
+  "runtime": {
+    "host": "Ubuntu 24.04 x86_64 SSH VM, 16 vCPU, 64 GB, shared with a concurrent review flow; this run pinned to CPUs 8-15",
+    "node": "24.18.0",
+    "postgres": [
+      "17.8 (pgvector 0.8.1 image)"
+    ],
+    "productionBuildId": "BvuvDZapN1NgnxYQzcyRL"
+  },
+  "citedIntegrationGates": {
+    "source": "Coordinator pipeline gate for I5r2 (pr203-prompts/pipeline/state/I5r2.gate.log; not re-executed here)",
+    "results": [
+      "full database-enabled Vitest: 10,044 passed, 21 skipped (10,065); 1,017 files passed, 1 skipped",
+      "production build ok",
+      "item e2e chromium: 18 passed, 1 failed (configure-layout.spec.ts:205), passed on its automatic rerun",
+      "item e2e webkit: 19 passed",
+      "item e2e mobile: 18 passed, 1 failed (configure-layout.spec.ts:45), passed on its automatic rerun",
+      "GATE GREEN 911d1c4fc on base 06081afc0"
+    ]
+  },
+  "gates": [
+    {
+      "name": "build",
+      "command": "yarn build",
+      "exitCode": 0,
+      "seconds": 182.889
+    },
+    {
+      "name": "e2e-migrate",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 1.449
+    },
+    {
+      "name": "e2e-seed1",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 9.622
+    },
+    {
+      "name": "e2e-seed2",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 7.703
+    },
+    {
+      "name": "e2e-bootstrap",
+      "command": "node_modules/.bin/bootstrap",
+      "exitCode": 0,
+      "seconds": 0.683
+    },
+    {
+      "name": "chromium-smoke",
+      "command": "node_modules/.bin/playwright test record-configuration.spec.ts configure-delete-model.spec.ts dashboard-views.spec.ts record-access-ui.spec.ts record-field-controls.spec.ts configure-layout.spec.ts company-activity.spec.ts widget-types.spec.ts --project=chromium --workers=1 --retries=0",
+      "exitCode": 0,
+      "seconds": 658.875
+    }
+  ],
+  "chromiumSmoke": {
+    "specs": [
+      "company-activity.spec.ts",
+      "configure-delete-model.spec.ts",
+      "configure-layout.spec.ts",
+      "dashboard-views.spec.ts",
+      "record-access-ui.spec.ts",
+      "record-configuration.spec.ts",
+      "record-field-controls.spec.ts",
+      "widget-types.spec.ts"
+    ],
+    "profile": "chromium",
+    "workers": 1,
+    "retries": 0,
+    "productionBuild": true,
+    "stats": {
+      "expected": 27,
+      "unexpected": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "durationSeconds": 658.251,
+    "globalErrors": 0,
+    "perStatus": {
+      "chromium:expected": 27
+    },
+    "nonExpected": [],
+    "nonExpectedClassification": [],
+    "classificationNote": "No failures. configure-layout.spec.ts (two first-attempt failures in the I5r2 gate, both passed on rerun there) passed here in Chromium on the first attempt; record-access-ui.spec.ts:2132 and :3214 passed.",
+    "isolationReruns": null
+  },
+  "migrationSmoke": {
+    "basis": "No change under prisma/migrations or prisma/schema.prisma between 0513f4a98 and this commit (git diff empty), so the fresh scratch-copy smoke of all six migrations recorded in 2026-10-07-interim-5-summary.json applies unchanged.",
+    "migrationAndSchemaDiffSince0513f4a98": []
+  },
+  "notCoveredByThisInterim": [
+    "full four-browser matrix and served hubs",
+    "item I6",
+    "a fresh migration smoke (unchanged since 0513f4a98)",
+    "full re-rehearsal with the independent reconciliation oracle, interruption/recovery and owner/administrator UI replay",
+    "copy destruction (held at the owner's direction)"
+  ],
+  "previousCheckpoint": "2026-10-07-interim-5-summary.json (0513f4a98, latest migration smoke), earlier interim receipts, and 2026-10-06-summary.json (4223d7deb, latest four-browser matrix and full rehearsal evidence).",
+  "copiedRecordsIdentifiersEmailsValuesFingerprintsIncluded": false,
+  "generatedAtUtc": "2026-10-08T00:46:43.818560+00:00"
+}

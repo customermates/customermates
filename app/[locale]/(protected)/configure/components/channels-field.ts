@@ -1,12 +1,12 @@
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import { recordChannelsBinding } from "@/features/records/record-channels";
 
 export function channelsFieldOperations(
-  model: RecordModel,
+  model: RecordModelView,
   typeId: string,
-  form: { archived: boolean; providerAvatar: boolean },
+  form: { providerAvatar: boolean },
   newBindingId: string,
 ): ConfigurationChange["operations"] {
   const binding = recordChannelsBinding(model, typeId);
@@ -17,13 +17,13 @@ export function channelsFieldOperations(
         ...(binding ?? { id: newBindingId, fields: [] }),
         kind: "channels",
         typeId,
-        enabled: !form.archived,
+        enabled: true,
         providerAvatar: form.providerAvatar,
       },
     },
   ];
 }
 
-export function channelsAvatarAvailable(model: RecordModel, typeId: string) {
+export function channelsAvatarAvailable(model: RecordModelView, typeId: string) {
   return model.capabilities.some((binding) => binding.kind === "avatar" && binding.typeId === typeId);
 }

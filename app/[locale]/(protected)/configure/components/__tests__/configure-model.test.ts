@@ -29,13 +29,6 @@ describe("configure lists", () => {
       "Tasks",
     ]);
   });
-
-  it("hides archived lists unless requested", () => {
-    const model = createCrmPreset(company);
-    recordInvariant(model.types.find((type) => type.id === id("service"))).archived = true;
-    expect(configureLists(model).some((type) => type.id === id("service"))).toBe(false);
-    expect(configureLists(model, true).some((type) => type.id === id("service"))).toBe(true);
-  });
 });
 
 describe("configure list details", () => {
@@ -171,6 +164,31 @@ describe("configure graph", () => {
     expect(data.edges.some((edge) => edge.kind === "calculation")).toBe(false);
   });
 
+  it("keys calculation sources by id, so a field label that looks like a list name does not hide that list", () => {
+    const model = createCrmPreset(company);
+    const quantity = recordInvariant(model.fields.find((field) => field.id === id("deal.totalQuantity")));
+    quantity.label = "Line items · Count";
+    const weighted = recordInvariant(model.fields.find((field) => field.id === id("deal.weightedValue")));
+    weighted.behavior = {
+      kind: "formula",
+      expression: {
+        kind: "operation",
+        operator: "add",
+        arguments: [
+          { kind: "field", fieldId: quantity.id },
+          {
+            kind: "related",
+            relationId: id("lineItem.deal"),
+            direction: "incoming",
+            expression: { kind: "literal", value: { kind: "decimal", value: "1", currency: null } },
+            reducer: "count",
+          },
+        ],
+      },
+    };
+    expect(configureCalculationSources(model, weighted).sources).toEqual(["Line items · Count", "Line items"]);
+  });
+
   it("names cardinality from the source side and prompts for a connection without accounts", () => {
     const model = createCrmPreset(company);
     const relation = recordInvariant(model.relationships[0]);
@@ -184,18 +202,15 @@ describe("configure graph", () => {
     expect(configureCardinality({ ...relation, sourceCardinality: "many", targetCardinality: "many" })).toBe(
       "manyToMany",
     );
-    const prompt = configureGraphData(model, [], [], false, true);
+    const prompt = configureGraphData(model, [], [], true);
     expect(prompt.edges.some((edge) => edge.kind === "account" && edge.source === "accounts")).toBe(true);
     expect(configureGraphLayout(prompt, false, true).positions.has("accounts")).toBe(true);
   });
 
-  it("uses discovered counts and omits archived lists unless shown", () => {
+  it("uses discovered record counts", () => {
     const model = createCrmPreset(company);
-    recordInvariant(model.types.find((type) => type.id === id("task"))).archived = true;
     const catalog = model.types.map((type) => ({ id: type.id, recordCount: 7 }));
-    const data = configureGraphData(model, catalog, [], false);
-    expect(data.lists.some((list) => list.type.id === id("task"))).toBe(false);
+    const data = configureGraphData(model, catalog, []);
     expect(data.lists.find((list) => list.type.id === id("deal"))).toMatchObject({ recordCount: 7 });
-    expect(configureGraphData(model, catalog, [], true).lists.some((list) => list.type.id === id("task"))).toBe(true);
   });
 });

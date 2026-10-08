@@ -3,9 +3,10 @@
 import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordModel, RecordRelationship } from "@/features/records/record-model.schema";
+import type { RecordModelView, RecordRelationship } from "@/features/records/record-model.schema";
 import type { RecordRelationshipPath, RecordPathStep } from "@/features/records/record-relationship-path.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
@@ -14,7 +15,6 @@ import { RecordOperationProgress } from "@/components/records/record-operation-p
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
-import { FormSwitch } from "@/components/forms/form-switch";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
@@ -24,6 +24,8 @@ import { RelationshipPathInput } from "@/components/records/relationship-path-in
 import { recordInvariant } from "@/features/records/record-invariant";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { configureCardinality } from "./configure-graph-model";
+import { relationshipDefinition, typeDefinition } from "./configure-model";
+import { useConfigurationDeletion } from "./use-configuration-deletion";
 
 const empty = () => ({
   mode: "direct" as "direct" | "path",
@@ -36,29 +38,30 @@ const empty = () => ({
   targetCardinality: "many" as "one" | "many",
   onSourceDelete: "unlink" as "unlink" | "restrict" | "cascade",
   onTargetDelete: "unlink" as "unlink" | "restrict" | "cascade",
-  archived: false,
 });
 export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof empty>> {
   sourceTypeId = "";
   constructor(
     root: RootStore,
-    model: RecordModel,
+    model: RecordModelView,
     completed: (preview: ConfigurationPreview) => Promise<void>,
     canRenewSummaries = false,
-    onModelRefreshed?: (model: RecordModel) => void,
+    onModelRefreshed?: (model: RecordModelView) => void,
   ) {
     super(root, empty(), model, completed, canRenewSummaries, onModelRefreshed);
     makeObservable(this, { sourceTypeId: observable, edit: action, editPath: action });
   }
-  edit = (model: RecordModel, typeId: string, relationship?: RecordRelationship, targetTypeId?: string) => {
+  edit = (model: RecordModelView, typeId: string, relationship?: RecordRelationship, targetTypeId?: string) => {
     this.resetModel(model);
     this.sourceTypeId = relationship?.sourceTypeId ?? typeId;
     this.onInitOrRefresh(
-      relationship ? { ...empty(), ...relationship } : { ...empty(), ...(targetTypeId ? { targetTypeId } : {}) },
+      relationship
+        ? { ...empty(), ...relationshipDefinition(relationship) }
+        : { ...empty(), ...(targetTypeId ? { targetTypeId } : {}) },
     );
     this.open();
   };
-  editPath = (model: RecordModel, typeId: string, path: RecordRelationshipPath) => {
+  editPath = (model: RecordModelView, typeId: string, path: RecordRelationshipPath) => {
     this.resetModel(model);
     this.sourceTypeId = typeId;
     this.onInitOrRefresh({
@@ -67,11 +70,10 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
       id: path.id,
       sourceLabel: path.label,
       path: path.path,
-      archived: path.archived,
     });
     this.open();
   };
-  protected projectLatestModel(model: RecordModel) {
+  protected projectLatestModel(model: RecordModelView) {
     const source = model.types.find((type) => type.id === this.sourceTypeId);
     if (!source) return null;
     if (!this.form.id) return toJS(this.savedState);
@@ -96,15 +98,15 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
         id: this.form.id ?? "$relationshipPath",
         label: this.form.sourceLabel,
         path,
-        archived: this.form.archived,
       };
+      const current = typeDefinition(type);
       return [
         {
           operation: "putType",
           type: {
-            ...type,
+            ...current,
             relationshipPaths: [
-              ...(type.relationshipPaths ?? []).filter((path) => path.id !== definition.id),
+              ...(current.relationshipPaths ?? []).filter((path) => path.id !== definition.id),
               definition,
             ],
           },
@@ -184,13 +186,11 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
       <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="target">
         <FormSelect
           id="targetTypeId"
-          items={types
-            .filter((type) => !type.archived)
-            .map((type) => ({
-              value: type.id,
-              label: type.pluralLabel,
-              startContent: <RecordTypeGlyph icon={type.icon} />,
-            }))}
+          items={types.map((type) => ({
+            value: type.id,
+            label: type.pluralLabel,
+            startContent: <RecordTypeGlyph icon={type.icon} />,
+          }))}
           label={t("RecordModel.linkedType")}
         />
 
@@ -205,8 +205,33 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
   );
 });
 
-export const RelationshipModal = observer(function RelationshipModal({ store }: { store: RelationshipModalStore }) {
+export const RelationshipModal = observer(function RelationshipModal({
+  store,
+  onDeleted,
+}: {
+  store: RelationshipModalStore;
+  onDeleted: () => Promise<void>;
+}) {
   const t = useTranslations();
+  const deletion = useConfigurationDeletion(onDeleted);
+  const id = store.form.id;
+  const deleteAction = id
+    ? {
+        id: "delete-relationship",
+        icon: Trash2,
+        label:
+          store.form.mode === "path"
+            ? t("RecordModel.configurationDeletion.deleteColumn")
+            : t("RecordModel.configurationDeletion.deleteRelationship"),
+        variant: "destructive" as const,
+        busy: deletion.isBusy,
+        disabled: store.isLoading || store.isReadOnly,
+        onClick: () =>
+          store.form.mode === "path"
+            ? deletion.requestDeleteColumn(store.model, store.sourceTypeId, id, store.form.sourceLabel)
+            : deletion.requestDelete(store.model, { kind: "relationship", id }, store.form.sourceLabel),
+      }
+    : null;
   const source = store.model.types.find((type) => type.id === store.sourceTypeId);
   const askAi = useRecordAiAction({
     registerContext: true,
@@ -215,7 +240,7 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
   });
   return (
     <ModelChangeSheet
-      actions={askAi ? [askAi] : []}
+      actions={[...(askAi ? [askAi] : []), ...(deleteAction ? [deleteAction] : [])]}
       creating={!store.form.id}
       store={store}
       title={t("RecordModel.relationship")}
@@ -240,7 +265,7 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
               {
                 id: "relationship",
                 label: t("RecordModel.relationship"),
-                fields: ["mode", "targetTypeId", "sourceLabel", "targetLabel", "path", "archived"],
+                fields: ["mode", "targetTypeId", "sourceLabel", "targetLabel", "path"],
                 content: (
                   <>
                     {!store.form.id && (
@@ -267,14 +292,10 @@ export const RelationshipModal = observer(function RelationshipModal({ store }: 
                           value={store.form.path}
                           onChange={(path) => store.onChange("path", path)}
                         />
-
-                        {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationshipPath")} />}
                       </>
                     ) : (
                       <>
                         <DirectRelationshipFields store={store} />
-
-                        {store.form.id && <FormSwitch id="archived" label={t("RecordModel.archiveRelationship")} />}
                       </>
                     )}
                   </>

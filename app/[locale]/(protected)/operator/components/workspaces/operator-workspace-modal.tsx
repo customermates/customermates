@@ -7,17 +7,19 @@ import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { Trash2 } from "lucide-react";
 
 import { SubscriptionPlan as SubscriptionPlanEnum } from "@/generated/prisma";
 
 import { AppModal } from "@/components/modal";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppChip } from "@/components/chip/app-chip";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { InfoRow } from "@/components/shared/info-row";
-import { Button } from "@/components/ui/button";
 import { FormInputChips } from "@/components/forms/form-input-chips";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormLabel } from "@/components/forms/form-label";
@@ -60,7 +62,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const [channelMonth, setChannelMonth] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [knownTags, setKnownTags] = useState<string[]>([]);
-  const [confirmLabel, setConfirmLabel] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const [reason, setReason] = useState("");
 
   const companyId = workspace?.id ?? null;
@@ -83,7 +85,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     setTrialEnd(toDateInput(workspace.trialEndDate));
     setBillingId(workspace.lemonSqueezyId ?? "");
     setTags(workspace.tags);
-    setConfirmLabel("");
+    setDeleting(false);
     setReason("");
 
     let cancelled = false;
@@ -123,90 +125,103 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     ? t("OperatorWorkspaces.modal.identity", { domain: workspace.workspaceLabel, owner: workspace.ownerEmail })
     : workspace.workspaceLabel;
   const isEnterprise = workspace.plan === SubscriptionPlanEnum.enterprise;
-  const canDelete = confirmLabel === workspace.workspaceLabel && reason.trim().length > 0;
   const clearingBinding = Boolean(workspace.lemonSqueezyId) && billingId.trim().length === 0;
   const selectedChannelMonth = stats?.channelMonths.find((entry) => entry.month === channelMonth) ?? null;
   const tagsDirty = tags.join("\u0000") !== workspace.tags.join("\u0000");
+  const termsDirty = trialEnd !== toDateInput(workspace.trialEndDate) || billingId !== (workspace.lemonSqueezyId ?? "");
+  const allowanceDirty = isEnterprise && allowance !== (workspace.enterpriseCreditsPerUser ?? undefined);
   const tagSuggestions = knownTags.filter(
     (tag) => !tags.some((applied) => applied.toLowerCase() === tag.toLowerCase()),
   );
 
-  const saveAllowance = () => {
+  const save = () => {
     const creditsPerUser = allowance;
-    if (creditsPerUser === undefined || !Number.isInteger(creditsPerUser) || creditsPerUser < 1) return;
-
-    showConfirmation({
-      title: t("OperatorConsole.confirm.title"),
-      message: t("OperatorConsole.confirm.allowance", {
-        name: identity,
-        value: intlStore.formatNumber(creditsPerUser),
-      }),
-      confirmLabel: t("Common.actions.confirm"),
-      confirmVariant: "default",
-      successKey: "Common.notifications.updated",
-      onConfirm: () => operatorWorkspacesStore.updateEnterpriseAllowance({ companyId: workspace.id, creditsPerUser }),
-    });
-  };
-
-  const saveTerms = () => {
-    const trimmedId = billingId.trim();
     const nextTrialEnd = trialEnd ? new Date(`${trialEnd}T23:59:59.999`) : null;
-    if (nextTrialEnd && !Number.isFinite(nextTrialEnd.getTime())) return;
+    const trimmedId = billingId.trim();
+    const allowanceValid = creditsPerUser !== undefined && Number.isInteger(creditsPerUser) && creditsPerUser >= 1;
+    if ((allowanceDirty && !allowanceValid) || (nextTrialEnd && !Number.isFinite(nextTrialEnd.getTime()))) return;
+
+    const details = [
+      ...(tagsDirty
+        ? [
+            tags.length > 0
+              ? t("OperatorConsole.confirm.tags", { name: identity, value: tags.join(", ") })
+              : t("OperatorConsole.confirm.tagsCleared", { name: identity }),
+          ]
+        : []),
+      ...(termsDirty
+        ? [
+            clearingBinding
+              ? t("OperatorConsole.confirm.termsClearingBilling", { name: identity })
+              : t("OperatorConsole.confirm.terms", { name: identity }),
+          ]
+        : []),
+      ...(allowanceDirty && creditsPerUser !== undefined
+        ? [
+            t("OperatorConsole.confirm.allowance", {
+              name: identity,
+              value: intlStore.formatNumber(creditsPerUser),
+            }),
+          ]
+        : []),
+    ];
 
     showConfirmation({
       title: t("OperatorConsole.confirm.title"),
-      message: clearingBinding
-        ? t("OperatorConsole.confirm.termsClearingBilling", { name: identity })
-        : t("OperatorConsole.confirm.terms", { name: identity }),
+      message: details.length === 1 ? details[0] : t("OperatorConsole.confirm.changes", { name: identity }),
+      details: details.length === 1 ? undefined : details,
       confirmLabel: t("Common.actions.confirm"),
-      confirmVariant: clearingBinding ? "destructive" : "default",
+      confirmVariant: termsDirty && clearingBinding ? "destructive" : "default",
       successKey: "Common.notifications.updated",
-      onConfirm: () =>
-        operatorWorkspacesStore.updateSubscriptionTerms({
-          companyId: workspace.id,
-          trialEndDate: nextTrialEnd ? nextTrialEnd.toISOString() : null,
-          lemonSqueezyId: trimmedId.length > 0 ? trimmedId : null,
-        }),
-    });
-  };
-
-  const saveTags = () => {
-    showConfirmation({
-      title: t("OperatorConsole.confirm.title"),
-      message:
-        tags.length > 0
-          ? t("OperatorConsole.confirm.tags", { name: identity, value: tags.join(", ") })
-          : t("OperatorConsole.confirm.tagsCleared", { name: identity }),
-      confirmLabel: t("Common.actions.confirm"),
-      confirmVariant: "default",
-      successKey: "Common.notifications.updated",
-      onConfirm: () => operatorWorkspacesStore.updateTags({ companyId: workspace.id, tags }),
-    });
-  };
-
-  const confirmDelete = () => {
-    if (!canDelete) return;
-
-    showConfirmation({
-      title: t("OperatorWorkspaces.delete.confirmTitle"),
-      message: t("OperatorWorkspaces.delete.confirmMessage", { name: identity, members: workspace.userCount }),
-      confirmLabel: t("Common.actions.delete"),
-      confirmVariant: "destructive",
-      successKey: "Common.notifications.deleted",
       onConfirm: async () => {
-        const committed = await operatorWorkspacesStore.deleteWorkspace({
-          companyId: workspace.id,
-          confirmWorkspaceLabel: confirmLabel,
-          reason: reason.trim(),
-        });
-        if (committed) onClose();
-        return committed;
+        if (tagsDirty && !(await operatorWorkspacesStore.updateTags({ companyId: workspace.id, tags }))) return false;
+        if (
+          termsDirty &&
+          !(await operatorWorkspacesStore.updateSubscriptionTerms({
+            companyId: workspace.id,
+            trialEndDate: nextTrialEnd ? nextTrialEnd.toISOString() : null,
+            lemonSqueezyId: trimmedId.length > 0 ? trimmedId : null,
+          }))
+        )
+          return false;
+        if (allowanceDirty && creditsPerUser !== undefined)
+          return operatorWorkspacesStore.updateEnterpriseAllowance({ companyId: workspace.id, creditsPerUser });
+        return true;
       },
     });
   };
 
+  const deleteWorkspace = async () => {
+    const committed = await operatorWorkspacesStore.deleteWorkspace({
+      companyId: workspace.id,
+      confirmWorkspaceLabel: workspace.workspaceLabel,
+      reason: reason.trim(),
+    });
+    if (!committed) return;
+    setDeleting(false);
+    onClose();
+  };
+
   return (
-    <AppModal open={workspace !== null} size="3xl" title={identity} onClose={onClose}>
+    <AppModal
+      actions={[
+        {
+          id: "delete-workspace",
+          anchorId: "operator-modal-delete",
+          label: t("OperatorWorkspaces.delete.action"),
+          icon: Trash2,
+          variant: "destructive",
+          onClick: () => {
+            setReason("");
+            setDeleting(true);
+          },
+        },
+      ]}
+      open={workspace !== null}
+      size="3xl"
+      title={identity}
+      onClose={onClose}
+    >
       <AppCard>
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">
@@ -257,10 +272,6 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                 value={tags}
                 onValueChange={setTags}
               />
-
-              <Button disabled={!tagsDirty} size="sm" variant="secondary" onClick={saveTags}>
-                {t("Common.actions.save")}
-              </Button>
             </div>
 
             {tagSuggestions.length > 0 ? (
@@ -348,14 +359,10 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                   onChange={(event) => setBillingId(event.target.value)}
                 />
               </div>
-
-              <Button size="sm" variant="secondary" onClick={saveTerms}>
-                {t("Common.actions.save")}
-              </Button>
             </div>
 
             {clearingBinding ? (
-              <p className="text-xs text-destructive">{t("OperatorWorkspaces.terms.billingWarning")}</p>
+              <p className="text-xs text-muted-foreground">{t("OperatorWorkspaces.terms.billingWarning")}</p>
             ) : null}
           </div>
 
@@ -381,10 +388,6 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                     value={allowance}
                     onValueChange={setAllowance}
                   />
-
-                  <Button disabled={allowance === undefined} size="sm" variant="secondary" onClick={saveAllowance}>
-                    {t("Common.actions.save")}
-                  </Button>
                 </div>
               </div>
             </>
@@ -503,53 +506,39 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
               </>
             ) : null}
           </div>
-
-          <Separator />
-
-          <div className="flex flex-col gap-3">
-            <div className="space-y-1">
-              <h3 className="text-x-sm font-medium text-destructive">{t("OperatorWorkspaces.delete.title")}</h3>
-
-              <p className="text-xs text-muted-foreground">
-                {t("OperatorWorkspaces.delete.warningDescription", {
-                  name: identity,
-                  members: workspace.userCount,
-                })}
-              </p>
-            </div>
-
-            <div className="flex items-end gap-2">
-              <div className="flex-1 space-y-1.5">
-                <FormLabel htmlFor="operator-modal-confirm">
-                  {t("OperatorWorkspaces.delete.confirmLabel", { name: workspace.workspaceLabel })}
-                </FormLabel>
-
-                <Input
-                  autoComplete="off"
-                  id="operator-modal-confirm"
-                  value={confirmLabel}
-                  onChange={(event) => setConfirmLabel(event.target.value)}
-                />
-              </div>
-
-              <div className="flex-1 space-y-1.5">
-                <FormLabel htmlFor="operator-modal-reason">{t("OperatorWorkspaces.delete.reasonLabel")}</FormLabel>
-
-                <Input
-                  autoComplete="off"
-                  id="operator-modal-reason"
-                  value={reason}
-                  onChange={(event) => setReason(event.target.value)}
-                />
-              </div>
-            </div>
-
-            <Button className="w-full" disabled={!canDelete} size="sm" variant="destructive" onClick={confirmDelete}>
-              {t("OperatorWorkspaces.delete.action")}
-            </Button>
-          </div>
         </AppCardBody>
+
+        <FormFooterActions
+          anchorScope="operator-modal"
+          dirty={tagsDirty || termsDirty || allowanceDirty}
+          onSave={save}
+        />
       </AppCard>
+
+      <ConfirmDialog
+        confirmDisabled={reason.trim().length === 0}
+        confirmLabel={t("Common.actions.delete")}
+        confirmationText={workspace.workspaceLabel}
+        description={t("OperatorWorkspaces.delete.warningDescription", {
+          name: identity,
+          members: workspace.userCount,
+        })}
+        open={deleting}
+        title={t("OperatorWorkspaces.delete.confirmTitle")}
+        onCancel={() => setDeleting(false)}
+        onConfirm={deleteWorkspace}
+      >
+        <div className="space-y-1.5">
+          <FormLabel htmlFor="operator-modal-reason">{t("OperatorWorkspaces.delete.reasonLabel")}</FormLabel>
+
+          <Input
+            autoComplete="off"
+            id="operator-modal-reason"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+          />
+        </div>
+      </ConfirmDialog>
     </AppModal>
   );
 });

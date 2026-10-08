@@ -36,6 +36,7 @@ export function createWorkspaceRecordPreset(companyId: string, t: (key: string) 
   }
   for (const key of ["firstName", "lastName", "avatarUrl"])
     fieldLabels.set(id(`contact.${key}`), `Common.table.columns.${key}`);
+  fieldLabels.set(id("contact.name"), "RecordModel.contactFullName");
 
   for (const key of ["totalValue", "totalQuantity", "weightedValue"])
     fieldLabels.set(id(`deal.${key}`), `Common.table.columns.${key}`);

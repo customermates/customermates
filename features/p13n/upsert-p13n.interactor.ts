@@ -12,7 +12,7 @@ import { FilterSchema, SortDescriptorSchema, PaginationRequestSchema } from "@/c
 import { ViewMode } from "@/core/base/base-query-builder";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
-import { P13nSettingsSchema, p13nSettingsSchema } from "./p13n-settings.schema";
+import { p13nSettingsSchema, type P13nSettings } from "./p13n-settings.schema";
 
 const Schema = z
   .object({
@@ -34,14 +34,18 @@ const Schema = z
     viewMode: z.enum(ViewMode).nullish(),
     grouping: GroupingSchema.nullish(),
     detailOptions: EntityDetailOptionsSchema.nullish(),
-    settings: P13nSettingsSchema.nullish(),
+    settings: z.custom<P13nSettings>().nullish(),
   })
   .superRefine((data, ctx) => {
     if (data.settings === undefined) return;
     const schema = p13nSettingsSchema(data.p13nId);
-    if (!schema) ctx.addIssue({ code: "custom", path: ["settings"], message: "Settings are not stored for this view" });
-    else if (data.settings !== null && !schema.safeParse(data.settings).success)
-      ctx.addIssue({ code: "custom", path: ["settings"], message: "Settings do not match this view" });
+    if (!schema) {
+      ctx.addIssue({ code: "custom", path: ["settings"], message: "Settings are not stored for this view" });
+      return;
+    }
+    if (data.settings === null) return;
+    for (const issue of schema.safeParse(data.settings).error?.issues ?? [])
+      ctx.addIssue({ code: "custom", path: ["settings", ...issue.path], message: issue.message });
   });
 export type UpsertP13nData = Data<typeof Schema>;
 

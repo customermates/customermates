@@ -27,7 +27,9 @@ import {
   openConfigureTab,
   openListAction,
   saveDrawer,
-  setShowArchivedParts,
+  deleteFromDrawer,
+  deleteSelectedList,
+  restoreRecentlyDeleted,
 } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
@@ -38,6 +40,14 @@ async function post(page: Page, path: string, data: unknown): Promise<unknown> {
   const response = await page.request.post(path, { data });
   expect(response.status(), await response.text()).toBe(200);
   return response.json();
+}
+
+async function storedModel(database: Client, companyId: string) {
+  const result = await database.query(
+    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
+    [companyId],
+  );
+  return RecordModelSchema.parse(result.rows[0]?.snapshot);
 }
 
 async function readModel(page: Page) {
@@ -1385,12 +1395,7 @@ async function relationshipCreateUi(
   return relation;
 }
 
-async function relationshipEditUi(
-  page: Page,
-  typeId: string,
-  label: string,
-  restore = false,
-) {
+async function relationshipEditUi(page: Page, typeId: string, label: string) {
   await followConfigureLink(page);
   await expect(page).toHaveURL(`/en/configure?typeId=${typeId}`);
   await openConfigureTab(page, "Relationships");
@@ -1400,15 +1405,7 @@ async function relationshipEditUi(
       exact: true,
     }),
   ).toBeVisible();
-  if (restore) await setShowArchivedParts(page, true);
   await openConfigureRow(page, "Relationships", label);
-  if (restore) {
-    await expect(
-      page
-        .getByRole("dialog")
-        .getByRole("switch", { name: "Archive relationship", exact: true }),
-    ).not.toBeChecked();
-  }
   return page.getByRole("dialog", {
     name: englishMessages.RecordModel.relationship,
     exact: true,
@@ -1718,11 +1715,10 @@ test("configures self-type singular and many relationships, edits from both ends
   ).toEqual([{ textValue: "Alpha node" }]);
   await relationshipCloseRecordUi(page, type.label);
 
-  const edit = await relationshipEditUi(page, type.id, related.sourceLabel);
-  await edit.locator("#archived").check();
-  await relationshipApplyUi(page);
+  await relationshipEditUi(page, type.id, related.sourceLabel);
+  await deleteFromDrawer(page, "Delete relationship");
   expect(
-    (await readModel(page)).relationships.find(
+    (await storedModel(database, companyId)).relationships.find(
       (relation) => relation.id === related.id,
     )?.archived,
   ).toBe(true);
@@ -1737,16 +1733,9 @@ test("configures self-type singular and many relationships, edits from both ends
     relationshipFieldUi(page, type.label, related.id, "outgoing"),
   ).toHaveCount(0);
   await relationshipCloseRecordUi(page, type.label);
-  const restore = await relationshipEditUi(
-    page,
-    type.id,
-    related.sourceLabel,
-    true,
-  );
-  await expect(restore.locator("#archived")).not.toBeChecked();
-  await relationshipApplyUi(page);
+  await restoreRecentlyDeleted(page, `${type.pluralLabel} → ${type.pluralLabel}`);
   expect(
-    (await readModel(page)).relationships.find(
+    (await storedModel(database, companyId)).relationships.find(
       (relation) => relation.id === related.id,
     )?.archived,
   ).toBe(false);
@@ -3141,24 +3130,9 @@ test("keeps retained values restricted after a delegated manager converts fields
       await applyUi();
     }
     await assertRestricted();
-    await openConfigure(manager.page, summaryType.id);
-    await openConfigureRow(manager.page, "Relationships", "Private source");
-    await manager.page.getByRole("dialog").locator("#archived").check();
-    await applyUi();
     await openConfigure(manager.page, sourceType.id);
-    await openConfigureRow(
-      manager.page,
-      "Activity connections",
-      sourceType.pluralLabel,
-    );
-    await manager.page
-      .getByRole("dialog")
-      .getByRole("switch", { name: "Archive connection", exact: true })
-      .check();
-    await applyUi();
-    await openListAction(manager.page, "Archive list");
-    await applyUi();
-    model = await readModel(page);
+    await deleteSelectedList(manager.page);
+    model = await storedModel(database, companyId);
     expect(
       model.types.find((type) => type.id === sourceType.id)?.archived,
     ).toBe(true);
@@ -3365,14 +3339,14 @@ test("publishes and withdraws a private-input summary through the field UI witho
       deal.typeId,
       summary.label,
     );
-    await expect(
-      delegated
-        .getByRole("button", {
-          name: englishMessages.Common.actions.save,
-          exact: true,
-        })
-        .first(),
-    ).toBeEnabled();
+    const delegatedSave = delegated
+      .getByRole("button", {
+        name: englishMessages.Common.actions.save,
+        exact: true,
+      })
+      .first();
+    await expect(delegatedSave).toBeVisible();
+    await expect(delegatedSave).toBeDisabled();
     await openDrawerTab(member.page, "Calculation");
     await expect(
       delegated.getByRole("region", { name: "Calculation", exact: true }),

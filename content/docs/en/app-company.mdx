@@ -261,7 +261,7 @@ Each record type has separate **Create**, **Edit** and **Delete** switches plus 
 - **Assigned** allows reading records assigned to the member, and for a workspace row the member's own member row or own routines.
 - **None** grants no read access.
 
-A cell that does not apply to a row shows a dash (`—`). On narrow screens a **Manage** caption sits above the three checkboxes. Editing or deleting a record also requires access to that individual record. The list includes customer-created types and uses their current names. Renaming Projects to Initiatives keeps its grants. Archived types remain labeled in the editor. New roles start without record access; grant only the types they need. Embedded entries, such as deal line items, inherit access from their parent and have no separate row.
+A cell that does not apply to a row shows a dash (`—`). On narrow screens a **Manage** caption sits above the three checkboxes. Editing or deleting a record also requires access to that individual record. The list includes customer-created types and uses their current names. Renaming Projects to Initiatives keeps its grants. Lists in Recently deleted do not appear here. New roles start without record access; grant only the types they need. Embedded entries, such as deal line items, inherit access from their parent and have no separate row.
 
 The workspace permission rows offer these cells; every other cell shows the dash:
 
@@ -282,7 +282,7 @@ For **Inbox messages**, **Create** connects accounts, sends emails and chat mess
 
 Saving a new webhook, routine or role needs **Create**; saving an existing one needs **Edit**. Roles that existed before these columns were migrated without gaining or losing rights: a row the role could manage before now has every offered checkbox ticked.
 
-A delegated data-model manager can use approved access presets when creating a type. Expanding grants requires **Users & Roles** **Edit**. On self-hosted installations, Inbox messages and Routines are hidden. Editing a role's name or its record grants preserves unchanged system permissions.
+A delegated data-model manager can apply an access preset only when creating a new type. **Users & Roles** **Edit** defines the presets, and a preset may include the creator's own role. Expanding grants on existing types requires **Users & Roles** **Edit**. On self-hosted installations, Inbox messages and Routines are hidden. Editing a role's name or its record grants preserves unchanged system permissions.
 
 **Link:** `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`, then `highlight_element` with `company-roles-add` for a new role; once the editor is open, `role-modal-save` and `role-modal-reset` point at **Save** and **Reset**, and `role-modal-delete` at **Delete** where it is offered. The fields and the permission rows are not highlight targets, so Mate names them.
 

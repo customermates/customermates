@@ -2,7 +2,7 @@
 
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 import type { WidgetGallery } from "@/features/widget/widget-gallery";
-import type { WidgetDto } from "@/features/widget/widget.schema";
+import type { DashboardWidgets } from "@/features/widget/get-widgets.interactor";
 import type { ComponentType, ReactNode } from "react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout/legacy";
 
@@ -17,6 +17,8 @@ import "@/styles/react-grid-layout.css";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
+import { connectDataViewUrlSync } from "@/components/data-view/data-view-url-sync";
+import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
 import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
@@ -35,6 +37,7 @@ import {
 } from "./widget-interaction";
 import { WidgetModal } from "./widget-modal";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { useFocusTarget, type FocusKind } from "@/components/focus/focus-target";
 
 const ResponsiveGridLayout = dynamic(
   () =>
@@ -45,12 +48,14 @@ const ResponsiveGridLayout = dynamic(
 );
 
 type Props = {
+  dashboard: DashboardWidgets;
   gallery?: WidgetGallery;
   recordTypes?: DiscoveredRecordTypes;
-  widgets: WidgetDto[];
 };
 
-const DashboardPageViewContent = observer(function DashboardPageView({ gallery, recordTypes, widgets }: Props) {
+const WIDGET_FOCUS_KINDS: FocusKind[] = ["widget"];
+
+const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, gallery, recordTypes }: Props) {
   const { widgetModalStore, widgetsStore } = useRootStore();
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableKinds.length > 0;
@@ -67,7 +72,8 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
   } | null>(null);
   const t = useTranslations();
 
-  useLayoutEffect(() => widgetsStore.setItems({ items: widgets }), [widgets, widgetsStore]);
+  useLayoutEffect(() => widgetsStore.setItems(dashboard), [dashboard, widgetsStore]);
+  useEffect(() => connectDataViewUrlSync(widgetsStore), [widgetsStore]);
 
   useEffect(() => {
     if (typeof window === "undefined" || items.length === 0) return;
@@ -110,6 +116,14 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
     };
   }, []);
   const pageState = resolveResourcePageState(widgetsStore.dataRequest, items.length);
+  useFocusTarget(
+    WIDGET_FOCUS_KINDS,
+    (target) => {
+      runUserAction(() => openWidgetEditor(widgetModalStore, target.id));
+      return true;
+    },
+    pageState === "content",
+  );
   const topBarActions = useMemo(
     () =>
       pageState !== "loading" && pageState !== "error" && canAddWidget ? (
@@ -207,7 +221,11 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
           }
         >
           {items.map((widget) => (
-            <div key={widget.id} onPointerDown={(event) => handlePointerDown(widget.id, event)}>
+            <div
+              key={widget.id}
+              data-focus-target={`widget:${widget.id}`}
+              onPointerDown={(event) => handlePointerDown(widget.id, event)}
+            >
               <WidgetCard widget={widget} />
             </div>
           ))}
@@ -222,7 +240,25 @@ const DashboardPageViewContent = observer(function DashboardPageView({ gallery, 
 
   return (
     <>
-      {body}
+      <DataViewViewsRail
+        joinsTopBar
+        allLabel={t("Dashboard.mainView")}
+        allowDuplicate={false}
+        deleteNotice={(view) => {
+          const widgets = widgetsStore.activeViewKey === view.id ? widgetsStore.items.map((widget) => widget.name) : [];
+          return {
+            message: t("Dashboard.deleteView", {
+              name: view.name,
+              count: widgets.length,
+              main: t("Dashboard.mainView"),
+            }),
+            details: widgets,
+          };
+        }}
+        store={widgetsStore}
+      />
+
+      <div className="relative flex min-h-0 w-full flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">{body}</div>
 
       <WidgetModal />
     </>

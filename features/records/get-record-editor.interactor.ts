@@ -3,9 +3,10 @@ import { z } from "zod";
 import type { Action } from "@/generated/prisma";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo } from "./record.repo";
-import type { RecordDto, RecordModel } from "./record-model.schema";
+import type { RecordDto, RecordModelView } from "./record-model.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { liveRecordModel } from "./record-model-snapshot";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -15,13 +16,14 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordWriteFailure } from "./mutate-record.interactor";
 import { recordDto } from "./query-records.interactor";
 import { resolveRecordPath } from "./record-relationship-path";
+import { visibleFormulaFields } from "./record-formula-visibility";
 import { recordLinkColors, type RecordLinkColors } from "./record-presentation";
 import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
 import type { RecordDetailLayoutResult } from "./record-detail-layout.schema";
 
 export const GetRecordEditorSchema = z.object({ typeId: z.uuid(), recordId: z.uuid().optional() }).strict();
 export type RecordEditorContext = {
-  model: RecordModel;
+  model: RecordModelView;
   typeId: string;
   permittedActions: Action[];
   canManageSchema: boolean;
@@ -49,7 +51,8 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
   async invoke(input: z.infer<typeof GetRecordEditorSchema>): Validated<RecordEditorResult> {
     return runInTransaction(
       async () => {
-        const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
+        const [storedModel, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
+        const model = liveRecordModel(storedModel);
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
         if (!type || !policy.actor || !policy.canReadType(type.id))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
@@ -96,9 +99,9 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
           const layout = await this.layouts.read(type.id, model, policy);
           if (!layout.ok) return layout;
           const visible = ref
-            ? await this.records.getVisibleFields(ref, model, policy.access([...accessible]))
+            ? await this.records.getVisibleFields(ref, storedModel, policy.access([...accessible]))
             : new Set<string>();
-          const record = stored ? recordDto(stored, model, visible, policy.memberScope) : null;
+          const record = stored ? recordDto(stored, storedModel, visible, policy.memberScope) : null;
           if (record && recordChannelsEnabled(model, type.id))
             record.identities = await this.records.getIdentitiesCompanyWide(record.ref);
           return {
@@ -123,7 +126,11 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
               model: {
                 ...model,
                 types,
-                fields: model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
+                fields: visibleFormulaFields(
+                  model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
+                  model,
+                  policy,
+                ),
                 relationships,
                 capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
                 activityPaths: model.activityPaths.filter(

@@ -2,7 +2,7 @@
 
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
-import type { RecordField } from "@/features/records/record-model.schema";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
 
 import { useTranslations } from "next-intl";
 
@@ -14,7 +14,7 @@ import { IntlLink } from "@/i18n/navigation";
 type Props = {
   run: RoutineRunDto;
   customColumns?: CustomColumnDto[];
-  recordFields?: RecordField[];
+  recordFields?: RecordFieldView[];
 };
 
 export function RoutineRunTriggerCard({ run, customColumns = [], recordFields }: Props) {
@@ -60,11 +60,12 @@ export function RoutineRunTriggerCard({ run, customColumns = [], recordFields }:
           <span className="flex flex-wrap justify-end gap-1">
             {context.changedFields.map((field) => (
               <AppChip key={field} size="sm">
-                {context.recordRef
-                  ? (recordFields?.find((definition) => definition.id === field)?.label ??
-                    t("RecordWidgets.unavailable"))
-                  : (recordFields?.find((definition) => definition.id === field)?.label ??
-                    changeFieldLabel(field, customColumns))}
+                {context.changedFieldLabels[field] ??
+                  (context.recordRef
+                    ? (recordFields?.find((definition) => definition.id === field)?.label ??
+                      t("RecordWidgets.unavailable"))
+                    : (recordFields?.find((definition) => definition.id === field)?.label ??
+                      changeFieldLabel(field, customColumns)))}
               </AppChip>
             ))}
 

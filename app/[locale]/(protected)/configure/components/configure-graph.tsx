@@ -3,7 +3,7 @@
 import "@xyflow/react/dist/style.css";
 
 import type { Edge, EdgeProps, Node, NodeProps } from "@xyflow/react";
-import type { RecordField, RecordModel, RecordRelationship } from "@/features/records/record-model.schema";
+import type { RecordField, RecordModelView, RecordRelationship } from "@/features/records/record-model.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 import type {
   ConfigureGraphCatalog,
@@ -58,6 +58,7 @@ import {
   GRAPH_VISIBLE_FIELDS,
 } from "./configure-graph-layout";
 import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
+import { isResolvedField } from "./configure-model";
 
 export type ConfigureGraphAccounts =
   | { state: "available"; accounts: ConfigureGraphSource[] }
@@ -65,12 +66,12 @@ export type ConfigureGraphAccounts =
   | { state: "unavailable" };
 
 type Props = {
-  model: RecordModel;
+  model: RecordModelView;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
+  focusedListId?: string | null;
   layout: ConfigureGraphLayout["positions"] | null;
   onLayoutChange: (layout: ConfigureGraphLayout["positions"] | null) => void;
-  showArchived: boolean;
   canManage: boolean;
   disabled: boolean;
   onSelectList: (typeId: string) => void;
@@ -137,11 +138,9 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   const hidden = list.fields.length - visible.length;
   return (
     <div
-      className={cn(
-        "w-[22rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm",
-        list.type.archived && "border-dashed opacity-75",
-      )}
+      className="w-[22rem] rounded-xl border border-border bg-card text-card-foreground shadow-sm"
       data-configure-node={list.type.id}
+      data-focus-target={`list:${list.type.id}`}
     >
       <NodeHandles connectable={canManage && !disabled} />
 
@@ -164,9 +163,9 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
           )}
         </span>
 
-        {(list.type.archived || (!list.type.navigationVisible && !list.type.embedded)) && (
+        {!list.type.navigationVisible && !list.type.embedded && (
           <AppChip className="shrink-0" variant="secondary">
-            {list.type.archived ? t("RecordModel.archived") : t("RecordModel.hiddenList")}
+            {t("RecordModel.hiddenList")}
           </AppChip>
         )}
       </button>
@@ -200,7 +199,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
                     data-configure-graph-field={field.id}
                     disabled={disabled || !canManage}
                     type="button"
-                    onClick={() => onEditField(list.type.id, field)}
+                    onClick={() => isResolvedField(field) && onEditField(list.type.id, field)}
                   >
                     {calculated ? (
                       <Sigma aria-hidden className="size-3.5 shrink-0 text-primary" />
@@ -209,9 +208,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
                     )}
 
                     <span className="min-w-0 flex-1 truncate">
-                      <span className={cn("font-medium", field.archived && "text-muted-foreground line-through")}>
-                        {field.label}
-                      </span>
+                      <span className="font-medium">{field.label}</span>
 
                       {detail && <span className="text-muted-foreground">{` ${detail}`}</span>}
                     </span>
@@ -241,14 +238,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
             >
               <span aria-hidden className="size-3.5 shrink-0" />
 
-              <span
-                className={cn(
-                  "min-w-0 flex-1 truncate font-medium",
-                  list.channels.deleted && "text-muted-foreground line-through",
-                )}
-              >
-                {t("EntityChannels.heading")}
-              </span>
+              <span className="min-w-0 flex-1 truncate font-medium">{t("EntityChannels.heading")}</span>
 
               <span className="shrink-0 text-muted-foreground">{t("RecordModel.channelsField.short")}</span>
             </button>
@@ -444,10 +434,7 @@ function GraphEdgeView({ data, source, target }: EdgeProps<GraphEdge>) {
     return (
       <>
         <BaseEdge
-          className={cn(
-            edge.parent ? "!stroke-primary/60" : "!stroke-muted-foreground/45",
-            relation.archived && "[stroke-dasharray:4_4]",
-          )}
+          className={edge.parent ? "!stroke-primary/60" : "!stroke-muted-foreground/45"}
           path={path}
           style={{ strokeWidth: edge.parent ? 2 : 1.5 }}
         />
@@ -552,9 +539,9 @@ function ConfigureGraphCanvas({
   model,
   catalog,
   accounts,
+  focusedListId,
   layout: saved,
   onLayoutChange,
-  showArchived,
   canManage,
   disabled,
   onSelectList,
@@ -588,7 +575,7 @@ function ConfigureGraphCanvas({
   const [measured, setMeasured] = useState<ReadonlyMap<string, { width: number; height: number }>>(new Map());
   const { nodes, edges, positions } = useMemo(() => {
     const sources = accounts.state === "available" ? accounts.accounts : [];
-    const data = configureGraphData(model, catalog, sources, showArchived, connectPrompt);
+    const data = configureGraphData(model, catalog, sources, connectPrompt);
     const layout = configureGraphLayout(data, canManage, connectPrompt, measured, direction ?? "TB");
     const placement = configureGraphPlacement(layout.positions, saved);
     const at = (id: string) => {
@@ -626,7 +613,7 @@ function ConfigureGraphCanvas({
       data: { edge, route, anchors, lane: lanes.get(id) ?? 0 },
     }));
     return { nodes, edges, positions: placement };
-  }, [model, catalog, accounts, showArchived, connectPrompt, canManage, measured, direction, saved]);
+  }, [model, catalog, accounts, connectPrompt, canManage, measured, direction, saved]);
   const [flowNodes, setFlowNodes] = useState<Node[]>(nodes);
   useEffect(
     () =>
@@ -661,6 +648,17 @@ function ConfigureGraphCanvas({
       .setViewport(configureGraphViewport(positions, element.clientWidth, element.clientHeight))
       .catch(reportApplicationError);
   }, [ready, flow, measured, flowNodes, positions, direction]);
+  useEffect(() => {
+    if (!ready || !focusedListId || !placed.current) return;
+    void flow
+      .fitView({
+        nodes: [{ id: focusedListId }],
+        padding: 0.4,
+        maxZoom: 1,
+        duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 300,
+      })
+      .catch(reportApplicationError);
+  }, [ready, flow, focusedListId, measured]);
   const listIds = useMemo(() => new Set(model.types.map((type) => type.id)), [model.types]);
   const keepLayout = () =>
     runUserAction(async () => {

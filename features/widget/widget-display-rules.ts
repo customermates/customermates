@@ -1,12 +1,12 @@
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import { DisplayType } from "./widget-display.schema";
 
 export const WIDGET_DISPLAY_REQUIREMENTS = ["noGrouping", "grouping", "timeInterval", "singleChoice"] as const;
 export type WidgetDisplayRequirement = (typeof WIDGET_DISPLAY_REQUIREMENTS)[number];
 
-type DisplayModel = Pick<RecordModel, "fields" | "relationships">;
+type DisplayModel = Pick<RecordModelView, "fields" | "relationships">;
 
 function measureGroupField(measure: RecordMeasure, model: DisplayModel) {
   let typeId = measure.source.typeId;

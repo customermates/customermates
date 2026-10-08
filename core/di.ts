@@ -95,6 +95,7 @@ import { ApplyRecordConfigurationInteractor } from "@/features/records/configure
 import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import { PreviewRecordConfigurationInteractor } from "@/features/records/preview-record-configuration.interactor";
 import { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
+import { GetRecentlyDeletedInteractor } from "@/features/records/get-recently-deleted.interactor";
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
@@ -212,6 +213,7 @@ import { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-a
 import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
 import { GetMyConnectedAccountsApiInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-api.interactor";
 import { GetMyConnectedAccountsContextInteractor } from "@/ee/messaging/connect/get-my-connected-accounts-context.interactor";
+import { GetMessagingAccountsStateInteractor } from "@/ee/messaging/connect/get-messaging-accounts-state.interactor";
 import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
@@ -449,6 +451,8 @@ export const getRecordWriteService = () =>
   new RecordWriteService(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordConfigurationService = () => new RecordConfigurationService(getRecordRepo());
 export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getGetRecentlyDeletedInteractor = () =>
+  new GetRecentlyDeletedInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getImportRecordsInteractor = () =>
@@ -765,7 +769,7 @@ export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleMan
 
 // --- Widget ---
 
-export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo());
+export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo(), getDataViewStateRepo());
 
 export const getDeleteWidgetInteractor = () => new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator());
 
@@ -849,6 +853,8 @@ export const getCreateAuthLinkInteractor = () =>
 
 export const getGetMyConnectedAccountsInteractor = () =>
   new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
+export const getGetMessagingAccountsStateInteractor = () =>
+  new GetMessagingAccountsStateInteractor(getConnectedAccountRepo(), getPermissionService(), getCompanyRepo());
 
 export const getCountChannelsNeedingActionInteractor = () =>
   new CountChannelsNeedingActionInteractor(getConnectedAccountRepo());
@@ -1512,6 +1518,7 @@ export const getUpsertRecordWidgetInteractor = () =>
     getRecordAccessPolicy(),
     getQueryRecordMeasureInteractor(),
     getRecordWidgetReader(),
+    getDataViewStateRepo(),
   );
 
 export const getGetRecordWidgetInteractor = () =>
@@ -1541,6 +1548,7 @@ export const getUpsertRecordActivityWidgetInteractor = () =>
     getRecordAccessPolicy(),
     getGetRecordActivitiesInteractor(),
     getRecordActivityWidgetReader(),
+    getDataViewStateRepo(),
   );
 
 export const getManageDataViewsInteractor = () =>

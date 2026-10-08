@@ -4,7 +4,8 @@ import { getTranslations } from "next-intl/server";
 
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo } from "./record.repo";
-import type { RecordModel } from "./record-model.schema";
+import type { RecordModelView } from "./record-model.schema";
+import { visibleFormulaFields } from "./record-formula-visibility";
 import type { RecordQuery } from "./record-query.schema";
 import type { QueryRecordsInteractor } from "./query-records.interactor";
 import type { GetResult } from "@/core/base/base-get.interactor";
@@ -14,6 +15,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { Action } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { liveRecordModel } from "./record-model-snapshot";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -39,7 +41,7 @@ export const GetRecordPresentationSchema = z
   .object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}) })
   .strict();
 export type RecordPresentationResult = {
-  model: RecordModel;
+  model: RecordModelView;
   typeId: string;
   canManageSchema: boolean;
   systemColumnLabels: Record<"system:createdAt" | "system:updatedAt" | "system:assignedTo" | "system:channels", string>;
@@ -68,7 +70,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
     return runInTransaction(
       async () => {
         const [model, policy, viewState, t] = await Promise.all([
-          this.records.getModel(),
+          this.records.getModel().then(liveRecordModel),
           this.policy.load(),
           this.views.loadSurfaceState(recordSurfaceKey(input.typeId)),
           getTranslations(),
@@ -172,7 +174,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             model: {
               ...model,
               types: [{ ...type, relationshipPaths: paths }],
-              fields,
+              fields: visibleFormulaFields(fields, model, policy),
               relationships,
               capabilities: model.capabilities.filter((binding) => binding.typeId === type.id),
               activityPaths: [],

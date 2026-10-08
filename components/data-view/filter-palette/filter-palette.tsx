@@ -27,6 +27,7 @@ import { PaletteValueNumber } from "./palette-value-number";
 import { PaletteValueOperator } from "./palette-value-operator";
 import { PaletteValueSelect } from "./palette-value-select";
 import { PaletteValueText } from "./palette-value-text";
+import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
 
 type Props = {
   store: BaseDataViewStore<any>;
@@ -84,7 +85,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
       return;
     }
 
-    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+    if (isShortcutPress(event.nativeEvent, "save")) {
       event.preventDefault();
       palette.pop();
     }
