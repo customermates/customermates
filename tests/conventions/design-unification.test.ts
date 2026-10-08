@@ -184,3 +184,54 @@ describe("rule 36: one open-and-highlight mechanism", () => {
     expect(handBuiltFocusLinkFindings([source]).map(({ line }) => line)).toEqual([1, 2]);
   });
 });
+
+const ROW_MENU_PLUMBING = "components/data-view/";
+const ROW_MENU_COMPONENT = "RecordRowActions";
+const ROW_MENU_OWNER = "app/[locale]/(protected)/records/[typeId]/components/record-row-actions.tsx";
+const ROW_MENU_ITEMS = ["RecordModel.openDetails", "Common.actions.delete"];
+
+function ownRowMenuFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    if (source.file.startsWith(ROW_MENU_PLUMBING) || source.text.includes(`<${ROW_MENU_COMPONENT}`)) continue;
+    visit(source.ast, (node) => {
+      if (ts.isJsxAttribute(node) && ["rowActions", "cardActions"].includes(node.name.getText(source.ast)))
+        findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
+    });
+  }
+
+  return findings;
+}
+
+function rowMenuItemLabels(source: SourceFile) {
+  const labels: string[] = [];
+  visit(source.ast, (node) => {
+    if (tagNameOf(node) !== "DropdownMenuItem") return;
+    const key = /\bt\(\s*"([^"]+)"/.exec(node.getText(source.ast));
+    if (key) labels.push(key[1]);
+  });
+  return labels;
+}
+
+const ROW_MENU_ALLOWLIST: Allowlist = {};
+
+describe("I2 round 3: row click opens, the row menu holds Open details and Delete", () => {
+  it("builds every table row and card menu with the shared row actions", () => {
+    enforce(ownRowMenuFindings(PRODUCT_SOURCES), ROW_MENU_ALLOWLIST);
+  });
+
+  it("offers only Open details and Delete in the shared row menu", () => {
+    const owner = PRODUCT_SOURCES.find(({ file }) => file === ROW_MENU_OWNER);
+    expect(owner).toBeDefined();
+    expect(rowMenuItemLabels(owner!)).toEqual(ROW_MENU_ITEMS);
+  });
+
+  it("recognizes a table with its own row menu", () => {
+    const source = sourceFromText(
+      "table.tsx",
+      "const a = <DataViewContent rowActions={(row) => <Menu row={row} />} />;",
+    );
+    expect(ownRowMenuFindings([source]).map(({ line }) => line)).toEqual([1]);
+  });
+});
