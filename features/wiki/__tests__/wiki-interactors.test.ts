@@ -61,9 +61,13 @@ describe("saved Knowledge Base page contracts", () => {
     expect(WikiPageDtoSchema.shape).not.toHaveProperty("draft");
     expect(WikiPageInputSchema.shape).not.toHaveProperty("draft");
     expect(WikiPageDtoSchema.parse({ ...page(), draft: true })).not.toHaveProperty("draft");
-    expect(WikiPageInputSchema.parse({ title: "Ready", markdown: "Saved content", draft: true })).not.toHaveProperty(
-      "draft",
-    );
+    expect(
+      WikiPageInputSchema.parse({
+        title: "Ready",
+        markdown: "Saved content",
+        draft: true,
+      }),
+    ).not.toHaveProperty("draft");
   });
 });
 
@@ -298,16 +302,32 @@ describe("SearchWikiPagesInteractor", () => {
   const markdown = WikiMarkdownSchema.parse(
     `Intro with [Support](/wiki?page=${PAGE_ID}).\n\n## Approval\n\nThe finance lead approves refunds.`,
   );
-  const hit = { ...page({ markdown }), snippet: "The finance lead **approves** refunds.", section: "Approval" };
+  const hit = {
+    ...page({ markdown }),
+    snippet: "The finance lead approves refunds.",
+    section: "Approval",
+  };
+  const approval = {
+    id: "section-approval",
+    pageId: PAGE_ID,
+    offset: markdown.indexOf("## Approval"),
+    headingPath: ["Approval"],
+    anchor: "approval",
+    text: "The finance lead approves refunds.",
+  };
   const search = (offsets: "stored" | "externalized") =>
     runWithTenant(mockUser, () =>
       new SearchWikiPagesInteractor(
         {
-          semanticPageCandidates: vi.fn(),
+          syncStaleSections: vi.fn().mockResolvedValue(0),
+          semanticSections: vi.fn(),
           getPagesByIds: vi.fn().mockResolvedValue([page({ markdown })]),
-          fullTextPageCandidates: vi.fn().mockResolvedValue({ keys: [PAGE_ID], pinned: [] }),
-          rankPageSections: vi.fn().mockResolvedValue(new Map([[1, 2.5]])),
-          sectionHeadlines: vi.fn().mockResolvedValue(["The finance lead **approves** refunds."]),
+          getSectionsByIds: vi.fn().mockResolvedValue([approval]),
+          fullTextSections: vi.fn().mockResolvedValue({
+            hits: [{ pageId: PAGE_ID, sectionId: approval.id, coverage: 1 }],
+            pinned: [],
+            coverage: 1,
+          }),
         },
         offsets,
       ).invoke({ query: "approves", page: 1, pageSize: 5 }),
@@ -317,7 +337,10 @@ describe("SearchWikiPagesInteractor", () => {
     const result = await search("stored");
     if (!result.ok) throw new Error("Expected a search result.");
     expect(result.data.items[0].offset).toBe(markdown.indexOf("## Approval"));
-    expect(result.data.items[0]).toMatchObject({ section: "Approval", snippet: hit.snippet });
+    expect(result.data.items[0]).toMatchObject({
+      section: "Approval",
+      snippet: hit.snippet,
+    });
     expect(result.data.items[0]).not.toHaveProperty("markdown");
   });
 
@@ -343,11 +366,11 @@ describe("Wiki permission boundary", () => {
   it("requires Wiki Read for list, search, and get", async () => {
     const repo = {
       listPages: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 25 }),
-      semanticPageCandidates: vi.fn(),
+      syncStaleSections: vi.fn().mockResolvedValue(0),
+      semanticSections: vi.fn(),
       getPagesByIds: vi.fn().mockResolvedValue([]),
-      fullTextPageCandidates: vi.fn().mockResolvedValue({ keys: [], pinned: [] }),
-      rankPageSections: vi.fn().mockResolvedValue(new Map()),
-      sectionHeadlines: vi.fn().mockResolvedValue([]),
+      getSectionsByIds: vi.fn().mockResolvedValue([]),
+      fullTextSections: vi.fn().mockResolvedValue({ hits: [], pinned: [], coverage: 0 }),
       getPage: vi.fn().mockResolvedValue(page()),
     };
     const calls = [

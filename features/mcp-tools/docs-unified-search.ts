@@ -1,17 +1,16 @@
 import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { QueryEmbedding, RelevanceFloor, RelevanceVerdict } from "@/core/retrieval/retrieval-pipeline";
 import type { DocsSection } from "./docs-sections";
-import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
-import type { DocsScope, DocsSectionRow, DocsStoredBuild } from "./prisma-docs-chunk.repository";
+import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
+import type { DocsScope, DocsSectionRow, DocsStoredBuild } from "./prisma-docs-section.repository";
 
-import { retrievalWindows } from "@/core/retrieval/retrieval-chunks";
 import { retrievalExcerpt } from "@/core/retrieval/retrieval-excerpt";
 import { fullTextUnits, fullTextUnitTerms, type FullTextUnit } from "@/core/retrieval/full-text-query";
 import { fuseFullTextAndSemantic, keepsResults, rerankSections } from "@/core/retrieval/retrieval-pipeline";
 import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 import { fold, slugifyHeading } from "@/core/utils/search-text";
 
-import { docsCorpus, docsCorpusSection, docsSectionKey, docsSectionSearchBody } from "./docs-corpus";
+import { docsCorpus, docsCorpusSection, docsCorpusSectionParts, docsSectionKey } from "./docs-corpus";
 import { docsCorpusSections, type DocsLocale, type DocsSource } from "./docs-manifest";
 import { stableDocsRanker } from "./docs-section-ranking";
 
@@ -26,7 +25,7 @@ const DOCS_EXCERPT_MIN_PART = 40;
 const DOCS_SNIPPET_CHARS = 240;
 
 export type UnifiedDocsDeps = {
-  repo: DocsChunkRepo;
+  repo: DocsSectionRepo;
   embed: QueryEmbedding | null;
   ranker: SectionRanker | undefined;
   scheduleIndexing?: (buildHash: string, seeded: boolean) => Promise<void>;
@@ -39,9 +38,10 @@ export type UnifiedDocsSearch = {
   pages: UnifiedDocsHit[];
   total: number;
   chosen: DocsSection[] | null;
+  abstained: boolean;
 };
 
-type RankedSection = { section: DocsSection; chunkOrdinal: number };
+type RankedSection = { section: DocsSection; part: number };
 
 const EXACT_TOOL_NAME = /\b[a-z][a-z0-9]*(?:_[a-z0-9]+){2,}\b/;
 const TOOL_CATALOG_QUESTION =
@@ -76,7 +76,7 @@ function leadWithPinned(ranked: readonly RankedSection[], pinned: readonly DocsS
       (section) =>
         ranked.find((entry) => docsSectionKey(entry.section) === docsSectionKey(section)) ?? {
           section,
-          chunkOrdinal: 0,
+          part: 0,
         },
     ),
     ...ranked.filter((entry) => !keys.has(docsSectionKey(entry.section))),
@@ -133,7 +133,7 @@ function inMemorySections(scope: DocsScope, units: readonly FullTextUnit[], limi
     .filter((entry) => entry.score > 0)
     .sort((left, right) => right.score - left.score || left.order - right.order)
     .slice(0, limit)
-    .map(({ document }) => ({ section: document.section, chunkOrdinal: 0 }));
+    .map(({ document }) => ({ section: document.section, part: 0 }));
 }
 
 function excerptHeading(section: DocsSection): string {
@@ -149,18 +149,29 @@ function bounded(text: string, maxChars: number): string {
   return `${(boundary > maxChars / 2 ? cut.slice(0, boundary) : cut).trimEnd().replace(/(?:\s*(?:…|\.\.\.))+$/u, "")}…`;
 }
 
-function sectionWindow(section: DocsSection, chunkOrdinal: number): string {
-  const windows = retrievalWindows(docsSectionSearchBody(section));
-  return (windows[Math.min(chunkOrdinal, windows.length - 1)] ?? windows[0]).text;
+function sectionPartText(locale: DocsLocale, section: DocsSection, part: number): string {
+  const parts = docsCorpusSectionParts(locale, section);
+  return (parts[Math.min(part, parts.length - 1)] ?? parts[0])?.text ?? "";
 }
 
-function sectionSnippet(ranked: RankedSection): string {
+function sectionSnippet(locale: DocsLocale, ranked: RankedSection): string {
   const heading = ranked.section.headingPath.at(-1);
   const text = bounded(
-    sectionWindow(ranked.section, ranked.chunkOrdinal).replace(/\s+/g, " ").trim(),
+    sectionPartText(locale, ranked.section, ranked.part).replace(/\s+/g, " ").trim(),
     DOCS_SNIPPET_CHARS,
   );
   return heading ? `${heading}: ${text}` : text;
+}
+
+function sectionCandidates(
+  locale: DocsLocale,
+  sections: readonly DocsSection[],
+): { candidates: RankableSection[]; sections: DocsSection[] } {
+  const offered = sections.slice(0, DOCS_RERANK_MAX_CANDIDATES);
+  return {
+    candidates: offered.map((section, id) => ({ id, locale, section })),
+    sections: offered,
+  };
 }
 
 async function fusedSections(
@@ -198,10 +209,10 @@ async function fusedSections(
       };
     },
     embed: deps.embed,
-    semantic: async ({ vector, model }) => {
+    semantic: async ({ vector, version }) => {
       const [found, complete] = await Promise.all([
-        deps.repo.semanticSections(storedScope, vector, model, limits.semantic),
-        deps.repo.semanticIndexComplete(storedScope, model),
+        deps.repo.semanticSections(storedScope, vector, version, limits.semantic),
+        deps.repo.semanticIndexComplete(storedScope, version),
       ]);
       if (!found) return null;
       const similarity = complete ? Math.max(0, ...found.map((row) => row.similarity)) : null;
@@ -212,9 +223,9 @@ async function fusedSections(
   const sections = fused.ranked.flatMap((key) => {
     const row = rows.get(key);
     const section = row ? rowSection(scope.locale, row, stored) : undefined;
-    if (row && section) return [{ section, chunkOrdinal: row.chunkOrdinal }];
+    if (row && section) return [{ section, part: row.partOrdinal }];
     const pinnedSection = pinnedByKey.get(key);
-    return pinnedSection ? [{ section: pinnedSection, chunkOrdinal: 0 }] : [];
+    return pinnedSection ? [{ section: pinnedSection, part: 0 }] : [];
   });
   return { sections, relevance: fused.relevance };
 }
@@ -224,6 +235,7 @@ async function storedBuild(deps: UnifiedDocsDeps): Promise<DocsStoredBuild | nul
   const stored = await deps.repo.storedBuild(corpus);
   if (deps.scheduleIndexing)
     void deps.scheduleIndexing(corpus.buildHash, stored?.current === true).catch(() => undefined);
+
   return stored;
 }
 
@@ -231,16 +243,16 @@ function rerankCandidates(
   ranked: readonly RankedSection[],
   locale: DocsLocale,
   sources: readonly DocsSource[],
-): RankableSection[] {
-  const lexical = ranked.slice(0, DOCS_RERANK_LEXICAL).map(({ section }) => section);
-  const lexicalKeys = new Set(lexical.map(docsSectionKey));
+): { candidates: RankableSection[]; sections: DocsSection[] } {
+  const lexical = ranked.slice(0, DOCS_RERANK_LEXICAL);
+  const lexicalKeys = new Set(lexical.map(({ section }) => docsSectionKey(section)));
   const topPages: string[] = [];
   for (const { section } of ranked) {
     const page = `${section.source}:${section.slug}`;
     if (!topPages.includes(page)) topPages.push(page);
     if (topPages.length === DOCS_RERANK_TOP_PAGES) break;
   }
-  for (const section of lexical) {
+  for (const { section } of lexical) {
     const page = `${section.source}:${section.slug}`;
     if (!topPages.includes(page)) topPages.push(page);
   }
@@ -249,14 +261,7 @@ function rerankCandidates(
       .flatMap((source) => docsCorpusSections(source, locale))
       .filter((section) => `${section.source}:${section.slug}` === page && !lexicalKeys.has(docsSectionKey(section))),
   );
-  return [
-    ...lexical.map((section, id) => ({ id, section, locale })),
-    ...siblings.map((section, index) => ({
-      id: lexical.length + index,
-      section,
-      locale,
-    })),
-  ].slice(0, DOCS_RERANK_MAX_CANDIDATES);
+  return sectionCandidates(locale, [...lexical.map(({ section }) => section), ...siblings]);
 }
 
 async function selectedDocsSections(
@@ -274,7 +279,7 @@ async function selectedDocsSections(
     stopwatch,
     { fullText: DOCS_FULL_TEXT_CANDIDATES, semantic: DOCS_SEMANTIC_CANDIDATES },
   );
-  if (relevance === "dropped") return { pages: [], total: 0, chosen: null };
+  if (relevance === "dropped") return { pages: [], total: 0, chosen: null, abstained: true };
   const pageBest = new Map<string, RankedSection>();
   for (const entry of ranked) {
     const page = `${entry.section.source}:${entry.section.slug}`;
@@ -283,7 +288,7 @@ async function selectedDocsSections(
 
   let chosen: DocsSection[] | null = null;
   {
-    const candidates = rerankCandidates(ranked, input.locale, sources);
+    const { candidates, sections } = rerankCandidates(ranked, input.locale, sources);
     const ranking = await rerankSections({
       query: input.query,
       stopwatch,
@@ -296,34 +301,32 @@ async function selectedDocsSections(
       }),
       relevance,
     });
-    if (!keepsResults(relevance, ranking)) return { pages: [], total: 0, chosen: null };
+    if (!keepsResults(relevance, ranking)) return { pages: [], total: 0, chosen: null, abstained: true };
     const pinned = pinnedDocsSections(input.query, { locale: input.locale, sources });
     const pinnedKeys = new Set(pinned.map(docsSectionKey));
     const picked = [
       ...pinned,
-      ...(
-        (ranking?.order ?? []).flatMap(
-          (id) => candidates.find((candidate) => candidate.id === id)?.section ?? [],
-        ) as DocsSection[]
-      ).filter((section) => !pinnedKeys.has(docsSectionKey(section))),
+      ...[...new Set((ranking?.order ?? []).flatMap((id) => sections[id] ?? []))].filter(
+        (section) => !pinnedKeys.has(docsSectionKey(section)),
+      ),
     ].slice(0, DOCS_RERANK_RETURNED);
     chosen = picked.length > 0 ? picked : null;
   }
 
   const chosenHits = (chosen ?? []).map((section) => ({
     section,
-    snippet: sectionSnippet({ section, chunkOrdinal: 0 }),
+    snippet: sectionSnippet(input.locale, { section, part: 0 }),
   }));
   const chosenPages = new Set((chosen ?? []).map((section) => `${section.source}:${section.slug}`));
   const others = [...pageBest.entries()]
     .filter(([page]) => !chosenPages.has(page))
     .map(([, entry]) => ({
       section: entry.section,
-      snippet: sectionSnippet(entry),
+      snippet: sectionSnippet(input.locale, entry),
     }));
   const pages = [...chosenHits, ...others].slice(0, DOCS_RERANK_TOP_PAGES);
   const total = Math.max(pageBest.size, new Set(pages.map(({ section }) => section.slug)).size);
-  return { pages, total, chosen };
+  return { pages, total, chosen, abstained: false };
 }
 
 export async function unifiedDocsSearch(
@@ -362,7 +365,10 @@ export async function unifiedDocsExcerpt(
     const selected = search.pages.filter(({ section }) => section.source === page.source && section.slug === page.slug);
     let preferred =
       named ?? search.chosen?.find((section) => section.source === page.source && section.slug === page.slug);
-    let ranked = selected.map(({ section }) => ({ section, chunkOrdinal: 0 }));
+    let ranked: RankedSection[] = selected.map(({ section }) => ({
+      section,
+      part: 0,
+    }));
     if (!preferred) {
       const fallback = await fusedSections(
         query,
@@ -373,11 +379,7 @@ export async function unifiedDocsExcerpt(
         { fullText: own.length, semantic: own.length },
       );
       ranked = fallback.sections;
-      const candidates: RankableSection[] = own.slice(0, DOCS_RERANK_MAX_CANDIDATES).map((section, id) => ({
-        id,
-        section,
-        locale: page.locale,
-      }));
+      const { candidates, sections } = sectionCandidates(page.locale, own);
       const ranking = await rerankSections({
         query,
         stopwatch,
@@ -390,7 +392,7 @@ export async function unifiedDocsExcerpt(
         }),
       });
       const top = ranking?.order[0];
-      preferred = top === undefined ? undefined : own[top];
+      preferred = top === undefined ? undefined : sections[top];
     }
     const ordered = [...(preferred ? [preferred] : []), ...ranked.map((entry) => entry.section)].filter(
       (section, index, all) => all.findIndex((other) => other.order === section.order) === index,

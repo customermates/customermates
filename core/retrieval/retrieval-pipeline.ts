@@ -5,11 +5,17 @@ import type { RankableSection, SectionRanker, SectionRanking } from "./retrieval
 export const RETRIEVAL_RRF_K = 60;
 export const RETRIEVAL_EMBEDDING_WAIT_MS = 1_100;
 export const RETRIEVAL_SEMANTIC_MIN_SIMILARITY = 0.5;
+export const RETRIEVAL_RERANK_BUDGET_CHARS = 24_000;
+export const RETRIEVAL_RERANK_EXCERPT_CHARS = 800;
+export const RETRIEVAL_RERANK_TAIL_CHARS = 80;
 
 export type RelevanceFloor = { coverage: number; similarity: number };
-export const RETRIEVAL_RELEVANCE_FLOOR: RelevanceFloor = { coverage: 0.9, similarity: 0.6 };
+export const RETRIEVAL_RELEVANCE_FLOOR: RelevanceFloor = {
+  coverage: 0.9,
+  similarity: 0.6,
+};
 
-export type QueryVector = { vector: number[]; model: string };
+export type QueryVector = { vector: number[]; version: string };
 export type QueryEmbedding = (query: string, wait?: QueryEmbeddingWait) => Promise<QueryVector | null>;
 
 export type FusedRetrieval<Key extends string> = {
@@ -22,7 +28,11 @@ export type FusedRetrieval<Key extends string> = {
 
 export type RelevanceVerdict = "kept" | "dropped" | "rerank";
 
-export type RetrievalEvidence = { pinned: number; coverage: number; similarity: number | null };
+export type RetrievalEvidence = {
+  pinned: number;
+  coverage: number;
+  similarity: number | null;
+};
 
 export function relevanceVerdict(
   evidence: RetrievalEvidence,
@@ -36,6 +46,26 @@ export function relevanceVerdict(
 export function keepsResults(relevance: RelevanceVerdict, ranking: SectionRanking | null): boolean {
   if (relevance === "dropped") return false;
   return relevance === "kept" || ranking?.abstained !== true;
+}
+
+export function rerankEvidenceAllowances(
+  lengths: readonly number[],
+  budgetChars = RETRIEVAL_RERANK_BUDGET_CHARS,
+): Array<number | "whole"> {
+  let remaining = budgetChars;
+  return lengths.map((length, index) => {
+    const reserve = RETRIEVAL_RERANK_TAIL_CHARS * (lengths.length - index - 1);
+    if (length + reserve <= remaining) {
+      remaining -= length;
+      return "whole";
+    }
+    const allowance = Math.max(
+      RETRIEVAL_RERANK_TAIL_CHARS,
+      Math.min(RETRIEVAL_RERANK_EXCERPT_CHARS, remaining - reserve),
+    );
+    remaining -= allowance;
+    return allowance;
+  });
 }
 
 export const elapsed = (started: number) => Math.max(0, Math.round(performance.now() - started));

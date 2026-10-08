@@ -26,7 +26,12 @@ const HAIKU = {
 export const AGENT_MODELS = {
   chat: { ...HAIKU, reasoningEffort: "low" },
   routine: { ...HAIKU, reasoningEffort: "medium" },
-  wikiSynthesis: { ...HAIKU, maxOutputTokens: 16_384, reasoningEffort: "medium" },
+  wikiSynthesis: {
+    ...HAIKU,
+    maxOutputTokens: 16_384,
+    reasoningEffort: "medium",
+  },
+  wikiSummary: { ...HAIKU, maxOutputTokens: 512, reasoningEffort: "low" },
 } as const satisfies Record<string, AgentModelEntry>;
 
 export type AgentModelPurpose = keyof typeof AGENT_MODELS;

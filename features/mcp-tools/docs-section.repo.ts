@@ -5,10 +5,10 @@ import type {
   DocsFullTextRow,
   DocsSemanticRow,
   DocsStoredBuild,
-  DocsPendingChunk,
-} from "./prisma-docs-chunk.repository";
+  DocsPendingPart,
+} from "./prisma-docs-section.repository";
 
-export abstract class DocsChunkRepo {
+export abstract class DocsSectionRepo {
   abstract ensureCorpus(corpus: DocsCorpus): Promise<void>;
   abstract storedBuild(corpus: DocsCorpus): Promise<DocsStoredBuild | null>;
   abstract fullTextSections(
@@ -19,11 +19,11 @@ export abstract class DocsChunkRepo {
   abstract semanticSections(
     scope: DocsScope,
     vector: number[],
-    model: string,
+    version: string,
     limit: number,
   ): Promise<DocsSemanticRow[] | null>;
   abstract semanticIndexAvailable(): Promise<boolean>;
-  abstract semanticIndexComplete(scope: DocsScope, model: string): Promise<boolean>;
-  abstract pendingEmbeddings(buildHash: string, model: string, limit: number): Promise<DocsPendingChunk[]>;
-  abstract storeEmbeddings(model: string, rows: Array<{ contentHash: string; embedding: string }>): Promise<void>;
+  abstract semanticIndexComplete(scope: DocsScope, version: string): Promise<boolean>;
+  abstract pendingEmbeddings(buildHash: string, version: string, limit: number): Promise<DocsPendingPart[]>;
+  abstract storeEmbeddings(version: string, rows: Array<{ contentHash: string; embedding: string }>): Promise<void>;
 }

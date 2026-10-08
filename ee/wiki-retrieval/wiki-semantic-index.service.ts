@@ -1,19 +1,23 @@
 import type { WikiSemanticIndexRepo } from "./wiki-semantic-index.repo";
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
+import type { WikiSummaryService } from "./wiki-summary.service";
+import type { WikiSummaryState } from "@/features/wiki/wiki-summary";
 
 import { UserAccessor } from "@/core/base/user-accessor";
-import { wikiSemanticChunks } from "@/features/wiki/wiki-chunks";
+import { wikiContentHash, wikiSectionRows } from "@/features/wiki/wiki-sections";
+import { currentWikiSummary, wikiSummaryNeeded } from "@/features/wiki/wiki-summary";
 
-import { embeddingVectorLiteral, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
+import { embeddingVectorLiteral, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_VERSION } from "./wiki-embedding-model";
 
 export const WIKI_SEMANTIC_INDEX_BATCH_PAGES = 8;
 
-export type WikiSemanticIndexPage = { id: string; title: string; markdown: string; updatedAt: Date };
+export type WikiIndexPage = WikiSummaryState & { id: string };
 
 export class WikiSemanticIndexService extends UserAccessor {
   constructor(
     private repo: WikiSemanticIndexRepo,
     private embeddings: WikiEmbeddingService,
+    private summaries: Pick<WikiSummaryService, "summarize">,
   ) {
     super();
   }
@@ -22,45 +26,61 @@ export class WikiSemanticIndexService extends UserAccessor {
     if (!(await this.repo.semanticIndexAvailable()) || !(await this.embeddings.authorizeIndexing(this.companyId)))
       return { indexed: 0, remaining: false };
 
-    const pages = await this.repo.claimStaleSemanticPages(WIKI_EMBEDDING_MODEL, WIKI_SEMANTIC_INDEX_BATCH_PAGES);
+    const pages = await this.repo.claimStaleIndexPages(WIKI_EMBEDDING_VERSION, WIKI_SEMANTIC_INDEX_BATCH_PAGES);
     let indexed = 0;
     try {
       for (const page of pages) {
         const grant = await this.embeddings.authorizeIndexing(this.companyId);
         if (!grant) return { indexed, remaining: false };
 
-        const chunks = wikiSemanticChunks(page.title, page.markdown);
-        const known = await this.repo.semanticEmbeddingsByHash(page.id, WIKI_EMBEDDING_MODEL);
+        let summary = currentWikiSummary(page);
+        if (wikiSummaryNeeded(page)) {
+          const generated = await this.summaries.summarize(grant, page);
+          if (generated.status === "failed") return { indexed, remaining: false };
+          summary = generated.summary;
+          const stored = await this.repo.storeSummary({
+            pageId: page.id,
+            pageUpdatedAt: page.updatedAt,
+            summary,
+            contentHash: wikiContentHash(page),
+          });
+          if (!stored) continue;
+        }
+
+        const rows = wikiSectionRows(page, summary);
+        const known = await this.repo.sectionEmbeddingsByHash(page.id, WIKI_EMBEDDING_VERSION);
         const missing = [
-          ...new Map(
-            chunks.filter((chunk) => !known.has(chunk.contentHash)).map((chunk) => [chunk.contentHash, chunk]),
-          ).values(),
+          ...new Map(rows.filter((row) => !known.has(row.contentHash)).map((row) => [row.contentHash, row])).values(),
         ];
         for (let start = 0; start < missing.length; start += WIKI_EMBEDDING_BATCH_SIZE) {
           const batch = missing.slice(start, start + WIKI_EMBEDDING_BATCH_SIZE);
           const vectors = await this.embeddings.embedTexts(
             grant,
-            batch.map((chunk) => chunk.text),
+            batch.map((row) => row.embeddingText),
             "document",
           );
           if (!vectors) return { indexed, remaining: false };
-          batch.forEach((chunk, index) => known.set(chunk.contentHash, embeddingVectorLiteral(vectors[index])));
+          batch.forEach((row, index) => known.set(row.contentHash, embeddingVectorLiteral(vectors[index])));
         }
 
-        const written = await this.repo.replaceSemanticChunks({
+        const written = await this.repo.replaceSections({
           pageId: page.id,
           pageUpdatedAt: page.updatedAt,
-          model: WIKI_EMBEDDING_MODEL,
-          chunks: chunks.flatMap((chunk) => {
-            const embedding = known.get(chunk.contentHash);
-            return embedding ? [{ ...chunk, embedding }] : [];
-          }),
+          pageTitle: page.title,
+          summary,
+          rows,
+          embeddings: known,
+          version: WIKI_EMBEDDING_VERSION,
+          onlyIfStale: false,
         });
         if (written) indexed += 1;
       }
     } finally {
-      await this.repo.releaseSemanticClaims(pages.map((page) => page.id));
+      await this.repo.releaseIndexClaims(pages.map((page) => page.id));
     }
-    return { indexed, remaining: pages.length === WIKI_SEMANTIC_INDEX_BATCH_PAGES };
+    return {
+      indexed,
+      remaining: pages.length === WIKI_SEMANTIC_INDEX_BATCH_PAGES,
+    };
   }
 }

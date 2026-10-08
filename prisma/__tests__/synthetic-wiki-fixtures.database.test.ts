@@ -50,7 +50,10 @@ async function withTemporaryDatabase(fn: (prisma: PrismaClient, client: Client) 
 }
 
 function seedContext(prisma: PrismaClient) {
-  return createSeedContext(prisma, { seedUserEmail: SYNTHETIC_SEED_USER.email, sharedUserPassword: "unused" });
+  return createSeedContext(prisma, {
+    seedUserEmail: SYNTHETIC_SEED_USER.email,
+    sharedUserPassword: "unused",
+  });
 }
 
 describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, () => {
@@ -58,16 +61,28 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
     await withTemporaryDatabase(async (prisma, client) => {
       const context = seedContext(prisma);
       await seedWikiPages(context);
-      const baseline = await prisma.wikiPage.findMany({ orderBy: { sortOrder: "asc" } });
+      const baseline = await prisma.wikiPage.findMany({
+        orderBy: { sortOrder: "asc" },
+      });
       expect(baseline).toHaveLength(12);
-      expect(baseline[0]).toMatchObject({ id: SYNTHETIC_WIKI_PAGE_IDS.guide, kind: "guide", sortOrder: -1 });
+      expect(baseline[0]).toMatchObject({
+        id: SYNTHETIC_WIKI_PAGE_IDS.guide,
+        kind: "guide",
+        sortOrder: -1,
+      });
       await seedWikiPages(context);
       expect(await prisma.wikiPage.findMany({ orderBy: { sortOrder: "asc" } })).toEqual(baseline);
 
       const ownNote = await prisma.wikiPage.create({
-        data: { companyId: SEED_IDS.company, title: "My team notes", markdown: "Keep our own notes." },
+        data: {
+          companyId: SEED_IDS.company,
+          title: "My team notes",
+          markdown: "Keep our own notes.",
+        },
       });
-      const otherCompany = await prisma.company.create({ data: {} });
+      const otherCompany = await prisma.company.create({
+        data: { currency: "eur" },
+      });
       const otherPage = await prisma.wikiPage.create({
         data: {
           companyId: otherCompany.id,
@@ -97,10 +112,16 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
       ).toEqual(baseline);
       expect(await prisma.wikiPage.findUnique({ where: { id: ownNote.id } })).toEqual(ownNote);
       expect(await prisma.wikiPage.findUnique({ where: { id: otherPage.id } })).toEqual(otherPage);
-      expect(await prisma.wikiPage.findUnique({ where: { id: fixtureId("36000000", 99) } })).toBeNull();
+      expect(
+        await prisma.wikiPage.findUnique({
+          where: { id: fixtureId("36000000", 99) },
+        }),
+      ).toBeNull();
 
       const search = await client.query(
-        'SELECT id FROM "WikiPage" WHERE "companyId" = $1 AND "searchVector" @@ plainto_tsquery(\'simple\', \'handover\')',
+        `SELECT id FROM "WikiPage" WHERE "companyId" = $1
+          AND retrieval_section_vector(NULL, "title", ARRAY[]::text[], "summary", "markdown")
+            @@ plainto_tsquery('simple', 'handover')`,
         [SEED_IDS.company],
       );
       expect(search.rows.map(({ id }: { id: string }) => id)).toContain(SYNTHETIC_WIKI_PAGE_IDS.handover);
@@ -108,7 +129,10 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
         true,
       );
 
-      await prisma.wikiPage.update({ where: { id: SYNTHETIC_WIKI_PAGE_IDS.guide }, data: { kind: "knowledge" } });
+      await prisma.wikiPage.update({
+        where: { id: SYNTHETIC_WIKI_PAGE_IDS.guide },
+        data: { kind: "knowledge" },
+      });
       const customGuide = await prisma.wikiPage.create({
         data: {
           companyId: SEED_IDS.company,
@@ -120,9 +144,19 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
       await seedWikiPages(context);
       await seedWikiPages(context);
       expect(await prisma.wikiPage.findUnique({ where: { id: customGuide.id } })).toEqual(customGuide);
-      expect(await prisma.wikiPage.findUnique({ where: { id: SYNTHETIC_WIKI_PAGE_IDS.guide } })).toBeNull();
-      expect(await prisma.wikiPage.count({ where: { companyId: SEED_IDS.company, kind: "guide" } })).toBe(1);
-      const pages = await prisma.wikiPage.findMany({ where: { companyId: SEED_IDS.company } });
+      expect(
+        await prisma.wikiPage.findUnique({
+          where: { id: SYNTHETIC_WIKI_PAGE_IDS.guide },
+        }),
+      ).toBeNull();
+      expect(
+        await prisma.wikiPage.count({
+          where: { companyId: SEED_IDS.company, kind: "guide" },
+        }),
+      ).toBe(1);
+      const pages = await prisma.wikiPage.findMany({
+        where: { companyId: SEED_IDS.company },
+      });
       const pageIds = new Set(pages.map(({ id }) => id));
       for (const page of pages) {
         for (const link of extractWikiPageLinks(page.markdown, "http://localhost:4000"))
@@ -150,10 +184,19 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
         },
       });
       await prisma.wikiPage.create({
-        data: { id: fixtureId("36000000", 99), companyId: SEED_IDS.company, title: "Stale fixture", markdown: "Old." },
+        data: {
+          id: fixtureId("36000000", 99),
+          companyId: SEED_IDS.company,
+          title: "Stale fixture",
+          markdown: "Old.",
+        },
       });
-      const before = await prisma.wikiPage.findMany({ orderBy: { id: "asc" } });
-      await expect(seedWikiPages(context)).rejects.toMatchObject({ code: "P2002" });
+      const before = await prisma.wikiPage.findMany({
+        orderBy: { id: "asc" },
+      });
+      await expect(seedWikiPages(context)).rejects.toMatchObject({
+        code: "P2002",
+      });
       expect(await prisma.wikiPage.findMany({ orderBy: { id: "asc" } })).toEqual(before);
     });
   });

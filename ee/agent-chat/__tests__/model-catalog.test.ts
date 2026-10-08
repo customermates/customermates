@@ -32,6 +32,7 @@ describe("shipped agent models", () => {
     expect(AGENT_MODELS.chat.reasoningEffort).toBe("low");
     expect(AGENT_MODELS.routine.reasoningEffort).toBe("medium");
     expect(AGENT_MODELS.wikiSynthesis.reasoningEffort).toBe("medium");
+    expect(AGENT_MODELS.wikiSummary).toMatchObject({ reasoningEffort: "low", maxOutputTokens: 512 });
   });
 
   it("pins every entry to Claude Haiku on Vertex Anthropic in the EU", () => {

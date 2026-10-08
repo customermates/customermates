@@ -1,8 +1,8 @@
 import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { DocsSection } from "../docs-sections";
-import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
-import type { DocsFullTextRow } from "../prisma-docs-chunk.repository";
+import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
+import type { DocsFullTextRow } from "../prisma-docs-section.repository";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -15,7 +15,7 @@ const row = (section: DocsSection): DocsFullTextRow => ({
   source: section.source,
   slug: section.slug,
   sectionOrder: section.order,
-  chunkOrdinal: 0,
+  partOrdinal: 0,
   anchor: section.anchor,
   coverage: 1,
 });
@@ -30,7 +30,7 @@ function repo(fullText: DocsFullTextRow[]) {
     semanticIndexComplete: vi.fn(() => Promise.resolve(false)),
     pendingEmbeddings: vi.fn(() => Promise.resolve([])),
     storeEmbeddings: vi.fn(() => Promise.resolve()),
-  } satisfies DocsChunkRepo;
+  } satisfies DocsSectionRepo;
 }
 
 const deps = (rows: DocsFullTextRow[], ranker?: SectionRanker) => ({

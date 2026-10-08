@@ -1,8 +1,8 @@
 import type { DocsSection } from "../docs-sections";
 import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { RankableSection } from "@/core/retrieval/retrieval-context";
-import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
-import type { DocsFullTextRow, DocsSemanticRow } from "../prisma-docs-chunk.repository";
+import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
+import type { DocsFullTextRow, DocsSemanticRow } from "../prisma-docs-section.repository";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -20,12 +20,12 @@ if (!signature) throw new Error("The webhooks page lost its signature section.")
 
 const row = (
   section: Pick<DocsSection, "source" | "slug" | "order" | "anchor">,
-  chunkOrdinal = 0,
+  partOrdinal = 0,
 ): DocsFullTextRow & DocsSemanticRow => ({
   source: section.source,
   slug: section.slug,
   sectionOrder: section.order,
-  chunkOrdinal,
+  partOrdinal,
   anchor: section.anchor,
   coverage: 1,
   similarity: 0.8,
@@ -41,10 +41,14 @@ function repo(fullText: DocsFullTextRow[], semantic: DocsSemanticRow[] | null = 
     semanticIndexComplete: vi.fn(() => Promise.resolve(true)),
     pendingEmbeddings: vi.fn(() => Promise.resolve([])),
     storeEmbeddings: vi.fn(() => Promise.resolve()),
-  } satisfies DocsChunkRepo;
+  } satisfies DocsSectionRepo;
 }
 
-const INPUT = { query: "check that a webhook came from you", locale: "en" as const, source: "docs" as const };
+const INPUT = {
+  query: "check that a webhook came from you",
+  locale: "en" as const,
+  source: "docs" as const,
+};
 
 describe("unified documentation search", () => {
   it.each([
@@ -67,7 +71,11 @@ describe("unified documentation search", () => {
       if (!total || !weighted) throw new Error("Missing pipeline calculation documentation");
       const fetched = await unifiedDocsPageResult(
         { slug: "concepts", query, locale, source: "docs" },
-        { repo: repo([row(total), row(weighted)]), embed: null, ranker: undefined },
+        {
+          repo: repo([row(total), row(weighted)]),
+          embed: null,
+          ranker: undefined,
+        },
       );
       const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
       expect(markdown.startsWith(`## ${total.headingPath.at(-1)}`)).toBe(true);
@@ -157,7 +165,11 @@ describe("unified documentation search", () => {
     const ranker = vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
     const result = await unifiedDocsSearchResult(
       { ...INPUT, source },
-      { repo: chunks, embed: () => Promise.resolve({ vector: [1], model: "m" }), ranker },
+      {
+        repo: chunks,
+        embed: () => Promise.resolve({ vector: [1], version: "m" }),
+        ranker,
+      },
     );
     expect(ranker).toHaveBeenCalledTimes(1);
     expect(result.structuredContent.results).toEqual([]);
@@ -170,7 +182,7 @@ describe("unified documentation search", () => {
     const { value, timings } = await collectRetrievalTimings(() =>
       unifiedDocsSearchResult(INPUT, {
         repo: chunks,
-        embed: () => Promise.resolve({ vector: [1], model: "m" }),
+        embed: () => Promise.resolve({ vector: [1], version: "m" }),
         ranker: undefined,
         scheduleIndexing,
       }),
@@ -181,7 +193,13 @@ describe("unified documentation search", () => {
     expect(scheduleIndexing).toHaveBeenCalledWith(docsCorpus().buildHash, true);
     expect(value.structuredContent.results.map(({ slug }) => slug)).toEqual(["webhooks", "app-assistant"]);
     expect(value.text).not.toContain("\nexcerpt=\n");
-    expect(timings).toEqual([expect.objectContaining({ corpus: "docs", embedding: "used", rerank: "unavailable" })]);
+    expect(timings).toEqual([
+      expect.objectContaining({
+        corpus: "docs",
+        embedding: "used",
+        rerank: "unavailable",
+      }),
+    ]);
   });
 
   it("puts the re-ranked section first with its excerpt, offering complete sections of the top pages", async () => {
@@ -202,7 +220,10 @@ describe("unified documentation search", () => {
       offered.filter((candidate) => candidate.section === assistant[0] || candidate.section === webhooks[0]),
     ).toHaveLength(2);
     expect(offered.find((candidate) => candidate.section === signature)?.section.text).toBe(signature.text);
-    expect(result.structuredContent.results[0]).toMatchObject({ slug: "webhooks", anchor: signature.anchor });
+    expect(result.structuredContent.results[0]).toMatchObject({
+      slug: "webhooks",
+      anchor: signature.anchor,
+    });
     expect(result.text).toContain(`\nexcerpt=\n## ${signature.headingPath.join(" > ")}\n`);
   });
 
@@ -233,38 +254,65 @@ describe("unified documentation search", () => {
     };
     const result = await unifiedDocsSearchResult(
       { ...INPUT, query: "record access" },
-      { repo: repo(parents.map((section) => row(section))), embed: null, ranker },
+      {
+        repo: repo(parents.map((section) => row(section))),
+        embed: null,
+        ranker,
+      },
     );
     expect(offered.slice(0, parents.length).map(({ section }) => section)).toEqual(parents);
     expect(offered.length).toBeLessThanOrEqual(120);
     expect(offered.find(({ section }) => section === expected)?.section.text).toBe(expected.text);
-    expect(result.structuredContent.results[0]).toMatchObject({ slug: "app-company", anchor: expected.anchor });
+    expect(result.structuredContent.results[0]).toMatchObject({
+      slug: "app-company",
+      anchor: expected.anchor,
+    });
   });
 
   it("returns no pages below the relevance floor, and lets the re-rank reject a loose match", async () => {
-    const embed = () => Promise.resolve({ vector: [1], model: "m" });
+    const embed = () => Promise.resolve({ vector: [1], version: "m" });
     const loose = (coverage: number, similarity: number) =>
       repo([{ ...row(webhooks[0]), coverage }], [{ ...row(signature), similarity }]);
     const abstaining = vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
 
-    const unrelated = await unifiedDocsSearchResult(INPUT, { repo: loose(0.2, 0.55), embed, ranker: abstaining });
+    const unrelated = await unifiedDocsSearchResult(INPUT, {
+      repo: loose(0.2, 0.55),
+      embed,
+      ranker: abstaining,
+    });
     expect(unrelated.structuredContent).toEqual({ results: [], total: 0 });
-    expect(unrelated.text).toContain("hint: ");
+    expect(unrelated.text).toContain("no_adequate_section: ");
     expect(abstaining).not.toHaveBeenCalled();
 
-    const rejected = await unifiedDocsSearchResult(INPUT, { repo: loose(0.2, 0.7), embed, ranker: abstaining });
+    const rejected = await unifiedDocsSearchResult(INPUT, {
+      repo: loose(0.2, 0.7),
+      embed,
+      ranker: abstaining,
+    });
     expect(rejected.structuredContent).toEqual({ results: [], total: 0 });
     expect(abstaining).toHaveBeenCalledTimes(1);
 
-    const lexical = await unifiedDocsSearchResult(INPUT, { repo: loose(1, 0.55), embed, ranker: abstaining });
+    const lexical = await unifiedDocsSearchResult(INPUT, {
+      repo: loose(1, 0.55),
+      embed,
+      ranker: abstaining,
+    });
     expect(lexical.structuredContent.results.length).toBeGreaterThan(0);
 
-    const unjudged = await unifiedDocsSearchResult(INPUT, { repo: loose(0.2, 0.55), embed: null, ranker: undefined });
+    const unjudged = await unifiedDocsSearchResult(INPUT, {
+      repo: loose(0.2, 0.55),
+      embed: null,
+      ranker: undefined,
+    });
     expect(unjudged.structuredContent.results.length).toBeGreaterThan(0);
 
     const indexing = loose(0.2, 0.55);
     indexing.semanticIndexComplete.mockResolvedValue(false);
-    const partial = await unifiedDocsSearchResult(INPUT, { repo: indexing, embed, ranker: undefined });
+    const partial = await unifiedDocsSearchResult(INPUT, {
+      repo: indexing,
+      embed,
+      ranker: undefined,
+    });
     expect(partial.structuredContent.results.length).toBeGreaterThan(0);
   });
 
@@ -280,10 +328,14 @@ describe("unified documentation search", () => {
       if (!relationships || !create) throw new Error("Missing relationship fallback documentation");
       const ranker = mode === "unavailable" ? undefined : vi.fn(() => Promise.reject(new Error("deadline")));
       const chunks = repo([row(relationships), row(create)], [row(relationships), row(create)]);
-      const embed = vi.fn(() => Promise.resolve({ vector: [1], model: "local-stub" }));
+      const embed = vi.fn(() => Promise.resolve({ vector: [1], version: "local-stub" }));
       const { value, timings } = await collectRetrievalTimings(() =>
         unifiedDocsSearchResult(
-          { query: "link a contact to an organization", locale: "en", source: "docs" },
+          {
+            query: "link a contact to an organization",
+            locale: "en",
+            source: "docs",
+          },
           { repo: chunks, embed, ranker },
         ),
       );
@@ -362,7 +414,10 @@ describe("unified documentation search", () => {
 
       expect(ranker).toHaveBeenCalledOnce();
       expect(ranker).toHaveReturnedTimes(1);
-      await expect(ranker.mock.results[0].value).resolves.toEqual({ order: [expect.any(Number)], abstained: false });
+      await expect(ranker.mock.results[0].value).resolves.toEqual({
+        order: [expect.any(Number)],
+        abstained: false,
+      });
       expect((result as { text: string }).text.split("\n")[0]).toBe(`## ${signature.headingPath.at(-1)}`);
       expect((result as { text: string }).text).toContain("X-Webhook-Signature");
       expect((result as { text: string }).text).toContain("HMAC-SHA256(secret, rawRequestBody)");
@@ -393,7 +448,11 @@ describe("unified documentation search", () => {
       ),
     ).toBe(true);
 
-    const ranked = await unifiedDocsPageResult(page, { repo: repo([row(signature)]), embed: null, ranker });
+    const ranked = await unifiedDocsPageResult(page, {
+      repo: repo([row(signature)]),
+      embed: null,
+      ranker,
+    });
     expect(typeof ranked === "object" && "structuredContent" in ranked && ranked.structuredContent).toMatchObject({
       excerpt: true,
     });
@@ -424,10 +483,17 @@ describe("unified documentation search", () => {
 
     const result = await unifiedDocsSearchResult(
       { query: "webhook signature", locale: "en", source: "docs" },
-      { repo: chunks, embed: () => Promise.resolve({ vector: [1], model: "m" }), ranker: undefined, scheduleIndexing },
+      {
+        repo: chunks,
+        embed: () => Promise.resolve({ vector: [1], version: "m" }),
+        ranker: undefined,
+        scheduleIndexing,
+      },
     );
 
-    expect(result.structuredContent.results[0]).toMatchObject({ slug: "webhooks" });
+    expect(result.structuredContent.results[0]).toMatchObject({
+      slug: "webhooks",
+    });
     expect(chunks.fullTextSections).not.toHaveBeenCalled();
     expect(chunks.semanticSections).not.toHaveBeenCalled();
     expect(chunks.ensureCorpus).not.toHaveBeenCalled();
@@ -452,9 +518,15 @@ describe("unified documentation search", () => {
 
   it("reads the previous build's rows by anchor while the current build is being indexed", async () => {
     const moved = { ...row(signature), sectionOrder: signature.order + 40 };
-    const vanished = { ...row(webhooks[0]), anchor: "a-section-this-build-removed" };
+    const vanished = {
+      ...row(webhooks[0]),
+      anchor: "a-section-this-build-removed",
+    };
     const chunks = repo([vanished, moved]);
-    chunks.storedBuild.mockResolvedValue({ buildHash: "previous-build", current: false } as never);
+    chunks.storedBuild.mockResolvedValue({
+      buildHash: "previous-build",
+      current: false,
+    } as never);
     const scheduleIndexing = vi.fn(() => Promise.resolve());
 
     const result = await unifiedDocsSearchResult(INPUT, {
@@ -547,11 +619,18 @@ describe("search and page section coherence", () => {
       const chosen = candidates.find(({ section }) => section === (global ? overview : destination));
       return Promise.resolve(chosen ? { order: [chosen.id], abstained: false } : null);
     };
-    const deps = { repo: repo([row(overview), row(destination), row(unrelated)]), embed: null, ranker };
+    const deps = {
+      repo: repo([row(overview), row(destination), row(unrelated)]),
+      embed: null,
+      ranker,
+    };
     const query = "webhooks page URL";
     const result = await unifiedDocsSearchResult({ query, locale: "en", source: "docs" }, deps);
     const page = await unifiedDocsPageResult({ slug: "app-company", query, locale: "en", source: "docs" }, deps);
-    expect(result.structuredContent.results[0]).toMatchObject({ slug: "app-company", anchor: overview.anchor });
+    expect(result.structuredContent.results[0]).toMatchObject({
+      slug: "app-company",
+      anchor: overview.anchor,
+    });
     expect((page as { structuredContent: { markdown: string } }).structuredContent.markdown.split("\n")[0]).toContain(
       overview.headingPath.at(-1),
     );
@@ -562,7 +641,10 @@ describe("search and page section coherence", () => {
 
     deps.repo.fullTextSections.mockResolvedValue([row(destination)]);
     const changed = await unifiedDocsSearchResult({ query, locale: "en", source: "docs" }, deps);
-    expect(changed.structuredContent.results[0]).toMatchObject({ slug: "app-company", anchor: destination.anchor });
+    expect(changed.structuredContent.results[0]).toMatchObject({
+      slug: "app-company",
+      anchor: destination.anchor,
+    });
     expect(captured).toHaveLength(2);
     expect(captured[1]).not.toEqual(captured[0]);
     expect(deps.repo.storedBuild).toHaveBeenCalledTimes(3);
@@ -593,11 +675,18 @@ describe("search and page section coherence", () => {
           }),
           abstained: false,
         });
-      const deps = { repo: repo([row(overview), row(destination)]), embed: null, ranker };
+      const deps = {
+        repo: repo([row(overview), row(destination)]),
+        embed: null,
+        ranker,
+      };
       const search = await unifiedDocsSearchResult({ query, locale: "en", source: "docs" }, deps);
       const page = await unifiedDocsPageResult({ slug: "app-company", query, locale: "en", source: "docs" }, deps);
       const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
-      expect(search.structuredContent.results[0]).toMatchObject({ slug: "app-company", anchor: overview.anchor });
+      expect(search.structuredContent.results[0]).toMatchObject({
+        slug: "app-company",
+        anchor: overview.anchor,
+      });
       expect(markdown.split("\n")[0]).toContain(overview.headingPath.at(-1));
       expect(markdown.length).toBeLessThanOrEqual(1_400);
       expect(destination.text).toContain(link);
@@ -619,7 +708,12 @@ describe("search and page section coherence", () => {
         abstained: false,
       });
     const page = await unifiedDocsPageResult(
-      { slug: "app-company", query: "webhooks page URL", locale: "en", source: "docs" },
+      {
+        slug: "app-company",
+        query: "webhooks page URL",
+        locale: "en",
+        source: "docs",
+      },
       { repo: repo([row(primary), row(secondary)]), embed: null, ranker },
     );
     const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
@@ -636,7 +730,12 @@ describe("search and page section coherence", () => {
       Promise.resolve(scope.slug === "webhooks" ? [row(signature)] : [row(assistant[0])]),
     );
     const page = await unifiedDocsPageResult(
-      { slug: "webhooks", query: "signature authenticity", locale: "en", source: "docs" },
+      {
+        slug: "webhooks",
+        query: "signature authenticity",
+        locale: "en",
+        source: "docs",
+      },
       { repo: chunks, embed: null, ranker: undefined },
     );
     expect((page as { structuredContent: { markdown: string } }).structuredContent.markdown).toContain(
@@ -653,13 +752,17 @@ describe("search and page section coherence", () => {
 describe("consistent docs selections keep the retrieval stages", () => {
   it("excerpts and searches the same section while repeating FTS, vector and relevance processing", async () => {
     const chunks = repo([row(signature), row(webhooks[0])], [row(signature), row(webhooks[0])]);
-    const embed = vi.fn(() => Promise.resolve({ vector: [1], model: "m" }));
+    const embed = vi.fn(() => Promise.resolve({ vector: [1], version: "m" }));
     const ranker = vi
       .fn()
       .mockResolvedValueOnce({ order: [0], abstained: false })
       .mockResolvedValue({ order: [1], abstained: false });
     const deps = { repo: chunks, embed, ranker };
-    const input = { query: "signature proof", locale: "en" as const, source: "docs" as const };
+    const input = {
+      query: "signature proof",
+      locale: "en" as const,
+      source: "docs" as const,
+    };
     const excerpt = await unifiedDocsPageResult({ ...input, slug: "webhooks" }, deps);
     const search = await unifiedDocsSearchResult(input, deps);
     const markdown = (excerpt as { structuredContent: { markdown: string } }).structuredContent.markdown;

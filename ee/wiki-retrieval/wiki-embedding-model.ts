@@ -8,6 +8,7 @@ export const WIKI_EMBEDDING_MODEL = "google/gemini-embedding-001";
 export const WIKI_EMBEDDING_SERVING_PROVIDER = "vertex";
 export const WIKI_EMBEDDING_DIMENSIONS = 768;
 export const WIKI_EMBEDDING_BATCH_SIZE = 32;
+export const WIKI_EMBEDDING_VERSION = "gemini-embedding-001/768/gateway-vertex/sum-v1";
 const WIKI_EMBEDDING_MICROCENTS_PER_TOKEN = 15;
 const WIKI_QUERY_TIMEOUT_MS = 5_000;
 const WIKI_DOCUMENT_TIMEOUT_MS = 30_000;
@@ -80,7 +81,10 @@ function wikiEmbeddingCharge(
 export async function embedWikiTexts(
   texts: string[],
   kind: WikiEmbeddingKind,
-  options: { maxRetries?: number; onCharge?: (charge: AgentRetrievalCharge) => void } = {},
+  options: {
+    maxRetries?: number;
+    onCharge?: (charge: AgentRetrievalCharge) => void;
+  } = {},
 ): Promise<{ vectors: number[][]; charge: AgentRetrievalCharge }> {
   if (texts.length === 0 || texts.length > WIKI_EMBEDDING_BATCH_SIZE)
     throw new Error("Knowledge Base embedding batch size is invalid.");

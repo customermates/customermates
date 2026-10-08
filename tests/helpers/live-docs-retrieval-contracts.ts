@@ -1,6 +1,6 @@
 import type { RankableSection, RetrievalTiming, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { QueryEmbedding, QueryVector } from "@/core/retrieval/retrieval-pipeline";
-import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
+import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
 import type { UnifiedDocsDeps } from "@/features/mcp-tools/docs-unified-search";
 
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -24,6 +24,7 @@ import {
   embedWikiTexts,
   WIKI_EMBEDDING_BATCH_SIZE,
   WIKI_EMBEDDING_MODEL,
+  WIKI_EMBEDDING_VERSION,
   wikiEmbeddingWorstCaseMicrocents,
 } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
@@ -93,7 +94,7 @@ export function liveDocsRetrievalContractsEnabled(
   return flag === "true";
 }
 
-export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
+export function createLiveDocsRetrievalContracts(repo: DocsSectionRepo) {
   if (!liveDocsRetrievalContractsEnabled()) throw new Error("Live documentation contracts require explicit opt-in.");
   const cap = process.env.LIVE_DOCS_RETRIEVAL_CAP_USD;
   if (cap === undefined) throw new Error("Live documentation contracts require an approved USD cap.");
@@ -152,7 +153,7 @@ export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
     if (!pending) {
       pending = embedded([text], "query")
         .then(({ vectors: found }) => {
-          const vector = { vector: found[0], model: WIKI_EMBEDDING_MODEL };
+          const vector = { vector: found[0], version: WIKI_EMBEDDING_VERSION };
           vectors.set(text, vector);
           return vector;
         })
@@ -304,18 +305,18 @@ export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
     const corpus = docsCorpus();
     await repo.ensureCorpus(corpus);
     for (;;) {
-      const chunks = await repo.pendingEmbeddings(corpus.buildHash, WIKI_EMBEDDING_MODEL, WIKI_EMBEDDING_BATCH_SIZE);
-      if (chunks.length === 0) break;
-      const texts = docsPendingEmbeddingTexts(corpus, chunks);
+      const pending = await repo.pendingEmbeddings(corpus.buildHash, WIKI_EMBEDDING_VERSION, WIKI_EMBEDDING_BATCH_SIZE);
+      if (pending.length === 0) break;
+      const texts = docsPendingEmbeddingTexts(corpus, pending);
       const { vectors: found } = await embedded(texts, "docs-index");
       await repo.storeEmbeddings(
-        WIKI_EMBEDDING_MODEL,
-        chunks.map(({ contentHash }, index) => ({
+        WIKI_EMBEDDING_VERSION,
+        pending.map(({ contentHash }, index) => ({
           contentHash,
           embedding: `[${found[index].join(",")}]`,
         })),
       );
-      indexed += chunks.length;
+      indexed += pending.length;
     }
     prepared = true;
   }

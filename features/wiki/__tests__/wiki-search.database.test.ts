@@ -1,4 +1,3 @@
-import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -24,7 +23,7 @@ import { fetchTool, searchTool } from "@/features/mcp-tools/deep-research.mcp-to
 import { mcpToolResultText } from "@/features/mcp-tools/mcp-tool";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 
-import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
+import { PrismaWikiSectionRepo } from "../prisma-wiki-section.repository";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { WikiMarkdownSchema } from "../wiki.schema";
 
@@ -36,7 +35,10 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
   const companyId = randomUUID();
   const foreignCompanyId = randomUUID();
   const user: TenantUser = createMockUser({ id: randomUUID(), companyId });
-  const foreignUser: TenantUser = createMockUser({ id: randomUUID(), companyId: foreignCompanyId });
+  const foreignUser: TenantUser = createMockUser({
+    id: randomUUID(),
+    companyId: foreignCompanyId,
+  });
 
   const insert = async (tenant: TenantUser, pages: Array<{ title: string; markdown: string }>) => {
     const ids: string[] = [];
@@ -58,11 +60,7 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
   };
   const search = (query: string, tenant = user, page = 1) =>
     runWithTenant(tenant, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
-        query,
-        page,
-        pageSize: 5,
-      }),
+      new SearchWikiPagesInteractor(new PrismaWikiSectionRepo(), "stored").invoke({ query, page, pageSize: 5 }),
     );
   const titles = async (query: string) => {
     const result = await search(query);
@@ -94,24 +92,28 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     expect(MCP_ALWAYS_ON_TOOLS.map((tool) => tool.name)).toEqual([searchTool.name, fetchTool.name]);
   });
 
-  it("keeps the stored search document in sync with title and Markdown edits", async () => {
+  it("rebuilds the section search documents after title and Markdown edits", async () => {
     const [id] = await insert(user, [
-      { title: "Returns", markdown: "## Rückerstattungen\n\nWe refund within 5 days." },
+      {
+        title: "Returns",
+        markdown: "## Rückerstattungen\n\nWe refund within 5 days.",
+      },
     ]);
-    const read = () =>
-      client.query(
-        `SELECT "searchVector" @@ plainto_tsquery('german', 'Rückerstattung') AS "german",
-          "searchVector" @@ plainto_tsquery('english', 'refunded') AS "english"
-         FROM "WikiPage" WHERE "id" = $1`,
+    const read = async () => {
+      await search("refund");
+      return client.query(
+        `SELECT bool_or("searchVector" @@ plainto_tsquery('german', 'Rückerstattung')) AS "german",
+          bool_or("searchVector" @@ plainto_tsquery('english', 'refunded')) AS "english"
+         FROM "WikiPageSection" WHERE "pageId" = $1`,
         [id],
       );
+    };
     expect((await read()).rows).toEqual([{ german: true, english: true }]);
 
-    await client.query('UPDATE "WikiPage" SET "title" = $1, "markdown" = $2 WHERE "id" = $3', [
-      "Shipping",
-      "Parcels leave the warehouse daily.",
-      id,
-    ]);
+    await client.query(
+      'UPDATE "WikiPage" SET "title" = $1, "markdown" = $2, "updatedAt" = CURRENT_TIMESTAMP WHERE "id" = $3',
+      ["Shipping", "Parcels leave the warehouse daily.", id],
+    );
     expect((await read()).rows).toEqual([{ german: false, english: false }]);
   });
 
@@ -126,7 +128,10 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
       { title: "Approvals", markdown: "Managers approve discounts." },
     ]);
     await insert(foreignUser, [
-      { title: "Refund policy", markdown: "Foreign refunds are approved by the foreign lead." },
+      {
+        title: "Refund policy",
+        markdown: "Foreign refunds are approved by the foreign lead.",
+      },
     ]);
 
     const hits = async (query: string) => {
@@ -139,7 +144,9 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     const approvesRefunds = await ids("who approves refunds");
     expect(approvesRefunds[0]).toBe(refund);
     expect(new Set(approvesRefunds.slice(1))).toEqual(new Set([approvals, legacy]));
-    expect((await hits("who approves refunds"))[0]).toMatchObject({ section: "Approval" });
+    expect((await hits("who approves refunds"))[0]).toMatchObject({
+      section: "Approval",
+    });
     expect(await ids('"expense policy"')).toEqual([travel]);
     expect(await ids("policy")).toHaveLength(3);
     expect(await ids("polic")).toHaveLength(3);
@@ -149,15 +156,15 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
 
   it("reports how much of the query's weight the best full-text match covers", async () => {
     await insert(user, [
-      { title: "Refund policy", markdown: "The finance lead approves refunds." },
+      {
+        title: "Refund policy",
+        markdown: "The finance lead approves refunds.",
+      },
       { title: "Travel expense policy", markdown: "Book trains early." },
     ]);
+    await runWithTenant(user, () => new PrismaWikiSectionRepo().syncStaleSections());
     const coverage = async (query: string) =>
-      (
-        await runWithTenant(user, () =>
-          new PrismaWikiPageRepo(new PermissionService()).fullTextPageCandidates(query, 10),
-        )
-      ).coverage;
+      (await runWithTenant(user, () => new PrismaWikiSectionRepo().fullTextSections(query, 10))).coverage;
 
     expect(await coverage("finance lead refunds")).toBeCloseTo(1, 6);
     const partial = await coverage("finance lead parking garage");
@@ -184,12 +191,20 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     const result = await search("who approves refunds above 500 EUR");
     if (!result.ok) throw new Error("Wiki search failed.");
     const [hit] = result.data.items;
-    expect(hit).toMatchObject({ id: pageId, section: "Approval matrix", anchor: "approval-matrix" });
-    expect(hit.snippet).toContain("**approval**");
+    expect(hit).toMatchObject({
+      id: pageId,
+      section: "Approval matrix",
+      anchor: "approval-matrix",
+    });
+    expect(hit.snippet).toBe("Refunds above 500 EUR require approval from the finance lead.");
 
     const got = await runWithTenant(user, () =>
       manageWikiPagesTool.execute(
-        manageWikiPagesTool.inputSchema.parse({ action: "get", id: pageId, offset: hit.offset }),
+        manageWikiPagesTool.inputSchema.parse({
+          action: "get",
+          id: pageId,
+          offset: hit.offset,
+        }),
       ),
     );
     expect((decode(mcpToolResultText(got)) as { markdownChunk: string }).markdownChunk).toMatch(
@@ -200,9 +215,16 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
       searchTool.execute({ query: "who approves refunds above 500 EUR" }),
     );
     const external = (
-      searched.structuredContent.results as Array<{ id: string; offset?: number; section?: string }>
+      searched.structuredContent.results as Array<{
+        id: string;
+        offset?: number;
+        section?: string;
+      }>
     )[0];
-    expect(external).toMatchObject({ id: `wiki:${pageId}`, section: "Approval matrix" });
+    expect(external).toMatchObject({
+      id: `wiki:${pageId}`,
+      section: "Approval matrix",
+    });
     expect(external.offset).toBeGreaterThan(hit.offset ?? 0);
     const fetched = await runWithTenant(user, () => fetchTool.execute({ id: external.id, offset: external.offset }));
     if (!("structuredContent" in fetched)) throw new Error("Expected Wiki content.");
@@ -218,14 +240,22 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
 
   it("corrects a misspelled word from the caller's own Wiki words with pg_trgm and returns the corrected query", async () => {
     const [escalation, travel] = await insert(user, [
-      { title: "Support escalation process", markdown: "The on-call engineer is paged through PagerDuty." },
+      {
+        title: "Support escalation process",
+        markdown: "The on-call engineer is paged through PagerDuty.",
+      },
       {
         title: "Travel",
         markdown: "## Mileage\n\nReimbursements follow the statutory guidelines: 0.30 EUR per kilometre.",
       },
       { title: "Refund policy", markdown: "Refunds within 30 days." },
     ]);
-    await insert(foreignUser, [{ title: "Pagerdutty foreign runbook", markdown: "Foreign quokka cluster." }]);
+    await insert(foreignUser, [
+      {
+        title: "Pagerdutty foreign runbook",
+        markdown: "Foreign quokka cluster.",
+      },
+    ]);
 
     const pagerDuty = await search("PagerDutty");
     expect(pagerDuty).toMatchObject({
@@ -235,33 +265,54 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     expect(JSON.stringify(pagerDuty)).not.toContain("foreign");
     expect(await search("milage reimbursemnets")).toMatchObject({
       ok: true,
-      data: { didYouMean: ["mileage reimbursements"], items: [{ id: travel, section: "Mileage" }] },
+      data: {
+        didYouMean: ["mileage reimbursements"],
+        items: [{ id: travel, section: "Mileage" }],
+      },
     });
     expect(await search("refnud policy")).toMatchObject({
       ok: true,
-      data: { didYouMean: ["refund policy"], items: [{ title: "Refund policy" }] },
+      data: {
+        didYouMean: ["refund policy"],
+        items: [{ title: "Refund policy" }],
+      },
     });
-    expect(await search("guidlines")).toMatchObject({ ok: true, data: { didYouMean: ["guidelines"] } });
+    expect(await search("guidlines")).toMatchObject({
+      ok: true,
+      data: { didYouMean: ["guidelines"] },
+    });
 
     for (const query of ["quokka", "xylophone", "escalation", "where is the escalation"]) {
       const result = await search(query);
       expect(JSON.stringify(result), query).not.toContain("didYouMean");
     }
-    expect(await search("quokka")).toMatchObject({ ok: true, data: { total: 0, items: [] } });
+    expect(await search("quokka")).toMatchObject({
+      ok: true,
+      data: { total: 0, items: [] },
+    });
   });
 
   it("finds CJK substrings, reports totals beyond the last page, and never interprets query syntax", async () => {
     await insert(user, [
-      { title: "客户支持手册", markdown: "## 退款\n\n退款申请需要在30天内提交。" },
+      {
+        title: "客户支持手册",
+        markdown: "## 退款\n\n退款申请需要在30天内提交。",
+      },
       { title: "Voice", markdown: "Speak clearly." },
       { title: "Support", markdown: "Answer questions." },
     ]);
     await insert(foreignUser, [{ title: "其他租户", markdown: "退款申请由其他租户处理。" }]);
 
     const cjk = await search("退款申请");
-    expect(cjk).toMatchObject({ ok: true, data: { total: 1, items: [{ title: "客户支持手册", section: "退款" }] } });
+    expect(cjk).toMatchObject({
+      ok: true,
+      data: { total: 1, items: [{ title: "客户支持手册", section: "退款" }] },
+    });
     expect(JSON.stringify(cjk)).not.toContain("其他租户");
-    expect(await search("voice support", user, 2)).toMatchObject({ ok: true, data: { total: 2, items: [] } });
+    expect(await search("voice support", user, 2)).toMatchObject({
+      ok: true,
+      data: { total: 2, items: [] },
+    });
     for (const query of ["_%!:&|", '\'; DROP TABLE "WikiPage";--', "voice:* & !support | (a <-> b)", "\\\\ '' \"\""])
       expect(await search(query)).toMatchObject({ ok: true });
     expect(await titles("voice:* & !support")).toEqual(expect.arrayContaining(["Voice", "Support"]));

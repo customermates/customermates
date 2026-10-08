@@ -1,4 +1,3 @@
-import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { WikiSearchResult } from "../wiki.schema";
 
@@ -12,7 +11,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
+import { PrismaWikiSectionRepo } from "../prisma-wiki-section.repository";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { WikiMarkdownSchema } from "../wiki.schema";
 import { wikiMarkdownSections } from "../wiki-markdown-sections";
@@ -25,7 +24,12 @@ import {
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
-type Target = { recallAt1: number; recallAt5: number; mrr: number; sectionHitAt1?: number };
+type Target = {
+  recallAt1: number;
+  recallAt5: number;
+  mrr: number;
+  sectionHitAt1?: number;
+};
 
 const CATEGORY_TARGETS: Record<string, Target> = {
   "exact-title": { recallAt1: 1, recallAt5: 1, mrr: 1 },
@@ -48,7 +52,13 @@ const FULL_TEXT_TARGETS: Record<string, Target> = {
   "no-match": { recallAt1: 0.8, recallAt5: 0.8, mrr: 0.8 },
 };
 
-type Metrics = { queries: number; recallAt1: number; recallAt5: number; mrr: number; sectionHitAt1: number | null };
+type Metrics = {
+  queries: number;
+  recallAt1: number;
+  recallAt5: number;
+  mrr: number;
+  sectionHitAt1: number | null;
+};
 
 function round(value: number) {
   return Math.round(value * 1000) / 1000;
@@ -104,7 +114,7 @@ describeDatabase("Workspace Wiki retrieval quality", () => {
     const misses: string[] = [];
     for (const labelled of WIKI_RETRIEVAL_QUERIES) {
       const result = await runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+        new SearchWikiPagesInteractor(new PrismaWikiSectionRepo(), "stored").invoke({
           query: labelled.query,
           page: 1,
           pageSize: 5,
@@ -123,7 +133,11 @@ describeDatabase("Workspace Wiki retrieval quality", () => {
 
     const metrics = new Map<string, Metrics>();
     const summarize = (
-      outcomes: Array<{ rank: number; sectionHit: boolean | null; empty: boolean }>,
+      outcomes: Array<{
+        rank: number;
+        sectionHit: boolean | null;
+        empty: boolean;
+      }>,
       negative = false,
     ) => {
       const sections = outcomes.filter((outcome) => outcome.sectionHit !== null);
