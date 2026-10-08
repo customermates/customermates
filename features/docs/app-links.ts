@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { focusHref } from "@/components/focus/focus-href";
 import { RECORD_LIST_CONTROLS } from "@/ee/agent-chat/record-ui-targets";
 import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
 import { RECORD_PRESET_KEYS, type RecordPresetKey } from "@/features/records/record-navigation.schema";
@@ -75,23 +76,17 @@ export function parseAppLink(href: string): ParsedAppLink | null {
   return focus ? appLinkForPlace(place, focus) : null;
 }
 
-function focusQuery(targetId: string | null) {
-  return targetId ? `focus=control:${targetId}` : "";
-}
-
-function withQuery(path: string, ...parts: string[]) {
-  const query = parts.filter(Boolean).join("&");
-  return query ? `${path}?${query}` : path;
-}
-
 export function appLinkPath(link: ParsedAppLink, workspace: AppLinkWorkspace | null): string {
-  if (link.kind === "page")
-    return withQuery(link.route, focusQuery(link.focus && pageFocusTargetId(link.route, link.focus)));
+  if (link.kind === "page") {
+    const targetId = link.focus && pageFocusTargetId(link.route, link.focus);
+    return targetId ? focusHref({ kind: "control", id: targetId }) : link.route;
+  }
 
-  if (!workspace) return withQuery(`${APP_LINK_OPEN_ROUTE}/${link.place}`, link.focus ? `focus=${link.focus}` : "");
+  const openPath = `${APP_LINK_OPEN_ROUTE}/${link.place}`;
+  if (!workspace) return link.focus ? `${openPath}?focus=${link.focus}` : openPath;
   const typeId = workspace.listId(link.preset);
-  if (link.kind === "configure") return withQuery("/configure", `typeId=${typeId}`);
-  return withQuery(`/records/${typeId}`, focusQuery(link.focus && `records:${typeId}:${link.focus}`));
+  if (link.kind === "configure") return focusHref({ kind: "list", id: typeId });
+  return link.focus ? focusHref({ kind: "control", id: `records:${typeId}:${link.focus}` }) : `/records/${typeId}`;
 }
 
 export function appLinkHrefs(markdown: string): string[] {
@@ -147,7 +142,10 @@ function appLinkFromPublicPath(path: string): ParsedAppLink | null {
 function isResolvedListPath(path: string): boolean {
   const url = relativeUrl(path);
   if (!url) return false;
-  if (url.pathname === "/configure") return z.uuid().safeParse(onlyParam(url, "typeId")).success;
+  if (url.pathname === "/configure") {
+    const focus = onlyParam(url, "focus");
+    return Boolean(focus?.startsWith("list:")) && z.uuid().safeParse(focus.slice("list:".length)).success;
+  }
   const [, area, typeId, ...rest] = url.pathname.split("/");
   if (area !== "records" || rest.length > 0 || !z.uuid().safeParse(typeId).success) return false;
   if (!url.search) return true;
