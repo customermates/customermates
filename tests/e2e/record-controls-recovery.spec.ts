@@ -1412,16 +1412,16 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
       .check();
   }
   const mass = page.locator("[data-record-mass-actions]");
-  await mass.getByRole("button", { name: "Update", exact: true }).click();
+  await mass.getByRole("button", { name: "Edit", exact: true }).click();
   await page
-    .getByRole("dialog", { name: "Update", exact: true })
+    .getByRole("dialog", { name: "Edit", exact: true })
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
   const beforeBulk = await receiptCount();
   bulkFaultsRemaining = 2;
-  await page.getByRole("dialog", { name: "Update", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "Update", exact: true })).not.toBeVisible();
+  await page.getByRole("dialog", { name: "Edit", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Edit", exact: true })).not.toBeVisible();
   await expect(mass.getByRole("button", { name: english.ErrorCard.retry, exact: true })).toBeVisible();
   expect(await receiptCount()).toBe(beforeBulk + 1);
   const afterBulk = await sourceRows();

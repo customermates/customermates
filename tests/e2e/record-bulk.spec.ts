@@ -42,13 +42,13 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
     await expect(page.locator("[data-record-mass-actions]")).toContainText("2 items selected");
   };
   await select();
-  await page.locator("[data-record-mass-actions]").getByRole("button", { name: "Update", exact: true }).click();
+  await page.locator("[data-record-mass-actions]").getByRole("button", { name: "Edit", exact: true }).click();
   await page
-    .getByRole("dialog", { name: "Update", exact: true })
+    .getByRole("dialog", { name: "Edit", exact: true })
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
-  await page.getByRole("dialog", { name: "Update", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByRole("dialog", { name: "Edit", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-record-mass-actions]")).not.toBeVisible();
   const prices = () =>
     database.query(
@@ -121,13 +121,13 @@ test("shows a conflict and leaves every selected record unchanged when another t
     )
     .toBe("99");
   await page.bringToFront();
-  await page.locator("[data-record-mass-actions]").getByRole("button", { name: "Update", exact: true }).click();
+  await page.locator("[data-record-mass-actions]").getByRole("button", { name: "Edit", exact: true }).click();
   await page
-    .getByRole("dialog", { name: "Update", exact: true })
+    .getByRole("dialog", { name: "Edit", exact: true })
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("50");
-  await page.getByRole("dialog", { name: "Update", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByRole("dialog", { name: "Edit", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("[data-sonner-toast]")).toContainText("changed");
   await expect(page.locator("[data-record-mass-actions]")).toContainText("2 items selected");
   const prices = await database.query(
@@ -252,9 +252,9 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   await expect(page.getByRole("link", { name: "Selected B", exact: true })).toHaveCount(0);
   await expect(selection).toContainText("2 items selected");
   await expect(selection).toContainText("2 not in the current view");
-  await selection.getByRole("button", { name: "Update", exact: true }).click();
+  await selection.getByRole("button", { name: "Edit", exact: true }).click();
   await page
-    .getByRole("dialog", { name: "Update", exact: true })
+    .getByRole("dialog", { name: "Edit", exact: true })
     .getByRole("button", { name: "Optional discount", exact: true })
     .click();
   await page.getByRole("button", { name: "Clear field", exact: true }).click();

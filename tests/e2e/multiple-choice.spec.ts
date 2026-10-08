@@ -87,7 +87,7 @@ test("creates a multiple choice field and edits, filters, bulk edits and groups 
       await expect(box).toBeChecked();
     }).toPass();
   }
-  await page.getByRole("button", { name: "Update", exact: true }).click();
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
   await page.getByRole("button", { name: label, exact: true }).click();
   await page.getByRole("combobox", { name: label, exact: true }).click();
   await page.getByRole("option", { name: "Gamma", exact: true }).click();
