@@ -9,7 +9,14 @@ import {
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { addFromConfigure, configureTopBar, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
+import {
+  addFromConfigure,
+  configureTopBar,
+  openConfigure,
+  openConfigureRow,
+  saveDrawer,
+  saveGeneral,
+} from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { suggestListPlural } from "../../app/[locale]/(protected)/configure/components/list-plural";
 
@@ -109,7 +116,8 @@ async function stalePreview(page: Page, inputId: string, draft: string) {
   await expect(dialog.getByText(recovery.required, { exact: true })).toBeVisible();
   await expect(dialog.locator(`#${inputId}`)).toHaveValue(draft);
   await expect(dialog.locator(`#${inputId}`)).toHaveAttribute("readonly", "");
-  await expect(dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first()).toBeDisabled();
+  // Rule 31: a read-only draft shows no footer, so Save is absent rather than disabled.
+  await expect(dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true })).toHaveCount(0);
   await dialog.getByRole("button", { name: recovery.refresh, exact: true }).click();
   await expect(dialog.getByText(recovery.required, { exact: true })).not.toBeVisible();
 }
@@ -217,14 +225,14 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
         await expect(listPane(page).getByText(recovery.required, { exact: true })).toBeVisible();
         await expect(generalControl(page, "name")).toHaveValue(localName);
         await expect(generalControl(page, "name")).toHaveAttribute("readonly", "");
-        await expect(save).toBeDisabled();
+        await expect(save).toHaveCount(0);
         await listPane(page).getByRole("button", { name: recovery.refresh, exact: true }).click();
         await expect(listPane(page).getByText(recovery.required, { exact: true })).not.toBeVisible();
         await expect(listPane(page).getByText(recovery.conflict, { exact: true })).toBeVisible();
         await expect(generalControl(page, "name")).toHaveValue(localName);
         await expect(generalControl(page, "description")).toHaveValue(localDescription);
         await expect(generalControl(page, "icon")).toContainText(scenario.iconLabel);
-        await expect(save).toBeDisabled();
+        await expect(save).toHaveCount(0);
         await expect(listPane(page).getByRole("button", { name: recovery.keep, exact: true })).toBeVisible();
         await expect(listPane(page).getByRole("button", { name: recovery.latest, exact: true })).toBeVisible();
         await listPane(page).getByRole("button", { name: scenario.choice, exact: true }).click();
@@ -310,7 +318,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
     await expect(dialog.getByText(recovery.removed, { exact: true })).toBeVisible();
     await expect(dialog.locator("#sourceLabel")).toHaveValue("Unsaved overview name");
     await expect(dialog.locator("#sourceLabel")).toHaveAttribute("readonly", "");
-    await expect(dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).first()).toBeDisabled();
+    await expect(dialog.getByRole("button", { name: englishMessages.Common.actions.save, exact: true })).toHaveCount(0);
     await expect(dialog.getByRole("button", { name: recovery.refresh, exact: true })).toHaveCount(0);
     await expect(dialog.getByRole("button", { name: recovery.keep, exact: true })).toHaveCount(0);
     await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toHaveCount(0);
