@@ -60,6 +60,9 @@ const ACTIVITY_EVENTS = [
   ...CONFIGURATION_ACTIVITY_EVENTS,
 ];
 const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
+const CLICK_ACTION_KEYS = ["email", "phone", "url"].flatMap((kind) =>
+  ["open", "copy"].map((action) => `RecordModel.clickActions.${kind}.${action}`),
+);
 const RECORD_VALUE_TYPE_KEYS = [...RecordValueTypeSchema.options, "multiSelect"].map(
   (value) => `RecordModel.types.${value}`,
 );
@@ -133,11 +136,15 @@ const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widg
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map((recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`);
+const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map(
+  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`,
+);
 const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_STARTER_RECIPES.map(
   (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.description`,
 );
-const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map((interval) => `RecordWidgets.intervals.${interval}`);
+const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map(
+  (interval) => `RecordWidgets.intervals.${interval}`,
+);
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
   (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
@@ -551,6 +558,9 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
   ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
+  ["RecordModel.clickActions.${*}.${*}", CLICK_ACTION_KEYS],
+  ["RecordModel.clickActions.${*}.open", CLICK_ACTION_KEYS.filter((key) => key.endsWith(".open"))],
+  ["RecordModel.clickActions.${*}.copy", CLICK_ACTION_KEYS.filter((key) => key.endsWith(".copy"))],
   [
     "RecordModel.cardinality.${*}",
     ["oneToOne", "oneToMany", "manyToOne", "manyToMany"].map((value) => `RecordModel.cardinality.${value}`),
@@ -695,6 +705,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: Common.colors.${color}",
+  "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.clickActions.${store.form.valueType}.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${store.form.behavior}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.types.${value}",
@@ -790,6 +801,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx :: t :: KeyboardShortcuts.groups.${group}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.planNames.${plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.status.${status}",
+  "components/records/contact-value.tsx :: t :: RecordModel.clickActions.${kind}.copy",
+  "components/records/contact-value.tsx :: t :: RecordModel.clickActions.${kind}.open",
   "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.choices.${tool}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.install.instruction.${tool}",
@@ -936,10 +949,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'components/data-view/views/view-ai-type-label.ts :: t :: form === "standalone" ? "AgentChat.context.surfaceViewTypeStandalone" : "AgentChat.context.surfaceViewType"',
     1,
   ],
-  [
-    "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate",
-    1,
-  ],
+  ["app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate", 1],
   [
     'components/records/record-operation-progress.tsx :: t :: status.state === "failed" ? "RecordModel.operationFailed" : "RecordModel.operationCancelled"',
     1,
@@ -958,7 +968,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
-    'features/messaging/activities/change-value.tsx :: t :: action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create"',
+    'features/messaging/activities/change-value.tsx :: t :: action === "update" ? "RoleModal.edit" : action === "delete" ? "Common.actions.delete" : "RoleModal.create"',
     1,
   ],
   ["features/records/workspace-record-preset.ts :: t :: key", 1],

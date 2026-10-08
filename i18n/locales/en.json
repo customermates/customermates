@@ -1878,10 +1878,12 @@
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
     "views": {
+      "activityCount": "{count, plural, one {# activity} other {# activities}}",
       "aiLabel": "Ask AI about {name}",
       "all": "All",
       "applied": "Showing {name}",
       "askAi": "Ask AI",
+      "conversationCount": "{count, plural, one {# conversation} other {# conversations}}",
       "copyLink": "Copy link",
       "createTitle": "New view",
       "createWithAi": "Create with AI",
@@ -3050,6 +3052,21 @@
       "short": "Email, phone, social"
     },
     "channelsHelp": "Add email addresses, phone numbers, and social accounts to records in this list. An identifier can link to several records.",
+    "clickAction": "On click",
+    "clickActions": {
+      "email": {
+        "copy": "Copy address",
+        "open": "Open in mail app"
+      },
+      "phone": {
+        "copy": "Copy number",
+        "open": "Call number"
+      },
+      "url": {
+        "copy": "Copy link",
+        "open": "Open link"
+      }
+    },
     "color": "Color",
     "conditionIf": "Condition",
     "conditionOtherwise": "Otherwise",
@@ -3414,8 +3431,11 @@
     "relationshipChange": "{count} relationships changed",
     "relationshipEditor": {
       "cardinality": "How many records link",
+      "messagesHelp": "Messages come from linked records with Channels or linked conversations. Record and message permissions still apply.",
       "onDelete": "When deleted",
       "otherList": "the linked list",
+      "showMessagesOn": "Show their messages on {list}",
+      "showMessagesOnSide": "Show their messages on {list} ({side})",
       "shownOn": "Shown on records in {list}",
       "thisList": "This list"
     },
@@ -3606,7 +3626,6 @@
   },
   "RoleModal": {
     "create": "Create",
-    "delete": "Delete",
     "edit": "Edit",
     "manageAccess": "Manage",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
@@ -3890,7 +3909,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Active seats",
-    "refresh": "Refresh",
     "refreshSuccess": "Subscription refreshed successfully",
     "seatBillingNote": "You pay per active user. Seat changes are prorated on your next invoice.",
     "status": {

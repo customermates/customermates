@@ -1878,10 +1878,12 @@
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
+      "activityCount": "{count, plural, one {# activité} other {# activités}}",
       "aiLabel": "Interroger l’IA sur {name}",
       "all": "Toutes",
       "applied": "Affichage de {name}",
       "askAi": "Demander à l'IA",
+      "conversationCount": "{count, plural, one {# discussion} other {# discussions}}",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
       "createWithAi": "Créer avec l’IA",
@@ -3050,6 +3052,21 @@
       "short": "E-mail, téléphone, réseaux"
     },
     "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
+    "clickAction": "Au clic",
+    "clickActions": {
+      "email": {
+        "copy": "Copier l’adresse",
+        "open": "Ouvrir dans l’app de messagerie"
+      },
+      "phone": {
+        "copy": "Copier le numéro",
+        "open": "Appeler le numéro"
+      },
+      "url": {
+        "copy": "Copier le lien",
+        "open": "Ouvrir le lien"
+      }
+    },
     "color": "Couleur",
     "conditionIf": "Condition",
     "conditionOtherwise": "Sinon",
@@ -3414,8 +3431,11 @@
     "relationshipChange": "{count} relations modifiées",
     "relationshipEditor": {
       "cardinality": "Nombre d’enregistrements liés",
+      "messagesHelp": "Les messages proviennent d’éléments liés avec des canaux ou de conversations liées. Les droits sur les éléments et les messages s’appliquent toujours.",
       "onDelete": "À la suppression",
       "otherList": "la liste liée",
+      "showMessagesOn": "Afficher leurs messages dans {list}",
+      "showMessagesOnSide": "Afficher leurs messages dans {list} ({side})",
       "shownOn": "Affiché sur les enregistrements de {list}",
       "thisList": "Cette liste"
     },
@@ -3606,7 +3626,6 @@
   },
   "RoleModal": {
     "create": "Créer",
-    "delete": "Supprimer",
     "edit": "Modifier",
     "manageAccess": "Gérer",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
@@ -3890,7 +3909,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Sièges actifs",
-    "refresh": "Actualiser",
     "refreshSuccess": "Abonnement actualisé",
     "seatBillingNote": "Vous payez par utilisateur actif. Les changements de sièges sont calculés au prorata sur votre prochaine facture.",
     "status": {

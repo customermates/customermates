@@ -161,8 +161,7 @@ function destructiveActionFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const DESTRUCTIVE_ALLOWLIST: Allowlist = {
-};
+const DESTRUCTIVE_ALLOWLIST: Allowlist = {};
 
 const DESTRUCTIVE_EXEMPTIONS: Allowlist = {
   "components/modal/delete-confirmation-modal.tsx": "the shared confirm dialog; each caller sets its confirm variant",
@@ -204,7 +203,10 @@ function sourceOfFile(file: string) {
 function pageComponentSource(source: SourceFile, tag: string): string | undefined {
   for (const statement of source.ast.statements) {
     if (ts.isFunctionDeclaration(statement) && statement.name?.text === tag) return statement.getText(source.ast);
-    if (ts.isVariableStatement(statement) && statement.declarationList.declarations.some((d) => d.name.getText(source.ast) === tag))
+    if (
+      ts.isVariableStatement(statement) &&
+      statement.declarationList.declarations.some((d) => d.name.getText(source.ast) === tag)
+    )
       return statement.getText(source.ast);
     if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
     const bindings = statement.importClause?.namedBindings;
@@ -247,12 +249,7 @@ function topBarFindings(sources: SourceFile[]) {
 }
 
 const TOP_BAR_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/dashboard/components/dashboard-page-view.tsx": "I3 r3: Add widget through the shared top-bar action buttons",
-  "app/[locale]/(protected)/company/components/subscription/subscription-view.tsx": "I19: billing page actions",
-  "app/[locale]/(protected)/profile/components/api-keys-page-view.tsx": "I19: API keys Add through the shared top-bar action buttons",
   "app/[locale]/(protected)/configure/components/configure-page-view.tsx": "I1 r4: ConfigureTopBarActions buttons",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx": "I19: VerifyEmailAction button",
-  "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx": "I19: ConnectAction button",
 };
 
 describe("rules 5, 6 and 58: top-bar actions and view chips through their shared components", () => {
@@ -276,8 +273,7 @@ const VALUE_FORMAT =
 
 const VALUE_RENDERER_OWNERS = new Set(["app/[locale]/(protected)/records/[typeId]/components/record-value.tsx"]);
 
-const VALUE_RENDERER_ALLOWLIST: Allowlist = {
-};
+const VALUE_RENDERER_ALLOWLIST: Allowlist = {};
 
 function isRenderingSource({ file }: SourceFile) {
   if (file.startsWith("components/ui/")) return false;
@@ -294,7 +290,8 @@ describe("rule 47: one value renderer per data type", () => {
 
 const PALETTE_COLOR =
   /\b(?:text|bg|border|ring|fill|stroke|from|to|via|outline|decoration|shadow|divide|accent|caret|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|black|white)(?:-\d{2,3})?(?:\/\d+)?\b/;
-const LITERAL_COLOR = /(?<=^|[[(:,\s=])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])|\b(?:rgba?|hsla?|oklch)\(/;
+const LITERAL_COLOR =
+  /(?<=^|[[(:,\s=])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])|\b(?:rgba?|hsla?|oklch)\(/;
 
 const COLOR_OWNERS = new Set(["components/ui/button.tsx"]);
 
@@ -328,14 +325,18 @@ const COLOR_ALLOWLIST: Allowlist = {
 describe("rule 58: colors only through design tokens", () => {
   it("uses no Tailwind palette colors or literal color values outside the token owners", () => {
     const sources = sourcesExcept(COLOR_OWNERS, COLOR_EXEMPTIONS);
-    const findings = [...stringLiteralFindings(sources, PALETTE_COLOR), ...stringLiteralFindings(sources, LITERAL_COLOR)];
+    const findings = [
+      ...stringLiteralFindings(sources, PALETTE_COLOR),
+      ...stringLiteralFindings(sources, LITERAL_COLOR),
+    ];
 
     enforce(findings, COLOR_ALLOWLIST);
   });
 });
 
 const ICON_LIBRARY = "lucide-react";
-const FOREIGN_ICON_LIBRARY = /^(?:@tabler\/icons|react-icons|@heroicons|@radix-ui\/react-icons|@phosphor-icons|react-feather)/;
+const FOREIGN_ICON_LIBRARY =
+  /^(?:@tabler\/icons|react-icons|@heroicons|@radix-ui\/react-icons|@phosphor-icons|react-feather)/;
 
 const INLINE_SVG_EXEMPTIONS: Allowlist = {
   "components/ai-connection/ai-client-logo.tsx": "third-party brand mark, not part of the icon set",
@@ -367,7 +368,13 @@ describe("rule 52: key hints only through the shared key caps", () => {
   });
 });
 
-const NATIVE_TITLE_HOSTS = new Set(["Button", "DropdownMenuItem", "CommandItem", "SelectItem", "DropdownMenuSubTrigger"]);
+const NATIVE_TITLE_HOSTS = new Set([
+  "Button",
+  "DropdownMenuItem",
+  "CommandItem",
+  "SelectItem",
+  "DropdownMenuSubTrigger",
+]);
 const TITLE_EXEMPT_TAGS = new Set(["iframe", "title", "svg"]);
 
 function nativeTitleFindings(sources: SourceFile[]) {
@@ -392,8 +399,7 @@ const NATIVE_TITLE_EXEMPTIONS: Allowlist = {
   "components/shared/locale-menu.tsx": "public website and docs language menu, outside the product UI",
 };
 
-const NATIVE_TITLE_ALLOWLIST: Allowlist = {
-};
+const NATIVE_TITLE_ALLOWLIST: Allowlist = {};
 
 describe("rule 4: tooltips through the app Tooltip, never title attributes", () => {
   it("sets no native title attribute on product elements", () => {

@@ -1878,10 +1878,12 @@
     "selectGroup": "Gruppe {group} auswählen",
     "selectRow": "Zeile {id} auswählen",
     "views": {
+      "activityCount": "{count, plural, one {# Aktivität} other {# Aktivitäten}}",
       "aiLabel": "KI zu {name} fragen",
       "all": "Alle",
       "applied": "{name} wird angezeigt",
       "askAi": "KI fragen",
+      "conversationCount": "{count, plural, one {# Unterhaltung} other {# Unterhaltungen}}",
       "copyLink": "Link kopieren",
       "createTitle": "Neue Ansicht",
       "createWithAi": "Mit KI erstellen",
@@ -3050,6 +3052,21 @@
       "short": "E-Mail, Telefon, Social"
     },
     "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "clickAction": "Beim Klicken",
+    "clickActions": {
+      "email": {
+        "copy": "Adresse kopieren",
+        "open": "Im Mailprogramm öffnen"
+      },
+      "phone": {
+        "copy": "Nummer kopieren",
+        "open": "Nummer anrufen"
+      },
+      "url": {
+        "copy": "Link kopieren",
+        "open": "Link öffnen"
+      }
+    },
     "color": "Farbe",
     "conditionIf": "Bedingung",
     "conditionOtherwise": "Andernfalls",
@@ -3414,8 +3431,11 @@
     "relationshipChange": "{count} Beziehungen geändert",
     "relationshipEditor": {
       "cardinality": "Wie viele Datensätze verknüpft sind",
+      "messagesHelp": "Nachrichten stammen von verknüpften Datensätzen mit Kanälen oder verknüpften Unterhaltungen. Berechtigungen für Datensätze und Nachrichten gelten weiterhin.",
       "onDelete": "Beim Löschen",
       "otherList": "der verknüpften Liste",
+      "showMessagesOn": "Nachrichten anzeigen in {list}",
+      "showMessagesOnSide": "Nachrichten anzeigen in {list} ({side})",
       "shownOn": "Wird bei Datensätzen in {list} angezeigt",
       "thisList": "Diese Liste"
     },
@@ -3606,7 +3626,6 @@
   },
   "RoleModal": {
     "create": "Erstellen",
-    "delete": "Löschen",
     "edit": "Bearbeiten",
     "manageAccess": "Verwalten",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
@@ -3890,7 +3909,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Aktive Nutzerplätze",
-    "refresh": "Aktualisieren",
     "refreshSuccess": "Abonnement erfolgreich aktualisiert",
     "seatBillingNote": "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet.",
     "status": {

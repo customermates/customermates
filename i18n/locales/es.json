@@ -1878,10 +1878,12 @@
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
     "views": {
+      "activityCount": "{count, plural, one {# actividad} other {# actividades}}",
       "aiLabel": "Preguntar a la IA sobre {name}",
       "all": "Todas",
       "applied": "Mostrando {name}",
       "askAi": "Preguntar a la IA",
+      "conversationCount": "{count, plural, one {# conversación} other {# conversaciones}}",
       "copyLink": "Copiar enlace",
       "createTitle": "Nueva vista",
       "createWithAi": "Crear con IA",
@@ -3050,6 +3052,21 @@
       "short": "Correo, teléfono, redes"
     },
     "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
+    "clickAction": "Al hacer clic",
+    "clickActions": {
+      "email": {
+        "copy": "Copiar dirección",
+        "open": "Abrir en la app de correo"
+      },
+      "phone": {
+        "copy": "Copiar número",
+        "open": "Llamar al número"
+      },
+      "url": {
+        "copy": "Copiar enlace",
+        "open": "Abrir enlace"
+      }
+    },
     "color": "Color",
     "conditionIf": "Condición",
     "conditionOtherwise": "Si no",
@@ -3414,8 +3431,11 @@
     "relationshipChange": "{count} relaciones modificadas",
     "relationshipEditor": {
       "cardinality": "Cuántos registros se vinculan",
+      "messagesHelp": "Los mensajes proceden de registros vinculados con canales o de conversaciones vinculadas. Los permisos de registros y mensajes siguen aplicándose.",
       "onDelete": "Al eliminar",
       "otherList": "la lista vinculada",
+      "showMessagesOn": "Mostrar sus mensajes en {list}",
+      "showMessagesOnSide": "Mostrar sus mensajes en {list} ({side})",
       "shownOn": "Se muestra en los registros de {list}",
       "thisList": "Esta lista"
     },
@@ -3606,7 +3626,6 @@
   },
   "RoleModal": {
     "create": "Crear",
-    "delete": "Eliminar",
     "edit": "Editar",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
@@ -3890,7 +3909,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Plazas activas",
-    "refresh": "Actualizar",
     "refreshSuccess": "Suscripción actualizada correctamente",
     "seatBillingNote": "Pagas por usuario activo. Los cambios de plazas se prorratean en tu próxima factura.",
     "status": {
