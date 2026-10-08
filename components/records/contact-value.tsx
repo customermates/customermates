@@ -76,7 +76,7 @@ export function ContactValue({ value, kind, action = "open", label, className, w
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            aria-label={`${t("Common.actions.copy")} ${value}`}
+            aria-label={t(`RecordModel.clickActions.${kind}.copy`)}
             className="inline-flex size-5 shrink-0 items-center justify-center rounded-xs text-muted-foreground opacity-0 outline-none transition-opacity group-hover/contact-value:opacity-100 group-focus-within/contact-value:opacity-100 hover:text-foreground focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/50 any-pointer-coarse:opacity-100"
             type="button"
             onClick={(event) => {
@@ -91,7 +91,7 @@ export function ContactValue({ value, kind, action = "open", label, className, w
           </button>
         </TooltipTrigger>
 
-        <TooltipContent>{t("Common.actions.copy")}</TooltipContent>
+        <TooltipContent>{t(`RecordModel.clickActions.${kind}.copy`)}</TooltipContent>
       </Tooltip>
     </span>
   );

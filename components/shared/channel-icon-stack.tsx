@@ -82,7 +82,7 @@ export function ChannelIconStack({ identifiers, maxVisible = 3, className, onIte
             {row}
 
             <StackDropdownItem
-              ariaLabel={`${t("Common.actions.copy")} ${primaryLabel}`}
+              ariaLabel={t("Common.actions.copy")}
               className="shrink-0 text-muted-foreground"
               close={close}
               onActivate={() => onItemClick(id)}

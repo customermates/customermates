@@ -184,7 +184,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   };
   if (testInfo.project.name === "chromium") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.bringToFront();
-  const copy = channelRow().getByRole("button", { name: `Copy ${recipients[0]}`, exact: true });
+  const copy = channelRow().getByRole("button", { name: "Copy address", exact: true });
   if (testInfo.project.name === "webkit") await copy.press("Enter");
   else if (testInfo.project.name === "mobile") await copy.tap();
   else await copy.click();
