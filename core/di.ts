@@ -146,6 +146,7 @@ import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-del
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaWidgetRepo } from "@/features/widget/prisma-widget.repository";
 import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
+import { PrismaWikiPageProposalRepo } from "@/features/wiki/prisma-wiki-page-proposal.repository";
 // Services
 import { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { MessagingService } from "@/ee/messaging/messaging.service";
@@ -317,6 +318,10 @@ import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.int
 import { MoveWikiPageInteractor } from "@/features/wiki/move-wiki-page.interactor";
 import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
+import { ProposeWikiPageChangesInteractor } from "@/features/wiki/propose-wiki-page-changes.interactor";
+import { GetWikiPageProposalsInteractor } from "@/features/wiki/get-wiki-page-proposals.interactor";
+import { ApproveWikiPageProposalInteractor } from "@/features/wiki/approve-wiki-page-proposal.interactor";
+import { RejectWikiPageProposalInteractor } from "@/features/wiki/reject-wiki-page-proposal.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { FailWikiWebsiteCrawlInteractor } from "@/ee/wiki-crawl/fail-wiki-website-crawl.interactor";
@@ -980,6 +985,19 @@ export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWik
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () =>
   new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService(), getTrashRepo());
+const getWikiPageProposalRepo = () => new PrismaWikiPageProposalRepo();
+export const getProposeWikiPageChangesInteractor = () =>
+  new ProposeWikiPageChangesInteractor(getWikiPageProposalRepo());
+export const getGetWikiPageProposalsInteractor = () => new GetWikiPageProposalsInteractor(getWikiPageProposalRepo());
+export const getApproveWikiPageProposalInteractor = () =>
+  new ApproveWikiPageProposalInteractor(
+    getWikiPageProposalRepo(),
+    getCreateWikiPagesInteractor(),
+    getUpdateWikiPageInteractor(),
+    getDeleteWikiPageInteractor(),
+  );
+export const getRejectWikiPageProposalInteractor = () =>
+  new RejectWikiPageProposalInteractor(getWikiPageProposalRepo());
 export const getWikiWebsiteCrawlRepo = (): PrismaWikiWebsiteCrawlRepo =>
   new PrismaWikiWebsiteCrawlRepo(getWikiPageRepo());
 export const getFailWikiWebsiteCrawlInteractor = () => new FailWikiWebsiteCrawlInteractor(getWikiWebsiteCrawlRepo());

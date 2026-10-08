@@ -255,6 +255,7 @@ model Company {
   recordEventSubscriptions    RecordEventSubscription[]
   recordEventMatches          RecordEventMatch[]
   recordIdentities            RecordIdentity[]
+  wikiPageProposals           WikiPageProposal[]
   wikiPages                   WikiPage[]
   wikiPageChunks              WikiPageChunk[]
   searchCatalogEntries        SearchCatalogEntry[]
@@ -1548,6 +1549,7 @@ model Routine {
   company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   owner           User?              @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
   runs            RoutineRun[]
+  wikiProposals   WikiPageProposal[]
 
   @@index([companyId])
   @@index([companyId, enabled])
@@ -1580,6 +1582,7 @@ model RoutineRun {
   company           Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
   routine           Routine                @relation(fields: [routineId], references: [id], onDelete: Cascade)
   conversation      AgentConversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  wikiProposals     WikiPageProposal[]
 
   @@index([companyId])
   @@index([companyId, routineId, createdAt])
@@ -1587,6 +1590,47 @@ model RoutineRun {
   @@index([routineId, status])
   @@index([executedByUserId, status])
   @@index([conversationId])
+}
+
+enum WikiPageProposalAction {
+  create
+  update
+  delete
+}
+
+enum WikiPageProposalStatus {
+  pending
+  approved
+  rejected
+  superseded
+}
+
+model WikiPageProposal {
+  id               String                 @id @default(uuid())
+  companyId        String
+  pageId           String?
+  action           WikiPageProposalAction
+  status           WikiPageProposalStatus @default(pending)
+  title            String?
+  markdown         String?
+  kind             WikiPageKind?
+  whenToUse        String?
+  baseUpdatedAt    DateTime?
+  routineId        String?
+  routineRunId     String?
+  conversationId   String?
+  proposedByUserId String?
+  reviewedByUserId String?
+  reviewedAt       DateTime?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  company          Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  routine          Routine?               @relation(fields: [routineId], references: [id], onDelete: SetNull)
+  routineRun       RoutineRun?            @relation(fields: [routineRunId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, status, createdAt])
+  @@index([companyId, pageId, status])
+  @@index([routineRunId])
 }
 
 model AdAttribution {

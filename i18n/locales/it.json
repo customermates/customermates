@@ -1202,6 +1202,9 @@
       "wikiPagePinned": "La guida operativa resta al primo posto. Sposta un’altra pagina.",
       "wikiPageUpdateEmpty": "Specifica almeno un campo per aggiornare la pagina.",
       "wikiProcedureNeedsSteps": "Una procedura richiede passaggi numerati.",
+      "wikiProposalNotFound": "Questa proposta non esiste più.",
+      "wikiProposalReviewed": "Questa proposta è già stata rivista.",
+      "wikiProposalStale": "La pagina è cambiata dopo la proposta di Mate. Rifiuta la proposta o chiedi a Mate di proporre di nuovo la modifica.",
       "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla."
     },
     "events": {
@@ -3838,6 +3841,7 @@
     "ownerUnavailableReadOnly": "Questa routine non ha più un proprietario disponibile, quindi resta sospesa e di sola lettura. Un amministratore aziendale può eliminarla.",
     "ranAs": "Eseguita come {owner}",
     "readOnlyTitle": "Accesso in sola lettura",
+    "reviewWikiProposals": "Rivedi",
     "runDetails": "Dettagli dell'esecuzione",
     "runNoTranscript": "Non è disponibile alcuna trascrizione per questa esecuzione.",
     "runQueued": "Questa esecuzione è in coda. La trascrizione apparirà quando l'assistente inizierà.",
@@ -3857,7 +3861,8 @@
     "triggerChangedFieldsMore": "e altri",
     "triggerRecord": "Record",
     "triggerThread": "Conversazione",
-    "usageShare": "{used} dell'utilizzo mensile di Mate"
+    "usageShare": "{used} dell'utilizzo mensile di Mate",
+    "wikiProposals": "{count, plural, one {Proposta # modifica alla base di conoscenza da rivedere} other {Proposte # modifiche alla base di conoscenza da rivedere}}"
   },
   "RoutineModal": {
     "at": "alle",
@@ -4298,6 +4303,33 @@
     "pagesLabel": "Pagine della base di conoscenza",
     "pageTitle": "Titolo della pagina",
     "previous": "Indietro",
+    "proposals": {
+      "action": {
+        "create": "Nuova pagina",
+        "delete": "Eliminazione",
+        "update": "Modifica"
+      },
+      "approve": "Approva",
+      "approved": "Proposta approvata",
+      "back": "Tutte le proposte",
+      "current": "Attuale",
+      "deleteNotice": "Approvandola, questa pagina verrà eliminata definitivamente.",
+      "description": "Modifiche suggerite da Mate durante l’esecuzione delle routine. La base di conoscenza cambia solo quando ne approvi una.",
+      "empty": "Nessuna proposta in attesa di revisione.",
+      "entry": "Proposte",
+      "entryLabel": "{count, plural, one {# proposta in attesa di revisione} other {# proposte in attesa di revisione}}",
+      "fromRoutine": "Da {routine}",
+      "fromRoutineDeleted": "Da una routine eliminata",
+      "loadFailed": "Impossibile caricare le proposte.",
+      "needsPermission": "Il tuo ruolo non può applicare questa modifica.",
+      "notYetCreated": "Questa pagina non esiste ancora.",
+      "pageMissing": "Questa pagina non esiste più.",
+      "proposed": "Proposta",
+      "reject": "Rifiuta",
+      "rejected": "Proposta rifiutata",
+      "stale": "Questa pagina è cambiata dopo la proposta di Mate. Rifiutala o chiedi a Mate di proporre di nuovo la modifica.",
+      "title": "Proposte"
+    },
     "reload": "Ricarica pagina",
     "search": "Cerca pagine…",
     "unavailableBody": "Questa pagina è stata eliminata oppure non hai accesso. Scegli un’altra pagina.",
