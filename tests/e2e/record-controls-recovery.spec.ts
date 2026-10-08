@@ -1422,7 +1422,10 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
   const beforeBulk = await receiptCount();
   bulkFaultsRemaining = 2;
-  await page.getByRole("dialog", { name: "Edit", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Edit", exact: true })
+    .getByRole("button", { name: "Save", exact: true })
+    .click();
   await expect(page.getByRole("dialog", { name: "Edit", exact: true })).not.toBeVisible();
   await expect(mass.getByRole("button", { name: english.ErrorCard.retry, exact: true })).toBeVisible();
   expect(await receiptCount()).toBe(beforeBulk + 1);

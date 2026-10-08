@@ -73,7 +73,12 @@ async function openWidgetFilters(page: Page) {
 
 async function addFilter(page: Page, kind: "provider" | "account" | "thread", _index: number, value: string) {
   await openWidgetFilters(page);
-  await choosePaletteValue(page, "widget-activity-filters", { provider: "provider", account: "connectedAccountId", thread: "timelineThreadId" }[kind], value);
+  await choosePaletteValue(
+    page,
+    "widget-activity-filters",
+    { provider: "provider", account: "connectedAccountId", thread: "timelineThreadId" }[kind],
+    value,
+  );
 }
 
 async function previewMessages(page: Page, present: string[], absent: string[] = []) {
@@ -89,7 +94,9 @@ async function todayBound(page: Page, key: "after" | "before", time: string) {
   await pickPaletteField(page, `activity:${key}`);
   await page.locator(`[data-palette-value="${key === "after" ? "gte" : "lte"}"]`).click();
   await page.locator('[id="draft.value"]').click();
-  const calendar = page.locator('[data-slot="popover-content"]').filter({ has: page.locator('[id="draft.value-time"]') });
+  const calendar = page
+    .locator('[data-slot="popover-content"]')
+    .filter({ has: page.locator('[id="draft.value-time"]') });
   await calendar.getByRole("button", { name: englishMessages.Common.datePresets.today, exact: true }).click();
   await calendar.locator('[id="draft.value-time"]').fill(time);
   await calendar.locator('[id="draft.value-time"]').press("Enter");
@@ -288,7 +295,10 @@ test("shows contact messages on organizations and applies provider, channel, con
   await expect(page.locator("[data-palette-active-filters]")).toContainText(accounts[0].name);
   await expect(page.locator("[data-palette-active-filters]")).toContainText(threads[0].subject);
   await page.locator('[data-filter-index="2"]').click();
-  await expect(page.locator(`[data-palette-value="${selectedThread}"]`)).toHaveAttribute("data-palette-selected", "true");
+  await expect(page.locator(`[data-palette-value="${selectedThread}"]`)).toHaveAttribute(
+    "data-palette-selected",
+    "true",
+  );
   await expect(page.locator(`[data-palette-value="${selectedThread}"]`)).toContainText(threads[0].subject);
   await page.locator("#filter-palette-back").click();
   await page.keyboard.press("Escape");

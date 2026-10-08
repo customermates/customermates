@@ -22,7 +22,7 @@ const ENFORCED = true;
 
 const LITERAL_ID_PATTERN =
   /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId|anchorId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
-const TOP_BAR_ANCHOR_PATTERN = /<TopBar(?:Add|Menu)Button\b(?:=>|[^>])*?\sanchorId=["']([a-z0-9-]+)["']/g;
+const TOP_BAR_ANCHOR_PATTERN = /<TopBar(?:Primary|Menu)Button\b(?:=>|[^>])*?\sanchorId=["']([a-z0-9-]+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
 const SEGMENT_ID_PREFIX_PATTERN = /<SegmentedControl\b(?:=>|[^>])*?\sidPrefix=["']([a-z0-9-]+)["']/g;
 const SEGMENT_VALUE_PATTERN = /\{ value: "([a-z0-9-]+)", label:/g;
@@ -107,7 +107,7 @@ describe("interface anchor id fidelity", () => {
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("offers the agent only targets that exist in code", () => {
     const topBar = readFileSync(join(REPO_ROOT, "components/shared/top-bar-action-buttons.tsx"), "utf8");
-    for (const name of ["TopBarAddButton", "TopBarMenuButton"]) {
+    for (const name of ["TopBarPrimaryButton", "TopBarMenuButton"]) {
       const implementation = topBar.slice(topBar.indexOf(`export function ${name}`));
       expect(implementation).toContain("id={anchorId}");
     }

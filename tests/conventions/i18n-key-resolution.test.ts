@@ -129,11 +129,15 @@ const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widg
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map((recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`);
+const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map(
+  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`,
+);
 const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_STARTER_RECIPES.map(
   (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.description`,
 );
-const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map((interval) => `RecordWidgets.intervals.${interval}`);
+const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map(
+  (interval) => `RecordWidgets.intervals.${interval}`,
+);
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
   (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
@@ -916,10 +920,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'components/data-view/views/view-ai-type-label.ts :: t :: form === "standalone" ? "AgentChat.context.surfaceViewTypeStandalone" : "AgentChat.context.surfaceViewType"',
     1,
   ],
-  [
-    "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate",
-    1,
-  ],
+  ["app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate", 1],
   [
     'components/records/record-operation-progress.tsx :: t :: status.state === "failed" ? "RecordModel.operationFailed" : "RecordModel.operationCancelled"',
     1,

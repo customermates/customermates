@@ -116,16 +116,8 @@ test("starts from a recommended starter, previews it live at dashboard size and 
 });
 
 for (const action of ["outside", "save", "cancel"] as const) {
-  test(`pending scalar array token: ${action}`, async ({
-    page,
-    database,
-    companyId,
-    isMobile,
-  }) => {
-    test.skip(
-      isMobile,
-      "Outside parent actions are available with the desktop palette popover",
-    );
+  test(`pending scalar array token: ${action}`, async ({ page, database, companyId, isMobile }) => {
+    test.skip(isMobile, "Outside parent actions are available with the desktop palette popover");
     const name = `Pending array ${action}`;
     const filter = {
       fieldId: presetId(companyId, "deal.totalQuantity"),
@@ -172,21 +164,11 @@ for (const action of ["outside", "save", "cancel"] as const) {
       await page.locator("#discard-changes").click();
     }
     await expect(page.getByRole("dialog")).toHaveCount(0);
-    const rows = (
-      await database.query(
-        'SELECT name, measure FROM "Widget" WHERE "companyId"=$1',
-        [companyId],
-      )
-    ).rows;
+    const rows = (await database.query('SELECT name, measure FROM "Widget" WHERE "companyId"=$1', [companyId])).rows;
     const saved = rows.find((row) => row.name.startsWith(name));
     expect(saved.name).toBe(action === "cancel" ? name : name + " changed");
     expect(saved.measure.source.filters[0].values).toEqual(
-      action === "cancel"
-        ? filter.values
-        : [
-            ...filter.values,
-            { kind: "decimal", value: "25.5", currency: null },
-          ],
+      action === "cancel" ? filter.values : [...filter.values, { kind: "decimal", value: "25.5", currency: null }],
     );
   });
 }
@@ -199,10 +181,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       companyId,
       isMobile,
     }) => {
-      test.skip(
-        isMobile,
-        "Outside parent actions are available with the desktop palette popover",
-      );
+      test.skip(isMobile, "Outside parent actions are available with the desktop palette popover");
       const name = `Rejected array ${valueKind} ${action}`;
       const initial =
         valueKind === "decimal"
@@ -213,10 +192,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
           ? { kind: "decimal", value: "25.5", currency: null }
           : { kind: "dateTime", value: "2026-02-01T00:00:00Z" };
       const filter = {
-        fieldId:
-          valueKind === "decimal"
-            ? presetId(companyId, "deal.totalQuantity")
-            : "system:createdAt",
+        fieldId: valueKind === "decimal" ? presetId(companyId, "deal.totalQuantity") : "system:createdAt",
         operator: "in",
         value: null,
         values: [initial],
@@ -249,31 +225,21 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       await page.locator("#widget-config-filters").click();
       await openFilterPalette(page, "widget-source-filters");
       await page.locator('[data-filter-index="0"]').click();
-      await page
-        .locator('[id="draft.value"]')
-        .fill(
-          valueKind === "decimal" ? "not-a-number" : "2026-02-30T00:00:00Z",
-        );
+      await page.locator('[id="draft.value"]').fill(valueKind === "decimal" ? "not-a-number" : "2026-02-30T00:00:00Z");
       if (action === "outside") await page.locator("#name").click();
       if (action === "cancel") {
         await page.locator("#widget-modal-cancel").click();
         await page.locator("#discard-changes").click();
       } else await page.locator("#widget-modal-save").click();
       await expect(page.getByRole("dialog")).toHaveCount(0);
-      await expect(
-        page.locator('[data-sonner-toast][data-type="error"]'),
-      ).toContainText(englishMessages.Common.errors.invalidFilterValue);
+      await expect(page.locator('[data-sonner-toast][data-type="error"]')).toContainText(
+        englishMessages.Common.errors.invalidFilterValue,
+      );
       const savedName = action === "cancel" ? name : name + " changed";
       const query = async (widgetName: string) =>
-        (
-          await database.query(
-            'SELECT measure FROM "Widget" WHERE "companyId"=$1 AND name=$2',
-            [companyId, widgetName],
-          )
-        ).rows[0].measure;
-      expect((await query(savedName)).source.filters[0].values).toEqual([
-        initial,
-      ]);
+        (await database.query('SELECT measure FROM "Widget" WHERE "companyId"=$1 AND name=$2', [companyId, widgetName]))
+          .rows[0].measure;
+      expect((await query(savedName)).source.filters[0].values).toEqual([initial]);
       await page.getByRole("heading", { name: savedName, exact: true }).click();
       await page.locator("#name").fill(name + " corrected");
       await page.locator("#widget-config-filters").click();
@@ -283,9 +249,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       if (action === "outside") await page.locator("#name").click();
       await page.locator("#widget-modal-save").click();
       await expect(page.getByRole("dialog")).toHaveCount(0);
-      expect(
-        (await query(name + " corrected")).source.filters[0].values,
-      ).toEqual([initial, corrected]);
+      expect((await query(name + " corrected")).source.filters[0].values).toEqual([initial, corrected]);
     });
   }
 }

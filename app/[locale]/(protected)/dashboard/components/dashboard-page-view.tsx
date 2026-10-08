@@ -20,7 +20,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { connectDataViewUrlSync } from "@/components/data-view/data-view-url-sync";
 import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
-import { TopBarAddButton } from "@/components/shared/top-bar-action-buttons";
+import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -129,7 +129,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
     () =>
       pageState !== "loading" && pageState !== "error" && canAddWidget ? (
         <div className="flex items-center gap-1">
-          <TopBarAddButton
+          <TopBarPrimaryButton
             anchorId="dashboard-add-widget"
             label={t("Dashboard.addCard")}
             onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}

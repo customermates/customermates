@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 const read = (path: string) => readFileSync(join(REPO_ROOT, path), "utf8");
 const component = (name: string) => read(`app/[locale]/(protected)/dashboard/components/${name}`);
-const sources = (dir: string) => walkFiles(join(REPO_ROOT, dir), (path) => /\.tsx?$/.test(path) && !path.includes(`${sep}__tests__${sep}`));
+const sources = (dir: string) =>
+  walkFiles(join(REPO_ROOT, dir), (path) => /\.tsx?$/.test(path) && !path.includes(`${sep}__tests__${sep}`));
 
 describe("generic dashboard widget UI", () => {
   it("retains shared form actions, deletion treatment and ordinary appearance switches", () => {
@@ -23,7 +24,7 @@ describe("generic dashboard widget UI", () => {
     const header = card.slice(card.indexOf("<AppCardHeader"), card.indexOf("</AppCardHeader>"));
     expect(header).toContain('t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })');
     expect(header).toContain("widget.displayOptions.showFilters");
-    expect(header).toContain("openWithFilter(widget.id, \"activityFilters\")");
+    expect(header).toContain('openWithFilter(widget.id, "activityFilters")');
     expect(card).toContain("recordActivityFilterCount(query)");
   });
   it("keeps linked-record chips in the activity detail header", () => {
@@ -34,7 +35,9 @@ describe("generic dashboard widget UI", () => {
     expect(chips).toContain("/records/${ref.ref.typeId}/${ref.ref.recordId}");
     expect(chips).toContain("recordTypeIcon(ref.icon)");
     expect(chips).toContain('<Avatar name={ref.label} size="sm" src={ref.avatarUrl} />');
-    expect(row.slice(row.indexOf("export function DetailHeader"), row.indexOf("type TimelineRowProps"))).toContain("<ActivityRecordChips context={records} />");
+    expect(row.slice(row.indexOf("export function DetailHeader"), row.indexOf("type TimelineRowProps"))).toContain(
+      "<ActivityRecordChips context={records} />",
+    );
     expect(row.slice(row.indexOf("export function TimelineRow"))).not.toContain("ActivityRecordChips");
     expect(read("features/messaging/activities/audit-detail.tsx")).toContain('size="xl"');
   });
@@ -64,7 +67,9 @@ describe("generic dashboard widget UI", () => {
     const store = component("widget-modal.store.ts");
     expect(store).toContain("onSubmit = async (event?: FormEvent<HTMLFormElement>)");
     expect(store).not.toContain("flushPendingChanges");
-    const autoApplying = sources("app/[locale]/(protected)/dashboard").filter((file) => /filter-palette|FILTER_AUTO_APPLY_DELAY_MS/.test(readFileSync(file, "utf8")));
+    const autoApplying = sources("app/[locale]/(protected)/dashboard").filter((file) =>
+      /filter-palette|FILTER_AUTO_APPLY_DELAY_MS/.test(readFileSync(file, "utf8")),
+    );
     expect(autoApplying).toEqual([]);
   });
   it("previews both widget kinds as their real dashboard cards, keyed to the current draft", () => {
