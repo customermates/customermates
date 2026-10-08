@@ -870,9 +870,7 @@
       "hidePassword": "Nascondi password",
       "selectOption": "Seleziona un'opzione",
       "showPassword": "Mostra password",
-      "switchToBoardView": "Passa alla vista board",
       "switchToBoardViewDisabled": "Questo elenco non ha alcun campo per cui raggruppare",
-      "switchToTableView": "Passa alla vista tabella",
       "themeSwitcher": "Selettore del tema",
       "tooltipFields": "Aspetto",
       "tooltipFilters": "Filtri"
@@ -1876,6 +1874,7 @@
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Nessun valore",
+    "resizeBoardColumns": "Ridimensiona le colonne della bacheca. Trascina o usa le frecce; tocca due volte o premi Invio per ripristinare.",
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
     "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
     "rowActions": "Azioni riga",
@@ -2464,7 +2463,6 @@
     "text": "Caricamento..."
   },
   "MassActions": {
-    "apply": "Applica alla selezione",
     "clearField": "Svuota campo",
     "delete": "Elimina gli elementi selezionati",
     "keepInView": "Mantieni solo le righe visibili",
@@ -3013,6 +3011,7 @@
       "snapshot": "Salvato durante un evento"
     },
     "board": "Bacheca",
+    "calculatedReadOnly": "{field} è calcolato e non può essere modificato.",
     "calculationError": "Calcolo non disponibile",
     "calculationInput": "Valore {number}",
     "calculationNavigation": "Navigazione del calcolo",
@@ -3328,6 +3327,8 @@
     "includeAudit": "Includi modifiche ai record",
     "includeMessages": "Includi messaggi",
     "invalidConfiguration": "Questa modifica deve essere verificata prima di applicarla.",
+    "invalidPhone": "Inserisci un numero di telefono in formato internazionale, ad esempio +4930123456.",
+    "invalidValue": "Inserisci un valore valido.",
     "lineFields": {
       "amount": "Importo",
       "effectivePrice": "Prezzo unitario",
@@ -3359,9 +3360,9 @@
     "onePerLine": "Inserisci un valore per riga.",
     "onSourceDelete": "Quando questo record viene eliminato",
     "onTargetDelete": "Quando il record collegato viene eliminato",
+    "openDetails": "Apri dettagli",
     "openPage": "Apri pagina",
     "openRecord": "Apri {name}",
-    "openRecordDetails": "Apri i dettagli di {name}",
     "operation": "Calcolo",
     "operationCancelled": "La modifica è stata annullata.",
     "operationFailed": "La modifica non è riuscita. Lo stato completo precedente resta attivo.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -11,9 +11,8 @@ import { AppForm } from "@/components/forms/form-context";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
-import { EditorTabs } from "@/components/editor-tabs/editor-tabs";
+import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import {
@@ -249,15 +248,11 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
         <RecordDetailSummary store={store} />
 
-        <EditorTabs
-          className="flex flex-col"
-          contentClassName="flex min-h-0 flex-1 flex-col"
-          guardChange={store.runAfterChannelDraft}
+        <RecordDrawerSegments
           label={t("EntityDetail.overview")}
-          rememberAs="record-drawer"
-          tabs={[
+          segments={[
             {
-              id: "details",
+              value: "details",
               label: t("EntityDetail.overview"),
               fields: [
                 ...store.fields.filter((field) => field.valueType !== "richText").map((field) => `values.${field.id}`),
@@ -273,7 +268,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
             ...(hasNotes
               ? [
                   {
-                    id: "notes",
+                    value: "notes",
                     label: t("EntityDetail.sections.notes"),
                     fields: store.fields
                       .filter((field) => field.valueType === "richText")
@@ -289,7 +284,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
             ...(store.record
               ? [
                   {
-                    id: "activities",
+                    value: "activities",
                     label: t("Common.actions.labelHistory"),
                     content: (
                       <AppCardBody className="overflow-y-auto overscroll-contain">
@@ -303,15 +298,74 @@ const RecordEditorBody = observer(function RecordEditorBody({
                 ]
               : []),
           ]}
+          store={store}
         />
 
-        {!store.isReadOnly && (
-          <AppCardFooter>
-            <RecordEditorActions formId={id} store={store} />
-          </AppCardFooter>
-        )}
+        <RecordEditorActions formId={id} store={store} />
       </AppCard>
     </AppForm>
+  );
+});
+
+const DRAWER_SEGMENT_KEY = "editor-tab:record-drawer";
+
+type DrawerSegment = { value: string; label: ReactNode; fields?: readonly string[]; content: ReactNode };
+
+function readDrawerSegment() {
+  try {
+    return window.localStorage.getItem(DRAWER_SEGMENT_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function rememberDrawerSegment(value: string) {
+  try {
+    window.localStorage.setItem(DRAWER_SEGMENT_KEY, value);
+  } catch {}
+}
+
+const RecordDrawerSegments = observer(function RecordDrawerSegments({
+  store,
+  segments,
+  label,
+}: {
+  store: RecordEditorStore;
+  segments: readonly DrawerSegment[];
+  label: string;
+}) {
+  const t = useTranslations();
+  const [chosen, setChosen] = useState(readDrawerSegment);
+  const active = segments.find((segment) => segment.value === chosen)?.value ?? segments[0]?.value ?? "";
+  if (segments.length < 2) return <div className="flex min-h-0 flex-1 flex-col">{segments[0]?.content}</div>;
+  return (
+    <SegmentedControl
+      className="min-h-0 flex-1 gap-0"
+      items={segments.map((segment) => ({
+        value: segment.value,
+        label: segment.label,
+        invalid: segment.fields?.some((field) => {
+          const errors = store.getError(field);
+          return Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+        }),
+        invalidLabel: t("EditorTabs.invalid"),
+      }))}
+      label={label}
+      listClassName="mx-6 mt-4 mb-2 w-auto"
+      value={active}
+      onValueChange={(next) =>
+        store.runAfterChannelDraft(() => {
+          setChosen(next);
+          rememberDrawerSegment(next);
+        })
+      }
+    >
+      {segments.map((segment) => (
+        <SegmentedControlPanel key={segment.value} className="m-0 flex min-h-0 flex-1 flex-col" value={segment.value}>
+          {segment.content}
+        </SegmentedControlPanel>
+      ))}
+    </SegmentedControl>
   );
 });
 

@@ -870,9 +870,7 @@
       "hidePassword": "Hide password",
       "selectOption": "Select an option",
       "showPassword": "Show password",
-      "switchToBoardView": "Switch to board view",
       "switchToBoardViewDisabled": "This list has no field to group by",
-      "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
       "tooltipFields": "Appearance",
       "tooltipFilters": "Filters"
@@ -1876,6 +1874,7 @@
     "groupOverflow": "Only {count} groups are shown",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "No value",
+    "resizeBoardColumns": "Resize the board columns. Drag or use the arrow keys; double-tap or press Enter to reset.",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
     "rowActions": "Row actions",
@@ -2464,7 +2463,6 @@
     "text": "Loading..."
   },
   "MassActions": {
-    "apply": "Apply to selected",
     "clearField": "Clear field",
     "delete": "Delete selected",
     "keepInView": "Keep only rows in view",
@@ -3013,6 +3011,7 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
+    "calculatedReadOnly": "{field} is calculated and can’t be edited.",
     "calculationError": "Calculation unavailable",
     "calculationInput": "Input {number}",
     "calculationNavigation": "Calculation navigation",
@@ -3328,6 +3327,8 @@
     "includeAudit": "Include record changes",
     "includeMessages": "Include messages",
     "invalidConfiguration": "This change needs attention before it can be applied.",
+    "invalidPhone": "Enter a phone number in international format, for example +4930123456.",
+    "invalidValue": "Enter a valid value.",
     "lineFields": {
       "amount": "Amount",
       "effectivePrice": "Unit price",
@@ -3359,9 +3360,9 @@
     "onePerLine": "Enter one value per line.",
     "onSourceDelete": "When this record is deleted",
     "onTargetDelete": "When the linked record is deleted",
+    "openDetails": "Open details",
     "openPage": "Open page",
     "openRecord": "Open {name}",
-    "openRecordDetails": "Open details for {name}",
     "operation": "Calculation",
     "operationCancelled": "The change was cancelled.",
     "operationFailed": "The change failed. The previous complete state is still active.",

@@ -2,9 +2,9 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 
-import { useId, useRef } from "react";
+import { useId, useRef, useState } from "react";
 
 import {
   DndContext,
@@ -35,11 +35,15 @@ import { cn } from "@/core/utils/cn";
 import { isInteractiveClick } from "./is-interactive-click";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 import { BoardGroupingPrompt } from "./board-grouping-prompt";
+import { ColumnResizeHandle } from "./column-resize-handle";
+import { clampWidth, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
+import { BOARD_LANE_WIDTH_KEY } from "@/core/data-view/data-view-state.schema";
 import { DataCardBody } from "./data-card-body";
 import {
   DATA_KANBAN_CARDS_CLASS_NAME,
   DATA_KANBAN_COLUMN_CLASS_NAME,
   DATA_KANBAN_HEADER_CLASS_NAME,
+  DATA_KANBAN_LANE_WIDTH_BOUNDS,
   DATA_KANBAN_ROOT_CLASS_NAME,
   DATA_KANBAN_TRACK_CLASS_NAME,
 } from "./data-view-geometry";
@@ -56,6 +60,7 @@ type Props<E extends HasCustomFieldValues> = {
   columns: ColumnDef<E>[];
   onCardClick?: (item: E) => void;
   cardHref?: (item: E) => string | undefined;
+  cardActions?: (item: E) => ReactNode;
   className?: string;
 };
 
@@ -75,6 +80,7 @@ function KanbanCard({
   children,
   onClick,
   href,
+  actions,
   className,
 }: {
   itemId: string;
@@ -83,6 +89,7 @@ function KanbanCard({
   children: ReactNode;
   onClick?: () => void;
   href?: string;
+  actions?: ReactNode;
   className?: string;
 }) {
   const t = useTranslations();
@@ -94,25 +101,27 @@ function KanbanCard({
   });
 
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
-  const { onKeyDown: dragKeyDown, ...dragPointerListeners } = (listeners ?? {}) as {
+  const { onKeyDown: dragKeyDown, onPointerDown: dragPointerDown } = (listeners ?? {}) as {
     onKeyDown?: (event: ReactKeyboardEvent<HTMLElement>) => void;
+    onPointerDown?: (event: ReactPointerEvent<HTMLElement>) => void;
   };
 
   return (
     <Card
       ref={setNodeRef}
       className={cn(
-        "gap-2 py-3 touch-none select-none relative",
+        "group/card gap-2 py-3 touch-none select-none relative",
         (onClick || href) && !isDragging && "interactive-surface",
-        isDragging && "z-50 cursor-grabbing shadow-lg shadow-black/20 ring-1 ring-border/60",
+        isDragging && "z-50 cursor-grabbing shadow-lg ring-1 ring-border/60",
         className,
       )}
       data-item-id={itemId}
       style={style}
       onClick={(e) => {
         e.stopPropagation();
-        if (isInteractiveClick(e)) return;
-        if (!isDragging && !transform) onClick?.();
+        if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e) || isDragging || transform) return;
+        if (onClick) onClick();
+        else if (href && !(e.metaKey || e.ctrlKey || e.shiftKey)) navigateToHref(href);
       }}
       onKeyDown={(event) => {
         const opens =
@@ -121,14 +130,16 @@ function KanbanCard({
           !isDragging &&
           (event.key === "Enter" || (!draggable && event.key === " "));
         if (!opens) {
-          if (draggable) dragKeyDown?.(event);
+          if (draggable && event.target === event.currentTarget) dragKeyDown?.(event);
           return;
         }
         event.preventDefault();
         if (onClick) onClick();
         else if (href) navigateToHref(href);
       }}
-      {...(draggable ? dragPointerListeners : {})}
+      onPointerDown={(event) => {
+        if (draggable && event.currentTarget.contains(event.target as Node)) dragPointerDown?.(event);
+      }}
       {...(draggable ? attributes : onClick || href ? { role: "button", tabIndex: 0 } : {})}
     >
       {href && !isDragging && (
@@ -145,7 +156,13 @@ function KanbanCard({
         />
       )}
 
-      {children}
+      <div className="relative">{children}</div>
+
+      {actions && (
+        <div className="absolute top-2 right-2 z-10" onPointerDown={(event) => event.stopPropagation()}>
+          {actions}
+        </div>
+      )}
     </Card>
   );
 }
@@ -166,6 +183,8 @@ const KanbanColumn = observer(function KanbanColumn({
   droppable,
   recordLabels,
   loadMore,
+  width,
+  resizeHandle,
   children,
 }: {
   id: string;
@@ -177,6 +196,8 @@ const KanbanColumn = observer(function KanbanColumn({
   droppable: boolean;
   recordLabels?: { singular: string; plural: string };
   loadMore?: LoadMoreAction;
+  width?: number;
+  resizeHandle?: ReactNode;
   children: ReactNode;
 }) {
   const t = useTranslations();
@@ -189,20 +210,31 @@ const KanbanColumn = observer(function KanbanColumn({
 
   const headerContent = color ? (
     <AppChip size="sm" variant={color}>
-      <span className="truncate">{label}</span>
+      {label}
     </AppChip>
   ) : (
-    <span className="text-sm font-medium">{label}</span>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="min-w-0 truncate text-sm font-medium">{label}</span>
+      </TooltipTrigger>
+
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 
   return (
-    <div ref={setNodeRef} className={DATA_KANBAN_COLUMN_CLASS_NAME} data-group-key={id}>
+    <div
+      ref={setNodeRef}
+      className={DATA_KANBAN_COLUMN_CLASS_NAME}
+      data-group-key={id}
+      style={width === undefined ? undefined : { width }}
+    >
       <div className={DATA_KANBAN_HEADER_CLASS_NAME}>
         {headerContent}
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="flex items-center gap-1 text-xs text-muted-foreground tabular-nums">
+            <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground tabular-nums">
               <Layers aria-hidden="true" className="size-3.5 shrink-0 opacity-70" />
 
               {count}
@@ -215,15 +247,17 @@ const KanbanColumn = observer(function KanbanColumn({
         {weight !== undefined && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-xs text-muted-foreground tabular-nums">{weight}%</span>
+              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{weight}%</span>
             </TooltipTrigger>
 
             <TooltipContent>{rateLabel}</TooltipContent>
           </Tooltip>
         )}
 
-        {summaries?.length ? <GroupSummaries summaries={summaries} /> : null}
+        {summaries?.length ? <GroupSummaries compact summaries={summaries} /> : null}
       </div>
+
+      {resizeHandle}
 
       <div className={DATA_KANBAN_CARDS_CLASS_NAME}>{children}</div>
 
@@ -250,6 +284,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   columns,
   onCardClick,
   cardHref,
+  cardActions,
   className,
 }: Props<E>) {
   const t = useTranslations();
@@ -258,6 +293,11 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const groupLabel = useGroupLabel(store.groupingResult);
   const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
   const writeBackColumnId = store.groupingResult?.columnId;
+  const [laneResize, setLaneResize] = useState<ColumnResizeSession>();
+  const storedLaneWidth = store.columnWidths[BOARD_LANE_WIDTH_KEY];
+  const laneWidth =
+    laneResize?.currentWidth ??
+    (storedLaneWidth === undefined ? undefined : clampWidth(storedLaneWidth, DATA_KANBAN_LANE_WIDTH_BOUNDS));
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 4 },
@@ -386,8 +426,26 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 label={groupLabel(group)}
                 loadMore={loadMore}
                 recordLabels={store.recordLabels}
+                resizeHandle={
+                  <ColumnResizeHandle
+                    bounds={DATA_KANBAN_LANE_WIDTH_BOUNDS}
+                    className="-right-2 hover:opacity-100"
+                    columnId={BOARD_LANE_WIDTH_KEY}
+                    label={t("DataView.resizeBoardColumns")}
+                    measure={(handle) => handle.parentElement?.getBoundingClientRect().width}
+                    resizing={laneResize !== undefined}
+                    onCommit={(width) => store.setViewOptions({ columnWidth: { uid: BOARD_LANE_WIDTH_KEY, width } })}
+                    onLiveWidth={setLaneResize}
+                    onReset={() =>
+                      store.setViewOptions({
+                        columnWidths: withoutColumnWidth(store.columnWidths, BOARD_LANE_WIDTH_KEY),
+                      })
+                    }
+                  />
+                }
                 summaries={group.summaries}
                 weight={group.weight}
+                width={laneWidth}
               >
                 {group.itemIds.map((itemId) => {
                   const item = itemsById.get(itemId);
@@ -397,6 +455,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                   return (
                     <KanbanCard
                       key={itemId}
+                      actions={cardActions?.(item)}
                       draggable={supportsDragWriteBack && store.canMoveItemBetweenGroups?.(item) !== false}
                       groupKey={group.key}
                       href={cardHref?.(item)}

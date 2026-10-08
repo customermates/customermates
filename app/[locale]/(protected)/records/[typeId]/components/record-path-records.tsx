@@ -8,9 +8,16 @@ import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
 
 import { Button } from "@/components/ui/button";
+import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChip } from "@/components/chip/app-chip";
+import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { recordLinkColor } from "@/features/records/record-presentation";
-import { useRecordChoices } from "./record-relationship-editor";
+import { cn } from "@/core/utils/cn";
+import {
+  RECORD_LINK_FRAME_CLASS,
+  RECORD_LINK_FRAME_READ_ONLY_CLASS,
+  useRecordChoices,
+} from "./record-relationship-editor";
 import { RecordDetailField } from "./record-detail-field";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
 
@@ -51,12 +58,18 @@ export const RecordPathRecords = observer(function RecordPathRecords({
               {t("ErrorCard.retry")}
             </Button>
           </div>
-        ) : result.loading ? (
-          <span className="text-sm text-muted-foreground" role="status">
-            {t("Loading.text")}
-          </span>
         ) : (
-          <div className="flex flex-wrap gap-1.5">
+          <div
+            aria-busy={result.loading || undefined}
+            className={cn(RECORD_LINK_FRAME_CLASS, RECORD_LINK_FRAME_READ_ONLY_CLASS)}
+            data-relationship-path-field=""
+          >
+            {result.loading && !result.data && (
+              <span aria-label={t("Loading.text")} role="status">
+                <SelectionValueSkeleton />
+              </span>
+            )}
+
             {result.data?.records.map((record) => {
               const title =
                 record.title.state === "restricted"
@@ -67,21 +80,25 @@ export const RecordPathRecords = observer(function RecordPathRecords({
                       ? record.title.value.value
                       : t("RecordModel.record");
               return (
-                <button
+                <AppChip
                   key={`${record.ref.typeId}:${record.ref.recordId}`}
-                  aria-label={t("RecordModel.openRecord", { name: title })}
-                  className="max-w-full rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  type="button"
-                  onClick={(event) => store.rootStore.recordWorkspaceStore.open(record.ref, event.currentTarget)}
+                  startContent={<RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />}
+                  tooltip={title}
+                  variant={recordLinkColor(store.presentation.linkColors, record.ref.typeId)}
                 >
-                  <AppChip interactive variant={recordLinkColor(store.presentation.linkColors, record.ref.typeId)}>
+                  <button
+                    aria-label={t("RecordModel.openRecord", { name: title })}
+                    className="max-w-full rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    type="button"
+                    onClick={(event) => store.rootStore.recordWorkspaceStore.open(record.ref, event.currentTarget)}
+                  >
                     {title}
-                  </AppChip>
-                </button>
+                  </button>
+                </AppChip>
               );
             })}
 
-            {result.data?.total === 0 && <span className="text-sm text-muted-foreground">—</span>}
+            {result.data?.total === 0 && <span className="text-muted-foreground">—</span>}
           </div>
         )}
 

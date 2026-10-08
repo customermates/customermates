@@ -25,6 +25,7 @@ const record: RecordDto = {
   fields: [],
   assignedUserIds: [],
   assignedUsers: [],
+  memberUsers: [],
   relationships: [],
 };
 let root: Root;

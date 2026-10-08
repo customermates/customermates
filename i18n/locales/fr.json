@@ -870,9 +870,7 @@
       "hidePassword": "Masquer le mot de passe",
       "selectOption": "Sélectionner une option",
       "showPassword": "Afficher le mot de passe",
-      "switchToBoardView": "Passer à la vue board",
       "switchToBoardViewDisabled": "Cette liste ne contient aucun champ de regroupement",
-      "switchToTableView": "Passer à la vue tableau",
       "themeSwitcher": "Sélecteur de thème",
       "tooltipFields": "Apparence",
       "tooltipFilters": "Filtres"
@@ -1876,6 +1874,7 @@
     "groupOverflow": "Seuls {count} groupes sont affichés",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Aucune valeur",
+    "resizeBoardColumns": "Redimensionner les colonnes du tableau. Faites glisser ou utilisez les flèches ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "rowActions": "Actions de ligne",
@@ -2464,7 +2463,6 @@
     "text": "Chargement..."
   },
   "MassActions": {
-    "apply": "Appliquer à la sélection",
     "clearField": "Vider le champ",
     "delete": "Supprimer la sélection",
     "keepInView": "Conserver uniquement les lignes visibles",
@@ -3013,6 +3011,7 @@
       "snapshot": "Enregistré lors d’un événement"
     },
     "board": "Tableau Kanban",
+    "calculatedReadOnly": "{field} est calculé et ne peut pas être modifié.",
     "calculationError": "Calcul indisponible",
     "calculationInput": "Entrée {number}",
     "calculationNavigation": "Navigation du calcul",
@@ -3328,6 +3327,8 @@
     "includeAudit": "Inclure les modifications des fiches",
     "includeMessages": "Inclure les messages",
     "invalidConfiguration": "Cette modification doit être vérifiée avant son application.",
+    "invalidPhone": "Saisissez un numéro de téléphone au format international, par exemple +4930123456.",
+    "invalidValue": "Saisissez une valeur valide.",
     "lineFields": {
       "amount": "Montant",
       "effectivePrice": "Prix unitaire",
@@ -3359,9 +3360,9 @@
     "onePerLine": "Saisissez une valeur par ligne.",
     "onSourceDelete": "À la suppression de cette fiche",
     "onTargetDelete": "À la suppression de la fiche liée",
+    "openDetails": "Ouvrir les détails",
     "openPage": "Ouvrir la page",
     "openRecord": "Ouvrir {name}",
-    "openRecordDetails": "Ouvrir les détails de {name}",
     "operation": "Calcul",
     "operationCancelled": "La modification a été annulée.",
     "operationFailed": "La modification a échoué. L’état complet précédent reste actif.",
