@@ -11,6 +11,7 @@ import {
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
+import { openFilterPalette } from "./filter-palette";
 
 test("creates a custom list and field through the UI, then persists a decimal record across reloads", async ({
   page,
@@ -196,15 +197,23 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
   await dialog.locator("#widget-config-filters").click();
-  await dialog.getByRole("combobox", { name: "Add filter", exact: true }).click();
-  await page.getByRole("option", { name: "Budget", exact: true }).click();
-  await dialog.getByRole("combobox", { name: "Condition", exact: true }).click();
-  await page.getByRole("option", { name: "Greater than", exact: true }).click();
-  await dialog.getByLabel("Value", { exact: true }).fill("100");
-  await dialog.getByRole("combobox", { name: "Add a linked-record filter", exact: true }).click();
-  await page.getByRole("option", { name: "Client organization", exact: true }).click();
-  await dialog.getByRole("combobox", { name: "Linked records", exact: true }).click();
-  await page.getByRole("option", { name: "No accessible linked records match", exact: true }).click();
+  const paletteField = (label: string) =>
+    page.locator("[data-palette-field]").filter({ hasText: new RegExp(`^${label}$`) });
+  await openFilterPalette(page, "widget-source-filters");
+  await paletteField("Budget").click();
+  await page.locator("[data-palette-operator-trigger]").click();
+  await page.getByRole("menuitem", { name: ">", exact: true }).click();
+  await page.locator('[id="draft.value"]').fill("100");
+  await page.locator('[id="draft.value"]').press("Enter");
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+  await openFilterPalette(page, "widget-source-filters");
+  await paletteField("Client organization").click();
+  await page.locator("[data-palette-operator-trigger]").click();
+  await page.getByRole("menuitem", { name: "has none", exact: true }).click();
+  await page.locator("#filter-palette-back").click();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
   await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.125/)).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
@@ -219,9 +228,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   expect(savedWidget.rows[0].measure.source.filters).toMatchObject([
     { operator: "gt", value: { kind: "decimal", value: "100", currency: "EUR" } },
   ]);
-  expect(savedWidget.rows[0].measure.source.relatedFilters).toMatchObject([
-    { operator: "none", path: [{ direction: "outgoing" }] },
-  ]);
+  expect(savedWidget.rows[0].measure.source.relationships).toMatchObject([{ operator: "none", direction: "outgoing" }]);
   await page.reload();
   const widgetCard = page
     .locator('[data-uid="app-card"]')

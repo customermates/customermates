@@ -30,4 +30,11 @@ describe("list plural suggestions", () => {
   it("keeps names that do not end in a word", () => {
     expect(suggestListPlural("Q3 2026", "en")).toBe("Q3 2026");
   });
+
+  it.each(["Projects 1a2b3c4d", "Projects abc12def", "Project Q3", "Kontakte 2026b"])(
+    "keeps %s whose last word mixes letters and digits",
+    (name) => {
+      expect(suggestListPlural(name, name.startsWith("Kontakte") ? "de" : "en")).toBe(name);
+    },
+  );
 });

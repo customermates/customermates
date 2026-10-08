@@ -50,7 +50,7 @@ const pluralizers: Record<string, (word: string) => string> = {
 
 export function suggestListPlural(name: string, locale: string) {
   const trimmed = name.trimEnd();
-  const match = /^(.*?)(\p{L}+)$/u.exec(trimmed);
+  const match = /^(.*?)(?<![\p{L}\p{N}])(\p{L}+)$/u.exec(trimmed);
   if (!match) return trimmed;
   const pluralize = pluralizers[locale.slice(0, 2).toLowerCase()] ?? englishPlural;
   return `${match[1]}${pluralize(match[2])}`;
