@@ -2211,7 +2211,6 @@
       "ccLabel": "Cc",
       "createContact": "Create \"{query}\"",
       "draftAttachmentsUnsupported": "Remove attachments before saving this draft.",
-      "draftDiscard": "Discard",
       "draftDiscardFailed": "Couldn't discard the draft",
       "draftEdit": "Edit",
       "draftSaved": "Draft saved. Find it in the inbox.",
@@ -2296,7 +2295,6 @@
     "previewVideo": "🎥 Video",
     "previewVoice": "🎙️ Voice message",
     "rateLimited": "This channel hit its rate limit. You can try again {retryAfter, select, later {later} other {{retryAfter}}}.",
-    "refresh": "Refresh",
     "refreshDone": "Inbox refreshed.",
     "refreshNeedsReconnect": "{count, plural, one {# channel needs} other {# channels need}} reconnecting before it can sync. Open Channels to reconnect.",
     "refreshPartial": "{count, plural, one {# channel} other {# channels}} couldn't be refreshed. The inbox shows what was synced before.",
@@ -2458,14 +2456,14 @@
   "MassActions": {
     "clearField": "Clear field",
     "delete": "Delete selected",
+    "edit": "Edit",
     "keepInView": "Keep only rows in view",
     "limitReached": "You can select up to {limit} records at a time.",
     "noMatchingFields": "No fields match your search.",
     "offView": "{count, plural, one {# not in the current view} other {# not in the current view}}",
     "scopeStale": "The filters changed since you made this selection.",
     "searchFieldPlaceholder": "Search fields…",
-    "selectedCount": "{count, plural, one {# item selected} other {# items selected}}",
-    "update": "Update"
+    "selectedCount": "{count, plural, one {# item selected} other {# items selected}}"
   },
   "McpConsentCard": {
     "approve": "Approve",
@@ -2683,7 +2681,6 @@
         }
       }
     },
-    "back": "Back",
     "continue": "Continue",
     "finish": "Finish",
     "invite": {

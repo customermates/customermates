@@ -17,9 +17,9 @@ function getPage(args: { slug: string; locale?: ContentLocale; source?: "docs" |
 }
 
 describe("search_docs", () => {
-  it("tells agents how to complete the relative app routes it returns", () => {
+  it("tells agents that docs links into the app open the reader's workspace", () => {
     expect(searchDocsTool.description).toMatch(
-      /App routes in a snippet, such as `\/company\/subscription`, are relative/,
+      /Links into the app in the docs are full URLs on this instance and open the reader's own workspace/,
     );
   });
 
@@ -85,47 +85,16 @@ describe("get_docs_page", () => {
     expect(listDocsSlugs("en", "docs")).toEqual(expect.arrayContaining(examples));
   });
 
-  it("tells agents how to complete the relative app routes in the markdown", () => {
+  it("tells agents that app links in the markdown open the reader's workspace", () => {
     expect(getDocsPageTool.description).toMatch(
-      /App routes in the markdown, such as `\/company\/subscription`, are relative/,
+      /Links into the app in the docs are full URLs on this instance and open the reader's own workspace/,
     );
-  });
-
-  it("names every widget editor target of the Dashboard page in its tips for agents", () => {
-    for (const locale of CONTENT_LOCALES) {
-      const { markdown } = (
-        docsPageResult({ slug: "app-dashboard", locale, source: "docs" }) as {
-          structuredContent: { markdown: string };
-        }
-      ).structuredContent;
-      const tipsStart = markdown.search(/^## (?:Tips for agents|Tipps für Agents)/m);
-      const tipsEnd = markdown.indexOf("\n## ", tipsStart + 1);
-      const tips = markdown.slice(tipsStart, tipsEnd === -1 ? undefined : tipsEnd);
-      const targets = new Set(markdown.match(/widget-modal-[a-z-]+/g));
-      expect(tipsStart, locale).toBeGreaterThan(-1);
-      expect(targets.size, locale).toBeGreaterThan(0);
-      for (const target of targets) expect(tips, `${locale} ${target}`).toContain(`#${target}`);
-    }
-  });
-
-  it("describes the My Company sidebar entry as a toggle in its tips for agents", () => {
-    for (const [locale, toggle] of [
-      ["en", "`#nav-company` only expands or collapses the sidebar group"],
-      ["de", "`#nav-company` klappt die Sidebar-Gruppe nur auf oder zu"],
-    ] as const) {
-      const { markdown } = (
-        docsPageResult({ slug: "app-company", locale, source: "docs" }) as {
-          structuredContent: { markdown: string };
-        }
-      ).structuredContent;
-      expect(markdown, locale).toContain(toggle);
-    }
   });
 
   it("keeps full-page behavior when no focused query is supplied", () => {
     const result = getPage({ slug: "app-profile" });
 
-    expect(result).toContain("## What lives on the Profile screen?");
+    expect(result).toContain("## What belongs to you rather than the workspace?");
     expect(result).toContain("## Related");
   });
 });
@@ -133,12 +102,12 @@ describe("get_docs_page", () => {
 describe("search and fetch", () => {
   const description = (name: string) => MCP_ALWAYS_ON_TOOLS.find((tool) => tool.name === name)?.description ?? "";
 
-  it("tell deep-research connectors how to complete the relative app routes in fetched docs", () => {
+  it("tell deep-research connectors that docs links into the app open the reader's workspace", () => {
     expect(description("fetch")).toMatch(
-      /app routes in text, such as `\/company\/subscription`, are relative: for a full link, put the route after the origin of url/,
+      /Links into the app in the docs are full URLs on this instance and open the reader's own workspace/,
     );
     expect(description("search")).toMatch(
-      /App routes in the docs text that fetch returns, such as `\/company\/subscription`, are relative/,
+      /Links into the app in the docs are full URLs on this instance and open the reader's own workspace/,
     );
   });
 
@@ -148,7 +117,7 @@ describe("search and fetch", () => {
         readFileSync(join(process.cwd(), "content", "docs", locale, "mcp-catalog-summaries.json"), "utf8"),
       ) as Record<string, string>;
       for (const tool of ["search_docs", "get_docs_page", "search", "fetch"]) {
-        expect(summaries[tool], `${tool} (${locale})`).toContain("`/company/subscription`");
+        expect(summaries[tool], `${tool} (${locale})`).not.toContain("`/company/subscription`");
         expect(summaries[tool], `${tool} (${locale})`).toContain("`BASE_URL`");
       }
     }

@@ -209,7 +209,7 @@ const SAVE_LIKE_KEY_EXEMPT: Record<string, string> = {
   "Editor.confirm": "inserts a link into the text being edited; nothing is persisted",
   "DataTransfer.recordImport.update": "names an import mode option, not a button",
 };
-const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>(["MassActions.update"]);
+const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>([]);
 
 describe("footer actions follow one shared component (design rules 30, 31, 35)", () => {
   const current = findings();
