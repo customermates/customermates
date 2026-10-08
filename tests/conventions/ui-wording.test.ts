@@ -56,7 +56,7 @@ function sharedActionWordViolations(messages: Messages) {
 
 const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
   "AgentChat.approval.rejectAction":
-    "the Mate approval card's reject decision; Common.actions.cancel stays reserved for the shared footer",
+    "Mate rejecting a proposed action is its own decision, not the shared footer Cancel; single consumer, so no new Common key",
   "RecordModel.operators.add": "the arithmetic operator Add in calculations, not the Add action",
   "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
