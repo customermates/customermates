@@ -69,7 +69,7 @@ describe("Wiki activity detail", () => {
     expect(markup).toContain("Wiki.kind.procedure");
     expect(markup).toContain("Wiki.whenToUse.label");
     expect(markup).toContain("When a customer asks to cancel");
-    expect(markup).toContain("AuditLogModal.noValue");
+    expect(markup).toContain("—");
   });
 
   it("preserves the normal field/value contract for a non-Wiki event", () => {

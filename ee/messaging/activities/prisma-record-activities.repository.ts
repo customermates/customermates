@@ -102,6 +102,14 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
     };
   }
 
+  async membersCompanyWide(ids: string[]) {
+    if (!ids.length) return [];
+    return this.prisma.user.findMany({
+      where: { companyId: this.companyId, id: { in: ids } },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+    });
+  }
+
   async hasHistoryCompanyWide(ref: RecordRef) {
     const event = await this.prisma.eventLog.findFirst({
       where: { companyId: this.companyId, subjectKind: "record", subjectTypeId: ref.typeId, subjectId: ref.recordId },
