@@ -38,7 +38,6 @@ function importFindings(sources: SourceFile[], modulePattern: RegExp) {
 const TABS_OWNERS = new Set(["components/ui/segmented-control.tsx"]);
 
 const TABS_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": "I1 r4: list page sidebar list",
 };
 
 describe("rule 57: sections and segments instead of tab bars", () => {

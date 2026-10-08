@@ -184,7 +184,7 @@ const OVERLAY_FOOTER_BLOCK = /<AppCardFooter\b[^>]*>[\s\S]*?<\/AppCardFooter>/g;
  * Components that render their own AppCardFooter. Wrapping one in a second footer doubles the
  * padding and the safe-area inset, and neither is visible in a static read of the call site.
  */
-const SELF_FOOTERING_COMPONENTS = /<(?:FormActions|FormFooterActions)\b/;
+const SELF_FOOTERING_COMPONENTS = /<FormFooterActions\b/;
 
 function nestedOverlayFooterViolations(sources: { file: string; text: string }[]) {
   const found: string[] = [];
@@ -401,10 +401,10 @@ describe("overlay contract", () => {
   });
 
   it("never nests a shared footer inside another overlay footer", () => {
-    // FormActions renders its own AppCardFooter, so wrapping it in one applies p-6 pt-0 twice
+    // FormFooterActions renders its own AppCardFooter, so wrapping it in one applies p-6 pt-0 twice
     // and the drawer and sheet safe-area inset twice, both of which are in-* descendant
     // variants that match at any depth. It also leaves a bare padded strip for a reader whose
-    // FormActions returns null. The footer belongs beside AppCardBody, not around FormActions.
+    // FormFooterActions returns null. The footer belongs beside AppCardBody, not around FormFooterActions.
     const violations = nestedOverlayFooterViolations(
       sourceFiles().map((file) => ({ file: relative(REPO_ROOT, file), text: readFileSync(file, "utf8") })),
     );
@@ -417,11 +417,11 @@ describe("overlay contract", () => {
     // The probe lives here rather than in a fixture file, because sourceFiles() walks __tests__.
     expect(
       nestedOverlayFooterViolations([
-        { file: "bad.tsx", text: "<AppCardFooter>\n  <FormActions store={s} />\n</AppCardFooter>" },
+        { file: "bad.tsx", text: "<AppCardFooter>\n  <FormFooterActions store={s} />\n</AppCardFooter>" },
       ]),
     ).toHaveLength(1);
     expect(
-      nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormActions store={s} />" }]),
+      nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormFooterActions store={s} />" }]),
     ).toHaveLength(0);
   });
 

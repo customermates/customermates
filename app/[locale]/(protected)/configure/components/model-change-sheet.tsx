@@ -8,12 +8,12 @@ import type { RecordModelView } from "@/features/records/record-model.schema";
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 
-import { Sheet, SheetBody, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
 import { AppModalCloseContext } from "@/components/modal/app-modal-close-context";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
+import { DiscardChangesDialog } from "@/components/modal/confirm-dialog";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { usePreviewBlockers } from "./use-preview-blockers";
 
@@ -101,22 +101,17 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
 
             <SheetBody className="px-6 py-5">{children}</SheetBody>
 
-            <SheetFooter className="px-6">
-              <div className="flex shrink-0 items-center justify-end gap-2 max-sm:flex-col-reverse max-sm:items-stretch">
-                <FormFooterActions
-                  editable
-                  dirty={!store.isReadOnly && (creating || store.hasUnsavedChanges || store.previewReady)}
-                  placement="overlay"
-                  saving={store.isLoading}
-                  onSave={store.onSubmit}
-                />
-              </div>
-            </SheetFooter>
+            <FormFooterActions
+              dirty={creating || store.hasUnsavedChanges || store.previewReady}
+              editable={!store.isReadOnly}
+              saving={store.isLoading}
+              onSave={store.onSubmit}
+            />
           </AppModalCloseContext.Provider>
         </SheetContent>
       </Sheet>
 
-      <UnsavedChangesGuard
+      <DiscardChangesDialog
         open={store.isClosingWithGuard}
         onCancel={() => store.setIsClosingWithGuard(false)}
         onConfirm={() => store.close()}

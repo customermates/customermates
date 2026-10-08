@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import { History, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { FormActions } from "@/components/card/form-actions";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { IntlLink } from "@/i18n/navigation";
@@ -57,7 +57,7 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   const deletion = useConfigurationDeletion(onDeleted);
   if (!canManage) return <div className="flex shrink-0 items-center gap-1">{ai}</div>;
   if (selected && general.original?.id === selected.id && general.hasUnsavedChanges)
-    return <FormActions formId={generalFormId} store={general} variant="topbar" />;
+    return <FormFooterActions formId={generalFormId} placement="topbar" store={general} />;
 
   return (
     <div className="flex shrink-0 items-center gap-1">
