@@ -10,6 +10,7 @@ import { ConfigurationPreviewSchema } from "../../features/records/configuration
 import { ManageDataViewsResultSchema } from "../../features/data-view/manage-data-views.schema";
 import { localE2eEnvironment } from "./local-environment";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { invokesServerAction, serverActionIds } from "./server-actions";
 
 const DiscoverySchema = z.object({
   schemaRevision: z.number().int(),
@@ -206,6 +207,8 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
       measure,
       displayOptions: { displayType: "verticalBarChart", showLegend: true },
     });
+    const unreadIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "getUnreadThreadCountAction");
+    const unreadCountSettled = page.waitForResponse((response) => invokesServerAction(response.request(), unreadIds));
     await page.goto(`/en${view.link}`);
     await expect(page.getByRole("link", { name: "Protocol project", exact: true })).toBeVisible();
     await expect(
@@ -214,6 +217,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
     await expect(page.getByRole("columnheader", { name: "Half budget", exact: false })).toBeVisible();
     await expect(page.getByRole("cell", { name: "34.25", exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("mcp-configured-projects.png"), animations: "disabled" });
+    await unreadCountSettled;
     await page.waitForLoadState("networkidle");
     await page.goto("/en/dashboard");
     const widget = page

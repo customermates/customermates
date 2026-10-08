@@ -194,7 +194,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   expect(lines.rows).toEqual([{ count: 3 }]);
   await expect(dialogs).not.toBeVisible();
   await openRecords("service");
-  await page.getByRole("button", { name: "Service A", exact: true }).click();
+  await openRecordDetails(page, "Service A");
   await dialogs.getByRole("button", { name: "Delete", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("Services: 1; Line items: 2");

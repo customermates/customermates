@@ -3065,6 +3065,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       await reader.page
         .getByRole("option")
         .filter({ hasText: "Readable archive summary" })
+        .filter({ hasNotText: "Ask Mate" })
         .click();
       for (const field of [total, memo]) {
         await expect(
