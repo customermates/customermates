@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { RecordQueryFilters } from "@/components/records/record-query-filters";
+import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
@@ -212,7 +213,7 @@ export const RecordWidgetEditor = observer(
             >
               <RecordWidgetCard
                 data={shownPreview.result}
-                displayOptions={form.displayOptions}
+                displayOptions={toJS(form.displayOptions)}
                 groupOptions={shownPreview.groupOptions}
                 measure={measure}
                 name={form.name.trim() || t("Dashboard.widgetEditor.preview.untitled")}
