@@ -44,13 +44,13 @@ export function describeFile(input: { mime?: string | null; fileName?: string | 
   const has = (m: string, e: string[]) => mime.includes(m) || e.includes(ext);
 
   if (mime === "application/pdf" || ext === "pdf")
-    return { Icon: FileText, typeLabelKey: "Inbox.fileTypePdf", accent: "text-red-500" };
+    return { Icon: FileText, typeLabelKey: "Inbox.fileTypePdf", accent: "text-destructive" };
   if (has("wordprocessingml", ["doc", "docx"]) || mime === "application/msword")
-    return { Icon: FileText, typeLabelKey: "Inbox.fileTypeWord", accent: "text-blue-500" };
+    return { Icon: FileText, typeLabelKey: "Inbox.fileTypeWord", accent: "text-primary" };
   if (has("spreadsheetml", ["xls", "xlsx", "csv"]) || mime === "application/vnd.ms-excel")
-    return { Icon: FileSpreadsheet, typeLabelKey: "Inbox.fileTypeExcel", accent: "text-emerald-600" };
+    return { Icon: FileSpreadsheet, typeLabelKey: "Inbox.fileTypeExcel", accent: "text-success" };
   if (has("presentationml", ["ppt", "pptx"]) || mime === "application/vnd.ms-powerpoint")
-    return { Icon: Presentation, typeLabelKey: "Inbox.fileTypePowerpoint", accent: "text-orange-500" };
+    return { Icon: Presentation, typeLabelKey: "Inbox.fileTypePowerpoint", accent: "text-warning" };
   if (mime.startsWith("image/"))
     return { Icon: FileImage, typeLabelKey: "Inbox.fileTypeImage", accent: "text-muted-foreground" };
   return { Icon: FileIcon, typeLabelKey: "Inbox.attachmentFile", accent: "text-muted-foreground" };

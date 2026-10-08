@@ -7,7 +7,6 @@ type ExcerptUnit = { text: string; context: ContextLine[]; table?: number; prose
 
 const SENTENCES = new Intl.Segmenter("und", { granularity: "sentence" });
 const TABLE_SEPARATOR = /^\|\s*:?-+/;
-const LINK_LINE = /^\*\*Link:\*\*/;
 const FENCE = /^ {0,3}(`{3,}|~{3,})([^\n]*)$/;
 const LIST_LINE = /^\s*(?:[-*+]|\d+[.)])\s/u;
 
@@ -19,7 +18,6 @@ function unitsIn(markdown: string, maxUnitChars: number, preserveParagraphs: boo
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     if (!line.trim()) continue;
-    if (LINK_LINE.test(line)) continue;
     if (/^#{1,6}\s/.test(line)) {
       heading = [{ order: index, text: line }];
       table = [];
@@ -141,19 +139,6 @@ function proseWindow(text: string, length: number, score: (value: string) => num
   return span(first, last);
 }
 
-function linkSuffix(links: readonly string[], length: number): string {
-  const first = links[0];
-  if (!first || length < 1) return "";
-  const routeOnly = first.split("**Mate:**")[0].trimEnd();
-  const candidates = [first, routeOnly];
-  const routes = routeOnly.match(/`\/[^`]+`/gu) ?? [];
-  if (routes.length > 0) candidates.push(`**Link:** ${routes.join(", ")}`);
-  return (
-    candidates.find((line) => line.length <= length) ??
-    (routes[0] && `**Link:** ${routes[0]}`.length <= length ? `**Link:** ${routes[0]}` : "")
-  );
-}
-
 function render(units: readonly ExcerptUnit[], picked: ReadonlyMap<number, string>, heading: string): string {
   let text = heading;
   let previous: number | undefined;
@@ -184,10 +169,7 @@ export function retrievalExcerpt(args: {
   const whole = [heading, args.markdown].filter(Boolean).join("\n");
   if (whole.length <= maxChars) return whole;
   if (heading.length >= maxChars) return bounded(heading, maxChars);
-  const links = args.markdown.split("\n").filter((line) => LINK_LINE.test(line));
-  const link = linkSuffix(links, Math.max(0, Math.min(128, Math.floor(maxChars / 3), maxChars - heading.length - 43)));
-  const suffix = link ? `\n\n${link}` : "";
-  const units = unitsIn(args.markdown, maxChars - heading.length - (heading ? 2 : 0) - suffix.length, Boolean(heading));
+  const units = unitsIn(args.markdown, maxChars - heading.length - (heading ? 2 : 0), Boolean(heading));
   const matcher = createRetrievalEvidenceMatcher(args.query, args.locale);
   const matches = units.map((unit) => matcher.matches(unit.text));
   const weights = matcher.units.map((_, index) =>
@@ -203,11 +185,10 @@ export function retrievalExcerpt(args: {
   if (
     heading &&
     relevant[0] > 0 &&
-    (relevant[0] >= Math.max(0, ...relevant) ||
-      units[0].text.length <= ((maxChars - heading.length - suffix.length - 2) * 2) / 3)
+    (relevant[0] >= Math.max(0, ...relevant) || units[0].text.length <= ((maxChars - heading.length - 2) * 2) / 3)
   ) {
     picked.set(0, units[0].text);
-    if (render(units, picked, heading).length + suffix.length <= maxChars) {
+    if (render(units, picked, heading).length <= maxChars) {
       remaining.delete(0);
       matches[0].forEach((hit, term) => {
         if (hit) seen.add(term);
@@ -228,7 +209,7 @@ export function retrievalExcerpt(args: {
     remaining.delete(index);
     const unit = units[index];
     picked.set(index, unit.text);
-    if (render(units, picked, heading).length + suffix.length <= maxChars) {
+    if (render(units, picked, heading).length <= maxChars) {
       matches[index].forEach((hit, term) => {
         if (hit) seen.add(term);
       });
@@ -236,7 +217,7 @@ export function retrievalExcerpt(args: {
       picked.delete(index);
       if (unit.prose && score(index, seen) > 0) {
         picked.set(index, "");
-        const room = maxChars - render(units, picked, heading).length - suffix.length;
+        const room = maxChars - render(units, picked, heading).length;
         picked.delete(index);
         const body = proseWindow(unit.text, room, (value) =>
           matcher.matches(value).reduce((sum, hit, term) => sum + (hit && !seen.has(term) ? weights[term] : 0), 0),
@@ -251,10 +232,10 @@ export function retrievalExcerpt(args: {
       if (picked.size === 0) {
         const context = unit.context.map(({ text }) => text).join("\n");
         const prefix = [heading, context].filter(Boolean).join("\n\n");
-        const room = maxChars - prefix.length - (prefix ? 2 : 0) - suffix.length;
+        const room = maxChars - prefix.length - (prefix ? 2 : 0);
         if (room > 0) picked.set(index, boundedUnit(unit.text, room));
       }
     }
   }
-  return `${render(units, picked, heading)}${suffix}`;
+  return `${render(units, picked, heading)}`;
 }

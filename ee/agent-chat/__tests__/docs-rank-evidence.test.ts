@@ -153,8 +153,8 @@ describe("bounded classifier evidence", () => {
       label: section.headingPath.at(-1),
       locale: "de",
     });
-    expect(excerpt).toContain("Zugewiesen erlaubt das Lesen der dem Mitglied zugewiesenen Datensätze");
-    expect(excerpt).toContain("Jeder Datensatztyp hat getrennte Schalter");
+    expect(excerpt).toContain("Zugewiesen (dem Mitglied zugewiesene Datensätze");
+    expect(excerpt).toContain("Jede Zeile hat die Kontrollkästchen");
     expect(excerpt.length).toBeLessThanOrEqual(375);
   });
 
@@ -172,8 +172,8 @@ describe("bounded classifier evidence", () => {
       label: section.headingPath.at(-1),
       locale: "en",
     });
-    expect(excerpt).toContain("A stage or status is a configured select field");
-    expect(excerpt).toContain("To set up pipeline stages, add or edit a select field on Deals");
+    expect(excerpt).toContain("Stage and status are Single choice fields.");
+    expect(excerpt).toContain("To edit the stages or their probabilities, open the field in Configure for Deals");
     expect(excerpt.length).toBeLessThanOrEqual(374);
   });
 
@@ -192,25 +192,6 @@ describe("bounded classifier evidence", () => {
     expect(excerpt).toBe(operation);
     expect(excerpt).toContain("remove_connection");
     expect(excerpt.length).toBeLessThanOrEqual(160);
-  });
-
-  it("retains the real relationship operation when its label already covers the record types", () => {
-    const page = rawDocsManifest.docs.en.concepts;
-    const section = splitSections({
-      slug: "concepts",
-      source: "docs",
-      pageTitle: page.title,
-      markdown: page.content,
-    }).find(({ anchor }) => anchor === "how-do-relationships-link-records");
-    expect(section).toBeDefined();
-    if (!section) throw new Error("Expected public documentation section");
-    const body = section.text.replace(/^#{1,6} [^\n]*(?:\n|$)/u, "");
-    const excerpt = docsRankEvidence(body, "Can I delete the link to an organization from a contact?", 396, {
-      label: `${section.pageTitle} > ${section.headingPath.join(" > ")}`,
-      locale: "en",
-    });
-    expect(excerpt).toContain("mutate_crm_record with stable relation IDs from get_record_model to link or unlink");
-    expect(excerpt.length).toBeLessThanOrEqual(396);
   });
 
   it("keeps a matching residual instruction ahead of shared label terms", () => {
@@ -445,7 +426,7 @@ describe("bounded classifier evidence", () => {
       "They cover configurable records, record-model management, workspace, saved views, the Knowledge Base, messaging",
     );
     expect(excerpt).toContain("widgets, routines, webhooks, admin and support");
-    expect(excerpt).toContain("discover schemas, query and change records");
+    expect(excerpt).toContain("Customermates exposes 49 MCP tools, all enabled by default.");
     expect(excerpt.length).toBeLessThanOrEqual(478);
   });
 
@@ -459,8 +440,12 @@ describe("bounded classifier evidence", () => {
     }).find(({ anchor }) => anchor === "what-do-the-thread-states-mean");
     expect(section).toBeDefined();
     if (!section) throw new Error("Expected public documentation section");
-    const excerpt = docsRankEvidence(section.text, "Does marking a conversation as closed notify the customer?", 382);
-    expect(excerpt).toContain("Setting a state never sends anything to the other side.");
+    const excerpt = docsRankEvidence(
+      section.text,
+      "Does marking a conversation as closed send a message to the customer?",
+      382,
+    );
+    expect(excerpt).toContain("Setting a state never sends anything.");
     expect(excerpt).toContain("Closed");
     expect(excerpt.length).toBeLessThanOrEqual(382);
   });
@@ -586,25 +571,25 @@ describe("bounded classifier evidence", () => {
       "app-company",
       "members-tab",
       "link to the members page",
-      "The Members page lists the people in the workspace and is where you invite teammates.",
+      "Members lists everyone in the workspace with Name, Email, Role, Status, Updated at and Created at.",
     ],
     [
       "app-company",
       "activity-tab",
       "who edited this contact, is there a history",
-      "who changed which record, setting or configuration, and when.",
+      "who changed which record, setting or configuration, and when, newest first.",
     ],
     [
       "app-onboarding",
       "what-are-the-three-steps",
       "link to the onboarding wizard",
-      "has four steps: Your profile, Knowledge Base, Invite your team and Connect your AI.",
+      "has four steps, shown as You, Knowledge, Team and AI tools.",
     ],
     [
       "webhooks",
       "who-can-see-and-change-webhooks",
       "who can see webhook secrets",
-      "Access is set by the API & Webhooks row of the role editor under My Company → Roles.",
+      "Access comes from the API & Webhooks row of a role in Roles.",
     ],
   ] as const)("keeps %s's fitting definition alongside a residual detail", (slug, anchor, query, definition) => {
     const page = rawDocsManifest.docs.en[slug];
@@ -689,12 +674,17 @@ describe("complementary source paragraphs in classifier evidence", () => {
   });
 
   it.each([
-    ["en", "how do I link a deal to a service?", "stored as a line record with its own quantity", "service lines"],
+    [
+      "en",
+      "how do I link a deal to a service?",
+      "In the record form a relationship is a field: pick the records, then click Save.",
+      "each side allows one or several records",
+    ],
     [
       "de",
       "Wie entferne ich den Link zwischen Kontakt und Organisation?",
-      "verknüpfen oder entfernen Links über mutate_crm_record",
-      "Zulässige Links erscheinen auf beiden",
+      "Im Datensatzformular ist eine Beziehung ein Feld: Datensätze wählen, dann auf Speichern klicken.",
+      "so kann ein Kontakt zu mehreren Organisationen gehören",
     ],
   ] as const)(
     "retains %s's actual relationship operation alongside its bounded definition",

@@ -131,16 +131,16 @@ describe("documentation embedding index", () => {
     ]);
   });
 
-  it("embeds the canonical current corpus input and reserves its exact bound while keeping SQL metadata", async () => {
-    const body = "Private conversations remain private.\n\n**Link:** `/inbox`. **Mate:** `navigate` with `nav-inbox`.";
+  it("embeds the canonical current corpus input and reserves its exact bound while keeping the raw SQL body", async () => {
+    const body = "\nPrivate conversations remain private in the [Inbox].\n\n";
     const chunks = repo([{ contentHash: "a", label: "Inbox > Privacy", body }]);
     const budget = usage(true);
     await new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending();
-    expect(state.embedded).toEqual([["Inbox > Privacy\n\nPrivate conversations remain private."]]);
+    expect(state.embedded).toEqual([["Inbox > Privacy\n\nPrivate conversations remain private in the [Inbox]."]]);
     expect(budget.reservePlatformRetrieval).toHaveBeenCalledExactlyOnceWith({
       purpose: "docsIndexing",
       model: "google/gemini-embedding-001",
-      worstCaseMicrocents: "Inbox > Privacy\n\nPrivate conversations remain private.".length * 15,
+      worstCaseMicrocents: "Inbox > Privacy\n\nPrivate conversations remain private in the [Inbox].".length * 15,
     });
     expect(chunks.ensureCorpus).toHaveBeenCalledWith(
       expect.objectContaining({

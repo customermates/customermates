@@ -5,24 +5,26 @@ import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { RecordEditor } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor";
-import { Sheet, SheetBody, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { AppModal } from "@/components/modal/app-modal";
 
 export const WorkspaceRecordEditor = observer(function WorkspaceRecordEditor() {
   const store = useRootStore().recordWorkspaceStore;
   const t = useTranslations();
   return (
     <>
-      <Sheet open={store.isOpening} onOpenChange={(open) => !open && store.close()}>
-        <SheetContent aria-describedby={undefined} className="w-full gap-0 bg-background sm:max-w-[640px]" side="left">
-          <SheetTitle>{t("PageState.loading")}</SheetTitle>
+      <AppModal
+        bodyClassName="flex items-center gap-2 px-6 text-sm"
+        open={store.isOpening}
+        side="left"
+        title={t("PageState.loading")}
+        onClose={() => store.close()}
+      >
+        <span className="flex items-center gap-2" role="status">
+          <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
 
-          <SheetBody className="flex items-center gap-2 px-6 text-sm" role="status">
-            <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
-
-            {t("PageState.loading")}
-          </SheetBody>
-        </SheetContent>
-      </Sheet>
+          {t("PageState.loading")}
+        </span>
+      </AppModal>
 
       {store.editor && <RecordEditor store={store.editor} />}
     </>

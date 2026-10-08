@@ -114,10 +114,7 @@ function animatedBlurFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const ANIMATED_BLUR_ALLOWLIST: Allowlist = {
-  "components/ui/sheet.tsx": "I25: the sheet overlay fades a backdrop blur in and out; drop the blur (WebKit, I11)",
-  "components/page-state/page-state.tsx": "I25: the empty state halo animates a blurred layer; drop the blur",
-};
+const ANIMATED_BLUR_ALLOWLIST: Allowlist = {};
 
 describe("rule 12: overlays never animate a blur", () => {
   it("never combines a blur or backdrop blur with an animation or transition on one element", () => {
@@ -169,9 +166,7 @@ function handBuiltFocusLinkFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const FOCUS_LINK_ALLOWLIST: Allowlist = {
-  "features/docs/app-links.ts": "I21: build docs app links with focusHref",
-};
+const FOCUS_LINK_ALLOWLIST: Allowlist = {};
 
 describe("rule 36: one open-and-highlight mechanism", () => {
   it("builds and reads ?focus= links only through focus-target.ts", () => {
@@ -218,9 +213,55 @@ function rowMenuItemLabels(source: SourceFile) {
 
 const ROW_MENU_ALLOWLIST: Allowlist = {};
 
-describe("I2 round 3: row click opens, the row menu holds Open details and Delete", () => {
+const TABLE_TAG = "DataViewContent";
+
+function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    if (source.file.startsWith(ROW_MENU_PLUMBING)) continue;
+    visit(source.ast, (node) => {
+      if (tagNameOf(node) !== TABLE_TAG || !(ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node))) return;
+      const hasRowMenu = attributesOf(node).properties.some(
+        (property) => ts.isJsxAttribute(property) && property.name.getText(source.ast) === "rowActions",
+      );
+      if (!hasRowMenu) findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
+    });
+  }
+
+  return findings;
+}
+
+const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx":
+    "webhook deliveries are a read-only log: no delete, so a row menu would only repeat the row click",
+  "app/[locale]/(protected)/operator/components/audit/operator-audit-page-view.tsx":
+    "the operator audit is a read-only log: no delete, so a row menu would only repeat the row click",
+  "app/[locale]/(protected)/operator/components/users/operator-users-page-view.tsx":
+    "internal back-office surface with its own guarded flows, not customer UI",
+  "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx":
+    "internal back-office surface with its own guarded flows, not customer UI",
+};
+
+const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {
+  "app/[locale]/(protected)/settings/(workspace)/components/user/members-page-view.tsx":
+    "I20: rule 59 row menu on members",
+  "app/[locale]/(protected)/settings/(workspace)/components/role/roles-page-view.tsx": "I20: rule 59 row menu on roles",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-view.tsx":
+    "I20: rule 59 row menu on webhooks",
+  "app/[locale]/(protected)/routines/components/routines-page-view.tsx": "I20: rule 59 row menu on routines",
+};
+
+describe("I2 round 3 and rule 59: row click opens, every table has the row menu with Open details and Delete", () => {
   it("builds every table row and card menu with the shared row actions", () => {
     enforce(ownRowMenuFindings(PRODUCT_SOURCES), ROW_MENU_ALLOWLIST);
+  });
+
+  it("gives every table the shared row menu (rule 59)", () => {
+    const findings = tablesWithoutRowMenuFindings(PRODUCT_SOURCES);
+    expect(staleAllowlistEntries(findings, TABLE_ROW_MENU_EXEMPTIONS)).toEqual([]);
+    const current = findings.filter(({ file }) => !(file in TABLE_ROW_MENU_EXEMPTIONS));
+    enforce(current, TABLE_ROW_MENU_ALLOWLIST);
   });
 
   it("offers only Open details and Delete in the shared row menu", () => {
@@ -235,5 +276,13 @@ describe("I2 round 3: row click opens, the row menu holds Open details and Delet
       "const a = <DataViewContent rowActions={(row) => <Menu row={row} />} />;",
     );
     expect(ownRowMenuFindings([source]).map(({ line }) => line)).toEqual([1]);
+  });
+
+  it("recognizes a table without a row menu", () => {
+    const source = sourceFromText(
+      "settings.tsx",
+      "const a = <DataViewContent columns={columns} />;\nconst b = <DataViewContent rowActions={menu} />;",
+    );
+    expect(tablesWithoutRowMenuFindings([source]).map(({ line }) => line)).toEqual([1]);
   });
 });

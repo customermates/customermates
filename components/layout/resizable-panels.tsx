@@ -7,6 +7,7 @@ import type { CSSProperties, HTMLAttributes, KeyboardEvent, PointerEvent, ReactE
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 import { isResizeDoubleTap } from "@/components/shared/resize-interaction";
 import {
@@ -348,40 +349,47 @@ export function ResizablePanelGroup({
         className={cn("relative z-20 w-px bg-border", handleClassName)}
         data-panel-resize-divider=""
       >
-        <div
-          aria-controls={`${panel.controlId} ${nextPanel.controlId}`}
-          aria-keyshortcuts="ArrowLeft ArrowRight Shift+ArrowLeft Shift+ArrowRight Home End Enter Space"
-          aria-label={t("ResizablePanels.resize", {
-            before: panel.label,
-            after: nextPanel.label,
-          })}
-          aria-orientation="vertical"
-          aria-valuemax={Math.round(valueMaximum)}
-          aria-valuemin={Math.round(valueMinimum)}
-          aria-valuenow={Math.round(Math.min(valueMaximum, Math.max(valueMinimum, leftSize)))}
-          className="group/resize-handle absolute inset-y-0 left-1/2 flex w-3 -translate-x-1/2 cursor-col-resize touch-none select-none justify-center border-0 bg-transparent p-0 outline-none any-pointer-coarse:w-6"
-          data-panel-resize-handle={`${panel.id}-${nextPanel.id}`}
-          data-state={activeDivider === index ? "resizing" : undefined}
-          role="separator"
-          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- an adjustable WAI-ARIA separator is keyboard focusable
-          tabIndex={0}
-          title={t("DataView.resizeHint")}
-          onDoubleClick={(event) => {
-            event.preventDefault();
-            resetSizes();
-          }}
-          onKeyDown={(event) => resizeWithKeyboard(event, index)}
-          onLostPointerCapture={cancelActiveResize}
-          onPointerCancel={cancelActiveResize}
-          onPointerDown={(event) => beginResize(event, index)}
-          onPointerMove={moveResize}
-          onPointerUp={finishResize}
-        >
-          <span
-            aria-hidden="true"
-            className="h-full w-0.5 rounded-full bg-foreground/45 opacity-0 transition-[opacity,background-color] group-hover/resize-handle:bg-foreground/70 group-hover/resize-handle:opacity-100 group-focus-visible/resize-handle:bg-foreground/70 group-focus-visible/resize-handle:opacity-100 group-data-[state=resizing]/resize-handle:bg-foreground/70 group-data-[state=resizing]/resize-handle:opacity-100 any-pointer-coarse:opacity-100"
-          />
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                aria-controls={`${panel.controlId} ${nextPanel.controlId}`}
+                aria-keyshortcuts="ArrowLeft ArrowRight Shift+ArrowLeft Shift+ArrowRight Home End Enter Space"
+                aria-label={t("ResizablePanels.resize", {
+                  before: panel.label,
+                  after: nextPanel.label,
+                })}
+                aria-orientation="vertical"
+                aria-valuemax={Math.round(valueMaximum)}
+                aria-valuemin={Math.round(valueMinimum)}
+                aria-valuenow={Math.round(Math.min(valueMaximum, Math.max(valueMinimum, leftSize)))}
+                className="group/resize-handle absolute inset-y-0 left-1/2 flex w-3 -translate-x-1/2 cursor-col-resize touch-none select-none justify-center border-0 bg-transparent p-0 outline-none any-pointer-coarse:w-6"
+                data-panel-resize-handle={`${panel.id}-${nextPanel.id}`}
+                data-state={activeDivider === index ? "resizing" : undefined}
+                role="separator"
+                // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- an adjustable WAI-ARIA separator is keyboard focusable
+                tabIndex={0}
+                onDoubleClick={(event) => {
+                  event.preventDefault();
+                  resetSizes();
+                }}
+                onKeyDown={(event) => resizeWithKeyboard(event, index)}
+                onLostPointerCapture={cancelActiveResize}
+                onPointerCancel={cancelActiveResize}
+                onPointerDown={(event) => beginResize(event, index)}
+                onPointerMove={moveResize}
+                onPointerUp={finishResize}
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-full w-0.5 rounded-full bg-foreground/45 opacity-0 transition-[opacity,background-color] group-hover/resize-handle:bg-foreground/70 group-hover/resize-handle:opacity-100 group-focus-visible/resize-handle:bg-foreground/70 group-focus-visible/resize-handle:opacity-100 group-data-[state=resizing]/resize-handle:bg-foreground/70 group-data-[state=resizing]/resize-handle:opacity-100 any-pointer-coarse:opacity-100"
+                />
+              </div>
+            </TooltipTrigger>
+
+            <TooltipContent>{t("DataView.resizeHint")}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>,
     ];
   });

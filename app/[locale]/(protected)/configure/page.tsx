@@ -52,6 +52,7 @@ export default async function ConfigurePage() {
     <PageContainer padded={false}>
       <ConfigurePageView
         accounts={accounts}
+        canAddSublist={catalog.canManageSchema && (catalog.canManageRoles ?? false)}
         canManage={catalog.canManageSchema}
         canPublishSummary={catalog.canPublishSummary ?? false}
         catalog={catalog.types}

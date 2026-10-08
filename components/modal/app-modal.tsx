@@ -10,6 +10,7 @@ import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
@@ -45,6 +46,10 @@ type SharedProps = {
   focusReturnTarget?: HTMLElement | null;
   focusReturnFallback?: HTMLElement | null;
   onCloseAutoFocus?: (event: Event) => void;
+  side?: "left" | "right";
+  bodyClassName?: string;
+  focusContentOnOpen?: boolean;
+  guardsUnsavedChanges?: boolean;
 };
 
 type StoreProps = { store: BaseModalStore; open?: never; onClose?: never };
@@ -103,6 +108,11 @@ export const AppModal = observer((props: Props) => {
 
   function handleOpenAutoFocus(event: Event) {
     focusReturn.onOpenAutoFocus();
+    if (props.focusContentOnOpen) {
+      event.preventDefault();
+      if (event.currentTarget instanceof HTMLElement) event.currentTarget.focus({ preventScroll: true });
+      return;
+    }
     if (hasActions) focusFirstContentControl(event);
   }
 
@@ -122,7 +132,10 @@ export const AppModal = observer((props: Props) => {
   }
 
   const dismissGuard = useOwnOverlayDismissGuard();
-  const modalClose = { requestClose, guardsUnsavedChanges: Boolean(store?.withUnsavedChangesGuard) };
+  const modalClose = {
+    requestClose,
+    guardsUnsavedChanges: Boolean(store?.withUnsavedChangesGuard ?? props.guardsUnsavedChanges),
+  };
 
   function handleOpenChange(next: boolean) {
     if (!next && !dismissGuard.shouldKeepOpen()) requestClose();
@@ -130,7 +143,37 @@ export const AppModal = observer((props: Props) => {
 
   return (
     <>
-      {presentation.wide ? (
+      {props.side ? (
+        <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+          <SheetContent
+            className={cn("w-full gap-0 bg-background sm:max-w-[640px]", layerClassName)}
+            data-overlay-action-count={hasActions ? actionCount : undefined}
+            data-overlay-actions={hasActions ? "" : undefined}
+            side={props.side}
+            onBlur={releaseFocus}
+            onEscapeKeyDown={keepOpenForAssistantSurface}
+            onInteractOutside={keepOpenForAssistantSurface}
+            {...(!description ? { "aria-describedby": undefined } : {})}
+            {...focusReturn}
+            onCloseAutoFocus={handleCloseAutoFocus}
+            onOpenAutoFocus={handleOpenAutoFocus}
+          >
+            <VisuallyHidden.Root>
+              <SheetTitle>{title}</SheetTitle>
+
+              {description ? <SheetDescription>{description}</SheetDescription> : null}
+            </VisuallyHidden.Root>
+
+            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
+
+            <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+              <AppModalCloseContext.Provider value={modalClose}>
+                <SheetBody className={props.bodyClassName}>{children}</SheetBody>
+              </AppModalCloseContext.Provider>
+            </OverlayDismissGuardContext.Provider>
+          </SheetContent>
+        </Sheet>
+      ) : presentation.wide ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
             className={cn(
