@@ -2,9 +2,10 @@
 
 import type { ContactKind } from "@/core/utils/contact-href";
 
-import { Copy } from "lucide-react";
+import { Copy, ExternalLink, Mail, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
@@ -19,17 +20,19 @@ type Props = {
   action?: ContactClickAction;
   label?: string;
   className?: string;
+  wrap?: boolean;
 };
 
 const valueClass =
-  "min-w-0 truncate rounded-xs underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/50";
+  "min-w-0 rounded-xs underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/50";
 
-export function ContactValue({ value, kind, action = "open", label, className }: Props) {
+export function ContactValue({ value, kind, action = "open", label, className, wrap = false }: Props) {
   const t = useTranslations();
   const copy = useCopyToClipboard();
   const href = contactHref(kind, value);
   const text = label ?? value;
   const copyValue = () => runUserAction(() => copy(value));
+  const textClass = wrap ? "break-all whitespace-normal" : "truncate";
 
   return (
     <span
@@ -37,20 +40,26 @@ export function ContactValue({ value, kind, action = "open", label, className }:
       data-contact-action={action}
       data-slot="contact-value"
     >
-      {action === "open" && href ? (
-        <a
-          className={valueClass}
-          href={href}
-          rel={kind === "url" ? "noopener noreferrer" : undefined}
-          target={kind === "url" ? "_blank" : undefined}
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          {text}
-        </a>
+      {action === "open" ? (
+        href ? (
+          <a
+            className={cn(valueClass, textClass)}
+            href={href}
+            rel={kind === "url" ? "noopener noreferrer" : undefined}
+            target={kind === "url" ? "_blank" : undefined}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.stopPropagation();
+            }}
+          >
+            {text}
+          </a>
+        ) : (
+          <span className={cn("min-w-0", textClass)}>{text}</span>
+        )
       ) : (
         <button
-          className={cn(valueClass, "cursor-pointer text-left")}
+          className={cn(valueClass, textClass, "cursor-pointer text-left")}
           type="button"
           onClick={(event) => {
             event.stopPropagation();
@@ -84,6 +93,37 @@ export function ContactValue({ value, kind, action = "open", label, className }:
 
         <TooltipContent>{t("Common.actions.copy")}</TooltipContent>
       </Tooltip>
+    </span>
+  );
+}
+
+const OPEN_ICONS = { email: Mail, phone: Phone, url: ExternalLink } as const;
+
+export function ContactValueActions({ value, kind, action = "open" }: Omit<Props, "label" | "className" | "wrap">) {
+  const t = useTranslations();
+  const copy = useCopyToClipboard();
+  const href = action === "open" ? contactHref(kind, value) : null;
+  if (!value.trim()) return null;
+  const OpenIcon = OPEN_ICONS[kind];
+
+  return (
+    <span className="flex items-center gap-0.5" data-slot="contact-value-actions">
+      {href && (
+        <IconButton
+          external
+          fieldAction
+          href={href}
+          icon={OpenIcon}
+          label={t(`RecordModel.clickActions.${kind}.open`)}
+        />
+      )}
+
+      <IconButton
+        fieldAction
+        icon={Copy}
+        label={t(`RecordModel.clickActions.${kind}.copy`)}
+        onClick={() => runUserAction(() => copy(value))}
+      />
     </span>
   );
 }

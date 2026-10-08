@@ -90,6 +90,7 @@ export const RecordValue = observer(function RecordValue({
             action={field.format?.onClick ?? "open"}
             kind={field.valueType as "email" | "phone" | "url"}
             value={entry}
+            wrap={wrap}
           />
         ))}
       </span>

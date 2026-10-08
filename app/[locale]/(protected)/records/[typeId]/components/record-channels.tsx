@@ -11,11 +11,12 @@ import { Copy, ExternalLink, Send, X } from "lucide-react";
 import { Action, Resource } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { ContactValue } from "@/components/shared/contact-value";
 import { FormControlRow } from "@/components/forms/form-control-row";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { channelLabelKey, isHandleProvider } from "@/ee/messaging/provider";
+import { channelLabelKey, isEmailProvider, isHandleProvider, isPhoneProvider } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel, channelUrl } from "@/ee/messaging/thread-display";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
@@ -173,6 +174,11 @@ export const RecordChannels = observer(
                 providerLabel;
               const copyValue =
                 channelUrl(identifier.provider, identifier.value, identifier.profileUrl) ?? primaryLabel;
+              const contactKind = isEmailProvider(identifier.provider)
+                ? "email"
+                : isPhoneProvider(identifier.provider)
+                  ? "phone"
+                  : null;
               const isUnverified = isHandleProvider(identifier.provider) && !identifier.messagingId;
               const channelKey = `${identifier.provider}:${identifier.value}`;
               const composing = composeKey === channelKey;
@@ -198,21 +204,30 @@ export const RecordChannels = observer(
                           <span className="text-muted-foreground text-[11px] font-medium">{providerLabel}</span>
                         </div>
 
-                        <div className="flex items-center gap-1.5">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="block max-w-[18rem] truncate text-sm font-medium">{primaryLabel}</span>
-                            </TooltipTrigger>
-
-                            <TooltipContent className="break-all">{primaryLabel}</TooltipContent>
-                          </Tooltip>
-
-                          <IconButton
-                            icon={Copy}
-                            label={t("EntityChannels.ariaCopy")}
-                            onClick={() => runUserAction(() => copy(copyValue))}
+                        {contactKind ? (
+                          <ContactValue
+                            className="max-w-[18rem] text-sm font-medium"
+                            kind={contactKind}
+                            label={primaryLabel}
+                            value={identifier.value}
                           />
-                        </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="block max-w-[18rem] truncate text-sm font-medium">{primaryLabel}</span>
+                              </TooltipTrigger>
+
+                              <TooltipContent className="break-all">{primaryLabel}</TooltipContent>
+                            </Tooltip>
+
+                            <IconButton
+                              icon={Copy}
+                              label={t("EntityChannels.ariaCopy")}
+                              onClick={() => runUserAction(() => copy(copyValue))}
+                            />
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex shrink-0 items-center gap-1">
