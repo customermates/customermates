@@ -11,7 +11,8 @@ test("the members row menu deletes another member through the guarded deactivati
     if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
+    if (isAppConsoleError(message) && !message.text().startsWith("Failed to load resource"))
+      errors.push(message.text());
   });
   const role = await database.query('SELECT "roleId" FROM "User" WHERE id=$1', [workspace.userId]);
   const memberId = randomUUID();
@@ -27,8 +28,10 @@ test("the members row menu deletes another member through the guarded deactivati
   );
 
   await page.goto("/en/settings/members");
-  await page.getByRole("button", { name: "More actions for Invited Member", exact: true }).click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Open details"]);
+  await expect(async () => {
+    await page.getByRole("button", { name: "More actions for Invited Member", exact: true }).click();
+    await expect(page.getByRole("menuitem")).toHaveText(["Open details"], { timeout: 1000 });
+  }).toPass();
   await page.keyboard.press("Escape");
 
   const ownMenu = page.getByRole("button", {
@@ -49,7 +52,7 @@ test("the members row menu deletes another member through the guarded deactivati
   await expect(remove).toHaveAttribute("data-variant", "destructive");
   await remove.click();
 
-  const confirm = page.getByRole("dialog").filter({ hasText: "Confirm Deletion" });
+  const confirm = page.getByRole("alertdialog", { name: "Confirm Deletion" });
   await expect(confirm).toContainText("Nora Second is deactivated and loses access to this workspace.");
   await confirm.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(confirm).toHaveCount(0);

@@ -61,6 +61,7 @@ test("opens or copies contact values and edits them from empty cell space", asyn
   await expect(recordDrawer).not.toBeVisible();
 
   const space = row.locator(`[data-inline-edit-space]`).filter({ hasText: email });
+  await space.scrollIntoViewIfNeeded();
   const box = await space.boundingBox();
   if (!box) throw new Error("The email cell is not rendered");
   await page.mouse.click(box.x + box.width - 4, box.y + box.height / 2);
