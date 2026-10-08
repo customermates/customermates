@@ -796,7 +796,6 @@
       "versions": "Dokumentversionen",
       "visibility": "Sichtbarkeit"
     },
-    "noValue": "Kein Wert",
     "relationsAdded": "{field} hinzugefügt",
     "relationsDeleted": "{field} entfernt",
     "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
@@ -2997,7 +2996,6 @@
     "aggregation": "Zusammenfassung",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
     "ascending": "Aufsteigend",
-    "assignedMembers": "Zugewiesene Mitglieder",
     "assignedTo": "Zugewiesen an",
     "attribute": "Attributname",
     "behavior": "Wertquelle",

@@ -179,16 +179,18 @@ describe("synthetic audit-log fixtures", () => {
       { subjectId: SEED_IDS.sofiaRossiUser, actorId: SEED_IDS.user },
       { subjectId: SEED_IDS.elenaHoffmannUser, actorId: SEED_IDS.user },
     ]);
-    expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, SEED_IDS.sofiaRossiUser))).toMatchObject({
-      status: "active",
-      roleId: SEED_IDS.salesManagerRole,
-    });
-    expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, SEED_IDS.elenaHoffmannUser))).toMatchObject(
-      {
-        status: "active",
-        roleId: SEED_IDS.customerSuccessRole,
+    expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, SEED_IDS.sofiaRossiUser))).toEqual({
+      changes: {
+        status: { previous: "pendingAuthorization", current: "active" },
+        role: { previous: null, current: "Sales Manager" },
       },
-    );
+    });
+    expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, SEED_IDS.elenaHoffmannUser))).toEqual({
+      changes: {
+        status: { previous: "pendingAuthorization", current: "active" },
+        role: { previous: null, current: "Customer Success" },
+      },
+    });
   });
 
   it("records a real disabled-webhook lifecycle around its historical deliveries", () => {
