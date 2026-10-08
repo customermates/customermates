@@ -592,6 +592,8 @@ function GraphEdgeView({ data, source, target }: EdgeProps<GraphEdge>) {
 
 const FIT_VIEW = { padding: 0.08, maxZoom: 1 };
 
+const REVEAL_MARGIN = 16;
+
 const COARSE_POINTER = "(pointer: coarse)";
 
 function subscribeCoarsePointer(onChange: () => void) {
@@ -782,6 +784,48 @@ function ConfigureGraphCanvas({
       })
       .catch(reportApplicationError);
   }, [ready, flow, focusedListId, measured]);
+  useEffect(() => {
+    const element = container.current;
+    if (!ready || !element) return;
+    const reveal = (target: Element) => {
+      const node = target.closest(".react-flow__node");
+      if (!node) return;
+      const pane = element.getBoundingClientRect();
+      const nodeBox = node.getBoundingClientRect();
+      const box = nodeBox.width <= pane.width - REVEAL_MARGIN * 2 ? nodeBox : target.getBoundingClientRect();
+      const offset = (start: number, end: number, low: number, high: number) =>
+        start < low + REVEAL_MARGIN
+          ? low + REVEAL_MARGIN - start
+          : end > high - REVEAL_MARGIN
+            ? high - REVEAL_MARGIN - end
+            : 0;
+      const dx = offset(box.left, box.right, pane.left, pane.right);
+      const dy = offset(box.top, box.bottom, pane.top, pane.bottom);
+      if (!dx && !dy) return;
+      const viewport = flow.getViewport();
+      void flow.setViewport({ ...viewport, x: viewport.x + dx, y: viewport.y + dy }).catch(reportApplicationError);
+    };
+    const onFocus = (event: FocusEvent) => {
+      if (event.target instanceof Element) reveal(event.target);
+    };
+    const onScroll = (event: Event) => {
+      const scroller = event.target;
+      if (!(scroller instanceof HTMLElement) || !scroller.classList.contains("react-flow")) return;
+      const { scrollLeft, scrollTop } = scroller;
+      if (!scrollLeft && !scrollTop) return;
+      scroller.scrollTo(0, 0);
+      const viewport = flow.getViewport();
+      void flow
+        .setViewport({ ...viewport, x: viewport.x - scrollLeft, y: viewport.y - scrollTop })
+        .catch(reportApplicationError);
+    };
+    element.addEventListener("focusin", onFocus);
+    element.addEventListener("scroll", onScroll, true);
+    return () => {
+      element.removeEventListener("focusin", onFocus);
+      element.removeEventListener("scroll", onScroll, true);
+    };
+  }, [ready, flow]);
   const listIds = useMemo(() => new Set(model.types.map((type) => type.id)), [model.types]);
   const groups = useMemo<Node[]>(
     () =>
