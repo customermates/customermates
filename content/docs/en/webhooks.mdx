@@ -12,7 +12,7 @@ Webhooks let other systems react to CRM changes without polling, for example to 
 
 ## How do I create a webhook? [#how-do-i-create-a-webhook]
 
-Open [Webhooks](app:company/webhooks), click [Add](app:company/webhooks?focus=add), fill in the **Webhook** dialog, enter the **URL** and click **Save**.
+Open [Webhooks](app:settings/webhooks), click [Add](app:settings/webhooks?focus=add), fill in the **Webhook** dialog, enter the **URL** and click **Save**.
 
 | Field | What it does |
 | --- | --- |
@@ -24,7 +24,7 @@ Open [Webhooks](app:company/webhooks), click [Add](app:company/webhooks?focus=ad
 | **Body template** | Optional JSON document that replaces the standard envelope. |
 | **Enabled** | On by default. A disabled webhook receives nothing and keeps its configuration, so you can pause it without deleting it. |
 
-To change a webhook, click its row, edit and click **Save**. To remove it, click **Delete** at the top of the dialog and confirm; its past deliveries stay on the [Deliveries](app:company/webhook-deliveries) tab. The list shows **URL**, **Description**, **Events**, **Status** (**Enabled** or **Disabled**), **Created at** and **Updated at**. [Search](app:company/webhooks?focus=search) matches the URL, and [Filters](app:company/webhooks?focus=filter) cover the creation and update dates.
+To change a webhook, click its row, edit and click **Save**. To remove it, click **Delete** at the top of the dialog and confirm; its past deliveries stay on the [Deliveries](app:settings/webhooks/deliveries) tab. The list shows **URL**, **Description**, **Events**, **Status** (**Enabled** or **Disabled**), **Created at** and **Updated at**. [Search](app:settings/webhooks?focus=search) matches the URL, and [Filters](app:settings/webhooks?focus=filter) cover the creation and update dates.
 
 Use an HTTPS endpoint. Plain `http://` is accepted for any host only while the webhook has no custom headers. With custom headers the URL must use `https://`, or `http://` on `localhost`, `127.0.0.1` or `::1`, because headers usually carry a credential. This is checked when you save and again before every delivery.
 
@@ -52,7 +52,7 @@ Through MCP, record subscriptions in `manage_webhooks` also need `expectedSchema
 
 ## Who can see and change webhooks? [#who-can-see-and-change-webhooks]
 
-Access comes from the **API & Webhooks** row of a role in [Roles](app:company/roles).
+Access comes from the **API & Webhooks** row of a role in [Roles](app:settings/roles).
 
 | Role setting on **API & Webhooks** | What members with that role can do |
 | --- | --- |
@@ -62,7 +62,7 @@ Access comes from the **API & Webhooks** row of a role in [Roles](app:company/ro
 | **Read access** **All** plus **Edit** | Edit webhooks and see saved **Secret** and **Custom headers** values. |
 | **Read access** **All** plus **Delete** | Delete webhooks. |
 
-The same row also controls [API keys](app:profile/api-keys), so a role that may create or delete its own API keys may also create or delete every webhook in the workspace. The **Admin** role can do everything. Webhooks have no plan restriction: they work on every Cloud plan and when self-hosted. The same permissions apply to `manage_webhooks` through MCP and in Mate, where deleting a webhook or resending a delivery asks for your approval first.
+The same row also controls [API keys](app:settings/api-keys), so a role that may create or delete its own API keys may also create or delete every webhook in the workspace. The **Admin** role can do everything. Webhooks have no plan restriction: they work on every Cloud plan and when self-hosted. The same permissions apply to `manage_webhooks` through MCP and in Mate, where deleting a webhook or resending a delivery asks for your approval first.
 
 ## What does the payload look like? [#what-does-the-payload-look-like]
 
@@ -146,7 +146,7 @@ Deliveries are recorded with the event payload, not the rendered body, so **Even
 
 ## How do I send to Slack, Discord or n8n? [#how-do-i-send-to-slack-discord-or-n8n]
 
-Each recipe gives the URL, custom headers and body template to enter after [Add](app:company/webhooks?focus=add) in Webhooks. Set a secret in every case; a receiver that cannot verify it ignores the header.
+Each recipe gives the URL, custom headers and body template to enter after [Add](app:settings/webhooks?focus=add) in Webhooks. Set a secret in every case; a receiver that cannot verify it ignores the header.
 
 ### Claude Code routines [#claude-code-routines]
 
@@ -234,7 +234,7 @@ function verify(rawBody: string, received: string, secret: string) {
 
 A delivery fails when the HTTP status is outside 2xx, the request times out (after 5 seconds) or no response arrives. Customermates retries timeouts, network errors, 5xx responses and 408, 425 and 429 automatically, up to 10 attempts in total, with a growing pause of at most one hour. Other 4xx responses, such as 400, 401, 403, 404 and 422, are not retried, because a repeat would fail the same way. A delivery also fails before any request is sent, with status code 422, when headers would go to an address that does not allow them or the body template cannot be rendered.
 
-Every delivery is recorded on the [Deliveries](app:company/webhook-deliveries) tab of Webhooks, newest first, with **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. [Search](app:company/webhook-deliveries?focus=search) matches the event and the URL; [Filters](app:company/webhook-deliveries?focus=filter) cover the event, the URL and the creation date. Through MCP, use `manage_webhooks` with `action: "list_deliveries"`. Delivery records are kept as long as the workspace exists.
+Every delivery is recorded on the [Deliveries](app:settings/webhooks/deliveries) tab of Webhooks, newest first, with **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. [Search](app:settings/webhooks/deliveries?focus=search) matches the event and the URL; [Filters](app:settings/webhooks/deliveries?focus=filter) cover the event, the URL and the creation date. Through MCP, use `manage_webhooks` with `action: "list_deliveries"`. Delivery records are kept as long as the workspace exists.
 
 Retries run inside the same delivery, so they add no records: each record shows the latest outcome and can show **Failed** while retries are pending, then change to **Delivered** when one succeeds.
 
@@ -256,7 +256,7 @@ For `record.deleted`, `data.record` carries the qualified `ref`, the authorized 
 
 ## How do I debug a delivery? [#how-do-i-debug-a-delivery]
 
-- Find the delivery under [Deliveries](app:company/webhook-deliveries) and open it to see **Event Details**.
+- Find the delivery under [Deliveries](app:settings/webhooks/deliveries) and open it to see **Event Details**.
 - Use [webhook.site](https://webhook.site) as a throwaway receiver while testing.
 - `manage_webhooks` with `action: "list_deliveries"` supports `searchTerm` on URL and event name.
 - Customermates stores only the HTTP status code and status text your receiver returned (for example `404` and `Not Found`), shown as **Status Code** and **Response Message** in **Event Details**. The response body is not stored, so log it on the receiving side. Without a response, **Status Code** shows a dash (the list column stays empty) and **Response Message** names the cause, such as the timeout.
@@ -295,7 +295,7 @@ Fifteen type-specific identifiers are retired. They stay only so older webhooks 
 
 ### Messaging events [#messaging-events]
 
-Messaging events fire on inbound provider activity on connected accounts. **Events** offers them in every workspace, but they fire only where [Channels](app:profile/connected-accounts) are connected, which requires Cloud and a plan that includes messaging. `actorId` is `null`. `data` references provider records by id (`entityId` for the affected message, thread, calendar, calendar event or relation, plus `connectedAccountId`, `provider`, `providerMessageId`, `threadId` and similar) rather than embedding CRM records. A messaging event is kept only while a webhook or an event routine subscribes to it.
+Messaging events fire on inbound provider activity on connected accounts. **Events** offers them in every workspace, but they fire only where [Channels](app:settings/channels) are connected, which requires Cloud and a plan that includes messaging. `actorId` is `null`. `data` references provider records by id (`entityId` for the affected message, thread, calendar, calendar event or relation, plus `connectedAccountId`, `provider`, `providerMessageId`, `threadId` and similar) rather than embedding CRM records. A messaging event is kept only while a webhook or an event routine subscribes to it.
 
 | Event | When it fires |
 | --- | --- |

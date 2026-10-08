@@ -118,7 +118,7 @@ Open `<BASE_URL>/auth/signup` and register with email and password under **Creat
 
 Click the verification link in the email within 24 hours. An account that is still unverified 24 hours after registering is held on **Email Verification**, where **Resend verification email** sends a fresh link.
 
-Then open [Members](app:company/members), invite teammates with [Add](app:company/members?focus=add), approve them there once they have registered, and set what they may do in [Roles](app:company/roles); see [Members and roles](/docs/app-company).
+Then open [Members](app:settings/members), invite teammates with [Add](app:settings/members?focus=add), approve them there once they have registered, and set what they may do in [Roles](app:settings/roles); see [Members and roles](/docs/app-company).
 
 ## Who can sign up on my instance? [#who-can-sign-up-on-my-instance]
 
@@ -126,7 +126,7 @@ Anyone who can reach your `BASE_URL` can register; registration cannot be switch
 
 If the instance should serve one team only, limit who can reach it, for example with a VPN, an IP allowlist or authentication at the reverse proxy; MCP and REST clients then need the same access.
 
-Teammates join through an invitation: [Add](app:company/members?focus=add) on [Members](app:company/members) opens **Invite User** with a **Share link** tab and a **Send emails** tab. New members wait with status **Waiting for approval** until a member with **Edit** on **Users & Roles** opens them, gives them a **Role** and sets **Status** to **Active**.
+Teammates join through an invitation: [Add](app:settings/members?focus=add) on [Members](app:settings/members) opens **Invite User** with a **Share link** tab and a **Send emails** tab. New members wait with status **Waiting for approval** until a member with **Edit** on **Users & Roles** opens them, gives them a **Role** and sets **Status** to **Active**.
 
 ## Can users sign in with Google or Microsoft? [#can-users-sign-in-with-google-or-microsoft]
 
@@ -138,7 +138,7 @@ In `.env`, remove the `#` in front of the lines for the providers you use, fill 
 
 The MCP endpoint is `<BASE_URL>/api/v1/mcp`, for example `https://crm.example.com/api/v1/mcp`. There are two ways to authenticate:
 
-- **API key** in the `x-api-key` header, for clients that run on your machine: Claude Code, Claude Desktop, Codex, Cursor and Gemini CLI. Create the key with [Add](app:profile/api-keys?focus=generate) on [API keys](app:profile/api-keys); **Quick connections** there shows the setup snippet with the address you opened the app under. The client only has to reach the URL, so a local network address works. See [Connect CLI and editor clients](/docs/connect-cli).
+- **API key** in the `x-api-key` header, for clients that run on your machine: Claude Code, Claude Desktop, Codex, Cursor and Gemini CLI. Create the key with [Add](app:settings/api-keys?focus=generate) on [API keys](app:settings/api-keys); **Quick connections** there shows the setup snippet with the address you opened the app under. The client only has to reach the URL, so a local network address works. See [Connect CLI and editor clients](/docs/connect-cli).
 - **OAuth sign-in**, for clients that connect from their provider's cloud, such as a Claude custom connector. These need a `BASE_URL` that is reachable from the internet over HTTPS. See [Connect Claude and ChatGPT](/docs/connect-custom-connector).
 
 The hosted in-app Assistant is cloud-only: Mate is not available on self-hosted instances. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.

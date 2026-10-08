@@ -6377,8 +6377,8 @@ describe("AgentUiControlStore", () => {
 
   it("self-navigates the connected-account walkthrough and reaches its connect control", async () => {
     const elements = new Map([
-      ["nav-profile-connected-accounts", new FakeHTMLElement()],
-      ["profile-connected-accounts-connect", new FakeHTMLElement()],
+      ["nav-settings-channels", new FakeHTMLElement()],
+      ["settings-channels-connect", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6398,21 +6398,21 @@ describe("AgentUiControlStore", () => {
       await expect(
         store.startGuidedTour([
           {
-            targetId: "nav-profile-connected-accounts",
+            targetId: "nav-settings-channels",
             note: "Open connected accounts.",
           },
           {
-            targetId: "profile-connected-accounts-connect",
+            targetId: "settings-channels-connect",
             note: "Choose WhatsApp here.",
           },
         ]),
       ).resolves.toMatchObject({ ok: true });
-      expect(navigate).toHaveBeenCalledWith("/profile/connected-accounts");
-      expect(store.active?.targetId).toBe("nav-profile-connected-accounts");
+      expect(navigate).toHaveBeenCalledWith("/settings/channels");
+      expect(store.active?.targetId).toBe("nav-settings-channels");
 
       store.nextStep();
-      await vi.waitFor(() => expect(store.active?.targetId).toBe("profile-connected-accounts-connect"));
-      expect(navigate).toHaveBeenLastCalledWith("/profile/connected-accounts");
+      await vi.waitFor(() => expect(store.active?.targetId).toBe("settings-channels-connect"));
+      expect(navigate).toHaveBeenLastCalledWith("/settings/channels");
     } finally {
       vi.unstubAllGlobals();
     }
@@ -6540,9 +6540,9 @@ describe("AgentUiControlStore", () => {
   it("waits for a cross-page stop to render instead of skipping it and ending the tour", async () => {
     vi.useFakeTimers();
 
-    const rendered = new Set(["company-subscription-refresh"]);
+    const rendered = new Set(["settings-billing-refresh"]);
     const elements = new Map(
-      ["company-subscription-refresh", "company-members-add", "company-roles-add"].map((id) => [
+      ["settings-billing-refresh", "settings-members-add", "settings-roles-add"].map((id) => [
         id,
         new FakeHTMLElement(),
       ]),
@@ -6558,8 +6558,8 @@ describe("AgentUiControlStore", () => {
     });
     const navigate = vi.fn((path: string) => {
       setTimeout(() => {
-        if (path === "/company/members") rendered.add("company-members-add");
-        if (path === "/company/roles") rendered.add("company-roles-add");
+        if (path === "/settings/members") rendered.add("settings-members-add");
+        if (path === "/settings/roles") rendered.add("settings-roles-add");
       }, 700);
       return Promise.resolve("navigated" as const);
     });
@@ -6568,20 +6568,20 @@ describe("AgentUiControlStore", () => {
 
     await expect(
       store.startGuidedTour([
-        { targetId: "company-subscription-refresh", note: "Refresh the status." },
-        { targetId: "company-members-add", note: "Invite a member." },
-        { targetId: "company-roles-add", note: "Add a role." },
+        { targetId: "settings-billing-refresh", note: "Refresh the status." },
+        { targetId: "settings-members-add", note: "Invite a member." },
+        { targetId: "settings-roles-add", note: "Add a role." },
       ]),
     ).resolves.toMatchObject({ ok: true });
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(1000);
-    expect(store.active?.targetId).toBe("company-members-add");
-    expect(navigate).toHaveBeenLastCalledWith("/company/members");
+    expect(store.active?.targetId).toBe("settings-members-add");
+    expect(navigate).toHaveBeenLastCalledWith("/settings/members");
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(1000);
-    expect(store.active?.targetId).toBe("company-roles-add");
+    expect(store.active?.targetId).toBe("settings-roles-add");
     expect(store.active?.stepIndex).toBe(2);
   });
 
@@ -6590,7 +6590,7 @@ describe("AgentUiControlStore", () => {
 
     const elements = new Map([
       ["nav-dashboard", new FakeHTMLElement()],
-      ["company-members-add", new FakeHTMLElement()],
+      ["settings-members-add", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6609,24 +6609,24 @@ describe("AgentUiControlStore", () => {
     await expect(
       store.startGuidedTour([
         { targetId: "nav-dashboard", note: "Start here." },
-        { targetId: "company-webhooks-add", note: "Add a webhook." },
-        { targetId: "company-members-add", note: "Invite a member." },
+        { targetId: "settings-webhooks-add", note: "Add a webhook." },
+        { targetId: "settings-members-add", note: "Invite a member." },
       ]),
     ).resolves.toMatchObject({ ok: true });
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(0);
-    expect(store.active?.targetId).toBe("company-members-add");
-    expect(navigate).not.toHaveBeenCalledWith("/company/webhooks");
+    expect(store.active?.targetId).toBe("settings-members-add");
+    expect(navigate).not.toHaveBeenCalledWith("/settings/webhooks");
   });
 
   it("skips a tour stop that is mounted but has no layout", async () => {
     vi.useFakeTimers();
 
     const elements = new Map([
-      ["nav-profile-connected-accounts", new FakeHTMLElement(1)],
+      ["nav-settings-channels", new FakeHTMLElement(1)],
       ["connected-account-signature", new FakeHTMLElement(0)],
-      ["profile-connected-accounts-connect", new FakeHTMLElement(1)],
+      ["settings-channels-connect", new FakeHTMLElement(1)],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6643,15 +6643,15 @@ describe("AgentUiControlStore", () => {
 
     await expect(
       store.startGuidedTour([
-        { targetId: "nav-profile-connected-accounts", note: "Open channels." },
+        { targetId: "nav-settings-channels", note: "Open channels." },
         { targetId: "connected-account-signature", note: "Turn on the signature." },
-        { targetId: "profile-connected-accounts-connect", note: "Connect one." },
+        { targetId: "settings-channels-connect", note: "Connect one." },
       ]),
     ).resolves.toMatchObject({ ok: true });
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(2500);
-    expect(store.active?.targetId).toBe("profile-connected-accounts-connect");
+    expect(store.active?.targetId).toBe("settings-channels-connect");
     expect(store.active?.stepIndex).toBe(2);
   });
 

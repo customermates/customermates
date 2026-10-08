@@ -14,6 +14,7 @@ const SOURCE_ROW_HEIGHT = 48;
 const PROMPT_HEIGHT = 128;
 const RELATIONSHIP_CHIP = { width: 120, height: 28 };
 const ICON_CHIP = { width: 24, height: 24 };
+const GROUP_PREFIX = "group:";
 
 type ConfigureGraphPoint = { x: number; y: number };
 
@@ -45,12 +46,19 @@ export function configureGraphLayout(
   measured: ReadonlyMap<string, { width: number; height: number }> = new Map(),
   direction: "TB" | "LR" = "TB",
 ): ConfigureGraphLayout {
-  const graph = new dagre.graphlib.Graph({ multigraph: true });
+  const graph = new dagre.graphlib.Graph({ multigraph: true, compound: true });
   graph.setGraph({ rankdir: direction, nodesep: 40, ranksep: 64, edgesep: 20, marginx: 24, marginy: 24 });
   graph.setDefaultEdgeLabel(() => ({}));
   const size = (id: string, height: number) => measured.get(id) ?? { width: GRAPH_NODE_WIDTH, height };
   for (const list of data.lists)
     graph.setNode(list.type.id, size(list.type.id, graphListHeight(list.fields.length, canManage)));
+  for (const list of data.lists) {
+    if (!list.parentId || !graph.hasNode(list.parentId)) continue;
+    const group = `${GROUP_PREFIX}${list.parentId}`;
+    if (!graph.hasNode(group)) graph.setNode(group, {});
+    graph.setParent(list.parentId, group);
+    graph.setParent(list.type.id, group);
+  }
   if (data.sources.length || connectPrompt)
     graph.setNode(ACCOUNTS_NODE_ID, size(ACCOUNTS_NODE_ID, graphSourceHeight(data.sources.length)));
   for (const edge of data.edges) {
@@ -66,6 +74,7 @@ export function configureGraphLayout(
   dagre.layout(graph);
   const positions = new Map<string, ConfigureGraphPosition>();
   for (const id of graph.nodes()) {
+    if (id.startsWith(GROUP_PREFIX)) continue;
     const node = graph.node(id);
     positions.set(id, {
       x: node.x - node.width / 2,

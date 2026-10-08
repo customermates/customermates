@@ -5,30 +5,30 @@ description: "The Inbox puts email, LinkedIn, WhatsApp, Instagram and Telegram c
 
 ## What is the Inbox? [#what-is-the-inbox]
 
-The [Inbox](app:inbox) is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram and Telegram conversations in one list, most recent activity first. Click a conversation to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share it with your team and match its participants to records. You connect the accounts themselves on [Channels](app:profile/connected-accounts), see [App guide, Profile](/docs/app-profile).
+The [Inbox](app:inbox) is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram and Telegram conversations in one list, most recent activity first. Click a conversation to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share it with your team and match its participants to records. You connect the accounts themselves on [Channels](app:settings/channels), see [App guide, Profile](/docs/app-profile).
 
 ## Who can use the Inbox, and why is it locked on Starter or missing in the self-hosted version? [#who-can-use-the-inbox]
 
 All four conditions must hold:
 
 - **Customermates Cloud.** Self-hosted installations have no Inbox: the sidebar entry is hidden and opening it leads to the Dashboard.
-- **A plan with messaging:** Pro, Business, Enterprise or a trial. On Starter the Inbox stays in the sidebar but shows **Upgrade to unlock messaging**, and **Upgrade your plan** opens [Billing](app:company/subscription).
+- **A plan with messaging:** Pro, Business, Enterprise or a trial. On Starter the Inbox stays in the sidebar but shows **Upgrade to unlock messaging**, and **Upgrade your plan** opens [Billing](app:settings/billing).
 - **A usable subscription:** status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the Inbox is locked the same way.
 - **Your role:** **Inbox messages** with **Read access** set to **All**. With **None** the sidebar entry is hidden and opening the Inbox leads to the Dashboard. The **Admin** role always has access.
 
 ## Do I need a connected channel? [#do-i-need-a-connected-channel]
 
-Not to open the Inbox: without a channel of your own you still see what teammates share. To send and receive on your own accounts you need one. An empty Inbox reads **Nothing here yet**; members with **Create** on **Inbox messages** get a **Channels** button below it (when Mate is available, starter prompts appear there instead). Add an email, LinkedIn, WhatsApp, Instagram or Telegram account with [Connect channel](app:profile/connected-accounts?focus=connect), see [How do I connect a channel?](/docs/app-profile#how-do-i-connect-a-channel). Channels per member: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro.
+Not to open the Inbox: without a channel of your own you still see what teammates share. To send and receive on your own accounts you need one. An empty Inbox reads **Nothing here yet**; members with **Create** on **Inbox messages** get a **Channels** button below it (when Mate is available, starter prompts appear there instead). Add an email, LinkedIn, WhatsApp, Instagram or Telegram account with [Connect channel](app:settings/channels?focus=connect), see [How do I connect a channel?](/docs/app-profile#how-do-i-connect-a-channel). Channels per member: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro.
 
 ## Which conversations do I see, and can an admin read my private ones? [#which-conversations-do-i-see]
 
 The list combines the channels you connected, channels a teammate shared with the whole workspace, and single conversations a teammate shared from a private channel. A teammate's private conversations never appear, whatever your role, **Admin** included.
 
-For email accounts, only folders switched on in the account's **Folders** tab on [Channels](app:profile/connected-accounts) appear. By default every folder is on except trash, junk or spam, drafts and the all-mail folder; if mail from an archive is missing, check its switch. A conversation without any message appears only while it holds a saved draft.
+For email accounts, only folders switched on in the account's **Folders** tab on [Channels](app:settings/channels) appear. By default every folder is on except trash, junk or spam, drafts and the all-mail folder; if mail from an archive is missing, check its switch. A conversation without any message appears only while it holds a saved draft.
 
 ## Which permissions does the Inbox need? [#which-permissions-does-the-inbox-need]
 
-Roles are edited on [Roles](app:company/roles). The Inbox uses the **Inbox messages** row: **Create**, **Edit**, **Delete**, and **Read access** **None** or **All**.
+Roles are edited on [Roles](app:settings/roles). The Inbox uses the **Inbox messages** row: **Create**, **Edit**, **Delete**, and **Read access** **None** or **All**.
 
 | To do this | The role needs |
 | --- | --- |
@@ -49,7 +49,7 @@ The top bar of the [Inbox](app:inbox) holds:
 - **Search...** finds conversations by subject, message text, conversation name, and participant names or addresses.
 - **Filters** offers **State**, **Linked records**, **Participants** (**not fully linked** finds conversations with someone who has no matching record you can read), **Provider**, **Channel**, **Email folder**, **Draft** (**has some** finds conversations with a saved draft), **Last message** (**Sent** or **Received**), **Last message date** and **Last activity**.
 - **Refresh** pulls new messages right away (**Inbox refreshed.**) and reports channels that hit a rate limit, need reconnecting or could not be refreshed. Needs **Edit**.
-- **Channels** opens [Channels](app:profile/connected-accounts), with a number when channels need attention. Needs **Create**.
+- **Channels** opens [Channels](app:settings/channels), with a number when channels need attention. Needs **Create**.
 
 **Email folder** groups folders under their account, so folders with the same name stay apart; **in** finds conversations with a visible message in any selected folder, **not in** excludes them. **Last message** and **Last message date** use the latest real sent or received message; drafts, deleted messages and system events do not count. For mail from three to seven days ago, add two **Last message date** conditions: **Older than…** 3 days and **7 days**. **Last activity** includes saved drafts. All filters respect account sharing and the enabled folders.
 
@@ -98,7 +98,7 @@ You can keep working while the move runs. Messages moved into a folder that is s
 
 Click **Private Thread** or **Shared Thread** in the header to open **Thread settings**. Under **Visibility Settings**, the switch shares just this conversation with everyone whose role can read the Inbox (**Shared to CRM**); switching it off shows **Conversation is now private**. Only the channel owner can use it, on a plan with messaging and with **Edit**. Teammates can then read the conversation, change its state and resync it, but not move it, and only you can reply while the channel itself is private.
 
-To share every conversation of a channel, switch on **Visibility** on the channel's **Details** tab on [Channels](app:profile/connected-accounts) (Business or Enterprise). The per-conversation switch then stays on and locked.
+To share every conversation of a channel, switch on **Visibility** on the channel's **Details** tab on [Channels](app:settings/channels) (Business or Enterprise). The per-conversation switch then stays on and locked.
 
 ## How do I link participants and records? [#how-do-i-link-a-participant]
 
@@ -124,7 +124,7 @@ The Inbox has no button for a new conversation. Open the contact in [Contacts](a
 
 ## How do I set an email signature? [#how-do-i-set-an-email-signature]
 
-The signature belongs to each email account you own: on [Channels](app:profile/connected-accounts), open the Gmail, Outlook or IMAP account and use its **Email** tab. Set font, size and link style, switch on **Add a signature**, choose a layout with or without a logo and write the text in Markdown. While it is on, it is added below every email sent from that account, from the Inbox, the REST API or MCP, so do not paste it into the message; the composer previews it. All fields: [Email appearance and signature](/docs/app-profile#email-appearance-and-signature).
+The signature belongs to each email account you own: on [Channels](app:settings/channels), open the Gmail, Outlook or IMAP account and use its **Email** tab. Set font, size and link style, switch on **Add a signature**, choose a layout with or without a logo and write the text in Markdown. While it is on, it is added below every email sent from that account, from the Inbox, the REST API or MCP, so do not paste it into the message; the composer previews it. All fields: [Email appearance and signature](/docs/app-profile#email-appearance-and-signature).
 
 ## For agents [#tips-for-agents]
 

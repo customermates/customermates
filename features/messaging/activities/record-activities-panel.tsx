@@ -22,7 +22,7 @@ export function useRecordActivityViews(record: RecordRef | null, viewSyncToUrl: 
   const params = useSearchParams();
   const viewPathname = record
     ? `/${locale}/records/${record.typeId}/${record.recordId}`
-    : `/${locale}/company/activity`;
+    : `/${locale}/settings/activity`;
   const requestedView =
     viewSyncToUrl && params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
   const [store] = useState(
@@ -99,7 +99,7 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
         <FilterPopover compact store={store} />
       </div>
 
-      <DataViewViewsRail store={store} />
+      <DataViewViewsRail countLabel={(count) => t("DataView.views.activityCount", { count })} store={store} />
 
       <ActivitiesFeed store={store} />
     </div>

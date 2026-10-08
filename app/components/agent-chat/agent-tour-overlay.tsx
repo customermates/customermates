@@ -91,7 +91,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
             left: rect.left - 4,
             width: rect.width + 8,
             height: rect.height + 8,
-            boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55)",
+            boxShadow: "0 0 0 9999px color-mix(in srgb, var(--scrim) 55%, transparent)",
           }}
         />
       )}

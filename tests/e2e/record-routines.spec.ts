@@ -1,3 +1,4 @@
+import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
@@ -39,7 +40,7 @@ test("persists a routine for a customer-created type and matches only its config
   await routine.locator('[id="recordTrigger.changedFieldIds"]').click();
   await page.getByRole("option", { name: field.rows[0].label, exact: true }).click();
   await page.keyboard.press("Escape");
-  await routine.locator('[id="recordTrigger.query.search"]').fill("Ready");
+  await setPaletteText(page, "record-trigger-filters", "query:search", "Ready");
   await routine.getByRole("button", { name: "Save", exact: true }).click();
   await expect(routine).not.toBeVisible();
   const saved = await database.query(
@@ -56,7 +57,7 @@ test("persists a routine for a customer-created type and matches only its config
   await page.getByRole("button", { name: "Project follow-up", exact: true }).click();
   await expect(routine.getByRole("combobox", { name: "Records from", exact: false })).toContainText("Projects");
   await expect(routine.locator('[id="recordTrigger.changedFieldIds"]')).toContainText(field.rows[0].label);
-  await expect(routine.locator('[id="recordTrigger.query.search"]')).toHaveValue("Ready");
+  await expectPaletteText(page, "record-trigger-filters", "query:search", "Ready");
   await routine
     .locator("[data-record-trigger]")
     .screenshot({ path: testInfo.outputPath("custom-type-routine.png"), animations: "disabled" });

@@ -217,10 +217,12 @@ export const GlobalSearchModal = observer(() => {
           </CommandGroup>
         )}
 
-        {showNoResults && commandGroups.length === 0 && <CommandEmpty>{t("GlobalSearch.noResults")}</CommandEmpty>}
+        {showNoResults && commandGroups.length === 0 && (
+          <CommandEmpty persistent>{t("GlobalSearch.noResults")}</CommandEmpty>
+        )}
 
         {!hasQuery && recentItems.length === 0 && commandGroups.length === 0 && (
-          <CommandEmpty className="px-8 py-12">
+          <CommandEmpty persistent className="px-8 py-12">
             <div className="mx-auto flex max-w-sm flex-col items-center gap-4 text-center">
               <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
                 <Search aria-hidden className="size-5" />

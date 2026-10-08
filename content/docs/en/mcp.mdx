@@ -36,7 +36,7 @@ The endpoint and API keys are available on every plan and on self-hosted instanc
 
 <Steps>
 <Step title="Create an API key">
-Open [API keys](app:profile/api-keys) in Settings and click [Add](app:profile/api-keys?focus=generate). Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor or Gemini, or **Standard API key** (**Name**, optional **Expires in**) for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
+Open [API keys](app:settings/api-keys) in Settings and click [Add](app:settings/api-keys?focus=generate). Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor or Gemini, or **Standard API key** (**Name**, optional **Expires in**) for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
 </Step>
 <Step title="Point the client at the endpoint">
 Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header, or connect through OAuth where the client supports it. The guides in the table below carry the exact configuration.
@@ -74,7 +74,7 @@ Choose **New page**, enter a title and write in the visual editor, which uses th
 
 To link another page, use the editor's link control or **Copy page link** in **Page actions**. These are ordinary Markdown links, and renaming a page keeps its address; no separate index or linking metadata is needed.
 
-Permissions follow the **Knowledge Base** row of your role: read access lets you view pages, **Create**, **Edit** and **Delete** let you create, edit and reorder, or delete pages, and each includes read access. If someone else changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them. Deletion is permanent. Changes appear on [Activity](app:company/activity); seeing their Knowledge Base content needs both **Audit Log** access and Knowledge Base read access. The activity log is not a restore feature.
+Permissions follow the **Knowledge Base** row of your role: read access lets you view pages, **Create**, **Edit** and **Delete** let you create, edit and reorder, or delete pages, and each includes read access. If someone else changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them. Deletion is permanent. Changes appear on [Activity](app:settings/activity); seeing their Knowledge Base content needs both **Audit Log** access and Knowledge Base read access. The activity log is not a restore feature.
 
 ### Operating Guide, procedures, and knowledge [#page-types]
 
@@ -611,7 +611,7 @@ Read, create or edit roles with system permissions and access to any configured 
 **Can delete data.** Required: `action`. Optional: `roleId`, `typeIds`, `role`, `deletion`.
 {/* /mcp-catalog */}
 
-No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; `get_workspace_context` returns no plan or trial data either. Roles are managed with `manage_roles` or under [Roles](app:company/roles). Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). Manage the subscription under [Billing](app:company/subscription) (cloud only) and keys under [API keys](app:profile/api-keys).
+No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; `get_workspace_context` returns no plan or trial data either. Roles are managed with `manage_roles` or under [Roles](app:settings/roles). Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). Manage the subscription under [Billing](app:settings/billing) (cloud only) and keys under [API keys](app:settings/api-keys).
 
 ### Support
 
@@ -682,7 +682,7 @@ Plans refuse the same way. Messaging, calendar and social tools need a plan with
 
 <Faq>
 <FaqItem question="How do I authenticate against the MCP endpoint?">
-Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys under [API keys](app:profile/api-keys) with [Add](app:profile/api-keys?focus=generate). Every key carries your own permissions, so a client can never do more than you can.
+Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys under [API keys](app:settings/api-keys) with [Add](app:settings/api-keys?focus=generate). Every key carries your own permissions, so a client can never do more than you can.
 </FaqItem>
 <FaqItem question="Which AI clients can connect?">
 Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex, Cursor and the Gemini CLI have documented connection paths under [Connect a client](#connect-a-client). Another client may work if it supports MCP over streamable HTTP and the required authentication; verify its compatibility and instruction handling before use.

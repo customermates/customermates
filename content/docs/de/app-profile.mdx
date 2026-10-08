@@ -5,13 +5,13 @@ description: "Ihre persönlichen Customermates-Einstellungen: Name, Sprache, For
 
 ## Was gehört Ihnen statt dem Workspace? [#what-lives-on-the-profile-screen]
 
-Der Bereich Konto in den Einstellungen hat drei Seiten: [Profil & Einstellungen](app:profile/settings) (Name, Avatar, Sprache, Formate, Darstellung), [Kanäle](app:profile/connected-accounts) (die Konten, die den [Posteingang](/docs/app-inbox) speisen) und [API-Schlüssel](app:profile/api-keys) (Keys für MCP- und REST-Clients). Klicken Sie unten in der Seitenleiste auf Ihren Avatar und wählen Sie **Profil & Einstellungen**, oder wählen Sie **Einstellungen** im Workspace-Menü (**Customermates** oben in der Seitenleiste) oder drücken Sie G, dann S; jeder Weg öffnet Profil & Einstellungen, und die Einstellungsnavigation listet die übrigen Seiten. **Zurück** oben in dieser Navigation führt dorthin, wo Sie waren. Änderungen hier betreffen nur Sie, außer bei einem Kanal, den Sie mit dem Workspace teilen.
+Der Bereich Konto in den Einstellungen hat drei Seiten: [Profil & Einstellungen](app:settings/profile) (Name, Avatar, Sprache, Formate, Darstellung), [Kanäle](app:settings/channels) (die Konten, die den [Posteingang](/docs/app-inbox) speisen) und [API-Schlüssel](app:settings/api-keys) (Keys für MCP- und REST-Clients). Klicken Sie unten in der Seitenleiste auf Ihren Avatar und wählen Sie **Profil & Einstellungen**, oder wählen Sie **Einstellungen** im Workspace-Menü (**Customermates** oben in der Seitenleiste) oder drücken Sie G, dann S; jeder Weg öffnet Profil & Einstellungen, und die Einstellungsnavigation listet die übrigen Seiten. **Zurück** oben in dieser Navigation führt dorthin, wo Sie waren. Änderungen hier betreffen nur Sie, außer bei einem Kanal, den Sie mit dem Workspace teilen.
 
-Profil & Einstellungen sieht jedes Mitglied. Kanäle braucht **Lesen** **Alle** in der Zeile **Inbox-Nachrichten** Ihrer Rolle und gibt es nur in Customermates Cloud. API-Schlüssel braucht **Lesen** **Alle** bei **API & Webhooks**. Eine neue benutzerdefinierte Rolle startet in beiden Zeilen mit **Keine**; Rollen bearbeiten Sie unter [Rollen](app:company/roles), siehe [App-Guide, Unternehmen](/docs/app-company).
+Profil & Einstellungen sieht jedes Mitglied. Kanäle braucht **Lesen** **Alle** in der Zeile **Inbox-Nachrichten** Ihrer Rolle und gibt es nur in Customermates Cloud. API-Schlüssel braucht **Lesen** **Alle** bei **API & Webhooks**. Eine neue benutzerdefinierte Rolle startet in beiden Zeilen mit **Keine**; Rollen bearbeiten Sie unter [Rollen](app:settings/roles), siehe [App-Guide, Unternehmen](/docs/app-company).
 
 ## Profil & Einstellungen [#settings-tab]
 
-Ändern Sie ein Feld unter [Profil & Einstellungen](app:profile/settings) und klicken Sie auf **Speichern**, das das ganze Formular sichert. **Speichern** und **Zurücksetzen** erscheinen, sobald sich etwas geändert hat.
+Ändern Sie ein Feld unter [Profil & Einstellungen](app:settings/profile) und klicken Sie auf **Speichern**, das das ganze Formular sichert. **Speichern** und **Zurücksetzen** erscheinen, sobald sich etwas geändert hat.
 
 ### Wie ändere ich Namen, Avatar, Sprache oder Darstellung? [#how-do-i-change-my-name-avatar-language-or-theme]
 
@@ -20,11 +20,11 @@ Profil & Einstellungen sieht jedes Mitglied. Kanäle braucht **Lesen** **Alle** 
 | **Vorname**, **Nachname** | Pflicht, bis zu 255 Zeichen; Ihr Name im ganzen Workspace |
 | **Land** | Pflicht; wird mit dem Profil gespeichert und ändert keine Formate |
 | **Avatar-URL** | Optionaler Link auf ein öffentliches Bild (kein Upload; `https://` wird ergänzt); leer zeigt Ihre Initialen |
-| [Anzeigesprache](app:profile/settings?focus=display-language) | **Englisch**, **Deutsch**, **Französisch**, **Italienisch**, **Spanisch** oder **System** (Browsersprache, sonst Englisch). Oberfläche und Mate nutzen sie, ebenso Benachrichtigungs-E-Mails (bei **System** auf Englisch). Speichern lädt die App neu |
-| [Regionales Format](app:profile/settings?focus=formatting-locale) | Dieselbe Auswahl; wie Zahlen, Datumsangaben und Beträge geschrieben werden, unabhängig von der Anzeigesprache. **System** folgt der Anzeigesprache |
-| [Darstellung](app:profile/settings?focus=theme) | **System**, **Dunkel** oder **Hell** |
+| [Anzeigesprache](app:settings/profile?focus=display-language) | **Englisch**, **Deutsch**, **Französisch**, **Italienisch**, **Spanisch** oder **System** (Browsersprache, sonst Englisch). Oberfläche und Mate nutzen sie, ebenso Benachrichtigungs-E-Mails (bei **System** auf Englisch). Speichern lädt die App neu |
+| [Regionales Format](app:settings/profile?focus=formatting-locale) | Dieselbe Auswahl; wie Zahlen, Datumsangaben und Beträge geschrieben werden, unabhängig von der Anzeigesprache. **System** folgt der Anzeigesprache |
+| [Darstellung](app:settings/profile?focus=theme) | **System**, **Dunkel** oder **Hell** |
 
-**Darstellung** und **Sprache** lassen sich auch im persönlichen Menü umschalten. Der Kopfbereich über dem Formular zeigt E-Mail, Verifizierungsstatus, Mitgliedsstatus und Rolle; hier sind sie nur lesbar. Rolle und Status, aber auch Name, Land und Avatar, kann ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** unter [Mitglieder](app:company/members) setzen.
+**Darstellung** und **Sprache** lassen sich auch im persönlichen Menü umschalten. Der Kopfbereich über dem Formular zeigt E-Mail, Verifizierungsstatus, Mitgliedsstatus und Rolle; hier sind sie nur lesbar. Rolle und Status, aber auch Name, Land und Avatar, kann ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** unter [Mitglieder](app:settings/members) setzen.
 
 ### Wie schalte ich Einzeltasten-Kürzel aus? [#keyboard-shortcut-preferences]
 
@@ -32,7 +32,7 @@ Schalten Sie **Einzeltasten-Kürzel** im Dialog **Tastenkürzel** aus (Taste ? o
 
 ### Wie verifiziere ich meine E-Mail-Adresse oder sende die Bestätigungs-E-Mail erneut? [#how-do-i-verify-my-email-address]
 
-Solange Ihre Adresse nicht verifiziert ist, zeigen Ihr Avatar in der Seitenleiste und der Eintrag **Profil & Einstellungen** im persönlichen Menü **E-Mail nicht verifiziert**; Profil & Einstellungen bietet dann [Verifizierungs-E-Mail erneut senden](app:profile/settings?focus=verify-email). Ein neues Konto funktioniert 24 Stunden ohne Verifizierung; danach führt jede Seite zum Verifizierungs-Screen, bis Sie den Link in der E-Mail bestätigen.
+Solange Ihre Adresse nicht verifiziert ist, zeigen Ihr Avatar in der Seitenleiste und der Eintrag **Profil & Einstellungen** im persönlichen Menü **E-Mail nicht verifiziert**; Profil & Einstellungen bietet dann [Verifizierungs-E-Mail erneut senden](app:settings/profile?focus=verify-email). Ein neues Konto funktioniert 24 Stunden ohne Verifizierung; danach führt jede Seite zum Verifizierungs-Screen, bis Sie den Link in der E-Mail bestätigen.
 
 ### Was lässt sich hier nicht ändern, etwa das Passwort? [#what-can-i-not-change-here]
 
@@ -40,24 +40,24 @@ Es gibt keine Einstellung für Passwort, E-Mail-Adresse, Zeitzone, Benachrichtig
 
 ## API-Keys [#api--connectors-tab]
 
-[API-Schlüssel](app:profile/api-keys) listet nur Ihre eigenen Keys. Klicken Sie auf [Hinzufügen](app:profile/api-keys?focus=generate) (braucht **Erstellen** bei **API & Webhooks**), um **API-Key hinzufügen** zu öffnen:
+[API-Schlüssel](app:settings/api-keys) listet nur Ihre eigenen Keys. Klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) (braucht **Erstellen** bei **API & Webhooks**), um **API-Key hinzufügen** zu öffnen:
 
 - **Standard-API-Key**: ein **Name** und optional ein Datum unter **Läuft ab**, 1 bis 365 Tage voraus (Standard **Läuft nie ab**). Der Key wird einmal angezeigt, kopieren Sie ihn sofort.
 - **Schnellverbindungen**: Kacheln für **Claude**, **ChatGPT & Codex**, **Cursor** und **Gemini**. Lokale Einrichtungen (Claude Code oder Desktop, Codex, Cursor, Gemini) erstellen einen nach dem Client benannten Key, der nach 365 Tagen abläuft, und zeigen den Einrichtungsausschnitt mit eingetragenem Key. Die Methoden Claude-Konto und ChatGPT-App nutzen den gehosteten Konnektor und erstellen keinen Key.
 
-Eine Key-Karte zeigt **Erstellt am**, **Läuft ab** und **Zuletzt verwendet**; öffnen Sie sie, um den Key mit **Löschen** zu entfernen (braucht **Löschen**), er funktioniert dann sofort nicht mehr. Zum Rotieren erstellen Sie einen neuen Key, aktualisieren den Client und löschen den alten. Wird einer Rolle **API & Webhooks** entzogen, bleiben vorhandene Keys gültig; setzen Sie das Mitglied stattdessen unter [Mitglieder](app:company/members) auf **Inaktiv**. Alle Regeln: [API-Keys](/docs/api-keys).
+Eine Key-Karte zeigt **Erstellt am**, **Läuft ab** und **Zuletzt verwendet**; öffnen Sie sie, um den Key mit **Löschen** zu entfernen (braucht **Löschen**), er funktioniert dann sofort nicht mehr. Zum Rotieren erstellen Sie einen neuen Key, aktualisieren den Client und löschen den alten. Wird einer Rolle **API & Webhooks** entzogen, bleiben vorhandene Keys gültig; setzen Sie das Mitglied stattdessen unter [Mitglieder](app:settings/members) auf **Inaktiv**. Alle Regeln: [API-Keys](/docs/api-keys).
 
 ## Kanäle [#channels-tab]
 
-[Kanäle](app:profile/connected-accounts) listet zuerst Ihre E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, danach jeden Kanal, den ein Teammitglied geteilt hat. Zeigen Kanäle **Erneute Verbindung nötig**, **Berechtigungsproblem** oder **Fehler**, zeigt der Eintrag Kanäle ihre Anzahl. Ein Klick auf eine Karte öffnet den Kanal-Dialog mit den Tabs **Details** (Anbieter, Status, **Sichtbarkeit**, Besitzer, Ordner, verbunden und zuletzt synchronisiert), **E-Mail** und **Ordner**. Unabhängig von Ihrer Rolle ändern Sie nur Kanäle, die Ihnen gehören.
+[Kanäle](app:settings/channels) listet zuerst Ihre E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, danach jeden Kanal, den ein Teammitglied geteilt hat. Zeigen Kanäle **Erneute Verbindung nötig**, **Berechtigungsproblem** oder **Fehler**, zeigt der Eintrag Kanäle ihre Anzahl. Ein Klick auf eine Karte öffnet den Kanal-Dialog mit den Tabs **Details** (Anbieter, Status, **Sichtbarkeit**, Besitzer, Ordner, verbunden und zuletzt synchronisiert), **E-Mail** und **Ordner**. Unabhängig von Ihrer Rolle ändern Sie nur Kanäle, die Ihnen gehören.
 
 ### Wer kann Kanäle nutzen? [#who-can-use-channels]
 
-Die Seite zu sehen braucht **Lesen** **Alle** bei **Inbox-Nachrichten**; verbinden braucht **Erstellen**, ändern, reaktivieren oder neu synchronisieren **Bearbeiten**, trennen **Löschen**. Der Tarif muss Messaging enthalten (Pro, Business, Enterprise oder eine Testphase); in Starter zeigt die Seite **Tarif upgraden**, das [Abrechnung](app:company/subscription) öffnet. Jede Aktion außer dem Trennen braucht außerdem ein aktives Abonnement oder eine laufende Testphase. Self-Hosted-Installationen haben keine Seite Kanäle.
+Die Seite zu sehen braucht **Lesen** **Alle** bei **Inbox-Nachrichten**; verbinden braucht **Erstellen**, ändern, reaktivieren oder neu synchronisieren **Bearbeiten**, trennen **Löschen**. Der Tarif muss Messaging enthalten (Pro, Business, Enterprise oder eine Testphase); in Starter zeigt die Seite **Tarif upgraden**, das [Abrechnung](app:settings/billing) öffnet. Jede Aktion außer dem Trennen braucht außerdem ein aktives Abonnement oder eine laufende Testphase. Self-Hosted-Installationen haben keine Seite Kanäle.
 
 ### Wie verbinde ich einen Kanal? [#how-do-i-connect-a-channel]
 
-Klicken Sie auf [Kanal verbinden](app:profile/connected-accounts?focus=connect) und wählen Sie einen Eintrag:
+Klicken Sie auf [Kanal verbinden](app:settings/channels?focus=connect) und wählen Sie einen Eintrag:
 
 | Eintrag | Verbindet |
 |---|---|
@@ -71,7 +71,7 @@ Der aktuelle Tab wechselt auf eine sichere Verbindungsseite (30 Minuten Zeit) un
 
 ### Wie viele Kanäle kann ich verbinden? [#how-many-channels-can-i-connect]
 
-Pro Mitglied: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; eine Testphase zählt als Pro. Jeder eigene Kanal zählt, bis Sie ihn trennen, außer Kanälen mit **Gelöscht**; geteilte Kanäle anderer zählen nie. Ist das Limit in Pro erreicht, bietet **Kanal verbinden** **Tarife ansehen** an, das [Abrechnung](app:company/subscription) öffnet. Nach einem Downgrade werden bei jedem Mitglied die neuesten Kanäle oberhalb des Kontingents **Gelöscht**, und Mitglieder mit der Rolle **Admin** erhalten eine E-Mail.
+Pro Mitglied: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; eine Testphase zählt als Pro. Jeder eigene Kanal zählt, bis Sie ihn trennen, außer Kanälen mit **Gelöscht**; geteilte Kanäle anderer zählen nie. Ist das Limit in Pro erreicht, bietet **Kanal verbinden** **Tarife ansehen** an, das [Abrechnung](app:settings/billing) öffnet. Nach einem Downgrade werden bei jedem Mitglied die neuesten Kanäle oberhalb des Kontingents **Gelöscht**, und Mitglieder mit der Rolle **Admin** erhalten eine E-Mail.
 
 ### Was bedeutet welcher Kanalstatus? [#what-does-each-status-mean]
 

@@ -11,6 +11,7 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { AppChip } from "@/components/chip/app-chip";
+import { ContactValueActions } from "@/components/records/contact-value";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
@@ -18,7 +19,7 @@ import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-p
 import { toChipColor } from "@/constants/chip-colors";
 import { Editor } from "@/components/editor/editor";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { getUsersAction } from "../../../company/actions";
+import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 
 export const RecordInputField = observer(function RecordInputField({
   field,
@@ -115,6 +116,20 @@ export const RecordInputField = observer(function RecordInputField({
       <FormDecimalInput
         {...shared}
         endContent={field.valueType === "currency" ? (field.format?.currency ?? undefined) : undefined}
+      />
+    );
+  }
+  if (field.valueType === "email" || field.valueType === "phone" || field.valueType === "url") {
+    const value = store?.getValue(id);
+    return (
+      <FormInput
+        {...shared}
+        className="pr-14"
+        endContent={
+          typeof value === "string" && value.trim() ? (
+            <ContactValueActions action={field.format?.onClick ?? "open"} kind={field.valueType} value={value} />
+          ) : undefined
+        }
       />
     );
   }

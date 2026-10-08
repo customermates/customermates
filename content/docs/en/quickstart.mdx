@@ -10,7 +10,7 @@ Create an account, connect an AI client and start asking. Claude and ChatGPT con
 
 [Sign up](/auth/signup) without a credit card. The first [[commercial.trial.days]] days are a free trial of the Pro plan.
 
-To keep access after the trial, choose a plan on [Billing](app:company/subscription?focus=plan-picker) in Settings before it ends; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) and [which plans there are](/docs/app-company#which-plans-are-there). Choosing a plan needs **Edit** on the **Company** row of your role. The **Admin** role, which the person who creates the workspace gets, has it. A [self-hosted](/docs/self-hosting) instance has no trial and no plan.
+To keep access after the trial, choose a plan on [Billing](app:settings/billing?focus=plan-picker) in Settings before it ends; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) and [which plans there are](/docs/app-company#which-plans-are-there). Choosing a plan needs **Edit** on the **Company** row of your role. The **Admin** role, which the person who creates the workspace gets, has it. A [self-hosted](/docs/self-hosting) instance has no trial and no plan.
 
 ## How do I connect Claude or ChatGPT? [#how-do-i-connect-claude-or-chatgpt]
 
@@ -25,7 +25,7 @@ On connect the server briefs the client on its tools and your workspace. In clie
 
 ## How do I connect a CLI or editor? [#how-do-i-connect-a-cli-or-editor]
 
-Open [API keys](app:profile/api-keys), click [Add](app:profile/api-keys?focus=generate) and choose **Standard API key**, or pick your client under **Quick connections** to get the key together with its setup snippet. Copy the key now: it is shown only once. Creating a key needs **Create** on the **API & Webhooks** row of your role; the **Admin** role has it. Details: [API keys](/docs/api-keys). Then follow your client's steps:
+Open [API keys](app:settings/api-keys), click [Add](app:settings/api-keys?focus=generate) and choose **Standard API key**, or pick your client under **Quick connections** to get the key together with its setup snippet. Copy the key now: it is shown only once. Creating a key needs **Create** on the **API & Webhooks** row of your role; the **Admin** role has it. Details: [API keys](/docs/api-keys). Then follow your client's steps:
 
 - [Claude Code](/docs/connect-cli#claude-code): one terminal command
 - [Cursor](/docs/connect-cli#cursor): Settings UI, two clicks
@@ -42,9 +42,9 @@ The agent reports what it did and what changed. Deal stages and other fields dif
 
 ## How do I test a webhook? [#how-do-i-test-a-webhook]
 
-Optional, to notify other tools when the CRM changes: open [Webhooks](app:company/webhooks) and click [Add](app:company/webhooks?focus=add). Set **URL** to a throwaway endpoint from [webhook.site](https://webhook.site), select **Record created** and **Record updated** under **Events**, choose the lists to watch and click **Save**. Adding a webhook needs **Create** on the **API & Webhooks** row, as for API keys.
+Optional, to notify other tools when the CRM changes: open [Webhooks](app:settings/webhooks) and click [Add](app:settings/webhooks?focus=add). Set **URL** to a throwaway endpoint from [webhook.site](https://webhook.site), select **Record created** and **Record updated** under **Events**, choose the lists to watch and click **Save**. Adding a webhook needs **Create** on the **API & Webhooks** row, as for API keys.
 
-Now create a contact or change a deal. Within seconds the delivery arrives at webhook.site with the full payload and shows up under [Deliveries](app:company/webhook-deliveries). More in [Webhooks](/docs/webhooks).
+Now create a contact or change a deal. Within seconds the delivery arrives at webhook.site with the full payload and shows up under [Deliveries](app:settings/webhooks/deliveries). More in [Webhooks](/docs/webhooks).
 
 ## Next [#next]
 

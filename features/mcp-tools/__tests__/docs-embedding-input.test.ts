@@ -56,7 +56,7 @@ describe("documentation embedding input", () => {
 
   it("reuses identical embedding and build inputs for link-target-only edits and changes them for visible text", () => {
     const first = docsSectionChunks("en", section("Verified fact in [Inbox](app:inbox)."));
-    const second = docsSectionChunks("en", section("Verified fact in [Inbox](app:company/roles)."));
+    const second = docsSectionChunks("en", section("Verified fact in [Inbox](app:settings/roles)."));
     expect(first[0].body).toBe(second[0].body);
     expect(first[0].contentHash).toBe(second[0].contentHash);
     expect(docsCorpusBuildHash(first)).toBe(docsCorpusBuildHash(second));

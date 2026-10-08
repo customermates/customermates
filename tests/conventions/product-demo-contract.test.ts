@@ -63,9 +63,9 @@ describe("seeded public product demo", () => {
       `/records/${presetId(SEED_IDS.company, "contact")}`,
       `/records/${presetId(SEED_IDS.company, "organization")}`,
       `/records/${presetId(SEED_IDS.company, "task")}`,
-      "/profile/api-keys",
-      "/profile/connected-accounts",
-      "/company/webhooks",
+      "/settings/api-keys",
+      "/settings/channels",
+      "/settings/webhooks",
     ]);
     expect(buildProductDemoUrl("en", "/inbox")).toBe(
       "https://demo.customermates.com/en/inbox?agentChat=closed",
@@ -114,10 +114,10 @@ describe("seeded public product demo", () => {
     ).toBe(true);
     expect(FEATURE_PRODUCT_DEMOS["self-hosted"].hostedBoundary).toBe(true);
     expect(FEATURE_PRODUCT_DEMOS["crm-integration"]).toStrictEqual({
-      path: "/company/webhooks",
+      path: "/settings/webhooks",
     });
     expect(FEATURE_PRODUCT_DEMOS["sales-automation"]).toStrictEqual({
-      path: "/company/webhooks",
+      path: "/settings/webhooks",
     });
     for (const slug of [
       "customer-service",

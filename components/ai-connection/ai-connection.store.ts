@@ -5,7 +5,7 @@ import type { AiConnectionSelection } from "@/features/onboarding-wizard/onboard
 
 import { makeAutoObservable, runInAction } from "mobx";
 
-import { createApiKeyAction } from "@/app/[locale]/(protected)/profile/actions";
+import { createApiKeyAction } from "@/app/[locale]/(protected)/settings/(account)/actions";
 import { API_KEY_MAX_EXPIRATION_SECONDS } from "@/features/api-key/api-key-expiration";
 
 export const AI_CONNECTION_PROVIDERS = ["claude", "openai", "cursor", "gemini"] as const;

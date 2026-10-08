@@ -15,7 +15,7 @@ import { RecordPathRecords } from "./record-path-records";
 import { RecordEmbeddedRecords } from "./record-embedded-records";
 import { RecordDetailField } from "./record-detail-field";
 import { RecordCell } from "./record-cell";
-import { getUsersAction } from "../../../company/actions";
+import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
 import type { EntityDetailPreviewItem } from "@/components/entity-detail/entity-detail-personalization";
 

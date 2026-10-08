@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
 import type { AppModalActionProps } from "./app-modal-action";
 
@@ -10,6 +10,7 @@ import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
@@ -23,6 +24,16 @@ import { AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-act
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
 export type AppModalActions = readonly AppModalActionProps[];
+
+type AppModalSurface = "dialog" | "drawer" | "sheet";
+
+const AppModalSurfaceContext = createContext<AppModalSurface>("dialog");
+
+export function AppModalTitle({ className, children }: { className?: string; children: ReactNode }) {
+  const surface = useContext(AppModalSurfaceContext);
+  const Title = surface === "sheet" ? SheetTitle : surface === "drawer" ? DrawerTitle : DialogTitle;
+  return <Title className={className}>{children}</Title>;
+}
 
 export type ModalSize = "sm" | "md" | "lg" | "xl" | "3xl" | "5xl";
 
@@ -45,6 +56,11 @@ type SharedProps = {
   focusReturnTarget?: HTMLElement | null;
   focusReturnFallback?: HTMLElement | null;
   onCloseAutoFocus?: (event: Event) => void;
+  side?: "left" | "right";
+  bodyClassName?: string;
+  focusContentOnOpen?: boolean;
+  titleInContent?: boolean;
+  guardsUnsavedChanges?: boolean;
 };
 
 type StoreProps = { store: BaseModalStore; open?: never; onClose?: never };
@@ -103,6 +119,11 @@ export const AppModal = observer((props: Props) => {
 
   function handleOpenAutoFocus(event: Event) {
     focusReturn.onOpenAutoFocus();
+    if (props.focusContentOnOpen) {
+      event.preventDefault();
+      if (event.currentTarget instanceof HTMLElement) event.currentTarget.focus({ preventScroll: true });
+      return;
+    }
     if (hasActions) focusFirstContentControl(event);
   }
 
@@ -122,7 +143,10 @@ export const AppModal = observer((props: Props) => {
   }
 
   const dismissGuard = useOwnOverlayDismissGuard();
-  const modalClose = { requestClose, guardsUnsavedChanges: Boolean(store?.withUnsavedChangesGuard) };
+  const modalClose = {
+    requestClose,
+    guardsUnsavedChanges: Boolean(store?.withUnsavedChangesGuard ?? props.guardsUnsavedChanges),
+  };
 
   function handleOpenChange(next: boolean) {
     if (!next && !dismissGuard.shouldKeepOpen()) requestClose();
@@ -130,7 +154,39 @@ export const AppModal = observer((props: Props) => {
 
   return (
     <>
-      {presentation.wide ? (
+      {props.side ? (
+        <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+          <SheetContent
+            className={cn("w-full gap-0 bg-background sm:max-w-[640px]", layerClassName)}
+            data-overlay-action-count={hasActions ? actionCount : undefined}
+            data-overlay-actions={hasActions ? "" : undefined}
+            side={props.side}
+            onBlur={releaseFocus}
+            onEscapeKeyDown={keepOpenForAssistantSurface}
+            onInteractOutside={keepOpenForAssistantSurface}
+            {...(!description ? { "aria-describedby": undefined } : {})}
+            {...focusReturn}
+            onCloseAutoFocus={handleCloseAutoFocus}
+            onOpenAutoFocus={handleOpenAutoFocus}
+          >
+            <VisuallyHidden.Root>
+              {props.titleInContent ? null : <SheetTitle>{title}</SheetTitle>}
+
+              {description ? <SheetDescription>{description}</SheetDescription> : null}
+            </VisuallyHidden.Root>
+
+            <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
+
+            <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+              <AppModalCloseContext.Provider value={modalClose}>
+                <SheetBody className={props.bodyClassName}>
+                  <AppModalSurfaceContext.Provider value="sheet">{children}</AppModalSurfaceContext.Provider>
+                </SheetBody>
+              </AppModalCloseContext.Provider>
+            </OverlayDismissGuardContext.Provider>
+          </SheetContent>
+        </Sheet>
+      ) : presentation.wide ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
             className={cn(
@@ -150,7 +206,7 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
-              <DialogTitle>{title}</DialogTitle>
+              {props.titleInContent ? null : <DialogTitle>{title}</DialogTitle>}
 
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </VisuallyHidden.Root>
@@ -158,7 +214,9 @@ export const AppModal = observer((props: Props) => {
             <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
             <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
-              <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
+              <AppModalCloseContext.Provider value={modalClose}>
+                <AppModalSurfaceContext.Provider value="dialog">{children}</AppModalSurfaceContext.Provider>
+              </AppModalCloseContext.Provider>
             </OverlayDismissGuardContext.Provider>
           </DialogContent>
         </Dialog>
@@ -178,7 +236,7 @@ export const AppModal = observer((props: Props) => {
             onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
-              <DrawerTitle>{title}</DrawerTitle>
+              {props.titleInContent ? null : <DrawerTitle>{title}</DrawerTitle>}
 
               {description ? <DrawerDescription>{description}</DrawerDescription> : null}
             </VisuallyHidden.Root>
@@ -186,7 +244,9 @@ export const AppModal = observer((props: Props) => {
             <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 
             <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
-              <AppModalCloseContext.Provider value={modalClose}>{children}</AppModalCloseContext.Provider>
+              <AppModalCloseContext.Provider value={modalClose}>
+                <AppModalSurfaceContext.Provider value="drawer">{children}</AppModalSurfaceContext.Provider>
+              </AppModalCloseContext.Provider>
             </OverlayDismissGuardContext.Provider>
           </DrawerContent>
         </Drawer>

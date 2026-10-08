@@ -5,13 +5,13 @@ description: "Your personal Customermates settings: name, language, formats, the
 
 ## What belongs to you rather than the workspace? [#what-lives-on-the-profile-screen]
 
-The Account part of Settings holds three pages: [Profile & preferences](app:profile/settings) (name, avatar, language, formats, theme), [Channels](app:profile/connected-accounts) (the accounts that feed the [Inbox](/docs/app-inbox)) and [API keys](app:profile/api-keys) (keys for MCP and REST clients). Click your avatar at the bottom of the sidebar and choose **Profile & preferences**, or choose **Settings** in the workspace menu (**Customermates** at the top of the sidebar) or press G then S; each opens Profile & preferences, and the settings nav lists the other pages. **Back** at the top of that nav returns to where you were. Changes here affect only you, except a channel you share with the workspace.
+The Account part of Settings holds three pages: [Profile & preferences](app:settings/profile) (name, avatar, language, formats, theme), [Channels](app:settings/channels) (the accounts that feed the [Inbox](/docs/app-inbox)) and [API keys](app:settings/api-keys) (keys for MCP and REST clients). Click your avatar at the bottom of the sidebar and choose **Profile & preferences**, or choose **Settings** in the workspace menu (**Customermates** at the top of the sidebar) or press G then S; each opens Profile & preferences, and the settings nav lists the other pages. **Back** at the top of that nav returns to where you were. Changes here affect only you, except a channel you share with the workspace.
 
-Every member sees Profile & preferences. Channels needs **Read access** **All** on your role's **Inbox messages** row and exists on Customermates Cloud only. API keys needs **Read access** **All** on **API & Webhooks**. A new custom role starts with **None** on both rows; roles are edited in [Roles](app:company/roles), see [App guide, Company](/docs/app-company).
+Every member sees Profile & preferences. Channels needs **Read access** **All** on your role's **Inbox messages** row and exists on Customermates Cloud only. API keys needs **Read access** **All** on **API & Webhooks**. A new custom role starts with **None** on both rows; roles are edited in [Roles](app:settings/roles), see [App guide, Company](/docs/app-company).
 
 ## Profile & preferences [#settings-tab]
 
-Change any field in [Profile & preferences](app:profile/settings) and click **Save**, which stores the whole form. **Save** and **Reset** appear once something changed.
+Change any field in [Profile & preferences](app:settings/profile) and click **Save**, which stores the whole form. **Save** and **Reset** appear once something changed.
 
 ### How do I change my name, avatar, language or theme? [#how-do-i-change-my-name-avatar-language-or-theme]
 
@@ -20,11 +20,11 @@ Change any field in [Profile & preferences](app:profile/settings) and click **Sa
 | **First Name**, **Last Name** | Required, up to 255 characters; your name across the workspace |
 | **Country** | Required; stored with your profile, it does not change formats |
 | **Avatar URL** | Optional link to a public image (no upload; `https://` is added); empty shows your initials |
-| [Display Language](app:profile/settings?focus=display-language) | **English**, **German**, **French**, **Italian**, **Spanish** or **System** (browser language, else English). The interface and Mate use it, and so do notification emails (English with **System**). Saving reloads the app |
-| [Formatting Locale](app:profile/settings?focus=formatting-locale) | The same choices; how numbers, dates and amounts are written, independent of the display language. **System** follows the display language |
-| [Theme](app:profile/settings?focus=theme) | **System**, **Dark** or **Light** |
+| [Display Language](app:settings/profile?focus=display-language) | **English**, **German**, **French**, **Italian**, **Spanish** or **System** (browser language, else English). The interface and Mate use it, and so do notification emails (English with **System**). Saving reloads the app |
+| [Formatting Locale](app:settings/profile?focus=formatting-locale) | The same choices; how numbers, dates and amounts are written, independent of the display language. **System** follows the display language |
+| [Theme](app:settings/profile?focus=theme) | **System**, **Dark** or **Light** |
 
-**Theme** and **Language** can also be switched in the personal menu. The header above the form shows your email, verification status, member status and role; these are read-only here. Role and status, and your name, country and avatar, can also be set by a member with **Edit** on **Users & Roles** in [Members](app:company/members).
+**Theme** and **Language** can also be switched in the personal menu. The header above the form shows your email, verification status, member status and role; these are read-only here. Role and status, and your name, country and avatar, can also be set by a member with **Edit** on **Users & Roles** in [Members](app:settings/members).
 
 ### How do I turn off single-key shortcuts? [#keyboard-shortcut-preferences]
 
@@ -32,7 +32,7 @@ Switch off **Single-key shortcuts** in the **Keyboard shortcuts** dialog (press 
 
 ### How do I verify my email address or resend the verification email? [#how-do-i-verify-my-email-address]
 
-While your address is unverified, your avatar in the sidebar and the **Profile & preferences** entry in the personal menu show **Email not verified**; Profile & preferences then offers [Resend verification email](app:profile/settings?focus=verify-email). A new account works for 24 hours without verification; after that every page leads to the verification screen until you confirm the link in the email.
+While your address is unverified, your avatar in the sidebar and the **Profile & preferences** entry in the personal menu show **Email not verified**; Profile & preferences then offers [Resend verification email](app:settings/profile?focus=verify-email). A new account works for 24 hours without verification; after that every page leads to the verification screen until you confirm the link in the email.
 
 ### What can I not change here, such as my password? [#what-can-i-not-change-here]
 
@@ -40,24 +40,24 @@ There is no setting for password, email address, time zone, notifications or del
 
 ## API keys [#api--connectors-tab]
 
-[API keys](app:profile/api-keys) lists only your own keys. Click [Add](app:profile/api-keys?focus=generate) (needs **Create** on **API & Webhooks**) to open **Add an API key**:
+[API keys](app:settings/api-keys) lists only your own keys. Click [Add](app:settings/api-keys?focus=generate) (needs **Create** on **API & Webhooks**) to open **Add an API key**:
 
 - **Standard API key**: a **Name** and an optional **Expires in** date 1 to 365 days ahead (default **Never expires**). The key is shown once, so copy it immediately.
 - **Quick connections**: tiles for **Claude**, **ChatGPT & Codex**, **Cursor** and **Gemini**. Local setups (Claude Code or Desktop, Codex, Cursor, Gemini) create a key named after the client that expires after 365 days and show the setup snippet with the key filled in. The Claude account and ChatGPT app methods use the hosted connector and create no key.
 
-A key card shows **Created at**, **Expires at** and **Last used**; open it to **Delete** the key (needs **Delete**), which stops it at once. To rotate, create a new key, update the client, then delete the old one. Removing **API & Webhooks** from a role does not disable existing keys; set the member **Inactive** in [Members](app:company/members) instead. Full rules: [API keys](/docs/api-keys).
+A key card shows **Created at**, **Expires at** and **Last used**; open it to **Delete** the key (needs **Delete**), which stops it at once. To rotate, create a new key, update the client, then delete the old one. Removing **API & Webhooks** from a role does not disable existing keys; set the member **Inactive** in [Members](app:settings/members) instead. Full rules: [API keys](/docs/api-keys).
 
 ## Channels [#channels-tab]
 
-[Channels](app:profile/connected-accounts) lists your email, LinkedIn, WhatsApp, Instagram and Telegram accounts first, then every channel a teammate shared. When channels show **Reconnect needed**, **Permission issue** or **Error**, the Channels entry shows their count. Clicking a card opens the channel dialog with the tabs **Details** (provider, status, **Visibility**, owner, folders, connected and last synced), **Email** and **Folders**. Whatever your role, you can change only channels you own.
+[Channels](app:settings/channels) lists your email, LinkedIn, WhatsApp, Instagram and Telegram accounts first, then every channel a teammate shared. When channels show **Reconnect needed**, **Permission issue** or **Error**, the Channels entry shows their count. Clicking a card opens the channel dialog with the tabs **Details** (provider, status, **Visibility**, owner, folders, connected and last synced), **Email** and **Folders**. Whatever your role, you can change only channels you own.
 
 ### Who can use Channels? [#who-can-use-channels]
 
-Seeing the page needs **Read access** **All** on **Inbox messages**; connecting needs **Create**, changing, reactivating or resyncing **Edit**, disconnecting **Delete**. The plan must include messaging (Pro, Business, Enterprise or a trial); on Starter the page shows **Upgrade your plan**, which opens [Billing](app:company/subscription). Every action except disconnecting also needs an active subscription or a running trial. Self-hosted installs have no Channels page.
+Seeing the page needs **Read access** **All** on **Inbox messages**; connecting needs **Create**, changing, reactivating or resyncing **Edit**, disconnecting **Delete**. The plan must include messaging (Pro, Business, Enterprise or a trial); on Starter the page shows **Upgrade your plan**, which opens [Billing](app:settings/billing). Every action except disconnecting also needs an active subscription or a running trial. Self-hosted installs have no Channels page.
 
 ### How do I connect a channel? [#how-do-i-connect-a-channel]
 
-Click [Connect channel](app:profile/connected-accounts?focus=connect) and pick an entry:
+Click [Connect channel](app:settings/channels?focus=connect) and pick an entry:
 
 | Entry | Connects |
 |---|---|
@@ -71,7 +71,7 @@ The current tab goes to a secure connection page (30 minutes to finish) and then
 
 ### How many channels can I connect? [#how-many-channels-can-i-connect]
 
-Per member: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro. Every channel you own counts until you disconnect it, except **Deleted** ones; teammates' shared channels never count. At the limit on Pro, **Connect channel** offers **View plans**, which opens [Billing](app:company/subscription). After a downgrade, each member's newest channels above the allowance become **Deleted** and members with the **Admin** role get an email.
+Per member: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro. Every channel you own counts until you disconnect it, except **Deleted** ones; teammates' shared channels never count. At the limit on Pro, **Connect channel** offers **View plans**, which opens [Billing](app:settings/billing). After a downgrade, each member's newest channels above the allowance become **Deleted** and members with the **Admin** role get an email.
 
 ### What does each channel status mean? [#what-does-each-status-mean]
 

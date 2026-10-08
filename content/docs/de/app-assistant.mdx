@@ -55,7 +55,7 @@ Eine Antwort darf höchstens 3 kostenpflichtige Suchen starten, ein [Routinenlau
 
 Mate kann alles, was ein über [MCP](/docs/mcp) verbundener externer KI-Client kann, und führt Sie zusätzlich durch die App und rechnet über viele Datensätze auf einmal (Mediane, Rangfolgen, Vergleiche zweier Listen) in einer isolierten Sandbox, die nichts ändert. Weitere Fähigkeiten für Datenmodell, Ansichten, Messaging, Widgets, Webhooks, Routinen und Verwaltung lädt Mate, wenn Ihre Anfrage oder die aktuelle Seite sie verlangt. Das macht Anfragen günstiger und genauer und erteilt nie Zugriff: Jede Aktion prüft weiterhin Ihre Rolle, Ihren Tarif, verbundene Konten und die [Freigaben](#what-runs-immediately-and-what-asks-first).
 
-Mate kann Listen, Felder, Berechnungen, Vorgaben und Rollenzugriffe im Rahmen Ihrer Berechtigungen konfigurieren und prüft Abhängigkeiten, bevor es eine Änderung anwendet. Abrechnung, API-Keys, Theme, Anzeigesprache und regionales Format bleiben bei Ihnen: Mate öffnet [Abrechnung](app:company/subscription) oder [API-Schlüssel](app:profile/api-keys) und zeigt auf die Einstellung.
+Mate kann Listen, Felder, Berechnungen, Vorgaben und Rollenzugriffe im Rahmen Ihrer Berechtigungen konfigurieren und prüft Abhängigkeiten, bevor es eine Änderung anwendet. Abrechnung, API-Keys, Theme, Anzeigesprache und regionales Format bleiben bei Ihnen: Mate öffnet [Abrechnung](app:settings/billing) oder [API-Schlüssel](app:settings/api-keys) und zeigt auf die Einstellung.
 
 ## Wie durchsucht Mate Dokumentation und Wissensdatenbank? [#search]
 
@@ -92,7 +92,7 @@ Jeder aktive Nutzer erhält ein monatliches Kontingent an Credits für gehostete
 
 Die kostenlose Testphase läuft [[commercial.trial.days]] Tage mit Pro-Funktionen und 500 Credits pro aktivem Nutzer. Der Kontingentzeitraum beginnt zu dem Zeitpunkt, an dem der Workspace angelegt wurde, und wiederholt sich monatlich an diesem Tag zu dieser Uhrzeit in UTC (in einem kürzeren Monat am letzten Tag), unabhängig vom Abrechnungsdatum; bezahlte Kontingente werden monatlich zurückgesetzt und nicht genutzte Credits werden nicht übertragen. Nur Mitglieder mit dem Status **Aktiv** zählen als Nutzerplätze und erhalten Credits; ein mitten im Zeitraum aktivierter Nutzerplatz in einem bezahlten Tarif erhält einen exakt anteiligen Anteil. Routinen verbrauchen die Credits ihres Eigentümers. Externe MCP-Clients rechnen ihre Modellnutzung über Ihren eigenen KI-Anbieter ab, die Suche nach Bedeutung kann aber trotzdem gehostete Credits verbrauchen.
 
-Credits gibt es nur in der Testphase oder solange das Abonnement **Aktiv** ist; sonst beträgt das Kontingent 0, und **Mate fragen** verschwindet aus der Seitenleiste. Mate kann Tarif und Abrechnung weder lesen noch ändern; es kann [Abrechnung](app:company/subscription) öffnen, und unter [Workspace-Einstellungen](/docs/app-company) steht, wer ihn ändern kann.
+Credits gibt es nur in der Testphase oder solange das Abonnement **Aktiv** ist; sonst beträgt das Kontingent 0, und **Mate fragen** verschwindet aus der Seitenleiste. Mate kann Tarif und Abrechnung weder lesen noch ändern; es kann [Abrechnung](app:settings/billing) öffnen, und unter [Workspace-Einstellungen](/docs/app-company) steht, wer ihn ändern kann.
 
 ## Wie wird eine Anfrage abgerechnet, und was passiert, wenn die Credits aufgebraucht sind? [#credits]
 
@@ -100,7 +100,7 @@ Der Ring neben **Senden** füllt sich mit dem verbrauchten Anteil Ihres Monatsko
 
 Das Aktuellhalten des Wissensdatenbank-Suchindex wird dem Workspace berechnet und auf die aktiven Mitglieder im Verhältnis zu ihrem Kontingent verteilt. Jede Anfrage und jeder Indexierungsschritt reserviert vorab seine höchstmöglichen Kosten und läuft nur, wenn sie sowohl in Ihr eigenes Kontingent als auch in das gemeinsame Kontingent des Workspace passen. Mit dem Standardmodell reserviert eine Anfrage 5,6 Credits pro Runde und 11,2 insgesamt und zieht unterwegs nach; sie kann also mit weniger als 5,6 verbleibenden Credits nicht starten, auch wenn der Zähler noch einen Rest zeigt. Nicht genutzte Reservierungen werden freigegeben, sobald der Verbrauch gemessen ist; der Zähler kann während einer Anfrage also sinken und wieder steigen.
 
-Ist das Kontingent aufgebraucht, pausieren neue Anfragen bis zum Zurücksetzungstermin, und Ihr Verlauf bleibt lesbar. An die Stelle des Eingabefelds tritt ein Hinweis mit **Tarife ansehen**, der [Abrechnung](app:company/subscription) öffnet; derselbe Hinweis erscheint, wenn das Abonnement keine Credits gewährt. Ist der gehostete Assistent vorübergehend nicht verfügbar, etwa bei einem Enterprise-Workspace ohne vertraglich vereinbartes Kontingent, heißt die Schaltfläche **Kontakt aufnehmen** und öffnet eine E-Mail an das Customermates-Team.
+Ist das Kontingent aufgebraucht, pausieren neue Anfragen bis zum Zurücksetzungstermin, und Ihr Verlauf bleibt lesbar. An die Stelle des Eingabefelds tritt ein Hinweis mit **Tarife ansehen**, der [Abrechnung](app:settings/billing) öffnet; derselbe Hinweis erscheint, wenn das Abonnement keine Credits gewährt. Ist der gehostete Assistent vorübergehend nicht verfügbar, etwa bei einem Enterprise-Workspace ohne vertraglich vereinbartes Kontingent, heißt die Schaltfläche **Kontakt aufnehmen** und öffnet eine E-Mail an das Customermates-Team.
 
 ## Chat-Verlauf [#chat-history]
 

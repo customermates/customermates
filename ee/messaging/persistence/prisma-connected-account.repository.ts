@@ -23,7 +23,7 @@ import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.
 import type { FindUsableAccountRepo } from "./find-usable-account.repo";
 import type { FindAccountByUnipileIdUnscopedRepo } from "./find-account-by-unipile-id-unscoped.repo";
 import type { DeleteAccountForBillingRepo } from "../connect/delete-account-for-billing.service";
-import type { DeleteAccountsForPlanConnectedAccountRepo } from "../connect/delete-accounts-for-plan.interactor";
+import type { DeleteAccountsForPlanConnectedAccountRepo } from "../connect/delete-accounts-for-plan-connected-account.repo";
 import type { DeleteConnectedAccountsForExpiredTrialsRepo } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
 import type { DeleteConnectedAccountsForInactiveOwnersRepo } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import type { DeleteOrphanedUnipileAccountsRepo } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";

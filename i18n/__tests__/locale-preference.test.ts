@@ -23,13 +23,13 @@ describe("locale preferences", () => {
   });
 
   it("navigates System through locale negotiation and explicit preferences through their locale", () => {
-    expect(displayLanguageNavigationTarget("system", "/profile/settings")).toBe("/profile/settings");
-    expect(displayLanguageNavigationTarget("it", "/profile/settings")).toBe("/it/profile/settings");
-    expect(displayLanguageNavigationTarget("system", "/de/profile/settings?tab=mine#open")).toBe(
-      "/profile/settings?tab=mine#open",
+    expect(displayLanguageNavigationTarget("system", "/settings/profile")).toBe("/settings/profile");
+    expect(displayLanguageNavigationTarget("it", "/settings/profile")).toBe("/it/settings/profile");
+    expect(displayLanguageNavigationTarget("system", "/de/settings/profile?tab=mine#open")).toBe(
+      "/settings/profile?tab=mine#open",
     );
-    expect(displayLanguageNavigationTarget("it", "/de/profile/settings?tab=mine#open")).toBe(
-      "/it/profile/settings?tab=mine#open",
+    expect(displayLanguageNavigationTarget("it", "/de/settings/profile?tab=mine#open")).toBe(
+      "/it/settings/profile?tab=mine#open",
     );
     expect(displayLanguageNavigationTarget("it", "/de?tab=mine#open")).toBe("/it?tab=mine#open");
   });

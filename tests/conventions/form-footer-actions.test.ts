@@ -36,7 +36,7 @@ const RULE_PATTERNS: Record<Rule, RegExp> = {
     /\b(?:AppCardFooter|DialogFooter|DrawerFooter|SheetFooter|AlertDialogFooter|PopoverFooter)\b(?![-\w])/,
   "overlay-footer": /<ResponsiveOverlay\b[^]*?\bfooter=\{/,
   "submit-button": /<Button\b(?:=>|[^>])*\btype="submit"/,
-  "confirm-primitive": /from "[^"]*\/(?:ui\/alert-dialog|unsaved-changes-guard)"/,
+  "confirm-primitive": /from "[^"]*\/ui\/alert-dialog"/,
   "archive-switch": /<(?:Form)?Switch\b(?:=>|[^>])*?(?:\barchive|Archive)/,
   "legacy-footer": /from "[^"]*\/form-actions"|\bexport const FormActions\b/,
 };
@@ -143,7 +143,7 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
     rules: ["footer-primitive", "overlay-footer", "confirm-primitive"],
     reason: "test-only gallery that renders the raw overlay primitives",
   },
-  "app/[locale]/(protected)/company/components/company-invite/invite-by-email-form.tsx": {
+  "app/[locale]/(protected)/settings/(workspace)/components/company-invite/invite-by-email-form.tsx": {
     rules: ["submit-button"],
     reason: "sends invitations, an action form without saved state",
   },
@@ -151,28 +151,17 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
     rules: ["submit-button"],
     reason: "message composer whose submit sends the message",
   },
-  "components/data-view/header/filter-popover.tsx": {
+  "components/data-view/filter-palette/filter-target-popover.tsx": {
     rules: ["overlay-footer"],
     reason: "filters apply immediately; the footer only holds Clear",
   },
-  "app/[locale]/(protected)/profile/components/connect-upsell-modal.tsx": {
+  "app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx": {
     rules: ["footer-primitive", "cancel-label"],
     reason: "upgrade prompt with a plans call to action, not a save form",
   },
 };
 
-const NOT_YET_MIGRATED: Record<string, Rule[]> = {
-  "components/card/form-actions.tsx": ["save-label", "footer-primitive", "submit-button", "legacy-footer"],
-  "app/components/navigation/sidebar-customize.tsx": ["overlay-footer"],
-  "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["legacy-footer"],
-  "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": [
-    "save-label",
-    "cancel-label",
-    "footer-primitive",
-    "confirm-primitive",
-  ],
-};
+const NOT_YET_MIGRATED: Record<string, Rule[]> = {};
 
 function scannedFiles(): string[] {
   return SCANNED_DIRECTORIES.flatMap((directory) =>
@@ -216,7 +205,7 @@ const SAVE_LIKE_KEY_EXEMPT: Record<string, string> = {
   "Editor.confirm": "inserts a link into the text being edited; nothing is persisted",
   "DataTransfer.recordImport.update": "names an import mode option, not a button",
 };
-const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>(["MassActions.update"]);
+const SAVE_LIKE_KEY_NOT_YET_MIGRATED = new Set<string>([]);
 
 describe("footer actions follow one shared component (design rules 30, 31, 35)", () => {
   const current = findings();

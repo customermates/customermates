@@ -144,14 +144,14 @@ describe("AgentUiControlStore beside the assistant panel", () => {
 
   it("still highlights a target beside the assistant panel", async () => {
     assistantPanel();
-    control("company-members-add", new DOMRect(600, 120, 80, 32));
+    control("settings-members-add", new DOMRect(600, 120, 80, 32));
     const store = controlStore();
 
-    await expect(store.highlight("company-members-add")).resolves.toEqual({
+    await expect(store.highlight("settings-members-add")).resolves.toEqual({
       ok: true,
-      result: "Highlighted company-members-add.",
+      result: "Highlighted settings-members-add.",
     });
-    expect(store.active?.targetId).toBe("company-members-add");
+    expect(store.active?.targetId).toBe("settings-members-add");
     store.end();
   });
 

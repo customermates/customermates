@@ -7,13 +7,13 @@ import {
 import { SURFACE } from "@/core/data-view/data-view-keys";
 
 const LOCATIONS: Record<BuiltinAiManageableDataViewSurfaceKey, string> = {
-  [SURFACE.users]: "NavigationBar.members",
-  [SURFACE.roles]: "RolesCard.title",
-  [SURFACE.webhooks]: "WebhooksCard.title",
-  [SURFACE.webhookDeliveries]: "WebhookDeliveriesCard.title",
+  [SURFACE.users]: "SettingsNav.members",
+  [SURFACE.roles]: "SettingsNav.roles",
+  [SURFACE.webhooks]: "SettingsNav.webhooks",
+  [SURFACE.webhookDeliveries]: "SettingsNav.deliveries",
   [SURFACE.messagingThreads]: "NavigationBar.inbox",
   [SURFACE.entityTimeline]: "Common.actions.labelHistory",
-  [SURFACE.activity]: "ActivityPage.title",
+  [SURFACE.activity]: "SettingsNav.activity",
   [SURFACE.routines]: "NavigationBar.routines",
   [SURFACE.dashboard]: "NavigationBar.dashboard",
 };

@@ -5,7 +5,7 @@ import type { ColumnPresentation } from "@/core/data-view/column-presentation.sc
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
 
-export type PalettePageKind = "select" | "text" | "number" | "date" | "operatorOnly";
+export type PalettePageKind = "select" | "values" | "text" | "number" | "date" | "operatorOnly";
 
 export type PalettePlan = {
   impliedOperator: FilterOperatorKey | undefined;
@@ -30,6 +30,7 @@ const PAGE_KIND_BY_VALUE_CLASS: Record<FilterValueClass, PalettePageKind> = {
   none: "operatorOnly",
   numericString: "number",
   stringArray: "select",
+  scalarArray: "values",
   text: "text",
   unavailable: "operatorOnly",
 };
@@ -48,7 +49,13 @@ export function palettePlan(
   customColumns?: ColumnPresentation[],
 ): PalettePlan {
   const declared = declaredOperatorsOf(field, filterableFields);
-  const impliedOperator = PALETTE_OPERATOR_PREFERENCE.find((operator) => declared.includes(operator));
+  const impliedOperator =
+    PALETTE_OPERATOR_PREFERENCE.find(
+      (operator) =>
+        declared.includes(operator) && resolveFilterValueClass(field, operator, customColumns) !== "scalarArray",
+    ) ??
+    PALETTE_OPERATOR_PREFERENCE.find((operator) => declared.includes(operator)) ??
+    (declared.length === 1 && !isStandaloneOperator(declared[0]) ? declared[0] : undefined);
   const valueClass = resolveFilterValueClass(field, impliedOperator, customColumns);
 
   return {

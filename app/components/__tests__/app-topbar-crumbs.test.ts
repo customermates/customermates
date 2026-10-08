@@ -3,13 +3,12 @@ import { describe, expect, it } from "vitest";
 import { buildAppTopbarCrumbs } from "../app-topbar-crumbs";
 
 const translate = (key: string) => key;
-const canAccess = () => true;
 const OPAQUE_ID = "bcad5c22-5549-4847-93e4-c17296828b76";
 
 describe("app topbar crumbs", () => {
   it("uses stable generic type and record identities through loading, renaming and navigation", () => {
     const read = (path: string, identity: Parameters<typeof buildAppTopbarCrumbs>[2]) =>
-      buildAppTopbarCrumbs(path, translate, identity, "cloud", canAccess);
+      buildAppTopbarCrumbs(path, translate, identity);
     expect(read("/en/records/type-id", null).crumbs).toEqual([{ label: "RecordModel.records", isLoading: true }]);
     const identity = {
       scope: "entity" as const,
@@ -31,15 +30,28 @@ describe("app topbar crumbs", () => {
   });
 
   it("titles Configure as its own page without a section breadcrumb", () => {
-    expect(buildAppTopbarCrumbs("/en/configure", translate, null, "cloud", canAccess)).toEqual({
+    expect(buildAppTopbarCrumbs("/en/configure", translate, null)).toEqual({
       crumbs: [{ label: "RecordModel.configure" }],
-      section: null,
     });
     const list = { scope: "entity" as const, key: "configure", title: "Deals", pictureUrl: null, avatarKind: null };
-    expect(buildAppTopbarCrumbs("/en/configure", translate, list, "cloud", canAccess).crumbs).toEqual([
+    expect(buildAppTopbarCrumbs("/en/configure", translate, list).crumbs).toEqual([
       { label: "RecordModel.configure", href: "/configure" },
       { label: "Deals" },
     ]);
+  });
+
+  it("titles settings pages under Settings, including the Deliveries tab of Webhooks", () => {
+    expect(buildAppTopbarCrumbs("/en/settings/members", translate, null).crumbs).toEqual([
+      { label: "NavigationBar.settings", href: "/settings/profile" },
+      { label: "SettingsNav.members" },
+    ]);
+    expect(buildAppTopbarCrumbs("/en/settings/webhooks/deliveries", translate, null).crumbs).toEqual([
+      { label: "NavigationBar.settings", href: "/settings/profile" },
+      { label: "SettingsNav.webhooks" },
+    ]);
+    expect(buildAppTopbarCrumbs("/en/settings/billing", translate, null).crumbs.at(-1)).toEqual({
+      label: "SettingsNav.billing",
+    });
   });
 
   it.each([
@@ -48,29 +60,16 @@ describe("app topbar crumbs", () => {
     ["workspaces", "OperatorWorkspaces.navigation"],
     ["audit", "OperatorAudit.navigation"],
   ])("renders the operator and %s crumbs when the operator console is visible", (route, leafLabel) => {
-    expect(buildAppTopbarCrumbs(`/en/operator/${route}`, translate, null, "cloud", canAccess, null, true)).toEqual({
-      crumbs: [
-        { href: "/operator/overview", label: "NavigationBar.operator" },
-        {
-          label: leafLabel,
-          siblings: [
-            { slug: "overview", label: "OperatorOverview.navigation" },
-            { slug: "users", label: "OperatorUsers.navigation" },
-            { slug: "workspaces", label: "OperatorWorkspaces.navigation" },
-            { slug: "audit", label: "OperatorAudit.navigation" },
-          ],
-        },
-      ],
-      section: "operator",
+    expect(buildAppTopbarCrumbs(`/en/operator/${route}`, translate, null, null, true)).toEqual({
+      crumbs: [{ href: "/operator/overview", label: "NavigationBar.operator" }, { label: leafLabel }],
     });
   });
 
   it.each(["overview", "users", "workspaces", "audit"])(
     "does not expose operator crumbs for %s when the operator console is hidden",
     (route) => {
-      expect(buildAppTopbarCrumbs(`/en/operator/${route}`, translate, null, "cloud", canAccess, null, false)).toEqual({
+      expect(buildAppTopbarCrumbs(`/en/operator/${route}`, translate, null, null, false)).toEqual({
         crumbs: [],
-        section: null,
       });
     },
   );
@@ -86,8 +85,6 @@ describe("app topbar crumbs", () => {
         pictureUrl: null,
         avatarKind: "messaging",
       },
-      "cloud",
-      canAccess,
       "current-thread",
     );
 
@@ -106,8 +103,6 @@ describe("app topbar crumbs", () => {
         pictureUrl: "/current.png",
         avatarKind: "messaging",
       },
-      "cloud",
-      canAccess,
       "current-thread",
     );
 

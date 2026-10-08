@@ -20,8 +20,8 @@ test("configures a role for a new type, preserves granular rights after rename a
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   expect(typeId).toBeTruthy();
-  await page.goto("/en/company/roles");
-  await page.locator("#company-roles-add").click();
+  await page.goto("/en/settings/roles");
+  await page.locator("#settings-roles-add").click();
   const role = page.getByRole("dialog", { name: "Role", exact: true });
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Project coordinators");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Create and read assigned projects");
@@ -88,7 +88,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   });
   expect(stale.status()).toBe(409);
   expect((await grants()).rows).toEqual([{ typeId, actions: ["create", "readOwn"] }]);
-  await page.goto("/en/company/roles");
+  await page.goto("/en/settings/roles");
   await page.getByRole("button", { name: "Project coordinators", exact: true }).click();
   await expect(role).toBeVisible();
   await projectGrant.scrollIntoViewIfNeeded();

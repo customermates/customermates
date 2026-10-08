@@ -24,7 +24,7 @@ export const DOCS_CASES: readonly DocsCase[] = [
     title: "Docs: where to create an API key",
     actor: "driver",
     prompts: ["Where in Customermates do I create an API key for the REST API? Just tell me where to click."],
-    judgeFacts: ["API keys are created under My Profile > API & Connectors (/profile/api-keys) with Add"],
+    judgeFacts: ["API keys are created under My Profile > API & Connectors (/settings/api-keys) with Add"],
   },
   {
     id: "D2",

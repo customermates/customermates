@@ -2,7 +2,6 @@
 
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordsStore } from "./records.store";
-import type { useRecordDeletion } from "./use-record-deletion";
 
 import { useRef } from "react";
 import { observer } from "mobx-react-lite";
@@ -27,20 +26,17 @@ export function recordRowName(store: RecordsStore, record: RecordRow) {
 }
 
 export const RecordRowActions = observer(function RecordRowActions({
-  store,
-  record,
-  deletion,
+  name,
   onOpen,
+  onDelete,
 }: {
-  store: RecordsStore;
-  record: RecordRow;
-  deletion: ReturnType<typeof useRecordDeletion>;
-  onOpen: (record: RecordRow, returnFocusTo: HTMLElement | null) => void;
+  name: string;
+  onOpen: (returnFocusTo: HTMLElement | null) => void;
+  onDelete?: () => unknown;
 }) {
   const t = useTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
-  const name = recordRowName(store, record);
-  const canDelete = store.presentation.permittedActions.includes("delete") && !record.protectedKind;
+  const openedDetails = useRef(false);
   const moreLabel = t("RecordModel.moreActions", { name });
   return (
     <div
@@ -60,20 +56,27 @@ export const RecordRowActions = observer(function RecordRowActions({
           <TooltipContent>{moreLabel}</TooltipContent>
         </Tooltip>
 
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => onOpen(record, trigger.current)}>
+        <DropdownMenuContent
+          align="end"
+          onCloseAutoFocus={(event) => {
+            if (!openedDetails.current) return;
+            openedDetails.current = false;
+            event.preventDefault();
+          }}
+        >
+          <DropdownMenuItem
+            onSelect={() => {
+              openedDetails.current = true;
+              onOpen(trigger.current);
+            }}
+          >
             <PanelLeftOpen className="size-4" />
 
             {t("RecordModel.openDetails")}
           </DropdownMenuItem>
 
-          {canDelete && (
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={() =>
-                runUserAction(() => deletion.requestDeletion(record, store.presentation.model.revision, name))
-              }
-            >
+          {onDelete && (
+            <DropdownMenuItem variant="destructive" onSelect={() => runUserAction(onDelete)}>
               <Trash2 className="size-4" />
 
               {t("Common.actions.delete")}

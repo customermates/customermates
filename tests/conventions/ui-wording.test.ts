@@ -61,13 +61,7 @@ const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
   "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
 
-const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
-  "Inbox.compose.draftDiscard": "I25: draft Discard through Common.actions.discard",
-  "Inbox.refresh": "I25: inbox Refresh through Common.actions.refresh",
-  "OnboardingWizard.back": "I25: onboarding Back through Common.actions.back",
-  "RoleModal.delete": "I19: role Delete through Common.actions.delete",
-  "Subscription.refresh": "I19: billing Refresh through Common.actions.refresh",
-};
+const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {};
 
 describe("rules 30 and 58: shared action words come from one key", () => {
   it("labels the shared action words only through their Common.actions key", () => {
@@ -111,12 +105,7 @@ const GERMAN_TERM_EXEMPTIONS: Allowlist = {
   Services: "the Services starter list and the operator's service statistics",
 };
 
-const GERMAN_TERM_ALLOWLIST: Allowlist = {
-  Admin: "I19: the Admin navigation entry disappears with the Settings area",
-  Plan: "I19: Plan becomes Billing (rule 51), with one German term",
-  Relationship: "I1r4: one German term (Beziehung or Verknüpfung)",
-  Workspace: "I19: one German term (Arbeitsbereich or Workspace)",
-};
+const GERMAN_TERM_ALLOWLIST: Allowlist = {};
 
 describe("one German term per concept (owner 2026-10-08)", () => {
   it("translates each short English label with one German label", () => {
@@ -164,14 +153,7 @@ function retiredTermViolations(units: TextUnit[]) {
     .sort();
 }
 
-const RETIRED_TERM_ALLOWLIST: Allowlist = {
-  "i18n/locales/de.json#company-settings": "I19: Settings area names (rule 43)",
-  "i18n/locales/de.json#my-company": "I19: Settings area names (rule 43)",
-  "i18n/locales/de.json#my-profile": "I19: Profile & preferences or Channels in Settings (rule 43)",
-  "i18n/locales/en.json#company-settings": "I19: Settings area names (rule 43)",
-  "i18n/locales/en.json#my-company": "I19: Settings area names (rule 43)",
-  "i18n/locales/en.json#my-profile": "I19: Profile & preferences or Channels in Settings (rule 43)",
-};
+const RETIRED_TERM_ALLOWLIST: Allowlist = {};
 
 describe("rules 30, 33, 43, 50 and 51: retired UI names leave messages and docs", () => {
   it("names no retired UI place or action in the messages or the product docs", () => {

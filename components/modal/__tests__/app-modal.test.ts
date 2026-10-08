@@ -245,7 +245,7 @@ describe("AppModal beside the assistant", () => {
     [
       "an assistant highlight or tour step is shown",
       () => {
-        testContext.rootStore.agentUiControlStore.active = { targetId: "company-webhooks-add" };
+        testContext.rootStore.agentUiControlStore.active = { targetId: "settings-webhooks-add" };
       },
     ],
   ] as const;

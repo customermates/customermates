@@ -21,12 +21,9 @@ vi.mock("@/components/forms/form-autocomplete-item", () => ({ FormAutocompleteIt
 vi.mock("@/components/forms/form-input", () => ({ FormInput: () => null }));
 vi.mock("@/components/forms/form-select", () => ({ FormSelect: () => null }));
 vi.mock("@/components/forms/form-context", () => ({ useAppForm: () => null }));
+vi.mock("@/components/records/record-query-filters", () => ({ RecordQueryFilters: () => null }));
 vi.mock("../record-widget-chart", () => ({ RecordWidgetChart: () => createElement("div", { "data-chart": "" }) }));
-vi.mock("../record-widget-filters", () => ({
-  RecordWidgetFieldFilters: () => null,
-  RecordWidgetRelatedFilters: () => null,
-  widgetRelationshipChoices: () => [],
-}));
+vi.mock("../record-widget-filters", () => ({ widgetRelationshipChoices: () => [] }));
 
 import { RecordWidgetEditor } from "../record-widget-editor";
 

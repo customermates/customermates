@@ -10,6 +10,7 @@ import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
   isRefreshingInbox = false;
@@ -66,7 +67,7 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
           values: { count: reconnectAccounts },
           action: {
             labelKey: "ConnectedAccountsCard.title",
-            href: `/${this.rootStore.localeStore.locale}/profile/connected-accounts`,
+            href: `/${this.rootStore.localeStore.locale}${settingsHref("channels")}`,
           },
         });
       }

@@ -36,7 +36,7 @@ vi.mock("@/core/stores/root-store.provider", () => {
       pages: {
         dashboard: "/dashboard",
         inbox: "/inbox",
-        settings: "/profile/settings",
+        settings: "/settings/profile",
       },
       lists: ["/records/a", "/records/b"],
     },
@@ -235,7 +235,7 @@ describe("global keyboard shortcuts", () => {
     press("g");
     press("Shift");
     press("s");
-    expect(state.push).toHaveBeenLastCalledWith("/profile/settings");
+    expect(state.push).toHaveBeenLastCalledWith("/settings/profile");
   });
 
   it("skips destinations the person cannot open and keys after the timeout", () => {

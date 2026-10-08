@@ -7,6 +7,7 @@ import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 import { useRouter } from "@/i18n/navigation";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Button } from "@/components/ui/button";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
   const intlStore = useHydratedIntlStore();
@@ -26,7 +27,7 @@ export function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
         variant="secondary"
         onClick={() => {
           if (contact) window.location.assign("mailto:support@customermates.com?subject=Hosted%20Assistant%20credits");
-          else router.push("/company/subscription");
+          else router.push(settingsHref("billing"));
         }}
       >
         {contact ? t("AgentChat.credits.contact") : t("AgentChat.credits.viewPlans")}

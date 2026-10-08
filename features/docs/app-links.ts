@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { focusHref } from "@/components/focus/focus-href";
 import { RECORD_LIST_CONTROLS } from "@/ee/agent-chat/record-ui-targets";
+import { TOOLBAR_PAGES_WITH_ADD, TOOLBAR_PAGES_WITHOUT_ADD } from "@/ee/agent-chat/ui-anchors";
 import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
 import { RECORD_PRESET_KEYS, type RecordPresetKey } from "@/features/records/record-navigation.schema";
 import { escapeRegExp } from "@/i18n/routing";
@@ -20,11 +21,12 @@ export type ParsedAppLink =
 
 export type AppLinkWorkspace = { listId: (preset: RecordPresetKey) => string };
 
-const PAGE_ROUTES = new Set(
-  AGENT_UI_TARGETS.filter((target) => target.id.startsWith("nav-") && target.route.startsWith("/")).map(
+const PAGE_ROUTES = new Set([
+  ...AGENT_UI_TARGETS.filter((target) => target.id.startsWith("nav-") && target.route.startsWith("/")).map(
     (target) => target.route,
   ),
-);
+  ...[...TOOLBAR_PAGES_WITH_ADD, ...TOOLBAR_PAGES_WITHOUT_ADD].map((page) => page.route),
+]);
 
 function pageControlPrefix(route: string) {
   return `${route.slice(1).replaceAll("/", "-")}-`;

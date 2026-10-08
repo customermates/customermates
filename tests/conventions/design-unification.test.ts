@@ -114,10 +114,7 @@ function animatedBlurFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const ANIMATED_BLUR_ALLOWLIST: Allowlist = {
-  "components/ui/sheet.tsx": "I25: the sheet overlay fades a backdrop blur in and out; drop the blur (WebKit, I11)",
-  "components/page-state/page-state.tsx": "I25: the empty state halo animates a blurred layer; drop the blur",
-};
+const ANIMATED_BLUR_ALLOWLIST: Allowlist = {};
 
 describe("rule 12: overlays never animate a blur", () => {
   it("never combines a blur or backdrop blur with an animation or transition on one element", () => {
@@ -135,15 +132,7 @@ describe("rule 12: overlays never animate a blur", () => {
 
 const LOCAL_FILTER_UI = /\bRecordWidget(?:Field|Related)Filters\b|["'`]RecordWidgets\.(?:add|remove)Filter["'`]/;
 
-const LOCAL_FILTER_UI_ALLOWLIST: Allowlist = {
-  "app/[locale]/(protected)/dashboard/components/record-widget-filters.tsx":
-    "I3r3b: widget filter rows move to the shared Filters palette",
-  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx":
-    "I3r3b: widget editor filters through the shared Filters palette",
-  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx":
-    "I3r3b: activity widget filters through the shared Filters palette",
-  "components/records/record-trigger-fields.tsx": "I3r3b: routine trigger filters through the shared Filters palette",
-};
+const LOCAL_FILTER_UI_ALLOWLIST: Allowlist = {};
 
 describe("rule 32: one filter design everywhere", () => {
   it("builds view, widget, routine and activity filters only with the shared Filters palette", () => {
@@ -216,9 +205,48 @@ function rowMenuItemLabels(source: SourceFile) {
 
 const ROW_MENU_ALLOWLIST: Allowlist = {};
 
-describe("I2 round 3: row click opens, the row menu holds Open details and Delete", () => {
+const TABLE_TAG = "DataViewContent";
+
+function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    if (source.file.startsWith(ROW_MENU_PLUMBING)) continue;
+    visit(source.ast, (node) => {
+      if (tagNameOf(node) !== TABLE_TAG || !(ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node))) return;
+      const hasRowMenu = attributesOf(node).properties.some(
+        (property) => ts.isJsxAttribute(property) && property.name.getText(source.ast) === "rowActions",
+      );
+      if (!hasRowMenu) findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
+    });
+  }
+
+  return findings;
+}
+
+const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx":
+    "webhook deliveries are a read-only log: no delete, so a row menu would only repeat the row click",
+  "app/[locale]/(protected)/operator/components/audit/operator-audit-page-view.tsx":
+    "the operator audit is a read-only log: no delete, so a row menu would only repeat the row click",
+  "app/[locale]/(protected)/operator/components/users/operator-users-page-view.tsx":
+    "internal back-office surface with its own guarded flows, not customer UI",
+  "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx":
+    "internal back-office surface with its own guarded flows, not customer UI",
+};
+
+const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {};
+
+describe("I2 round 3 and rule 59: row click opens, every table has the row menu with Open details and Delete", () => {
   it("builds every table row and card menu with the shared row actions", () => {
     enforce(ownRowMenuFindings(PRODUCT_SOURCES), ROW_MENU_ALLOWLIST);
+  });
+
+  it("gives every table the shared row menu (rule 59)", () => {
+    const findings = tablesWithoutRowMenuFindings(PRODUCT_SOURCES);
+    expect(staleAllowlistEntries(findings, TABLE_ROW_MENU_EXEMPTIONS)).toEqual([]);
+    const current = findings.filter(({ file }) => !(file in TABLE_ROW_MENU_EXEMPTIONS));
+    enforce(current, TABLE_ROW_MENU_ALLOWLIST);
   });
 
   it("offers only Open details and Delete in the shared row menu", () => {
@@ -233,5 +261,13 @@ describe("I2 round 3: row click opens, the row menu holds Open details and Delet
       "const a = <DataViewContent rowActions={(row) => <Menu row={row} />} />;",
     );
     expect(ownRowMenuFindings([source]).map(({ line }) => line)).toEqual([1]);
+  });
+
+  it("recognizes a table without a row menu", () => {
+    const source = sourceFromText(
+      "settings.tsx",
+      "const a = <DataViewContent columns={columns} />;\nconst b = <DataViewContent rowActions={menu} />;",
+    );
+    expect(tablesWithoutRowMenuFindings([source]).map(({ line }) => line)).toEqual([1]);
   });
 });

@@ -49,6 +49,7 @@ const initialType = () => ({
 export type TypeModalSection = "settings" | "appearance";
 export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialType>> {
   original: RecordType | null = null;
+  parentTypeId: string | null = null;
   section: TypeModalSection = "settings";
   constructor(
     root: RootStore,
@@ -60,7 +61,9 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     super(root, initialType(), model, completed, canRenewSummaries, onModelRefreshed);
     makeObservable(this, {
       original: observable.ref,
+      parentTypeId: observable,
       section: observable,
+      editSublist: action,
       renameList: action,
       edit: action,
       moveField: action,
@@ -70,6 +73,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     this.section = section;
     this.resetModel(model);
     this.original = type;
+    this.parentTypeId = null;
     this.immediateApply = !type;
     const columns = type ? recordColumns(type.id, model) : [];
     const grouping = type?.defaults.groupBy
@@ -96,6 +100,13 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
     );
     this.open();
   };
+  editSublist = (model: RecordModelView, parentTypeId: string) => {
+    this.edit(model, null);
+    this.parentTypeId = parentTypeId;
+  };
+  get parentType() {
+    return this.model.types.find((type) => type.id === this.parentTypeId);
+  }
   protected projectLatestModel(model: RecordModelView) {
     if (!this.original) return toJS(this.savedState);
     const latest = model.types.find((type) => type.id === this.original?.id);
@@ -190,6 +201,65 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
         ...reorderFieldOperations(this.model, this.original.id, this.form.fieldOrder),
       ];
     }
+    const pluralLabel = this.form.pluralName.trim() || this.suggestPlural(this.form.name);
+    const parent = this.parentType;
+    if (parent) {
+      return [
+        {
+          operation: "createType",
+          reference: "$type",
+          label: this.form.name,
+          pluralLabel,
+          description: this.form.description,
+          icon: this.form.icon,
+          embedded: true,
+          navigationVisible: false,
+          accessPresetId: null,
+        },
+        {
+          operation: "putRelationship",
+          relationship: {
+            id: "$parentRelationship",
+            sourceTypeId: "$type",
+            targetTypeId: parent.id,
+            sourceLabel: parent.label,
+            targetLabel: pluralLabel,
+            sourceCardinality: "one",
+            targetCardinality: "many",
+            onSourceDelete: "unlink",
+            onTargetDelete: "cascade",
+            messagesOnSource: false,
+            messagesOnTarget: false,
+            archived: false,
+          },
+        },
+        {
+          operation: "putType",
+          type: {
+            id: "$type",
+            label: this.form.name,
+            pluralLabel,
+            description: this.form.description,
+            icon: this.form.icon,
+            primaryFieldId: "$type.name",
+            parentRelationshipId: "$parentRelationship",
+            embedded: true,
+            navigationVisible: false,
+            archived: false,
+            position: Math.max(-1, ...this.model.types.map((type) => type.position)) + 1,
+            defaults: {
+              columns: ["$type.name"],
+              hiddenColumns: [],
+              layout: "table",
+              groupBy: null,
+              sortField: null,
+              sortDirection: "asc",
+              pinnedFields: ["$type.name"],
+            },
+          },
+        },
+      ];
+    }
     return [
       {
         operation: "createType",
@@ -238,7 +308,7 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
       <div className="grid gap-4 sm:grid-cols-2">
         <FormRecordTypeIcon id="icon" inputId={inputId("icon")} label={t("RecordModel.icon")} />
 
-        {!store.original && (
+        {!store.original && !store.parentTypeId && (
           <FormSelect
             description={t("RecordModel.accessDescription")}
             id="accessPresetId"
@@ -254,7 +324,7 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
         )}
       </div>
 
-      {store.original && (
+      {store.original && !store.original.embedded && (
         <FormSwitch
           id="navigationVisible"
           inputId={inputId("navigationVisible")}
@@ -280,7 +350,9 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
       }))
     : [];
   const title = !store.original
-    ? t("RecordModel.createList")
+    ? store.parentType
+      ? t("RecordModel.createSublist", { list: store.parentType.pluralLabel })
+      : t("RecordModel.createList")
     : store.section === "appearance"
       ? t("RecordModel.sharedDefaults")
       : t("RecordModel.typeSettings");
@@ -296,6 +368,12 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
               onCompleted={store.operationCompleted}
               onStopped={store.operationStopped}
             />
+          )}
+
+          {store.parentType && (
+            <p className="text-sm text-muted-foreground">
+              {t("RecordModel.sublistExplanation", { parent: store.parentType.label })}
+            </p>
           )}
 
           {(!store.original || store.section === "settings") && <TypeSettingsFields store={store} />}

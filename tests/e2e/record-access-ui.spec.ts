@@ -19,6 +19,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
 import {
   addFromConfigure,
+  openDrawerSection,
   openDrawerTab,
   configureTopBar,
   followConfigureLink,
@@ -1334,7 +1335,7 @@ async function relationshipApplyUi(page: Page) {
 
 async function relationshipOptionUi(page: Page, id: string, label: string) {
   if (id === "onSourceDelete" || id === "onTargetDelete")
-    await openDrawerTab(
+    await openDrawerSection(
       page,
       englishMessages.RecordModel.relationshipEditor.onDelete,
     );
@@ -3065,6 +3066,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       await reader.page
         .getByRole("option")
         .filter({ hasText: "Readable archive summary" })
+        .filter({ hasNotText: "Ask Mate" })
         .click();
       for (const field of [total, memo]) {
         await expect(
@@ -3805,8 +3807,8 @@ test("enforces partial system manage actions for a restricted member in the API 
       ).status(),
     ).toBe(403);
 
-    await member.page.goto("/en/company/webhooks");
-    await expect(member.page.locator("#company-webhooks-add")).toBeVisible();
+    await member.page.goto("/en/settings/webhooks");
+    await expect(member.page.locator("#settings-webhooks-add")).toBeVisible();
     await member.page
       .getByText("https://receiver.example.test/member", { exact: true })
       .click();

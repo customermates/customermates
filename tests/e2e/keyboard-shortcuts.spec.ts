@@ -119,7 +119,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
 
   await page.keyboard.press("g");
   await page.keyboard.press("s");
-  await expect(page).toHaveURL(/\/profile\/settings$/);
+  await expect(page).toHaveURL(/\/settings\/profile$/);
   await page.waitForLoadState("networkidle");
 
   await page.keyboard.press("?");
@@ -148,13 +148,13 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await page.keyboard.press("?");
   await expect(addPicker(page)).toHaveCount(0);
   await expect(shortcutsDialog(page)).toHaveCount(0);
-  await expect(page).toHaveURL(/\/profile\/settings$/);
+  await expect(page).toHaveURL(/\/settings\/profile$/);
   await page.keyboard.press(`${mod.key}+k`);
   await expect(page.locator("#global-search-input")).toBeVisible();
   await page.keyboard.press("Escape");
 
   await openApp(page, page.url());
-  await page.getByRole("button", { name: /@/ }).last().click();
+  await page.locator("#nav-personal-menu").click();
   await page.getByRole("menuitem", { name: "Keyboard shortcuts" }).click();
   await expect(shortcutsDialog(page)).toBeVisible();
   const toggle = shortcutsDialog(page).getByRole("switch", {

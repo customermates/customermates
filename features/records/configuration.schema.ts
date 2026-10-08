@@ -280,6 +280,8 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                   id: ConfigurationReferenceSchema,
                   sourceTypeId: ConfigurationReferenceSchema,
                   targetTypeId: ConfigurationReferenceSchema,
+                  messagesOnSource: RecordRelationshipSchema.shape.messagesOnSource.default(false),
+                  messagesOnTarget: RecordRelationshipSchema.shape.messagesOnTarget.default(false),
                 }),
               })
               .strict(),

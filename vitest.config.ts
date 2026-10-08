@@ -13,6 +13,7 @@ const testEnvironment = {
   BETTER_AUTH_SECRET: "vitest-secret",
 };
 const domTestFiles = [
+  "components/data-view/filter-palette/__tests__/use-filter-palette.dom.test.ts",
   "components/ui/__tests__/segmented-control.dom.test.tsx",
   "components/forms/__tests__/form-footer-actions.dom.test.ts",
   "components/modal/__tests__/confirm-dialog.dom.test.ts",
@@ -84,7 +85,6 @@ const domTestFiles = [
   "components/editor/__tests__/editor-menu.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-channels.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-detail-personalization.dom.test.ts",
-  "components/editor-tabs/__tests__/editor-tabs.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-relationship-editor.dom.test.ts",
   "components/editor/__tests__/editor-link-picker.test.ts",
   "components/wiki/__tests__/wiki-homepage-setup.test.ts",
@@ -102,7 +102,7 @@ const domTestFiles = [
   "core/stores/__tests__/root-store-provider.test.ts",
   "core/stores/__tests__/use-hydrated-intl-store.test.ts",
   "features/messaging/__tests__/message-presentation.test.ts",
-  "app/[locale]/(protected)/profile/components/__tests__/account-signature-behavior.test.ts",
+  "app/[locale]/(protected)/settings/(account)/components/__tests__/account-signature-behavior.test.ts",
   "app/[locale]/(protected)/routines/components/__tests__/routine-modal.render.test.tsx",
   "app/[locale]/(protected)/routines/components/__tests__/routine-runs-pane.render.test.tsx",
   "features/messaging/__tests__/email-frame.test.ts",

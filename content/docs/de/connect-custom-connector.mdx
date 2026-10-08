@@ -38,7 +38,7 @@ Zurück in Claude erscheint Customermates mit seinen Tools.
 
 Einmal hinzufügen, und es synchronisiert zu Claude auf Web, Desktop und Mobile. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät, und erneuert sich im Hintergrund.
 
-Noch schneller: Öffnen Sie in Customermates [API-Schlüssel](app:profile/api-keys), klicken Sie auf [Hinzufügen](app:profile/api-keys?focus=generate), wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**, und klicken Sie auf **Zu Claude hinzufügen**. Das öffnet den Add-Connector-Dialog von Claude, vorausgefüllt mit Ihrer `<BASE_URL>/api/v1/mcp` (nur Claude Web und Teams). Der Onboarding-Schritt **KI verbinden** bietet dieselbe Schaltfläche. **Hinzufügen** braucht **Erstellen** auf **API & Webhooks**; ohne diese Berechtigung fügen Sie die URL wie oben ein.
+Noch schneller: Öffnen Sie in Customermates [API-Schlüssel](app:settings/api-keys), klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate), wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**, und klicken Sie auf **Zu Claude hinzufügen**. Das öffnet den Add-Connector-Dialog von Claude, vorausgefüllt mit Ihrer `<BASE_URL>/api/v1/mcp` (nur Claude Web und Teams). Der Onboarding-Schritt **KI verbinden** bietet dieselbe Schaltfläche. **Hinzufügen** braucht **Erstellen** auf **API & Webhooks**; ohne diese Berechtigung fügen Sie die URL wie oben ein.
 
 ## Wie verbinde ich ChatGPT? [#chatgpt]
 
@@ -56,7 +56,7 @@ Ja. Fügen Sie den Connector genauso hinzu, aber authentifizieren Sie sich per H
 
 <Steps>
 <Step title="Key anlegen">
-Öffnen Sie in Customermates [API-Schlüssel](app:profile/api-keys), klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der 64-Zeichen-Key wird **einmal** angezeigt, also sofort kopieren. Zum Anlegen eines Keys braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
+Öffnen Sie in Customermates [API-Schlüssel](app:settings/api-keys), klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der 64-Zeichen-Key wird **einmal** angezeigt, also sofort kopieren. Zum Anlegen eines Keys braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
 </Step>
 <Step title="Per Header authentifizieren">
 Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** Ihr Key.
@@ -117,14 +117,14 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 | Symptom | Ursache | Lösung |
 |---|---|---|
 | "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar | Prüfen Sie, dass sie exakt `<BASE_URL>/api/v1/mcp` lautet, mit der Adresse, unter der Sie Customermates öffnen, als `<BASE_URL>` |
-| Die Tools werden gelistet, aber jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Sign in to use this action.“ (ChatGPT mit Header); Doku-Abfragen antworten weiter | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter [API-Schlüssel](app:profile/api-keys) einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
-| Jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** setzt Sie unter [Mitglieder](app:company/members) wieder auf **Aktiv** |
+| Die Tools werden gelistet, aber jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Sign in to use this action.“ (ChatGPT mit Header); Doku-Abfragen antworten weiter | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter [API-Schlüssel](app:settings/api-keys) einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
+| Jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** setzt Sie unter [Mitglieder](app:settings/members) wieder auf **Aktiv** |
 | Kein "Add custom connector"-Eintrag | Free-Plan | Custom Connectors brauchen einen bezahlten Claude- oder ChatGPT-Plan. Siehe [die CLI-Methode](/docs/connect-cli) |
 | Freigegeben, aber nichts verbindet | Sie haben aus einem anderen Konto freigegeben | Ins richtige Customermates-Konto anmelden, dann erneut versuchen |
 | "Tool not found" | Connector-Cache veraltet | Connector entfernen und neu hinzufügen |
 | Server lehnt Verknüpfung ab | Die Beziehungs-ID oder ein Endpunkt fehlt oder ist nicht zugänglich | Den Agenten bitten, `get_record_model` zu lesen und dann `mutate_crm_record` mit `link` oder `unlink` zu verwenden |
 | Auswahlfeld abgelehnt | Wert nicht in der Optionsliste des Felds | Den Agenten bitten, vorher `get_record_model` aufzurufen |
-| Ein Messaging-, Kalender- oder Social-Tool wird mit einer Tarif-Meldung abgelehnt | Der Workspace hat keinen Tarif mit Messaging (Starter, selbst gehostet, oder kein aktives Abonnement und keine laufende Testphase) | In der Cloud wählt ein Mitglied mit **Bearbeiten** bei **Unternehmen** unter [Abrechnung](app:company/subscription) Pro oder höher. Selbst gehostete Instanzen haben kein Messaging; für diese Tools nutzen Sie Customermates Cloud |
+| Ein Messaging-, Kalender- oder Social-Tool wird mit einer Tarif-Meldung abgelehnt | Der Workspace hat keinen Tarif mit Messaging (Starter, selbst gehostet, oder kein aktives Abonnement und keine laufende Testphase) | In der Cloud wählt ein Mitglied mit **Bearbeiten** bei **Unternehmen** unter [Abrechnung](app:settings/billing) Pro oder höher. Selbst gehostete Instanzen haben kein Messaging; für diese Tools nutzen Sie Customermates Cloud |
 
 ## Im Free-Plan oder in einem CLI? [#on-a-free-plan-or-in-a-cli]
 
