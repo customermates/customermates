@@ -26,6 +26,7 @@ const CREDIT = 1_000_000;
 const state = vi.hoisted(() => ({
   latestCrawl: null as { pendingHosts: string[] } | null,
   gateResults: [] as boolean[],
+  gateCalls: 0,
   gateFailure: null as Error | null,
   serializationFailure: null as Error | null,
   contextFits: vi.fn(),
@@ -284,6 +285,7 @@ vi.mock("@/core/decorators/tenant-context", () => ({
 vi.mock("@/core/di", () => ({
   getAgentChatRepo: () => ({
     canStartNextHostedAiProviderRoundUnscoped: vi.fn(() => {
+      state.gateCalls += 1;
       if (state.gateFailure) return Promise.reject(state.gateFailure);
       return Promise.resolve(state.gateResults.shift() ?? true);
     }),
@@ -433,6 +435,7 @@ const payload: AgentTurnWorkflowPayload = {
 
 beforeEach(() => {
   state.gateResults = [];
+  state.gateCalls = 0;
   state.gateFailure = null;
   state.serializationFailure = null;
   state.providerCalls = 0;
@@ -905,7 +908,7 @@ describe("agent-turn hosted-AI provider gates", () => {
   });
 
   it("does not invoke the provider again when a later round gate is rejected", async () => {
-    state.gateResults = [true, false];
+    state.gateResults = [false];
 
     await runAgentTurn(payload);
 
@@ -1788,13 +1791,13 @@ describe("agent-turn terminal reasons", () => {
     expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.providerError");
   });
 
-  it("classifies a provider-round gate failure as a turn error", async () => {
+  it("classifies a later provider-round gate failure as a turn error", async () => {
     const gateFailure = new Error("round gate unavailable");
     state.gateFailure = gateFailure;
 
     await runAgentTurn(payload);
 
-    expect(state.providerCalls).toBe(0);
+    expect(state.providerCalls).toBe(1);
     expect(state.reportFailure).toHaveBeenCalledWith("agent-turn", gateFailure, payload.tenant);
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -2228,22 +2231,18 @@ describe("agent-turn provider charge evidence", () => {
     },
   );
 
-  it("does not charge a gate failure before any provider invocation", async () => {
+  it("admits the first provider round through turn start without consulting the round gate", async () => {
     state.gateFailure = new Error("gate storage unavailable");
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("A reply.", "stop")] });
 
     await runAgentTurn(payload);
 
-    expect(state.providerCalls).toBe(0);
-    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.markProviderStarted).toHaveBeenCalledTimes(1);
+    expect(state.gateCalls).toBe(0);
+    expect(state.providerCalls).toBe(1);
     expect(state.finalize).toHaveBeenCalledWith(
-      expect.objectContaining({
-        stopReason: "turn_error",
-        usageSettlement: expect.objectContaining({
-          costMicrocents: 0,
-          chargedMicrocents: 0,
-          costSource: "measured",
-        }),
-      }),
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
     );
   });
 

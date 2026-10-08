@@ -126,6 +126,22 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     return this.userService.hasPermission(Resource.wiki, Action.create);
   }
 
+  private async wikiTurnContext(mode: AgentInvocationMode) {
+    try {
+      const result = await this.wikiCatalog.invoke({ page: 1 });
+      if (!result.ok) return { ok: false as const, failure: result };
+      const wikiEmpty = result.data.total === 0 && !result.data.guide && !result.data.procedures?.total;
+      const wikiWebsiteSetup =
+        mode === "interactive" &&
+        (wikiEmpty || ((await this.wikiCrawls?.findLatestCrawl())?.pendingHosts.length ?? 0) > 0) &&
+        (await this.wikiWebsiteSetupAvailable());
+      return { ok: true as const, wikiCatalog: serializeAgentWikiCatalog(result.data), wikiWebsiteSetup };
+    } catch (error) {
+      if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
+      return { ok: true as const, wikiCatalog: null, wikiWebsiteSetup: false };
+    }
+  }
+
   private async schemaDigest() {
     try {
       const discovery = await this.recordTypes.invoke({ includeEmbedded: false, page: 1, pageSize: 25 });
@@ -277,20 +293,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const turnModel = resolveAgentModel(requestedModelKey, surface);
     const locale = data.locale ?? resolveUserLocale(user);
-    let wikiCatalog: string | null = null;
-    let wikiWebsiteSetup = false;
-    try {
-      const result = await this.wikiCatalog.invoke({ page: 1 });
-      if (!result.ok) return result;
-      wikiCatalog = serializeAgentWikiCatalog(result.data);
-      const wikiEmpty = result.data.total === 0 && !result.data.guide && !result.data.procedures?.total;
-      wikiWebsiteSetup =
-        mode === "interactive" &&
-        (wikiEmpty || ((await this.wikiCrawls?.findLatestCrawl())?.pendingHosts.length ?? 0) > 0) &&
-        (await this.wikiWebsiteSetupAvailable());
-    } catch (error) {
-      if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
-    }
+    const [wikiContext, schemaDigest] = await Promise.all([this.wikiTurnContext(mode), this.schemaDigest()]);
+    if (!wikiContext.ok) return wikiContext.failure;
+    const { wikiCatalog, wikiWebsiteSetup } = wikiContext;
     const toolOptions = {
       locale,
       surface,
@@ -300,7 +305,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts });
-    const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: agentSystemPromptParts({
         userName,

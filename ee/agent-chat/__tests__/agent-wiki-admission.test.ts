@@ -533,15 +533,16 @@ describe("Workspace Wiki admission bootstrap", () => {
   it("execution reauthorizes the catalog but retains the measured snapshot and output allowance", () => {
     const workflow = readFileSync(resolve(process.cwd(), "workflows/agent-turn.ts"), "utf8");
     const authorization = workflow.slice(
-      workflow.indexOf("async function authorizedWikiCatalog("),
-      workflow.indexOf("authorizedWikiCatalog.maxRetries"),
+      workflow.indexOf("async function authorizeWikiCatalog("),
+      workflow.indexOf("function isTurnCancellationRequested("),
     );
     expect(authorization).toContain("getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 })");
     expect(authorization).not.toContain("getGetWikiCatalogInteractor");
     expect(authorization).toContain("return payload.wikiCatalog ?? null");
     expect(authorization).toContain("AppErrorCode.permissionDenied) return null");
     expect(authorization).not.toContain("JSON.stringify(result.data)");
-    expect(workflow).toContain("await authorizedWikiCatalog(payload)");
+    expect(workflow).toContain("authorizeWikiCatalog(payload),");
+    expect(workflow).toContain("started.wikiCatalog,");
     expect(workflow).toContain("maxOutputTokens: payload.turnBudget.maxOutputTokens");
   });
 });

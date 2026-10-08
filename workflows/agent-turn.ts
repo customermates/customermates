@@ -325,9 +325,17 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
   };
 }
 
-async function openTurn(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+type AgentTurnStart =
+  | { providerStarted: false }
+  | { providerStarted: true; shells: AgentToolShell[]; wikiCatalog: string | null; cancelled: boolean };
+
+async function startAgentTurn(
+  payload: AgentTurnWorkflowPayload,
+  surface: AgentTurnSurface,
+  options: AgentToolOptions,
+): Promise<AgentTurnStart> {
   "use step";
-  return runAsBackgroundTenant(payload.userId, () => {
+  const providerStarted = await runAsBackgroundTenant(payload.userId, () => {
     if (getTenantUser().companyId !== payload.companyId) return false;
     return getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
       turnRequestId: payload.turnRequestId,
@@ -337,8 +345,15 @@ async function openTurn(payload: AgentTurnWorkflowPayload): Promise<boolean> {
       runId: payload.runId,
     });
   });
+  if (!providerStarted) return { providerStarted: false };
+  const [shells, wikiCatalog, cancelled] = await Promise.all([
+    agentToolShells(surface, payload.turnBudget.servingProvider, options),
+    authorizeWikiCatalog(payload),
+    isTurnCancellationRequested(payload),
+  ]);
+  return { providerStarted: true, shells, wikiCatalog, cancelled };
 }
-openTurn.maxRetries = 0;
+startAgentTurn.maxRetries = 0;
 
 async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
@@ -352,12 +367,11 @@ async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPaylo
 }
 canStartNextHostedAiProviderRound.maxRetries = 0;
 
-async function loadAgentToolShells(
+async function agentToolShells(
   surface: AgentTurnSurface,
   servingProvider: string,
   options: AgentToolOptions,
 ): Promise<AgentToolShell[]> {
-  "use step";
   const { AGENT_HOSTED_TOOL_ANNOTATIONS, agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
@@ -440,8 +454,7 @@ async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<b
 }
 authorizedWikiSetup.maxRetries = 0;
 
-async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
-  "use step";
+async function authorizeWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
   if (!payload.wikiCatalog) return null;
   const { getGetWikiPagesInteractor } = await import("@/core/di");
   const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
@@ -458,7 +471,6 @@ async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise
     }
   });
 }
-authorizedWikiCatalog.maxRetries = 0;
 
 async function normalizeAgentToolInput(
   payload: AgentTurnWorkflowPayload,
@@ -637,14 +649,18 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   return kind satisfies never;
 }
 
-async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
-  "use step";
+function isTurnCancellationRequested(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   return runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().isAgentTurnCancellationRequestedUnscoped({
       turnRequestId: payload.turnRequestId,
       companyId: payload.companyId,
     }),
   );
+}
+
+async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+  "use step";
+  return isTurnCancellationRequested(payload);
 }
 
 export const AGENT_RESOLVED_PROVIDER_ERROR_RETRIES = 2;
@@ -901,8 +917,13 @@ finalizeTurn.maxRetries = 0;
 export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
   "use workflow";
   try {
-    const providerStarted = await openTurn(payload);
-    if (!providerStarted) {
+    const surface: AgentTurnSurface = payload.surface ?? "chat";
+    const started = await startAgentTurn(payload, surface, {
+      locale: payload.locale,
+      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
+      webSearchEnabled: payload.webSearchEnabled,
+    });
+    if (!started.providerStarted) {
       const message = await resolveRunnerMessage(payload.locale, "hostedAiUnavailable");
       const transcript = new AgentTurnTranscript(() => undefined, payload.appBaseUrl);
       transcript.appendText(message);
@@ -921,13 +942,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await closeTurnStream();
       return;
     }
-    const surface: AgentTurnSurface = payload.surface ?? "chat";
     const approvalWindowMs = approvalWindowMsForSurface(surface);
-    const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
-      locale: payload.locale,
-      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
-      webSearchEnabled: payload.webSearchEnabled,
-    });
+    const { shells } = started;
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];
@@ -959,13 +975,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       systemPrompt,
       payload.messages,
       toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name)),
-      await authorizedWikiCatalog(payload),
+      started.wikiCatalog,
     );
     const auxiliaryCharges: ClassifierCharge[] = [];
     const retrievalTimings: RetrievalTiming[] = [];
 
     let tokens = emptyTokens();
-    let cancelled = await readCancellation(payload);
+    let cancelled = started.cancelled;
+    let admittedByTurnStart = true;
     let roundIndex = 0;
     let appliedThisCall = 0;
     let finishReason = "unknown";
@@ -1553,7 +1570,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             )
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
-          if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
+          if (admittedByTurnStart) admittedByTurnStart = false;
+          else if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           if (webSearchOvershoot) {
             return {
               activeTools: activeTools.filter((toolName) => !isAgentWebTool(toolName)),
