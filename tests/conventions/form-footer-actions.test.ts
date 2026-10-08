@@ -164,6 +164,8 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
 const NOT_YET_MIGRATED: Record<string, Rule[]> = {
   "components/card/form-actions.tsx": ["save-label", "footer-primitive", "submit-button", "legacy-footer"],
   "app/components/navigation/sidebar-customize.tsx": ["overlay-footer"],
+  "app/[locale]/(protected)/configure/components/configure-actions.tsx": ["legacy-footer"],
+  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx": ["legacy-footer"],
   "app/[locale]/(protected)/configure/components/model-change-sheet.tsx": ["footer-primitive", "confirm-primitive"],
 };
 

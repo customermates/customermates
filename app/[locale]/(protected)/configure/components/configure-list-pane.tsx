@@ -25,7 +25,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { ChevronRight, GripVertical, Plus } from "lucide-react";
 
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { FormActions } from "@/components/card/form-actions";
 import { AppForm } from "@/components/forms/form-context";
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
 import { usePreviewBlockers } from "./use-preview-blockers";
@@ -292,14 +292,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                 )}
               </ConfigureGroup>
 
-              {editingGeneral && (
-                <FormFooterActions
-                  editable
-                  dirty={general.hasUnsavedChanges && !general.isReadOnly}
-                  formId={generalFormId}
-                  store={general}
-                />
-              )}
+              {editingGeneral && <FormActions formId={generalFormId} store={general} />}
             </>
           ),
         },
