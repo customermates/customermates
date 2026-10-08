@@ -9,6 +9,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { StackDropdownItem } from "@/components/shared/stack-dropdown-item";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 
+import { cn } from "@/core/utils/cn";
+
 import { AppChip } from "./app-chip";
 
 const moreWidthCache = new Map<string, number>();
@@ -38,6 +40,7 @@ type ChipStackItem = {
   id: string;
   label: string;
   startContent?: ReactNode;
+  variant?: AppChipProps["variant"];
 };
 
 type AppChipProps = ComponentProps<typeof AppChip>;
@@ -228,7 +231,7 @@ export function AppChipStack<T extends ChipStackItem>({
                   className="max-w-full cursor-pointer"
                   size={size}
                   startContent={item.startContent}
-                  variant={variant}
+                  variant={item.variant ?? variant}
                 >
                   <span className="truncate whitespace-nowrap">{item.label}</span>
                 </AppChip>
@@ -261,14 +264,15 @@ export function AppChipStack<T extends ChipStackItem>({
               ? { maxWidth: `${singleVisibleMaxWidth}px` }
               : {};
           const href = chipHref?.(item);
+          const actionable = Boolean(onChipClick || href);
           const chip = (
             <AppChip
-              interactive
-              className="max-w-full min-w-0 shrink cursor-pointer"
+              className={cn("max-w-full min-w-0 shrink", actionable && "cursor-pointer")}
+              interactive={actionable}
               size={size}
               startContent={item.startContent}
               style={style}
-              variant={variant}
+              variant={item.variant ?? variant}
             >
               <span className="truncate whitespace-nowrap">{item.label}</span>
             </AppChip>
@@ -292,6 +296,8 @@ export function AppChipStack<T extends ChipStackItem>({
                   >
                     {chip}
                   </a>
+                ) : !actionable ? (
+                  <span className="relative inline-flex min-w-0 shrink">{chip}</span>
                 ) : (
                   <button
                     aria-label={chipLabel?.(item)}
@@ -336,9 +342,15 @@ export function AppChipStack<T extends ChipStackItem>({
                     else if (href) navigateToHref(href);
                   }}
                 >
-                  {item.startContent}
+                  {item.variant ? (
+                    <AppChip variant={item.variant}>{item.label}</AppChip>
+                  ) : (
+                    <>
+                      {item.startContent}
 
-                  {item.label}
+                      {item.label}
+                    </>
+                  )}
                 </StackDropdownItem>
               );
             })}

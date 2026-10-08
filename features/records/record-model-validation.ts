@@ -23,7 +23,17 @@ export type ModelIssue = {
   relationId?: string;
 };
 
+export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select"];
+
+export function selectedOptionIds(value: RecordScalar | null): string[] {
+  if (!value) return [];
+  if (value.kind === "select") return [value.value];
+  if (value.kind === "selectList") return value.value;
+  return [];
+}
+
 export function scalarMatchesType(value: RecordScalar, type: RecordValueType, multiple = false): boolean {
+  if (multiple && type === "select") return value.kind === "selectList";
   if (multiple) {
     return (
       value.kind === "textList" &&
@@ -82,6 +92,7 @@ function primitiveType(value: RecordScalar | null): RecordValueType | null {
   if (value.kind === "decimal") return value.currency ? "currency" : "number";
   if (value.kind === "range") return "dateRange";
   if (value.kind === "textList") return "text";
+  if (value.kind === "selectList") return null;
   return value.kind;
 }
 
@@ -117,6 +128,7 @@ export function validateRecordModel(model: RecordModel): {
     if (expression.kind === "field" || expression.kind === "optionAttribute") {
       const field = fields.get(expression.fieldId);
       if (!field || field.archived || field.typeId !== typeId) return invalid("invalid_field_reference");
+      if (field.valueType === "select" && field.multiple) return invalid("multiple_choice_not_calculable");
       if (expression.kind === "field") return normalizeType(field.valueType);
       if (field.valueType !== "select") return invalid("option_attribute_requires_select");
       const attributeTypes = new Set(
@@ -371,8 +383,10 @@ export function validateRecordModel(model: RecordModel): {
     }
   }
   for (const field of model.fields) {
-    if (field.multiple && !["text", "email", "phone", "url"].includes(field.valueType))
+    if (field.multiple && !MULTIPLE_VALUE_TYPES.includes(field.valueType))
       issues.push({ code: "invalid_multiple_value_type", fieldId: field.id });
+    if (field.valueType === "select" && field.multiple && field.behavior.kind !== "input")
+      issues.push({ code: "multiple_choice_requires_input", fieldId: field.id });
     if (!types.has(field.typeId)) issues.push({ code: "invalid_field_type", fieldId: field.id });
     if (new Set(field.options.map((option) => option.id)).size !== field.options.length)
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
@@ -381,7 +395,10 @@ export function validateRecordModel(model: RecordModel): {
     if (field.behavior.kind === "input") {
       if (
         field.behavior.defaultValue &&
-        !scalarMatchesType(field.behavior.defaultValue, field.valueType, field.multiple)
+        (!scalarMatchesType(field.behavior.defaultValue, field.valueType, field.multiple) ||
+          !selectedOptionIds(field.behavior.defaultValue).every((id) =>
+            field.options.some((option) => option.id === id),
+          ))
       )
         issues.push({ code: "invalid_default", fieldId: field.id });
       continue;
@@ -394,6 +411,7 @@ export function validateRecordModel(model: RecordModel): {
         trigger.typeId !== field.typeId ||
         trigger.archived ||
         trigger.behavior.kind !== "input" ||
+        trigger.multiple ||
         !field.behavior.triggerValue ||
         !scalarMatchesType(field.behavior.triggerValue, trigger.valueType)
       )

@@ -7,6 +7,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import type { CalculatedValue, RecordFieldView } from "@/features/records/record-model.schema";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { toChipColor } from "@/constants/chip-colors";
 
 export function EmptyValue() {
@@ -34,6 +35,20 @@ export const RecordValue = observer(function RecordValue({
     const option = field.options.find((option) => option.id === value.value);
     return (
       <AppChip variant={toChipColor(option?.color)}>{option?.label ?? t("RecordModel.unavailableOption")}</AppChip>
+    );
+  }
+  if (value.kind === "selectList") {
+    return (
+      <AppChipStack
+        items={value.value.map((id) => {
+          const option = field.options.find((option) => option.id === id);
+          return {
+            id,
+            label: option?.label ?? t("RecordModel.unavailableOption"),
+            variant: toChipColor(option?.color),
+          };
+        })}
+      />
     );
   }
   if (value.kind === "boolean") return <span>{value.value ? t("RecordModel.yes") : t("RecordModel.no")}</span>;

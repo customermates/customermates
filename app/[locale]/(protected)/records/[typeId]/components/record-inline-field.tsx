@@ -137,7 +137,7 @@ export const RecordInlineField = observer(function RecordInlineField({
 }) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
-  if (field.valueType === "select") {
+  if (field.valueType === "select" && !field.multiple) {
     return (
       <InlineSelect field={field} record={record} records={records}>
         {children}

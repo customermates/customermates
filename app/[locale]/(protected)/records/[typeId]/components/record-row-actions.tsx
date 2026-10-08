@@ -30,19 +30,24 @@ export function recordRowName(store: RecordsStore, record: RecordRow) {
 
 function RowAction({
   label,
-  className,
+  variant,
   onClick,
   icon,
 }: {
   label: string;
-  className?: string;
+  variant?: "destructive";
   onClick: () => void;
   icon: React.ReactNode;
 }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button aria-label={label} className={cn(actionClass, className)} type="button" onClick={onClick}>
+        <button
+          aria-label={label}
+          className={cn(actionClass, variant && "text-destructive hover:bg-destructive/10 hover:text-destructive")}
+          type="button"
+          onClick={onClick}
+        >
           {icon}
         </button>
       </TooltipTrigger>
@@ -82,9 +87,9 @@ export const RecordRowActions = observer(function RecordRowActions({
 
       {canDelete && (
         <RowAction
-          className="hover:bg-destructive/10 hover:text-destructive"
           icon={<Trash2 aria-hidden />}
           label={t("RecordModel.deleteRecord", { name })}
+          variant="destructive"
           onClick={() => runUserAction(() => deletion.requestDeletion(record, store.presentation.model.revision, name))}
         />
       )}

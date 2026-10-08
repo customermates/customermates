@@ -64,7 +64,7 @@ Relationship filters are separate from field filters. Specify `relationId`, `dir
 
 ### How do I filter by a custom field, and which operators work on it? [#which-operators-work-on-custom-columns]
 
-Use the field's ID from `get_record_model`, never its editable label. An input, formula, lookup, or rollup field can be filtered when its value type supports the operator and the reader may access the value. Select filters use stable option IDs. The same rule applies to seeded fields and fields on customer-created types.
+Use the field's ID from `get_record_model`, never its editable label. An input, formula, lookup, or rollup field can be filtered when its value type supports the operator and the reader may access the value. Select filters use stable option IDs. A multiple choice field takes `in` (has any of the options), `all` (has all of them), `notIn` (has none of them, including records without a value), `empty`, and `notEmpty`; it cannot be sorted. The same rule applies to seeded fields and fields on customer-created types.
 
 ## Which field names can I use?
 
