@@ -35,7 +35,7 @@ Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten den Dialog 
 
 Verwenden Sie einen HTTPS-Endpunkt. Eine reine `http://`-URL wird für jeden Host akzeptiert, solange der Webhook keine eigenen Header hat. Ein Webhook mit eigenen Headern muss `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Diese Regel wird beim Speichern und erneut vor jeder Zustellung geprüft.
 
-**Link:** `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`, danach `highlight_element` mit `company-webhooks-add` für **Hinzufügen** (nur vorhanden mit **Erstellen** bei **API & Webhooks**). Im Dialog **Webhook**, geöffnet über **Hinzufügen** (Voraussetzung `company-webhooks-add`) oder eine Zeile, heben `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` und `webhook-modal-enabled` die Felder der Tabelle oben hervor, ohne **Bearbeiten** (bei einem neuen Webhook **Erstellen**) schreibgeschützt; `webhook-modal-save` und `webhook-modal-cancel` heben **Speichern** und **Abbrechen** für Rollen mit **Erstellen** bei einem neuen oder **Bearbeiten** bei einem gespeicherten Webhook hervor, `webhook-modal-delete` hebt **Löschen** für Rollen mit **Löschen** hervor. Die Listen-Controls stehen unter [Mein Unternehmen](/docs/app-company#webhooks-tab).
+**Link:** `/settings/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks`, danach `highlight_element` mit `settings-webhooks-add` für **Hinzufügen** (nur vorhanden mit **Erstellen** bei **API & Webhooks**). Im Dialog **Webhook**, geöffnet über **Hinzufügen** (Voraussetzung `settings-webhooks-add`) oder eine Zeile, heben `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` und `webhook-modal-enabled` die Felder der Tabelle oben hervor, ohne **Bearbeiten** (bei einem neuen Webhook **Erstellen**) schreibgeschützt; `webhook-modal-save` und `webhook-modal-cancel` heben **Speichern** und **Abbrechen** für Rollen mit **Erstellen** bei einem neuen oder **Bearbeiten** bei einem gespeicherten Webhook hervor, `webhook-modal-delete` hebt **Löschen** für Rollen mit **Löschen** hervor. Die Listen-Controls stehen unter [Mein Unternehmen](/docs/app-company#webhooks-tab).
 
 ## Welche Datensätze lösen einen Webhook aus, und mit wessen Zugriff wird zugestellt? [#record-event-sources]
 
@@ -57,7 +57,7 @@ Für Datensatzereignisse wählen Sie den Quelltyp aus und ergänzen bei Bedarf b
 }
 ```
 
-**Link:** `/company/webhooks`. **Mate:** liest mit `get_record_model` die Typ- und Feld-IDs und nutzt dann `manage_webhooks`.
+**Link:** `/settings/webhooks`. **Mate:** liest mit `get_record_model` die Typ- und Feld-IDs und nutzt dann `manage_webhooks`.
 
 ## Wer kann Webhooks sehen und ändern? [#who-can-see-and-change-webhooks]
 
@@ -75,7 +75,7 @@ Dieselbe Zeile steuert auch **Mein Profil** → **API & Konnektoren**. Eine Roll
 
 Die Rolle **Admin** darf alles. Webhooks sind an keinen Tarif gebunden und funktionieren in jedem Cloud-Tarif sowie in einer selbstgehosteten Installation. Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und im gehosteten Assistenten. Im gehosteten Assistenten fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
 
-**Link:** `/company/webhooks` und `/company/webhook-deliveries`, und für die Zeile **API & Webhooks** der Rolle `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`, `nav-company-webhook-deliveries` oder `nav-company-roles`; in einem geöffneten Dialog **Webhook** heben `webhook-modal-secret` und `webhook-modal-headers` **Secret** und **Eigene Header** hervor. Die Zeilen der Rollen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/settings/webhooks` und `/settings/webhooks/deliveries`, und für die Zeile **API & Webhooks** der Rolle `/settings/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks`, `nav-settings-webhooks` oder `nav-settings-roles`; in einem geöffneten Dialog **Webhook** heben `webhook-modal-secret` und `webhook-modal-headers` **Secret** und **Eigene Header** hervor. Die Zeilen der Rollen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie sieht der Payload aus? [#what-does-the-payload-look-like]
 
@@ -157,11 +157,11 @@ Die Vorlage darf bis zu 8.192 Zeichen lang sein und muss ein JSON-Objekt ergeben
 
 Zustellungen werden mit dem Ereignis-Payload erfasst, nicht mit dem gerenderten Body. **Ereignis-Details** zeigt also das ausgelöste Ereignis und nicht die exakt gesendeten Bytes.
 
-**Link:** `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`; in einem geöffneten Dialog **Webhook** heben `webhook-modal-headers` und `webhook-modal-body-template` **Eigene Header** und **Body-Vorlage** hervor, ohne **Bearbeiten** bei **API & Webhooks** schreibgeschützt.
+**Link:** `/settings/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks`; in einem geöffneten Dialog **Webhook** heben `webhook-modal-headers` und `webhook-modal-body-template` **Eigene Header** und **Body-Vorlage** hervor, ohne **Bearbeiten** bei **API & Webhooks** schreibgeschützt.
 
 ## Wie sende ich an Slack, Discord oder n8n? [#how-do-i-send-to-slack-discord-or-n8n]
 
-Jedes Rezept nennt die URL, die eigenen Header und die Body-Vorlage zum Einfügen in den Dialog **Webhook** unter **Mein Unternehmen** → **Webhooks** → **Hinzufügen**. Setzen Sie in jedem Fall ein Signaturgeheimnis; ein Empfänger, der es nicht prüfen kann, ignoriert den Header einfach.
+Mit diesen Rezepten posten Sie eine Nachricht in einen Team-Chat-Kanal oder starten einen Workflow, sobald im CRM etwas passiert, zum Beispiel wenn ein neuer Deal erscheint. Jedes Rezept nennt die URL, die eigenen Header und die Body-Vorlage zum Einfügen in den Dialog **Webhook** unter **Einstellungen** → **Webhooks** → **Hinzufügen**. Setzen Sie in jedem Fall ein Signaturgeheimnis; ein Empfänger, der es nicht prüfen kann, ignoriert den Header einfach.
 
 ### Claude-Code-Routinen [#claude-code-routines]
 
@@ -253,7 +253,7 @@ function verify(rawBody: string, received: string, secret: string) {
 
 ## Wie funktionieren Wiederholungen (Retries) und fehlgeschlagene Zustellungen? [#how-do-retries-and-failed-deliveries-work]
 
-Customermates wiederholt eine fehlgeschlagene Zustellung automatisch, mit bis zu 10 Versuchen insgesamt und wachsenden Pausen von höchstens einer Stunde dazwischen, bei Timeouts, Netzwerkfehlern, 5xx-Responses und 408, 425 und 429; andere 4xx-Responses, etwa 400, 401, 403, 404 und 422, werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Jede Zustellung wird unter **Mein Unternehmen › Letzte Zustellungen** (`/company/webhook-deliveries`) und über `manage_webhooks` mit `action: "list_deliveries"` protokolliert. Die Seite listet die neuesten Zustellungen zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Das Suchfeld durchsucht Ereignis und URL, die Filter decken Ereignis, URL und Erstellungsdatum ab. Zustellungen werden nicht automatisch gelöscht; sie bleiben erhalten, solange der Workspace besteht.
+Customermates wiederholt eine fehlgeschlagene Zustellung automatisch, mit bis zu 10 Versuchen insgesamt und wachsenden Pausen von höchstens einer Stunde dazwischen, bei Timeouts, Netzwerkfehlern, 5xx-Responses und 408, 425 und 429; andere 4xx-Responses, etwa 400, 401, 403, 404 und 422, werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Jede Zustellung wird unter **Mein Unternehmen › Letzte Zustellungen** (`/settings/webhooks/deliveries`) und über `manage_webhooks` mit `action: "list_deliveries"` protokolliert. Die Seite listet die neuesten Zustellungen zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Das Suchfeld durchsucht Ereignis und URL, die Filter decken Ereignis, URL und Erstellungsdatum ab. Zustellungen werden nicht automatisch gelöscht; sie bleiben erhalten, solange der Workspace besteht.
 
 Ein Klick auf eine Zeile öffnet **Ereignis-Details**. Der Dialog zeigt den Status (**Ausstehend**, bis der erste Versuch abgeschlossen ist, danach **Zugestellt** oder **Fehlgeschlagen**), **URL**, **Ereignis**, **Element**, **Erstellt am**, **Status-Code**, **Antwort-Nachricht** und den **Ereignis-Payload**. Jede Zustellung wird aus ihrem Event gelesen: Der Payload eines Messaging-Ereignisses wird so angezeigt, wie er gesendet wurde, der Payload eines Datensatz-Ereignisses wird mit Ihren aktuellen Rechten neu gelesen: Werte, die Sie nicht lesen dürfen, erscheinen als eingeschränkt, und ohne Zugriff auf den Datensatz bleibt der Payload leer.
 
@@ -263,7 +263,7 @@ Die Wiederholungen laufen innerhalb desselben Zustellvorgangs, erzeugen also kei
 
 Sie können eine Zustellung zusätzlich selbst erneut senden. In **Ereignis-Details** erscheint oben das Symbol mit den kreisförmigen Pfeilen (**Erneut senden**), sobald die Zustellung **Zugestellt** oder **Fehlgeschlagen** ist, für Rollen mit **Erstellen** bei **API & Webhooks**. Über MCP nutzen Sie `manage_webhooks` mit `action: "resend_delivery"` und der Id der Zustellung. Ein erneutes Senden erzeugt einen neuen Zustellungseintrag für denselben Webhook und sendet ihn mit der aktuellen URL, dem aktuellen Secret, den aktuellen Headern und der aktuellen Vorlage des Webhooks; das Original bleibt unverändert. Ein Messaging-Ereignis wird aus seinem gespeicherten Event erneut gesendet. Ein Datensatz-Ereignis wird mit den aktuellen Rechten des Webhook-Eigentümers neu gelesen; nur dieser Eigentümer oder ein Administrator kann es erneut senden, und das erneute Senden wird abgelehnt, wenn sich die Datensatzquellen des Webhooks seit der ursprünglichen Zustellung geändert haben. Der Webhook muss noch existieren, aktiviert sein und das Ereignis abonnieren; Zustellungen stillgelegter typspezifischer Ereignisse lassen sich nicht erneut senden.
 
-**Link:** `/company/webhook-deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhook-deliveries` (hervorhebbar nur, solange **Mein Unternehmen** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat); `company-webhook-deliveries-search` und `company-webhook-deliveries-filter` heben das Suchfeld und die Filter hervor. `company-webhook-deliveries-display-options` hebt die Anzeigeoptionen hervor, `company-webhook-deliveries-layout-table` und `company-webhook-deliveries-layout-board` die Layout-Controls darin (zuerst die Anzeigeoptionen öffnen). Ist eine Zustellungszeile geöffnet, hebt `webhook-delivery-modal-resend` das Symbol **Erneut senden** in **Ereignis-Details** hervor (Rollen mit **Erstellen**, nur bei zugestellten und fehlgeschlagenen Zustellungen); die Zeilen und der Rest des Dialogs sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/settings/webhooks/deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks` (hervorhebbar nur, solange **Mein Unternehmen** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat); `settings-webhooks-deliveries-search` und `settings-webhooks-deliveries-filter` heben das Suchfeld und die Filter hervor. `settings-webhooks-deliveries-display-options` hebt die Anzeigeoptionen hervor, `settings-webhooks-deliveries-layout-table` und `settings-webhooks-deliveries-layout-board` die Layout-Controls darin (zuerst die Anzeigeoptionen öffnen). Ist eine Zustellungszeile geöffnet, hebt `webhook-delivery-modal-resend` das Symbol **Erneut senden** in **Ereignis-Details** hervor (Rollen mit **Erstellen**, nur bei zugestellten und fehlgeschlagenen Zustellungen); die Zeilen und der Rest des Dialogs sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Sind Zustellungen geordnet, und kommen Webhooks in der richtigen Reihenfolge an? [#are-deliveries-ordered]
 
@@ -283,7 +283,7 @@ Bei `record.deleted` enthält `data.record` die eindeutige `ref`, die zulässige
 - Das Zustellprotokoll (`manage_webhooks`, `action: "list_deliveries"`) unterstützt `searchTerm` auf URL und Event-Name.
 - Für jede Zustellung erfasst Customermates nur den HTTP-Status-Code und den Statustext, den Ihr Receiver zurückgegeben hat (zum Beispiel `404` und `Not Found`), angezeigt als **Status-Code** und **Antwort-Nachricht** in **Ereignis-Details**. Der Response-Body wird nicht gespeichert, protokollieren Sie ihn also auf der Empfängerseite. Trifft keine Antwort ein, zeigt **Status-Code** einen Strich (in der Liste bleibt die Spalte leer) und **Antwort-Nachricht** nennt die Ursache, etwa den Timeout.
 
-**Link:** `/company/webhook-deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhook-deliveries`; die Zeilen und die Felder in **Ereignis-Details** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/settings/webhooks/deliveries`. **Mate:** `navigate` und `highlight_element` mit `nav-settings-webhooks`; die Zeilen und die Felder in **Ereignis-Details** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 

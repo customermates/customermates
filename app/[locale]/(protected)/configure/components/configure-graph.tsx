@@ -48,7 +48,10 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { upsertP13nAction } from "@/app/actions";
 import { CONFIGURE_GRAPH_P13N_ID } from "@/features/p13n/p13n-settings.schema";
 
-import { accountStatusChipColor, getProviderDisplayLabel } from "../../profile/components/account-status-color";
+import {
+  accountStatusChipColor,
+  getProviderDisplayLabel,
+} from "@/app/[locale]/(protected)/settings/(account)/components/account-status-color";
 import {
   configureEdgeGeometry,
   configureGraphLayout,
@@ -58,6 +61,7 @@ import {
   GRAPH_VISIBLE_FIELDS,
 } from "./configure-graph-layout";
 import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 import { recordFieldTypeKey } from "@/features/records/record-input-value";
 import { isResolvedField } from "./configure-model";
 
@@ -123,7 +127,7 @@ function NodeHandles({ connectable }: { connectable: boolean }) {
   ));
 }
 
-const CONNECTED_ACCOUNTS_HREF = "/profile/connected-accounts";
+const CONNECTED_ACCOUNTS_HREF = settingsHref("channels");
 
 type ListNode = Node<{ list: ConfigureGraphList }, "list">;
 type AccountsNode = Node<{ accounts: ConfigureGraphSource[] }, "accounts">;
@@ -369,7 +373,7 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
 
       <div className="px-3.5 pt-2 pb-3">
         <Button asChild className="nodrag" size="xs" variant="secondary">
-          <AppLink appearance="unstyled" href={state === "locked" ? "/company/subscription" : CONNECTED_ACCOUNTS_HREF}>
+          <AppLink appearance="unstyled" href={state === "locked" ? settingsHref("billing") : CONNECTED_ACCOUNTS_HREF}>
             {state === "locked" ? t("MessagingUpsell.cta") : t("ConnectedAccountsCard.connectAccount")}
           </AppLink>
         </Button>

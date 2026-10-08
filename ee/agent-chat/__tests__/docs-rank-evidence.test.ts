@@ -533,7 +533,7 @@ describe("bounded classifier evidence", () => {
 
   it("matches canonical code identifiers before removing structural markdown", () => {
     const excerpt = docsRankEvidence(
-      "Unrelated history.\n- Call `manage_record_links` to replace the link.\n**Link:** `/company/roles`.",
+      "Unrelated history.\n- Call `manage_record_links` to replace the link.\n**Link:** `/settings/roles`.",
       "manage_record_links",
       70,
     );

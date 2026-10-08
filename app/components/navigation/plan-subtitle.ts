@@ -5,10 +5,7 @@ export type PlanChipVariant = "success" | "warning" | "destructive";
 export type PlanChipModel = {
   label: string;
   variant: PlanChipVariant;
-  href: string;
 };
-
-export const SUBSCRIPTION_PAGE_HREF = "/company/subscription";
 
 const URGENT_TRIAL_DAYS = 3;
 
@@ -44,11 +41,11 @@ export function resolvePlanChip(
   const variant = statusVariant(status, trialDaysLeft);
   const text = statusText(status, trialDaysLeft, t);
 
-  if (!plan || !localizedPlans.has(plan)) return { label: text, variant, href: SUBSCRIPTION_PAGE_HREF };
+  if (!plan || !localizedPlans.has(plan)) return { label: text, variant };
 
   const planName = t(`Subscription.planNames.${plan}`);
 
   const label = status === "active" ? planName : t("Subscription.planStatusLabel", { plan: planName, status: text });
 
-  return { label, variant, href: SUBSCRIPTION_PAGE_HREF };
+  return { label, variant };
 }

@@ -48,7 +48,7 @@ describe("AgentActivity", () => {
               kind: "views.configure" as const,
               affectedResources: [],
               risk: "write" as const,
-              viewHref: "/company/webhooks?view=__all__",
+              viewHref: "/settings/webhooks?view=__all__",
             },
             status: "done" as const,
           },
@@ -56,7 +56,7 @@ describe("AgentActivity", () => {
       }),
     );
 
-    expect(html).toContain('href="/company/webhooks?view=__all__"');
+    expect(html).toContain('href="/settings/webhooks?view=__all__"');
     expect(html).toContain("AgentChat.openSavedView");
     expect(html.match(/AgentChat\.activity\.state\.views\.configure\.done/g)).toHaveLength(1);
     expect(html).not.toContain('data-slot="collapsible-trigger"');

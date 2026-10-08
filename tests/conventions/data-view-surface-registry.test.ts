@@ -65,7 +65,7 @@ describe("data view surface registry", () => {
 
   it("mounts both activity surfaces from the activities panel rather than from a page loader", () => {
     expect(DATA_VIEW_PATHS[SURFACE.entityTimeline]).toBeNull();
-    expect(DATA_VIEW_PATHS[SURFACE.activity]).toBe("/company/activity");
+    expect(DATA_VIEW_PATHS[SURFACE.activity]).toBe("/settings/activity");
     expect(read("features/messaging/activities/record-activity-views.store.ts")).toContain(
       "this.p13nId = record ? SURFACE.entityTimeline : SURFACE.activity",
     );

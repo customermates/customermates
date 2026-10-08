@@ -10,7 +10,7 @@ import esMessages from "@/i18n/locales/es.json";
 import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
 
-import { resolvePlanChip, SUBSCRIPTION_PAGE_HREF } from "../plan-subtitle";
+import { resolvePlanChip } from "../plan-subtitle";
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
@@ -41,7 +41,7 @@ describe("resolvePlanChip", () => {
 
     for (const [plan, planName] of cases) {
       const chip = resolvePlanChip({ status: "active", plan, trialDaysLeft: null }, en);
-      expect(chip).toEqual({ label: planName, variant: "success", href: SUBSCRIPTION_PAGE_HREF });
+      expect(chip).toEqual({ label: planName, variant: "success" });
     }
   });
 
@@ -91,7 +91,6 @@ describe("resolvePlanChip", () => {
     expect(resolvePlanChip({ status: "cancelled", plan: "enterprise", trialDaysLeft: null }, en)).toEqual({
       label: "Enterprise · Cancelled",
       variant: "destructive",
-      href: SUBSCRIPTION_PAGE_HREF,
     });
     expect(resolvePlanChip({ status: "pastDue", plan: "business", trialDaysLeft: null }, en)?.label).toBe(
       "Business · Past Due",
@@ -114,19 +113,10 @@ describe("resolvePlanChip", () => {
     const unknownPlan = "legacy" as SubscriptionPlan;
 
     const active = resolvePlanChip({ status: "active", plan: unknownPlan, trialDaysLeft: null }, en);
-    expect(active).toEqual({ label: "Active", variant: "success", href: SUBSCRIPTION_PAGE_HREF });
+    expect(active).toEqual({ label: "Active", variant: "success" });
     expect(active?.label).not.toContain("legacy");
 
     const cancelled = resolvePlanChip({ status: "cancelled", plan: unknownPlan, trialDaysLeft: null }, en);
-    expect(cancelled).toEqual({ label: "Cancelled", variant: "destructive", href: SUBSCRIPTION_PAGE_HREF });
-  });
-
-  it("keeps the subscription page as the chip destination for every rendered state", () => {
-    const states = [
-      resolvePlanChip({ status: "active", plan: "pro", trialDaysLeft: null }, en),
-      resolvePlanChip({ status: "trial", plan: "pro", trialDaysLeft: 2 }, en),
-      resolvePlanChip({ status: "pastDue", plan: "business", trialDaysLeft: null }, en),
-    ];
-    for (const chip of states) expect(chip?.href).toBe("/company/subscription");
+    expect(cancelled).toEqual({ label: "Cancelled", variant: "destructive" });
   });
 });

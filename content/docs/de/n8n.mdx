@@ -30,7 +30,7 @@ Prüfen Sie die Signatur und verwenden Sie in weiteren Schritten die Ereignis-ID
 
 Der [Webhook-Guide](/docs/webhooks) beschreibt Payloads, Wiederholungen und Signaturprüfung. Zustellungen können mehrfach oder in anderer Reihenfolge eintreffen; deduplizieren Sie anhand der Ereignis-ID.
 
-**Link:** `/company/webhooks`. **Mate:** **Webhooks** öffnen, **Hinzufügen** wählen und **URL**, **Ereignisse**, Datensatzquelle und **Secret** setzen.
+**Link:** `/settings/webhooks`. **Mate:** **Webhooks** öffnen, **Hinzufügen** wählen und **URL**, **Ereignisse**, Datensatzquelle und **Secret** setzen.
 
 ## Wie kann ich aus n8n Datensätze anlegen, lesen, ändern oder löschen? [#how-do-i-write-to-customermates-from-n8n]
 
@@ -67,7 +67,7 @@ Mit dem Zeitplan-Trigger von n8n und der Datensatz-API können Sie passende Date
 
 Erstellen Sie unter **Mein Profil → API & Konnektoren** einen API-Key. Speichern Sie ihn als n8n-**Header Auth**-Credential namens `x-api-key` und verwenden Sie dieselbe Credential in allen Nodes. Der Key erbt die Rechte seines Besitzers. Ein falscher, abgelaufener oder gelöschter Key führt zu einem Authentifizierungsfehler; ein inaktiver Besitzer kann nicht handeln. Siehe [API-Keys](/docs/api-keys).
 
-**Link:** `/profile/api-keys`. **Mate:** **API & Konnektoren** öffnen und, falls die Rolle es erlaubt, einen **Standard API-Key** erstellen.
+**Link:** `/settings/api-keys`. **Mate:** **API & Konnektoren** öffnen und, falls die Rolle es erlaubt, einen **Standard API-Key** erstellen.
 
 ## Was sind häufige Stolperfallen? [#what-are-the-common-gotchas]
 

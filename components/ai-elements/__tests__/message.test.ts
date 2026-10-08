@@ -154,7 +154,7 @@ describe("MessageResponse links", () => {
         null,
         [
           "[Bad link](javascript:alert(1))",
-          "[Upper](HTTP://LOCALHOST:4012/company/roles)",
+          "[Upper](HTTP://LOCALHOST:4012/settings/roles)",
           "[No slash](company/subscription)",
           "![Bad image](javascript:alert(1))",
         ].join(" "),
@@ -211,7 +211,7 @@ describe("MessageResponse links", () => {
       kind: "resource",
       href: "/en/raw/docs/connect-cli.md",
     });
-    expect(messageLinkTarget("/profile/api-keys", page)).toEqual({ kind: "app", href: "/profile/api-keys" });
+    expect(messageLinkTarget("/settings/api-keys", page)).toEqual({ kind: "app", href: "/settings/api-keys" });
   });
 
   it("links the MCP address without a locale prefix", () => {

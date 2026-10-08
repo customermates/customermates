@@ -133,11 +133,15 @@ const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widg
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map((recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`);
+const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map(
+  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`,
+);
 const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_STARTER_RECIPES.map(
   (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.description`,
 );
-const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map((interval) => `RecordWidgets.intervals.${interval}`);
+const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map(
+  (interval) => `RecordWidgets.intervals.${interval}`,
+);
 const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
   (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
@@ -640,11 +644,11 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
 
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
   [
-    "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
+    "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
     FEEDBACK_DESCRIPTION_KEYS,
   ],
   [
-    "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
+    "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
     FEEDBACK_TITLE_KEYS,
   ],
   ["components/data-view/use-column-label.ts :: t :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
@@ -667,22 +671,22 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.${key}",
   'app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.condition${index === 0 ? "If" : index === 1 ? "Then" : "Otherwise"}',
   'app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.range${end === "start" ? "Start" : "End"}',
-  "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
-  "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
-  "app/[locale]/(protected)/company/components/role/role-modal.tsx :: t :: RoleModal.resources.${resource}",
-  "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t :: Subscription.planNames.${plan}",
-  "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t.raw :: Subscription.picker.features.${plan}",
-  "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}",
-  "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",
-  "app/[locale]/(protected)/company/components/user/use-member-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
-  "app/[locale]/(protected)/company/components/user/user-modal.tsx :: t :: Common.userStatuses.${key}",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-columns.tsx :: t :: Common.events.${event}",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns.tsx :: t :: Common.events.${row.original.event}",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${row.original.status}",
-  "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: Common.events.${delivery.event}",
-  "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${delivery.status}",
-  "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${event}",
-  "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
+  "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
+  "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
+  "app/[locale]/(protected)/settings/(workspace)/components/role/role-modal.tsx :: t :: RoleModal.resources.${resource}",
+  "app/[locale]/(protected)/settings/(workspace)/components/subscription/plan-picker.tsx :: t :: Subscription.planNames.${plan}",
+  "app/[locale]/(protected)/settings/(workspace)/components/subscription/plan-picker.tsx :: t.raw :: Subscription.picker.features.${plan}",
+  "app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}",
+  "app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",
+  "app/[locale]/(protected)/settings/(workspace)/components/user/use-member-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
+  "app/[locale]/(protected)/settings/(workspace)/components/user/user-modal.tsx :: t :: Common.userStatuses.${key}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-columns.tsx :: t :: Common.events.${event}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns.tsx :: t :: Common.events.${row.original.event}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${row.original.status}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-delivery-modal.tsx :: t :: Common.events.${delivery.event}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-delivery-modal.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${delivery.status}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-modal.tsx :: t :: Common.events.${event}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.reducers.${reducer}",
   "app/[locale]/(protected)/configure/components/calculation-path.tsx :: t :: RecordModel.${key}",
@@ -742,16 +746,17 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Subscription.planNames.${workspace.plan}",
   "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
   "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
-  "app/[locale]/(protected)/profile/components/account-status-color.ts :: t :: Common.providers.${account.provider}",
-  "app/[locale]/(protected)/profile/components/api-key-modal.tsx :: t :: OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}",
-  "app/[locale]/(protected)/profile/components/connected-account-modal.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
-  "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.locales.${key}",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.themes.${systemTheme}",
-  "app/[locale]/(protected)/profile/components/signature-template-picker.tsx :: t :: ConnectedAccountsCard.signatureTemplates.${template}",
-  "app/[locale]/(protected)/profile/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
+  "app/[locale]/(protected)/settings/(account)/components/account-status-color.ts :: t :: Common.providers.${account.provider}",
+  "app/[locale]/(protected)/settings/(account)/components/api-key-modal.tsx :: t :: OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}",
+  "app/[locale]/(protected)/settings/(account)/components/connected-account-modal.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/components/app-sidebar.tsx :: t :: Common.locales.${value}",
+  "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
+  "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${key}",
+  "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
+  "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${systemTheme}",
+  "app/[locale]/(protected)/settings/(account)/components/signature-template-picker.tsx :: t :: ConnectedAccountsCard.signatureTemplates.${template}",
+  "app/[locale]/(protected)/settings/(account)/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
   "app/[locale]/(protected)/records/[typeId]/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
   "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
@@ -911,18 +916,25 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx :: t :: option.labelKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey", 1],
+  [
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx :: t :: option.labelKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey",
+    1,
+  ],
   ["app/[locale]/(static)/docs/[slug]/page.tsx :: t :: navKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
   ["app/[locale]/(static)/docs/openapi/page.tsx :: t :: navKey", 1],
   ["app/[locale]/(static)/docs/page.tsx :: t :: navKey", 1],
-  ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 3],
-  ["app/components/app-topbar-crumbs.ts :: t :: leafKey", 1],
-  ["app/components/app-topbar-crumbs.ts :: t :: operatorSubroute.labelKey", 1],
-  ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 2],
+  ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
+  ["app/components/app-topbar-crumbs.ts :: t :: labelKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
   [
@@ -957,7 +969,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
-    'features/messaging/activities/change-value.tsx :: t :: action === "update" ? "RoleModal.edit" : action === "delete" ? "RoleModal.delete" : "RoleModal.create"',
+    'features/messaging/activities/change-value.tsx :: t :: action === "update" ? "RoleModal.edit" : action === "delete" ? "Common.actions.delete" : "RoleModal.create"',
     1,
   ],
   ["features/records/workspace-record-preset.ts :: t :: key", 1],
@@ -1124,24 +1136,11 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     keys: ["OnboardingForm.agreeToTerms", "OnboardingForm.invitedAgreeToTerms"],
   },
   {
-    file: "app/components/app-topbar-crumbs.ts",
-    keys: ["UserAvatar.settings"],
-    evidence: {
-      "UserAvatar.settings": [
-        { kind: "template", value: "`UserAvatar.${entry.labelKey}`" },
-        {
-          kind: "property",
-          value: 'settings: { group: "settings", labelKey: "settings" }',
-        },
-      ],
-    },
-  },
-  {
     file: "ee/messaging/connect/create-auth-link.interactor.ts",
     keys: ["ConnectedAccountsCard.accountLimitReached", "ConnectedAccountsCard.upgradeToBusinessForMoreAccounts"],
   },
   {
-    file: "app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx",
+    file: "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx",
     keys: [
       "ConnectedAccountsCard.alreadyExistsToastDescription",
       "ConnectedAccountsCard.alreadyExistsToastTitle",
@@ -1167,7 +1166,7 @@ const NAMESPACE_PATTERN = /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\
 const TRANSLATOR_NAMESPACE_PATTERN = /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
 const STRING_LITERAL_PATTERN = /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
 const INDIRECT_TRANSLATION_KEY_PATTERN =
-  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
+  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|successKey|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
 const TOAST_CALL_PATTERN = /toast(?:Success|Error)\(([\s\S]*?)\);/g;
 
 function loadCatalogPaths(): {

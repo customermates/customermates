@@ -126,8 +126,8 @@ describe("agent saved-view management", () => {
       action: "surfaces",
       total: 4,
       items: [
-        { surfaceKey: SURFACE.users, label: "Members", path: "/company/members" },
-        { surfaceKey: SURFACE.roles, label: "Roles", path: "/company/roles" },
+        { surfaceKey: SURFACE.users, label: "Members", path: "/settings/members" },
+        { surfaceKey: SURFACE.roles, label: "Roles", path: "/settings/roles" },
         { surfaceKey: SURFACE.entityTimeline, label: "Record activity timeline", path: null },
         { surfaceKey: SURFACE.dashboard, label: "Dashboard", path: "/dashboard" },
       ],
@@ -499,7 +499,7 @@ describe("agent saved-view management", () => {
         grouping: null,
         sortDescriptor: null,
       },
-      link: `/company/members?view=${VIEW_ID}`,
+      link: `/settings/members?view=${VIEW_ID}`,
     });
   });
 
@@ -548,7 +548,7 @@ describe("agent saved-view management", () => {
       viewKey: VIEW_ID,
       name: view.name,
       state: view.state,
-      link: `/company/members?view=${VIEW_ID}`,
+      link: `/settings/members?view=${VIEW_ID}`,
     });
 
     const all = await subject.run({
@@ -631,7 +631,7 @@ describe("agent saved-view management", () => {
           action,
           surfaceKey: SURFACE.users,
           viewKey: VIEW_ID,
-          link: `/company/members?view=${VIEW_ID}`,
+          link: `/settings/members?view=${VIEW_ID}`,
           ...(action === "create" || action === "select" ? { selected: true } : {}),
         }).success,
         action,
@@ -665,13 +665,13 @@ describe("agent saved-view management", () => {
       action: "update",
       surfaceKey: SURFACE.users,
       viewKey: ALL_VIEW_KEY,
-      link: `/company/members?view=${VIEW_ID}`,
+      link: `/settings/members?view=${VIEW_ID}`,
     },
     {
       action: "create",
       surfaceKey: SURFACE.entityTimeline,
       viewKey: VIEW_ID,
-      link: `/company/members?view=${VIEW_ID}`,
+      link: `/settings/members?view=${VIEW_ID}`,
       selected: true,
     },
   ])("rejects an incoherent mutation destination: %j", (result) => {

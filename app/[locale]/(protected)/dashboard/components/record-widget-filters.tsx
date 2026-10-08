@@ -17,7 +17,7 @@ import { useAppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { toLocalIso } from "@/components/forms/iso-date-values";
-import { getUsersAction } from "../../company/actions";
+import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 
 const ScalarInput = observer(({ field, id, label }: { field: RecordFilterField; id: string; label?: string }) => {
   const t = useTranslations();

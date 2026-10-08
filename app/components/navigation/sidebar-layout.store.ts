@@ -39,24 +39,28 @@ export class SidebarLayoutStore {
     const userId = this.root.userStore.user?.id;
     this.layout = layout;
     this.pending += 1;
-    this.saving = this.saving
+    const saved = this.saving
       .then(async () => {
-        if (!userId || userId !== this.root.userStore.user?.id) return;
+        if (!userId || userId !== this.root.userStore.user?.id) return false;
         const result = await upsertP13nAction({ p13nId: SIDEBAR_P13N_ID, settings: layout });
-        if (result.ok) this.confirmed = layout;
-        else {
-          toastZodErrorTree(result.error);
-          this.rollBack();
+        if (result.ok) {
+          this.confirmed = layout;
+          return true;
         }
+        toastZodErrorTree(result.error);
+        this.rollBack();
+        return false;
       })
       .catch((error: unknown) => {
         this.rollBack();
         reportApplicationError(error);
+        return false;
       })
       .finally(() => {
         this.pending -= 1;
       });
-    return this.saving;
+    this.saving = saved;
+    return saved;
   };
 
   private rollBack = action(() => {

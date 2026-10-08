@@ -30,7 +30,7 @@ Verify the signature, then use the event ID and stable `typeId`/`recordId` refer
 
 The [webhook guide](/docs/webhooks) documents payloads, retries, and signature verification. Deliveries can arrive out of order or repeat; deduplicate by event ID.
 
-**Link:** `/company/webhooks`. **Mate:** open **Webhooks**, use **Add**, then set **URL**, **Events**, the record source, and **Secret**.
+**Link:** `/settings/webhooks`. **Mate:** open **Webhooks**, use **Add**, then set **URL**, **Events**, the record source, and **Secret**.
 
 ## How do I create, read, update or delete records from n8n? [#how-do-i-write-to-customermates-from-n8n]
 
@@ -67,7 +67,7 @@ n8n's schedule trigger plus the record API can find records matching a saved que
 
 Create an API key under **My Profile → API & Connectors**. Store it as an n8n **Header Auth** credential named `x-api-key` and reuse that credential across nodes. The key inherits its owner's permissions. A wrong, expired, or deleted key receives an authentication failure; an inactive owner cannot act. See [API keys](/docs/api-keys).
 
-**Link:** `/profile/api-keys`. **Mate:** open **API & Connectors** and create a **Standard API key** if the role has **Create** on **API & Webhooks**.
+**Link:** `/settings/api-keys`. **Mate:** open **API & Connectors** and create a **Standard API key** if the role has **Create** on **API & Webhooks**.
 
 ## What are the common gotchas?
 

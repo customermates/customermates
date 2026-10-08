@@ -43,7 +43,7 @@ import { agentMessageComponents, agentMessageRehypePlugins } from "../agent-mess
 
 const viewId = "00000000-0000-4000-8000-000000000001";
 const recordId = "00000000-0000-4000-8000-000000000002";
-const href = `/company/webhooks?view=${viewId}`;
+const href = `/settings/webhooks?view=${viewId}`;
 const timelineHref = `/records/50000000-0000-4000-8000-000000000001/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
 function renderMessage(text: string) {
   return renderToStaticMarkup(
@@ -82,8 +82,8 @@ describe("saved-view message links", () => {
       `${href}&searchTerm=x`,
       `${href}#details`,
       `${href}/details`,
-      "/company/webhooks?view=00000000-0000-4",
-      `/company/webhooks?record=${viewId}`,
+      "/settings/webhooks?view=00000000-0000-4",
+      `/settings/webhooks?record=${viewId}`,
       "/records/50000000-0000-4000-8000-000000000001",
     ])
       expect(dataViewNavigationHref(invalid), invalid).toBeNull();
@@ -102,7 +102,7 @@ describe("saved-view message links", () => {
       `/records/50000000-0000-4000-8000-000000000001/${recordId}?viewSurface=${SURFACE.entityTimeline}&view=${viewId}`,
       `/records/50000000-0000-4000-8000-000000000001/${recordId}?view=${viewId}&viewSurface=${SURFACE.users}`,
       `/records/50000000-0000-4000-8000-000000000001/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}&extra=value`,
-      `/company/members/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`,
+      `/settings/members/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`,
     ])
       expect(dataViewNavigationHref(invalid), invalid).toBeNull();
   });
@@ -164,7 +164,7 @@ describe("saved-view message links", () => {
 
   it("renders an already-redacted persisted saved-view link as a clean inert label", () => {
     const text = sanitizeAgentVisibleTextForApp(
-      "You can view the new list here: [Contacts with Deals](/company/webhooks?view=[internal reference]).",
+      "You can view the new list here: [Contacts with Deals](/settings/webhooks?view=[internal reference]).",
       "http://localhost:4016",
     );
     const markup = renderMessage(text);
@@ -180,7 +180,7 @@ describe("saved-view message links", () => {
   it("keeps bare, autolink, and reference-style All-view destinations inert after sanitization", () => {
     const origin = "http://localhost:4016";
     const text = sanitizeAgentVisibleTextForApp(
-      `Bare /company/webhooks?view=__all__. Auto <${origin}/en/company/webhooks?view=__all__>. Ref [All][v].\n\n[v]: /company/webhooks?view=__all__`,
+      `Bare /settings/webhooks?view=__all__. Auto <${origin}/en/settings/webhooks?view=__all__>. Ref [All][v].\n\n[v]: /settings/webhooks?view=__all__`,
       origin,
     );
     const markup = renderMessage(text);
@@ -206,7 +206,7 @@ describe("saved-view message links", () => {
     const text = sanitizeAgentVisibleTextForApp(`Created http://localhost:4016/en${href}.`, "http://localhost:4016");
     const markup = renderMessage(text);
 
-    expect(text).toBe("Created /company/webhooks?view=[internal reference].");
+    expect(text).toBe("Created /settings/webhooks?view=[internal reference].");
     expect(markup).not.toContain("<a");
     expect(markup).not.toContain(viewId);
     expect(state.links).toHaveLength(0);

@@ -113,7 +113,7 @@ describe("CreateAuthLinkInteractor", () => {
 
     expect(messagingService.createAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://feat-inbox.customermates.com/profile/connected-accounts",
+        redirectUri: "https://feat-inbox.customermates.com/settings/channels",
       }),
     );
   });
@@ -127,7 +127,7 @@ describe("CreateAuthLinkInteractor", () => {
 
     expect(messagingService.createAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://customermates-git-feat-inbox-customermates.vercel.app/profile/connected-accounts",
+        redirectUri: "https://customermates-git-feat-inbox-customermates.vercel.app/settings/channels",
       }),
     );
   });

@@ -818,7 +818,7 @@ describe("authoritative action and condition excerpts", () => {
         "**Kanalverbindung fehlgeschlagen**",
         "Beginnen Sie erneut mit **Kanal verbinden**",
         "beim **Fehler**-Status eines vorhandenen Kanals nutzt der Besitzer **Reaktivieren**",
-        "`/profile/connected-accounts`",
+        "`/settings/channels`",
       ],
     },
     {
@@ -830,7 +830,7 @@ describe("authoritative action and condition excerpts", () => {
         "Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät",
         "erneuert sich im Hintergrund",
         "ohne diese Berechtigung fügen Sie die URL wie oben ein",
-        "`/profile/api-keys`",
+        "`/settings/api-keys`",
       ],
     },
     {
@@ -842,7 +842,7 @@ describe("authoritative action and condition excerpts", () => {
         "**Zugewiesen** erlaubt das Lesen der dem Mitglied zugewiesenen Datensätze",
         "**Keine** gewährt kein Leserecht.",
         "Jeder Datensatztyp hat getrennte Schalter",
-        "`/company/roles`",
+        "`/settings/roles`",
       ],
     },
     {

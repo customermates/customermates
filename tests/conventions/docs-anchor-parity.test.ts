@@ -106,16 +106,16 @@ function docsPages(locale: string): Map<string, Page> {
 describe("docs anchor and Link line parity", () => {
   it("flags a translated heading without an explicit anchor and a Link line with another route", () => {
     const source = parseDocsPage(
-      "## Roles tab\n**Link:** `/company/roles`. **Mate:** `nav-company-roles`.\n### Who can edit roles?",
+      "## Roles tab\n**Link:** `/settings/roles`. **Mate:** `nav-settings-roles`.\n### Who can edit roles?",
     );
     const translation = parseDocsPage(
-      "## Tab Rollen [#roles-tab]\n**Link:** `/company/members`. **Mate:** `nav-company-roles`.\n### Wer darf Rollen bearbeiten?",
+      "## Tab Rollen [#roles-tab]\n**Link:** `/settings/members`. **Mate:** `nav-settings-roles`.\n### Wer darf Rollen bearbeiten?",
     );
     expect(translationViolations("app-company", "de", source, translation)).toEqual([
       "de/app-company: H2/H3 anchors differ from en",
       "de/app-company:3: heading needs an explicit [#wer-darf-rollen-bearbeiten]",
-      "de/app-company: Link lines miss route /company/roles",
-      "de/app-company: Link lines add route /company/members",
+      "de/app-company: Link lines miss route /settings/roles",
+      "de/app-company: Link lines add route /settings/members",
     ]);
   });
 

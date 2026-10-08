@@ -35,7 +35,7 @@ To change a webhook, click its row, edit the dialog and click **Save**. To remov
 
 Use an HTTPS endpoint. A plain `http://` URL is accepted for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, or `http://` on `localhost`, `127.0.0.1` or `::1`, because headers usually carry a credential. This rule is checked when you save and again before every delivery.
 
-**Link:** `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`, then `highlight_element` with `company-webhooks-add` for **Add** (present only with **Create** on **API & Webhooks**). In the **Webhook** dialog, opened with **Add** (prerequisite `company-webhooks-add`) or a row, `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` and `webhook-modal-enabled` highlight the fields in the table above, read-only without **Edit** (or **Create** for a new webhook); `webhook-modal-save` and `webhook-modal-cancel` highlight **Save** and **Cancel** for roles with **Create** on a new webhook or **Edit** on a saved one, and `webhook-modal-delete` highlights **Delete** for roles with **Delete**. The list controls are on [My Company](/docs/app-company#webhooks-tab).
+**Link:** `/settings/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`, then `highlight_element` with `settings-webhooks-add` for **Add** (present only with **Create** on **API & Webhooks**). In the **Webhook** dialog, opened with **Add** (prerequisite `settings-webhooks-add`) or a row, `webhook-modal-url`, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-secret`, `webhook-modal-headers`, `webhook-modal-body-template` and `webhook-modal-enabled` highlight the fields in the table above, read-only without **Edit** (or **Create** for a new webhook); `webhook-modal-save` and `webhook-modal-cancel` highlight **Save** and **Cancel** for roles with **Create** on a new webhook or **Edit** on a saved one, and `webhook-modal-delete` highlights **Delete** for roles with **Delete**. The list controls are on [My Company](/docs/app-company#webhooks-tab).
 
 ## Which records trigger a webhook, and whose access does a delivery use? [#record-event-sources]
 
@@ -57,7 +57,7 @@ For record events, choose the source type under **Records from**, then optionall
 }
 ```
 
-**Link:** `/company/webhooks`. **Mate:** reads the type and field IDs with `get_record_model`, then uses `manage_webhooks`.
+**Link:** `/settings/webhooks`. **Mate:** reads the type and field IDs with `get_record_model`, then uses `manage_webhooks`.
 
 ## Who can see and change webhooks?
 
@@ -75,7 +75,7 @@ The same row also controls **My Profile** → **API & Connectors**, so a role th
 
 The **Admin** role can do everything. Webhooks have no plan restriction: they work on every Cloud plan and in a self-hosted installation. The same permissions apply to `manage_webhooks` through MCP and in the hosted assistant. In the hosted assistant, deleting a webhook or resending a delivery asks for your approval first.
 
-**Link:** `/company/webhooks` and `/company/webhook-deliveries`, and for the role's **API & Webhooks** row `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`, `nav-company-webhook-deliveries` or `nav-company-roles`; in an open **Webhook** dialog `webhook-modal-secret` and `webhook-modal-headers` highlight **Secret** and **Custom headers**. The role rows are not highlight targets, so Mate names them.
+**Link:** `/settings/webhooks` and `/settings/webhooks/deliveries`, and for the role's **API & Webhooks** row `/settings/roles`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`, `nav-settings-webhooks` or `nav-settings-roles`; in an open **Webhook** dialog `webhook-modal-secret` and `webhook-modal-headers` highlight **Secret** and **Custom headers**. The role rows are not highlight targets, so Mate names them.
 
 ## What does the payload look like?
 
@@ -157,11 +157,11 @@ The template may be up to 8,192 characters and must produce a JSON object. It is
 
 Deliveries are recorded with the event payload rather than the rendered body, so **Event Details** shows the event that fired and not the exact bytes sent.
 
-**Link:** `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`; in an open **Webhook** dialog `webhook-modal-headers` and `webhook-modal-body-template` highlight **Custom headers** and **Body template**, read-only without **Edit** on **API & Webhooks**.
+**Link:** `/settings/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`; in an open **Webhook** dialog `webhook-modal-headers` and `webhook-modal-body-template` highlight **Custom headers** and **Body template**, read-only without **Edit** on **API & Webhooks**.
 
 ## How do I send to Slack, Discord or n8n?
 
-Each recipe is the URL, the custom headers, and the body template to paste into the **Webhook** dialog under **My Company** → **Webhooks** → **Add**. Set a signing secret in every case; a receiver that cannot verify it simply ignores the header.
+Use these recipes to post a message to a team chat channel, or start a workflow, whenever something happens in the CRM, for example when a new deal shows up. Each recipe is the URL, the custom headers, and the body template to paste into the **Webhook** dialog under **Settings** → **Webhooks** → **Add**. Set a signing secret in every case; a receiver that cannot verify it simply ignores the header.
 
 ### Claude Code routines
 
@@ -251,7 +251,7 @@ function verify(rawBody: string, received: string, secret: string) {
 
 ## How do retries and failed deliveries work?
 
-Customermates retries a failed delivery automatically, up to 10 attempts in total with a growing pause of at most one hour between them, for timeouts, network errors, 5xx responses and 408, 425 and 429; other 4xx responses, such as 400, 401, 403, 404 and 422, are not retried, because a repeat would fail the same way. Every delivery is recorded on **My Company › Recent Deliveries** (`/company/webhook-deliveries`) and through `manage_webhooks` with `action: "list_deliveries"`. The page lists the newest deliveries first with their **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. The search box matches the event and the URL, and the filters cover the event, the URL and the creation date. Delivery records are not deleted automatically; they are kept as long as the workspace exists.
+Customermates retries a failed delivery automatically, up to 10 attempts in total with a growing pause of at most one hour between them, for timeouts, network errors, 5xx responses and 408, 425 and 429; other 4xx responses, such as 400, 401, 403, 404 and 422, are not retried, because a repeat would fail the same way. Every delivery is recorded on **My Company › Recent Deliveries** (`/settings/webhooks/deliveries`) and through `manage_webhooks` with `action: "list_deliveries"`. The page lists the newest deliveries first with their **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. The search box matches the event and the URL, and the filters cover the event, the URL and the creation date. Delivery records are not deleted automatically; they are kept as long as the workspace exists.
 
 Click a row to open **Event Details**. It shows the status (**Pending** until the first attempt finishes, then **Delivered** or **Failed**), **URL**, **Event**, **Element**, **Created At**, **Status Code**, **Response Message** and the **Event payload**. Every delivery is read from its event: a messaging event's payload is shown as it was sent, and a record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record.
 
@@ -261,7 +261,7 @@ Retries happen inside the delivery run, so they do not create extra delivery rec
 
 You can also resend a delivery yourself. In **Event Details**, the circular-arrows icon (**Resend**) appears at the top once the delivery is **Delivered** or **Failed**, for roles with **Create** on **API & Webhooks**. Through MCP, use `manage_webhooks` with `action: "resend_delivery"` plus the delivery id. A resend creates a new delivery record for the same webhook and sends it with the webhook's current URL, secret, headers and template; the original is unchanged. A messaging event is resent from its stored event. A record event is read again with the webhook owner's current access; only that owner or an administrator can resend it, and the resend is refused when the webhook's record sources changed since the original delivery. The webhook must still exist, be enabled and subscribe to the event; a delivery of a retired type-specific event cannot be resent.
 
-**Link:** `/company/webhook-deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhook-deliveries` (highlightable only while **My Company** is expanded, which it is by default on its own pages unless the member collapsed it); `company-webhook-deliveries-search` and `company-webhook-deliveries-filter` highlight the search box and the filters. `company-webhook-deliveries-display-options` highlights the display options, and `company-webhook-deliveries-layout-table` and `company-webhook-deliveries-layout-board` the layout controls inside them (open display options first). Once the user has opened a delivery row, `webhook-delivery-modal-resend` highlights the **Resend** icon in **Event Details** (roles with **Create**, only on delivered and failed deliveries); the rows and the rest of the dialog are not highlight targets, so Mate names them.
+**Link:** `/settings/webhooks/deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks` (highlightable only while **My Company** is expanded, which it is by default on its own pages unless the member collapsed it); `settings-webhooks-deliveries-search` and `settings-webhooks-deliveries-filter` highlight the search box and the filters. `settings-webhooks-deliveries-display-options` highlights the display options, and `settings-webhooks-deliveries-layout-table` and `settings-webhooks-deliveries-layout-board` the layout controls inside them (open display options first). Once the user has opened a delivery row, `webhook-delivery-modal-resend` highlights the **Resend** icon in **Event Details** (roles with **Create**, only on delivered and failed deliveries); the rows and the rest of the dialog are not highlight targets, so Mate names them.
 
 ## Are deliveries ordered, and do they arrive in the right order? [#are-deliveries-ordered]
 
@@ -281,7 +281,7 @@ For `record.deleted`, `data.record` carries the qualified `ref`, the authorized 
 - The delivery log (`manage_webhooks`, `action: "list_deliveries"`) supports `searchTerm` on url and event name.
 - For each delivery, Customermates records only the HTTP status code and the status text your receiver returned (for example `404` and `Not Found`), shown as **Status Code** and **Response Message** in **Event Details**. The response body is not stored, so log it on the receiving side. When no response arrives, **Status Code** shows a dash (the list column stays empty) and **Response Message** names the cause, such as the timeout.
 
-**Link:** `/company/webhook-deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhook-deliveries`; the rows and the fields in **Event Details** are not highlight targets, so Mate names them.
+**Link:** `/settings/webhooks/deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-settings-webhooks`; the rows and the fields in **Event Details** are not highlight targets, so Mate names them.
 
 ## Which events exist?
 

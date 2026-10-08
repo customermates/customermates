@@ -1,0 +1,44 @@
+"use client";
+
+import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+import { Action, Resource } from "@/generated/prisma";
+
+import { Button } from "@/components/ui/button";
+import { AppImage } from "@/components/shared/app-image";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { runUserAction } from "@/core/errors/report-application-error";
+
+export const SubscribeManageButton = observer(() => {
+  const t = useTranslations();
+  const { subscriptionStore, userStore } = useRootStore();
+
+  if (!userStore.can(Resource.company, Action.update)) return null;
+
+  const subscription = subscriptionStore.subscription;
+  const icon = (
+    <AppImage
+      alt="Lemon Squeezy"
+      className="rounded-none object-contain"
+      height={14}
+      src="lemonsqueezy.svg"
+      width={14}
+    />
+  );
+
+  if (!subscription?.hasBillingPortal) return null;
+
+  return (
+    <Button
+      aria-label={t("Subscription.manageWithLemonSqueezy")}
+      className="h-8"
+      id="settings-billing-manage"
+      size="sm"
+      onClick={() => runUserAction(() => subscriptionStore.handleManageBilling())}
+    >
+      {icon}
+
+      <span className="hidden sm:inline">{t("Subscription.manageWithLemonSqueezy")}</span>
+    </Button>
+  );
+});

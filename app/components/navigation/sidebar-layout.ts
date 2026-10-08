@@ -52,8 +52,16 @@ export function resolveSidebar(defaults: SidebarDefaultSection[], layout: Sideba
     if (!sections.some((candidate) => candidate.id === section.id))
       sections.push({ id: section.id, name: null, items: [], collapsed: false });
   }
-  for (const [item, home] of homes)
-    if (!placed.has(item)) sections.find((section) => section.id === home)?.items.push(item);
+  const defaultIndex = new Map(defaults.flatMap((section) => section.items.map((item, index) => [item, index])));
+  for (const [item, home] of homes) {
+    const section = sections.find((candidate) => candidate.id === home);
+    if (placed.has(item) || !section) continue;
+    const position = defaultIndex.get(item) ?? 0;
+    const before = section.items.findIndex(
+      (candidate) => homes.get(candidate) === home && (defaultIndex.get(candidate) ?? 0) > position,
+    );
+    section.items.splice(before < 0 ? section.items.length : before, 0, item);
+  }
   return {
     sections,
     hidden: new Set(layout.hidden.filter((item) => homes.has(item))),

@@ -65,8 +65,6 @@ const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {
   "Inbox.compose.draftDiscard": "I25: draft Discard through Common.actions.discard",
   "Inbox.refresh": "I25: inbox Refresh through Common.actions.refresh",
   "OnboardingWizard.back": "I25: onboarding Back through Common.actions.back",
-  "RoleModal.delete": "I19: role Delete through Common.actions.delete",
-  "Subscription.refresh": "I19: billing Refresh through Common.actions.refresh",
 };
 
 describe("rules 30 and 58: shared action words come from one key", () => {
@@ -112,10 +110,7 @@ const GERMAN_TERM_EXEMPTIONS: Allowlist = {
 };
 
 const GERMAN_TERM_ALLOWLIST: Allowlist = {
-  Admin: "I19: the Admin navigation entry disappears with the Settings area",
-  Plan: "I19: Plan becomes Billing (rule 51), with one German term",
   Relationship: "I1r4: one German term (Beziehung or Verknüpfung)",
-  Workspace: "I19: one German term (Arbeitsbereich or Workspace)",
 };
 
 describe("one German term per concept (owner 2026-10-08)", () => {
@@ -172,7 +167,6 @@ const RETIRED_TERM_ALLOWLIST: Allowlist = {
   "content/docs/de/app-company.mdx#my-company": "I21: Settings area names (rule 43)",
   "content/docs/de/app-company.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/de/app-dashboard.mdx#my-company": "I21: Settings area names (rule 43)",
-  "content/docs/de/app-dashboard.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/de/app-inbox.mdx#my-company": "I21: Settings area names (rule 43)",
   "content/docs/de/app-inbox.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/de/app-onboarding.mdx#my-company": "I21: Settings area names (rule 43)",
@@ -204,7 +198,6 @@ const RETIRED_TERM_ALLOWLIST: Allowlist = {
   "content/docs/en/app-company.mdx#my-company": "I21: Settings area names (rule 43)",
   "content/docs/en/app-company.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/en/app-dashboard.mdx#my-company": "I21: Settings area names (rule 43)",
-  "content/docs/en/app-dashboard.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/en/app-inbox.mdx#my-company": "I21: Settings area names (rule 43)",
   "content/docs/en/app-inbox.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/en/app-onboarding.mdx#my-company": "I21: Settings area names (rule 43)",
@@ -229,12 +222,6 @@ const RETIRED_TERM_ALLOWLIST: Allowlist = {
   "content/docs/en/self-hosting.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
   "content/docs/en/webhooks.mdx#my-company": "I21: Settings area names (rule 43)",
   "content/docs/en/webhooks.mdx#my-profile": "I21: Profile & preferences or Channels in Settings (rule 43)",
-  "i18n/locales/de.json#company-settings": "I19: Settings area names (rule 43)",
-  "i18n/locales/de.json#my-company": "I19: Settings area names (rule 43)",
-  "i18n/locales/de.json#my-profile": "I19: Profile & preferences or Channels in Settings (rule 43)",
-  "i18n/locales/en.json#company-settings": "I19: Settings area names (rule 43)",
-  "i18n/locales/en.json#my-company": "I19: Settings area names (rule 43)",
-  "i18n/locales/en.json#my-profile": "I19: Profile & preferences or Channels in Settings (rule 43)",
 };
 
 describe("rules 30, 33, 43, 50 and 51: retired UI names leave messages and docs", () => {

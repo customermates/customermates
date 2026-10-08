@@ -32,7 +32,7 @@ Connect an external AI client (Claude, ChatGPT and Codex, Cursor, or Gemini) to 
 
 Someone who opens an invitation link sees only **Your profile**, without the progress bar, with a note **Invitation from ...** naming the person who invited them and a terms checkbox worded for invited members on cloud. After **Continue** they are registered with status **Waiting for approval** and land on **Waiting for Approval**; they can sign in again at any time, but every sign-in lands on that screen (or first on **Email Verification**, if their email is still unverified 24 hours after registering) until someone whose role has **Edit** on **Users & Roles**, or an **Admin**, sets them to **Active**; only then can they work in the workspace. They never see the Knowledge Base, invite, or AI steps.
 
-**Link:** the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members` (highlightable only while **My Company** is expanded in the sidebar); once a member's **User** dialog is open, `member-modal-role`, `member-modal-status` and `member-modal-save` highlight **Role**, **Status** and **Save** (**Save** for roles with **Users & Roles** **Edit** only); the member rows are not highlight targets, so Mate names them.
+**Link:** the **Members** page, `/settings/members`. **Mate:** `navigate` and `highlight_element` with `nav-settings-members` (highlightable only while **My Company** is expanded in the sidebar); once a member's **User** dialog is open, `member-modal-role`, `member-modal-status` and `member-modal-save` highlight **Role**, **Status** and **Save** (**Save** for roles with **Users & Roles** **Edit** only); the member rows are not highlight targets, so Mate names them.
 
 ## Which stable ids does the wizard have?
 
@@ -51,7 +51,7 @@ The invite step reuses the email form of the **Invite User** dialog, so it carri
 <FaqItem question="Can I skip parts of the onboarding?">
 The Knowledge Base, invite, and AI steps are skippable: **Not now** leaves Knowledge Base without importing a website, **Next** leaves the invite step without sending anything, and **Finish** on the AI-client list completes onboarding without a connection. Invitations can be sent later from **My Company › Members**, and the AI-client flow stays available under **My Profile › API & Connectors**. The profile step is required.
 
-**Link:** the onboarding wizard, `/onboarding/wizard`, until onboarding is finished; afterwards invitations on `/company/members` and the AI setup on `/profile/api-keys`. **Mate:** the wizard controls are not highlight targets; website setup displays the read-only conversation inline. Afterwards `navigate` and `highlight_element` with `nav-company-members` or `nav-profile-api-keys`.
+**Link:** the onboarding wizard, `/onboarding/wizard`, until onboarding is finished; afterwards invitations on `/settings/members` and the AI setup on `/settings/api-keys`. **Mate:** the wizard controls are not highlight targets; website setup displays the read-only conversation inline. Afterwards `navigate` and `highlight_element` with `nav-settings-members` or `nav-settings-api-keys`.
 </FaqItem>
 <FaqItem question="Can I go back to my profile?">
 No. Once **Your profile** is saved, the wizard cannot return to it. **Back** on the invite step can return to Knowledge Base during uninterrupted setup. Change your name, country and other personal settings later under **My Profile › Settings**.

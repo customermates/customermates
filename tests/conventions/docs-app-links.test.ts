@@ -162,10 +162,10 @@ describe("docs app links", () => {
     expect(appLinkViolations("**Link:** the Roles page.")).toHaveLength(1);
     expect(appLinkViolations("Search uses `#records-search`.")).toHaveLength(1);
     expect(appLinkViolations("Navigate with `nav-records:<typeId>`.")).toHaveLength(1);
-    expect(appLinkViolations("Highlight `company-roles-add`.")).toHaveLength(1);
+    expect(appLinkViolations("Highlight `settings-roles-add`.")).toHaveLength(1);
     expect(appLinkViolations("Open [Projects](app:records/project).")).toHaveLength(1);
-    expect(appLinkViolations("Open `/company/roles` or `/records/<typeId>`.")).toHaveLength(1);
-    expect(appLinkViolations('Open [Roles](app:company/roles "Roles").')).toHaveLength(1);
+    expect(appLinkViolations("Open `/settings/roles` or `/records/<typeId>`.")).toHaveLength(1);
+    expect(appLinkViolations('Open [Roles](app:settings/roles "Roles").')).toHaveLength(1);
     expect(appLinkViolations("The API lives at `/v1/records`.")).toEqual([]);
     expect(
       appLinkViolations(

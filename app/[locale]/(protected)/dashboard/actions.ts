@@ -48,7 +48,7 @@ export async function refreshWidgetsAction(viewId?: string) {
   return result.data;
 }
 
-export async function updateThemeAction(data: UpdateUserDetailsData) {
+export async function updatePreferencesAction(data: UpdateUserDetailsData) {
   return serializeResult(getUpdateUserDetailsInteractor().invoke(data));
 }
 
