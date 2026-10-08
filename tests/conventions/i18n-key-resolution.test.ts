@@ -28,7 +28,6 @@ import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/r
 import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
 import { WIDGET_STARTER_RECIPES } from "@/features/widget/widget-gallery";
-import { RecordFilterSchema } from "@/features/records/record-query.schema";
 import { CONFIGURATION_TARGET_KINDS, DeletionBlockerSchema } from "@/features/records/configuration.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
@@ -109,9 +108,6 @@ const RECORD_TOP_LEVEL_DYNAMIC_KEYS = [
   "yes",
   "no",
 ].map((key) => `RecordModel.${key}`);
-const RECORD_FILTER_OPERATOR_KEYS = RecordFilterSchema.shape.operator.options.map(
-  (operator) => `RecordWidgets.operators.${operator}`,
-);
 const ACCOUNT_REMOVAL_REASON_KEYS = ACCOUNT_REMOVAL_REASONS.map((reason) => `AccountRemovalReason.${reason}`);
 const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map((status) => `RoutineRunStatus.${status}`);
 const ROUTINE_TRIGGER_KIND_KEYS = Object.values(RoutineTriggerKind).map((kind) => `RoutineTriggerKind.${kind}`);
@@ -520,14 +516,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       (state) => `Dashboard.activityWidget.${state}`,
     ),
   ],
-  [
-    "RecordActivityWidgets.filterKinds.${*}",
-    ["record", "source", "provider", "account", "thread"].map((kind) => `RecordActivityWidgets.filterKinds.${kind}`),
-  ],
-  [
-    "RecordActivityWidgets.operators.${*}",
-    ["in", "notIn", "hasSome", "hasNone"].map((operator) => `RecordActivityWidgets.operators.${operator}`),
-  ],
   ["RecordModel.${*}", RECORD_TOP_LEVEL_DYNAMIC_KEYS],
   ["RecordModel.condition${*}", ["If", "Then", "Otherwise"].map((key) => `RecordModel.condition${key}`)],
   ["RecordModel.range${*}", ["Start", "End"].map((key) => `RecordModel.range${key}`)],
@@ -565,7 +553,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
     "RecordModel.cardinality.${*}",
     ["oneToOne", "oneToMany", "manyToOne", "manyToMany"].map((value) => `RecordModel.cardinality.${value}`),
   ],
-  ["RecordWidgets.operators.${*}", RECORD_FILTER_OPERATOR_KEYS],
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
@@ -720,19 +707,13 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${field.label}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.reducers.${aggregation}",
   "app/[locale]/(protected)/dashboard/components/record-activity-widget-card.tsx :: t :: Dashboard.activityWidget.${state}",
-  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: Common.providers.${account.provider}",
-  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: Common.providers.${id}",
-  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: RecordActivityWidgets.filterKinds.${filter.kind}",
-  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: RecordActivityWidgets.filterKinds.${value}",
-  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: RecordActivityWidgets.operators.${value}",
+  "components/records/record-activity-filters.tsx :: t :: Common.providers.${id}",
   'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${result.state === "error" ? "calculationError" : result.state}',
   'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${value.value ? "yes" : "no"}',
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordModel.reducers.${value}",
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordWidgets.intervals.${interval}",
-  "app/[locale]/(protected)/dashboard/components/record-widget-filters.tsx :: t :: RecordWidgets.operators.${value}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
-  "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.description",
   "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.name",
@@ -915,7 +896,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   [
-    'app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: isChangeActivityKind(id) ? `EntityTimeline.types.${id}` : id === "message" ? "EntityTimeline.types.messages" : id === "calendar_event" ? "ContactHistory.calendarMeeting" : "EntityTimeline.types.activities"',
+    'components/records/record-activity-filters.tsx :: t :: isChangeActivityKind(id) ? `EntityTimeline.types.${id}` : id === "message" ? "EntityTimeline.types.messages" : id === "calendar_event" ? "ContactHistory.calendarMeeting" : "EntityTimeline.types.activities"',
     1,
   ],
   ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],

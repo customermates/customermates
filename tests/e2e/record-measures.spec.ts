@@ -1,3 +1,4 @@
+import { setPaletteText } from "./filter-palette";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -41,12 +42,7 @@ test("keeps source totals separate from filtered widget groups across save and r
   await page.getByRole("option", { name: "Price", exact: true }).click();
   await dialogs.getByRole("combobox", { name: "Group by", exact: true }).click();
   await page.getByRole("option", { name: "Each record", exact: true }).click();
-  const groupFilters = dialogs.getByRole("region", { name: "Group filters", exact: true });
-  await groupFilters.getByRole("combobox", { name: "Add filter", exact: true }).click();
-  await page.getByRole("option", { name: "Name", exact: true }).click();
-  await groupFilters.getByRole("combobox", { name: "Condition", exact: true }).click();
-  await page.getByRole("option", { name: "Equals", exact: true }).click();
-  await groupFilters.getByLabel("Value", { exact: true }).fill("Shown service");
+  await setPaletteText(page, "widget-group-filters", presetId(companyId, "service.name"), "Shown service", "=");
   await expect(dialogs.getByText("Overall: €100.00", { exact: true })).toBeVisible();
   await expect(dialogs.locator("dt").filter({ hasText: "Shown service" })).toHaveCount(1);
   await expect(dialogs.locator("dt").filter({ hasText: "Other service" })).toHaveCount(0);

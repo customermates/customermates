@@ -251,6 +251,8 @@ export abstract class QueryRepository<
     switch (filter.operator) {
       case FilterOperatorKey.equals:
         return filter.value;
+      case FilterOperatorKey.notEquals:
+        return { not: filter.value };
       case FilterOperatorKey.contains:
         return { contains: filter.value, mode: "insensitive" };
       case FilterOperatorKey.startsWith:

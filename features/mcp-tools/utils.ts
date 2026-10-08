@@ -166,6 +166,7 @@ export function formatDatesInResponse<T>(data: T): SerializedDates<T> {
 export const FILTER_OPERATOR_GROUPS = {
   singleValue: [
     FilterOperatorKey.equals,
+    FilterOperatorKey.notEquals,
     FilterOperatorKey.contains,
     FilterOperatorKey.startsWith,
     FilterOperatorKey.gt,
@@ -195,7 +196,7 @@ export const FILTER_OPERATOR_GROUPS = {
 export const FILTER_OPERATORS: readonly FilterOperatorKey[] = Object.values(FILTER_OPERATOR_GROUPS).flat();
 
 export const FILTER_SYNTAX = {
-  rule: "{ field, operator, value? }, rules are AND-combined",
+  rule: "{field, operator, value?}, AND-combined",
   operators: {
     singleValue: FILTER_OPERATOR_GROUPS.singleValue,
     multiValue: FILTER_OPERATOR_GROUPS.multiValue,

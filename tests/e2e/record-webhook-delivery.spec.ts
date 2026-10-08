@@ -1,3 +1,4 @@
+import { setPaletteText } from "./filter-palette";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { addFromConfigure, openConfigure } from "./configure";
@@ -165,7 +166,7 @@ test("delivers only deleted records that matched the webhook filter before remov
     await page.keyboard.press("Escape");
     await dialog.getByRole("combobox", { name: "Records from", exact: false }).click();
     await page.getByRole("option", { name: "Projects", exact: true }).click();
-    await dialog.locator('[id="recordTrigger.query.search"]').fill("Ready");
+    await setPaletteText(page, "record-trigger-filters", "query:search", "Ready");
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).not.toBeVisible();
     const hook = await database.query('SELECT id FROM "Webhook" WHERE "companyId"=$1 AND url=$2', [

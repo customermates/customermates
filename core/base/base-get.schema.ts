@@ -20,6 +20,7 @@ export const FilterSchema = z.preprocess(
         field: z.string(),
         operator: z.union([
           z.literal(FilterOperatorKey.equals).meta({ title: "equals" }),
+          z.literal(FilterOperatorKey.notEquals).meta({ title: "notEquals" }),
           z.literal(FilterOperatorKey.contains).meta({ title: "contains" }),
           z.literal(FilterOperatorKey.startsWith).meta({ title: "startsWith" }),
           z.literal(FilterOperatorKey.gt).meta({ title: "gt" }),
