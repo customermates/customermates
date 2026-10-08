@@ -1,0 +1,1042 @@
+import type { ContentLocale } from "@/i18n/locale-registry";
+
+export type DocsRetrievalEvalItem = {
+  id: string;
+  docsLocale: ContentLocale;
+  query: string;
+  slug: string;
+  anchors: readonly string[];
+  alternatives: readonly string[];
+};
+
+export const DOCS_LIVE_CASE_LABELS: readonly DocsRetrievalEvalItem[] = [
+  {
+    id: "D1",
+    docsLocale: "en",
+    query:
+      "Where in Customermates do I create an API key for the REST API? Just tell me where to click.",
+    slug: "api-keys",
+    anchors: ["api-keys#how-do-i-create-an-api-key"],
+    alternatives: [
+      "app-profile#api--connectors-tab",
+      "connect-cli#create-an-api-key",
+    ],
+  },
+  {
+    id: "D2",
+    docsLocale: "en",
+    query:
+      "What is the address of the Customermates MCP server, and how does an MCP client send its API key?",
+    slug: "mcp",
+    anchors: ["mcp#the-endpoint"],
+    alternatives: ["api-keys#how-do-i-use-a-key"],
+  },
+  {
+    id: "D3",
+    docsLocale: "en",
+    query:
+      "How can my receiving service check that a webhook request really came from Customermates?",
+    slug: "webhooks",
+    anchors: ["webhooks#how-do-i-verify-the-signature"],
+    alternatives: [],
+  },
+  {
+    id: "D4",
+    docsLocale: "en",
+    query:
+      "How many hosted AI credits per active user and month come with the Business plan?",
+    slug: "app-assistant",
+    anchors: ["app-assistant#plans-and-credits"],
+    alternatives: ["app-company#which-plans-are-there"],
+  },
+  {
+    id: "D5",
+    docsLocale: "en",
+    query:
+      "When the assistant asks me to approve something and I don't answer, how long does that request stay open?",
+    slug: "app-assistant",
+    anchors: ["app-assistant#what-runs-immediately-and-what-asks-first"],
+    alternatives: [],
+  },
+  {
+    id: "D6",
+    docsLocale: "de",
+    query: "Wo stelle ich die Währung für unseren Workspace ein?",
+    slug: "app-company",
+    anchors: ["app-company#settings-tab"],
+    alternatives: [
+      "app-company#who-can-change-the-currency-and-the-other-settings",
+    ],
+  },
+  {
+    id: "D7",
+    docsLocale: "de",
+    query:
+      "Kann ich das Ablaufdatum eines API-Keys verlängern, bevor er abläuft?",
+    slug: "api-keys",
+    anchors: ["api-keys#do-keys-expire"],
+    alternatives: [],
+  },
+  {
+    id: "D8",
+    docsLocale: "de",
+    query:
+      "Kann ich einem MCP-Client nur einen Teil der Tools freigeben, zum Beispiel nur Datensätze und Nachrichten?",
+    slug: "mcp",
+    anchors: [
+      "mcp#server-instructions-prompts-and-toolsets",
+      "mcp#narrowing-with-toolsets",
+    ],
+    alternatives: [],
+  },
+  {
+    id: "D9",
+    docsLocale: "de",
+    query:
+      "Wie werden Webhook-Zustellungen von Customermates signiert, und wie prüfe ich das auf meinem Server?",
+    slug: "webhooks",
+    anchors: ["webhooks#how-do-i-verify-the-signature"],
+    alternatives: [],
+  },
+  {
+    id: "D10",
+    docsLocale: "de",
+    query:
+      "Wie viele KI-Credits pro aktivem Nutzer und Monat sind im Pro-Tarif enthalten?",
+    slug: "app-assistant",
+    anchors: ["app-assistant#plans-and-credits"],
+    alternatives: ["app-company#which-plans-are-there"],
+  },
+];
+
+export const DOCS_HELDOUT: readonly DocsRetrievalEvalItem[] = [
+  {
+    id: "dh-en-01",
+    docsLocale: "en",
+    query:
+      "If I set up an automation that fires every time a deal is edited, is there a cap on how often it can go off in an hour?",
+    slug: "app-routines",
+    anchors: ["app-routines#what-are-the-limits"],
+    alternatives: ["app-routines#how-do-event-triggers-work"],
+  },
+  {
+    id: "dh-en-02",
+    docsLocale: "en",
+    query:
+      "We deactivated two people who left. Are we still paying for their seats?",
+    slug: "app-company",
+    anchors: ["app-company#how-are-seats-counted-and-billed"],
+    alternatives: [],
+  },
+  {
+    id: "dh-en-03",
+    docsLocale: "en",
+    query:
+      "Somebody wiped a contact yesterday. Where can I find out who it was?",
+    slug: "app-company",
+    anchors: ["app-company#audit-logs-tab"],
+    alternatives: [
+      "architecture-security#what-does-the-audit-log-record",
+      "architecture-security#who-can-read-the-audit-log-and-where",
+    ],
+  },
+  {
+    id: "dh-en-04",
+    docsLocale: "en",
+    query:
+      "Is there a maximum number of mailboxes or LinkedIn accounts I can hook up to my login?",
+    slug: "app-profile",
+    anchors: ["app-profile#how-many-channels-can-i-connect"],
+    alternatives: [
+      "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+    ],
+  },
+  {
+    id: "dh-en-05",
+    docsLocale: "en",
+    query:
+      "I have a customer's mobile number. Do I store it on the person or on the company they work for?",
+    slug: "app-records",
+    anchors: ["app-records#what-is-special-about-each-record-type"],
+    alternatives: ["concepts#which-five-record-types-exist"],
+  },
+  {
+    id: "dh-en-06",
+    docsLocale: "en",
+    query:
+      "My webhook consumer received the 'updated' event before the 'created' one. Is the sequence guaranteed?",
+    slug: "webhooks",
+    anchors: ["webhooks#are-deliveries-ordered"],
+    alternatives: [],
+  },
+  {
+    id: "dh-en-07",
+    docsLocale: "en",
+    query:
+      "If we run it on our own server, what do we lose compared to the hosted version?",
+    slug: "self-hosting",
+    anchors: [
+      "self-hosting#which-features-are-not-available-when-self-hosting",
+    ],
+    alternatives: ["self-hosting#should-i-self-host-or-use-the-cloud"],
+  },
+  {
+    id: "dh-en-08",
+    docsLocale: "en",
+    query:
+      "Does the search bar at the top look inside people's email addresses and phone numbers?",
+    slug: "app-search",
+    anchors: ["app-search#what-does-global-search-find"],
+    alternatives: [],
+  },
+  {
+    id: "dh-de-01",
+    docsLocale: "de",
+    query:
+      "Kann eine Automatisierung loslaufen, sobald jemand bei einem Deal etwas ändert, und wie richte ich so einen Auslöser ein?",
+    slug: "app-routines",
+    anchors: ["app-routines#how-do-event-triggers-work"],
+    alternatives: ["app-routines#how-do-i-create-a-routine"],
+  },
+  {
+    id: "dh-de-02",
+    docsLocale: "de",
+    query: "Darf ich die Rechte der Admin-Rolle einschränken?",
+    slug: "app-company",
+    anchors: ["app-company#what-is-the-admin-role"],
+    alternatives: ["app-company#how-does-the-role-editor-work"],
+  },
+  {
+    id: "dh-de-03",
+    docsLocale: "de",
+    query:
+      "Wir wechseln auf Starter. Was passiert dann mit unseren verbundenen Postfächern?",
+    slug: "app-company",
+    anchors: [
+      "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+    ],
+    alternatives: ["app-profile#how-many-channels-can-i-connect"],
+  },
+  {
+    id: "dh-de-04",
+    docsLocale: "de",
+    query: "Wo ändere ich mein Passwort?",
+    slug: "app-profile",
+    anchors: ["app-profile#what-can-i-not-change-here"],
+    alternatives: [],
+  },
+  {
+    id: "dh-de-05",
+    docsLocale: "de",
+    query: "Kann ich eine Kundenliste aus Excel hochladen?",
+    slug: "app-records",
+    anchors: ["app-records#how-do-i-import-or-export-records"],
+    alternatives: [],
+  },
+  {
+    id: "dh-de-06",
+    docsLocale: "de",
+    query: "Kann ich in Notizen fett schreiben oder Aufzählungen machen?",
+    slug: "concepts",
+    anchors: ["concepts#what-are-notes"],
+    alternatives: [],
+  },
+  {
+    id: "dh-de-07",
+    docsLocale: "de",
+    query:
+      "Wie finde ich per Filter Firmen, die entweder in Berlin oder in Hamburg sitzen?",
+    slug: "filter-syntax",
+    anchors: ["filter-syntax#what-does-a-filter-rule-look-like"],
+    alternatives: [
+      "filter-syntax#which-operators-exist",
+      "filter-syntax#which-operators-work-on-custom-columns",
+    ],
+  },
+  {
+    id: "dh-de-08",
+    docsLocale: "de",
+    query:
+      "Wie sichere ich die Datenbank meiner eigenen Installation und spiele sie wieder ein?",
+    slug: "self-hosting",
+    anchors: ["self-hosting#backups"],
+    alternatives: [],
+  },
+  {
+    id: "dh-es-01",
+    docsLocale: "en",
+    query:
+      "¿Puedo programar una rutina para que se ejecute todos los lunes a primera hora?",
+    slug: "app-routines",
+    anchors: ["app-routines#how-do-schedules-work"],
+    alternatives: [],
+  },
+  {
+    id: "dh-es-02",
+    docsLocale: "en",
+    query:
+      '¿Se puede cambiar el nombre de "Deals" a "Oportunidades" en mi espacio de trabajo?',
+    slug: "app-company",
+    anchors: ["app-company#how-do-i-rename-record-types-in-the-data-model"],
+    alternatives: [],
+  },
+  {
+    id: "dh-es-03",
+    docsLocale: "en",
+    query: "¿Un administrador puede leer mis conversaciones privadas?",
+    slug: "app-inbox",
+    anchors: ["app-inbox#which-conversations-do-i-see"],
+    alternatives: ["app-profile#private-or-shared"],
+  },
+  {
+    id: "dh-es-04",
+    docsLocale: "en",
+    query: "¿Cómo oculto la carpeta de spam en la bandeja de entrada?",
+    slug: "app-profile",
+    anchors: ["app-profile#what-does-the-folders-tab-control"],
+    alternatives: ["app-inbox#which-conversations-do-i-see"],
+  },
+  {
+    id: "dh-es-05",
+    docsLocale: "en",
+    query: "¿Cómo se calcula el importe total de una oportunidad?",
+    slug: "concepts",
+    anchors: ["concepts#how-is-a-deals-total-value-calculated"],
+    alternatives: ["app-records#what-is-special-about-each-record-type"],
+  },
+  {
+    id: "dh-es-06",
+    docsLocale: "en",
+    query:
+      "Mi servidor estuvo caído una hora. ¿Customermates vuelve a enviar los webhooks que fallaron?",
+    slug: "webhooks",
+    anchors: ["webhooks#how-do-retries-and-failed-deliveries-work"],
+    alternatives: ["app-company#deliveries-tab"],
+  },
+  {
+    id: "dh-es-07",
+    docsLocale: "en",
+    query: "¿Tienen inicio de sesión único con SAML para nuestra empresa?",
+    slug: "architecture-security",
+    anchors: ["architecture-security#does-customermates-support-sso-or-saml"],
+    alternatives: [
+      "self-hosting#which-features-are-not-available-when-self-hosting",
+    ],
+  },
+  {
+    id: "dh-es-08",
+    docsLocale: "en",
+    query:
+      "¿Cuánto tiempo sigue conectado Claude antes de tener que autorizarlo otra vez?",
+    slug: "connect-custom-connector",
+    anchors: ["connect-custom-connector#it-syncs-and-stays-connected"],
+    alternatives: [],
+  },
+  {
+    id: "dh-fr-01",
+    docsLocale: "en",
+    query: "Que signifient les différents statuts d'une exécution de routine ?",
+    slug: "app-routines",
+    anchors: ["app-routines#what-do-the-runs-and-their-statuses-mean"],
+    alternatives: [],
+  },
+  {
+    id: "dh-fr-02",
+    docsLocale: "en",
+    query: "Pourquoi je n'arrive pas à modifier mon propre rôle ?",
+    slug: "app-company",
+    anchors: ["app-company#what-are-the-rules-for-editing-roles"],
+    alternatives: [],
+  },
+  {
+    id: "dh-fr-03",
+    docsLocale: "en",
+    query:
+      "La boîte de réception est verrouillée avec l'offre Starter, c'est normal ?",
+    slug: "app-inbox",
+    anchors: ["app-inbox#who-can-use-the-inbox"],
+    alternatives: [],
+  },
+  {
+    id: "dh-fr-04",
+    docsLocale: "en",
+    query:
+      "Comment rendre une boîte mail connectée visible pour mes collègues ?",
+    slug: "app-profile",
+    anchors: ["app-profile#private-or-shared"],
+    alternatives: ["app-inbox#how-do-i-share-a-single-conversation"],
+  },
+  {
+    id: "dh-fr-05",
+    docsLocale: "en",
+    query: "Comment modifier ou supprimer plusieurs contacts d'un coup ?",
+    slug: "app-records",
+    anchors: [
+      "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+    ],
+    alternatives: [],
+  },
+  {
+    id: "dh-fr-06",
+    docsLocale: "en",
+    query:
+      "Comment trouver les contacts qui ne sont rattachés à aucune organisation ?",
+    slug: "filter-syntax",
+    anchors: ["filter-syntax#which-relationship-operators-exist"],
+    alternatives: ["filter-syntax#examples"],
+  },
+  {
+    id: "dh-fr-07",
+    docsLocale: "en",
+    query: "Deux webhooks pointent vers la même URL : que se passe-t-il ?",
+    slug: "webhooks",
+    anchors: ["webhooks#one-url-one-configuration"],
+    alternatives: [],
+  },
+  {
+    id: "dh-fr-08",
+    docsLocale: "en",
+    query:
+      "Que se passe-t-il quand j'atteins la limite d'envoi de messages LinkedIn ?",
+    slug: "messaging-rate-limits",
+    anchors: ["messaging-rate-limits#what-happens-when-a-limit-is-reached"],
+    alternatives: [
+      "messaging-rate-limits#what-are-the-limits-for-sending-and-profile-lookups",
+    ],
+  },
+  {
+    id: "dh-it-01",
+    docsLocale: "en",
+    query:
+      "Cosa succede quando finisce il periodo di prova e non ho ancora pagato?",
+    slug: "app-company",
+    anchors: [
+      "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+    ],
+    alternatives: ["app-company#what-does-each-subscription-status-mean"],
+  },
+  {
+    id: "dh-it-02",
+    docsLocale: "en",
+    query:
+      "Come funzionano le probabilità per fase nel valore ponderato della pipeline?",
+    slug: "app-company",
+    anchors: ["app-company#how-do-stage-probabilities-and-totals-work"],
+    alternatives: ["concepts#how-does-a-weighted-pipeline-work"],
+  },
+  {
+    id: "dh-it-03",
+    docsLocale: "en",
+    query:
+      "Cosa significano gli stati di una conversazione nella posta in arrivo?",
+    slug: "app-inbox",
+    anchors: ["app-inbox#what-do-the-thread-states-mean"],
+    alternatives: [],
+  },
+  {
+    id: "dh-it-04",
+    docsLocale: "en",
+    query: "Posso cambiare il carattere e la firma delle email che invio?",
+    slug: "app-profile",
+    anchors: ["app-profile#email-appearance-and-signature"],
+    alternatives: ["app-inbox#how-do-i-set-an-email-signature"],
+  },
+  {
+    id: "dh-it-05",
+    docsLocale: "en",
+    query: "Posso condividere una vista salvata con i colleghi?",
+    slug: "app-records",
+    anchors: ["app-records#how-do-saved-views-work"],
+    alternatives: [],
+  },
+  {
+    id: "dh-it-06",
+    docsLocale: "en",
+    query: "Come filtro le trattative create negli ultimi 7 giorni?",
+    slug: "filter-syntax",
+    anchors: ["filter-syntax#which-date-operators-exist"],
+    alternatives: ["filter-syntax#examples"],
+  },
+  {
+    id: "dh-it-07",
+    docsLocale: "en",
+    query: "A cosa devo impostare BASE_URL se uso un mio dominio?",
+    slug: "self-hosting",
+    anchors: ["self-hosting#base-url"],
+    alternatives: ["self-hosting#env-values"],
+  },
+  {
+    id: "dh-it-08",
+    docsLocale: "en",
+    query:
+      "Una timeline delle attività può mostrare anche gli eventi del calendario?",
+    slug: "app-dashboard",
+    anchors: ["app-dashboard#what-can-an-activity-timeline-show"],
+    alternatives: [],
+  },
+];
+
+export const DOCS_EMBEDDING_HELDOUT: readonly DocsRetrievalEvalItem[] = [
+  {
+    id: "de-en-01",
+    docsLocale: "en",
+    query:
+      "A colleague quit, and some of our scripts talk to the CRM with credentials she made. How do I make sure those integrations stop working?",
+    slug: "architecture-security",
+    anchors: [
+      "architecture-security#how-do-i-stop-the-api-keys-of-a-former-member",
+    ],
+    alternatives: [
+      "api-keys#how-do-i-revoke-delete-or-rotate-a-key",
+      "app-company#how-do-i-approve-deactivate-or-edit-a-member",
+    ],
+  },
+  {
+    id: "de-en-02",
+    docsLocale: "en",
+    query:
+      "Can I hand a script access that lets it look at things but never change anything?",
+    slug: "api-keys",
+    anchors: ["api-keys#what-permissions-does-a-key-have"],
+    alternatives: ["architecture-security#how-is-authorization-decided"],
+  },
+  {
+    id: "de-en-03",
+    docsLocale: "en",
+    query:
+      "Our monthly allowance for the assistant runs out in the middle of a conversation. What happens to the request I just sent?",
+    slug: "app-assistant",
+    anchors: ["app-assistant#credits"],
+    alternatives: ["app-assistant#plans-and-credits"],
+  },
+  {
+    id: "de-en-04",
+    docsLocale: "en",
+    query:
+      "Our reps want to see opportunities as columns they can drag cards between. Is that possible?",
+    slug: "app-records",
+    anchors: ["app-records#how-do-i-switch-between-table-and-board-view"],
+    alternatives: [
+      "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+    ],
+  },
+  {
+    id: "de-en-05",
+    docsLocale: "en",
+    query:
+      "Where does our customer data physically live, and is it scrambled when stored?",
+    slug: "architecture-security",
+    anchors: [
+      "architecture-security#how-is-data-protected-at-rest-and-in-transit",
+    ],
+    alternatives: [],
+  },
+  {
+    id: "de-en-06",
+    docsLocale: "en",
+    query:
+      "I'd like a ping in our team chat channel whenever a new opportunity shows up. How do I wire that?",
+    slug: "webhooks",
+    anchors: ["webhooks#slack"],
+    alternatives: [
+      "webhooks#how-do-i-send-to-slack-discord-or-n8n",
+      "webhooks#how-do-i-create-a-webhook",
+    ],
+  },
+  {
+    id: "de-en-07",
+    docsLocale: "en",
+    query:
+      "Does the change history note it when someone merely opens and looks at a record?",
+    slug: "architecture-security",
+    anchors: ["architecture-security#what-does-the-audit-log-record"],
+    alternatives: ["architecture-security#what-is-not-in-the-audit-log"],
+  },
+  {
+    id: "de-en-08",
+    docsLocale: "en",
+    query:
+      "How far back does the change history go, and can I download it as a file?",
+    slug: "architecture-security",
+    anchors: [
+      "architecture-security#how-long-are-audit-entries-kept-and-can-i-export-them",
+    ],
+    alternatives: [],
+  },
+  {
+    id: "de-en-09",
+    docsLocale: "en",
+    query:
+      "We run our own copy on a VPS. How do I move it to the newest release?",
+    slug: "self-hosting",
+    anchors: ["self-hosting#how-do-i-update-a-self-hosted-installation"],
+    alternatives: [],
+  },
+  {
+    id: "de-en-10",
+    docsLocale: "en",
+    query:
+      "The HTTP calls you should be making to my endpoint never show up. What should I look at first?",
+    slug: "webhooks",
+    anchors: ["webhooks#how-do-i-debug-a-delivery"],
+    alternatives: [
+      "app-company#deliveries-tab",
+      "webhooks#how-do-retries-and-failed-deliveries-work",
+    ],
+  },
+  {
+    id: "de-en-11",
+    docsLocale: "en",
+    query:
+      "What does a brand-new workspace ask me to fill in right after I register?",
+    slug: "app-onboarding",
+    anchors: ["app-onboarding#what-are-the-three-steps"],
+    alternatives: [],
+  },
+  {
+    id: "de-en-12",
+    docsLocale: "en",
+    query:
+      "One salesperson should only ever see the customers that belong to them. How do I set that up?",
+    slug: "app-company",
+    anchors: ["app-company#how-does-the-role-editor-work"],
+    alternatives: ["concepts#who-are-users-roles-and-the-company"],
+  },
+  {
+    id: "de-de-01",
+    docsLocale: "de",
+    query:
+      "Wie lange kann ich das Produkt kostenlos ausprobieren, bevor ich zahlen muss?",
+    slug: "quickstart",
+    anchors: ["quickstart#how-do-i-sign-up-and-how-long-is-the-free-trial"],
+    alternatives: [
+      "app-company#which-plans-are-there",
+      "app-assistant#plans-and-credits",
+    ],
+  },
+  {
+    id: "de-de-02",
+    docsLocale: "de",
+    query:
+      "Wo bekomme ich die Rechnungen für unser Abo, und wo tausche ich die hinterlegte Kreditkarte aus?",
+    slug: "app-company",
+    anchors: [
+      "app-company#how-do-i-cancel-change-the-payment-method-or-get-invoices",
+    ],
+    alternatives: [],
+  },
+  {
+    id: "de-de-03",
+    docsLocale: "de",
+    query:
+      "Ein neuer Kollege soll dazukommen. Wie läuft das ab, bis er drin ist?",
+    slug: "app-company",
+    anchors: ["app-company#how-do-invitations-work"],
+    alternatives: [
+      "app-company#how-do-i-approve-deactivate-or-edit-a-member",
+      "app-onboarding#what-are-the-three-steps",
+    ],
+  },
+  {
+    id: "de-de-04",
+    docsLocale: "de",
+    query: "Kann eine Person gleichzeitig bei mehreren Firmen hinterlegt sein?",
+    slug: "concepts",
+    anchors: ["concepts#how-do-relationships-link-records"],
+    alternatives: [],
+  },
+  {
+    id: "de-de-05",
+    docsLocale: "de",
+    query:
+      "Welche Arten von Zusatzfeldern kann ich anlegen, zum Beispiel ein Auswahlmenü?",
+    slug: "concepts",
+    anchors: ["concepts#what-are-custom-columns"],
+    alternatives: ["concepts#how-do-i-add-change-or-delete-a-custom-column"],
+  },
+  {
+    id: "de-de-06",
+    docsLocale: "de",
+    query:
+      "Bei einem meiner Konten steht plötzlich ein Fehler. Wie bringe ich die Verbindung wieder zum Laufen?",
+    slug: "app-profile",
+    anchors: ["app-profile#what-does-each-status-mean"],
+    alternatives: [
+      "app-profile#how-do-i-reactivate-resync-or-disconnect-a-channel",
+    ],
+  },
+  {
+    id: "de-de-07",
+    docsLocale: "de",
+    query:
+      "Wie hänge ich eine Datei an eine Antwort, und wo landen halbfertige Nachrichten?",
+    slug: "app-inbox",
+    anchors: ["app-inbox#how-do-drafts-and-attachments-work"],
+    alternatives: ["app-inbox#how-do-i-reply-to-a-conversation"],
+  },
+  {
+    id: "de-de-08",
+    docsLocale: "de",
+    query: "Kann Mate für mich in der Oberfläche herumklicken?",
+    slug: "app-assistant",
+    anchors: ["app-assistant#how-does-mate-operate-the-interface"],
+    alternatives: [],
+  },
+  {
+    id: "de-de-09",
+    docsLocale: "de",
+    query: "Wo finde ich frühere Unterhaltungen mit dem Assistenten wieder?",
+    slug: "app-assistant",
+    anchors: ["app-assistant#chat-history"],
+    alternatives: [],
+  },
+  {
+    id: "de-de-10",
+    docsLocale: "de",
+    query:
+      "Die Verbindung zwischen ChatGPT und dem CRM bricht mit einer Fehlermeldung ab. Was kann ich prüfen?",
+    slug: "connect-custom-connector",
+    anchors: ["connect-custom-connector#troubleshooting"],
+    alternatives: [],
+  },
+  {
+    id: "de-de-11",
+    docsLocale: "de",
+    query:
+      "Wie viele Nachrichten darf ein angebundenes LinkedIn-Konto pro Tag abrufen?",
+    slug: "messaging-rate-limits",
+    anchors: ["messaging-rate-limits#what-are-the-read-limits-per-provider"],
+    alternatives: [],
+  },
+  {
+    id: "de-de-12",
+    docsLocale: "de",
+    query:
+      "Kann sich bei unserer selbst betriebenen Installation jeder Beliebige ein Konto anlegen?",
+    slug: "self-hosting",
+    anchors: ["self-hosting#who-can-sign-up-on-my-instance"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-01",
+    docsLocale: "en",
+    query:
+      "¿Se puede entrar con la cuenta de Google en una instalación propia?",
+    slug: "self-hosting",
+    anchors: ["self-hosting#can-users-sign-in-with-google-or-microsoft"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-02",
+    docsLocale: "en",
+    query:
+      "¿Cómo pongo un certificado para que mi servidor propio funcione con https?",
+    slug: "self-hosting",
+    anchors: [
+      "self-hosting#how-do-i-put-customermates-behind-a-reverse-proxy-with-https",
+    ],
+    alternatives: [],
+  },
+  {
+    id: "de-es-03",
+    docsLocale: "en",
+    query:
+      "¿Qué datos trae el aviso que recibo cuando alguien borra un contacto?",
+    slug: "webhooks",
+    anchors: ["webhooks#what-do-delete-payloads-contain"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-04",
+    docsLocale: "en",
+    query:
+      "¿Cómo sé qué campos cambiaron exactamente en una actualización que me llega por webhook?",
+    slug: "webhooks",
+    anchors: ["webhooks#the-changes-object"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-05",
+    docsLocale: "en",
+    query:
+      "¿Puedo mandar mis propios encabezados de autorización a mi endpoint?",
+    slug: "webhooks",
+    anchors: ["webhooks#custom-headers-and-body-templates"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-06",
+    docsLocale: "en",
+    query:
+      "Quiero que un flujo de n8n cree contactos en el CRM. ¿Cómo lo hago?",
+    slug: "n8n",
+    anchors: ["n8n#how-do-i-write-to-customermates-from-n8n"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-07",
+    docsLocale: "en",
+    query: "¿Cuántas automatizaciones puedo tener con mi plan?",
+    slug: "app-routines",
+    anchors: ["app-routines#how-many-routines-does-my-plan-include"],
+    alternatives: [
+      "app-company#which-plans-are-there",
+      "app-assistant#plans-and-credits",
+    ],
+  },
+  {
+    id: "de-es-08",
+    docsLocale: "en",
+    query:
+      "¿Qué puede hacer una tarea automática por su cuenta sin pedirme permiso?",
+    slug: "app-routines",
+    anchors: ["app-routines#what-a-routine-may-do-without-approval"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-09",
+    docsLocale: "en",
+    query: "¿Cómo cambio el idioma de la interfaz a español?",
+    slug: "app-profile",
+    anchors: ["app-profile#how-do-i-change-my-name-avatar-language-or-theme"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-10",
+    docsLocale: "en",
+    query:
+      "No me llegó el correo para confirmar mi dirección. ¿Cómo lo pido de nuevo?",
+    slug: "app-profile",
+    anchors: ["app-profile#how-do-i-verify-my-email-address"],
+    alternatives: [],
+  },
+  {
+    id: "de-es-11",
+    docsLocale: "en",
+    query: "¿Cómo busco contactos cuyo nombre contenga «García»?",
+    slug: "filter-syntax",
+    anchors: ["filter-syntax#which-operators-work-on-text-fields"],
+    alternatives: ["filter-syntax#free-text-search-or-a-filter"],
+  },
+  {
+    id: "de-es-12",
+    docsLocale: "en",
+    query: "¿Qué diferencia hay entre un plan Enterprise y los demás?",
+    slug: "app-company",
+    anchors: ["app-company#how-does-an-enterprise-workspace-differ"],
+    alternatives: ["app-company#which-plans-are-there"],
+  },
+  {
+    id: "de-fr-01",
+    docsLocale: "en",
+    query:
+      "Comment faire avancer une opportunité à l'étape suivante directement depuis la vue en colonnes ?",
+    slug: "app-records",
+    anchors: [
+      "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+    ],
+    alternatives: ["app-records#how-do-i-switch-between-table-and-board-view"],
+  },
+  {
+    id: "de-fr-02",
+    docsLocale: "en",
+    query: "Quels graphiques puis-je ajouter à ma page d'accueil ?",
+    slug: "app-dashboard",
+    anchors: ["app-dashboard#which-widget-types-exist"],
+    alternatives: ["app-dashboard#how-does-the-widget-editor-work"],
+  },
+  {
+    id: "de-fr-03",
+    docsLocale: "en",
+    query:
+      "Mes collègues voient-ils les graphiques que j'ai créés sur ma page d'accueil ?",
+    slug: "app-dashboard",
+    anchors: ["app-dashboard#what-does-the-dashboard-show"],
+    alternatives: [],
+  },
+  {
+    id: "de-fr-04",
+    docsLocale: "en",
+    query: "Comment répondre à un client depuis la messagerie unifiée ?",
+    slug: "app-inbox",
+    anchors: ["app-inbox#how-do-i-reply-to-a-conversation"],
+    alternatives: [],
+  },
+  {
+    id: "de-fr-05",
+    docsLocale: "en",
+    query:
+      "Comment écrire à un contact avec qui je n'ai encore jamais échangé ?",
+    slug: "app-inbox",
+    anchors: ["app-inbox#how-do-i-start-a-new-conversation"],
+    alternatives: [],
+  },
+  {
+    id: "de-fr-06",
+    docsLocale: "en",
+    query: "Comment ranger un e-mail dans un autre dossier ?",
+    slug: "app-inbox",
+    anchors: ["app-inbox#how-do-i-move-an-email-to-another-folder"],
+    alternatives: [],
+  },
+  {
+    id: "de-fr-07",
+    docsLocale: "en",
+    query: "Où trouver l'adresse à coller dans Claude pour brancher le CRM ?",
+    slug: "connect-custom-connector",
+    anchors: ["connect-custom-connector#the-url"],
+    alternatives: ["connect-custom-connector#claude", "mcp#the-endpoint"],
+  },
+  {
+    id: "de-fr-08",
+    docsLocale: "en",
+    query:
+      "Puis-je autoriser une fois pour toutes certaines actions de Claude, sans confirmation à chaque fois ?",
+    slug: "connect-custom-connector",
+    anchors: ["connect-custom-connector#confirming-tool-calls"],
+    alternatives: [],
+  },
+  {
+    id: "de-fr-09",
+    docsLocale: "en",
+    query: "Sur quelles technologies repose Customermates ?",
+    slug: "architecture-security",
+    anchors: ["architecture-security#what-is-the-stack"],
+    alternatives: [],
+  },
+  {
+    id: "de-fr-10",
+    docsLocale: "en",
+    query: "À qui dois-je signaler une faille de sécurité ?",
+    slug: "architecture-security",
+    anchors: ["architecture-security#where-do-i-report-a-vulnerability"],
+    alternatives: [],
+  },
+  {
+    id: "de-fr-11",
+    docsLocale: "en",
+    query: "Faut-il payer une licence pour installer Customermates chez soi ?",
+    slug: "self-hosting",
+    anchors: ["self-hosting#is-self-hosting-free-and-do-i-need-a-license"],
+    alternatives: [],
+  },
+  {
+    id: "de-fr-12",
+    docsLocale: "en",
+    query:
+      "L'import de l'historique de mes messages s'est arrêté. Va-t-il reprendre tout seul ?",
+    slug: "messaging-rate-limits",
+    anchors: ["messaging-rate-limits#does-the-history-import-resume-by-itself"],
+    alternatives: [],
+  },
+  {
+    id: "de-it-01",
+    docsLocale: "en",
+    query: "Come creo un'automazione nuova?",
+    slug: "app-routines",
+    anchors: ["app-routines#how-do-i-create-a-routine"],
+    alternatives: [],
+  },
+  {
+    id: "de-it-02",
+    docsLocale: "en",
+    query: "Quanto costa ogni piano e cosa include?",
+    slug: "app-company",
+    anchors: ["app-company#which-plans-are-there"],
+    alternatives: ["app-assistant#plans-and-credits"],
+  },
+  {
+    id: "de-it-03",
+    docsLocale: "en",
+    query: "Come passo a un piano superiore?",
+    slug: "app-company",
+    anchors: ["app-company#how-do-i-choose-or-change-a-plan"],
+    alternatives: ["app-company#where-do-upgrade-buttons-lead"],
+  },
+  {
+    id: "de-it-04",
+    docsLocale: "en",
+    query: "Chi nel team può gestire i pagamenti dell'abbonamento?",
+    slug: "app-company",
+    anchors: ["app-company#who-can-manage-billing"],
+    alternatives: [],
+  },
+  {
+    id: "de-it-05",
+    docsLocale: "en",
+    query: "Come disattivo un collega che ha lasciato l'azienda?",
+    slug: "app-company",
+    anchors: ["app-company#how-do-i-approve-deactivate-or-edit-a-member"],
+    alternatives: [
+      "architecture-security#how-do-i-stop-the-api-keys-of-a-former-member",
+    ],
+  },
+  {
+    id: "de-it-06",
+    docsLocale: "en",
+    query:
+      "Dove vedo se le notifiche inviate al mio server sono andate a buon fine?",
+    slug: "app-company",
+    anchors: ["app-company#deliveries-tab"],
+    alternatives: [
+      "webhooks#how-do-i-debug-a-delivery",
+      "webhooks#how-do-retries-and-failed-deliveries-work",
+    ],
+  },
+  {
+    id: "de-it-07",
+    docsLocale: "en",
+    query:
+      "Come aggiungo un campo personalizzato alle trattative, o come ne elimino uno?",
+    slug: "concepts",
+    anchors: ["concepts#how-do-i-add-change-or-delete-a-custom-column"],
+    alternatives: [],
+  },
+  {
+    id: "de-it-08",
+    docsLocale: "en",
+    query: "Posso filtrare per il valore di un campo che ho creato io?",
+    slug: "filter-syntax",
+    anchors: ["filter-syntax#which-operators-work-on-custom-columns"],
+    alternatives: ["filter-syntax#which-field-names-can-i-use"],
+  },
+  {
+    id: "de-it-09",
+    docsLocale: "en",
+    query: "Quali nomi di campo posso usare nei filtri tramite API?",
+    slug: "filter-syntax",
+    anchors: ["filter-syntax#which-field-names-can-i-use"],
+    alternatives: [],
+  },
+  {
+    id: "de-it-10",
+    docsLocale: "en",
+    query:
+      "Ho Claude Desktop ma non vedo i connettori personalizzati. Posso configurarlo con un file?",
+    slug: "connect-cli",
+    anchors: ["connect-cli#claude-desktop-config-file"],
+    alternatives: [],
+  },
+  {
+    id: "de-it-11",
+    docsLocale: "en",
+    query: "Come faccio a far partire un flusso n8n ogni notte?",
+    slug: "n8n",
+    anchors: ["n8n#how-do-i-run-scheduled-jobs"],
+    alternatives: [],
+  },
+  {
+    id: "de-it-12",
+    docsLocale: "en",
+    query: "Chi può vedere le attività degli altri nella timeline?",
+    slug: "app-dashboard",
+    anchors: ["app-dashboard#who-sees-what-in-a-timeline"],
+    alternatives: [],
+  },
+];
+
+export const DOCS_RETRIEVAL_EVAL: readonly DocsRetrievalEvalItem[] = [
+  ...DOCS_LIVE_CASE_LABELS,
+  ...DOCS_HELDOUT,
+  ...DOCS_EMBEDDING_HELDOUT,
+];

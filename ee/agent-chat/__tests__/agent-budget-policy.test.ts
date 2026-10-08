@@ -23,12 +23,13 @@ import {
   type AgentModelEntry,
 } from "../model-catalog";
 import { agentWebSearchCallLimit } from "../agent-web-search";
+import { JEV_MODEL_ID, JEV_PRICING_PROVIDER } from "../classifier/jev-runner";
 
 const CREDIT = 1_000_000;
 const BALANCED = AGENT_MODELS.chat;
-const NANO: AgentModelEntry = {
-  modelId: "openai/gpt-5-nano",
-  servingProvider: "azure",
+const CHEAPER: AgentModelEntry = {
+  modelId: JEV_MODEL_ID,
+  servingProvider: JEV_PRICING_PROVIDER,
   inferenceRegion: null,
   maxOutputTokens: 8192,
   maxContextTokens: 66_000,
@@ -45,7 +46,7 @@ describe("agent turn credit budget", () => {
   });
 
   it("gives every model its own full envelope, because affordability is no longer a smaller envelope", () => {
-    for (const model of [NANO, BALANCED]) {
+    for (const model of [CHEAPER, BALANCED]) {
       const budget = resolveAgentTurnBudget({ model, availableMicrocents: 500 * CREDIT });
 
       expect(budget).toEqual(
@@ -87,8 +88,8 @@ describe("agent turn credit budget", () => {
 
   it("keeps the round worst case in exact microcents, without a whole-credit round-up or minimum", () => {
     expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(1_825_560);
-    expect(Number.isSafeInteger(agentRoundWorstCaseMicrocents(NANO))).toBe(true);
-    expect(agentRoundWorstCaseMicrocents(NANO) % CREDIT).not.toBe(0);
+    expect(Number.isSafeInteger(agentRoundWorstCaseMicrocents(CHEAPER))).toBe(true);
+    expect(agentRoundWorstCaseMicrocents(CHEAPER) % CREDIT).not.toBe(0);
   });
 
   it.each([
@@ -175,7 +176,7 @@ describe("agent turn credit budget", () => {
   });
 
   it("reserves strictly less for the cheaper model at the same envelope", () => {
-    const fast = resolveAgentTurnBudget({ model: NANO, availableMicrocents: 500 * CREDIT });
+    const fast = resolveAgentTurnBudget({ model: CHEAPER, availableMicrocents: 500 * CREDIT });
     const balanced = resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 500 * CREDIT });
 
     expect(fast?.reservedMicrocents).toBeLessThan(balanced?.reservedMicrocents ?? 0);
@@ -216,14 +217,9 @@ describe("agent turn credit budget", () => {
   });
 
   it("measures the pricing-tier envelope in prompt tokens, per model", () => {
-    const tiered = {
-      ...BALANCED,
-      modelId: "openai/gpt-5.6-luna",
-      servingProvider: "azure",
-      inferenceRegion: null,
-    };
+    const tiered = BALANCED;
 
-    expect(isAgentModelWithinBudgetEnvelope(NANO)).toBe(true);
+    expect(isAgentModelWithinBudgetEnvelope(CHEAPER)).toBe(true);
     expect(isAgentModelWithinBudgetEnvelope(BALANCED)).toBe(true);
     expect(isAgentModelWithinBudgetEnvelope({ ...tiered, maxContextTokens: 400_000 })).toBe(false);
     expect(resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 0 })).toBeNull();
@@ -399,7 +395,7 @@ describe("agent turn budget reasoning settings", () => {
   });
 
   it("omits the reasoning keys entirely for a model without them", () => {
-    const budget = resolveAgentTurnBudget({ model: NANO, availableMicrocents: 500 * CREDIT });
+    const budget = resolveAgentTurnBudget({ model: CHEAPER, availableMicrocents: 500 * CREDIT });
 
     expect(budget).not.toHaveProperty("reasoningEffort");
     expect(budget).not.toHaveProperty("thinkingLevel");

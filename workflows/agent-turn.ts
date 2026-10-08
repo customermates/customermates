@@ -71,7 +71,6 @@ import {
   type AgentContinuationStep,
 } from "@/ee/agent-chat/agent-continuation";
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
-import { benchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
 import { agentAuxiliaryCharge, buildAgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
@@ -132,7 +131,6 @@ export type AgentTurnWorkflowPayload = {
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
   toolsets?: string[];
-  recordToolOutputs?: boolean;
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
@@ -1037,15 +1035,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (deferredRound) deferredRound.outcomes.push(...outcomes);
     };
 
-    const benchmarkToolOutputs: AgentToolOutcome[] = [];
-    const recordBenchmarkToolOutput = (outcome: AgentToolOutcome) => {
-      if (payload.recordToolOutputs) benchmarkToolOutputs.push(outcome);
-    };
-
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
       if (settledToolCallIds.has(toolCallId)) return;
       settledToolCallIds.add(toolCallId);
-      recordBenchmarkToolOutput({ toolCallId, toolName: toolName ?? "", output });
 
       const outcome = agentToolOutcomeStatus(output);
       transcript.completeToolCall({
@@ -1099,7 +1091,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         if (!("threw" in outcome)) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         else if (!settledToolCallIds.has(outcome.toolCallId)) {
           settledToolCallIds.add(outcome.toolCallId);
-          recordBenchmarkToolOutput(outcome);
           transcript.failToolCall(outcome.toolCallId);
         }
       }
@@ -1273,7 +1264,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           if ("threw" in completed) {
             if (settledToolCallIds.has(completed.toolCallId)) continue;
             settledToolCallIds.add(completed.toolCallId);
-            recordBenchmarkToolOutput(completed);
             transcript.failToolCall(completed.toolCallId);
             continue;
           }
@@ -1352,9 +1342,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
         const roundOutcome = await persistRound(payload, {
           roundIndex: roundIndex++,
-          parts: payload.recordToolOutputs
-            ? [...step.content, ...benchmarkToolOutputs.splice(0).map(benchmarkToolOutputPart)]
-            : step.content,
+          parts: step.content,
           finishReason: step.finishReason,
           tokens: roundTokens,
           reasoningTokens: step.usage?.outputTokenDetails?.reasoningTokens ?? 0,

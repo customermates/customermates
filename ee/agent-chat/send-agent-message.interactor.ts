@@ -42,8 +42,6 @@ import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "./model-catalog";
-import { BENCHMARK_MODEL_KEY_PREFIX } from "./benchmark-model-registry";
-import { recordsBenchmarkToolOutputs } from "./benchmark-tool-output";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import {
@@ -284,10 +282,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const surface: "routine" | "chat" = mode === "routine" ? "routine" : "chat";
 
     const storedModelKey = conversation?.modelKey ?? null;
-    const retiredModelKey =
-      storedModelKey !== null &&
-      !storedModelKey.startsWith(BENCHMARK_MODEL_KEY_PREFIX) &&
-      !isAgentModelKey(storedModelKey);
+    const retiredModelKey = storedModelKey !== null && !isAgentModelKey(storedModelKey);
     const requestedModelKey = retiredModelKey ? SHIPPED_AGENT_MODEL_KEY : (storedModelKey ?? data.modelKey ?? null);
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
@@ -512,7 +507,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         surface,
         toolsets,
         ...(schemaDigest ? { schemaDigest } : {}),
-        ...(recordsBenchmarkToolOutputs(process.env) ? { recordToolOutputs: true } : {}),
         ...(wikiWebsiteSetup
           ? {
               wikiWebsiteSetup: {

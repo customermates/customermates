@@ -1,7 +1,6 @@
 import type { AgentModelEntry } from "./agent-model";
 
 import { assertServableEntry } from "./agent-model";
-import { benchmarkModelOverlay } from "./benchmark-model-registry";
 
 export {
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
@@ -36,12 +35,10 @@ export type AgentTurnModelPurpose = Extract<AgentModelPurpose, "chat" | "routine
 for (const [purpose, entry] of Object.entries(AGENT_MODELS)) assertServableEntry(purpose, entry);
 
 export function isAgentModelKey(value: string): boolean {
-  return value === SHIPPED_AGENT_MODEL_KEY || Object.hasOwn(benchmarkModelOverlay(), value);
+  return value === SHIPPED_AGENT_MODEL_KEY;
 }
 
 export function resolveAgentModel(key?: string | null, purpose: AgentTurnModelPurpose = "chat"): AgentModelEntry {
   if (key == null || key === SHIPPED_AGENT_MODEL_KEY) return AGENT_MODELS[purpose];
-  const overlay = benchmarkModelOverlay()[key];
-  if (overlay) return overlay;
   throw new Error(`Unknown agent model "${key}".`);
 }

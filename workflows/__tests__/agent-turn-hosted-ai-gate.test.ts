@@ -420,8 +420,8 @@ const payload: AgentTurnWorkflowPayload = {
   pageRoute: "/en/contacts",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
-    modelSpec: "google/gemini-3.5-flash-lite",
-    servingProvider: "vertex",
+    modelSpec: "anthropic/claude-haiku-5.5",
+    servingProvider: "vertexAnthropic",
     inferenceRegion: "eu",
     reservedMicrocents: 10 * CREDIT,
     roundReserveMicrocents: 2 * CREDIT,
@@ -516,7 +516,7 @@ function unbilledStopStep() {
       gateway: {
         gatewayCost: "0",
         cost: "0",
-        routing: { finalProvider: "vertex", modelAttempts: [] },
+        routing: { finalProvider: "vertexAnthropic", modelAttempts: [] },
       },
     },
   };
@@ -827,9 +827,9 @@ describe("agent-turn hosted-AI provider gates", () => {
               gatewayCost: "0.01",
               cost: "0.01",
               routing: {
-                finalProvider: "vertex",
+                finalProvider: "vertexAnthropic",
                 modelAttempts: [
-                  { providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] },
+                  { providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] },
                 ],
               },
             },
@@ -990,14 +990,14 @@ describe("agent-turn credit-bounded continuation", () => {
     });
 
     expect(state.providerCalls).toBe(1);
-    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_308 }));
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_066 }));
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "partial",
         stopReason: "credit_limit",
         usageSettlement: expect.objectContaining({
           reservedMicrocents: CREDIT,
-          chargedMicrocents: 308,
+          chargedMicrocents: 66,
         }),
       }),
     );
@@ -1074,7 +1074,7 @@ describe("agent-turn credit-bounded continuation", () => {
     });
 
     expect(state.providerCalls).toBe(1);
-    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_308 }));
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_066 }));
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "partial",
@@ -1416,53 +1416,6 @@ describe("agent-turn credit-bounded continuation", () => {
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "completed", stopReason: null }),
     );
-  });
-
-  describe("benchmark tool output recording", () => {
-    const runOneToolRound = async (recordToolOutputs: boolean | undefined) => {
-      state.definitions.push({
-        name: "query_crm_records",
-        description: "query_crm_records",
-        inputSchema: { type: "object" },
-      });
-      state.normalize.mockResolvedValue({ ok: true, input: { typeId: DEAL_TYPE_ID } });
-      state.execute.mockResolvedValue({ ok: true, result: "total: 42" });
-      state.runTools = async ({ messages, executeAndCompleteTool }) => {
-        await executeAndCompleteTool("query_crm_records", { typeId: DEAL_TYPE_ID }, "call-recorded");
-        return {
-          finishReason: "stop",
-          messages,
-          steps: [
-            streamedToolCallStep("query_crm_records", "call-recorded", { typeId: DEAL_TYPE_ID }),
-            streamedStep("Done.", "stop"),
-          ],
-        };
-      };
-      await runAgentTurn(recordToolOutputs === undefined ? payload : { ...payload, recordToolOutputs });
-      return state.recordRound.mock.calls.flatMap(([args]) => (args as { parts: unknown[] }).parts);
-    };
-
-    it("stores the output text next to the tool call when the benchmark asks for it", async () => {
-      const parts = await runOneToolRound(true);
-
-      expect(parts).toContainEqual(
-        expect.objectContaining({
-          type: "benchmark-tool-output",
-          toolCallId: "call-recorded",
-          toolName: "query_crm_records",
-          ok: true,
-          text: "total: 42",
-        }),
-      );
-      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
-    });
-
-    it("stores no output for an ordinary turn", async () => {
-      const parts = await runOneToolRound(undefined);
-
-      expect(parts).toContainEqual(expect.objectContaining({ type: "tool-call", toolCallId: "call-recorded" }));
-      expect(parts).not.toContainEqual(expect.objectContaining({ type: "benchmark-tool-output" }));
-    });
   });
 
   it("adaptively retains only the current partial output when two large length steps do not fit", async () => {
@@ -1946,8 +1899,8 @@ describe("agent-turn provider charge evidence", () => {
       gatewayCost,
       cost: gatewayCost,
       routing: {
-        finalProvider: "vertex",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success }] }],
+        finalProvider: "vertexAnthropic",
+        modelAttempts: [{ providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success }] }],
       },
     },
   });
@@ -2335,7 +2288,7 @@ describe("agent-turn provider charge evidence", () => {
   it("settles the aggregate Gateway receipt without treating opaque provider retries as unreported rounds", async () => {
     const receipt = metadata("0.0005");
     receipt.gateway.routing.modelAttempts[0].providerAttempts.unshift({
-      provider: "vertex",
+      provider: "vertexAnthropic",
       credentialType: "system",
       success: false,
     });
@@ -2515,12 +2468,12 @@ describe("agent-turn provider charge evidence", () => {
       await runAgentTurn({ ...payload, surface });
 
       expect(state.providerCalls).toBe(1);
-      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 308 }));
+      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 66 }));
       expect(state.finalize).toHaveBeenCalledWith(
         expect.objectContaining({
           usageSettlement: expect.objectContaining({
-            costMicrocents: 308,
-            chargedMicrocents: 308,
+            costMicrocents: 66,
+            chargedMicrocents: 66,
             costSource: "estimated",
             policyBreach: false,
           }),
@@ -3591,10 +3544,10 @@ describe("routine browse-or-mutate batch safety", () => {
     providerMetadata: {
       gateway: {
         routing: {
-          finalProvider: "vertex",
+          finalProvider: "vertexAnthropic",
           modelAttempts: [
             {
-              providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }],
+              providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }],
             },
           ],
         },
@@ -3844,8 +3797,8 @@ describe("routine browse-or-mutate batch safety", () => {
       gateway: {
         gatewayCost: "0.0005",
         routing: {
-          finalProvider: "vertex",
-          modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] }],
+          finalProvider: "vertexAnthropic",
+          modelAttempts: [{ providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] }],
         },
       },
     };
@@ -4198,8 +4151,8 @@ describe("agent-turn rate-limited provider requests", () => {
       gatewayCost: "0",
       cost: "0",
       routing: {
-        finalProvider: "vertex",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: false }] }],
+        finalProvider: "vertexAnthropic",
+        modelAttempts: [{ providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: false }] }],
       },
     },
   };
@@ -4208,8 +4161,8 @@ describe("agent-turn rate-limited provider requests", () => {
       gatewayCost: "0.0005",
       cost: "0.0005",
       routing: {
-        finalProvider: "vertex",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] }],
+        finalProvider: "vertexAnthropic",
+        modelAttempts: [{ providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] }],
       },
     },
   };

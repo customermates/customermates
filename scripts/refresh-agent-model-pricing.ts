@@ -13,28 +13,7 @@ const pin = (
 ) => ({ modelId, providerNativeModelId, provider, inferenceRegion });
 
 const PINNED = [
-  pin("google/gemini-3.5-flash-lite", "vertex", "eu"),
-  pin("google/gemini-3.5-flash", "vertex", "eu"),
-  pin("google/gemini-3.6-flash", "vertex", "eu"),
-  pin("google/gemini-3.8-flash", "vertex", "eu"),
-  pin("google/gemini-3.1-flash-lite", "vertex", "eu"),
-  pin("openai/gpt-5.6-luna", "azure", null),
-  pin("openai/gpt-5.6-terra", "azure", null),
-  pin("openai/gpt-5.6-sol", "azure", null),
-  pin("openai/gpt-5-nano", "azure", null),
-  pin("openai/gpt-5-mini", "azure", null),
-  pin("openai/gpt-5.4-mini", "azure", null),
-  pin("openai/gpt-5.4-nano", "azure", null),
   pin("anthropic/claude-haiku-5.5", "vertexAnthropic", "eu"),
-  pin("anthropic/claude-haiku-4.5", "bedrock", "eu"),
-  pin("anthropic/claude-sonnet-5", "bedrock", "eu"),
-  pin("anthropic/claude-opus-5", "bedrock", "eu"),
-  pin("deepseek/deepseek-v4-flash", "azure", null),
-  pin("deepseek/deepseek-v4-pro", "azure", null),
-  pin("zai/glm-5.3-flash", "baseten", null),
-  pin("zai/glm-5.3", "baseten", null),
-  pin("mistral/mistral-large-3", "mistral", null),
-  pin("alibaba/qwen3-coder-next", "bedrock", null),
   pin("typesafe-ai/jev", "digitalocean", null),
 ];
 

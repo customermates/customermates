@@ -532,68 +532,6 @@ describe("agent access", () => {
     },
   );
 
-  it.each([
-    { benchmark: "true", recorded: true },
-    { benchmark: undefined, recorded: false },
-  ])(
-    "asks the turn to record tool outputs only on a local benchmark server ($benchmark)",
-    async ({ benchmark, recorded }) => {
-      vi.stubEnv("LOCAL_AGENT_BENCHMARK", benchmark);
-      try {
-        const background = backgroundTasks();
-        const repo = {
-          normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-          findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-          claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
-          isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
-          createAgentConversationForRun: vi.fn(),
-          deleteUnusedAgentConversation: vi.fn(),
-          recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-          findConversation: vi.fn().mockResolvedValue({
-            id: CONVERSATION_ID,
-            origin: "routine",
-            modelKey: null,
-            creditCeilingMicrocents: 2_000_000n,
-          }),
-          admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
-            Promise.resolve({
-              conversationId: CONVERSATION_ID,
-              userMessageId: args.turn.userMessageId,
-              recentMessages: [
-                {
-                  id: args.turn.userMessageId,
-                  role: "user",
-                  parts: [{ type: "text", text: "Inspect the deal" }],
-                },
-              ],
-            }),
-          ),
-        };
-
-        await runWithTenant(mockUser, () =>
-          new SendAgentMessageInteractor(
-            repo as never,
-            usageService() as never,
-            mockEntitlementService(),
-            background as never,
-            mockRecordDiscovery(),
-            emptyWikiCatalog(),
-          ).invokeRoutine({
-            clientRequestId: CLIENT_REQUEST_ID,
-            conversationId: CONVERSATION_ID,
-            text: "Inspect the deal",
-            retry: false,
-          }),
-        );
-
-        const dispatched = background.dispatchTracked.mock.calls[0]?.[1] as Record<string, unknown>;
-        expect(dispatched.recordToolOutputs === true).toBe(recorded);
-      } finally {
-        vi.unstubAllEnvs();
-      }
-    },
-  );
-
   it("reports temporary capacity pressure separately for a queued routine", async () => {
     const usage = usageService();
     const repo = {
@@ -705,12 +643,9 @@ describe("agent access", () => {
     );
   });
 
-  it.each([
-    ["fast", true],
-    ["bench:retired-arm", false],
-  ] as const)(
-    "continues a conversation stored with the model key %s on the shipped model only when it is a retired catalog key",
-    async (storedKey, continues) => {
+  it.each(["balanced", "fast", "bench:retired-arm"])(
+    "continues a conversation stored with the model key %s on the shipped model",
+    async (storedKey) => {
       const background = backgroundTasks();
       const usage = usageService();
       const repo = {
@@ -756,11 +691,6 @@ describe("agent access", () => {
         retry: false,
       });
 
-      if (!continues) {
-        expect(result).toMatchObject({ ok: false });
-        expect(usage.prepareTurn).not.toHaveBeenCalled();
-        return;
-      }
       expect(result.ok && result.data.disposition).toBe("run");
       expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
         model: AGENT_MODELS.chat,
@@ -770,6 +700,40 @@ describe("agent access", () => {
       });
     },
   );
+
+  it("refuses a requested model key outside the catalog before reserving credits", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      findInteractiveConversation: vi.fn().mockResolvedValue({
+        id: CONVERSATION_ID,
+        origin: "chat",
+        modelKey: null,
+        creditCeilingMicrocents: null,
+      }),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      conversationId: CONVERSATION_ID,
+      modelKey: "bench:nano",
+      text: "Continue the investigation",
+      retry: false,
+    });
+
+    expect(result).toMatchObject({ ok: false });
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+  });
 
   it("does not query prior messages to decide which capabilities are available", async () => {
     const repo = {

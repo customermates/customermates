@@ -28,8 +28,8 @@ import {
 } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 import { env } from "@/env";
-import { requireLocalBenchmarkDatabase } from "@/scripts/agent-benchmark/env";
-import { RetrievalBudget } from "@/scripts/agent-benchmark/retrieval-budget";
+import { requireSingleLocalDatabase } from "@/scripts/local-database-safety";
+import { RetrievalBudget } from "@/tests/helpers/retrieval-budget";
 
 const MICROCENTS_PER_USD = 100_000_000;
 
@@ -292,7 +292,7 @@ export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
     if (!process.env.DATABASE_URL || !process.env.DIRECT_URL)
       throw new Error("Live documentation contracts require both database URLs.");
 
-    const database = new URL(requireLocalBenchmarkDatabase());
+    const database = new URL(requireSingleLocalDatabase(process.env));
     const name = decodeURIComponent(database.pathname.slice(1));
     if (!name || ["customermates", "postgres", "template0", "template1"].includes(name))
       throw new Error("Live documentation contracts require an owned temporary database.");

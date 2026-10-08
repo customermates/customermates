@@ -20,7 +20,7 @@ import {
   WIKI_RETRIEVAL_CORPUS,
   WIKI_RETRIEVAL_QUERIES,
   type WikiEvalCategory as EvalCategory,
-} from "@/scripts/agent-benchmark/retrieval-eval-cases";
+} from "./fixtures/wiki-retrieval-eval";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
