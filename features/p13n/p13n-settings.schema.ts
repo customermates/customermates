@@ -15,6 +15,7 @@ export const ConfigureGraphLayoutSchema = z
       .refine((positions) => Object.keys(positions).length <= CONFIGURE_GRAPH_MAX_POSITIONS, {
         message: "Too many saved node positions",
       }),
+    expanded: z.array(z.string().min(1).max(120)).max(CONFIGURE_GRAPH_MAX_POSITIONS).optional(),
   })
   .strict();
 

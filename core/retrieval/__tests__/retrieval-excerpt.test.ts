@@ -12,14 +12,13 @@ describe("bounded retrieval excerpts", () => {
       "recover the account",
     );
   });
-  it("keeps a matching table row with its header and the section's own app link", () => {
+  it("keeps a matching table row with its header and the row's inline app link", () => {
     const markdown = [
       "An unrelated introduction. ".repeat(120),
       "| Option | Result |",
       "|---|---|",
       "| Default | Plain text |",
-      "| Currency | Changes formatting without converting stored amounts |",
-      "**Link:** `/company/settings`.",
+      "| Currency | Changes formatting in [Settings](app:company/settings) without converting stored amounts |",
     ].join("\n");
     const excerpt = retrievalExcerpt({
       markdown,
@@ -29,8 +28,9 @@ describe("bounded retrieval excerpts", () => {
     });
     expect(excerpt).toContain("| Option | Result |");
     expect(excerpt).toContain("|---|---|");
-    expect(excerpt).toContain("without converting stored amounts");
-    expect(excerpt).toContain("**Link:** `/company/settings`.");
+    expect(excerpt).toContain(
+      "| Currency | Changes formatting in [Settings](app:company/settings) without converting stored amounts |",
+    );
     expect(excerpt.indexOf("| Option")).toBeLessThan(excerpt.indexOf("| Currency"));
     expect(excerpt.length).toBeLessThanOrEqual(400);
   });
@@ -56,14 +56,13 @@ describe("bounded retrieval excerpts", () => {
     expect(unicode.length).toBeLessThanOrEqual(32);
     expect(unicode).not.toMatch(/[\uD800-\uDBFF]…/u);
   });
-  it("retains an oversized section link without sacrificing the app route", () => {
+  it("keeps an inline app link as part of the excerpted prose beside oversized unrelated text", () => {
     const markdown =
       "Introduction. ".repeat(200) +
-      "\nCurrency changes formatting.\n**Link:** `/company/settings`. **Mate:** " +
+      "\nCurrency changes formatting in [Settings](app:company/settings).\n" +
       "Additional navigation guidance. ".repeat(100);
     const excerpt = retrievalExcerpt({ markdown, query: "currency formatting", heading: "## Settings", maxChars: 400 });
-    expect(excerpt).toContain("Currency changes formatting.");
-    expect(excerpt).toContain("**Link:** `/company/settings`.");
+    expect(excerpt).toContain("Currency changes formatting in [Settings](app:company/settings).");
     expect(excerpt.length).toBeLessThanOrEqual(400);
   });
 
@@ -132,14 +131,13 @@ describe("complete answer blocks in retrieval excerpts", () => {
       `${action} ${restriction} ` +
       "Additional background. ".repeat(4);
     const excerpt = retrievalExcerpt({
-      markdown: `${intro}\n\n${paragraph}\n\n**Link:** \`/records\`.`,
+      markdown: `${intro}\n\n${paragraph}`,
       query: "contacts records organizations export",
       heading: "## Records",
       maxChars: 700,
     });
     expect(excerpt).toContain(intro.trim());
     expect(excerpt).toContain(`${action} ${restriction}`);
-    expect(excerpt).toContain("**Link:** `/records`.");
     expect(excerpt.length).toBeLessThanOrEqual(700);
   });
 
@@ -151,13 +149,12 @@ describe("complete answer blocks in retrieval excerpts", () => {
       const adjacent = position === "before" ? `${restriction} ${action}` : `${action} ${restriction}`;
       const paragraph = `${"Additional background. ".repeat(8)}${adjacent} ${"Additional background. ".repeat(14)}`;
       const excerpt = retrievalExcerpt({
-        markdown: `${"Records have shared list settings. ".repeat(9).slice(0, 300)}\n\n${paragraph}\n\n**Link:** \`/records\`.`,
+        markdown: `${"Records have shared list settings. ".repeat(9).slice(0, 300)}\n\n${paragraph}`,
         query: "records export",
         heading: "## Records",
         maxChars: 700,
       });
       expect(excerpt).toContain(adjacent);
-      expect(excerpt).toContain("**Link:** `/records`.");
       expect(excerpt.length).toBeLessThanOrEqual(700);
     },
   );
@@ -180,19 +177,16 @@ describe("complete answer blocks in retrieval excerpts", () => {
 
   it("keeps a later action paragraph together with its permission requirement", () => {
     const paragraph =
-      "To rename pipeline stages, open Edit Field. Changing the column requires Manage on that record type.";
+      "To rename pipeline stages, open Edit Field on [Deals](app:records/deal). Changing the column requires Manage on that record type.";
     const excerpt = retrievalExcerpt({
-      markdown: [
-        "Background details. ".repeat(100),
-        paragraph,
-        "**Link:** `/deals`. **Mate:** " + "Additional navigation guidance. ".repeat(100),
-      ].join("\n\n"),
+      markdown: ["Background details. ".repeat(100), paragraph, "Additional navigation guidance. ".repeat(100)].join(
+        "\n\n",
+      ),
       query: "rename pipeline stages",
       heading: "## Board columns",
       maxChars: 200,
     });
     expect(excerpt).toContain(paragraph);
-    expect(excerpt).toContain("**Link:** `/deals`.");
     expect(excerpt.length).toBeLessThanOrEqual(200);
   });
 
@@ -223,7 +217,7 @@ describe("complete answer blocks in retrieval excerpts", () => {
       "| **Tasks**, **Contacts**, **Organizations**, **Deals**, **Services** | Yes, No | All, Assigned, None | No, Assigned | Read decides whether the sidebar entry appears and which records the member sees. Manage creates, edits and deletes them. |",
       "| **Routines** | Yes, No | All, Assigned, None | No, Assigned | All shows every routine, Assigned only the member's own. |",
       "",
-      "**Link:** `/company/roles`. **Mate:** " + "Additional navigation guidance. ".repeat(12),
+      "Additional navigation guidance. ".repeat(12),
     ].join("\n");
     const excerpt = retrievalExcerpt({
       markdown,
@@ -235,7 +229,6 @@ describe("complete answer blocks in retrieval excerpts", () => {
     expect(excerpt).toContain(definition);
     expect(excerpt).toContain("- **Manage**:");
     expect(excerpt).toContain("- **Read access**:");
-    expect(excerpt).toContain("**Link:** `/company/roles`.");
     expect(excerpt.length).toBeLessThanOrEqual(1_400);
   });
 
@@ -248,7 +241,6 @@ describe("complete answer blocks in retrieval excerpts", () => {
       "- **Scope** decides whether all entries or only the member's assignments are readable.",
       "",
       "Unrelated background. ".repeat(120),
-      "**Link:** `/workspace/access`.",
     ].join("\n");
     const excerpt = retrievalExcerpt({
       markdown,
@@ -257,20 +249,17 @@ describe("complete answer blocks in retrieval excerpts", () => {
     });
     expect(excerpt).toContain("**Editor** permits writing the assigned entries.");
     expect(excerpt).toContain("**Scope** decides whether all entries or only the member's assignments are readable.");
-    expect(excerpt).toContain("**Link:** `/workspace/access`.");
     expect(excerpt.length).toBeLessThanOrEqual(400);
   });
   it("retains a relevant final item when a definition list exceeds the excerpt budget", () => {
     const markdown = [
       "Available recovery choices:",
       "- General background. " + "Additional unrelated detail. ".repeat(100),
-      "- Reactivate reconnects the mailbox.",
-      "**Link:** `/profile/accounts`.",
+      "- Reactivate reconnects the mailbox in [Profile](app:profile).",
     ].join("\n");
     for (const maxChars of [400, 800, 1_400]) {
       const excerpt = retrievalExcerpt({ markdown, query: "reactivate mailbox", maxChars });
-      expect(excerpt).toContain("Reactivate reconnects the mailbox.");
-      expect(excerpt).toContain("**Link:** `/profile/accounts`.");
+      expect(excerpt).toContain("Reactivate reconnects the mailbox in [Profile](app:profile).");
       expect(excerpt.length).toBeLessThanOrEqual(maxChars);
     }
   });
@@ -288,8 +277,6 @@ describe("definition-list context within the excerpt budget", () => {
         (_, index) => `- **Routine category ${index}**: Review during the next planned service cycle.`,
       ),
       final,
-      "",
-      "**Link:** `/support/response`.",
     ].join("\n");
     const excerpt = retrievalExcerpt({
       markdown,
@@ -300,7 +287,6 @@ describe("definition-list context within the excerpt budget", () => {
     expect(markdown.length).toBeGreaterThan(800);
     expect(excerpt).toContain(intro);
     expect(excerpt).toContain(final);
-    expect(excerpt).toContain("**Link:** `/support/response`.");
     expect(excerpt.length).toBeLessThanOrEqual(800);
     expect(excerpt).not.toContain("Routine category 0");
   });
@@ -310,12 +296,7 @@ describe("definition-list context within the excerpt budget", () => {
     const routine = "- **Routine**: Process during the next planned service cycle.";
     const critical = "- **Critical**: Respond within fifteen minutes and keep the requester informed.";
     const block = [intro, "", routine, critical].join("\n");
-    const markdown = [
-      "Historical background. ".repeat(100),
-      block,
-      "Unrelated background. ".repeat(100),
-      "**Link:** `/support/response`.",
-    ].join("\n");
+    const markdown = ["Historical background. ".repeat(100), block, "Unrelated background. ".repeat(100)].join("\n");
     const excerpt = retrievalExcerpt({
       markdown,
       query: "workspace support response rules",
@@ -325,7 +306,6 @@ describe("definition-list context within the excerpt budget", () => {
     expect(markdown.length).toBeGreaterThan(800);
     expect(block.length).toBeLessThan(800);
     expect(excerpt).toContain(block);
-    expect(excerpt).toContain("**Link:** `/support/response`.");
     expect(excerpt.length).toBeLessThanOrEqual(800);
     expect(excerpt.indexOf(routine)).toBeLessThan(excerpt.indexOf(critical));
   });

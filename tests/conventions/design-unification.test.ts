@@ -158,9 +158,7 @@ function handBuiltFocusLinkFindings(sources: SourceFile[]) {
   return findings;
 }
 
-const FOCUS_LINK_ALLOWLIST: Allowlist = {
-  "features/docs/app-links.ts": "I21: build docs app links with focusHref",
-};
+const FOCUS_LINK_ALLOWLIST: Allowlist = {};
 
 describe("rule 36: one open-and-highlight mechanism", () => {
   it("builds and reads ?focus= links only through focus-target.ts", () => {
@@ -228,13 +226,13 @@ function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
 
 const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
   "app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view.tsx":
-    "delivery log: entries are neither opened as an entity nor deleted",
+    "webhook deliveries are a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/audit/operator-audit-page-view.tsx":
-    "operator audit log: entries are neither opened as an entity nor deleted",
+    "the operator audit is a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/users/operator-users-page-view.tsx":
-    "operator console table, outside rule 59 (members, roles, webhooks, routines)",
+    "internal back-office surface with its own guarded flows, not customer UI",
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx":
-    "operator console table, outside rule 59 (members, roles, webhooks, routines)",
+    "internal back-office surface with its own guarded flows, not customer UI",
 };
 
 const TABLE_ROW_MENU_ALLOWLIST: Allowlist = {
