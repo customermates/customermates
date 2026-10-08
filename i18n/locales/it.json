@@ -4328,6 +4328,7 @@
       "reject": "Rifiuta",
       "rejected": "Proposta rifiutata",
       "stale": "Questa pagina è cambiata dopo la proposta di Mate. Rifiutala o chiedi a Mate di proporre di nuovo la modifica.",
+      "staleShort": "Pagina modificata",
       "title": "Proposte"
     },
     "reload": "Ricarica pagina",

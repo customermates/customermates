@@ -4328,6 +4328,7 @@
       "reject": "Ablehnen",
       "rejected": "Vorschlag abgelehnt",
       "stale": "Diese Seite wurde geändert, nachdem Mate den Vorschlag gemacht hat. Lehne ihn ab oder bitte Mate, die Änderung neu vorzuschlagen.",
+      "staleShort": "Seite geändert",
       "title": "Vorschläge"
     },
     "reload": "Seite neu laden",

@@ -117,11 +117,8 @@ describeDatabase("Knowledge Base proposals on PostgreSQL", () => {
   const storedPage = async (id: string) =>
     (await client.query('SELECT "title", "markdown" FROM "WikiPage" WHERE "id" = $1', [id])).rows[0] ?? null;
   const storedProposal = async (id: string) =>
-    (
-      await client.query('SELECT "status", "reviewedByUserId", "pageId" FROM "WikiPageProposal" WHERE "id" = $1', [
-        id,
-      ])
-    ).rows[0];
+    (await client.query('SELECT "status", "reviewedByUserId", "pageId" FROM "WikiPageProposal" WHERE "id" = $1', [id]))
+      .rows[0];
 
   beforeAll(async () => {
     await client.connect();

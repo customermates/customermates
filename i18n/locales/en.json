@@ -4328,6 +4328,7 @@
       "reject": "Reject",
       "rejected": "Proposal rejected",
       "stale": "This page changed after Mate proposed this. Reject it, or ask Mate to propose the change again.",
+      "staleShort": "Page changed",
       "title": "Proposals"
     },
     "reload": "Reload page",

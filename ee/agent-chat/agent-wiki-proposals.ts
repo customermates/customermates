@@ -39,7 +39,10 @@ export function routineManageWikiPagesTool(conversationId: string | undefined): 
       if (!conversationId)
         return mcpMessageFailure("This routine has no conversation to attach the proposal to. Nothing was changed.");
       return runInteractor(
-        getProposeWikiPageChangesInteractor().invoke({ ...params, conversationId } as unknown as ProposeWikiPageChangesData),
+        getProposeWikiPageChangesInteractor().invoke({
+          ...params,
+          conversationId,
+        } as unknown as ProposeWikiPageChangesData),
         proposalResult,
       );
     },

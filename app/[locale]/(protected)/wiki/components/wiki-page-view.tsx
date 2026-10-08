@@ -8,6 +8,7 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
+import { Action, Resource } from "@/generated/prisma";
 import { BookOpen, ChevronDown, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -39,6 +40,8 @@ import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths"
 import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
 
 import { WikiPageActions } from "./wiki-page-actions";
+import { WikiProposals } from "./wiki-proposals";
+import { WikiProposalsStore } from "./wiki-proposals.store";
 import { WikiPageOutline } from "./wiki-page-outline";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
 import { WikiLinkPicker } from "./wiki-link-picker";
@@ -86,6 +89,24 @@ const WikiPageViewContent = observer(function WikiPageView({
   const titleContainer = useRef<HTMLDivElement>(null);
   const documentContainer = useRef<HTMLDivElement>(null);
   const pages = useWikiPages(listPage);
+  const userStore = rootStore.userStore as typeof rootStore.userStore | undefined;
+  const canReviewProposals = typeof userStore?.can === "function" && userStore.can(Resource.wiki, Action.update);
+  const [proposals] = useState(() => new WikiProposalsStore(rootStore, () => router.refresh()));
+  useEffect(() => {
+    if (!canReviewProposals) return;
+    proposals.bind();
+    return () => proposals.dispose();
+  }, [canReviewProposals, proposals]);
+  const canApplyProposal = useCallback(
+    (action: "create" | "update" | "delete") =>
+      Boolean(
+        userStore?.can(
+          Resource.wiki,
+          action === "create" ? Action.create : action === "update" ? Action.update : Action.delete,
+        ),
+      ),
+    [userStore],
+  );
   const { columnWidths, commitColumnWidths } = useP13nColumnWidths({
     initial: layoutInitial,
     p13nId: rootStore.appMode === "demo" ? undefined : WIKI_LAYOUT_P13N_ID,
@@ -163,13 +184,26 @@ const WikiPageViewContent = observer(function WikiPageView({
           canManage={canManage}
           formId={formId}
           hasDocument={hasDocument}
+          proposals={canReviewProposals ? <WikiProposals canApply={canApplyProposal} store={proposals} /> : undefined}
           store={store}
           onCancelCreate={cancelCreate}
           onCreate={create}
           onReload={reload}
         />
       ),
-    [canManage, cancelCreate, create, formId, hasDocument, isNavigating, reload, store],
+    [
+      canApplyProposal,
+      canManage,
+      canReviewProposals,
+      cancelCreate,
+      create,
+      formId,
+      hasDocument,
+      isNavigating,
+      proposals,
+      reload,
+      store,
+    ],
   );
   useSetTopBarActions(topBar);
   const kindLabels: Record<WikiPageKind, string> = {
