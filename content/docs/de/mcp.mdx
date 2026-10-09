@@ -148,9 +148,9 @@ Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle
 **Nur lesend** bedeutet, dass ein Tool nicht schreibt. **Kann Daten löschen** kennzeichnet ein Tool mit destruktiven Aktionen; nicht jede seiner Aktionen löscht (eine Konfigurationsvorschau schreibt zum Beispiel nichts). Tools, die Nachrichten, Einladungen oder Supportanfragen versenden, E-Mails verschieben oder Anbieterdaten ändern, haben auch ohne destruktives Kennzeichen reale Auswirkungen. Stellen Sie die Client-Freigabe für die konkrete Aktion ein: Das Backend prüft Berechtigungen und Eingaben, aber ein externer MCP-Aufruf öffnet keinen Freigabedialog des gehosteten Assistenten.
 
 {/* mcp-catalog:flags */}
-**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`, `read_recently_deleted_configuration`
+**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`, `read_recently_deleted_configuration`
 
-**Kann Daten löschen:** `mutate_crm_record`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
+**Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
 
 Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
@@ -204,7 +204,7 @@ Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Wer
 
 #### `mutate_crm_record`
 
-Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben; `{ fieldId, append }` hängt Markdown nach einer Leerzeile an ein Feld vom Typ Formatierter Text oder Text an, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Datensatzversion. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Löschen kann Datensätze und abhängige Positionen dauerhaft entfernen: vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID.
+Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben; `{ fieldId, append }` hängt Markdown nach einer Leerzeile an ein Feld vom Typ Formatierter Text oder Text an, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Datensatzversion. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Eine Löschung vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID. Löschen verschiebt Datensätze, ihre Unterlisten-Zeilen und kaskadierende Datensätze für 30 Tage in den Papierkorb und gibt eine trashBatchId zum Wiederherstellen zurück; permanent: true löscht sie sofort endgültig.
 
 **Kann Daten löschen.** Pflicht: `expectedRevision`, `idempotencyKey`, `mutation`.
 
@@ -225,6 +225,18 @@ Je Quelldatensatz einmal zählen oder aggregieren. Quellabfrage, Aggregation, op
 Einen dauerhaften Vorgang über operationId bis zum Abschluss, Fehler oder Abbruch verfolgen. Mit wachsenden Abständen abfragen. Während der Vorbereitung bleibt der letzte vollständige Datenstand lesbar; CRM-Schreibzugriffe im Workspace pausieren. Ein ausstehendes Ergebnis bestätigt noch keine Veröffentlichung.
 
 **Nur lesend.** Pflicht: `operationId`.
+
+#### `read_trash`
+
+Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit wer sie gelöscht hat, wann, und wie viele Tage bleiben, bis sie endgültig gelöscht werden. Nach Art, Liste und Name filtern. Aufgelistet wird nur, was du sehen und löschen könntest; Administratoren sehen alles.
+
+**Nur lesend.** Optional: `kinds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
+
+#### `manage_trash`
+
+Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvorgangs über seine batchId), genau ansehen, was eine endgültige Löschung entfernt, Elemente endgültig löschen oder als Administrator den Papierkorb leeren. Endgültiges Löschen lässt sich nicht rückgängig machen und entfernt die Werte der gelöschten Datensätze aus dem Verlauf.
+
+**Kann Daten löschen.** Pflicht: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
 {/* /mcp-catalog */}
 
 ### Stapel-Update über Kanalkennungen [#batch-identifier-update]
@@ -673,7 +685,7 @@ Tarife lehnen auf demselben Weg ab. Messaging-, Kalender- und Social-Tools brauc
 ### Tool-Metadaten und serverseitige Grenzen [#tool-metadata-and-server-side-constraints]
 
 - **Backend-Regeln gelten für jeden Aufrufer.** Die gemeinsamen Operationen prüfen Mandant, aktuellen Datensatzzugriff, Schema-Rechte, erwartete Revisionen und Transaktionsintegrität. MCP-Metadaten leiten den Client an, gewähren aber keine Rechte.
-- **Löschfolgen vorher prüfen.** Eine Löschung kann abhängige Datensätze dauerhaft entfernen. Die konkrete Vorschau mit dem Nutzer bestätigen und ihren Hash übergeben; geänderte Abhängigkeiten oder Versionen erfordern eine neue Vorschau.
+- **Löschfolgen vorher prüfen.** Eine Löschung verschiebt den Datensatz und abhängige Datensätze in den Papierkorb, aus dem `manage_trash` sie 30 Tage lang wiederherstellt; `permanent: true`, `delete_permanently` und `empty` lassen sich nicht rückgängig machen. Die konkrete Vorschau mit dem Nutzer bestätigen und ihren Hash übergeben; geänderte Abhängigkeiten oder Versionen erfordern eine neue Vorschau.
 - **Dieselbe Anfrage wiederholen.** Nach verlorener Antwort Schlüssel und Nutzdaten beibehalten. Eine andere Änderung braucht einen neuen Schlüssel. Für vorbereitete Vorgänge den Status lesen, statt erneut anzulegen.
 - **Nachrichten als Entwürfe vorbereiten.** `save_message_draft` hält die Nachricht zur Prüfung in der Inbox. `send_email` und `send_chat_message` senden sofort, externe Clients müssen also vorher die Bestätigung einholen. Erfolg bedeutet, dass der Anbieter die Nachricht angenommen hat, nicht dass sie angekommen ist. Ein Fehler sagt, ob ein neuer Versuch helfen kann, und sein strukturiertes Ergebnis enthält nur dann `retryable: true`: Nach einer Zeitüberschreitung oder einem Anbieterfehler beim Senden zuerst die Konversation prüfen, bevor erneut gesendet wird.
 - **Aktuelle Schemas verwenden.** `tools/list` beschreibt erlaubte Argumente. Kundenschemas liefern stabile IDs und erlaubte Operationen; Namen und Beschreibungen setzen keine Regeln außer Kraft.
