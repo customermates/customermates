@@ -1070,6 +1070,8 @@
       "subjectRequired": "Ajoutez un objet.",
       "termsNotAgreed": "Vous devez accepter les conditions générales.",
       "threadNotFound": "ID de conversation introuvable ou inaccessible.",
+      "trashChanged": "La corbeille a changé entre-temps. Vérifiez ce qui sera supprimé et réessayez.",
+      "trashItemNotFound": "Cet élément n’est plus dans la corbeille.",
       "unipileAccountRestricted": "Le fournisseur a restreint ce canal. Le reconnecter ne résoudra rien ; réglez d’abord la restriction auprès du fournisseur.",
       "unipileDisconnectedAccount": "Le canal est déconnecté. Son propriétaire doit le reconnecter dans Canaux avant qu’il soit à nouveau utilisable.",
       "unipileFeatureUnavailable": "Ce n'est pas disponible sur ce canal. Réessayer n'aidera pas ; l'équipe a été prévenue.",
@@ -1150,7 +1152,9 @@
       },
       "record": {
         "created": "Fiche créée",
-        "deleted": "Fiche supprimée",
+        "deleted": "Enregistrement placé dans la corbeille",
+        "deletedPermanently": "Enregistrement supprimé définitivement",
+        "restored": "Enregistrement restauré",
         "updated": "Fiche mise à jour"
       },
       "record_grants": {
@@ -3018,7 +3022,9 @@
         "relationship": "Choisissez les enregistrements liés à utiliser.",
         "step": "Choisissez les valeurs pour {operation}.",
         "sum": "Choisissez la valeur à additionner.",
-        "take": "Choisissez la valeur à reprendre."
+        "take": "Choisissez la valeur à reprendre.",
+        "trigger": "Choisissez le champ qui déclenche l'enregistrement.",
+        "triggerValue": "Choisissez la valeur qui déclenche l'enregistrement."
       },
       "moreOptions": "Plus d'options",
       "of": "de",
@@ -3269,7 +3275,6 @@
       "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
       "resetLayout": "Réinitialiser la disposition",
       "showFewer": "Afficher moins",
-      "sublistOf": "Sous-liste de {list}",
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"
     },
@@ -3544,7 +3549,7 @@
         "singular": "Tâche"
       }
     },
-    "sublistExplanation": "Chaque entrée appartient à un élément {parent}, se modifie à l’intérieur, partage ses accès et est supprimée avec lui.",
+    "sublistSentence": "Sous-liste de {list} · chaque entrée vit dans un élément {parent}, partage ses accès et est supprimée avec lui.",
     "suggestedAttribute": "Suggestion",
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
@@ -3699,7 +3704,8 @@
           "messageReceived": "Recevez un nouveau message entrant non dupliqué via un compte connecté.",
           "messageUpdated": "Modifiez un message chez le fournisseur de messagerie connecté.",
           "recordCreated": "Créez un enregistrement dans Customermates : {entity}.",
-          "recordDeleted": "Supprimez un enregistrement dans Customermates : {entity}.",
+          "recordDeleted": "Placer un enregistrement dans la corbeille dans Customermates : {entity}.",
+          "recordRestored": "Restaurer un enregistrement depuis la corbeille dans Customermates : {entity}.",
           "recordUpdated": "Apportez une véritable modification à un enregistrement dans Customermates : {entity}.",
           "relationCreated": "Faites accepter une demande de connexion LinkedIn via un compte connecté."
         },

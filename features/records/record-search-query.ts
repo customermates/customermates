@@ -53,7 +53,7 @@ export function compileRecordSearch(
     const scope = access.get(type.id) ?? { access: "none" as const, userId: "" };
     const matching =
       "refs" in request
-        ? Prisma.sql`SELECT id FROM "CrmRecord" WHERE "companyId" = ${companyId} AND "typeId" = ${type.id}
+        ? Prisma.sql`SELECT id FROM "CrmRecord" WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND "deletedAt" IS NULL
           AND id IN (${Prisma.join(request.refs.filter((ref) => ref.typeId === type.id).map((ref) => ref.recordId))})`
         : compileRecordQuery(
             companyId,

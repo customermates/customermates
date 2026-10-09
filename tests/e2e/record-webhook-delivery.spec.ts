@@ -195,7 +195,7 @@ test("delivers only deleted records that matched the webhook filter before remov
     await page.locator("#settings-webhooks-add").click();
     await dialog.locator("#webhook-modal-url").fill(receiverUrl);
     await dialog.locator("#webhook-modal-events").click();
-    await page.getByRole("option", { name: "Record deleted", exact: true }).click();
+    await page.getByRole("option", { name: "Record moved to Trash", exact: true }).click();
     await page.keyboard.press("Escape");
     await dialog.getByRole("combobox", { name: "Records from", exact: false }).click();
     await page.getByRole("option", { name: "Projects", exact: true }).click();
@@ -255,7 +255,7 @@ test("delivers only deleted records that matched the webhook filter before remov
         { timeout: 90000 },
       )
       .toEqual([{ status: "success", attempts: 1, recordId: projects.get("Ready project"), afterVersion: null }]);
-    const remaining = await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [
+    const remaining = await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL', [
       companyId,
       typeId,
     ]);

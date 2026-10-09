@@ -22,6 +22,9 @@ import { deterministicId } from "./crm-preset";
 import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
+import { RecordTrashService } from "./record-trash.service";
+import type { RecordModel } from "./record-model.schema";
+import { RestoreSummarySchema } from "./record-query.schema";
 
 const CursorSchema = z.union([
   z.object({
@@ -36,8 +39,18 @@ const SourcesSchema = z.object({
   captures: z.array(z.object({ ref: RecordRefSchema, fieldIds: z.array(z.uuid()) })),
   affectedTypeIds: z.array(z.uuid()),
 });
+const RestoreRequestSchema = z.object({ itemIds: z.array(z.uuid()), idempotencyKey: z.string() });
+const RestoreCursorSchema = z.object({
+  phase: z.literal("restore"),
+  index: z.number().int().nonnegative(),
+  started: z.boolean(),
+  pass: z.number().int().nonnegative().default(0),
+  restoredBeforePass: z.number().int().optional(),
+});
+
 const BACKGROUND_FANOUT_LIMIT = 1000000;
 const BATCH_SIZE = 50;
+const RESTORE_PAGE_SIZE = 200;
 
 export class RecordOperationService extends UserAccessor {
   constructor(
@@ -62,6 +75,7 @@ export class RecordOperationService extends UserAccessor {
           if (state?.activeOperationId !== operationId || state.revision !== operation.expectedRevision)
             throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
           const current = await this.records.getModel();
+          if (operation.kind === "restore") return await this.advanceRestore(operation, current, policy);
           const staging = createRecordStagingRepo(this.records, operationId, this.companyId);
           const journal = new RecordJournal(staging, current, BACKGROUND_FANOUT_LIMIT, {
             base: this.records,
@@ -107,7 +121,7 @@ export class RecordOperationService extends UserAccessor {
                   request.mutation.action === "delete"
                     ? [request.mutation.ref]
                     : request.mutation.targets.map((target) => target.ref);
-                for (const ref of refs) await this.records.queueDeletionRef(operationId, ref);
+                for (const ref of refs) await this.records.queueDeletionRef(operationId, ref, recordKey(ref));
                 await this.records.updateOperation(operationId, { cursor: { phase: "deletePlan", index: 0 } });
                 return { done: false };
               }
@@ -157,6 +171,7 @@ export class RecordOperationService extends UserAccessor {
               operationId,
               BATCH_SIZE,
               BACKGROUND_FANOUT_LIMIT,
+              { companyId: this.companyId, actorId: this.userId },
             ).advance(deletionCursor.data, mutation, model, policy);
             if (result.affectedTypeIds) {
               const typeIds = new Set(result.affectedTypeIds);
@@ -199,7 +214,9 @@ export class RecordOperationService extends UserAccessor {
               });
               return { done: false };
             }
-            const refs = await staged.getRecordRefsCompanyWide(typeId, cursor.afterId, BATCH_SIZE);
+            const refs = await staged.getRecordRefsCompanyWide(typeId, cursor.afterId, BATCH_SIZE, {
+              includeTrash: true,
+            });
             const writer = new RecordConfigurationWriter(staged, calculations);
             for (const ref of refs) await writer.initializeRecord(ref, prepared, current, BACKGROUND_FANOUT_LIMIT);
             await journal.persist();
@@ -297,12 +314,27 @@ export class RecordOperationService extends UserAccessor {
             }
           }
           await this.records.publishStage(operationId, model.revision);
+          const deletion = prepared ? null : MutateRecordSchema.parse(operation.request).mutation;
+          const trashed = deletion?.action === "delete" || deletion?.action === "deleteMany";
+          const permanent = trashed && Boolean(deletion.permanent);
+          if (permanent) {
+            const items = await this.records.getRecordTrashItemsCompanyWide({ batchId: operationId });
+            const request = z.object({ idempotencyKey: z.string() }).parse(operation.request);
+            await new RecordTrashService(this.records).purge(
+              items.map((item) => item.id),
+              model,
+              this.userId,
+              request.idempotencyKey,
+              { kind: "mutation", operationId },
+            );
+          }
           await this.records.updateOperation(operationId, {
             state: "completed",
             result: {
               status: "completed",
               refs: [],
               schemaRevision: model.revision,
+              ...(trashed && !permanent ? { trashBatchId: operationId } : {}),
             },
             leaseUntil: null,
           });
@@ -319,6 +351,92 @@ export class RecordOperationService extends UserAccessor {
       );
       return { done: true };
     }
+  }
+
+  private async advanceRestore(
+    operation: NonNullable<Awaited<ReturnType<RecordRepo["getOperation"]>>>,
+    model: RecordModel,
+    policy: Awaited<ReturnType<RecordAccessPolicy["load"]>>,
+  ): Promise<{ done: boolean }> {
+    const request = RestoreRequestSchema.parse(operation.request);
+    const cursor = RestoreCursorSchema.parse(operation.cursor ?? { phase: "restore", index: 0, started: false });
+    const summary = RestoreSummarySchema.parse(
+      (await this.records.getStageRow(operation.id, "restore", "summary")) ?? {
+        restoredItemIds: [],
+        blocked: [],
+        restoredRecords: 0,
+        droppedLinks: 0,
+      },
+    );
+    const queue = z
+      .array(z.uuid())
+      .parse((await this.records.getStageRow(operation.id, "restore", "queue")) ?? request.itemIds);
+    const itemId = queue[cursor.index];
+    if (!itemId) {
+      const retry = summary.blocked.filter((blocker) => blocker.reason === "parentDeleted");
+      const progressed = summary.restoredItemIds.length > (cursor.restoredBeforePass ?? -1);
+      if (retry.length && progressed && cursor.pass < 5) {
+        await this.records.stageRow(operation.id, "restore", "summary", {
+          ...summary,
+          blocked: summary.blocked.filter((blocker) => blocker.reason !== "parentDeleted"),
+        });
+        await this.records.stageRow(
+          operation.id,
+          "restore",
+          "queue",
+          retry.map((blocker) => blocker.itemId),
+        );
+        await this.records.updateOperation(operation.id, {
+          cursor: {
+            phase: "restore",
+            index: 0,
+            started: false,
+            pass: cursor.pass + 1,
+            restoredBeforePass: summary.restoredItemIds.length,
+          },
+          leaseUntil: new Date(Date.now() + 60000),
+        });
+        return { done: false };
+      }
+      await this.records.updateOperation(operation.id, {
+        state: "completed",
+        result: { status: "completed", refs: [], schemaRevision: model.revision, restore: summary },
+        leaseUntil: null,
+      });
+      await this.records.clearOperationLock(operation.id);
+      return { done: true };
+    }
+    const service = new RecordTrashService(this.records);
+    const [item] = await this.records.getRecordTrashItemsCompanyWide({ ids: [itemId] });
+    const blocker = item && !cursor.started ? await service.accessible(item, model, policy) : null;
+    const next = { ...cursor, index: cursor.index + 1, started: false };
+    if (!item || blocker) {
+      await this.records.stageRow(operation.id, "restore", "summary", {
+        ...summary,
+        blocked: blocker ? [...summary.blocked, blocker] : summary.blocked,
+      });
+      await this.records.updateOperation(operation.id, { cursor: next, leaseUntil: new Date(Date.now() + 60000) });
+      return { done: false };
+    }
+    const refs = await this.records.getTrashedRecordRefsCompanyWide([item.id], RESTORE_PAGE_SIZE);
+    const journal = new RecordJournal(this.records, model, BACKGROUND_FANOUT_LIMIT);
+    const droppedLinks = await service.restoreRecords(refs, model, journal, BACKGROUND_FANOUT_LIMIT);
+    await journal.flush(model, this.userId, request.idempotencyKey, { kind: "mutation", operationId: operation.id });
+    const finished = refs.length < RESTORE_PAGE_SIZE;
+    if (finished) await this.records.removeTrashItems([item.id]);
+    await this.records.stageRow(operation.id, "restore", "summary", {
+      ...summary,
+      restoredItemIds: finished ? [...summary.restoredItemIds, item.id] : summary.restoredItemIds,
+      restoredRecords: summary.restoredRecords + refs.length,
+      droppedLinks: summary.droppedLinks + droppedLinks,
+    });
+    await this.records.updateOperation(operation.id, {
+      state: "staging",
+      cursor: finished ? next : { ...cursor, started: true },
+      processed: operation.processed + refs.length,
+      leaseUntil: new Date(Date.now() + 60000),
+    });
+    return { done: false };
   }
 
   async fail(operationId: string, errorCode: string): Promise<void> {

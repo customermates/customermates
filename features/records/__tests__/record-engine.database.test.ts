@@ -3065,7 +3065,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(
         await f.run(() =>
           prisma.crmRecord.count({
-            where: { companyId: f.company.id, typeId: f.id("lineItem") },
+            where: { companyId: f.company.id, typeId: f.id("lineItem"), deletedAt: null },
           }),
         ),
       ).toBe(0);
@@ -3164,8 +3164,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       const liveGraph = () =>
         f.run(() =>
           Promise.all([
-            prisma.crmRecord.count({ where: { companyId: f.company.id } }),
-            prisma.recordLink.count({ where: { companyId: f.company.id } }),
+            prisma.crmRecord.count({ where: { companyId: f.company.id, deletedAt: null } }),
+            prisma.recordLink.count({ where: { companyId: f.company.id, deletedAt: null } }),
             prisma.eventLog.count({
               where: { companyId: f.company.id, causeId: idempotencyKey },
             }),
@@ -5980,6 +5980,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           action: "delete",
           ref: contact,
           expectedVersion: (await f.readRecord(contact)).version,
+          permanent: true,
         },
         f.admin,
         randomUUID(),
@@ -7778,7 +7779,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expectedRevision: 1,
       expectedVersion: version,
     };
-    const before = await f.run(() => f.repo.countRecordsCompanyWide(f.model.types.map((type) => type.id)));
+    const before = await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id, deletedAt: null } }));
     const preview = await f.run(() => f.previewDeletion.invoke(input));
     expect(preview).toMatchObject({
       ok: true,
@@ -7797,7 +7798,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ]),
       },
     });
-    expect(await f.run(() => f.repo.countRecordsCompanyWide(f.model.types.map((type) => type.id)))).toBe(before);
+    expect(await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id, deletedAt: null } }))).toBe(
+      before,
+    );
     if (!preview.ok) throw preview.error;
     expect(await f.update(line, [["lineItem.name", textValue("Changed after preview")]])).toMatchObject({ ok: true });
     expect((await f.readRecord(service)).version).toBe(version);
@@ -7809,7 +7812,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         expectedImpactHash: preview.data.impactHash,
       }),
     ).toMatchObject({ ok: false });
-    expect(await f.run(() => f.repo.countRecordsCompanyWide(f.model.types.map((type) => type.id)))).toBe(before);
+    expect(await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id, deletedAt: null } }))).toBe(
+      before,
+    );
     const refreshed = await f.run(() => f.previewDeletion.invoke(input));
     if (!refreshed.ok) throw refreshed.error;
     expect(refreshed.data.impactHash).not.toBe(preview.data.impactHash);
@@ -7823,7 +7828,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const applied = await f.mutation(mutation, f.admin, key);
     expect(applied).toMatchObject({ ok: true });
     expect(await f.mutation(mutation, f.admin, key)).toEqual(applied);
-    expect(await f.run(() => f.repo.countRecordsCompanyWide(f.model.types.map((type) => type.id)))).toBe(before - 3);
+    expect(await f.run(() => prisma.crmRecord.count({ where: { companyId: f.company.id, deletedAt: null } }))).toBe(
+      before - 3,
+    );
     expect(await f.value(deal, "deal.totalValue")).toEqual({
       state: "value",
       value: decimal("0"),

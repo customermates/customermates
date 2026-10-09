@@ -75,7 +75,7 @@ export class RecordRecipientReader {
         const policy = recordAccessForActor({ actor, model, grants, records, companyId, userId });
         const record = await new RecordHistoryReader(records).redact(payload, model, policy, "delivery");
         if (!record) return null;
-        if (event.kind !== "record.deleted") {
+        if (event.kind !== "record.deleted" && event.kind !== "record.deletedPermanently") {
           const sourceQueries = subscription?.sources?.length
             ? subscription.sources
                 .filter(
