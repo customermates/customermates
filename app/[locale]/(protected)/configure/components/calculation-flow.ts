@@ -277,6 +277,7 @@ export function calculableFields(
       field.typeId === typeId &&
       !field.archived &&
       field.id !== excludeFieldId &&
+      field.valueType !== "richText" &&
       !(field.valueType === "select" && field.multiple) &&
       (!types || types.includes(field.valueType)),
   );
