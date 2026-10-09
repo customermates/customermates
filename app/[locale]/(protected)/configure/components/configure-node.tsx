@@ -18,8 +18,9 @@ const MORE_INSET: Record<RowLead, string | undefined> = { none: undefined, marke
 const HEADER_TRIGGER =
   "flex min-w-0 flex-1 items-center gap-2.5 px-3.5 pt-3 pb-2.5 text-left outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:pointer-events-none";
 
-const ROW_BUTTON =
-  "nodrag flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none";
+const ROW_LAYOUT = "flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm";
+
+const ROW_BUTTON = "nodrag outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none";
 
 export function ConfigureNode({ dashed = false, className, ...props }: ComponentProps<"div"> & { dashed?: boolean }) {
   return (
@@ -112,22 +113,12 @@ export function ConfigureNodeRows({
   );
 }
 
-export function ConfigureNodeRow({
-  marker,
-  name,
-  detail,
-  kind,
-  className,
-  ...props
-}: Omit<ComponentProps<"button">, "children"> & {
-  marker?: ReactNode;
-  name: ReactNode;
-  detail?: ReactNode;
-  kind: ReactNode;
-}) {
+type RowContent = { marker?: ReactNode; name: ReactNode; detail?: ReactNode; kind: ReactNode };
+
+function ConfigureNodeRowContent({ marker, name, detail, kind }: RowContent) {
   const lead = useContext(RowLeadContext);
   return (
-    <button className={cn(ROW_BUTTON, className)} type="button" {...props}>
+    <>
       {marker ?? (lead === "marker" && <span aria-hidden className="size-3.5 shrink-0" />)}
 
       <span className="min-w-0 flex-1 truncate">
@@ -137,7 +128,37 @@ export function ConfigureNodeRow({
       </span>
 
       <span className="shrink-0 text-muted-foreground">{kind}</span>
+    </>
+  );
+}
+
+export function ConfigureNodeRow({
+  marker,
+  name,
+  detail,
+  kind,
+  className,
+  ...props
+}: Omit<ComponentProps<"button">, "children"> & RowContent) {
+  return (
+    <button className={cn(ROW_LAYOUT, ROW_BUTTON, className)} type="button" {...props}>
+      <ConfigureNodeRowContent detail={detail} kind={kind} marker={marker} name={name} />
     </button>
+  );
+}
+
+export function ConfigureNodeStaticRow({
+  marker,
+  name,
+  detail,
+  kind,
+  className,
+  ...props
+}: Omit<ComponentProps<"div">, "children"> & RowContent) {
+  return (
+    <div className={cn(ROW_LAYOUT, className)} {...props}>
+      <ConfigureNodeRowContent detail={detail} kind={kind} marker={marker} name={name} />
+    </div>
   );
 }
 
