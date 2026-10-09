@@ -51,7 +51,11 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
   const rowActions = useCallback(
     (item: TrashItemDto) => (
       <RecordRowActions
-        action={{ icon: RotateCcw, label: t("Trash.restore"), onSelect: () => store.restoreItems([item.id]) }}
+        contextAction={{
+          icon: RotateCcw,
+          label: t("Trash.restore"),
+          onSelect: () => runUserAction(() => store.restoreItems([item.id])),
+        }}
         deleteLabel={t("Trash.deletePermanently")}
         name={item.label}
         onDelete={() => store.requestPermanentDelete([item.id], item.label)}

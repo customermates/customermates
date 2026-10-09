@@ -26,6 +26,11 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await drawer.getByRole("button", { name: "Pin Name to the overview", exact: true }).click();
   await expect(drawer.locator(`[data-summary-field="${nameId}"]`)).toContainText("Draft stays here");
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
+  await expect(drawer.getByRole("link", { name: "Edit field Name", exact: true })).toHaveAttribute(
+    "href",
+    new RegExp(`/configure\\?typeId=${typeId}&tab=fields&focus=field%3A${nameId}$`),
+  );
+  await expect(drawer.getByRole("link", { name: "Edit field Updated at", exact: true })).toHaveCount(0);
   await drawer.getByRole("button", { name: "Hide Updated at from details", exact: true }).click();
   const drag = drawer.getByRole("button", { name: "Drag to reorder: Created at", exact: true });
   await drag.focus();
@@ -106,7 +111,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }).click();
   await expect(
     page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   const notesId = presetId(companyId, "organization.notes");
   await expect
     .poll(async () => {

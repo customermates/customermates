@@ -58,6 +58,7 @@ const harness = vi.hoisted(() => ({
 }));
 
 vi.mock("next/navigation", () => ({ usePathname: () => harness.pathname }));
+vi.mock("@/i18n/navigation", () => ({ IntlLink: () => null }));
 vi.mock("next-intl", async (importOriginal) => {
   const actual = await importOriginal<typeof NextIntl>();
   return {
