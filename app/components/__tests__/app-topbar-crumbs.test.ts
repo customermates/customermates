@@ -40,14 +40,14 @@ describe("app topbar crumbs", () => {
     ]);
   });
 
-  it("titles settings pages under Settings, including the Deliveries tab of Webhooks", () => {
+  it("titles settings pages under Settings, including Deliveries as its own page", () => {
     expect(buildAppTopbarCrumbs("/en/settings/members", translate, null).crumbs).toEqual([
       { label: "NavigationBar.settings", href: "/settings/profile" },
       { label: "SettingsNav.members" },
     ]);
-    expect(buildAppTopbarCrumbs("/en/settings/webhooks/deliveries", translate, null).crumbs).toEqual([
+    expect(buildAppTopbarCrumbs("/en/settings/webhook-deliveries", translate, null).crumbs).toEqual([
       { label: "NavigationBar.settings", href: "/settings/profile" },
-      { label: "SettingsNav.webhooks" },
+      { label: "SettingsNav.deliveries" },
     ]);
     expect(buildAppTopbarCrumbs("/en/settings/billing", translate, null).crumbs.at(-1)).toEqual({
       label: "SettingsNav.billing",

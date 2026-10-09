@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { PageState } from "@/components/page-state/page-state";
 import { PageContainer } from "@/components/shared/page-container";
-import { WebhookDeliveriesPageSkeleton } from "../../components/webhook/webhook-deliveries-page-skeleton";
+import { WebhookDeliveriesPageSkeleton } from "../components/webhook/webhook-deliveries-page-skeleton";
 
 export default async function Loading() {
   const t = await getTranslations("PageState");

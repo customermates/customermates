@@ -1,7 +1,6 @@
 "use client";
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { ColumnDef } from "@tanstack/react-table";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 
 import { useId, useRef, useState } from "react";
@@ -16,7 +15,6 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Layers } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -27,7 +25,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ChipColor } from "@/constants/chip-colors";
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { visibleColumnDefs } from "./visible-column-defs";
 
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -38,8 +35,6 @@ import { BoardGroupingPrompt } from "./board-grouping-prompt";
 import { ColumnResizeHandle } from "./column-resize-handle";
 import { clampWidth, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
 import { BOARD_LANE_WIDTH_KEY } from "@/core/data-view/data-view-state.schema";
-import { DataCardBody } from "./data-card-body";
-import { DataViewItemLayout } from "./data-view-item-layout";
 import {
   DATA_KANBAN_CARDS_CLASS_NAME,
   DATA_KANBAN_COLUMN_CLASS_NAME,
@@ -58,7 +53,7 @@ type HasCustomFieldValues = HasId & {
 
 type Props<E extends HasCustomFieldValues> = {
   store: BaseDataViewStore<E>;
-  columns: ColumnDef<E>[];
+  renderCard: (item: E) => ReactNode;
   onCardClick?: (item: E) => void;
   cardHref?: (item: E) => string | undefined;
   cardActions?: (item: E) => ReactNode;
@@ -282,7 +277,7 @@ const KanbanColumn = observer(function KanbanColumn({
 
 export const DataKanbanView = observer(function DataKanbanView<E extends HasCustomFieldValues>({
   store,
-  columns,
+  renderCard,
   onCardClick,
   cardHref,
   cardActions,
@@ -312,15 +307,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     supportsDragWriteBack ? keyboardSensor : null,
   );
 
-  const visibleColumns = visibleColumnDefs(columns, store.hiddenColumns);
-
-  const table = useReactTable<E>({
-    data: store.items,
-    columns: visibleColumns,
-    getRowId: (row) => row.id,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true });
 
   if (!store.isGrouped) {
@@ -331,7 +317,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     );
   }
 
-  const rowsById = new Map(table.getRowModel().rows.map((row) => [row.id, row]));
   const itemsById = new Map(store.items.map((item) => [item.id, item]));
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -450,7 +435,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
               >
                 {group.itemIds.map((itemId) => {
                   const item = itemsById.get(itemId);
-                  const row = rowsById.get(itemId);
                   if (!item) return null;
 
                   return (
@@ -463,13 +447,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                       itemId={itemId}
                       onClick={onCardClick ? () => onCardClick(item) : undefined}
                     >
-                      <CardContent className="px-3">
-                        {row ? (
-                          <DataViewItemLayout.Provider value="card">
-                            <DataCardBody primaryColumnId={store.primaryColumnId} row={row} />
-                          </DataViewItemLayout.Provider>
-                        ) : null}
-                      </CardContent>
+                      <CardContent className="px-3">{renderCard(item)}</CardContent>
                     </KanbanCard>
                   );
                 })}
