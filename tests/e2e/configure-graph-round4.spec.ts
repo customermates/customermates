@@ -130,7 +130,7 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   await expect(explanation).toBeVisible();
   const lineHeight = await explanation.evaluate((element) => parseFloat(getComputedStyle(element).lineHeight));
   const parentChip = explanation.locator('[data-confirmation-chip] [data-slot="badge"]');
-  expect((await parentChip.boundingBox())?.height).toBeCloseTo(lineHeight, 0);
+  expect(await parentChip.evaluate((element) => (element as HTMLElement).offsetHeight)).toBeCloseTo(lineHeight, 0);
   await expect(page.locator("[data-configure-sublist-group]")).toHaveCount(1);
   const header = node.getByRole("button", { name: "Milestones", exact: true });
   const headerBox = await header.boundingBox();
