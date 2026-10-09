@@ -3,6 +3,7 @@ import { backfillConnectedAccount } from "./backfill-connected-account";
 import { crawlWikiWebsite } from "./crawl-wiki-website";
 import { deliverWebhook } from "./deliver-webhook";
 import { indexDocsChunks } from "./index-docs-chunks";
+import { indexSearchCatalog } from "./index-search-catalog";
 import { indexWikiPages } from "./index-wiki-pages";
 import { reconcileRoutineRuns } from "./reconcile-routine-runs";
 import { runRoutine } from "./run-routine";
@@ -18,6 +19,7 @@ export const WORKFLOW_REGISTRY = {
   "crawl-wiki-website": crawlWikiWebsite,
   "deliver-webhook": deliverWebhook,
   "index-docs-chunks": indexDocsChunks,
+  "index-search-catalog": indexSearchCatalog,
   "index-wiki-pages": indexWikiPages,
   "reconcile-routine-runs": reconcileRoutineRuns,
   "run-routine": runRoutine,
