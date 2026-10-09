@@ -3478,6 +3478,7 @@
         "singular": "Tâche"
       }
     },
+    "sublistSentence": "Sous-liste de {parent} · chaque entrée vit dans un seul élément de type {singular}, partage ses accès et est supprimée avec lui.",
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
     "summaryField": "Champ de la synthèse",
@@ -3505,7 +3506,6 @@
     "typeSettings": "Paramètres du type",
     "unavailableOption": "Option indisponible",
     "unlinkRecord": "Dissocier {name}",
-    "sublistSentence": "Sous-liste de {parent} · chaque entrée vit dans un seul élément de type {singular}, partage ses accès et est supprimée avec lui.",
     "updatedAt": "Mis à jour le",
     "useChannelAvatar": "Utiliser la photo de profil du canal",
     "value": "Valeur",

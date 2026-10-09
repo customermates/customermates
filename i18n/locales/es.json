@@ -3478,6 +3478,7 @@
         "singular": "Tarea"
       }
     },
+    "sublistSentence": "Sublista de {parent} · cada entrada vive dentro de un único registro de tipo {singular}, comparte su acceso y se elimina con él.",
     "summaryAggregation": "Cálculo",
     "summaryApprovalRequired": "Este resumen está publicado. Un administrador debe aprobar los cambios en los datos usados en el cálculo.",
     "summaryField": "Campo del resumen",
@@ -3505,7 +3506,6 @@
     "typeSettings": "Configuración del tipo",
     "unavailableOption": "Opción no disponible",
     "unlinkRecord": "Desvincular {name}",
-    "sublistSentence": "Sublista de {parent} · cada entrada vive dentro de un único registro de tipo {singular}, comparte su acceso y se elimina con él.",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
     "value": "Valor",

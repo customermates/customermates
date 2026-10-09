@@ -3478,6 +3478,7 @@
         "singular": "Task"
       }
     },
+    "sublistSentence": "Sub-list of {parent} · each entry lives inside one {singular}, shares its access and is removed with it.",
     "summaryAggregation": "Calculation",
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
     "summaryField": "Summary field",
@@ -3505,7 +3506,6 @@
     "typeSettings": "Type settings",
     "unavailableOption": "Unavailable option",
     "unlinkRecord": "Unlink {name}",
-    "sublistSentence": "Sub-list of {parent} · each entry lives inside one {singular}, shares its access and is removed with it.",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
     "value": "Value",
