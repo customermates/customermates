@@ -2043,8 +2043,8 @@
     "hideField": "Hide {field} from details",
     "overview": "Overview",
     "personalize": "Customize",
-    "pinMore": "Pin a field",
     "pinField": "Pin {field} to the overview",
+    "pinMore": "Pin a field",
     "reorderInstructions": "Press Space or Enter to pick up a field. Use the arrow keys to move it, Space or Enter to drop, and Escape to cancel.",
     "sections": {
       "notes": "Notes"

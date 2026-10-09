@@ -2043,8 +2043,8 @@
     "hideField": "Ocultar {field} de los detalles",
     "overview": "Vista general",
     "personalize": "Personalizar",
-    "pinMore": "Fijar un campo",
     "pinField": "Fijar {field} en el resumen",
+    "pinMore": "Fijar un campo",
     "reorderInstructions": "Pulsa Espacio o Intro para seleccionar un campo. Usa las flechas para moverlo, Espacio o Intro para soltarlo y Escape para cancelar.",
     "sections": {
       "notes": "Notas"

@@ -2043,8 +2043,8 @@
     "hideField": "Nascondi {field} dai dettagli",
     "overview": "Panoramica",
     "personalize": "Personalizza",
-    "pinMore": "Fissa un campo",
     "pinField": "Fissa {field} nella panoramica",
+    "pinMore": "Fissa un campo",
     "reorderInstructions": "Premi Spazio o Invio per selezionare un campo. Usa le frecce per spostarlo, Spazio o Invio per rilasciarlo ed Esc per annullare.",
     "sections": {
       "notes": "Note"
