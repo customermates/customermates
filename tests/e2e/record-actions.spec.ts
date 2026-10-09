@@ -124,6 +124,12 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(drawer).not.toBeVisible();
 
   const row = page.getByRole("row").filter({ hasText: name });
+  await expect(page.locator('[data-slot="group-header-row"]').first()).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Stage", exact: false })).toHaveCount(0);
+  await page.getByRole("button", { name: "Appearance", exact: true }).click();
+  await page.getByRole("combobox", { name: "Group By", exact: true }).click();
+  await page.getByRole("option", { name: "None", exact: true }).click();
+  await page.keyboard.press("Escape");
   await row.getByRole("button", { name: "Edit Stage", exact: true }).click();
   await page.getByRole("menuitem", { name: "Qualified", exact: true }).click();
   await expect(row.getByRole("button", { name: "Edit Stage", exact: true })).toHaveText("Qualified");
