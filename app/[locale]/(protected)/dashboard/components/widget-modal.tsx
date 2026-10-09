@@ -41,7 +41,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordWidgetEditor } from "./record-widget-editor";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
 import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
-import { WidgetStarterPicker, useStarterText } from "./widget-starter-picker";
+import { WidgetStarterPicker } from "./widget-starter-picker";
 
 function WidgetModalSkeleton() {
   const t = useTranslations();
@@ -70,7 +70,6 @@ export const WidgetModal = observer(() => {
   const { widgetModalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
-  const starterText = useStarterText();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
   const askAction = useRecordAiAction({
     context: { reference: { kind: "widget", widgetId: form.id ?? "" }, label: form.name },
@@ -336,12 +335,13 @@ export const WidgetModal = observer(() => {
                 <WidgetStarterPicker
                   availableKinds={widgetModalStore.availableKinds}
                   disabled={isDisabled}
-                  gallery={widgetModalStore.galleryTemplates}
                   templates={companyWideWidgets}
-                  onSelectGalleryTemplate={(template) =>
-                    widgetModalStore.startFromGallery(template, starterText(template).name)
+                  onSelectKind={(kind, displayType) =>
+                    widgetModalStore.startFromKind(kind, {
+                      activityName: t("Dashboard.activityWidget.title"),
+                      displayType,
+                    })
                   }
-                  onSelectKind={(kind) => widgetModalStore.startFromKind(kind, t("Dashboard.activityWidget.title"))}
                   onSelectTemplate={(id) => runUserAction(() => widgetModalStore.loadTemplate(id))}
                 />
               </div>

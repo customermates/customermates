@@ -27,7 +27,7 @@ import { CONFIGURATION_ACTIVITY_EVENTS } from "@/ee/messaging/activities/activit
 import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
-import { WIDGET_STARTER_RECIPES } from "@/features/widget/widget-gallery";
+import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { CONFIGURATION_TARGET_KINDS, DeletionBlockerSchema } from "@/features/records/configuration.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
@@ -43,7 +43,6 @@ import {
   SubscriptionStatus,
   Theme,
   WebhookDeliveryStatus,
-  WidgetKind,
 } from "@/generated/prisma";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
@@ -128,21 +127,17 @@ const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Com
 const FILTER_FIELD_KEYS = Object.values(FilterFieldKey).map((field) => `Common.filters.fields.${field}`);
 const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
-const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widgetKinds.${kind}`);
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map(
-  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`,
+const WIDGET_STARTER_TITLE_KEYS = WIDGET_STARTER_DISPLAY_TYPES.map(
+  (displayType) => `Dashboard.widgetEditor.starters.${displayType}.title`,
 );
-const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_STARTER_RECIPES.map(
-  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.description`,
+const WIDGET_STARTER_DESCRIPTION_KEYS = WIDGET_STARTER_DISPLAY_TYPES.map(
+  (displayType) => `Dashboard.widgetEditor.starters.${displayType}.description`,
 );
 const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map(
   (interval) => `RecordWidgets.intervals.${interval}`,
-);
-const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
-  (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
 const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => `Diagrams.${key}`);
 const AGGREGATION_TYPE_KEYS = RecordMeasureSchema.shape.aggregation.options.map(
@@ -578,11 +573,9 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["ConnectedAccountsCard.signatureTemplates.${*}", SIGNATURE_TEMPLATE_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
   ["Dashboard.displayTypeRequirements.${*}", WIDGET_DISPLAY_REQUIREMENT_KEYS],
-  ["Dashboard.widgetGallery.recipes.${*}.name", WIDGET_GALLERY_NAME_KEYS],
-  ["Dashboard.widgetGallery.recipes.${*}.description", WIDGET_GALLERY_DESCRIPTION_KEYS],
+  ["Dashboard.widgetEditor.starters.${*}.title", WIDGET_STARTER_TITLE_KEYS],
+  ["Dashboard.widgetEditor.starters.${*}.description", WIDGET_STARTER_DESCRIPTION_KEYS],
   ["RecordWidgets.intervals.${*}", RECORD_MEASURE_INTERVAL_KEYS],
-  ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
-  ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
   ["KeyboardShortcuts.actions.${*}", SHORTCUTS.map((entry) => `KeyboardShortcuts.actions.${entry.id}`)],
   ["KeyboardShortcuts.groups.${*}", SHORTCUT_GROUPS.map((group) => `KeyboardShortcuts.groups.${group}`)],
@@ -711,10 +704,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordWidgets.intervals.${interval}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.name",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.starters.${displayType}.description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.starters.${displayType}.title",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",
