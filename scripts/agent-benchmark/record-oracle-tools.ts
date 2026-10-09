@@ -47,7 +47,7 @@ export function readsRecordFields(tool: Tool, kind: RecordKind, companyId: strin
   return viaAnalysis;
 }
 
-export type RecordMutationKind = "create" | "update" | "notes" | "delete" | "link";
+export type RecordMutationKind = "create" | "update" | "append" | "delete" | "link";
 
 export function recordMutation(tool: Tool, companyId: string): { kind: RecordMutationKind; type?: RecordKind; recordIds: string[] } | null {
   const mutation = mutationOf(tool);
@@ -60,8 +60,8 @@ export function recordMutation(tool: Tool, companyId: string): { kind: RecordMut
   if (mutation.action === "create") return { kind: "create", type, recordIds };
   if (mutation.action !== "update") return null;
   const fields = (mutation.fields ?? []) as Row[];
-  const notesOnly = type !== undefined && fields.length > 0 && fields.every((field) => field.fieldId === presetId(companyId, `${type}.notes`));
-  return { kind: notesOnly ? "notes" : "update", type, recordIds };
+  const appendOnly = fields.length > 0 && fields.every((field) => typeof field.append === "string");
+  return { kind: appendOnly ? "append" : "update", type, recordIds };
 }
 
 export const isRecordMutation = (tool: Tool, companyId: string, kinds: readonly RecordMutationKind[], type?: RecordKind) => {
