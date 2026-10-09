@@ -199,11 +199,18 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
             renderAccountMenu()
           ) : (
             <>
-              {renderContactButton()}
+              <span
+                aria-hidden
+                className="hidden size-8 animate-pulse rounded-lg bg-muted [[data-session-hint]_&]:block"
+              />
 
-              {renderCtaButton(undefined, true)}
+              <div className="flex items-center gap-2 [[data-session-hint]_&]:hidden">
+                {renderContactButton()}
 
-              {renderSignOutButton()}
+                {renderCtaButton(undefined, true)}
+
+                {renderSignOutButton()}
+              </div>
             </>
           )}
         </div>

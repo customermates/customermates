@@ -9,6 +9,7 @@ import { cn } from "@/core/utils/cn";
 import { IntlLink } from "@/i18n/navigation";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
+import { HeadingText } from "./heading-text";
 import { MarketingContainer } from "./marketing-container";
 import { contentLinkPrefetch } from "@/i18n/content-links";
 
@@ -101,7 +102,9 @@ export function PageHero(props: Props) {
             ) : null}
 
             <div className={cn("m-0", visual ? "text-display-sm" : "text-display max-w-5xl")}>
-              <h1 className="inline">{title}</h1>
+              <h1 className="inline">
+                <HeadingText text={title} />
+              </h1>
 
               {titleAccent ? <span> {titleAccent}</span> : null}
             </div>

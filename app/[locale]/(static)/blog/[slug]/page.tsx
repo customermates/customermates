@@ -7,6 +7,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { IntlLink } from "@/i18n/navigation";
 import { blogPostsSource, blogSource } from "@/core/fumadocs/source";
 import { Footer } from "@/app/components/footer";
+import { HeadingText } from "@/components/marketing/heading-text";
 import { LandingArticle } from "@/components/marketing/landing-article";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { PageEnding } from "@/components/marketing/page-ending";
@@ -112,7 +113,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
             <div className="mt-8 max-w-5xl">
               <div>
-                <h1 className="text-display m-0">{hero.title}</h1>
+                <h1 className="text-display m-0">
+                  <HeadingText text={hero.title} />
+                </h1>
 
                 <p className="text-lede mt-6">{hero.description}</p>
 
