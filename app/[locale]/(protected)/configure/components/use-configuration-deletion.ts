@@ -16,6 +16,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { confirmationSentence } from "@/components/modal/confirmation-sentence";
 import { focusHref } from "@/components/focus/focus-href";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
+import { movedToTrashOr } from "@/features/trash/moved-to-trash";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import { typeDefinition } from "./configure-model";
@@ -170,7 +171,7 @@ export function useConfigurationDeletion(onChanged: () => Promise<void>) {
         return false;
       }
       await onChanged();
-      return true;
+      return applied.data.status === "completed" ? movedToTrashOr(applied.data) : true;
     };
     setIsBusy(true);
     try {
@@ -207,6 +208,7 @@ export function useConfigurationDeletion(onChanged: () => Promise<void>) {
         blockers,
         successKey: "RecordModel.configurationDeletion.moved",
         onConfirm: apply,
+        onRestored: onChanged,
       });
     } finally {
       setIsBusy(false);

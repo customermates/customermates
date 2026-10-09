@@ -3169,8 +3169,7 @@
         "savedView": "Des vues enregistrées ou mises en page personnelles utilisent encore {subject}.",
         "summaryApproval": "{subject} nécessite une nouvelle approbation du résumé."
       },
-      "moved": "Déplacé dans Supprimés récemment",
-      "recentlyDeleted": "Supprimés récemment"
+      "moved": "Déplacé dans Supprimés récemment"
     },
     "configure": "Configurer",
     "connectionType": "Connexion",

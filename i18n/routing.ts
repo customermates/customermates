@@ -111,6 +111,7 @@ export const PROTECTED_ROUTES = [
 ] as const;
 
 export const MOVED_PROTECTED_ROUTES = {
+  "/configure/deleted": "/trash",
   "/settings/webhooks/deliveries": "/settings/webhook-deliveries",
 } as const satisfies Record<string, (typeof PROTECTED_ROUTES)[number]>;
 

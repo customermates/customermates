@@ -3169,8 +3169,7 @@
         "savedView": "Viste salvate o layout personali usano ancora {subject}.",
         "summaryApproval": "{subject} richiede una nuova approvazione del riepilogo."
       },
-      "moved": "Spostato in Eliminati di recente",
-      "recentlyDeleted": "Eliminati di recente"
+      "moved": "Spostato in Eliminati di recente"
     },
     "configure": "Configura",
     "connectionType": "Collegamento",

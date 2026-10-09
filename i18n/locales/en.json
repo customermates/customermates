@@ -3169,8 +3169,7 @@
         "savedView": "Saved views or personal layouts still use {subject}.",
         "summaryApproval": "{subject} needs a renewed summary approval."
       },
-      "moved": "Moved to Recently deleted",
-      "recentlyDeleted": "Recently deleted"
+      "moved": "Moved to Recently deleted"
     },
     "configure": "Configure",
     "connectionType": "Connection",

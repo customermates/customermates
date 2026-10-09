@@ -3169,8 +3169,7 @@
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
       },
-      "moved": "Nach „Zuletzt gelöscht“ verschoben",
-      "recentlyDeleted": "Zuletzt gelöscht"
+      "moved": "Nach „Zuletzt gelöscht“ verschoben"
     },
     "configure": "Konfigurieren",
     "connectionType": "Verbindung",

@@ -3169,8 +3169,7 @@
         "savedView": "Vistas guardadas o diseños personales todavía usan {subject}.",
         "summaryApproval": "{subject} necesita una nueva aprobación del resumen."
       },
-      "moved": "Movido a Eliminados recientemente",
-      "recentlyDeleted": "Eliminados recientemente"
+      "moved": "Movido a Eliminados recientemente"
     },
     "configure": "Configurar",
     "connectionType": "Conexión",
