@@ -111,7 +111,7 @@ describe("agent interface targets", () => {
 
   it("recognises the toolbar search boxes that narrow screens collapse", () => {
     expect(isToolbarSearchTarget("settings-webhooks-search")).toBe(true);
-    expect(isToolbarSearchTarget("settings-webhooks-deliveries-search")).toBe(true);
+    expect(isToolbarSearchTarget("settings-webhook-deliveries-search")).toBe(true);
     expect(isToolbarSearchTarget("nav-search")).toBe(false);
     expect(isToolbarSearchTarget("settings-roles-search")).toBe(false);
   });
@@ -139,7 +139,7 @@ describe("agent interface targets", () => {
   it("names every routable target's page with the label keys the sidebar can show", () => {
     expect(agentUiPageLabelKeys("/settings/members")).toEqual(["SettingsNav.members"]);
     expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys"]);
-    expect(agentUiPageLabelKeys("/settings/webhooks/deliveries")).toEqual(["SettingsNav.webhooks"]);
+    expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual(["SettingsNav.deliveries"]);
     expect(agentUiPageLabelKeys("/inbox")).toEqual(["NavigationBar.inbox"]);
     expect(agentUiPageLabelKeys("/routines")).toEqual(["NavigationBar.routines"]);
     expect(agentUiPageLabelKeys("*")).toEqual([]);
