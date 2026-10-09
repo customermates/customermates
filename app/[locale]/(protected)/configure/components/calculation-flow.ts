@@ -7,6 +7,7 @@ import type {
 } from "@/features/records/record-model.schema";
 
 import { calculationResultType } from "@/features/records/record-model-validation";
+import { aggregateOf, hopTargetTypeId, linkedFlow, type LinkedFlow } from "@/features/records/calculation-sentence";
 
 export type CalculationSource = "formula" | "lookup" | "rollup";
 export type ValueSource = "input" | CalculationSource;
@@ -50,7 +51,7 @@ export function calculationDraft(behavior: CalculatedBehavior) {
       ? behavior.kind
       : linked.hops.length === 0
         ? "formula"
-        : aggregateOf(linked) === "one"
+        : linked.hops.every((hop) => hop.reducer === "one")
           ? "lookup"
           : "rollup";
   return {
@@ -86,47 +87,18 @@ export function calculationBehavior(draft: {
   };
 }
 
-export type LinkedHop = Pick<Related, "relationId" | "direction" | "reducer">;
-export type LinkedFlow = { hops: LinkedHop[]; value: CalculationExpression };
-
-export function linkedFlow(expression: CalculationExpression): LinkedFlow {
-  const hops: LinkedHop[] = [];
-  let current = expression;
-  while (current.kind === "related") {
-    hops.push({ relationId: current.relationId, direction: current.direction, reducer: current.reducer });
-    current = current.expression;
-  }
-  return { hops, value: current };
-}
-
-export function linkedExpression({ hops, value }: LinkedFlow): CalculationExpression {
-  return hops.reduceRight<CalculationExpression>((expression, hop) => ({ kind: "related", ...hop, expression }), value);
-}
-
-export function aggregateOf(flow: LinkedFlow): Related["reducer"] {
-  return flow.hops.at(-1)?.reducer ?? "one";
-}
-
 export function withAggregate(flow: LinkedFlow, reducer: Related["reducer"]): LinkedFlow {
   const outer = reducer === "count" ? "sum" : reducer;
+  const many = flow.hops.map((hop) => hop.reducer !== "one");
+  const last = many.lastIndexOf(true) === -1 ? flow.hops.length - 1 : many.lastIndexOf(true);
   return {
     ...flow,
     value: reducer === "count" ? UNSET : flow.value,
-    hops: flow.hops.map((hop, index) => ({ ...hop, reducer: index === flow.hops.length - 1 ? reducer : outer })),
+    hops: flow.hops.map((hop, index) => ({
+      ...hop,
+      reducer: reducer === "one" ? "one" : index === last ? reducer : many[index] ? outer : "one",
+    })),
   };
-}
-
-export function hopTargetTypeId(hop: Pick<LinkedHop, "relationId" | "direction">, model: RecordModelView) {
-  const relation = model.relationships.find((candidate) => candidate.id === hop.relationId);
-  if (!relation) return null;
-  return hop.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
-}
-
-export function linkedTypeIds(flow: LinkedFlow, typeId: string, model: RecordModelView) {
-  return flow.hops.reduce<string[]>(
-    (ids, hop) => [...ids, hopTargetTypeId(hop, model) ?? ids[ids.length - 1]],
-    [typeId],
-  );
 }
 
 export function relationshipChoices(typeId: string, model: RecordModelView, singularOnly: boolean) {
@@ -156,7 +128,9 @@ export function relationshipChoices(typeId: string, model: RecordModelView, sing
       .filter((end) => !singularOnly || end.single)
       .flatMap((end) => {
         const targetTypeId = hopTargetTypeId({ relationId: relation.id, direction: end.direction }, model);
-        return targetTypeId ? [{ relation, direction: end.direction, label: end.label, targetTypeId }] : [];
+        return targetTypeId
+          ? [{ relation, direction: end.direction, label: end.label, targetTypeId, single: end.single }]
+          : [];
       });
   });
 }
@@ -353,99 +327,6 @@ export function derivedValueType(
   return { valueType: "currency", currency: currencies[0] ?? null, options: [] };
 }
 
-type Labels = { model: RecordModelView; t: Translate; operatorLabel: (operator: Operator) => string };
-
-function listLabels(flow: LinkedFlow, typeId: string, { model, t }: Labels, plural: boolean) {
-  const types = linkedTypeIds(flow, typeId, model)
-    .slice(1)
-    .map((id) => model.types.find((type) => type.id === id));
-  const name = (index: number, many: boolean) => (many ? types[index]?.pluralLabel : types[index]?.label) ?? "";
-  const last = types.length - 1;
-  if (last < 1) return name(last, plural);
-  return t("RecordModel.calculationFlow.sentence.throughList", {
-    list: name(last, plural),
-    via: name(last - 1, false),
-  });
-}
-
-export function expressionText(expression: CalculationExpression, typeId: string, labels: Labels): string {
-  const { model, t, operatorLabel } = labels;
-  const fieldName = (id: string) =>
-    model.fields.find((candidate) => candidate.id === id)?.label ?? t("RecordModel.field");
-  if (expression.kind === "field") return fieldName(expression.fieldId);
-  if (expression.kind === "optionAttribute") return `${fieldName(expression.fieldId)} ${expression.attribute}`;
-  if (expression.kind === "literal") return literalText(expression.value, model, t);
-  if (expression.kind === "related") {
-    const flow = linkedFlow(expression);
-    const reducer = aggregateOf(flow);
-    const lastTypeId = linkedTypeIds(flow, typeId, model).at(-1) ?? typeId;
-    const value = expressionText(flow.value, lastTypeId, labels);
-    const list = listLabels(flow, typeId, labels, reducer !== "one");
-    if (reducer === "one") return t("RecordModel.calculationFlow.text.linkedValue", { list, value });
-    if (reducer === "count") return t("RecordModel.calculationFlow.text.count", { list });
-    if (reducer === "sum") return t("RecordModel.calculationFlow.text.sum", { list, value });
-    if (reducer === "average") return t("RecordModel.calculationFlow.text.average", { list, value });
-    if (reducer === "min") return t("RecordModel.calculationFlow.text.min", { list, value });
-    return t("RecordModel.calculationFlow.text.max", { list, value });
-  }
-  const nested = (argument: CalculationExpression) => {
-    const text = expressionText(argument, typeId, labels);
-    return argument.kind === "operation" && !UNARY.includes(argument.operator) ? `(${text})` : text;
-  };
-  const args = expression.arguments.map(nested);
-  const symbols: Partial<Record<Operator, string>> = {
-    add: "+",
-    subtract: "−",
-    multiply: "×",
-    divide: "÷",
-    equal: "=",
-    lessThan: "<",
-    greaterThan: ">",
-  };
-  const symbol = symbols[expression.operator];
-  if (symbol) return args.join(` ${symbol} `);
-  const [first = "", second = "", third = ""] = args;
-  switch (expression.operator) {
-    case "if":
-      return t("RecordModel.calculationFlow.text.if", { condition: first, then: second, otherwise: third });
-    case "and":
-    case "or":
-    case "coalesce":
-      return `${operatorLabel(expression.operator)} (${args.join(", ")})`;
-    case "concat":
-      return args.join(" & ");
-    case "not":
-      return t("RecordModel.calculationFlow.text.not", { value: first });
-    case "lower":
-      return t("RecordModel.calculationFlow.text.lower", { value: first });
-    case "upper":
-      return t("RecordModel.calculationFlow.text.upper", { value: first });
-    case "trim":
-      return t("RecordModel.calculationFlow.text.trim", { value: first });
-    default:
-      return t("RecordModel.calculationFlow.text.daysBetween", { from: first, to: second });
-  }
-}
-
-export function literalText(value: RecordScalar | null, model: RecordModelView, t: Translate): string {
-  if (!value) return t("RecordModel.missing");
-  if (value.kind === "text") return `“${value.value}”`;
-  if (value.kind === "boolean") return value.value ? t("RecordModel.yes") : t("RecordModel.no");
-  if (value.kind === "decimal") return value.currency ? `${value.value} ${value.currency}` : value.value;
-  if (value.kind === "select") {
-    return (
-      model.fields.flatMap((field) => field.options).find((option) => option.id === value.value)?.label ??
-      t("RecordModel.option")
-    );
-  }
-  if (value.kind === "date" || value.kind === "dateTime") return value.value;
-  if (value.kind === "range") return [value.start, value.end].filter(Boolean).join(" – ");
-  if (value.kind === "textList") return value.value.join(", ");
-  if (value.kind === "member") return t("RecordModel.member");
-  if (value.kind === "selectList") return t("RecordModel.option");
-  return t("RecordModel.types.richText");
-}
-
 export function issueText(issue: FlowIssue, t: Translate, operatorLabel: (operator: Operator) => string): string {
   if (issue.node === "relationship") return t("RecordModel.calculationFlow.missing.relationship");
   if (issue.node === "input") return t("RecordModel.calculationFlow.missing.input");
@@ -457,60 +338,4 @@ export function issueText(issue: FlowIssue, t: Translate, operatorLabel: (operat
   if (issue.reducer === "min") return t("RecordModel.calculationFlow.missing.min");
   if (issue.reducer === "max") return t("RecordModel.calculationFlow.missing.max");
   return t("RecordModel.calculationFlow.missing.take");
-}
-
-export function calculationSentence(
-  input: {
-    source: CalculationSource;
-    expression: CalculationExpression;
-    typeId: string;
-    field: string;
-    updates: CalculationUpdates;
-    allowManualOverride: boolean | undefined;
-    trigger?: { field: string; value?: string };
-  },
-  labels: Labels,
-): string {
-  const { t, model } = labels;
-  const issue = calculationIssues(input.source, input.expression, input.typeId, model)[0];
-  if (issue) return issueText(issue, t, labels.operatorLabel);
-  const field = input.field;
-  const flow = linkedFlow(input.expression);
-  const reducer = aggregateOf(flow);
-  const lastTypeId = linkedTypeIds(flow, input.typeId, model).at(-1) ?? input.typeId;
-  const value = expressionText(flow.value, lastTypeId, labels);
-  const list = listLabels(flow, input.typeId, labels, reducer !== "one");
-  const sentences = [
-    input.source === "formula" || !flow.hops.length
-      ? t("RecordModel.calculationFlow.sentence.formula", {
-          field,
-          formula: expressionText(input.expression, input.typeId, labels),
-        })
-      : reducer === "one"
-        ? t("RecordModel.calculationFlow.sentence.lookup", { field, value, list })
-        : reducer === "count"
-          ? t("RecordModel.calculationFlow.sentence.count", { field, list })
-          : reducer === "sum"
-            ? t("RecordModel.calculationFlow.sentence.sum", { field, value, list })
-            : reducer === "average"
-              ? t("RecordModel.calculationFlow.sentence.average", { field, value, list })
-              : reducer === "min"
-                ? t("RecordModel.calculationFlow.sentence.min", { field, value, list })
-                : t("RecordModel.calculationFlow.sentence.max", { field, value, list }),
-  ];
-  if (input.updates === "create") sentences.push(t("RecordModel.calculationFlow.sentence.savedOnCreate"));
-  if (input.updates === "explicit") sentences.push(t("RecordModel.calculationFlow.sentence.savedOnRequest"));
-  if (input.updates === "whenChanged" && input.trigger) {
-    sentences.push(
-      input.trigger.value
-        ? t("RecordModel.calculationFlow.sentence.savedWhenChangedTo", {
-            field: input.trigger.field,
-            value: input.trigger.value,
-          })
-        : t("RecordModel.calculationFlow.sentence.savedWhenChanged", { field: input.trigger.field }),
-    );
-  }
-  if (input.updates !== "live" && input.allowManualOverride)
-    sentences.push(t("RecordModel.calculationFlow.sentence.typeOver"));
-  return sentences.join(" ");
 }
