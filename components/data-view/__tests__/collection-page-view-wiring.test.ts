@@ -298,7 +298,7 @@ const fixtures: Fixture[] = [
       )(item);
       actions.props.contextAction.onSelect();
       expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
-        "/settings/webhook-deliveries?filters=url%3Aequals%3Ahttps%3A%2F%2Fexample.com",
+        "/settings/webhook-deliveries?filters=webhookId%3Ain%3Arow",
       );
     },
     verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),

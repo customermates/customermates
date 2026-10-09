@@ -1222,6 +1222,7 @@
         "timelineThreadId": "Conversación",
         "updatedAt": "Actualizado el",
         "url": "URL",
+        "webhookId": "Webhook",
         "workspaceId": "Espacio de trabajo",
         "workspaceTags": "Etiquetas"
       },
@@ -3017,7 +3018,9 @@
         "relationship": "Elige qué registros vinculados usar.",
         "step": "Elige los valores para {operation}.",
         "sum": "Elige qué valor sumar.",
-        "take": "Elige qué valor tomar."
+        "take": "Elige qué valor tomar.",
+        "trigger": "Elige el campo que activa el guardado.",
+        "triggerValue": "Elige el valor que activa el guardado."
       },
       "moreOptions": "Más opciones",
       "of": "de",
