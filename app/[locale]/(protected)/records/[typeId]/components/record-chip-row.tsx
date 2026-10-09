@@ -59,7 +59,7 @@ function FieldTooltip({ label, children }: { label: string; children: ReactNode 
   );
 }
 
-function IdentityChips({ record }: { record: RecordRow }) {
+export function IdentityChips({ record }: { record: RecordRow }) {
   return (
     <span className="inline-flex max-w-full min-w-0 flex-wrap items-center gap-1">
       {(record.identities ?? []).map((identity) => {
@@ -70,7 +70,7 @@ function IdentityChips({ record }: { record: RecordRow }) {
           identity.value;
         const kind = isEmailProvider(identity.provider) ? "email" : isPhoneProvider(identity.provider) ? "phone" : null;
         return (
-          <AppChip key={identity.id} startContent={<Icon className="size-3" />}>
+          <AppChip key={identity.id} startContent={<Icon className="size-3" />} tooltip={label}>
             {kind ? <ContactValue kind={kind} label={label} value={identity.value} /> : label}
           </AppChip>
         );
@@ -91,7 +91,7 @@ function ChipLabel({ name, children }: { name?: string; children: ReactNode }) {
 
 type ChipPresentation = Pick<RecordsStore["presentation"], "linkColors" | "linkIcons" | "model">;
 
-const RecordPropertyChipView = observer(function RecordPropertyChipView({
+export const RecordPropertyChipView = observer(function RecordPropertyChipView({
   presentation,
   record,
   entry,
