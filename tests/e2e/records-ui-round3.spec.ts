@@ -247,7 +247,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(row.locator("[data-calculated-field]")).toHaveCount(1);
   await expect(row.getByRole("button", { name: "Edit Double", exact: true })).toHaveCount(0);
   await row.locator("[data-calculated-field]").hover();
-  await expect(page.getByRole("tooltip")).toContainText("Calculated: (Number × 2)");
+  await expect(page.getByRole("tooltip")).toContainText("Calculated: Number × 2");
 
   const tabbed = await openInPlace("Text");
   await tabbed.fill("Tabbed text");
@@ -381,7 +381,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await chip("Money").hover();
   await expect(page.getByRole("tooltip", { name: "Money", exact: true })).toBeVisible();
   await chip("Double").hover();
-  await expect(page.getByRole("tooltip", { name: "Calculated: (Number × 2)", exact: true })).toBeVisible();
+  await expect(page.getByRole("tooltip", { name: "Calculated: Number × 2", exact: true })).toBeVisible();
 
   const editor = page.locator('[data-slot="popover-content"][data-state="open"]').last();
   await chip("Money").getByRole("button", { name: "Edit Money", exact: true }).click();
@@ -455,6 +455,10 @@ test("rows keep the row click on calculated values, toggle in selection mode and
   await expect(editor).toHaveCount(0);
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
 
+  await row("Lab one").getByRole("button", { name: "Edit Number", exact: true }).click();
+  await row("Lab one").locator("[data-in-place-editor] input").fill("3");
+  await row("Lab one").locator("[data-in-place-editor] input").press("Enter");
+  await expect(row("Lab one").locator("[data-calculated-field]")).toHaveText("6");
   await row("Lab one").locator("[data-calculated-field]").click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
   expect(errors).toEqual([]);
