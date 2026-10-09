@@ -22,6 +22,7 @@ import { AppChip } from "../app-chip";
 const TestAppChip = AppChip as ComponentType<{
   children?: ReactNode;
   interactive?: boolean;
+  tooltip?: ReactNode;
 }>;
 
 beforeEach(() => {
@@ -51,5 +52,39 @@ describe("AppChip overflow tooltip accessibility", () => {
 
     expect(markup).not.toContain("tabindex=");
     expect(markup).toContain("data-tooltip-content");
+  });
+});
+
+describe("AppChip tooltip repeating its own label", () => {
+  const name = "Implementation workshop";
+  const nestedLabel = () => createElement("button", { type: "button" }, name);
+
+  it("shows the label of a nested element only when it is truncated", () => {
+    const complete = renderToStaticMarkup(createElement(TestAppChip, null, nestedLabel()));
+
+    expect(complete).not.toContain("data-tooltip-content");
+
+    harness.isTruncated = true;
+    const truncated = renderToStaticMarkup(createElement(TestAppChip, null, nestedLabel()));
+
+    expect(truncated).toContain(`data-tooltip-content="true">${name}</span>`);
+  });
+
+  it("treats a tooltip equal to the label as a truncation tooltip", () => {
+    expect(renderToStaticMarkup(createElement(TestAppChip, { tooltip: name }, name))).not.toContain(
+      "data-tooltip-content",
+    );
+
+    harness.isTruncated = true;
+
+    expect(renderToStaticMarkup(createElement(TestAppChip, { tooltip: name }, name))).toContain(
+      `data-tooltip-content="true">${name}</span>`,
+    );
+  });
+
+  it("always shows a tooltip that adds information", () => {
+    const markup = renderToStaticMarkup(createElement(TestAppChip, { tooltip: "Services" }, nestedLabel()));
+
+    expect(markup).toContain('data-tooltip-content="true">Services</span>');
   });
 });

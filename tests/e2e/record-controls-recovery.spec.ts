@@ -256,8 +256,8 @@ test("paginates and retries record and widget history, restores a personal timel
       ])
     ).rows;
   const beforeParentPresentation = await parentPresentation();
-  await drawer.getByRole("tab", { name: english.Common.actions.labelHistory, exact: true }).click();
-  const drawerHistory = drawer.getByRole("tabpanel", { name: english.Common.actions.labelHistory, exact: true });
+  await drawer.getByRole("tab", { name: english.EntityTimeline.types.activities, exact: true }).click();
+  const drawerHistory = drawer.getByRole("tabpanel", { name: english.EntityTimeline.types.activities, exact: true });
   await drawerHistory.getByRole("link", { name: viewName, exact: true }).click();
   await expect(drawerHistory.getByRole("link", { name: viewName, exact: true })).toHaveAttribute(
     "aria-current",
