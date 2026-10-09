@@ -858,7 +858,6 @@
     },
     "ariaLabels": {
       "breadcrumb": "Brotkrümelnavigation",
-      "collapseSearch": "Suche einklappen",
       "explainField": "Informationen zu {field}",
       "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
@@ -1268,7 +1267,10 @@
         "fieldsGroup": "Filtern nach",
         "limitReached": "Du kannst bis zu {count} Filter anwenden.",
         "removeFilter": "Filter entfernen",
-        "title": "Filter"
+        "title": "Filter",
+        "trigger": "Filter",
+        "searchContains": "{field} enthält „{text}“",
+        "searchOrAddFilter": "Suchen oder Filter hinzufügen…"
       },
       "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
@@ -1836,7 +1838,6 @@
       "chooseFile": "Datei wählen",
       "fileRejected": "Diese Datei konnte nicht gelesen werden."
     },
-    "menu": "Import und Export",
     "recordImport": {
       "create": "Mit exportierten IDs erstellen",
       "failed": "Die Datensätze konnten nicht importiert werden. Prüfe Datei und Berechtigungen.",
@@ -1903,7 +1904,8 @@
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
-    }
+    },
+    "moreActions": "Weitere Aktionen"
   },
   "Diagrams": {
     "noData": "Keine Daten verfügbar",
@@ -2389,7 +2391,8 @@
       "searchAlias": "Suchen",
       "shortcuts": "Tastenkürzel anzeigen",
       "switchView": "Ansicht einer Liste wechseln",
-      "toggleSidebar": "Seitenleiste ein- oder ausblenden"
+      "toggleSidebar": "Seitenleiste ein- oder ausblenden",
+      "openFilters": "Filter einer Liste öffnen"
     },
     "groups": {
       "create": "Erstellen",
@@ -2728,7 +2731,6 @@
     "emptyBody": "Passe Suche oder Filter an, um das Protokoll zu erweitern.",
     "emptyTitle": "Keine Audit-Ereignisse passen zu diesen Filtern",
     "navigation": "Audit-Log",
-    "searchPlaceholder": "Nach Aktion suchen",
     "values": {
       "action": {
         "auditRead": "Operator-Audit gelesen",
@@ -2855,7 +2857,6 @@
       "title": "Credits zurücksetzen",
       "zeroBalance": "Verbleibendes Guthaben auf null setzen"
     },
-    "searchPlaceholder": "Nach Name oder Konto-E-Mail suchen",
     "values": {
       "noSubscription": "Kein Abonnement",
       "operator": "Plattform-Operator"
@@ -2895,7 +2896,6 @@
       "workspaceId": "Workspace-ID"
     },
     "navigation": "Arbeitsbereiche",
-    "searchPlaceholder": "Nach Mitglieds-E-Mail suchen",
     "stats": {
       "assistantConversations": "Assistent-Chats",
       "connectedAccounts": "Verbundene Konten",
@@ -3511,7 +3511,8 @@
     "useChannelAvatar": "Profilbild des Kanals verwenden",
     "value": "Wert",
     "valueType": "Werttyp",
-    "yes": "Ja"
+    "yes": "Ja",
+    "configureList": "{list} konfigurieren"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Leer lassen, um jede Änderung zu erfassen.",

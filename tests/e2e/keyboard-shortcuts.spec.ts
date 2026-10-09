@@ -82,14 +82,16 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   const firstList = page.url();
   await page.waitForLoadState("networkidle");
 
-  const typingField = page.getByPlaceholder("Search...").first();
-  await typingField.click();
+  await page.keyboard.press("f");
+  const typingField = page.locator("#filter-palette-search").getByRole("combobox");
+  await expect(typingField).toBeFocused();
   await page.keyboard.type("gd c/v");
+  await expect(typingField).toHaveValue("gd c/v");
   await expect(page).toHaveURL(firstList);
   await expect(addPicker(page)).toHaveCount(0);
   await expect(viewPicker(page)).toHaveCount(0);
-  await typingField.fill("");
-  await typingField.blur();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
 
   await page.keyboard.press("v");
   await expect(viewPicker(page)).toBeVisible();

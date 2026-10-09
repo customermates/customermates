@@ -858,7 +858,6 @@
     },
     "ariaLabels": {
       "breadcrumb": "Ruta de navegación",
-      "collapseSearch": "Contraer la búsqueda",
       "explainField": "Acerca de {field}",
       "hidePassword": "Ocultar contraseña",
       "selectOption": "Selecciona una opción",
@@ -1268,7 +1267,10 @@
         "fieldsGroup": "Filtrar por",
         "limitReached": "Puedes aplicar hasta {count} filtros.",
         "removeFilter": "Quitar filtro",
-        "title": "Filtros"
+        "title": "Filtros",
+        "trigger": "Filtro",
+        "searchContains": "{field} contiene «{text}»",
+        "searchOrAddFilter": "Buscar o añadir filtro…"
       },
       "selectionLimit": "Puedes seleccionar hasta {count} valores.",
       "selectOperator": "Selecciona una condición…",
@@ -1836,7 +1838,6 @@
       "chooseFile": "Elegir archivo",
       "fileRejected": "No se pudo leer ese archivo."
     },
-    "menu": "Importar y exportar",
     "recordImport": {
       "create": "Crear con los ID exportados",
       "failed": "No se pudieron importar los registros. Revisa el archivo y los permisos.",
@@ -1903,7 +1904,8 @@
       "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
       "recordCount": "{count, plural, one {# registro} other {# registros}}"
-    }
+    },
+    "moreActions": "Más acciones"
   },
   "Diagrams": {
     "noData": "No hay datos disponibles",
@@ -2389,7 +2391,8 @@
       "searchAlias": "Buscar",
       "shortcuts": "Mostrar atajos de teclado",
       "switchView": "Cambiar de vista en una lista",
-      "toggleSidebar": "Mostrar u ocultar la barra lateral"
+      "toggleSidebar": "Mostrar u ocultar la barra lateral",
+      "openFilters": "Abrir los filtros de una lista"
     },
     "groups": {
       "create": "Crear",
@@ -2728,7 +2731,6 @@
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el registro.",
     "emptyTitle": "Ningún evento coincide con estos filtros",
     "navigation": "Registro de auditoría",
-    "searchPlaceholder": "Buscar por acción",
     "values": {
       "action": {
         "auditRead": "Auditoría de operador leída",
@@ -2855,7 +2857,6 @@
       "title": "Restablecimiento de créditos",
       "zeroBalance": "Poner a cero el saldo restante"
     },
-    "searchPlaceholder": "Buscar por nombre o correo de la cuenta",
     "values": {
       "noSubscription": "Sin suscripción",
       "operator": "Operador de la plataforma"
@@ -2895,7 +2896,6 @@
       "workspaceId": "ID del espacio de trabajo"
     },
     "navigation": "Espacios de trabajo",
-    "searchPlaceholder": "Buscar por correo de un miembro",
     "stats": {
       "assistantConversations": "Chats del asistente",
       "connectedAccounts": "Cuentas conectadas",
@@ -3511,7 +3511,8 @@
     "useChannelAvatar": "Usar la foto de perfil del canal",
     "value": "Valor",
     "valueType": "Tipo de valor",
-    "yes": "Sí"
+    "yes": "Sí",
+    "configureList": "Configurar {list}"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Déjalo vacío para incluir todos los cambios.",

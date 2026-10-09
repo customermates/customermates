@@ -1,9 +1,9 @@
 "use client";
 
-import type { FilterTarget } from "./filter-target";
+import type { FilterPaletteSearch, FilterTarget } from "./filter-target";
 import type { ComponentProps, ReactNode } from "react";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -13,12 +13,13 @@ import { Button } from "@/components/ui/button";
 import { FilterPalette } from "@/components/data-view/filter-palette/filter-palette";
 import { MAX_APPLIED_FILTERS } from "@/components/data-view/filter-palette/filter-palette.store";
 import { ResponsiveOverlay } from "@/components/modal";
-import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useFilterFieldLabel } from "@/components/data-view/use-filter-field-label";
 
 type Props = {
   store: FilterTarget;
+  search?: FilterPaletteSearch;
+  registerOpener?: (open: () => void) => () => void;
   headerAction?: (close: () => void) => ReactNode;
   onCloseAutoFocus?: ComponentProps<typeof ResponsiveOverlay>["onCloseAutoFocus"];
   compact?: boolean;
@@ -27,6 +28,8 @@ type Props = {
 
 export const FilterTargetPopover = observer(function FilterTargetPopover({
   store,
+  search,
+  registerOpener,
   compact,
   id,
   headerAction,
@@ -34,12 +37,14 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
 }: Props) {
   const t = useTranslations();
   const palette = useFilterPalette(store);
+
+  useEffect(() => registerOpener?.(() => palette.openFor(store)), [registerOpener, palette, store]);
   const contentRef = useRef<HTMLDivElement>(null);
   const filterFieldLabel = useFilterFieldLabel();
 
-  if (store.filterableFields.length === 0 && !store.filters?.length && !store.groups?.length) return null;
+  if (store.filterableFields.length === 0 && !store.filters?.length && !store.groups?.length && !search) return null;
 
-  const activeFilterCount = (store.filters?.length ?? 0) + (store.groups?.length ?? 0);
+  const activeFilterCount = (store.filters?.length ?? 0) + (store.groups?.length ?? 0) + (search?.term ? 1 : 0);
   const isOpen = palette.isOpen && palette.target === store;
   const page = palette.page;
   const title =
@@ -70,32 +75,44 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
   }
 
   function handleClear() {
+    search?.apply(undefined);
     runUserAction(() => palette.clearFilters());
   }
 
-  const trigger = (
+  const trigger = compact ? (
     <Button
       aria-label={t("Common.ariaLabels.tooltipFilters")}
-      className={cn(
-        "relative",
-        compact ? "text-muted-foreground hover:text-foreground size-3 rounded-sm hover:bg-transparent" : "h-8",
-      )}
+      className="relative size-3 rounded-sm text-muted-foreground hover:bg-transparent hover:text-foreground"
       disabled={store.isDisabled}
       id={id}
-      size={compact ? "icon-xs" : "sm"}
+      size="icon-xs"
       type="button"
-      variant={compact ? "ghost" : "secondary"}
+      variant="ghost"
     >
-      <Filter className={compact ? "size-3" : "size-3.5"} />
+      <Filter className="size-3" />
 
       {activeFilterCount > 0 && (
-        <span
-          aria-hidden="true"
-          className={cn(
-            "absolute rounded-full bg-primary",
-            compact ? "-right-1 -top-1 size-1.5" : "-right-0.5 -top-0.5 size-2",
-          )}
-        />
+        <span aria-hidden="true" className="absolute -right-1 -top-1 size-1.5 rounded-full bg-primary" />
+      )}
+    </Button>
+  ) : (
+    <Button
+      aria-label={t("Common.ariaLabels.tooltipFilters")}
+      className="h-8"
+      disabled={store.isDisabled}
+      id={id}
+      size="sm"
+      type="button"
+      variant="secondary"
+    >
+      <Filter className="size-3.5" />
+
+      <span className="hidden sm:inline">{t("Common.filters.palette.trigger")}</span>
+
+      {activeFilterCount > 0 && (
+        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-md bg-primary/15 px-1.5 text-[11px] font-medium text-primary-soft-foreground tabular-nums">
+          {activeFilterCount}
+        </span>
       )}
     </Button>
   );
@@ -112,7 +129,10 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
 
       <Button
         className="h-8"
-        disabled={palette.isDisabled || (palette.appliedFilters.length === 0 && !palette.activeTarget?.groups?.length)}
+        disabled={
+          palette.isDisabled ||
+          (palette.appliedFilters.length === 0 && !palette.activeTarget?.groups?.length && !search?.term)
+        }
         size="sm"
         type="button"
         variant="secondary"
@@ -137,7 +157,7 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
       onOpenChange={handleOpenChange}
     >
       <div ref={contentRef}>
-        <FilterPalette palette={palette} store={store} />
+        <FilterPalette palette={palette} search={search} store={store} />
       </div>
     </ResponsiveOverlay>
   );

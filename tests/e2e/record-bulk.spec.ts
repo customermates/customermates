@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { applyPaletteSearch, clearPaletteSearch } from "./filter-palette";
 import { presetId } from "../../features/records/crm-preset";
 
 test("selects records, bulk-edits exact decimals, previews cascades, and deletes only the selected records", async ({
@@ -225,12 +226,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     await expect(selection).toContainText("2 items selected");
   };
   await selectPair();
-  const search = page.locator("#records-search");
-  if ((page.viewportSize()?.width ?? 0) < 1024)
-    await page.getByRole("button", { name: "Search...", exact: true }).click();
-  await expect(search).toBeVisible();
-  await expect(search).toBeEnabled();
-  await search.fill("Selected A");
+  await applyPaletteSearch(page, "records-filter", "Selected A");
   await expect(page.getByRole("link", { name: "Selected A", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Selected B", exact: true })).toHaveCount(0);
   await expect(selection).toContainText("1 not in the current view");
@@ -243,11 +239,11 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   await expect(selection).not.toBeVisible();
   await expect(row("Selected A").getByRole("checkbox")).not.toBeChecked();
   expect(await read()).toEqual(initial);
-  await search.fill("");
+  await clearPaletteSearch(page, "records-filter");
   await expect(page.getByRole("link", { name: "Other C", exact: true })).toBeVisible();
   await expect(row("Selected B").getByRole("checkbox")).not.toBeChecked();
   await selectPair();
-  await search.fill("Other C");
+  await applyPaletteSearch(page, "records-filter", "Other C");
   await expect(page.getByRole("link", { name: "Selected A", exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Selected B", exact: true })).toHaveCount(0);
   await expect(selection).toContainText("2 items selected");
@@ -267,7 +263,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
       expect(current).toEqual({ ...original, state: "missing", discount: null, version: original.version + 1 });
     else expect(current).toEqual(original);
   }
-  await search.fill("");
+  await clearPaletteSearch(page, "records-filter");
   await expect(row("Selected A").getByRole("checkbox")).not.toBeChecked();
   const discountColumn = (await page.getByRole("columnheader").allTextContents()).findIndex((label) =>
     label.includes("Optional discount"),

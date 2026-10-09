@@ -858,7 +858,6 @@
     },
     "ariaLabels": {
       "breadcrumb": "Percorso di navigazione",
-      "collapseSearch": "Comprimi la ricerca",
       "explainField": "Informazioni su {field}",
       "hidePassword": "Nascondi password",
       "selectOption": "Seleziona un'opzione",
@@ -1268,7 +1267,10 @@
         "fieldsGroup": "Filtra per",
         "limitReached": "Puoi applicare fino a {count} filtri.",
         "removeFilter": "Rimuovi filtro",
-        "title": "Filtri"
+        "title": "Filtri",
+        "trigger": "Filtro",
+        "searchContains": "{field} contiene «{text}»",
+        "searchOrAddFilter": "Cerca o aggiungi un filtro…"
       },
       "selectionLimit": "Puoi selezionare fino a {count} valori.",
       "selectOperator": "Seleziona una condizione…",
@@ -1836,7 +1838,6 @@
       "chooseFile": "Scegli file",
       "fileRejected": "Non è stato possibile leggere questo file."
     },
-    "menu": "Importa ed esporta",
     "recordImport": {
       "create": "Crea con gli ID esportati",
       "failed": "Impossibile importare i record. Controlla il file e le autorizzazioni.",
@@ -1903,7 +1904,8 @@
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}"
-    }
+    },
+    "moreActions": "Altre azioni"
   },
   "Diagrams": {
     "noData": "Nessun dato disponibile",
@@ -2389,7 +2391,8 @@
       "searchAlias": "Cerca",
       "shortcuts": "Mostra scorciatoie da tastiera",
       "switchView": "Cambia vista di un elenco",
-      "toggleSidebar": "Mostra o nascondi la barra laterale"
+      "toggleSidebar": "Mostra o nascondi la barra laterale",
+      "openFilters": "Apri i filtri di un elenco"
     },
     "groups": {
       "create": "Crea",
@@ -2728,7 +2731,6 @@
     "emptyBody": "Modifica la ricerca o i filtri per ampliare il registro.",
     "emptyTitle": "Nessun evento corrisponde a questi filtri",
     "navigation": "Registro di audit",
-    "searchPlaceholder": "Cerca per azione",
     "values": {
       "action": {
         "auditRead": "Audit operatore letto",
@@ -2855,7 +2857,6 @@
       "title": "Ripristino crediti",
       "zeroBalance": "Imposta a zero il saldo rimanente"
     },
-    "searchPlaceholder": "Cerca per nome o e-mail dell’account",
     "values": {
       "noSubscription": "Nessun abbonamento",
       "operator": "Operatore della piattaforma"
@@ -2895,7 +2896,6 @@
       "workspaceId": "ID spazio di lavoro"
     },
     "navigation": "Aree di lavoro",
-    "searchPlaceholder": "Cerca per e-mail di un membro",
     "stats": {
       "assistantConversations": "Chat dell'assistente",
       "connectedAccounts": "Account collegati",
@@ -3511,7 +3511,8 @@
     "useChannelAvatar": "Usa l’immagine del profilo del canale",
     "value": "Valore",
     "valueType": "Tipo di valore",
-    "yes": "Sì"
+    "yes": "Sì",
+    "configureList": "Configura {list}"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Lascia vuoto per includere ogni modifica.",

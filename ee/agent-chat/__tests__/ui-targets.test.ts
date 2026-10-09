@@ -16,7 +16,6 @@ import {
   agentUiPageLabelKeys,
   findAgentNavigationTarget,
   findAgentUiTarget,
-  isToolbarSearchTarget,
 } from "../ui-targets";
 import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
 
@@ -109,12 +108,6 @@ describe("agent interface targets", () => {
     expect(agentSidebarGroupId("nav-settings-unknown")).toBeNull();
   });
 
-  it("recognises the toolbar search boxes that narrow screens collapse", () => {
-    expect(isToolbarSearchTarget("settings-webhooks-search")).toBe(true);
-    expect(isToolbarSearchTarget("settings-webhooks-deliveries-search")).toBe(true);
-    expect(isToolbarSearchTarget("nav-search")).toBe(false);
-    expect(isToolbarSearchTarget("settings-roles-search")).toBe(false);
-  });
 
   it("opens a page only when the sidebar would show it for the role and installation", () => {
     const reads =

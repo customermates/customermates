@@ -185,10 +185,10 @@ describe("AgentUiControlStore.highlight", () => {
   }
 
   it("resolves shared controls only on their declared record type's page", () => {
-    const search = element(1);
-    onPage(`/en/records/${RECORD_TYPES[0]}`, (id) => (id === "records-search" ? search : null));
-    expect(findAgentTargetElement(`records:${RECORD_TYPES[0]}:search`)).toBe(search);
-    expect(findAgentTargetElement(`records:${RECORD_TYPES[1]}:search`)).toBeNull();
+    const filter = element(1);
+    onPage(`/en/records/${RECORD_TYPES[0]}`, (id) => (id === "records-filter" ? filter : null));
+    expect(findAgentTargetElement(`records:${RECORD_TYPES[0]}:filter`)).toBe(filter);
+    expect(findAgentTargetElement(`records:${RECORD_TYPES[1]}:filter`)).toBeNull();
   });
 
   function onSidebarPage(pathname: string, elements: Record<string, ReturnType<typeof element>>) {

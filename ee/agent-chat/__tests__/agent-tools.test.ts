@@ -781,7 +781,7 @@ describe("agent tools", () => {
       const tools = getAgentAiTools(deps());
       const first = String(await execute(tools.list_ui_targets, { query: "Projects" }));
       expect(first).toContain(`nav-records:${typeId}|/records/${typeId}`);
-      expect(first).toContain(`records:${typeId}:search`);
+      expect(first).toContain(`records:${typeId}:filter`);
       expect(first).not.toContain(`records:${typeId}:add`);
       expect(first).not.toContain(`records:${typeId}:configure`);
       recordNavigationHarness.types[0].pluralLabel = "Engagements";

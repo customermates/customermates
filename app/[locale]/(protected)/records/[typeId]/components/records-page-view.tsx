@@ -12,7 +12,8 @@ import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { IntlLink } from "@/i18n/navigation";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewLayout } from "@/components/data-view/data-view-layout";
@@ -165,26 +166,22 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const handleAdd = useCallback(() => openEditor({ typeId: store.presentation.typeId }), [openEditor, store]);
   const handleExport = useRecordExport(store.presentation);
   const handleImport = useCallback(() => setImportOpen(true), []);
-  const configureLabel = t("RecordModel.configure");
+  const configureLabel = t("RecordModel.configureList", { list: store.type?.pluralLabel ?? t("RecordModel.records") });
   const toolbar = useMemo(
     () => (
       <DataViewToolbar
-        actions={
+        anchorScope="records"
+        menuItems={
           store.presentation.canManageSchema && (
-            <TopBarActionButtons
-              actions={[
-                {
-                  id: "configure",
-                  anchorId: "records-configure",
-                  href: `/configure?typeId=${presentation.typeId}`,
-                  icon: Settings2,
-                  label: configureLabel,
-                },
-              ]}
-            />
+            <DropdownMenuItem asChild>
+              <IntlLink href={`/configure?typeId=${presentation.typeId}`} id="records-configure">
+                <Settings2 className="size-4" />
+
+                {configureLabel}
+              </IntlLink>
+            </DropdownMenuItem>
           )
         }
-        anchorScope="records"
         store={store}
         onAdd={handleAdd}
         onExport={handleExport}
