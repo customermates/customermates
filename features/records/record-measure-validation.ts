@@ -58,7 +58,7 @@ export function recordMeasureIssue(measure: RecordMeasure, model: RecordModel): 
   if (
     !field ||
     (field.multiple && field.valueType !== "select") ||
-    ["richText", "dateRange", "dateTimeRange"].includes(field.valueType)
+    ["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType)
   )
     return invalid();
   if (interval && (fieldId === null || !["date", "dateTime"].includes(field.valueType)))

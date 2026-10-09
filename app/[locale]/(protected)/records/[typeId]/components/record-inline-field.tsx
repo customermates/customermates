@@ -55,7 +55,12 @@ export function canEditInline(store: RecordsStore, record: RecordRow, field: Rec
 }
 
 export function isCalculatedForEditor(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
-  return store.canUpdateRecord(record) && !isRecordFieldWritable(field) && field.id !== store.type?.primaryFieldId;
+  return (
+    store.canUpdateRecord(record) &&
+    !isRecordFieldWritable(field) &&
+    field.valueType !== "channels" &&
+    field.id !== store.type?.primaryFieldId
+  );
 }
 
 function latestRow(records: RecordsStore, record: RecordRow) {

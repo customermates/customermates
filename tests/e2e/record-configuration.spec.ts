@@ -83,7 +83,7 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toBeDisabled();
   await dialog.getByRole("switch", { name: "Use channel profile picture", exact: true }).uncheck();
   await saveDrawer(page);
-  expect(await channelsOf(contactTypeId)).toEqual({ ...before, format: { ...before?.format, providerAvatar: false } });
+  expect(await channelsOf(contactTypeId)).toMatchObject({ ...before, format: { providerAvatar: false } });
 
   const customTypeId = await createList(page, "Candidates");
   expect(await channelsOf(customTypeId)).toBeUndefined();

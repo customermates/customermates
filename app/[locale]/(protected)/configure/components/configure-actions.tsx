@@ -118,7 +118,7 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
           <DropdownMenuSeparator />
 
           <ConfigureListAddItems
-            channels={!recordChannelsField(model, selected.id)}
+            channels={!selected.embedded && !recordChannelsField(model, selected.id)}
             sublist={canAddSublist && !selected.embedded}
             onAdd={onAdd}
           />

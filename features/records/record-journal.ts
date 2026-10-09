@@ -110,6 +110,7 @@ export function recordEventChanges(
   const links = entry.links.filter((link) => link.before !== link.after);
   const assignmentsChanged = JSON.stringify(assignments.before) !== JSON.stringify(assignments.after);
   const identitiesChanged = JSON.stringify(identities.before) !== JSON.stringify(identities.after);
+  const channelsFieldId = identitiesChanged ? recordChannelsField(model, entry.ref.typeId)?.id : undefined;
   if (before && after && !fields.length && !links.length && !assignmentsChanged && !identitiesChanged) return null;
   return {
     kind: !before ? "record.created" : !after ? "record.deleted" : "record.updated",
@@ -119,7 +120,7 @@ export function recordEventChanges(
       cause,
       beforeVersion: before?.version ?? null,
       afterVersion: after?.version ?? null,
-      changedFieldIds: fields.map((change) => change.fieldId),
+      changedFieldIds: [...fields.map((change) => change.fieldId), ...(channelsFieldId ? [channelsFieldId] : [])],
       fields,
       assignments: assignmentsChanged ? assignments : null,
       identities: identitiesChanged ? identities : null,

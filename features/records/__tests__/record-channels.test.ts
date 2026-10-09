@@ -10,6 +10,10 @@ import {
 } from "../record-channels";
 import { recordColumns } from "../record-columns";
 import { recordFilterOperators } from "../record-filter";
+import { isRecordFieldWritable } from "../record-input-value";
+import { recordInvariant } from "../record-invariant";
+import { invalidRecordQueryPart } from "../record-query-validation";
+import { RecordQuerySchema } from "../record-query.schema";
 import { createRecordStagingRepo } from "../record-staging.repository";
 import { identityKeys } from "../record-identity";
 import type { RecordIdentity } from "../record-identity.schema";
@@ -95,6 +99,14 @@ describe("Channels field type", () => {
     formula.behavior = { kind: "formula", expression: { kind: "field", fieldId: operationId } };
     expect(validateRecordModel(model).issues).toContainEqual({ code: "channels_not_calculable", fieldId: formula.id });
     expect(recordFilterOperators({ valueType: "channels", multiple: false })).toEqual([]);
+    const field = recordInvariant(model.fields.find((candidate) => candidate.id === operationId));
+    expect(isRecordFieldWritable(field)).toBe(false);
+    expect(
+      invalidRecordQueryPart(
+        RecordQuerySchema.parse({ typeId, sort: [{ fieldId: operationId, direction: "asc" }] }),
+        model,
+      ),
+    ).toBe("sort");
   });
 
   it("confines the provider avatar option to Channels fields", () => {

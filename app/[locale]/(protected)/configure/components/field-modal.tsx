@@ -231,7 +231,11 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   get triggerFields() {
     return this.model.fields.filter(
       (field): field is RecordField =>
-        field.typeId === this.typeId && !field.archived && !field.multiple && field.behavior.kind === "input",
+        field.typeId === this.typeId &&
+        !field.archived &&
+        !field.multiple &&
+        field.valueType !== "channels" &&
+        field.behavior.kind === "input",
     );
   }
   get triggerField() {

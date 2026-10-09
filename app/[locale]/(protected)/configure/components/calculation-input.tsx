@@ -60,7 +60,9 @@ export const CalculationInput = observer(function CalculationInput({
   const currentTypeId = expressionTypeId(value, activePath, typeId, model);
   const iconOf = (listId: string) => model.types.find((type) => type.id === listId)?.icon;
   const id = `${path}${activePath.map((step) => (step === "expression" ? ".expression" : `.arguments.${step}`)).join("")}`;
-  const fields = model.fields.filter((field) => field.typeId === currentTypeId && !field.archived);
+  const fields = model.fields.filter(
+    (field) => field.typeId === currentTypeId && !field.archived && field.valueType !== "channels",
+  );
   const relations = model.relationships.filter(
     (relation) =>
       !relation.archived && (relation.sourceTypeId === currentTypeId || relation.targetTypeId === currentTypeId),
@@ -428,7 +430,10 @@ export const CalculationInput = observer(function CalculationInput({
                   model.fields.find(
                     (field) =>
                       field.typeId === targetId && !field.archived && ["number", "currency"].includes(field.valueType),
-                  ) ?? model.fields.find((field) => field.typeId === targetId && !field.archived);
+                  ) ??
+                  model.fields.find(
+                    (field) => field.typeId === targetId && !field.archived && field.valueType !== "channels",
+                  );
                 commit({
                   ...current,
                   relationId,
@@ -464,6 +469,7 @@ export const CalculationInput = observer(function CalculationInput({
                     .filter(
                       (field) =>
                         !field.archived &&
+                        field.valueType !== "channels" &&
                         field.typeId === expressionTypeId(value, [...activePath, "expression"], typeId, model),
                     )
                     .map((field) => ({ value: field.id, label: field.label }))}

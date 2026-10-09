@@ -883,6 +883,54 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("round-trips a list with a Channels field through export and import and reports identity changes on the field", async () => {
+    const f = await fixture();
+    const contactTypeId = f.id("contact");
+    const channelsId = f.id("capability.identity");
+    const created = await f.mutation({
+      action: "create",
+      typeId: contactTypeId,
+      fields: [{ fieldId: f.id("contact.firstName"), value: textValue("Roundtrip") }],
+      identities: [{ provider: "mail", value: "roundtrip@example.test" }],
+    });
+    if (!created.ok || created.data.status !== "completed") throw new Error(JSON.stringify(created));
+    const ref = recordInvariant(created.data.refs.find((candidate) => candidate.typeId === contactTypeId));
+    const [event] = await f.run(() =>
+      prisma.eventLog.findMany({ where: { companyId: f.company.id, subjectId: ref.recordId, kind: "record.created" } }),
+    );
+    expect((event?.payload as { changedFieldIds: string[] }).changedFieldIds).toContain(channelsId);
+    expect(
+      await f.mutation({
+        action: "update",
+        ref,
+        expectedVersion: (await f.readRecord(ref)).version,
+        fields: [{ fieldId: channelsId, value: textValue("roundtrip@example.test") }],
+      }),
+    ).toMatchObject({ ok: false });
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+    );
+    const exported = await f.run(() =>
+      exporter.invoke({ typeId: contactTypeId, search: "Roundtrip", filters: [], relationships: [], sort: [] }),
+    );
+    if (!exported.ok) throw exported.error;
+    expect(exported.data.records[0].fields.some((field) => field.fieldId === channelsId)).toBe(false);
+    expect(exported.data.records[0].identities).toMatchObject([{ value: "roundtrip@example.test" }]);
+    const copy = { typeId: contactTypeId, recordId: randomUUID() };
+    const imported = await f.run(() =>
+      importer.invoke({
+        document: { ...exported.data, records: exported.data.records.map((row) => ({ ...row, ref: copy })) },
+        mode: "create",
+        idempotencyKey: randomUUID(),
+      }),
+    );
+    expect(imported, JSON.stringify(imported)).toMatchObject({ ok: true, data: { created: 1 } });
+    expect((await f.readRecord(copy)).identities).toMatchObject([{ value: "roundtrip@example.test" }]);
+  });
+
   it("imports a generic export atomically with stable IDs and idempotent retries", async () => {
     const f = await fixture();
     const original = await f.create("service", "Transfer source", [["service.amount", decimal("123.45")]]);
