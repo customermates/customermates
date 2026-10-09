@@ -106,6 +106,7 @@ export const PROTECTED_ROUTES = [
   "/subscription-expired",
   "/test/error",
   "/test/overlays",
+  "/trash",
   "/wiki",
 ] as const;
 
