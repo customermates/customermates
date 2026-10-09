@@ -277,7 +277,7 @@ describe("data view rail", () => {
     expect(classes).not.toContain("rounded-md");
   });
 
-  it("sits flush under the top bar", () => {
+  it("sits flush under the top bar, on the rhythm the entity detail summary rail uses", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
     const items = html.match(/<[^>]*data-data-view-rail-items[^>]*>/)?.[0] ?? "";
 
@@ -285,6 +285,12 @@ describe("data view rail", () => {
     expect(items).toContain("pb-4");
     expect(items).not.toContain("py-2.5");
     expect(tabs(html).every((tab) => tab.includes("h-7"))).toBe(true);
+
+    const summary = readFileSync(resolve(process.cwd(), "components/entity-detail/entity-detail-summary.tsx"), "utf8");
+    const summaryRail = summary.match(/railClassName="([^"]*)"/)?.[1] ?? "";
+
+    expect(summaryRail).toContain("pt-0");
+    expect(summaryRail).toContain("pb-4");
   });
 
   it("starts its controls at the top edge so the actions control lines up with the tabs", () => {

@@ -21,7 +21,7 @@ import {
   useRecordDetailLayout,
 } from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
-import { RecordDetailChipRow } from "./record-detail-chip-row";
+import { RecordDetailSummary } from "./record-detail-summary";
 import { RecordEditorFields } from "./record-editor-fields";
 import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./record-editor-actions";
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
@@ -214,7 +214,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
             ) : undefined
           }
           panelLayout={panelLayout}
-          summary={<RecordDetailChipRow className="px-4 pb-3" store={store} />}
+          summary={<RecordDetailSummary store={store} />}
         />
       </AppForm>
     );
@@ -247,7 +247,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
         {notices}
 
-        <RecordDetailChipRow className="shrink-0 px-6 pb-3" store={store} />
+        <RecordDetailSummary store={store} />
 
         <RecordDrawerSegments
           label={t("EntityDetail.overview")}

@@ -91,7 +91,7 @@ function ChipLabel({ name, children }: { name?: string; children: ReactNode }) {
 
 type ChipPresentation = Pick<RecordsStore["presentation"], "linkColors" | "linkIcons" | "model">;
 
-export const RecordPropertyChipView = observer(function RecordPropertyChipView({
+const RecordPropertyChipView = observer(function RecordPropertyChipView({
   presentation,
   record,
   entry,

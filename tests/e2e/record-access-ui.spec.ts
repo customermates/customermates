@@ -2352,7 +2352,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   await openRecordDetails(page, "Alpha portfolio");
   const detail = page.getByRole("dialog", { name: type.label, exact: true });
   await expect(
-    detail.locator(`[data-chip-column="${budgetId}"]`),
+    detail.locator(`[data-summary-field="${budgetId}"]`),
   ).toContainText("50");
   await page.keyboard.press("Escape");
   await expect(detail).not.toBeVisible();
@@ -2458,7 +2458,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
       exact: true,
     });
     await expect(
-      readerDetail.locator(`[data-chip-column="${budgetId}"]`),
+      readerDetail.locator(`[data-summary-field="${budgetId}"]`),
     ).toContainText("50");
     await reader.page.keyboard.press("Escape");
     await expect(readerDetail).not.toBeVisible();
@@ -3027,7 +3027,7 @@ test("keeps retained values restricted after a delegated manager converts fields
           value.getByText("Restricted", { exact: true }),
         ).toBeVisible();
         await expect(value.locator("input,textarea")).toHaveCount(0);
-        const pinned = editor.locator(`[data-chip-column="${field.id}"]`);
+        const pinned = editor.locator(`[data-summary-field="${field.id}"]`);
         if ((await pinned.count()) === 0)
           await editor
             .getByRole("button", {

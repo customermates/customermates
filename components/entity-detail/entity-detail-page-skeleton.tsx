@@ -49,13 +49,25 @@ export function EntityDetailPageSkeleton({
 }: Props & { showNotesPanel?: boolean; showActivityPanel?: boolean }) {
   const panelCount = 1 + Number(showNotesPanel) + Number(showActivityPanel);
   const renderSummaryItem = (index: number) => (
-    <Shape
+    <div
       key={index}
-      animated={animated}
-      breathe={index === 0}
-      className={cn("h-[22px] rounded-md", SUMMARY_WIDTHS[index % SUMMARY_WIDTHS.length])}
-      motionPhase={MOTION_PHASES[index % MOTION_PHASES.length] ?? 0}
-    />
+      className={cn(
+        "flex min-w-0 max-w-56 shrink-0 flex-col justify-center rounded-md border border-border/60 bg-card/40 px-3 py-2",
+        SUMMARY_WIDTHS[index % SUMMARY_WIDTHS.length],
+      )}
+    >
+      <div className="flex min-h-4 items-center">
+        <Shape
+          animated={animated}
+          className="h-2.5 w-16"
+          motionPhase={MOTION_PHASES[index % MOTION_PHASES.length] ?? 0}
+        />
+      </div>
+
+      <div className="mt-0.5 flex min-h-6 items-center">
+        <Shape animated={animated} breathe={index === 0} className="h-4 w-20" motionPhase={1} />
+      </div>
+    </div>
   );
 
   return (
@@ -72,9 +84,20 @@ export function EntityDetailPageSkeleton({
         className="flex size-full min-h-0 flex-col overflow-y-auto @6xl/detail:overflow-y-visible"
       >
         {showSummary ? (
-          <div data-entity-detail-skeleton-summary className="shrink-0 px-4 pb-3">
-            <div className="flex flex-wrap items-center gap-1" data-summary-variant="chip-row">
-              {Array.from({ length: summaryItemCount }, (_, index) => renderSummaryItem(index))}
+          <div
+            data-entity-detail-skeleton-summary
+            className="shrink-0 overflow-hidden border-b border-border px-4"
+            data-joins-top-bar=""
+            data-summary-variant="pinned-mini-cards"
+          >
+            <div className="-mx-4 overflow-hidden px-4">
+              <div
+                data-summary-rail
+                className="flex w-max min-w-full items-stretch gap-2 pt-0 pb-4"
+                data-summary-geometry="cards"
+              >
+                {Array.from({ length: summaryItemCount }, (_, index) => renderSummaryItem(index))}
+              </div>
             </div>
           </div>
         ) : null}

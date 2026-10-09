@@ -61,10 +61,14 @@ describe("page skeleton families", () => {
     expect(detail).toContain("@container/detail size-full min-h-0");
     expect(detail).toContain("data-entity-detail-skeleton-shell");
     expect(detail).toContain("data-entity-detail-skeleton-summary");
-    expect(detail).toContain('data-summary-variant="chip-row"');
-    expect(detail).toContain("flex flex-wrap items-center gap-1");
-    expect(detail).toContain("h-[22px] rounded-md");
-    expect(detail).not.toContain("rounded-md border border-border/60 bg-card/40 px-3 py-2");
+    expect(detail).toContain('data-summary-variant="pinned-mini-cards"');
+    expect(detail).toContain('data-summary-geometry="cards"');
+    expect(detail).not.toContain("h-[68px]");
+    expect(detail).toContain("-mx-4 overflow-hidden px-4");
+    expect(detail).toContain("flex w-max min-w-full items-stretch gap-2 pt-0 pb-4");
+    expect(detail).toContain("flex min-h-4 items-center");
+    expect(detail).toContain("mt-0.5 flex min-h-6 items-center");
+    expect(detail).toContain("rounded-md border border-border/60 bg-card/40 px-3 py-2");
     expect(count(detail, "data-summary-panel-divider")).toBe(0);
     expect(count(detail, 'data-summary-overflow="true"')).toBe(0);
     expect(detail).toContain("overflow-y-auto @6xl/detail:overflow-y-visible");

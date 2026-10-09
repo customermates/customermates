@@ -11,7 +11,7 @@ export function isEmptyResult(result: CalculatedValue | undefined) {
 
 export type RecordChipColumn = RecordColumn<RecordFieldView>;
 
-export type RecordChipEntry = { column: RecordChipColumn; icon: string; showName: boolean; empty: boolean };
+export type RecordChipEntry = { column: RecordChipColumn; icon: string; showName: boolean };
 
 function chipIcon(column: RecordChipColumn) {
   if (column.kind === "field") return `type:${column.field.valueType}`;
@@ -46,22 +46,17 @@ export function isEmptyColumn(record: RecordRow, column: RecordChipColumn) {
   return false;
 }
 
-export function recordChipRowModel(
-  columns: RecordChipColumn[],
-  record: RecordRow,
-  { keepEmpty = false }: { keepEmpty?: boolean } = {},
-) {
+export function recordChipRowModel(columns: RecordChipColumn[], record: RecordRow) {
   const empty = columns.filter((column) => isEmptyColumn(record, column));
   const filled = columns.filter((column) => !empty.includes(column));
   const iconCounts = new Map<string, number>();
   for (const column of filled) iconCounts.set(chipIcon(column), (iconCounts.get(chipIcon(column)) ?? 0) + 1);
   return {
-    entries: (keepEmpty ? columns : filled).map(
+    entries: filled.map(
       (column): RecordChipEntry => ({
         column,
         icon: chipIcon(column),
         showName: (iconCounts.get(chipIcon(column)) ?? 0) > 1,
-        empty: empty.includes(column),
       }),
     ),
     empty,
