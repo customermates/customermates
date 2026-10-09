@@ -68,6 +68,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
       unavailable: observable,
       receivePage: action,
       receiveServerPage: action,
+      showRestored: action,
       releaseView: action,
       load: action,
       startCreate: action,
@@ -108,7 +109,10 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     this.onChanged(page?.id ?? null);
   };
 
-  showRestored = (pageId: string) => this.onChanged(pageId);
+  showRestored = (pageId: string) => {
+    if (this.pendingMutationSelection) this.pendingMutationSelection = { ...this.pendingMutationSelection, pageId };
+    this.onChanged(pageId);
+  };
 
   receiveServerPage = (page: WikiPageDto | null, requestedPageId?: string) => {
     const pending = this.pendingMutationSelection;
