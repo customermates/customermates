@@ -472,9 +472,8 @@ describeDatabase("record trash", () => {
       targets: versions.map(({ ref, read }) => ({ ref, expectedVersion: read.ok ? read.data.version : 0 })),
     });
     if (!deleted.ok || deleted.data.status !== "completed") throw new Error(JSON.stringify(deleted));
-    const restored = await runWithTenant(f.admin, () =>
-      f.trash.restore.invoke({ batchId: deleted.data.trashBatchId } as never),
-    );
+    const batchId = deleted.data.trashBatchId;
+    const restored = await runWithTenant(f.admin, () => f.trash.restore.invoke({ batchId } as never));
     expect(restored).toMatchObject({ ok: true, data: { blocked: [], restoredRecords: 2 } });
     for (const ref of [deal, item]) expect(await f.rows(ref)).toEqual({ deletedAt: null, trashItemId: null });
   }, 180_000);
