@@ -182,8 +182,7 @@ const FOOTER_UTILITY_DETAIL_PATHS = [
   "/features/integrations",
   "/features/linkedin-integration",
   "/features/outlook-integration",
-  "/features/email-integration",
-  "/features/slack-integration",
+  "/blog/gmail-crm-integration",
 ] as const;
 
 function collectionSlugs(collection: string, locale: string): string[] {

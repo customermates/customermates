@@ -192,13 +192,13 @@ export function FooterContent({ appMode, blogPosts = [], className, featureLinks
               </li>
 
               <li>
-                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/unified-inbox">
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/blog/gmail-crm-integration">
                   {t("NavigationBar.public.emailAndGmail")}
                 </AppLink>
               </li>
 
               <li>
-                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/features/integrations">
+                <AppLink appearance="unstyled" className={FOOTER_LINK_CLASS} href="/docs/n8n">
                   {t("NavigationBar.public.providerSlack")}
                 </AppLink>
               </li>
