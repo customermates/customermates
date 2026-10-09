@@ -2986,7 +2986,8 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
-    "calculatedReadOnly": "{field} is calculated and can’t be edited.",
+    "calculatedValue": "Calculated: {formula}",
+    "calculatedValuePlain": "Calculated value",
     "calculationError": "Calculation unavailable",
     "calculationFlow": {
       "addStep": "Add step",

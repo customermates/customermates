@@ -2986,7 +2986,8 @@
       "snapshot": "Salvato durante un evento"
     },
     "board": "Bacheca",
-    "calculatedReadOnly": "{field} è calcolato e non può essere modificato.",
+    "calculatedValue": "Calcolato: {formula}",
+    "calculatedValuePlain": "Valore calcolato",
     "calculationError": "Calcolo non disponibile",
     "calculationFlow": {
       "addStep": "Aggiungi passo",

@@ -39,6 +39,7 @@ import { ColumnResizeHandle } from "./column-resize-handle";
 import { clampWidth, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
 import { BOARD_LANE_WIDTH_KEY } from "@/core/data-view/data-view-state.schema";
 import { DataCardBody } from "./data-card-body";
+import { DataViewItemLayout } from "./data-view-item-layout";
 import {
   DATA_KANBAN_CARDS_CLASS_NAME,
   DATA_KANBAN_COLUMN_CLASS_NAME,
@@ -463,7 +464,11 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                       onClick={onCardClick ? () => onCardClick(item) : undefined}
                     >
                       <CardContent className="px-3">
-                        {row ? <DataCardBody primaryColumnId={store.primaryColumnId} row={row} /> : null}
+                        {row ? (
+                          <DataViewItemLayout.Provider value="card">
+                            <DataCardBody primaryColumnId={store.primaryColumnId} row={row} />
+                          </DataViewItemLayout.Provider>
+                        ) : null}
                       </CardContent>
                     </KanbanCard>
                   );
