@@ -66,7 +66,7 @@ export function compileRecordSearch(
         : similarTerm !== null
           ? Prisma.sql`SELECT value."recordId" AS id, word_similarity(${similarTerm}, value."textValue") AS similarity
             FROM "RecordValue" value
-            WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."fieldId" = ${title.id}
+            WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."fieldId" = ${title?.id ?? null}
               AND value.state = 'value' AND ${similarTerm} <% value."textValue"`
           : compileRecordQuery(
               companyId,
