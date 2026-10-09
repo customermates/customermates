@@ -19,11 +19,13 @@ export async function chooseValueSource(page: Page, source: string) {
 }
 
 export async function pickOption(page: Page, chip: Locator, option: string) {
+  await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
   await chip.click();
   await page.getByRole("option", { name: option, exact: true }).filter({ visible: true }).click();
 }
 
 export async function pickFixedValue(page: Page, chip: Locator, value: string) {
+  await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
   await chip.click();
   await page.locator('[data-calculation-option="fixed-value"]').filter({ visible: true }).click();
   await page.locator('[id="calculation-fixed-value.value.value"]').fill(value);
