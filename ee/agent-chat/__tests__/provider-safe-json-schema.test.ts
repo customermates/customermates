@@ -640,8 +640,8 @@ describe("the shipped tool catalog on the Google wire", () => {
       "oneOf:rewritten": 10,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 207,
-      "const:removed": 5,
+      "additionalProperties:removed": 209,
+      "const:removed": 6,
       "enum:removed": 19,
       "propertyNames:removed": 4,
       "oneOf:rewritten": 10,
