@@ -1,7 +1,6 @@
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { DataViewGroup, GroupingResult } from "@/core/base/grouping/grouping.schema";
 import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
-import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
@@ -51,9 +50,7 @@ import { DataKanbanView } from "../data-kanban-view";
 
 type Item = { id: string; name: string };
 
-const columns: ColumnDef<Item>[] = [
-  { id: "name", accessorKey: "name", header: "Name", cell: ({ row }) => row.original.name },
-];
+const renderCard = (item: Item) => item.name;
 
 const ITEMS: Item[] = [
   { id: "e-won", name: "Won deal" },
@@ -131,7 +128,7 @@ export function renderBoard(
   const root = createRoot(host);
   roots.add(root);
   act(() => {
-    root.render(createElement(DataKanbanView<Item>, { columns, store: value, ...options }) as ReactNode);
+    root.render(createElement(DataKanbanView<Item>, { renderCard, store: value, ...options }) as ReactNode);
   });
 
   return host;
