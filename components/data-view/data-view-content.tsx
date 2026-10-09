@@ -19,6 +19,7 @@ type Props<E extends HasId> = {
   onRowClick?: (item: E) => void;
   rowHref?: (item: E) => string | undefined;
   rowActions?: (item: E) => ReactNode;
+  renderCard?: (item: E) => ReactNode;
   store: BaseDataViewStore<E>;
   view: DataViewView;
 };
@@ -28,6 +29,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   onRowClick,
   rowHref,
   rowActions,
+  renderCard,
   store,
   view,
 }: Props<E>) {
@@ -44,7 +46,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         : ({ ...withHeader, enableSorting: false } as ColumnDef<E>);
     });
 
-  if (view === "table") {
+  if (view === "table" || !renderCard) {
     return (
       <DataTable
         className="animate-page-result-in motion-reduce:animate-none"
@@ -62,7 +64,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
       cardActions={rowActions}
       cardHref={rowHref}
       className="animate-page-result-in motion-reduce:animate-none"
-      columns={resolvedColumns}
+      renderCard={renderCard}
       store={store}
       onCardClick={interactive ? onRowClick : undefined}
     />

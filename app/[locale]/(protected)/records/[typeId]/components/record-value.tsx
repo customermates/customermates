@@ -46,6 +46,7 @@ export const RecordValue = observer(function RecordValue({
   identities,
   wrap = false,
   overflowMenu = true,
+  compact = false,
 }: {
   result?: CalculatedValue;
   field: RecordFieldView;
@@ -53,6 +54,7 @@ export const RecordValue = observer(function RecordValue({
   identities?: Array<Pick<RecordIdentity, "id" | "provider" | "value" | "displayName" | "profileUrl">>;
   wrap?: boolean;
   overflowMenu?: boolean;
+  compact?: boolean;
 }) {
   const intl = useHydratedIntlStore();
   const valueFormat = useRecordValueFormat();
@@ -111,10 +113,15 @@ export const RecordValue = observer(function RecordValue({
   if (value.kind === "decimal") {
     return (
       <span className="font-mono tabular-nums">
-        {valueFormat.decimal(value.value, {
-          currency: value.currency,
-          maximumFractionDigits: field.format?.decimalPlaces ?? (value.currency ? 2 : 10),
-        })}
+        {valueFormat.decimal(
+          value.value,
+          compact && value.currency
+            ? { currency: value.currency, compact: true, maximumFractionDigits: 1 }
+            : {
+                currency: value.currency,
+                maximumFractionDigits: field.format?.decimalPlaces ?? (value.currency ? 2 : 10),
+              },
+        )}
       </span>
     );
   }

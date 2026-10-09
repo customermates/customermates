@@ -2969,6 +2969,7 @@
     },
     "addOption": "Add option",
     "addPathStep": "Add a relationship step",
+    "addProperty": "Add property",
     "addRelationship": "Add relationship",
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
