@@ -1223,6 +1223,7 @@
         "timelineThreadId": "Conversation",
         "updatedAt": "Mis à jour le",
         "url": "URL",
+        "webhookId": "Webhook",
         "workspaceId": "Espace de travail",
         "workspaceTags": "Étiquettes"
       },
