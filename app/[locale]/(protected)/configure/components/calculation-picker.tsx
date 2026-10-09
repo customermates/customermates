@@ -75,9 +75,9 @@ export function CalculationPicker({
           <CommandList className="max-h-none! overflow-visible">
             <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
 
-            {current.groups?.map((group) =>
+            {current.groups?.map((group, index) =>
               group.items.length ? (
-                <CommandGroup key={group.heading} heading={group.heading || undefined}>
+                <CommandGroup key={index} heading={group.heading || undefined}>
                   {group.items.map((item) => (
                     <CommandItem
                       key={item.id}

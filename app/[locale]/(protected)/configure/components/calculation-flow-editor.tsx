@@ -40,11 +40,13 @@ import {
   formulaInputs,
   formulaSteps,
   isUnset,
+  isVariadic,
   issueText,
   linkedExpression,
   linkedFlow,
   linkedTypeIds,
   operandTypes,
+  operatorArity,
   relationshipChoices,
   removeStep,
   replaceExpression,
@@ -102,13 +104,11 @@ function FlowChip({
   page,
   open,
   onOpenChange,
-  size,
   ...props
 }: {
   label: string;
   icon?: ReactNode;
   placeholder?: boolean;
-  size?: "md";
   disabled: boolean;
   page: CalculationPickerPage;
   open?: boolean;
@@ -118,8 +118,6 @@ function FlowChip({
   const chip = {
     className: cn(placeholder && "text-muted-foreground"),
     startContent: icon,
-    variant: placeholder ? ("outline" as const) : ("secondary" as const),
-    size,
     ...props,
   };
   if (disabled) return <AppChip {...chip}>{label}</AppChip>;
@@ -324,15 +322,45 @@ export const CalculationFlow = observer(function CalculationFlow({
     const parent = path.length ? expressionAt(expression, path.slice(0, -1)) : null;
     const types = parent?.kind === "operation" ? operandTypes(parent.operator, path.at(-1) ?? 0) : null;
     const unset = isUnset(leaf);
+    const page = argumentPage(t("RecordModel.calculationFlow.pickValue"), leaf, types, (next) =>
+      change(replaceExpression(expression, path, next)),
+    );
+    const removable =
+      parent?.kind === "operation" &&
+      isVariadic(parent.operator) &&
+      parent.arguments.length > operatorArity(parent.operator);
     return (
       <FlowChip
         data-calculation-chip={unset ? "pick-value" : "value"}
         disabled={disabled}
         icon={leafIcon(leaf, typeId)}
         label={unset ? t("RecordModel.calculationFlow.pickValue") : expressionText(leaf, typeId, labels)}
-        page={argumentPage(t("RecordModel.calculationFlow.pickValue"), leaf, types, (next) =>
-          change(replaceExpression(expression, path, next)),
-        )}
+        page={
+          removable
+            ? {
+                ...page,
+                groups: [
+                  ...(page.groups ?? []),
+                  {
+                    heading: "",
+                    items: [
+                      {
+                        id: "remove-input",
+                        label: t("RecordModel.removeInput"),
+                        onSelect: () =>
+                          change(
+                            replaceExpression(expression, path.slice(0, -1), {
+                              ...parent,
+                              arguments: parent.arguments.filter((_, index) => index !== path.at(-1)),
+                            }),
+                          ),
+                      },
+                    ],
+                  },
+                ],
+              }
+            : page
+        }
         placeholder={unset}
       />
     );
@@ -810,7 +838,6 @@ function LinkedFlowView({
         open={openHop === index}
         page={relationshipPage(index)}
         placeholder={!relation}
-        size="md"
         onOpenChange={(open) => setOpenHop(open ? index : null)}
       />
     );
