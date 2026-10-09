@@ -83,7 +83,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
   expect((await resolve()).matches[0].records).toHaveLength(2);
   await conversation.getByRole("button", { name: "Open record: Conversation project", exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
-  await drawer.getByRole("tab", { name: "History", exact: true }).click();
+  await drawer.getByRole("tab", { name: "Activities", exact: true }).click();
   await expect(drawer.getByText("Linked conversation message", { exact: true })).toBeVisible();
   await expect(drawer.getByText("Other conversation message", { exact: true })).not.toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("conversation-record-history.png"), animations: "disabled" });
