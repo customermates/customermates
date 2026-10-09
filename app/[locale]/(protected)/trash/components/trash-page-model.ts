@@ -22,7 +22,9 @@ export function toTrashQuery(params: GetQueryParams = {}): QueryTrashData {
   const kinds = filterValues(params, TRASH_FILTER.kind)?.filter(isTrashKind);
   const typeIds = filterValues(params, TRASH_FILTER.list);
   const search = params.searchTerm?.trim();
+  const sort = params.sortDescriptor;
   return {
+    ...(sort?.field === "deletedAt" ? { sortDescriptor: { field: "deletedAt", direction: sort.direction } } : {}),
     ...(kinds?.length ? { kinds } : {}),
     ...(typeIds ? { typeIds } : {}),
     ...(search ? { search } : {}),

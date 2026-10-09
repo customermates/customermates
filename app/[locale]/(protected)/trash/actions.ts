@@ -32,6 +32,7 @@ export async function getTrashAction(params?: GetQueryParams): Promise<GetResult
     items: page.items,
     filters: params?.filters,
     searchTerm: params?.searchTerm,
+    sortDescriptor: query.sortDescriptor,
     pagination: {
       page: query.page,
       pageSize: query.pageSize,

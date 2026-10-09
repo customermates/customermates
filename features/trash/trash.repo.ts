@@ -25,6 +25,7 @@ export type TrashListQuery = {
   kinds?: TrashKind[];
   typeIds?: string[];
   search?: string;
+  sortDescriptor?: { field: "deletedAt"; direction: "asc" | "desc" };
   page: number;
   pageSize: number;
 };

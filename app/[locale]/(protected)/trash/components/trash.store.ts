@@ -58,7 +58,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       { uid: "name", sortable: false },
       { uid: "kind", sortable: false, label: this.t("Trash.columns.kind") },
       { uid: "deletedBy", sortable: false, label: this.t("Trash.columns.deletedBy") },
-      { uid: "deletedAt", sortable: false, label: this.t("Trash.columns.deletedAt") },
+      { uid: "deletedAt", sortable: true, label: this.t("Trash.columns.deletedAt") },
       { uid: "expiresAt", sortable: false, label: this.t("Trash.columns.expiresAt") },
     ];
   }

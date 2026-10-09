@@ -17,9 +17,17 @@ describe("toTrashQuery", () => {
           { field: TRASH_FILTER.list, operator: FilterOperatorKey.in, value: ["type-1", "type-2"] },
         ],
         searchTerm: "  acme ",
+        sortDescriptor: { field: "deletedAt", direction: "asc" },
         pagination: { page: 3, pageSize: 100 },
       }),
-    ).toEqual({ kinds: ["record", "view"], typeIds: ["type-1", "type-2"], search: "acme", page: 3, pageSize: 100 });
+    ).toEqual({
+      kinds: ["record", "view"],
+      typeIds: ["type-1", "type-2"],
+      search: "acme",
+      sortDescriptor: { field: "deletedAt", direction: "asc" },
+      page: 3,
+      pageSize: 100,
+    });
   });
 
   it("ignores unknown kinds, empty filters, other operators and a blank search", () => {
@@ -31,6 +39,7 @@ describe("toTrashQuery", () => {
           { field: TRASH_FILTER.list, operator: FilterOperatorKey.notIn, value: ["type-1"] },
         ],
         searchTerm: "   ",
+        sortDescriptor: { field: "name", direction: "asc" },
       }),
     ).toEqual({ page: 1, pageSize: TRASH_PAGE_SIZE });
   });

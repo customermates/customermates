@@ -17,7 +17,7 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
   }
 
   getSortableFields() {
-    return [];
+    return [{ field: "deletedAt", resolvedFields: ["deletedAt"] }];
   }
 
   async add(items: TrashItemInput[]): Promise<void> {
@@ -47,7 +47,7 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
           ${item}."ownerUserId", ${item}.label, ${item}."deletedById", ${item}."deletedAt", ${item}."expiresAt",
           ${item}."batchId", ${item}.payload
         FROM "TrashItem" ${item} WHERE ${where}
-        ORDER BY ${item}."deletedAt" DESC, ${item}.id ASC
+        ORDER BY ${item}."deletedAt" ${Prisma.raw(query.sortDescriptor?.direction === "asc" ? "ASC" : "DESC")}, ${item}.id ASC
         LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`),
       this.prisma.$queryRaw<Array<{ count: number }>>(
         Prisma.sql`SELECT COUNT(*)::integer AS count FROM "TrashItem" ${item} WHERE ${where}`,
