@@ -37,13 +37,14 @@ export function recordColumns<F extends RecordFieldView = RecordField>(
   model: Omit<RecordModelView, "fields"> & { fields: F[] },
 ): RecordColumn<F>[] {
   const columns: RecordColumn<F>[] = model.fields
-    .filter((field) => field.typeId === typeId && !field.archived && field.valueType !== "richText")
+    .filter((field) => field.typeId === typeId && !field.archived)
     .map((field) => ({
       kind: "field",
       id: field.id,
       label: field.label,
       sortable:
-        !["dateRange", "dateTimeRange"].includes(field.valueType) && !(field.valueType === "select" && field.multiple),
+        !["richText", "dateRange", "dateTimeRange"].includes(field.valueType) &&
+        !(field.valueType === "select" && field.multiple),
       field,
     }));
   for (const relation of model.relationships) {
