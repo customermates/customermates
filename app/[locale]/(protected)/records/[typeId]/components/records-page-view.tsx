@@ -168,6 +168,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
                 column={primary}
                 linkColors={store.presentation.linkColors}
                 linkIcons={store.presentation.linkIcons}
+                linkLabels={store.presentation.linkLabels}
                 record={record}
                 onOpen={openRelated}
               />
