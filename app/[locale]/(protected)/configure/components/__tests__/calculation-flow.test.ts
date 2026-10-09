@@ -8,6 +8,7 @@ import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import {
   UNSET,
   addInput,
+  aggregateOf,
   addStep,
   calculationBehavior,
   calculationDraft,
@@ -120,6 +121,48 @@ describe("value source and updates mapping", () => {
       triggerFieldId: id("lineItem.pricingMode"),
       triggerValue: { kind: "select", value: "saved" },
     });
+  });
+});
+
+describe("stored path shapes", () => {
+  const hop = (reducer: "one" | "sum" | "count" | "average" | "min" | "max", relation = "lineItem.deal") => ({
+    relationId: id(relation),
+    direction: "incoming" as const,
+    reducer,
+  });
+  const shapes: Array<[string, ReturnType<typeof hop>[], "lookup" | "rollup"]> = [
+    ["one", [hop("one")], "lookup"],
+    ["one, one", [hop("one"), hop("one", "lineItem.service")], "lookup"],
+    ["sum", [hop("sum")], "rollup"],
+    ["sum, one", [hop("sum"), hop("one", "lineItem.service")], "rollup"],
+    ["one, sum", [hop("one", "lineItem.service"), hop("sum")], "rollup"],
+    ["sum, sum", [hop("sum"), hop("sum", "lineItem.service")], "rollup"],
+    ["count", [hop("count")], "rollup"],
+    ["sum, count", [hop("sum"), hop("count", "lineItem.service")], "rollup"],
+    ["max, one", [hop("max"), hop("one", "lineItem.service")], "rollup"],
+  ];
+  const value: CalculationExpression = { kind: "field", fieldId: id("service.amount") };
+
+  it.each(shapes)("round-trips %s live and as a snapshot with its real source", (_, hops, source) => {
+    const expression = linkedExpression({ hops, value });
+    for (const behavior of [
+      { kind: source, expression },
+      { kind: "snapshot" as const, expression, capture: "explicit" as const },
+    ]) {
+      const draft = calculationDraft(behavior);
+      expect(draft.source).toBe(source);
+      expect(calculationBehavior(draft)).toEqual(behavior);
+      const flow = linkedFlow(expression);
+      expect(withAggregate(flow, aggregateOf(flow)).hops).toEqual(hops);
+    }
+  });
+
+  it("keeps singular hops as one when the aggregate changes", () => {
+    const flow = { hops: [hop("sum"), hop("one", "lineItem.service")], value };
+    expect(aggregateOf(flow)).toBe("sum");
+    expect(withAggregate(flow, "max").hops.map((entry) => entry.reducer)).toEqual(["max", "one"]);
+    expect(withAggregate(flow, "count").hops.map((entry) => entry.reducer)).toEqual(["count", "one"]);
+    expect(withAggregate({ hops: [hop("one")], value }, "sum").hops.map((entry) => entry.reducer)).toEqual(["sum"]);
   });
 });
 

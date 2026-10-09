@@ -3022,7 +3022,9 @@
         "relationship": "Scegli quali record collegati usare.",
         "step": "Scegli i valori per {operation}.",
         "sum": "Scegli quale valore sommare.",
-        "take": "Scegli quale valore prendere."
+        "take": "Scegli quale valore prendere.",
+        "trigger": "Scegli il campo che attiva il salvataggio.",
+        "triggerValue": "Scegli il valore che attiva il salvataggio."
       },
       "moreOptions": "Altre opzioni",
       "of": "di",

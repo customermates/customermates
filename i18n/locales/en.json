@@ -3022,7 +3022,9 @@
         "relationship": "Pick which linked records to use.",
         "step": "Pick the values for {operation}.",
         "sum": "Pick which value to add up.",
-        "take": "Pick which value to take."
+        "take": "Pick which value to take.",
+        "trigger": "Pick the field that triggers saving.",
+        "triggerValue": "Pick the value that triggers saving."
       },
       "moreOptions": "More options",
       "of": "of",
