@@ -830,6 +830,88 @@
     "liveDemoTitle": "Customermates live demo",
     "open": "Open in new tab"
   },
+  "CommandPalette": {
+    "fieldOf": "Field in {list}",
+    "groups": {
+      "actions": "Actions",
+      "bestMatch": "Best match",
+      "listsAndViews": "Lists and views",
+      "pagesAndSettings": "Pages and settings",
+      "records": "Records",
+      "suggestions": "Suggestions"
+    },
+    "labels": {
+      "addRole": "Add role",
+      "addWebhook": "Add webhook",
+      "connectChannel": "Connect a channel",
+      "createApiKey": "Create API key",
+      "themeDark": "Switch to dark theme",
+      "themeLight": "Switch to light theme",
+      "themeSystem": "Use the system theme"
+    },
+    "record": {
+      "addTo": "Add to {list}…",
+      "assign": "Assign to…",
+      "change": "Change {field}…",
+      "deleteNamed": "Delete {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "new, create, new record",
+        "inviteMembers": "add user, invite colleague, team",
+        "sendFeedback": "report a problem, suggestion, contact support",
+        "shortcuts": "hotkeys, keys, keyboard",
+        "signOut": "log out, logout, exit",
+        "switchView": "change view, saved views",
+        "themeDark": "dark mode, night mode",
+        "themeLight": "light mode, bright",
+        "themeSystem": "automatic theme, follow system"
+      },
+      "page": {
+        "configure": "data model, schema, lists, fields, relationships",
+        "dashboard": "home, overview, start, widgets, charts",
+        "documentation": "docs, help, guide, manual",
+        "inbox": "messages, email, mail, conversations, chats",
+        "knowledgeBase": "wiki, notes, pages, articles",
+        "routines": "automations, schedules, recurring tasks",
+        "settings": "preferences, options, account, workspace"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "new API key, generate token"
+        },
+        "channels": {
+          "connect": "connect email, add account, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "profile picture, photo, image",
+          "country": "location, region",
+          "displayLanguage": "language, interface language, translation",
+          "firstName": "name, given name",
+          "formattingLocale": "date format, number format, region, currency format",
+          "lastName": "surname, family name",
+          "theme": "appearance, dark mode, light mode, colors"
+        },
+        "roles": {
+          "create": "new role, permission set"
+        },
+        "webhooks": {
+          "create": "new webhook"
+        }
+      },
+      "settings": {
+        "activity": "audit log, history, changes, log",
+        "api-keys": "tokens, API, MCP, developer, access keys",
+        "billing": "plan, subscription, invoices, payment, pricing",
+        "channels": "connected accounts, email accounts, LinkedIn, WhatsApp, integrations",
+        "members": "team, users, people, colleagues",
+        "profile": "account, preferences, personal, name",
+        "roles": "permissions, access, rights",
+        "webhook-deliveries": "webhook deliveries, webhook log, sent events",
+        "webhooks": "integrations, callbacks, events, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Add",
@@ -3652,6 +3734,7 @@
   },
   "RoleModal": {
     "create": "Create",
+    "dataModelNote": "Create and change lists, fields and relationships in Configure.",
     "edit": "Edit",
     "manageAccess": "Manage",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",

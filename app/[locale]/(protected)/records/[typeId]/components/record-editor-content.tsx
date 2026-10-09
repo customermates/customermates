@@ -25,7 +25,7 @@ import { RecordDetailChipRow } from "./record-detail-chip-row";
 import { RecordEditorFields } from "./record-editor-fields";
 import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./record-editor-actions";
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
-import { useRecordDeletion } from "./use-record-deletion";
+import { useRecordEditorDeletion } from "./use-record-deletion";
 import { RecordActivitiesPanel } from "@/features/messaging/activities/record-activities-panel";
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
@@ -111,15 +111,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
   const router = useRouter();
   const detailLayout = useRecordDetailLayout();
   const id = useId();
-  const deletion = useRecordDeletion({
-    sessionKey: store.sessionKey,
-    captureSession: store.captureSession,
-    canDelete: () => store.presentation.permittedActions.includes("delete") && !store.isBusy,
-    onMutating: store.setIsLoading,
-    onInvalidated: store.rootStore.recordWorkspaceStore.invalidate,
-    onDeleted: store.deletionCompleted,
-    onPending: (id) => store.setPendingOperation(id, true),
-  });
+  const deletion = useRecordEditorDeletion(store);
   const openPage = () => {
     const ref = store.record?.ref;
     if (!ref) return;
@@ -141,11 +133,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
   };
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
 
-  const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
-  const name =
-    title?.state === "value" && title.value.kind === "text"
-      ? title.value.value
-      : (type?.label ?? t("RecordModel.record"));
+  const name = store.titleText ?? type?.label ?? t("RecordModel.record");
   const hasNotes = store.fields.some((field) => field.valueType === "richText");
   const notices = (
     <>
