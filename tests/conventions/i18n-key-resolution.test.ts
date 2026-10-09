@@ -748,6 +748,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-summary.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${event}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.userStatuses.${form.owner.status}",
@@ -879,6 +880,7 @@ export const DYNAMIC_KEY_SITES = [
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key", 1],
+  ["app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: key", 1],
   ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 1],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],

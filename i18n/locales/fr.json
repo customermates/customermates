@@ -2986,7 +2986,8 @@
       "snapshot": "Enregistré lors d’un événement"
     },
     "board": "Tableau Kanban",
-    "calculatedReadOnly": "{field} est calculé et ne peut pas être modifié.",
+    "calculatedValue": "Calculé : {formula}",
+    "calculatedValuePlain": "Valeur calculée",
     "calculationError": "Calcul indisponible",
     "calculationFlow": {
       "addStep": "Ajouter une étape",
