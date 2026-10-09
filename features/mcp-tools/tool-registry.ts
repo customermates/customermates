@@ -1,5 +1,6 @@
 import { manageRolesTool } from "@/features/mcp-tools/role.mcp-tools";
 import { manageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
+import { manageTrashTool, readTrashTool } from "@/features/mcp-tools/trash.mcp-tools";
 import {
   discoverRecordTypesV2Tool,
   getRecordModelV2Tool,
@@ -66,6 +67,8 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     previewRecordDeletionV2Tool,
     queryRecordMeasureV2Tool,
     readRecordOperationV2Tool,
+    readTrashTool,
+    manageTrashTool,
   ],
   "record-model": [
     configureRecordModelV2Tool,

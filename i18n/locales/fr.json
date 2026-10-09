@@ -1070,6 +1070,8 @@
       "subjectRequired": "Ajoutez un objet.",
       "termsNotAgreed": "Vous devez accepter les conditions générales.",
       "threadNotFound": "ID de conversation introuvable ou inaccessible.",
+      "trashChanged": "La corbeille a changé entre-temps. Vérifiez ce qui sera supprimé et réessayez.",
+      "trashItemNotFound": "Cet élément n’est plus dans la corbeille.",
       "unipileAccountRestricted": "Le fournisseur a restreint ce canal. Le reconnecter ne résoudra rien ; réglez d’abord la restriction auprès du fournisseur.",
       "unipileDisconnectedAccount": "Le canal est déconnecté. Son propriétaire doit le reconnecter dans Canaux avant qu’il soit à nouveau utilisable.",
       "unipileFeatureUnavailable": "Ce n'est pas disponible sur ce canal. Réessayer n'aidera pas ; l'équipe a été prévenue.",
@@ -1150,7 +1152,9 @@
       },
       "record": {
         "created": "Fiche créée",
-        "deleted": "Fiche supprimée",
+        "deleted": "Enregistrement placé dans la corbeille",
+        "deletedPermanently": "Enregistrement supprimé définitivement",
+        "restored": "Enregistrement restauré",
         "updated": "Fiche mise à jour"
       },
       "record_grants": {
@@ -3701,7 +3705,8 @@
           "messageReceived": "Recevez un nouveau message entrant non dupliqué via un compte connecté.",
           "messageUpdated": "Modifiez un message chez le fournisseur de messagerie connecté.",
           "recordCreated": "Créez un enregistrement dans Customermates : {entity}.",
-          "recordDeleted": "Supprimez un enregistrement dans Customermates : {entity}.",
+          "recordDeleted": "Placer un enregistrement dans la corbeille dans Customermates : {entity}.",
+          "recordRestored": "Restaurer un enregistrement depuis la corbeille dans Customermates : {entity}.",
           "recordUpdated": "Apportez une véritable modification à un enregistrement dans Customermates : {entity}.",
           "relationCreated": "Faites accepter une demande de connexion LinkedIn via un compte connecté."
         },
