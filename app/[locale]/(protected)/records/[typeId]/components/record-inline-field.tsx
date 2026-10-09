@@ -129,7 +129,7 @@ export function EmptyValueTarget({ member = false }: { member?: boolean }) {
   return (
     <span
       className="inline-flex items-center text-muted-foreground/60 opacity-0 transition-opacity group-hover/row:opacity-100 group-hover/card:opacity-100 group-focus-visible/edit:opacity-100 group-data-[state=open]/edit:opacity-100 any-pointer-coarse:opacity-100"
-      data-empty-value=""
+      data-empty-target=""
     >
       {member ? (
         <Avatar aria-hidden unlinked fallback={<UserRound className="size-3" />} size="sm" />
