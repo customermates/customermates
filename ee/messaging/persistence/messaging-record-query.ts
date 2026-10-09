@@ -49,7 +49,7 @@ export function compileMessagingRecordQuery(
     SELECT 1 FROM "RecordIdentityKey" identity_key
     JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = identity_key."identityId"
     JOIN "RecordIdentityLink" association ON association."companyId" = ${companyId} AND association."identityId" = identity.id
-    JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = association."typeId" AND record.id = association."recordId"
+    JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = association."typeId" AND record.id = association."recordId" AND record."deletedAt" IS NULL
     WHERE identity_key."companyId" = ${companyId}
       AND identity_key."channelClass" = CASE WHEN participant.provider IN ('mail', 'google', 'outlook') THEN 'email' WHEN participant.provider = 'whatsapp' THEN 'phone' ELSE participant.provider::text END
       AND identity_key.value = participant."identityLookupValue"

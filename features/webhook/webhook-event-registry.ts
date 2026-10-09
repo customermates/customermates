@@ -1,4 +1,6 @@
-export const WEBHOOK_RECORD_EVENTS = ["record.created", "record.updated", "record.deleted"] as const;
+import { RECORD_EVENT_KINDS } from "@/features/records/record-event.schema";
+
+export const WEBHOOK_RECORD_EVENTS = RECORD_EVENT_KINDS;
 
 export const WEBHOOK_MESSAGING_EVENTS = [
   "messaging.message.received",

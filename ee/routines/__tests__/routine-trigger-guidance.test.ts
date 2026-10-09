@@ -44,7 +44,7 @@ function messageAt(messages: Record<string, unknown>, path: string): string {
 
 describe("routine trigger empty-state guidance", () => {
   it("offers guidance for every event that is still emitted", () => {
-    expect(ROUTINE_TRIGGER_EVENTS).toHaveLength(12);
+    expect(ROUTINE_TRIGGER_EVENTS).toHaveLength(13);
     expect(ROUTINE_TRIGGER_EVENTS.filter((event) => /^(contact|organization|deal|service|task)\./.test(event))).toEqual(
       [],
     );

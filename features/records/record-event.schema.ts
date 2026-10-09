@@ -8,6 +8,16 @@ import {
 } from "./record-model.schema";
 import { RecordIdentitySchema } from "./record-identity.schema";
 
+export const RECORD_EVENT_KINDS = [
+  "record.created",
+  "record.updated",
+  "record.deleted",
+  "record.restored",
+  "record.deletedPermanently",
+] as const;
+export const RecordEventKindSchema = z.enum(RECORD_EVENT_KINDS);
+export type RecordEventKind = z.infer<typeof RecordEventKindSchema>;
+
 export const RecordHistoryPublicationSchema = z.object({ fieldId: z.uuid(), dependencyHash: z.string() }).strict();
 
 export const RecordHistoryValueSchema = z

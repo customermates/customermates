@@ -43,7 +43,7 @@ describe("derived content tokens", () => {
     expect(WebhookCurrentEventSchema.options).toHaveLength(WEBHOOK_EVENT_COUNT);
     for (const retired of ["contact.created", "deal.updated", "task.deleted"])
       expect(WebhookCurrentEventSchema.safeParse(retired).success).toBe(false);
-    expect(resolveDerivedTokens("[[derived.webhooks.events.records]]")).toBe("3");
+    expect(resolveDerivedTokens("[[derived.webhooks.events.records]]")).toBe("5");
   });
 
   it("resolves nested frontmatter and rejects unknown or malformed tokens", () => {

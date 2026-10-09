@@ -72,6 +72,10 @@ export async function captureRecordEventMatches(
         const query = RecordQuerySchema.parse(source.query);
         if (invalidRecordQueryPart(query, model)) continue;
         const compiled = compileRecordQuery(companyId, query, model, access);
+        const erasable =
+          (access.get(typeId)?.access ?? "none") === "none"
+            ? Prisma.sql`FALSE`
+            : Prisma.sql`event.kind = 'record.deletedPermanently'`;
         const watched = source.changedFieldIds.flatMap((fieldId) => {
           const field = model.fields.find(
             (candidate) => candidate.id === fieldId && candidate.typeId === typeId && !candidate.archived,
@@ -100,7 +104,7 @@ export async function captureRecordEventMatches(
           WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record' AND ${selected} AND event."subjectTypeId" = ${typeId}
             AND event.kind IN (${Prisma.join(source.events)}) AND ${changed} AND ${recursion}
             AND ${beforeDeletion ? Prisma.sql`event.kind = 'record.deleted'` : Prisma.sql`event.kind <> 'record.deleted'`}
-            AND EXISTS (SELECT 1 FROM (${compiled.matching}) matching WHERE matching.id = event."subjectId")
+            AND (${erasable} OR EXISTS (SELECT 1 FROM (${compiled.matching}) matching WHERE matching.id = event."subjectId"))
           ON CONFLICT ("companyId", "eventId", "subscriptionId") DO NOTHING`);
       }
     }

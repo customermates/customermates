@@ -202,7 +202,7 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
       UNION ALL SELECT message.id, 'message'::text AS kind, association."typeId", association."recordId"
       FROM "MessagingMessage" message
       JOIN "MessagingThreadRecordLink" association ON association."companyId" = ${this.companyId} AND association."threadId" = message."messagingThreadId"
-      JOIN "CrmRecord" record ON record."companyId" = ${this.companyId} AND record."typeId" = association."typeId" AND record.id = association."recordId"
+      JOIN "CrmRecord" record ON record."companyId" = ${this.companyId} AND record."typeId" = association."typeId" AND record.id = association."recordId" AND record."deletedAt" IS NULL
       WHERE message."companyId" = ${this.companyId} AND ${messageIds.length ? Prisma.sql`message.id IN (${Prisma.join(messageIds)})` : Prisma.sql`FALSE`}
         AND (${readableTypes.length ? Prisma.join(readableTypes, " OR ") : Prisma.sql`FALSE`})
     `);

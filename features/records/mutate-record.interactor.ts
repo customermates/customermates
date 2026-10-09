@@ -15,6 +15,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { MutateRecordSchema, RecordOperationResultSchema } from "./record-query.schema";
 import type { RecordWriteService } from "./record-write.service";
 import { RecordWriteError } from "./record-write.service";
+import { RecordTrashService } from "./record-trash.service";
 import { RecordJournal } from "./record-journal";
 import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
@@ -79,6 +80,18 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
               beforeDeletion: (refs) => journal.prepareDeletion(refs, model, this.userId, input.idempotencyKey, cause),
             });
           await journal.flush(model, this.userId, input.idempotencyKey, cause);
+          const permanent =
+            (input.mutation.action === "delete" || input.mutation.action === "deleteMany") && input.mutation.permanent;
+          if (permanent && changed.trashBatchId) {
+            const items = await this.records.getRecordTrashItemsCompanyWide({ batchId: changed.trashBatchId });
+            await new RecordTrashService(this.records).purge(
+              items.map((item) => item.id),
+              model,
+              this.userId,
+              input.idempotencyKey,
+              cause,
+            );
+          }
           const refs = [];
           for (const ref of changed.refs) {
             const row = await this.records.getRecordCompanyWide(ref);
@@ -88,6 +101,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
             status: "completed",
             refs,
             schemaRevision: model.revision,
+            ...(changed.trashBatchId && !permanent ? { trashBatchId: changed.trashBatchId } : {}),
           };
           await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
           return { ok: true, data };

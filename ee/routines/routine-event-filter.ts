@@ -1,5 +1,6 @@
 import { EventEnvelopeSchema } from "@/features/event/event-envelope";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
+import { RECORD_EVENT_KINDS } from "@/features/records/record-event.schema";
 
 const MESSAGING_ENTITY_KIND: Record<string, RoutineTriggerEntityKind> = {
   "messaging.message.received": "message",
@@ -18,7 +19,7 @@ const MESSAGING_ENTITY_KIND: Record<string, RoutineTriggerEntityKind> = {
 export type RoutineTriggerEntityKind = "record" | "message" | "thread" | "calendar" | "calendarEvent" | "activity";
 
 export function entityKindForEvent(event: string): RoutineTriggerEntityKind | null {
-  if (["record.created", "record.updated", "record.deleted"].includes(event)) return "record";
+  if ((RECORD_EVENT_KINDS as readonly string[]).includes(event)) return "record";
   return MESSAGING_ENTITY_KIND[event] ?? null;
 }
 
@@ -27,7 +28,7 @@ export function isRecordChangeEvent(event: string): boolean {
 }
 
 export function isRecordRemovalEvent(event: string): boolean {
-  return event === "record.deleted";
+  return event === "record.deleted" || event === "record.deletedPermanently";
 }
 
 export function changedFieldsOf(eventData: unknown): string[] {

@@ -41,7 +41,7 @@ export function compileRecordActivityScope(
   const branches = roots.map(
     (type) => Prisma.sql`SELECT record."typeId", record.id, TRUE AS audit,
       ${recordChannelsEnabled(model, type.id)}::boolean AS messaging, TRUE AS threading
-      FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id}
+      FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id} AND record."deletedAt" IS NULL
       AND ${selected(type.id, Prisma.sql`record`)} AND ${allowed(type.id, Prisma.sql`record`)}`,
   );
   const sources = model.relationships.flatMap((relationship) =>
@@ -63,12 +63,12 @@ export function compileRecordActivityScope(
     const linkedColumn = outgoing ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
     branches.push(Prisma.sql`(WITH ${root} AS MATERIALIZED (
         SELECT ${root}.id FROM "CrmRecord" ${root}
-        WHERE ${root}."companyId" = ${companyId} AND ${root}."typeId" = ${rootTypeId}
+        WHERE ${root}."companyId" = ${companyId} AND ${root}."typeId" = ${rootTypeId} AND ${root}."deletedAt" IS NULL
         AND ${selected(rootTypeId, root)} AND ${allowed(rootTypeId, root)})
       SELECT DISTINCT ${linked}."typeId", ${linked}.id, FALSE AS audit,
         ${recordChannelsEnabled(model, linkedTypeId)}::boolean AS messaging, TRUE AS threading FROM ${root}
       JOIN LATERAL (SELECT * FROM "RecordLink" ${link}
-        WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relationship.id}
+        WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relationship.id} AND ${link}."deletedAt" IS NULL
         AND ${link}."sourceTypeId" = ${relationship.sourceTypeId} AND ${link}."targetTypeId" = ${relationship.targetTypeId}
         AND ${rootColumn} = ${root}.id OFFSET 0) ${link} ON TRUE
       JOIN LATERAL (SELECT ${linked}."typeId", ${linked}.id FROM "CrmRecord" ${linked}
@@ -263,7 +263,7 @@ export function compileRecordHistoryScope(
       SELECT event."subjectTypeId" AS "typeId", event."subjectId" AS id FROM "EventLog" event
       WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record'
     ) historical WHERE (${Prisma.join(selection, " OR ")}) AND NOT EXISTS (
-      SELECT 1 FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = historical."typeId" AND record.id = historical.id
+      SELECT 1 FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = historical."typeId" AND record.id = historical.id AND record."deletedAt" IS NULL
     )`
       : Prisma.empty
   }`;

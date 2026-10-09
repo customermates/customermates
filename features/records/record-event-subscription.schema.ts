@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { RecordQuerySchema } from "./record-query.schema";
+import { RECORD_EVENT_KINDS, RecordEventKindSchema } from "./record-event.schema";
 
 export const RecordTriggerQuerySchema = RecordQuerySchema.pick({
   typeId: true,
@@ -17,10 +18,7 @@ export const RecordTriggerDefinitionSchema = z
   .strict();
 
 export const RecordTriggerSourceSchema = RecordTriggerDefinitionSchema.extend({
-  events: z
-    .array(z.enum(["record.created", "record.updated", "record.deleted"]))
-    .min(1)
-    .max(3),
+  events: z.array(RecordEventKindSchema).min(1).max(RECORD_EVENT_KINDS.length),
 }).strict();
 
 export const RecordEventSubscriptionSchema = z
@@ -29,10 +27,7 @@ export const RecordEventSubscriptionSchema = z
     kind: z.enum(["routine", "webhook"]),
     ownerUserId: z.uuid(),
     typeId: z.uuid().nullable(),
-    events: z
-      .array(z.enum(["record.created", "record.updated", "record.deleted"]))
-      .min(1)
-      .max(3),
+    events: z.array(RecordEventKindSchema).min(1).max(RECORD_EVENT_KINDS.length),
     changedFieldIds: z.array(z.uuid()).max(100),
     query: RecordTriggerQuerySchema.nullable(),
     sources: z.array(RecordTriggerSourceSchema).min(1).max(50).nullable().optional(),

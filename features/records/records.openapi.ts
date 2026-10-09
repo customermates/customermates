@@ -53,6 +53,18 @@ import {
   RecordActivitiesResultSchema,
 } from "@/ee/messaging/activities/record-activities.schema";
 
+import {
+  DeleteTrashPermanentlySchema,
+  EmptyTrashSchema,
+  PreviewTrashDeletionSchema,
+  QueryTrashSchema,
+  RestoreTrashSchema,
+  TrashDeletionPreviewSchema,
+  TrashDeletionResultSchema,
+  TrashPageSchema,
+  TrashRestoreResultSchema,
+} from "@/features/trash/trash.schema";
+
 function operation(
   operationId: string,
   summary: string,
@@ -252,6 +264,41 @@ export const recordApiPaths = {
       MutateRecordSchema,
       RecordOperationResultSchema,
     ),
+  },
+  "/v1/trash/query": {
+    post: operation(
+      "queryTrash",
+      "List items in Trash (deleted records, lists, fields, relationships, views, widgets, routines)",
+      QueryTrashSchema,
+      TrashPageSchema,
+    ),
+  },
+  "/v1/trash/restore": {
+    post: operation(
+      "restoreTrash",
+      "Restore Trash items, or every item of one delete by batchId",
+      RestoreTrashSchema,
+      TrashRestoreResultSchema,
+    ),
+  },
+  "/v1/trash/preview": {
+    post: operation(
+      "previewTrashDeletion",
+      "Preview exactly what deleting Trash items permanently removes",
+      PreviewTrashDeletionSchema,
+      TrashDeletionPreviewSchema,
+    ),
+  },
+  "/v1/trash/delete-permanently": {
+    post: operation(
+      "deleteTrashPermanently",
+      "Delete Trash items permanently and erase their values from history",
+      DeleteTrashPermanentlySchema,
+      TrashDeletionResultSchema,
+    ),
+  },
+  "/v1/trash/empty": {
+    post: operation("emptyTrash", "Empty Trash (administrators)", EmptyTrashSchema, TrashDeletionResultSchema),
   },
   "/v1/reports/query": {
     post: operation(

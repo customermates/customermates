@@ -29,7 +29,7 @@ export function recordPathJoins(
     const targetId = step.direction === "outgoing" ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
     const scope = access.get(step.typeId) ?? { userId: "", access: "none" as const };
     const join = left ? Prisma.sql`LEFT JOIN` : Prisma.sql`JOIN`;
-    joins.push(Prisma.sql`${join} "RecordLink" ${link} ON ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relation.id}
+    joins.push(Prisma.sql`${join} "RecordLink" ${link} ON ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relation.id} AND ${link}."deletedAt" IS NULL
       AND ${link}."sourceTypeId" = ${step.relation.sourceTypeId} AND ${link}."targetTypeId" = ${step.relation.targetTypeId} AND ${sourceId} = ${parent}.id
       ${join} "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${step.typeId} AND ${target}.id = ${targetId}
         AND ${recordReadPredicate(companyId, scope, target)}`);
@@ -90,7 +90,7 @@ export function compileRecordPathSummaries(
     ) related WHERE ordinal <= ${selection.limit}`;
   });
   return Prisma.sql`WITH owners AS (
-    SELECT owner.* FROM "CrmRecord" owner WHERE owner."companyId" = ${companyId} AND owner."typeId" = ${typeId}
+    SELECT owner.* FROM "CrmRecord" owner WHERE owner."companyId" = ${companyId} AND owner."typeId" = ${typeId} AND owner."deletedAt" IS NULL
       AND owner.id IN (${Prisma.join(recordIds)}) AND ${recordReadPredicate(companyId, scope, owner)}
   ) ${Prisma.join(branches, " UNION ALL ")} ORDER BY "ownerId", "pathId", "recordId"`;
 }

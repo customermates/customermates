@@ -18,6 +18,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { runPrecheck } from "@/core/validation/run-precheck";
 import { RoutineLimitExceededError } from "./routine-run-limits";
+import { isRoutineTriggerEvent } from "./routine-trigger-events";
 import { RecordWriteError } from "@/features/records/record-write.service";
 import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
@@ -46,7 +47,7 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
           : previous.timezone
         : update.timezone
       : null,
-    triggerEvents: update.triggerEvents ?? previous.triggerEvents,
+    triggerEvents: update.triggerEvents ?? previous.triggerEvents.filter(isRoutineTriggerEvent),
     triggerFilters: update.triggerFilters ?? previous.triggerFilters,
     recordTrigger:
       scheduled || update.recordSources?.length

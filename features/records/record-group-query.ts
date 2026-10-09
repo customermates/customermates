@@ -136,7 +136,7 @@ export function compileRecordGroups(
     const titleReadable = fieldReadPredicate(companyId, title, model, access, target);
     const sourceId = outgoing ? Prisma.sql`link."sourceId"` : Prisma.sql`link."targetId"`;
     const targetId = outgoing ? Prisma.sql`link."targetId"` : Prisma.sql`link."sourceId"`;
-    joins = Prisma.sql`LEFT JOIN "RecordLink" link ON link."companyId" = ${companyId} AND link."relationId" = ${relation.id}
+    joins = Prisma.sql`LEFT JOIN "RecordLink" link ON link."companyId" = ${companyId} AND link."relationId" = ${relation.id} AND link."deletedAt" IS NULL
       AND link."sourceTypeId" = ${relation.sourceTypeId} AND link."targetTypeId" = ${relation.targetTypeId} AND ${sourceId} = ${root}.id
       LEFT JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${targetTypeId} AND ${target}.id = ${targetId}
       LEFT JOIN "RecordValue" title ON title."companyId" = ${companyId} AND title."typeId" = ${targetTypeId}

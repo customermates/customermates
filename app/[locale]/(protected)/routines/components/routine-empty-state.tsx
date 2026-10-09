@@ -31,6 +31,10 @@ function actionCopy(
       return t("RoutineDetail.empty.event.actions.recordDeleted", {
         entity: entity ?? "",
       });
+    case "recordRestored":
+      return t("RoutineDetail.empty.event.actions.recordRestored", {
+        entity: entity ?? "",
+      });
     case "messageReceived":
       return t("RoutineDetail.empty.event.actions.messageReceived");
     case "messageUpdated":
