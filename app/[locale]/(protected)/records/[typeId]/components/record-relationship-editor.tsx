@@ -26,6 +26,7 @@ import { recordTitle } from "@/components/records/record-title";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { getRecordChoicesAction } from "../../actions";
 import { RecordDetailField } from "./record-detail-field";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 
 export const RECORD_LINK_FRAME_CLASS =
@@ -162,9 +163,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                 </span>
               )}
 
-              {!linked.loading && store.isReadOnly && chosen.length === 0 && (
-                <span className="text-muted-foreground">—</span>
-              )}
+              {!linked.loading && store.isReadOnly && chosen.length === 0 && <EmptyValue />}
 
               {chosen.map((record, index) => (
                 <AppChip

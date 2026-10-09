@@ -220,7 +220,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
   return (
     <AppForm id={id} store={store}>
       <AppCard className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none">
-        <div className="flex shrink-0 items-start pr-[3.125rem]">
+        <div className="flex shrink-0 items-start pr-12">
           <AppCardHeader className="min-w-0 flex-1 pr-4! pb-4">
             <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">
               {store.record ? name : t("RecordModel.newRecord", { type: type?.label ?? t("RecordModel.record") })}
@@ -228,7 +228,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
           </AppCardHeader>
 
           <RecordHeaderActions
-            className="mt-1.5"
+            className="mt-2"
             deletion={deletion}
             layout={detailLayout}
             name={name}

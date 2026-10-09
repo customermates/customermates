@@ -334,13 +334,19 @@ describe("overlay contract", () => {
     expect(appModalAction).toContain('data-slot="app-modal-actions"');
     expect(appModal).toContain("data-overlay-action-count={hasActions");
     expect(appModal).toContain("data-overlay-actions={hasActions");
-    expect(appModalAction).toContain("OVERLAY_ICON_CONTROL_CLASS");
+    expect(appModalAction).toContain("overlayIconControlClass(variant)");
     expect(appModalAction).toContain('data-slot="app-modal-action"');
     expect(appModalAction).toContain('data-size="icon"');
     expect(appModalAction).toContain("OVERLAY_ACTION_RAIL_CLASS");
-    expect(overlayContract).toContain("size-9");
-    expect(overlayContract).toContain("[&_svg]:size-4");
-    expect(overlayContract).toContain("`absolute ${OVERLAY_ICON_CONTROL_CLASS}");
+    expect(overlayContract).toContain('variant: variant === "destructive" ? "ghostDestructive" : "ghost"');
+    expect(overlayContract).toContain('size: "icon-sm"');
+    expect(overlayContract).toContain("`absolute ${overlayIconControlClass()}`");
+    expect(overlayContract).not.toContain("rounded-xs");
+    for (const surface of [dialog, drawer, sheet]) {
+      expect(surface).toContain("className={cn(OVERLAY_CLOSE_CLASS");
+      expect(surface).toContain('<span className="sr-only">{t("Common.actions.close")}</span>');
+      expect(surface).toContain('<TooltipContent>{t("Common.actions.close")}</TooltipContent>');
+    }
     expect(dialog).toContain("OVERLAY_CLOSE_POSITION_CLASS");
     expect(drawer).toContain("OVERLAY_CLOSE_POSITION_CLASS");
     expect(sheet).toContain("OVERLAY_SAFE_CLOSE_POSITION_CLASS");
