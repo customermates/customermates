@@ -16,6 +16,10 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
     return this.scopedCompanyId ?? super.companyId;
   }
 
+  getSortableFields(): Array<{ field: string; resolvedFields: string[] }> {
+    return [];
+  }
+
   async add(items: TrashItemInput[]): Promise<void> {
     await insertTrashItems(this.prisma, this.companyId, items);
   }

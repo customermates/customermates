@@ -40,10 +40,17 @@ const SourcesSchema = z.object({
   affectedTypeIds: z.array(z.uuid()),
 });
 const RestoreRequestSchema = z.object({ itemIds: z.array(z.uuid()), idempotencyKey: z.string() });
-const RestoreCursorSchema = z.object({ phase: z.literal("restore"), index: z.number().int().nonnegative() });
+const RestoreCursorSchema = z.object({
+  phase: z.literal("restore"),
+  index: z.number().int().nonnegative(),
+  started: z.boolean(),
+  pass: z.number().int().nonnegative().default(0),
+  restoredBeforePass: z.number().int().optional(),
+});
+
 const BACKGROUND_FANOUT_LIMIT = 1000000;
 const BATCH_SIZE = 50;
-const RESTORE_BATCH_SIZE = 20;
+const RESTORE_PAGE_SIZE = 200;
 
 export class RecordOperationService extends UserAccessor {
   constructor(
@@ -352,7 +359,7 @@ export class RecordOperationService extends UserAccessor {
     policy: Awaited<ReturnType<RecordAccessPolicy["load"]>>,
   ): Promise<{ done: boolean }> {
     const request = RestoreRequestSchema.parse(operation.request);
-    const cursor = RestoreCursorSchema.parse(operation.cursor ?? { phase: "restore", index: 0 });
+    const cursor = RestoreCursorSchema.parse(operation.cursor ?? { phase: "restore", index: 0, started: false });
     const summary = RestoreSummarySchema.parse(
       (await this.records.getStageRow(operation.id, "restore", "summary")) ?? {
         restoredItemIds: [],
@@ -361,40 +368,75 @@ export class RecordOperationService extends UserAccessor {
         droppedLinks: 0,
       },
     );
-    const batch = request.itemIds.slice(cursor.index, cursor.index + RESTORE_BATCH_SIZE);
-    if (batch.length) {
-      const journal = new RecordJournal(this.records, model, BACKGROUND_FANOUT_LIMIT);
-      const items = await this.records.getRecordTrashItemsCompanyWide({ ids: batch });
-      const result = await new RecordTrashService(this.records).restore(
-        items,
-        model,
-        policy,
-        journal,
-        BACKGROUND_FANOUT_LIMIT,
-      );
-      await journal.flush(model, this.userId, request.idempotencyKey, { kind: "mutation", operationId: operation.id });
-      await this.records.stageRow(operation.id, "restore", "summary", {
-        restoredItemIds: [...summary.restoredItemIds, ...result.restoredItemIds],
-        blocked: [...summary.blocked, ...result.blocked],
-        restoredRecords: summary.restoredRecords + result.restoredRecords,
-        droppedLinks: summary.droppedLinks + result.droppedLinks,
-      });
+    const queue = z
+      .array(z.uuid())
+      .parse((await this.records.getStageRow(operation.id, "restore", "queue")) ?? request.itemIds);
+    const itemId = queue[cursor.index];
+    if (!itemId) {
+      const retry = summary.blocked.filter((blocker) => blocker.reason === "parentDeleted");
+      const progressed = summary.restoredItemIds.length > (cursor.restoredBeforePass ?? -1);
+      if (retry.length && progressed && cursor.pass < 5) {
+        await this.records.stageRow(operation.id, "restore", "summary", {
+          ...summary,
+          blocked: summary.blocked.filter((blocker) => blocker.reason !== "parentDeleted"),
+        });
+        await this.records.stageRow(
+          operation.id,
+          "restore",
+          "queue",
+          retry.map((blocker) => blocker.itemId),
+        );
+        await this.records.updateOperation(operation.id, {
+          cursor: {
+            phase: "restore",
+            index: 0,
+            started: false,
+            pass: cursor.pass + 1,
+            restoredBeforePass: summary.restoredItemIds.length,
+          },
+          leaseUntil: new Date(Date.now() + 60000),
+        });
+        return { done: false };
+      }
       await this.records.updateOperation(operation.id, {
-        state: "staging",
-        cursor: { phase: "restore", index: cursor.index + batch.length },
-        processed: cursor.index + batch.length,
-        total: request.itemIds.length,
-        leaseUntil: new Date(Date.now() + 60000),
+        state: "completed",
+        result: { status: "completed", refs: [], schemaRevision: model.revision, restore: summary },
+        leaseUntil: null,
       });
+      await this.records.clearOperationLock(operation.id);
+      return { done: true };
+    }
+    const service = new RecordTrashService(this.records);
+    const [item] = await this.records.getRecordTrashItemsCompanyWide({ ids: [itemId] });
+    const blocker = item && !cursor.started ? await service.accessible(item, model, policy) : null;
+    const next = { ...cursor, index: cursor.index + 1, started: false };
+    if (!item || blocker) {
+      await this.records.stageRow(operation.id, "restore", "summary", {
+        ...summary,
+        blocked: blocker ? [...summary.blocked, blocker] : summary.blocked,
+      });
+      await this.records.updateOperation(operation.id, { cursor: next, leaseUntil: new Date(Date.now() + 60000) });
       return { done: false };
     }
-    await this.records.updateOperation(operation.id, {
-      state: "completed",
-      result: { status: "completed", refs: [], schemaRevision: model.revision, restore: summary },
-      leaseUntil: null,
+    const refs = await this.records.getTrashedRecordRefsCompanyWide([item.id], RESTORE_PAGE_SIZE);
+    const journal = new RecordJournal(this.records, model, BACKGROUND_FANOUT_LIMIT);
+    const droppedLinks = await service.restoreRecords(refs, model, journal, BACKGROUND_FANOUT_LIMIT);
+    await journal.flush(model, this.userId, request.idempotencyKey, { kind: "mutation", operationId: operation.id });
+    const finished = refs.length < RESTORE_PAGE_SIZE;
+    if (finished) await this.records.removeTrashItems([item.id]);
+    await this.records.stageRow(operation.id, "restore", "summary", {
+      ...summary,
+      restoredItemIds: finished ? [...summary.restoredItemIds, item.id] : summary.restoredItemIds,
+      restoredRecords: summary.restoredRecords + refs.length,
+      droppedLinks: summary.droppedLinks + droppedLinks,
     });
-    await this.records.clearOperationLock(operation.id);
-    return { done: true };
+    await this.records.updateOperation(operation.id, {
+      state: "staging",
+      cursor: finished ? next : { ...cursor, started: true },
+      processed: operation.processed + refs.length,
+      leaseUntil: new Date(Date.now() + 60000),
+    });
+    return { done: false };
   }
 
   async fail(operationId: string, errorCode: string): Promise<void> {
