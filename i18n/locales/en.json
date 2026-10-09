@@ -1266,10 +1266,10 @@
         "fieldsGroup": "Filter by",
         "limitReached": "You can apply up to {count} filters.",
         "removeFilter": "Remove filter",
-        "title": "Filters",
-        "trigger": "Filter",
         "searchContains": "{field} contains “{text}”",
-        "searchOrAddFilter": "Search or add filter…"
+        "searchOrAddFilter": "Search or add filter…",
+        "title": "Filters",
+        "trigger": "Filter"
       },
       "selectionLimit": "You can select up to {count} values.",
       "selectOperator": "Select a condition…",
@@ -1868,6 +1868,7 @@
     "expandGroup": "Expand group {group}",
     "groupOverflow": "Only {count} groups are shown",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "More actions",
     "noValue": "No value",
     "resizeBoardColumns": "Resize the board columns. Drag or use the arrow keys; double-tap or press Enter to reset.",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
@@ -1903,8 +1904,7 @@
       "pickerTitle": "Switch view",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}"
-    },
-    "moreActions": "More actions"
+    }
   },
   "Diagrams": {
     "noData": "No data available",
@@ -2386,13 +2386,13 @@
       "goList": "Lists by their position in your sidebar",
       "goRoutines": "Routines",
       "goSettings": "Settings",
+      "openFilters": "Open filters on a list",
       "save": "Save the open form",
       "search": "Search",
       "searchAlias": "Search",
       "shortcuts": "Show keyboard shortcuts",
       "switchView": "Switch view on a list",
-      "toggleSidebar": "Show or hide the sidebar",
-      "openFilters": "Open filters on a list"
+      "toggleSidebar": "Show or hide the sidebar"
     },
     "groups": {
       "create": "Create",
@@ -3126,6 +3126,7 @@
       "restoreTitle": "Restore {name}"
     },
     "configure": "Configure",
+    "configureList": "Configure {list}",
     "connectionType": "Connection",
     "constant": "Fixed value",
     "contactFullName": "Name",
@@ -3513,8 +3514,7 @@
     "useChannelAvatar": "Use channel profile picture",
     "value": "Value",
     "valueType": "Value type",
-    "yes": "Yes",
-    "configureList": "Configure {list}"
+    "yes": "Yes"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Leave empty to match every change.",

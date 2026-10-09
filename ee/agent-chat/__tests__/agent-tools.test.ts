@@ -989,7 +989,7 @@ describe("agent tools", () => {
 
   it.each([
     ["leads", "add"],
-    ["Clients", "search"],
+    ["Clients", "more"],
     ["Accounts", "add"],
     ["Opportunities", "add"],
     ["Products", "add"],

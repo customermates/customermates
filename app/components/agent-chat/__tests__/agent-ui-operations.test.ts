@@ -217,8 +217,8 @@ describe("AgentUiControlStore.highlight", () => {
       result:
         "Target member-modal-role belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first (a member row), or hidden by role, plan or state.",
     });
-    expect((await settled(controlStore().highlight("settings-members-search"))).result).toBe(
-      "Target settings-members-search belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first, or hidden by role, plan or state.",
+    expect((await settled(controlStore().highlight("settings-members-filter"))).result).toBe(
+      "Target settings-members-filter belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first, or hidden by role, plan or state.",
     );
   });
 
@@ -335,15 +335,6 @@ describe("AgentUiControlStore.highlight", () => {
       ok: true,
       result: "Highlighted nav-workspace-menu.",
     });
-  });
-
-  it("names the toolbar Search button when a narrower screen collapses the search box", async () => {
-    const collapsed = element(0);
-    onPage("/settings/webhooks", (id) => (id === "settings-webhooks-search" ? collapsed : null));
-
-    expect((await settled(controlStore().highlight("settings-webhooks-search"))).result).toBe(
-      "Target settings-webhooks-search is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.",
-    );
   });
 
   it("keeps waiting for a target of the current page while the page still shows its loading state", async () => {

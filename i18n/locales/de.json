@@ -1266,10 +1266,10 @@
         "fieldsGroup": "Filtern nach",
         "limitReached": "Du kannst bis zu {count} Filter anwenden.",
         "removeFilter": "Filter entfernen",
-        "title": "Filter",
-        "trigger": "Filter",
         "searchContains": "{field} enthält „{text}“",
-        "searchOrAddFilter": "Suchen oder Filter hinzufügen…"
+        "searchOrAddFilter": "Suchen oder Filter hinzufügen…",
+        "title": "Filter",
+        "trigger": "Filter"
       },
       "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
@@ -1868,6 +1868,7 @@
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Weitere Aktionen",
     "noValue": "Kein Wert",
     "resizeBoardColumns": "Breite der Board-Spalten ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
@@ -1903,8 +1904,7 @@
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
-    },
-    "moreActions": "Weitere Aktionen"
+    }
   },
   "Diagrams": {
     "noData": "Keine Daten verfügbar",
@@ -2386,13 +2386,13 @@
       "goList": "Listen nach ihrer Position in Ihrer Seitenleiste",
       "goRoutines": "Routinen",
       "goSettings": "Einstellungen",
+      "openFilters": "Filter einer Liste öffnen",
       "save": "Offenes Formular speichern",
       "search": "Suchen",
       "searchAlias": "Suchen",
       "shortcuts": "Tastenkürzel anzeigen",
       "switchView": "Ansicht einer Liste wechseln",
-      "toggleSidebar": "Seitenleiste ein- oder ausblenden",
-      "openFilters": "Filter einer Liste öffnen"
+      "toggleSidebar": "Seitenleiste ein- oder ausblenden"
     },
     "groups": {
       "create": "Erstellen",
@@ -3126,6 +3126,7 @@
       "restoreTitle": "{name} wiederherstellen"
     },
     "configure": "Konfigurieren",
+    "configureList": "{list} konfigurieren",
     "connectionType": "Verbindung",
     "constant": "Fester Wert",
     "contactFullName": "Name",
@@ -3513,8 +3514,7 @@
     "useChannelAvatar": "Profilbild des Kanals verwenden",
     "value": "Wert",
     "valueType": "Werttyp",
-    "yes": "Ja",
-    "configureList": "{list} konfigurieren"
+    "yes": "Ja"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Leer lassen, um jede Änderung zu erfassen.",

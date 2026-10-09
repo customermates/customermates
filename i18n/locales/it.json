@@ -1266,10 +1266,10 @@
         "fieldsGroup": "Filtra per",
         "limitReached": "Puoi applicare fino a {count} filtri.",
         "removeFilter": "Rimuovi filtro",
-        "title": "Filtri",
-        "trigger": "Filtro",
         "searchContains": "{field} contiene «{text}»",
-        "searchOrAddFilter": "Cerca o aggiungi un filtro…"
+        "searchOrAddFilter": "Cerca o aggiungi un filtro…",
+        "title": "Filtri",
+        "trigger": "Filtro"
       },
       "selectionLimit": "Puoi selezionare fino a {count} valori.",
       "selectOperator": "Seleziona una condizione…",
@@ -1868,6 +1868,7 @@
     "expandGroup": "Espandi il gruppo {group}",
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Altre azioni",
     "noValue": "Nessun valore",
     "resizeBoardColumns": "Ridimensiona le colonne della bacheca. Trascina o usa le frecce; tocca due volte o premi Invio per ripristinare.",
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
@@ -1903,8 +1904,7 @@
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}"
-    },
-    "moreActions": "Altre azioni"
+    }
   },
   "Diagrams": {
     "noData": "Nessun dato disponibile",
@@ -2386,13 +2386,13 @@
       "goList": "Elenchi in base alla posizione nella barra laterale",
       "goRoutines": "Routine",
       "goSettings": "Impostazioni",
+      "openFilters": "Apri i filtri di un elenco",
       "save": "Salva il modulo aperto",
       "search": "Cerca",
       "searchAlias": "Cerca",
       "shortcuts": "Mostra scorciatoie da tastiera",
       "switchView": "Cambia vista di un elenco",
-      "toggleSidebar": "Mostra o nascondi la barra laterale",
-      "openFilters": "Apri i filtri di un elenco"
+      "toggleSidebar": "Mostra o nascondi la barra laterale"
     },
     "groups": {
       "create": "Crea",
@@ -3126,6 +3126,7 @@
       "restoreTitle": "Ripristina {name}"
     },
     "configure": "Configura",
+    "configureList": "Configura {list}",
     "connectionType": "Collegamento",
     "constant": "Valore fisso",
     "contactFullName": "Nome completo",
@@ -3513,8 +3514,7 @@
     "useChannelAvatar": "Usa l’immagine del profilo del canale",
     "value": "Valore",
     "valueType": "Tipo di valore",
-    "yes": "Sì",
-    "configureList": "Configura {list}"
+    "yes": "Sì"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Lascia vuoto per includere ogni modifica.",

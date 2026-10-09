@@ -1266,10 +1266,10 @@
         "fieldsGroup": "Filtrar por",
         "limitReached": "Puedes aplicar hasta {count} filtros.",
         "removeFilter": "Quitar filtro",
-        "title": "Filtros",
-        "trigger": "Filtro",
         "searchContains": "{field} contiene «{text}»",
-        "searchOrAddFilter": "Buscar o añadir filtro…"
+        "searchOrAddFilter": "Buscar o añadir filtro…",
+        "title": "Filtros",
+        "trigger": "Filtro"
       },
       "selectionLimit": "Puedes seleccionar hasta {count} valores.",
       "selectOperator": "Selecciona una condición…",
@@ -1868,6 +1868,7 @@
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Más acciones",
     "noValue": "Sin valor",
     "resizeBoardColumns": "Cambiar el ancho de las columnas del tablero. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer.",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
@@ -1903,8 +1904,7 @@
       "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
       "recordCount": "{count, plural, one {# registro} other {# registros}}"
-    },
-    "moreActions": "Más acciones"
+    }
   },
   "Diagrams": {
     "noData": "No hay datos disponibles",
@@ -2386,13 +2386,13 @@
       "goList": "Listas según su posición en tu barra lateral",
       "goRoutines": "Rutinas",
       "goSettings": "Ajustes",
+      "openFilters": "Abrir los filtros de una lista",
       "save": "Guardar el formulario abierto",
       "search": "Buscar",
       "searchAlias": "Buscar",
       "shortcuts": "Mostrar atajos de teclado",
       "switchView": "Cambiar de vista en una lista",
-      "toggleSidebar": "Mostrar u ocultar la barra lateral",
-      "openFilters": "Abrir los filtros de una lista"
+      "toggleSidebar": "Mostrar u ocultar la barra lateral"
     },
     "groups": {
       "create": "Crear",
@@ -3126,6 +3126,7 @@
       "restoreTitle": "Restaurar {name}"
     },
     "configure": "Configurar",
+    "configureList": "Configurar {list}",
     "connectionType": "Conexión",
     "constant": "Valor fijo",
     "contactFullName": "Nombre completo",
@@ -3513,8 +3514,7 @@
     "useChannelAvatar": "Usar la foto de perfil del canal",
     "value": "Valor",
     "valueType": "Tipo de valor",
-    "yes": "Sí",
-    "configureList": "Configurar {list}"
+    "yes": "Sí"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Déjalo vacío para incluir todos los cambios.",

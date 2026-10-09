@@ -1266,10 +1266,10 @@
         "fieldsGroup": "Filtrer par",
         "limitReached": "Vous pouvez appliquer jusqu'à {count} filtres.",
         "removeFilter": "Retirer le filtre",
-        "title": "Filtres",
-        "trigger": "Filtre",
         "searchContains": "{field} contient « {text} »",
-        "searchOrAddFilter": "Rechercher ou ajouter un filtre…"
+        "searchOrAddFilter": "Rechercher ou ajouter un filtre…",
+        "title": "Filtres",
+        "trigger": "Filtre"
       },
       "selectionLimit": "Vous pouvez sélectionner jusqu'à {count} valeurs.",
       "selectOperator": "Sélectionner une condition…",
@@ -1868,6 +1868,7 @@
     "expandGroup": "Développer le groupe {group}",
     "groupOverflow": "Seuls {count} groupes sont affichés",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Plus d’actions",
     "noValue": "Aucune valeur",
     "resizeBoardColumns": "Redimensionner les colonnes du tableau. Faites glisser ou utilisez les flèches ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
@@ -1903,8 +1904,7 @@
       "pickerTitle": "Changer de vue",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}"
-    },
-    "moreActions": "Plus d’actions"
+    }
   },
   "Diagrams": {
     "noData": "Aucune donnée disponible",
@@ -2386,13 +2386,13 @@
       "goList": "Listes selon leur position dans votre barre latérale",
       "goRoutines": "Routines",
       "goSettings": "Paramètres",
+      "openFilters": "Ouvrir les filtres d’une liste",
       "save": "Enregistrer le formulaire ouvert",
       "search": "Rechercher",
       "searchAlias": "Rechercher",
       "shortcuts": "Afficher les raccourcis clavier",
       "switchView": "Changer de vue dans une liste",
-      "toggleSidebar": "Afficher ou masquer la barre latérale",
-      "openFilters": "Ouvrir les filtres d’une liste"
+      "toggleSidebar": "Afficher ou masquer la barre latérale"
     },
     "groups": {
       "create": "Créer",
@@ -3126,6 +3126,7 @@
       "restoreTitle": "Restaurer {name}"
     },
     "configure": "Configurer",
+    "configureList": "Configurer {list}",
     "connectionType": "Connexion",
     "constant": "Valeur fixe",
     "contactFullName": "Nom complet",
@@ -3513,8 +3514,7 @@
     "useChannelAvatar": "Utiliser la photo de profil du canal",
     "value": "Valeur",
     "valueType": "Type de valeur",
-    "yes": "Oui",
-    "configureList": "Configurer {list}"
+    "yes": "Oui"
   },
   "RecordTriggers": {
     "changedFieldsHelp": "Laissez vide pour inclure chaque modification.",
