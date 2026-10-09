@@ -7,13 +7,13 @@ export abstract class SearchCatalogRepo {
   abstract semanticIndexAvailable(): Promise<boolean>;
   abstract ensureStaticCatalog(catalog: StaticSearchCatalog): Promise<void>;
   abstract replaceWorkspaceCatalog(companyId: string, entries: readonly SearchCatalogText[]): Promise<void>;
-  abstract pendingEmbeddings(scope: SearchCatalogScope, model: string, limit: number): Promise<SearchCatalogText[]>;
+  abstract claimPendingEmbeddings(scope: SearchCatalogScope, model: string, limit: number): Promise<SearchCatalogText[]>;
+  abstract releaseClaims(scope: SearchCatalogScope, contentHashes: readonly string[]): Promise<void>;
   abstract storeEmbeddings(
     scope: SearchCatalogScope,
     model: string,
     rows: ReadonlyArray<{ contentHash: string; embedding: string }>,
   ): Promise<void>;
-  abstract withIndexingLock(scope: SearchCatalogScope, run: () => Promise<boolean>): Promise<boolean>;
   abstract semanticMatches(args: {
     companyId: string;
     buildHash: string;

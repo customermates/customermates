@@ -41,26 +41,31 @@ export class SearchCatalogIndexService extends UserAccessor {
     return { remaining: staticRemaining || workspaceRemaining };
   }
 
-  private embedPending(
+  private async embedPending(
     scope: SearchCatalogScope,
     embedBatch: (texts: string[]) => Promise<number[][] | null>,
   ): Promise<boolean> {
-    return this.repo.withIndexingLock(scope, async () => {
-      for (let batch = 0; batch < SEARCH_CATALOG_BATCHES_PER_STEP; batch += 1) {
-        const pending = await this.repo.pendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, WIKI_EMBEDDING_BATCH_SIZE);
-        if (pending.length === 0) return false;
-        const vectors = await embedBatch(pending.map((entry) => entry.text));
-        if (!vectors) return false;
-        await this.repo.storeEmbeddings(
-          scope,
-          WIKI_EMBEDDING_MODEL,
-          pending.map((entry, index) => ({
-            contentHash: entry.contentHash,
-            embedding: embeddingVectorLiteral(vectors[index]),
-          })),
-        );
+    for (let batch = 0; batch < SEARCH_CATALOG_BATCHES_PER_STEP; batch += 1) {
+      const claimed = await this.repo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, WIKI_EMBEDDING_BATCH_SIZE);
+      if (claimed.length === 0) return false;
+      const hashes = claimed.map((entry) => entry.contentHash);
+      let vectors: number[][] | null = null;
+      try {
+        vectors = await embedBatch(claimed.map((entry) => entry.text));
+      } finally {
+        if (!vectors) await this.repo.releaseClaims(scope, hashes);
       }
-      return true;
-    });
+      if (!vectors) return false;
+      const embedded = vectors;
+      await this.repo.storeEmbeddings(
+        scope,
+        WIKI_EMBEDDING_MODEL,
+        claimed.map((entry, index) => ({
+          contentHash: entry.contentHash,
+          embedding: embeddingVectorLiteral(embedded[index]),
+        })),
+      );
+    }
+    return true;
   }
 }
