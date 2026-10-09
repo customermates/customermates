@@ -830,6 +830,88 @@
     "liveDemoTitle": "Demo live di Customermates",
     "open": "Apri in una nuova scheda"
   },
+  "CommandPalette": {
+    "fieldOf": "Campo di {list}",
+    "groups": {
+      "actions": "Azioni",
+      "bestMatch": "Miglior risultato",
+      "listsAndViews": "Elenchi e viste",
+      "pagesAndSettings": "Pagine e impostazioni",
+      "records": "Record",
+      "suggestions": "Suggerimenti"
+    },
+    "labels": {
+      "addRole": "Aggiungi ruolo",
+      "addWebhook": "Aggiungi webhook",
+      "connectChannel": "Collega un canale",
+      "createApiKey": "Crea chiave API",
+      "themeDark": "Passa al tema scuro",
+      "themeLight": "Passa al tema chiaro",
+      "themeSystem": "Usa il tema di sistema"
+    },
+    "record": {
+      "addTo": "Aggiungi a {list}…",
+      "assign": "Assegna a…",
+      "change": "Modifica {field}…",
+      "deleteNamed": "Elimina {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nuovo, crea, nuovo record",
+        "inviteMembers": "aggiungi utente, invita collega, team",
+        "sendFeedback": "segnala un problema, suggerimento, supporto",
+        "shortcuts": "tasti rapidi, tasti, tastiera",
+        "signOut": "logout, disconnetti, esci",
+        "switchView": "cambia vista, viste salvate",
+        "themeDark": "modalità scura, modalità notte",
+        "themeLight": "modalità chiara",
+        "themeSystem": "tema automatico, segui il sistema"
+      },
+      "page": {
+        "configure": "modello dati, schema, elenchi, campi, relazioni",
+        "dashboard": "home, panoramica, widget, grafici",
+        "documentation": "documenti, aiuto, guida, manuale",
+        "inbox": "messaggi, email, posta, conversazioni, chat",
+        "knowledgeBase": "wiki, note, pagine, articoli",
+        "routines": "automazioni, pianificazioni, attività ricorrenti",
+        "settings": "preferenze, opzioni, account, spazio di lavoro"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nuova chiave API, genera token"
+        },
+        "channels": {
+          "connect": "collega email, aggiungi account, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "immagine del profilo, foto, immagine",
+          "country": "posizione, regione",
+          "displayLanguage": "lingua, lingua dell'interfaccia, traduzione",
+          "firstName": "nome di battesimo",
+          "formattingLocale": "formato data, formato numeri, regione",
+          "lastName": "cognome, nome di famiglia",
+          "theme": "aspetto, modalità scura, modalità chiara, colori"
+        },
+        "roles": {
+          "create": "nuovo ruolo, permessi"
+        },
+        "webhooks": {
+          "create": "nuovo webhook"
+        }
+      },
+      "settings": {
+        "activity": "registro di audit, cronologia, modifiche",
+        "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso",
+        "billing": "piano, abbonamento, fatture, pagamento, prezzi",
+        "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni",
+        "members": "team, utenti, persone, colleghi",
+        "profile": "il mio profilo, account, preferenze, personale",
+        "roles": "permessi, accesso, diritti",
+        "webhook-deliveries": "consegne webhook, registro webhook, eventi inviati",
+        "webhooks": "integrazioni, callback, eventi, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Aggiungi",
