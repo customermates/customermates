@@ -42,6 +42,11 @@ export const QueryTrashSchema = z
     kinds: z.array(TrashKindSchema).max(TRASH_KINDS.length).optional(),
     typeIds: z.array(z.uuid()).max(200).optional(),
     search: z.string().trim().max(200).optional(),
+    sortDescriptor: z
+      .object({ field: z.literal("deletedAt"), direction: z.enum(["asc", "desc"]) })
+      .strict()
+      .optional()
+      .describe("Order by deletion time; newest first when omitted."),
     page: z.number().int().positive().default(1),
     pageSize: z.number().int().min(1).max(100).default(25),
   })
