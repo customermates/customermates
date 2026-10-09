@@ -661,6 +661,7 @@ const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.cardinality.${cardinality}",
+  "features/records/calculation-sentence.ts :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.types.${valueType}",
   "app/[locale]/(protected)/configure/components/calculation-literal-input.tsx :: t :: RecordModel.${key}",

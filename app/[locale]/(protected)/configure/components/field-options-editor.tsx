@@ -1,5 +1,6 @@
 "use client";
 
+import { literalText } from "@/features/records/calculation-sentence";
 import type { CSSProperties, ReactNode } from "react";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { FieldModalStore } from "./field-modal";
@@ -40,7 +41,6 @@ import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { CHIP_COLORS, toChipColor } from "@/constants/chip-colors";
 import { cn } from "@/core/utils/cn";
 import { AttributeColumnStore } from "./attribute-column.store";
-import { literalText } from "./calculation-flow";
 import { attributeKeyTaken, OPTION_ATTRIBUTE_TYPES, PROBABILITY_ATTRIBUTE } from "./field-option-columns";
 
 const ROW_GRID = "grid items-start gap-2 grid-cols-[1.75rem_6.5rem_minmax(0,1fr)_1.75rem]";

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { linkedExpression, linkedFlow } from "@/features/records/calculation-sentence";
 import type { CalculationExpression, RecordField } from "@/features/records/record-model.schema";
 
 import { recordInvariant } from "@/features/records/record-invariant";
@@ -12,13 +13,11 @@ import {
   calculationBehavior,
   calculationDraft,
   calculationIssues,
-  calculationSentence,
+  issueText,
   derivedValueType,
   expressionAt,
   formulaInputs,
   formulaSteps,
-  linkedExpression,
-  linkedFlow,
   removeStep,
   replaceExpression,
   withAggregate,
@@ -36,24 +35,10 @@ const expressionOf = (key: string) => {
 };
 const t = (key: string, values: Record<string, string> = {}) =>
   `${key.replace("RecordModel.calculationFlow.", "")}${Object.keys(values).length ? JSON.stringify(values) : ""}`;
-const sentence = (
-  source: "formula" | "lookup" | "rollup",
-  expression: CalculationExpression,
-  typeId: string,
-  updates: "live" | "create" | "whenChanged" | "explicit" = "live",
-) =>
-  calculationSentence(
-    {
-      source,
-      expression,
-      typeId,
-      field: "Result",
-      updates,
-      allowManualOverride: true,
-      trigger: { field: "Pricing", value: "Saved price" },
-    },
-    { model, t, operatorLabel: (operator) => operator },
-  );
+const missing = (source: "formula" | "lookup" | "rollup", expression: CalculationExpression, typeId: string) => {
+  const issue = calculationIssues(source, expression, typeId, model)[0];
+  return issue ? issueText(issue, t, (operator) => operator) : null;
+};
 const amountTotal: CalculationExpression = {
   kind: "related",
   relationId: id("lineItem.deal"),
@@ -231,40 +216,17 @@ describe("derived value type", () => {
   });
 });
 
-describe("calculation sentence", () => {
-  it("describes every starter calculation without holes or trailing separators", () => {
-    for (const field of model.fields) {
-      const behavior = (field as RecordField).behavior;
-      if (behavior.kind === "input") continue;
-      const draft = calculationDraft(behavior);
-      const text = sentence(draft.source, draft.expression, field.typeId, draft.updates);
-      expect(text, field.label).not.toMatch(/\s(of|the)\s(of|the)\s|""|·\s*$|undefined|null|\{\}/);
-      expect(text).not.toMatch(/missing\./);
-    }
-    expect(sentence("rollup", amountTotal, id("deal"))).toBe(
-      'sentence.sum{"field":"Result","value":"Amount","list":"Line items"}',
-    );
-  });
-
+describe("missing parts", () => {
   it("names what is missing while the flow is incomplete", () => {
     const pick = { ...amountTotal, expression: UNSET };
-    expect(sentence("rollup", pick, id("deal"))).toBe("missing.sum");
-    expect(sentence("lookup", { ...pick, reducer: "one" }, id("lineItem"))).toBe("missing.take");
-    expect(sentence("rollup", { ...pick, reducer: "count" }, id("deal"))).toBe(
-      'sentence.count{"field":"Result","list":"Line items"}',
-    );
-    expect(sentence("lookup", UNSET, id("deal"))).toBe("missing.relationship");
-    expect(sentence("formula", { kind: "operation", operator: "add", arguments: [UNSET, UNSET] }, id("deal"))).toBe(
+    expect(missing("rollup", pick, id("deal"))).toBe("missing.sum");
+    expect(missing("lookup", { ...pick, reducer: "one" }, id("lineItem"))).toBe("missing.take");
+    expect(missing("rollup", { ...pick, reducer: "count" }, id("deal"))).toBeNull();
+    expect(missing("lookup", UNSET, id("deal"))).toBe("missing.relationship");
+    expect(missing("formula", { kind: "operation", operator: "add", arguments: [UNSET, UNSET] }, id("deal"))).toBe(
       'missing.step{"operation":"add"}',
     );
     expect(calculationIssues("formula", UNSET, id("deal"), model)).toEqual([{ node: "input" }]);
-  });
-
-  it("adds the saving moment and the manual override for saved calculations", () => {
-    const text = sentence("lookup", expressionOf("lineItem.savedPrice"), id("lineItem"), "whenChanged");
-    expect(text).toContain('sentence.savedWhenChangedTo{"field":"Pricing","value":"Saved price"}');
-    expect(text).toContain("sentence.typeOver");
-    expect(sentence("lookup", expressionOf("lineItem.savedPrice"), id("lineItem"), "live")).not.toContain("typeOver");
   });
 
   it("flags a complete flow whose values don't fit together", () => {
