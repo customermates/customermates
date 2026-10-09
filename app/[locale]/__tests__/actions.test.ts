@@ -21,7 +21,7 @@ vi.mock("@/core/di", () => ({
 }));
 vi.mock("@/core/utils/action-result", () => ({ serializeResult: mocks.serializeResult }));
 vi.mock("@/core/validation/validation.utils", () => ({ unwrapValidated: mocks.unused }));
-import { readMarketingAccountStateAction, signOutAction, signOutWithOnboardingIntentAction } from "../actions";
+import { readMarketingAccountAction, signOutAction, signOutWithOnboardingIntentAction } from "../actions";
 
 describe("shared account actions", () => {
   beforeEach(() => {
@@ -29,14 +29,34 @@ describe("shared account actions", () => {
     mocks.signOut.mockResolvedValue({ redirect: "/" });
   });
 
-  it("returns only the account state to a cached marketing page, never the user or session", async () => {
+  it("returns the account state and only the signed-in person's own display profile", async () => {
     mocks.resolveAccountState.mockResolvedValue({
       state: "allowed",
-      sessionUser: { email: "private@example.com" },
-      user: { id: "user-1" },
+      sessionUser: { email: "session@example.com", name: "Session Name", image: null },
+      user: { id: "user-1", firstName: "Anna", lastName: "Müller", email: "anna@example.com", avatarUrl: "/a.png", companyId: "c-1" },
+      legalStatus: { accepted: true },
+      subscription: { status: "active" },
     });
 
-    await expect(readMarketingAccountStateAction()).resolves.toBe("allowed");
+    await expect(readMarketingAccountAction()).resolves.toStrictEqual({
+      profile: { avatarUrl: "/a.png", email: "anna@example.com", name: "Anna Müller" },
+      state: "allowed",
+    });
+  });
+
+  it("falls back to the session identity before registration and returns no profile when signed out", async () => {
+    mocks.resolveAccountState.mockResolvedValue({
+      state: "unregistered",
+      sessionUser: { email: "new@example.com", name: "New Person", image: "/g.png" },
+      user: null,
+    });
+    await expect(readMarketingAccountAction()).resolves.toStrictEqual({
+      profile: { avatarUrl: "/g.png", email: "new@example.com", name: "New Person" },
+      state: "unregistered",
+    });
+
+    mocks.resolveAccountState.mockResolvedValue({ state: "unauthenticated", sessionUser: null, user: null });
+    await expect(readMarketingAccountAction()).resolves.toStrictEqual({ profile: null, state: "unauthenticated" });
   });
 
   it("delegates ordinary sign out to the interactor", async () => {

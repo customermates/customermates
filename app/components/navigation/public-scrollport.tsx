@@ -1,6 +1,6 @@
 "use client";
 
-import type { AccountState } from "@/features/auth/account-state";
+import type { AccountState, MarketingAccountProfile } from "@/features/auth/account-state";
 
 import { useLayoutEffect, useRef } from "react";
 
@@ -14,9 +14,17 @@ type Props = {
   hasValidSession: boolean;
   onboardingIntent?: string;
   onSignedOut?: () => void;
+  profile?: MarketingAccountProfile | null;
 };
 
-export function PublicScrollport({ accountState, children, hasValidSession, onboardingIntent, onSignedOut }: Props) {
+export function PublicScrollport({
+  accountState,
+  children,
+  hasValidSession,
+  onboardingIntent,
+  onSignedOut,
+  profile,
+}: Props) {
   const pathname = usePathname();
   const scrollportRef = useRef<HTMLDivElement>(null);
 
@@ -35,6 +43,7 @@ export function PublicScrollport({ accountState, children, hasValidSession, onbo
           accountState={accountState}
           hasValidSession={hasValidSession}
           onboardingIntent={onboardingIntent}
+          profile={profile}
           onSignedOut={onSignedOut}
         />
       </header>

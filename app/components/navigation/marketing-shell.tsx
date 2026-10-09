@@ -20,7 +20,7 @@ type Props = {
 export function MarketingShell({ accountState: knownAccountState, children }: Props) {
   const pathname = usePathname();
   const isDocs = pathname === "/docs" || pathname.startsWith("/docs/");
-  const { accountState, markSignedOut } = useMarketingAccountState(knownAccountState, !isDocs, pathname);
+  const { accountState, markSignedOut, profile } = useMarketingAccountState(knownAccountState, !isDocs, pathname);
   const onboardingIntent = useOnboardingIntentFromLocation(pathname);
 
   if (isDocs) return <DocsShell>{children}</DocsShell>;
@@ -30,6 +30,7 @@ export function MarketingShell({ accountState: knownAccountState, children }: Pr
       accountState={accountState}
       hasValidSession={accountState !== "unauthenticated"}
       onboardingIntent={onboardingIntent}
+      profile={profile}
       onSignedOut={markSignedOut}
     >
       {children}

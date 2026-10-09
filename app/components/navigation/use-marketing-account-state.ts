@@ -1,10 +1,10 @@
 "use client";
 
-import type { AccountState } from "@/features/auth/account-state";
+import type { AccountState, MarketingAccountProfile } from "@/features/auth/account-state";
 
 import { useCallback, useEffect, useState } from "react";
 
-import { readMarketingAccountStateAction } from "@/app/[locale]/actions";
+import { readMarketingAccountAction } from "@/app/[locale]/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { expiredSessionHintCookie, hasSessionHint } from "@/features/auth/session-hint";
 
@@ -14,28 +14,35 @@ export function useMarketingAccountState(
   pathname: string,
 ) {
   const [resolvedAccountState, setResolvedAccountState] = useState<AccountState>("unauthenticated");
+  const [profile, setProfile] = useState<MarketingAccountProfile | null>(null);
 
   useEffect(() => {
-    if (knownAccountState || !enabled) return;
+    if (!enabled) return;
     if (!hasSessionHint(document.cookie)) {
       setResolvedAccountState("unauthenticated");
+      setProfile(null);
       return;
     }
 
     let current = true;
-    readMarketingAccountStateAction().then((state) => {
-      if (current) setResolvedAccountState(state);
+    readMarketingAccountAction().then((account) => {
+      if (!current) return;
+      setResolvedAccountState(account.state);
+      setProfile(account.profile);
     }, reportApplicationError);
 
     return () => {
       current = false;
     };
-  }, [enabled, knownAccountState, pathname]);
+  }, [enabled, pathname]);
 
   const markSignedOut = useCallback(() => {
     document.cookie = expiredSessionHintCookie();
     setResolvedAccountState("unauthenticated");
+    setProfile(null);
   }, []);
 
-  return { accountState: knownAccountState ?? resolvedAccountState, markSignedOut };
+  const accountState = knownAccountState ?? resolvedAccountState;
+
+  return { accountState, markSignedOut, profile: accountState === "unauthenticated" ? null : profile };
 }
