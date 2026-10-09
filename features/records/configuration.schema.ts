@@ -60,8 +60,8 @@ export type DeletionCleanup = z.infer<typeof DeletionCleanupSchema>;
 const LiveDefinitionSchema = z
   .boolean()
   .optional()
-  .refine((archived): boolean => archived !== true, "Use the delete operation to move an item to Recently deleted.")
-  .describe("Always false. Use the delete operation to move an item to Recently deleted.");
+  .refine((archived): boolean => archived !== true, "Use the delete operation to move an item to Trash.")
+  .describe("Always false. Use the delete operation to move an item to Trash.");
 export const ConfigurationReferenceSchema = z.union([z.uuid(), z.string().regex(/^\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$/)]);
 const ConfigurationColumnKeySchema = z.union([
   RecordColumnKeySchema,
@@ -160,7 +160,7 @@ const ExpressionSchema: z.ZodType<ConfigurationExpression> = z.lazy(() =>
   ]),
 );
 const BoundedExpressionSchema = ExpressionBudgetSchema.pipe(ExpressionSchema);
-export function configurationSchemaWithExpression<T extends z.ZodType>(expressionSchema: T) {
+export function configurationSchemaWithExpression<T extends z.ZodType>(expressionSchema: T, trashOperations = false) {
   const ValidatedBehaviorSchema = z.discriminatedUnion("kind", [
     z
       .object({
@@ -322,18 +322,14 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({ operation: z.literal("delete"), target: ConfigurationTargetSchema })
               .strict()
               .describe(
-                "Move a list, field, relationship or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+                "Move a list, field, relationship or Channels field (target id: its channels capability) to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
               ),
-            z
-              .object({ operation: z.literal("restore"), target: ConfigurationTargetSchema })
-              .strict()
-              .describe("Restore an item from Recently deleted together with what was deleted with it."),
-            z
-              .object({ operation: z.literal("deletePermanently"), target: ConfigurationTargetSchema })
-              .strict()
-              .describe(
-                "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and Channels its identifiers.",
-              ),
+            ...(trashOperations
+              ? ([
+                  z.object({ operation: z.literal("restore"), target: ConfigurationTargetSchema }).strict(),
+                  z.object({ operation: z.literal("deletePermanently"), target: ConfigurationTargetSchema }).strict(),
+                ] as const)
+              : ([] as const)),
             z
               .object({
                 operation: z.literal("setTypeGrants"),
@@ -348,7 +344,8 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
     })
     .strict();
 }
-export const ConfigurationChangeSchema = configurationSchemaWithExpression(BoundedExpressionSchema);
+export const ConfigurationChangeSchema = configurationSchemaWithExpression(BoundedExpressionSchema, true);
+export const PublicConfigurationChangeSchema = configurationSchemaWithExpression(BoundedExpressionSchema);
 export const ConfigurationContractSchema = configurationSchemaWithExpression(ExpressionSchema);
 export type ConfigurationChange = z.infer<typeof ConfigurationChangeSchema>;
 export const ConfigurationPreviewSchema = z

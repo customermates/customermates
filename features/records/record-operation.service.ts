@@ -23,6 +23,7 @@ import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
 import { RecordTrashService } from "./record-trash.service";
+import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { RecordModel } from "./record-model.schema";
 import { RestoreSummarySchema } from "./record-query.schema";
 
@@ -335,6 +336,14 @@ export class RecordOperationService extends UserAccessor {
               refs: [],
               schemaRevision: model.revision,
               ...(trashed && !permanent ? { trashBatchId: operationId } : {}),
+              ...(prepared?.change.deletions?.length
+                ? {
+                    trashBatchId: configurationTrashBatchId(
+                      this.companyId,
+                      z.object({ idempotencyKey: z.string() }).parse(operation.request).idempotencyKey,
+                    ),
+                  }
+                : {}),
             },
             leaseUntil: null,
           });

@@ -5,7 +5,6 @@ import {
   discoverRecordTypesV2Tool,
   getRecordModelV2Tool,
   configureRecordModelV2Tool,
-  readRecentlyDeletedConfigurationTool,
   queryRecordsV2Tool,
   searchRecordsV2Tool,
   resolveRecordIdentifiersV2Tool,
@@ -72,7 +71,6 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   ],
   "record-model": [
     configureRecordModelV2Tool,
-    readRecentlyDeletedConfigurationTool,
     cancelRecordOperationV2Tool,
     resumeRecordOperationV2Tool,
   ],
