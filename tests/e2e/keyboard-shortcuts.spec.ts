@@ -100,7 +100,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await expect.poll(() => new URL(page.url()).pathname).toBe(new URL(firstList).pathname);
 
   await page.keyboard.press(`${mod.key}+k`);
-  await expect(page.locator('[cmdk-item][data-value^="palette-view-"]').first()).toBeVisible();
+  await expect(page.locator('[cmdk-item][data-value="cmd:action.switchView"] [data-shortcut="switchView"]')).toHaveText("V");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
 
