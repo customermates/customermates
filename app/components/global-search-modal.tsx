@@ -205,7 +205,7 @@ export const GlobalSearchModal = observer(() => {
       <CommandList>
         {mateAvailable && (
           <CommandGroup>
-            <CommandItem className="gap-3" value="palette-ask-mate" onSelect={askMate}>
+            <CommandItem value="palette-ask-mate" onSelect={askMate}>
               <Sparkles className="size-4 shrink-0 text-muted-foreground" />
 
               <span className="min-w-0 flex-1 truncate">
@@ -266,7 +266,7 @@ export const GlobalSearchModal = observer(() => {
         {commandGroups.map((group) => (
           <CommandGroup key={group.key} heading={group.heading}>
             {group.commands.map((command) => (
-              <CommandItem key={command.value} className="gap-3" value={command.value} onSelect={command.onSelect}>
+              <CommandItem key={command.value} value={command.value} onSelect={command.onSelect}>
                 <command.icon className="size-4 shrink-0 text-muted-foreground" />
 
                 <span className="min-w-0 flex-1 truncate">{command.label}</span>
@@ -320,7 +320,7 @@ function ResultRow({
 }) {
   const FallbackIcon = fallbackIcon;
   return (
-    <CommandItem className="gap-3" value={value} onSelect={onSelect}>
+    <CommandItem value={value} onSelect={onSelect}>
       <Avatar>
         {pictureUrl && <AvatarImage src={pictureUrl} />}
 
