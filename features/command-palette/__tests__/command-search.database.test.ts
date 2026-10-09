@@ -280,17 +280,19 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     const again = await catalogRepo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, 2);
     expect(again.map((entry) => entry.contentHash).sort()).toEqual([...firstHashes].sort());
 
-    await runWithoutTenant(() =>
-      prisma.$executeRaw`UPDATE "SearchCatalogEntry" SET "claimedAt" = CURRENT_TIMESTAMP - interval '10 minutes'
+    await runWithoutTenant(
+      () =>
+        prisma.$executeRaw`UPDATE "SearchCatalogEntry" SET "claimedAt" = CURRENT_TIMESTAMP - interval '10 minutes'
         WHERE "companyId" = ${f.companyId} AND "contentHash" = ${second[0].contentHash}`,
     );
-    expect((await catalogRepo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, 50)).map((e) => e.contentHash)).toContain(
-      second[0].contentHash,
-    );
+    expect(
+      (await catalogRepo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, 50)).map((e) => e.contentHash),
+    ).toContain(second[0].contentHash);
 
     await runWithTenant(f.admin, () => indexer(fakeEmbeddings().service).indexPending());
-    const leftover = await runWithoutTenant(() =>
-      prisma.$queryRaw<Array<{ count: number }>>`SELECT count(*)::int AS "count" FROM "SearchCatalogEntry"
+    const leftover = await runWithoutTenant(
+      () =>
+        prisma.$queryRaw<Array<{ count: number }>>`SELECT count(*)::int AS "count" FROM "SearchCatalogEntry"
         WHERE "companyId" = ${f.companyId} AND ("embedding" IS NULL OR "claimedAt" IS NOT NULL)`,
     );
     expect(leftover[0]?.count).toBeGreaterThan(0);

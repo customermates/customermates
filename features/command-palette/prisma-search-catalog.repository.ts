@@ -157,7 +157,8 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
       WHERE ${claimable(Prisma.sql`e`)} AND e."contentHash" IN (
         SELECT c."contentHash" FROM "SearchCatalogEntry" c
         WHERE ${claimable(Prisma.sql`c`)}
-        GROUP BY c."contentHash" ORDER BY c."contentHash" LIMIT ${limit}
+        ORDER BY c."contentHash" LIMIT ${limit}
+        FOR UPDATE SKIP LOCKED
       )
       RETURNING e."targetId", e."text", e."contentHash"
     `);

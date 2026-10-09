@@ -7,7 +7,11 @@ export abstract class SearchCatalogRepo {
   abstract semanticIndexAvailable(): Promise<boolean>;
   abstract ensureStaticCatalog(catalog: StaticSearchCatalog): Promise<void>;
   abstract replaceWorkspaceCatalog(companyId: string, entries: readonly SearchCatalogText[]): Promise<void>;
-  abstract claimPendingEmbeddings(scope: SearchCatalogScope, model: string, limit: number): Promise<SearchCatalogText[]>;
+  abstract claimPendingEmbeddings(
+    scope: SearchCatalogScope,
+    model: string,
+    limit: number,
+  ): Promise<SearchCatalogText[]>;
   abstract releaseClaims(scope: SearchCatalogScope, contentHashes: readonly string[]): Promise<void>;
   abstract storeEmbeddings(
     scope: SearchCatalogScope,
