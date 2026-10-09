@@ -503,7 +503,7 @@ export const getApplyRecordConfigurationInteractor = () =>
   );
 export const getTrashRepo = () => new PrismaTrashRepo();
 export const getTrashKindHandlers = (): TrashKindHandler[] => [
-  new RecordTrashHandler(getRecordRepo(), getRecordAccessPolicy()),
+  new RecordTrashHandler(getRecordRepo(), getRecordAccessPolicy(), getBackgroundTaskService()),
 ];
 export const getQueryTrashInteractor = () =>
   new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());

@@ -2,11 +2,10 @@ import type { TrashDeletedBy, TrashItem, TrashItemInput, TrashListQuery, TrashRe
 
 import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
-import { TRASH_RETENTION_DAYS } from "./trash-retention";
+import { deleteTrashItems, insertTrashItems } from "./trash-item-store";
+import { TRASH_ITEM_ALIAS } from "./trash-item-alias";
 
 type TrashItemRow = Omit<TrashItem, "payload"> & { payload: Prisma.JsonValue };
-
-export const TRASH_ITEM_ALIAS = Prisma.raw('"item"');
 
 export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
   constructor(private readonly scopedCompanyId?: string) {
@@ -18,17 +17,11 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
   }
 
   async add(items: TrashItemInput[]): Promise<void> {
-    if (!items.length) return;
-    const deletedAt = new Date();
-    const expiresAt = new Date(deletedAt.getTime() + TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000);
-    await this.prisma.trashItem.createMany({
-      data: items.map((item) => ({ ...item, companyId: this.companyId, deletedAt, expiresAt })),
-    });
+    await insertTrashItems(this.prisma, this.companyId, items);
   }
 
   async remove(ids: string[]): Promise<void> {
-    if (!ids.length) return;
-    await this.prisma.trashItem.deleteMany({ where: { companyId: this.companyId, id: { in: ids } } });
+    await deleteTrashItems(this.prisma, this.companyId, ids);
   }
 
   private conditions(visibility: Prisma.Sql, query: Partial<TrashListQuery> = {}): Prisma.Sql {

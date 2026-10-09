@@ -67,7 +67,7 @@ import { RecordQuerySchema } from "./record-query.schema";
 import { RecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layout.schema";
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 import { TRASH_RETENTION_DAYS } from "@/features/trash/trash-retention";
-import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
+import { deleteTrashItems, insertTrashItems } from "@/features/trash/trash-item-store";
 
 export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   constructor(
@@ -1238,7 +1238,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async addTrashItems(items: RecordTrashItemInput[]): Promise<void> {
-    await new PrismaTrashRepo(this.companyId).add(items.map((item) => ({ ...item, kind: "record" as const })));
+    await insertTrashItems(
+      this.prisma,
+      this.companyId,
+      items.map((item) => ({ ...item, kind: "record" as const })),
+    );
   }
 
   async getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string }) {
@@ -1313,7 +1317,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async removeTrashItems(ids: string[]): Promise<void> {
-    await new PrismaTrashRepo(this.companyId).remove(ids);
+    await deleteTrashItems(this.prisma, this.companyId, ids);
   }
 
   async countTrashedRecordsCompanyWide(trashItemIds: string[]) {

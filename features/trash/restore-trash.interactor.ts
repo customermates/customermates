@@ -25,6 +25,37 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
 
   @Validate(RestoreTrashSchema)
   async invoke(input: RestoreTrashData): Validated<TrashRestoreResult> {
+    const result = await this.restore(input);
+    if (
+      result.ok ||
+      !result.error.issues.some(
+        (issue) => issue.code === "custom" && issue.params?.error === CustomErrorCode.recordCalculationBudget,
+      )
+    )
+      return result;
+    return runInTransaction(
+      async (): Validated<TrashRestoreResult> => {
+        const items = await this.trash.find(
+          "itemIds" in input ? { ids: input.itemIds } : input,
+          await trashVisibility(this.handlers),
+        );
+        try {
+          let operationId: string | null = null;
+          for (const group of itemsByHandler(this.handlers, items)) {
+            if (group.handler.restoreInBackground) operationId = await group.handler.restoreInBackground(group.items);
+            else await group.handler.restore(group.items);
+          }
+          if (!operationId) return result;
+          return { ok: true as const, data: { status: "pending" as const, operationId } };
+        } catch (error) {
+          return recordWriteFailure(error);
+        }
+      },
+      { timeout: 20000 },
+    );
+  }
+
+  private restore(input: RestoreTrashData): Validated<TrashRestoreResult> {
     return runInTransaction(
       async (): Validated<TrashRestoreResult> => {
         const items = await this.trash.find(

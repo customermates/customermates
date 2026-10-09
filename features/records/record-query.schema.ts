@@ -286,6 +286,24 @@ export const MutateRecordSchema = z
 export type RecordMutation = z.infer<typeof RecordMutationSchema>;
 export type MutateRecordInput = z.infer<typeof MutateRecordSchema>;
 
+export const RestoreSummarySchema = z
+  .object({
+    restoredItemIds: z.array(z.uuid()),
+    blocked: z.array(
+      z
+        .object({
+          itemId: z.uuid(),
+          reason: z.enum(["listDeleted", "parentDeleted", "notFound"]),
+          typeId: z.uuid(),
+          parent: RecordRefSchema.optional(),
+        })
+        .strict(),
+    ),
+    restoredRecords: z.number().int(),
+    droppedLinks: z.number().int(),
+  })
+  .strict();
+
 export const RecordOperationResultSchema = z.discriminatedUnion("status", [
   z
     .object({
@@ -293,6 +311,7 @@ export const RecordOperationResultSchema = z.discriminatedUnion("status", [
       refs: z.array(RecordRefSchema),
       schemaRevision: z.number().int(),
       trashBatchId: z.uuid().optional(),
+      restore: RestoreSummarySchema.optional(),
     })
     .strict(),
   z
