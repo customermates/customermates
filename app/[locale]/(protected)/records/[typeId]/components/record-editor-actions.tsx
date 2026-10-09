@@ -42,8 +42,9 @@ function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: H
       label: name,
     },
   });
+  const customizing = layout?.isPersonalizing === true;
   const actions: AppModalActionProps[] = [
-    ...(askAi ? [askAi] : []),
+    ...(askAi && !customizing ? [askAi] : []),
     ...(layout
       ? [
           {
@@ -57,14 +58,14 @@ function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: H
           },
         ]
       : []),
-    ...(record && store.presentation.permittedActions.includes("delete")
+    ...(record && !customizing && !store.isBusy && store.presentation.permittedActions.includes("delete")
       ? [
           {
             id: "delete",
             icon: Trash2,
             label: t("Common.actions.delete"),
             variant: "destructive" as const,
-            disabled: deletion.isPreviewing || store.isBusy,
+            disabled: deletion.isPreviewing,
             onClick: () => deletion.requestDeletion(record, store.presentation.model.revision, name),
           },
         ]
