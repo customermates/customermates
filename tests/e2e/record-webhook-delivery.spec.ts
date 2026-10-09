@@ -94,7 +94,15 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
         }),
       ]);
 
-    await page.goto("/en/settings/webhooks/deliveries");
+    await page.goto("/en/settings/webhooks");
+    const showDeliveries = page.getByRole("menuitem", { name: "Show deliveries", exact: true });
+    await expect(async () => {
+      await page.getByRole("button", { name: `More actions for ${receiverUrl}`, exact: true }).click();
+      await expect(showDeliveries).toBeVisible({ timeout: 1000 });
+    }).toPass();
+    await showDeliveries.click();
+    await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries\?/);
+    expect(new URL(page.url()).searchParams.getAll("filters")).toContain(`url:equals:${receiverUrl}`);
     await expect(page.getByText(receiverUrl).first()).toBeVisible();
     await expect(page.getByText("Delivered", { exact: true }).first()).toBeVisible();
     expect(errors).toEqual([]);
@@ -227,7 +235,7 @@ test("delivers only deleted records that matched the webhook filter before remov
       typeId,
     ]);
     expect(remaining.rows).toEqual([]);
-    await page.goto("/en/settings/webhooks/deliveries");
+    await page.goto("/en/settings/webhook-deliveries");
     await expect(page.getByText(receiverUrl).first()).toBeVisible();
     await expect(page.getByText("Delivered", { exact: true }).first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("filtered-deletion-delivery.png"), animations: "disabled" });

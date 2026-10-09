@@ -1,6 +1,7 @@
 "use client";
 
 import type { RecordRow } from "@/features/records/record-presentation";
+import type { LucideIcon } from "lucide-react";
 import type { RecordsStore } from "./records.store";
 
 import { useRef } from "react";
@@ -28,10 +29,12 @@ export function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnT
 
 export const RecordRowActions = observer(function RecordRowActions({
   name,
+  contextAction,
   onOpen,
   onDelete,
 }: {
   name: string;
+  contextAction?: { label: string; icon: LucideIcon; onSelect: () => void };
   onOpen?: (returnFocusTo: HTMLElement | null) => void;
   onDelete?: () => unknown;
 }) {
@@ -65,6 +68,14 @@ export const RecordRowActions = observer(function RecordRowActions({
             event.preventDefault();
           }}
         >
+          {contextAction && (
+            <DropdownMenuItem onSelect={contextAction.onSelect}>
+              <contextAction.icon className="size-4" />
+
+              {contextAction.label}
+            </DropdownMenuItem>
+          )}
+
           {onOpen && (
             <DropdownMenuItem
               onSelect={() => {

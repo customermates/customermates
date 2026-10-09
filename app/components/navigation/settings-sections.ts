@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
-import { CreditCard, History, KeyRound, Mail, Shield, UserCircle, Users, Webhook } from "lucide-react";
+import { CreditCard, History, KeyRound, Mail, Send, Shield, UserCircle, Users, Webhook } from "lucide-react";
 
 import { Resource } from "@/generated/prisma";
 
@@ -35,6 +35,7 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
     { slug: "billing", icon: CreditCard, labelKey: "SettingsNav.billing", resource: Resource.company, cloudOnly: true },
     { slug: "activity", icon: History, labelKey: "SettingsNav.activity", resource: Resource.auditLog },
     { slug: "webhooks", icon: Webhook, labelKey: "SettingsNav.webhooks", resource: Resource.api },
+    { slug: "webhook-deliveries", icon: Send, labelKey: "SettingsNav.deliveries", resource: Resource.api },
   ],
 };
 
