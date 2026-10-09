@@ -118,7 +118,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId("deal")}(?:\\?.*)?$`));
   const remaining = await database.query(
-    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
     [companyId, typeId("deal")],
   );
   expect(remaining.rows).toEqual([{ count: 0 }]);

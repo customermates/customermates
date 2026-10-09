@@ -230,7 +230,7 @@ test("delivers only deleted records that matched the webhook filter before remov
         { timeout: 90000 },
       )
       .toEqual([{ status: "success", attempts: 1, recordId: projects.get("Ready project"), afterVersion: null }]);
-    const remaining = await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [
+    const remaining = await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL', [
       companyId,
       typeId,
     ]);
