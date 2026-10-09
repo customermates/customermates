@@ -1070,6 +1070,8 @@
       "subjectRequired": "Añade un asunto.",
       "termsNotAgreed": "Debes aceptar los términos y condiciones.",
       "threadNotFound": "ID de conversación no encontrado o no accesible.",
+      "trashChanged": "La papelera ha cambiado mientras tanto. Revisa lo que se eliminará e inténtalo de nuevo.",
+      "trashItemNotFound": "Este elemento ya no está en la papelera.",
       "unipileAccountRestricted": "El proveedor ha restringido este canal. Reconectarlo no lo soluciona; resuelve primero la restricción con el proveedor.",
       "unipileDisconnectedAccount": "El canal está desconectado. Su propietario debe volver a conectarlo en Canales antes de poder usarlo de nuevo.",
       "unipileFeatureUnavailable": "Esto no está disponible en este canal. Reintentar no ayudará; se ha notificado al equipo.",
@@ -1150,7 +1152,9 @@
       },
       "record": {
         "created": "Registro creado",
-        "deleted": "Registro eliminado",
+        "deleted": "Registro movido a la papelera",
+        "deletedPermanently": "Registro eliminado definitivamente",
+        "restored": "Registro restaurado",
         "updated": "Registro actualizado"
       },
       "record_grants": {
@@ -3701,7 +3705,8 @@
           "messageReceived": "Recibe un mensaje entrante nuevo que no sea un duplicado mediante una cuenta conectada.",
           "messageUpdated": "Edita un mensaje en el proveedor de mensajería conectado.",
           "recordCreated": "Crea un registro en Customermates: {entity}.",
-          "recordDeleted": "Elimina un registro en Customermates: {entity}.",
+          "recordDeleted": "Mover un registro a la papelera en Customermates: {entity}.",
+          "recordRestored": "Restaurar un registro de la papelera en Customermates: {entity}.",
           "recordUpdated": "Realiza un cambio efectivo en un registro de Customermates: {entity}.",
           "relationCreated": "Haz que se acepte una solicitud de conexión de LinkedIn mediante una cuenta conectada."
         },

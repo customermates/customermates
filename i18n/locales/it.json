@@ -1070,6 +1070,8 @@
       "subjectRequired": "Aggiungi un oggetto.",
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
+      "trashChanged": "Il cestino è cambiato nel frattempo. Controlla cosa verrà eliminato e riprova.",
+      "trashItemNotFound": "Questo elemento non è più nel cestino.",
       "unipileAccountRestricted": "Il provider ha limitato questo canale. Ricollegarlo non risolve; risolvi prima la limitazione con il provider.",
       "unipileDisconnectedAccount": "Il canale è disconnesso. Il proprietario deve ricollegarlo in Canali prima che possa essere usato di nuovo.",
       "unipileFeatureUnavailable": "Non è disponibile su questo canale. Riprovare non servirà; il team è stato avvisato.",
@@ -1150,7 +1152,9 @@
       },
       "record": {
         "created": "Record creato",
-        "deleted": "Record eliminato",
+        "deleted": "Record spostato nel cestino",
+        "deletedPermanently": "Record eliminato definitivamente",
+        "restored": "Record ripristinato",
         "updated": "Record aggiornato"
       },
       "record_grants": {
@@ -3701,7 +3705,8 @@
           "messageReceived": "Ricevi un nuovo messaggio in arrivo non duplicato tramite un account collegato.",
           "messageUpdated": "Modifica un messaggio nel provider di messaggistica collegato.",
           "recordCreated": "Crea un record in Customermates: {entity}.",
-          "recordDeleted": "Elimina un record in Customermates: {entity}.",
+          "recordDeleted": "Spostare un record nel cestino in Customermates: {entity}.",
+          "recordRestored": "Ripristinare un record dal cestino in Customermates: {entity}.",
           "recordUpdated": "Apporta una modifica effettiva a un record in Customermates: {entity}.",
           "relationCreated": "Fai accettare una richiesta di collegamento LinkedIn tramite un account collegato."
         },
