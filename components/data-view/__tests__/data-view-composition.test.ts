@@ -85,6 +85,7 @@ describe("data-view presentation composition", () => {
       createElement(DataViewContent<Item>, {
         columns,
         onRowClick,
+        renderCard: () => null,
         rowHref,
         store: store(),
         view,

@@ -3,6 +3,8 @@
 import { Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import type { AppModalButtonActionProps } from "@/components/modal/app-modal-action";
+
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -35,4 +37,23 @@ export function AskAiAction({
       <span className={cn(placement === "topbar" && "max-sm:sr-only")}>{t("DataView.views.askAi")}</span>
     </button>
   );
+}
+
+export function useAskAiAction() {
+  const t = useTranslations();
+
+  return ({
+    anchorId,
+    onClick,
+  }: {
+    anchorId?: string;
+    onClick: () => void | Promise<void>;
+  }): AppModalButtonActionProps => ({
+    id: "ask-ai",
+    kind: "assistant",
+    anchorId,
+    icon: Sparkles,
+    label: t("DataView.views.askAi"),
+    onClick,
+  });
 }

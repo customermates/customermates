@@ -80,7 +80,6 @@ export function AgentComposerContexts({
               ) : undefined
             }
             size="sm"
-            tooltip={context.label}
             variant="default"
           >
             {context.label}
