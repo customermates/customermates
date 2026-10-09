@@ -100,7 +100,9 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   await page.getByRole("menuitem", { name: "Sub-list", exact: true }).click();
   const drawer = configureDrawer(page);
   await expect(drawer.getByText("New sub-list of Deals", { exact: true })).toBeVisible();
-  await expect(drawer).toContainText("Sub-list of Deals · each entry lives inside one Deal");
+  await expect(drawer.locator("[data-configure-sublist-explanation]")).toContainText(
+    "Sub-list of Deals · each entry lives inside one Deal, shares its access and is removed with it.",
+  );
   await expect(drawer.getByRole("combobox", { name: "Access" })).toHaveCount(0);
   await drawer.locator("#name").fill("Milestone");
   await expect(drawer.getByRole("textbox", { name: "Plural name", exact: true })).toHaveValue("Milestones");
@@ -124,7 +126,11 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   await openConfigure(page);
   const node = page.locator(`[data-configure-node="${milestone?.id}"]`);
   await expect(node).toContainText("Sub-list of Deals");
-  await expect(node.locator("[data-configure-sublist-explanation]")).toBeVisible();
+  const explanation = node.locator("[data-configure-sublist-explanation]");
+  await expect(explanation).toBeVisible();
+  const lineHeight = await explanation.evaluate((element) => parseFloat(getComputedStyle(element).lineHeight));
+  const parentChip = explanation.locator('[data-confirmation-chip] [data-slot="badge"]');
+  expect(await parentChip.evaluate((element) => (element as HTMLElement).offsetHeight)).toBeCloseTo(lineHeight, 0);
   await expect(page.locator("[data-configure-sublist-group]")).toHaveCount(1);
   const header = node.getByRole("button", { name: "Milestones", exact: true });
   const headerBox = await header.boundingBox();
@@ -134,10 +140,7 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   const fieldNameBox = await node.locator("[data-configure-graph-field] .font-medium").first().boundingBox();
   expect(fieldNameBox?.x).toBeCloseTo(nameBox?.x ?? 0, 0);
   await expect(page.locator("[data-configure-relationship]").first().locator("..")).toHaveCSS("z-index", "auto");
-  await expect(node.locator("[data-configure-sublist-explanation]")).toContainText(
-    "Sub-list of Deals · each entry lives inside one Deal",
-  );
-  await node.locator("[data-configure-sublist-explanation]").getByRole("link", { name: "Deals", exact: true }).click();
+  await explanation.getByRole("link", { name: "Deals", exact: true }).click();
   await expect(deal).toHaveAttribute("data-focus-highlight", "");
   await expect(node.getByRole("button", { name: "Add to Milestones", exact: true })).toBeVisible();
   await node.getByRole("button", { name: "Add to Milestones", exact: true }).focus();

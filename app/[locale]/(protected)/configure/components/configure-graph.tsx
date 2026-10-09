@@ -3,7 +3,12 @@
 import "@xyflow/react/dist/style.css";
 
 import type { Edge, EdgeProps, Node, NodeChange, NodeProps, ReactFlowState } from "@xyflow/react";
-import type { RecordField, RecordModelView, RecordRelationship } from "@/features/records/record-model.schema";
+import type {
+  RecordField,
+  RecordModelView,
+  RecordRelationship,
+  RecordType,
+} from "@/features/records/record-model.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 import type {
   ConfigureGraphCatalog,
@@ -56,6 +61,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import { recordChannelsBinding } from "@/features/records/record-channels";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
+import { highlightFocusTarget } from "@/components/focus/focus-target";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { upsertP13nAction } from "@/app/actions";
@@ -77,6 +83,7 @@ import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 import { recordFieldTypeKey } from "@/features/records/record-input-value";
 import { ConfigureListAddItems } from "./configure-add-menu";
+import { SublistSentence } from "./sublist-sentence";
 import {
   ConfigureNode,
   ConfigureNodeCount,
@@ -87,7 +94,6 @@ import {
   ConfigureNodeRows,
 } from "./configure-node";
 import { isResolvedField } from "./configure-model";
-import { SublistSentence } from "./sublist-sentence";
 
 export type ConfigureGraphAccounts =
   | { state: "available"; accounts: ConfigureGraphSource[] }
@@ -98,7 +104,7 @@ type Props = {
   model: RecordModelView;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
-  focusedList?: { id: string } | null;
+  focusedListId?: string | null;
   layout: ConfigureGraphLayout | null;
   onLayoutChange: (layout: ConfigureGraphLayout | null) => void;
   canManage: boolean;
@@ -124,7 +130,8 @@ type GraphActions = Pick<
   | "onEditRelationship"
 > & {
   labelOf: (typeId: string) => string;
-  typeOf: (typeId: string | null) => RecordModelView["types"][number] | undefined;
+  typeOf: (typeId: string) => RecordType | undefined;
+  focusList: (typeId: string) => void;
   listOf: (items: string[]) => string;
   hasChannels: (typeId: string) => boolean;
   isExpanded: (nodeId: string) => boolean;
@@ -172,6 +179,27 @@ type ListNode = Node<{ list: ConfigureGraphList }, "list">;
 type AccountsNode = Node<{ accounts: ConfigureGraphSource[] }, "accounts">;
 type PromptNode = Node<{ state: "available" | "locked" }, "prompt">;
 
+function SublistExplanation({ parentId }: { parentId: string }) {
+  const { typeOf, focusList } = useGraphActions();
+  const parent = typeOf(parentId);
+  if (!parent) return null;
+  return (
+    <p
+      className="nodrag ps-10 pe-3.5 pb-2.5 text-xs text-muted-foreground"
+      data-configure-sublist-explanation=""
+      data-configure-sublist-parent={parentId}
+    >
+      <SublistSentence
+        parent={parent}
+        onNavigate={(event) => {
+          event.preventDefault();
+          focusList(parentId);
+        }}
+      />
+    </p>
+  );
+}
+
 function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   const t = useTranslations();
   const {
@@ -179,7 +207,6 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
     canAddSublist,
     disabled,
     listOf,
-    typeOf,
     hasChannels,
     isExpanded,
     toggleExpanded,
@@ -188,7 +215,6 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
     onAdd,
     onEditChannels,
   } = useGraphActions();
-  const parent = list.parentId ? typeOf(list.parentId) : undefined;
   const open = isExpanded(list.type.id);
   const visible = open ? list.fields : list.fields.slice(0, GRAPH_VISIBLE_FIELDS);
   const hidden = list.fields.length - GRAPH_VISIBLE_FIELDS;
@@ -237,7 +263,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         onClick={() => onSelectList(list.type.id)}
       />
 
-      {parent && <SublistSentence className="nodrag ps-10 pe-3.5 pb-2.5 text-xs" parent={parent} />}
+      {list.parentId && <SublistExplanation parentId={list.parentId} />}
 
       <ConfigureNodeRows label={t("RecordModel.fields")}>
         {visible.map(({ field, calculated, sources }) => {
@@ -598,7 +624,7 @@ function ConfigureGraphCanvas({
   model,
   catalog,
   accounts,
-  focusedList,
+  focusedListId,
   layout,
   onLayoutChange,
   canManage,
@@ -715,9 +741,9 @@ function ConfigureGraphCanvas({
       .catch(reportApplicationError);
   }, [ready, flow, measured, flowNodes, positions, direction]);
   useEffect(() => {
-    if (!ready || !focusedList || !placed.current) return;
-    void flow.fitView({ nodes: [{ id: focusedList.id }], ...focusView() }).catch(reportApplicationError);
-  }, [ready, flow, focusedList, measured]);
+    if (!ready || !focusedListId || !placed.current) return;
+    void flow.fitView({ nodes: [{ id: focusedListId }], ...focusView() }).catch(reportApplicationError);
+  }, [ready, flow, focusedListId, measured]);
   useEffect(() => {
     const element = container.current;
     if (!ready || !element) return;
@@ -850,6 +876,10 @@ function ConfigureGraphCanvas({
       disabled,
       labelOf: (typeId) => model.types.find((type) => type.id === typeId)?.pluralLabel ?? "",
       typeOf: (typeId) => model.types.find((type) => type.id === typeId),
+      focusList: (typeId) => {
+        void flow.fitView({ nodes: [{ id: typeId }], ...focusView() }).catch(reportApplicationError);
+        highlightFocusTarget({ kind: "list", id: typeId });
+      },
       listOf: (items) => new Intl.ListFormat(locale, { style: "short", type: "unit" }).format(items),
       hasChannels: (typeId) => Boolean(recordChannelsBinding(model, typeId)),
       isExpanded: (nodeId) => layout?.expanded?.includes(nodeId) ?? false,

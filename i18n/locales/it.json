@@ -3548,7 +3548,7 @@
         "singular": "Attività"
       }
     },
-    "sublistSentence": "Sottoelenco di {parent} · ogni voce vive in un solo record di tipo {singular}, ne condivide l’accesso e viene eliminata con esso.",
+    "sublistSentence": "Sottoelenco di {list} · ogni voce vive all’interno di un record di {parent}, ne condivide l’accesso e viene eliminata con esso.",
     "suggestedAttribute": "Suggerimento",
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",

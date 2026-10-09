@@ -3548,7 +3548,7 @@
         "singular": "Aufgabe"
       }
     },
-    "sublistSentence": "Unterliste von {parent} · jeder Eintrag lebt in genau einem Datensatz vom Typ {singular}, teilt dessen Zugriff und wird mit ihm gelöscht.",
+    "sublistSentence": "Unterliste von {list} · jeder Eintrag gehört zu genau einem Datensatz vom Typ {parent}, teilt dessen Zugriff und wird mit ihm gelöscht.",
     "suggestedAttribute": "Vorschlag",
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",

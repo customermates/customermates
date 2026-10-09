@@ -3548,7 +3548,7 @@
         "singular": "Tarea"
       }
     },
-    "sublistSentence": "Sublista de {parent} · cada entrada vive dentro de un único registro de tipo {singular}, comparte su acceso y se elimina con él.",
+    "sublistSentence": "Sublista de {list} · cada entrada vive dentro de un registro de {parent}, comparte su acceso y se elimina con él.",
     "suggestedAttribute": "Sugerencia",
     "summaryAggregation": "Cálculo",
     "summaryApprovalRequired": "Este resumen está publicado. Un administrador debe aprobar los cambios en los datos usados en el cálculo.",

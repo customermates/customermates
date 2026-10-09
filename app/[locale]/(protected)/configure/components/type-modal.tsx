@@ -371,7 +371,11 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
             />
           )}
 
-          {store.parentType && <SublistSentence className="text-sm" parent={store.parentType} />}
+          {store.parentType && (
+            <p className="text-sm text-muted-foreground" data-configure-sublist-explanation="">
+              <SublistSentence parent={store.parentType} onNavigate={store.close} />
+            </p>
+          )}
 
           {(!store.original || store.section === "settings") && <TypeSettingsFields store={store} />}
 

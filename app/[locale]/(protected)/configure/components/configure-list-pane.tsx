@@ -435,7 +435,11 @@ export const ConfigureListPane = observer(function ConfigureListPane({
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">{selected.pluralLabel}</h1>
 
-            {parent && <SublistSentence className="text-sm" parent={parent} />}
+            {parent && (
+              <p className="text-sm text-muted-foreground" data-configure-sublist-explanation="">
+                <SublistSentence parent={parent} />
+              </p>
+            )}
 
             <p className="text-sm text-muted-foreground">
               {t("RecordModel.listCounts", counts)}

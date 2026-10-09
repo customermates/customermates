@@ -3548,7 +3548,7 @@
         "singular": "Task"
       }
     },
-    "sublistSentence": "Sub-list of {parent} · each entry lives inside one {singular}, shares its access and is removed with it.",
+    "sublistSentence": "Sub-list of {list} · each entry lives inside one {parent}, shares its access and is removed with it.",
     "suggestedAttribute": "Suggested",
     "summaryAggregation": "Calculation",
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",

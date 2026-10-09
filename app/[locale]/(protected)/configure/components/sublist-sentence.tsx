@@ -1,28 +1,31 @@
 "use client";
 
+import type { MouseEvent } from "react";
+
 import { useTranslations } from "next-intl";
 
-import { confirmationSentence, ConfirmationSentenceView } from "@/components/modal/confirmation-sentence";
 import { focusHref } from "@/components/focus/focus-href";
-import { cn } from "@/core/utils/cn";
+import { ConfirmationSentenceView, confirmationSentence } from "@/components/modal/confirmation-sentence";
 
 type Parent = { id: string; label: string; pluralLabel: string; icon: string };
 
-export function SublistSentence({ parent, className }: { parent: Parent; className?: string }) {
+export function SublistSentence({
+  parent,
+  onNavigate,
+}: {
+  parent: Parent;
+  onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
+}) {
   const t = useTranslations();
   const sentence = confirmationSentence(
-    (values) => t("RecordModel.sublistSentence", { ...values, singular: parent.label }),
+    (values) => t("RecordModel.sublistSentence", { ...values, parent: parent.label }),
     {
-      parent: {
+      list: {
         label: parent.pluralLabel,
-        href: focusHref({ kind: "list", id: parent.id }),
         icon: { list: parent.icon },
+        href: focusHref({ kind: "list", id: parent.id }),
       },
     },
   );
-  return (
-    <p className={cn("text-muted-foreground", className)} data-configure-sublist-explanation="">
-      <ConfirmationSentenceView sentence={sentence} />
-    </p>
-  );
+  return <ConfirmationSentenceView sentence={sentence} onNavigate={onNavigate} />;
 }

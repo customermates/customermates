@@ -1,6 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
+import type { MouseEvent } from "react";
 
 import { LayoutDashboard, Link2, Repeat, Table2, TextCursorInput, Webhook } from "lucide-react";
 
@@ -53,7 +54,7 @@ export function ConfirmationSentenceView({
   onNavigate,
 }: {
   sentence: ConfirmationSentence;
-  onNavigate?: () => void;
+  onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
   return (
     <span>
@@ -63,7 +64,7 @@ export function ConfirmationSentenceView({
         ) : (
           <IntlLink
             key={index}
-            className="mx-0.5 inline-flex max-w-full align-baseline"
+            className="inline-flex max-w-full align-top"
             data-confirmation-chip=""
             href={part.href}
             onClick={onNavigate}

@@ -17,7 +17,6 @@ export function CalculationSentenceText({ segments }: { segments: SentenceSegmen
         ) : (
           <InlineChip
             key={index}
-            className="mx-0.5"
             data-sentence-reference={`${segment.kind}:${segment.id}`}
             startContent={
               segment.kind === "list" ? (
