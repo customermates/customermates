@@ -321,7 +321,7 @@ Team members with id, name, email, roleId, and status. When the caller's role ha
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings. Reset restores shared type defaults without changing records. Deleting a view permanently removes that saved view, not its records. Configuration and view lists are paginated and searchable.
+Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings. Reset restores shared type defaults without changing records. Deleting a view moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
 
 **Can delete data.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
 
@@ -337,7 +337,7 @@ Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `l
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-List, search, read, create, update, or permanently delete Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
+List, search, read, create, update, or delete (move to Trash) Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
 
 **Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
@@ -576,7 +576,7 @@ The source sets the aggregation grain. Deal reporting counts each matching deal 
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
 
-List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout `{x, y, w, h}` on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. viewId places a widget on a dashboard view (a saved view of manage_data_views surface dashboard); without it a new widget goes to the caller’s current dashboard view. Delete removes the widget configuration, not its source records.
+List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout `{x, y, w, h}` on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. viewId places a widget on a dashboard view (a saved view of manage_data_views surface dashboard); without it a new widget goes to the caller’s current dashboard view. Delete moves the widget configuration to Trash, never its source records.
 
 **Can delete data.** Required: `action`. Optional: `kind`, `id`, `ids`, `name`, `expectedRevision`, `expectedVersion`, `idempotencyKey`, `measure`, `displayOptions`, `isTemplate`, `activityQuery`, `showFilters`, `layout`, `viewId`.
 {/* /mcp-catalog */}
@@ -586,7 +586,7 @@ List or read widgets; create, update or delete chart and activity configurations
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger.
+One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger. delete moves the routine to Trash, where it stops running until manage_trash restores it.
 
 **Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `triggerFilters`, `recordTrigger`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
