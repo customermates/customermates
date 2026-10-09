@@ -28,7 +28,8 @@ const t = (key: string, values: Record<string, string> = {}) =>
       "RecordModel.valueSource.savedWhenChangedTo": "Saved when {field} changes to {value}",
     }[key] ?? key,
   );
-const source = (field: RecordField) => recordValueSource({ model, field, t });
+type SourceField = Parameters<typeof recordValueSource>[0]["field"];
+const source = (field: SourceField) => recordValueSource({ model, field, t });
 const calculated = model.fields.filter((field) => field.behavior.kind !== "input");
 const ofShape = (match: (described: NonNullable<ReturnType<typeof calculationSentence>>) => boolean) =>
   calculated.find((field) => {
