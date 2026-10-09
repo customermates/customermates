@@ -6,10 +6,10 @@ import type { WikiOutlineEntry } from "@/features/wiki/wiki-markdown-sections";
 import { customMcpFailure, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsHits } from "./docs.mcp-tools";
 import {
-  UNTRUSTED_NOTES_CLOSE,
-  UNTRUSTED_NOTES_HANDLING,
-  UNTRUSTED_NOTES_OPEN,
-  stripUntrustedNotesMarkers,
+  UNTRUSTED_RECORD_TEXT_CLOSE,
+  UNTRUSTED_RECORD_TEXT_HANDLING,
+  UNTRUSTED_RECORD_TEXT_OPEN,
+  stripUntrustedRecordTextMarkers,
 } from "./untrusted-record-content";
 
 import { env } from "@/env";
@@ -128,13 +128,13 @@ async function fetchRecord(ref: RecordRef) {
     if (field.result.state !== "value" || field.result.value.kind !== "richText") return field;
     const markdown = serializeJSONToMarkdown(JSON.parse(field.result.value.documentJson));
     documents.push(
-      `Field ${field.fieldId}:\n${UNTRUSTED_NOTES_OPEN}\n${stripUntrustedNotesMarkers(markdown)}\n${UNTRUSTED_NOTES_CLOSE}`,
+      `Field ${field.fieldId}:\n${UNTRUSTED_RECORD_TEXT_OPEN}\n${stripUntrustedRecordTextMarkers(markdown)}\n${UNTRUSTED_RECORD_TEXT_CLOSE}`,
     );
     return { fieldId: field.fieldId, result: { state: "value", format: "markdown below" } };
   });
   const text = [
     JSON.stringify({ ...record, fields }, null, 2),
-    ...(documents.length ? [UNTRUSTED_NOTES_HANDLING, ...documents] : []),
+    ...(documents.length ? [UNTRUSTED_RECORD_TEXT_HANDLING, ...documents] : []),
   ].join("\n\n");
   const output = {
     id: `record:${ref.typeId}:${ref.recordId}`,
