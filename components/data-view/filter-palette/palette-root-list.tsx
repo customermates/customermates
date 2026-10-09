@@ -177,10 +177,10 @@ export const PaletteRootList = observer(function PaletteRootList({
       ))}
 
       <CommandList className="max-h-none! overflow-visible">
-        <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
+        {!(search && searchText) && <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>}
 
         {search && searchText && (
-          <CommandGroup>
+          <CommandGroup forceMount>
             <CommandItem
               forceMount
               className="data-[selected=true]:bg-selected"

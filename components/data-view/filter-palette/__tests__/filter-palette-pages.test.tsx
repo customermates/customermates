@@ -501,6 +501,8 @@ describe("filter palette search", () => {
 
     const items = [...container.querySelectorAll("[cmdk-item]")];
     expect(items[0]?.hasAttribute("data-palette-search")).toBe(true);
+    expect(items[0]?.closest("[cmdk-group]")?.hasAttribute("hidden")).toBe(false);
+    expect(container.querySelector("[cmdk-empty]")).toBeNull();
     expect(items[0]?.getAttribute("aria-selected")).toBe("true");
     click(items[0]);
 
