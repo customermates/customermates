@@ -372,6 +372,18 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         field.typeId === this.typeId && !field.archived && !field.multiple && field.behavior.kind === "input",
     );
   }
+  get draftBehavior(): RecordField["behavior"] | null {
+    if (this.form.source === "input") return null;
+    const trigger = this.triggerField;
+    return calculationBehavior({
+      source: this.form.source,
+      expression: this.form.expression,
+      updates: this.form.updates,
+      allowManualOverride: this.form.allowManualOverride,
+      triggerFieldId: this.form.triggerFieldId,
+      triggerValue: trigger ? recordInputValue(this.form.triggerValue, trigger) : null,
+    });
+  }
   get triggerField() {
     return this.triggerFields.find((field) => field.id === this.form.triggerFieldId);
   }
@@ -501,14 +513,7 @@ export const FieldModal = observer(function FieldModal({
     : channels
       ? { target: { kind: "channels" as const, id: channels.id }, name: t("EntityChannels.heading") }
       : null;
-  const triggerValueLabel = () => {
-    const trigger = store.triggerField;
-    const value = store.form.triggerValue;
-    if (!trigger || value === undefined || value === null || value === "") return undefined;
-    if (trigger.valueType === "select") return trigger.options.find((option) => option.id === value)?.label;
-    if (typeof value === "boolean") return value ? t("RecordModel.yes") : t("RecordModel.no");
-    return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
-  };
+
   const thisList = store.model.types.find((type) => type.id === store.typeId);
   const linkedList = store.model.types.find((type) => type.id === store.linkedTypeIds[0]);
   const updateLabels: Record<CalculationUpdates, string> = {
@@ -676,7 +681,7 @@ export const FieldModal = observer(function FieldModal({
               summary={t(`RecordModel.behaviors.${store.form.source}`)}
               title={t("RecordModel.fieldTabs.calculation")}
             >
-              <CalculationFlow store={store} triggerValueLabel={triggerValueLabel()} />
+              <CalculationFlow store={store} />
             </CollapsibleSection>
           )}
 

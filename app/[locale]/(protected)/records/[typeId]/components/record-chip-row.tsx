@@ -105,7 +105,9 @@ const PropertyChip = observer(function PropertyChip({
         <AppChip
           startContent={icon}
           tooltip={
-            isCalculatedField(records, field) ? calculatedFieldLabel(field, records.presentation.model, t) : field.label
+            isCalculatedField(records, field)
+              ? calculatedFieldLabel(field, records.presentation.model, t, intl.formattingLocale)
+              : field.label
           }
         >
           <ChipLabel name={name}>
