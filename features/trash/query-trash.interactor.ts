@@ -10,8 +10,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { QueryTrashSchema, type QueryTrashData, type TrashPage } from "./trash.schema";
 import { trashVisibility } from "./trash-handlers";
-
-const DAY = 24 * 60 * 60 * 1000;
+import { trashDaysLeft } from "./trash-retention";
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -33,7 +32,6 @@ export class QueryTrashInteractor extends AuthenticatedInteractor<QueryTrashData
         const deletedBy = await this.trash.deletedBy(
           page.items.flatMap((item) => (item.deletedById ? [item.deletedById] : [])),
         );
-        const now = Date.now();
         return {
           ok: true as const,
           data: {
@@ -53,7 +51,7 @@ export class QueryTrashInteractor extends AuthenticatedInteractor<QueryTrashData
                 deletedBy: item.deletedById ? (deletedBy.get(item.deletedById) ?? null) : null,
                 deletedAt: item.deletedAt.toISOString(),
                 expiresAt: item.expiresAt.toISOString(),
-                daysLeft: Math.max(0, Math.ceil((item.expiresAt.getTime() - now) / DAY)),
+                daysLeft: trashDaysLeft(item.expiresAt),
                 batchId: item.batchId,
               };
             }),

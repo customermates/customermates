@@ -127,6 +127,7 @@ export const TrashedRecordInfoSchema = z
     itemId: z.uuid(),
     deletedAt: z.iso.datetime(),
     expiresAt: z.iso.datetime(),
+    daysLeft: z.number().int().nonnegative(),
     deletedBy: RecordMemberSchema.nullable(),
     canRestore: z.boolean(),
   })

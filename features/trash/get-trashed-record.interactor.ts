@@ -17,6 +17,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import { RecordTrashService } from "@/features/records/record-trash.service";
 import { trashVisibility } from "./trash-handlers";
+import { trashDaysLeft } from "./trash-retention";
 
 export type TrashedRecordEditor = RecordEditorResult & { trash: TrashedRecordInfo };
 
@@ -62,6 +63,7 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
               itemId: item.id,
               deletedAt: item.deletedAt.toISOString(),
               expiresAt: item.expiresAt.toISOString(),
+              daysLeft: trashDaysLeft(item.expiresAt),
               deletedBy,
               canRestore: Boolean(stored[0]) && (await service.accessible(stored[0], model, policy)) === null,
             },
