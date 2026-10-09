@@ -3576,6 +3576,14 @@
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "usedBy": {
+      "blocking": "Würde das Löschen verhindern",
+      "blockingCount": "{count, plural, one {# verhindert das Löschen} other {# verhindern das Löschen}}",
+      "cleaned": "Wird beim Löschen bereinigt",
+      "cleanedCount": "{count, plural, one {# wird bereinigt} other {# werden bereinigt}}",
+      "layouts": "Wird außerdem aus {count, plural, one {# Layout} other {# Layouts}} entfernt.",
+      "title": "Verwendet von"
+    },
     "valueType": "Werttyp",
     "yes": "Ja"
   },

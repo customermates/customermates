@@ -3576,6 +3576,14 @@
     "unlinkRecord": "Unlink {name}",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
+    "usedBy": {
+      "blocking": "Would block deletion",
+      "blockingCount": "{count} would block deletion",
+      "cleaned": "Cleaned up on deletion",
+      "cleanedCount": "{count} cleaned up",
+      "layouts": "Also removed from {count, plural, one {# layout} other {# layouts}}.",
+      "title": "Used by"
+    },
     "valueType": "Value type",
     "yes": "Yes"
   },

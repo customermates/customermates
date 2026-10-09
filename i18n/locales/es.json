@@ -3576,6 +3576,14 @@
     "unlinkRecord": "Desvincular {name}",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "usedBy": {
+      "blocking": "Impediría la eliminación",
+      "blockingCount": "{count, plural, one {# impediría la eliminación} other {# impedirían la eliminación}}",
+      "cleaned": "Se limpia al eliminar",
+      "cleanedCount": "{count, plural, one {# se limpia} other {# se limpian}}",
+      "layouts": "También se quita de {count, plural, one {# diseño} other {# diseños}}.",
+      "title": "Usado por"
+    },
     "valueType": "Tipo de valor",
     "yes": "Sí"
   },

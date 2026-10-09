@@ -33,7 +33,7 @@ const DUPLICATE_ISSUES = {
   duplicate_relationship_label: "RecordModel.duplicateRelationshipLabel",
 } as const;
 
-function referenceChip(reference: DeletionReference, model: RecordModelView | null): ConfirmationChip {
+export function referenceChip(reference: DeletionReference, model: RecordModelView | null): ConfirmationChip {
   const typeIcon = (typeId: string | undefined) => model?.types.find((type) => type.id === typeId)?.icon ?? "list";
   if (reference.kind === "channels") {
     return {

@@ -3576,6 +3576,14 @@
     "unlinkRecord": "Scollega {name}",
     "updatedAt": "Aggiornato il",
     "useChannelAvatar": "Usa l’immagine del profilo del canale",
+    "usedBy": {
+      "blocking": "Bloccherebbe l'eliminazione",
+      "blockingCount": "{count, plural, one {# bloccherebbe l'eliminazione} other {# bloccherebbero l'eliminazione}}",
+      "cleaned": "Ripulito all'eliminazione",
+      "cleanedCount": "{count, plural, one {# ripulito} other {# ripuliti}}",
+      "layouts": "Rimosso anche da {count, plural, one {# layout} other {# layout}}.",
+      "title": "Usato da"
+    },
     "valueType": "Tipo di valore",
     "yes": "Sì"
   },

@@ -26,6 +26,7 @@ import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
+import { UsedBySection } from "./used-by-section";
 import { CalculationFlow } from "./calculation-flow-editor";
 import { isResolvedField } from "./configure-model";
 import {
@@ -759,6 +760,8 @@ export const FieldModal = observer(function FieldModal({
           )}
 
           {store.form.valueType === "select" && <FieldOptionsEditor store={store} />}
+
+          <UsedBySection model={store.model} target={deleteTarget?.target ?? null} />
 
           {store.preview && (
             <RecordConfigurationPreview model={store.model} preview={store.preview} renewal={store.summaryRenewal} />
