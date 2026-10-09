@@ -62,6 +62,8 @@ export interface RecordActorRepo {
   findRecordAssigneesCompanyWide(ids: string[]): Promise<string[]>;
 }
 
+export type RecordPlacement = { afterRecordId?: string; beforeRecordId?: string };
+
 export interface RecordRepo {
   getIdentitiesCompanyWide(ref: RecordRef): Promise<RecordIdentity[]>;
   hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean>;
@@ -177,6 +179,7 @@ export interface RecordRepo {
   measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]>;
   create(ref: RecordRef, assignedUserIds: string[]): Promise<void>;
   touch(ref: RecordRef): Promise<void>;
+  placeRecord(ref: RecordRef, placement: RecordPlacement, groupFieldId: string | null): Promise<boolean>;
   delete(ref: RecordRef): Promise<void>;
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
   getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;

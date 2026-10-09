@@ -1677,6 +1677,7 @@ model CrmRecord {
   version       Int                         @default(1)
   protectedKind String?
   systemData    Json?
+  rank          String?
   createdAt     DateTime                    @default(now())
   updatedAt     DateTime                    @updatedAt
   company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1691,6 +1692,7 @@ model CrmRecord {
   @@id([companyId, typeId, id])
   @@index([companyId, typeId, createdAt, id])
   @@index([companyId, typeId, updatedAt, id])
+  @@index([companyId, typeId, rank])
 }
 
 model RecordIdentity {

@@ -105,7 +105,8 @@ function isAppendOnlyUpdate(mutation: Extract<RecordMutation, { action: "update"
     mutation.assignedUserIds === undefined &&
     mutation.identities === undefined &&
     !mutation.linkChanges?.length &&
-    !mutation.captureFieldIds?.length
+    !mutation.captureFieldIds?.length &&
+    mutation.placement === undefined
   );
 }
 
@@ -550,7 +551,26 @@ export class RecordWriteService {
           reject(CustomErrorCode.recordValueInvalid);
         recordInvariant(captures.get(recordKey(mutation.ref))).add(fieldId);
       }
-      addSeed(mutation.ref);
+      if (mutation.placement) {
+        const { groupFieldId, ...placement } = mutation.placement;
+        const group = groupFieldId ? fields.get(groupFieldId) : undefined;
+        if (
+          groupFieldId &&
+          (!group || group.typeId !== mutation.ref.typeId || group.valueType !== "select" || group.multiple)
+        )
+          reject(CustomErrorCode.recordValueInvalid, "validation", ["placement", "groupFieldId"]);
+        if (!(await this.records.placeRecord(mutation.ref, placement, groupFieldId ?? null)))
+          reject(CustomErrorCode.recordNotFound, "not_found", ["placement"]);
+      }
+      const orderOnly =
+        mutation.placement !== undefined &&
+        !mutation.fields.length &&
+        !mutation.assignedUserIds &&
+        !mutation.identities &&
+        !mutation.linkChanges?.length &&
+        !mutation.captureFieldIds?.length;
+      if (orderOnly) captures.delete(recordKey(mutation.ref));
+      else addSeed(mutation.ref);
     } else if (mutation.action === "delete" || mutation.action === "deleteMany") {
       const plan = await this.planDeletion(mutation, model, policy, limit);
       for (const key of plan.deleted.keys()) deleted.add(key);
