@@ -110,6 +110,17 @@ function isAppendOnlyUpdate(mutation: Extract<RecordMutation, { action: "update"
   );
 }
 
+function isOrderOnlyUpdate(mutation: Extract<RecordMutation, { action: "update" }>) {
+  return (
+    mutation.placement !== undefined &&
+    !mutation.fields.length &&
+    mutation.assignedUserIds === undefined &&
+    mutation.identities === undefined &&
+    !mutation.linkChanges?.length &&
+    !mutation.captureFieldIds?.length
+  );
+}
+
 function comparableResult(result: CalculatedValue): unknown {
   if (result.state !== "value") return result;
   const value = result.value;
@@ -227,7 +238,8 @@ export class RecordWriteService {
       if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
       if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
       if (
-        (mutation.action === "delete" || (mutation.action === "update" && !isAppendOnlyUpdate(mutation))) &&
+        (mutation.action === "delete" ||
+          (mutation.action === "update" && !isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation))) &&
         row.version !== mutation.expectedVersion
       )
         reject(CustomErrorCode.recordVersionChanged, "conflict");
@@ -505,7 +517,7 @@ export class RecordWriteService {
     } else if (mutation.action === "update") {
       if (mutation.fields.some(isAppend)) await this.records.lockRecord(mutation.ref);
       const row = await editable(mutation.ref);
-      if (!isAppendOnlyUpdate(mutation) && row.version !== mutation.expectedVersion)
+      if (!isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation) && row.version !== mutation.expectedVersion)
         reject(CustomErrorCode.recordVersionChanged, "conflict");
       if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
         if (mutation.assignedUserIds.length)
@@ -562,14 +574,7 @@ export class RecordWriteService {
         if (!(await this.records.placeRecord(mutation.ref, placement, groupFieldId ?? null)))
           reject(CustomErrorCode.recordNotFound, "not_found", ["placement"]);
       }
-      const orderOnly =
-        mutation.placement !== undefined &&
-        !mutation.fields.length &&
-        !mutation.assignedUserIds &&
-        !mutation.identities &&
-        !mutation.linkChanges?.length &&
-        !mutation.captureFieldIds?.length;
-      if (orderOnly) captures.delete(recordKey(mutation.ref));
+      if (isOrderOnlyUpdate(mutation)) captures.delete(recordKey(mutation.ref));
       else addSeed(mutation.ref);
     } else if (mutation.action === "delete" || mutation.action === "deleteMany") {
       const plan = await this.planDeletion(mutation, model, policy, limit);

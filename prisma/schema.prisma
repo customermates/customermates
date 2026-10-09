@@ -1692,7 +1692,6 @@ model CrmRecord {
   @@id([companyId, typeId, id])
   @@index([companyId, typeId, createdAt, id])
   @@index([companyId, typeId, updatedAt, id])
-  @@index([companyId, typeId, rank])
 }
 
 model RecordIdentity {

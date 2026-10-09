@@ -130,7 +130,7 @@ async function fixture() {
   };
   const history = (recordId: string) =>
     runWithoutTenant(() => prisma.eventLog.count({ where: { companyId: seed.company.id, subjectId: recordId } }));
-  return { id, stage, createDeal, stored, move, sorted, ordered, columns, history };
+  return { id, stage, createDeal, stored, mutate, move, sorted, ordered, columns, history };
 }
 
 afterAll(async () => {
@@ -182,6 +182,70 @@ describeDatabase("manual record order", () => {
 
     expect(await f.move(winner, { groupFieldId: f.id("deal.stage") })).toMatchObject({ ok: true });
     expect((await f.columns())[`value:${open}`]).toEqual(["Won 1", "Open 2", "Open 1"]);
+  });
+
+  it("gives concurrent drops into the same gap distinct ranks that later drops can go between", async () => {
+    const f = await fixture();
+    const open = f.stage.options[0].id;
+    const first = await f.createDeal("First", open);
+    const last = await f.createDeal("Last", open);
+    const left = await f.createDeal("Left", open);
+    const right = await f.createDeal("Right", open);
+    expect(await f.move(first, {})).toMatchObject({ ok: true });
+    expect(await f.move(last, { afterRecordId: first })).toMatchObject({ ok: true });
+
+    const drops = await Promise.all([
+      f.move(left, { afterRecordId: first, beforeRecordId: last }),
+      f.move(right, { afterRecordId: first, beforeRecordId: last }),
+    ]);
+    expect(drops, JSON.stringify(drops)).toMatchObject([{ ok: true }, { ok: true }]);
+    const ranks = await Promise.all([left, right].map(async (recordId) => (await f.stored(recordId)).rank));
+    expect(new Set(ranks).size).toBe(2);
+    const order = await f.ordered();
+    expect(order[0]).toBe("First");
+    expect(order[3]).toBe("Last");
+    const [before, after] = order[1] === "Left" ? [left, right] : [right, left];
+
+    const middle = await f.createDeal("Middle", open);
+    expect(await f.move(middle, { afterRecordId: before, beforeRecordId: after })).toMatchObject({ ok: true });
+    expect((await f.ordered())[2]).toBe("Middle");
+  });
+
+  it("reorders a record whose version changed since the board loaded it", async () => {
+    const f = await fixture();
+    const open = f.stage.options[0].id;
+    const older = await f.createDeal("Older", open);
+    const newer = await f.createDeal("Newer", open);
+    const stale = (await f.stored(older)).version;
+    const edited = await f.mutate({
+      action: "update",
+      ref: { typeId: f.id("deal"), recordId: older },
+      expectedVersion: stale,
+      fields: [{ fieldId: f.id("deal.name"), value: { kind: "text", value: "Older deal" } }],
+    });
+    expect(edited, JSON.stringify(edited)).toMatchObject({ ok: true });
+    expect((await f.stored(older)).version).toBe(stale + 1);
+
+    const reordered = await f.mutate({
+      action: "update",
+      ref: { typeId: f.id("deal"), recordId: older },
+      expectedVersion: stale,
+      fields: [],
+      placement: { beforeRecordId: newer },
+    });
+    expect(reordered, JSON.stringify(reordered)).toMatchObject({ ok: true });
+    expect(await f.ordered()).toEqual(["Older", "Newer"]);
+    expect((await f.stored(older)).version).toBe(stale + 1);
+
+    const staleEdit = await f.mutate({
+      action: "update",
+      ref: { typeId: f.id("deal"), recordId: older },
+      expectedVersion: stale,
+      fields: [{ fieldId: f.id("deal.name"), value: { kind: "text", value: "Renamed" } }],
+      placement: { afterRecordId: newer },
+    });
+    expect(staleEdit).toMatchObject({ ok: false });
+    expect(await f.ordered()).toEqual(["Older", "Newer"]);
   });
 
   it("rejects unknown anchors, non choice group fields and a descending manual sort", async () => {

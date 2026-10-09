@@ -1201,13 +1201,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const lower = placement.afterRecordId ? await keyOf(placement.afterRecordId) : null;
     const upper = placement.beforeRecordId ? await keyOf(placement.beforeRecordId) : null;
     if ((placement.afterRecordId && lower === null) || (placement.beforeRecordId && upper === null)) return false;
+    if (lower !== null && upper !== null && lower >= upper) return false;
     const bounds =
-      placement.afterRecordId && placement.beforeRecordId
-        ? [lower, upper]
-        : placement.beforeRecordId
-          ? [await neighbour(upper, "before"), upper]
-          : [lower, await neighbour(lower, "after")];
-    if (bounds[0] !== null && bounds[1] !== null && bounds[0] >= bounds[1]) return false;
+      placement.beforeRecordId && !placement.afterRecordId
+        ? [await neighbour(upper, "before"), upper]
+        : [lower, await neighbour(lower, "after")];
     await this.prisma.$executeRaw(Prisma.sql`
       UPDATE "CrmRecord" SET "rank" = ${rankBetween(bounds[0], bounds[1])}
       WHERE "companyId" = ${this.companyId} AND "typeId" = ${ref.typeId} AND "id" = ${ref.recordId}`);
