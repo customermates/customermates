@@ -17,14 +17,13 @@ vi.mock("next-intl", () => ({
 
 import { EntityDetailPanels } from "../entity-detail-panels";
 
-const LAYOUT_ID = "details-notes-activities";
+const LAYOUT_ID = "details-activities";
 const STORED = {
-  [`panel:${LAYOUT_ID}:details`]: 500,
-  [`panel:${LAYOUT_ID}:notes`]: 250,
-  [`panel:${LAYOUT_ID}:activities`]: 250,
-  "panel:details-notes:details": 700,
+  [`panel:${LAYOUT_ID}:details`]: 600,
+  [`panel:${LAYOUT_ID}:activities`]: 300,
+  "panel:details:details": 700,
 };
-const STORED_TEMPLATE = "minmax(320px, 500fr) 1px minmax(280px, 250fr) 1px minmax(320px, 250fr)";
+const STORED_TEMPLATE = "minmax(320px, 600fr) 1px minmax(320px, 300fr)";
 
 const roots: Root[] = [];
 const containers: HTMLElement[] = [];
@@ -37,7 +36,6 @@ function view(panelLayout: EntityDetailPanelLayout) {
   return createElement(EntityDetailPanels, {
     activities: createElement("p", null, "Activities"),
     details: createElement("p", null, "Details"),
-    notes: createElement("p", null, "Notes"),
     panelLayout,
   });
 }
@@ -62,7 +60,6 @@ beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function panelRect(this: HTMLElement) {
     const panel = this.getAttribute("data-detail-panel");
     if (panel === "details") return rect(600);
-    if (panel === "notes") return rect(400);
     if (panel === "activities") return rect(360);
     return rect(0);
   });
@@ -91,7 +88,7 @@ describe("EntityDetailPanels resizable layout", () => {
 
     expect(recoverable).not.toHaveBeenCalled();
     expect(grid(element).style.getPropertyValue("--panel-grid-template")).toBe(STORED_TEMPLATE);
-    expect(element.querySelectorAll('[role="separator"]')).toHaveLength(2);
+    expect(element.querySelectorAll('[role="separator"]')).toHaveLength(1);
     expect(upsertP13nAction).not.toHaveBeenCalled();
   });
 
@@ -115,13 +112,11 @@ describe("EntityDetailPanels resizable layout", () => {
     expect(upsertP13nAction).toHaveBeenCalledTimes(1);
     const saved = upsertP13nAction.mock.calls[0]?.[0] as { p13nId: string; columnWidths: Record<string, number> };
     expect(saved.p13nId).toBe("record-panels:type-1");
-    expect(saved.columnWidths["panel:details-notes:details"]).toBe(700);
+    expect(saved.columnWidths["panel:details:details"]).toBe(700);
     const details = saved.columnWidths[`panel:${LAYOUT_ID}:details`] ?? 0;
-    const notes = saved.columnWidths[`panel:${LAYOUT_ID}:notes`] ?? 0;
     const activities = saved.columnWidths[`panel:${LAYOUT_ID}:activities`] ?? 0;
-    expect(details).toBeGreaterThan(600 / 1.36);
-    expect(notes).toBeLessThan(400 / 1.36);
-    expect(activities).toBeCloseTo(360 / 1.36, 0);
+    expect(details).toBeGreaterThan(600 / (600 + 360) * (details + activities));
+    expect(activities).toBeLessThan(360 / (600 + 360) * (details + activities));
     expect(grid(element).style.getPropertyValue("--panel-grid-template")).not.toBe(STORED_TEMPLATE);
   });
 

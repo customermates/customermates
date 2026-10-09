@@ -13,6 +13,26 @@ import { ContactValue } from "@/components/records/contact-value";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { toChipColor } from "@/constants/chip-colors";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { cn } from "@/core/utils/cn";
+
+type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
+
+function formattedTextExcerpt(documentJson: string) {
+  const blocks: string[] = [];
+  const visit = (node: FormattedTextNode) => {
+    if (node.content?.some((child) => child.type === "text")) {
+      blocks.push(node.content.map((child) => child.text ?? "").join(""));
+      return;
+    }
+    node.content?.forEach(visit);
+  };
+  visit(JSON.parse(documentJson) as FormattedTextNode);
+  return blocks
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ");
+}
 
 type DecimalFormat = { currency?: string | null; compact?: boolean; maximumFractionDigits?: number };
 
@@ -137,7 +157,15 @@ export const RecordValue = observer(function RecordValue({
       </span>
     );
   }
-  if (value.kind === "richText") return null;
+  if (value.kind === "richText") {
+    const excerpt = formattedTextExcerpt(value.documentJson);
+    if (!excerpt) return <EmptyValue />;
+    return (
+      <span className={cn("text-muted-foreground", wrap ? "line-clamp-2 whitespace-normal break-words" : "truncate")}>
+        {excerpt}
+      </span>
+    );
+  }
   if (value.kind === "member") {
     const member = members.find((user) => user.id === value.value);
     return member ? <MemberChip member={member} /> : <AppChip>{t("RecordModel.member")}</AppChip>;

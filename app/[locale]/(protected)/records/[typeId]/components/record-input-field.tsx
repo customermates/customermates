@@ -17,7 +17,7 @@ import { FormSwitch } from "@/components/forms/form-switch";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-picker";
 import { toChipColor } from "@/constants/chip-colors";
-import { Editor } from "@/components/editor/editor";
+import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 
@@ -39,17 +39,22 @@ export const RecordInputField = observer(function RecordInputField({
   const root = useRootStore();
   const shared = { id, inputId, label, required: field.required };
   if (field.valueType === "richText") {
-    return (
+    const editor = (
+      <FormattedTextField
+        data={store?.getValue(id) as object | undefined}
+        label={label ?? field.label}
+        readOnly={Boolean(store?.isReadOnly || store?.isLoading)}
+        onChange={(value) => store?.onChange(id, value)}
+      />
+    );
+    return label ? (
       <div className="space-y-1.5">
-        {label && <span className="text-xs text-muted-foreground">{label}</span>}
+        <span className="text-xs text-muted-foreground">{label}</span>
 
-        <Editor
-          data={store?.getValue(id) as object | undefined}
-          label={label ?? field.label}
-          readOnly={Boolean(store?.isReadOnly || store?.isLoading)}
-          onChange={(value) => store?.onChange(id, value)}
-        />
+        {editor}
       </div>
+    ) : (
+      editor
     );
   }
   if (field.valueType === "select" && field.multiple) {

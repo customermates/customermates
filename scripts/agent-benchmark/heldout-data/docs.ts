@@ -168,7 +168,7 @@ export const DOCS_HELDOUT: readonly DocsHeldoutItem[] = [
     docsLocale: "de",
     query: "Kann ich in Notizen fett schreiben oder Aufzählungen machen?",
     slug: "concepts",
-    anchors: ["concepts#what-are-notes"],
+    anchors: ["concepts#what-is-formatted-text"],
     alternatives: [],
     fact: "Yes, notes are per-record rich text edited in a Tiptap editor; over MCP they are read and written as Markdown.",
   },

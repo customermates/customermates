@@ -246,9 +246,9 @@ To resend, click **Resend** at the top of **Event Details**. It appears once the
 
 No. Two `record.updated` events milliseconds apart can arrive out of order. Use the `timestamp` and record version to resolve order, or treat deliveries as idempotent messages keyed by `typeId`, `recordId` and event ID.
 
-## Why are notes Tiptap JSON in payloads? [#notes-are-json-not-markdown]
+## Why is formatted text Tiptap JSON in payloads? [#formatted-text-is-json-not-markdown]
 
-The `notes` field in payloads is Tiptap JSON, the structure the editor stores. Run it through a Tiptap-compatible serializer to get markdown. In MCP, `read_crm_record` returns the rich-text value with `documentJson`, which converts the same way.
+The value of a Formatted text field in payloads is a `richText` value whose `documentJson` is Tiptap JSON, the structure the editor stores. Run it through a Tiptap-compatible serializer to get markdown. In MCP, `read_crm_record` returns the rich-text value with `documentJson`, which converts the same way.
 
 ## What do delete payloads contain? [#what-do-delete-payloads-contain]
 

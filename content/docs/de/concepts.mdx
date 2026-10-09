@@ -71,9 +71,9 @@ Ein Diagramm-Widget im [Dashboard](app:dashboard) wählt eine Liste, eine Aggreg
 
 Ein [Webhook](app:settings/webhooks) oder eine Routine kann Datensatzereignisse einer oder mehrerer Listen abonnieren, optional nach Feldern gefiltert. Zustellungen werden eingereiht, nachdem die Änderung gespeichert ist. Eine fehlgeschlagene Zustellung wird mit derselben Ereignis- und Zustellungs-ID wiederholt, ein Empfänger kann ein Ereignis also mehr als einmal sehen. Der Zugriff wird beim Senden erneut geprüft, und frühere Zustellungen werden für die betrachtende Person geschwärzt. Siehe [Webhooks](/docs/webhooks).
 
-## Was sind Notizen, und sind sie Markdown? [#what-are-notes]
+## Was ist formatierter Text, und ist er Markdown? [#what-is-formatted-text]
 
-Notizen sind formatierter Text am Datensatz, gespeichert als geprüftes Dokument und nicht als Markdown-Zeichenfolge. Wo Notizen als reiner Text oder Markdown erscheinen, ist das eine Umwandlung desselben Dokuments, keine zweite Kopie.
+Ein Feld vom Typ Formatierter Text enthält formatierten Text am Datensatz, etwa Notizen, Beschreibungen oder Zusammenfassungen. Es ist ein Feld wie jedes andere: Es hat seinen Platz in der Übersicht, lässt sich anheften oder ausblenden, und eine Liste kann beliebig viele davon haben. Der Text wird als geprüftes Dokument gespeichert, nicht als Markdown-Zeichenfolge. Wo er als reiner Text oder Markdown erscheint, ist das eine Umwandlung desselben Dokuments, keine zweite Kopie.
 
 ## Wer sind Nutzer, Rollen und die Company, und was bedeutet Lesen Zugewiesen? [#who-are-users-roles-and-the-company]
 
@@ -87,4 +87,4 @@ Mitglieder sind die Personen in einem Workspace. [Rollen](app:settings/roles) ve
 
 ## Für Agents [#for-agents]
 
-Listen- und Feld-IDs liefern `discover_record_types` und `get_record_model`. Jede Datensatzreferenz enthält `typeId` und `recordId`. Verknüpfungen setzen oder entfernen Sie mit `mutate_crm_record` und Beziehungs-IDs aus `get_record_model`. Notizen werden als typisierter Rich-Text-Feldwert geschrieben. `configure_record_model` prüft und übernimmt eine Schema-Änderung mit erwarteter Revision und Idempotenzschlüssel; eine veraltete Revision braucht eine neue Vorschau.
+Listen- und Feld-IDs liefern `discover_record_types` und `get_record_model`. Jede Datensatzreferenz enthält `typeId` und `recordId`. Verknüpfungen setzen oder entfernen Sie mit `mutate_crm_record` und Beziehungs-IDs aus `get_record_model`. Formatierter Text wird als typisierter `richText`-Wert geschrieben oder mit `{fieldId, append}` in einer Änderung an den aktuellen Text angehängt. `configure_record_model` prüft und übernimmt eine Schema-Änderung mit erwarteter Revision und Idempotenzschlüssel; eine veraltete Revision braucht eine neue Vorschau.

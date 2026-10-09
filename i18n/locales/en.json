@@ -853,6 +853,8 @@
       "remove": "Remove",
       "reset": "Reset",
       "save": "Save",
+      "showLess": "Show less",
+      "showMore": "Show more",
       "signIn": "Login"
     },
     "ariaLabels": {
@@ -2045,9 +2047,6 @@
     "personalize": "Customize",
     "pinField": "Pin {field} to the overview",
     "reorderInstructions": "Press Space or Enter to pick up a field. Use the arrow keys to move it, Space or Enter to drop, and Escape to cancel.",
-    "sections": {
-      "notes": "Notes"
-    },
     "showField": "Show {field} in details",
     "unpinField": "Unpin {field} from the overview"
   },
@@ -3551,6 +3550,9 @@
     "table": "Table",
     "triggerField": "When this field changes",
     "triggerValue": "To this value",
+    "typeHints": {
+      "richText": "Notes, descriptions, summaries"
+    },
     "types": {
       "boolean": "Yes or no",
       "currency": "Money",

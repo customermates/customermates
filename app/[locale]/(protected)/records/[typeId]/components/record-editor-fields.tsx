@@ -12,6 +12,7 @@ import { EntityDetailStaticField } from "@/components/entity-detail/entity-detai
 import { RecordValue } from "./record-value";
 import { RecordDetailField } from "./record-detail-field";
 import { RecordInputField } from "./record-input-field";
+import { FormattedTextField } from "@/components/editor/formatted-text-field";
 
 export const RecordEditorField = observer(function RecordEditorField({
   store,
@@ -45,51 +46,32 @@ export const RecordEditorField = observer(function RecordEditorField({
       </Button>
     ) : null;
   if (restricted || !isRecordFieldWritable(field)) {
-    return store.record ? (
+    if (!store.record) return null;
+    if (result?.state === "value" && result.value.kind === "richText") {
+      return (
+        <RecordDetailField action={captureAction} fieldId={field.id} label={field.label}>
+          <FormattedTextField readOnly data={JSON.parse(result.value.documentJson) as object} label={field.label} />
+        </RecordDetailField>
+      );
+    }
+    return (
       <EntityDetailStaticField
         action={restricted ? null : captureAction}
         fieldId={field.id}
         label={field.label}
         value={<RecordValue field={field} members={store.record?.memberUsers} result={result} />}
       />
-    ) : null;
-  }
-  if (field.valueType === "richText") {
-    return (
-      <div className="space-y-1.5">
-        {captureAction}
-
-        <RecordInputField field={field} id={id} />
-      </div>
     );
   }
   return (
     <RecordDetailField
       action={captureAction}
       fieldId={field.id}
-      inputId={inputId}
+      inputId={field.valueType === "richText" ? undefined : inputId}
       label={field.label}
       required={field.required}
     >
       <RecordInputField field={field} id={id} inputId={inputId} label={null} />
     </RecordDetailField>
-  );
-});
-
-export const RecordEditorFields = observer(function RecordEditorFields({
-  store,
-  notes = false,
-}: {
-  store: RecordEditorStore;
-  notes?: boolean;
-}) {
-  return (
-    <div className="space-y-4">
-      {store.fields
-        .filter((field) => (field.valueType === "richText") === notes)
-        .map((field) => (
-          <RecordEditorField key={field.id} field={field} store={store} />
-        ))}
-    </div>
   );
 });

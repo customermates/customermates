@@ -853,6 +853,8 @@
       "remove": "Rimuovi",
       "reset": "Reimposta",
       "save": "Salva",
+      "showLess": "Mostra meno",
+      "showMore": "Mostra di più",
       "signIn": "Accedi"
     },
     "ariaLabels": {
@@ -2045,9 +2047,6 @@
     "personalize": "Personalizza",
     "pinField": "Fissa {field} nella panoramica",
     "reorderInstructions": "Premi Spazio o Invio per selezionare un campo. Usa le frecce per spostarlo, Spazio o Invio per rilasciarlo ed Esc per annullare.",
-    "sections": {
-      "notes": "Note"
-    },
     "showField": "Mostra {field} nei dettagli",
     "unpinField": "Togli {field} dalla panoramica"
   },
@@ -3551,6 +3550,9 @@
     "table": "Tabella",
     "triggerField": "Quando questo campo cambia",
     "triggerValue": "A questo valore",
+    "typeHints": {
+      "richText": "Note, descrizioni, riepiloghi"
+    },
     "types": {
       "boolean": "Sì o no",
       "currency": "Importo",

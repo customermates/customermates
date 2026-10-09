@@ -853,6 +853,8 @@
       "remove": "Entfernen",
       "reset": "Zurücksetzen",
       "save": "Speichern",
+      "showLess": "Weniger anzeigen",
+      "showMore": "Mehr anzeigen",
       "signIn": "Login"
     },
     "ariaLabels": {
@@ -2045,9 +2047,6 @@
     "personalize": "Anpassen",
     "pinField": "{field} an die Übersicht anheften",
     "reorderInstructions": "Drücke die Leertaste oder Eingabe, um ein Feld aufzunehmen. Verschiebe es mit den Pfeiltasten, lege es mit Leertaste oder Eingabe ab und brich mit Escape ab.",
-    "sections": {
-      "notes": "Notizen"
-    },
     "showField": "{field} in den Details anzeigen",
     "unpinField": "{field} von der Übersicht lösen"
   },
@@ -3551,6 +3550,9 @@
     "table": "Tabelle",
     "triggerField": "Wenn sich dieses Feld ändert",
     "triggerValue": "Auf diesen Wert",
+    "typeHints": {
+      "richText": "Notizen, Beschreibungen, Zusammenfassungen"
+    },
     "types": {
       "boolean": "Ja oder nein",
       "currency": "Geldbetrag",

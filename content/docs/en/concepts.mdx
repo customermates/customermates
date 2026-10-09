@@ -71,9 +71,9 @@ A chart widget on the [Dashboard](app:dashboard) picks a list, an aggregation an
 
 A [webhook](app:settings/webhooks) or a routine can subscribe to record events of one or more lists, optionally filtered by fields. Deliveries are queued after the change is saved. A failed delivery is retried with the same event and delivery identity, so a receiver can see one event more than once. Access is checked again at send time, and past deliveries are redacted for the person viewing them. See [Webhooks](/docs/webhooks).
 
-## What are notes, and are they markdown? [#what-are-notes]
+## What is formatted text, and is it markdown? [#what-is-formatted-text]
 
-Notes are formatted text on a record, stored as a checked document rather than a markdown string. Wherever notes appear as plain text or markdown, that is a conversion of the same document, not a second copy.
+A Formatted text field holds formatted text on a record, such as notes, descriptions or summaries. It is a field like any other: it has a place in the overview, can be pinned or hidden, and you can add as many as a list needs. The text is stored as a checked document rather than a markdown string. Wherever it appears as plain text or markdown, that is a conversion of the same document, not a second copy.
 
 ## Who are users, roles, and the company, and what does Assigned read access mean? [#who-are-users-roles-and-the-company]
 
@@ -87,4 +87,4 @@ Members are the people in a workspace. [Roles](app:settings/roles) grant create,
 
 ## For agents [#for-agents]
 
-Read list and field IDs with `discover_record_types` and `get_record_model`. Every record reference carries both `typeId` and `recordId`. Link or unlink records with `mutate_crm_record` using relation IDs from `get_record_model`. Notes are written as a typed rich-text field value. `configure_record_model` previews and applies a schema change with an expected revision and an idempotency key; a stale revision needs a fresh preview.
+Read list and field IDs with `discover_record_types` and `get_record_model`. Every record reference carries both `typeId` and `recordId`. Link or unlink records with `mutate_crm_record` using relation IDs from `get_record_model`. Formatted text is written as a typed `richText` value, or added to the end of the current text with `{fieldId, append}` in an update. `configure_record_model` previews and applies a schema change with an expected revision and an idempotency key; a stale revision needs a fresh preview.
