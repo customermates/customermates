@@ -9,6 +9,7 @@ import type {
 import type { WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.repo";
 import type { WikiIndexPage } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import type { WikiSectionRow } from "./wiki-sections";
+import type { SyncStaleWikiSectionsRepo } from "./sync-stale-wiki-sections.repo";
 
 import { Prisma } from "@/generated/prisma";
 
@@ -25,6 +26,7 @@ import {
   semanticSectionsSql,
 } from "@/core/retrieval/section-search-sql";
 import { TenantRepository } from "@/core/base/tenant-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 
 import { wikiIdentifierPattern, wikiIdentifierTerms } from "./wiki-identifiers";
@@ -49,10 +51,23 @@ type RankedRow = {
 
 const WIKI_CONTENT_HASH = Prisma.sql`encode(sha256(convert_to(p."title" || E'\\n' || p."markdown", 'UTF8')), 'hex')`;
 const UNTOUCHED_IMPORT = Prisma.sql`(p."sourceImportedUpdatedAt" IS NOT NULL AND p."sourceImportedUpdatedAt" = p."updatedAt")`;
+const UNCLAIMED_INDEX_PAGE = Prisma.sql`(p."semanticIndexClaimedAt" IS NULL
+  OR p."semanticIndexClaimedAt" < CURRENT_TIMESTAMP - make_interval(secs => ${WIKI_INDEX_CLAIM_SECONDS}))`;
+
+type WikiSectionReplacement = {
+  pageId: string;
+  pageUpdatedAt: Date;
+  pageTitle: string;
+  summary: string | null;
+  rows: WikiSectionRow[];
+  embeddings: ReadonlyMap<string, string>;
+  version: string | null;
+  onlyIfStale: boolean;
+};
 
 export class PrismaWikiSectionRepo
   extends TenantRepository
-  implements SearchWikiPagesRepo, WikiSemanticIndexRepo
+  implements SearchWikiPagesRepo, WikiSemanticIndexRepo, SyncStaleWikiSectionsRepo
 {
   private get corpus(): SectionCorpusSql {
     return {
@@ -96,18 +111,45 @@ export class PrismaWikiSectionRepo
   }
 
   async syncStaleSections(limit = WIKI_SECTION_SYNC_LIMIT): Promise<WikiSectionSync> {
+    return this.syncStalePages(this.companyId, limit, Prisma.empty, (args) => this.replaceSections(args));
+  }
+
+  @BypassTenantGuard
+  async findCompaniesWithStaleSectionsUnscoped(limit: number): Promise<string[]> {
+    const rows = await this.prisma.$queryRaw<Array<{ companyId: string }>>(Prisma.sql`
+      SELECT DISTINCT p."companyId" FROM "WikiPage" p
+      WHERE p."deletedAt" IS NULL AND ${this.unsyncedPage()} AND ${UNCLAIMED_INDEX_PAGE}
+      ORDER BY p."companyId" ASC
+      LIMIT ${limit}
+    `);
+    return rows.map((row) => row.companyId);
+  }
+
+  @BypassTenantGuard
+  async syncStaleSectionsUnscoped(companyId: string, limit: number): Promise<WikiSectionSync> {
+    return this.syncStalePages(companyId, limit, Prisma.sql`AND ${UNCLAIMED_INDEX_PAGE}`, (args) =>
+      this.withCompanyTransaction(companyId, () => this.writeSections(companyId, args)),
+    );
+  }
+
+  private async syncStalePages(
+    companyId: string,
+    limit: number,
+    filter: Prisma.Sql,
+    replace: (args: WikiSectionReplacement) => Promise<boolean>,
+  ): Promise<WikiSectionSync> {
     const found = await this.prisma.$queryRaw<WikiIndexPage[]>(Prisma.sql`
       SELECT p."id", p."title", p."markdown", p."updatedAt", p."summary", p."summaryContentHash",
         p."sourceImportedUpdatedAt"
       FROM "WikiPage" p
-      WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL AND ${this.unsyncedPage()}
+      WHERE p."companyId" = ${companyId} AND p."deletedAt" IS NULL AND ${this.unsyncedPage()} ${filter}
       ORDER BY p."updatedAt" DESC, p."id" ASC
       LIMIT ${limit + 1}
     `);
     let synced = 0;
     for (const page of found.slice(0, limit)) {
       const summary = currentWikiSummary(page);
-      const written = await this.replaceSections({
+      const written = await replace({
         pageId: page.id,
         pageUpdatedAt: page.updatedAt,
         pageTitle: page.title,
@@ -123,19 +165,14 @@ export class PrismaWikiSectionRepo
   }
 
   @Transaction
-  async replaceSections(args: {
-    pageId: string;
-    pageUpdatedAt: Date;
-    pageTitle: string;
-    summary: string | null;
-    rows: WikiSectionRow[];
-    embeddings: ReadonlyMap<string, string>;
-    version: string | null;
-    onlyIfStale: boolean;
-  }): Promise<boolean> {
+  async replaceSections(args: WikiSectionReplacement): Promise<boolean> {
+    return this.writeSections(this.companyId, args);
+  }
+
+  private async writeSections(companyId: string, args: WikiSectionReplacement): Promise<boolean> {
     const current = await this.prisma.$queryRaw<Array<{ updatedAt: Date; synced: boolean }>>(Prisma.sql`
       SELECT p."updatedAt", NOT ${this.unsyncedPage()} AS "synced"
-      FROM "WikiPage" p WHERE p."id" = ${args.pageId} AND p."companyId" = ${this.companyId} FOR UPDATE
+      FROM "WikiPage" p WHERE p."id" = ${args.pageId} AND p."companyId" = ${companyId} FOR UPDATE
     `);
     if (current[0]?.updatedAt.getTime() !== args.pageUpdatedAt.getTime()) return false;
     if (args.onlyIfStale && current[0].synced) return false;
@@ -148,7 +185,7 @@ export class PrismaWikiSectionRepo
           SELECT DISTINCT ON ("contentHash") "contentHash", "embedding"::text AS "embedding",
             "embeddingVersion" AS "version"
           FROM "WikiPageSection"
-          WHERE "pageId" = ${args.pageId} AND "companyId" = ${this.companyId}
+          WHERE "pageId" = ${args.pageId} AND "companyId" = ${companyId}
             AND "embedding" IS NOT NULL AND "embeddingVersion" IS NOT NULL
           ORDER BY "contentHash", "createdAt" DESC
         `,
@@ -164,7 +201,7 @@ export class PrismaWikiSectionRepo
       if (args.version) known.set(contentHash, { embedding, version: args.version });
 
     await this.prisma.$executeRaw(Prisma.sql`
-      DELETE FROM "WikiPageSection" WHERE "pageId" = ${args.pageId} AND "companyId" = ${this.companyId}
+      DELETE FROM "WikiPageSection" WHERE "pageId" = ${args.pageId} AND "companyId" = ${companyId}
     `);
     if (args.rows.length === 0) return true;
     const embedded = args.rows.map((row) => known.get(row.contentHash) ?? null);
@@ -175,7 +212,7 @@ export class PrismaWikiSectionRepo
         "id", "companyId", "pageId", "ordinal", "offset", "pageTitle", "headingPath", "anchor", "summary", "text",
         "contentHash", "pageUpdatedAt" ${vectorColumns}
       )
-      SELECT gen_random_uuid()::text, ${this.companyId}, ${args.pageId}, r."ordinal", r."offset", ${args.pageTitle},
+      SELECT gen_random_uuid()::text, ${companyId}, ${args.pageId}, r."ordinal", r."offset", ${args.pageTitle},
         ARRAY(SELECT jsonb_array_elements_text(r."headingPath"::jsonb)), r."anchor", ${args.summary}, r."text",
         r."contentHash", ${args.pageUpdatedAt} ${vectorValues}
       FROM unnest(

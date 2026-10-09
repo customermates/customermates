@@ -326,6 +326,7 @@ import { ApproveWikiPageProposalInteractor } from "@/features/wiki/approve-wiki-
 import { RejectWikiPageProposalInteractor } from "@/features/wiki/reject-wiki-page-proposal.interactor";
 import { GetWikiKnowledgeGapsInteractor } from "@/features/wiki/get-wiki-knowledge-gaps.interactor";
 import { PruneWikiKnowledgeGapsInteractor } from "@/features/wiki/prune-wiki-knowledge-gaps.interactor";
+import { SyncStaleWikiSectionsInteractor } from "@/features/wiki/sync-stale-wiki-sections.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { FailWikiWebsiteCrawlInteractor } from "@/ee/wiki-crawl/fail-wiki-website-crawl.interactor";
@@ -996,6 +997,7 @@ export const getSearchExternalizedWikiPagesInteractor = () =>
 export const getGetWikiKnowledgeGapsInteractor = () => new GetWikiKnowledgeGapsInteractor(getWikiKnowledgeGapRepo());
 export const getPruneWikiKnowledgeGapsInteractor = () =>
   new PruneWikiKnowledgeGapsInteractor(getWikiKnowledgeGapRepo());
+export const getSyncStaleWikiSectionsInteractor = () => new SyncStaleWikiSectionsInteractor(getWikiSectionRepo());
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWikiPageRepo());
