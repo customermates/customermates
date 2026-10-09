@@ -6,8 +6,13 @@ import type { RecordSearchResult } from "@/features/records/record-search.schema
 vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
   resolveSearchReferencesAction: vi.fn(),
   globalSearchAction: vi.fn(),
+  commandCatalogAction: vi.fn(),
 }));
-import { resolveSearchReferencesAction, globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
+import {
+  commandCatalogAction,
+  globalSearchAction,
+  resolveSearchReferencesAction,
+} from "@/app/[locale]/(protected)/search/actions";
 import { GlobalSearchModalStore } from "../global-search-modal.store";
 
 const TYPE = "10000000-0000-4000-8000-000000000001";
@@ -53,6 +58,10 @@ function deferred<T>() {
 beforeEach(() => {
   vi.useFakeTimers();
   vi.mocked(resolveSearchReferencesAction).mockResolvedValue({ ok: true, data: { results: [] } });
+  vi.mocked(commandCatalogAction).mockResolvedValue({
+    ok: true,
+    data: { schemaRevision: 1, views: [{ typeId: TYPE, id: "view-1", name: "Open" }], fields: [] },
+  });
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -159,5 +168,59 @@ describe("generic search state and recent references", () => {
     expect(store.results?.results).toEqual([hit, other]);
     await store.loadMore();
     expect(globalSearchAction).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("command palette state", () => {
+  it("loads the names catalog when it opens", async () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    await vi.runAllTimersAsync();
+    expect(commandCatalogAction).toHaveBeenCalledOnce();
+    expect(store.catalog?.views).toEqual([{ typeId: TYPE, id: "view-1", name: "Open" }]);
+  });
+
+  it("remembers recent commands by stable id per person", () => {
+    const values = browser();
+    const { store } = setup();
+    store.pushRecentCommand("cmd:page.dashboard");
+    store.pushRecentCommand("list:deals");
+    store.pushRecentCommand("cmd:page.dashboard");
+    expect(store.recentCommandKeys).toEqual(["cmd:page.dashboard", "list:deals"]);
+    expect(JSON.parse(values.get("customermates:commandPalette:recent:v1:company-1:user-1") ?? "[]")).toEqual([
+      "cmd:page.dashboard",
+      "list:deals",
+    ]);
+  });
+
+  it("steps into and back out of a second level with an empty input", () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "chan");
+    store.pushLevel({ kind: "assign", label: "Assign to" });
+    expect(store.level).toEqual({ kind: "assign", label: "Assign to" });
+    expect(store.form.searchTerm).toBe("");
+    store.popLevel();
+    expect(store.level).toBeNull();
+    store.pushLevel({ kind: "assign", label: "Assign to" });
+    store.close();
+    store.open();
+    expect(store.level).toBeNull();
+  });
+
+  it("searches records without the scope prefix and skips other scopes", async () => {
+    browser();
+    vi.mocked(globalSearchAction).mockResolvedValue(page());
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "r acme");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(globalSearchAction).toHaveBeenLastCalledWith({ searchTerm: "acme", limit: 40, cursor: null });
+    vi.mocked(globalSearchAction).mockClear();
+    store.onChange("searchTerm", "s theme");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(globalSearchAction).not.toHaveBeenCalled();
   });
 });
