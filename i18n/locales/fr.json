@@ -3455,6 +3455,7 @@
     },
     "privateAccess": "Administrateurs uniquement",
     "probability": "Probabilité %",
+    "probabilityNeedsNumber": "La probabilité est un attribut numérique. Ajoutez-la plutôt avec Ajouter un attribut.",
     "progressUnavailable": "Impossible de charger la progression. Votre brouillon est conservé.",
     "rangeEnd": "Au",
     "rangeStart": "Du",
