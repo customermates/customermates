@@ -78,6 +78,7 @@ async function legacySnapshot(client: Client) {
 
 const OPTIONAL_VECTOR_COLUMNS = [
   'ALTER TABLE "DocsChunk" ADD COLUMN     "embedding" vector(768);',
+  'ALTER TABLE "SearchCatalogEntry" ADD COLUMN     "embedding" vector(768);',
   'ALTER TABLE "WikiPageChunk" ADD COLUMN     "embedding" vector(768);',
 ];
 
