@@ -3,12 +3,10 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
-import { Sparkles } from "lucide-react";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import { agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { AskAiAction } from "@/components/ui/ask-ai-action";
+import { AskAiAction, useAskAiAction } from "@/components/ui/ask-ai-action";
 import type { AppModalButtonActionProps } from "@/components/modal/app-modal-action";
 
 type Props = {
@@ -22,7 +20,7 @@ export function useRecordAiAction({
   active = true,
   registerContext = false,
 }: Props): AppModalButtonActionProps | null {
-  const t = useTranslations();
+  const askAiAction = useAskAiAction();
   const root = useRootStore();
   const agentChatStore = root.agentChatEnabled ? root.agentChatStore : null;
   const pathname = usePathname();
@@ -34,13 +32,9 @@ export function useRecordAiAction({
     return agentChatStore.contextRegistry.register(pathname, () => [{ context, pageRoute: pathname }]);
   }, [active, registerContext, agentChatStore, key, pathname, serialized]);
   if (!active || !agentChatStore || agentChatStore.enabled === false) return null;
-  return {
-    id: "ask-ai",
-    kind: "assistant",
-    icon: Sparkles,
-    label: t("DataView.views.askAi"),
+  return askAiAction({
     onClick: () => agentChatStore.openWithContextDraft({ context, draft: "", pageRoute: pathname }),
-  };
+  });
 }
 
 export const RecordAiAction = observer(function RecordAiAction({

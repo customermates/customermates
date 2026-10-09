@@ -7,7 +7,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowDownAZ, ArrowUpAZ, GripVertical, RotateCcw, SlidersHorizontal, Sparkles } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, GripVertical, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -25,6 +25,7 @@ import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-fie
 import { cn } from "@/core/utils/cn";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
+import { useAskAiAction } from "@/components/ui/ask-ai-action";
 
 import { PopoverSection as Section } from "./popover-section";
 
@@ -98,6 +99,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 }: Props<E>) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
+  const askAiAction = useAskAiAction();
   const ai = useViewAi(store, {
     registerPageContext: false,
     entry: "appearance",
@@ -203,17 +205,13 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
           actions={[
             ...(ai.available
               ? [
-                  {
-                    id: "ask-ai",
-                    kind: "assistant" as const,
+                  askAiAction({
                     anchorId: id ? `${id}-ask-ai` : undefined,
-                    icon: Sparkles,
-                    label: t("DataView.views.askAi"),
                     onClick: () => {
                       pendingAi.current = ai.openCurrent;
                       setIsOpen(false);
                     },
-                  },
+                  }),
                 ]
               : []),
             ...(store.resetToSharedDefaults && store.differsFromSharedDefaults
