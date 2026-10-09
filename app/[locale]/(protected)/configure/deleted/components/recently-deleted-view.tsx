@@ -38,7 +38,6 @@ export function RecentlyDeletedView({ initial }: { initial: RecentlyDeleted | nu
   const deletion = useConfigurationDeletion(changed);
   if (!initial)
     return <p className="text-sm text-muted-foreground">{t("RecordModel.configurationDeletion.noAccess")}</p>;
-  const itemLabel = (item: Item) => (item.target.kind === "channels" ? t("EntityChannels.heading") : item.label);
   const kindLabel = (item: Item) => t(`RecordModel.configurationDeletion.kinds.${item.target.kind}`);
   const listLabel = (item: Item) => item.typeLabel ?? "";
   const deletedBy = (item: Item) =>
@@ -55,7 +54,7 @@ export function RecentlyDeletedView({ initial }: { initial: RecentlyDeleted | nu
             return (
               <li key={`${item.target.kind}:${item.target.id}`}>
                 <button
-                  aria-label={itemLabel(item)}
+                  aria-label={item.label}
                   className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm outline-none hover:bg-accent/50 focus-visible:bg-accent/60"
                   data-recently-deleted-item={item.target.id}
                   type="button"
@@ -64,7 +63,7 @@ export function RecentlyDeletedView({ initial }: { initial: RecentlyDeleted | nu
                   <Icon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
 
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{itemLabel(item)}</span>
+                    <span className="block truncate font-medium">{item.label}</span>
 
                     <span className="block truncate text-muted-foreground">
                       {[kindLabel(item), listLabel(item) || null].filter(Boolean).join(" · ")}
@@ -101,7 +100,7 @@ export function RecentlyDeletedView({ initial }: { initial: RecentlyDeleted | nu
                   icon: RotateCcw,
                   label: t("RecordModel.configurationDeletion.restore"),
                   busy: deletion.isBusy,
-                  onClick: () => deletion.requestRestore(selected.target, initial.schemaRevision, itemLabel(selected)),
+                  onClick: () => deletion.requestRestore(selected.target, initial.schemaRevision, selected.label),
                 },
                 {
                   id: "delete-permanently",
@@ -110,18 +109,18 @@ export function RecentlyDeletedView({ initial }: { initial: RecentlyDeleted | nu
                   variant: "destructive",
                   busy: deletion.isBusy,
                   onClick: () =>
-                    deletion.requestDeletePermanently(selected.target, initial.schemaRevision, itemLabel(selected)),
+                    deletion.requestDeletePermanently(selected.target, initial.schemaRevision, selected.label),
                 },
               ]
             : []
         }
         open={Boolean(selected)}
-        title={selected ? itemLabel(selected) : ""}
+        title={selected ? selected.label : ""}
         onClose={() => setSelected(null)}
       >
         {selected && (
           <div className="flex flex-col gap-3 bg-card p-6" data-recently-deleted-detail="">
-            <h2 className="pe-24 text-base font-semibold">{itemLabel(selected)}</h2>
+            <h2 className="pe-24 text-base font-semibold">{selected.label}</h2>
 
             <InfoRow label={t("RecordModel.configurationDeletion.kind")}>{kindLabel(selected)}</InfoRow>
 

@@ -16,9 +16,6 @@ import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { EntityDetailAvatarSummaryValue } from "@/components/entity-detail/entity-detail-summary";
-import { channelDisplayLabel } from "@/ee/messaging/thread-display";
-import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
-import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordMemberSchema } from "@/features/records/record-model.schema";
 
@@ -111,32 +108,24 @@ const SummaryValue = observer(function SummaryValue({
   column: RecordColumn<RecordFieldView>;
 }) {
   const t = useTranslations();
-  const copy = useCopyToClipboard();
   const { previewFieldValues } = useEntityDetailPersonalization();
   if (column.kind === "field") {
     return (
-      <RecordValue field={column.field} members={store.record?.memberUsers} result={store.previewValue(column.field)} />
-    );
-  }
-  if (column.kind === "relationship" || column.kind === "relationshipPath")
-    return <RelatedSummary column={column} store={store} />;
-  if (column.kind === "identity") {
-    return store.form.identities.length ? (
-      <ChannelIconStack
-        identifiers={store.form.identities.map((entry, index) => ({
+      <RecordValue
+        field={column.field}
+        identities={store.form.identities.map((entry, index) => ({
           ...entry,
           id: String(index),
           profileUrl: entry.profileUrl ?? null,
           displayName: entry.displayName ?? null,
         }))}
-        onItemClick={(entry) =>
-          runUserAction(() => copy(channelDisplayLabel(entry.provider, entry.value, entry.profileUrl)))
-        }
+        members={store.record?.memberUsers}
+        result={store.previewValue(column.field)}
       />
-    ) : (
-      "—"
     );
   }
+  if (column.kind === "relationship" || column.kind === "relationshipPath")
+    return <RelatedSummary column={column} store={store} />;
   if (column.id === "system:assignedTo") {
     const known = [
       ...(previewFieldValues[column.id] ?? []).flatMap((item) => {
@@ -194,12 +183,7 @@ export const RecordDetailSummary = observer(function RecordDetailSummary({ store
       ? [
           {
             id,
-            label:
-              column.kind === "system"
-                ? t(`RecordModel.${column.label}`)
-                : column.kind === "identity"
-                  ? t("EntityChannels.heading")
-                  : column.label,
+            label: column.kind === "system" ? t(`RecordModel.${column.label}`) : column.label,
             value: <SummaryValue column={column} store={store} />,
           },
         ]

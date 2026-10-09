@@ -341,12 +341,7 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
   const columns = store.original
     ? recordColumns(store.original.id, store.model).map((column) => ({
         ...column,
-        label:
-          column.kind === "identity"
-            ? t("EntityChannels.heading")
-            : column.kind === "system"
-              ? t(`RecordModel.${column.label}`)
-              : column.label,
+        label: column.kind === "system" ? t(`RecordModel.${column.label}`) : column.label,
       }))
     : [];
   const title = !store.original

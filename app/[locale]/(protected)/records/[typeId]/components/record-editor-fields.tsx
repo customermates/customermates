@@ -12,6 +12,7 @@ import { EntityDetailStaticField } from "@/components/entity-detail/entity-detai
 import { RecordValue } from "./record-value";
 import { RecordDetailField } from "./record-detail-field";
 import { RecordInputField } from "./record-input-field";
+import { RecordIdentityEditor } from "./record-identity-editor";
 
 export const RecordEditorField = observer(function RecordEditorField({
   store,
@@ -44,6 +45,7 @@ export const RecordEditorField = observer(function RecordEditorField({
         {t(captureStaged ? "RecordModel.captureOnSave" : "RecordModel.captureValue")}
       </Button>
     ) : null;
+  if (field.valueType === "channels") return <RecordIdentityEditor field={field} store={store} />;
   if (restricted || !isRecordFieldWritable(field)) {
     return store.record ? (
       <EntityDetailStaticField

@@ -53,7 +53,7 @@ import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { recordChannelsBinding } from "@/features/records/record-channels";
+import { recordChannelsField } from "@/features/records/record-channels";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -98,21 +98,13 @@ type Props = {
   onSelectList: (typeId: string) => void;
   onEditField: (typeId: string, field: RecordField) => void;
   onAdd: (typeId: string, kind: ConfigureListAddKind) => void;
-  onEditChannels: (typeId: string) => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onConnect: (sourceTypeId: string, targetTypeId: string) => void;
 };
 
 type GraphActions = Pick<
   Props,
-  | "canManage"
-  | "canAddSublist"
-  | "disabled"
-  | "onSelectList"
-  | "onEditField"
-  | "onAdd"
-  | "onEditChannels"
-  | "onEditRelationship"
+  "canManage" | "canAddSublist" | "disabled" | "onSelectList" | "onEditField" | "onAdd" | "onEditRelationship"
 > & {
   labelOf: (typeId: string) => string;
   singularOf: (typeId: string) => string;
@@ -211,7 +203,6 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
     onSelectList,
     onEditField,
     onAdd,
-    onEditChannels,
   } = useGraphActions();
   const Icon = recordTypeIcon(list.type.icon);
   const open = isExpanded(list.type.id);
@@ -326,24 +317,6 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
             </li>
           );
         })}
-
-        {list.channels && (
-          <li>
-            <button
-              className="nodrag flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none"
-              data-configure-graph-channels={list.type.id}
-              disabled={disabled || !canManage}
-              type="button"
-              onClick={() => onEditChannels(list.type.id)}
-            >
-              <span aria-hidden className="size-3.5 shrink-0" />
-
-              <span className="min-w-0 flex-1 truncate font-medium">{t("EntityChannels.heading")}</span>
-
-              <span className="shrink-0 text-muted-foreground">{t("RecordModel.channelsField.short")}</span>
-            </button>
-          </li>
-        )}
 
         {hidden > 0 && (
           <MoreToggle label={t("RecordModel.graph.moreFields", { count: hidden })} nodeId={list.type.id} />
@@ -666,7 +639,6 @@ function ConfigureGraphCanvas({
   onSelectList,
   onEditField,
   onAdd,
-  onEditChannels,
   onEditRelationship,
   onConnect,
 }: Props) {
@@ -917,7 +889,7 @@ function ConfigureGraphCanvas({
       labelOf: (typeId) => model.types.find((type) => type.id === typeId)?.pluralLabel ?? "",
       singularOf: (typeId) => model.types.find((type) => type.id === typeId)?.label ?? "",
       listOf: (items) => new Intl.ListFormat(locale, { style: "short", type: "unit" }).format(items),
-      hasChannels: (typeId) => Boolean(recordChannelsBinding(model, typeId)),
+      hasChannels: (typeId) => Boolean(recordChannelsField(model, typeId)),
       isExpanded: (nodeId) => layout?.expanded?.includes(nodeId) ?? false,
       toggleExpanded: (nodeId) =>
         runUserAction(async () => {
@@ -928,7 +900,6 @@ function ConfigureGraphCanvas({
       onSelectList,
       onEditField,
       onAdd,
-      onEditChannels,
       onEditRelationship,
     }),
     [
@@ -941,7 +912,6 @@ function ConfigureGraphCanvas({
       onSelectList,
       onEditField,
       onAdd,
-      onEditChannels,
       onEditRelationship,
       persistLayout,
     ],

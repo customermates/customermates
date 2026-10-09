@@ -2020,14 +2020,12 @@
       "sourceLookup": "Encontrado por búsqueda",
       "trigger": "Añadir canal"
     },
-    "ariaCopy": "Copiar",
     "ariaStartThread": "Redactar un mensaje de {provider}",
     "ariaUnlink": "Desvincular el canal de {provider}",
     "compose": {
       "noAccount": "No hay ninguna cuenta de {provider} utilizable conectada. Conecta una en Mi perfil."
     },
-    "emptyHint": "Aún no hay canales. Añade un correo, LinkedIn, WhatsApp, …",
-    "heading": "Canales",
+    "emptyHint": "Aún no hay canales. Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro.",
     "tooltipOpenInbox": "Ir a la bandeja de entrada",
     "tooltipStartNewThread": "Mensaje nuevo",
     "tooltipUnlinkChannel": "Desvincular el canal",
@@ -3031,13 +3029,13 @@
       "oneToOne": "Uno a uno"
     },
     "changeBlocked": "Este cambio todavía no se puede aplicar",
-    "channelsField": {
-      "detail": "Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con los registros",
-      "short": "Correo, teléfono, redes"
-    },
-    "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
+    "channelsHelp": "Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro. Los números de teléfono solo se asocian en los chats de WhatsApp. Un identificador puede vincularse con varios registros.",
     "clickAction": "Al hacer clic",
     "clickActions": {
+      "channels": {
+        "copy": "Copiar",
+        "open": "Abrir correo, llamada o perfil"
+      },
       "email": {
         "copy": "Copiar dirección",
         "open": "Abrir en la app de correo"
@@ -3098,7 +3096,6 @@
       },
       "kind": "Tipo",
       "kinds": {
-        "channels": "Campo de canales",
         "field": "Campo",
         "relationship": "Relación",
         "type": "Lista"
@@ -3489,6 +3486,7 @@
     "triggerValue": "A este valor",
     "types": {
       "boolean": "Sí o no",
+      "channels": "Canales",
       "currency": "Importe",
       "date": "Fecha",
       "dateRange": "Intervalo de fechas",

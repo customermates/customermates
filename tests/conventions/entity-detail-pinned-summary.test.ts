@@ -19,7 +19,8 @@ describe("generic record detail pinned summaries", () => {
   it("keeps assignees and identity channels actionable", () => {
     expect(summary).toContain("<EntityDetailAvatarSummaryValue");
     expect(summary).toContain("userModalStore.loadById(item.id)");
-    expect(summary).toContain("<ChannelIconStack");
-    expect(summary).toContain("channelDisplayLabel(entry.provider, entry.value, entry.profileUrl)");
+    expect(summary).toContain("identities={store.form.identities.map(");
+    const value = read("app/[locale]/(protected)/records/[typeId]/components/record-value.tsx");
+    expect(value).toContain('<ChannelIconStack action={field.format?.onClick ?? "open"}');
   });
 });

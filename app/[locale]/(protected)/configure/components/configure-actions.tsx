@@ -14,7 +14,7 @@ import { TopBarMenuButton, TopBarPrimaryButton } from "@/components/shared/top-b
 import { IntlLink } from "@/i18n/navigation";
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
-import { recordChannelsBinding } from "@/features/records/record-channels";
+import { recordChannelsField } from "@/features/records/record-channels";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
 import { ConfigureListAddItems, type ConfigureListAddKind } from "./configure-add-menu";
 
@@ -118,7 +118,7 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
           <DropdownMenuSeparator />
 
           <ConfigureListAddItems
-            channels={!recordChannelsBinding(model, selected.id)}
+            channels={!recordChannelsField(model, selected.id)}
             sublist={canAddSublist && !selected.embedded}
             onAdd={onAdd}
           />

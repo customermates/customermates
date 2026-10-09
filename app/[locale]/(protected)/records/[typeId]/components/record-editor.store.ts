@@ -18,6 +18,7 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/configure/components/model-change-rebase";
 import { isRecordFieldWritable, recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
+import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { mutateRecordAction, getRecordEditorAction } from "../../actions";
 
@@ -30,7 +31,9 @@ export type RecordDraft = {
   captureFieldIds: string[];
 };
 function editableFields(presentation: RecordEditorContext) {
-  return presentation.model.fields.filter((field) => field.typeId === presentation.typeId && !field.archived);
+  return presentation.model.fields.filter(
+    (field) => field.typeId === presentation.typeId && !field.archived && field.valueType !== "channels",
+  );
 }
 const STALE_WRITE_CODES: ReadonlySet<string> = new Set([
   CustomErrorCode.recordVersionChanged,
@@ -490,10 +493,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
         )
         .map((field) => ({ fieldId: field.id, value: this.scalar(field) }));
       const identities =
-        this.presentation.model.capabilities.some(
-          (binding) =>
-            binding.kind === "channels" && binding.enabled !== false && binding.typeId === this.presentation.typeId,
-        ) &&
+        recordChannelsEnabled(this.presentation.model, this.presentation.typeId) &&
         (!this.record || JSON.stringify(this.form.identities) !== JSON.stringify(this.savedState.identities))
           ? { identities: toJS(this.form.identities) }
           : {};

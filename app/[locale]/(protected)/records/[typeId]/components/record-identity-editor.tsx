@@ -21,6 +21,7 @@ import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { RecordChannelStore } from "./record-channel.store";
 import type { RecordEditorStore } from "./record-editor.store";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
 import { RecordChannels } from "./record-channels";
 import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
@@ -211,13 +212,20 @@ const RecordChannelPopover = observer(({ editor }: { editor: RecordEditorStore }
   );
 });
 
-export const RecordIdentityEditor = observer(function RecordIdentityEditor({ store }: { store: RecordEditorStore }) {
-  const t = useTranslations();
+export const RecordIdentityEditor = observer(function RecordIdentityEditor({
+  store,
+  field,
+}: {
+  store: RecordEditorStore;
+  field: RecordFieldView;
+}) {
   return (
-    <EntityDetailField fieldId="system:channels">
+    <EntityDetailField fieldId={field.id}>
       <RecordChannels
-        controlStartAddon={<EntityDetailFieldDragHandle label={t("EntityChannels.heading")} />}
-        headingEndAddon={<EntityDetailFieldActions fieldId="system:channels" label={t("EntityChannels.heading")} />}
+        action={field.format?.onClick ?? "open"}
+        controlStartAddon={<EntityDetailFieldDragHandle label={field.label} />}
+        headingEndAddon={<EntityDetailFieldActions fieldId={field.id} label={field.label} />}
+        label={field.label}
         recordChannels={{
           contextKey: store.channelComposeKey,
           canCompose: () => !store.isLoading && !store.pendingOperationId && !store.refreshRequired,

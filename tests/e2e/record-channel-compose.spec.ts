@@ -39,18 +39,22 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   };
   let model = await post("/api/v1/model/discover", {});
   const typeId = presetId(companyId, "organization");
+  const channelsFieldId = randomUUID();
   await post("/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
       {
-        operation: "putCapability",
-        capability: {
-          id: randomUUID(),
-          kind: "channels",
+        operation: "putField",
+        field: {
+          id: channelsFieldId,
           typeId,
-          fields: [],
-          enabled: true,
+          label: "Channels",
+          valueType: "channels",
+          behavior: { kind: "input" },
+          required: false,
+          options: [],
+          position: 99,
         },
       },
     ],
@@ -165,7 +169,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
   };
   await openRecord(0);
-  const channels = page.locator('[data-entity-field="system:channels"]');
+  const channels = page.locator(`[data-entity-field="${channelsFieldId}"]`);
   const channelRow = () => channels.locator(`[data-record-channel-key="mail:${activeRecipient}"]`);
   const openInbox = async () => {
     // The following persistence reload must not interrupt the source editor's queued relationship reads.
@@ -488,7 +492,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     await expect(guard).toBeVisible();
     await guard.getByRole("button", { name: "Cancel", exact: true }).click();
     await expect(body).toHaveText("Protect this drawer draft");
-    await expect(drawer.locator('[data-entity-field="system:channels"]')).toBeVisible();
+    await expect(drawer.locator(`[data-entity-field="${channelsFieldId}"]`)).toBeVisible();
   }
   await drawer.getByRole("button", { name: "Close", exact: true }).click();
   await expect(guard).toBeVisible();

@@ -15,6 +15,7 @@ import {
   useEntityDetailPersonalization,
 } from "@/components/entity-detail/entity-detail-personalization";
 import { Button } from "@/components/ui/button";
+import { recordChannelsField } from "@/features/records/record-channels";
 import { cn } from "@/core/utils/cn";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
@@ -35,6 +36,7 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
   const [isPersonalizing, setIsPersonalizing] = useState(false);
   const [previewFieldValues, setPreviewFieldValues] = useState<Record<string, EntityDetailPreviewItem[]>>({});
   const hasRelatedDraft = store.hasRelatedDraft;
+  const channelsFieldId = recordChannelsField(store.presentation.model, store.presentation.typeId)?.id;
   useEffect(() => {
     if (initial) layout?.hydrate(initial);
   }, [initial, layout]);
@@ -58,11 +60,11 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
             isPersonalizing,
             starredFieldIds: layout.layout.pinnedFields,
             hiddenFieldIds: hasRelatedDraft
-              ? layout.layout.hiddenFields.filter((id) => id !== "system:channels")
+              ? layout.layout.hiddenFields.filter((id) => id !== channelsFieldId)
               : layout.layout.hiddenFields,
             availableFieldIds: [
               ...layout.state.fields.map((field) => field.id),
-              ...(hasRelatedDraft ? ["system:channels"] : []),
+              ...(hasRelatedDraft && channelsFieldId ? [channelsFieldId] : []),
             ],
             fieldOrder: layout.layout.fieldOrder,
             columnOrder: layout.layout.fieldOrder,
@@ -82,6 +84,7 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
       store,
       store.record,
       hasRelatedDraft,
+      channelsFieldId,
       isPersonalizing,
       previewFieldValues,
       setPreviewFieldValue,

@@ -399,37 +399,63 @@ describe("configuration form validation feedback", () => {
 });
 
 describe("Channels field", () => {
-  it("edits the channels binding without replacing its identity or naming roles", () => {
+  it("edits the Channels field like any field and keeps its id, type and click setting", () => {
     const model = createCrmPreset(company);
-    const binding = recordInvariant(
-      model.capabilities.find((candidate) => candidate.kind === "channels" && candidate.typeId === id("contact")),
-    );
+    const field = recordInvariant(model.fields.find((candidate) => candidate.id === id("capability.identity")));
     const store = new FieldModalStore(root, model, vi.fn());
-    store.editChannels(model, id("contact"));
+    store.edit(model, id("contact"), field);
     expect(store.isChannels).toBe(true);
+    expect(store.lockedType).toBe(true);
+    store.onChange("label", "Identifiers");
     store.onChange("providerAvatar", false);
+    store.onChange("onClick", "copy");
     const edited = validate(store.operations()).operations[0];
-    expect(edited.operation === "putCapability" && edited.capability).toEqual({
-      ...binding,
-      enabled: true,
-      providerAvatar: false,
+    expect(edited.operation === "putField" && edited.field).toMatchObject({
+      id: field.id,
+      label: "Identifiers",
+      valueType: "channels",
+      behavior: { kind: "input" },
+      required: false,
+      multiple: false,
+      position: field.position,
+      format: { onClick: "copy", providerAvatar: false },
+      options: [],
     });
   });
 
-  it("adds one Channels field from the Add menu with a stable binding id", () => {
+  it("adds one Channels field from the Add menu at the end of the field order", () => {
     const model = createCrmPreset(company);
     const store = new FieldModalStore(root, model, vi.fn());
-    store.edit(model, id("organization"), null, { valueType: "channels" });
+    store.edit(model, id("organization"), null, { valueType: "channels", label: "Channels" });
     expect(store.isChannels).toBe(true);
+    expect(store.lockedType).toBe(false);
     const first = validate(store.operations()).operations;
     expect(validate(store.operations()).operations).toEqual(first);
     expect(first).toHaveLength(1);
-    expect(first[0].operation === "putCapability" && first[0].capability).toMatchObject({
-      kind: "channels",
+    const positions = model.fields
+      .filter((field) => field.typeId === id("organization"))
+      .map((field) => field.position);
+    expect(first[0].operation === "putField" && first[0].field).toMatchObject({
       typeId: id("organization"),
-      enabled: true,
-      providerAvatar: false,
-      fields: [],
+      label: "Channels",
+      valueType: "channels",
+      position: Math.max(...positions) + 1,
+      format: { onClick: "open", providerAvatar: false },
     });
+  });
+
+  it("offers Channels as a type only while the list has none and never for an existing field", () => {
+    const model = createCrmPreset(company);
+    const store = new FieldModalStore(root, model, vi.fn());
+    store.edit(model, id("contact"), null);
+    expect(store.canChooseChannels).toBe(false);
+    store.edit(model, id("organization"), null);
+    expect(store.canChooseChannels).toBe(true);
+    store.edit(
+      model,
+      id("organization"),
+      recordInvariant(model.fields.find((field) => field.id === id("organization.name"))),
+    );
+    expect(store.canChooseChannels).toBe(false);
   });
 });

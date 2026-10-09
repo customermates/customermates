@@ -38,7 +38,6 @@ import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 import {
-  configureChannelsField,
   configureCounts,
   configureFieldSource,
   configureParentId,
@@ -58,7 +57,6 @@ type Props = {
   canManage: boolean;
   interactive: boolean;
   onEditField: (field: RecordField) => void;
-  onEditChannels: () => void;
   onAddRelationship: () => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onEditRelationshipPath: (path: RecordRelationshipPath) => void;
@@ -206,7 +204,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
   canManage,
   interactive,
   onEditField,
-  onEditChannels,
   onAddRelationship,
   onEditRelationship,
   onEditRelationshipPath,
@@ -231,7 +228,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
     ? general.form.fieldOrder
     : model.fields.filter((field) => field.typeId === selected.id).map((field) => field.id);
   const fields = order.flatMap((id) => model.fields.filter((field) => field.id === id && field.typeId === selected.id));
-  const channels = configureChannelsField(model, selected.id);
   const reorderEnabled = editingGeneral && interactive && !general.isDisabled;
   usePreviewBlockers(editingGeneral && general.hasUnsavedChanges ? general.preview : null, general.model);
   const relations = model.relationships.filter(
@@ -300,7 +296,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
       label: t("RecordModel.fields"),
       content: (
         <ConfigureGroup title={t("RecordModel.fields")}>
-          {fields.length || channels ? (
+          {fields.length ? (
             <DndContext collisionDetection={closestCenter} id={dndId} sensors={sensors} onDragEnd={handleDragEnd}>
               <SortableContext items={fields.map((field) => field.id)} strategy={verticalListSortingStrategy}>
                 <ul className="divide-y divide-border">
@@ -315,18 +311,6 @@ export const ConfigureListPane = observer(function ConfigureListPane({
                       />
                     </SortableField>
                   ))}
-
-                  {channels && (
-                    <li data-configure-channels-row="">
-                      <ConfigureRow
-                        detail={`${t("EntityChannels.heading")} · ${t("RecordModel.channelsField.detail")}`}
-                        interactive={interactive}
-                        label={t("EntityChannels.heading")}
-                        leading={canManage ? <span aria-hidden="true" className="w-3 shrink-0" /> : undefined}
-                        onOpen={canManage ? onEditChannels : undefined}
-                      />
-                    </li>
-                  )}
                 </ul>
               </SortableContext>
             </DndContext>

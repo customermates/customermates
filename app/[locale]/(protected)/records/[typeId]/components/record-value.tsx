@@ -5,11 +5,13 @@ import { observer } from "mobx-react-lite";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import type { CalculatedValue, RecordFieldView, RecordMember } from "@/features/records/record-model.schema";
+import type { RecordIdentity } from "@/features/records/record-identity.schema";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { MemberChip } from "@/components/chip/member-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { ContactValue } from "@/components/records/contact-value";
+import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
 import { toChipColor } from "@/constants/chip-colors";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 
@@ -44,16 +46,25 @@ export const RecordValue = observer(function RecordValue({
   result,
   field,
   members = [],
+  identities,
   wrap = false,
 }: {
   result?: CalculatedValue;
   field: RecordFieldView;
   members?: RecordMember[];
+  identities?: Array<Pick<RecordIdentity, "id" | "provider" | "value" | "displayName" | "profileUrl">>;
   wrap?: boolean;
 }) {
   const intl = useHydratedIntlStore();
   const valueFormat = useRecordValueFormat();
   const t = useTranslations();
+  if (field.valueType === "channels") {
+    return identities?.length ? (
+      <ChannelIconStack action={field.format?.onClick ?? "open"} identifiers={identities} />
+    ) : (
+      <EmptyValue />
+    );
+  }
   if (!result || result.state === "missing") return <EmptyValue />;
   if (result.state === "restricted")
     return <span className="text-muted-foreground">{t("RecordModel.restricted")}</span>;

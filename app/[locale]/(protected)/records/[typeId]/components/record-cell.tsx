@@ -13,10 +13,6 @@ import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordValue } from "./record-value";
-import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
-import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
-import { runUserAction } from "@/core/errors/report-application-error";
-import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { Avatar } from "@/components/ui/avatar";
 
 const LINKED_CHIPS_MAX_WIDTH = 240;
@@ -42,22 +38,7 @@ export function RecordCell({
 }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
-  const copy = useCopyToClipboard();
   const empty = <span className="text-muted-foreground">—</span>;
-  if (column.kind === "identity") {
-    return record.identities?.length ? (
-      <ChannelIconStack
-        identifiers={record.identities}
-        onItemClick={(item) =>
-          runUserAction(() =>
-            copy(channelDisplayLabel(item.provider, item.value, item.profileUrl) || item.displayName || item.value),
-          )
-        }
-      />
-    ) : (
-      empty
-    );
-  }
   if (column.kind === "field") {
     const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
     if (avatarFieldId && result?.state === "value" && result.value.kind === "text") {
@@ -70,11 +51,18 @@ export function RecordCell({
             src={image?.state === "value" && image.value.kind === "text" ? image.value.value : null}
           />
 
-          <RecordValue field={column.field} members={record.memberUsers} result={result} />
+          <RecordValue
+            field={column.field}
+            identities={record.identities}
+            members={record.memberUsers}
+            result={result}
+          />
         </span>
       );
     }
-    return <RecordValue field={column.field} members={record.memberUsers} result={result} />;
+    return (
+      <RecordValue field={column.field} identities={record.identities} members={record.memberUsers} result={result} />
+    );
   }
   if (column.kind === "system") {
     if (column.id === "system:assignedTo") {

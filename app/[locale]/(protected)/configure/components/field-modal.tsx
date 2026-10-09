@@ -38,15 +38,12 @@ import { CalculationPath } from "./calculation-path";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES, MULTIPLE_VALUE_TYPES } from "@/features/records/record-model-validation";
-import { recordChannelsBinding } from "@/features/records/record-channels";
-import { channelsAvatarAvailable, channelsFieldOperations } from "./channels-field";
-
-type ChannelsBinding = RecordModelView["capabilities"][number];
+import { recordChannelsField } from "@/features/records/record-channels";
 
 const initial = () => ({
   id: undefined as string | undefined,
   label: "",
-  valueType: "text" as RecordField["valueType"] | "channels",
+  valueType: "text" as RecordField["valueType"],
   behavior: "input" as RecordField["behavior"]["kind"],
   required: false,
   multiple: false,
@@ -76,7 +73,6 @@ const initial = () => ({
 export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>> {
   typeId = "";
   original: RecordField | null = null;
-  channels: ChannelsBinding | null = null;
   private definitionId: string = crypto.randomUUID();
   private publication: { signature: string; operations: ConfigurationChange["operations"] } | null = null;
   constructor(
@@ -90,9 +86,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     makeObservable(this, {
       typeId: observable,
       original: observable.ref,
-      channels: observable.ref,
       edit: action,
-      editChannels: action,
       addOption: action,
       removeOption: action,
       chooseValueType: action,
@@ -105,12 +99,11 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     model: RecordModelView,
     typeId: string,
     field: RecordField | null,
-    preset: Partial<Pick<ReturnType<typeof initial>, "behavior" | "valueType">> = {},
+    preset: Partial<Pick<ReturnType<typeof initial>, "behavior" | "valueType" | "label">> = {},
   ) => {
     this.resetModel(model);
     this.typeId = typeId;
     this.original = field;
-    this.channels = null;
     this.definitionId = field?.id ?? crypto.randomUUID();
     this.publication = null;
     this.onInitOrRefresh(
@@ -127,6 +120,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             decimalPlaces: field.format?.decimalPlaces?.toString() ?? "",
             currency: field.format?.currency?.toLowerCase() ?? initial().currency,
             onClick: field.format?.onClick ?? "open",
+            providerAvatar: field.format?.providerAvatar ?? false,
             ...(field.behavior.kind === "input"
               ? {
                   hasDefaultValue: field.behavior.defaultValue !== undefined && field.behavior.defaultValue !== null,
@@ -159,38 +153,22 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     );
     this.open();
   };
-  editChannels = (model: RecordModelView, typeId: string) => {
-    const binding = recordChannelsBinding(model, typeId);
-    if (!binding) return;
-    this.resetModel(model);
-    this.typeId = typeId;
-    this.original = null;
-    this.channels = binding;
-    this.definitionId = binding.id;
-    this.publication = null;
-    this.onInitOrRefresh(this.channelsForm(binding));
-    this.open();
-  };
   get isChannels() {
     return this.form.valueType === "channels";
   }
-  private channelsForm(binding: ChannelsBinding) {
-    return {
-      ...initial(),
-      valueType: "channels" as const,
-      providerAvatar: binding.providerAvatar ?? false,
-    };
+  get lockedType() {
+    return Boolean(this.original) && this.isChannels;
+  }
+  get canChooseChannels() {
+    const type = this.model.types.find((candidate) => candidate.id === this.typeId);
+    return !this.original && Boolean(type && !type.embedded) && !recordChannelsField(this.model, this.typeId);
+  }
+  get providerAvatarAvailable() {
+    return this.model.capabilities.some((binding) => binding.kind === "avatar" && binding.typeId === this.typeId);
   }
   protected projectLatestModel(model: RecordModelView) {
     if (!model.types.some((type) => type.id === this.typeId)) return null;
     this.publication = null;
-    if (this.channels) {
-      const latest = recordChannelsBinding(model, this.typeId);
-      if (!latest) return null;
-      this.channels = latest;
-      this.definitionId = latest.id;
-      return this.channelsForm(latest);
-    }
     if (!this.original) return toJS(this.savedState);
     const latest = model.fields.find((field) => field.id === this.original?.id);
     if (!latest || !isResolvedField(latest)) return null;
@@ -234,11 +212,10 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       id: this.definitionId,
       typeId: this.typeId,
       label: this.form.label,
-      valueType: this.form.valueType === "channels" ? "text" : this.form.valueType,
+      valueType: this.form.valueType,
       behavior: { kind: "input" },
       required: false,
-      multiple:
-        this.form.valueType !== "channels" && MULTIPLE_VALUE_TYPES.includes(this.form.valueType) && this.form.multiple,
+      multiple: MULTIPLE_VALUE_TYPES.includes(this.form.valueType) && this.form.multiple,
       archived: false,
       publishedSummary: false,
       position: this.original?.position ?? 0,
@@ -262,7 +239,11 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   }
   protected override afterChange(id?: string): void {
     if (id === "valueType" && !["number", "currency"].includes(this.form.valueType)) this.form.decimalPlaces = "";
-    if (id === "valueType" && this.form.valueType === "channels") this.form.behavior = "input";
+    if (id === "valueType" && this.form.valueType === "channels") {
+      this.form.behavior = "input";
+      this.form.required = false;
+      this.form.multiple = false;
+    }
     if (id === "valueType" || id === "multiple") {
       this.form.hasDefaultValue = false;
       this.form.defaultValue = undefined;
@@ -312,7 +293,6 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     if (this.canPublishSummary && this.publication?.signature === JSON.stringify(toJS(this.form)))
       return this.publication.operations;
     const form = this.form;
-    if (form.valueType === "channels") return channelsFieldOperations(this.model, this.typeId, form, this.definitionId);
     const trigger = this.triggerField;
     const triggerValue = trigger ? recordInputValue(form.triggerValue, trigger) : null;
     const behavior: RecordField["behavior"] =
@@ -360,7 +340,8 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
           ["number", "currency"].includes(form.valueType) && form.decimalPlaces.trim() !== ""
             ? Number(form.decimalPlaces)
             : null,
-        onClick: CONTACT_VALUE_TYPES.includes(form.valueType) ? form.onClick : null,
+        onClick: CONTACT_VALUE_TYPES.includes(form.valueType) || form.valueType === "channels" ? form.onClick : null,
+        ...(form.valueType === "channels" ? { providerAvatar: form.providerAvatar } : {}),
       },
       options:
         form.valueType === "select"
@@ -399,13 +380,7 @@ export const FieldModal = observer(function FieldModal({
   const t = useTranslations();
   const deletion = useConfigurationDeletion(onDeleted);
   const original = store.original;
-  const channels = store.channels;
-  const editing = Boolean(original || channels);
-  const deleteTarget = original
-    ? { target: { kind: "field" as const, id: original.id }, name: original.label }
-    : channels
-      ? { target: { kind: "channels" as const, id: channels.id }, name: t("EntityChannels.heading") }
-      : null;
+  const deleteTarget = original ? { target: { kind: "field" as const, id: original.id }, name: original.label } : null;
   const [showProbability, setShowProbability] = useState(false);
   const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
   const optionGrid = cn(
@@ -452,7 +427,7 @@ export const FieldModal = observer(function FieldModal({
       ]}
       creating={!store.original}
       store={store}
-      title={editing ? t("RecordModel.editField") : t("RecordModel.addField")}
+      title={original ? t("RecordModel.editField") : t("RecordModel.addField")}
     >
       <AppForm store={store}>
         <div className="space-y-4">
@@ -467,24 +442,24 @@ export const FieldModal = observer(function FieldModal({
           )}
 
           <>
-            {!store.isChannels && <FormInput required id="label" label={t("RecordModel.name")} />}
+            <FormInput required id="label" label={t("RecordModel.name")} />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <FormSelect
-                disabled={store.isChannels}
+                disabled={store.lockedType}
                 id="valueType"
-                items={
-                  store.isChannels
-                    ? [{ value: "channels", label: t("EntityChannels.heading") }]
-                    : RecordValueTypeSchema.options.flatMap((value) =>
-                        value === "select"
-                          ? [
-                              { value, label: t("RecordModel.types.select") },
-                              { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
-                            ]
-                          : [{ value, label: t(`RecordModel.types.${value}`) }],
-                      )
-                }
+                items={RecordValueTypeSchema.options
+                  .filter((value) =>
+                    value === "channels" ? store.isChannels || store.canChooseChannels : !store.lockedType,
+                  )
+                  .flatMap((value) =>
+                    value === "select"
+                      ? [
+                          { value, label: t("RecordModel.types.select") },
+                          { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
+                        ]
+                      : [{ value, label: t(`RecordModel.types.${value}`) }],
+                  )}
                 label={t("RecordModel.valueType")}
                 value={store.form.valueType === "select" && store.form.multiple ? "multiSelect" : store.form.valueType}
                 onValueChange={store.chooseValueType}
@@ -541,7 +516,7 @@ export const FieldModal = observer(function FieldModal({
               <>
                 <p className="text-sm text-muted-foreground">{t("RecordModel.channelsHelp")}</p>
 
-                {channelsAvatarAvailable(store.model, store.typeId) && (
+                {store.providerAvatarAvailable && (
                   <FormSwitch id="providerAvatar" label={t("RecordModel.useChannelAvatar")} />
                 )}
               </>
@@ -551,7 +526,7 @@ export const FieldModal = observer(function FieldModal({
               <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
             )}
 
-            {store.form.valueType !== "channels" && CONTACT_VALUE_TYPES.includes(store.form.valueType) && (
+            {(CONTACT_VALUE_TYPES.includes(store.form.valueType) || store.isChannels) && (
               <FormSelect
                 id="onClick"
                 items={(["open", "copy"] as const).map((value) => ({

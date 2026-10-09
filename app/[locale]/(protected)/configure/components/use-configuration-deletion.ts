@@ -35,13 +35,6 @@ const DUPLICATE_ISSUES = {
 
 function referenceChip(reference: DeletionReference, model: RecordModelView | null): ConfirmationChip {
   const typeIcon = (typeId: string | undefined) => model?.types.find((type) => type.id === typeId)?.icon ?? "list";
-  if (reference.kind === "channels") {
-    return {
-      label: reference.label,
-      icon: "field",
-      href: `/configure?typeId=${reference.typeId}&tab=fields`,
-    };
-  }
   if (reference.kind === "type") {
     return {
       label: reference.label,
