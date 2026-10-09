@@ -544,7 +544,7 @@ A pending result returns an operation id. Read its progress until it completes; 
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
 
-Preview or apply a typed configuration bundle containing types, fields, relationships, calculations, access presets and shared defaults. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Recently deleted, restore to bring it back, and deletePermanently to remove it for good.
+Preview or apply a typed configuration bundle containing types, fields, relationships, calculations, access presets and shared defaults. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Trash; restore it or delete it permanently with manage_trash.
 
 **Can delete data.** Required: `action`, `change`.
 
