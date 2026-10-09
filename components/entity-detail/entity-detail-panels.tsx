@@ -101,9 +101,7 @@ export function EntityDetailPanels({
     defaultSize: PANEL_SIZES[panel.key].defaultSize(allPanels),
     element: (
       <div
-        aria-label={
-          hasTabs && isSplit ? (panel.key === "activities" ? t("Common.actions.labelHistory") : panel.label) : undefined
-        }
+        aria-label={hasTabs && isSplit ? panel.label : undefined}
         aria-labelledby={hasTabs && !isSplit ? `${id}-tab-${panel.key}` : undefined}
         className={cn(
           "min-w-0 flex-col bg-background",
@@ -128,7 +126,7 @@ export function EntityDetailPanels({
           <div
             ref={switcherRef}
             data-detail-panel-switcher
-            className="sticky top-0 z-10 border-b border-border bg-background @6xl/detail:hidden"
+            className="sticky top-0 z-10 bg-background @6xl/detail:hidden"
           >
             <SegmentedControl
               idPrefix={id}

@@ -17,6 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { focusHref } from "@/components/focus/focus-href";
+import { recordColumns } from "@/features/records/record-columns";
 
 const LayoutContext = createContext<{
   layout: RecordDetailLayoutStore;
@@ -35,6 +37,20 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
   const [isPersonalizing, setIsPersonalizing] = useState(false);
   const [previewFieldValues, setPreviewFieldValues] = useState<Record<string, EntityDetailPreviewItem[]>>({});
   const hasRelatedDraft = store.hasRelatedDraft;
+  const { typeId, model, canManageSchema } = store.presentation;
+  const fieldSettingsHref = useMemo(() => {
+    if (!canManageSchema) return undefined;
+    const hrefs = new Map(
+      recordColumns(typeId, model).flatMap((column) =>
+        column.kind === "field"
+          ? [[column.id, focusHref({ kind: "field", id: column.field.id, typeId })] as const]
+          : column.kind === "relationship"
+            ? [[column.id, focusHref({ kind: "relationship", id: column.relation.id, typeId })] as const]
+            : [],
+      ),
+    );
+    return (fieldId: string) => hrefs.get(fieldId) ?? null;
+  }, [canManageSchema, model, typeId]);
   useEffect(() => {
     if (initial) layout?.hydrate(initial);
   }, [initial, layout]);
@@ -67,6 +83,7 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
             fieldOrder: layout.layout.fieldOrder,
             columnOrder: layout.layout.fieldOrder,
             previewFieldValues,
+            fieldSettingsHref,
             setIsPersonalizing: (next) => store.runAfterChannelDraft(() => setIsPersonalizing(next)),
             toggleStarredField: (id) => store.runAfterChannelDraft(() => layout.togglePinned(id)),
             toggleFieldVisibility: (id) => store.runAfterChannelDraft(() => layout.toggleHidden(id)),
@@ -84,6 +101,7 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
       hasRelatedDraft,
       isPersonalizing,
       previewFieldValues,
+      fieldSettingsHref,
       setPreviewFieldValue,
     ],
   );
@@ -123,12 +141,13 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
   const t = useTranslations();
   if (!isPersonalizing && !layout.isSaving && !layout.failed) return null;
   const isRecordBusy = editor.isTransactionBusy;
+  const differsFromDefault = layout.state.hasPersonalization || layout.dirty;
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
-      {isPersonalizing && (
+      {isPersonalizing && differsFromDefault && (
         <Button
           aria-label={t("RecordModel.resetDetailLayout")}
-          disabled={isRecordBusy || layout.isSaving || (!layout.state.hasPersonalization && !layout.dirty)}
+          disabled={isRecordBusy || layout.isSaving}
           size="sm"
           type="button"
           variant="ghost"
@@ -136,7 +155,7 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
         >
           <RotateCcw className="size-4" />
 
-          <span>{t("RecordModel.resetDetailLayout")}</span>
+          <span className="hidden sm:inline">{t("RecordModel.resetDetailLayout")}</span>
         </Button>
       )}
 

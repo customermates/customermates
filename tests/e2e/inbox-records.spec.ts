@@ -64,7 +64,7 @@ test("creates, unlinks and relinks a generic person from the inbox", async ({
   await settings.getByRole("button", { name: "Open record: Inbox Person", exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
   await expect(drawer.getByText(email, { exact: true })).toBeVisible();
-  await drawer.getByRole("tab", { name: "History", exact: true }).click();
+  await drawer.getByRole("tab", { name: "Activities", exact: true }).click();
   await expect(drawer.getByText("Local identity integration", { exact: true })).toBeVisible();
   await drawer.getByText("Local identity integration", { exact: true }).click();
   const messageDetail = page.getByRole("dialog", { name: "Inbox Person", exact: true });

@@ -65,8 +65,9 @@ test("opens or copies contact values and edits them from empty cell space", asyn
   const box = await space.boundingBox();
   if (!box) throw new Error("The email cell is not rendered");
   await page.mouse.click(box.x + box.width - 4, box.y + box.height / 2);
-  const editor = page.locator('[data-slot="popover-content"]').filter({ has: page.getByRole("textbox") });
+  const editor = row.locator("[data-in-place-editor]");
   await expect(editor.getByRole("textbox", { name: emailLabel, exact: true })).toHaveValue(email);
+  await expect(editor.getByRole("textbox", { name: emailLabel, exact: true })).toBeFocused();
   await expect(recordDrawer).not.toBeVisible();
   await page.keyboard.press("Escape");
   await expect(editor).toHaveCount(0);
