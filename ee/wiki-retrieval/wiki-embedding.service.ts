@@ -1,4 +1,8 @@
-import type { AgentRetrievalGrant, AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
+import type {
+  AgentRetrievalGrant,
+  AgentUsageService,
+  PlatformRetrievalPurpose,
+} from "@/ee/agent-chat/agent-usage.service";
 import type { WikiEmbeddingKind } from "./wiki-embedding-model";
 
 import * as Sentry from "@sentry/node";
@@ -17,6 +21,32 @@ export type WikiEmbeddingPayer = { id: string; companyId: string };
 
 export function isWikiSemanticSearchAvailable() {
   return isAgentChatAvailable() && env.APP_MODE !== "demo";
+}
+
+export async function embedPlatformTexts(
+  usage: AgentUsageService,
+  purpose: PlatformRetrievalPurpose,
+  texts: string[],
+): Promise<number[][] | null> {
+  const reservationId = await usage.reservePlatformRetrieval({
+    purpose,
+    model: WIKI_EMBEDDING_MODEL,
+    worstCaseMicrocents: wikiEmbeddingWorstCaseMicrocents(texts),
+  });
+  if (!reservationId) return null;
+  let charge = wikiEmbeddingAttemptCharge(texts);
+  try {
+    const embedded = await embedWikiTexts(texts, "document", {
+      maxRetries: 0,
+      onCharge: (measured) => {
+        charge = measured;
+      },
+    });
+    charge = embedded.charge;
+    return embedded.vectors;
+  } finally {
+    await usage.settlePlatformRetrieval({ reservationId, charge });
+  }
 }
 
 export class WikiEmbeddingService {
