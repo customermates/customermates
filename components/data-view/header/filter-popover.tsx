@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { useRef } from "react";
 import { FilterTargetPopover } from "@/components/data-view/filter-palette/filter-target-popover";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
-import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
 
 type Props = { store: BaseDataViewStore<any>; compact?: boolean; id?: string };
 
@@ -17,7 +17,7 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
       compact={compact}
       headerAction={(close) =>
         ai.available && (
-          <ViewAiAction
+          <AskAiAction
             id={id ? `${id}-ask-ai` : undefined}
             onClick={() => {
               pendingAi.current = ai.openCurrent;

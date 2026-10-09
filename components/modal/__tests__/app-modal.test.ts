@@ -34,6 +34,7 @@ type TestContentProps = {
   onOpenAutoFocus?: () => void;
 };
 
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/hooks/use-media-query", () => ({
   useIsWiderThan: () => testContext.isWide,
 }));
@@ -210,12 +211,13 @@ describe("AppModal actions", () => {
       { id: "customize", icon: RefreshCw, label: "Customize", kind: "customize", onClick: vi.fn() },
       { id: "ai", icon: RefreshCw, label: "Ask AI", kind: "assistant", onClick: vi.fn() },
     ]);
-    const order = ["Ask AI", "Customize", "Sync", "Delete", "Open page"].map((label) =>
-      html.indexOf(`aria-label="${label}"`),
-    );
+    const order = [
+      'data-slot="ask-ai-action"',
+      ...["Customize", "Sync", "Delete", "Open page"].map((label) => `aria-label="${label}"`),
+    ].map((marker) => html.indexOf(marker));
     expect(order.every((index) => index >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(html).toContain('data-overlay-action-count="5"');
+    expect(html).toContain('data-overlay-action-count="6"');
   });
 });
 

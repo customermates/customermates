@@ -45,7 +45,7 @@ export function confirmationSentence(
 
 function ChipIcon({ icon }: { icon: ConfirmationChip["icon"] }) {
   const Icon = typeof icon === "string" ? KIND_ICONS[icon] : recordTypeIcon(icon.list);
-  return <Icon aria-hidden className="size-3.5 text-muted-foreground" />;
+  return <Icon aria-hidden className="text-muted-foreground" />;
 }
 
 export function ConfirmationSentenceView({
@@ -68,7 +68,7 @@ export function ConfirmationSentenceView({
             href={part.href}
             onClick={onNavigate}
           >
-            <AppChip interactive size="md" startContent={<ChipIcon icon={part.icon} />} variant="outline">
+            <AppChip interactive startContent={<ChipIcon icon={part.icon} />}>
               {part.label}
             </AppChip>
           </IntlLink>
