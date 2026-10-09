@@ -82703,7 +82703,8 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member"
+                                            "member",
+                                            "channels"
                                           ]
                                         },
                                         "format": {
@@ -82755,7 +82756,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -82768,6 +82769,10 @@
                                                   "type": "null"
                                                 }
                                               ]
+                                            },
+                                            "providerAvatar": {
+                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -83101,7 +83106,8 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member"
+                                            "member",
+                                            "channels"
                                           ]
                                         },
                                         "format": {
@@ -83153,7 +83159,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -83166,6 +83172,10 @@
                                                   "type": "null"
                                                 }
                                               ]
+                                            },
+                                            "providerAvatar": {
+                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -84039,7 +84049,8 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member"
+                                            "member",
+                                            "channels"
                                           ]
                                         },
                                         "format": {
@@ -84091,7 +84102,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -84104,6 +84115,10 @@
                                                   "type": "null"
                                                 }
                                               ]
+                                            },
+                                            "providerAvatar": {
+                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -84437,7 +84452,8 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member"
+                                            "member",
+                                            "channels"
                                           ]
                                         },
                                         "format": {
@@ -84489,7 +84505,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -84502,6 +84518,10 @@
                                                   "type": "null"
                                                 }
                                               ]
+                                            },
+                                            "providerAvatar": {
+                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
