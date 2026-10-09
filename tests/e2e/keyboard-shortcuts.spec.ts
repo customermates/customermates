@@ -81,6 +81,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await expect(page).toHaveURL(/\/records\/[^/]+$/);
   const firstList = page.url();
   await page.waitForLoadState("networkidle");
+  await expect(page.locator("#records-filter")).toBeVisible();
 
   await page.keyboard.press("f");
   const typingField = page.locator("#filter-palette-search").getByRole("combobox");
