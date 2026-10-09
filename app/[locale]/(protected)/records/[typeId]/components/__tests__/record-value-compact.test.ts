@@ -15,17 +15,18 @@ const money = { id: "value", label: "Value", valueType: "currency", options: [] 
 const number = { id: "quantity", label: "Quantity", valueType: "number", options: [] } as unknown as RecordFieldView;
 const decimal = (amount: string, currency: string | null): CalculatedValue =>
   ({ state: "value", value: { kind: "decimal", value: amount, currency } }) as CalculatedValue;
-const text = (field: RecordFieldView, result: CalculatedValue, compact?: boolean) =>
-  renderToStaticMarkup(createElement(RecordValue, { field, result, compact })).replace(/<[^>]+>/g, "");
+const rendered = (field: RecordFieldView, result: CalculatedValue, compact?: boolean) =>
+  renderToStaticMarkup(createElement(RecordValue, { field, result, compact }));
+const amount = (text: string) => `<span class="font-mono tabular-nums">${text}</span>`;
 
 describe("compact money on cards", () => {
   it("shortens money only in the compact variant", () => {
-    expect(text(money, decimal("342000", "EUR"), true)).toBe("€342K");
-    expect(text(money, decimal("1200000", "EUR"), true)).toBe("€1.2M");
-    expect(text(money, decimal("342000", "EUR"))).toBe("€342,000.00");
+    expect(rendered(money, decimal("342000", "EUR"), true)).toBe(amount("€342K"));
+    expect(rendered(money, decimal("1200000", "EUR"), true)).toBe(amount("€1.2M"));
+    expect(rendered(money, decimal("342000", "EUR"))).toBe(amount("€342,000.00"));
   });
 
   it("keeps plain numbers in full even when compact", () => {
-    expect(text(number, decimal("1050", null), true)).toBe("1,050");
+    expect(rendered(number, decimal("1050", null), true)).toBe(amount("1,050"));
   });
 });
