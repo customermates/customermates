@@ -8,7 +8,7 @@ export function ActivityTimelineSkeleton({ animated = true, rows = 6 }: Props) {
   return (
     <div
       aria-hidden="true"
-      className="flex w-full flex-col"
+      className="-mx-2 flex flex-col"
       data-page-skeleton-empty={!animated || undefined}
       data-page-skeleton-loading={animated || undefined}
       data-skeleton-kind="activity-timeline"
