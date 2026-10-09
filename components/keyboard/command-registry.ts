@@ -20,7 +20,6 @@ import {
   MessageCircle,
   Moon,
   Plus,
-  Send,
   Settings2,
   Shield,
   Sun,
@@ -32,7 +31,7 @@ import {
 
 import { Action, Resource } from "@/generated/prisma";
 import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
-import { settingsHref, WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export type CommandKind = "page" | "setting" | "action";
 
@@ -158,14 +157,6 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     target: { href: "/docs" },
   },
   ...SETTINGS_PAGES,
-  {
-    id: "settings.deliveries",
-    labelKey: "SettingsNav.deliveries",
-    kind: "page",
-    icon: Send,
-    target: { href: WEBHOOK_DELIVERIES_HREF },
-    requires: { resource: Resource.api },
-  },
   profileSetting("firstName", User, "first-name"),
   profileSetting("lastName", User, "last-name"),
   profileSetting("country", Globe, "country"),

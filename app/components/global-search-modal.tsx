@@ -367,7 +367,7 @@ export const GlobalSearchModal = observer(() => {
 
       <div className="shrink-0" id="global-search-input">
         <CommandInput
-          placeholder={level ? level.label : t("GlobalSearch.placeholder")}
+          placeholder={t("GlobalSearch.placeholder")}
           value={searchTerm}
           onKeyDown={(event) => {
             if (event.key === "ArrowDown" || event.key === "ArrowUp") navigated.current = true;

@@ -72,7 +72,7 @@ describe("command registry", () => {
         "settings.members",
         "settings.billing",
         "settings.webhooks",
-        "settings.deliveries",
+        "settings.webhook-deliveries",
         "setting.profile.displayLanguage",
         "setting.profile.formattingLocale",
         "setting.profile.theme",

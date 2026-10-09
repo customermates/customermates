@@ -904,10 +904,10 @@
         "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso",
         "billing": "piano, abbonamento, fatture, pagamento, prezzi",
         "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni",
-        "deliveries": "consegne webhook, registro webhook, eventi inviati",
         "members": "team, utenti, persone, colleghi",
         "profile": "il mio profilo, account, preferenze, personale",
         "roles": "permessi, accesso, diritti",
+        "webhook-deliveries": "consegne webhook, registro webhook, eventi inviati",
         "webhooks": "integrazioni, callback, eventi, HTTP"
       }
     }
