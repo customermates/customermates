@@ -3579,6 +3579,14 @@
     "unlinkRecord": "Unlink {name}",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
+    "valueSource": {
+      "calculated": "Calculated · {formula}",
+      "from": "From {list} · {value}",
+      "savedOnCreate": "Saved when the {list} is created",
+      "savedOnRequest": "Saved on request",
+      "savedWhenChanged": "Saved when {field} changes",
+      "savedWhenChangedTo": "Saved when {field} changes to {value}"
+    },
     "valueType": "Value type",
     "yes": "Yes"
   },

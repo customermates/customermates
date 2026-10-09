@@ -3579,6 +3579,14 @@
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "valueSource": {
+      "calculated": "Berechnet · {formula}",
+      "from": "Aus {list} · {value}",
+      "savedOnCreate": "Gespeichert, wenn {list} angelegt wird",
+      "savedOnRequest": "Gespeichert auf Anforderung",
+      "savedWhenChanged": "Gespeichert, wenn sich {field} ändert",
+      "savedWhenChangedTo": "Gespeichert, wenn sich {field} zu {value} ändert"
+    },
     "valueType": "Werttyp",
     "yes": "Ja"
   },
