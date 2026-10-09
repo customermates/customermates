@@ -15,7 +15,7 @@ import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 
-import { ViewAiAction } from "./view-ai-action";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
 
 export type ViewMetaMode = "create" | "duplicate" | "edit";
 
@@ -100,7 +100,7 @@ export function ViewMetaOverlay({
       headerAction={
         mode === "edit" &&
         onAskAi && (
-          <ViewAiAction
+          <AskAiAction
             id="view-editor-ask-ai"
             onClick={() => {
               pendingAi.current = onAskAi;
