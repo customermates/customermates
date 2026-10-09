@@ -3202,7 +3202,6 @@
       "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
       "resetLayout": "Réinitialiser la disposition",
       "showFewer": "Afficher moins",
-      "sublistOf": "Sous-liste de {list}",
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"
     },
@@ -3480,7 +3479,7 @@
         "singular": "Tâche"
       }
     },
-    "sublistExplanation": "Chaque entrée appartient à un élément {parent}, se modifie à l’intérieur, partage ses accès et est supprimée avec lui.",
+    "sublistSentence": "Sous-liste de {list} · chaque entrée vit dans un élément {parent}, partage ses accès et est supprimée avec lui.",
     "suggestedAttribute": "Suggestion",
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
