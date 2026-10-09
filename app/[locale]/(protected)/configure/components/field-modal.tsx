@@ -1,18 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { omit } from "lodash";
 import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type {
-  RecordField,
-  RecordModelView,
-  CalculationExpression,
-  RecordScalar,
-} from "@/features/records/record-model.schema";
+import type { RecordField, RecordModelView, CalculationExpression } from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
@@ -21,11 +16,8 @@ import { RecordOperationProgress } from "@/components/records/record-operation-p
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormInput } from "@/components/forms/form-input";
-import { CHIP_COLORS, toChipColor } from "@/constants/chip-colors";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/core/utils/cn";
 import { RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
@@ -35,6 +27,14 @@ import { useConfigurationDeletion } from "./use-configuration-deletion";
 import { CalculationInput } from "./calculation-input";
 import { isResolvedField } from "./configure-model";
 import { CalculationPath } from "./calculation-path";
+import { FieldOptionsEditor } from "./field-options-editor";
+import {
+  moveOption,
+  optionColumnsFromField,
+  optionsWithAttributes,
+  type OptionAttributeColumn,
+  type OptionDraft,
+} from "./field-option-columns";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES, MULTIPLE_VALUE_TYPES } from "@/features/records/record-model-validation";
@@ -62,13 +62,7 @@ const initial = () => ({
   defaultValue: undefined as unknown,
   publishedSummary: false,
   allowManualOverride: false,
-  options: [] as Array<{
-    id: string;
-    label: string;
-    probability: string;
-    color: string | null;
-    attributes: Array<{ key: string; value: RecordScalar }>;
-  }>,
+  choices: { columns: [] as OptionAttributeColumn[], options: [] as OptionDraft[] },
 });
 export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>> {
   typeId = "";
@@ -89,6 +83,10 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       edit: action,
       addOption: action,
       removeOption: action,
+      moveOption: action,
+      addAttributeColumn: action,
+      renameAttributeColumn: action,
+      removeAttributeColumn: action,
       chooseValueType: action,
     });
   }
@@ -135,16 +133,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
                   triggerValue: recordDraftValue(field.behavior.triggerValue),
                 }
               : {}),
-            options: field.options.map((option) => {
-              const probability = option.attributes.find((attribute) => attribute.key === "probability")?.value;
-              return {
-                id: option.id,
-                label: option.label,
-                color: option.color,
-                probability: probability?.kind === "decimal" ? probability.value : "",
-                attributes: option.attributes.filter((attribute) => attribute.key !== "probability"),
-              };
-            }),
+            choices: optionColumnsFromField(field.options),
           }
         : {
             ...initial(),
@@ -180,12 +169,11 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return toJS(projected.form);
   }
   addOption = () => {
-    this.form.options.push({
+    this.form.choices.options.push({
       id: crypto.randomUUID(),
       label: "",
       color: "secondary",
-      probability: "",
-      attributes: [],
+      cells: {},
     });
     this.setPreview(null);
   };
@@ -204,8 +192,33 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     this.onChange("defaultValue", multiple ? ids : ids[0]);
   };
   removeOption = (id: string) => {
-    this.form.options = this.form.options.filter((option) => option.id !== id);
+    this.form.choices.options = this.form.choices.options.filter((option) => option.id !== id);
     this.setPreview(null);
+  };
+  moveOption = (activeId: string, overId: string) => {
+    this.onChange("choices.options", moveOption(this.form.choices.options, activeId, overId));
+  };
+  addAttributeColumn = (key: string, type: OptionAttributeColumn["type"]) => {
+    this.onChange("choices.columns", [
+      ...this.form.choices.columns,
+      { id: crypto.randomUUID(), key: key.trim(), type },
+    ]);
+  };
+  renameAttributeColumn = (id: string, key: string) => {
+    this.onChange(
+      "choices.columns",
+      this.form.choices.columns.map((column) => (column.id === id ? { ...column, key: key.trim() } : column)),
+    );
+  };
+  removeAttributeColumn = (id: string) => {
+    this.form.choices.options = this.form.choices.options.map((option) => ({
+      ...option,
+      cells: omit(option.cells, id),
+    }));
+    this.onChange(
+      "choices.columns",
+      this.form.choices.columns.filter((column) => column.id !== id),
+    );
   };
   get inputDefinition(): RecordField {
     return {
@@ -220,12 +233,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       publishedSummary: false,
       position: this.original?.position ?? 0,
       format: { currency: this.form.valueType === "currency" ? this.form.currency.toUpperCase() : null },
-      options: this.form.options.map((option) => ({
-        id: option.id,
-        label: option.label,
-        color: option.color,
-        attributes: option.attributes,
-      })),
+      options: optionsWithAttributes(this.form.choices.columns, this.form.choices.options),
     };
   }
   get triggerFields() {
@@ -347,29 +355,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         onClick: CONTACT_VALUE_TYPES.includes(form.valueType) || form.valueType === "channels" ? form.onClick : null,
         ...(form.valueType === "channels" ? { providerAvatar: form.providerAvatar } : {}),
       },
-      options:
-        form.valueType === "select"
-          ? form.options.map((option) => ({
-              id: option.id,
-              label: option.label,
-              color: option.color,
-              attributes: [
-                ...option.attributes,
-                ...(option.probability
-                  ? [
-                      {
-                        key: "probability",
-                        value: {
-                          kind: "decimal" as const,
-                          value: option.probability,
-                          currency: null,
-                        },
-                      },
-                    ]
-                  : []),
-              ],
-            }))
-          : [],
+      options: form.valueType === "select" ? optionsWithAttributes(form.choices.columns, form.choices.options) : [],
     };
     return [{ operation: "putField", field }];
   }
@@ -385,14 +371,6 @@ export const FieldModal = observer(function FieldModal({
   const deletion = useConfigurationDeletion(onDeleted);
   const original = store.original;
   const deleteTarget = original ? { target: { kind: "field" as const, id: original.id }, name: original.label } : null;
-  const [showProbability, setShowProbability] = useState(false);
-  const optionMetadata = showProbability || store.form.options.some((option) => option.probability !== "");
-  const optionGrid = cn(
-    "grid items-start gap-2",
-    optionMetadata
-      ? "grid-cols-[minmax(0,1fr)_6rem_2.25rem] [grid-template-areas:'name_name_del'_'color_prob_.'] @md/options:grid-cols-[minmax(0,1fr)_9rem_6rem_2.25rem] @md/options:[grid-template-areas:'name_color_prob_del']"
-      : "grid-cols-[minmax(0,1fr)_8rem_2.25rem] [grid-template-areas:'name_color_del'] @md/options:grid-cols-[minmax(0,1fr)_9rem_2.25rem]",
-  );
   const triggerValueLabel = () => {
     const trigger = store.triggerField;
     const value = store.form.triggerValue;
@@ -660,165 +638,7 @@ export const FieldModal = observer(function FieldModal({
             </CollapsibleSection>
           )}
 
-          {store.form.valueType === "select" && (
-            <CollapsibleSection
-              defaultOpen
-              summary={t("RecordModel.optionCount", { count: store.form.options.length })}
-              title={t("RecordModel.options")}
-            >
-              <div className="@container/options space-y-3">
-                {store.form.options.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">{t("RecordModel.noOptions")}</p>
-                ) : (
-                  <div aria-hidden className={cn(optionGrid, "text-xs font-medium text-muted-foreground")}>
-                    <span className="truncate [grid-area:name]">{t("RecordModel.option")}</span>
-
-                    <span className="truncate [grid-area:color]">{t("RecordModel.color")}</span>
-
-                    {optionMetadata && (
-                      <span className="truncate [grid-area:prob]">{t("RecordModel.probability")}</span>
-                    )}
-                  </div>
-                )}
-
-                {store.form.options.map((option, index) => (
-                  <div key={option.id} className="space-y-3">
-                    <div className={optionGrid}>
-                      <FormInput
-                        aria-label={t("RecordModel.option")}
-                        containerClassName="min-w-0 [grid-area:name]"
-                        id={`options.${index}.label`}
-                        label={null}
-                      />
-
-                      <FormSelect
-                        ariaLabel={t("RecordModel.color")}
-                        containerClassName="min-w-0 [grid-area:color]"
-                        id={`options.${index}.color`}
-                        items={CHIP_COLORS.map((color) => ({
-                          value: color,
-                          label: t(`Common.colors.${color}`),
-                          chipLabel: option.label.trim() || undefined,
-                          color,
-                        }))}
-                        label={null}
-                        value={toChipColor(option.color)}
-                      />
-
-                      {optionMetadata && (
-                        <FormInput
-                          aria-label={t("RecordModel.probability")}
-                          containerClassName="min-w-0 [grid-area:prob]"
-                          id={`options.${index}.probability`}
-                          inputMode="decimal"
-                          label={null}
-                        />
-                      )}
-
-                      <Button
-                        aria-label={t("RecordModel.removeOption")}
-                        className="[grid-area:del]"
-                        disabled={store.isDisabled}
-                        size="icon"
-                        type="button"
-                        variant="ghostDestructive"
-                        onClick={() => store.removeOption(option.id)}
-                      >
-                        <Trash2 aria-hidden className="size-4" />
-                      </Button>
-                    </div>
-
-                    {option.attributes.map((attribute, offset) => (
-                      <div key={offset} className="ml-3 space-y-3 border-l pl-4">
-                        <div className="flex items-end gap-2">
-                          <FormInput
-                            containerClassName="flex-1"
-                            id={`options.${index}.attributes.${offset}.key`}
-                            label={t("RecordModel.attribute")}
-                          />
-
-                          <Button
-                            aria-label={t("RecordModel.removeInput")}
-                            disabled={store.isDisabled}
-                            size="icon"
-                            type="button"
-                            variant="ghostDestructive"
-                            onClick={() =>
-                              store.onChange(
-                                `options.${index}.attributes`,
-                                option.attributes.filter((_, position) => position !== offset),
-                              )
-                            }
-                          >
-                            <Trash2 aria-hidden className="size-4" />
-                          </Button>
-                        </div>
-
-                        <CalculationInput
-                          literalOnly
-                          currency={store.form.currency}
-                          model={store.model}
-                          path={`options.${index}.attributes.${offset}`}
-                          typeId={store.typeId}
-                          value={{ kind: "literal", value: attribute.value }}
-                          onChange={(expression) => {
-                            if (expression.kind === "literal" && expression.value)
-                              store.onChange(`options.${index}.attributes.${offset}.value`, expression.value);
-                          }}
-                        />
-                      </div>
-                    ))}
-
-                    {!store.form.multiple && (
-                      <Button
-                        className="h-auto px-0 text-muted-foreground hover:bg-transparent hover:text-foreground has-[>svg]:px-0"
-                        disabled={store.isDisabled}
-                        size="sm"
-                        type="button"
-                        variant="ghost"
-                        onClick={() =>
-                          store.onChange(`options.${index}.attributes`, [
-                            ...option.attributes,
-                            { key: "", value: { kind: "decimal", value: "0", currency: null } },
-                          ])
-                        }
-                      >
-                        <Plus aria-hidden className="size-3.5" />
-
-                        {t("RecordModel.addAttribute")}
-                      </Button>
-                    )}
-                  </div>
-                ))}
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    disabled={store.isDisabled}
-                    size="sm"
-                    type="button"
-                    variant="secondary"
-                    onClick={store.addOption}
-                  >
-                    <Plus className="size-4" />
-
-                    {t("RecordModel.addOption")}
-                  </Button>
-
-                  {!optionMetadata && !store.form.multiple && (
-                    <Button
-                      disabled={store.isDisabled}
-                      size="sm"
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setShowProbability(true)}
-                    >
-                      {t("RecordModel.addProbability")}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CollapsibleSection>
-          )}
+          {store.form.valueType === "select" && <FieldOptionsEditor store={store} />}
 
           {store.preview && (
             <RecordConfigurationPreview model={store.model} preview={store.preview} renewal={store.summaryRenewal} />
