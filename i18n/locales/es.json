@@ -2987,6 +2987,7 @@
       "snapshot": "Guardado en un evento"
     },
     "board": "Tablero",
+    "addProperty": "Añadir propiedad",
     "calculatedValue": "Calculado: {formula}",
     "calculatedValuePlain": "Valor calculado",
     "calculationError": "Cálculo no disponible",

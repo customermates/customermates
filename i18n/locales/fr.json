@@ -2987,6 +2987,7 @@
       "snapshot": "Enregistré lors d’un événement"
     },
     "board": "Tableau Kanban",
+    "addProperty": "Ajouter une propriété",
     "calculatedValue": "Calculé : {formula}",
     "calculatedValuePlain": "Valeur calculée",
     "calculationError": "Calcul indisponible",

@@ -2987,6 +2987,7 @@
       "snapshot": "Salvato durante un evento"
     },
     "board": "Bacheca",
+    "addProperty": "Aggiungi proprietà",
     "calculatedValue": "Calcolato: {formula}",
     "calculatedValuePlain": "Valore calcolato",
     "calculationError": "Calcolo non disponibile",

@@ -2987,6 +2987,7 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
+    "addProperty": "Add property",
     "calculatedValue": "Calculated: {formula}",
     "calculatedValuePlain": "Calculated value",
     "calculationError": "Calculation unavailable",

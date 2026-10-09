@@ -2987,6 +2987,7 @@
       "snapshot": "Bei einem Ereignis gespeichert"
     },
     "board": "Board",
+    "addProperty": "Eigenschaft hinzufügen",
     "calculatedValue": "Berechnet: {formula}",
     "calculatedValuePlain": "Berechneter Wert",
     "calculationError": "Berechnung nicht verfügbar",
