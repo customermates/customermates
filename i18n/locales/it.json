@@ -2972,6 +2972,7 @@
     },
     "addOption": "Aggiungi opzione",
     "addPathStep": "Aggiungi un passaggio di relazione",
+    "addProperty": "Aggiungi proprietà",
     "addRelationship": "Aggiungi relazione",
     "aggregation": "Aggregazione",
     "allowManualOverride": "Consenti un valore sostitutivo manuale",
@@ -2988,7 +2989,6 @@
       "snapshot": "Salvato durante un evento"
     },
     "board": "Bacheca",
-    "addProperty": "Aggiungi proprietà",
     "calculatedValue": "Calcolato: {formula}",
     "calculatedValuePlain": "Valore calcolato",
     "calculationError": "Calcolo non disponibile",

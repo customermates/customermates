@@ -2972,6 +2972,7 @@
     },
     "addOption": "Add option",
     "addPathStep": "Add a relationship step",
+    "addProperty": "Add property",
     "addRelationship": "Add relationship",
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
@@ -2988,7 +2989,6 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
-    "addProperty": "Add property",
     "calculatedValue": "Calculated: {formula}",
     "calculatedValuePlain": "Calculated value",
     "calculationError": "Calculation unavailable",

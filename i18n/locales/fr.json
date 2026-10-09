@@ -2972,6 +2972,7 @@
     },
     "addOption": "Ajouter une option",
     "addPathStep": "Ajouter une étape de relation",
+    "addProperty": "Ajouter une propriété",
     "addRelationship": "Ajouter une relation",
     "aggregation": "Agrégation",
     "allowManualOverride": "Autoriser une valeur de remplacement manuelle",
@@ -2988,7 +2989,6 @@
       "snapshot": "Enregistré lors d’un événement"
     },
     "board": "Tableau Kanban",
-    "addProperty": "Ajouter une propriété",
     "calculatedValue": "Calculé : {formula}",
     "calculatedValuePlain": "Valeur calculée",
     "calculationError": "Calcul indisponible",
