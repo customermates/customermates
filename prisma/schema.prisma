@@ -257,6 +257,7 @@ model Company {
   recordIdentities            RecordIdentity[]
   wikiPages                   WikiPage[]
   wikiPageChunks              WikiPageChunk[]
+  searchCatalogEntries        SearchCatalogEntry[]
   wikiWebsiteCrawls           WikiWebsiteCrawl[]
   wikiSourceDocuments         WikiSourceDocument[]
   trashItems                  TrashItem[]
@@ -400,6 +401,24 @@ model DocsChunk {
   @@unique([buildHash, locale, source, slug, sectionOrder, chunkOrdinal], map: "DocsChunk_build_chunk_key")
   @@index([contentHash])
   @@index([searchVector], type: Gin)
+}
+
+model SearchCatalogEntry {
+  id          String                      @id @default(uuid())
+  companyId   String?
+  buildHash   String?
+  locale      String?
+  targetId    String
+  text        String
+  contentHash String
+  model       String?
+  embedding   Unsupported("vector(768)")?
+  createdAt   DateTime                    @default(now())
+  company     Company?                    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([buildHash, locale, targetId])
+  @@unique([companyId, targetId])
+  @@index([contentHash])
 }
 
 model HostedAiPlatformUsage {

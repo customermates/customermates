@@ -117,6 +117,7 @@ test("configures and persists all fourteen field types, multiple values and cale
     ["Phone numbers", "Phone"],
     ["Web addresses", "Web address"],
     ["Responsible member", "Member"],
+    ["Notes", "Formatted text"],
   ];
   const dialog = page.getByRole("dialog");
   for (const [label, valueType] of definitions) {
