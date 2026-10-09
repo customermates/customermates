@@ -60,6 +60,21 @@ describe("Configure edge geometry", () => {
     expect(geometry.label).toEqual({ x: 450, y: 100 });
   });
 
+  it("keeps a label on the edge when no list covers it", () => {
+    const geometry = configureEdgeGeometry(route, anchors, box(0, 0), box(600, 0), 0, [box(0, 400)]);
+    expect(geometry.label).toEqual({ x: 450, y: 100 });
+  });
+
+  it("moves a label that a list would cover to a visible point of its edge", () => {
+    const cover = { x: 400, y: 50, width: 100, height: 100 };
+    const obstacles = [box(0, 0), box(600, 0), cover];
+    const geometry = configureEdgeGeometry(route, anchors, box(0, 0), box(600, 0), 0, obstacles);
+    expect(geometry.label.y).toBe(100);
+    const clear = (other: { x: number; width: number }) =>
+      geometry.label.x <= other.x - 48 || geometry.label.x >= other.x + other.width + 48;
+    expect(obstacles.every(clear)).toBe(true);
+  });
+
   it("separates parallel relationships into lanes", () => {
     const first = configureEdgeGeometry(route, anchors, box(0, 0), box(600, 0), -0.5);
     const second = configureEdgeGeometry(route, anchors, box(0, 0), box(600, 0), 0.5);
