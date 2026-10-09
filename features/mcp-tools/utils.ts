@@ -21,6 +21,11 @@ import {
   type McpToolFailureResult,
   type McpToolResult,
 } from "./mcp-tool";
+import {
+  UNTRUSTED_RECORD_TEXT_HANDLING,
+  UNTRUSTED_RECORD_TEXT_OPEN,
+  withUntrustedRecordText,
+} from "./untrusted-record-content";
 
 export { mcpInteractorFailure, mcpValidationFailure, VALIDATION_ERROR_PREFIX } from "./mcp-tool";
 
@@ -298,4 +303,16 @@ export function nameQueryOf(
 
 export function toonResult(payload: Record<string, unknown>): McpToolResult {
   return { text: encodeToToon(payload), structuredContent: payload };
+}
+
+export function recordToonResult(payload: Record<string, unknown>): {
+  text: string;
+  structuredContent: Record<string, unknown>;
+} {
+  const marked = withUntrustedRecordText(payload) as Record<string, unknown>;
+  const text = encodeToToon(marked);
+  return {
+    text: text.includes(UNTRUSTED_RECORD_TEXT_OPEN) ? `${UNTRUSTED_RECORD_TEXT_HANDLING}\n\n${text}` : text,
+    structuredContent: payload,
+  };
 }

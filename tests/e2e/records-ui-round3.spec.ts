@@ -246,7 +246,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(row.locator("[data-calculated-field]")).toHaveCount(1);
   await expect(row.getByRole("button", { name: "Edit Double", exact: true })).toHaveCount(0);
   await row.locator("[data-calculated-field]").hover();
-  await expect(page.getByRole("tooltip")).toContainText("Calculated: (Number × 2)");
+  await expect(page.getByRole("tooltip")).toContainText("Calculated: Number × 2");
 
   const tabbed = await openInPlace("Text");
   await tabbed.fill("Tabbed text");
@@ -380,7 +380,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await chip("Money").hover();
   await expect(page.getByRole("tooltip", { name: "Money", exact: true })).toBeVisible();
   await chip("Double").hover();
-  await expect(page.getByRole("tooltip", { name: "Calculated: (Number × 2)", exact: true })).toBeVisible();
+  await expect(page.getByRole("tooltip", { name: "Calculated: Number × 2", exact: true })).toBeVisible();
 
   const editor = page.locator('[data-slot="popover-content"][data-state="open"]').last();
   await chip("Money").getByRole("button", { name: "Edit Money", exact: true }).click();

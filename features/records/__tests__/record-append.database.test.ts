@@ -139,6 +139,33 @@ describeDatabase("record field append", () => {
     expect((await f.record(ref))?.version).toBe(version + 2);
   });
 
+  it("never loses an append that races a normal update of the same record", async () => {
+    const f = await fixture();
+    for (const round of [1, 2, 3]) {
+      const ref = await f.createDeal(`Race ${round}`);
+      const version = (await f.record(ref))?.version ?? 0;
+      const [append, update] = await Promise.all([
+        f.mutation({
+          action: "update",
+          ref,
+          expectedVersion: version,
+          fields: [{ fieldId: f.id("deal.notes"), append: `Round ${round}` }],
+        }),
+        f.mutation({
+          action: "update",
+          ref,
+          expectedVersion: version,
+          fields: [{ fieldId: f.id("deal.name"), value: { kind: "text", value: `Renamed ${round}` } }],
+        }),
+      ]);
+      expect(append.ok).toBe(true);
+      const markdown = serializeJSONToMarkdown((await f.stored(ref, f.id("deal.notes")))?.jsonValue as object);
+      expect(markdown).toBe(`Round ${round}`);
+      const name = (await f.stored(ref, f.id("deal.name")))?.textValue;
+      expect(name).toBe(update.ok ? `Renamed ${round}` : `Race ${round}`);
+    }
+  });
+
   it("appends after existing Formatted text and plain Text with a blank line", async () => {
     const f = await fixture();
     const ref = await f.createDeal("Nova");
@@ -198,6 +225,58 @@ describeDatabase("record field append", () => {
       }),
     ).toMatchObject({ ok: false });
     expect((await f.stored(ref, f.id("deal.name")))?.textValue).toBe("Strict");
+  });
+
+  it("rejects append on calculated fields and beyond the size limit, and starts an empty document cleanly", async () => {
+    const f = await fixture();
+    const ref = await f.createDeal("Limits");
+    expect(
+      await f.mutation({
+        action: "update",
+        ref,
+        expectedVersion: 1,
+        fields: [{ fieldId: f.id("deal.totalValue"), append: "1" }],
+      }),
+    ).toMatchObject({ ok: false });
+    expect(
+      await f.mutation({
+        action: "update",
+        ref,
+        expectedVersion: 1,
+        fields: [
+          {
+            fieldId: f.id("deal.notes"),
+            value: {
+              kind: "richText",
+              documentJson: JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
+            },
+          },
+        ],
+      }),
+    ).toMatchObject({ ok: true });
+    expect(
+      await f.mutation({
+        action: "update",
+        ref,
+        expectedVersion: 1,
+        fields: [{ fieldId: f.id("deal.notes"), append: "First line" }],
+      }),
+    ).toMatchObject({ ok: true });
+    expect(serializeJSONToMarkdown((await f.stored(ref, f.id("deal.notes")))?.jsonValue as object)).toBe("First line");
+    const chunk = "x".repeat(60_000);
+    const results = [];
+    for (let index = 0; index < 6; index += 1) {
+      results.push(
+        await f.mutation({
+          action: "update",
+          ref,
+          expectedVersion: 1,
+          fields: [{ fieldId: f.id("deal.notes"), append: chunk }],
+        }),
+      );
+    }
+    expect(results.at(-1)).toMatchObject({ ok: false });
+    expect(JSON.stringify(results.at(-1))).toContain("notesExceedsMaxLength");
   });
 
   it("finds Formatted text through keyword search and the contains filter, but not its markup", async () => {
