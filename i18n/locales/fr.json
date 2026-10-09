@@ -4027,7 +4027,8 @@
   },
   "WebhooksCard": {
     "emptyBody": "Ajoutez un webhook pour envoyer les événements de l’espace de travail à vos systèmes.",
-    "emptyTitle": "Aucun webhook pour le moment"
+    "emptyTitle": "Aucun webhook pour le moment",
+    "showDeliveries": "Afficher les livraisons"
   },
   "Wiki": {
     "conflict": "Cette page a changé. Vos modifications sont toujours là. Rechargez pour utiliser la dernière version.",
