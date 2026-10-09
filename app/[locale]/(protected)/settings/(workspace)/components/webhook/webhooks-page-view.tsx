@@ -22,6 +22,12 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
 import { Action } from "@/generated/prisma";
+import { Send } from "lucide-react";
+import { WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
+import { useRouter } from "@/i18n/navigation";
+import { encodeGetParams } from "@/core/utils/get-params";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 import { useWebhookColumns } from "./use-webhook-columns";
 import { WebhooksPageSkeleton } from "./webhooks-page-skeleton";
@@ -39,6 +45,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
   useDataViewSync(webhooksStore, initialWebhooks);
   const columns = useWebhookColumns();
   const t = useTranslations();
+  const router = useRouter();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const view = resolveDataViewView(webhooksStore.viewMode, webhooksStore.canBoard);
   const pageState = resolveDataViewPageState({
@@ -87,6 +94,16 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
   const rowActions = useCallback(
     (item: (typeof webhooksStore.items)[number]) => (
       <RecordRowActions
+        contextAction={{
+          label: t("WebhooksCard.showDeliveries"),
+          icon: Send,
+          onSelect: () =>
+            router.push(
+              `${WEBHOOK_DELIVERIES_HREF}?${encodeGetParams({
+                filters: [{ field: FilterFieldKey.webhookId, operator: FilterOperatorKey.in, value: [item.id] }],
+              })}`,
+            ),
+        }}
         name={item.url}
         onDelete={
           canDeleteWebhooks
@@ -99,7 +116,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
         onOpen={() => openWebhook(item)}
       />
     ),
-    [canDeleteWebhooks, openWebhook, showDeleteConfirmation, webhookModalStore],
+    [canDeleteWebhooks, openWebhook, router, showDeleteConfirmation, t, webhookModalStore],
   );
   useFocusTarget(
     WEBHOOK_FOCUS_KINDS,

@@ -1,6 +1,6 @@
 import { Resource } from "@/generated/prisma";
 
-import { WebhookDeliveriesPageView } from "../../components/webhook/webhook-deliveries-page-view";
+import { WebhookDeliveriesPageView } from "../components/webhook/webhook-deliveries-page-view";
 
 import { getGetWebhookDeliveriesInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";

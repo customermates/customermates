@@ -7,6 +7,10 @@ import { z } from "zod";
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { attributeKeyTaken, PROBABILITY_ATTRIBUTE } from "./field-option-columns";
 
+function isProbability(key: string) {
+  return key.trim().toLowerCase() === PROBABILITY_ATTRIBUTE;
+}
+
 export class AttributeColumnStore extends BaseFormStore<{ key: string; type: OptionAttributeType }> {
   constructor(
     private readonly field: FieldModalStore,
@@ -34,6 +38,9 @@ export class AttributeColumnStore extends BaseFormStore<{ key: string; type: Opt
           .max(64)
           .refine((key) => !attributeKeyTaken(this.field.form.choices.columns, key, this.column?.id), {
             message: this.t("RecordModel.attributeNameTaken"),
+          })
+          .refine((key) => !isProbability(key) || !this.column || this.column.type === "number", {
+            message: this.t("RecordModel.probabilityNeedsNumber"),
           }),
         type: z.enum(["number", "text", "boolean", "preserved"]),
       })
@@ -42,13 +49,10 @@ export class AttributeColumnStore extends BaseFormStore<{ key: string; type: Opt
       this.setError(z.treeifyError(parsed.error));
       return false;
     }
-    if (this.column) this.field.renameAttributeColumn(this.column.id, parsed.data.key);
-    else {
-      this.field.addAttributeColumn(
-        parsed.data.key,
-        parsed.data.key === PROBABILITY_ATTRIBUTE ? "number" : parsed.data.type,
-      );
-    }
+    const probability = isProbability(parsed.data.key);
+    const key = probability ? PROBABILITY_ATTRIBUTE : parsed.data.key;
+    if (this.column) this.field.renameAttributeColumn(this.column.id, key);
+    else this.field.addAttributeColumn(key, probability ? "number" : parsed.data.type);
     this.onInitOrRefresh(this.form);
     return true;
   };
