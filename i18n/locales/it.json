@@ -3135,12 +3135,18 @@
         "widget": "Il widget {source} misura {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} non viene più usato come immagine del profilo di {consumers}.",
+        "bindingCalendar": "{target} non viene più usato per gli eventi di calendario di {consumers}.",
+        "bindingChannels": "{target} non viene più usato per i canali in {consumers}.",
         "listDefaults": "{target} viene rimosso dal layout predefinito di {consumers}.",
         "nameField": "{consumers} verrà mostrato con {replacement}.",
         "nameFieldNone": "{consumers} non ha più un campo che dia il nome ai record, quindi appaiono senza nome.",
         "personalLayouts": "{target} viene rimosso da {count, plural, one {# layout personale} other {# layout personali}}.",
         "view": "{count, plural, one {{target} viene rimosso dalla vista {consumers}.} other {{target} viene rimosso da # viste: {consumers}.}}",
-        "widget": "{count, plural, one {{target} viene rimosso dai filtri o dal raggruppamento del widget {consumers}.} other {{target} viene rimosso dai filtri o dal raggruppamento di # widget: {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {Il webhook {consumers} non invia più le modifiche ai record, perché {target} era il suo unico trigger.} other {# webhook non inviano più le modifiche ai record, perché {target} era il loro unico trigger: {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} viene rimosso dal trigger del webhook {consumers}.} other {{target} viene rimosso dal trigger di # webhook: {consumers}.}}",
+        "widget": "{count, plural, one {{target} viene rimosso dai filtri o dal raggruppamento del widget {consumers}.} other {{target} viene rimosso dai filtri o dal raggruppamento di # widget: {consumers}.}}",
+        "widgetCount": "{count, plural, one {Il widget {consumers} conta i record invece di misurare {target}.} other {# widget contano i record invece di misurare {target}: {consumers}.}}"
       },
       "configureActions": "Azioni di Configura",
       "deleteColumn": "Elimina colonna",

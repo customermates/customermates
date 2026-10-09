@@ -3135,12 +3135,18 @@
         "widget": "The widget {source} measures {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} is no longer used as the profile picture of {consumers}.",
+        "bindingCalendar": "{target} is no longer used for the calendar events of {consumers}.",
+        "bindingChannels": "{target} is no longer used for Channels in {consumers}.",
         "listDefaults": "{target} is removed from the default layout of {consumers}.",
         "nameField": "{consumers} will be shown by {replacement} instead.",
         "nameFieldNone": "{consumers} has no field left that can name its records, so they show as untitled.",
         "personalLayouts": "{target} is removed from {count, plural, one {# personal layout} other {# personal layouts}}.",
         "view": "{count, plural, one {{target} is removed from the view {consumers}.} other {{target} is removed from # views: {consumers}.}}",
-        "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {The webhook {consumers} stops sending record changes, because {target} was its only trigger.} other {# webhooks stop sending record changes, because {target} was their only trigger: {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} is removed from the trigger of the webhook {consumers}.} other {{target} is removed from the trigger of # webhooks: {consumers}.}}",
+        "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}",
+        "widgetCount": "{count, plural, one {The widget {consumers} counts records instead of measuring {target}.} other {# widgets count records instead of measuring {target}: {consumers}.}}"
       },
       "configureActions": "Configure actions",
       "deleteColumn": "Delete column",

@@ -2684,6 +2684,103 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await nameOf(f.id("organization"))).toBe(f.id("organization.name"));
   });
 
+  it("cleans up widgets, webhook triggers and bindings that use a deleted field instead of blocking", async () => {
+    const f = await fixture();
+    const before = await f.run(() => f.repo.getModel());
+    const { publishedSummary, ...amount } = recordInvariant(
+      before.fields.find((candidate) => candidate.id === f.id("service.amount")),
+    );
+    expect(publishedSummary).toBe(false);
+    const budgetId = randomUUID();
+    const position = Math.max(...before.fields.map((field) => field.position)) + 1;
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: before.revision,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "putField", field: { ...amount, id: budgetId, label: "Budget", position } }],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const widget = await f.run(() =>
+      prisma.widget.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          name: "Budget total",
+          kind: "chart",
+          measure: RecordMeasureSchema.parse({
+            source: { typeId: f.id("service") },
+            aggregation: "sum",
+            valueFieldId: budgetId,
+            groupBy: null,
+          }) as Prisma.InputJsonValue,
+          displayOptions: { displayType: DisplayType.verticalBarChart },
+        },
+      }),
+    );
+    const only = await subscribeRecordEvents(f, { kind: "webhook", changedFieldIds: [budgetId] });
+    const shared = await subscribeRecordEvents(f, { kind: "webhook", changedFieldIds: [budgetId, amount.id] });
+    const remove = (fieldId: string, expectedRevision: number) => ({
+      expectedRevision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "delete" as const, target: { kind: "field" as const, id: fieldId } }],
+    });
+    const preview = await f.run(() => f.preview.invoke(remove(budgetId, before.revision + 1)));
+    expect(preview).toMatchObject({
+      ok: true,
+      data: {
+        valid: true,
+        deletion: {
+          blockers: [],
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({ consumer: expect.objectContaining({ id: widget.id }), effect: "countsRecords" }),
+            expect.objectContaining({
+              consumer: expect.objectContaining({ id: only.id }),
+              effect: "subscriptionRemoved",
+            }),
+            expect.objectContaining({ consumer: expect.objectContaining({ id: shared.id }), effect: "triggerChanged" }),
+          ]),
+        },
+      },
+    });
+    expect(await f.run(() => f.configure.invoke(remove(budgetId, before.revision + 1)))).toMatchObject({ ok: true });
+    const counted = await f.run(() =>
+      prisma.widget.findFirstOrThrow({ where: { companyId: f.company.id, id: widget.id } }),
+    );
+    expect(counted.measure).toMatchObject({ aggregation: "count", valueFieldId: null });
+    const subscriptions = await f.run(() =>
+      prisma.recordEventSubscription.findMany({ where: { companyId: f.company.id, id: { in: [only.id, shared.id] } } }),
+    );
+    expect(subscriptions.map((subscription) => [subscription.id, subscription.changedFieldIds])).toEqual([
+      [shared.id, [amount.id]],
+    ]);
+
+    const avatar = await f.run(() => f.preview.invoke(remove(f.id("contact.avatarUrl"), before.revision + 2)));
+    expect(avatar).toMatchObject({
+      ok: true,
+      data: {
+        valid: true,
+        deletion: {
+          blockers: [],
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({
+              consumer: expect.objectContaining({ kind: "type", id: f.id("contact") }),
+              effect: "avatar",
+            }),
+          ]),
+        },
+      },
+    });
+    expect(await f.run(() => f.configure.invoke(remove(f.id("contact.avatarUrl"), before.revision + 2)))).toMatchObject(
+      { ok: true },
+    );
+    const binding = (await f.run(() => f.repo.getModel())).capabilities.find(
+      (candidate) => candidate.kind === "avatar" && candidate.typeId === f.id("contact"),
+    );
+    expect(binding?.fields.some((entry) => entry.fieldId === f.id("contact.avatarUrl")) ?? false).toBe(false);
+  });
+
   it("requires every populated record to have a parent before adopting inherited access", async () => {
     const f = await fixture();
     const services = [await f.create("service", "Parented A"), await f.create("service", "Parented B")];

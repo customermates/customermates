@@ -3135,12 +3135,18 @@
         "widget": "Le widget {source} mesure {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} n’est plus utilisé comme photo de profil de {consumers}.",
+        "bindingCalendar": "{target} n’est plus utilisé pour les événements d’agenda de {consumers}.",
+        "bindingChannels": "{target} n’est plus utilisé pour les canaux dans {consumers}.",
         "listDefaults": "{target} est retiré de la mise en page par défaut de {consumers}.",
         "nameField": "{consumers} sera affiché avec {replacement} à la place.",
         "nameFieldNone": "{consumers} n’a plus de champ pour nommer ses éléments, ils s’affichent donc sans nom.",
         "personalLayouts": "{target} est retiré de {count, plural, one {# mise en page personnelle} other {# mises en page personnelles}}.",
         "view": "{count, plural, one {{target} est retiré de la vue {consumers}.} other {{target} est retiré de # vues : {consumers}.}}",
-        "widget": "{count, plural, one {{target} est retiré des filtres ou du regroupement du widget {consumers}.} other {{target} est retiré des filtres ou du regroupement de # widgets : {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {Le webhook {consumers} n’envoie plus les modifications d’éléments, car {target} était son seul déclencheur.} other {# webhooks n’envoient plus les modifications d’éléments, car {target} était leur seul déclencheur : {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} est retiré du déclencheur du webhook {consumers}.} other {{target} est retiré du déclencheur de # webhooks : {consumers}.}}",
+        "widget": "{count, plural, one {{target} est retiré des filtres ou du regroupement du widget {consumers}.} other {{target} est retiré des filtres ou du regroupement de # widgets : {consumers}.}}",
+        "widgetCount": "{count, plural, one {Le widget {consumers} compte les éléments au lieu de mesurer {target}.} other {# widgets comptent les éléments au lieu de mesurer {target} : {consumers}.}}"
       },
       "configureActions": "Actions de Configurer",
       "deleteColumn": "Supprimer la colonne",

@@ -76,6 +76,15 @@ export function deletionBlockerSentences(t: Translate, deletion: Deletion, model
   );
 }
 
+const EFFECT_SENTENCES = {
+  countsRecords: "widgetCount",
+  triggerChanged: "webhookTrigger",
+  subscriptionRemoved: "webhookRemoved",
+  channels: "bindingChannels",
+  avatar: "bindingAvatar",
+  calendar: "bindingCalendar",
+} as const;
+
 function nameFieldSentence(t: Translate, entry: Deletion["cleaned"][number], model: RecordModelView | null) {
   const consumers = referenceChip(entry.consumer, model);
   return entry.replacement
@@ -93,8 +102,9 @@ function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelVi
   const named = deletion.cleaned.filter((entry) => entry.replacement !== undefined);
   for (const entry of deletion.cleaned) {
     if (entry.replacement !== undefined) continue;
-    const key =
-      entry.consumer.kind === "personalLayout" || entry.consumer.kind === "detailLayout"
+    const key = entry.effect
+      ? EFFECT_SENTENCES[entry.effect]
+      : entry.consumer.kind === "personalLayout" || entry.consumer.kind === "detailLayout"
         ? "personalLayouts"
         : entry.consumer.kind === "view"
           ? "view"

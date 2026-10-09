@@ -242,7 +242,7 @@ function dependencyBlockers(
       continue;
     }
     const field = binding.fields.find((entry) => removed.fieldIds.has(entry.fieldId));
-    if (field && live(binding.typeId)) {
+    if (field && live(binding.typeId) && binding.kind === "membershipAuthorization") {
       blockers.push({
         reason: "binding",
         source: reference({ kind: "type", id: binding.typeId }),
@@ -251,6 +251,29 @@ function dependencyBlockers(
     }
   }
   return blockers;
+}
+
+function dropBindingFields(
+  model: RecordModel,
+  fieldIds: Set<string>,
+  reference: (target: ConfigurationTarget) => DeletionReference,
+): DeletionCleanup[] {
+  const cleaned: DeletionCleanup[] = [];
+  model.capabilities = model.capabilities.map((binding) => {
+    if (binding.kind === "membershipAuthorization") return binding;
+    const dropped = binding.fields.filter((entry) => fieldIds.has(entry.fieldId));
+    for (const entry of dropped) {
+      cleaned.push({
+        consumer: reference({ kind: "type", id: binding.typeId }),
+        target: reference({ kind: "field", id: entry.fieldId }),
+        effect: binding.kind,
+      });
+    }
+    return dropped.length
+      ? { ...binding, fields: binding.fields.filter((entry) => !fieldIds.has(entry.fieldId)) }
+      : binding;
+  });
+  return cleaned;
 }
 
 function cleanListDefaults(
@@ -427,6 +450,7 @@ export function applyConfigurationLifecycle(
     };
     for (const field of before.fields) if (sets.typeIds.has(field.typeId)) sets.fieldIds.add(field.id);
     blockers.push(...dependencyBlockers(before, sets, reference, false));
+    cleaned.push(...dropBindingFields(model, sets.fieldIds, reference));
     cleaned.push(...cleanListDefaults(model, sets, reference, reference(deletions[0].target)));
   }
   let removed: RecordDefinitionDeletion | null = null;
@@ -434,6 +458,7 @@ export function applyConfigurationLifecycle(
     const result = removePermanently(model, permanent);
     removed = result.removed;
     blockers.push(...dependencyBlockers(model, result.sets, reference, true));
+    cleaned.push(...dropBindingFields(model, result.sets.fieldIds, reference));
     if (result.removed.channelTypeIds.length) {
       cleanListDefaults(
         model,
