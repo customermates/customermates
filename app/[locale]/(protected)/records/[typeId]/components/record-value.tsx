@@ -161,7 +161,12 @@ export const RecordValue = observer(function RecordValue({
     const excerpt = formattedTextExcerpt(value.documentJson);
     if (!excerpt) return <EmptyValue />;
     return (
-      <span className={cn("text-muted-foreground", wrap ? "line-clamp-2 whitespace-normal break-words" : "truncate")}>
+      <span
+        className={cn(
+          "text-muted-foreground",
+          wrap ? "line-clamp-2 whitespace-normal break-words" : "block max-w-80 truncate",
+        )}
+      >
         {excerpt}
       </span>
     );

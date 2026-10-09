@@ -2972,6 +2972,7 @@
     "addPathStep": "Add a relationship step",
     "addProperty": "Add property",
     "addRelationship": "Add relationship",
+    "addValue": "Add {field}",
     "aggregation": "Aggregation",
     "ascending": "Ascending",
     "assignedTo": "Assigned to",

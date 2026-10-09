@@ -10,6 +10,13 @@ import { Editor } from "./editor";
 
 const EDITOR_POPOVER = '[data-slot="popover-content"]';
 
+type DocumentNode = { type?: string; content?: DocumentNode[] };
+
+function isEmptyDocument(data: object | undefined) {
+  const blocks = (data as DocumentNode | undefined)?.content ?? [];
+  return blocks.every((block) => block.type === "paragraph" && !block.content?.length);
+}
+
 export function FormattedTextField({
   data,
   label,
@@ -30,6 +37,7 @@ export function FormattedTextField({
   const editButtonRef = useRef<HTMLButtonElement>(null);
   const isEditing = editing && !readOnly;
   const collapsed = !isEditing && !expanded;
+  const showPrompt = !readOnly && !isEditing && isEmptyDocument(data);
 
   useEffect(() => {
     const content = contentRef.current;
@@ -88,9 +96,20 @@ export function FormattedTextField({
           isEditing && "ring-1 ring-ring",
         )}
       >
-        <div ref={contentRef} className={cn(collapsed && "max-h-48 overflow-hidden")}>
+        <div
+          ref={contentRef}
+          className={cn(
+            collapsed && "max-h-48 overflow-hidden",
+            collapsed && overflowing && "mask-b-from-75% mask-b-to-100%",
+            showPrompt && "hidden",
+          )}
+        >
           <Editor inline autoFocus={isEditing} data={data} label={label} readOnly={!isEditing} onChange={onChange} />
         </div>
+
+        {showPrompt && (
+          <p className="py-0.5 text-sm text-muted-foreground">{t("RecordModel.addValue", { field: label })}</p>
+        )}
 
         {!readOnly && !isEditing && (
           <button
