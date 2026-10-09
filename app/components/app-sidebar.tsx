@@ -24,6 +24,7 @@ import {
   Users,
   RotateCcw,
   BookOpen,
+  Trash2,
 } from "lucide-react";
 import { Action, Locale, Resource } from "@/generated/prisma";
 import { DISPLAY_LANGUAGE_VALUES } from "@/i18n/user-locale";
@@ -214,6 +215,13 @@ const FullAppSidebar = observer(
               href: "/routines",
               icon: Repeat,
               visible: rootStore.appMode !== "self-hosted" && canAccess(Resource.routines),
+            },
+            {
+              key: "trash",
+              title: t("NavigationBar.trash"),
+              href: "/trash",
+              icon: Trash2,
+              visible: true,
             },
           ].filter((i) => i.visible),
         },
