@@ -71,7 +71,6 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
                 linkColors={store.presentation.linkColors}
                 linkIcons={store.presentation.linkIcons}
                 record={store.record}
-                onMore={() => undefined}
                 onOpen={() => undefined}
               />
             }

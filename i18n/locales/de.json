@@ -2985,7 +2985,8 @@
       "snapshot": "Bei einem Ereignis gespeichert"
     },
     "board": "Board",
-    "calculatedReadOnly": "{field} wird berechnet und kann nicht bearbeitet werden.",
+    "calculatedValue": "Berechnet: {formula}",
+    "calculatedValuePlain": "Berechneter Wert",
     "calculationError": "Berechnung nicht verfügbar",
     "calculationInput": "Eingabe {number}",
     "calculationNavigation": "Berechnungsnavigation",
