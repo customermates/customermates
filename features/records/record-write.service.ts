@@ -8,12 +8,20 @@ import { z } from "zod";
 
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo, StoredRecord } from "./record.repo";
-import type { CalculatedValue, RecordModel, RecordRef, RecordScalar, RecordField } from "./record-model.schema";
+import type {
+  CalculatedValue,
+  RecordModel,
+  RecordRef,
+  RecordScalar,
+  RecordField,
+  RecordFieldUpdate,
+} from "./record-model.schema";
 import type { RecordMutation } from "./record-query.schema";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { validateNotes } from "@/core/validation/validate-notes";
+import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
 import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
@@ -63,6 +71,31 @@ export function normalizeRecordScalar(value: RecordScalar | null, field: RecordF
     return { kind: "richText", documentJson: JSON.stringify(parsed.data) };
   }
   return value;
+}
+
+const MAX_TEXT_LENGTH = 100_000;
+
+export function appendedRecordValue(field: RecordField, current: CalculatedValue, append: string): RecordScalar {
+  if (field.multiple || (field.valueType !== "text" && field.valueType !== "richText"))
+    reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+  const existing = current.state === "value" ? current.value : null;
+  if (field.valueType === "text") {
+    const before = existing?.kind === "text" ? existing.value : "";
+    const value = before.trim() ? `${before}\n\n${append.trim()}` : append.trim();
+    if (value.length > MAX_TEXT_LENGTH) reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+    return { kind: "text", value };
+  }
+  const before =
+    existing?.kind === "richText" ? (JSON.parse(existing.documentJson) as { content?: unknown[] }) : { content: [] };
+  const added = parseMarkdownToJSON(append) as { content?: unknown[] };
+  return {
+    kind: "richText",
+    documentJson: JSON.stringify({ type: "doc", content: [...(before.content ?? []), ...(added.content ?? [])] }),
+  };
+}
+
+function isAppend(update: RecordFieldUpdate): update is Extract<RecordFieldUpdate, { append: string }> {
+  return "append" in update;
 }
 
 function comparableResult(result: CalculatedValue): unknown {
@@ -195,6 +228,7 @@ export class RecordWriteService {
         reject(CustomErrorCode.permissionDenied, "authorization");
       for (const field of mutation.fields) {
         if (
+          "value" in field &&
           field.value?.kind === "member" &&
           !(await this.policy.validAssignees(policy.actor, [field.value.value], policy.canAssignOthers))
         )
@@ -454,8 +488,17 @@ export class RecordWriteService {
         );
       }
     } else if (mutation.action === "update") {
+      const appends = mutation.fields.filter(isAppend);
+      if (appends.length) await this.records.lockRecord(mutation.ref);
       const row = await editable(mutation.ref);
-      if (row.version !== mutation.expectedVersion) reject(CustomErrorCode.recordVersionChanged, "conflict");
+      const appendOnly =
+        appends.length === mutation.fields.length &&
+        mutation.assignedUserIds === undefined &&
+        mutation.identities === undefined &&
+        !mutation.linkChanges?.length &&
+        !mutation.captureFieldIds?.length;
+      if (!appendOnly && row.version !== mutation.expectedVersion)
+        reject(CustomErrorCode.recordVersionChanged, "conflict");
       if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
         if (mutation.assignedUserIds.length)
           reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
@@ -464,7 +507,22 @@ export class RecordWriteService {
           reject(CustomErrorCode.permissionDenied, "authorization");
         await this.records.setAssignments(mutation.ref, mutation.assignedUserIds);
       }
-      await assignFields(mutation.ref, mutation.fields, false, row);
+      await assignFields(
+        mutation.ref,
+        mutation.fields.map((update) => {
+          if (!isAppend(update)) return update;
+          const field = fields.get(update.fieldId);
+          if (!field || field.typeId !== mutation.ref.typeId)
+            reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+          const current = decodeRecordValue(
+            row.values.find((value) => value.fieldId === field.id),
+            field,
+          );
+          return { fieldId: update.fieldId, value: appendedRecordValue(field, current, update.append) };
+        }),
+        false,
+        row,
+      );
       await assignIdentities(mutation.ref, mutation.identities);
       for (const change of mutation.linkChanges ?? []) {
         await link(

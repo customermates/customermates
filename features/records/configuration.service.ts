@@ -137,7 +137,6 @@ export class RecordConfigurationService extends UserAccessor {
     for (const operation of input.operations) {
       if (operation.operation === "createType") {
         register(`${operation.reference}.name`, true);
-        register(`${operation.reference}.notes`, true);
       }
     }
     const resolve = (reference: string): string => {
@@ -219,9 +218,6 @@ export class RecordConfigurationService extends UserAccessor {
         const nameId =
           references.get(`${operation.reference}.name`) ??
           deterministicId(this.companyId, `configuration:${input.idempotencyKey}:${id}:name`);
-        const notesId =
-          references.get(`${operation.reference}.notes`) ??
-          deterministicId(this.companyId, `configuration:${input.idempotencyKey}:${id}:notes`);
         model.types.push({
           id,
           label: operation.label,
@@ -244,23 +240,18 @@ export class RecordConfigurationService extends UserAccessor {
             pinnedFields: [nameId],
           },
         });
-        for (const [fieldId, label, valueType, required] of [
-          [nameId, operation.label, "text", true],
-          [notesId, "Notes", "richText", false],
-        ] as const) {
-          model.fields.push({
-            id: fieldId,
-            typeId: id,
-            label,
-            valueType,
-            required,
-            behavior: { kind: "input" },
-            archived: false,
-            publishedSummary: false,
-            options: [],
-            position: required ? 0 : 1,
-          });
-        }
+        model.fields.push({
+          id: nameId,
+          typeId: id,
+          label: operation.label,
+          valueType: "text",
+          required: true,
+          behavior: { kind: "input" },
+          archived: false,
+          publishedSummary: false,
+          options: [],
+          position: 0,
+        });
         if (operation.accessPresetId) {
           const preset = model.accessPresets.find(
             (preset) => preset.id === resolve(operation.accessPresetId ?? "") && !preset.archived,

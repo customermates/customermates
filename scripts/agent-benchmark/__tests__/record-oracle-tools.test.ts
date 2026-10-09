@@ -27,10 +27,12 @@ describe("current record benchmark oracles", () => {
   it("classifies record mutations for the scoped write and approval oracles", () => {
     const input = { expectedRevision: 1, idempotencyKey: "oracle-delete", mutation: { action: "delete", ref: { typeId: dealType, recordId: "target" }, expectedVersion: 2 } };
     expect(recordMutation({ name: "mutate_crm_record", input, outcome: "cancelled" }, companyId)).toEqual({ kind: "delete", type: "deal", recordIds: ["target"] });
-    const notes = { mutation: { action: "update", ref: { typeId: dealType, recordId: "target" }, fields: [{ fieldId: presetId(companyId, "deal.notes") }] } };
-    expect(recordMutation({ name: "mutate_crm_record", input: notes }, companyId)?.kind).toBe("notes");
+    const append = { mutation: { action: "update", ref: { typeId: dealType, recordId: "target" }, fields: [{ fieldId: presetId(companyId, "deal.notes"), append: "Next step" }] } };
+    expect(recordMutation({ name: "mutate_crm_record", input: append }, companyId)?.kind).toBe("append");
+    const rewrite = { mutation: { action: "update", ref: { typeId: dealType, recordId: "target" }, fields: [{ fieldId: presetId(companyId, "deal.notes"), value: null }] } };
+    expect(recordMutation({ name: "mutate_crm_record", input: rewrite }, companyId)?.kind).toBe("update");
     expect(isRecordMutation({ name: "mutate_crm_record", input: { mutation: { action: "create", typeId: contactType } } }, companyId, ["create"], "contact")).toBe(true);
-    expect(isRecordMutation({ name: "query_crm_records", input: { typeId: dealType } }, companyId, ["create", "update", "notes", "delete", "link"])).toBe(false);
+    expect(isRecordMutation({ name: "query_crm_records", input: { typeId: dealType } }, companyId, ["create", "update", "append", "delete", "link"])).toBe(false);
   });
   it("permits a specified custom-field update while detecting another record's changes", () => {
     const before = snapshot(), after = snapshot();
