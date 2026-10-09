@@ -47,14 +47,24 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await expect(page.locator("[data-sidebar-section]")).toHaveCount(0);
   });
 
-  await test.step("webhook deliveries are a tab inside Webhooks", async () => {
+  await test.step("webhooks and deliveries are separate pages next to each other in the area nav", async () => {
+    const workspaceGroup = page.locator('[data-area-nav-group="workspace"]');
+    const items = await workspaceGroup
+      .locator("a[id^='nav-settings-']")
+      .evaluateAll((links) => links.map((link) => link.id));
+    expect(items.slice(items.indexOf("nav-settings-webhooks"), items.indexOf("nav-settings-webhooks") + 2)).toEqual([
+      "nav-settings-webhooks",
+      "nav-settings-webhook-deliveries",
+    ]);
     await page.locator("#nav-settings-webhooks").click();
     await expect(page).toHaveURL(/\/en\/settings\/webhooks$/);
-    const tabs = page.locator('[data-slot="segmented-control-list"]');
-    await expect(tabs.getByRole("tab", { name: "Webhooks" })).toHaveAttribute("aria-selected", "true");
-    await tabs.getByRole("tab", { name: "Deliveries" }).click();
-    await expect(page).toHaveURL(/\/en\/settings\/webhooks\/deliveries$/);
-    await expect(tabs.getByRole("tab", { name: "Deliveries" })).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator('[data-slot="segmented-control-list"]')).toHaveCount(0);
+    await openSidebar(page);
+    await page.locator("#nav-settings-webhook-deliveries").click();
+    await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries$/);
+    await openSidebar(page);
+    await expect(page.locator("#nav-settings-webhook-deliveries")).toHaveAttribute("data-active", "true");
+    await expect(page.locator("#nav-settings-webhooks")).toHaveAttribute("data-active", "false");
   });
 
   await test.step("Back returns to the page Settings was opened from", async () => {
@@ -63,6 +73,13 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await expect(page).toHaveURL(new RegExp(`${deals}$`));
     await openSidebar(page);
     await expect(page.locator("[data-area-nav]")).toHaveCount(0);
+  });
+
+  await test.step("the old deliveries links lead to the Deliveries page", async () => {
+    await page.goto("/en/settings/webhooks/deliveries?searchTerm=order");
+    await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries\?searchTerm=order$/);
+    await page.goto("/en/settings/webhooks?tab=deliveries");
+    await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries$/);
   });
 
   await test.step("the old profile and company routes are gone", async () => {

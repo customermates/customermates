@@ -1,28 +1,18 @@
-import { Resource } from "@/generated/prisma";
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
-import { WebhookDeliveriesPageView } from "../../components/webhook/webhook-deliveries-page-view";
-
-import { getGetWebhookDeliveriesInteractor } from "@/core/di";
-import { requireAccess } from "@/features/auth/next/require";
-import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
-import { SURFACE } from "@/core/data-view/data-view-keys";
-import { PageContainer } from "@/components/shared/page-container";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
+import { buildLocalePath } from "@/i18n/locale-registry";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function CompanyWebhookDeliveriesPage({ searchParams }: Props) {
-  await requireAccess({ resource: Resource.api });
-
-  const deliveryParams = await readSurfaceParams(SURFACE.webhookDeliveries, searchParams);
-
-  const deliveries = await unwrapValidated(getGetWebhookDeliveriesInteractor().invoke(deliveryParams));
-
-  return (
-    <PageContainer padded={false}>
-      <WebhookDeliveriesPageView initialDeliveries={deliveries} />
-    </PageContainer>
-  );
+export default async function WebhookDeliveriesMovedPage({ searchParams }: Props) {
+  const query = new URLSearchParams(
+    Object.entries(await searchParams).flatMap(([key, value]) =>
+      (Array.isArray(value) ? value : value === undefined ? [] : [value]).map((item) => [key, item]),
+    ),
+  ).toString();
+  redirect(buildLocalePath(await getLocale(), query ? `${WEBHOOK_DELIVERIES_HREF}?${query}` : WEBHOOK_DELIVERIES_HREF));
 }
