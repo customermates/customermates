@@ -3651,6 +3651,7 @@
   },
   "RoleModal": {
     "create": "Crear",
+    "dataModelNote": "Crear y cambiar listas, campos y relaciones en Configurar.",
     "edit": "Editar",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",

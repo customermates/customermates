@@ -3651,6 +3651,7 @@
   },
   "RoleModal": {
     "create": "Erstellen",
+    "dataModelNote": "Listen, Felder und Beziehungen in Konfigurieren anlegen und ändern.",
     "edit": "Bearbeiten",
     "manageAccess": "Verwalten",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
