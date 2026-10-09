@@ -72,14 +72,49 @@ export class PrismaWikiPageRepo
     WikiImportPageRepo,
     GetWikiSuggestionSignalRepo
 {
-  constructor(private readonly permissions: PermissionService) {
+  constructor(
+    private readonly permissions: PermissionService,
+    private readonly scopedCompanyId?: string,
+  ) {
     super();
+  }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
+  async guidesBlockingRestore(ids: string[]) {
+    if (!(await this.guideExists())) return [];
+    const guides = await this.prisma.wikiPage.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, kind: "guide", deletedAt: { not: null } },
+      select: { id: true },
+    });
+    return guides.map((guide) => guide.id);
+  }
+
+  async restoreTrashed(ids: string[]) {
+    const rows = await this.prisma.wikiPage.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      select: { id: true },
+    });
+    const restored = rows.map((row) => row.id);
+    await this.prisma.wikiPage.updateMany({
+      where: { id: { in: restored }, companyId: this.companyId },
+      data: { deletedAt: null },
+    });
+    return restored;
+  }
+
+  async purgeTrashed(ids: string[]) {
+    await this.prisma.wikiPage.deleteMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+    });
   }
 
   async findSuggestionWikiPage(): Promise<{ id: string } | null> {
     return this.prisma.wikiPage.findFirst({
       where: this.permissions.canRead(Resource.wiki)
-        ? { companyId: this.companyId }
+        ? { companyId: this.companyId, deletedAt: null }
         : { companyId: this.companyId, id: { in: [] } },
       select: { id: true },
     });
@@ -111,13 +146,18 @@ export class PrismaWikiPageRepo
   private async guideExists(exceptId?: string) {
     return (
       (await this.prisma.wikiPage.count({
-        where: { companyId: this.companyId, kind: "guide", ...(exceptId ? { id: { not: exceptId } } : {}) },
+        where: {
+          companyId: this.companyId,
+          kind: "guide",
+          deletedAt: null,
+          ...(exceptId ? { id: { not: exceptId } } : {}),
+        },
       })) > 0
     );
   }
 
   async listPages({ page, pageSize, kind }: RepoArgs<GetWikiPagesRepo, "listPages">) {
-    const where = { companyId: this.companyId, ...(kind ? { kind } : {}) };
+    const where = { companyId: this.companyId, deletedAt: null, ...(kind ? { kind } : {}) };
     const [items, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
@@ -134,7 +174,7 @@ export class PrismaWikiPageRepo
   async movePage({ id, targetId, placement }: RepoArgs<MoveWikiPageRepo, "movePage">) {
     return this.withCompanyTransaction(this.companyId, async () => {
       const pages = await this.prisma.wikiPage.findMany({
-        where: { companyId: this.companyId },
+        where: { companyId: this.companyId, deletedAt: null },
         select: { id: true, kind: true },
         orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }, { id: "asc" }],
       });
@@ -162,7 +202,7 @@ export class PrismaWikiPageRepo
         WITH distances AS MATERIALIZED (
           SELECT c."pageId", c."offset", c."ordinal", c."embedding" <=> ${embedding}::vector AS "distance"
           FROM "WikiPageChunk" c
-          JOIN "WikiPage" p ON p."id" = c."pageId" AND p."updatedAt" = c."pageUpdatedAt"
+          JOIN "WikiPage" p ON p."id" = c."pageId" AND p."updatedAt" = c."pageUpdatedAt" AND p."deletedAt" IS NULL
           WHERE c."companyId" = ${this.companyId} AND c."model" = ${model} AND c."embedding" IS NOT NULL
         ),
         pages AS (
@@ -183,7 +223,7 @@ export class PrismaWikiPageRepo
       `),
       this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
         SELECT p."id" FROM "WikiPage" p
-        WHERE p."companyId" = ${this.companyId} AND ${this.staleSemanticPage(model)}
+        WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL AND ${this.staleSemanticPage(model)}
         LIMIT ${WIKI_SEMANTIC_STALE_LIMIT}
       `),
     ]);
@@ -210,7 +250,7 @@ export class PrismaWikiPageRepo
             FROM "WikiPage" p
             JOIN unnest(${identifiers.map(wikiIdentifierPattern)}::text[]) WITH ORDINALITY AS terms("pattern", "ord")
               ON p."searchCompact" ~ terms."pattern"
-            WHERE p."companyId" = ${this.companyId}
+            WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL
           ) AS m
           WHERE m."pages" <= ${WIKI_IDENTIFIER_MAX_PAGES}::int
           ORDER BY m."ord", m."id"
@@ -239,17 +279,17 @@ export class PrismaWikiPageRepo
       hits AS MATERIALIZED (
         SELECT p."id", u."ord", bool_or(ts_filter(p."searchVector", '{a}'::"char"[]) @@ u."query") AS "title"
         FROM "WikiPage" p JOIN units u ON p."searchVector" @@ u."query"
-        WHERE p."companyId" = ${this.companyId}
+        WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL
         GROUP BY p."id", u."ord"
         UNION ALL
         SELECT p."id", t."ord", bool_or(strpos(lower(p."title"), t."term") > 0)
         FROM "WikiPage" p
         JOIN "substringUnits" t ON strpos(lower(p."title"), t."term") > 0 OR strpos(lower(p."markdown"), t."term") > 0
-        WHERE p."companyId" = ${this.companyId}
+        WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL
         GROUP BY p."id", t."ord"
       ),
       frequency AS MATERIALIZED (SELECT h."ord", count(*)::float8 AS "pages" FROM hits h GROUP BY h."ord"),
-      total AS (SELECT count(*)::float8 AS "pages" FROM "WikiPage" WHERE "companyId" = ${this.companyId}),
+      total AS (SELECT count(*)::float8 AS "pages" FROM "WikiPage" WHERE "companyId" = ${this.companyId} AND "deletedAt" IS NULL),
       weights AS (
         SELECT q."ord", ${idfWeight(Prisma.sql`t."pages"`, Prisma.sql`coalesce(f."pages", 0)`)} AS "weight"
         FROM (SELECT u."ord" FROM units u UNION SELECT sub."ord" FROM "substringUnits" sub) AS q
@@ -301,7 +341,7 @@ export class PrismaWikiPageRepo
       pages AS MATERIALIZED (
         SELECT p."title", p."markdown"
         FROM "WikiPage" p
-        WHERE p."companyId" = ${this.companyId} AND p."searchCompact" LIKE ANY (${prefixes}::text[])
+        WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL AND p."searchCompact" LIKE ANY (${prefixes}::text[])
         ORDER BY p."updatedAt" DESC, p."id" ASC
         LIMIT ${RETRIEVAL_TYPO_DOCUMENT_LIMIT}
       ),
@@ -391,7 +431,7 @@ export class PrismaWikiPageRepo
   async getPagesByIds(ids: string[]) {
     if (ids.length === 0) return [];
     return this.prisma.wikiPage.findMany({
-      where: { id: { in: ids }, companyId: this.companyId },
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: null },
       select: this.pageSelect,
     });
   }
@@ -418,7 +458,7 @@ export class PrismaWikiPageRepo
     return this.prisma.$queryRaw<WikiSemanticIndexPage[]>(Prisma.sql`
       WITH claimable AS MATERIALIZED (
         SELECT p."id" FROM "WikiPage" p
-        WHERE p."companyId" = ${this.companyId}
+        WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL
           AND (
             p."semanticIndexClaimedAt" IS NULL
             OR p."semanticIndexClaimedAt" < CURRENT_TIMESTAMP - make_interval(secs => ${WIKI_SEMANTIC_CLAIM_SECONDS})
@@ -485,10 +525,10 @@ export class PrismaWikiPageRepo
   }
 
   async loadOperatingPages(procedureLimit: number) {
-    const procedureWhere = { companyId: this.companyId, kind: "procedure" as const };
+    const procedureWhere = { companyId: this.companyId, kind: "procedure" as const, deletedAt: null };
     const [guide, procedures, proceduresTotal] = await Promise.all([
       this.prisma.wikiPage.findFirst({
-        where: { companyId: this.companyId, kind: "guide" },
+        where: { companyId: this.companyId, kind: "guide", deletedAt: null },
         select: this.pageSelect,
       }),
       this.prisma.wikiPage.findMany({
@@ -503,7 +543,7 @@ export class PrismaWikiPageRepo
   }
 
   async listCatalogPages({ page }: RepoArgs<GetWikiCatalogRepo, "listCatalogPages">) {
-    const where = { companyId: this.companyId, kind: "knowledge" as const };
+    const where = { companyId: this.companyId, kind: "knowledge" as const, deletedAt: null };
     const [items, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
@@ -519,7 +559,7 @@ export class PrismaWikiPageRepo
 
   async getPage(id: string) {
     return this.prisma.wikiPage.findFirst({
-      where: { id, companyId: this.companyId },
+      where: { id, companyId: this.companyId, deletedAt: null },
       select: this.pageSelect,
     });
   }
@@ -547,7 +587,7 @@ export class PrismaWikiPageRepo
   async wikiIsEmpty() {
     return (
       (await this.prisma.wikiPage.count({
-        where: { companyId: this.companyId },
+        where: { companyId: this.companyId, deletedAt: null },
       })) === 0
     );
   }
@@ -556,7 +596,7 @@ export class PrismaWikiPageRepo
     if (
       data.requireEmpty &&
       (await this.prisma.wikiPage.count({
-        where: { companyId: this.companyId },
+        where: { companyId: this.companyId, deletedAt: null },
       })) > 0
     )
       return { status: "wiki-not-empty" as const };
@@ -611,6 +651,7 @@ export class PrismaWikiPageRepo
       where: {
         id: data.id,
         companyId: this.companyId,
+        deletedAt: null,
         updatedAt: data.expectedUpdatedAt,
       },
       data: {
@@ -639,12 +680,14 @@ export class PrismaWikiPageRepo
     if (!page) return { status: "not-found" as const };
     if (page.updatedAt.getTime() !== data.expectedUpdatedAt.getTime()) return { status: "conflict" as const };
 
-    const deleted = await this.prisma.wikiPage.deleteMany({
+    const deleted = await this.prisma.wikiPage.updateMany({
       where: {
         id: data.id,
         companyId: this.companyId,
+        deletedAt: null,
         updatedAt: data.expectedUpdatedAt,
       },
+      data: { deletedAt: new Date() },
     });
     if (deleted.count !== 1) {
       const current = await this.getPage(data.id);
@@ -665,7 +708,7 @@ export class PrismaWikiPageRepo
 
   async listRefreshTargets(): Promise<Array<{ url: string; category: "help" }>> {
     const rows = await this.prisma.wikiPage.findMany({
-      where: { companyId: this.companyId, sourceUrl: { not: null } },
+      where: { companyId: this.companyId, sourceUrl: { not: null }, deletedAt: null },
       distinct: ["sourceUrl"],
       orderBy: [{ sourceUrl: "asc" }],
       select: { sourceUrl: true },
@@ -685,7 +728,7 @@ export class PrismaWikiPageRepo
 
   async findImportedPage(sourceUrl: string) {
     return this.prisma.wikiPage.findFirst({
-      where: { companyId: this.companyId, sourceUrl },
+      where: { companyId: this.companyId, sourceUrl, deletedAt: null },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       select: {
         id: true,
@@ -699,7 +742,7 @@ export class PrismaWikiPageRepo
 
   async listPageTitles() {
     const pages = await this.prisma.wikiPage.findMany({
-      where: { companyId: this.companyId },
+      where: { companyId: this.companyId, deletedAt: null },
       select: { title: true },
     });
     return pages.map(({ title }) => title);
@@ -707,7 +750,7 @@ export class PrismaWikiPageRepo
 
   async markImported(pageId: string, source: WikiImportProvenance) {
     const { count } = await this.prisma.wikiPage.updateMany({
-      where: { id: pageId, companyId: this.companyId, updatedAt: source.importedUpdatedAt },
+      where: { id: pageId, companyId: this.companyId, deletedAt: null, updatedAt: source.importedUpdatedAt },
       data: {
         sourceUrl: source.url,
         sourceFetchedAt: source.fetchedAt,

@@ -1,3 +1,4 @@
+import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -112,7 +113,7 @@ describeDatabase("data view user isolation on PostgreSQL", () => {
       saver().invoke({ surfaceKey: SURFACE, viewKey: viewId, state: { pageSize: 10 } }),
     );
     expect(saved.ok).toBe(false);
-    expect(await asColleague(() => views().deleteOwned(viewId))).toBe(false);
+    expect(await asColleague(() => views().trashOwned(viewId))).toBe(false);
 
     expect(await rowSnapshot(viewId)).toEqual(before);
   });
@@ -138,7 +139,7 @@ describeDatabase("data view user isolation on PostgreSQL", () => {
     expect((await asOwner(() => views().listDataViews(SURFACE))).map(({ id }) => id)).toEqual([viewId]);
     expect(await asOwner(() => views().findOwnedOrNull(own.id))).toBeNull();
 
-    await asColleague(() => views().deleteOwned(own.id));
+    await asColleague(() => views().trashOwned(own.id));
   });
 
   it("never leaves a deleted view selected when selection and deletion race", async () => {
@@ -154,7 +155,7 @@ describeDatabase("data view user isolation on PostgreSQL", () => {
           viewKey: racingView.id,
         }),
       ),
-      asOwner(() => new DeleteDataViewInteractor(views(), new PrismaP13nRepo()).invoke({ id: racingView.id })),
+      asOwner(() => new DeleteDataViewInteractor(views(), new PrismaP13nRepo(), new PrismaTrashRepo()).invoke({ id: racingView.id })),
     ]);
 
     expect(deleted.ok).toBe(true);

@@ -32,6 +32,8 @@ import { PauseRoutineInteractor } from "../pause-routine.interactor";
 import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+const trashStub = () => ({ add: vi.fn(), remove: vi.fn() }) as never;
+
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
 const OWNER_ID = "00000000-0000-4000-8000-000000000002";
 
@@ -283,55 +285,55 @@ describe("routine administration", () => {
   it("allows an admin, but not an ordinary owner or member, to delete a routine", async () => {
     const repo = {
       isActiveSystemAdministrator: vi.fn().mockResolvedValue(true),
-      deleteRoutineOrThrow: vi.fn().mockResolvedValue(routine()),
+      trashRoutineOrThrow: vi.fn().mockResolvedValue(routine()),
     };
     await expect(
-      new DeleteRoutineInteractor(repo as never, eventServiceStub().service).invoke({ id: ROUTINE_ID }),
+      new DeleteRoutineInteractor(repo as never, eventServiceStub().service, trashStub()).invoke({ id: ROUTINE_ID }),
     ).resolves.toEqual({
       ok: true,
       data: ROUTINE_ID,
     });
 
     currentUser = member();
-    const ownerDenied = await new DeleteRoutineInteractor(repo as never, eventServiceStub().service).invoke({
+    const ownerDenied = await new DeleteRoutineInteractor(repo as never, eventServiceStub().service, trashStub()).invoke({
       id: ROUTINE_ID,
     });
     expectAuthorizationFailure(ownerDenied as never, CustomErrorCode.routineAdminRequired);
 
     currentUser = member("other-member");
-    const memberDenied = await new DeleteRoutineInteractor(repo as never, eventServiceStub().service).invoke({
+    const memberDenied = await new DeleteRoutineInteractor(repo as never, eventServiceStub().service, trashStub()).invoke({
       id: ROUTINE_ID,
     });
 
     expectAuthorizationFailure(memberDenied as never, CustomErrorCode.routineAdminRequired);
     expect(repo.isActiveSystemAdministrator).toHaveBeenCalledTimes(1);
     expect(repo.isActiveSystemAdministrator).toHaveBeenCalledWith("admin-user");
-    expect(repo.deleteRoutineOrThrow).toHaveBeenCalledTimes(1);
+    expect(repo.trashRoutineOrThrow).toHaveBeenCalledTimes(1);
   });
 
   it("rejects an admin delete when the live membership or role no longer authorizes it", async () => {
     const repo = {
       isActiveSystemAdministrator: vi.fn().mockResolvedValue(false),
-      deleteRoutineOrThrow: vi.fn(),
+      trashRoutineOrThrow: vi.fn(),
     };
 
-    const result = await new DeleteRoutineInteractor(repo as never, eventServiceStub().service).invoke({
+    const result = await new DeleteRoutineInteractor(repo as never, eventServiceStub().service, trashStub()).invoke({
       id: ROUTINE_ID,
     });
 
     expectAuthorizationFailure(result as never, CustomErrorCode.routineAdminRequired);
     expect(repo.isActiveSystemAdministrator).toHaveBeenCalledWith("admin-user");
-    expect(repo.deleteRoutineOrThrow).not.toHaveBeenCalled();
+    expect(repo.trashRoutineOrThrow).not.toHaveBeenCalled();
   });
 
   it("keeps a routine while one of its paid runs is still active", async () => {
     const repo = {
       isActiveSystemAdministrator: vi.fn().mockResolvedValue(true),
-      deleteRoutineOrThrow: vi.fn().mockResolvedValue(null),
+      trashRoutineOrThrow: vi.fn().mockResolvedValue(null),
     };
 
     const { publish, service } = eventServiceStub();
-    const result = await new DeleteRoutineInteractor(repo as never, service).invoke({
+    const result = await new DeleteRoutineInteractor(repo as never, service, trashStub()).invoke({
       id: ROUTINE_ID,
     });
 
@@ -345,7 +347,7 @@ describe("routine administration", () => {
       },
     });
     expect(repo.isActiveSystemAdministrator).toHaveBeenCalledWith("admin-user");
-    expect(repo.deleteRoutineOrThrow).toHaveBeenCalledOnce();
-    expect(repo.deleteRoutineOrThrow).toHaveBeenCalledWith(ROUTINE_ID);
+    expect(repo.trashRoutineOrThrow).toHaveBeenCalledOnce();
+    expect(repo.trashRoutineOrThrow).toHaveBeenCalledWith(ROUTINE_ID);
   });
 });

@@ -288,9 +288,9 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         return false;
       }
 
-      await this.rootStore.widgetsStore.removeItem(res.data);
+      await this.rootStore.widgetsStore.removeItem(res.data.id);
       if (session === this.sessionGeneration && this.isOpen) this.close();
-      return true;
+      return { trashBatchId: res.data.trashBatchId };
     } finally {
       if (session === this.sessionGeneration) this.setIsLoading(false);
     }

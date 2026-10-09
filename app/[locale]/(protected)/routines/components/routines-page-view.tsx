@@ -48,7 +48,9 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
           routineModalStore.isAdmin
             ? async () => {
                 await routineModalStore.openForEdit(routine);
-                showDeleteConfirmation(() => routineModalStore.delete(), routine.name);
+                showDeleteConfirmation(() => routineModalStore.delete(), routine.name, undefined, () =>
+                  routinesStore.refresh(),
+                );
               }
             : undefined
         }

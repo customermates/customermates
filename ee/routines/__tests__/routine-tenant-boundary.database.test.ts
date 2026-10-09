@@ -1,3 +1,4 @@
+import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
@@ -207,7 +208,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       teammateId,
     ]);
     const deleteResult = await runWithTenant(staleAdmin, () =>
-      new DeleteRoutineInteractor(createTestRoutineRepo(), eventServiceStub()).invoke({
+      new DeleteRoutineInteractor(createTestRoutineRepo(), eventServiceStub(), new PrismaTrashRepo()).invoke({
         id: routineId,
       }),
     );
@@ -811,7 +812,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       clientRequestId: protectedRunId,
     });
     const deleted = await runWithTenant(tenant(ownerId), () =>
-      createTestRoutineRepo().deleteRoutineOrThrow(protectedRoutineId),
+      createTestRoutineRepo().trashRoutineOrThrow(protectedRoutineId, new Date()),
     );
 
     expect(deleted).toBeNull();
@@ -841,7 +842,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     const usageId = await insertReservedUsage();
 
     const deleted = await runWithTenant(tenant(ownerId), () =>
-      createTestRoutineRepo().deleteRoutineOrThrow(protectedRoutineId),
+      createTestRoutineRepo().trashRoutineOrThrow(protectedRoutineId, new Date()),
     );
 
     expect(deleted).toBeNull();
@@ -1201,7 +1202,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     await client.query(`DELETE FROM "Routine" WHERE "id" = $1`, [lateRoutineId]);
   });
 
-  it("deletes linked and inferred routine transcripts but preserves unrelated conversations and settled billing", async () => {
+  it("deletes linked and inferred routine transcripts permanently but preserves unrelated conversations and settled billing", async () => {
     const deletedRoutineId = randomUUID();
     const linkedRunId = randomUUID();
     const inferredRunId = randomUUID();
@@ -1243,10 +1244,11 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     );
 
     const deleted = await runWithTenant(tenant(ownerId), () =>
-      createTestRoutineRepo().deleteRoutineOrThrow(deletedRoutineId),
+      createTestRoutineRepo().trashRoutineOrThrow(deletedRoutineId, new Date()),
     );
 
     expect(deleted?.id).toBe(deletedRoutineId);
+    await runWithTenant(tenant(ownerId), () => createTestRoutineRepo().purgeTrashed([deletedRoutineId]));
     const conversations = await client.query<{ id: string }>(
       `SELECT "id" FROM "AgentConversation" WHERE "id" = ANY($1) ORDER BY "id"`,
       [[linkedConversationId, inferredConversationId, unrelatedConversationId]],

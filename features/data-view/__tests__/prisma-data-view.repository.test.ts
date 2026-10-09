@@ -168,7 +168,7 @@ describe("PrismaDataViewRepo scoping", () => {
   it("scopes the owner-only lookup, update and delete by both companyId and userId", async () => {
     await asTenant(() => new PrismaDataViewRepo().findOwnedOrNull(A_VIEW_ID));
     await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: A_VIEW_ID, name: "Renamed" }));
-    await asTenant(() => new PrismaDataViewRepo().deleteOwned(A_VIEW_ID));
+    await asTenant(() => new PrismaDataViewRepo().trashOwned(A_VIEW_ID));
 
     const ownedWhere = { id: A_VIEW_ID, companyId: mockUser.companyId, userId: mockUser.id };
 

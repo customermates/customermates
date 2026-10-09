@@ -92,10 +92,17 @@ export function useViewCommands<E extends HasId>(args: {
         return focusOverlayTarget(captureOverlayFocusTarget(target));
       };
       const onConfirm = () => deleteView(store, view);
+      const onRestored = () => store.refresh();
       const notice = deleteNotice?.(view);
       if (notice)
-        showConfirmation({ title: t("Common.deleteConfirmation.title"), ...notice, focusAfterConfirm, onConfirm });
-      else showDeleteConfirmation(onConfirm, view.name, focusAfterConfirm);
+        showConfirmation({
+          title: t("Common.deleteConfirmation.title"),
+          ...notice,
+          focusAfterConfirm,
+          onConfirm,
+          onRestored,
+        });
+      else showDeleteConfirmation(onConfirm, view.name, focusAfterConfirm, onRestored);
     },
 
     select: (viewKey) => runUserAction(() => selectView(store, viewKey, pathname)),

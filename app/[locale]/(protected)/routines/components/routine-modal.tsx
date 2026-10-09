@@ -67,7 +67,9 @@ export const RoutineModal = observer(() => {
     icon: Trash2,
     variant: "destructive",
     disabled: routineModalStore.isLoading,
-    onClick: () => showDeleteConfirmation(() => routineModalStore.delete(), form.name),
+    onClick: () => showDeleteConfirmation(() => routineModalStore.delete(), form.name, undefined, () =>
+        routineModalStore.rootStore.routinesStore.refresh(),
+      ),
   };
   const backAction: AppModalActionProps = {
     id: "routine-run-back",

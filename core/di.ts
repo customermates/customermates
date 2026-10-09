@@ -1,3 +1,4 @@
+import { Resource } from "@/generated/prisma";
 import { GetRecordActivityPresentationInteractor } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { GetRecordActivitiesInteractor } from "@/ee/messaging/activities/get-record-activities.interactor";
@@ -105,6 +106,7 @@ import { MutateRecordInteractor } from "@/features/records/mutate-record.interac
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
+import { EntityTrashHandler, EntityTrashVisibility } from "@/features/trash/entity-trash.handler";
 import { RecordTrashHandler } from "@/features/records/record-trash.handler";
 import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import type { TrashKindHandler } from "@/features/trash/trash-kind-handler";
@@ -508,7 +510,56 @@ export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => 
     getRecordAccessPolicy(),
     getBackgroundTaskService(),
   ),
+  ...entityTrashHandlers(companyId),
 ];
+const entityTrashHandlers = (companyId?: string) => {
+  const visibility = new EntityTrashVisibility();
+  const trash = getTrashRepo(companyId);
+  const widgets = new PrismaWidgetRepo(companyId);
+  const wikiPages = getWikiPageRepo(companyId);
+  return [
+    new EntityTrashHandler(
+      { kind: "view", restoreOrder: 2, visibility: visibility.owned("view") },
+      new PrismaDataViewRepo(companyId),
+      trash,
+    ),
+    new EntityTrashHandler(
+      {
+        kind: "widget",
+        restoreOrder: 3,
+        visibility: visibility.owned("widget"),
+        blockers: async (items) => {
+          const hidden = new Set(await widgets.widgetsOnTrashedViews(items.map((item) => item.targetId)));
+          return items
+            .filter((item) => hidden.has(item.targetId))
+            .map((item) => ({ itemId: item.id, reason: "parentDeleted" as const, typeId: null }));
+        },
+      },
+      widgets,
+      trash,
+    ),
+    new EntityTrashHandler(
+      { kind: "routine", restoreOrder: 2, visibility: visibility.administered("routine") },
+      getRoutineRepo(companyId),
+      trash,
+    ),
+    new EntityTrashHandler(
+      {
+        kind: "wikiPage",
+        restoreOrder: 2,
+        visibility: visibility.permitted("wikiPage", Resource.wiki),
+        blockers: async (items) => {
+          const blocked = new Set(await wikiPages.guidesBlockingRestore(items.map((item) => item.targetId)));
+          return items
+            .filter((item) => blocked.has(item.targetId))
+            .map((item) => ({ itemId: item.id, reason: "nameTaken" as const, typeId: null }));
+        },
+      },
+      wikiPages,
+      trash,
+    ),
+  ];
+};
 export const getQueryTrashInteractor = () =>
   new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());
 export const getRestoreTrashInteractor = () => new RestoreTrashInteractor(getTrashRepo(), getTrashKindHandlers());
@@ -545,7 +596,8 @@ export const getWidgetRepo = () => new PrismaWidgetRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService());
 
 export const getRecordRecipientReader = () => new RecordRecipientReader((companyId) => new PrismaRecordRepo(companyId));
-export const getRecordEventSubscriptionRepo = () => new PrismaRecordEventSubscriptionRepo(getRecordRepo());
+export const getRecordEventSubscriptionRepo = (companyId?: string) =>
+  new PrismaRecordEventSubscriptionRepo(getRecordRepo(), companyId);
 export const getRoutineAdmission = () =>
   new RoutineAdmission(getRoutineRepo(), getBackgroundTaskService(), getRecordRecipientReader());
 export const getWebhookAdmission = () => new WebhookAdmission(getRecordRecipientReader(), getBackgroundTaskService());
@@ -561,13 +613,18 @@ export const getSweepRecordDeliveriesInteractor = () =>
     new PrismaRecordOperationQueueRepo(),
     getBackgroundTaskService(),
   );
-export const getRoutineRepo = () =>
-  new PrismaRoutineRepo(getRoutineEventAccess(), getRecordEventSubscriptionRepo(), getPermissionService());
+export const getRoutineRepo = (companyId?: string) =>
+  new PrismaRoutineRepo(
+    getRoutineEventAccess(),
+    getRecordEventSubscriptionRepo(companyId),
+    getPermissionService(),
+    companyId,
+  );
 
 export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRecordRecipientReader());
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
 export const getEventLogRepo = () => new PrismaEventLogRepo(getBackgroundTaskService());
-export const getWikiPageRepo = () => new PrismaWikiPageRepo(getPermissionService());
+export const getWikiPageRepo = (companyId?: string) => new PrismaWikiPageRepo(getPermissionService(), companyId);
 export const getMessagingRepo = () => new PrismaMessagingRepo();
 export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo(getPermissionService());
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
@@ -808,7 +865,8 @@ export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleMan
 
 export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo(), getDataViewStateRepo());
 
-export const getDeleteWidgetInteractor = () => new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator());
+export const getDeleteWidgetInteractor = () =>
+  new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator(), getTrashRepo());
 
 export const getUpdateWidgetLayoutsInteractor = () => new UpdateWidgetLayoutsInteractor(getWidgetRepo());
 
@@ -828,7 +886,8 @@ export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiP
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWikiPageRepo());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
-export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
+export const getDeleteWikiPageInteractor = () =>
+  new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService(), getTrashRepo());
 export const getWikiWebsiteCrawlRepo = (): PrismaWikiWebsiteCrawlRepo =>
   new PrismaWikiWebsiteCrawlRepo(getWikiPageRepo());
 export const getFailWikiWebsiteCrawlInteractor = () => new FailWikiWebsiteCrawlInteractor(getWikiWebsiteCrawlRepo());
@@ -1403,7 +1462,8 @@ export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(ge
 export const getUpsertRoutineInteractor = () =>
   new UpsertRoutineInteractor(getRoutineRepo(), getCompanyRepo(), getEventService());
 
-export const getDeleteRoutineInteractor = () => new DeleteRoutineInteractor(getRoutineRepo(), getEventService());
+export const getDeleteRoutineInteractor = () =>
+  new DeleteRoutineInteractor(getRoutineRepo(), getEventService(), getTrashRepo());
 
 export const getPauseRoutineInteractor = () => new PauseRoutineInteractor(getRoutineRepo(), getEventService());
 

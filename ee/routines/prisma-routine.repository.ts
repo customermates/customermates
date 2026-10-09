@@ -216,8 +216,13 @@ export class PrismaRoutineRepo
     private readonly routineEventAccess: RoutineEventAccess,
     private readonly subscriptions: RecordEventSubscriptionRepo,
     private readonly permissions: PermissionService,
+    private readonly scopedCompanyId?: string,
   ) {
     super();
+  }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
   }
 
   private async withRecordTriggers(rows: RoutineDto[], companyId: string): Promise<RoutineDto[]> {
@@ -421,7 +426,7 @@ export class PrismaRoutineRepo
 
   async findRoutineById(id: string): Promise<RoutineDto | null> {
     const routine = await this.prisma.routine.findFirst({
-      where: { id, companyId: this.companyId },
+      where: { id, companyId: this.companyId, deletedAt: null },
       select: ROUTINE_SELECT,
     });
 
@@ -430,7 +435,7 @@ export class PrismaRoutineRepo
 
   async getRoutineByIdOrThrow(id: string): Promise<RoutineDto> {
     const routine = await this.prisma.routine.findFirstOrThrow({
-      where: { id, companyId: this.companyId },
+      where: { id, companyId: this.companyId, deletedAt: null },
       select: ROUTINE_SELECT,
     });
 
@@ -524,7 +529,7 @@ export class PrismaRoutineRepo
 
     if (id) {
       const existing = await this.prisma.routine.findFirstOrThrow({
-        where: { id, companyId, ownerUserId: userId },
+        where: { id, companyId, ownerUserId: userId, deletedAt: null },
         select: ROUTINE_SELECT,
       });
       const previous = (await this.withRecordTriggers([routineDto(existing)], companyId))[0];
@@ -556,6 +561,7 @@ export class PrismaRoutineRepo
         where: {
           id,
           companyId,
+          deletedAt: null,
           ownerUserId: userId,
           owner: { status: Status.active },
         },
@@ -602,7 +608,7 @@ export class PrismaRoutineRepo
 
     if (
       routineLimit !== "unlimited" &&
-      (await this.prisma.routine.count({ where: { companyId, ownerUserId: userId } })) >= routineLimit
+      (await this.prisma.routine.count({ where: { companyId, ownerUserId: userId, deletedAt: null } })) >= routineLimit
     )
       throw new RoutineLimitExceededError(routineLimit);
 
@@ -644,7 +650,7 @@ export class PrismaRoutineRepo
   }
 
   @Transaction
-  async deleteRoutineOrThrow(id: string): Promise<RoutineDto | null> {
+  async trashRoutineOrThrow(id: string, now: Date): Promise<RoutineDto | null> {
     const routine = await this.getRoutineByIdOrThrow(id);
     const runs = await this.prisma.routineRun.findMany({
       where: { routineId: id, companyId: this.companyId },
@@ -658,29 +664,66 @@ export class PrismaRoutineRepo
     )
       return null;
 
-    await this.prisma.routine.delete({
-      where: { id, companyId: this.companyId },
+    await this.prisma.routine.update({ where: { id, companyId: this.companyId }, data: { deletedAt: now } });
+    await this.subscriptions.pause(id);
+    await this.settleQueuedRunsForRoutine(id, "routineDisabled", now);
+    return routine;
+  }
+
+  async restoreTrashed(ids: string[]): Promise<string[]> {
+    const now = new Date();
+    const routines = await this.prisma.routine.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      select: { id: true, enabled: true, cronExpression: true, timezone: true, triggerKind: true },
     });
-    await this.subscriptions.remove(id);
-    if (conversationIds.length > 0) {
-      await this.prisma.agentConversation.deleteMany({
-        where: {
-          id: { in: conversationIds },
-          companyId: this.companyId,
-          origin: AgentConversationOrigin.routine,
-          routineRuns: { none: {} },
+    for (const routine of routines) {
+      await this.prisma.routine.update({
+        where: { id: routine.id, companyId: this.companyId },
+        data: {
+          deletedAt: null,
+          nextRunAt:
+            routine.enabled && routine.triggerKind === RoutineTriggerKind.schedule
+              ? resolveNextRunAt(routine, now)
+              : null,
         },
       });
+      if (routine.enabled) await this.subscriptions.resume(routine.id);
     }
+    return routines.map((routine) => routine.id);
+  }
 
-    return routine;
+  async purgeTrashed(ids: string[]): Promise<void> {
+    const routines = await this.prisma.routine.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      select: { id: true },
+    });
+    for (const { id } of routines) {
+      const runs = await this.prisma.routineRun.findMany({
+        where: { routineId: id, companyId: this.companyId },
+        select: { id: true, conversationId: true, status: true },
+      });
+      const conversationsByRun = await this.routineConversationIdsByRun(runs, this.companyId);
+      const conversationIds = [...new Set([...conversationsByRun.values()].flatMap((runIds) => [...runIds]))];
+      await this.prisma.routine.delete({ where: { id, companyId: this.companyId } });
+      await this.subscriptions.remove(id);
+      if (conversationIds.length > 0) {
+        await this.prisma.agentConversation.deleteMany({
+          where: {
+            id: { in: conversationIds },
+            companyId: this.companyId,
+            origin: AgentConversationOrigin.routine,
+            routineRuns: { none: {} },
+          },
+        });
+      }
+    }
   }
 
   @Transaction
   async pauseRoutineOrThrow(routineId: string, now: Date): Promise<RoutineDto> {
     await this.getRoutineByIdOrThrow(routineId);
     await this.prisma.routine.update({
-      where: { id: routineId, companyId: this.companyId },
+      where: { id: routineId, companyId: this.companyId, deletedAt: null },
       data: {
         enabled: false,
         disabledReason: ROUTINE_DISABLED_REASON_ADMIN_PAUSED,
@@ -734,6 +777,7 @@ export class PrismaRoutineRepo
         ownerUserId: executedByUserId,
         owner: { status: Status.active },
         enabled: true,
+        deletedAt: null,
         triggerKind: RoutineTriggerKind.schedule,
       },
       select: {
@@ -762,6 +806,7 @@ export class PrismaRoutineRepo
     const routines = await this.prisma.routine.findMany({
       where: {
         enabled: true,
+        deletedAt: null,
         triggerKind: RoutineTriggerKind.schedule,
         ownerUserId: { not: null },
         owner: { status: Status.active },
@@ -828,6 +873,7 @@ export class PrismaRoutineRepo
           id: args.routineId,
           companyId: identity.companyId,
           enabled: true,
+          deletedAt: null,
           ownerUserId: routine.ownerUserId,
           owner: { status: Status.active },
           nextRunAt: args.expectedNextRunAt,
@@ -1097,6 +1143,7 @@ export class PrismaRoutineRepo
       where: {
         companyId,
         enabled: true,
+        deletedAt: null,
         ownerUserId: { not: null },
         owner: { status: Status.active },
         triggerKind: RoutineTriggerKind.event,
@@ -1140,6 +1187,7 @@ export class PrismaRoutineRepo
           id: { in: args.routines.map((routine) => routine.id) },
           companyId: args.companyId,
           enabled: true,
+          deletedAt: null,
           ownerUserId: { not: null },
           owner: { status: Status.active },
           triggerKind: RoutineTriggerKind.event,

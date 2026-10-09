@@ -1,3 +1,4 @@
+import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { WikiPageDto, WikiPageKind } from "@/features/wiki/wiki.schema";
@@ -106,6 +107,8 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     }
     this.onChanged(page?.id ?? null);
   };
+
+  showRestored = (pageId: string) => this.onChanged(pageId);
 
   receiveServerPage = (page: WikiPageDto | null, requestedPageId?: string) => {
     const pending = this.pendingMutationSelection;
@@ -258,7 +261,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     }
   };
 
-  delete = async (): Promise<boolean> => {
+  delete = async (): Promise<boolean | MovedToTrash> => {
     if (!this.allows(Action.delete) || !this.form.id || !this.form.updatedAt || this.isLoading) return false;
 
     const generation = this.viewGeneration;
@@ -275,7 +278,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
         return false;
       }
       this.completeMutation(null, previousSelection);
-      return true;
+      return { trashBatchId: result.data.trashBatchId };
     } finally {
       if (generation === this.viewGeneration) this.setIsLoading(false);
     }

@@ -128,7 +128,7 @@ describe("generic widget repository", () => {
   it("scopes deletion to the owner and tenant", async () => {
     const id = randomUUID();
     mocks.deleteMany.mockResolvedValue({ count: 1 });
-    await scoped((repo) => repo.deleteWidget(id));
+    await scoped((repo) => repo.trashWidget(id));
     expect(mocks.deleteMany).toHaveBeenCalledWith({ where: { id, companyId: user.companyId, userId: user.id } });
   });
   it("filters ID selection by both owner and tenant", async () => {

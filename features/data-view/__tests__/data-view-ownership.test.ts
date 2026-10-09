@@ -26,6 +26,8 @@ import { interactorFailureKind } from "@/core/validation/validation.utils";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+const trashStub = () => ({ add: vi.fn(), remove: vi.fn() }) as never;
+
 const SURFACE = "webhooks-card-store";
 const OPERATOR_SURFACE = "operator-users";
 const FOREIGN_VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f70";
@@ -98,17 +100,17 @@ describe("data view ownership", () => {
   it("refuses a delete of a view the caller does not own and records no write", async () => {
     const repo = {
       findOwnedOrNull: vi.fn().mockResolvedValue(null),
-      deleteOwned: vi.fn().mockResolvedValue(false),
+      trashOwned: vi.fn().mockResolvedValue(false),
     };
     const selection = { clearActiveViewKeyIfMatches: vi.fn() };
 
     const result = await runWithTenant(mockUser, () =>
-      new DeleteDataViewInteractor(repo, selection).invoke({ id: FOREIGN_VIEW_ID }),
+      new DeleteDataViewInteractor(repo, selection, trashStub()).invoke({ id: FOREIGN_VIEW_ID }),
     );
 
     expect(result.ok).toBe(false);
     expect(failureCode(result)).toEqual({ code: CustomErrorCode.dataViewNotFound, kind: "not_found" });
-    expect(repo.deleteOwned).not.toHaveBeenCalled();
+    expect(repo.trashOwned).not.toHaveBeenCalled();
     expect(selection.clearActiveViewKeyIfMatches).not.toHaveBeenCalled();
   });
 
@@ -149,12 +151,12 @@ describe("data view ownership", () => {
   it("clears the deleted view only when it is still the persisted active selection", async () => {
     const repo = {
       findOwnedOrNull: vi.fn().mockResolvedValue(ownedView()),
-      deleteOwned: vi.fn().mockResolvedValue(true),
+      trashOwned: vi.fn().mockResolvedValue(true),
     };
     const selection = { clearActiveViewKeyIfMatches: vi.fn().mockResolvedValue(true) };
 
     const result = await runWithTenant(mockUser, () =>
-      new DeleteDataViewInteractor(repo, selection).invoke({ id: OWN_VIEW_ID }),
+      new DeleteDataViewInteractor(repo, selection, trashStub()).invoke({ id: OWN_VIEW_ID }),
     );
 
     expect(result).toEqual({ ok: true, data: { id: OWN_VIEW_ID } });
