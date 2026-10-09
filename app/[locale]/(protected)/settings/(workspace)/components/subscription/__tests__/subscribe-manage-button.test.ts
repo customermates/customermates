@@ -15,6 +15,7 @@ vi.mock("mobx-react-lite", () => ({
 }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/components/ui/button", () => ({
+  buttonVariants: () => "",
   Button: ({ children, onClick: _onClick, ...props }: { children: ReactNode; onClick?: () => void }) =>
     createElement("button", props, children),
 }));

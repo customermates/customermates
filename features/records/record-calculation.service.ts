@@ -68,41 +68,7 @@ export class RecordCalculationService {
     const fields = new Map(model.fields.map((field) => [field.id, field]));
     const dirty = new Map(seeds.map((ref) => [recordKey(ref), ref]));
     const changed = new Map<string, RecordRef>();
-    const values = new Map<string, CalculatedValue>();
-    const rows = new Map<string, Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>>();
-    const row = async (ref: RecordRef) => {
-      const key = recordKey(ref);
-      if (!rows.has(key)) rows.set(key, await this.records.getRecordCompanyWide(ref));
-      return rows.get(key) ?? null;
-    };
-    const context: CalculationContext = {
-      field: async (ref, fieldId) => {
-        const key = `${recordKey(ref)}:${fieldId}`;
-        if (values.has(key)) return recordInvariant(values.get(key));
-        const definition = fields.get(fieldId);
-        if (!definition || definition.typeId !== ref.typeId) return { state: "error", code: "dependency_error" };
-        const stored = await row(ref);
-        const value = decodeRecordValue(
-          stored?.values.find((candidate) => candidate.fieldId === fieldId),
-          definition,
-        );
-        values.set(key, value);
-        return value;
-      },
-      related: async (ref, relationId, direction) => {
-        const refs = await this.records.linkedRecordsCompanyWide(ref, relationId, direction, limit + 1);
-        if (refs.length > limit) throw new CalculationBudgetExceeded();
-        return refs;
-      },
-      optionAttribute: async (ref, fieldId, attribute) => {
-        const value = await context.field(ref, fieldId);
-        if (value.state !== "value") return value;
-        if (value.value.kind !== "select") return { state: "error", code: "type_mismatch" };
-        const selected = value.value.value;
-        const option = fields.get(fieldId)?.options.find((candidate) => candidate.id === selected);
-        return valueResult(option?.attributes.find((candidate) => candidate.key === attribute)?.value ?? null);
-      },
-    };
+    const { context, values, row } = this.context(model, limit);
 
     for (const fieldId of validation.calculationOrder) {
       const definition = recordInvariant(fields.get(fieldId));
@@ -167,6 +133,60 @@ export class RecordCalculationService {
       }
     }
     return { complete: true, changed: [...changed.values()] };
+  }
+
+  async evaluate(
+    model: RecordModel,
+    ref: RecordRef,
+    expression: CalculationExpression,
+    limit = SYNCHRONOUS_RECORD_LIMIT,
+  ): Promise<CalculatedValue | null> {
+    try {
+      return await evaluateCalculation(expression, ref, this.context(model, limit).context);
+    } catch (error) {
+      if (error instanceof CalculationBudgetExceeded) return null;
+      throw error;
+    }
+  }
+
+  private context(model: RecordModel, limit: number) {
+    const fields = new Map(model.fields.map((field) => [field.id, field]));
+    const values = new Map<string, CalculatedValue>();
+    const rows = new Map<string, Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>>();
+    const row = async (ref: RecordRef) => {
+      const key = recordKey(ref);
+      if (!rows.has(key)) rows.set(key, await this.records.getRecordCompanyWide(ref));
+      return rows.get(key) ?? null;
+    };
+    const context: CalculationContext = {
+      field: async (ref, fieldId) => {
+        const key = `${recordKey(ref)}:${fieldId}`;
+        if (values.has(key)) return recordInvariant(values.get(key));
+        const definition = fields.get(fieldId);
+        if (!definition || definition.typeId !== ref.typeId) return { state: "error", code: "dependency_error" };
+        const stored = await row(ref);
+        const value = decodeRecordValue(
+          stored?.values.find((candidate) => candidate.fieldId === fieldId),
+          definition,
+        );
+        values.set(key, value);
+        return value;
+      },
+      related: async (ref, relationId, direction) => {
+        const refs = await this.records.linkedRecordsCompanyWide(ref, relationId, direction, limit + 1);
+        if (refs.length > limit) throw new CalculationBudgetExceeded();
+        return refs;
+      },
+      optionAttribute: async (ref, fieldId, attribute) => {
+        const value = await context.field(ref, fieldId);
+        if (value.state !== "value") return value;
+        if (value.value.kind !== "select") return { state: "error", code: "type_mismatch" };
+        const selected = value.value.value;
+        const option = fields.get(fieldId)?.options.find((candidate) => candidate.id === selected);
+        return valueResult(option?.attributes.find((candidate) => candidate.key === attribute)?.value ?? null);
+      },
+    };
+    return { context, values, row };
   }
 
   async provenance(
