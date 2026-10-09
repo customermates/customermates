@@ -47,6 +47,8 @@ test("finds a list with its views, opens a view, and deep links a setting with a
   await expect(best.nth(1)).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`/en/records/${deals}\\?.*view=${views[0]}`));
+  await expect(page.getByRole("link", { name: "Open pipeline" }).or(page.getByText("Open pipeline")).first()).toBeVisible();
+  await expect(page.locator("#global-search-input")).toHaveCount(0);
 
   const again = await openPalette(page);
   await again.fill("v won");
@@ -102,11 +104,12 @@ test("changes a record field and links a record from a second palette level", as
 
   await input.fill("stage");
   await page.keyboard.press("Enter");
-  await expect(input).toHaveAttribute("placeholder", "Change Stage…");
+  const breadcrumb = dialog.getByText(`Palette deal ${suffix} · Change Stage…`);
+  await expect(breadcrumb).toBeVisible();
   await expect(suggestions.filter({ hasText: "Qualified" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(input).toBeVisible();
-  await expect(input).toHaveAttribute("placeholder", "Search...");
+  await expect(breadcrumb).toHaveCount(0);
   await input.fill("stage");
   await page.keyboard.press("Enter");
   await input.fill("qual");

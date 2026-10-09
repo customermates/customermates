@@ -97,7 +97,7 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
     const selected = new Set(Array.isArray(current) ? current : current ? [current] : []);
     const options = field.options.filter((option) => matches(query, option.label));
     return (
-      <CommandGroup heading={level.label}>
+      <CommandGroup>
         {options.map((option) => (
           <CommandItem
             key={option.id}
@@ -135,7 +135,7 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
       { value: false, label: t("RecordModel.no") },
     ].filter((option) => matches(query, option.label));
     return (
-      <CommandGroup heading={level.label}>
+      <CommandGroup>
         {options.map((option) => (
           <CommandItem
             key={String(option.value)}
@@ -171,7 +171,7 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
         } else if (field) editor.onChange(`values.${field.id}`, member.id);
       });
     return (
-      <CommandGroup heading={level.label}>
+      <CommandGroup>
         {members.loading && members.members.length === 0 && <LoadingRow label={t("GlobalSearch.loading")} />}
 
         {members.members.map((member) => (
@@ -201,7 +201,7 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
             ? record.title.value.value
             : t("RecordModel.record");
     const linkedIds = new Set((linked.data?.records ?? []).map((record) => record.ref.recordId));
-    const unavailable = linked.loading || linked.failed;
+    const waitingForLinks = singular && (linked.loading || linked.failed);
     const choose = (record: RecordChoice) =>
       apply(() => {
         if (singular) {
@@ -218,13 +218,13 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
         );
       });
     return (
-      <CommandGroup heading={level.label}>
+      <CommandGroup>
         {choices.loading && <LoadingRow label={t("GlobalSearch.loading")} />}
 
         {(choices.data?.records ?? []).map((record) => (
           <CommandItem
             key={record.ref.recordId}
-            disabled={unavailable || linkedIds.has(record.ref.recordId)}
+            disabled={waitingForLinks || linkedIds.has(record.ref.recordId)}
             value={`link:${record.ref.recordId}`}
             onSelect={() => choose(record)}
           >
