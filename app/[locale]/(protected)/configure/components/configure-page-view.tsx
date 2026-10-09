@@ -198,12 +198,12 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     relationModal.close();
     await refresh();
   }, [relationModal, refresh]);
-  const [focusedList, setFocusedList] = useState<{ id: string } | null>(null);
+  const [focusedListId, setFocusedListId] = useState<string | null>(null);
   useFocusTarget(
     CONFIGURE_FOCUS_KINDS,
     (target) => {
       if (target.kind === "list") {
-        setFocusedList({ id: target.id });
+        setFocusedListId(target.id);
         return true;
       }
       if (!selected) return true;
@@ -332,7 +332,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             canManage={canManage}
             catalog={catalog}
             disabled={!interactive}
-            focusedList={focusedList}
+            focusedListId={focusedListId}
             layout={graphLayout}
             model={model}
             onAdd={addTo}
