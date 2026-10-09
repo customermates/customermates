@@ -1293,6 +1293,7 @@ enum AgentUsagePurpose {
   wikiRetrieval
   wikiIndexing
   wikiSynthesis
+  calculationDraft
 }
 
 enum AgentUsageCostSource {
