@@ -2,7 +2,7 @@ import { recordChannelsEnabled } from "./record-channels";
 import { z } from "zod";
 import type { Action } from "@/generated/prisma";
 import type { RecordAccessPolicy } from "./record-access";
-import type { RecordRepo } from "./record.repo";
+import type { RecordRepo, TrashReadOptions } from "./record.repo";
 import type { RecordDto, RecordModelView } from "./record-model.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -50,6 +50,10 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
 
   @Validate(GetRecordEditorSchema)
   async invoke(input: z.infer<typeof GetRecordEditorSchema>): Validated<RecordEditorResult> {
+    return this.read(input);
+  }
+
+  read(input: z.infer<typeof GetRecordEditorSchema>, options: TrashReadOptions = {}): Validated<RecordEditorResult> {
     return runInTransaction(
       async () => {
         const [storedModel, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
@@ -58,7 +62,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
         if (!type || !policy.actor || !policy.canReadType(type.id))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
         const ref = input.recordId ? { typeId: type.id, recordId: input.recordId } : null;
-        const stored = ref ? await this.records.getRecordCompanyWide(ref) : null;
+        const stored = ref ? await this.records.getRecordCompanyWide(ref, options) : null;
         if (ref && (!stored || !(await policy.canRead(stored)))) return failNotFound(CustomErrorCode.recordNotFound);
         const accessible = new Set(
           model.types.filter((type) => !type.archived && policy.canReadType(type.id)).map((type) => type.id),

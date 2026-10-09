@@ -1033,6 +1033,8 @@
       "recordDependencies": "Update the dependent fields, views, widgets, or bindings first.",
       "recordIdempotencyConflict": "This request key was used for another change. Start a new request.",
       "recordIdUnavailable": "This record ID belongs to an earlier record. Import the record with a new ID.",
+      "trashItemNotFound": "This item is no longer in Trash.",
+      "trashChanged": "Trash changed in the meantime. Review what will be deleted and try again.",
       "recordMeasureDateIntervalInvalid": "Time intervals need a date, date-and-time, created or updated grouping field, and a time zone needs a time interval.",
       "recordNotFound": "This record is unavailable.",
       "recordProtected": "This record is managed by a system workflow.",
@@ -1150,7 +1152,9 @@
       },
       "record": {
         "created": "Record created",
-        "deleted": "Record deleted",
+        "deleted": "Record moved to Trash",
+        "deletedPermanently": "Record deleted permanently",
+        "restored": "Record restored",
         "updated": "Record updated"
       },
       "record_grants": {
@@ -3637,7 +3641,8 @@
           "messageReceived": "Receive a new, non-duplicate incoming message through a connected account.",
           "messageUpdated": "Edit a message in the connected messaging provider.",
           "recordCreated": "Create a record in Customermates: {entity}.",
-          "recordDeleted": "Delete a record in Customermates: {entity}.",
+          "recordDeleted": "Move a record to Trash in Customermates: {entity}.",
+          "recordRestored": "Restore a record from Trash in Customermates: {entity}.",
           "recordUpdated": "Make a real change to a record in Customermates: {entity}.",
           "relationCreated": "Have a LinkedIn connection request accepted through a connected account."
         },

@@ -711,6 +711,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
             this.prisma.recordLink.findFirst({
               where: {
                 companyId,
+                deletedAt: null,
                 OR: protectedTasks.flatMap((task) => [
                   { sourceTypeId: task.typeId, sourceId: task.id },
                   { targetTypeId: task.typeId, targetId: task.id },
@@ -1330,11 +1331,11 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
       }>
     >`
       SELECT
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "contact")})::int AS "contacts",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "organization")})::int AS "organizations",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "deal")})::int AS "deals",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "service")})::int AS "services",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "typeId" = ${presetId(data.companyId, "task")})::int AS "tasks",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "contact")})::int AS "contacts",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "organization")})::int AS "organizations",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "deal")})::int AS "deals",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "service")})::int AS "services",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "task")})::int AS "tasks",
         (SELECT COUNT(*) FROM "MessagingThread" WHERE "companyId" = ${data.companyId})::int AS "messagingThreads",
         (SELECT COUNT(*) FROM "MessagingMessage" WHERE "companyId" = ${data.companyId})::int AS "messagingMessages",
         (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",

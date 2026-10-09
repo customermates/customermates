@@ -1033,6 +1033,8 @@
       "recordDependencies": "Mets d’abord à jour les champs, vues, widgets ou associations dépendants.",
       "recordIdempotencyConflict": "Cette clé de requête a été utilisée pour une autre modification. Crée une nouvelle requête.",
       "recordIdUnavailable": "Cet identifiant appartenait déjà à un enregistrement précédent. Importe l’enregistrement avec un nouvel identifiant.",
+      "trashItemNotFound": "Cet élément n’est plus dans la corbeille.",
+      "trashChanged": "La corbeille a changé entre-temps. Vérifiez ce qui sera supprimé et réessayez.",
       "recordMeasureDateIntervalInvalid": "Les intervalles de temps nécessitent un regroupement par un champ de date, de date et heure, de création ou de modification, et un fuseau horaire nécessite un intervalle de temps.",
       "recordNotFound": "Cet enregistrement est indisponible.",
       "recordProtected": "Cet enregistrement est géré par un processus système.",
@@ -1150,7 +1152,9 @@
       },
       "record": {
         "created": "Fiche créée",
-        "deleted": "Fiche supprimée",
+        "deleted": "Enregistrement placé dans la corbeille",
+        "deletedPermanently": "Enregistrement supprimé définitivement",
+        "restored": "Enregistrement restauré",
         "updated": "Fiche mise à jour"
       },
       "record_grants": {
@@ -3637,7 +3641,8 @@
           "messageReceived": "Recevez un nouveau message entrant non dupliqué via un compte connecté.",
           "messageUpdated": "Modifiez un message chez le fournisseur de messagerie connecté.",
           "recordCreated": "Créez un enregistrement dans Customermates : {entity}.",
-          "recordDeleted": "Supprimez un enregistrement dans Customermates : {entity}.",
+          "recordDeleted": "Placer un enregistrement dans la corbeille dans Customermates : {entity}.",
+          "recordRestored": "Restaurer un enregistrement depuis la corbeille dans Customermates : {entity}.",
           "recordUpdated": "Apportez une véritable modification à un enregistrement dans Customermates : {entity}.",
           "relationCreated": "Faites accepter une demande de connexion LinkedIn via un compte connecté."
         },
