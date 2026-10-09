@@ -3,6 +3,7 @@ import { FORMATTING_LOCALES, type FormattingLocale } from "@/i18n/locale-registr
 
 import {
   RecordFieldAssignmentSchema,
+  RecordFieldUpdateSchema,
   RecordRefSchema,
   RecordScalarSchema,
   RecordGroupSummaryDefinitionSchema,
@@ -188,7 +189,7 @@ const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
       action: z.literal("update"),
       ref: RecordRefSchema,
       expectedVersion: z.number().int().positive(),
-      fields: z.array(RecordFieldAssignmentSchema).max(250),
+      fields: z.array(RecordFieldUpdateSchema).max(250),
       assignedUserIds: z.array(z.uuid()).max(100).optional(),
       captureFieldIds: z.array(z.uuid()).max(100).optional(),
       identities: RecordIdentityInputsSchema.optional(),
@@ -250,7 +251,7 @@ export const RecordMutationSchema = z
     typeId: createMutation.shape.typeId.optional(),
     ref: updateMutation.shape.ref.optional(),
     expectedVersion: updateMutation.shape.expectedVersion.optional(),
-    fields: createMutation.shape.fields.optional(),
+    fields: updateMutation.shape.fields.optional(),
     assignedUserIds: createMutation.shape.assignedUserIds,
     identities: createMutation.shape.identities,
     links: createMutation.shape.links,
@@ -263,7 +264,7 @@ export const RecordMutationSchema = z
   })
   .strict()
   .describe(
-    "create requires typeId and fields; update requires ref, expectedVersion and fields; delete requires ref and expectedVersion; link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically. Use only fields for that action.",
+    "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); delete requires ref and expectedVersion; link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically. Use only fields for that action.",
   )
   .transform((input, ctx) => {
     const parsed = ValidatedRecordMutationSchema.safeParse(input);

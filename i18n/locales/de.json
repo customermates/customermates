@@ -1223,6 +1223,7 @@
         "timelineThreadId": "Unterhaltung",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
+        "webhookId": "Webhook",
         "workspaceId": "Workspace",
         "workspaceTags": "Schlagwörter"
       },
@@ -3015,7 +3016,9 @@
         "relationship": "Wähle, welche verknüpften Datensätze verwendet werden.",
         "step": "Wähle die Werte für {operation}.",
         "sum": "Wähle, welcher Wert summiert wird.",
-        "take": "Wähle, welcher Wert übernommen wird."
+        "take": "Wähle, welcher Wert übernommen wird.",
+        "trigger": "Wähle das Feld, das das Speichern auslöst.",
+        "triggerValue": "Wähle den Wert, der das Speichern auslöst."
       },
       "moreOptions": "Weitere Optionen",
       "of": "von",
@@ -3452,6 +3455,7 @@
     },
     "privateAccess": "Nur Administratoren",
     "probability": "Wahrscheinlichkeit %",
+    "probabilityNeedsNumber": "Wahrscheinlichkeit ist ein Zahlenattribut. Füge sie stattdessen über Attribut hinzufügen hinzu.",
     "progressUnavailable": "Fortschritt konnte nicht geladen werden. Dein Entwurf bleibt erhalten.",
     "rangeEnd": "Bis",
     "rangeStart": "Von",

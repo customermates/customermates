@@ -86,7 +86,8 @@ function FlowNode({
   return (
     <ConfigureNode
       className={cn("group/row w-full", result && "border-primary", invalid && "border-destructive")}
-      data-invalid={invalid || undefined}
+      data-calculation-invalid={invalid || undefined}
+      data-invalid={(invalid && result) || undefined}
       {...props}
     >
       {children}
@@ -104,11 +105,13 @@ function FlowChip({
   page,
   open,
   onOpenChange,
+  invalid,
   ...props
 }: {
   label: string;
   icon?: ReactNode;
   placeholder?: boolean;
+  invalid?: boolean;
   disabled: boolean;
   page: CalculationPickerPage;
   open?: boolean;
@@ -117,6 +120,7 @@ function FlowChip({
 }) {
   const chip = {
     className: cn(placeholder && "text-muted-foreground"),
+    "data-invalid": invalid || undefined,
     startContent: icon,
     ...props,
   };
@@ -207,8 +211,8 @@ export const CalculationFlow = observer(function CalculationFlow({
   const example = useCalculationExample(store);
   const [operatorPicker, setOperatorPicker] = useState<string | null>(null);
   useEffect(() => {
-    store.issueMessage = issueMessage;
-  });
+    store.issueMessage = (issue) => issueText(issue, (key, values) => t(key, values), operatorLabel);
+  }, [store, t]);
 
   const leafIcon = (leaf: CalculationExpression, leafTypeId: string) => {
     if (leaf.kind === "field" || leaf.kind === "optionAttribute") return FIELD_ICON;
@@ -334,6 +338,7 @@ export const CalculationFlow = observer(function CalculationFlow({
         data-calculation-chip={unset ? "pick-value" : "value"}
         disabled={disabled}
         icon={leafIcon(leaf, typeId)}
+        invalid={showIssues && unset}
         label={unset ? t("RecordModel.calculationFlow.pickValue") : expressionText(leaf, typeId, labels)}
         page={
           removable
@@ -408,7 +413,11 @@ export const CalculationFlow = observer(function CalculationFlow({
                           ...store.inputDefinition,
                           valueType: resultType?.valueType ?? "text",
                           multiple: false,
-                          format: { currency: resultType?.currency ?? null },
+                          format: {
+                            currency: resultType?.currency ?? null,
+                            decimalPlaces:
+                              store.form.decimalPlaces.trim() === "" ? null : Number(store.form.decimalPlaces),
+                          },
                         }}
                         result={example.data.value}
                       />
@@ -477,6 +486,7 @@ export const CalculationFlow = observer(function CalculationFlow({
         />
       ) : (
         <LinkedFlowView
+          describe={(value, valueTypeId) => expressionText(value, valueTypeId, labels)}
           disabled={disabled}
           fieldsGroup={fieldsGroup}
           flow={linkedFlow(expression)}
@@ -495,9 +505,11 @@ export const CalculationFlow = observer(function CalculationFlow({
 
       {resultNode}
 
-      <p className="pt-3 text-sm text-muted-foreground" data-calculation-sentence="">
-        {sentence}
-      </p>
+      {!(showIssues && issues.length) && (
+        <p className="pt-3 text-sm text-muted-foreground" data-calculation-sentence="">
+          {sentence}
+        </p>
+      )}
     </section>
   );
 });
@@ -753,6 +765,7 @@ function LinkedFlowView({
   issueMessage,
   typeLabel,
   fieldsGroup,
+  describe,
   onChange,
 }: {
   flow: LinkedFlow;
@@ -764,6 +777,7 @@ function LinkedFlowView({
   issues: FlowIssue[];
   issueMessage: (issue: FlowIssue) => string;
   typeLabel: (valueType: string) => string;
+  describe: (expression: CalculationExpression, typeId: string) => string;
   fieldsGroup: (
     fieldTypeId: string,
     types: ReturnType<typeof operandTypes>,
@@ -818,7 +832,7 @@ function LinkedFlowView({
               {
                 relationId: choice.relation.id,
                 direction: choice.direction,
-                reducer: lookup ? ("one" as const) : aggregate,
+                reducer: lookup || choice.single ? ("one" as const) : aggregate,
               },
               ...(same ? flow.hops.slice(index + 1) : []),
             ];
@@ -835,6 +849,7 @@ function LinkedFlowView({
       <FlowChip
         data-calculation-chip={relation ? "relationship" : "pick-relationship"}
         disabled={disabled}
+        invalid={showIssues && !relation && Boolean(relationshipIssue)}
         label={relation ? endLabel(relation, hop.direction) : t("RecordModel.calculationFlow.pickRelationship")}
         open={openHop === index}
         page={relationshipPage(index)}
@@ -853,10 +868,17 @@ function LinkedFlowView({
         onChange(
           withAggregate(
             {
-              hops: [...flow.hops, { relationId: choice.relation.id, direction: choice.direction, reducer }],
+              hops: [
+                ...flow.hops,
+                {
+                  relationId: choice.relation.id,
+                  direction: choice.direction,
+                  reducer: lookup || choice.single ? ("one" as const) : aggregate,
+                },
+              ],
               value: UNSET,
             },
-            reducer,
+            lookup ? "one" : aggregate,
           ),
         ),
     })),
@@ -866,8 +888,13 @@ function LinkedFlowView({
     <FlowChip
       data-calculation-chip={valueUnset ? "pick-field" : "value"}
       disabled={disabled}
-      icon={valueUnset ? undefined : <TextCursorInput aria-hidden className="text-muted-foreground" />}
-      label={valueField?.label ?? t("RecordModel.calculationFlow.pickField")}
+      icon={
+        valueUnset || (flow.value.kind !== "field" && flow.value.kind !== "optionAttribute") ? undefined : (
+          <TextCursorInput aria-hidden className="text-muted-foreground" />
+        )
+      }
+      invalid={showIssues && Boolean(valueIssue)}
+      label={valueUnset ? t("RecordModel.calculationFlow.pickField") : describe(flow.value, lastTypeId)}
       page={{
         title: t("RecordModel.calculationFlow.pickField"),
         groups: [

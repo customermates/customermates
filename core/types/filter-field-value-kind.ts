@@ -10,7 +10,7 @@ import {
   SubscriptionStatus,
 } from "@/generated/prisma";
 
-export type FilterEntityKind = "user" | "thread" | "connectedAccount";
+export type FilterEntityKind = "user" | "thread" | "connectedAccount" | "webhook";
 
 export type FilterValueKind =
   | { kind: "entityId"; entity: FilterEntityKind }
@@ -45,6 +45,7 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.createdAt]: { kind: "date" },
   [FilterFieldKey.event]: { kind: "event" },
   [FilterFieldKey.url]: { kind: "string" },
+  [FilterFieldKey.webhookId]: { kind: "entityId", entity: "webhook" },
   [FilterFieldKey.status]: { kind: "enum", values: enumValues(Status) },
   [FilterFieldKey.provider]: { kind: "enum", values: enumValues(MessagingProvider) },
   [FilterFieldKey.state]: { kind: "enum", values: enumValues(MessagingThreadState) },

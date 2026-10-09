@@ -464,6 +464,20 @@ export type RecordModelView = z.infer<typeof RecordModelViewSchema>;
 export const RecordFieldAssignmentSchema = z
   .object({ fieldId: z.uuid(), value: RecordScalarSchema.nullable() })
   .strict();
+export const RecordFieldAppendSchema = z
+  .object({
+    fieldId: z.uuid(),
+    append: z
+      .string()
+      .max(65_535)
+      .refine((text) => text.trim().length > 0, "Append text must not be empty")
+      .describe(
+        "Markdown for a Formatted text field or plain text for a Text field, added after the current value with a blank line in between.",
+      ),
+  })
+  .strict();
+export const RecordFieldUpdateSchema = z.union([RecordFieldAssignmentSchema, RecordFieldAppendSchema]);
+export type RecordFieldUpdate = z.infer<typeof RecordFieldUpdateSchema>;
 export const RecordRelationshipSummarySchema = z
   .object({
     relationId: z.uuid(),

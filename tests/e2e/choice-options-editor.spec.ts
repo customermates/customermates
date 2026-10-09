@@ -99,10 +99,32 @@ test("reorders choice options by drag and keyboard and edits attribute columns",
 
   await drawer.getByRole("button", { name: "More actions for Code", exact: true }).click();
   await page.getByRole("menuitem", { name: "Rename", exact: true }).click();
+  await popover.getByRole("textbox", { name: "Attribute name", exact: true }).fill("Probability");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Probability is a number attribute. Add it with Add attribute instead.")).toBeVisible();
+  await expect(popover.getByRole("textbox", { name: "Attribute name", exact: true })).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
   await popover.getByRole("textbox", { name: "Attribute name", exact: true }).fill("Short code");
   await page.keyboard.press("Enter");
   await expect(drawer.locator("[data-option-column]")).toHaveText(["Discount", "Short code"]);
   await drawer.getByRole("button", { name: "More actions for Discount", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+  await expect(drawer.locator("[data-option-column]")).toHaveText(["Short code"]);
+  await drawer.getByRole("textbox", { name: "Option", exact: true }).first().focus();
+  await drawer.getByRole("button", { name: "Add attribute", exact: true }).click();
+  await popover.getByRole("textbox", { name: "Attribute name", exact: true }).fill("PROBABILITY");
+  await popover.getByRole("combobox", { name: "Value type", exact: true }).click();
+  await page.getByRole("option", { name: "Text", exact: true }).click();
+  await popover.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer.locator("[data-option-column]")).toHaveText(["Short code", "Probability %"]);
+  await expect(drawer.locator('[data-option-column="probability"]')).toHaveCount(1);
+  await expect(drawer.getByRole("textbox", { name: "Probability %", exact: true }).first()).toHaveAttribute(
+    "inputmode",
+    "decimal",
+  );
+  await drawer.getByRole("button", { name: "More actions for Probability %", exact: true }).click();
   await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
   await expect(drawer.locator("[data-option-column]")).toHaveText(["Short code"]);
   await saveDrawer(page);
