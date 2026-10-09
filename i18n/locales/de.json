@@ -3583,7 +3583,7 @@
       "calculated": "Berechnet · {formula}",
       "from": "Aus {list} · {value}",
       "savedOnCreate": "Gespeichert, wenn {list} angelegt wird",
-      "savedOnRequest": "Gespeichert auf Anforderung",
+      "savedOnRequest": "Auf Anfrage gespeichert",
       "savedWhenChanged": "Gespeichert, wenn sich {field} ändert",
       "savedWhenChangedTo": "Gespeichert, wenn sich {field} zu {value} ändert"
     },

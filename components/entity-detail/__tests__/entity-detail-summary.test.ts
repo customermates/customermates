@@ -238,7 +238,7 @@ describe("EntityDetailSummaryRail", () => {
 });
 
 describe("EntityDetailStaticField", () => {
-  it("uses the shared muted read-only field treatment and exposes its inline pin control", () => {
+  it("shows a read-only value plainly without input chrome and exposes its inline pin control", () => {
     const container = mount(
       createElement(EntityDetailStaticField, {
         fieldId: "createdAt",
@@ -253,9 +253,10 @@ describe("EntityDetailStaticField", () => {
     const value = container.querySelector<HTMLElement>('[data-field-state="read-only"]');
     expect(value).not.toBeNull();
     expect(value?.getAttribute("aria-readonly")).toBe("true");
-    expect(value?.classList.contains("border-border")).toBe(true);
-    expect(value?.classList.contains("bg-background")).toBe(true);
-    expect(value?.classList.contains("bg-input-background")).toBe(false);
+    expect(value?.classList.contains("border-transparent")).toBe(true);
+    expect(value?.classList.contains("bg-transparent")).toBe(true);
+    expect(value?.classList.contains("border-border")).toBe(false);
+    expect(value?.classList.contains("bg-background")).toBe(false);
     expect(value?.querySelector(".select-text")).not.toBeNull();
     expect(value?.querySelector("input")).toBeNull();
   });

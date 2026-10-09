@@ -57,8 +57,13 @@ describe("record value source line", () => {
   });
 
   it("shows a lookup as From with its list chip and the single hop to open the linked record", () => {
-    const lookup = ofShape((described) => described.reducer === "one");
-    const result = source(lookup as RecordField);
+    const snapshot = fieldOf("lineItem.savedPrice");
+    if (snapshot.behavior.kind !== "snapshot") throw new Error("The saved price is a snapshot");
+    const lookup = {
+      ...snapshot,
+      behavior: { kind: "lookup", expression: snapshot.behavior.expression },
+    } as RecordField;
+    const result = source(lookup);
     expect(sentenceText(result?.segments ?? [])).toMatch(/^From .+ · .+$/);
     expect(result?.segments.some((segment) => typeof segment !== "string" && segment.kind === "list")).toBe(true);
     expect(result?.lookup).toMatchObject({ relationId: expect.any(String), direction: expect.any(String) });
