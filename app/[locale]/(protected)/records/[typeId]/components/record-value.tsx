@@ -45,11 +45,13 @@ export const RecordValue = observer(function RecordValue({
   field,
   members = [],
   wrap = false,
+  overflowMenu = true,
 }: {
   result?: CalculatedValue;
   field: RecordFieldView;
   members?: RecordMember[];
   wrap?: boolean;
+  overflowMenu?: boolean;
 }) {
   const intl = useHydratedIntlStore();
   const valueFormat = useRecordValueFormat();
@@ -76,6 +78,7 @@ export const RecordValue = observer(function RecordValue({
             variant: toChipColor(option?.color),
           };
         })}
+        overflowMenu={overflowMenu}
       />
     );
   }

@@ -158,6 +158,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       <TableRow
         key={row.id}
         className={cn("group/row", (onRowClick || onRowHref) && "cursor-pointer")}
+        data-row-id={row.original.id}
         data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
         onClick={(e) => {
           if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e)) return;

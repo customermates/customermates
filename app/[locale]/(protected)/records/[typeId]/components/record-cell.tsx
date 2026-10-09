@@ -27,7 +27,7 @@ export function RecordCell({
   linkIcons,
   record,
   onOpen,
-  onMore,
+  inTrigger = false,
   relativeTimestamp = false,
   avatarFieldId,
 }: {
@@ -36,7 +36,7 @@ export function RecordCell({
   linkIcons: RecordLinkIcons;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
-  onMore: () => void;
+  inTrigger?: boolean;
   relativeTimestamp?: boolean;
   avatarFieldId?: string;
 }) {
@@ -74,7 +74,7 @@ export function RecordCell({
         </span>
       );
     }
-    return <RecordValue field={column.field} members={record.memberUsers} result={result} />;
+    return <RecordValue field={column.field} members={record.memberUsers} overflowMenu={!inTrigger} result={result} />;
   }
   if (column.kind === "system") {
     if (column.id === "system:assignedTo") {
@@ -122,27 +122,14 @@ export function RecordCell({
             : t("RecordModel.record"),
   }));
   return (
-    <div className="flex min-w-0 items-center gap-1">
-      <AppChipStack
-        chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
-        items={items}
-        maxWidth={LINKED_CHIPS_MAX_WIDTH}
-        variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
-        onChipClick={(item) => onOpen(item.ref)}
-      />
-
-      {summary.hasMore && (
-        <button
-          aria-label={t("RecordModel.linkedRecordCount", {
-            count: summary.readableCount,
-          })}
-          className="shrink-0 rounded-md text-xs text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-          type="button"
-          onClick={onMore}
-        >
-          +{summary.readableCount - summary.records.length}
-        </button>
-      )}
-    </div>
+    <AppChipStack
+      chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
+      extraCount={summary.hasMore ? Math.max(0, summary.readableCount - summary.records.length) : 0}
+      items={items}
+      maxWidth={LINKED_CHIPS_MAX_WIDTH}
+      overflowMenu={!inTrigger}
+      variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
+      onChipClick={inTrigger ? undefined : (item) => onOpen(item.ref)}
+    />
   );
 }
