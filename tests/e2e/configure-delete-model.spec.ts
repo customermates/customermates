@@ -20,6 +20,7 @@ import {
   selectConfigureList,
 } from "./configure";
 import { expect, test } from "./fixtures";
+import { calculationChip, calculationFlow, pickOption } from "./calculation-flow";
 
 async function readModel(database: Client, companyId: string) {
   const result = await database.query(
@@ -54,14 +55,9 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   await saveDrawer(page);
   await addFromConfigure(page, "Calculated field");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Uppercase code");
-  await dialog.locator("#valueType").click();
-  await page.getByRole("option", { name: "Text", exact: true }).click();
   await openDrawerTab(page, "Calculation");
-  const calculation = dialog.getByRole("region", { name: "Calculation", exact: true });
-  await calculation.getByRole("combobox", { name: "Use", exact: true }).click();
-  await page.getByRole("option", { name: "Field", exact: true }).click();
-  await calculation.getByRole("combobox", { name: "Field", exact: true }).click();
-  await page.getByRole("option", { name: "Code", exact: true }).click();
+  await pickOption(page, calculationChip(page, "pick-value").first(), "Code");
+  await expect(calculationFlow(page).locator('[data-calculation-node="result"]')).toContainText("Text");
   await saveDrawer(page);
   const model = await readModel(database, companyId);
   const code = model.fields.find((field) => field.typeId === typeId && field.label === "Code");
