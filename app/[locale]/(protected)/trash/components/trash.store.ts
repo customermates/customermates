@@ -104,6 +104,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     await Promise.all([
       this.isReady ? this.refreshQuery() : undefined,
       this.rootStore.recordWorkspaceStore.invalidate(),
+      this.rootStore.recordWorkspaceStore.refreshNavigation(),
     ]);
   };
 
@@ -197,7 +198,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
 
   private afterPermanentDelete = async () => {
     this.clearSelection();
-    await this.refreshQuery();
+    await Promise.all([this.refreshQuery(), this.rootStore.recordWorkspaceStore.refreshNavigation()]);
   };
 
   requestPermanentDelete = async (itemIds: string[], name?: string) => {
