@@ -185,10 +185,7 @@ describe("field value defaults and typed snapshot triggers", () => {
       const store = new FieldModalStore(root, configured, vi.fn());
       store.edit(configured, id("deal"), field);
       const operation = validate(store.operations()).operations[0];
-      expect(operation.operation === "putField" && operation.field.behavior).toEqual({
-        ...field.behavior,
-        allowManualOverride: false,
-      });
+      expect(operation.operation === "putField" && operation.field.behavior).toEqual(field.behavior);
     }
   });
 });

@@ -237,7 +237,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       const type = model.types.find((candidate) => candidate.id === typeId);
       if (!type) return;
       if (kind === "field") fieldModal.edit(model, typeId, null);
-      if (kind === "calculation") fieldModal.edit(model, typeId, null, { behavior: "formula", valueType: "number" });
+      if (kind === "calculation") fieldModal.edit(model, typeId, null, { source: "formula" });
       if (kind === "relationship") relationModal.edit(model, typeId);
       if (kind === "sublist") typeModal.editSublist(model, typeId);
       if (kind === "channels")
