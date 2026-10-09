@@ -5,7 +5,8 @@ import type { ReactNode } from "react";
 
 import { LoaderCircle, Plus } from "lucide-react";
 
-import { orderAppModalActions, type AppModalActionProps } from "@/components/modal/app-modal-action";
+import { isAskAiAction, orderAppModalActions, type AppModalActionProps } from "@/components/modal/app-modal-action";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -13,31 +14,23 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { IntlLink } from "@/i18n/navigation";
 
 function TopBarActionButton({ action }: { action: AppModalActionProps }) {
+  if (isAskAiAction(action) && action.onClick)
+    return <AskAiAction id={action.anchorId} placement="topbar" onClick={action.onClick} />;
   const { label, tooltip } = action;
   const busy = action.busy === true;
   const Icon = busy ? LoaderCircle : action.icon;
-  const withLabel = action.kind === "assistant";
   const variant = action.variant === "destructive" ? "destructiveOutline" : "secondary";
-  const size = withLabel ? "sm" : "icon-sm";
-  const content = withLabel ? (
-    <>
-      <Icon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />
-
-      <span className="hidden sm:inline">{label}</span>
-    </>
-  ) : (
-    <Icon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />
-  );
+  const content = <Icon aria-hidden className={busy ? "size-4 animate-spin" : "size-4"} />;
   const disabled = !action.href && (action.disabled === true || busy);
   const control = action.href ? (
     action.external ? (
-      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size={size} variant={variant}>
+      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size="icon-sm" variant={variant}>
         <a href={action.href} id={action.anchorId} rel="noreferrer" target="_blank">
           {content}
         </a>
       </Button>
     ) : (
-      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size={size} variant={variant}>
+      <Button asChild aria-label={label} className="h-8" data-slot="top-bar-action" size="icon-sm" variant={variant}>
         <IntlLink
           data-navigation-guard-handled={action.onNavigate ? "" : undefined}
           href={action.href}
@@ -57,7 +50,7 @@ function TopBarActionButton({ action }: { action: AppModalActionProps }) {
       data-slot="top-bar-action"
       disabled={disabled}
       id={action.anchorId}
-      size={size}
+      size="icon-sm"
       type="button"
       variant={variant}
       onClick={() => {

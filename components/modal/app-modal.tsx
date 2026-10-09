@@ -20,7 +20,7 @@ import { useClientReady } from "@/hooks/use-client-ready";
 import { DiscardChangesDialog } from "./confirm-dialog";
 import { AppModalCloseContext } from "./app-modal-close-context";
 import { OverlayDismissGuardContext, useOwnOverlayDismissGuard } from "./overlay-dismiss-guard";
-import { AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
+import { AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS, appModalActionSlots } from "./app-modal-action";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
 export type AppModalActions = readonly AppModalActionProps[];
@@ -103,8 +103,8 @@ export const AppModal = observer((props: Props) => {
   const isWide = useIsWiderThan("md");
   const [presentation, setPresentation] = useState({ open: isOpen, wide: isWide });
   if (presentation.open !== isOpen) setPresentation({ open: isOpen, wide: isOpen ? isWide : presentation.wide });
-  const actionCount = actions.length;
-  const hasActions = actionCount > 0;
+  const actionCount = appModalActionSlots(actions);
+  const hasActions = actions.length > 0;
 
   const focusReturn = useOverlayFocusReturn(
     isOpen,
