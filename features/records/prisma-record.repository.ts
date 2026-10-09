@@ -22,7 +22,13 @@ import { randomUUID } from "node:crypto";
 import { Prisma } from "@/generated/prisma";
 
 import type { Action } from "@/generated/prisma";
-import type { ConfigurationConsumerCleanup, RecordDefinitionDeletion, RecordRepo } from "./record.repo";
+import type {
+  ConfigurationConsumerCleanup,
+  RecordDefinitionDeletion,
+  RecordRepo,
+  RecordTrashItemInput,
+  TrashReadOptions,
+} from "./record.repo";
 import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
@@ -60,6 +66,8 @@ import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale"
 import { RecordQuerySchema } from "./record-query.schema";
 import { RecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layout.schema";
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
+import { TRASH_RETENTION_DAYS } from "@/features/trash/trash-retention";
+import { deleteTrashItems, insertTrashItems } from "@/features/trash/trash-item-store";
 
 export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   constructor(
@@ -225,6 +233,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         FROM "RecordIdentityLink" association
         WHERE association."companyId" = identity_key."companyId"
           AND association."identityId" = identity_key."identityId"
+          AND EXISTS (SELECT 1 FROM "CrmRecord" live WHERE live."companyId" = association."companyId"
+            AND live."typeId" = association."typeId" AND live.id = association."recordId" AND live."deletedAt" IS NULL)
           ${typeConstraint}
           ${readable}
         ORDER BY association."typeId", association."recordId"
@@ -251,7 +261,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         companyId: this.companyId,
         identityId,
         typeId: { in: typeIds },
-        record: { is: { companyId: this.companyId, protectedKind: null } },
+        record: { is: { companyId: this.companyId, protectedKind: null, deletedAt: null } },
         ...(after
           ? {
               OR: [{ typeId: { gt: after.typeId } }, { typeId: after.typeId, recordId: { gt: after.recordId } }],
@@ -722,6 +732,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   async deleteDefinitions({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion): Promise<void> {
     const companyId = this.companyId;
+    const trashed = await this.prisma.trashItem.findMany({
+      where: { companyId, kind: "record", typeId: { in: typeIds } },
+      select: { id: true },
+    });
+    await this.purgeTrashItems(trashed.map((item) => item.id));
     const surfaces = typeIds.map(recordSurfaceKey);
     await this.prisma.dataView.deleteMany({ where: { companyId, surfaceKey: { in: surfaces } } });
     await this.prisma.p13n.deleteMany({
@@ -748,7 +763,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     );
     return this.prisma.$queryRaw<Array<{ typeId: string; count: number }>>(Prisma.sql`
       SELECT ${record}."typeId" AS "typeId", COUNT(*)::integer AS count FROM "CrmRecord" ${record}
-      WHERE ${record}."companyId" = ${this.companyId} AND ${record}."typeId" IN (${Prisma.join([...access.keys()])})
+      WHERE ${record}."companyId" = ${this.companyId} AND ${record}."deletedAt" IS NULL AND ${record}."typeId" IN (${Prisma.join([...access.keys()])})
         AND (${Prisma.join(readable, " OR ")})
       GROUP BY ${record}."typeId"`);
   }
@@ -771,7 +786,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       ]) {
         if (cardinality !== "one") continue;
         const rows = await this.prisma.$queryRaw<Array<{ invalid: boolean }>>(
-          Prisma.sql`SELECT EXISTS (SELECT 1 FROM "RecordLink" WHERE "companyId" = ${this.companyId} AND "relationId" = ${relation.id} GROUP BY ${Prisma.raw(`"${column}"`)} HAVING COUNT(*) > 1) AS invalid`,
+          Prisma.sql`SELECT EXISTS (SELECT 1 FROM "RecordLink" WHERE "companyId" = ${this.companyId} AND "relationId" = ${relation.id} AND "deletedAt" IS NULL GROUP BY ${Prisma.raw(`"${column}"`)} HAVING COUNT(*) > 1) AS invalid`,
         );
         if (rows[0]?.invalid) invalid.push(relation.id);
       }
@@ -780,7 +795,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       if (type.archived || !type.parentRelationshipId) continue;
       const rows = await this.prisma.$queryRaw<Array<{ invalid: boolean }>>(Prisma.sql`
         SELECT EXISTS (SELECT 1 FROM "CrmRecord" record
-          WHERE record."companyId" = ${this.companyId} AND record."typeId" = ${type.id}
+          WHERE record."companyId" = ${this.companyId} AND record."typeId" = ${type.id} AND record."deletedAt" IS NULL
             AND NOT EXISTS (SELECT 1 FROM "RecordLink" link
               WHERE link."companyId" = record."companyId" AND link."relationId" = ${type.parentRelationshipId}
                 AND link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id)) AS invalid`);
@@ -864,7 +879,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     }
   }
 
-  async getRecordCompanyWide(ref: RecordRef) {
+  async getRecordCompanyWide(ref: RecordRef, options: TrashReadOptions = {}) {
     return this.prisma.crmRecord.findUnique({
       relationLoadStrategy: "query",
       where: {
@@ -874,6 +889,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
           typeId: ref.typeId,
           id: ref.recordId,
         },
+        ...(options.includeTrash ? {} : { deletedAt: null }),
       },
       include: { values: true, assignments: { select: this.assignmentSelect } },
     });
@@ -884,12 +900,13 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       .$queryRaw`SELECT 1 FROM "CrmRecord" WHERE "companyId" = ${this.companyId} AND "typeId" = ${ref.typeId} AND id = ${ref.recordId} FOR UPDATE`;
   }
 
-  async getRecordsCompanyWide(refs: RecordRef[]) {
+  async getRecordsCompanyWide(refs: RecordRef[], options: TrashReadOptions = {}) {
     if (!refs.length) return [];
     return this.prisma.crmRecord.findMany({
       relationLoadStrategy: "query",
       where: {
         companyId: this.companyId,
+        ...(options.includeTrash ? {} : { deletedAt: null }),
         OR: refs.map((ref) => ({ typeId: ref.typeId, id: ref.recordId })),
       },
       include: { values: true, assignments: { select: this.assignmentSelect } },
@@ -909,10 +926,12 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       where: {
         companyId: this.companyId,
         typeId,
+        deletedAt: null,
         ...(afterId ? { id: { gt: afterId } } : {}),
         outgoing: {
           some: {
             companyId: this.companyId,
+            deletedAt: null,
             relationId: parentRelationId,
             targetId: { in: parentIds },
           },
@@ -924,11 +943,17 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
   }
 
-  async getRecordRefsCompanyWide(typeId: string, afterId?: string, take = 500): Promise<RecordRef[]> {
+  async getRecordRefsCompanyWide(
+    typeId: string,
+    afterId?: string,
+    take = 500,
+    options: TrashReadOptions = {},
+  ): Promise<RecordRef[]> {
     const records = await this.prisma.crmRecord.findMany({
       where: {
         companyId: this.companyId,
         typeId,
+        ...(options.includeTrash ? {} : { deletedAt: null }),
         ...(afterId ? { id: { gt: afterId } } : {}),
       },
       orderBy: { id: "asc" },
@@ -1200,6 +1225,172 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     await this.deleteOrphanedIdentities(identities.map((row) => row.identityId));
   }
 
+  async moveToTrash(ref: RecordRef, trashItemId: string): Promise<void> {
+    const companyId = this.companyId;
+    await this.prisma.recordValueDependency.deleteMany({
+      where: { companyId, sourceTypeId: ref.typeId, sourceId: ref.recordId },
+    });
+    await this.prisma.crmRecord.updateMany({
+      where: { companyId, typeId: ref.typeId, id: ref.recordId, deletedAt: null },
+      data: { deletedAt: new Date(), trashItemId },
+    });
+    await this.prisma.recordLink.updateMany({
+      where: {
+        companyId,
+        deletedAt: null,
+        OR: [
+          { sourceTypeId: ref.typeId, sourceId: ref.recordId },
+          { targetTypeId: ref.typeId, targetId: ref.recordId },
+        ],
+      },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async addTrashItems(items: RecordTrashItemInput[]): Promise<void> {
+    await insertTrashItems(
+      this.prisma,
+      this.companyId,
+      items.map((item) => ({ ...item, kind: "record" as const })),
+    );
+  }
+
+  async getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string }) {
+    const rows = await this.prisma.trashItem.findMany({
+      where: {
+        companyId: this.companyId,
+        kind: "record",
+        ...("ids" in selection ? { id: { in: selection.ids } } : { batchId: selection.batchId }),
+      },
+      orderBy: [{ deletedAt: "asc" }, { id: "asc" }],
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      typeId: recordInvariant(row.typeId),
+      targetId: row.targetId,
+      label: row.label,
+      batchId: row.batchId,
+      deletedById: row.deletedById,
+      deletedAt: row.deletedAt,
+      expiresAt: row.expiresAt,
+      payload: row.payload,
+    }));
+  }
+
+  async getTrashedRecordRefsCompanyWide(trashItemIds: string[], take: number): Promise<RecordRef[]> {
+    if (!trashItemIds.length) return [];
+    const rows = await this.prisma.crmRecord.findMany({
+      where: { companyId: this.companyId, trashItemId: { in: trashItemIds } },
+      orderBy: [{ typeId: "asc" }, { id: "asc" }],
+      take,
+      select: { typeId: true, id: true },
+    });
+    return rows.map((row) => ({ typeId: row.typeId, recordId: row.id }));
+  }
+
+  async getTrashedLinksCompanyWide(refs: RecordRef[], take: number) {
+    if (!refs.length) return [];
+    const rows = await this.prisma.recordLink.findMany({
+      where: {
+        companyId: this.companyId,
+        deletedAt: { not: null },
+        OR: refs.flatMap((ref) => [
+          { sourceTypeId: ref.typeId, sourceId: ref.recordId },
+          { targetTypeId: ref.typeId, targetId: ref.recordId },
+        ]),
+      },
+      orderBy: { id: "asc" },
+      take,
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      relationId: row.relationId,
+      source: { typeId: row.sourceTypeId, recordId: row.sourceId },
+      target: { typeId: row.targetTypeId, recordId: row.targetId },
+    }));
+  }
+
+  async getTrashedParentCompanyWide(ref: RecordRef, relationId: string) {
+    const link = await this.prisma.recordLink.findFirst({
+      where: {
+        companyId: this.companyId,
+        relationId,
+        sourceTypeId: ref.typeId,
+        sourceId: ref.recordId,
+        deletedAt: { not: null },
+      },
+      select: { targetTypeId: true, targetId: true },
+    });
+    return link ? { typeId: link.targetTypeId, recordId: link.targetId } : null;
+  }
+
+  async restoreRecords(refs: RecordRef[]): Promise<void> {
+    if (!refs.length) return;
+    await this.prisma.crmRecord.updateMany({
+      where: { companyId: this.companyId, OR: refs.map((ref) => ({ typeId: ref.typeId, id: ref.recordId })) },
+      data: { deletedAt: null, trashItemId: null },
+    });
+  }
+
+  async restoreLink(id: string): Promise<void> {
+    await this.prisma.recordLink.updateMany({ where: { companyId: this.companyId, id }, data: { deletedAt: null } });
+  }
+
+  async dropTrashedLink(id: string): Promise<void> {
+    await this.prisma.recordLink.deleteMany({ where: { companyId: this.companyId, id, deletedAt: { not: null } } });
+  }
+
+  async removeTrashItems(ids: string[]): Promise<void> {
+    await deleteTrashItems(this.prisma, this.companyId, ids);
+  }
+
+  async countTrashedRecordsCompanyWide(trashItemIds: string[]) {
+    if (!trashItemIds.length) return { records: [], links: 0 };
+    const companyId = this.companyId;
+    const [records, links] = await Promise.all([
+      this.prisma.$queryRaw<Array<{ typeId: string; count: number }>>(Prisma.sql`
+        SELECT record."typeId", COUNT(*)::integer AS count FROM "CrmRecord" record
+        WHERE record."companyId" = ${companyId} AND record."trashItemId" = ANY(${trashItemIds}::text[])
+        GROUP BY record."typeId" ORDER BY record."typeId"`),
+      this.prisma.$queryRaw<Array<{ count: number }>>(Prisma.sql`
+        SELECT COUNT(DISTINCT link.id)::integer AS count FROM "RecordLink" link JOIN "CrmRecord" record
+          ON record."companyId" = link."companyId" AND record."trashItemId" = ANY(${trashItemIds}::text[])
+          AND ((link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id)
+            OR (link."targetTypeId" = record."typeId" AND link."targetId" = record.id))
+        WHERE link."companyId" = ${companyId}`),
+    ]);
+    return { records, links: links[0]?.count ?? 0 };
+  }
+
+  async purgeTrashItems(ids: string[]): Promise<RecordRef[]> {
+    if (!ids.length) return [];
+    const companyId = this.companyId;
+    const purged = await this.prisma.crmRecord.findMany({
+      where: { companyId, trashItemId: { in: ids }, deletedAt: { not: null } },
+      select: { typeId: true, id: true },
+    });
+    const refs = purged.map((row) => ({ typeId: row.typeId, recordId: row.id }));
+    if (refs.length) {
+      await this.prisma.$executeRaw(Prisma.sql`
+        UPDATE "EventLog" event SET payload = jsonb_set(jsonb_set(event.payload, '{fields}', '[]'::jsonb), '{identities}', 'null'::jsonb)
+        FROM "CrmRecord" record
+        WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record'
+          AND record."companyId" = ${companyId} AND record."trashItemId" = ANY(${ids}::text[]) AND record."deletedAt" IS NOT NULL
+          AND event."subjectTypeId" = record."typeId" AND event."subjectId" = record.id
+          AND jsonb_typeof(event.payload->'fields') = 'array'`);
+      const identities = await this.prisma.recordIdentityLink.findMany({
+        where: { companyId, record: { is: { companyId, trashItemId: { in: ids }, deletedAt: { not: null } } } },
+        select: { identityId: true },
+      });
+      await this.prisma.crmRecord.deleteMany({
+        where: { companyId, trashItemId: { in: ids }, deletedAt: { not: null } },
+      });
+      await this.deleteOrphanedIdentities(identities.map((row) => row.identityId));
+    }
+    await this.removeTrashItems(ids);
+    return refs;
+  }
+
   async getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]> {
     if (!userIds.length) return [];
     return this.prisma.user.findMany({
@@ -1313,6 +1504,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const rows = await this.prisma.recordLink.findMany({
       where: {
         companyId: this.companyId,
+        deletedAt: null,
         OR: [
           { sourceTypeId: ref.typeId, sourceId: ref.recordId },
           { targetTypeId: ref.typeId, targetId: ref.recordId },
@@ -1332,6 +1524,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const rows = await this.prisma.recordLink.findMany({
       where: {
         companyId: this.companyId,
+        deletedAt: null,
         ...(afterId ? { id: { gt: afterId } } : {}),
         OR: [
           { sourceTypeId: ref.typeId, sourceId: ref.recordId },
@@ -1349,9 +1542,9 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     }));
   }
 
-  async getPendingDeletionRef(operationId: string): Promise<RecordRef | null> {
-    const rows = await this.prisma.$queryRaw<RecordRef[]>(Prisma.sql`
-      SELECT pending.payload->>'typeId' AS "typeId", pending.payload->>'recordId' AS "recordId"
+  async getPendingDeletionRef(operationId: string) {
+    const rows = await this.prisma.$queryRaw<Array<RecordRef & { root: string }>>(Prisma.sql`
+      SELECT pending.payload->>'typeId' AS "typeId", pending.payload->>'recordId' AS "recordId", pending.payload->>'root' AS root
       FROM "RecordStageRow" pending
       WHERE pending."companyId" = ${this.companyId} AND pending."operationId" = ${operationId}
         AND pending.kind = 'delete-pending'
@@ -1359,14 +1552,15 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
           WHERE visited."companyId" = pending."companyId" AND visited."operationId" = pending."operationId"
             AND visited.kind = 'delete-plan' AND visited.key = pending.key)
       ORDER BY pending.key LIMIT 1`);
-    return rows[0] ?? null;
+    const row = rows[0];
+    return row ? { ref: { typeId: row.typeId, recordId: row.recordId }, root: row.root } : null;
   }
 
-  async queueDeletionRef(operationId: string, ref: RecordRef): Promise<void> {
+  async queueDeletionRef(operationId: string, ref: RecordRef, root: string): Promise<void> {
     const key = `${ref.typeId}:${ref.recordId}`;
     await this.prisma.$executeRaw(Prisma.sql`
       INSERT INTO "RecordStageRow" ("companyId", "operationId", kind, key, payload)
-      SELECT ${this.companyId}, ${operationId}, 'delete-pending', ${key}, ${JSON.stringify(ref)}::jsonb
+      SELECT ${this.companyId}, ${operationId}, 'delete-pending', ${key}, ${JSON.stringify({ ...ref, root })}::jsonb
       WHERE NOT EXISTS (SELECT 1 FROM "RecordStageRow" visited
         WHERE visited."companyId" = ${this.companyId} AND visited."operationId" = ${operationId}
           AND visited.kind = 'delete-plan' AND visited.key = ${key})
@@ -1445,6 +1639,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const rows = await this.prisma.recordLink.findMany({
       where: {
         companyId: this.companyId,
+        deletedAt: null,
         sourceTypeId: typeId,
         sourceId: { in: recordIds },
       },
@@ -1469,6 +1664,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       where: {
         companyId: this.companyId,
         relationId,
+        deletedAt: null,
         ...(outgoing
           ? { sourceTypeId: ref.typeId, sourceId: ref.recordId }
           : { targetTypeId: ref.typeId, targetId: ref.recordId }),
@@ -1542,7 +1738,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   async appendEvent(
     ref: RecordRef,
-    actorId: string,
+    actorId: string | null,
     causeId: string,
     kind: string,
     payload: unknown,
@@ -1691,9 +1887,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     typeId: string,
     afterId?: string,
     take = 500,
+    options: TrashReadOptions = {},
   ): Promise<RecordRef[]> {
     const rows = await this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`WITH candidates AS (
       SELECT record."id" FROM "CrmRecord" record WHERE record."companyId" = ${this.companyId} AND record."typeId" = ${typeId}
+        AND ${options.includeTrash ? Prisma.sql`TRUE` : Prisma.sql`record."deletedAt" IS NULL`}
         AND NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'record' AND stage.key = record."typeId" || ':' || record.id AND (stage.payload->>'deleted')::boolean)
       UNION SELECT stage.payload->'ref'->>'recordId' FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'record' AND stage.payload->'ref'->>'typeId' = ${typeId} AND NOT (stage.payload->>'deleted')::boolean
     ) SELECT id FROM candidates WHERE ${afterId ? Prisma.sql`id > ${afterId}` : Prisma.sql`TRUE`} ORDER BY id LIMIT ${take}`);
@@ -1715,7 +1913,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const targetKey = outgoing ? "target" : "source";
     return this.prisma.$queryRaw<RecordRef[]>(Prisma.sql`WITH candidates AS (
       SELECT ${typeColumn} AS "typeId", ${idColumn} AS "recordId" FROM "RecordLink" link
-        WHERE link."companyId" = ${this.companyId} AND link."relationId" = ${relationId} AND ${sourceId} = ${ref.recordId}
+        WHERE link."companyId" = ${this.companyId} AND link."relationId" = ${relationId} AND link."deletedAt" IS NULL AND ${sourceId} = ${ref.recordId}
         AND NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'link' AND stage.key = link."relationId" || ':' || link."sourceId" || ':' || link."targetId")
       UNION SELECT stage.payload->${targetKey}->>'typeId', stage.payload->${targetKey}->>'recordId' FROM "RecordStageRow" stage
         WHERE stage."companyId" = ${this.companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'link' AND stage.payload->>'relationId' = ${relationId} AND stage.payload->${sourceKey}->>'recordId' = ${ref.recordId} AND NOT (stage.payload->>'deleted')::boolean
@@ -1734,16 +1932,28 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       FROM "RecordStageRow" stage WHERE ${stage("event")}
     `);
     await captureRecordEventMatches(this.prisma, this, companyId, { operationId }, true);
+    await this.prisma.$executeRaw(Prisma.sql`
+      INSERT INTO "TrashItem" ("companyId", id, kind, "targetId", "typeId", label, "deletedById", "deletedAt", "expiresAt", "batchId")
+      SELECT ${companyId}, stage.payload->>'id', 'record', stage.payload->>'targetId', stage.payload->>'typeId', stage.payload->>'label',
+        stage.payload->>'deletedById', NOW(), NOW() + make_interval(days => ${TRASH_RETENTION_DAYS}), stage.payload->>'batchId'
+      FROM "RecordStageRow" stage WHERE ${stage("trash-item")}
+      ON CONFLICT DO NOTHING`);
     const detachedIdentities = await this.prisma.$queryRaw<Array<{ identityId: string }>>(Prisma.sql`
       SELECT DISTINCT association."identityId" FROM "RecordIdentityLink" association JOIN "RecordStageRow" stage
         ON stage.payload->'ref'->>'typeId' = association."typeId" AND stage.payload->'ref'->>'recordId' = association."recordId"
       WHERE association."companyId" = ${companyId} AND (
-        (${stage("record")} AND (stage.payload->>'deleted')::boolean)
+        (${stage("record")} AND (stage.payload->>'deleted')::boolean AND stage.payload->>'trashItemId' IS NULL)
         OR (${stage("identity")} AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(stage.payload->'identities') item(data) WHERE item.data->>'id' = association."identityId"))
       )
     `);
     await this.prisma.$executeRaw(
-      Prisma.sql`DELETE FROM "CrmRecord" record USING "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'`,
+      Prisma.sql`DELETE FROM "CrmRecord" record USING "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND stage.payload->>'trashItemId' IS NULL AND record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'`,
+    );
+    await this.prisma.$executeRaw(
+      Prisma.sql`UPDATE "CrmRecord" record SET "deletedAt" = NOW(), "trashItemId" = stage.payload->>'trashItemId', "updatedAt" = NOW() FROM "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND stage.payload->>'trashItemId' IS NOT NULL AND record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId' AND record."deletedAt" IS NULL`,
+    );
+    await this.prisma.$executeRaw(
+      Prisma.sql`UPDATE "RecordLink" link SET "deletedAt" = NOW() FROM "RecordStageRow" stage WHERE ${stage("record")} AND (stage.payload->>'deleted')::boolean AND stage.payload->>'trashItemId' IS NOT NULL AND link."companyId" = ${companyId} AND link."deletedAt" IS NULL AND ((link."sourceTypeId" = stage.payload->'ref'->>'typeId' AND link."sourceId" = stage.payload->'ref'->>'recordId') OR (link."targetTypeId" = stage.payload->'ref'->>'typeId' AND link."targetId" = stage.payload->'ref'->>'recordId'))`,
     );
     await this.prisma
       .$executeRaw(Prisma.sql`INSERT INTO "CrmRecord" ("companyId", "typeId", id, version, "protectedKind", "systemData", "createdAt", "updatedAt")
@@ -1793,7 +2003,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     `);
     await this.deleteOrphanedIdentities(detachedIdentities.map((row) => row.identityId));
     await this.prisma.$executeRaw(
-      Prisma.sql`DELETE FROM "RecordAssignment" assignment USING "RecordStageRow" stage WHERE ${stage("record")} AND assignment."companyId" = ${companyId} AND assignment."typeId" = stage.payload->'ref'->>'typeId' AND assignment."recordId" = stage.payload->'ref'->>'recordId'`,
+      Prisma.sql`DELETE FROM "RecordAssignment" assignment USING "RecordStageRow" stage WHERE ${stage("record")} AND NOT (stage.payload->>'deleted')::boolean AND assignment."companyId" = ${companyId} AND assignment."typeId" = stage.payload->'ref'->>'typeId' AND assignment."recordId" = stage.payload->'ref'->>'recordId'`,
     );
     await this.prisma.$executeRaw(
       Prisma.sql`INSERT INTO "RecordAssignment" ("companyId", "typeId", "recordId", "userId", "createdAt") SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', member.id, NOW() FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements_text(stage.payload->'assignedUserIds') AS member(id) WHERE ${stage("record")} AND NOT (stage.payload->>'deleted')::boolean`,
