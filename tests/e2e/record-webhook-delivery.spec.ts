@@ -195,7 +195,7 @@ test("delivers only deleted records that matched the webhook filter before remov
     await page.locator("#settings-webhooks-add").click();
     await dialog.locator("#webhook-modal-url").fill(receiverUrl);
     await dialog.locator("#webhook-modal-events").click();
-    await page.getByRole("option", { name: "Record deleted", exact: true }).click();
+    await page.getByRole("option", { name: "Record moved to Trash", exact: true }).click();
     await page.keyboard.press("Escape");
     await dialog.getByRole("combobox", { name: "Records from", exact: false }).click();
     await page.getByRole("option", { name: "Projects", exact: true }).click();
