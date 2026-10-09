@@ -229,7 +229,7 @@ test("paginates and retries record and widget history, restores a personal timel
           )
         ).rows[0],
     )
-    .toEqual({ activeViewKey: ALL_VIEW_KEY, filters: [] });
+    .toEqual({ activeViewKey: ALL_VIEW_KEY, filters: null });
   const linkedPage = await page.context().newPage();
   const linkedEvidence = transportEvidence(linkedPage);
   await linkedPage.goto(copiedHref);
