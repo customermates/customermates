@@ -29,7 +29,7 @@ describe("palette query parsing", () => {
     expect(parsePaletteQuery("v vip")).toEqual({ scope: "views", term: "vip" });
     expect(parsePaletteQuery("s theme")).toEqual({ scope: "settings", term: "theme" });
     expect(parsePaletteQuery("r acme")).toEqual({ scope: "records", term: "acme" });
-    expect(parsePaletteQuery("R acme")).toEqual({ scope: "records", term: "acme" });
+    expect(parsePaletteQuery("S Corp")).toEqual({ scope: null, term: "S Corp" });
   });
 
   it("keeps ordinary queries untouched", () => {
@@ -60,6 +60,15 @@ describe("instant ranking", () => {
     expect(
       rankCandidates("ubersicht", [{ key: "a", kind: "page", label: "Übersicht", keywords: [] }], null),
     ).toHaveLength(1);
+  });
+
+  it("lists the whole scope for a bare prefix", () => {
+    expect(rankCandidates("", candidates, "views").map((entry) => entry.key)).toEqual([
+      "view:open",
+      "view:won",
+      "view:vip",
+    ]);
+    expect(rankCandidates("", candidates, null)).toEqual([]);
   });
 
   it("limits candidates to the prefix scope", () => {

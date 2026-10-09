@@ -4,8 +4,8 @@ import type { ShortcutId } from "./shortcut-registry";
 
 import {
   BookOpen,
-  CalendarClock,
-  Cog,
+  Repeat,
+  Settings,
   Contrast,
   Globe,
   Hash,
@@ -14,16 +14,15 @@ import {
   Keyboard,
   KeyRound,
   Languages,
-  LayoutDashboard,
-  LibraryBig,
-  LogOut,
-  MessageSquarePlus,
+  LayoutGrid,
+  Layers,
+  LogIn,
+  MessageCircle,
   Moon,
   Plus,
   Send,
   Settings2,
   Shield,
-  Sparkles,
   Sun,
   SunMoon,
   User,
@@ -39,7 +38,6 @@ export type CommandKind = "page" | "setting" | "action";
 
 export type CommandActionId =
   | "add"
-  | "askMate"
   | "shortcuts"
   | "switchView"
   | "themeLight"
@@ -104,7 +102,7 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     id: "page.dashboard",
     labelKey: "NavigationBar.dashboard",
     kind: "page",
-    icon: LayoutDashboard,
+    icon: LayoutGrid,
     target: { href: "/dashboard" },
     shortcut: "goDashboard",
   },
@@ -121,7 +119,7 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     id: "page.knowledgeBase",
     labelKey: "NavigationBar.wiki",
     kind: "page",
-    icon: LibraryBig,
+    icon: BookOpen,
     target: { href: "/wiki" },
     shortcut: "goKnowledgeBase",
     requires: { resource: Resource.wiki },
@@ -130,7 +128,7 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     id: "page.routines",
     labelKey: "NavigationBar.routines",
     kind: "page",
-    icon: CalendarClock,
+    icon: Repeat,
     target: { href: "/routines" },
     shortcut: "goRoutines",
     requires: { resource: Resource.routines, cloudOnly: true },
@@ -148,7 +146,7 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     id: "page.settings",
     labelKey: "KeyboardShortcuts.actions.goSettings",
     kind: "page",
-    icon: Cog,
+    icon: Settings,
     target: { href: settingsHref("profile") },
     shortcut: "goSettings",
   },
@@ -220,18 +218,10 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     shortcut: "add",
   },
   {
-    id: "action.askMate",
-    labelKey: "KeyboardShortcuts.actions.askMate",
-    kind: "action",
-    icon: Sparkles,
-    target: { action: "askMate" },
-    shortcut: "askMate",
-  },
-  {
     id: "action.switchView",
     labelKey: "KeyboardShortcuts.actions.switchView",
     kind: "action",
-    icon: LibraryBig,
+    icon: Layers,
     target: { action: "switchView" },
     shortcut: "switchView",
     requires: { listPage: true },
@@ -277,14 +267,14 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     id: "action.sendFeedback",
     labelKey: "UserAvatar.sendFeedback",
     kind: "action",
-    icon: MessageSquarePlus,
+    icon: MessageCircle,
     target: { action: "sendFeedback" },
   },
   {
     id: "action.signOut",
     labelKey: "UserAvatar.signOut",
     kind: "action",
-    icon: LogOut,
+    icon: LogIn,
     target: { action: "signOut" },
   },
 ];
