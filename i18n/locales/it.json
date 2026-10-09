@@ -3651,6 +3651,7 @@
   },
   "RoleModal": {
     "create": "Crea",
+    "dataModelNote": "Creare e modificare elenchi, campi e relazioni in Configura.",
     "edit": "Modifica",
     "manageAccess": "Gestione",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",
