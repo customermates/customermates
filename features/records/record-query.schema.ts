@@ -204,6 +204,7 @@ const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
         .string()
         .regex(/^[a-f0-9]{64}$/)
         .optional(),
+      permanent: z.boolean().optional(),
     })
     .strict(),
   z
@@ -239,6 +240,7 @@ const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
         .string()
         .regex(/^[a-f0-9]{64}$/)
         .optional(),
+      permanent: z.boolean().optional(),
     })
     .strict(),
 ]);
@@ -257,13 +259,14 @@ export const RecordMutationSchema = z
     linkChanges: updateMutation.shape.linkChanges,
     captureFieldIds: updateMutation.shape.captureFieldIds,
     expectedImpactHash: deleteMutation.shape.expectedImpactHash,
+    permanent: deleteMutation.shape.permanent,
     relationId: linkMutation.shape.relationId.optional(),
     source: linkMutation.shape.source.optional(),
     target: linkMutation.shape.target.optional(),
   })
   .strict()
   .describe(
-    "create requires typeId and fields; update requires ref, expectedVersion and fields; delete requires ref and expectedVersion; link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically. Use only fields for that action.",
+    "create requires typeId and fields; update requires ref, expectedVersion and fields; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action.",
   )
   .transform((input, ctx) => {
     const parsed = ValidatedRecordMutationSchema.safeParse(input);
@@ -289,6 +292,7 @@ export const RecordOperationResultSchema = z.discriminatedUnion("status", [
       status: z.literal("completed"),
       refs: z.array(RecordRefSchema),
       schemaRevision: z.number().int(),
+      trashBatchId: z.uuid().optional(),
     })
     .strict(),
   z

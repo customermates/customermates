@@ -22,6 +22,7 @@ import { deterministicId } from "./crm-preset";
 import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
+import { RecordTrashService } from "./record-trash.service";
 
 const CursorSchema = z.union([
   z.object({
@@ -107,7 +108,7 @@ export class RecordOperationService extends UserAccessor {
                   request.mutation.action === "delete"
                     ? [request.mutation.ref]
                     : request.mutation.targets.map((target) => target.ref);
-                for (const ref of refs) await this.records.queueDeletionRef(operationId, ref);
+                for (const ref of refs) await this.records.queueDeletionRef(operationId, ref, recordKey(ref));
                 await this.records.updateOperation(operationId, { cursor: { phase: "deletePlan", index: 0 } });
                 return { done: false };
               }
@@ -157,6 +158,7 @@ export class RecordOperationService extends UserAccessor {
               operationId,
               BATCH_SIZE,
               BACKGROUND_FANOUT_LIMIT,
+              { companyId: this.companyId, actorId: this.userId },
             ).advance(deletionCursor.data, mutation, model, policy);
             if (result.affectedTypeIds) {
               const typeIds = new Set(result.affectedTypeIds);
@@ -199,7 +201,9 @@ export class RecordOperationService extends UserAccessor {
               });
               return { done: false };
             }
-            const refs = await staged.getRecordRefsCompanyWide(typeId, cursor.afterId, BATCH_SIZE);
+            const refs = await staged.getRecordRefsCompanyWide(typeId, cursor.afterId, BATCH_SIZE, {
+              includeTrash: true,
+            });
             const writer = new RecordConfigurationWriter(staged, calculations);
             for (const ref of refs) await writer.initializeRecord(ref, prepared, current, BACKGROUND_FANOUT_LIMIT);
             await journal.persist();
@@ -297,12 +301,27 @@ export class RecordOperationService extends UserAccessor {
             }
           }
           await this.records.publishStage(operationId, model.revision);
+          const deletion = prepared ? null : MutateRecordSchema.parse(operation.request).mutation;
+          const trashed = deletion?.action === "delete" || deletion?.action === "deleteMany";
+          const permanent = trashed && Boolean(deletion.permanent);
+          if (permanent) {
+            const items = await this.records.getRecordTrashItemsCompanyWide({ batchId: operationId });
+            const request = z.object({ idempotencyKey: z.string() }).parse(operation.request);
+            await new RecordTrashService(this.records).purge(
+              items.map((item) => item.id),
+              model,
+              this.userId,
+              request.idempotencyKey,
+              { kind: "mutation", operationId },
+            );
+          }
           await this.records.updateOperation(operationId, {
             state: "completed",
             result: {
               status: "completed",
               refs: [],
               schemaRevision: model.revision,
+              ...(trashed && !permanent ? { trashBatchId: operationId } : {}),
             },
             leaseUntil: null,
           });
