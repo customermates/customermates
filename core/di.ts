@@ -501,9 +501,13 @@ export const getApplyRecordConfigurationInteractor = () =>
     new RecordConfigurationWriter(getRecordRepo(), getRecordCalculationService()),
     getBackgroundTaskService(),
   );
-export const getTrashRepo = () => new PrismaTrashRepo();
-export const getTrashKindHandlers = (): TrashKindHandler[] => [
-  new RecordTrashHandler(getRecordRepo(), getRecordAccessPolicy(), getBackgroundTaskService()),
+export const getTrashRepo = (companyId?: string) => new PrismaTrashRepo(companyId);
+export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => [
+  new RecordTrashHandler(
+    new PrismaRecordRepo(companyId, getBackgroundTaskService()),
+    getRecordAccessPolicy(),
+    getBackgroundTaskService(),
+  ),
 ];
 export const getQueryTrashInteractor = () =>
   new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());

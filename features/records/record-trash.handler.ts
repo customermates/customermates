@@ -51,9 +51,11 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
           ]
         : []),
     ];
-    return branches.length
-      ? Prisma.sql`(${alias}.kind = 'record' AND (${Prisma.join(branches, " OR ")}))`
-      : Prisma.sql`FALSE`;
+    if (!branches.length) return Prisma.sql`FALSE`;
+    const cascaded = Prisma.sql`NOT EXISTS (SELECT 1 FROM "CrmRecord" member
+      WHERE member."companyId" = ${alias}."companyId" AND member."trashItemId" = ${alias}.id
+        AND member."typeId" NOT IN (${Prisma.join(deletable.map((type) => type.id))}))`;
+    return Prisma.sql`(${alias}.kind = 'record' AND (${Prisma.join(branches, " OR ")}) AND ${cascaded})`;
   }
 
   async restore(items: TrashItem[]): Promise<TrashKindRestore> {

@@ -732,6 +732,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   async deleteDefinitions({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion): Promise<void> {
     const companyId = this.companyId;
+    const trashed = await this.prisma.trashItem.findMany({
+      where: { companyId, kind: "record", typeId: { in: typeIds } },
+      select: { id: true },
+    });
+    await this.purgeTrashItems(trashed.map((item) => item.id));
     const surfaces = typeIds.map(recordSurfaceKey);
     await this.prisma.dataView.deleteMany({ where: { companyId, surfaceKey: { in: surfaces } } });
     await this.prisma.p13n.deleteMany({
@@ -781,7 +786,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       ]) {
         if (cardinality !== "one") continue;
         const rows = await this.prisma.$queryRaw<Array<{ invalid: boolean }>>(
-          Prisma.sql`SELECT EXISTS (SELECT 1 FROM "RecordLink" WHERE "companyId" = ${this.companyId} AND "relationId" = ${relation.id} GROUP BY ${Prisma.raw(`"${column}"`)} HAVING COUNT(*) > 1) AS invalid`,
+          Prisma.sql`SELECT EXISTS (SELECT 1 FROM "RecordLink" WHERE "companyId" = ${this.companyId} AND "relationId" = ${relation.id} AND "deletedAt" IS NULL GROUP BY ${Prisma.raw(`"${column}"`)} HAVING COUNT(*) > 1) AS invalid`,
         );
         if (rows[0]?.invalid) invalid.push(relation.id);
       }
@@ -790,7 +795,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       if (type.archived || !type.parentRelationshipId) continue;
       const rows = await this.prisma.$queryRaw<Array<{ invalid: boolean }>>(Prisma.sql`
         SELECT EXISTS (SELECT 1 FROM "CrmRecord" record
-          WHERE record."companyId" = ${this.companyId} AND record."typeId" = ${type.id}
+          WHERE record."companyId" = ${this.companyId} AND record."typeId" = ${type.id} AND record."deletedAt" IS NULL
             AND NOT EXISTS (SELECT 1 FROM "RecordLink" link
               WHERE link."companyId" = record."companyId" AND link."relationId" = ${type.parentRelationshipId}
                 AND link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id)) AS invalid`);
@@ -1298,6 +1303,20 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       source: { typeId: row.sourceTypeId, recordId: row.sourceId },
       target: { typeId: row.targetTypeId, recordId: row.targetId },
     }));
+  }
+
+  async getTrashedParentCompanyWide(ref: RecordRef, relationId: string) {
+    const link = await this.prisma.recordLink.findFirst({
+      where: {
+        companyId: this.companyId,
+        relationId,
+        sourceTypeId: ref.typeId,
+        sourceId: ref.recordId,
+        deletedAt: { not: null },
+      },
+      select: { targetTypeId: true, targetId: true },
+    });
+    return link ? { typeId: link.targetTypeId, recordId: link.targetId } : null;
   }
 
   async restoreRecords(refs: RecordRef[]): Promise<void> {
