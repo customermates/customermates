@@ -166,37 +166,37 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
   companyId,
 }) => {
   test.setTimeout(180000);
-  const name = `Chip row service ${randomUUID().slice(0, 6)}`;
-  await page.goto(`/en/records/${presetId(companyId, "service")}`);
+  const firstName = `Chip row ${randomUUID().slice(0, 6)}`;
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   await page.locator("#records-add").click();
-  const drawer = page.getByRole("dialog", { name: "Service", exact: true });
-  await drawer.getByRole("textbox", { name: "Name", exact: false }).fill(name);
+  const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
+  await drawer.getByRole("textbox", { name: "First name", exact: false }).fill(firstName);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
-  await openRecordDetails(page, name);
+  await openRecordDetails(page, firstName);
 
   await expect(drawer.locator("[data-entity-detail-summary], [data-summary-cell]")).toHaveCount(0);
   await drawer.getByRole("button", { name: "Pin a field", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Price", exact: true }).click();
-  const placeholder = drawer.locator("[data-record-chip-row] [data-chip-column]").filter({ hasText: "Price" });
+  await page.getByRole("menuitem", { name: "Last name", exact: true }).click();
+  const placeholder = drawer.locator("[data-record-chip-row] [data-chip-column]").filter({ hasText: "Last name" });
   await expect(placeholder.locator("[data-placeholder-chip]")).toBeVisible();
-  const priceId = await placeholder.getAttribute("data-chip-column");
-  const price = drawer.locator(`[data-record-chip-row] [data-chip-column="${priceId}"]`);
+  const lastNameId = await placeholder.getAttribute("data-chip-column");
+  const lastName = drawer.locator(`[data-record-chip-row] [data-chip-column="${lastNameId}"]`);
 
-  await price.getByRole("button", { name: "Edit Price", exact: true }).click();
+  await lastName.getByRole("button", { name: "Edit Last name", exact: true }).click();
   const editor = page.locator('[data-slot="popover-content"][data-state="open"]');
-  await expect(editor).toContainText("Price");
-  await editor.locator("input").first().fill("250");
+  await expect(editor).toContainText("Last name");
+  await editor.locator("input").first().fill("Pinned");
   await page.keyboard.press("Escape");
-  await expect(price.locator("[data-placeholder-chip]")).toHaveCount(0);
-  await expect(price).toContainText("250");
+  await expect(lastName.locator("[data-placeholder-chip]")).toHaveCount(0);
+  await expect(lastName).toContainText("Pinned");
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
 
   await page.reload();
-  await openRecordDetails(page, name);
-  await expect(price).toContainText("250");
-  await price.getByRole("button", { name: "Edit Price", exact: true }).click();
-  await editor.getByRole("button", { name: "Unpin Price from the overview", exact: true }).click();
-  await expect(price).toHaveCount(0);
+  await openRecordDetails(page, `${firstName} Pinned`);
+  await expect(lastName).toContainText("Pinned");
+  await lastName.getByRole("button", { name: "Edit Last name", exact: true }).click();
+  await editor.getByRole("button", { name: "Unpin Last name from the overview", exact: true }).click();
+  await expect(lastName).toHaveCount(0);
 });
