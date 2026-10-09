@@ -666,6 +666,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Trash.kinds.${kind}",
   "app/[locale]/(protected)/trash/components/use-trash-columns.tsx :: t :: Trash.kinds.${trashKindLabelKey(item)}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.cardinality.${cardinality}",
+  "features/records/calculation-sentence.ts :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.types.${valueType}",
   "app/[locale]/(protected)/configure/components/calculation-literal-input.tsx :: t :: RecordModel.${key}",
