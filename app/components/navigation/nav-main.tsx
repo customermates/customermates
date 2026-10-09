@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
-import { cn } from "@/core/utils/cn";
 import { AppLink } from "@/components/shared/app-link";
 
 import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
@@ -48,7 +47,7 @@ export function NavBadge({ count }: { count: number }) {
   if (count <= 0) return null;
 
   return (
-    <span className="ml-auto inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums group-data-[collapsible=icon]:hidden">
+    <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums group-data-[collapsible=icon]:hidden">
       {count}
     </span>
   );
@@ -82,12 +81,7 @@ export function NavMainParent({
 
           {!open && <NavBadge count={subBadgeCount} />}
 
-          <ChevronRight
-            className={cn(
-              "transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90",
-              (open || subBadgeCount <= 0) && "ml-auto",
-            )}
-          />
+          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
         </SidebarMenuButton>
 
         {action}
@@ -112,11 +106,11 @@ export function NavMainParent({
                       id={`nav-${sub.key}`}
                       onClick={() => onNavigate(sub.key)}
                     >
-                      <span>{sub.title}</span>
+                      <span className="min-w-0 truncate">{sub.title}</span>
 
                       <NavBadge count={sub.badge ?? 0} />
 
-                      <NavLinkPendingIndicator className={sub.badge ? "ml-0" : undefined} />
+                      <NavLinkPendingIndicator />
                     </AppLink>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
