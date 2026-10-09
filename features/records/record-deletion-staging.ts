@@ -11,14 +11,22 @@ import { RecordRefSchema } from "./record-model.schema";
 import { RecordWriteError } from "./record-write.service";
 import { recordKey } from "./record-calculation.service";
 import { recordInvariant } from "./record-invariant";
+import { recordTrashLabel } from "./record-trash-label";
+import { deterministicId } from "./crm-preset";
 
 export const DeletionCursorSchema = z.object({
   phase: z.enum(["deletePlan", "deleteLinks", "deleteRecords", "deleteTouches"]),
   index: z.number().int().nonnegative(),
   afterId: z.string().optional(),
   ref: RecordRefSchema.optional(),
+  root: z.string().optional(),
 });
-const PlannedRecordSchema = z.object({ ref: RecordRefSchema, version: z.number().int().positive() });
+const PlannedRecordSchema = z.object({
+  ref: RecordRefSchema,
+  version: z.number().int().positive(),
+  root: z.string(),
+  label: z.string(),
+});
 const LinkSchema = z.object({ relationId: z.uuid(), source: RecordRefSchema, target: RecordRefSchema });
 type DeletionCursor = z.infer<typeof DeletionCursorSchema>;
 type Cursor = DeletionCursor | { phase: "calculations"; index: number };
@@ -31,7 +39,12 @@ export class RecordDeletionStaging {
     private operationId: string,
     private batchSize: number,
     private limit: number,
+    private trash: { companyId: string; actorId: string },
   ) {}
+
+  private trashItemId(root: string): string {
+    return deterministicId(this.trash.companyId, `trash:${this.operationId}:${root}`);
+  }
 
   async advance(
     cursor: DeletionCursor,
@@ -41,11 +54,16 @@ export class RecordDeletionStaging {
   ): Promise<{ cursor: Cursor; processed: number; affectedTypeIds?: string[] }> {
     if (cursor.phase === "deletePlan") {
       let ref = cursor.ref;
+      let root = cursor.root;
       let afterId = cursor.afterId;
       let processed = 0;
       let edgesRead = 0;
       while (processed < this.batchSize && edgesRead < this.batchSize) {
-        ref ??= (await this.records.getPendingDeletionRef(this.operationId)) ?? undefined;
+        if (!ref) {
+          const pending = await this.records.getPendingDeletionRef(this.operationId);
+          ref = pending?.ref;
+          root = pending?.root;
+        }
         if (!ref) {
           const status = await this.records.getStagedDeletionStatus(this.operationId, model.revision);
           if (status.affectedCount > this.limit || status.linkCount > this.limit * 4)
@@ -69,7 +87,12 @@ export class RecordDeletionStaging {
           if (!policy.allowed(ref.typeId, "delete"))
             throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
           if (row.protectedKind) throw new RecordWriteError(CustomErrorCode.recordProtected, "authorization");
-          await this.records.stageRow(this.operationId, "delete-plan", key, { ref, version: row.version });
+          await this.records.stageRow(this.operationId, "delete-plan", key, {
+            ref,
+            version: row.version,
+            root,
+            label: recordTrashLabel(row, model),
+          });
           await this.records.stageRow(this.operationId, "delete-affected", key, ref);
         }
         const take = this.batchSize - edgesRead;
@@ -86,7 +109,8 @@ export class RecordDeletionStaging {
             edge,
           );
           await this.records.stageRow(this.operationId, "delete-affected", recordKey(opposite), opposite);
-          if (behavior === "cascade") await this.records.queueDeletionRef(this.operationId, opposite);
+          if (behavior === "cascade")
+            await this.records.queueDeletionRef(this.operationId, opposite, recordInvariant(root));
           else if (behavior === "restrict")
             await this.records.stageRow(this.operationId, "delete-restrict", recordKey(opposite), opposite);
         }
@@ -96,10 +120,11 @@ export class RecordDeletionStaging {
           await this.records.completeDeletionRef(this.operationId, ref);
           processed++;
           ref = undefined;
+          root = undefined;
           afterId = undefined;
         }
       }
-      return { cursor: { phase: "deletePlan", index: cursor.index + 1, ref, afterId }, processed };
+      return { cursor: { phase: "deletePlan", index: cursor.index + 1, ref, root, afterId }, processed };
     }
 
     const kind =
@@ -113,7 +138,19 @@ export class RecordDeletionStaging {
       if (cursor.phase === "deleteLinks") await this.journal.stageDeletedLink(LinkSchema.parse(row.payload));
       else if (cursor.phase === "deleteRecords") {
         const planned = PlannedRecordSchema.parse(row.payload);
-        await this.journal.stageDeletion(planned.ref);
+        if (planned.root === row.key) {
+          await this.journal.repository.addTrashItems([
+            {
+              id: this.trashItemId(planned.root),
+              typeId: planned.ref.typeId,
+              targetId: planned.ref.recordId,
+              label: planned.label,
+              batchId: this.operationId,
+              deletedById: this.trash.actorId,
+            },
+          ]);
+        }
+        await this.journal.stageDeletion(planned.ref, this.trashItemId(planned.root));
       } else if (!(await this.records.getStageRow(this.operationId, "delete-plan", row.key)))
         await this.journal.repository.touch(RecordRefSchema.parse(row.payload));
     }
