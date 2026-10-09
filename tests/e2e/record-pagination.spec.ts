@@ -118,7 +118,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
   expect(
     (
       await database.query(
-        'SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceId"=$3',
+        'SELECT COUNT(*)::integer AS count FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceId"=$3 AND "deletedAt" IS NULL',
         [companyId, id("deal.organizations"), deal.recordId],
       )
     ).rows,
@@ -133,7 +133,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
   await expect(embedded.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);
   expect(
     (
-      await database.query('SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2', [
+      await database.query('SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL', [
         companyId,
         id("lineItem"),
       ])
