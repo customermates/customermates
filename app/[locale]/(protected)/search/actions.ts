@@ -1,7 +1,11 @@
 "use server";
 
 import type { RecordSearch, ResolveRecordSearchInput } from "@/features/records/record-search.schema";
-import { getSearchRecordsInteractor, getResolveRecordSearchInteractor } from "@/core/di";
+import {
+  getGetCommandCatalogInteractor,
+  getResolveRecordSearchInteractor,
+  getSearchRecordsInteractor,
+} from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function globalSearchAction(data: RecordSearch) {
@@ -10,4 +14,8 @@ export async function globalSearchAction(data: RecordSearch) {
 
 export async function resolveSearchReferencesAction(data: ResolveRecordSearchInput) {
   return serializeResult(getResolveRecordSearchInteractor().invoke(data));
+}
+
+export async function commandCatalogAction() {
+  return serializeResult(getGetCommandCatalogInteractor().invoke());
 }
