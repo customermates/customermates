@@ -111,7 +111,7 @@ export function workspaceEntries(
         key: `field:${field.id}`,
         kind: "field",
         label: field.label,
-        keywords: [type.label, type.pluralLabel],
+        keywords: [],
         icon: ListChecks,
         subtitle: t("CommandPalette.fieldOf", { list: type.pluralLabel }),
         run: { kind: "href", href: focusHref({ kind: "field", id: field.id, typeId: type.id }) },
