@@ -30,7 +30,7 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("@/i18n/navigation", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/i18n/navigation")>()),
+  ...(await importOriginal<object>()),
   useRouter: () => ({ push: harness.routerPush }),
 }));
 
