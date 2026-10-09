@@ -248,7 +248,8 @@ describe("EntityDetailStaticField", () => {
     );
 
     expect(container.querySelector('[data-pin="createdAt"]')).not.toBeNull();
-    expect(container.textContent).toContain("—");
+    expect(container.querySelector("[data-empty-value]")).not.toBeNull();
+    expect(container.textContent).not.toContain("—");
     const value = container.querySelector<HTMLElement>('[data-field-state="read-only"]');
     expect(value).not.toBeNull();
     expect(value?.getAttribute("aria-readonly")).toBe("true");

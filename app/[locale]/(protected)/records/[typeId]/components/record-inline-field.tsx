@@ -133,12 +133,16 @@ const InlineSelect = observer(function InlineSelect({
       <DropdownMenuTrigger asChild disabled={busy}>
         <button
           aria-label={t("RecordModel.editValue", { field: field.label })}
-          className="inline-flex max-w-full rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+          className={
+            current === null
+              ? INLINE_AFFORDANCE_CLASS
+              : "inline-flex max-w-full rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+          }
           data-inline-edit={field.id}
           type="button"
         >
           {current === null ? (
-            <span className="rounded-md px-1 text-muted-foreground hover:bg-accent">—</span>
+            <Pencil aria-hidden className="size-3.5" />
           ) : (
             <span className="inline-flex max-w-full cursor-pointer [&_[data-slot=badge]]:hover:brightness-95">
               {children}

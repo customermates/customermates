@@ -9,7 +9,8 @@ import { useMemo, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { EmptyValue, RecordValue } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { RecordValue } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordTypeIcon } from "@/components/records/record-type-icon";

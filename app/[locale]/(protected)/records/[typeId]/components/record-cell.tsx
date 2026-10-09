@@ -13,6 +13,7 @@ import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordValue } from "./record-value";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { Avatar } from "@/components/ui/avatar";
 
 const LINKED_CHIPS_MAX_WIDTH = 240;
@@ -38,7 +39,7 @@ export function RecordCell({
 }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
-  const empty = <span className="text-muted-foreground">—</span>;
+  const empty = <EmptyValue />;
   if (column.kind === "field") {
     const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
     if (avatarFieldId && result?.state === "value" && result.value.kind === "text") {
