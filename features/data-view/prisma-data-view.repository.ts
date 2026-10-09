@@ -88,7 +88,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
     return runAsViewOwner(async () => {
       const { companyId, id: userId } = this.user;
       const rows = await this.prisma.dataView.findMany({
-        where: { companyId, userId, surfaceKey: { startsWith: "records:" } },
+        where: { companyId, userId, deletedAt: null, surfaceKey: { startsWith: "records:" } },
         orderBy: [{ surfaceKey: "asc" }, { position: "asc" }, { name: "asc" }],
         select: { id: true, surfaceKey: true, name: true },
       });

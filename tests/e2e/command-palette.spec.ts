@@ -35,6 +35,12 @@ test("finds a list with its views, opens a view, and deep links a setting with a
       [views[index], companyId, workspace.userId, `records:${deals}`, name, index],
     );
 
+  await database.query(
+    `INSERT INTO "DataView" (id, "companyId", "userId", "surfaceKey", name, position, "updatedAt", "deletedAt")
+     VALUES ($1, $2, $3, $4, 'Trashed forecast', 9, NOW(), NOW())`,
+    [randomUUID(), companyId, workspace.userId, `records:${deals}`],
+  );
+
   await page.goto("/en/dashboard");
   const dialog = page.getByRole("dialog");
   const input = await openPalette(page);
@@ -42,6 +48,7 @@ test("finds a list with its views, opens a view, and deep links a setting with a
   await expect(dialog.locator("[cmdk-group-heading]").first()).toHaveText("Best match");
   const best = dialog.locator("[cmdk-group]").first().getByRole("option");
   await expect(best).toHaveText([/Deals/, /Open pipeline/, /Won this quarter/]);
+  await expect(dialog.getByRole("option").filter({ hasText: "Trashed forecast" })).toHaveCount(0);
   await expect(best.first()).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("ArrowDown");
   await expect(best.nth(1)).toHaveAttribute("aria-selected", "true");
