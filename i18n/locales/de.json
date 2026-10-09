@@ -3259,7 +3259,6 @@
       "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
       "resetLayout": "Layout zurücksetzen",
       "showFewer": "Weniger anzeigen",
-      "sublistOf": "Unterliste von {list}",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern"
     },
@@ -3534,7 +3533,7 @@
         "singular": "Aufgabe"
       }
     },
-    "sublistExplanation": "Jeder Eintrag gehört zu genau einem Datensatz in {parent}, wird darin bearbeitet, teilt dessen Zugriff und wird mit ihm gelöscht.",
+    "sublistSentence": "Unterliste von {list} · jeder Eintrag gehört zu genau einem Datensatz vom Typ {parent}, teilt dessen Zugriff und wird mit ihm gelöscht.",
     "suggestedAttribute": "Vorschlag",
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
@@ -3637,6 +3636,7 @@
   },
   "RoleModal": {
     "create": "Erstellen",
+    "dataModelNote": "Listen, Felder und Beziehungen in Konfigurieren anlegen und ändern.",
     "edit": "Bearbeiten",
     "manageAccess": "Verwalten",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",

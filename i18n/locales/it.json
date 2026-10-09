@@ -3259,7 +3259,6 @@
       "relationshipLabel": "{label}: {source} verso {target}, {cardinality}",
       "resetLayout": "Ripristina layout",
       "showFewer": "Mostra meno",
-      "sublistOf": "Sottoelenco di {list}",
       "zoomIn": "Ingrandisci",
       "zoomOut": "Riduci"
     },
@@ -3534,7 +3533,7 @@
         "singular": "Attività"
       }
     },
-    "sublistExplanation": "Ogni voce appartiene a un record di {parent}, si modifica al suo interno, ne condivide l’accesso e viene eliminata con esso.",
+    "sublistSentence": "Sottoelenco di {list} · ogni voce vive all’interno di un record di {parent}, ne condivide l’accesso e viene eliminata con esso.",
     "suggestedAttribute": "Suggerimento",
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",
@@ -3637,6 +3636,7 @@
   },
   "RoleModal": {
     "create": "Crea",
+    "dataModelNote": "Creare e modificare elenchi, campi e relazioni in Configura.",
     "edit": "Modifica",
     "manageAccess": "Gestione",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",
