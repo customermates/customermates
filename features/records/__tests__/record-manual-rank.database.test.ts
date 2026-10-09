@@ -248,6 +248,29 @@ describeDatabase("manual record order", () => {
     expect(await f.ordered()).toEqual(["Older", "Newer"]);
   });
 
+  it("skips trashed records as neighbours and rejects them as anchors", async () => {
+    const f = await fixture();
+    const open = f.stage.options[0].id;
+    const top = await f.createDeal("Top", open);
+    const trashed = await f.createDeal("Trashed", open);
+    const bottom = await f.createDeal("Bottom", open);
+    const moving = await f.createDeal("Moving", open);
+    expect(await f.move(top, {})).toMatchObject({ ok: true });
+    expect(await f.move(trashed, { afterRecordId: top })).toMatchObject({ ok: true });
+    expect(await f.move(bottom, { afterRecordId: trashed })).toMatchObject({ ok: true });
+    const removed = await f.mutate({
+      action: "delete",
+      ref: { typeId: f.id("deal"), recordId: trashed },
+      expectedVersion: (await f.stored(trashed)).version,
+    });
+    expect(removed, JSON.stringify(removed)).toMatchObject({ ok: true });
+
+    expect(await f.move(moving, { afterRecordId: trashed })).toMatchObject({ ok: false });
+    expect(await f.move(moving, { beforeRecordId: bottom })).toMatchObject({ ok: true });
+    expect(String((await f.stored(moving)).rank) < String((await f.stored(trashed)).rank)).toBe(true);
+    expect(await f.ordered()).toEqual(["Top", "Moving", "Bottom"]);
+  });
+
   it("rejects unknown anchors, non choice group fields and a descending manual sort", async () => {
     const f = await fixture();
     const open = f.stage.options[0].id;

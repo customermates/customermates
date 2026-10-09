@@ -218,6 +218,7 @@ const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
         .string()
         .regex(/^[a-f0-9]{64}$/)
         .optional(),
+      permanent: z.boolean().optional(),
     })
     .strict(),
   z
@@ -253,6 +254,7 @@ const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
         .string()
         .regex(/^[a-f0-9]{64}$/)
         .optional(),
+      permanent: z.boolean().optional(),
     })
     .strict(),
 ]);
@@ -272,13 +274,14 @@ export const RecordMutationSchema = z
     captureFieldIds: updateMutation.shape.captureFieldIds,
     placement: updateMutation.shape.placement,
     expectedImpactHash: deleteMutation.shape.expectedImpactHash,
+    permanent: deleteMutation.shape.permanent,
     relationId: linkMutation.shape.relationId.optional(),
     source: linkMutation.shape.source.optional(),
     target: linkMutation.shape.target.optional(),
   })
   .strict()
   .describe(
-    "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); an update may carry placement to move the record in the list's manual order; delete requires ref and expectedVersion; link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically. Use only fields for that action.",
+    "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); an update may carry placement to move the record in the list's manual order; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action.",
   )
   .transform((input, ctx) => {
     const parsed = ValidatedRecordMutationSchema.safeParse(input);
@@ -298,12 +301,32 @@ export const MutateRecordSchema = z
 export type RecordMutation = z.infer<typeof RecordMutationSchema>;
 export type MutateRecordInput = z.infer<typeof MutateRecordSchema>;
 
+export const RestoreSummarySchema = z
+  .object({
+    restoredItemIds: z.array(z.uuid()),
+    blocked: z.array(
+      z
+        .object({
+          itemId: z.uuid(),
+          reason: z.enum(["listDeleted", "parentDeleted", "notFound"]),
+          typeId: z.uuid(),
+          parent: RecordRefSchema.optional(),
+        })
+        .strict(),
+    ),
+    restoredRecords: z.number().int(),
+    droppedLinks: z.number().int(),
+  })
+  .strict();
+
 export const RecordOperationResultSchema = z.discriminatedUnion("status", [
   z
     .object({
       status: z.literal("completed"),
       refs: z.array(RecordRefSchema),
       schemaRevision: z.number().int(),
+      trashBatchId: z.uuid().optional(),
+      restore: RestoreSummarySchema.optional(),
     })
     .strict(),
   z
