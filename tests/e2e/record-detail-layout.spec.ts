@@ -106,7 +106,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }).click();
   await expect(
     page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   const notesId = presetId(companyId, "organization.notes");
   await expect
     .poll(async () => {
