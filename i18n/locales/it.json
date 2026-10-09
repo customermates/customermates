@@ -3968,11 +3968,17 @@
     "permanentMessage": "{count, plural, one {Questo elemento viene eliminato} other {Questi # elementi vengono eliminati}} definitivamente.",
     "permanentRecords": "{list}: {count, plural, one {# record} other {# record}}",
     "restore": "Ripristina",
-    "restoreBlocked": "{count, plural, one {# elemento non è stato ripristinato perché la sua lista o il record principale è nel cestino} other {# elementi non sono stati ripristinati perché la loro lista o il record principale è nel cestino}}",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché la loro lista è nel cestino. Ripristina prima la lista.",
+      "nameTaken": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché un altro elemento usa ora il loro nome o posto.",
+      "notFound": "{count, plural, one {# elemento non esiste più ed è uscito} other {# elementi non esistono più e sono usciti}} dal cestino.",
+      "parentDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché ciò a cui appartengono è nel cestino. Ripristinalo prima.",
+      "requiresRestore": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché qualcosa di cui hanno bisogno è nel cestino. Ripristinalo prima."
+    },
     "restored": "{count, plural, one {# elemento ripristinato} other {# elementi ripristinati}}",
     "restoredInBackground": "Ripristinato",
     "restoredWithDroppedLinks": "Ripristinato. {count, plural, one {# collegamento non è stato ripristinato} other {# collegamenti non sono stati ripristinati}} perché il record collegato è stato eliminato definitivamente.",
-    "restorePending": "Ripristino in background",
+    "restorePending": "Ripristino in background. Il cestino mostra l'avanzamento.",
     "searchPlaceholder": "Cerca nel cestino",
     "undo": "Annulla"
   },

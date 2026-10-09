@@ -3968,11 +3968,17 @@
     "permanentMessage": "{count, plural, one {Dieses Element wird} other {Diese # Elemente werden}} endgültig gelöscht.",
     "permanentRecords": "{list}: {count, plural, one {# Datensatz} other {# Datensätze}}",
     "restore": "Wiederherstellen",
-    "restoreBlocked": "{count, plural, one {# Element konnte nicht wiederhergestellt werden, weil seine Liste oder sein übergeordneter Datensatz im Papierkorb liegt} other {# Elemente konnten nicht wiederhergestellt werden, weil ihre Liste oder ihr übergeordneter Datensatz im Papierkorb liegt}}",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stellen Sie zuerst die Liste wieder her.",
+      "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
+      "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
+      "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
+      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stellen Sie das zuerst wieder her."
+    },
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
     "restoredInBackground": "Wiederhergestellt",
     "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
-    "restorePending": "Wird im Hintergrund wiederhergestellt",
+    "restorePending": "Wird im Hintergrund wiederhergestellt. Der Papierkorb zeigt den Fortschritt.",
     "searchPlaceholder": "Papierkorb durchsuchen",
     "undo": "Rückgängig"
   },
