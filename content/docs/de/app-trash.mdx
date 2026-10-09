@@ -1,0 +1,37 @@
+---
+title: "Papierkorb: Löschen rückgängig machen und Gelöschtes wiederherstellen"
+description: "Gelöschte Datensätze, Listen, Felder, Ansichten, Widgets und Routinen bleiben 30 Tage im Papierkorb, wo Sie sie wiederherstellen oder endgültig löschen."
+---
+
+Löschen verschiebt ein Element in Customermates in den [Papierkorb](app:trash), statt es sofort zu entfernen. Direkt nach dem Löschen erscheint einige Sekunden lang eine Meldung mit **Rückgängig**; **Rückgängig** holt das Element sofort zurück. Danach bleibt das Element 30 Tage im Papierkorb und wird anschließend von selbst endgültig gelöscht.
+
+## Was landet im Papierkorb? [#what-goes-to-trash]
+
+- Datensätze aller Listen, zum Beispiel [Kontakte](app:records/contact). Zeilen einer Unterliste und die Verknüpfungen des Datensatzes gehen mit ihm und kommen mit ihm zurück.
+- Listen, Felder, Beziehungen und Kanäle-Felder, die in [Konfigurieren](app:configure) gelöscht werden.
+- Gespeicherte Ansichten, Dashboard-Ansichten und Dashboard-Widgets.
+- Routinen.
+
+Mitglieder, Einladungen, Rollen, API-Schlüssel, Webhooks und verbundene Konten kommen nicht in den Papierkorb: Ihr Löschen ändert Zugriffe und wirkt deshalb sofort.
+
+Solange ein Element im Papierkorb liegt, ist es überall sonst verschwunden: Listen, Suche, Summen und Berechnungen, Widgets, Filter, Exporte, Mate, die API und MCP sehen es nicht mehr, und Routinen und Webhooks lösen dafür nicht aus.
+
+## Wer sieht was im Papierkorb? [#who-sees-what]
+
+Alle finden **Papierkorb** in der Seitenleiste. Sie sehen die Elemente, die Sie sehen und löschen durften; Mitglieder mit der Rolle **Admin** sehen jedes Element im Workspace. Jede Zeile zeigt das Element, seine Art, wer es gelöscht hat, wann, und wie viele Tage bis zum endgültigen Löschen bleiben. Elemente finden Sie über die [Suche](app:trash?focus=search) und grenzen sie mit [Filter](app:trash?focus=filter) nach Art oder Liste ein.
+
+## Wie stelle ich ein gelöschtes Element wieder her? [#how-do-i-restore]
+
+Öffnen Sie den [Papierkorb](app:trash), fahren Sie über die Zeile und klicken Sie auf **Wiederherstellen**, oder wählen Sie mehrere Zeilen aus und klicken Sie in der Auswahlleiste auf **Wiederherstellen**. Wiederherstellen erfordert denselben Zugriff wie das Löschen. Ein wiederhergestellter Datensatz kommt mit seinen Werten, Verknüpfungen und Unterlisten-Zeilen zurück. Eine Verknüpfung zu einem Datensatz, der inzwischen endgültig gelöscht wurde, kann nicht zurückkommen; die Bestätigung nennt, wie viele Verknüpfungen entfallen sind. Ein Datensatz, dessen Liste selbst im Papierkorb liegt, lässt sich erst nach seiner Liste wiederherstellen.
+
+Ein gelöschter Datensatz, den Sie aus dem Papierkorb öffnen, wird schreibgeschützt mit dem Hinweis **Im Papierkorb** und der Schaltfläche **Wiederherstellen** angezeigt.
+
+## Wie lösche ich etwas endgültig? [#how-do-i-delete-permanently]
+
+Fahren Sie im [Papierkorb](app:trash) über die Zeile und klicken Sie auf **Endgültig löschen**, oder wählen Sie mehrere Zeilen aus und klicken Sie in der Auswahlleiste auf **Endgültig löschen**. Die Bestätigung nennt genau, was verschwindet, etwa die Zahl der Datensätze je Liste und der Verknüpfungen. Endgültiges Löschen lässt sich nicht rückgängig machen.
+
+Mitglieder mit der Rolle **Admin** entfernen mit [Papierkorb leeren](app:trash?focus=empty) alles auf einmal; die Aktion erscheint nur, solange der Papierkorb Elemente enthält. Zur Bestätigung tippen Sie **papierkorb leeren**.
+
+## Wie lange bleiben Elemente im Papierkorb? [#how-long]
+
+30 Tage ab dem Löschen. Jede Zeile zeigt, wie viele Tage noch bleiben; am letzten Tag wird das Element ohne weitere Nachricht endgültig gelöscht.

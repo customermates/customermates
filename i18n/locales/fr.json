@@ -1204,11 +1204,13 @@
         "event": "Évènement",
         "firstName": "Prénom",
         "isPlatformOperator": "Opérateur de plateforme",
+        "kind": "Type",
         "lastActiveAt": "Dernière activité",
         "lastMessageAt": "Dernière activité",
         "lastMessageDirection": "Dernier message",
         "lastMessageSentAt": "Date du dernier message",
         "lastName": "Nom de famille",
+        "list": "Liste",
         "name": "Nom",
         "ownerUserId": "Propriétaire",
         "participantContactId": "Fiches liées",
@@ -1946,6 +1948,7 @@
     "appRecords": "Enregistrements",
     "appRoutines": "Routines",
     "appSearch": "Recherche globale",
+    "appTrash": "Corbeille",
     "architectureSecurity": "Architecture et sécurité",
     "concepts": "Concepts clés",
     "connectCli": "CLI et éditeurs",
@@ -2548,6 +2551,7 @@
     "routines": "Routines",
     "search": "Rechercher",
     "settings": "Paramètres",
+    "trash": "Corbeille",
     "wiki": "Base de connaissances"
   },
   "NotFoundPage": {
@@ -4141,5 +4145,51 @@
   "WorkspaceMenu": {
     "inviteMembers": "Inviter des membres",
     "label": "Menu de l'espace de travail"
+  },
+  "Trash": {
+    "bannerDeleted": "Supprimé le {date}. {count, plural, =0 {Supprimé définitivement aujourd'hui} one {Supprimé définitivement dans # jour} other {Supprimé définitivement dans # jours}}.",
+    "columns": {
+      "deletedAt": "Supprimé le",
+      "deletedBy": "Supprimé par",
+      "expiresAt": "Suppression définitive",
+      "kind": "Type"
+    },
+    "daysLeft": "{count, plural, =0 {Supprimé définitivement aujourd'hui} one {Supprimé définitivement dans # jour} other {Supprimé définitivement dans # jours}}",
+    "deletePermanently": "Supprimer définitivement",
+    "deletePermanentlyManyTitle": "Supprimer {count, plural, one {# élément} other {# éléments}} définitivement ?",
+    "deletePermanentlyTitle": "Supprimer {name} définitivement ?",
+    "deletedPermanently": "Supprimé définitivement",
+    "empty": "Vider la corbeille",
+    "emptyBody": "Les éléments supprimés restent ici 30 jours, puis sont supprimés définitivement.",
+    "emptyConfirmation": "vider la corbeille",
+    "emptyTitle": "Vider la corbeille ?",
+    "emptyTitleState": "La corbeille est vide",
+    "inTrash": "Dans la corbeille",
+    "kindInList": "{kind} dans {list}",
+    "kinds": {
+      "channels": "Canaux",
+      "dashboardView": "Vue du tableau de bord",
+      "field": "Champ",
+      "list": "Liste",
+      "record": "Enregistrement",
+      "relationship": "Relation",
+      "routine": "Routine",
+      "view": "Vue",
+      "widget": "Widget",
+      "wikiPage": "Page de la base de connaissances"
+    },
+    "movedToTrash": "Déplacé dans la corbeille",
+    "movesToTrash": "Il est déplacé dans la corbeille, où vous pouvez le restaurer pendant 30 jours.",
+    "permanentIrreversible": "Cette action est irréversible.",
+    "permanentMessage": "{count, plural, one {Cet élément est supprimé} other {Ces # éléments sont supprimés}} définitivement.",
+    "permanentRecords": "{list} : {count, plural, one {# enregistrement} other {# enregistrements}}",
+    "restore": "Restaurer",
+    "restoreBlocked": "{count, plural, one {# élément n'a pas pu être restauré car sa liste ou son parent est dans la corbeille} other {# éléments n'ont pas pu être restaurés car leur liste ou leur parent est dans la corbeille}}",
+    "restorePending": "Restauration en arrière-plan",
+    "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
+    "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
+    "searchPlaceholder": "Rechercher dans la corbeille",
+    "title": "Corbeille",
+    "undo": "Annuler"
   }
 }

@@ -1,4 +1,5 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon   Trash2,
+} from "lucide-react";
 
 import {
   BookOpen,
@@ -97,6 +98,7 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
       { slug: "app-routines", i18nKey: "DocsSidebar.appRoutines", icon: Repeat },
       { slug: "app-profile", i18nKey: "DocsSidebar.appProfile", icon: UserCircle },
       { slug: "app-search", i18nKey: "DocsSidebar.appSearch", icon: Search },
+      { slug: "app-trash", i18nKey: "DocsSidebar.appTrash", icon: Trash2 },
       { slug: "app-onboarding", i18nKey: "DocsSidebar.appOnboarding", icon: DoorOpen },
       { slug: "app-company", i18nKey: "DocsSidebar.appCompany", icon: Building },
       { slug: "api-keys", i18nKey: "DocsSidebar.apiKeys", icon: Key },

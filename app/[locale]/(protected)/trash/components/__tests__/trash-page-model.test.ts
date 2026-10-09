@@ -1,0 +1,73 @@
+import { describe, expect, it } from "vitest";
+
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { TRASH_KINDS } from "@/features/trash/trash.schema";
+
+import {
+  TRASH_FILTER,
+  TRASH_PAGE_SIZE,
+  toTrashQuery,
+  trashFilterableFields,
+  trashKindLabelKey,
+} from "../trash-page-model";
+
+describe("toTrashQuery", () => {
+  it("reads the first page of everything by default", () => {
+    expect(toTrashQuery()).toEqual({ page: 1, pageSize: TRASH_PAGE_SIZE });
+  });
+
+  it("maps the kind and list filters, the search term and the page", () => {
+    expect(
+      toTrashQuery({
+        filters: [
+          { field: TRASH_FILTER.kind, operator: FilterOperatorKey.in, value: ["record", "view"] },
+          { field: TRASH_FILTER.list, operator: FilterOperatorKey.in, value: ["type-1", "type-2"] },
+        ],
+        searchTerm: "  acme ",
+        pagination: { page: 3, pageSize: 100 },
+      }),
+    ).toEqual({ kinds: ["record", "view"], typeIds: ["type-1", "type-2"], search: "acme", page: 3, pageSize: 100 });
+  });
+
+  it("ignores unknown kinds, empty filters, other operators and a blank search", () => {
+    expect(
+      toTrashQuery({
+        filters: [
+          { field: TRASH_FILTER.kind, operator: FilterOperatorKey.in, value: ["member", "apiKey"] },
+          { field: TRASH_FILTER.list, operator: FilterOperatorKey.in, value: [] },
+          { field: TRASH_FILTER.list, operator: FilterOperatorKey.notIn, value: ["type-1"] },
+        ],
+        searchTerm: "   ",
+      }),
+    ).toEqual({ page: 1, pageSize: TRASH_PAGE_SIZE });
+  });
+});
+
+describe("trashFilterableFields", () => {
+  it("offers every kind and every list as an any-of filter", () => {
+    const fields = trashFilterableFields({
+      kindLabel: (kind) => `kind:${kind}`,
+      lists: [{ id: "type-1", label: "Contacts" }],
+    });
+    expect(fields).toEqual([
+      {
+        field: TRASH_FILTER.kind,
+        operators: [FilterOperatorKey.in],
+        options: TRASH_KINDS.map((kind) => ({ value: kind, label: `kind:${kind}` })),
+      },
+      {
+        field: TRASH_FILTER.list,
+        operators: [FilterOperatorKey.in],
+        options: [{ value: "type-1", label: "Contacts" }],
+      },
+    ]);
+  });
+});
+
+describe("trashKindLabelKey", () => {
+  it("names a view of the dashboard a dashboard view", () => {
+    expect(trashKindLabelKey({ kind: "view", surfaceKey: "dashboard" })).toBe("dashboardView");
+    expect(trashKindLabelKey({ kind: "view", surfaceKey: "records:type-1" })).toBe("view");
+    expect(trashKindLabelKey({ kind: "record", surfaceKey: null })).toBe("record");
+  });
+});

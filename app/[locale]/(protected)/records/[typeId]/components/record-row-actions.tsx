@@ -1,5 +1,6 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordsStore } from "./records.store";
 
@@ -25,14 +26,20 @@ export function recordRowName(store: RecordsStore, record: RecordRow) {
   return title?.state === "value" && title.value.kind === "text" ? title.value.value : (store.type?.label ?? "");
 }
 
+export type RecordRowAction = { icon: LucideIcon; label: string; onSelect: () => unknown };
+
 export const RecordRowActions = observer(function RecordRowActions({
   name,
+  action,
   onOpen,
   onDelete,
+  deleteLabel,
 }: {
   name: string;
+  action?: RecordRowAction;
   onOpen?: (returnFocusTo: HTMLElement | null) => void;
   onDelete?: () => unknown;
+  deleteLabel?: string;
 }) {
   const t = useTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -64,6 +71,14 @@ export const RecordRowActions = observer(function RecordRowActions({
             event.preventDefault();
           }}
         >
+          {action && (
+            <DropdownMenuItem onSelect={() => runUserAction(action.onSelect)}>
+              <action.icon className="size-4" />
+
+              {action.label}
+            </DropdownMenuItem>
+          )}
+
           {onOpen && (
             <DropdownMenuItem
               onSelect={() => {
@@ -81,7 +96,7 @@ export const RecordRowActions = observer(function RecordRowActions({
             <DropdownMenuItem variant="destructive" onSelect={() => runUserAction(onDelete)}>
               <Trash2 className="size-4" />
 
-              {t("Common.actions.delete")}
+              {deleteLabel ?? t("Common.actions.delete")}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

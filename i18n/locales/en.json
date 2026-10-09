@@ -1204,11 +1204,13 @@
         "event": "Event",
         "firstName": "First name",
         "isPlatformOperator": "Platform operator",
+        "kind": "Kind",
         "lastActiveAt": "Last active",
         "lastMessageAt": "Last activity",
         "lastMessageDirection": "Last message",
         "lastMessageSentAt": "Last message date",
         "lastName": "Last name",
+        "list": "List",
         "name": "Name",
         "ownerUserId": "Owner",
         "participantContactId": "Linked records",
@@ -1946,6 +1948,7 @@
     "appRecords": "Records",
     "appRoutines": "Routines",
     "appSearch": "Global Search",
+    "appTrash": "Trash",
     "architectureSecurity": "Architecture & Security",
     "concepts": "Core Concepts",
     "connectCli": "CLI & editors",
@@ -2548,6 +2551,7 @@
     "routines": "Routines",
     "search": "Search",
     "settings": "Settings",
+    "trash": "Trash",
     "wiki": "Knowledge Base"
   },
   "NotFoundPage": {
@@ -4141,5 +4145,51 @@
   "WorkspaceMenu": {
     "inviteMembers": "Invite members",
     "label": "Workspace menu"
+  },
+  "Trash": {
+    "bannerDeleted": "Deleted {date}. {count, plural, =0 {Deletes permanently today} one {Deletes permanently in # day} other {Deletes permanently in # days}}.",
+    "columns": {
+      "deletedAt": "Deleted at",
+      "deletedBy": "Deleted by",
+      "expiresAt": "Deletes permanently",
+      "kind": "Kind"
+    },
+    "daysLeft": "{count, plural, =0 {Deletes permanently today} one {Deletes permanently in # day} other {Deletes permanently in # days}}",
+    "deletePermanently": "Delete permanently",
+    "deletePermanentlyManyTitle": "Delete {count, plural, one {# item} other {# items}} permanently?",
+    "deletePermanentlyTitle": "Delete {name} permanently?",
+    "deletedPermanently": "Deleted permanently",
+    "empty": "Empty trash",
+    "emptyBody": "Deleted items stay here for 30 days, then they are deleted permanently.",
+    "emptyConfirmation": "empty trash",
+    "emptyTitle": "Empty trash?",
+    "emptyTitleState": "Trash is empty",
+    "inTrash": "In Trash",
+    "kindInList": "{kind} in {list}",
+    "kinds": {
+      "channels": "Channels",
+      "dashboardView": "Dashboard view",
+      "field": "Field",
+      "list": "List",
+      "record": "Record",
+      "relationship": "Relationship",
+      "routine": "Routine",
+      "view": "View",
+      "widget": "Widget",
+      "wikiPage": "Knowledge Base page"
+    },
+    "movedToTrash": "Moved to Trash",
+    "movesToTrash": "It moves to Trash, where you can restore it for 30 days.",
+    "permanentIrreversible": "This cannot be undone.",
+    "permanentMessage": "{count, plural, one {This item is} other {These # items are}} deleted permanently.",
+    "permanentRecords": "{list}: {count, plural, one {# record} other {# records}}",
+    "restore": "Restore",
+    "restoreBlocked": "{count, plural, one {# item could not be restored because its list or parent is in Trash} other {# items could not be restored because their list or parent is in Trash}}",
+    "restorePending": "Restoring in the background",
+    "restored": "{count, plural, one {# item restored} other {# items restored}}",
+    "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
+    "searchPlaceholder": "Search Trash",
+    "title": "Trash",
+    "undo": "Undo"
   }
 }

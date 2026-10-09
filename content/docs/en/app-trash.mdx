@@ -1,0 +1,37 @@
+---
+title: "Trash: Undo Deletes and Restore Deleted Items"
+description: "Deleted records, lists, fields, views, widgets and routines wait 30 days in Trash, where you can restore them or delete them permanently."
+---
+
+Deleting in Customermates moves the item to [Trash](app:trash) instead of removing it at once. Right after a delete, a message with **Undo** appears for a few seconds; **Undo** brings the item back immediately. After that, the item waits in Trash for 30 days and is then deleted permanently by itself.
+
+## What goes to Trash? [#what-goes-to-trash]
+
+- Records of every list, for example [Contacts](app:records/contact). Rows of a sub-list and the record's links go with their record and come back with it.
+- Lists, fields, relationships and Channels fields deleted in [Configure](app:configure).
+- Saved views, dashboard views and dashboard widgets.
+- Routines.
+
+Members, invitations, roles, API keys, webhooks and connected accounts are not moved to Trash: deleting them changes access, so it takes effect immediately.
+
+While an item is in Trash it is gone everywhere else: lists, search, totals and calculations, widgets, filters, exports, Mate, the API and MCP no longer see it, and routines and webhooks do not fire for it.
+
+## Who sees what in Trash? [#who-sees-what]
+
+Everyone finds **Trash** in the sidebar. You see the items you could see and delete; members with the **Admin** role see every item in the workspace. Each row shows the item, its kind, who deleted it, when, and how many days are left before it is deleted permanently. Find items with [search](app:trash?focus=search) and narrow them by kind or list with [Filters](app:trash?focus=filter).
+
+## How do I restore a deleted item? [#how-do-i-restore]
+
+Open [Trash](app:trash), hover the row and click **Restore**, or select several rows and click **Restore** in the selection bar. Restoring needs the same access as deleting did. A restored record comes back with its values, links and sub-list rows. A link to a record that was deleted permanently in the meantime cannot come back; the confirmation says how many links were dropped. A record whose list is itself in Trash can be restored only after its list.
+
+Opening a deleted record from Trash shows it read only with the banner **In Trash** and a **Restore** button.
+
+## How do I delete something permanently? [#how-do-i-delete-permanently]
+
+In [Trash](app:trash), hover the row and click **Delete permanently**, or select several rows and click **Delete permanently** in the selection bar. The confirmation lists exactly what disappears, such as the number of records per list and links. Permanent deletion cannot be undone.
+
+Members with the **Admin** role can remove everything at once with [Empty trash](app:trash?focus=empty), shown only while Trash has items. To confirm, type **empty trash**.
+
+## How long do items stay in Trash? [#how-long]
+
+30 days from the delete. Each row shows how many days are left; on the last day the item is deleted permanently without further notice.

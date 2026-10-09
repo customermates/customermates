@@ -1204,11 +1204,13 @@
         "event": "Evento",
         "firstName": "Nombre",
         "isPlatformOperator": "Operador de plataforma",
+        "kind": "Tipo",
         "lastActiveAt": "Última actividad",
         "lastMessageAt": "Última actividad",
         "lastMessageDirection": "Último mensaje",
         "lastMessageSentAt": "Fecha del último mensaje",
         "lastName": "Apellidos",
+        "list": "Lista",
         "name": "Nombre",
         "ownerUserId": "Propietario",
         "participantContactId": "Registros vinculados",
@@ -1946,6 +1948,7 @@
     "appRecords": "Registros",
     "appRoutines": "Rutinas",
     "appSearch": "Búsqueda global",
+    "appTrash": "Papelera",
     "architectureSecurity": "Arquitectura y seguridad",
     "concepts": "Conceptos clave",
     "connectCli": "CLI y editores",
@@ -2548,6 +2551,7 @@
     "routines": "Rutinas",
     "search": "Buscar",
     "settings": "Ajustes",
+    "trash": "Papelera",
     "wiki": "Base de conocimientos"
   },
   "NotFoundPage": {
@@ -4141,5 +4145,51 @@
   "WorkspaceMenu": {
     "inviteMembers": "Invitar miembros",
     "label": "Menú del espacio de trabajo"
+  },
+  "Trash": {
+    "bannerDeleted": "Eliminado el {date}. {count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}.",
+    "columns": {
+      "deletedAt": "Eliminado el",
+      "deletedBy": "Eliminado por",
+      "expiresAt": "Eliminación definitiva",
+      "kind": "Tipo"
+    },
+    "daysLeft": "{count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}",
+    "deletePermanently": "Eliminar definitivamente",
+    "deletePermanentlyManyTitle": "¿Eliminar {count, plural, one {# elemento} other {# elementos}} definitivamente?",
+    "deletePermanentlyTitle": "¿Eliminar {name} definitivamente?",
+    "deletedPermanently": "Eliminado definitivamente",
+    "empty": "Vaciar papelera",
+    "emptyBody": "Los elementos eliminados se quedan aquí 30 días y después se eliminan definitivamente.",
+    "emptyConfirmation": "vaciar papelera",
+    "emptyTitle": "¿Vaciar la papelera?",
+    "emptyTitleState": "La papelera está vacía",
+    "inTrash": "En la papelera",
+    "kindInList": "{kind} en {list}",
+    "kinds": {
+      "channels": "Canales",
+      "dashboardView": "Vista del panel",
+      "field": "Campo",
+      "list": "Lista",
+      "record": "Registro",
+      "relationship": "Relación",
+      "routine": "Rutina",
+      "view": "Vista",
+      "widget": "Widget",
+      "wikiPage": "Página de la base de conocimiento"
+    },
+    "movedToTrash": "Movido a la papelera",
+    "movesToTrash": "Se mueve a la papelera, donde puedes restaurarlo durante 30 días.",
+    "permanentIrreversible": "Esto no se puede deshacer.",
+    "permanentMessage": "{count, plural, one {Este elemento se elimina} other {Estos # elementos se eliminan}} definitivamente.",
+    "permanentRecords": "{list}: {count, plural, one {# registro} other {# registros}}",
+    "restore": "Restaurar",
+    "restoreBlocked": "{count, plural, one {# elemento no se pudo restaurar porque su lista o registro principal está en la papelera} other {# elementos no se pudieron restaurar porque su lista o registro principal está en la papelera}}",
+    "restorePending": "Restaurando en segundo plano",
+    "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
+    "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
+    "searchPlaceholder": "Buscar en la papelera",
+    "title": "Papelera",
+    "undo": "Deshacer"
   }
 }
