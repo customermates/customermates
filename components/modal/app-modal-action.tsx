@@ -10,6 +10,7 @@ import {
   overlayIconControlClass,
   type OverlayIconControlVariant,
 } from "@/components/ui/overlay-contract";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -62,7 +63,16 @@ function isLinkAction(props: AppModalActionProps): props is LinkActionProps {
   return typeof props.href === "string";
 }
 
+export function isAskAiAction(action: AppModalActionProps) {
+  return action.kind === "assistant" && !isLinkAction(action);
+}
+
+export function appModalActionSlots(actions: readonly AppModalActionProps[]) {
+  return actions.reduce((slots, action) => slots + (isAskAiAction(action) ? 2 : 1), 0);
+}
+
 export function AppModalAction(props: AppModalActionProps) {
+  if (isAskAiAction(props) && props.onClick) return <AskAiAction id={props.anchorId} onClick={props.onClick} />;
   const { icon: Icon, label, tooltip, variant = "neutral" } = props;
   const isBusy = "busy" in props && props.busy === true;
   const isDisabled = !isLinkAction(props) && (props.disabled === true || isBusy);
