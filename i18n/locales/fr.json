@@ -830,6 +830,88 @@
     "liveDemoTitle": "Démo en direct de Customermates",
     "open": "Ouvrir dans un nouvel onglet"
   },
+  "CommandPalette": {
+    "fieldOf": "Champ de {list}",
+    "groups": {
+      "actions": "Actions",
+      "bestMatch": "Meilleur résultat",
+      "listsAndViews": "Listes et vues",
+      "pagesAndSettings": "Pages et paramètres",
+      "records": "Enregistrements",
+      "suggestions": "Suggestions"
+    },
+    "labels": {
+      "addRole": "Ajouter un rôle",
+      "addWebhook": "Ajouter un webhook",
+      "connectChannel": "Connecter un canal",
+      "createApiKey": "Créer une clé API",
+      "themeDark": "Passer au thème sombre",
+      "themeLight": "Passer au thème clair",
+      "themeSystem": "Utiliser le thème du système"
+    },
+    "record": {
+      "addTo": "Ajouter à {list}…",
+      "assign": "Attribuer à…",
+      "change": "Modifier {field}…",
+      "deleteNamed": "Supprimer {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nouveau, créer, nouvel enregistrement",
+        "inviteMembers": "ajouter un utilisateur, inviter un collègue, équipe",
+        "sendFeedback": "signaler un problème, suggestion, support",
+        "shortcuts": "raccourcis, touches, clavier",
+        "signOut": "déconnexion, logout, quitter",
+        "switchView": "changer de vue, vues enregistrées",
+        "themeDark": "mode sombre, mode nuit",
+        "themeLight": "mode clair",
+        "themeSystem": "thème automatique, suivre le système"
+      },
+      "page": {
+        "configure": "modèle de données, schéma, listes, champs, relations",
+        "dashboard": "accueil, aperçu, widgets, graphiques",
+        "documentation": "docs, aide, guide, manuel",
+        "inbox": "messages, e-mail, courriel, conversations, discussions",
+        "knowledgeBase": "wiki, notes, fiches, articles",
+        "routines": "automatisations, planifications, tâches récurrentes",
+        "settings": "préférences, options, compte, espace de travail"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nouvelle clé API, générer un jeton"
+        },
+        "channels": {
+          "connect": "connecter un e-mail, ajouter un compte, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "photo de profil, photo, image",
+          "country": "emplacement, région",
+          "displayLanguage": "langue, langue de l'interface, traduction",
+          "firstName": "nom, prénom",
+          "formattingLocale": "format de date, format des nombres, région",
+          "lastName": "nom de famille",
+          "theme": "apparence, mode sombre, mode clair, couleurs"
+        },
+        "roles": {
+          "create": "nouveau rôle, permissions"
+        },
+        "webhooks": {
+          "create": "nouveau webhook"
+        }
+      },
+      "settings": {
+        "activity": "journal d'audit, historique, modifications",
+        "api-keys": "jetons, API, MCP, développeur, clés d'accès",
+        "billing": "forfait, abonnement, factures, paiement, tarifs",
+        "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations",
+        "members": "équipe, utilisateurs, personnes, collègues",
+        "profile": "mon profil, compte, préférences, personnel",
+        "roles": "permissions, accès, droits",
+        "webhook-deliveries": "livraisons de webhook, journal des webhooks, événements envoyés",
+        "webhooks": "intégrations, rappels, événements, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Ajouter",
@@ -1208,11 +1290,13 @@
         "event": "Évènement",
         "firstName": "Prénom",
         "isPlatformOperator": "Opérateur de plateforme",
+        "kind": "Type",
         "lastActiveAt": "Dernière activité",
         "lastMessageAt": "Dernière activité",
         "lastMessageDirection": "Dernier message",
         "lastMessageSentAt": "Date du dernier message",
         "lastName": "Nom de famille",
+        "list": "Liste",
         "name": "Nom",
         "ownerUserId": "Propriétaire",
         "participantContactId": "Fiches liées",
@@ -1952,6 +2036,7 @@
     "appRecords": "Enregistrements",
     "appRoutines": "Routines",
     "appSearch": "Recherche globale",
+    "appTrash": "Corbeille",
     "architectureSecurity": "Architecture et sécurité",
     "concepts": "Concepts clés",
     "connectCli": "CLI et éditeurs",
@@ -2555,6 +2640,7 @@
     "routines": "Routines",
     "search": "Rechercher",
     "settings": "Paramètres",
+    "trash": "Corbeille",
     "wiki": "Base de connaissances"
   },
   "NotFoundPage": {
@@ -3992,6 +4078,58 @@
     "signoff": "Cordialement,\nBen",
     "subject": "Votre compte est inactif : nous pouvons vous aider à rétablir l'accès",
     "title": "Abonnement désactivé"
+  },
+  "Trash": {
+    "bannerDeleted": "Supprimé le {date}. {count, plural, =0 {Supprimé définitivement aujourd'hui} one {Supprimé définitivement dans # jour} other {Supprimé définitivement dans # jours}}.",
+    "columns": {
+      "deletedAt": "Supprimé le",
+      "deletedBy": "Supprimé par",
+      "expiresAt": "Suppression définitive",
+      "kind": "Type"
+    },
+    "daysLeft": "{count, plural, =0 {Supprimé définitivement aujourd'hui} one {Supprimé définitivement dans # jour} other {Supprimé définitivement dans # jours}}",
+    "deletedPermanently": "Supprimé définitivement",
+    "deletePermanently": "Supprimer définitivement",
+    "deletePermanentlyManyTitle": "Supprimer {count, plural, one {# élément} other {# éléments}} définitivement ?",
+    "deletePermanentlyTitle": "Supprimer {name} définitivement ?",
+    "empty": "Vider la corbeille",
+    "emptyBody": "Les éléments supprimés restent ici 30 jours, puis sont supprimés définitivement.",
+    "emptyConfirmation": "vider la corbeille",
+    "emptyTitle": "Vider la corbeille ?",
+    "emptyTitleState": "La corbeille est vide",
+    "inTrash": "Dans la corbeille",
+    "kindInList": "{kind} dans {list}",
+    "kinds": {
+      "channels": "Canaux",
+      "dashboardView": "Vue du tableau de bord",
+      "field": "Champ",
+      "list": "Liste",
+      "record": "Enregistrement",
+      "relationship": "Relation",
+      "routine": "Routine",
+      "view": "Vue",
+      "widget": "Widget",
+      "wikiPage": "Page de la base de connaissances"
+    },
+    "movedToTrash": "Déplacé dans la corbeille",
+    "movesToTrash": "Il est déplacé dans la corbeille, où vous pouvez le restaurer pendant 30 jours.",
+    "permanentIrreversible": "Cette action est irréversible.",
+    "permanentMessage": "{count, plural, one {Cet élément est supprimé} other {Ces # éléments sont supprimés}} définitivement.",
+    "permanentRecords": "{list} : {count, plural, one {# enregistrement} other {# enregistrements}}",
+    "restore": "Restaurer",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car leur liste est dans la corbeille. Restaurez d'abord la liste.",
+      "nameTaken": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un autre élément utilise désormais leur nom ou leur place.",
+      "notFound": "{count, plural, one {# élément n'existe plus et a quitté} other {# éléments n'existent plus et ont quitté}} la corbeille.",
+      "parentDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car ce à quoi ils appartiennent est dans la corbeille. Restaurez-le d'abord.",
+      "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord."
+    },
+    "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
+    "restoredInBackground": "Restaur\u00e9",
+    "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
+    "restorePending": "Restauration en arrière-plan. La corbeille affiche la progression.",
+    "searchPlaceholder": "Rechercher dans la corbeille",
+    "undo": "Annuler"
   },
   "TrialExpiredOffer": {
     "body": "Votre essai s’est terminé récemment, mais j’aimerais vous aider à tirer pleinement parti de Customermates. Si vous le souhaitez, je peux prolonger votre essai et passer en revue votre configuration avec vous.",

@@ -6,7 +6,9 @@ import type { RecordDto } from "@/features/records/record-model.schema";
 import type { RecordMutation } from "@/features/records/record-query.schema";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import type { RecordEditorStore } from "./record-editor.store";
 import { previewRecordDeletionAction, mutateRecordAction } from "../../actions";
+import { movedToTrashOr, type MovedToTrash } from "@/features/trash/moved-to-trash";
 
 export function useRecordDeletion({
   onDeleted,
@@ -25,7 +27,7 @@ export function useRecordDeletion({
   onInvalidated?: () => Promise<void>;
   canDelete?: () => boolean;
   onMutating?: (value: boolean) => void;
-  mutateMany?: (mutation: Extract<RecordMutation, { action: "deleteMany" }>) => Promise<boolean>;
+  mutateMany?: (mutation: Extract<RecordMutation, { action: "deleteMany" }>) => Promise<boolean | MovedToTrash>;
 }) {
   const t = useTranslations();
   const { showConfirmation } = useDeleteConfirmation();
@@ -79,6 +81,7 @@ export function useRecordDeletion({
               }),
             ]
           : []),
+        t("Trash.movesToTrash"),
       ].join(" ");
       const payloadKey = JSON.stringify([input, preview.impactHash]);
       showConfirmation({
@@ -119,9 +122,11 @@ export function useRecordDeletion({
           requests.current.delete(payloadKey);
           if (result.data.status === "pending") {
             if (isCurrent()) onPending(result.data.operationId);
-          } else if (isCurrent()) await onDeleted();
+            return true;
+          }
+          if (isCurrent()) await onDeleted();
           else await onInvalidated?.();
-          return true;
+          return movedToTrashOr(result.data);
         },
       });
     } catch (error) {
@@ -147,4 +152,16 @@ export function useRecordDeletion({
       request(targets, revision, t("MassActions.selectedCount", { count: targets.length }), true),
     isPreviewing,
   };
+}
+
+export function useRecordEditorDeletion(store: RecordEditorStore | null) {
+  return useRecordDeletion({
+    sessionKey: store?.sessionKey,
+    captureSession: store?.captureSession,
+    canDelete: () => Boolean(store?.presentation.permittedActions.includes("delete") && !store.isBusy),
+    onMutating: (value) => store?.setIsLoading(value),
+    onInvalidated: store?.rootStore.recordWorkspaceStore.invalidate,
+    onDeleted: () => store?.deletionCompleted() ?? Promise.resolve(),
+    onPending: (id) => store?.setPendingOperation(id, true),
+  });
 }

@@ -71,7 +71,7 @@ test("edits an existing snapshot as a lookup with an Updates mode and keeps its 
   await expect(dialog.getByRole("switch", { name: "Let people type over it", exact: true })).toBeChecked();
 
   await selectOption(page, "Updates", "Saved on request");
-  await expect(dialog.getByRole("combobox", { name: "When this field changes", exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole("combobox", { name: /^When this field changes/ })).toHaveCount(0);
   await saveDrawer(page);
   const saved = (await readModel(database, companyId)).fields.find((field) => field.id === id("lineItem.savedPrice"));
   expect(saved?.behavior).toEqual({

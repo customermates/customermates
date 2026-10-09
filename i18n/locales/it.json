@@ -830,6 +830,88 @@
     "liveDemoTitle": "Demo live di Customermates",
     "open": "Apri in una nuova scheda"
   },
+  "CommandPalette": {
+    "fieldOf": "Campo di {list}",
+    "groups": {
+      "actions": "Azioni",
+      "bestMatch": "Miglior risultato",
+      "listsAndViews": "Elenchi e viste",
+      "pagesAndSettings": "Pagine e impostazioni",
+      "records": "Record",
+      "suggestions": "Suggerimenti"
+    },
+    "labels": {
+      "addRole": "Aggiungi ruolo",
+      "addWebhook": "Aggiungi webhook",
+      "connectChannel": "Collega un canale",
+      "createApiKey": "Crea chiave API",
+      "themeDark": "Passa al tema scuro",
+      "themeLight": "Passa al tema chiaro",
+      "themeSystem": "Usa il tema di sistema"
+    },
+    "record": {
+      "addTo": "Aggiungi a {list}…",
+      "assign": "Assegna a…",
+      "change": "Modifica {field}…",
+      "deleteNamed": "Elimina {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nuovo, crea, nuovo record",
+        "inviteMembers": "aggiungi utente, invita collega, team",
+        "sendFeedback": "segnala un problema, suggerimento, supporto",
+        "shortcuts": "tasti rapidi, tasti, tastiera",
+        "signOut": "logout, disconnetti, esci",
+        "switchView": "cambia vista, viste salvate",
+        "themeDark": "modalità scura, modalità notte",
+        "themeLight": "modalità chiara",
+        "themeSystem": "tema automatico, segui il sistema"
+      },
+      "page": {
+        "configure": "modello dati, schema, elenchi, campi, relazioni",
+        "dashboard": "home, panoramica, widget, grafici",
+        "documentation": "documenti, aiuto, guida, manuale",
+        "inbox": "messaggi, email, posta, conversazioni, chat",
+        "knowledgeBase": "wiki, note, pagine, articoli",
+        "routines": "automazioni, pianificazioni, attività ricorrenti",
+        "settings": "preferenze, opzioni, account, spazio di lavoro"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nuova chiave API, genera token"
+        },
+        "channels": {
+          "connect": "collega email, aggiungi account, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "immagine del profilo, foto, immagine",
+          "country": "posizione, regione",
+          "displayLanguage": "lingua, lingua dell'interfaccia, traduzione",
+          "firstName": "nome di battesimo",
+          "formattingLocale": "formato data, formato numeri, regione",
+          "lastName": "cognome, nome di famiglia",
+          "theme": "aspetto, modalità scura, modalità chiara, colori"
+        },
+        "roles": {
+          "create": "nuovo ruolo, permessi"
+        },
+        "webhooks": {
+          "create": "nuovo webhook"
+        }
+      },
+      "settings": {
+        "activity": "registro di audit, cronologia, modifiche",
+        "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso",
+        "billing": "piano, abbonamento, fatture, pagamento, prezzi",
+        "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni",
+        "members": "team, utenti, persone, colleghi",
+        "profile": "il mio profilo, account, preferenze, personale",
+        "roles": "permessi, accesso, diritti",
+        "webhook-deliveries": "consegne webhook, registro webhook, eventi inviati",
+        "webhooks": "integrazioni, callback, eventi, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Aggiungi",
@@ -1208,11 +1290,13 @@
         "event": "Evento",
         "firstName": "Nome",
         "isPlatformOperator": "Operatore di piattaforma",
+        "kind": "Tipo",
         "lastActiveAt": "Ultima attività",
         "lastMessageAt": "Ultima attività",
         "lastMessageDirection": "Ultimo messaggio",
         "lastMessageSentAt": "Data ultimo messaggio",
         "lastName": "Cognome",
+        "list": "Lista",
         "name": "Nome",
         "ownerUserId": "Proprietario",
         "participantContactId": "Record collegati",
@@ -1952,6 +2036,7 @@
     "appRecords": "Record",
     "appRoutines": "Routine",
     "appSearch": "Ricerca globale",
+    "appTrash": "Cestino",
     "architectureSecurity": "Architettura e sicurezza",
     "concepts": "Concetti chiave",
     "connectCli": "CLI ed editor",
@@ -2555,6 +2640,7 @@
     "routines": "Routine",
     "search": "Cerca",
     "settings": "Impostazioni",
+    "trash": "Cestino",
     "wiki": "Base di conoscenza"
   },
   "NotFoundPage": {
@@ -3992,6 +4078,58 @@
     "signoff": "Cordiali saluti,\nBen",
     "subject": "Il tuo account è inattivo: possiamo aiutarti a ripristinare l'accesso",
     "title": "Abbonamento disattivato"
+  },
+  "Trash": {
+    "bannerDeleted": "Eliminato il {date}. {count, plural, =0 {Eliminato definitivamente oggi} one {Eliminato definitivamente tra # giorno} other {Eliminato definitivamente tra # giorni}}.",
+    "columns": {
+      "deletedAt": "Eliminato il",
+      "deletedBy": "Eliminato da",
+      "expiresAt": "Eliminazione definitiva",
+      "kind": "Tipo"
+    },
+    "daysLeft": "{count, plural, =0 {Eliminato definitivamente oggi} one {Eliminato definitivamente tra # giorno} other {Eliminato definitivamente tra # giorni}}",
+    "deletedPermanently": "Eliminato definitivamente",
+    "deletePermanently": "Elimina definitivamente",
+    "deletePermanentlyManyTitle": "Eliminare {count, plural, one {# elemento} other {# elementi}} definitivamente?",
+    "deletePermanentlyTitle": "Eliminare {name} definitivamente?",
+    "empty": "Svuota cestino",
+    "emptyBody": "Gli elementi eliminati restano qui per 30 giorni, poi vengono eliminati definitivamente.",
+    "emptyConfirmation": "svuota cestino",
+    "emptyTitle": "Svuotare il cestino?",
+    "emptyTitleState": "Il cestino è vuoto",
+    "inTrash": "Nel cestino",
+    "kindInList": "{kind} della lista {list}",
+    "kinds": {
+      "channels": "Canali",
+      "dashboardView": "Vista della dashboard",
+      "field": "Campo",
+      "list": "Lista",
+      "record": "Record",
+      "relationship": "Relazione",
+      "routine": "Routine",
+      "view": "Vista",
+      "widget": "Widget",
+      "wikiPage": "Pagina della knowledge base"
+    },
+    "movedToTrash": "Spostato nel cestino",
+    "movesToTrash": "Viene spostato nel cestino, dove puoi ripristinarlo per 30 giorni.",
+    "permanentIrreversible": "Questa operazione non può essere annullata.",
+    "permanentMessage": "{count, plural, one {Questo elemento viene eliminato} other {Questi # elementi vengono eliminati}} definitivamente.",
+    "permanentRecords": "{list}: {count, plural, one {# record} other {# record}}",
+    "restore": "Ripristina",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché la loro lista è nel cestino. Ripristina prima la lista.",
+      "nameTaken": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché un altro elemento usa ora il loro nome o posto.",
+      "notFound": "{count, plural, one {# elemento non esiste più ed è uscito} other {# elementi non esistono più e sono usciti}} dal cestino.",
+      "parentDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché ciò a cui appartengono è nel cestino. Ripristinalo prima.",
+      "requiresRestore": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché qualcosa di cui hanno bisogno è nel cestino. Ripristinalo prima."
+    },
+    "restored": "{count, plural, one {# elemento ripristinato} other {# elementi ripristinati}}",
+    "restoredInBackground": "Ripristinato",
+    "restoredWithDroppedLinks": "Ripristinato. {count, plural, one {# collegamento non è stato ripristinato} other {# collegamenti non sono stati ripristinati}} perché il record collegato è stato eliminato definitivamente.",
+    "restorePending": "Ripristino in background. Il cestino mostra l'avanzamento.",
+    "searchPlaceholder": "Cerca nel cestino",
+    "undo": "Annulla"
   },
   "TrialExpiredOffer": {
     "body": "La tua prova è terminata da poco, ma mi farebbe piacere aiutarti a ottenere un valore concreto da Customermates. Se vuoi, posso prolungare la tua prova e rivedere insieme a te la configurazione.",

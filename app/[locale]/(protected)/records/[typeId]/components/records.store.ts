@@ -17,6 +17,7 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordColumnPresentation, recordDefaults } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
+import { movedToTrashOr } from "@/features/trash/moved-to-trash";
 
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
   presentation: RecordPresentationResult;
@@ -139,25 +140,28 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         await this.refresh();
         return false;
       }
-      if (result.data.status === "pending") this.setBulkState(false, result.data.operationId);
-      else {
-        try {
-          await this.bulkCompleted();
-        } catch (error) {
-          reportApplicationError(error);
-        }
+      if (result.data.status === "pending") {
+        this.setBulkState(false, result.data.operationId);
+        return true;
       }
-      return true;
+      try {
+        await this.bulkCompleted();
+      } catch (error) {
+        reportApplicationError(error);
+      }
+      return movedToTrashOr(result.data);
     } finally {
       this.setBulkState(false);
     }
   };
-  bulkUpdateField = (fieldId: string, value: RecordScalar | null) =>
-    this.bulkMutation({
-      action: "updateMany",
-      targets: this.selectionTargets,
-      fields: [{ fieldId, value }],
-    });
+  bulkUpdateField = async (fieldId: string, value: RecordScalar | null) =>
+    Boolean(
+      await this.bulkMutation({
+        action: "updateMany",
+        targets: this.selectionTargets,
+        fields: [{ fieldId, value }],
+      }),
+    );
   canUpdateRecord(record: RecordRow) {
     return (
       this.presentation.permittedActions.includes("update") &&
