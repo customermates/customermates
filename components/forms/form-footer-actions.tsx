@@ -148,27 +148,29 @@ export const FormFooterActions = observer(
           </Button>
         )}
 
-        <Button
-          ref={saveButtonRef}
-          aria-busy={saving || undefined}
-          aria-label={isTopBar ? t("Common.actions.save") : undefined}
-          className={buttonClassName}
-          disabled={!dirty || saving}
-          form={onSave ? undefined : formId}
-          id={anchor("save")}
-          size={buttonSize}
-          type={onSave ? "button" : "submit"}
-          variant="default"
-          onClick={onSave ? save : undefined}
-        >
-          {saving ? (
-            <Spinner aria-label={t("Loading.text")} size="sm" />
-          ) : (
-            isTopBar && <Save aria-hidden className="size-4 sm:hidden" />
-          )}
+        {(!isTopBar || dirty || saving) && (
+          <Button
+            ref={saveButtonRef}
+            aria-busy={saving || undefined}
+            aria-label={isTopBar ? t("Common.actions.save") : undefined}
+            className={buttonClassName}
+            disabled={!dirty || saving}
+            form={onSave ? undefined : formId}
+            id={anchor("save")}
+            size={buttonSize}
+            type={onSave ? "button" : "submit"}
+            variant="default"
+            onClick={onSave ? save : undefined}
+          >
+            {saving ? (
+              <Spinner aria-label={t("Loading.text")} size="sm" />
+            ) : (
+              isTopBar && <Save aria-hidden className="size-4 sm:hidden" />
+            )}
 
-          <span className={cn(isTopBar && "hidden sm:inline")}>{t("Common.actions.save")}</span>
-        </Button>
+            <span className={cn(isTopBar && "hidden sm:inline")}>{t("Common.actions.save")}</span>
+          </Button>
+        )}
 
         {cancel && confirmsLocally && (
           <DiscardChangesDialog

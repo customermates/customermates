@@ -481,7 +481,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   );
   await body.fill("Protect this drawer draft");
   await expect(drawer.getByRole("button", { name: /Unlink/ })).toHaveCount(0);
-  await expect(drawer.getByRole("button", { name: "Delete", exact: true })).toBeDisabled();
+  await expect(drawer.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
   for (const action of [
     drawer.getByRole("button", { name: "Hide Channels from details", exact: true }),
     drawer.getByRole("button", { name: "Done", exact: true }),

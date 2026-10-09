@@ -144,12 +144,13 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
   const t = useTranslations();
   if (!isPersonalizing && !layout.isSaving && !layout.failed) return null;
   const isRecordBusy = editor.isTransactionBusy;
+  const differsFromDefault = layout.state.hasPersonalization || layout.dirty;
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
-      {isPersonalizing && (
+      {isPersonalizing && differsFromDefault && (
         <Button
           aria-label={t("RecordModel.resetDetailLayout")}
-          disabled={isRecordBusy || layout.isSaving || (!layout.state.hasPersonalization && !layout.dirty)}
+          disabled={isRecordBusy || layout.isSaving}
           size="sm"
           type="button"
           variant="ghost"
@@ -157,7 +158,7 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
         >
           <RotateCcw className="size-4" />
 
-          <span>{t("RecordModel.resetDetailLayout")}</span>
+          <span className="hidden sm:inline">{t("RecordModel.resetDetailLayout")}</span>
         </Button>
       )}
 
