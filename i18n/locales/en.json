@@ -4088,7 +4088,8 @@
   },
   "WebhooksCard": {
     "emptyBody": "Add a webhook to send workspace events to your systems.",
-    "emptyTitle": "No webhooks yet"
+    "emptyTitle": "No webhooks yet",
+    "showDeliveries": "Show deliveries"
   },
   "Wiki": {
     "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",
