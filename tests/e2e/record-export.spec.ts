@@ -121,6 +121,7 @@ test("exports a customer-created type through the same transfer menu", async ({
     .first()
     .click();
   await expect(dialog).not.toBeVisible();
+  await expect(page).toHaveURL(/\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   expect(typeId).toBeTruthy();
 
