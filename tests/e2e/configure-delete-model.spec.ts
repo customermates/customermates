@@ -93,6 +93,8 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Uppercase code");
   await expect(page.locator(`[data-focus-target="field:${upper.id}"]`)).toHaveAttribute("data-focus-highlight", "");
   await expect(dialog.locator("#used-by")).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
 
   await openConfigureRow(page, "Fields", "Code");
   await dialog.getByRole("button", { name: "Delete field", exact: true }).click();

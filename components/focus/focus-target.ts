@@ -12,7 +12,7 @@ const WAIT_MS = 6000;
 function clearFocusParam() {
   const url = new URL(window.location.href);
   url.searchParams.delete(FOCUS_PARAM);
-  window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
 export function highlightFocusTarget(target: FocusTarget) {
