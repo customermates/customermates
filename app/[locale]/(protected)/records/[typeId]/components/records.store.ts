@@ -1,5 +1,6 @@
 import type { GetResult } from "@/core/base/base-get.interactor";
 import { action, computed, makeObservable, observable } from "mobx";
+import deepEqual from "fast-deep-equal/es6";
 
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
@@ -14,7 +15,7 @@ import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
-import { recordColumnPresentation } from "@/features/records/record-presentation";
+import { recordColumnPresentation, recordDefaults } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
 
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
@@ -41,6 +42,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       presentation: observable.ref,
       fields: computed,
       type: computed,
+      differsFromSharedDefaults: computed,
       recordColumns: computed,
       setPresentation: action,
       moveItemBetweenGroups: action.bound,
@@ -303,6 +305,26 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   override get viewTypeLabel() {
     return this.type?.pluralLabel;
+  }
+  override get differsFromSharedDefaults() {
+    const type = this.type;
+    if (!type) return false;
+    const defaults = recordDefaults(type);
+    const available = new Set(this.columnsDefinition.map((column) => column.uid));
+    const columns = (ids: string[] | undefined) =>
+      (ids ?? []).filter((id) => available.has(id) && id !== this.primaryColumnId);
+    const sort = (descriptor: { field: string; direction: string } | null | undefined) =>
+      descriptor ? { field: descriptor.field, direction: descriptor.direction } : null;
+    const grouping = (value: { field: string; bucket?: string } | null | undefined) =>
+      value ? { field: value.field, bucket: value.bucket ?? null } : null;
+    return (
+      !deepEqual(columns(this.columnOrder), columns(defaults.columnOrder)) ||
+      !deepEqual(new Set(columns(this.hiddenColumns)), new Set(columns(defaults.hiddenColumns))) ||
+      Object.keys(this.columnWidths).length > 0 ||
+      this.viewMode !== defaults.viewMode ||
+      !deepEqual(grouping(this.grouping), grouping(defaults.grouping)) ||
+      !deepEqual(sort(this.sortDescriptor), sort(defaults.sortDescriptor))
+    );
   }
   get primaryColumnId() {
     return this.type?.primaryFieldId ?? super.primaryColumnId;
