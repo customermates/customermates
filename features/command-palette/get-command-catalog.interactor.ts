@@ -11,6 +11,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { CommandCatalogSchema } from "./command-catalog.schema";
+import { commandCatalogScope } from "./command-catalog-scope";
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -33,21 +34,13 @@ export class GetCommandCatalogInteractor extends AuthenticatedInteractor<void, C
           this.catalog.listRecordViewNames(),
         ]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
-        const navigable = new Set(
-          model.types
-            .filter((type) => !type.archived && !type.embedded && type.navigationVisible && policy.canReadType(type.id))
-            .map((type) => type.id),
-        );
+        const scope = commandCatalogScope(model, policy, views);
         return {
           ok: true as const,
           data: {
             schemaRevision: model.revision,
-            views: views.filter((view) => navigable.has(view.typeId)),
-            fields: policy.canManageSchema
-              ? model.fields
-                  .filter((field) => !field.archived && navigable.has(field.typeId))
-                  .map((field) => ({ typeId: field.typeId, id: field.id, label: field.label }))
-              : [],
+            views: scope.views,
+            fields: scope.fields,
           },
         };
       },

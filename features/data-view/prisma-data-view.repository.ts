@@ -96,6 +96,15 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
     });
   }
 
+  async listWorkspaceRecordViewNames(): Promise<RecordViewName[]> {
+    const rows = await this.prisma.dataView.findMany({
+      where: { companyId: this.companyId, surfaceKey: { startsWith: "records:" } },
+      orderBy: [{ surfaceKey: "asc" }, { position: "asc" }, { id: "asc" }],
+      select: { id: true, surfaceKey: true, name: true },
+    });
+    return rows.map((row) => ({ typeId: row.surfaceKey.slice("records:".length), id: row.id, name: row.name }));
+  }
+
   async resetOwnedViewState({ surfaceKey, viewKey, fields }: ResetDataViewStateInput): Promise<boolean> {
     const { companyId, id: userId } = this.user;
     const all = viewKey === ALL_VIEW_KEY;

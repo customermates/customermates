@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { recordChannelsEnabled } from "./record-channels";
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -251,6 +252,9 @@ export function compileRecordQuery(
           AND value.state = 'value'
           AND element ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
     }
+    if (z.uuid().safeParse(query.search).success)
+      matches.push(Prisma.sql`SELECT id FROM "CrmRecord"
+        WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId} AND id = ${query.search}`);
     if (recordChannelsEnabled(model, query.typeId)) {
       matches.push(Prisma.sql`SELECT association."recordId" AS id FROM "RecordIdentityLink" association
         JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = association."identityId"

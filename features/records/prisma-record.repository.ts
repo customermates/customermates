@@ -3,7 +3,7 @@ import { RecordRevisionChangeSchema, type RecordRevisionChange } from "./record-
 import { captureRecordEventMatches } from "./record-event-capture";
 import { RecordEventSubscriptionSchema } from "./record-event-subscription.schema";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
-import { compileRecordSearch, type RecordSearchRow } from "./record-search-query";
+import { compileRecordSearch, type RecordSearchRequest, type RecordSearchRow } from "./record-search-query";
 import type { RecordSearch } from "./record-search.schema";
 import { recordInvariant } from "./record-invariant";
 import type { StoredStateRow, StoredPersonalizationRow } from "@/features/data-view/data-view-row-mapping";
@@ -934,7 +934,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async searchRecords(
-    request: { search: RecordSearch; includeEmbedded?: boolean } | { refs: RecordRef[] },
+    request: RecordSearchRequest,
     model: RecordModel,
     access: RecordAccessMap,
   ): Promise<RecordSearchRow[]> {

@@ -289,6 +289,13 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
   },
 ];
 
+export function commandSynonyms(translate: (key: string) => string, id: string): string[] {
+  return translate(`CommandPalette.synonyms.${id}`)
+    .split(",")
+    .map((synonym) => synonym.trim())
+    .filter(Boolean);
+}
+
 export function staticCommand(id: string): StaticCommand | undefined {
   return STATIC_COMMANDS.find((entry) => entry.id === id);
 }

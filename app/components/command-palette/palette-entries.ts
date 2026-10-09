@@ -9,7 +9,7 @@ import type { PaletteCandidate } from "./command-palette-search";
 
 import { Layers, Link2, ListChecks, Plus, SquarePen, Trash2, UserRoundCheck } from "lucide-react";
 
-import { commandAvailable, STATIC_COMMANDS, staticCommand } from "@/components/keyboard/command-registry";
+import { commandAvailable, commandSynonyms, STATIC_COMMANDS, staticCommand } from "@/components/keyboard/command-registry";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { focusHref } from "@/components/focus/focus-href";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
@@ -40,13 +40,6 @@ export type PaletteRecordContext = {
   canDelete: boolean;
   canAssign: boolean;
 };
-
-export function commandSynonyms(t: PaletteTranslator, id: string): string[] {
-  return t(`CommandPalette.synonyms.${id}`)
-    .split(",")
-    .map((synonym) => synonym.trim())
-    .filter(Boolean);
-}
 
 export function staticEntries(t: PaletteTranslator, environment: CommandEnvironment): PaletteEntry[] {
   return STATIC_COMMANDS.filter((entry) => commandAvailable(entry, environment)).map((entry) => {
