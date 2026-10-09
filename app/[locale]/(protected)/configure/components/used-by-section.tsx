@@ -38,11 +38,11 @@ function dependents(entries: Array<{ reference: DeletionReference; reason?: stri
 }
 
 function useDeletionDependents(model: RecordModelView, target: ConfigurationTarget | null) {
-  const [deletion, setDeletion] = useState<Deletion | null>(null);
+  const [loaded, setLoaded] = useState<{ key: string; deletion: Deletion | null } | null>(null);
   const kind = target?.kind;
   const id = target?.id;
+  const key = target ? `${target.kind}:${target.id}` : null;
   useEffect(() => {
-    setDeletion(null);
     if (!kind || !id) return;
     let current = true;
     previewRecordConfigurationAction({
@@ -51,14 +51,14 @@ function useDeletionDependents(model: RecordModelView, target: ConfigurationTarg
       operations: [{ operation: "delete", target: { kind, id } }],
     })
       .then((result) => {
-        if (current && result.ok) setDeletion(result.data.deletion ?? null);
+        if (current && result.ok) setLoaded({ key: `${kind}:${id}`, deletion: result.data.deletion ?? null });
       })
       .catch(reportApplicationError);
     return () => {
       current = false;
     };
   }, [kind, id, model.revision]);
-  return deletion;
+  return loaded && loaded.key === key ? loaded.deletion : null;
 }
 
 function DependentChips({ items, model }: { items: Dependent[]; model: RecordModelView }) {
