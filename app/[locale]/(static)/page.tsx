@@ -13,7 +13,6 @@ import { HomepageBenefits, HomepageFacts } from "./components/homepage-benefits"
 import { HomepagePricing } from "./components/homepage-pricing";
 import { HomepagePipeline } from "./components/homepage-pipeline";
 import { HomepageClosing, HomepageFaq } from "./components/homepage-closing";
-import { HomepageLiveDemo } from "./components/homepage-live-demo";
 import { HomepageProductProof } from "./components/homepage-product-proof";
 import { HomepageRoutines } from "./components/homepage-routines";
 import { HomepageStory } from "./components/homepage-story";
@@ -57,6 +56,7 @@ export default async function HomePage({ params }: StaticLocaleProps) {
   if (!homepagePage) notFound();
 
   const contentLocale = contentLocaleOrDefault(locale);
+  const liveLabel = homepagePage.data.hero.stage.live.prompt;
   const {
     benefits,
     closingEyebrow,
@@ -94,23 +94,24 @@ export default async function HomePage({ params }: StaticLocaleProps) {
 
       <HomepageStatsRow />
 
-      {walkthrough ? <HomepageWalkthrough locale={contentLocale} walkthrough={walkthrough} /> : null}
+      {walkthrough ? (
+        <HomepageWalkthrough liveLabel={liveLabel} locale={contentLocale} walkthrough={walkthrough} />
+      ) : null}
 
       {howItWorks ? (
         <HomepageHowItWorks
           eyebrow={howItWorks.eyebrow}
           handoff={howItWorks.handoff}
+          liveLabel={liveLabel}
           locale={contentLocale}
           steps={howItWorks.steps}
           title={howItWorks.title}
         />
       ) : null}
 
-      <HomepagePipeline locale={contentLocale} story={pipelineStory} />
+      <HomepagePipeline liveLabel={liveLabel} locale={contentLocale} story={pipelineStory} />
 
-      <HomepageRoutines locale={contentLocale} routines={routines} />
-
-      <HomepageLiveDemo locale={contentLocale} proof={productProof} />
+      <HomepageRoutines liveLabel={liveLabel} locale={contentLocale} routines={routines} />
 
       <HomepageProductProof proof={productProof} />
 

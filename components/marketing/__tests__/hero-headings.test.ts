@@ -49,6 +49,7 @@ describe("hero headings", () => {
           stage: {
             disclosure: "Sample data.",
             label: "Product areas",
+            live: { prompt: "Try it live", status: "Live demo." },
             tabs: [
               { alt: "Inbox", capture: "homepage-inbox", caption: "Inbox caption", label: "Inbox" },
               { alt: "Record", capture: "homepage-record", caption: "Record caption", label: "Customers" },

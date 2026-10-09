@@ -62,12 +62,12 @@ const components = [
   "homepage-closing.tsx",
   "homepage-hero.tsx",
   "homepage-how-it-works.tsx",
-  "homepage-live-demo.tsx",
   "homepage-pipeline.tsx",
   "homepage-pricing.tsx",
   "homepage-product-proof.tsx",
   "homepage-product-stage.tsx",
   "homepage-routines.tsx",
+  "homepage-stage-link.tsx",
   "homepage-stats-row.tsx",
   "homepage-story.tsx",
   "homepage-viewport-video.tsx",
@@ -87,7 +87,6 @@ describe("homepage visual-system adoption", () => {
       "<HomepageHowItWorks",
       "<HomepagePipeline",
       "<HomepageRoutines",
-      "<HomepageLiveDemo",
       "<HomepageProductProof",
       "<HomepageBenefits",
       "<HomepagePricing",
@@ -167,7 +166,9 @@ describe("homepage visual-system adoption", () => {
     expect(hero.match(/<h1\b/gu)).toHaveLength(1);
     expect(stage).toContain("PRODUCT_STAGE_INTERVAL_MS = 6_000");
     expect(stage).toContain("useHomepageMotion<HTMLDivElement>()");
-    expect(stage).toContain("const autoAdvance = shouldAnimate && !stopped && !hovered;");
+    expect(stage).toContain("const autoAdvance = shouldAnimate && !stopped && !hovered && !live;");
+    expect(stage).toContain("window.matchMedia?.(LIVE_STAGE_MEDIA)");
+    expect(hero).toContain("demoBaseUrl={homepageDemoBaseUrl()}");
     expect(stage).toContain('role="tablist"');
     expect(stage).toContain('role="tab"');
     expect(stage).toContain('role="tabpanel"');
@@ -245,31 +246,39 @@ describe("homepage visual-system adoption", () => {
     expect(viewportVideo).not.toMatch(/\bautoPlay\b|\bloop\b/u);
   });
 
-  it("keeps the live workspace on-page and gives the walkthrough the contrasting story band", () => {
-    const demoIframe = readComponent("hero-demo-iframe.tsx");
-    const liveDemo = readComponent("homepage-live-demo.tsx");
+  it("keeps one live workspace in the product stage and links every capture to it", () => {
+    const stage = readComponent("homepage-product-stage.tsx");
+    const link = readComponent("homepage-stage-link.tsx");
     const proof = readComponent("homepage-product-proof.tsx");
     const viewportVideo = readComponent("homepage-viewport-video.tsx");
     const hero = readComponent("homepage-hero.tsx");
 
-    expect(liveDemo.match(/<HeroDemoIframe\b/gu)).toHaveLength(1);
-    expect(liveDemo).toContain("const demoPath = `/${locale}/dashboard?agentChat=open`");
-    expect(liveDemo).not.toMatch(/inbox|threadId|DEMO_INBOX_THREAD_ID/u);
-    expect(liveDemo).not.toContain('tone="inverse"');
-    expect(liveDemo).not.toContain("proof.demoEyebrow");
-    expect(liveDemo).toContain("proof.demoTitle");
-    expect(liveDemo).not.toContain("proof.demoDescription");
-    expect(liveDemo).not.toContain('containerSize="wide"');
-    expect(liveDemo).toContain("title={proof.demoTitle}");
-    expect(liveDemo).toContain('size="full"');
-    expect(liveDemo).toContain("src={demoSrc}");
-    expect(demoIframe).toContain('size = "full"');
-    expect(demoIframe).toContain("<BrowserFrame loadAhead size={size}");
+    expect(existsSync(join(COMPONENT_ROOT, "homepage-live-demo.tsx"))).toBe(false);
+    expect(existsSync(join(COMPONENT_ROOT, "hero-demo-iframe.tsx"))).toBe(false);
+    expect(componentSource.match(/<iframe\b/gu)).toHaveLength(1);
+    expect(stage).toContain("id={PRODUCT_DEMO_ANCHOR}");
+    expect(stage).toContain('sandbox="allow-scripts allow-same-origin allow-popups allow-forms"');
+    expect(stage).toContain("?agentChat=closed");
+    expect(stage).toContain('window.addEventListener("hashchange", openFromHash)');
+    expect(stage).toContain("window.addEventListener(STAGE_OPEN_EVENT, openFromEvent)");
+    expect(link).toContain("href={`#${PRODUCT_DEMO_ANCHOR}`}");
+    expect(link).toContain("window.dispatchEvent(new CustomEvent<HomepageStageArea>(STAGE_OPEN_EVENT");
+    for (const file of [
+      "homepage-walkthrough.tsx",
+      "homepage-how-it-works.tsx",
+      "homepage-pipeline.tsx",
+      "homepage-routines.tsx",
+    ]) {
+      const source = readComponent(file);
+      expect(source.match(/<HomepageCaptureImage\b/gu)?.length, file).toBe(source.match(/<HomepageStageLink\b/gu)?.length);
+    }
+    expect(englishHomepage).toContain('buttonRightHref: "#product-demo"');
+    expect(germanHomepage).toContain('buttonRightHref: "#product-demo"');
     expect(proof).toContain('tone="inverse"');
     expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);
-    expect(proof).not.toMatch(/HeroDemoIframe|<iframe\b/u);
+    expect(proof).not.toMatch(/<iframe\b/u);
     expect(viewportVideo.match(/<video\b/gu)).toHaveLength(1);
-    expect(hero).not.toMatch(/HeroDemoIframe|<iframe\b/u);
+    expect(hero).not.toMatch(/<iframe\b/u);
   });
 
   it("runs horizontal rules to the edges of their owning surfaces", () => {

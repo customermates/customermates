@@ -6,10 +6,18 @@ import { BarChart3, Columns3, MousePointer2 } from "lucide-react";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
+import { STAGE_AREAS } from "./homepage-stage-areas";
+import { HomepageStageLink } from "./homepage-stage-link";
 
 const POINT_ICONS = [Columns3, BarChart3, MousePointer2] as const;
 
-export function HomepagePipeline({ locale, story }: { locale: ContentLocale; story: HomepageStory }) {
+type Props = {
+  liveLabel: string;
+  locale: ContentLocale;
+  story: HomepageStory;
+};
+
+export function HomepagePipeline({ liveLabel, locale, story }: Props) {
   return (
     <MarketingSection id="pipeline">
       <div className="marketing-grid items-end gap-y-8">
@@ -42,13 +50,15 @@ export function HomepagePipeline({ locale, story }: { locale: ContentLocale; sto
         {story.captures.map((capture) => (
           <figure key={capture.capture} className="m-0">
             <div className="overflow-hidden rounded-card border border-border bg-card shadow-xl shadow-black/5">
-              <HomepageCaptureImage
-                alt={capture.alt}
-                locale={locale}
-                mobileName={`${capture.capture}-mobile`}
-                name={capture.capture}
-                sizes="(min-width: 1024px) 40vw, 92vw"
-              />
+              <HomepageStageLink area={STAGE_AREAS[capture.capture]} label={liveLabel}>
+                <HomepageCaptureImage
+                  alt={capture.alt}
+                  locale={locale}
+                  mobileName={`${capture.capture}-mobile`}
+                  name={capture.capture}
+                  sizes="(min-width: 1024px) 40vw, 92vw"
+                />
+              </HomepageStageLink>
             </div>
 
             <figcaption className="mt-4 text-sm">

@@ -21,7 +21,7 @@ vi.mock("react-dom", async (importOriginal) => ({
   prefetchDNS: resourceHints.prefetchDNS,
 }));
 
-import { HeroDemoIframe } from "@/app/[locale]/(static)/components/hero-demo-iframe";
+import { BrowserFrame } from "../browser-frame";
 import { ProductDemo } from "../product-demo";
 import { DocsDemo } from "@/core/fumadocs/docs-demo";
 import { localProductDemoSrc } from "../product-demo-src";
@@ -83,7 +83,6 @@ afterEach(() => {
 
 describe("BrowserFrame", () => {
   it.each([
-    ["homepage", <HeroDemoIframe key="homepage" src="https://demo.customermates.com/en/dashboard" />],
     ["article", <ProductDemo key="article" path="/contacts" />],
     ["standalone", <ProductDemo key="standalone" path="/contacts" presentation="standalone" />],
     ["docs", <DocsDemo key="docs" src="https://demo.customermates.com/en/dashboard" title="Demo" />],
@@ -133,7 +132,9 @@ describe("BrowserFrame", () => {
   });
 
   it("warms the origin and eagerly mounts a load-ahead frame at the observer boundary", () => {
-    const host = mount(<HeroDemoIframe src="https://demo.customermates.com/en/dashboard?agentChat=open" />);
+    const host = mount(
+      <BrowserFrame loadAhead src="https://demo.customermates.com/en/dashboard?agentChat=open" title="Demo" />,
+    );
 
     expect(observer.options).toStrictEqual({ rootMargin: "400px 0px" });
     expect(resourceHints.prefetchDNS).toHaveBeenCalledWith("https://demo.customermates.com");

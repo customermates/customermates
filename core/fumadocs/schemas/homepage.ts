@@ -56,6 +56,10 @@ export const heroSchema = z.object({
   stage: z.object({
     disclosure: z.string(),
     label: z.string(),
+    live: z.object({
+      prompt: z.string(),
+      status: z.string(),
+    }),
     tabs: z.array(homepageStageTabSchema).length(HOMEPAGE_STAGE_CAPTURES.length),
   }),
   startFree: z.string(),
@@ -135,9 +139,6 @@ export const homepageRoutinesSchema = z.object({
 export type HomepageRoutines = z.infer<typeof homepageRoutinesSchema>;
 
 export const homepageProductProofSchema = z.object({
-  demoDescription: z.string(),
-  demoEyebrow: z.string(),
-  demoTitle: z.string(),
   videoDescription: z.string(),
   videoHeading: z.string(),
   videoLabel: z.string(),

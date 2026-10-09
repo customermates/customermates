@@ -216,9 +216,6 @@ describe("seeded public product demo", () => {
     expect(frame).toContain("prefetchDNS(origin)");
     expect(frame).toContain("preconnect(origin)");
     expect(frame).toContain('loading={loadAhead ? "eager" : "lazy"}');
-    expect(read("app/[locale]/(static)/components/hero-demo-iframe.tsx")).toContain(
-      "<BrowserFrame loadAhead",
-    );
     expect(frame).toContain(
       'sandbox="allow-scripts allow-same-origin allow-popups allow-forms"',
     );

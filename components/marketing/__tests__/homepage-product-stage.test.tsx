@@ -23,6 +23,7 @@ import {
   HomepageProductStage,
   PRODUCT_STAGE_INTERVAL_MS,
 } from "@/app/[locale]/(static)/components/homepage-product-stage";
+import { HomepageStageLink } from "@/app/[locale]/(static)/components/homepage-stage-link";
 
 const tabs: HomepageStageTab[] = [
   { alt: "Inbox, using demo data", capture: "homepage-inbox", caption: "Inbox caption", label: "Inbox" },
@@ -44,6 +45,7 @@ afterEach(() => {
   root = undefined;
   document.body.replaceChildren();
   vi.useRealTimers();
+  vi.unstubAllGlobals();
   motionState.shouldAnimate = true;
   motionState.shouldReduceMotion = false;
 });
@@ -55,7 +57,14 @@ function render() {
   root = createRoot(host);
   act(() =>
     root?.render(
-      createElement(HomepageProductStage, { disclosure: "Sample data.", label: "Product areas", locale: "en", tabs }),
+      createElement(HomepageProductStage, {
+        demoBaseUrl: "https://demo.example",
+        disclosure: "Sample data.",
+        label: "Product areas",
+        live: { prompt: "Try it live", status: "Live demo." },
+        locale: "en",
+        tabs,
+      }),
     ),
   );
   return host;
@@ -240,4 +249,101 @@ it("scrolls only the tab strip to bring the advanced tab into view", () => {
   expect(scrollTo).toHaveBeenLastCalledWith({ behavior: "smooth", left: 176 });
   expect(pageScroll).not.toHaveBeenCalled();
   pageScroll.mockRestore();
+});
+
+function stubWideViewport(matches: boolean) {
+  vi.stubGlobal("matchMedia", (query: string) => ({ matches, media: query }));
+}
+
+function frame(host: HTMLElement) {
+  const element = host.querySelector<HTMLElement>("[data-homepage-stage-frame]");
+  if (!element) throw new Error("stage frame missing");
+  return element;
+}
+
+it("goes live on a wide viewport, opens the chosen area in the demo and stops rotating", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  const host = render();
+
+  expect(host.querySelector("iframe")).toBeNull();
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("idle");
+
+  act(() => tabButtons(host)[2].click());
+
+  const iframe = host.querySelector("iframe");
+  expect(iframe?.getAttribute("src")).toBe("https://demo.example/en/deals?agentChat=closed");
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
+
+  act(() => {
+    iframe?.dispatchEvent(new Event("load"));
+  });
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
+  expect(host.textContent).toContain("Live demo.");
+
+  act(() => tabButtons(host)[0].click());
+  expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/inbox?agentChat=closed");
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
+  advance(PRODUCT_STAGE_INTERVAL_MS * 3);
+  expect(selectedLabel(host)).toContain("Inbox");
+});
+
+it("keeps the static captures on a phone-width viewport", () => {
+  vi.useFakeTimers();
+  stubWideViewport(false);
+  const host = render();
+
+  act(() => {
+    frame(host).dispatchEvent(new MouseEvent("pointerdown", { bubbles: true }));
+  });
+  act(() => tabButtons(host)[1].click());
+
+  expect(host.querySelector("iframe")).toBeNull();
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("idle");
+});
+
+it("opens the area a capture link names, live on a wide viewport", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  const host = render();
+  const linkHost = document.createElement("div");
+  document.body.append(linkHost);
+  const linkRoot = createRoot(linkHost);
+
+  act(() =>
+    linkRoot.render(
+      <HomepageStageLink area="routines" label="Try it live">
+        Routines capture
+      </HomepageStageLink>,
+    ),
+  );
+  const link = linkHost.querySelector<HTMLAnchorElement>("a[data-homepage-stage-link]");
+  expect(link?.getAttribute("href")).toBe("#product-demo");
+
+  act(() => link?.click());
+
+  expect(selectedLabel(host)).toContain("Routines");
+  expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/routines?agentChat=closed");
+  advance(PRODUCT_STAGE_INTERVAL_MS * 2);
+  expect(selectedLabel(host)).toContain("Routines");
+  act(() => linkRoot.unmount());
+});
+
+it("opens from a product-demo hash on load and ignores unrelated hashes", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  window.history.replaceState(null, "", "#product-demo-customers");
+  const host = render();
+
+  expect(selectedLabel(host)).toContain("Customers");
+  expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/contacts?agentChat=closed");
+
+  act(() => root?.unmount());
+  document.body.replaceChildren();
+  window.history.replaceState(null, "", "#pricing");
+  const unrelated = render();
+
+  expect(selectedLabel(unrelated)).toContain("Inbox");
+  expect(unrelated.querySelector("iframe")).toBeNull();
+  window.history.replaceState(null, "", "#");
 });

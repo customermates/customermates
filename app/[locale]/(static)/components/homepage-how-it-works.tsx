@@ -4,6 +4,7 @@ import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
+import { HomepageStageLink } from "./homepage-stage-link";
 
 type StepItem = { description: string; n: string; title: string };
 
@@ -15,24 +16,27 @@ type Props = {
     eyebrow: string;
     title: string;
   };
+  liveLabel: string;
   locale: ContentLocale;
   steps: StepItem[];
   title: string;
 };
 
-export function HomepageHowItWorks({ eyebrow, handoff, locale, steps, title }: Props) {
+export function HomepageHowItWorks({ eyebrow, handoff, liveLabel, locale, steps, title }: Props) {
   return (
     <>
       <MarketingSection id="human-handoff">
         <div className="marketing-grid items-center gap-y-10">
           <div className="col-span-12 lg:col-span-7 lg:row-start-1">
             <div className="overflow-hidden rounded-card border border-border bg-card shadow-xl shadow-black/5">
-              <HomepageCaptureImage
-                alt={handoff.alt}
-                locale={locale}
-                name="homepage-draft"
-                sizes="(min-width: 1024px) 50vw, 92vw"
-              />
+              <HomepageStageLink area="inbox" label={liveLabel}>
+                <HomepageCaptureImage
+                  alt={handoff.alt}
+                  locale={locale}
+                  name="homepage-draft"
+                  sizes="(min-width: 1024px) 50vw, 92vw"
+                />
+              </HomepageStageLink>
             </div>
           </div>
 

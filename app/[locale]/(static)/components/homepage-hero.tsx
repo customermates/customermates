@@ -9,6 +9,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
 
+import { homepageDemoBaseUrl } from "./homepage-demo-url";
 import { HomepageProductStage } from "./homepage-product-stage";
 
 type Props = {
@@ -71,8 +72,10 @@ export function HomepageHero({ heroSection, locale }: Props) {
         </div>
 
         <HomepageProductStage
+          demoBaseUrl={homepageDemoBaseUrl()}
           disclosure={heroSection.stage.disclosure}
           label={heroSection.stage.label}
+          live={heroSection.stage.live}
           locale={locale}
           tabs={heroSection.stage.tabs}
         />

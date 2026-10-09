@@ -6,10 +6,17 @@ import { CalendarClock, ShieldCheck, Zap } from "lucide-react";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
+import { HomepageStageLink } from "./homepage-stage-link";
 
 const POINT_ICONS = [CalendarClock, Zap, ShieldCheck] as const;
 
-export function HomepageRoutines({ locale, routines }: { locale: ContentLocale; routines: HomepageRoutinesContent }) {
+type Props = {
+  liveLabel: string;
+  locale: ContentLocale;
+  routines: HomepageRoutinesContent;
+};
+
+export function HomepageRoutines({ liveLabel, locale, routines }: Props) {
   return (
     <MarketingSection id="routines" tone="canvas">
       <div className="marketing-grid items-center gap-y-10">
@@ -36,13 +43,15 @@ export function HomepageRoutines({ locale, routines }: { locale: ContentLocale; 
 
         <div className="col-span-12 lg:col-start-6 lg:col-end-13">
           <div className="overflow-hidden rounded-card border border-border bg-card shadow-xl shadow-black/5">
-            <HomepageCaptureImage
-              alt={routines.alt}
-              locale={locale}
-              mobileName="homepage-routines-mobile"
-              name="homepage-routines"
-              sizes="(min-width: 1024px) 56vw, 92vw"
-            />
+            <HomepageStageLink area="routines" label={liveLabel}>
+              <HomepageCaptureImage
+                alt={routines.alt}
+                locale={locale}
+                mobileName="homepage-routines-mobile"
+                name="homepage-routines"
+                sizes="(min-width: 1024px) 56vw, 92vw"
+              />
+            </HomepageStageLink>
           </div>
         </div>
       </div>

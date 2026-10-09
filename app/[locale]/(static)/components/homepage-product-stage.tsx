@@ -5,12 +5,20 @@ import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Inbox, KanbanSquare, LayoutDashboard, Repeat, UserRound } from "lucide-react";
+import { preconnect } from "react-dom";
+import { Inbox, KanbanSquare, LayoutDashboard, MousePointerClick, Repeat, UserRound } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
 import { useHomepageMotion } from "./homepage-motion";
+import {
+  type HomepageStageArea,
+  PRODUCT_DEMO_ANCHOR,
+  STAGE_AREAS,
+  STAGE_OPEN_EVENT,
+  stageAreaFromHash,
+} from "./homepage-stage-areas";
 
 export const PRODUCT_STAGE_INTERVAL_MS = 6_000;
 
@@ -30,14 +38,26 @@ const MOBILE_CAPTURES = {
   "homepage-routines": "homepage-routines-mobile",
 } as const;
 
+const STAGE_DEMO_PATHS = {
+  customers: "/contacts",
+  dashboard: "/dashboard",
+  inbox: "/inbox",
+  pipeline: "/deals",
+  routines: "/routines",
+} as const satisfies Record<HomepageStageArea, string>;
+
+const LIVE_STAGE_MEDIA = "(min-width: 40rem)";
+
 type Props = {
+  demoBaseUrl: string;
   disclosure: string;
   label: string;
+  live: { prompt: string; status: string };
   locale: ContentLocale;
   tabs: HomepageStageTab[];
 };
 
-export function HomepageProductStage({ disclosure, label, locale, tabs }: Props) {
+export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liveCopy, locale, tabs }: Props) {
   const { ref, shouldAnimate, shouldReduceMotion } = useHomepageMotion<HTMLDivElement>();
   const [activeIndex, setActiveIndex] = useState(0);
   const [stopped, setStopped] = useState(false);
@@ -46,7 +66,21 @@ export function HomepageProductStage({ disclosure, label, locale, tabs }: Props)
   const listRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const baseId = useId();
-  const autoAdvance = shouldAnimate && !stopped && !hovered;
+  const [live, setLive] = useState(false);
+  const [liveLoadedSrc, setLiveLoadedSrc] = useState<string | null>(null);
+  const activeTab = tabs[activeIndex];
+  const liveSrc = `${demoBaseUrl}/${locale}${STAGE_DEMO_PATHS[STAGE_AREAS[activeTab.capture]]}?agentChat=closed`;
+  const liveReady = live && liveLoadedSrc === liveSrc;
+  const autoAdvance = shouldAnimate && !stopped && !hovered && !live;
+
+  preconnect(demoBaseUrl);
+
+  function goLive() {
+    if (live || !window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;
+
+    setStopped(true);
+    setLive(true);
+  }
 
   useEffect(() => {
     if (!autoAdvance) return;
@@ -77,9 +111,38 @@ export function HomepageProductStage({ disclosure, label, locale, tabs }: Props)
     });
   }, [activeIndex, shouldReduceMotion, tabs.length]);
 
+  useEffect(() => {
+    function openArea(area: HomepageStageArea | null) {
+      const index = area ? tabs.findIndex((tab) => STAGE_AREAS[tab.capture] === area) : -1;
+
+      setStopped(true);
+      if (index >= 0) setActiveIndex(index);
+      if (window.matchMedia?.(LIVE_STAGE_MEDIA).matches) setLive(true);
+    }
+
+    function openFromHash() {
+      const area = stageAreaFromHash(window.location.hash);
+      if (area !== undefined) openArea(area);
+    }
+
+    function openFromEvent(event: Event) {
+      openArea((event as CustomEvent<HomepageStageArea>).detail);
+    }
+
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+    window.addEventListener(STAGE_OPEN_EVENT, openFromEvent);
+
+    return () => {
+      window.removeEventListener("hashchange", openFromHash);
+      window.removeEventListener(STAGE_OPEN_EVENT, openFromEvent);
+    };
+  }, [tabs]);
+
   function select(index: number) {
     setStopped(true);
     setActiveIndex(index);
+    goLive();
   }
 
   function onTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -97,8 +160,9 @@ export function HomepageProductStage({ disclosure, label, locale, tabs }: Props)
   return (
     <div
       ref={ref}
-      className="mt-14 sm:mt-16 lg:mt-20"
+      className="mt-14 scroll-mt-20 sm:mt-16 lg:mt-20"
       data-homepage-section="product-stage"
+      id={PRODUCT_DEMO_ANCHOR}
       onFocus={() => setStopped(true)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -111,7 +175,13 @@ export function HomepageProductStage({ disclosure, label, locale, tabs }: Props)
 
         <div
           data-homepage-stage-frame
-          className="relative mx-auto max-w-[19rem] origin-top sm:max-w-none lg:[transform:rotateX(9deg)] lg:[mask-image:linear-gradient(to_bottom,black_78%,transparent)]"
+          className={cn(
+            "relative mx-auto max-w-[19rem] origin-top transition-transform duration-500 ease-out motion-reduce:transition-none sm:max-w-none",
+            !live && "lg:[transform:rotateX(9deg)] lg:[mask-image:linear-gradient(to_bottom,black_78%,transparent)]",
+          )}
+          data-homepage-stage-live={liveReady ? "ready" : live ? "loading" : "idle"}
+          onPointerDown={goLive}
+          onPointerEnter={goLive}
         >
           <div className="relative overflow-hidden rounded-[2rem] border border-border bg-card shadow-2xl shadow-black/20 sm:rounded-card">
             {tabs.map((tab, index) => (
@@ -140,6 +210,41 @@ export function HomepageProductStage({ disclosure, label, locale, tabs }: Props)
                 ) : null}
               </div>
             ))}
+
+            {live ? (
+              <iframe
+                className={cn(
+                  "absolute inset-0 z-10 size-full border-0 bg-background transition-opacity duration-300 motion-reduce:transition-none",
+                  liveReady ? "opacity-100" : "pointer-events-none opacity-0",
+                )}
+                referrerPolicy="strict-origin-when-cross-origin"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                src={liveSrc}
+                title={`${liveCopy.prompt}: ${activeTab.label}`}
+                onLoad={() => setLiveLoadedSrc(liveSrc)}
+              />
+            ) : null}
+
+            {liveReady ? null : (
+              <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center max-sm:hidden">
+                <button
+                  className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-4 py-2 text-sm font-medium text-foreground shadow-lg backdrop-blur-md transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  type="button"
+                  onClick={goLive}
+                >
+                  {live ? (
+                    <span
+                      aria-hidden
+                      className="size-2 animate-pulse rounded-full bg-primary motion-reduce:animate-none"
+                    />
+                  ) : (
+                    <MousePointerClick aria-hidden className="size-4" strokeWidth={1.75} />
+                  )}
+
+                  {liveCopy.prompt}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -204,7 +309,20 @@ export function HomepageProductStage({ disclosure, label, locale, tabs }: Props)
         })}
       </div>
 
-      <p className="text-meta mt-4 text-xs sm:mt-5">{disclosure}</p>
+      <p className="text-meta mt-4 flex items-center gap-2 text-xs sm:mt-5">
+        {liveReady ? (
+          <>
+            <span
+              aria-hidden
+              className="size-1.5 shrink-0 animate-pulse rounded-full bg-success motion-reduce:animate-none"
+            />
+
+            {liveCopy.status}
+          </>
+        ) : (
+          disclosure
+        )}
+      </p>
     </div>
   );
 }
