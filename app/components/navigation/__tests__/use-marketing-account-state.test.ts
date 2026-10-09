@@ -7,12 +7,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ readAccountState: vi.fn(), report: vi.fn() }));
 
-vi.mock("@/app/[locale]/actions", () => ({ readMarketingAccountStateAction: mocks.readAccountState }));
+vi.mock("@/app/[locale]/actions", () => ({ readMarketingAccountAction: mocks.readAccountState }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: mocks.report }));
 
 import { useMarketingAccountState } from "../use-marketing-account-state";
 
 import { SESSION_HINT_COOKIE_NAME } from "@/features/auth/session-hint";
+
+const PROFILE = { avatarUrl: null, email: "anna@example.com", name: "Anna Müller" };
 
 type Snapshot = ReturnType<typeof useMarketingAccountState>;
 
@@ -63,9 +65,11 @@ describe("useMarketingAccountState", () => {
 
   it("asks the server for the account state once the session hint is present", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
-    mocks.readAccountState.mockResolvedValue("allowed");
+    mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
 
-    expect((await render()).accountState).toBe("allowed");
+    const snapshot = await render();
+    expect(snapshot.accountState).toBe("allowed");
+    expect(snapshot.profile).toStrictEqual(PROFILE);
     expect(mocks.readAccountState).toHaveBeenCalledOnce();
   });
 
@@ -76,27 +80,30 @@ describe("useMarketingAccountState", () => {
     expect(mocks.readAccountState).not.toHaveBeenCalled();
   });
 
-  it("uses a server-resolved state as given", async () => {
+  it("uses a server-resolved state as given and still loads the profile for the avatar", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
+    mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
 
-    expect((await render({ known: "pending" })).accountState).toBe("pending");
-    expect(mocks.readAccountState).not.toHaveBeenCalled();
+    const snapshot = await render({ known: "pending" });
+    expect(snapshot.accountState).toBe("pending");
+    expect(snapshot.profile).toStrictEqual(PROFILE);
   });
 
   it("drops back to signed out and clears the hint after signing out", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
-    mocks.readAccountState.mockResolvedValue("allowed");
+    mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
     const signedIn = await render();
 
     act(() => signedIn.markSignedOut());
 
     expect(latest?.accountState).toBe("unauthenticated");
+    expect(latest?.profile).toBeNull();
     expect(document.cookie).not.toContain(`${SESSION_HINT_COOKIE_NAME}=`);
   });
 
   it("rechecks on navigation, so a sign-out that redirected elsewhere shows the signed-out navbar", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
-    mocks.readAccountState.mockResolvedValue("allowed");
+    mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
     expect((await render({ pathname: "/pricing" })).accountState).toBe("allowed");
 
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=; Path=/; Max-Age=0`;

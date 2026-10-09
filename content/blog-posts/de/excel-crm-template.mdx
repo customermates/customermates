@@ -1,16 +1,23 @@
 ---
-title: "Excel CRM Vorlage: Kundenliste als XLSX selbst erstellen"
-description: "Excel CRM Vorlage in 5 Blättern: Kontakte, Firmen, Deals, Aktivitäten und Dashboard mit Formeln. Plus: So bauen Sie die XLSX-Datei für den CRM-Import."
+title: "CRM Excel Vorlage: Kundenverwaltung selbst erstellen"
+description: "Kostenlose CRM Excel Vorlage mit sechs Blättern, Dropdowns und Formeln für Pipeline und Vertriebs-Tracking, so angelegt, dass der spätere CRM-Import klappt."
+
+relatedHrefs:
+  - /blog/google-sheets-crm
+  - /features/simple-crm
+  - /blog/free-crm
+  - /docs/app-records
 
 hero:
-  title: "Excel CRM Vorlage: Kundenliste und Pipeline in Excel aufbauen"
-  description: Eine gut gebaute Excel-Tabelle trägt ein kleines Team erstaunlich weit. Diese Anleitung zeigt Spalte für Spalte, wie Sie eine Excel CRM Vorlage mit Kontakten, Firmen, Deals und Dashboard aufbauen, und wie Sie sie so anlegen, dass der spätere Umzug in ein CRM ohne Nacharbeit gelingt.
+  title: "CRM Excel Vorlage: Kundenverwaltung mit Pipeline selbst erstellen"
+  description: "Alle Spalten, Dropdowns und Formeln für eine Kundenliste mit Pipeline, die ein bis drei Personen pflegen können, samt Wochenübersicht pro Person im Vertrieb. Dazu die Regeln, mit denen jedes Blatt später ohne Abtippen in ein CRM umzieht."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2025-12-25
+  updated: 2026-10-08
   tags:
     - Excel
     - CRM Vorlage
@@ -18,314 +25,243 @@ blogPost:
     - Tabellen-CRM
 ---
 
-# Excel CRM Vorlage: Kundenliste und Pipeline in Excel aufbauen
+# CRM Excel Vorlage: Kundenverwaltung mit Pipeline selbst erstellen
 
-Eine gut gebaute Excel-Tabelle trägt ein kleines Team erstaunlich weit. Diese Anleitung zeigt Spalte für Spalte, wie Sie eine Excel CRM Vorlage mit Kontakten, Firmen, Deals und Dashboard aufbauen, und wie Sie sie so anlegen, dass der spätere Umzug in ein CRM ohne Nacharbeit gelingt.
+Eine CRM Excel Vorlage ist eine Arbeitsmappe mit je einem Blatt für Firmen, Kontakte, Deals und Aktivitäten und einem Blatt, das alles zählt und summiert. Die Vorlage unten können Sie kostenlos übernehmen: Spaltenköpfe in eine leere Mappe schreiben, Dropdowns anlegen, Formeln einfügen. Sie trägt ein bis drei Personen, solange es nur eine Fassung der Datei gibt, und jedes Blatt ist so aufgebaut, dass es später als Import in ein CRM wandert, ohne dass Sie eine Zeile abtippen.
 
-<AcquisitionCallout title="Kurz zusammengefasst">
-Legen Sie fünf Blätter an: Kontakte, Firmen, Deals, Aktivitäten und Dashboard. Eine Zeile pro Datensatz, Dropdowns für jeden Status, Firmennamen immer identisch geschrieben. Speichern Sie die Datei als `.xlsx`, nicht als altes `.xls` oder CSV. Dann können Sie jedes Blatt später direkt in ein CRM importieren.
-</AcquisitionCallout>
+Customermates gibt diesen Ratgeber heraus; den Umzug ins CRM zeige ich deshalb am Beispiel von Customermates. Die Arbeitsmappe selbst braucht nur eine aktuelle Excel-Version.
 
-Microsoft Excel gehört nach wie vor zu den meistgenutzten Werkzeugen für die Verwaltung von Kundenbeziehungen, insbesondere bei kleinen Unternehmen, Selbstständigen und Freiberuflern. Bevor es dedizierte CRM-Plattformen gab, gab es Tabellenkalkulationen. Und für viele Teams ist eine gut strukturierte Excel CRM Vorlage heute noch ein vollkommen tragfähiger Startpunkt.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was Sie bauen">Sechs Blätter: Listen, Firmen, Kontakte, Deals, Aktivitäten und ein Dashboard mit Wochenübersicht pro Person im Vertrieb.</SummaryItem>
+  <SummaryItem label="Dateiformat">Speichern Sie die Mappe als .xlsx. Das alte .xls endet bei 65.536 Zeilen, und gemeinsames Bearbeiten in Excel setzt .xlsx, .xlsm oder .xlsb in OneDrive oder SharePoint voraus.</SummaryItem>
+  <SummaryItem label="Für wen">Ein bis drei Personen, ein Vertriebsprozess, einige hundert aktive Kontakte.</SummaryItem>
+  <SummaryItem label="Zeit für den Wechsel">Zwei Personen arbeiten an denselben Deals, ein Nachfasstermin ist liegen geblieben, weil niemand die Datumsspalte gefiltert hat, oder Anfragen laufen über LinkedIn und WhatsApp und landen nie in der Tabelle.</SummaryItem>
+  <SummaryItem label="Umzug">Ein Blatt pro Import: erst Services und Firmen, dann Kontakte, dann Deals.</SummaryItem>
+</ArticleSummary>
 
-Dieser Ratgeber führt Sie Schritt für Schritt durch den Aufbau einer Excel CRM Vorlage in fünf Arbeitsblättern, erklärt die Formeln und bedingten Formatierungen, die sie funktional machen, beleuchtet die echten Grenzen eines Tabellen-CRMs, vergleicht Excel mit dedizierter CRM-Software in einer Gegenüberstellung und hilft Ihnen bei der Migration, wenn Sie herausgewachsen sind.
+## Vier Aufbauregeln vor der ersten Zeile
 
-## Warum mit einer Excel CRM Vorlage starten?
+1. **Eine Kopfzeile, eine Zeile pro Datensatz.** Keine verbundenen Zellen, keine Leerzeilen, keine Zwischensummen im Datenbereich.
+2. **Jedes Blatt als Excel-Tabelle formatieren.** Bereich markieren, Strg+T drücken und unter Tabellenentwurf › Tabellenname benennen: `Firmen`, `Kontakte`, `Deals`, `Aktivitäten`. Die Formeln unten nutzen diese Namen, und Tabellen wachsen mit neuen Zeilen mit.
+3. **Jede feste Werteliste als Dropdown.** Über Daten › Datenüberprüfung, Zulassen: Liste, mit einer Tabelle auf dem Blatt Listen als Quelle. Laut Microsofts [Anleitung zu Dropdownlisten](https://support.microsoft.com/de-de/office/erstellen-einer-dropdownliste-7693307a-59ef-400a-b769-c5402dce407b) passen sich Dropdowns, die auf einer Tabelle beruhen, von selbst an, wenn Sie Einträge ergänzen oder löschen.
+4. **Über Namen verknüpfen, nicht über Nummern.** Die Firma eines Kontakts ist der exakte Firmenname, der Kontakt eines Deals der volle Name der Person. Nummern sind in Formeln bequemer, aber Namen lesen Sie, und CRM-Importe, auch der von Customermates, ordnen Verknüpfungen über den Namen zu.
 
-Excel CRM Vorlagen sind aus guten Gründen beliebt:
+## Die Vorlage, Blatt für Blatt
 
-- **Keine Kosten**: Wenn Sie bereits Microsoft 365 nutzen, fallen keine zusätzlichen Ausgaben an
-- **Vertraute Oberfläche**: Die meisten Berufstätigen können bereits mit Excel umgehen
-- **Volle Kontrolle**: Sie gestalten Struktur, Felder und Layout passend zu Ihrem Vertriebsprozess
-- **Sofortiger Start**: Keine Software-Evaluation, keine Vendor-Gespräche, kein Onboarding
-- **Portable Daten**: Ihre Daten liegen in einer Datei, die Ihnen gehört und die Sie überallhin mitnehmen können
-- **Keine Lernkurve**: Anders als bei einer neuen CRM-Plattform gibt es nichts Neues zu lernen
+### Listen
 
-Für Unternehmen mit weniger als 100 bis 200 Kontakten und ein bis zwei Personen, die Kundenbeziehungen verwalten, ist eine kostenlose Excel CRM Vorlage ein ernstzunehmendes Werkzeug und kein bloßer Lückenfüller. Der Schlüssel liegt darin, sie von Anfang an richtig zu strukturieren, damit Ihre Daten sauber genug für eine spätere Migration bleiben.
+Kleine Tabellen, aus denen die Dropdowns gespeist werden. Die Phasentabelle trägt zusätzlich eine Abschlusswahrscheinlichkeit, die das Blatt Deals nachschlägt.
 
-## Schritt für Schritt: Excel CRM Vorlage in 5 Arbeitsblättern aufbauen
-
-### Blatt 1: Kontakte
-
-Das Kontaktblatt ist Ihre zentrale Datenbank. Jede Person, mit der Ihr Unternehmen interagiert, erhält hier eine Zeile.
-
-| Spalte | Feldname           | Datentyp | Validierung                                                 |
-| ------ | ------------------ | -------- | ----------------------------------------------------------- |
-| A      | Kontakt-ID         | Zahl     | Auto-Inkrement: `=WENN(B2="";"";ZEILE()-1)`                 |
-| B      | Vorname            | Text     | Pflichtfeld                                                 |
-| C      | Nachname           | Text     | Pflichtfeld                                                 |
-| D      | E-Mail             | Text     | Benutzerdefinierte Prüfung auf @-Zeichen                    |
-| E      | Telefon            | Text     | -                                                           |
-| F      | Firma              | Text     | -                                                           |
-| G      | Position           | Text     | -                                                           |
-| H      | Kontakttyp         | Dropdown | Lead, Kunde, Partner, Lieferant                             |
-| I      | Quelle             | Dropdown | Website, Empfehlung, Messe, LinkedIn, Kaltakquise, Sonstige |
-| J      | Status             | Dropdown | Neu, Kontaktiert, Qualifiziert, Kunde, Inaktiv, Verloren    |
-| K      | Zuständig          | Dropdown | Ihre Teammitglieder                                         |
-| L      | Erstellt am        | Datum    | Keine Zukunftsdaten                                         |
-| M      | Letzter Kontakt    | Datum    | -                                                           |
-| N      | Nächster Follow-up | Datum    | -                                                           |
-| O      | Notizen            | Text     | -                                                           |
-
-**Einrichtungsschritte:**
-
-1. Erstellen Sie die Kopfzeile in Zeile 1, formatieren Sie sie fett mit Hintergrundfarbe
-2. Fixieren Sie die oberste Zeile: Ansicht > Fenster fixieren > Oberste Zeile fixieren
-3. Richten Sie Datenvalidierung für Dropdown-Felder ein: Daten > Datenüberprüfung > Liste
-4. Bedingte Formatierung für die Follow-up-Spalte: Rot für überfällig (Datum vor HEUTE()), Gelb für die nächsten 3 Tage, Grün für weiter in der Zukunft
-5. Formatieren Sie den Bereich als Excel-Tabelle (Strg+T) für automatische Filter und Erweiterbarkeit
-6. Passen Sie die Spaltenbreiten an, damit alle Inhalte ohne horizontales Scrollen sichtbar sind
-
-### Blatt 2: Firmen
-
-Trennen Sie Firmeninformationen von Kontakten, um Redundanzen zu vermeiden. Verknüpfen Sie Kontakte über die Firma-Spalte mit Firmen.
-
-| Spalte | Feldname     | Datentyp | Validierung                          |
-| ------ | ------------ | -------- | ------------------------------------ |
-| A      | Firmen-ID    | Zahl     | Auto-Inkrement                       |
-| B      | Firmenname   | Text     | Pflichtfeld                          |
-| C      | Branche      | Dropdown | Ihre relevanten Branchen             |
-| D      | Website      | Text     | URL-Format                           |
-| E      | Straße       | Text     | -                                    |
-| F      | PLZ          | Text     | -                                    |
-| G      | Ort          | Text     | -                                    |
-| H      | Land         | Dropdown | Länderliste                          |
-| I      | Größe        | Dropdown | 1-10, 11-50, 51-200, 201-1000, 1000+ |
-| J      | Jahresumsatz | Dropdown | Umsatzbereiche                       |
-| K      | Zuständig    | Dropdown | Ihre Teammitglieder                  |
-| L      | Erstellt am  | Datum    | -                                    |
-| M      | Notizen      | Text     | -                                    |
-
-**Tipp:** Standardisieren Sie Firmennamen konsequent. Entscheiden Sie sich für „GmbH" oder „GmbH." und bleiben Sie dabei. Inkonsistente Namen lassen SVERWEIS und ZÄHLENWENN scheitern.
-
-### Blatt 3: Deals und Pipeline
-
-Das Deal-Blatt verfolgt Ihre Verkaufschancen durch die einzelnen Phasen.
-
-| Spalte | Feldname                | Datentyp | Validierung                                                                                  |
-| ------ | ----------------------- | -------- | -------------------------------------------------------------------------------------------- |
-| A      | Deal-ID                 | Zahl     | Auto-Inkrement                                                                               |
-| B      | Deal-Name               | Text     | Pflichtfeld                                                                                  |
-| C      | Firma                   | Text     | Referenz auf Firmenblatt                                                                     |
-| D      | Kontakt                 | Text     | Referenz auf Kontaktblatt                                                                    |
-| E      | Dealwert                | Währung  | Zahl größer 0                                                                                |
-| F      | Phase                   | Dropdown | Akquise, Qualifiziert, Termin vereinbart, Angebot versendet, Verhandlung, Gewonnen, Verloren |
-| G      | Wahrscheinlichkeit      | Prozent  | 0 bis 100 Prozent                                                                            |
-| H      | Gewichteter Wert        | Formel   | `=WENN(E2="";"";E2*G2)`                                                                      |
-| I      | Erstellt am             | Datum    | -                                                                                            |
-| J      | Erwarteter Abschluss    | Datum    | -                                                                                            |
-| K      | Tatsächlicher Abschluss | Datum    | -                                                                                            |
-| L      | Zuständig               | Dropdown | Ihre Teammitglieder                                                                          |
-| M      | Status                  | Dropdown | Offen, Gewonnen, Verloren                                                                    |
-| N      | Verlustgrund            | Dropdown | Preis, Wettbewerb, Timing, Kein Bedarf, Sonstige                                             |
-| O      | Notizen                 | Text     | -                                                                                            |
-
-Nutzen Sie bedingte Formatierung, um die Phase-Spalte farblich zu codieren. Jede Pipeline-Phase erhält eine eigene Farbe. So scannen Sie die Pipeline deutlich schneller.
-
-### Blatt 4: Aktivitäten und Interaktionen
-
-Protokollieren Sie jeden Kontaktpunkt mit Kunden und Firmen. Dieses Blatt wird von den meisten ausgelassen, ist aber das wertvollste für Follow-up-Disziplin.
-
-| Spalte | Feldname           | Datentyp | Validierung                                    |
-| ------ | ------------------ | -------- | ---------------------------------------------- |
-| A      | Aktivitäts-ID      | Zahl     | Auto-Inkrement                                 |
-| B      | Datum              | Datum    | Pflichtfeld                                    |
-| C      | Kontakt            | Text     | Referenz auf Kontaktblatt                      |
-| D      | Firma              | Text     | Referenz auf Firmenblatt                       |
-| E      | Art                | Dropdown | Anruf, E-Mail, Meeting, Aufgabe, Notiz         |
-| F      | Betreff            | Text     | Pflichtfeld                                    |
-| G      | Details            | Text     | -                                              |
-| H      | Ergebnis           | Dropdown | Erfolgreich, Kein Erreichen, Vertagt, Erledigt |
-| I      | Nächster Schritt   | Text     | -                                              |
-| J      | Fällig am          | Datum    | -                                              |
-| K      | Follow-up erledigt | Dropdown | Ja, Nein                                       |
-| L      | Zuständig          | Dropdown | Ihre Teammitglieder                            |
-
-**Bedingte Formatierung:** Markieren Sie Zeilen, in denen das Fälligkeitsdatum vor HEUTE() liegt und Follow-up erledigt auf Nein steht. So entsteht eine einfache aber effektive Überfällig-Liste.
-
-### Blatt 5: Dashboard
-
-Das Dashboard-Blatt fasst Ihre CRM-Daten mit Formeln und Diagrammen zusammen. Keine VBA-Makros erforderlich.
-
-**Wichtige Formeln:**
-
-**Gesamtanzahl Kontakte:**
-
-```
-=ANZAHL2(Kontakte!B2:B10000)
-```
-
-**Aktive Deals:**
-
-```
-=ZÄHLENWENN(Deals!M2:M10000;"Offen")
-```
-
-**Gesamter Pipeline-Wert:**
-
-```
-=SUMMEWENN(Deals!M2:M10000;"Offen";Deals!E2:E10000)
-```
-
-**Gewichteter Pipeline-Wert:**
-
-```
-=SUMMENPRODUKT((Deals!M2:M10000="Offen")*(Deals!E2:E10000)*(Deals!G2:G10000))
-```
-
-**Gewonnene Deals (aktueller Monat):**
-
-```
-=ZÄHLENWENNS(Deals!M2:M10000;"Gewonnen";Deals!K2:K10000;">="&DATUM(JAHR(HEUTE());MONAT(HEUTE());1);Deals!K2:K10000;"<="&MONATSENDE(HEUTE();0))
-```
-
-**Gewinnrate:**
-
-```
-=ZÄHLENWENN(Deals!M2:M10000;"Gewonnen")/(ZÄHLENWENN(Deals!M2:M10000;"Gewonnen")+ZÄHLENWENN(Deals!M2:M10000;"Verloren"))
-```
-
-**Pipeline nach Phase (Hilfstabelle für ein Balkendiagramm):**
-
-Erstellen Sie eine kleine Tabelle mit jeder Phase, einer ZÄHLENWENN-Formel für die Anzahl und einer SUMMEWENN-Formel für den Gesamtwert. Markieren Sie diese Tabelle und fügen Sie ein Balkendiagramm ein (Einfügen > Diagramm > Balken). So erhalten Sie eine visuelle Pipeline-Übersicht ohne Zusatz-Tools.
-
-### Optional: Pivot-Tabellen für tiefere Analysen
-
-Pivot-Tabellen sind das mächtigste Analysewerkzeug in Excel und funktionieren hervorragend mit einer strukturierten CRM-Vorlage:
-
-1. **Pipeline nach Phase**: Wählen Sie die Deal-Daten, fügen Sie eine PivotTable ein, platzieren Sie Phase in Zeilen und Dealwert in Werte (Summe)
-2. **Deals nach Zuständigem**: Zuständig in Zeilen, Phase in Spalten, Dealwert in Werte
-3. **Kontakte nach Quelle**: Quelle in Zeilen, Kontakt-ID in Werte (Anzahl)
-4. **Monatlicher Aktivitätstrend**: Datum (gruppiert nach Monat) in Zeilen, Art in Spalten, Aktivitäts-ID in Werte (Anzahl)
-
-## 7 Best Practices für Ihr Excel-CRM
-
-1. **Eine Zeile pro Datensatz**: Niemals Zellen verbinden oder Daten verschachteln. Eine Zeile pro Kontakt, eine Zeile pro Deal, eine Zeile pro Aktivität. Das ist die Grundlage für alle Formeln und Filter.
-
-2. **Dropdowns überall einsetzen**: Jedes Feld mit einer endlichen Menge an Werten sollte eine Datenvalidierung mit Dropdown-Liste verwenden. Das verhindert Tippfehler und macht ZÄHLENWENN- und SUMMEWENN-Formeln zuverlässig.
-
-3. **Namensgebung konsistent halten**: Firmennamen, Statuswerte und Phasenbezeichnungen müssen jedes Mal identisch geschrieben werden. Eine einzige Inkonsistenz bricht SVERWEIS-Formeln.
-
-4. **Wöchentlich sichern**: Excel-Dateien sind anfällig für versehentliches Löschen und Korruption. Speichern Sie jede Woche eine datierte Kopie an einem zweiten Ort (lokal plus Cloud).
-
-5. **VBA-Makros nur bei Bedarf**: Makros können repetitive Aufgaben automatisieren, machen die Datei aber größer, langsamer und schwerer zu debuggen. Setzen Sie sie nur ein, wenn der Nutzen die Komplexität eindeutig rechtfertigt.
-
-6. **Bedingte Formatierung sparsam einsetzen**: Heben Sie überfällige Follow-ups und hochwertige Deals hervor. Färben Sie nicht manuell jede zweite Zeile. Bei mehr als 100 Zeilen wird das unübersichtlich und schwer pflegbar.
-
-7. **Datumsformate einheitlich halten**: Verwenden Sie ein einziges Datumsformat über alle Blätter hinweg. Gemischte Formate verursachen Sortierfehler und fehlerhafte Datumsberechnungen.
-
-## XLSX, XLS oder CSV: Welches Format für die CRM-Vorlage?
-
-Wer nach "CRM xls" sucht, meint meist einfach eine Excel-Datei. Der Unterschied ist trotzdem wichtig:
-
-- **`.xlsx`** ist das aktuelle Excel-Format seit Excel 2007. Es speichert mehrere Blätter, Dropdowns, Formeln und Formatierungen und wird von Google Tabellen, LibreOffice und den meisten CRM-Importen gelesen. Nehmen Sie dieses Format.
-- **`.xls`** ist das alte Format bis Excel 2003. Es ist auf 65.536 Zeilen begrenzt und wird von vielen Programmen nur noch eingeschränkt unterstützt. Speichern Sie alte Dateien einmal mit "Speichern unter" als `.xlsx`.
-- **`.csv`** ist reiner Text ohne Blätter, Formeln und Formatierung. Beim Öffnen in Excel gehen Umlaute und führende Nullen in Postleitzahlen oft verloren. Für den Austausch mit manchen Systemen nötig, als Arbeitsdatei ungeeignet.
-
-## So bauen Sie die Vorlage, damit der CRM-Import später klappt
-
-Die meisten Teams ziehen irgendwann in ein CRM um. Mit ein paar Regeln von Anfang an wird daraus ein Import in wenigen Minuten statt einer Woche Datenputz:
-
-1. **Ein Blatt pro Datensatztyp.** Kontakte, Firmen und Deals gehören in getrennte Blätter, weil CRMs sie getrennt importieren.
-2. **Vor- und Nachname in eigenen Spalten.** Viele CRMs, auch Customermates, verlangen beide Felder für einen neuen Kontakt.
-3. **Firmennamen exakt gleich schreiben.** Beim Import verknüpft das CRM einen Kontakt über den Namen mit seiner Firma. "Müller GmbH" und "Müller GmbH & Co. KG" sind zwei verschiedene Firmen.
-4. **Keine verbundenen Zellen, keine Zwischensummen im Datenbereich.** Die erste Zeile enthält die Spaltennamen, darunter folgt eine Zeile pro Datensatz.
-5. **Statuswerte als feste Liste.** Legen Sie Phasen wie "Neu", "Angebot", "Verhandlung", "Gewonnen" per Dropdown an. Diese Werte werden im CRM zu Auswahlfeldern.
-6. **Datum als echtes Datum.** Keine Texte wie "Anfang März". Prüfen Sie, dass Excel die Spalte als Datum erkennt.
-7. **Eine ID-Spalte pro Blatt.** Sie hilft beim Abgleich, wenn Sie Daten nach dem Import noch einmal aktualisieren.
-
-## Die 8 Grenzen eines Excel-CRMs
-
-Ein Tabellen-CRM funktioniert innerhalb klarer Grenzen. Diese werden mit wachsendem Team schmerzhaft:
-
-1. **Mehrere Personen gleichzeitig.** Selbst mit OneDrive oder SharePoint entstehen beim gleichzeitigen Bearbeiten Konflikte und Kopien.
-2. **Keine Erinnerungen.** Excel meldet sich nicht, wenn ein Follow-up fällig ist. Sie müssen daran denken, die Datei zu öffnen und zu filtern.
-3. **Verknüpfungen sind fragil.** SVERWEIS und XVERWEIS verbinden Blätter, brechen aber bei jedem Tippfehler.
-4. **Kaum mobil nutzbar.** Eine Tabelle mit 15 Spalten auf dem Smartphone zu pflegen, macht niemand gern.
-5. **Keine Rechte pro Person.** Wer die Datei öffnen kann, sieht und ändert alles.
-6. **Langsam bei großen Datenmengen.** Mit vielen Formeln wird die Datei ab einigen tausend Zeilen spürbar träge.
-7. **Keine Verbindung zum Postfach.** E-Mails, LinkedIn- oder WhatsApp-Nachrichten landen nicht automatisch beim Kontakt.
-8. **Datenschutz ist Handarbeit.** Auskunftsanfragen und Löschungen bedeuten Suchen in mehreren Blättern und Dateikopien. Welche Kopien im Umlauf sind, weiß oft niemand.
-
-## Excel CRM Vorlage vs. CRM-Software
-
-| Funktion | Excel CRM Vorlage | CRM-Software (Beispiel Customermates) |
+| Tabelle | Spalten | Startwerte |
 | --- | --- | --- |
-| Kosten | In Microsoft 365 enthalten | Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat |
-| Einrichtung | 1 bis 2 Stunden | Pipeline anlegen und Excel-Liste importieren |
-| Mehrere Personen | Konfliktanfällig | Gleichzeitiger Zugriff |
-| Rechte | Nur auf Dateiebene | Pro Rolle, Datensatztyp und Aktion |
-| Firma, Kontakt, Deal verknüpfen | SVERWEIS | Verknüpfte Datensätze |
-| Pipeline | Manuelle Diagramme | Board mit Phasen und gewichteten Werten |
-| Nachrichten beim Kontakt | Keine | E-Mail, LinkedIn, WhatsApp, Instagram, Telegram ab Pro |
-| Änderungsprotokoll | Keines | Audit-Log |
-| Schnittstellen | Keine | REST-API, Webhooks, MCP |
-| Zurück nach Excel | Ist schon Excel | Export als `.xlsx` |
+| `Phasen` | Phase, Wahrscheinlichkeit | Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 % |
+| `Kontaktarten` | Kontaktart | Interessent, Kunde, Partner, Ehemaliger Kunde |
+| `Quellen` | Quelle | Empfehlung, Website, LinkedIn, Messe, Kaltakquise |
+| `Aktivitätsarten` | Art | Anruf, E-Mail, Termin, LinkedIn, WhatsApp |
+| `Team` | Name | Vor- und Nachname aller, die Datensätze betreuen |
 
-## Wann Sie von Excel auf ein CRM umsteigen sollten
+Mit genau diesen Phasen und Wahrscheinlichkeiten startet ein neuer Customermates-Workspace, wenn Sie sich auf Deutsch registrieren. Die Spalte Phase lässt sich später also ohne Umbenennen importieren. Die Prozentwerte bleiben trotzdem eine erste Schätzung: Ersetzen Sie sie, sobald Sie ein paar Monate gewonnener und verlorener Deals auszählen können.
 
-Der Umstieg lohnt sich, wenn mindestens drei dieser Punkte zutreffen:
+### Firmen
 
-- Mehr als zwei Personen arbeiten regelmäßig mit der Kundenliste
-- Sie haben mehr als 200 Kontakte und 30 offene Deals
-- Follow-ups gehen unter, weil niemand an die Datei denkt
-- Zwei Kollegen haben denselben Kunden angerufen, ohne es zu wissen
-- Sie pflegen die Datei mehr als 30 Minuten am Tag
-- Anfragen kommen über LinkedIn oder WhatsApp und landen nie in der Tabelle
-- Ihr Datenschutzbeauftragter fragt, wer Zugriff auf die Kundendaten hat
+Spalten: Firma (eindeutiger Name), Branche (Dropdown), Website, PLZ (als Text, damit die führende Null in 01067 bleibt), Ort, Zuständig (Dropdown aus `Team`), Notizen. Legen Sie einmal fest, ob Sie „GmbH & Co. KG" ausschreiben oder abkürzen, und bleiben Sie dabei. Zwei Schreibweisen sind für jede Formel und jeden Import zwei verschiedene Firmen.
 
-## Von der Excel-Vorlage ins CRM: Schritt für Schritt
+### Kontakte
 
-Am Beispiel von Customermates, das Excel-Dateien direkt importiert:
+| Spalte | Inhalt | Beispiel |
+| --- | --- | --- |
+| A Vorname | Text | Sabine |
+| B Nachname | Text | Krüger |
+| C Firma | Dropdown aus der Spalte Firma von `Firmen` | Nordwind Architekten GmbH |
+| D E-Mail | Text | s.krueger@nordwind-architekten.example |
+| E Telefon | Als Text, damit Pluszeichen und führende Null bleiben | +49 341 1234567 |
+| F LinkedIn | Profil-URL | linkedin.com/in/sabinekrueger |
+| G Kontaktart | Dropdown aus `Kontaktarten` | Kunde |
+| H Quelle | Dropdown aus `Quellen` | Empfehlung |
+| I Zuständig | Dropdown aus `Team` | Anna Berg |
+| J Letzter Kontakt | Datum | 28.11.2025 |
+| K Notizen | Kurzer Text | Am besten vor 10 Uhr anrufen |
 
-1. **Daten bereinigen.** Duplikate entfernen (Daten > Duplikate entfernen), Firmennamen vereinheitlichen, leere Zeilen löschen.
-2. **Als `.xlsx` speichern.** Eine Datei pro Datensatztyp ist am übersichtlichsten. Der Import liest das erste Blatt und bis zu 10.000 Zeilen pro Datei.
-3. **Eigene Felder anlegen.** Für jede Spalte ohne Standardfeld, etwa "Quelle" oder "Region", legen Sie in Customermates ein eigenes Feld an. Dropdown-Spalten werden zu Auswahlfeldern.
-4. **In der richtigen Reihenfolge importieren.** Erst Firmen, dann Kontakte, dann Deals. So findet der Import die Firma zu jedem Kontakt über den Namen.
-5. **Spalten zuordnen.** Der Import-Assistent zeigt Ihre Spalten und lässt Sie jede einem Feld zuordnen. E-Mail-Adresse oder WhatsApp-Nummer ordnen Sie den Kanälen des Kontakts zu.
-6. **Fehler prüfen.** Der Assistent prüft jede Zeile vorab. Zeilen mit Problemen können Sie überspringen, korrigieren und später nachladen.
-7. **Stichprobe machen.** Prüfen Sie 20 bis 30 Datensätze: Stimmt die Firma, der Dealwert, die Phase, das Datum?
+Halten Sie Vor- und Nachname getrennt: Die meisten CRMs brauchen beides, um eine Person anzulegen.
 
-Die genauen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records). Aktivitäten aus Blatt 4 übertragen Sie am besten als Notizen oder lassen die alte Datei als Archiv liegen.
+### Deals
 
-## Warum Customermates nach der Excel-Vorlage passt
+| Spalte | Inhalt | Beispiel |
+| --- | --- | --- |
+| A Deal | Text | Relaunch Website Nordwind |
+| B Firma | Dropdown aus `Firmen` | Nordwind Architekten GmbH |
+| C Kontakt | Voller Name des Kontakts | Sabine Krüger |
+| D Wert | Zahl | 18000 |
+| E Phase | Dropdown aus `Phasen` | Angebot |
+| F Wahrscheinlichkeit | Formel | 60 % |
+| G Gewichtet | Formel | 10800 |
+| H Abschluss geplant | Datum | 31.01.2026 |
+| I Zuständig | Dropdown aus `Team` | Anna Berg |
+| J Nächster Schritt | Ein Satz | Überarbeiteten Leistungsumfang schicken |
+| K Nächster Schritt am | Datum | 04.12.2025 |
+| L Abgeschlossen am | Datum, bei Gewonnen oder Verloren | |
+| M Verlustgrund | Dropdown: Preis, Zeitpunkt, Wettbewerb, Keine Entscheidung | |
 
-- **Direkter Excel-Import und -Export.** Ihre Tabelle ist der Startpunkt, und Sie kommen jederzeit als `.xlsx` wieder heraus.
-- **Das CRM ist in jedem Plan gleich.** Kontakte, Firmen, Deals, Aufgaben, eigene Felder und Dashboards ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich kündbar.
-- **Nachrichten am Kontakt.** Ab Pro landen E-Mail, LinkedIn, WhatsApp, Instagram und Telegram im CRM.
-- **Open Source.** Sie können den Code prüfen und Customermates [selbst betreiben](/features/self-hosted).
-- **Datenbank in Frankfurt.** Die Cloud-Version speichert in der AWS-Region Frankfurt, eingesetzte Dienstleister stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors).
+Die beiden Formeln tragen Sie einmal in der ersten Datenzeile ein, die Tabelle füllt sie nach unten aus:
 
-Mehr zur Kontaktverwaltung im CRM lesen Sie auf der Seite [Kontaktverwaltung Software](/features/contact-management).
+```
+F  Wahrscheinlichkeit  =XVERWEIS([@Phase];Phasen[Phase];Phasen[Wahrscheinlichkeit];0)
+G  Gewichtet           =[@Wert]*[@Wahrscheinlichkeit]
+```
+
+XVERWEIS gibt es in Excel für Microsoft 365, 2021 und 2024. In Excel 2016 und 2019 ist die Funktion laut Microsofts [XVERWEIS-Referenz](https://support.microsoft.com/de-de/office/xverweis-funktion-b7fd680e-6d10-43e6-84f9-88eae8bf5929) nicht verfügbar; dort leistet `=INDEX(Phasen[Wahrscheinlichkeit];VERGLEICH([@Phase];Phasen[Phase];0))` dasselbe.
+
+Um verstrichene Termine für den nächsten Schritt rot einzufärben, markieren Sie die Datenzeilen von Spalte K und legen unter Start › Bedingte Formatierung › Neue Regel › „Formel zur Ermittlung der zu formatierenden Zellen verwenden" die Regel `=UND($K2<>"";HEUTE()>$K2)` an. Die Farbe sieht nur, wer die Datei öffnet. Von sich aus meldet sich die Arbeitsmappe bei niemandem.
+
+### Aktivitäten
+
+Eine Zeile pro wichtigem Kontakt: Datum, Kontakt (voller Name), Deal (Name oder leer), Art (Dropdown aus `Aktivitätsarten`), Zuständig, Zusammenfassung (ein bis zwei Sätze: was besprochen, was vereinbart wurde) und Nächster Schritt. Nur dieses Blatt beantwortet die Frage „Was haben wir dem Kunden zuletzt gesagt?". Tragen Sie deshalb direkt nach dem Gespräch ein.
+
+### Dashboard
+
+Fünf Pipeline-Kennzahlen:
+
+```
+Offene Pipeline       =SUMMEWENNS(Deals[Wert];Deals[Phase];"<>Gewonnen";Deals[Phase];"<>Verloren")
+Gewichtete Pipeline   =SUMMEWENNS(Deals[Gewichtet];Deals[Phase];"<>Gewonnen";Deals[Phase];"<>Verloren")
+Gewinnrate            =ZÄHLENWENNS(Deals[Phase];"Gewonnen")/MAX(1;ZÄHLENWENNS(Deals[Phase];"Gewonnen")+ZÄHLENWENNS(Deals[Phase];"Verloren"))
+Gewonnen im Monat     =SUMMEWENNS(Deals[Wert];Deals[Phase];"Gewonnen";Deals[Abgeschlossen am];">="&MONATSENDE(HEUTE();-1)+1)
+Verstrichene Schritte =ZÄHLENWENNS(Deals[Nächster Schritt am];"<"&HEUTE();Deals[Phase];"<>Gewonnen";Deals[Phase];"<>Verloren")
+```
+
+Für die Pipeline nach Phase fügen Sie über Einfügen › PivotTable eine Pivot-Tabelle aus `Deals` ein, mit Phase in Zeilen und Wert in Werte, und setzen ein Balkendiagramm darauf. Nach Änderungen aktualisieren Sie sie.
+
+Sobald zwei oder mehr Personen verkaufen, kommt eine Wochenübersicht pro Person dazu. In B1 steht der Montag der Woche, ab A4 je ein Name pro Zeile. Diese Formeln für Zeile 4 kopieren Sie nach unten:
+
+```
+Anrufe                =ZÄHLENWENNS(Aktivitäten[Zuständig];$A4;Aktivitäten[Art];"Anruf";Aktivitäten[Datum];">="&$B$1;Aktivitäten[Datum];"<"&$B$1+7)
+Termine               =ZÄHLENWENNS(Aktivitäten[Zuständig];$A4;Aktivitäten[Art];"Termin";Aktivitäten[Datum];">="&$B$1;Aktivitäten[Datum];"<"&$B$1+7)
+Offene Pipeline       =SUMMEWENNS(Deals[Wert];Deals[Zuständig];$A4;Deals[Phase];"<>Gewonnen";Deals[Phase];"<>Verloren")
+Gewonnen (Woche)      =SUMMEWENNS(Deals[Wert];Deals[Zuständig];$A4;Deals[Phase];"Gewonnen";Deals[Abgeschlossen am];">="&$B$1;Deals[Abgeschlossen am];"<"&$B$1+7)
+Verstrichene Schritte =ZÄHLENWENNS(Deals[Zuständig];$A4;Deals[Nächster Schritt am];"<"&HEUTE();Deals[Phase];"<>Gewonnen";Deals[Phase];"<>Verloren")
+```
+
+Viele Anrufe bei flacher Pipeline deuten auf ein Problem bei der Qualifizierung. Steigt die Zahl verstrichener Schritte, hakt es beim Nachfassen. Nutzen Sie die Übersicht fürs Coaching und nicht als öffentliche Rangliste, sonst werden die Aktivitäten bald schöngezählt.
+
+## Dateiformat: XLSX statt XLS
+
+Wer nach „CRM xls" sucht, meint meist einfach eine Excel-Datei. Der Unterschied zählt trotzdem:
+
+| Format | Was es kann | Für die CRM-Vorlage |
+| --- | --- | --- |
+| .xlsx | Mehrere Blätter, Tabellen, Dropdowns, Formeln; laut Microsoft bis 1.048.576 Zeilen pro Blatt | Nehmen Sie dieses Format |
+| .xls | Format von Excel 97 bis 2003 mit nur 65.536 Zeilen und 256 Spalten; was darüber hinausgeht, geht beim Speichern verloren | Einmal mit „Speichern unter" als .xlsx sichern |
+| .csv | Reiner Text, ein Blatt, keine Formeln und keine Formatierung | Als Arbeitsdatei ungeeignet; Customermates nimmt das Format nicht an |
+
+## Excel, Google Tabellen oder ein CRM?
+
+| Wenn das auf Sie zutrifft | Nutzen Sie | Achten Sie auf |
+| --- | --- | --- |
+| Eine Person, einige hundert Kontakte, Kundenkontakt vor allem per E-Mail | Diese Excel-Vorlage auf dem eigenen Rechner | Nur eine Fassung, wöchentliche Sicherung |
+| Zwei oder drei Personen mit Microsoft 365, die dieselbe Datei bearbeiten | Dieselbe Mappe in OneDrive oder SharePoint mit [gemeinsamer Dokumenterstellung](https://support.microsoft.com/en-us/office/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring-7152aa8b-b791-414c-a3bb-3024e46fb104) | Setzt ein Microsoft-365-Abonnement und .xlsx, .xlsm oder .xlsb voraus |
+| Ein Team, das in Google Workspace arbeitet | Denselben Aufbau in Google Tabellen, siehe den [Ratgeber zum Google Sheets CRM](/blog/google-sheets-crm) | Jede Formel nach dem Nachbauen prüfen |
+| Mehrere Personen teilen sich Deals, Nachfasstermine bleiben liegen, Anfragen kommen über LinkedIn oder WhatsApp | Ein CRM | Den Import unten vor der Auswahl durchdenken |
+
+## Wo eine Excel-Kundenverwaltung an ihre Grenzen kommt
+
+Die Größe ist selten der Grund, diese Grenzen zeigen sich früher.
+
+- **Verknüpfungen sind Text.** Benennen Sie eine Firma um, zeigen alle Kontakte, Deals und Verweise mit dem alten Namen ins Leere, bis Sie Suchen und Ersetzen über die ganze Mappe laufen lassen.
+- **Die Datei wartet auf Sie.** Ein rotes Datum hilft nur der Person, die das Blatt öffnet, und Nachrichten aus E-Mail, LinkedIn oder WhatsApp kommen nur an, wenn jemand eine Zusammenfassung eintippt.
+- **Zugriff gibt es ganz oder gar nicht.** Wer die Mappe öffnen kann, liest jedes Blatt darin.
+- **Personenbezogene Daten verteilen sich auf Kopien.** Nach der [DSGVO](https://eur-lex.europa.eu/eli/reg/2016/679/oj) kann eine Person Auskunft über ihre gespeicherten Daten verlangen (Art. 15) und deren Löschung (Art. 17). Bei einer Excel-Liste heißt das: jede Kopie auf jedem Laptop und in jedem Postausgang finden.
+
+## Wann sich der Umstieg auf ein CRM lohnt: eine Checkliste
+
+- Zwei oder mehr Personen pflegen in einer normalen Woche dieselben Deals.
+- Ein Nachfasstermin ist liegen geblieben, weil sein Datum in einer Spalte stand, die niemand gefiltert hat.
+- Sie kopieren Nachrichten aus LinkedIn oder WhatsApp in die Tabelle, oder Sie haben stillschweigend damit aufgehört.
+- Das Dashboard zu reparieren dauert länger, als es zu lesen.
+- Jemand fragt, wer die Kundenliste sehen kann, und die ehrliche Antwort lautet: alle, die die Datei haben.
+
+Treffen zwei Punkte zu, würde ich wechseln. Ein einzelner Punkt lässt sich meist noch in der Mappe lösen.
+
+## Von der Excel-Vorlage zu Customermates
+
+Customermates importiert Excel-Arbeitsmappen (.xlsx), einen Datensatztyp nach dem anderen. CSV-Dateien nimmt der Import nicht an, speichern Sie diese vorher als .xlsx. Die vollständigen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records). So landen die Spalten der Vorlage:
+
+| Spalte der Vorlage | Feld in Customermates |
+| --- | --- |
+| Firma | Name der Organisation |
+| Vorname, Nachname | Vorname und Nachname, beide Pflicht für einen neuen Kontakt |
+| Firma eines Kontakts oder Deals | Organisationen, über den Namen zugeordnet |
+| Kontakt eines Deals | Kontakte, über den vollen Namen zugeordnet |
+| E-Mail, LinkedIn | Kanäle des Kontakts |
+| Telefon | Eigenes Feld vom Typ Telefon, oder der WhatsApp-Kanal, wenn es die WhatsApp-Nummer ist |
+| Branche, Kontaktart, Quelle, Verlustgrund | Eigene Felder vom Typ Einzelauswahl |
+| Website; PLZ, Ort, Nächster Schritt | Eigenes Feld vom Typ Link; eigene Felder vom Typ Text |
+| Letzter Kontakt, Abschluss geplant, Nächster Schritt am, Abgeschlossen am | Eigene Felder vom Typ Datum |
+| Phase | Das Feld Phase der Deals |
+| Wert | Services, siehe Schritt 2 |
+| Wahrscheinlichkeit, Gewichtet | Entfallen: Die Wahrscheinlichkeit der Phase ergibt den gewichteten Wert |
+| Zuständig | Zugewiesen, über den vollen Namen des Teammitglieds zugeordnet |
+| Notizen | Notizen |
+| Offene nächste Schritte aus Aktivitäten | Aufgaben |
+
+<Steps>
+  <Step title="Zuerst die eigenen Felder anlegen">Öffnen Sie einen beliebigen Datensatz, klicken Sie auf **Anpassen** und dann auf **Feld hinzufügen**. Legen Sie für jede Dropdown-Spalte ein Feld vom Typ **Einzelauswahl** an, dessen Optionen genau so heißen wie im Blatt Listen; der Import markiert jede Zelle, die keine Option ist. Das Feld Phase mit den Phasen von oben gibt es bereits. Haben Sie die Phasen geändert, benennen Sie die Optionen um und tragen die Prozentwerte unter **Mein Unternehmen › Einstellungen** ein.</Step>
+  <Step title="Klären, wie die Deal-Werte hineinkommen">In Customermates ergibt sich der Wert eines Deals aus den verknüpften Services, Preis mal Menge. Importieren Sie zuerst Ihre Preisliste als **Services** (Name und **Betrag** sind Pflicht) und geben Sie dem Blatt Deals eine Spalte Services, die nennt, was der Deal verkauft, mehrere durch Kommas getrennt. Jede Verknüpfung kommt mit der Menge 1 an, die Sie danach am Deal anpassen. Hat jeder Deal einen eigenen Preis, hält ein eigenes Feld vom Typ Währung die Zahl fest, fließt dann aber nicht in den Deal-Wert und die gewichtete Pipeline ein.</Step>
+  <Step title="In der richtigen Reihenfolge importieren">Erst Services, dann die Firmen als Organisationen, dann Kontakte, dann Deals. Verknüpfungen ordnet der Import über den Namen zu, ohne Groß- und Kleinschreibung zu beachten. Die Firma muss also existieren, bevor ein Kontakt auf sie zeigen kann, und ein Name, der keinen oder mehrere Datensätze trifft, wird markiert. Ein Komma trennt mehrere Namen in einer Zelle, eine Kanzlei namens „Hahn, Brück & Partner" braucht deshalb vor dem Import einen anderen Namen oder hinterher eine Verknüpfung von Hand.</Step>
+  <Step title="Den Assistenten durchlaufen">Öffnen Sie in jeder Liste **Import und Export**, wählen Sie **Aus Datei hinzufügen** und die Datei. Der Assistent liest nur das erste Blatt, das nicht „Schema" heißt, und in der Vorlage ist das Listen. Kopieren Sie das Blatt, das Sie importieren, deshalb vorher in eine eigene Mappe (Rechtsklick auf den Blattreiter › Verschieben oder kopieren › (neue Arbeitsmappe)) und speichern Sie diese als .xlsx. Eine Datei darf derzeit bis zu 10 MB groß sein und 10.000 Zeilen haben. Ordnen Sie jede Spalte einem Feld, einem eigenen Feld oder einem Kanal zu; Kanäle kommen nur bei neuen Kontakten hinzu.</Step>
+  <Step title="Problemzeilen korrigieren oder überspringen">Die Prüfung listet jedes Problem mit Zeilennummer auf, bevor etwas angelegt wird. Korrigieren Sie die Zellen in Excel und prüfen Sie erneut, oder importieren Sie den Rest und überspringen diese Zeilen. Rückgängig machen lässt sich ein Import nicht, testen Sie also zuerst mit zehn Zeilen.</Step>
+  <Step title="Offene nächste Schritte als Aufgaben übernehmen">Aus dem Blatt Aktivitäten übernehmen Sie nur die offenen nächsten Schritte, als Aufgaben, verknüpft mit Deal und Kontakt und der zuständigen Person zugewiesen. Aufgaben haben kein Fälligkeitsfeld, legen Sie für das Datum ein eigenes Feld vom Typ Datum an. Den älteren Verlauf schreiben Sie in die Notizen des Deals oder lassen ihn in der archivierten Mappe.</Step>
+</Steps>
+
+### Was das Dashboard und die roten Zellen ersetzt
+
+- **Die Pipeline** wird zur Deal-Liste als Board, gruppiert nach Phase, mit Gesamtwert und gewichtetem Wert pro Spalte; die Seite zur [Pipeline-Ansicht](/features/pipeline) zeigt sie.
+- **Verstrichene nächste Schritte** werden zu einer persönlichen gespeicherten Ansicht der Deals mit ausgefülltem „Nächster Schritt am", aufsteigend danach sortiert. Für Deals, die niemand angefasst hat, filtern Sie **Aktualisiert am** mit **Älter als…** und 14 Tagen.
+- **Die Morgenrunde** kann in Customermates Cloud automatisch laufen. Erinnerungen oder Benachrichtigungen hat Customermates nicht, aber eine Routine, die täglich um 8:00 Uhr startet, kann mit gehosteten KI-Credits eine Anweisung wie diese abarbeiten:
+
+> Suche meine offenen Deals, bei denen „Nächster Schritt am" heute oder früher ist. Lege für jeden eine Aufgabe an, verknüpft mit dem Deal, mir zugewiesen, mit dem Namen „Nachfassen" und dem Deal-Namen. Sende und entwirf keine Nachrichten.
+
+Eine Routine handelt mit den Rechten der Person, der sie gehört, und Mate verschickt Nachrichten, wenn man es dazu auffordert. Schreiben Sie deshalb in die Anweisung, was die Routine nicht tun soll. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Person, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; die [Dokumentation zu Routinen](/docs/app-routines) nennt die Laufgrenzen.
+
+- **Das Blatt Aktivitäten** ersetzt ab Pro der [einheitliche Posteingang](/features/unified-inbox), der E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Verläufe beim Kontakt hält. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Person, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter hat keinen Posteingang.
+
+## Was es kostet, und wann Customermates der falsche Schritt ist
+
+| Team | Plan | Pro Monat |
+| --- | --- | --- |
+| 3 Personen, CRM ohne Posteingang | Starter, [[commercial.price.starter.monthly]] pro Person | [[commercial.price.starter.monthly.seats.3]] |
+| 3 Personen, mit einheitlichem Posteingang | Pro, [[commercial.price.pro.monthly]] pro Person | [[commercial.price.pro.monthly.seats.3]] |
+| Eigener Server | Selbst gehosteter AGPL-Kern | Keine Lizenzgebühr, dafür Ihre Hosting-Kosten; REST, Webhooks und MCP, aber kein Posteingang und kein Mate |
+
+Abgerechnet wird monatlich, die gehostete Testphase dauert [[commercial.trial.days]] Tage. Jeder gehostete Plan enthält monatliche gehostete KI-Credits pro aktiver Person, Einzelheiten auf der [Preisseite](/pricing).
+
+Der falsche Schritt ist Customermates, wenn Sie weiter über Zeilen hinweg rechnen wollen: Formelfelder gibt es nicht, eigene Kalkulationen bleiben über den Export in Excel. Ebenso, wenn Ihr Team eine Telefonanlage, E-Mail-Kampagnen oder eine App fürs Smartphone braucht: Customermates hat keine native mobile App, keine Telefonie und kein Kampagnen-Tool. Suchen Sie dann ein CRM, das genau das mitbringt.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Reicht Excel als CRM für kleine Unternehmen?">
-Für ein bis zwei Personen mit weniger als 200 Kontakten ja. Sobald mehrere Personen gleichzeitig arbeiten, Follow-ups untergehen oder Anfragen über mehrere Kanäle kommen, lohnt sich ein CRM.
+<FaqItem question="Kann man ein CRM in Excel selbst erstellen?">
+Ja, für ein kleines Team. Der Aufbau mit sechs Blättern oben deckt Firmen, Kontakte, Deals, Aktivitäten und ein Dashboard ab. Von sich aus kann Excel aber niemanden benachrichtigen, keine Verknüpfung retten, wenn sich ein Name ändert, und keine Gespräche hereinholen. Excel ist eine Tabellenkalkulation und kein CRM; Microsoft verkauft sein CRM getrennt als [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales).
 </FaqItem>
 
-<FaqItem question="Gibt es eine kostenlose Excel CRM Vorlage?">
-Im Netz finden Sie viele Vorlagen, die meisten sind aber generisch. Mit der Fünf-Blatt-Struktur aus dieser Anleitung bauen Sie in ein bis zwei Stunden eine Vorlage, die zu Ihrem Vertrieb passt und sich später sauber in ein CRM importieren lässt.
+<FaqItem question="Gibt es eine kostenlose CRM Excel Vorlage?">
+Der Aufbau in diesem Beitrag ist kostenlos und braucht nichts außer Excel. Wenn Sie anderswo eine Vorlage herunterladen, prüfen Sie vor der ersten Eingabe drei Dinge: eine Zeile pro Datensatz, Kontakte getrennt von Firmen und keine verbundenen Zellen. Eine Vorlage, die daran scheitert, lässt sich später nur mühsam in ein CRM importieren.
 </FaqItem>
 
-<FaqItem question="Soll ich die CRM-Vorlage als XLS, XLSX oder CSV speichern?">
-Als `.xlsx`. Das Format speichert mehrere Blätter, Dropdowns und Formeln und wird von den meisten CRM-Importen gelesen. Das alte `.xls` ist auf 65.536 Zeilen begrenzt, CSV verliert Blätter und Formatierung.
+<FaqItem question="Ab wann lohnt sich der Umstieg von Excel auf ein CRM?">
+Sobald zwei Punkte der Checkliste oben zutreffen, meist mit der zweiten Person, die mit Kunden spricht. In Unternehmen mit mehreren hundert Mitarbeitenden stellt sich die Frage anders: Dort geht es selten um das Ob, sondern um das Welche, und dafür lohnt ein Lastenheft mit den Anforderungen aus Vertrieb, Service und IT. Customermates ist für kleine Teams mit direktem Kundenkontakt gebaut. Für viele Abteilungen mit eigenen Prozessen sollten Sie Systeme ansehen, die genau dafür ausgelegt sind.
 </FaqItem>
 
-<FaqItem question="Wie viele Kontakte verträgt ein Excel-CRM?">
-Technisch über eine Million Zeilen. Mit Formeln, bedingter Formatierung und Pivot-Tabellen wird die Datei aber schon ab einigen tausend Zeilen langsam. Für den Alltag sind 500 bis 1.000 Kontakte eine realistische Obergrenze.
+<FaqItem question="Wie viele Kontakte verträgt eine Excel-Kundenliste?">
+Ein Blatt fasst laut Microsofts [Spezifikationen](https://support.microsoft.com/de-de/office/spezifikationen-und-beschr%C3%A4nkungen-in-excel-1672b34d-7043-467e-8e27-269d656771c3) 1.048.576 Zeilen, eine Google-Tabelle laut [Googles Dateilimits](https://support.google.com/drive/answer/37603) bis zu 20 Millionen Zellen. Die eigentliche Grenze sind die Menschen, nicht die Zeilen: Die Checkliste oben greift lange, bevor die Datei voll ist. Customermates liest derzeit bis zu 10.000 Zeilen pro Importdatei, größere Blätter teilen Sie auf.
 </FaqItem>
 
-<FaqItem question="Wie übertrage ich meine Excel-Vorlage in ein CRM?">
-Daten bereinigen, als `.xlsx` speichern, eigene Felder anlegen und in der Reihenfolge Firmen, Kontakte, Deals importieren. Customermates liest Excel-Dateien mit bis zu 10.000 Zeilen und lässt Sie jede Spalte einem Feld zuordnen.
+<FaqItem question="Bleibt ein CRM mit meiner Excel-Datei synchron?">
+Customermates nicht. Import und Export sind Dateiübertragungen, ein Datensatztyp nach dem anderen, ohne laufende Synchronisation und ohne CSV. Der Weg hin und zurück funktioniert: Liste als .xlsx exportieren (höchstens die ersten 50.000 Datensätze), in Excel bearbeiten, wieder importieren, und die Spalte **Datensatz-ID** aktualisiert diese Datensätze, statt Dubletten anzulegen.
 </FaqItem>
 
-<FaqItem question="Ist Google Tabellen besser als Excel für ein CRM?">
-Google Tabellen ist bei der Zusammenarbeit im Browser angenehmer, hat als CRM aber dieselben Grenzen. Mehr dazu im [Google Sheets CRM Ratgeber](/blog/google-sheets-crm) und in [Spreadsheet CRM](/blog/spreadsheet-crm).
+<FaqItem question="Was gehört in eine Vertriebs-Tabelle pro Person?">
+Eine Zeile pro Person und Woche: Anrufe, Termine, offene Pipeline, gewonnener Umsatz und die Zahl der Deals mit verstrichenem nächsten Schritt. Berechnen Sie jede Zelle mit ZÄHLENWENNS und SUMMEWENNS aus den Blättern Deals und Aktivitäten, wie in der Wochenübersicht oben, damit niemand Zahlen eintippt, die von den Daten abweichen.
 </FaqItem>
 </Faq>
 
-## Fazit
-
-Eine Excel CRM Vorlage ist ein guter Start. Sie zwingt Sie, festzulegen, welche Daten Sie brauchen und welche Phasen Ihr Vertrieb hat. Bauen Sie die Datei von Anfang an importfähig: ein Blatt pro Typ, eine Zeile pro Datensatz, einheitliche Firmennamen, `.xlsx`. Dann ist der Umstieg ins CRM ein Import und kein Projekt. Customermates können Sie [[commercial.trial.days]] Tage ohne Kreditkarte [testen](/auth/signup) und Ihre Liste direkt importieren.
+Angaben zu Excel und Google Tabellen am 8. Oktober 2026 geprüft auf Microsofts Seiten zu [Spezifikationen und Beschränkungen](https://support.microsoft.com/de-de/office/spezifikationen-und-beschr%C3%A4nkungen-in-excel-1672b34d-7043-467e-8e27-269d656771c3), [Excel mit früheren Versionen](https://support.microsoft.com/en-us/office/use-excel-with-earlier-versions-of-excel-2fd9ffcb-6fce-485b-85af-fecfd651a5ac), [gemeinsamer Dokumenterstellung](https://support.microsoft.com/en-us/office/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring-7152aa8b-b791-414c-a3bb-3024e46fb104), [Dropdownlisten](https://support.microsoft.com/de-de/office/erstellen-einer-dropdownliste-7693307a-59ef-400a-b769-c5402dce407b), [XVERWEIS](https://support.microsoft.com/de-de/office/xverweis-funktion-b7fd680e-6d10-43e6-84f9-88eae8bf5929) und [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales) sowie auf Googles Seite zu [Dateilimits in Google Drive](https://support.google.com/drive/answer/37603).

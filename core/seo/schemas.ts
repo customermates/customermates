@@ -84,7 +84,8 @@ export function articleSchema(params: {
     author: {
       "@type": "Person",
       name: params.authorName ?? FOUNDER_NAME,
-      url: params.authorUrl ?? FOUNDER_URL,
+      url: params.authorUrl ?? `${env.BASE_URL}/${params.locale}/about`,
+      ...((params.authorName ?? FOUNDER_NAME) === FOUNDER_NAME ? { sameAs: [FOUNDER_URL] } : {}),
     },
     publisher: {
       "@type": "Organization",
@@ -126,5 +127,21 @@ export function faqPageSchema(entries: { question: string; answer: string }[]) {
         text: entry.answer,
       },
     })),
+  };
+}
+
+export function founderProfileSchema(locale: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: `${env.BASE_URL}/${locale}/about`,
+    inLanguage: locale,
+    mainEntity: {
+      "@type": "Person",
+      name: FOUNDER_NAME,
+      jobTitle: "Founder",
+      sameAs: [FOUNDER_URL, "https://github.com/customermates/customermates"],
+      worksFor: { "@type": "Organization", name: ORGANIZATION_NAME, url: env.BASE_URL },
+    },
   };
 }

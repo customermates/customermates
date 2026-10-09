@@ -1,17 +1,17 @@
 ---
-title: "cobra CRM Alternative: Open Source, Cloud or Self-Hosted"
-description: "As of September 2026, cobra CRM starts at €36 per user a month. Customermates starts at [[commercial.price.starter.monthly]], is open source and self-hostable. Compare both."
+title: "cobra CRM Alternative: Open-Source CRM for Small Teams"
+description: "cobra CRM alternative compared: prices, API, AI, hosting and data transfer. Where Customermates fits a small team and where cobra stays the better choice."
 competitorName: cobra
 
 relatedHrefs:
-  - /compare/folk
-  - /compare/freshsales-alternative
-  - /compare/gohighlevel
-  - /compare/gohighlevel-alternative
+  - /features/self-hosted
+  - /compare/pipedrive-alternative
+  - /compare/hubspot-alternative
+  - /blog/open-source-crm
 
 hero:
-  title: "The cobra CRM Alternative: Open Source, Cloud or Self-Hosted"
-  description: "cobra CRM is a long-established German CRM with cloud and on-premise editions from €36 per user per month (as of September 2026). Customermates is an open-source alternative from [[commercial.price.starter.monthly]] per user per month, with a unified inbox for email and messaging and AI that works directly in the CRM."
+  title: "cobra CRM Alternative: Customermates and cobra Compared"
+  description: "cobra CRM is a German CRM from Konstanz with cloud plans from €36 per user per month and an on-premise edition called cobra One. Customermates is an open-source CRM for small client-facing teams, from [[commercial.price.starter.monthly]] per user per month, with email, LinkedIn and WhatsApp in one inbox from Pro and the Mate AI assistant in Customermates Cloud, which uses hosted AI credits."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -22,69 +22,83 @@ comparison:
   competitorName: cobra
   title: "Customermates vs. cobra CRM: Feature Comparison"
   sections:
-  - title: Pricing & Setup
+  - title: Pricing & Plans
     features:
-      - name: Entry price per user per month
-        source: "[[commercial.price.starter.monthly]] (Starter)"
-        competitor: From €36 (Essential)
-      - name: Published plans
-        source: Starter, Pro, Business, Enterprise on request
-        competitor: Essential, Grow, Max
+      - name: Price per user / month
+        source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: "Cloud: Essential from €36, Grow from €54, Max from €79"
       - name: Free trial
-        source: true
-        competitor: Cloud edition
-      - name: Open source
-        source: true
-        competitor: false
-  - title: Core CRM Features
+        source: "[[commercial.trial.days]] days, no credit card"
+        competitor: 30 days (cobra CRM Cloud)
+      - name: Deployment
+        source: Customermates Cloud, or the open-source core on your own server
+        competitor: cobra CRM Cloud, or cobra One on your own servers
+  - title: Data Model
     features:
-      - name: Contacts & organizations
-        source: true
-        competitor: true
-      - name: Deals & pipelines
-        source: true
-        competitor: true
-      - name: Typed custom columns
-        source: true
-        competitor: true
-      - name: Tasks & services
-        source: true
-        competitor: true
-      - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Pro and up ([[commercial.price.pro.monthly]])
-        competitor: Email and communication view
-      - name: AI clients operate the CRM (MCP)
-        source: true
-        competitor: Not stated
-      - name: Newsletter and marketing automation
+      - name: Record types
+        source: Contacts, organizations, deals, services, tasks
+        competitor: Addresses and contacts, plus custom objects
+      - name: Custom objects
         source: false
-        competitor: From Grow
-  - title: Data Protection & Hosting
+        competitor: "Cloud: 1 type (up to 10,000 records) on Essential, 3 on Grow, 50 on Max"
+      - name: Saved views
+        source: Personal saved views on every plan
+        competitor: Saved filters and custom table views from Grow
+      - name: Change history
+        source: Audit log on every plan
+        competitor: "Cloud Max: 365 days"
+  - title: Communication & Marketing
     features:
-      - name: Vendor cloud
-        source: Database in AWS Frankfurt
-        competitor: Data centre in Germany
-      - name: Run on your own servers
-        source: Docker self-hosting (open-source edition)
-        competitor: cobra One on-premise
-      - name: Audit log
-        source: true
-        competitor: Not stated
-  - title: Integration & Automation
+      - name: Email
+        source: Gmail, Outlook and IMAP in the unified inbox (Pro+)
+        competitor: Outlook integration on every cloud plan
+      - name: Chat channels
+        source: LinkedIn, WhatsApp, Instagram and Telegram in the unified inbox (Pro+)
+        competitor: SMS and WhatsApp sending listed as a marketing interface
+      - name: Telephony
+        source: false
+        competitor: NFON on every cloud plan, Microsoft Teams from Grow
+      - name: Newsletter sending
+        source: false
+        competitor: "Cloud: 5,000 a month on Grow, 10,000 on Max"
+      - name: Events and web forms
+        source: false
+        competitor: Every plan, with monthly limits
+      - name: Word document templates
+        source: false
+        competitor: 10, 50 or 1,000 by plan
+  - title: AI & Integration
     features:
+      - name: AI in the CRM
+        source: Mate in Customermates Cloud, uses hosted AI credits
+        competitor: cobra AI, fair-use flat rate in the cloud plans
+      - name: Your own AI provider
+        source: "Any MCP client, [[derived.mcp.tools.total]] tools, every plan and self-hosted"
+        competitor: cobra One Essential and Grow (OpenAI, Azure or IONOS)
       - name: REST API and webhooks
-        source: true
-        competitor: API
-      - name: n8n integration
-        source: Community node for your own n8n
-        competitor: Not stated
-      - name: Scheduled and event-driven AI routines
-        source: Managed cloud
-        competitor: AI flat rate on Max
+        source: Every plan
+        competitor: "Cloud: full API and 50 webhooks on Max, partner apps below. cobra One: REST API with 3, 9 or unlimited endpoints"
+  - title: Licence, Hosting & Access
+    features:
+      - name: Open-source licence
+        source: AGPL-3.0 core
+        competitor: false
+      - name: Cloud location
+        source: Primary database configured in the AWS Frankfurt region
+        competitor: Neunkirchen (Siegerland), Germany
+      - name: Native mobile apps
+        source: Responsive web app
+        competitor: iOS and Android
+      - name: Single sign-on
+        source: false
+        competitor: Cloud Max
+      - name: Interface languages
+        source: English, German, French, Italian, Spanish
+        competitor: German and English (Cloud)
 
 cta:
-  action: Ready to compare cobra CRM with Customermates?
-  description: "Test Customermates with your own contacts and deals: open source, with the cloud database in Frankfurt or self-hosted, with published prices per seat."
+  action: Comparing cobra CRM and Customermates?
+  description: "Start a trial, import one Excel export from cobra and connect a mailbox or WhatsApp. You will see quickly whether your addresses, deals and conversations fit the Customermates model."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -92,102 +106,135 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-> **Short answer:** [cobra CRM](https://cobra.de/) is a German CRM with a cloud edition hosted in Germany and an on-premise edition, both from €36 per user per month ([cobra pricing](https://cobra.de/preise/), as of September 2026). Customermates is an open-source alternative from [[commercial.price.starter.monthly]] per user per month that you can use in the managed cloud or run on your own server. It adds a unified inbox for email, LinkedIn, WhatsApp, Instagram and Telegram on Pro and up, and lets AI work directly in the CRM: the hosted assistant Mate in the cloud, or your own AI client such as Claude or ChatGPT through MCP with [[derived.mcp.tools.total]] tools.
+> **Short answer:** Customermates is a cobra CRM alternative for small client-facing teams that mainly need contacts, a deal pipeline and their client conversations in one place, and want the code open. It costs [[commercial.price.starter.monthly]] per user per month on Starter; cobra CRM Cloud Essential starts at €36. cobra is the better choice if you send newsletters, run events, write serial letters from Word templates or phone through NFON or Teams from the CRM: Customermates has none of these. Customermates publishes this comparison, and every cobra detail comes from cobra.de, checked on 8 October 2026.
 
-## Why Look for a cobra CRM Alternative?
+## Which CRM fits which team
 
-cobra has served German small and mid-sized businesses for decades, with strong address management, campaigns and document templates. Teams usually start looking elsewhere for one of these reasons:
+| Your situation | Better fit | Why |
+|---|---|---|
+| You send newsletters, run events or publish web forms from the CRM | cobra | Newsletters are included from Grow; event portals and forms are on every cloud plan |
+| Your team phones from the CRM | cobra | NFON telephony on every cloud plan, Teams telephony from Grow. Customermates has no telephony |
+| You need your own record types, such as members, funding cases or seminars | cobra Grow or Max | 3 custom object types on Grow, 50 on Max. Customermates has five fixed record types |
+| Field staff need native phone apps, or IT requires single sign-on | cobra | Native iOS and Android apps; single sign-on on Cloud Max |
+| Clients write on WhatsApp, LinkedIn, Instagram or Telegram as well as email | Customermates Pro or Business | All of these channels share one inbox, next to the deal |
+| You want REST API and webhooks on the entry plan | Customermates | REST API and webhooks are on every plan. cobra CRM Cloud has the full API and webhooks on Max; cobra One Essential has a REST API with 3 endpoints |
+| You want open-source code and a CRM you can host yourself | Customermates | AGPL-3.0 core with Docker Compose; the inbox and Mate stay in Customermates Cloud |
+| You run on-premise today and want vendor support for it | cobra One or combit CRM | Both sell supported on-premise editions |
 
-- **Price per seat.** cobra's plans start at €36, €54 and €79 per user per month (Essential, Grow, Max). Customermates starts at [[commercial.price.starter.monthly]] with the full core CRM in every plan.
-- **Open source.** cobra is proprietary. Customermates' core is AGPL-3.0, so you can inspect the code and [self-host](/features/self-hosted) it with Docker.
-- **Messaging beyond email.** Sales conversations increasingly happen on LinkedIn and WhatsApp. Customermates brings them into one [unified inbox](/features/unified-inbox) next to email.
-- **AI that does the data entry.** With Customermates, an AI assistant can update deal stages, log notes and draft follow-ups in the CRM, within the permissions of the user it acts for.
+## Who cobra CRM is a good choice for
 
-If cobra's newsletter tooling, document templates or on-premise edition are central to how you work, cobra may still be the better fit. The comparison below shows where each one is stronger.
+cobra has built CRM software in Konstanz since 1985 and has been part of Buhl Data Service since 2007. Its focus groups are associations, public institutions, universities and education, wholesale and professional services. The product reflects that: address management with business cards and relationship diagrams, Word templates for single and serial letters, newsletters, event management with ticket payment, web forms, NFON and Teams telephony and native apps for iOS and Android.
 
-## cobra CRM Alternative Compared: Feature Table
+There are two product lines at the same prices. cobra CRM Cloud runs in the browser from cobra's cloud in Neunkirchen (Siegerland) and includes cobra AI as a fair-use flat rate: touchpoint summaries, reply suggestions and a "next best touchpoint". cobra One is the on-premise edition for your own servers or a cloud you choose; cobra says it uses different technology, so features do not map one to one.
 
-| Feature                                                                                   | Customermates                                         | cobra CRM                          |
-| ----------------------------------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------- |
-| Entry price per user per month                                                            | [[commercial.price.starter.monthly]] (Starter)        | From €36 (Essential)               |
-| Cloud edition                                                                             | <StatusAvailable />                                   | <StatusAvailable />                |
-| Run on your own servers                                                                   | <StatusAvailable />                                   | <StatusAvailable />                |
-| Open source                                                                               | <StatusAvailable />                                   | <StatusUnavailable />              |
-| [Pipeline management](/features/pipeline)                                                 | <StatusAvailable />                                   | <StatusAvailable />                |
-| [Native unified inbox](/features/unified-inbox) (email, LinkedIn, WhatsApp, Instagram, Telegram, Pro+) | <StatusAvailable />                      | <StatusPartial />                  |
-| AI clients operate the CRM (MCP)                                                          | <StatusAvailable />                                   | Not stated                         |
-| Newsletter and marketing automation                                                       | <StatusUnavailable />                                 | <StatusAvailable />                |
-| REST API and webhooks                                                                     | <StatusAvailable />                                   | <StatusAvailable />                |
-| Audit log                                                                                 | <StatusAvailable />                                   | Not stated                         |
-| Mobile access                                                                             | Responsive web app                                    | Check with vendor                  |
+If your organisation runs members, seminars or campaigns through the CRM, cobra covers more of that work than Customermates does.
 
-Third-party details come from cobra's public website as of September 2026. Confirm plan contents with cobra before you decide.
+## Why teams look for a cobra CRM alternative
 
-## Setup & Onboarding
+**The entry plan carries a lot you may not use.** Cloud Essential costs from €36 per user per month and includes event portals, web forms and NFON telephony. A sales team that only needs contacts, deals and email still starts there.
 
-cobra's cloud edition offers a free test account right after registration, and the on-premise edition is set up with cobra or a partner in your own data centre.
+**Integration depth follows the plan.** In cobra CRM Cloud, Essential and Grow connect to other systems through certified partner apps. The full API, 50 webhooks, single sign-on, field permissions for custom objects and the 365-day change log come with Max, from €79. Saved filters and custom table views start on Grow.
 
-Customermates' managed cloud is ready as soon as you sign up. Set up your [deal pipeline](/features/pipeline) stages, import [contacts](/features/contact-management) and other records from XLSX workbooks one record type at a time, and start working. Self-hosting runs the open-source edition with Docker and PostgreSQL on your own infrastructure.
+**Conversations beyond Outlook.** cobra's pricing page lists Outlook as its Microsoft 365 integration and NFON or Teams for calls; its integrations page shows SMS and WhatsApp sending as a marketing interface. If your clients write to you on WhatsApp or LinkedIn, Customermates keeps those threads in the same [unified inbox](/features/unified-inbox) as email, linked to the contact.
 
-## Pricing: cobra CRM vs. Customermates
+**Open source.** cobra sells per-user licences, and its pages name no open-source licence. The Customermates core is AGPL-3.0, so you can read the code and run it on your own server.
 
-cobra publishes three plans for both its cloud and on-premise editions: Essential from €36, Grow from €54 and Max from €79 per user per month. Grow adds custom objects, marketing automation and a newsletter allowance; Max adds unlimited custom objects, an AI flat rate and more storage.
+## What five users pay per month
 
-Customermates Starter costs [[commercial.price.starter.monthly]] per user per month and includes contacts, organizations, deals, services, tasks, custom columns, views, dashboards, permissions, audit log, REST API, webhooks and MCP. Pro ([[commercial.price.pro.monthly]]) adds the unified inbox with one connected account per user, and Business ([[commercial.price.business.monthly]]) adds three connected accounts per user and shared accounts. See the [pricing page](/pricing) for the current plan contract.
+Prices checked on 8 October 2026 from [cobra's pricing page](https://cobra.de/preise/). cobra lists "from" prices per user per month and does not state the billing interval or minimum term there, so confirm both with cobra. Customermates bills monthly.
 
-## Core CRM Features
+| Plan for five users | Per month |
+|---|---|
+| cobra CRM Cloud Essential | from €180 |
+| cobra CRM Cloud Grow | from €270 |
+| cobra CRM Cloud Max | from €395 |
+| Customermates Starter | [[commercial.price.starter.monthly.seats.5]] |
+| Customermates Pro | [[commercial.price.pro.monthly.seats.5]] |
+| Customermates Business | [[commercial.price.business.monthly.seats.5]] |
 
-Both products cover contacts, organizations, deals and pipelines. cobra's roots are in address management, campaigns and document templates, which is why many German businesses have relied on it for years.
+The rows do not buy the same things. Starter has no inbox: it covers the CRM, the API, MCP and Mate with hosted AI credits. Pro adds the inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, which can be a mailbox, LinkedIn or WhatsApp. If people need email and WhatsApp side by side, the team needs Business, with [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user and shared accounts. cobra Essential includes events, forms, Word templates and telephony, which no Customermates plan offers at any price.
 
-Customermates is built around two things: [contacts and organizations](/features/contact-management), deals, [pipelines](/features/pipeline), [tasks](/features/task-management) and services that AI can operate directly, and a [unified inbox](/features/unified-inbox) that puts email, LinkedIn, WhatsApp, Instagram and Telegram next to the records they belong to. Deal stages carry weights, so the pipeline shows weighted deal values. Customermates does not include newsletter or marketing-automation tooling; if you send newsletters from your CRM today, plan a separate tool for that.
+## Where Customermates fits
 
-## Data Protection & Hosting
+Customermates is an open-source, AI-native CRM built in Germany for consultants, agencies, other relationship-driven service businesses and founders.
 
-cobra hosts its cloud edition in a data centre in Germany and offers an on-premise edition for your own data centre.
+**Conversations next to the deal.** From Pro, the inbox brings Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list. You reply on the original channel, and every thread with a linked contact shows on that contact's timeline.
 
-In Customermates' managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need to control the full stack, you can [self-host](/features/self-hosted) the open-source edition. Note that self-hosting gives you the open-source CRM with MCP for your own AI clients, but not the unified inbox or the hosted assistant, which run on the managed cloud only.
+**AI help with CRM upkeep, in Customermates Cloud.** In Customermates Cloud, Mate summarizes threads, drafts replies, updates records and builds views. It uses hosted AI credits, with a monthly allowance per active user shown on the [pricing page](/pricing). Routines run a saved instruction on a schedule or when a record changes. If you prefer Claude, ChatGPT or another client, connect it to the [MCP server](/docs/mcp), which offers [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs.
 
-## Integration & Automation
+**A small, fixed model.** Contacts, organizations, deals, services and tasks, with custom fields of ten types, table and board layouts, dashboards, roles and an audit log on every plan. The interface is available in English, German, French, Italian and Spanish.
 
-Customermates offers a REST API with an OpenAPI description, webhooks for CRM events, MCP for AI clients, and a community node for your own [n8n](https://n8n.io/) instance, which connects the CRM to hundreds of other services. On the managed cloud, routines run a saved instruction on a schedule or when a CRM event happens.
+**Open source, with a hosting choice.** The AGPL-3.0 core runs on your own server with Docker Compose and PostgreSQL, including REST, webhooks and MCP. A [self-hosted install](/features/self-hosted) has no inbox, no Mate and no hosted credits. In Customermates Cloud, the primary database is configured in the AWS Frankfurt region (a selected setting, not a contractual guarantee), a [DPA](/dpa) is available and the subprocessors, including US providers, are listed in the legal pages.
 
-cobra lists API access and automation features that grow with the plan, and an AI flat rate on Max. Compare the exact integration you need on both sides during the trial.
+## Where Customermates is the wrong choice
 
-## Who Should Switch from cobra CRM?
+- **No newsletters, campaigns or bulk email.** Messages go out one at a time, written by you or drafted by Mate.
+- **No events, web forms or Word templates.** Serial letters and event registration stay in another tool.
+- **No telephony or SMS.** Store phone numbers in a Phone field and call from your own phone system.
+- **No native mobile apps and no single sign-on.** Customermates runs in the phone's browser.
+- **No custom objects and no field permissions.** Permissions apply per record type and action. Saved views are personal and cannot be shared.
+- **No ready-made ERP or DATEV connectors.** Connect other systems through the REST API, webhooks or your own n8n instance.
+- **No certification.** Customermates holds no compliance certification.
 
-Customermates is a strong cobra CRM alternative for teams that:
+## Moving from cobra to Customermates
 
-- Want a lower price per seat with the full core CRM in every plan
-- Prefer **open-source software** they can inspect and self-host
-- Sell over LinkedIn, WhatsApp or Instagram as well as email and want one inbox in the CRM
-- Want AI to keep the CRM current instead of typing updates by hand
+A worked example: a five-person consultancy on cobra CRM Cloud Essential, selling projects and retainers, with keywords such as "Industry" and "Region" on its addresses.
 
-Stay with cobra if newsletters and marketing automation inside the CRM, or a vendor-supported on-premise installation, matter more to you than these points.
+| In cobra | In Customermates |
+|---|---|
+| Company addresses | Organizations, renamed "Companies" in the Data model |
+| Contact persons | Contacts, linked to their company |
+| Sales opportunities | Deals, renamed "Opportunities" |
+| Keywords and distribution lists | One single-select field per keyword group, plus a saved view filtered on it |
+| Communication history (touchpoints) | The record's notes; new changes appear in the activity history |
+| Newsletters, events, Word templates | No equivalent; keep a separate tool |
 
-## Frequently Asked Questions
+The opportunity stages become a stage field with probabilities, for example Inquiry 10%, First meeting 25%, Proposal sent 50%, Negotiation 75%, Won 100% and Lost 0%. Customermates multiplies each deal value by its stage probability and shows a weighted pipeline total. That is arithmetic on your own numbers; it does not predict anything.
+
+<Steps>
+  <Step title="Export from cobra">cobra's pricing page lists export to Excel on every cloud plan. Export companies, contact persons and opportunities as separate workbooks and save them as .xlsx files. On cobra One, ask your cobra partner which export your version offers.</Step>
+  <Step title="Prepare the workspace">Rename record types under My Company, Settings, Data model. Create one single-select field per keyword group, and set up the stage field with its probabilities.</Step>
+  <Step title="Import one record type at a time">Import organizations first, then contacts, then deals. A link column finds the company you imported before by name. A workbook currently holds up to 10,000 rows, so split a larger address list. New contacts need a first and a last name, and a Notes column goes into the record's notes. The [records documentation](/docs/app-records) has the details.</Step>
+  <Step title="Rebuild lists as views">Turn each cobra list into a saved view with a filter. Views are personal, so each person saves their own.</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under My Profile, Channels. Then set up a routine for Mate, or connect your own AI client through MCP.</Step>
+</Steps>
+
+Each consultant can then own one routine for the weekly follow-up. A routine runs as its owner, with that person's channels, in Customermates Cloud, and uses hosted AI credits:
+
+> Every Monday at 8:00, find my deals in "Proposal sent" where the contact has not written for 14 days. For each one, save a short follow-up draft in my latest conversation with that contact. Do not send anything.
+
+Mate can send messages without asking again, so the last sentence matters if you want to review first.
+
+## Other cobra CRM alternatives worth a look
+
+Customermates publishes this list. Prices come from each vendor's own pages, checked on 8 October 2026.
+
+- **combit CRM** is the closest like-for-like option if you want to stay on-premise with a German vendor. The Basic edition on your own servers costs €135 a month for the platform with five users on annual payment, or €150 on monthly payment, plus €20 or €25 for each further user. combit also runs a private cloud in a German data centre, from €350 a month for five users on monthly payment, with maintenance, updates, backups and support by combit. Prices exclude VAT and are for business customers only.
+- **Pipedrive** suits small sales teams that want a pipeline tool with email sequences. With yearly payment, Lite costs €14 and Growth €39 per seat per month; Growth adds automations and email sequences. Pipedrive lists separate prices for monthly payment. See [Pipedrive compared with Customermates](/compare/pipedrive-alternative).
+- **HubSpot** has a free CRM for up to two users and 1,000 contacts with no time limit. Starter begins at €15 per seat per month. See [HubSpot compared with Customermates](/compare/hubspot-alternative).
+
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="How much does cobra CRM cost compared with Customermates?">
-As of September 2026, cobra lists Essential from €36, Grow from €54 and Max from €79 per user per month for both its cloud and on-premise editions. Customermates costs [[commercial.price.starter.monthly]] (Starter), [[commercial.price.pro.monthly]] (Pro) or [[commercial.price.business.monthly]] (Business) per user per month, with Enterprise on request. See the [pricing page](/pricing).
+<FaqItem question="How much does cobra CRM cost?">
+cobra lists three plans per user per month: Essential from €36, Grow from €54 and Max from €79. The same prices apply to cobra CRM Cloud and to the on-premise cobra One editions. The pricing page does not state the billing interval or a minimum term. Customermates costs [[commercial.price.starter.monthly]], [[commercial.price.pro.monthly]] or [[commercial.price.business.monthly]] per user per month and bills monthly.
 </FaqItem>
 
-<FaqItem question="Where is my data stored with Customermates?">
-In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need to keep everything on your own infrastructure, you can [self-host](/features/self-hosted) the open-source edition with Docker.
+<FaqItem question="What is the difference between cobra CRM Cloud and cobra One?">
+cobra CRM Cloud runs in the browser from cobra's cloud and includes cobra AI as a fair-use flat rate. cobra One is the on-premise line that you run on your own servers or in a cloud you choose; on Essential and Grow you license your own AI provider. cobra says the two lines use different technology, so their features are not directly comparable.
 </FaqItem>
 
-<FaqItem question="Can I migrate my contacts from cobra CRM to Customermates?">
-Yes. Export your records from cobra and import them into Customermates as XLSX workbooks, one record type at a time, such as organizations first, then contacts, then deals. For larger or ongoing transfers you can also use the REST API.
+<FaqItem question="Is there a free alternative to cobra CRM?">
+HubSpot's CRM is free for up to two users and 1,000 contacts. Customermates has no free plan: Customermates Cloud starts with a [[commercial.trial.days]]-day trial. Its open-source core can be self-hosted, without the inbox and without Mate.
 </FaqItem>
 
-<FaqItem question="Does Customermates replace cobra's newsletter and campaign features?">
-No. Customermates does not send newsletters or run marketing campaigns. It covers the sales side: records, pipelines, the unified inbox for individual conversations, and AI that works in the CRM. Teams that rely on cobra's newsletter tooling should plan a separate email marketing tool.
+<FaqItem question="Is there an open-source alternative to cobra CRM that runs on my own server?">
+Yes. The Customermates core is AGPL-3.0 and runs with Docker Compose and PostgreSQL on a server you control, with REST, webhooks and MCP. You then handle updates and backups yourself. If you need a vendor-supported on-premise product instead, look at cobra One or combit CRM.
 </FaqItem>
 
-<FaqItem question="Is Customermates open source?">
-Yes. The Customermates core is licensed under AGPL-3.0, so you can inspect the code and [self-host](/features/self-hosted) it. cobra CRM is proprietary software.
+<FaqItem question="Can I move my addresses from cobra to Customermates?">
+Yes, as Excel workbooks, one record type at a time: companies, then contact persons, then opportunities. Keywords become single-select fields. Newsletter lists, event data and Word templates have no place in Customermates.
 </FaqItem>
 </Faq>
 
-## Conclusion
-
-cobra CRM is a mature German CRM with cloud and on-premise editions and strong campaign tooling. Customermates is the open-source alternative for teams that want a lower price per seat, a unified inbox for email and messaging, and AI that works directly in the CRM, in the managed cloud or on their own server. [Start your free trial](/auth/signup) and test it with your own data. See also how Customermates compares to [HubSpot](/compare/hubspot-alternative), [Pipedrive](/compare/pipedrive-alternative), or [Vtiger](/compare/vtiger-alternative).
+Competitor details checked on 8 October 2026 against cobra's [pricing page](https://cobra.de/preise/), [cobra CRM Cloud page](https://cobra.de/loesungen/cobra-crm-cloud/), [cobra One page](https://cobra.de/loesungen/cobra-crm-classic/), [mobile page](https://cobra.de/loesungen/mobile-crm/), [integrations page](https://cobra.de/loesungen/integrationen-und-api/) and [company page](https://cobra.de/ueber-uns/), and against the pricing pages of [combit](https://www.combit.net/crm-software/crm-editionen/), [Pipedrive](https://www.pipedrive.com/de/pricing) and [HubSpot](https://www.hubspot.de/products/crm).

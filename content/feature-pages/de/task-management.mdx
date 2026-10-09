@@ -1,17 +1,17 @@
 ---
-title: "CRM Aufgabenverwaltung: Zuweisen, verknüpfen, organisieren"
-description: "CRM Aufgabenverwaltung: Aufgaben mit Kontakten, Organisationen, Deals und Leistungen verknüpfen, zuweisen und um eigene Felder erweitern. Ab Starter dabei."
+title: "Aufgabenverwaltung im CRM: Aufgaben am Kunden"
+description: "Aufgaben in Customermates hängen an Kontakten, Organisationen, Deals und Services, mit Zuständigen, Notizen und eigenen Feldern. Ohne Fälligkeiten."
 featureName: Aufgabenverwaltung
 
 relatedHrefs:
-  - /features/sales
-  - /features/sales-automation
-  - /features/sales-tracking
-  - /features/self-hosted
+  - /features/follow-up
+  - /features/pipeline
+  - /features/workflow-automation
+  - /docs/app-records
 
 hero:
-  title: Aufgabenverwaltung, die jede Vertriebsaktion im Blick behält
-  description: Erstellen Sie Aufgaben, weisen Sie sie zu und verknüpfen Sie sie mit Kontakten, Organisationen, Deals und Leistungen. Ergänzen Sie eigene Felder, wechseln Sie zwischen Tabelle und Kanban und binden Sie externe Automatisierung über MCP, API oder Ihre eigene n8n-Instanz an.
+  title: Aufgabenverwaltung im CRM, bei der jede Aufgabe beim richtigen Kunden liegt
+  description: Legen Sie eine Aufgabe an, weisen Sie sie einer oder mehreren Personen zu und verknüpfen Sie sie mit dem Kontakt, der Organisation, dem Deal oder Service, um den es geht. Eigene Spalten, Tabelle oder Board, und auf Wunsch legen Mate oder Ihr eigener KI-Client Aufgaben für Sie an.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bereit loszulegen?
-  description: Starten Sie heute mit Customermates und wechseln Sie zu einem agentischen Open-Source CRM für flexible Workflows.
+  action: Aufgabenliste einrichten
+  description: Legen Sie eine Spalte „Zieldatum" an und speichern Sie die Ansichten „Meine offenen Aufgaben" und „Deals ohne nächsten Schritt". Danach entscheiden Sie, ob Sie eine Routine brauchen.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,78 +28,93 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Was ist CRM-Aufgabenverwaltung?
+Aufgabenverwaltung im CRM heißt: Die Aufgabe liegt am Kundendatensatz. „Überarbeitetes Angebot schicken" hängt am Deal und am Ansprechpartner, und wer einen der beiden öffnet, sieht, was offen ist und wer es erledigt. In Customermates sind Aufgaben ein eigener Datensatztyp mit Name, Notizen, zugewiesenen Personen, Verknüpfungen zu Kontakten, Organisationen, Deals und Services sowie beliebigen eigenen Spalten. Mehr Felder hat eine Aufgabe nicht.
 
-CRM-Aufgabenverwaltung ist die Praxis, Aufgaben direkt im Kontext Ihrer Kundenbeziehungen zu erstellen, zuzuweisen und zu verfolgen. Anders als eigenständige Aufgabenverwaltung Software wie Asana, Todoist oder Monday sind Aufgaben in einem CRM mit Kontakten, Deals und Organisationen verknüpft. Jeder Follow-up-Anruf, jedes Angebot, jede Dokumentenanfrage oder interne Prüfung ist mit der Beziehung verbunden, der sie dient.
+Ein eingebautes Fälligkeitsdatum gibt es nicht, ebenso wenig Erinnerungen, Überfälligkeitshinweise oder wiederkehrende Aufgaben. Eine klassische Wiedervorlage mit Benachrichtigung bietet Customermates also nicht. Neue Workspaces starten zwar mit einer Spalte **Status** bei Aufgaben, das ist aber ein normales Feld vom Typ **Einzelauswahl**, das Sie umbenennen oder ersetzen können. Für ein Team, das seine Woche über Erinnerungen und Termine plant, ist Customermates nicht gemacht. Dort passt ein CRM mit geplanten Aktivitäten besser; die Tabelle weiter unten nennt zwei. Wenn Sie Aufgaben wollen, die den Kundenkontext mitbringen und die eine KI anlegen und pflegen kann, lesen Sie weiter.
 
-Ohne integrierte Aufgabenverwaltung verlassen sich Teams auf separate Apps, Haftnotizen oder ihr Gedächtnis. Follow-ups werden verpasst, Übergaben zwischen Mitarbeitern schaffen Informationslücken, und Führungskräfte verlieren den Überblick über die Arbeitsverteilung. Ein CRM mit eingebauter Aufgabenverwaltung löst diese Probleme, indem Aufgaben ein natürlicher Teil des Kunden-Workflows werden.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was eine Aufgabe hat">Name, Notizen, eine oder mehrere zugewiesene Personen, Verknüpfungen zu Kontakten, Organisationen, Deals und Services sowie eigene Spalten.</SummaryItem>
+  <SummaryItem label="Tarife">Aufgaben gehören zu jedem Tarif, von Starter bis Self-Hosting. Mate und Routinen gibt es nur in Customermates Cloud, sie verbrauchen gehostete KI-Credits.</SummaryItem>
+  <SummaryItem label="Ansichten">Tabelle oder Board, gruppiert nach jeder Einzelauswahl-Spalte, mit persönlichen gespeicherten Ansichten.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine Fälligkeitsdaten, Erinnerungen, Benachrichtigungen, wiederkehrenden Aufgaben, Abhängigkeiten, Zeiterfassung oder Gantt-Diagramme.</SummaryItem>
+</ArticleSummary>
 
-Effektive CRM-Aufgabenverwaltung hält Arbeit mit dem Kundendatensatz verbunden, dem sie dient. Aufgabe, Verantwortliche, Notizen und verknüpfte Datensätze bleiben an einem Ort statt über getrennte Listen verteilt zu sein.
+## Was eine Aufgabe in Customermates ist
 
-## So funktioniert die Aufgabenverwaltung in Customermates
+| Bestandteil | So funktioniert es |
+|---|---|
+| Name und Notizen | Notizen sind ein Rich-Text-Feld pro Aufgabe. Sie können Checklisten, Bilder und Tabellen enthalten, sind aber kein versioniertes Arbeitsprotokoll. |
+| Zugewiesen | Beliebig viele Personen. Filtern Sie nach **Zugewiesen**, um die Arbeit einer Person zu sehen, oder mit „hat keine", um Aufgaben ohne Zuständigen zu finden. |
+| Verknüpfungen | Kontakte, Organisationen, Deals und Services. Jeder verknüpfte Datensatz zeigt seine Aufgaben, die Deal-Seite listet also, was noch zu tun ist. |
+| Eigene Spalten | Datum, Datumsbereich, Einzelauswahl, Währung, Text, Link, E-Mail und Telefon. Legen Sie ein **Zieldatum** oder eine **Priorität** an, wenn Ihr Prozess das braucht. |
+| Status | Kein festes Feld. Neue Workspaces erhalten eine Einzelauswahl **Status** (Offen, In Bearbeitung, Blockiert, Pausiert, Erledigt, Archiviert), die Sie anpassen können. |
+| Board | Gruppieren Sie nach einer beliebigen Einzelauswahl und ziehen Sie Karten zwischen den Spalten, um den Wert zu ändern. |
 
-Customermates modelliert Aufgaben als eigenständige CRM-Datensätze. Die Kernfunktionen sind in Starter enthalten und Aufgaben lassen sich mit Kontakten, Organisationen, Deals und Leistungen verknüpfen. Externe, per MCP verbundene KI-Clients können diese Datensätze erstellen, lesen, aktualisieren, zuweisen und verknüpfen.
+Eine Art von Aufgabe legt Customermates selbst an: Registriert sich jemand über den Einladungslink Ihres Workspace, erscheint die Systemaufgabe **Benutzer genehmigen**, bis ein Admin die Person freigibt oder auf inaktiv setzt. Die [Anleitung zu Datensätzen](/docs/app-records) beschreibt das zusammen mit allen Listen-, Filter- und Board-Funktionen.
 
-**Aufgabenerstellung und -zuweisung.** Erstellen Sie eine benannte Aufgabe, ergänzen Sie Notizen, weisen Sie eine oder mehrere Personen zu und verknüpfen Sie die CRM-Datensätze, die den Kontext liefern. Die globale Aufgabenansicht hält diese Datensätze durchsuchbar und filterbar.
+## Aufgabenverwaltung einrichten
 
-**Verknüpft mit Kontakten, Deals und Organisationen.** Jede Aufgabe kann mit einem oder mehreren Kontakten, Organisationen oder Deals verknüpft werden. Wenn Sie einen Kontakt ansehen, sehen Sie alle zugehörigen Aufgaben. Wenn Sie einen Deal ansehen, sehen Sie, was passieren muss, um ihn voranzubringen. Diese bidirektionale Verbindung hält den vollständigen Kontext in Ihrem gesamten CRM intakt.
+<Steps>
+  <Step title="Klären, was ein Datum bedeutet">Aufgaben haben kein Fälligkeitsfeld. Legen Sie unter **Aufgaben** eine eigene Spalte vom Typ **Datum** an und benennen Sie sie nach dem, was Sie meinen, etwa „Zieldatum". Arbeitet Ihr Team eine Liste nach Priorität ab, lassen Sie das Datum weg.</Step>
+  <Step title="Status-Spalte anpassen">Öffnen Sie das Board gruppiert nach **Status** und bearbeiten Sie die Optionen. Einem kleinen Team reichen oft Offen, Wartet auf Kunde und Erledigt. Eine Einzelauswahl **Priorität** hilft, wenn Sie nach Wichtigkeit statt nach Datum sortieren.</Step>
+  <Step title="Aufgaben dort anlegen, wo die Arbeit entsteht">Klicken Sie unter **Aufgaben** auf **Hinzufügen** oder verknüpfen Sie eine Aufgabe direkt auf der Seite des Deals, Kontakts oder der Organisation. Weisen Sie sie zu und verknüpfen Sie jeden betroffenen Datensatz, damit sie überall erscheint.</Step>
+  <Step title="Persönliche Liste speichern">Filtern Sie **Zugewiesen** auf sich selbst und **Status** auf alles außer Erledigt und Archiviert, sortieren Sie aufsteigend nach Zieldatum und speichern Sie das als Ansicht „Meine offenen Aufgaben". Gespeicherte Ansichten sind persönlich, jede Person im Team legt ihre eigene an.</Step>
+  <Step title="Deals ohne nächsten Schritt finden">Filtern Sie unter **Deals** das Feld **Aufgaben** mit „hat keine" und schließen Sie gewonnene und verlorene Phasen aus. Speichern Sie die Ansicht als „Deals ohne nächsten Schritt". Diese Liste ist der eigentliche Grund, Aufgaben im CRM statt in einer separaten To-do-App zu führen.</Step>
+</Steps>
 
-**Typisierte eigene Felder.** Aufgaben nutzen dasselbe System für eigene Spalten wie andere CRM-Datensätze. Ergänzen Sie eine Einfachauswahl für Priorität oder Workflow-Kategorie, eine Datumsspalte für ein Zieldatum oder einen anderen Feldtyp passend zu Ihrem Prozess.
+Sie kommen aus Excel oder einem anderen Tool? Aufgaben lassen sich aus einer XLSX-Arbeitsmappe importieren, mit Spalten für Name, Notizen, zugewiesene Personen und verknüpfte Datensätze. Importieren Sie zuerst Kontakte, Organisationen und Deals, damit die Verknüpfungen aufgelöst werden. Einen CSV-Import gibt es nicht.
 
-**Datumsfelder ohne versteckten Scheduler.** Customermates hat für Aufgaben weder ein eingebautes Fälligkeitsdatum noch Benachrichtigungen oder eine Überfälligkeitslogik. Benötigt Ihr Prozess ein Zieldatum, ergänzen Sie eine eigene Datumsspalte und speichern eine persönliche Ansicht, die danach sortiert. In der Cloud kann eine Routine dieses Datum nach Zeitplan prüfen und Mate die betroffenen Aufgaben auflisten lassen; alternativ liest ein externer Scheduler wie Ihr eigenes n8n das Feld über REST und verschickt eine Nachricht über einen Dienst Ihrer Wahl.
+## Aufgaben per KI anlegen und prüfen
 
-**Wiederkehrende Arbeit über externe Automatisierung.** Einen nativen Scheduler für wiederkehrende Aufgaben gibt es nicht. Ihre eigene n8n-Instanz oder eine andere Integration kann Aufgaben nach Zeitplan über REST API oder MCP anlegen.
+**In Customermates Cloud** legt Mate Aufgaben auf Zuruf im Chat an, weist sie zu und aktualisiert sie. Das verbraucht gehostete KI-Credits. Ein Satz wie „Aufgabe für Anna anlegen: überarbeitetes Angebot an die Müller GmbH schicken, mit dem Deal Retainer Q4 verknüpfen" genügt. Eine [Routine](/docs/app-routines) führt eine gespeicherte Anweisung nach Zeitplan oder bei einem Datensatzereignis aus, zum Beispiel:
 
-**Kanban-Board-Ansicht.** Ergänzen Sie eine eigene Einfachauswahl und gruppieren Sie Aufgaben im Kanban danach. Das Verschieben zwischen Spalten aktualisiert den ausgewählten Wert, sodass Sie einen einfachen Ablauf modellieren können, ohne einen eingebauten Aufgabenstatus zu behaupten.
+> Jeden Montag um 8:00 Uhr: meine Aufgaben auflisten, deren Zieldatum vor heute liegt und deren Status nicht Erledigt oder Archiviert ist. Nach verknüpfter Organisation gruppieren und für jede Aufgabe den nächsten Schritt vorschlagen. Nichts ändern und nichts versenden.
 
-**Tabellenansicht mit Filtern.** Die globale Aufgabenansicht unterstützt Suche, Filter, Sortierung, Seitennavigation und eigene Spalten. Jeder Nutzer kann seine eigene Ansicht speichern; gespeicherte Ansichten werden nicht zwischen Nutzern geteilt.
+Eine Routine läuft im Namen ihres Eigentümers, mit dessen Rechten und Credits, und das Ergebnis lesen Sie in den Details des Laufs. Eine Benachrichtigung zum Abschluss eines Laufs verschickt Customermates nicht. Wer das Ergebnis nicht öffnet, erfährt also nichts davon. Eine zweite nützliche Routine reagiert, wenn ein Deal aktualisiert wird, und legt bei der Phase Gewonnen die Onboarding-Aufgaben an und verknüpft sie mit dem Deal.
 
-**Beziehungen halten den Kontext.** Eine Aufgabe kann auf Kontakte, Organisationen, Deals und Leistungen verweisen; diese Datensätze zeigen wiederum ihre verknüpften Aufgaben. Teammitglieder wechseln zwischen Arbeit und Kundenkontext, ohne Datensätze zu duplizieren.
+**Mit Ihrem eigenen KI-Client** wie Claude, ChatGPT oder einem anderen, per [MCP](/docs/mcp) verbunden, stehen `create_tasks` und `update_tasks` für dieselben Datensätze bereit. Das funktioniert auch bei Self-Hosting; Sie zahlen dann Ihren KI-Anbieter statt gehosteter Credits.
 
-**Responsive Webnutzung.** Nutzen Sie die Aufgabenansicht in einem unterstützten mobilen Browser. Customermates bietet keine native Mobile-App, keinen Offline-Datensatzmodus und keine mobilen Push-Benachrichtigungen.
+**Per Code** stellt die REST-API Aufgaben bereit, und [Webhooks](/docs/webhooks) werden bei `task.created`, `task.updated` und `task.deleted` ausgelöst. Ein selbst betriebenes Automatisierungswerkzeug wie n8n kann ein Zieldatum über die API lesen und eine Nachricht an einen Dienst Ihrer Wahl schicken. n8n ist nicht enthalten; die Möglichkeiten beschreibt die Seite zur [Workflow-Automatisierung](/features/workflow-automation).
 
-**Automatisierte Aufgabenerstellung mit Ihrem eigenen n8n.** n8n ist eine separate Community-Integration und kein eingebetteter Customermates-Dienst. Ein von Ihnen betriebener Workflow kann auf CRM-Ereignisse reagieren und Aufgaben über den Community Node oder die REST API erstellen und aktualisieren.
+## Ist Customermates ein Projektmanagement-Tool?
 
-## Anwendungsfälle für Vertriebsteams
+Nein. Aufgaben geben der Übergabe vom Vertrieb an die Umsetzung ihren Kontext: die Onboarding-Schritte für einen gewonnenen Deal, die Unterlagen, die ein Kunde noch schuldet, die interne Prüfung vor dem Versand eines Angebots. Einen Projektplan ersetzen sie nicht. Es gibt keine Projektdatensätze, keine Abhängigkeiten zwischen Aufgaben, keine Unteraufgaben, keine Zeitleisten, keine Auslastungsübersicht und keine Zeiterfassung.
 
-**Aufgaben für den Deal-Fortschritt.** Verknüpfen Sie Arbeitsschritte mit dem betreffenden Deal und weisen Sie Verantwortliche zu. Sollen Aufgaben bei einem Phasenwechsel entstehen, konfigurieren Sie diese Logik in einer von Ihnen betriebenen Automatisierung.
+Diese Seite wird von Customermates veröffentlicht. Die Tabelle gibt Funktionen anderer Anbieter so wieder, wie sie am 8. Oktober 2026 auf deren eigenen Seiten standen.
 
-**Follow-up-Arbeit nach Meetings.** Erstellen Sie eine verknüpfte Aufgabe für den nächsten Schritt und ergänzen Sie bei Bedarf ein eigenes Datumsfeld. Customermates verschickt dazu keine Nachrichten; eine nach diesem Datum sortierte Ansicht, eine Cloud-Routine oder ein externer Workflow übernimmt das Nachfassen.
+| Wenn Sie brauchen | Besser geeignet | Warum |
+|---|---|---|
+| Datierte To-dos mit Erinnerung im CRM | HubSpot oder Pipedrive | HubSpots To-dos haben ein Fälligkeitsdatum und Uhrzeit, E-Mail-Erinnerungen an die zuständige Person, Priorität und eine Wiederholungsoption. Pipedrive-Aktivitäten haben Datum, Uhrzeit und Dauer und werden als erledigt markiert; Benachrichtigungen und E-Mail-Erinnerungen nennt Pipedrive als Teil seines CRM. |
+| Projektpläne mit Abhängigkeiten und Zeitleisten | Asana oder Projects by Pipedrive | Asana bietet Abhängigkeiten sowie Zeitleisten- und Gantt-Ansichten ab dem Tarif Starter. Projects by Pipedrive hat eigene Projektphasen; es ist ab dem Tarif Premium enthalten und in kleineren Tarifen als kostenpflichtige Erweiterung erhältlich. |
+| Kundenaufgaben neben E-Mail-, LinkedIn- und WhatsApp-Verläufen, mit KI, die damit arbeitet | Customermates | Aufgaben hängen an denselben Datensätzen wie die [zentralen Posteingang](/features/unified-inbox) (ab Pro), und Mate oder ein MCP-Client arbeiten über beides hinweg. |
 
-**Onboarding neuer Kunden.** Halten Sie Onboarding-Aufgaben mit gewonnenem Deal und Kundendatensätzen verbunden. Teams, die eine automatisch erzeugte Checkliste benötigen, können sie in einem eigenen n8n-Workflow bauen.
+Wenn Sie Projekte umsetzen, führen Sie die Kundenbeziehung in Customermates und die Projektarbeit in einem Projekttool. Ein Webhook bei Änderungen an Deals oder Aufgaben kann die Übergabe weiterreichen.
 
-**Überblick über Teamarbeit.** Filtern Sie Aufgaben nach zugewiesener Person und weisen Sie Arbeit neu zu, wenn sich Verantwortlichkeiten ändern. Eigene Spalten erfassen die Kategorien, nach denen Ihr Team gruppieren oder berichten möchte.
+## Was es kostet
 
-**Abteilungsübergreifende Übergaben.** Weisen Sie Aufgaben dem übernehmenden Team zu und verknüpfen Sie Deal, Kontakte und Organisation. Die Beziehungen bewahren den Kontext; automatische Erzeugung erfordert einen externen Workflow.
+Aufgaben sind in jedem Tarif enthalten. Ein Team aus fünf Personen zahlt mit Starter [[commercial.price.starter.monthly.seats.5]] im Monat, inklusive Aufgaben, eigener Spalten, Boards und gespeicherter Ansichten. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Person und keinen Posteingang. Pro kostet für fünf Personen [[commercial.price.pro.monthly.seats.5]] im Monat und bringt den zentralen Posteingang sowie [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Person mit. Mate nutzt monatliche gehostete KI-Credits pro aktiver Person; die Mengen stehen auf der [Preisseite](/pricing). Abgerechnet wird monatlich. Self-Hosting des Open-Source-Kerns kostet keine Lizenzgebühr, den Server betreiben Sie selbst.
 
-## Zentrale Vorteile
+## Häufige Fragen
 
-**Kontextreiche Aufgabenverfolgung.** Jede Aufgabe ist mit den Kontakten und Deals verbunden, auf die sie sich bezieht. Teammitglieder müssen nie nach Kontext suchen, denn er ist direkt an der Aufgabe und auf den zugehörigen Datensätzen sichtbar.
+<Faq>
+<FaqItem question="Hat Customermates Fälligkeitsdaten und Erinnerungen für Aufgaben?">
+Nein. Aufgaben haben kein Fälligkeitsfeld, keine Erinnerungen und keine Benachrichtigungen. Legen Sie eine eigene Datumsspalte an, sortieren Sie eine gespeicherte Ansicht danach und lassen Sie in Customermates Cloud eine Routine auflisten, was überfällig ist. Erinnerungs-E-Mails verschickt Customermates nicht; dafür brauchen Sie ein CRM mit geplanten Aktivitäten oder ein eigenes Automatisierungswerkzeug, das die API liest.
+</FaqItem>
+<FaqItem question="Kann ich den Aufgabenstatus auf einem Kanban-Board verfolgen?">
+Ja, über eine Einzelauswahl-Spalte. Neue Workspaces starten mit einer Spalte **Status** bei Aufgaben. Gruppieren Sie das Board danach und ziehen Sie Karten zwischen den Spalten; die Optionen können Sie umbenennen oder nach einer anderen Spalte gruppieren, etwa Priorität.
+</FaqItem>
+<FaqItem question="Eignet sich ein CRM für Projektmanagement?">
+Für eine Übergabe-Checkliste an einem gewonnenen Deal, ja. Für Projektpläne mit Abhängigkeiten, Zeitleisten oder Zeiterfassung nutzen Sie ein Projekttool neben dem CRM. Customermates hat keinen Datensatztyp für Projekte.
+</FaqItem>
+<FaqItem question="Gibt es eine API für Aufgaben?">
+Ja. Aufgaben sind über die REST-API, die MCP-Tools `create_tasks` und `update_tasks` und drei Webhook-Ereignisse für Aufgaben erreichbar. Details stehen auf der [API-Seite](/features/api).
+</FaqItem>
+<FaqItem question="Lassen sich Aufgaben automatisch anlegen?">
+Nicht über eine eingebaute Regel. In Customermates Cloud kann eine Routine Aufgaben anlegen, wenn sich ein Datensatz ändert, und verbraucht dabei gehostete KI-Credits. Sonst kann ein von Ihnen betriebener Workflow auf einen Webhook reagieren und Aufgaben über API oder MCP anlegen.
+</FaqItem>
+<FaqItem question="Sehe ich alle Aufgaben zu einem Kunden?">
+Ja. Öffnen Sie Kontakt, Organisation oder Deal, dort stehen die verknüpften Aufgaben. Unter **Aufgaben** können Sie außerdem nach der verknüpften Organisation filtern oder die Tabelle danach gruppieren.
+</FaqItem>
+</Faq>
 
-**Verantwortlichkeit und Transparenz.** Berechtigungen bestimmen, wer Aufgaben lesen oder verwalten darf; Zuweisungen und Filter machen Verantwortlichkeit sichtbar. Eigene Felder bilden zusätzliche Dimensionen des Unternehmens ab.
-
-**Aufgaben aus externen Workflows.** Von Kunden betriebene n8n-Workflows können Aufgaben mit Verantwortlichen, Beziehungen, Notizen und eigenen Feldwerten anlegen, wenn CRM-Ereignisse eintreten.
-
-**Flexible Ansichten für verschiedene Arbeitsstile.** Tabelle und Kanban, Gruppierung und persönliche gespeicherte Ansichten lassen jeden Nutzer Aufgaben auf eigene Weise organisieren. Eine Aufgaben-Kalenderansicht gibt es nicht.
-
-**Weniger Tool-Wildwuchs.** Die Verwaltung von Aufgaben innerhalb Ihres CRM beseitigt die Notwendigkeit separater Aufgaben-Apps. Weniger Tools bedeutet weniger Kontextwechsel, weniger doppelte Dateneingabe und einfacheres Onboarding für neue Mitarbeiter.
-
-**Integrationsfähige Datensätze.** REST, Webhooks, MCP und der externe n8n Community Node liefern Bausteine für Abläufe, die das Kernmodell nicht selbst terminiert.
-
-## Warum Customermates für Aufgabenverwaltung?
-
-**Integriert, nicht angebaut.** Die Aufgabenverwaltung in Customermates ist tief mit Kontakten, Deals und Pipelines verbunden. Aufgaben sind vollwertige Objekte, sichtbar überall dort, wo sie relevant sind, nicht ein Seitenleisten-Feature mit losen Verknüpfungen.
-
-**Kernaufgaben ab der Einstiegsstufe.** Aufgabendatensätze, Beziehungen, Zuweisungen, eigene Spalten, Filter und Datenansichten gehören zum Kern-CRM auf Starter. Wiederkehrende Aufgaben und automatische Benachrichtigungen sind nicht eingebaut; externe Workflows oder Cloud-Routinen decken sie ab.
-
-**Open-Source-Flexibilität.** Customermates ist Open Source. Sie können das Aufgabenverwaltungssystem an Ihre genauen Bedürfnisse anpassen. Fügen Sie benutzerdefinierte Felder hinzu, modifizieren Sie Workflows, erweitern Sie die API oder bauen Sie Integrationen mit externen Tools.
-
-**Klare Wahl des Betriebsmodells.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Self-Hosting-Teams bestimmen den Speicherort selbst und betreiben ihre eigene Infrastruktur.
-
-**n8n-Integration ohne gebündeltes n8n.** REST- und Webhook-Zugang können Workflows in einer von Ihnen betriebenen n8n-Instanz anstoßen. Customermates enthält weder eine n8n-Laufzeit noch ein n8n-Abonnement.
-
-**Self-Hosting für Infrastrukturkontrolle.** Betreiben Sie das Kern-CRM auf eigener Infrastruktur. Externe Automatisierungsdienste einschließlich n8n werden separat bereitgestellt und verwaltet.
-
-## Starten Sie heute mit der Aufgabenverwaltung
-
-Erstellen Sie Aufgabendatensätze, weisen Sie Teammitglieder zu und verknüpfen Sie die relevanten Kontakte, Organisationen, Deals oder Leistungen. Ergänzen Sie eigene Felder für die Dimensionen Ihres Workflows und binden Sie nur dann externe Automatisierung oder eine Cloud-Routine an, wenn Ihr Prozess zeitgesteuertes Nachfassen benötigt.
+Angaben zu anderen Anbietern geprüft am 8. Oktober 2026 anhand der [HubSpot-Dokumentation zu Aufgaben](https://knowledge.hubspot.com/tasks/create-tasks), des [Pipedrive-Artikels zu Aktivitäten](https://support.pipedrive.com/en/article/activities), der [Pipedrive-Seite zur Aufgabenverwaltung](https://www.pipedrive.com/de/products/project-management-software/crm-task-management), des [Pipedrive-Artikels zu Projects](https://support.pipedrive.com/en/article/projects-by-pipedrive) und der [Asana-Preisseite](https://asana.com/pricing).

@@ -1,17 +1,17 @@
 ---
-title: "Legal CRM for Law Firms: Intake, Conflicts, Matters"
-description: "Legal CRM for law firms: track client intake and matters, search records for conflict checks, and log referral sources. Open source, self-hostable."
+title: "CRM for Law Firms: Intake, Referrals, Conflict Search"
+description: "A CRM for law firms and solo lawyers: intake pipeline, referral sources, conflict search and client history, next to your practice management software."
 industryName: "Law Firms"
 
 relatedHrefs:
-  - /for/lawyers
-  - /for/accountants
-  - /for/insurance-agents
   - /for/professional-services
+  - /for/accountants
+  - /features/unified-inbox
+  - /for/architects
 
 hero:
-  title: "The Law Firm CRM With AI Data Entry and a Unified Client Inbox"
-  description: "From client intake to matter resolution, keep every relationship, referral, and matter in one CRM, let AI clients handle the data entry, and bring client email and WhatsApp into one inbox on Pro. Open source and self-hostable."
+  title: "The CRM for Law Firms and Lawyers Who Grow Through Referrals"
+  description: "Track every inquiry from first call to signed engagement, see which referral sources send you work, and search past clients and adverse parties before you accept a matter. From Pro, client email, LinkedIn and WhatsApp sit in one inbox next to the client record. Deadlines, documents and billing stay in your practice management software."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: "Start managing your firm's relationships today"
-  description: "Replace partner address books and spreadsheets with an open-source CRM for lawyers: intake stages, matters, referral sources and client history, from [[commercial.price.starter.monthly]]/user/month."
+  action: "Put intake, referrals and client history in one place"
+  description: "Import your client list from Excel, set your intake stages and save the views you check every morning. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,211 +28,201 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## Why law firms need a CRM
+A CRM for a law firm covers the work before and around a matter: answering inquiries fast, knowing who referred whom, and finding a name from an old matter before you accept a new one. Customermates does that part. It is an open-source, AI-native CRM built in Germany, and it is not practice management software, so docketing, documents, time, billing and trust accounting stay in a tool such as MyCase or, in Germany, Actaport or RA-MICRO. If you want one system for everything, buy practice management with a lead module. If you want a relationship CRM next to it, read on.
 
-Law firms are relationship businesses. Clients arrive through referrals, return for repeat matters, and stay because of trust. Yet many firms still manage these relationships through partner address books, scattered email threads, and institutional memory that vanishes when someone leaves.
+This page also answers the questions solo lawyers ask. The setup below works the same for one attorney as for twenty.
 
-A CRM for law firms centralizes client contacts, referral sources, and business development opportunities in a single system. Instead of relying on memory, your firm gets a structured, shared record of who you work with and where each prospective matter stands.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Fits">
+    Solo lawyers and small firms whose work comes from referrals, former
+    clients and direct inquiries, and who already have practice management.
+  </SummaryItem>
+  <SummaryItem label="Setup">
+    Each inquiry is a deal on an intake board. Clients, adverse parties and
+    referral sources are contacts and organizations with a Relationship field.
+  </SummaryItem>
+  <SummaryItem label="AI">
+    In Customermates Cloud, Mate drafts intake replies and lists stalled
+    inquiries, using hosted AI credits. Or connect your own AI client through MCP.
+  </SummaryItem>
+  <SummaryItem label="Not included">
+    Deadlines and docketing, documents, time tracking, billing, trust
+    accounting, intake forms, e-signature and a client portal.
+  </SummaryItem>
+</ArticleSummary>
 
-Here are the challenges legal CRM software addresses:
+## CRM or practice management: which one do you need?
 
-- **Lost leads and slow intake**: Prospective clients contact your firm but never hear back quickly enough. They move on to the next attorney.
-- **No referral visibility**: Who referred this client? How many matters has that source sent this year? Without data, you cannot nurture your best referral relationships.
-- **Forgotten relationships**: A client engaged you for a contract matter two years ago. Without a system, nobody thinks of them when their next legal need arises.
-- **Conflict check gaps**: Before accepting new matters, you need to search existing and past relationships quickly, not dig through filing cabinets and email inboxes.
-- **Siloed practice areas**: Your litigation client may also need corporate counsel, employment advice, or estate planning. Without cross-practice visibility, those opportunities go to a competitor.
+Many "legal CRM" lists mix two kinds of product. Practice management runs the matter after engagement. A CRM runs the relationship before, around and after it. Customermates publishes this page; vendor details were checked on 8 October 2026 on each vendor's own website.
 
-Customermates covers the relationship and business development side. It is not practice management software: it does not keep time, bill clients, manage trust accounts, docket court deadlines, or store case documents. Run it next to your practice management and billing tools.
+| If you need | Look at | What the vendor's site lists |
+|---|---|---|
+| Cases, documents, calendar and billing in one product | [MyCase](https://www.mycase.com/) | Case management, billing and payments with time tracking, a client portal, web-based client intake forms and document generation |
+| Legal intake with marketing automation and e-signature | [Lawmatics](https://www.lawmatics.com/) | Client intake, legal CRM, marketing automation, e-signature for engagement agreements, time and billing; integrates with Clio, MyCase and Filevine |
+| German practice management with files, deadlines and beA | [Actaport](https://www.actaport.de/) | Cloud practice management for files across the mandate, deadlines, documents, RVG billing workflows and one mailbox for email, beA and a client portal |
+| German practice management including accounting | [RA-MICRO](https://www.ra-micro.de/) | Law office software covering addresses, fees, financial accounting and enforcement, with e-file and beA |
+| A general sales CRM with legal intake templates | [Pipedrive](https://www.pipedrive.com/de/industries/crm-for-law-firms) | Auto-filled documents, client intake templates and trackable e-signatures, plus third-party apps |
+| A relationship CRM next to your practice management, with a unified inbox and AI drafts | Customermates | Our own product, described on the rest of this page |
 
-## How a CRM for lawyers works in practice
+A workable split is two systems: practice management for the matter, Customermates for intake, referrals and the long relationship with each client. Store the matter number from your practice management system on the deal, so you can find the same matter in either system. Nothing syncs on its own; a link between the two needs an automation of your own (see below).
 
-A law firm CRM should follow the way legal practices operate, from the first call through matter resolution and beyond. Here is how Customermates adapts to the legal workflow.
+## What a law firm needs from a CRM
 
-### Client intake and lead management
+- **Speed on new inquiries.** A prospective client who waits a day may call the next firm. You need a list of inquiries nobody has answered, oldest first.
+- **A conflict search before engagement.** Former clients, adverse parties and their companies must be findable by name, in one system rather than in partners' address books.
+- **Referral sources you can count.** If other lawyers, accountants and former clients send you work, you need to know who sent what, and whom you have not thanked.
+- **One client, many matters.** A company you advised on a lease returns for an employment dispute three years later. The history should be on one record.
+- **Confidential correspondence.** Not every colleague should read every client thread, and the CRM must respect that.
 
-The client intake process is where many law firms lose potential business. Leads come in through your website, phone calls, referrals, and networking events. Without a CRM for lawyers, these leads sit in an email inbox or on a sticky note.
+## A law firm setup in Customermates
 
-In Customermates, each inquiry becomes a deal in your [pipeline](/features/pipeline). You create it by hand, ask an AI client or the Mate assistant to create it from an email, or send it in through the REST API from your website form tool. The deal stage is one configurable single-select column, so intake can follow stages like:
+Customermates has five record types. Here is one mapping for a firm; every field name is an example.
 
-- New inquiry received
-- Initial consultation scheduled
-- Conflict check completed
-- Engagement letter sent
-- Retainer received
-- Matter opened
+| Record type | Used for | Example custom fields |
+|---|---|---|
+| Contacts | Clients, adverse parties, opposing counsel, referrers, experts | Relationship (single select: Client, Former client, Adverse party, Opposing counsel, Referral source, Expert), Last thanked (date) |
+| Organizations | Client companies, adverse companies, referring firms | Relationship (same options), Related entities (text) |
+| Deals | Each inquiry, and the matter once engaged | Stage, Practice area (single select), Source (single select: Referral lawyer, Referral accountant, Former client, Website, Event), Referred by (text), Conflict search done on (date), Matter number (text), Fee model (single select) |
+| Services | Your fee items, each with a price | Initial consultation, Flat fee contract review, Block of hours |
+| Tasks | Next steps, assigned to a person | A "Due on" date field you add, because tasks have no built-in due date |
 
-Each lead moves through these stages visually on a kanban board, and you can see at a glance how many prospects are at each stage.
+Under **My Company › Settings** you can rename Contacts to Clients and Deals to Projects or Jobs. "Matters" is not one of the preset names, so most firms keep Deals and read it as "inquiry or matter". Link every party to the deal: the client, the adverse party and the referrer each become a linked contact or organization. Deals have assigned users, so the responsible lawyer and the associate can both be on the matter.
 
-### Matter tracking
+### Intake stages
 
-Once a client is retained, the deal in Customermates can represent the matter from the relationship point of view. Link multiple matters to the same client over time to build a complete relationship history.
+The deal stage is a single-select field you define, and each option can carry a probability for the weighted pipeline. A starting point:
 
-Use typed [custom fields](/features/contact-management) to capture legal-specific data:
+1. New inquiry (10%)
+2. Consultation scheduled (20%)
+3. Conflict search done (30%)
+4. Engagement letter sent (60%)
+5. Engaged (100%)
+6. Declined or not engaged (0%)
 
-- Practice area (litigation, corporate, family, real estate, IP, etc.)
-- Matter type and sub-type
-- Responsible attorney and billing partner
-- Court or jurisdiction
-- Opposing counsel and parties
-- Key dates as custom date fields
+Weighted values are your fee items times your own probabilities, not a forecast. On the [pipeline board](/features/pipeline) each inquiry is a card you drag to the next stage. After "Engaged", the matter work moves to practice management, and the deal stays as the record of where the client came from.
 
-Custom date fields are for reference and sorting; Customermates has no reminders, due dates, or deadline tracking, so court and limitation deadlines belong in your docketing or practice management system.
+### How the conflict search works, and where it stops
 
-### Conflict checks
+Global search (Cmd or Ctrl+K) finds contacts by first name, last name, email address or other channel identifier and the names of their linked organizations, and organizations by their name and their contacts' names. Deals are matched on their name only, and notes are not searched. So a conflict search in Customermates is only as good as this habit: every adverse party and every related company becomes its own contact or organization, linked to the matter, with Relationship set. A name typed only into a deal's notes will not show up. On the list pages you can also filter a text field such as Related entities with "contains".
 
-Before accepting a new matter, law firms must screen for conflicts of interest. In Customermates you can search and filter contacts, organizations, and deals to find earlier relationships with opposing parties or related entities.
+A link between a deal and a contact does not say in which role the contact took part. If a person was an adverse party in one matter and a client in another, write that in the contact's notes and check the linked deals. Customermates is a search, not a conflict-check system: it does not flag conflicts, and the assessment stays with the lawyer and your firm's procedure.
 
-A conflict search is only as good as the data behind it. Customermates helps by keeping relationships in one shared system instead of individual partner records, but it is not a dedicated conflict-check product and does not replace your firm's formal conflict procedure.
+### Five saved views
 
-### Referral network management
+1. **Unanswered inquiries:** deals in New inquiry, sorted by created date, oldest first.
+2. **Engagement letters out:** deals in Engagement letter sent, sorted by last update.
+3. **Referral sources to thank:** contacts with Relationship Referral source, sorted by Last thanked.
+4. **Where work comes from:** deals grouped by Source, with a dashboard widget that counts engaged deals per Source.
+5. **Quiet former clients:** organizations with Relationship Former client, sorted by last update, oldest first.
 
-Referrals are the lifeblood of most law firms. Record the referral source on every matter, then group or filter deals by that source to see which relationships send work.
+Saved views are personal, so each colleague sets the same filters and saves their own view. More on lists and filters is in the [records guide](/docs/app-records).
 
-Use a single-select field to mark contacts as referral sources, and custom fields to record:
+### Client conversations in one inbox (Pro and above)
 
-- Referral source on each matter (a link to the contact or organization)
-- Referral date and matter type
-- Estimated matter value
-- Reciprocal referrals sent
+In Customermates Cloud on Pro and higher, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with LinkedIn, WhatsApp, Instagram and Telegram, and you reply on the original channel. Link a participant to a contact once, and their conversations appear on that contact's timeline. SMS and phone calls are not channels.
 
-This turns your referral network from an informal arrangement into a visible business development channel.
+Two details matter for a firm. Conversations from a lawyer's own accounts are private: colleagues, admins included, see a thread only after the owner shares it. And Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, so a shared intake mailbox that the whole team works from needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user and can share a whole account.
 
-### Client communication in one unified inbox
+### Intake follow-up with Mate (Customermates Cloud)
 
-On Pro and above, the [unified inbox](/features/email-integration) brings email (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram, and Telegram conversations into Customermates. You link each conversation to the client, so when a client calls about a prior engagement, another attorney in your firm can pull up the history. SMS and phone calls are not channels, and the inbox is not available self-hosted.
+Mate is the assistant in Customermates Cloud and uses hosted AI credits. Ask it in the chat, for example: "Create a deal for the inquiry from this email, link the sender as a contact and set the stage to New inquiry." For the daily check, set up a [routine](/docs/app-routines) on a schedule, for example every day at 8:00, with instructions like these (a weekdays-only schedule can be set by asking Mate, not in the dialog):
 
-This matters in firms where multiple attorneys work on different matters for the same client. No one should have to say, "Let me check with the partner who handled that."
+```text
+Find deals in the stages New inquiry and Consultation scheduled that have
+not been updated for 2 days. For each one, read the latest inbox
+conversation with its linked contacts. If the client wrote last and has
+no answer, save a short, polite reply as a draft in that conversation
+that offers two consultation slots. Do not send anything. End with a
+list: deal, stage, days since the last update, draft saved yes or no.
+```
 
-### Working alongside billing software
+<AcquisitionCallout title="Drafts only, and decide what AI may read" variant="boundary">
+  Mate and routines can send email and chat messages without asking first,
+  so tell every routine to save drafts only and send them yourself. Mate
+  also sends the records and messages it reads to the AI providers named on
+  the subprocessors page. If privileged content must not reach them, do not
+  use Mate on those records. An AI client you connect through MCP sends
+  what it reads to its own provider, so use one only if your firm has
+  approved that provider.
+</AcquisitionCallout>
 
-Customermates is not billing software and does not create invoices, track time, or manage trust accounts. It can exchange data with your billing workflow through the [REST API, webhooks, and a separately operated n8n workflow](/features/workflow-automation), for example:
+Prefer your own AI client? Claude, ChatGPT and others connect through [MCP](/docs/mcp) with [[derived.mcp.tools.total]] tools, on every plan and on self-hosted installations, with model use billed by your AI provider. An MCP client decides for itself whether it asks before writing.
 
-- Sending a webhook to your own automation when a matter reaches the "Retainer received" stage
-- Creating a client record in your accounting or practice management tool from a won deal
-- Writing a billing reference back to the matter as a custom field
+## What Customermates does not do for law firms
 
-Customermates has no native QuickBooks, Xero, or legal billing connector; these connections are customer-built.
+- No deadline calendar, docketing or statute-of-limitations tracking. A date field on a deal is information, not a deadline control, and tasks have no due dates or reminders.
+- No document management and no file storage on records. Keep the file in your document system and its link on the deal; files in messages stay in the inbox thread.
+- No time tracking, billing, invoices or trust accounting. A webhook fires when a deal changes, so an n8n workflow you run separately can pass an engaged client to your billing tool if that tool has an API.
+- No web intake forms, no e-signature and no client portal. A form tool can create deals through the REST API.
+- No beA connection, no SMS or phone integration, no calendar booking and no mobile app.
+- No certification such as ISO 27001 or SOC 2.
 
-## Key features of Customermates for law firms
+## Client data and professional secrecy
 
-### Visual pipeline management
+- In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region. That is a product setting, not a contractual data-residency guarantee. Hosting and the other subprocessors, US providers among them, are on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available.
+- Your confidentiality rules decide whether a cloud CRM may hold client information. In Germany, [§ 43e BRAO](https://dejure.org/gesetze/BRAO/43e.html) requires a contract in text form that binds the provider to confidentiality, and client consent where the service serves a single mandate. The Customermates DPA has a general confidentiality clause; whether it meets those requirements is for your firm to check before client data goes in.
+- A custom role with Assigned read access limits an associate or a contract lawyer to the records assigned to them. The audit log records who changed which record, on every plan.
+- To decide yourself where client data lives, [self-host](/features/self-hosted) the open-source core. A self-hosted installation has no inbox, no Mate and no routines; MCP, REST and webhooks remain.
 
-Your [business development pipeline](/features/pipeline) and matters live on a kanban board. See every prospect, active matter, and referral opportunity at a glance, drag cards to update the stage, and filter by practice area, responsible attorney, or matter type. Each stage can carry a probability, which gives weighted matter values and a weighted pipeline total.
+## What it costs
 
-### Contact and company management
+Prices are per active user per month, billed monthly. Every plan includes REST, webhooks and MCP. Assistants and paralegals who log in count as users.
 
-[Contact management](/features/contact-management) for legal relationships: store clients, opposing parties, co-counsel, referral sources, and expert witnesses, with custom fields tailored to your practice.
+| Firm | Plan | Per month |
+|---|---|---|
+| Solo lawyer, intake board only, no inbox | Starter | [[commercial.price.starter.monthly]] |
+| Solo lawyer, one mailbox in the inbox | Pro | [[commercial.price.pro.monthly]] |
+| Three lawyers and two assistants, one mailbox each | Pro | [[commercial.price.pro.monthly.seats.5]] |
+| Same five people with a shared intake mailbox | Business | [[commercial.price.business.monthly.seats.5]] |
+| Ten-person firm, pipeline and referrals only | Starter | [[commercial.price.starter.monthly.seats.10]] |
 
-### Automation through open interfaces
+Each cloud plan adds monthly hosted AI credits per active user for Mate; see [pricing](/pricing). Self-hosting the open-source core costs no licence fee.
 
-Customermates has no built-in workflow builder. Automation runs through open interfaces you control, described under [workflow automation](/features/workflow-automation):
+## Moving in from a spreadsheet
 
-- **Webhooks** notify your own systems when records change, for example when a matter stage changes.
-- **REST API** lets other tools create and update contacts, organizations, and deals.
-- **n8n** connects through a separate community node, REST, or webhooks; you operate n8n yourself, and it can send a referral thank-you through your own email service.
-- **Routines** on Customermates Cloud let the Mate assistant run a saved prompt on a schedule or on a CRM event, for example listing intake inquiries that have not moved for a week and drafting follow-ups for you to review. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
-
-### AI agents that operate your firm's CRM
-
-External AI clients such as Claude or ChatGPT connect through [MCP](/docs/mcp) with [[derived.mcp.tools.total]] tools, so an AI agent can read and write your CRM directly and do the data entry attorneys avoid: opening matters, updating intake stages, and logging referral notes. You choose and pay for the AI client. Ask an agent to:
-
-- Draft follow-up emails and client communications
-- Summarize a client's interaction history before a meeting
-- List which referral sources sent matters this year
-
-On Customermates Cloud, the built-in Mate assistant does the same inside the app, drafts replies in the unified inbox on Pro, and asks for your confirmation before it sends a message or deletes anything. An external MCP client decides for itself whether it asks before writing; the MCP server does not enforce a confirmation.
-
-### Dashboards and reporting
-
-Use [dashboards](/features/reporting) to see:
-
-- Matters and prospects by stage
-- Weighted pipeline value by practice area
-- Matters grouped by referral source
-- Open matters per responsible attorney
-
-These are views of your own records, not predictive analytics or conversion reports.
-
-### Data protection and self-hosting
-
-Client confidentiality is non-negotiable in legal practice, so it matters where CRM data lives:
-
-- **Managed cloud:** the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
-- **[Self-hostable](/features/self-hosted):** run the open-source core on your own infrastructure and decide where client data lives.
-- **Open source:** the code is public, so you can inspect how data is handled.
-- **No certification:** Customermates holds no ISO 27001, SOC 2, or legal-sector certification.
-
-For firms handling sensitive matters, such as mergers, criminal defense, or family law, self-hosting keeps the CRM data on infrastructure your firm controls. The self-hosted version has the Starter feature set, without the unified inbox or Mate.
-
-## Customermates vs. legal-specific CRM software
-
-Many law firms weigh legal-specific CRM tools (Clio Grow, Lawmatics, Law Ruler) against general-purpose CRMs. Here is how Customermates compares:
-
-| Feature | Customermates | Legal-specific CRMs | Generic CRMs |
-|---|---|---|---|
-| Price | From [[commercial.price.starter.monthly]]/user/month | Varies by vendor | Varies by vendor |
-| Open source | Yes | Varies by vendor | Varies by vendor |
-| Self-hosting | Yes | Varies by vendor | Varies by vendor |
-| Data location | Cloud database in Frankfurt; self-hostable | Varies by vendor | Varies by vendor |
-| Legal intake forms and e-signature | No | Usually | Rarely |
-| Custom fields | Typed custom columns | Limited by plan | Limited by plan |
-| Automation | Webhooks, REST, MCP, cloud routines; n8n connected separately | Built-in workflows | Built-in, varies |
-| AI agents operate the CRM (MCP) | Yes ([[derived.mcp.tools.total]] tools) | Varies | Varies |
-| Unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) | Pro and above | Varies by vendor | Varies by vendor |
-| Getting data out | REST API, XLSX export per record type, self-hosting | Varies | Varies |
-
-Customermates gives you a flexible relationship CRM without an enterprise price tag. Legal-specific tools bring intake forms, e-signature, and practice management links that Customermates does not have.
-
-## Pricing that works for law firms
-
-Customermates keeps pricing simple, billed monthly per user:
-
-- **Starter ([[commercial.price.starter.monthly]] per user per month):** contacts, organizations, matters, tasks, custom fields, views, dashboards, REST, webhooks, and MCP for AI clients ([[derived.mcp.tools.total]] tools)
-- **Pro ([[commercial.price.pro.monthly]] per user per month):** adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, plus a read-only calendar view (you cannot create events)
-- **Self-hosted:** keep client data on your own servers; the open-source core has no licence cost, and you run the infrastructure, backups, and updates
-- **Open source:** inspect the code, modify it, extend it
-
-For a 10-person firm, that is [[commercial.price.starter.monthly.seats.10]]/month on Starter. For a solo practitioner, it is [[commercial.price.starter.monthly]]/month. No per-matter fees. See [pricing](/pricing) for every plan.
-
-## Getting started with CRM for your law firm
-
-1. **Create your account** at [customermates.com/auth/signup](/auth/signup); no credit card required. Your first [[commercial.trial.days]] days are free.
-2. **Bring in your records:** import contacts, organizations, and matters from an Excel workbook (XLSX), one record type at a time, use the REST API, or let an AI client connected over MCP create them. There is no CSV import.
-3. **Configure your stages:** set up the deal stages for intake and matters. To separate intake, active matters, and business development, add a single-select field such as "Track" and save a view for each.
-4. **Add custom fields:** practice area, matter type, referral source, billing partner, conflict status, and any other data your firm tracks.
-5. **Connect your automations:** set up webhooks or an n8n workflow you operate, or a routine on Customermates Cloud.
-6. **Invite your team:** add attorneys, paralegals, and staff, and use roles to control who can create, view, edit, or delete each record type; read access can be limited to records a user is assigned to.
-
-Your data remains accessible: export records as XLSX one record type at a time, read them through the REST API, or self-host the open-source core.
+<Steps>
+  <Step title="Save your lists as Excel">
+    The import reads Excel workbooks (.xlsx), one record type at a time.
+    CSV files are not accepted, so save them as .xlsx first.
+  </Step>
+  <Step title="Import organizations, then contacts">
+    Map your columns, custom fields included. A column with each person's
+    company name links them to the organization of that name.
+  </Step>
+  <Step title="Import open inquiries as deals">
+    Include stage, Source and Matter number. Engaged matters from past years
+    can follow later, so the conflict search covers them too.
+  </Step>
+  <Step title="Connect the inbox and save the views">
+    On Pro or higher, connect your mailbox under My Profile › Channels, then
+    save the five views above and the daily routine.
+  </Step>
+</Steps>
 
 ## Frequently asked questions
 
 <Faq>
 <FaqItem question="What is a CRM for law firms?">
-A CRM (Customer Relationship Management) for law firms is software that helps legal practices manage client relationships, track referral sources, handle client intake, and develop business systematically. A law firm CRM is set up around legal workflows such as intake stages, conflict searches, matter tracking, and practice area segmentation.
+Software for the client relationship around the matter: inquiries and intake stages, referral sources, former clients and the people and companies on the other side. Practice management covers the matter itself: files, deadlines, time and billing. Many firms use both.
 </FaqItem>
 
-<FaqItem question="Do small law firms need a CRM?">
-Often, yes. Small law firms and solo practitioners lack the administrative staff that larger firms rely on. A CRM for lawyers shows which inquiries still need an answer, which referral sources send work, and what each client has engaged you for, which becomes hard to track by memory once your practice grows beyond a handful of active matters.
+<FaqItem question="What are the top CRM tools for lawyers?">
+It depends on which job you mean. For practice management with intake built in, English-language options include MyCase, and German firms at products such as Actaport or RA-MICRO. For intake with marketing automation, Lawmatics is legal-specific. For a relationship CRM with a unified inbox next to your practice management, Customermates fits; it is our own product, so weigh that.
 </FaqItem>
 
-<FaqItem question="How is a law firm CRM different from case management software?">
-Case management software focuses on the work after a client is retained: documents, calendaring, deadlines, time tracking, and billing. A CRM for law firms focuses on what happens before and around the case: client intake, relationship management, referral tracking, and business development. Many firms use both, and Customermates can exchange data with case management tools through its REST API and webhooks when those tools offer an interface.
+<FaqItem question="Does a solo lawyer need a CRM?">
+A spreadsheet works while you remember every open inquiry. It stops working when you are in court and three inquiries wait, or when you cannot say which colleague sent you work this year. A solo lawyer pays [[commercial.price.starter.monthly]] per month on Starter, or [[commercial.price.pro.monthly]] on Pro with one mailbox in the inbox.
 </FaqItem>
 
-<FaqItem question="Can Customermates handle conflict checks?">
-Customermates keeps client, organization, and matter data in one searchable system. You can search and filter contacts, organizations, and deals to find earlier relationships with opposing parties or related entities, which is more reliable than asking partners whether they recall a name. It is not a dedicated conflict-check product and does not replace your firm's formal procedure.
+<FaqItem question="Can Customermates run conflict checks?">
+It can search, not check. Global search finds contacts and organizations by name and by linked company, so every adverse party you record as its own contact or organization shows up. It does not search notes, does not flag conflicts and does not replace your firm's conflict procedure.
 </FaqItem>
 
-<FaqItem question="How does Customermates handle GDPR for legal data?">
-GDPR compliance depends on how your firm uses any tool. For the managed cloud, Customermates provides a [DPA](/dpa), lists its subprocessors, including US providers covered by standard contractual clauses, on the [subprocessors page](/subprocessors), and runs the application database in the AWS Frankfurt region. It holds no certification. If privileged client data must stay on infrastructure you control, self-host the open-source core.
+<FaqItem question="Can I connect Customermates to my practice management or billing software?">
+Not natively. Customermates has REST, webhooks and a community node for n8n, which you run separately. If your practice management tool has an API, a workflow can create the client there when a deal reaches Engaged, or write the matter number back to the deal.
 </FaqItem>
 
-<FaqItem question="How does Customermates compare to Clio Grow or Lawmatics?">
-Clio Grow and Lawmatics are legal-specific CRM tools with intake forms, e-signature, and practice management links. Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM with MCP access for AI clients, adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) on Pro at [[commercial.price.pro.monthly]]/user/month, and is open source and self-hostable. If your firm values transparent pricing and control over its data more than a legal-specific feature set, Customermates is worth a close look.
-</FaqItem>
-
-<FaqItem question="Can I integrate Customermates with my billing software?">
-Not natively. Customermates has no built-in billing connector, but it provides a REST API and webhooks, and you can connect a separately operated [n8n workflow](/features/workflow-automation). With that, you can build a connection to QuickBooks, Xero, or a legal billing tool that creates clients from won matters or writes billing references back to the CRM.
+<FaqItem question="Will AI replace the law firm CRM?">
+AI changes who types into the CRM more than whether you need one. Mate or an MCP client such as Claude can log an inquiry, move a deal and draft a reply, but it needs client history, stages and referral data to work from, and those live in the CRM. Mate sends a message without asking when you tell it to send, so say in each request or routine whether it should only save a draft.
 </FaqItem>
 </Faq>

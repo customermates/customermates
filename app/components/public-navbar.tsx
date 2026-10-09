@@ -1,6 +1,6 @@
 "use client";
 
-import type { AccountState } from "@/features/auth/account-state";
+import type { AccountState, MarketingAccountProfile } from "@/features/auth/account-state";
 
 import { ChevronDown, CircleDollarSign, Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { IntlLink, usePathname } from "@/i18n/navigation";
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { LocaleMenu } from "@/components/shared/locale-menu";
@@ -24,6 +25,7 @@ import {
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
 import { resolvePublicNavbarActions, resolvePublicNavGroups } from "./navigation/public-navbar-model";
+import { PublicNavbarAccountMenu } from "./navigation/public-navbar-account-menu";
 import { PublicNavbarSignOutButton } from "./navigation/public-navbar-sign-out-button";
 import {
   isPrimaryPublicNavLink,
@@ -38,12 +40,13 @@ type Props = {
   hasValidSession: boolean;
   onboardingIntent?: string;
   onSignedOut?: () => void;
+  profile?: MarketingAccountProfile | null;
 };
 
 const mobileOverviewRowClassName =
   "flex min-h-14 w-full items-center justify-between gap-4 rounded-md py-4 text-left text-base font-medium text-sidebar-foreground no-underline transition-all outline-none hover:no-underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
 
-export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, onSignedOut }: Props) {
+export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, onSignedOut, profile }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -134,6 +137,38 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
     );
   }
 
+  function renderAccountMenu() {
+    if (!hasValidSession || !profile) return null;
+
+    return (
+      <PublicNavbarAccountMenu
+        cta={cta && ctaLabel && pathname !== cta.href ? { href: cta.href, label: ctaLabel } : null}
+        onboardingIntent={onboardingIntent}
+        profile={profile}
+        showContact={actions.showContact}
+        onSignedOut={onSignedOut}
+      />
+    );
+  }
+
+  function renderMobileProfile() {
+    if (!hasValidSession || !profile) return null;
+
+    return (
+      <div className="flex items-center gap-2.5 border-t border-border pt-4">
+        <Avatar className="rounded-lg" name={profile.name || profile.email} size="lg" src={profile.avatarUrl} />
+
+        <span className="grid min-w-0 text-sm leading-tight">
+          {profile.name ? <span className="truncate font-medium">{profile.name}</span> : null}
+
+          <span className="truncate text-xs text-muted-foreground">{profile.email}</span>
+        </span>
+      </div>
+    );
+  }
+
+  const showAccountMenu = hasValidSession && Boolean(profile);
+
   function renderPreferenceButtons() {
     return (
       <div className="flex items-center gap-2">
@@ -160,11 +195,24 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
         <div className="hidden items-center gap-2 justify-self-end xl:flex">
           {renderPreferenceButtons()}
 
-          {renderContactButton()}
+          {showAccountMenu ? (
+            renderAccountMenu()
+          ) : (
+            <>
+              <span
+                aria-hidden
+                className="hidden size-8 animate-pulse rounded-lg bg-muted [[data-session-hint]_&]:block"
+              />
 
-          {renderCtaButton(undefined, true)}
+              <div className="flex items-center gap-2 [[data-session-hint]_&]:hidden">
+                {renderContactButton()}
 
-          {renderSignOutButton()}
+                {renderCtaButton(undefined, true)}
+
+                {renderSignOutButton()}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="col-span-3 flex w-full items-center justify-between xl:hidden">
@@ -254,6 +302,8 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
                 </div>
 
                 <div className="my-1 py-3">{renderPreferenceButtons()}</div>
+
+                {renderMobileProfile()}
 
                 {renderContactButton("w-full")}
 

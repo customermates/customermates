@@ -1,12 +1,22 @@
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT } from "./walk";
 
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+
+import {
+  HOMEPAGE_CAPTURE_EVIDENCE,
+  HOMEPAGE_CAPTURE_PROVENANCE,
+} from "@/app/[locale]/(static)/components/homepage-capture-provenance";
+import { HOMEPAGE_CAPTURES, type HomepageCaptureName } from "@/app/[locale]/(static)/components/homepage-captures";
+
 const HOMEPAGE_ROOT = join(REPO_ROOT, "app", "[locale]", "(static)");
 const COMPONENT_ROOT = join(HOMEPAGE_ROOT, "components");
+const CAPTURE_ROOT = join(REPO_ROOT, "public", "captures");
 const globalStyles = readFileSync(join(REPO_ROOT, "styles", "globals.css"), "utf8");
 const englishHomepage = readFileSync(join(REPO_ROOT, "content", "homepage", "en", "homepage.mdx"), "utf8");
 const germanHomepage = readFileSync(join(REPO_ROOT, "content", "homepage", "de", "homepage.mdx"), "utf8");
@@ -18,26 +28,6 @@ const previewBoundarySource = [
 
 function readComponent(file: string) {
   return readFileSync(join(COMPONENT_ROOT, file), "utf8");
-}
-
-function parseLiteralKeyframes(values: string) {
-  return values
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .map((value) => (value.startsWith('"') ? JSON.parse(value) : Number(value))) as Array<number | string>;
-}
-
-function readLiteralKeyframes(source: string, constantName: string) {
-  const declaration = source.match(
-    new RegExp(`const ${constantName}\\s*=\\s*\\[([\\s\\S]*?)\\](?:\\s+(?:as const|satisfies [^;]+))?;`, "u"),
-  );
-
-  if (!declaration) {
-    throw new Error(`${constantName} must remain an authored literal keyframe array`);
-  }
-
-  return parseLiteralKeyframes(declaration[1]);
 }
 
 function readOpeningElementContaining(source: string, marker: string) {
@@ -52,49 +42,190 @@ function readOpeningElementContaining(source: string, marker: string) {
   return source.slice(elementStart, elementEnd + 1);
 }
 
+function pngDimensions(file: Buffer) {
+  return { height: file.readUInt32BE(20), width: file.readUInt32BE(16) };
+}
+
+function stageCaptures(mdx: string) {
+  const stage = mdx.slice(mdx.indexOf("  stage:\n"), mdx.indexOf("\nflow:\n"));
+  return [...stage.matchAll(/^ {6}- capture: ([a-z-]+)$/gmu)].map(([, capture]) => capture);
+}
+
+function altTexts(mdx: string) {
+  return [...mdx.matchAll(/^\s+(?:alt|desktopAlt|phoneAlt): (.*)$/gmu)].map(([, alt]) => alt);
+}
+
 const page = readFileSync(join(HOMEPAGE_ROOT, "page.tsx"), "utf8");
 const components = [
   "homepage-benefits.tsx",
+  "homepage-capture-image.tsx",
   "homepage-closing.tsx",
   "homepage-hero.tsx",
   "homepage-how-it-works.tsx",
-  "homepage-live-demo.tsx",
   "homepage-pipeline.tsx",
   "homepage-pricing.tsx",
   "homepage-product-proof.tsx",
-  "rotating-accent.tsx",
+  "homepage-product-stage.tsx",
+  "homepage-routines.tsx",
+  "homepage-stage-link.tsx",
   "homepage-stats-row.tsx",
-  "homepage-story-visuals.tsx",
+  "homepage-story.tsx",
   "homepage-viewport-video.tsx",
   "homepage-walkthrough.tsx",
 ].map(readComponent);
 const componentSource = components.join("\n");
+const captureNames = Object.keys(HOMEPAGE_CAPTURES) as HomepageCaptureName[];
 
 describe("homepage visual-system adoption", () => {
-  it("keeps narrative visuals deterministic and orders live proof before the walkthrough video", () => {
-    const hero = readComponent("homepage-hero.tsx");
-    const liveDemo = readComponent("homepage-live-demo.tsx");
-    const proof = readComponent("homepage-product-proof.tsx");
-    const viewportVideo = readComponent("homepage-viewport-video.tsx");
-    const visuals = readComponent("homepage-story-visuals.tsx");
+  it("tells the story in a fixed order with real product proof instead of drawn illustrations", () => {
+    const order = [
+      "<HomepageHero",
+      "<HomepageFacts",
+      "<HomepageStory",
+      "<HomepageStatsRow",
+      "<HomepageWalkthrough",
+      "<HomepageHowItWorks",
+      "<HomepagePipeline",
+      "<HomepageRoutines",
+      "<HomepageProductProof",
+      "<HomepageBenefits",
+      "<HomepagePricing",
+      "<HomepageFaq",
+      "<HomepageClosing",
+    ];
 
-    expect(page).not.toMatch(/HomepageClipTerminal|FeatureSection/u);
-    expect(page).toContain("HomepageLiveDemo");
-    expect(page).toContain("HomepageProductProof");
-    expect(liveDemo.match(/<HeroDemoIframe\b/gu)).toHaveLength(1);
-    expect(liveDemo).toContain("const demoPath = `/${locale}/dashboard?agentChat=open`");
-    expect(liveDemo).not.toMatch(/inbox|threadId|DEMO_INBOX_THREAD_ID/u);
-    expect(hero).not.toMatch(/HeroDemoIframe|<iframe\b/u);
-    expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);
-    expect(viewportVideo.match(/<video\b/gu)).toHaveLength(1);
-    expect(proof).not.toMatch(/HeroDemoIframe|<iframe\b/u);
-    expect(page.indexOf("<HomepageHero")).toBeLessThan(page.indexOf("<HomepageFacts"));
-    expect(page.indexOf("<HomepageFacts")).toBeLessThan(page.indexOf("<HomepageLiveDemo"));
-    expect(page.indexOf("<HomepageHero")).toBeLessThan(page.indexOf("<HomepageLiveDemo"));
-    expect(page.indexOf("<HomepageLiveDemo")).toBeLessThan(page.indexOf("<HomepageProductProof"));
-    expect(page.indexOf("<HomepageProductProof")).toBeLessThan(page.indexOf("<HomepageStatsRow"));
-    expect(visuals).not.toMatch(/<video\b|<iframe\b|HeroDemoIframe/u);
-    expect(componentSource).not.toMatch(/GoldenStoryVisual|GOLDEN_LAYOUT/u);
+    for (const [index, marker] of order.entries()) {
+      expect(page.match(new RegExp(marker, "gu")), marker).toHaveLength(1);
+      if (index > 0) expect(page.indexOf(order[index - 1]), marker).toBeLessThan(page.indexOf(marker));
+    }
+
+    expect(page).not.toMatch(/HomepageClipTerminal|FeatureSection|visualLabels/u);
+    expect(componentSource).not.toMatch(/homepage-story-visuals|homepage-hero-visual|RotatingAccent/u);
+    expect(componentSource).not.toMatch(/GoldenStoryVisual|GOLDEN_LAYOUT|MarketingVisualArtboard/u);
+    expect(existsSync(join(COMPONENT_ROOT, "homepage-story-visuals.tsx"))).toBe(false);
+    expect(existsSync(join(COMPONENT_ROOT, "homepage-hero-visual.tsx"))).toBe(false);
+  });
+
+  it("ships every registered capture as an unedited still with pinned provenance", () => {
+    expect(HOMEPAGE_CAPTURE_PROVENANCE.authenticity).toBe("real");
+    expect(HOMEPAGE_CAPTURE_PROVENANCE.productRef).toMatch(/^[0-9a-f]{9,40}$/u);
+    expect(HOMEPAGE_CAPTURE_PROVENANCE.environment).toContain("APP_MODE=demo");
+    expect(HOMEPAGE_CAPTURE_PROVENANCE.environment).toContain("prisma db seed");
+    expect(HOMEPAGE_CAPTURE_PROVENANCE.claim).toContain("synthetic demo data");
+    expect(Object.keys(HOMEPAGE_CAPTURE_EVIDENCE).sort()).toEqual([...captureNames].sort());
+
+    for (const theme of ["dark", "light"] as const) {
+      const shipped = readdirSync(join(CAPTURE_ROOT, theme)).sort();
+      expect(shipped, theme).toEqual(
+        captureNames.flatMap((name) => CONTENT_LOCALES.map((locale) => `${name}-${locale}.png`)).sort(),
+      );
+
+      for (const name of captureNames) {
+        const evidence = HOMEPAGE_CAPTURE_EVIDENCE[name];
+
+        expect(evidence.route, name).toMatch(/^\/\[locale\]\//u);
+        expect(evidence.scenario.length, name).toBeGreaterThan(20);
+
+        for (const locale of CONTENT_LOCALES) {
+          const file = readFileSync(join(CAPTURE_ROOT, theme, `${name}-${locale}.png`));
+
+          expect(createHash("sha256").update(new Uint8Array(file)).digest("hex"), `${theme}/${name}-${locale}`).toBe(
+            evidence.sha256[locale][theme],
+          );
+          expect(pngDimensions(file), `${theme}/${name}-${locale}`).toEqual(HOMEPAGE_CAPTURES[name][locale]);
+        }
+      }
+    }
+  });
+
+  it("keeps capture evidence out of the client bundle", () => {
+    expect(readComponent("homepage-captures.ts")).not.toMatch(/sha256|scenario|[0-9a-f]{64}/u);
+    expect(componentSource).not.toContain("homepage-capture-provenance");
+  });
+
+  it("renders captures in both themes and swaps to phone captures on small screens", () => {
+    const image = readComponent("homepage-capture-image.tsx");
+
+    expect(image).toContain('{ className: "dark:hidden", theme: "light" }');
+    expect(image).toContain('{ className: "not-dark:hidden", theme: "dark" }');
+    expect(image).toContain("getImageProps");
+    expect(image).toContain('media="(min-width: 40rem)"');
+    expect(image).toContain('const loading = eager ? "eager" : "lazy";');
+    expect(image).toContain("homepageCaptureSrc(name, locale, theme)");
+    expect(image).toContain("homepageCaptureSrc(mobileName, locale, theme)");
+    expect(image).toContain("HOMEPAGE_CAPTURES[name][locale]");
+    expect(image).not.toMatch(/max-sm:hidden|"sm:hidden"/u);
+    expect(componentSource).not.toMatch(/<iframe\b[\s\S]{0,400}captures/u);
+  });
+
+  it("runs the product stage as an accessible tab set that only advances while appropriate", () => {
+    const hero = readComponent("homepage-hero.tsx");
+    const stage = readComponent("homepage-product-stage.tsx");
+
+    expect(hero).toContain("<HomepageProductStage");
+    expect(hero.match(/<h1\b/gu)).toHaveLength(1);
+    expect(stage).toContain("PRODUCT_STAGE_INTERVAL_MS = 6_000");
+    expect(stage).toContain("useHomepageMotion<HTMLDivElement>()");
+    expect(stage).toContain("const autoAdvance = shouldAnimate && !stopped && !hovered && !live;");
+    expect(stage).toContain("window.matchMedia?.(LIVE_STAGE_MEDIA)");
+    expect(hero).toContain("demoBaseUrl={homepageDemoBaseUrl()}");
+    expect(stage).toContain('role="tablist"');
+    expect(stage).toContain('role="tab"');
+    expect(stage).toContain('role="tabpanel"');
+    expect(stage).toContain("aria-selected={isActive}");
+    expect(stage).toContain("inert={index !== activeIndex}");
+    expect(stage).toContain("tabIndex={index === activeIndex ? 0 : -1}");
+    expect(stage).toContain("index === activeIndex || loadedTabs.has(index)");
+    expect(stage).toContain("onFocus={() => setStopped(true)}");
+    expect(stage).toContain("onMouseEnter={() => setHovered(true)}");
+    expect(stage).toContain("list.scrollTo(");
+    expect(stage).not.toContain("scrollIntoView");
+    expect(stage).toContain('mobileSizes="19rem"');
+    expect(stage).toContain("autoAdvance && !shouldReduceMotion");
+    expect(stage).not.toContain("aria-live");
+    expect(stage).toContain("eager={index === 0}");
+    expect(motionSource).toContain("HOMEPAGE_MOTION_VISIBILITY_AMOUNT = 0.35");
+    expect(motionSource).toContain("useInView");
+    expect(motionSource).toContain("useReducedMotion");
+    expect(motionSource).toContain('document.visibilityState === "visible"');
+    expect(motionSource).toContain('document.addEventListener("visibilitychange"');
+  });
+
+  it("keeps the display headings neutral inside the split hero", () => {
+    const hero = readComponent("homepage-hero.tsx");
+    const walkthrough = readComponent("homepage-walkthrough.tsx");
+
+    expect(readOpeningElementContaining(hero, 'data-homepage-hero-line="lead"')).not.toContain("text-primary");
+    expect(walkthrough).not.toMatch(/<h2[\s\S]{0,240}text-primary/u);
+    expect(hero).toContain("GridPattern");
+    expect(hero).toContain("heroSection.useCase");
+    expect(hero).toContain("lg:grid-cols-[1.2fr_1fr]");
+  });
+
+  it("localizes the stage, alt texts and disclosure in both locales", () => {
+    const expected = [
+      "homepage-inbox",
+      "homepage-record",
+      "homepage-pipeline",
+      "homepage-dashboard",
+      "homepage-routines",
+    ];
+
+    expect(stageCaptures(englishHomepage)).toEqual(expected);
+    expect(stageCaptures(germanHomepage)).toEqual(expected);
+    expect(englishHomepage).toContain("People, companies and numbers are sample data.");
+    expect(germanHomepage).toContain("Personen, Unternehmen und Zahlen sind Beispieldaten.");
+    expect(englishHomepage).toContain("  disclosure: Sample data from the Customermates demo workspace.");
+    expect(germanHomepage).toContain("  disclosure: Beispieldaten aus dem Demo-Arbeitsbereich von Customermates.");
+    expect(readComponent("homepage-pipeline.tsx")).toContain("{story.disclosure}");
+    expect(altTexts(englishHomepage)).toHaveLength(11);
+    expect(altTexts(germanHomepage)).toHaveLength(11);
+    for (const alt of altTexts(englishHomepage)) expect(alt).toMatch(/, using demo data$/u);
+    for (const alt of altTexts(germanHomepage)) expect(alt).toMatch(/, mit Beispieldaten$/u);
+    expect(englishHomepage).not.toContain("—");
+    expect(germanHomepage).not.toContain("—");
+    expect(englishHomepage).not.toMatch(/titleAccentRotations|illustration:|visualLabels/u);
+    expect(germanHomepage).not.toMatch(/titleAccentRotations|illustration:|visualLabels/u);
   });
 
   it("does not ship the local marketing-preview authentication bypass", () => {
@@ -115,326 +246,39 @@ describe("homepage visual-system adoption", () => {
     expect(viewportVideo).not.toMatch(/\bautoPlay\b|\bloop\b/u);
   });
 
-  it("builds the split opening from representative provider checks", () => {
-    const hero = readComponent("homepage-hero.tsx");
-
-    const illustration = readComponent("homepage-hero-visual.tsx");
-    expect(illustration).toContain('["linkedin", "whatsapp", "gmail"]');
-    expect(illustration).toContain("ProviderMark");
-    expect(hero).toContain("HomepageHeroVisual");
-    expect(hero).toContain("GridPattern");
-    expect(hero).not.toMatch(/HomepageAgentRecordVisual|GoogleCalendar|OutlookCalendar|Messenger|XTwitter/u);
-    expect(englishHomepage).toContain("title: The Open-Source CRM");
-    expect(englishHomepage).toContain("titleAccent: for AI agents.");
-    expect(hero).not.toContain("useCaseEyebrow");
-    expect(hero).toContain("heroSection.useCase");
-    expect(hero).toContain("lg:grid-cols-[1.2fr_1fr]");
-    expect(illustration).toContain("useHomepageMotion");
-    expect(illustration).toContain("shouldReduceMotion");
-  });
-
-  it("rotates a width-reserved, accessible hero reel only while motion is appropriate", () => {
-    const hero = readComponent("homepage-hero.tsx");
-    const rotatingAccent = readComponent("rotating-accent.tsx");
-    const leadLine = readOpeningElementContaining(hero, 'data-homepage-hero-line="lead"');
-    const rotationLine = readOpeningElementContaining(hero, 'data-homepage-hero-line="rotation"');
-
-    const heading = hero.slice(hero.indexOf("<h1"), hero.indexOf("</h1>"));
-
-    expect(hero.match(/<h1\b/gu)).toHaveLength(1);
-    expect(heading).toContain('data-homepage-hero-line="lead"');
-    expect(heading).toContain("{heroSection.title}");
-    expect(heading).toContain('className="sr-only"');
-    expect(heading).toContain("headlineAccent");
-    expect(heading).not.toContain("RotatingAccent");
-    expect(heading).not.toContain('data-homepage-hero-line="rotation"');
-    expect(rotationLine).toContain("aria-hidden");
-    expect(hero).toContain("const headlineAccent = accentRotations[0];");
-    expect(hero).toContain("<RotatingAccent");
-    expect(hero.match(/data-homepage-hero-line="lead"/gu)).toHaveLength(1);
-    expect(hero.match(/data-homepage-hero-line="rotation"/gu)).toHaveLength(1);
-    expect(hero.indexOf('data-homepage-hero-line="lead"')).toBeLessThan(
-      hero.indexOf('data-homepage-hero-line="rotation"'),
-    );
-    expect(hero).toContain("gap-y-[0.1em]");
-    expect(leadLine).toContain("text-balance");
-    expect(rotationLine).toContain("whitespace-nowrap");
-    expect(rotatingAccent).toContain("AnimatePresence");
-    expect(rotatingAccent).toContain("ROTATION_INTERVAL_MS = 2_600");
-    expect(rotatingAccent).toContain("ROTATION_DURATION_SECONDS = 0.2");
-    expect(rotatingAccent).toContain("relative inline-grid max-w-full overflow-hidden");
-    expect(rotatingAccent).toContain("invisible col-start-1 row-start-1 whitespace-nowrap");
-    expect(rotatingAccent).toContain('className={cn("inline-block", activeClassName)}');
-    expect(rotatingAccent).toContain('data-homepage-motion="rotating-accent"');
-    expect(rotatingAccent).not.toContain("aria-live");
-    expect(rotatingAccent).toContain("useHomepageMotion<HTMLSpanElement>(0.6)");
-    expect(hero).toContain('className="p-[0.12em] text-primary [&>span]:justify-start"');
-    expect(motionSource).toContain("HOMEPAGE_MOTION_VISIBILITY_AMOUNT = 0.35");
-    expect(motionSource).toContain("useInView");
-    expect(motionSource).toContain("useReducedMotion");
-    expect(motionSource).toContain('document.visibilityState === "visible"');
-    expect(motionSource).toContain('document.addEventListener("visibilitychange"');
-
-    for (const label of [
-      "for AI agents.",
-      "for Claude.",
-      "for ChatGPT.",
-      "for Codex.",
-      "for Cursor.",
-      "for Gemini.",
-      "for Grok Bot.",
-      "for Hermes Agent.",
-      "for OpenClaw.",
-      "for n8n.",
-    ]) {
-      expect(englishHomepage).toContain(`    - ${label}`);
-    }
-
-    expect(germanHomepage).toContain("title: Das Open-Source-CRM");
-    expect(germanHomepage).toContain("titleAccentRotations:");
-    expect(germanHomepage).toContain("    - für KI-Agenten.");
-    for (const label of [
-      "für Claude.",
-      "für ChatGPT.",
-      "für Codex.",
-      "für Cursor.",
-      "für Gemini.",
-      "für Grok Bot.",
-      "für Hermes Agent.",
-      "für OpenClaw.",
-      "für n8n.",
-    ]) {
-      expect(germanHomepage).toContain(`    - ${label}`);
-    }
-    expect(englishHomepage).not.toContain("useCaseEyebrow");
-    expect(germanHomepage).not.toContain("useCaseEyebrow");
-    expect(englishHomepage).toContain("  useCase: Your customer relationships need a shared memory.");
-    expect(germanHomepage).toContain("  useCase: Ihre Kundenbeziehungen brauchen ein gemeinsames Gedächtnis.");
-    expect(englishHomepage).not.toContain("\u2014");
-    expect(germanHomepage).not.toContain("\u2014");
-  });
-
-  it("keeps the live workspace on-page and gives the walkthrough the contrasting story band", () => {
-    const demoIframe = readComponent("hero-demo-iframe.tsx");
-    const liveDemo = readComponent("homepage-live-demo.tsx");
+  it("keeps one live workspace in the product stage and links every capture to it", () => {
+    const stage = readComponent("homepage-product-stage.tsx");
+    const link = readComponent("homepage-stage-link.tsx");
     const proof = readComponent("homepage-product-proof.tsx");
+    const viewportVideo = readComponent("homepage-viewport-video.tsx");
+    const hero = readComponent("homepage-hero.tsx");
 
-    expect(liveDemo).not.toContain('tone="inverse"');
-    expect(proof).toContain('tone="inverse"');
-    expect(liveDemo).not.toContain("proof.demoEyebrow");
-    expect(liveDemo).toContain("proof.demoTitle");
-    expect(liveDemo).not.toContain("proof.demoDescription");
-    expect(liveDemo).not.toContain('containerSize="wide"');
-    expect(liveDemo).toContain("title={proof.demoTitle}");
-    expect(liveDemo).toContain('size="full"');
-    expect(liveDemo).toContain("src={demoSrc}");
-    expect(demoIframe).toContain('size = "full"');
-    expect(demoIframe).toContain("<BrowserFrame loadAhead size={size}");
-  });
-
-  it("authors page-specific visuals from the approved native fixture layer", () => {
-    const visuals = readComponent("homepage-story-visuals.tsx");
-
-    expect(visuals).toContain("native-visual-primitives");
-    expect(visuals).toContain("native-fixtures");
-    expect(visuals).toContain('VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"]');
-    expect(visuals).toContain('provider="claude"');
-    for (const provider of ["chatgpt", "claude", "cursor", "gemini"]) {
-      expect(visuals).toContain(`provider: "${provider}"`);
-    }
-    for (const provider of ["gmail", "outlook", "imap", "telegram", "linkedin", "whatsapp", "instagram"]) {
-      expect(visuals).toContain(`provider: "${provider}"`);
-    }
-    expect(visuals).toContain("M320 225 H350");
-    expect(visuals).toContain("M300 76 V243");
-    expect(visuals).toContain("COMPOUND_CONNECTOR_STROKE");
-    expect(visuals.match(/stroke=\{COMPOUND_CONNECTOR_STROKE\}/gu)).toHaveLength(2);
-    expect(visuals).not.toContain('strokeOpacity="0.36"');
-    expect(visuals).not.toContain("h-[3.25rem]");
-    expect(visuals).not.toContain('<span aria-hidden className="mt-1 h-1" />');
-    expect(visuals).toContain("SyncedSignalPath");
-    expect(visuals).not.toContain("<animateMotion");
-    expect(visuals).not.toMatch(/HandoffWander|HANDOFF_SIGNAL_WANDER|\bwander:/u);
-    expect(visuals).toContain("ProviderIdentity");
-    expect(visuals).toContain("activeConversation.localizedSubject[locale]");
-    expect(visuals).toContain("desktop: { node: [220, 552], target: [365, 400] }");
-    expect(visuals).toContain("desktop: { node: [780, 552], target: [635, 400] }");
-    for (const mobileConnector of [
-      "mobile: { node: [85, 85], target: [138, 205] }",
-      "mobile: { node: [55, 330], target: [126, 330] }",
-      "mobile: { node: [160, 660], target: [160, 400] }",
-      "mobile: { node: [300, 55], target: [300, 205] }",
-      "mobile: { node: [515, 85], target: [462, 205] }",
-      "mobile: { node: [545, 330], target: [474, 330] }",
-      "mobile: { node: [440, 660], target: [440, 400] }",
+    expect(existsSync(join(COMPONENT_ROOT, "homepage-live-demo.tsx"))).toBe(false);
+    expect(existsSync(join(COMPONENT_ROOT, "hero-demo-iframe.tsx"))).toBe(false);
+    expect(componentSource.match(/<iframe\b/gu)).toHaveLength(1);
+    expect(stage).toContain("id={PRODUCT_DEMO_ANCHOR}");
+    expect(stage).toContain('sandbox="allow-scripts allow-same-origin allow-popups allow-forms"');
+    expect(stage).toContain("?agentChat=closed");
+    expect(stage).toContain('window.addEventListener("hashchange", openFromHash)');
+    expect(stage).toContain("window.addEventListener(STAGE_OPEN_EVENT, openFromEvent)");
+    expect(link).toContain("href={`#${PRODUCT_DEMO_ANCHOR}`}");
+    expect(link).toContain("window.dispatchEvent(new CustomEvent<HomepageStageArea>(STAGE_OPEN_EVENT");
+    for (const file of [
+      "homepage-walkthrough.tsx",
+      "homepage-how-it-works.tsx",
+      "homepage-pipeline.tsx",
+      "homepage-routines.tsx",
     ]) {
-      expect(visuals).toContain(mobileConnector);
+      const source = readComponent(file);
+      expect(source.match(/<HomepageCaptureImage\b/gu)?.length, file).toBe(source.match(/<HomepageStageLink\b/gu)?.length);
     }
-    expect(visuals).not.toMatch(/target: \[(?:220|380), 460\]/u);
-    expect(visuals).toContain("style={orbitPositionStyle(orbitNode)}");
-    expect(visuals).toContain('strokeLinecap="butt"');
-    expect(visuals).not.toContain("strokeDasharray");
-  });
-
-  it("keeps page-specific story loops causal, visibility-gated, and separate from shared primitives", () => {
-    const visuals = readComponent("homepage-story-visuals.tsx");
-
-    const omnichannelChoreographyStart = visuals.indexOf("const OMNICHANNEL_SIGNAL_BURSTS");
-    const handoffChoreographyStart = visuals.indexOf("const HANDOFF_SIGNAL_SEQUENCE");
-    const omnichannelChoreography = visuals.slice(omnichannelChoreographyStart, handoffChoreographyStart);
-    const omnichannelSceneDurations = [...omnichannelChoreography.matchAll(/^\s{4}durationMs:\s*([\d_]+),$/gmu)].map(
-      ([, duration]) => Number(duration.replaceAll("_", "")),
-    );
-    const omnichannelSignalDurations = [
-      ...omnichannelChoreography.matchAll(/\{\s*delayMs:\s*[\d_]+,\s*durationMs:\s*([\d_]+)/gu),
-    ].map(([, duration]) => Number(duration.replaceAll("_", "")));
-    const signalTravelTimes = readLiteralKeyframes(visuals, "SIGNAL_TRAVEL_TIMES").map(Number);
-    const signalTravelValues = readLiteralKeyframes(visuals, "SIGNAL_TRAVEL_VALUES").map(Number);
-    const signalTimelineStart = visuals.indexOf("function useSignalTimeline");
-    const syncedSignalPathStart = visuals.indexOf("function SyncedSignalPath");
-    const providerSignalRingStart = visuals.indexOf("function ProviderSignalRing");
-    const orbitSignalStart = visuals.indexOf("function OrbitSignal");
-    const orbitConnectorsStart = visuals.indexOf("function OrbitConnectors");
-    const handoffSignalStart = visuals.indexOf("function HandoffSignal");
-    const handoffVisualStart = visuals.indexOf("export function HomepageHandoffVisual");
-    const pipelineStart = visuals.indexOf("function PipelineCard");
-    const pipelineRecordsStart = visuals.indexOf("const PIPELINE_RECORDS");
-    const signalTimeline = visuals.slice(signalTimelineStart, syncedSignalPathStart);
-    const syncedSignalPath = visuals.slice(syncedSignalPathStart, providerSignalRingStart);
-    const providerSignalRing = visuals.slice(providerSignalRingStart, orbitSignalStart);
-    const orbitSignal = visuals.slice(orbitSignalStart, orbitConnectorsStart);
-    const handoffSignal = visuals.slice(handoffSignalStart, handoffVisualStart);
-    const handoffVisual = visuals.slice(handoffVisualStart, pipelineStart);
-    const pipelineCard = visuals.slice(pipelineStart, pipelineRecordsStart);
-    const providerShell = readOpeningElementContaining(visuals, "data-homepage-provider-shell");
-    const providerPingOpening = readOpeningElementContaining(visuals, "data-homepage-provider-ping={provider}");
-    const handoffProviderMarker = visuals.indexOf("data-homepage-handoff-provider={provider.provider}");
-    const handoffProviderStart = visuals.lastIndexOf("<div", handoffProviderMarker);
-    const handoffProviderEnd = visuals.indexOf("</div>", handoffProviderMarker);
-    const handoffProviderOpening = readOpeningElementContaining(visuals, "data-homepage-handoff-provider");
-    const handoffWrapperStart = visuals.lastIndexOf("<div", handoffProviderStart - 1);
-    const handoffWrapperEnd = visuals.indexOf(">", handoffWrapperStart);
-    const handoffWrapperOpening = visuals.slice(handoffWrapperStart, handoffWrapperEnd + 1);
-
-    expect(visuals).toContain('"use client"');
-    expect(visuals).toContain("useHomepageMotion");
-    expect(visuals).toContain("useTimedSceneCycle");
-    expect(visuals).toContain("setTimeout");
-    expect(visuals).toContain("Number.POSITIVE_INFINITY");
-    expect(visuals).toContain("OMNICHANNEL_SIGNAL_BURSTS");
-    expect(visuals).toContain("HANDOFF_SIGNAL_SEQUENCE");
-    expect(visuals).toMatch(/type OneToThree<T> =[^;]*readonly \[T\][^;]*readonly \[T, T\][^;]*readonly \[T, T, T\]/su);
-    expect(visuals).toContain("signals: OneToThree<OmnichannelSignalSpec>");
-    expect(visuals).toContain("activeBurst.signals.map");
-    expect(omnichannelChoreographyStart).toBeGreaterThanOrEqual(0);
-    expect(handoffChoreographyStart).toBeGreaterThan(omnichannelChoreographyStart);
-    expect(omnichannelChoreography).toMatch(/signals:\s*\[\s*\{[^}]*provider:[^}]*\}\s*,\s*\{[^}]*provider:/su);
-    expect(omnichannelChoreography).toContain("delayMs:");
-    expect(omnichannelChoreography).toContain("durationMs:");
-    expect(omnichannelChoreography).toContain("ease:");
-    expect(omnichannelSceneDurations.length).toBeGreaterThan(0);
-    expect(omnichannelSignalDurations.length).toBeGreaterThan(0);
-    expect(Math.min(...omnichannelSceneDurations)).toBeGreaterThanOrEqual(2_200);
-    expect(Math.min(...omnichannelSignalDurations)).toBeGreaterThanOrEqual(1_400);
-    expect(signalTravelValues).toHaveLength(signalTravelTimes.length);
-    expect([...new Set(signalTravelValues)]).toEqual([0, 1]);
-    expect(signalTravelValues.every((value, index) => index === 0 || value >= signalTravelValues[index - 1])).toBe(
-      true,
-    );
-    expect(signalTimelineStart).toBeGreaterThanOrEqual(0);
-    expect(syncedSignalPathStart).toBeGreaterThan(signalTimelineStart);
-    expect(providerSignalRingStart).toBeGreaterThan(syncedSignalPathStart);
-    expect(orbitSignalStart).toBeGreaterThan(providerSignalRingStart);
-    expect(handoffSignalStart).toBeGreaterThan(orbitSignalStart);
-    expect(handoffVisualStart).toBeGreaterThan(handoffSignalStart);
-    expect(signalTimeline.match(/useMotionValue\(0\)/gu)).toHaveLength(1);
-    expect(signalTimeline).toContain("const phase = useMotionValue(0)");
-    expect(signalTimeline.match(/\banimate\(phase,\s*1,/gu)).toHaveLength(1);
-    expect(signalTimeline).toContain("const travel = useTransform(");
-    expect(signalTimeline).toContain("SIGNAL_TRAVEL_TIMES");
-    expect(signalTimeline).toContain("SIGNAL_TRAVEL_VALUES");
-    expect(syncedSignalPath).toContain("useTransform(timeline.travel");
-    expect(syncedSignalPath).toContain("pathRef.current");
-    expect(syncedSignalPath).toContain("getTotalLength()");
-    expect(syncedSignalPath).toContain("getPointAtLength(");
-    expect(syncedSignalPath).toContain("ref={pathRef}");
-    expect(syncedSignalPath).toContain("pathLength: timeline.travel");
-    expect(syncedSignalPath).toContain("cx={signalX}");
-    expect(syncedSignalPath).toContain("cy={signalY}");
-    expect(providerSignalRing.match(/useTransform\(\s*timeline\.travel,/gu)).toHaveLength(2);
-    expect(providerSignalRing).toContain("style={{ opacity: timeline.activity }}");
-    expect(providerSignalRing).toContain("data-homepage-provider-ping={provider}");
-    expect(providerSignalRing).toContain("pointer-events-none absolute -inset-1");
-    expect(providerSignalRing).toContain("rounded-full border border-primary/70");
-    expect(providerPingOpening).toMatch(/^<motion\.span\b/u);
-    expect(providerPingOpening).toContain("aria-hidden");
-    expect(providerPingOpening).not.toMatch(/\blayout(?:=|\s)|\b(?:m|p)[trblxy]?-/u);
-    expect(orbitSignal.match(/<SyncedSignalPath\b/gu)).toHaveLength(2);
-    expect(orbitSignal.match(/\buseSignalTimeline\(signal,\s*true\)/gu)).toHaveLength(1);
-    expect(orbitSignal.match(/<ProviderSignalRing\b/gu)).toHaveLength(1);
-    expect(handoffSignal.match(/<SyncedSignalPath\b/gu)).toHaveLength(1);
-    expect(visuals).not.toContain("ORBIT_NODES[0]");
-    expect(visuals).not.toContain('shouldAnimate && provider === "chatgpt"');
-    expect(visuals).not.toContain('shouldAnimate && status === "deal-won"');
-    expect(visuals).not.toMatch(/Math\.random|Date\.now|performance\.now|setInterval/u);
-    expect(visuals).toContain("<motion.path");
-    expect(visuals).toContain("<motion.circle");
-    expect(visuals).toContain("data-homepage-motion-signal=");
-    expect(visuals).toContain("data-homepage-provider-shell={orbitNode.provider}");
-    expect(providerShell).toMatch(/^<span\b/u);
-    expect(providerShell).not.toMatch(/\banimate=|\btransition=|\blayout(?:=|\s)/u);
-    expect(visuals).not.toMatch(/PROVIDER_NODE_OPACITY|PROVIDER_NODE_SCALE|PROVIDER_RING_OPACITY/u);
-    expect(visuals.match(/<ProviderSignalRing\b/gu)).toHaveLength(2);
-    expect(visuals).toContain("data-homepage-handoff-signal=");
-    expect(visuals).toContain("data-homepage-handoff-provider={provider.provider}");
-    expect(visuals).not.toContain("<animateMotion");
-    expect(visuals).not.toMatch(/HandoffWander|HANDOFF_SIGNAL_WANDER|\bwander:/u);
-    expect(handoffProviderStart).toBeGreaterThanOrEqual(0);
-    expect(handoffProviderEnd).toBeGreaterThan(handoffProviderStart);
-    expect(handoffProviderOpening).toMatch(/^<div\b/u);
-    expect(handoffProviderOpening).toContain("w-fit max-w-full");
-    expect(handoffProviderOpening).not.toMatch(
-      /\banimate=|\btransition=|\blayout(?:=|\s)|\bstyle=|(?:^|\s)(?:h|min-h)-/u,
-    );
-    expect(handoffWrapperOpening).toContain("flex");
-    expect(handoffWrapperOpening).toContain("w-[38%]");
-    expect(handoffWrapperOpening).toContain("sm:w-[23%]");
-    expect(visuals).toContain("justify-end");
-    expect(visuals).toContain("justify-start");
-    expect(handoffVisual).toMatch(/\{isActive\s*\?\s*(?:\(\s*)?<ProviderSignalRing/u);
-    expect(handoffVisual).toContain('className="relative z-10 shrink-0 text-[10px] sm:text-xs"');
-    expect(handoffVisual).not.toContain('<span className="relative z-10 shrink-0">');
-    expect(visuals).not.toMatch(
-      /HANDOFF_TYPING_DOT_INDEXES|createTypingDotTimeline|loaderWidth|loaderMarginLeft|loaderOpacity|data-homepage-handoff-dots/u,
-    );
-    expect(pipelineRecordsStart).toBeGreaterThan(pipelineStart);
-    expect(pipelineCard).not.toMatch(/\bcompact\b|hidden md:(?:inline-flex|grid|flex)/u);
-    expect(pipelineCard).toContain("flex flex-col items-start gap-2 sm:flex-row");
-    expect(pipelineCard).toContain('className="inline-flex"');
-    expect(pipelineCard).toContain("grid grid-cols-1");
-    expect(pipelineCard).toContain("sm:grid-cols-2");
-    expect(pipelineCard).toContain('className="mt-3 flex items-center justify-between gap-2"');
-    expect(visuals).toContain("data-homepage-pipeline-column={status}");
-    expect(visuals).toContain('{ label: labels.open, status: "deal-open" as const }');
-    expect(visuals).not.toContain("PIPELINE_RECORDS.open");
-    expect(visuals).not.toContain('data-homepage-pipeline-source-card="deal-open"');
-    expect(visuals.match(/data-homepage-pipeline-source-footprint="deal-open"/gu)).toHaveLength(1);
-    expect(visuals).not.toMatch(/PIPELINE_COLUMN_ACTIVITY|PIPELINE_COLUMN_TIMES/u);
-    expect(visuals).not.toMatch(/data-homepage-pipeline-highlight|data-homepage-pipeline-card-dim/u);
-    expect(visuals).toContain("data-homepage-drag-cursor");
-    expect(visuals).toContain("PIPELINE_DRAG_X");
-    expect(visuals).toContain("PIPELINE_DRAG_Y");
-    expect(visuals).not.toContain("PIPELINE_SOURCE_CARD_OPACITY");
-    expect(visuals).toContain("PIPELINE_SOURCE_OUTLINE_OPACITY");
-    expect(visuals).not.toMatch(/PIPELINE_OPEN_CARD_FILTER|data-homepage-pipeline-open-card-blur|blur\(/u);
-    expect(visuals).not.toContain("PIPELINE_DRAG_OPACITY");
-    expect(visuals).toContain('data-homepage-motion-phase="signal-to-record"');
-    expect(visuals).toContain('data-homepage-motion-phase="provider-to-draft"');
-    expect(visuals).toContain('data-homepage-motion-phase="human-review"');
-    expect(visuals).toContain('data-homepage-motion-phase="pipeline-drag-preview"');
-    expect(visuals).toContain("data-homepage-motion-scene={name}");
-    expect(visuals).toContain('data-motion-active={motionActive ? "true" : "false"}');
-    expect(visuals).not.toMatch(/remotion|hyperframes|requestAnimationFrame/iu);
+    expect(englishHomepage).toContain('buttonRightHref: "#product-demo"');
+    expect(germanHomepage).toContain('buttonRightHref: "#product-demo"');
+    expect(proof).toContain('tone="inverse"');
+    expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);
+    expect(proof).not.toMatch(/<iframe\b/u);
+    expect(viewportVideo.match(/<video\b/gu)).toHaveLength(1);
+    expect(hero).not.toMatch(/<iframe\b/u);
   });
 
   it("runs horizontal rules to the edges of their owning surfaces", () => {
@@ -442,29 +286,19 @@ describe("homepage visual-system adoption", () => {
     const hero = readComponent("homepage-hero.tsx");
     const strip = readComponent("homepage-stats-row.tsx");
 
-    expect(componentSource.match(/data-homepage-rules="full-bleed"/gu)?.length).toBeGreaterThanOrEqual(7);
+    expect(componentSource.match(/data-homepage-rules="full-bleed"/gu)?.length).toBeGreaterThanOrEqual(6);
     expect(benefits).toContain('<section className="relative w-full border-y border-border" id="facts">');
     expect(benefits).toContain("lg:grid-cols-5");
     expect(benefits).not.toContain("absolute inset-x-0 top-1/2");
+    expect(benefits).not.toContain("grid grid-cols-2 border-y border-border");
     for (const figure of ['figure: "5"', "figure: MCP", "figure: AGPL-3.0", "figure: EU", "figure: DE"]) {
       expect(englishHomepage).toContain(figure);
     }
-    expect(benefits).not.toContain("grid grid-cols-2 border-y border-border");
     expect(strip).toContain('className="w-full border-y border-border"');
     expect(hero).toContain('className="relative isolate w-full overflow-hidden"');
     expect(hero).toContain('data-homepage-section="hero"');
     expect(page).toContain('data-marketing-flow="continuous"');
     expect(globalStyles).toMatch(/\[data-marketing-flow="continuous"\]\s+\.marketing-section:not/u);
-  });
-
-  it("keeps the base display neutral while accenting the rotating subject", () => {
-    const hero = readComponent("homepage-hero.tsx");
-    const walkthrough = readComponent("homepage-walkthrough.tsx");
-    const heroHeading = readOpeningElementContaining(hero, 'data-homepage-hero-line="lead"');
-
-    expect(heroHeading).not.toContain("text-primary");
-    expect(hero).toContain('className="p-[0.12em] text-primary [&>span]:justify-start"');
-    expect(walkthrough).not.toMatch(/<h2[\s\S]{0,240}text-primary/u);
   });
 
   it("shows five authorable AI-client identities and a distinct n8n automation identity", () => {
@@ -483,89 +317,5 @@ describe("homepage visual-system adoption", () => {
     expect(componentSource).not.toMatch(/max-w-\[(?:1100|1200|1240|1400|1440)px\]/u);
     expect(componentSource.match(/tone="inverse"/gu)).toHaveLength(1);
     expect(componentSource).toMatch(/MarketingContainer|MarketingSection/u);
-  });
-
-  it("recomposes illustrations for narrow and split placements without an outer border", () => {
-    const visuals = readComponent("homepage-story-visuals.tsx");
-    const artboard = readFileSync(join(REPO_ROOT, "components", "marketing", "visuals", "visual-artboard.tsx"), "utf8");
-
-    expect(visuals).toContain("aspect-[4/5]");
-    expect(visuals).toContain("sm:aspect-[8/5]");
-    expect(visuals).toContain("MarketingVisualArtboard");
-    expect(artboard).toContain("overflow-hidden rounded-xl bg-sidebar");
-    expect(visuals).toContain('className="absolute inset-0 size-full sm:hidden"');
-    expect(visuals).toContain('className="absolute inset-0 hidden size-full sm:block"');
-    expect(visuals).not.toMatch(/data-homepage-visual=[\s\S]{0,240}border border/u);
-  });
-
-  it("drags one pipeline card out and back while showing only an empty source footprint", () => {
-    const visuals = readComponent("homepage-story-visuals.tsx");
-
-    const x = readLiteralKeyframes(visuals, "PIPELINE_DRAG_X");
-    const y = readLiteralKeyframes(visuals, "PIPELINE_DRAG_Y").map(Number);
-    const sourceOutlineOpacity = readLiteralKeyframes(visuals, "PIPELINE_SOURCE_OUTLINE_OPACITY").map(Number);
-    const dragTimes = readLiteralKeyframes(visuals, "PIPELINE_DRAG_TIMES").map(Number);
-    const sourceOutlineElement = readOpeningElementContaining(
-      visuals,
-      'data-homepage-pipeline-source-footprint="deal-open"',
-    );
-    const sourceOutlineIndex = visuals.indexOf('data-homepage-pipeline-source-footprint="deal-open"');
-    const sourceOutlineEnd = visuals.indexOf("/>", sourceOutlineIndex);
-    const sourceOutlineBlock = visuals.slice(sourceOutlineIndex, sourceOutlineEnd);
-    const movingPhaseIndex = visuals.indexOf('data-homepage-motion-phase="pipeline-drag-preview"');
-    const movingElementStart = visuals.lastIndexOf("<motion.div", movingPhaseIndex);
-    const movingElementEnd = visuals.indexOf("</motion.div>", movingPhaseIndex);
-    const movingElement = visuals.slice(movingElementStart, movingElementEnd);
-    const xAsNumbers = x.map((value) => Number.parseFloat(String(value)));
-    const dragStartIndex = xAsNumbers.findIndex((value, index) => value !== xAsNumbers[0] || y[index] !== y[0]);
-    const furthestX = Math.max(...xAsNumbers);
-    const furthestXIndex = xAsNumbers.lastIndexOf(furthestX);
-    const returnIndex = xAsNumbers.findIndex(
-      (value, index) => index > furthestXIndex && value === xAsNumbers[0] && y[index] === y[0],
-    );
-
-    expect(x).toHaveLength(dragTimes.length);
-    expect(y).toHaveLength(dragTimes.length);
-    expect(sourceOutlineOpacity).toHaveLength(dragTimes.length);
-    expect(Math.max(...y)).toBeGreaterThan(Math.min(...y));
-    expect(furthestX).toBeGreaterThan(xAsNumbers[0]);
-    expect(returnIndex).toBeGreaterThan(furthestXIndex);
-    expect(
-      xAsNumbers.slice(furthestXIndex + 1, returnIndex).some((value) => value > xAsNumbers[0] && value < furthestX),
-    ).toBe(true);
-    expect(xAsNumbers.at(-1)).toBe(xAsNumbers[0]);
-    expect(y.at(-1)).toBe(y[0]);
-    expect(dragStartIndex).toBeGreaterThan(0);
-    expect(sourceOutlineOpacity[0]).toBe(0);
-    expect(sourceOutlineOpacity[dragStartIndex - 1]).toBe(1);
-    expect(Math.max(...sourceOutlineOpacity)).toBeGreaterThan(0);
-    expect(sourceOutlineOpacity.at(-1)).toBe(0);
-    expect(sourceOutlineOpacity.slice(dragStartIndex, returnIndex).every((opacity) => opacity > 0)).toBe(true);
-    expect(sourceOutlineOpacity[returnIndex]).toBe(0);
-    expect(movingElementStart).toBeGreaterThanOrEqual(0);
-    expect(movingElementEnd).toBeGreaterThan(movingPhaseIndex);
-    expect(movingElement).toContain("x: PIPELINE_DRAG_X");
-    expect(movingElement).toContain("y: PIPELINE_DRAG_Y");
-    expect(movingElement).toContain("times: PIPELINE_DRAG_TIMES");
-    expect(movingElement).not.toMatch(/\bopacity:/u);
-    expect(movingElement).toContain("record={PIPELINE_RECORDS.active}");
-    expect(visuals.match(/record=\{PIPELINE_RECORDS\.active\}/gu)).toHaveLength(1);
-    expect(visuals).toContain("transform: `translateY(${PIPELINE_DRAG_Y[0]}px)`");
-    expect(sourceOutlineElement).toMatch(/^<motion\.span\b/u);
-    expect(sourceOutlineElement).toContain("aria-hidden");
-    expect(sourceOutlineElement).toContain("pointer-events-none relative z-10 col-start-1 row-start-1");
-    expect(sourceOutlineElement).toContain("rounded-xl border border-dashed border-input");
-    expect(sourceOutlineElement).toContain("bg-card/50");
-    expect(sourceOutlineElement).toContain("opacity: PIPELINE_SOURCE_OUTLINE_OPACITY");
-    expect(sourceOutlineBlock).not.toContain("PipelineCard");
-    expect(movingElement).toContain("relative z-20 col-start-1 row-start-1");
-    expect(visuals).not.toContain('data-homepage-pipeline-source-card="deal-open"');
-    expect(visuals.match(/data-homepage-pipeline-source-footprint="deal-open"/gu)).toHaveLength(1);
-    expect(visuals).toContain("data-homepage-pipeline-background-card={status}");
-    expect(visuals).not.toMatch(/PIPELINE_COLUMN_ACTIVITY|PIPELINE_COLUMN_TIMES|PIPELINE_DRAG_OPACITY/u);
-    expect(visuals).not.toMatch(/data-homepage-pipeline-highlight|data-homepage-pipeline-card-dim/u);
-    expect(visuals).not.toMatch(/PIPELINE_OPEN_CARD_FILTER|data-homepage-pipeline-open-card-blur|blur\(/u);
-    expect(visuals).not.toMatch(/brightness-(?:50|75|\[0\.7\])/u);
-    expect(visuals).not.toMatch(/w-\[(?:25|26|27)%\][^\n]*opacity-(?:35|40|45)/u);
   });
 });

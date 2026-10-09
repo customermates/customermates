@@ -1,220 +1,188 @@
 ---
-title: "CRM und ERP: Unterschiede und Zusammenspiel"
-description: "Planen Sie ein CRM-ERP-System mit klarer Datenhoheit. Vergleichen Sie integrierte Suiten mit spezialisierten Systemen und definieren Sie Modulgrenzen."
+title: "Unterschied CRM und ERP: Wer führt welche Daten?"
+description: "CRM steuert Kunden und Vertrieb, ERP Aufträge, Lager und Finanzen. Welche Daten wohin gehören, wann Sie beides brauchen und wo Lexware Office passt."
 
 relatedHrefs:
-  - /blog/erp-vs-crm
   - /blog/crm-erp-integration
-  - /features/crm-integration
+  - /features/integrations
   - /compare/odoo
+  - /docs/webhooks
 
 hero:
-  title: "CRM-ERP-System: Eine Suite oder zwei spezialisierte Systeme?"
-  description: Ein gemeinsames CRM-ERP-System kann eine Suite oder ein verbundener Aufbau aus Spezialprodukten sein. Wählen Sie zuerst das Betriebsmodell und dann Module, Verantwortlichkeiten und Übergaben.
+  title: "CRM und ERP: Was ist der Unterschied, und wer führt welche Daten?"
+  description: "Das CRM begleitet den Kunden bis zum gewonnenen Deal, das ERP oder die Buchhaltungssoftware alles danach. Hier sehen Sie die Aufteilung der Daten, was ein kleines Unternehmen wirklich braucht und wie Sie beide Systeme ohne doppelte Eingabe verbinden."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-01-06
+  updated: 2026-10-08
   tags:
     - CRM
     - ERP
     - Business-Systeme
 ---
 
-# CRM-ERP-System: Eine Suite oder zwei spezialisierte Systeme?
+# CRM und ERP: Was ist der Unterschied, und wer führt welche Daten?
 
-Ein **CRM-ERP-System** soll kundennahe und operative Teams entlang derselben kommerziellen Beziehung zuverlässig arbeiten lassen. Dafür braucht es weder zwingend eine Anwendung noch eine einzige Datenbank. Es braucht eine eindeutige Architektur: Welches Modul führt welchen Datensatz, welches Team kontrolliert ihn und welche Informationen überqueren die Systemgrenze?
+Ein CRM verwaltet die Menschen, an die Sie verkaufen, und die Deals, an denen Sie gerade arbeiten. Ein ERP verwaltet, was nach dem Verkauf passiert: Aufträge, Lager, Einkauf, Rechnungen, Zahlungen und Buchhaltung. Die einfachste Trennlinie ist der gewonnene Deal. Alles davor gehört ins CRM, alles danach ins ERP.
 
-Zwei Grundmodelle sind sinnvoll:
+Viele kleine Dienstleister brauchen gar kein vollwertiges ERP. Eine Beratung oder Agentur mit fünf Mitarbeitenden kommt meist mit einem CRM für den Vertrieb und einer Rechnungs- und Buchhaltungssoftware wie Lexware Office oder sevDesk aus. Diese Kombination ist das „kleine ERP" für Unternehmen ohne Lager und Fertigung. Um diese Kombination geht es unten ebenso wie um die Frage nach einer großen Komplettlösung.
 
-1. **Eine integrierte Suite** stellt CRM- und ERP-Module innerhalb einer Produktfamilie bereit.
-2. **Ein verbundener Systemaufbau** kombiniert ein spezialisiertes CRM mit einem spezialisierten ERP.
+Dieser Leitfaden stammt von Customermates. Customermates ist ein CRM, kein ERP und keine Buchhaltungssoftware, und kommt unten nur dort vor, wo es passt.
 
-Wählen Sie die Suite, wenn ihre Module die tatsächlichen Abläufe abdecken und weniger Anbieter- und Administrationsaufwand wichtiger ist. Wählen Sie den verbundenen Aufbau, wenn Kundenarbeit und Backoffice unterschiedliche Anforderungen haben, die Spezialprodukte besser erfüllen. Auch eine Suite mit unklarer Modulverantwortung erzeugt Dubletten; zwei Produkte mit klaren Grenzen können dagegen wie ein stimmiges Business-System funktionieren.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="CRM">Kontakte, Organisationen, Deals, Pipeline-Phasen, Gespräche und nächste Schritte. Genutzt von Vertrieb, Kundenbetreuung und Geschäftsführung.</SummaryItem>
+  <SummaryItem label="ERP">Aufträge, Rechnungen, Zahlungen, Lager, Einkauf, Produktion und Buchhaltung. Genutzt von Finanzen und Betrieb.</SummaryItem>
+  <SummaryItem label="Kleiner Dienstleister">Ein CRM plus eine Rechnungssoftware deckt meist beide Seiten ab. Ein ERP lohnt sich ab Lager, Einkauf oder Fertigung.</SummaryItem>
+  <SummaryItem label="Verbinden">Pro Feld genau ein führendes System, eine feste ID auf beiden Seiten und nur wenige Felder im Austausch: Kundendaten hin, Zahlungsstatus zurück.</SummaryItem>
+</ArticleSummary>
 
-Wenn Sie zunächst klären müssen, ob CRM, ERP oder beide nötig sind, beginnen Sie mit dem [Vergleich ERP vs. CRM](/blog/erp-vs-crm). Wenn die Produkte bereits feststehen und Sie Mapping, Synchronisation, Wiederholungen und Monitoring planen, hilft der Leitfaden zur [CRM-ERP-Integration](/blog/crm-erp-integration). Dieser Beitrag behandelt die Systemarchitektur zwischen diesen Entscheidungen.
+## CRM und ERP im direkten Vergleich
 
-## Was mit einem CRM-ERP-System gemeint ist
+| | CRM | ERP |
+| --- | --- | --- |
+| Beantwortet die Frage | Mit wem sprechen wir, und was ist der nächste Schritt? | Was haben wir verkauft, geliefert, berechnet und bezahlt bekommen? |
+| Wer damit arbeitet | Vertrieb, Kundenbetreuung, Geschäftsführung, Service | Buchhaltung, Betrieb, Einkauf, Produktion |
+| Zentrale Datensätze | Kontakte, Organisationen, Deals, Aufgaben, Gespräche | Aufträge, Rechnungen, Zahlungen, Artikel, Bestände, Lieferanten, Hauptbuch |
+| Arbeitsweise | Flexibel: Deals wechseln die Phase, Pläne ändern sich | Kontrolliert: Belege werden gebucht, nummeriert und geprüft |
+| Was ohne das System schiefgeht | Nachfassen bleibt liegen, das letzte Gespräch kennt keiner | Falsche Rechnungen, Bestandsfehler, ein zäher Monatsabschluss |
+| Typische Anbindungen | E-Mail, LinkedIn, WhatsApp, Kalender, Website | Bank, Steuerberater, Shop, Logistik, Lohnabrechnung |
 
-Der Begriff beschreibt einen Business-System-Aufbau, der beide Seiten des Kundenlebenszyklus unterstützt:
+Beide Systeme überschneiden sich bei den Kundenstammdaten. Name und Anschrift des Kunden braucht jedes von ihnen, und genau dort entstehen Dubletten. Der nächste Abschnitt regelt das.
 
-- **CRM-Verantwortung:** Personen, Organisationen, Beziehungen, Chancen, Aktivitäten, Aufgaben und kundenbezogener Kontext;
-- **ERP-Verantwortung:** Aufträge, Rechnungen, Zahlungen, Bestände, Einkauf, Lieferung, Produktion, Buchhaltung und andere kontrollierte operative Transaktionen.
+## Welches System welche Daten führt
 
-Die genauen Module unterscheiden sich je Produkt. Entscheidend ist nicht, ob ein Anbieter beide Begriffe verwendet, sondern ob das System die benötigten Abläufe mit einer erkennbaren Datenhoheit unterstützt.
+Legen Sie fest, welches System welchen Datensatz und welches Feld führt, bevor Sie irgendetwas verbinden. Ungeklärte Datenhoheit verursacht mehr Ärger beim Abgleich als die Schnittstelle selbst. Für einen typischen kleinen Dienstleister passt diese Aufteilung:
 
-So kann der Vertrieb an einer Chance im CRM arbeiten, während Finanzabteilung und Betrieb einen Auftrag im ERP führen. Beide Teams brauchen einen gemeinsamen Kundenbezug, aber nicht dieselbe Änderungsberechtigung für jedes Feld. Das CRM kann Auftragsnummer und Zahlungsstatus aus dem ERP anzeigen, ohne selbst zum Finanzledger zu werden. Das ERP kann die ursprüngliche Deal-Kennung speichern, ohne der Ort für Beziehungsnotizen und Nachfassaktionen zu sein.
+| Datensatz oder Feld | Führendes System | Kopie auf der anderen Seite |
+| --- | --- | --- |
+| Person, Rolle, Beziehungsnotizen | CRM | Nur Name und E-Mail des Rechnungskontakts |
+| Organisation (Firma) | CRM bis zur ersten Rechnung, danach gemeinsam | ERP-Kundennummer an der Organisation im CRM |
+| Firmierung, USt-IdNr., Rechnungsanschrift | ERP oder Rechnungssoftware | Als Kopie im CRM, geändert wird nur im ERP |
+| Deal, Phase, Deal-Wert, nächster Schritt | CRM | Optional: Deal-ID am Auftrag |
+| Artikel, Preise, Bestände | ERP | Namen der Leistungen als Positionen im Deal |
+| Auftrag, Rechnung, Rechnungsnummer | ERP oder Rechnungssoftware | Rechnungsnummer am Deal |
+| Zahlungsstatus | ERP oder Rechnungssoftware | Einzelauswahl-Feld am Deal, geschrieben von der Integration |
+| Gespräche und Gesprächsnotizen | CRM | Nichts, die Buchhaltung braucht sie selten |
 
-## Drei tragfähige Systemarchitekturen
+Zwei Regeln halten das stabil. Erstens ändert nur eine Seite ein Feld, die andere liest es. Zweitens speichern beide Systeme die ID des jeweils anderen (CRM-Organisations-ID im ERP, ERP-Kundennummer im CRM), damit Sie Datensätze nie über den Firmennamen abgleichen. Namen ändern sich, werden abgekürzt und doppelt erfasst.
 
-### 1. Integrierte CRM-ERP-Suite
+## Brauchen Sie ein CRM, ein ERP oder eine Rechnungssoftware?
 
-Ein Anbieter liefert beide Module, häufig mit gemeinsamer Identität, Datenmodell, Administration oder Berichtsoberfläche.
+Gehen Sie vom Problem aus, das Sie heute haben, nicht von der Softwarekategorie.
 
-Diese Architektur passt, wenn:
+| Ihre Lage | Beginnen Sie mit |
+| --- | --- |
+| Anfragen gehen verloren, niemand weiß, wer zuletzt mit dem Kunden gesprochen hat | einem CRM |
+| Sie verkaufen Dienstleistungen, schreiben einige Dutzend Rechnungen im Monat und arbeiten mit einem Steuerberater | einer Rechnungs- und Buchhaltungssoftware, dazu einem CRM für den Vertrieb |
+| Sie führen Lager, kaufen Material ein, planen Fertigung oder versenden Ware | einem ERP |
+| Vertrieb und Buchhaltung funktionieren, aber die Übergabe dazwischen hakt | beidem, mit einer schmalen Verbindung |
+| Sie wollen einen Anbieter und einen Login für alles, und die Module passen zu Ihren Abläufen | einer Komplettlösung |
 
-- das CRM-Modul die Kundenabläufe ausreichend unterstützt;
-- das ERP-Modul die benötigten operativen Kontrollen abdeckt;
-- gemeinsame Administration wichtiger ist als maximale Spezialisierung;
-- die Organisation einen Anbieter und einen koordinierten Aktualisierungspfad bevorzugt;
-- regionale, branchenspezifische und regulatorische Anforderungen durch die jeweiligen Module erfüllt werden.
+Ein CRM-Modul im ERP deckt oft Kontakte und einfache Verkaufschancen ab. Prüfen Sie es an einer echten Vertriebswoche, bevor Sie sich darauf verlassen: Wie landet ein neues LinkedIn- oder WhatsApp-Gespräch beim Kunden, wie fällt ein stockender Deal auf, wie übernimmt eine Kollegin einen Kunden? Umgekehrt beginnt die Kundenakte einer Rechnungssoftware erst, wenn es etwas abzurechnen gibt. Eine Pipeline hat sie nicht.
 
-„Integriert“ bedeutet nicht automatisch „eine Datenhoheit“. Prüfen Sie, ob CRM- und ERP-Modul weiterhin getrennte Kunden-, Produkt- oder Auftragsobjekte führen und wie sie Konflikte behandeln.
+## Eine Komplettlösung oder zwei spezialisierte Systeme?
 
-### 2. Spezialisiertes CRM mit spezialisiertem ERP
+Eine Komplettlösung bündelt CRM- und ERP-Module bei einem Anbieter. Für kleinere Unternehmen ist Odoo ein verbreitetes Beispiel: Laut [Preisseite](https://www.odoo.com/pricing) gibt es einen kostenlosen Tarif mit einer App und bezahlte Tarife mit allen Apps, darunter CRM, Verkauf und Buchhaltung. Wie Odoo im Vergleich zu einem eigenständigen CRM abschneidet, steht im [Odoo-Vergleich](/compare/odoo).
 
-Jedes System wird für die Arbeit ausgewählt, die es am besten ausführt. Das CRM führt Kunden- und Vertriebsabläufe, das ERP operative und finanzielle Transaktionen. Ein enger Datenaustausch stellt auf beiden Seiten den notwendigen Kontext bereit.
+| | Komplettlösung | CRM plus ERP oder Rechnungssoftware |
+| --- | --- | --- |
+| Gemeinsamer Kundendatensatz | Meist eingebaut | Braucht eine Synchronisierung oder eine manuelle Übergabe |
+| Passung für jedes Team | Hängt am schwächsten Modul, das Sie nutzen | Jede Seite wählt das Werkzeug, das zu ihrer Arbeit passt |
+| Einen Teil austauschen | Schwieriger, die Module hängen zusammen | Eine Seite tauschen, die andere behalten |
+| Laufender Aufwand | Ein System konfigurieren und aktualisieren | Eine Integration betreiben und überwachen |
 
-Diese Architektur passt, wenn:
+Keine Variante ist von sich aus einfacher. Eine Suite, deren CRM-Modul der Vertrieb meidet, erzeugt dieselben Excel-Listen, die Sie loswerden wollten. Zwei Systeme ohne klares führendes System pro Feld erzeugen Dubletten. Wählen Sie die Spalte, deren laufenden Aufwand Sie tragen wollen.
 
-- Vertrieb oder Service flexible Beziehungs- und Pipelineabläufe benötigen;
-- Finanzen, Bestand, Lieferung oder Produktion ein zweckgebautes ERP verlangen;
-- ein System austauschbar bleiben soll, ohne das andere zu ersetzen;
-- Produkt-Roadmaps oder Bereitstellungsanforderungen voneinander abweichen;
-- das Unternehmen die Systemgrenze als dauerhafte Betriebsaufgabe übernehmen kann.
+## Lexware Office, sevDesk und Co. neben einem CRM
 
-Der Aufwand besteht nicht nur aus „Integration“. Dauerhaft zu verantworten sind Kennungen, Berechtigungen, Monitoring, Abgleich und Änderungen auf beiden Seiten.
+Bei kleinen Unternehmen in Deutschland ist die „ERP-Seite" oft eine Rechnungs- und Buchhaltungssoftware, die die Daten an den Steuerberater übergibt. Wer eine Lexoffice-Alternative sucht, sollte zuerst klären, ob das Problem in der Buchhaltung oder im Vertrieb liegt. Ein Wechsel der Buchhaltungssoftware rettet keine verlorenen Deals, und keine der folgenden Preisseiten nennt eine Vertriebspipeline oder Deal-Phasen.
 
-### 3. Ein Hauptsystem mit leichterem Begleitmodul
+Lexoffice heißt inzwischen Lexware Office, wie die [Produktseite von Lexware](https://www.lexware.de/lexoffice/) bestätigt. Für die Anbindung an ein CRM zählt vor allem, welcher Tarif die Schnittstelle enthält:
 
-Manche Unternehmen nutzen ein ERP mit einfachem CRM-Modul oder ein CRM neben Buchhaltungs- und operativen Werkzeugen, die kein vollständiges ERP bilden. Das kann genügen, wenn eine Seite des Geschäfts einfach bleibt.
+| Software | Tarife | API-Zugang laut Preisseite des Anbieters |
+| --- | --- | --- |
+| [Lexware Office](https://www.lexware.de/preise/) | S, M, L, XL | Public API nur im Tarif XL |
+| [sevDesk](https://sevdesk.de/preise/) | Kostenlos, Rechnung, Buchhaltung, Buchhaltung Pro | REST-API nur in Buchhaltung Pro |
+| [FastBill](https://www.fastbill.com/preise) | Solo, Plus, Pro, Premium | REST-API und Webhooks in jedem Tarif, mit stündlichen Aufruflimits je nach Tarif |
+| [Billomat](https://www.billomat.com/preise/) | Professional, Business, Enterprise | Business und Enterprise |
 
-Nutzen Sie dieses Modell nur, wenn das leichtere Modul die tatsächliche Arbeit beherrscht. Eine Kontaktliste im ERP ist nicht automatisch ein leistungsfähiges Vertriebs-CRM. Einige Rechnungsfelder im CRM ergeben noch kein Buchhaltungssystem. Bewerten Sie Abläufe und Kontrollen statt der Bezeichnungen im Menü.
+Tarife und API-Stufen wurden am 8. Oktober 2026 geprüft. Preise ändern sich häufig, vergleichen Sie sie daher auf den verlinkten Seiten. Vor einem Wechsel lohnen zwei weitere Fragen: Welches Exportformat braucht Ihr Steuerberater, und welche E-Rechnungsformate müssen Sie senden und empfangen? Lexware Office nennt zum Beispiel ZUGFeRD und XRechnung in allen vier Tarifen.
 
-## Suite oder verbundener Systemaufbau
+Fehlt Ihnen eigentlich der Vertrieb, behalten Sie die Buchhaltungssoftware und ergänzen Sie ein CRM. Die [Entwicklerdokumentation von Lexware](https://developers.lexware.io/docs/) nennt Endpunkte für Kontakte, Rechnungen, Angebote und Zahlungen sowie Event-Abonnements. Mehr braucht die unten beschriebene Übergabe nicht.
 
-| Entscheidungskriterium | Integrierte Suite                                                   | Verbundene Spezialsysteme                                                               |
-| ---------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Prozesspassung         | Sinnvoll, wenn beide Module die benötigten Abläufe treffen          | Sinnvoll, wenn jede Funktion stärkere Spezialisierung braucht                           |
-| Administration         | Potenziell weniger Anbieter-, Identitäts- und Konfigurationsflächen | Getrennte Administration mit ausdrücklicher Systemgrenze                                |
-| Datenhoheit            | Kann gemeinsam oder modulspezifisch sein; prüfen statt annehmen     | Muss für jede geteilte Entität und jedes Feld bewusst zugewiesen werden                 |
-| Veränderbarkeit        | Module und Aktualisierungen können gekoppelt sein                   | Beide Systeme können sich meist unabhängig verändern, solange ihr Vertrag stabil bleibt |
-| Reporting              | Kann ein gemeinsames Modell bieten; Modulsemantik bleibt wichtig    | Benötigt meist eine definierte Berichts- oder Data-Warehouse-Strategie                  |
-| Betriebsaufwand        | Konfiguration, Governance und Suite-spezifische Anpassungen         | Integration, Monitoring, Abgleich und zwei Produktlebenszyklen                          |
-| Austauschrisiko        | Der Wechsel eines Moduls kann die gesamte Suite betreffen           | Beim Wechsel einer Seite müssen Grenze und historische Referenzen erhalten bleiben      |
+## Die Übergabe Schritt für Schritt
 
-Keine Spalte ist grundsätzlich einfacher. Einfachheit bedeutet weniger Widerspruch zwischen System und Arbeit – nicht zwingend weniger Anwendungen.
+Das ist die kleinste sinnvolle Verbindung zwischen einem CRM und einer Rechnungssoftware oder einem ERP. Sie ist für Customermates auf der CRM-Seite beschrieben, die Reihenfolge gilt aber für jedes Paar.
 
-## Betriebsgrenze vor der Produktauswahl definieren
+<Steps>
+  <Step title="Felder für die Übergabe anlegen">
+    Legen Sie an Organisationen ein benutzerdefiniertes Text-Feld „Kundennr. Buchhaltung" an. An Deals kommen ein Text-Feld „Rechnungsnr." und ein Einzelauswahl-Feld „Zahlungsstatus" mit den Optionen Offen, Teilweise bezahlt und Bezahlt hinzu. Vereinbaren Sie, dass nur die Integration diese Felder schreibt.
+  </Step>
+  <Step title="Den Auslöser wählen">
+    Abonnieren Sie per [Webhook](/docs/webhooks) das Ereignis `deal.updated`. Update-Ereignisse enthalten ein `changes`-Objekt mit dem alten und neuen Wert jedes geänderten Felds. So reagiert Ihre Integration nur, wenn die Phase auf Gewonnen springt, und ignoriert jede andere Änderung.
+  </Step>
+  <Step title="Kunden anlegen oder zuordnen">
+    Hat die Organisation noch keine Kundennummer aus der Buchhaltung, legen Sie den Kunden über die API der Buchhaltungssoftware an und schreiben die zurückgegebene Nummer über die REST-API von Customermates an die Organisation. Gibt es die Nummer schon, verwenden Sie sie. Gleichen Sie nie über den Firmennamen ab.
+  </Step>
+  <Step title="Rechnung oder Auftrag dort erstellen">
+    Erstellen Sie in der Buchhaltungssoftware einen Rechnungs-, Angebots- oder Auftragsentwurf mit den Leistungen und dem Wert des Deals. Customermates selbst erstellt weder Angebote noch Rechnungen. Die Belegnummer landet im Feld „Rechnungsnr." am Deal.
+  </Step>
+  <Step title="Zahlungsstatus zurückmelden">
+    Ändert sich die Zahlung in der Buchhaltung (über deren Event-Abonnement oder einen nächtlichen Abruf), aktualisiert die Integration „Zahlungsstatus" am Deal. Ein Schreibvorgang ohne tatsächliche Änderung löst in Customermates kein neues Ereignis aus, die Integration läuft also nicht in eine Schleife.
+  </Step>
+  <Step title="Wöchentlich prüfen">
+    Filtern Sie Deals in der Phase Gewonnen mit leerem Feld „Rechnungsnr." und speichern Sie das als persönliche Ansicht. Alles, was dort steht, ist eine gescheiterte Übergabe. Fehlgeschlagene Webhook-Zustellungen stehen unter „Letzte Zustellungen" und lassen sich dort erneut senden.
+  </Step>
+</Steps>
 
-Eine brauchbare Architektur benennt für jede wichtige Geschäftsinformation genau eine Instanz mit Datenhoheit. Eine anfängliche Grenze kann so aussehen:
+Die Integration selbst läuft außerhalb beider Systeme: als kleiner eigener Dienst oder als n8n-Workflow mit dem [n8n-Node von Customermates](/docs/n8n). n8n ist ein eigenständiges Produkt, das Sie selbst betreiben oder abonnieren. Feldzuordnung, Authentifizierung, Idempotenz und Überwachung behandelt der [Leitfaden zur CRM-ERP-Integration](/blog/crm-erp-integration) ausführlicher.
 
-| Datensatz oder Information              | Typisch führendes System                      | Möglicher Kontext für die andere Seite                |
-| --------------------------------------- | --------------------------------------------- | ----------------------------------------------------- |
-| Person und Beziehungskontext            | CRM                                           | Referenz auf Rechnungs- oder Lieferkontakt            |
-| Organisation und kommerzielle Beziehung | CRM, nach Anlage ergänzt um ERP-Kundenkennung | Status der rechtlichen oder abrechnenden Einheit      |
-| Dealphase und nächste Aktion            | CRM                                           | freigegebener kommerzieller Bezug                     |
-| Produkt-, Bestands- und Lieferregeln    | ERP                                           | auswählbare Produkt- oder Verfügbarkeitsreferenz      |
-| Auftrag und Rechnung                    | ERP                                           | Kennung und kundenrelevanter Status                   |
-| Zahlung und Buchungsstatus              | ERP                                           | ausgewählter Status für berechtigte kundennahe Nutzer |
-| Beziehungsnotizen und Aktivitäten       | CRM                                           | meist keine breite Kopie erforderlich                 |
+## Wo Customermates passt und wo nicht
 
-Das sind Muster, keine universellen Regeln. Regulierte oder branchenspezifische Prozesse können eine andere Hoheit verlangen. Entscheidend ist, dass das Team erklären kann, wer jeden Datensatz anlegen, korrigieren und löschen darf.
+Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontakt, entwickelt in Deutschland. Auf der CRM-Seite der Tabellen oben deckt es Kontakte, Organisationen, Deals mit konfigurierbaren Phasen auf einem [Pipeline-Board](/features/pipeline), Leistungen (Services) als Positionen im Deal, Aufgaben, benutzerdefinierte Felder und gespeicherte Ansichten ab. Die Phasen tragen Gewichtungen, daraus ergibt sich ein gewichteter Pipeline-Wert. Ab dem Tarif Pro in Customermates Cloud liegen E-Mail-, LinkedIn- und WhatsApp-Gespräche im [einheitlichen Posteingang](/features/unified-inbox) direkt beim Kunden.
 
-Vermeiden Sie die unscharfe Anforderung „bidirektionale Synchronisation“. Sie verdeckt mehrere Entscheidungen:
+Für die Verbindung zu ERP oder Rechnungssoftware gibt es eine REST-API, [[derived.webhooks.events.total]] Webhook-Ereignistypen und einen MCP-Server mit [[derived.mcp.tools.total]] Tools, aufgelistet auf der [Seite zu Integrationen](/features/integrations).
 
-- Sind Person, Organisation und rechtlicher Kunde in beiden Systemen dieselbe Entität?
-- Welches System vergibt die dauerhafte Kennung?
-- Darf ein Vertriebsnutzer eine Abrechnungsinformation ändern?
-- Was geschieht, wenn sich ein akzeptierter Deal nach der Auftragserstellung ändert?
-- Welcher historische Zustand muss unveränderbar bleiben?
-- Wer löst einen Widerspruch vor dem nächsten Kundengespräch oder Finanzabschluss?
+Was Customermates nicht macht:
 
-Diese Antworten gehören auch dann ins Betriebsmodell, wenn eine Suite beide Module liefert.
+- Es erstellt keine Angebote oder Rechnungen, verbucht keine Zahlungen, führt keine Buchhaltung, kein Lager und keine Fertigungsplanung. Das bleibt in Ihrem ERP oder Ihrer Rechnungssoftware.
+- Es gibt keine fertige Anbindung an Lexware Office, sevDesk, DATEV oder ein ERP. Die Übergabe oben bauen Sie mit API, Webhooks oder n8n.
+- Datensätze werden als XLSX-Arbeitsmappe importiert und exportiert, jeweils ein Datensatztyp. Wer Kontakte aus einer Rechnungssoftware übernimmt, speichert deren Export als XLSX und importiert zuerst die Organisationen, dann die Kontakte.
+- Den einheitlichen Posteingang und Mate, den Assistenten, gibt es nur in Customermates Cloud. Eine selbst gehostete Installation ist der Open-Source-Kern mit REST, Webhooks und MCP.
 
-## Durchgängige Abläufe statt Funktionsliste bewerten
+Wenn Sie CRM und Buchhaltung unter einem Login und bei einem Anbieter wollen, passt eine Komplettlösung besser als Customermates.
 
-Prüfen Sie das System anhand vollständiger Geschäftsvorgänge. Ein typischer Ablauf von Vertrieb zu Betrieb umfasst:
-
-1. Person und Organisation gelangen mit ihrem Beziehungskontext ins CRM.
-2. Ein Team qualifiziert die Chance und hält den vorgeschlagenen kommerziellen Umfang fest.
-3. Eine berechtigte Entscheidung gibt die Chance für die operative Übergabe frei.
-4. Das ERP erstellt den kontrollierten Auftrag, das Projekt oder das Abrechnungsobjekt.
-5. Seine dauerhafte Kennung ist im CRM sichtbar.
-6. Ausgewählter Liefer- oder Zahlungsstatus fließt für die Kundenkommunikation zurück.
-7. Korrekturen, Stornierungen und Dubletten folgen einem benannten Verfahren.
-
-Diese Abfolge ist ein Architekturtest, keine Integrationsspezifikation. Lassen Sie sich während der Evaluierung den Normalfall und mindestens einen Fehler- oder Korrekturfall zeigen. Ein poliertes Dashboard ist weniger aussagekräftig als die Frage, wer nach einer Änderung für den Zustand verantwortlich bleibt.
-
-## Anforderungen an einen kombinierten CRM-ERP-Aufbau
-
-### Funktionspassung
-
-Dokumentieren Sie die wesentlichen Abläufe auf beiden Seiten. Im CRM können das Beziehungsverlauf, Pipeline, Aufgaben, Aktivitäten, benutzerdefinierte Felder und kundennahe Ansichten sein. Im ERP können es Aufträge, Rechnungen, Finanzen, Bestand, Einkauf, Lieferung oder Produktion sein. Kennzeichnen Sie Pflichtanforderungen und Funktionen, die in einem weiteren Spezialwerkzeug bleiben dürfen.
-
-### Daten und Identität
-
-Klären Sie, wie Personen, Organisationen, rechtliche Einheiten, Standorte, Produkte, Währungen, Steuerkontext und historische Datensätze dargestellt werden. Entscheiden Sie, welche Kennungen eine Migration oder den Austausch eines Moduls überstehen müssen. Nur nach Name oder E-Mail-Adresse abzugleichen ist selten eine tragfähige langfristige Identitätsstrategie.
-
-### Berechtigungen und Kontrollen
-
-Ordnen Sie Rollen den Datensätzen und Aktionen zu. Ein Vertriebsmitarbeiter muss vielleicht einen Zahlungsstatus sehen, darf ihn aber nicht ändern. Die Finanzabteilung benötigt den akzeptierten kommerziellen Bezug, aber nicht jede Beziehungsnotiz. Self-Hosting oder Cloud-Betrieb ersetzt keine anwendungsbezogenen Autorisierungs- und Audit-Anforderungen.
-
-### Reporting
-
-Definieren Sie, welche Entscheidung ein Bericht unterstützt und wie aktuell seine Daten sein müssen. Pipeline- und Beziehungsberichte liegen natürlicherweise nahe am CRM. Gebuchte Umsätze, Kosten, Bestände und Finanzberichte liegen nahe am ERP. Systemübergreifende Auswertungen können kuratierte Referenzen oder ein separates Analysemodell nutzen, statt operative Hoheit zu kopieren.
-
-### Betriebsfähigkeit
-
-Bestimmen Sie Verantwortliche für Konfiguration, Zugriffe, Datenqualität, Anbieteränderungen, Abgleiche und Vorfälle. Eine Architektur ist unvollständig, wenn alle den Idealfall bedienen können, aber niemand eine gescheiterte Übergabe oder einen mehrdeutigen Datensatz verantwortet.
-
-## Praktisches Auswahlverfahren
-
-1. **Drei bis fünf zentrale Abläufe abbilden.** Erfassen Sie Personen, Entscheidungen, Datensätze und Kontrollen vom ersten Kontakt bis zum operativen Abschluss.
-2. **Datenhoheit zuweisen.** Markieren Sie für jede wichtige Entität und jedes Feld das führende System oder Modul.
-3. **Architekturen vor Anbietern eingrenzen.** Entscheiden Sie, ob Suite, spezialisierter Aufbau oder leichteres Begleitmodell grundsätzlich passt.
-4. **Mit repräsentativen Daten testen.** Berücksichtigen Sie Dubletten, Korrekturen, Stornierungen, Berechtigungen und historische Referenzen.
-5. **Betriebsaufwand schätzen.** Beziehen Sie Konfiguration, Migration, Schulung, Reporting, Integrationsverantwortung und Produktänderungen ein – nicht nur Abonnements.
-6. **Ausstiegspfade prüfen.** Klären Sie, wie Daten, Kennungen, Dokumente und Audit-Verlauf exportiert oder erhalten werden können.
-7. **Einen vollständigen Ablauf pilotieren.** Messen Sie, ob Nutzer Arbeit ohne Neueingabe oder unklare Hoheit über die Grenze bewegen können.
-
-Überführen Sie einen Proof of Concept nicht allein deshalb in den Produktivbetrieb, weil der Idealfall funktioniert. Die Produktionsentscheidung muss Verantwortung, Wiederherstellung, Sicherheit und Abgleich einschließen.
-
-## Wo Customermates in ein CRM-ERP-System passt
-
-Customermates deckt CRM-Datensätze wie Kontakte, Organisationen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Ansichten, Dashboards und Aktivitäten ab. Unterstützte Integrationsflächen sind REST, Webhooks und MCP. Teams mit selbst betriebenem n8n können außerdem den separaten Customermates Community-Node verwenden.
-
-Customermates ist kein ERP. Es bietet keine nativen Angebote, Rechnungen, Aufträge, Zahlungen, Bestände, Einkaufs- oder Produktionsplanung und keine eingebettete n8n-Laufzeit. Es verspricht außerdem keinen nativen Connector für ein bestimmtes ERP.
-
-Ein ehrlicher Aufbau belässt kontrollierte operative Transaktionen deshalb im gewählten ERP und gibt Customermates nur den verlässlichen Kunden-, Deal- und Statuskontext, den seine Nutzer benötigen. Die Grenze und jede Integration werden getrennt entworfen und betrieben. Für die Umsetzung mit Mapping, Authentifizierung, Idempotenz, Wiederholungen, Monitoring und Abgleich geht es im Leitfaden zur [CRM-ERP-Integration](/blog/crm-erp-integration) weiter.
+Realistische Kosten für eine Beratung mit drei Personen im Tarif Pro: [[commercial.price.pro.monthly.seats.3]] pro Monat für das CRM mit einheitlichem Posteingang, dazu der Tarif der Buchhaltungssoftware mit API-Zugang. Abgerechnet wird monatlich. Details stehen auf der [Preisseite](/pricing).
 
 ## Häufige Fragen
 
 <Faq>
-<FaqItem question="Was ist ein CRM-ERP-System?">
-Es ist ein Business-System-Aufbau, der sowohl Kunden- und Vertriebsarbeit als auch operative oder finanzielle Transaktionen unterstützt. Das kann eine integrierte Suite oder eine Verbindung aus CRM und ERP sein, solange Hoheit und Übergaben eindeutig sind.
+<FaqItem question="Was ist der Unterschied zwischen CRM und ERP?">
+Ein CRM verwaltet Kundenbeziehungen und Vertrieb bis zum gewonnenen Deal: Kontakte, Gespräche, Pipeline und nächste Schritte. Ein ERP verwaltet die betriebliche und finanzielle Arbeit danach: Aufträge, Lager, Einkauf, Rechnungen, Zahlungen und Buchhaltung.
 </FaqItem>
 
-<FaqItem question="Ist eine gemeinsame CRM-ERP-Suite besser als zwei Systeme?">
-  Nicht grundsätzlich. Eine Suite passt, wenn beide Module überzeugen und
-  gemeinsame Administration echten Aufwand reduziert. Zwei Spezialsysteme
-  passen, wenn ihre Prozessstärke und unabhängige Entwicklung den Betrieb einer
-  klaren Grenze rechtfertigen.
+<FaqItem question="Sind SAP und CRM das Gleiche, und was ist Salesforce?">
+Nein. SAP bietet beides an. Die [SAP-Seite zu ERP und CRM](https://www.sap.com/resources/erp-vs-crm) nennt ERP-Produkte wie SAP S/4HANA Cloud und SAP Business One, das auch CRM-Funktionen enthält, daneben eine eigene SAP-CRM-Anwendung, und verneint, dass ein Cloud-ERP ein CRM ersetzen kann. Salesforce ist vor allem für sein CRM bekannt. Der eigene [Artikel zu ERP und CRM](https://www.salesforce.com/blog/erp-vs-crm/) stellt Salesforce CRM als kundennahe Seite dar und beschreibt die Verbindung mit ERP-Funktionen wie Kundenaufträgen und Bestandsführung.
 </FaqItem>
 
-<FaqItem question="Können CRM und ERP eine Datenbank verwenden?">
-  Einige Suiten nutzen eine gemeinsame Plattform oder ein Datenmodell. Das hebt
-  Modulverantwortung, Berechtigungen und Transaktionsregeln nicht auf. Eine
-  einzige physische Datenbank ist allein keine sinnvolle Anforderung.
+<FaqItem question="Braucht ein kleines Unternehmen ein ERP?">
+Meist nicht, solange es Dienstleistungen ohne Lager und Fertigung verkauft. Ein CRM für den Vertrieb und eine Rechnungs- und Buchhaltungssoftware decken das meiste ab, was ein ERP leisten würde. Ein ERP lohnt sich, wenn Sie Bestände, Einkauf, Fertigung oder mehrere Gesellschaften verwalten.
 </FaqItem>
 
-<FaqItem question="Was sollte das CRM in einem kombinierten System führen?">
-  Typischerweise führt das CRM Personen, Organisationen, Chancen,
-  Beziehungsverlauf, Aktivitäten und nächste Aktionen. Die genaue Grenze folgt
-  dem Geschäftsprozess und muss bei gemeinsam genutzten Daten bis auf Feldebene
-  dokumentiert werden.
+<FaqItem question="Ist CRM ein Teil von ERP?">
+Manche ERP-Suiten enthalten ein CRM-Modul, und manche CRMs gehören zu einer größeren Suite. Ob das Modul reicht, hängt von Ihrer Vertriebsarbeit ab. Testen Sie es eine echte Woche lang mit Anfragen, Nachfassen und Übergaben, bevor Sie entscheiden.
 </FaqItem>
 
-<FaqItem question="Was sollte das ERP in einem kombinierten System führen?">
-  Typischerweise führt das ERP Produkte, Aufträge, Rechnungen, Zahlungen,
-  Bestand, Einkauf, Lieferung, Produktion und Buchungsdaten. Diese
-  kontrollierten Transaktionen sollten nicht als informelle CRM-Felder
-  nachgebaut werden.
+<FaqItem question="Kann man Lexoffice als CRM nutzen?">
+Nur für einfache Kundendaten. Lexware Office, der heutige Name von Lexoffice, führt Kunden mit einem zeitlichen Verlauf ihrer Vorgänge, dazu Aufgaben, Notizen und ein Kundenportal. Deals oder Pipeline-Phasen nennt die Preisseite nicht. Die meisten Teams behalten es für die Buchhaltung und ergänzen ein CRM, angebunden über die Public API im Tarif XL.
 </FaqItem>
 
-<FaqItem question="Ist Customermates eine gemeinsame CRM-ERP-Suite?">
-Nein. Customermates ist ein CRM und kann die kundennahe Seite einer verbundenen Architektur bilden. ERP und Integration müssen getrennt ausgewählt, entworfen und betrieben werden.
+<FaqItem question="Ersetzt Customermates ein ERP oder eine Buchhaltungssoftware?">
+Nein. Customermates ist ein CRM. Es läuft neben Ihrem ERP oder Ihrer Rechnungssoftware und führt die Kunden- und Deal-Seite, während Rechnungen, Zahlungen und Buchhaltung im anderen System bleiben.
 </FaqItem>
 </Faq>
+
+Angaben zu anderen Anbietern geprüft am 8. Oktober 2026 auf den offiziellen Seiten von [Lexware Office](https://www.lexware.de/preise/), [sevDesk](https://sevdesk.de/preise/), [FastBill](https://www.fastbill.com/preise), [Billomat](https://www.billomat.com/preise/), [Odoo](https://www.odoo.com/pricing), [SAP](https://www.sap.com/resources/erp-vs-crm) und [Salesforce](https://www.salesforce.com/blog/erp-vs-crm/).

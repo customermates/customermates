@@ -1033,7 +1033,6 @@
   },
   "BrowserFrame": {
     "live": "Anteprima dal vivo",
-    "liveDemoTitle": "Demo live di Customermates",
     "open": "Apri in una nuova scheda"
   },
   "Common": {
@@ -1760,6 +1759,7 @@
       "system": "Sistema"
     },
     "unnamed": "Senza nome",
+    "updatedOn": "Aggiornato il {date}",
     "userStatuses": {
       "active": "Attivo",
       "inactive": "Inattivo",
@@ -2530,6 +2530,7 @@
     "success": "Feedback ricevuto. Fai ufficialmente parte della squadra."
   },
   "Footer": {
+    "about": "Chi siamo",
     "company": "Azienda",
     "copyrightText": "© {year} Customermates. Tutti i diritti riservati.",
     "dpa": "DPA",
@@ -2892,8 +2893,9 @@
       "consultants": "Consulenti",
       "contactManagement": "Gestione dei contatti",
       "emailAndGmail": "Email e Gmail",
-      "healthcare": "Sanità",
+      "freelancers": "Freelance",
       "integrations": "Integrazioni",
+      "lawFirms": "Studi legali",
       "mcp": "MCP",
       "n8n": "Automazione n8n",
       "openSourceCrm": "CRM open source",
@@ -2901,7 +2903,6 @@
       "primaryNavigation": "Navigazione principale",
       "product": "Prodotto",
       "professionalServices": "Servizi professionali",
-      "propertyManagement": "Gestione immobiliare",
       "providerChatGPT": "ChatGPT",
       "providerClaude": "Claude",
       "providerCodex": "Codex",

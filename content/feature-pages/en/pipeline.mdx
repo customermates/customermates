@@ -1,17 +1,17 @@
 ---
-title: "Sales Pipeline Management Software: Visual Kanban"
-description: "Sales pipeline management software with drag-and-drop kanban boards, customizable deal stages, and dashboard charts. Open source and self-hostable."
+title: "Sales Pipeline Software: Kanban Board for Deals"
+description: "Sales pipeline software with a drag-and-drop deal board, stage probabilities and a weighted pipeline. Setup, multiple pipelines, limits and costs."
 featureName: Sales Pipeline
 
 relatedHrefs:
-  - /features/crm-integration
-  - /features/customer-service
-  - /features/email-integration
-  - /features/follow-up
+  - /features/sales
+  - /features/reporting
+  - /features/workflow-automation
+  - /blog/sales-pipeline
 
 hero:
-  title: A Sales Pipeline That Shows You Exactly Where Every Deal Stands
-  description: Visualize your entire pipeline with drag-and-drop kanban boards. Supported external AI clients can update permitted deal fields through MCP, while the client and model remain separate. Chart current pipeline values on personal dashboards and spot bottlenecks early.
+  title: Sales pipeline software that shows every deal by stage, value and probability
+  description: Drag deals across a board of your own stages. Each column shows how many deals sit there, what they are worth and what they are worth weighted by the stage's win probability. Pipeline, board and dashboards are on every plan, from Starter.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to take control of your pipeline?
-  description: Set up your sales pipeline in Customermates. Define your stages, create your first deals, and start managing visually.
+  action: Put your open deals on a board
+  description: Rename the stages, set their probabilities and import your deals from an Excel workbook. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,98 +28,141 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## What Is Sales Pipeline Management?
+Sales pipeline software puts your open deals on a board, one column per stage, so you can see what is in play, what it is worth and which deal has gone quiet. In Customermates the deals list turns into that board with one switch. Every column header shows the number of deals, their total value and their weighted value, and you move a deal by dragging its card.
 
-Sales pipeline management is the process of tracking, organizing, and optimizing every deal your team is working on as it moves through your sales process. A well-managed pipeline transforms an abstract list of opportunities into a structured, visual system that shows exactly where every deal stands and what needs to happen next.
+Customermates is an open-source, AI-native CRM for small client-facing teams: consultancies, agencies, other service businesses and founders who sell themselves. Customermates does not predict revenue or flag idle deals on its own. If your high-volume outbound team needs that, the comparison further down names tools built for it.
 
-Without a clearly defined pipeline, sales teams operate in the dark. Managers cannot forecast revenue accurately, individual contributors lose track of their next steps, and deals stall without anyone noticing. A structured pipeline is the foundation of that process.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What you get">A deal board grouped by stage, stage win probabilities, total and weighted pipeline values, personal saved views and dashboard charts.</SummaryItem>
+  <SummaryItem label="Plans">Everything on this page except Mate, routines and the unified inbox is on Starter at [[commercial.price.starter.monthly]] per user per month, and on the self-hosted edition.</SummaryItem>
+  <SummaryItem label="AI">In Customermates Cloud, Mate reviews and updates the pipeline using hosted AI credits. Your own AI client does the same through MCP on any plan.</SummaryItem>
+  <SummaryItem label="Not included">No predictive forecasting, no stage-duration or conversion reports, no automatic stale-deal highlighting and no mobile app.</SummaryItem>
+</ArticleSummary>
 
-Pipeline management goes beyond simply listing your deals. It encompasses six key disciplines: tracking pipeline metrics, maintaining pipeline hygiene, optimizing stage progression, managing team performance, forecasting revenue, and integrating the right tools. When all six work together, your pipeline becomes the operational backbone of your sales organization.
+## What the pipeline board does
 
-## The Stages of a Sales Pipeline
+**Stages are a column you own.** The stage of a deal is a single-select column called Stage. A new workspace starts with seven options and win probabilities already set:
 
-Every pipeline follows a progression from initial contact to closed deal. While the specific stages vary by business, most sales pipelines include these fundamental phases.
+| Stage | Probability |
+|---|---|
+| Prospecting | 10% |
+| Qualification | 20% |
+| Demo | 40% |
+| Proposal | 60% |
+| Negotiation | 80% |
+| Won | 100% |
+| Lost | 0% |
 
-**Prospecting.** Identifying and reaching out to potential customers. This is where your pipeline begins. Leads enter from inbound marketing, outbound outreach, referrals, or partner channels.
+Rename them, reorder them, add your own or delete the ones you never use. A consultancy might run Enquiry, Discovery call, Proposal sent, Verbal yes, Won and Lost.
 
-**Qualifying.** Evaluating whether a prospect is a good fit for your product or service. Qualification criteria typically include budget, authority, need, and timeline. Deals that do not qualify are removed early, keeping your pipeline clean.
+**The board.** Open **Deals**, choose **Appearance** and switch **Layout** to **Board**, grouped by Stage. Drag a card to another column and the stage changes; drop it on **No value** and the stage is cleared. Each card shows the fields you make visible in **Appearance**, for example value, assigned users, organization and an Expected close date.
 
-**Contacting and discovery.** Initial conversations to understand the prospect's specific needs, pain points, and decision-making process. This stage builds the foundation for a relevant proposal.
+**Column headers do the arithmetic.** Each header shows the deal count, the stage probability, the total value and the weighted value. A deal's weighted value is its value times the probability of its stage. Three open deals make the idea concrete:
 
-**Proposal.** Presenting your solution with pricing, scope, and timeline. The proposal should address the specific needs uncovered during discovery.
+| Deal | Stage | Value | Weighted |
+|---|---|---|---|
+| Website relaunch | Prospecting | 5,000 | 500 |
+| Brand workshop | Proposal | 8,000 | 4,800 |
+| Annual retainer | Negotiation | 12,000 | 9,600 |
+| **Pipeline** | | **25,000** | **14,900** |
 
-**Negotiation.** Discussing terms, addressing objections, and refining the agreement. This stage requires close attention and often determines whether a deal closes or stalls.
+The same two totals, **Total pipeline** and **Weighted pipeline**, appear under **My Company › Settings**, next to the probabilities.
 
-**Closing.** Finalizing the agreement and converting the prospect into a customer. The deal is marked as won or lost, and the outcome feeds into your pipeline analytics.
+**Deal value comes from services.** You do not type a deal's value. It is the price of each linked service times its quantity on that deal, so a deal with two workshop days at 1,500 and ten coaching hours at 150 is worth 4,500 in your workspace currency.
 
-**Follow-up.** Post-close activities including onboarding, relationship building, and identifying expansion opportunities. Many teams keep this in a separate saved view, split by a pipeline-type field, to keep new business and account management distinct.
+**The same list as a table.** Switch **Layout** back to **Table** and keep the grouping: stages become collapsible row groups with their own counts and sums. Tables sort by **Deal Value** and **Weighted Value** as well as by any custom column.
 
-## How Pipeline Management Works in Customermates
+## Which plan you need
 
-Customermates provides a visual pipeline with kanban boards, customizable stages, and dashboard charts. A pipeline is a saved view of your deals grouped by the stage column you choose, on a board or in a table. A supported external AI client may update permitted fields through MCP, and on cloud plans the hosted Mate assistant can do the same inside the CRM.
+The board, stages, probabilities, saved views, dashboard charts, XLSX import and export, REST, webhooks and MCP are on every plan, including Starter and the self-hosted edition. Pro and higher add the [unified inbox](/features/unified-inbox), which puts email, LinkedIn and WhatsApp conversations on the contacts linked to each deal. Mate and routines need Customermates Cloud and use hosted AI credits; each Cloud plan includes monthly hosted AI credits per active user, see [pricing](/pricing).
 
-**External AI clients can update the pipeline.** Through [[derived.mcp.tools.total]] MCP tools, supported clients such as Claude, ChatGPT, or Gemini can move permitted deals between stages, update fields, and draft an individual follow-up. The external client's subscription, usage, and provider handling remain yours.
+## Set up your pipeline
 
-**Visual kanban board.** Your pipeline is displayed as a drag-and-drop kanban board where each column represents a deal stage. Deals appear as cards showing key information at a glance: deal name, value, contact, and fields you choose, such as an expected close date. Moving a deal to the next stage is as simple as dragging the card to the next column.
+<Steps>
+  <Step title="Rename the stages">Open any deal, press **Customize** and edit the Stage column with the **Edit column** pencil. On a board grouped by Stage you can also click a column header to open the same dialog.</Step>
+  <Step title="Check the probabilities">Under **My Company › Settings**, **Deal stage field** shows Stage. Enter a win probability from 0 to 100 next to each option and save. Every deal's weighted value is recalculated.</Step>
+  <Step title="Add your services">Create what you sell under **Services**, each with a price (**Amount**). Deal values are built from these.</Step>
+  <Step title="Add two custom fields to deals">A Date field "Expected close" and a single-select "Lost reason" with Price, Timing, Chose a competitor and No decision.</Step>
+  <Step title="Import your open deals">Use **Add from file** with an Excel workbook, organizations first, then contacts, then deals, so the deal rows can link to records that already exist. CSV files are not accepted, so save them as XLSX first.</Step>
+  <Step title="Save your pipeline view">With the board grouped by Stage and a filter on Stage that leaves out Won and Lost, press **New view** and name it "Open pipeline". The view keeps filters, grouping, layout and visible fields.</Step>
+</Steps>
 
-**Customizable deal stages.** Define the stages that match your actual sales process. Whether your pipeline has four stages or twelve, Customermates adapts to your workflow. Rename stages, reorder them, add new ones, or remove stages that do not apply. Your pipeline reflects how your team actually sells.
+The [records guide](/docs/app-records) covers boards, views and import in more detail.
 
-**Board and table views.** Switch each deal list between a board view and a table view, and group either one by a stage column, an owner, a linked record, or a date. To keep new business, renewals, or separate product lines apart, save each as its own view and switch between them from the tabs above the list.
+## Running more than one pipeline
 
-**Personal saved views.** A view remembers the whole list: its filters, its sorting, its grouping, its layout, and its columns. Switch between your views from the tabs above the list; every change you make is saved into the view as you make it, so each pipeline opens exactly as you left it.
+Customermates has no separate pipeline object, so a second pipeline is a second single-select column on deals. A team that sells new projects and renews retainers adds a column "Renewal stage" with Upcoming, In discussion, Renewal sent and Renewed, then saves a board view grouped by it and filtered to renewal deals.
 
-**Deal cards with context.** Each deal card on the kanban board displays the information you need for quick decisions. See the deal value, assigned owner, linked organization, and any custom field such as an expected close date without opening the full record. Click through to the detailed deal view when you need the complete picture.
+Two limits apply. Only one column, set under **Deal stage field**, carries probabilities and weighted values, so the second board shows counts and total values but no weighted figures. And a board shows at most 50 columns, which no sensible pipeline reaches.
 
-**Dashboard charts over your pipeline.** Each user builds a personal dashboard of chart widgets (bar, doughnut, or radar) over the deal data: pipeline value by stage, deal count by owner, won versus lost by source. Widgets filter by any standard or custom field and update as deals change, so you can see where value sits and where deals stall without exporting to a spreadsheet.
+If you would rather keep one stage list, add a single-select "Pipeline" field with New business and Renewal, and save one view per value of that filter.
 
-## Measuring Pipeline Performance
+## Keeping the pipeline current
 
-The most effective pipeline managers track a core set of metrics that reveal the health and trajectory of their sales operation. Customermates dashboards show stored counts, values, and stage-weighted totals; the derived metrics below are calculated in a spreadsheet or reporting tool.
+A board is only useful while it is true. Three ways to keep it that way:
 
-**Sales velocity.** Sales velocity measures how quickly revenue moves through your pipeline. The formula is straightforward: (Number of Deals x Average Deal Value x Win Rate) divided by Average Sales Cycle Length. For example, if you have 40 deals averaging EUR 3,000 each with a 25 percent win rate and a 30-day cycle, your sales velocity is EUR 1,000 per day. Tracking this metric over time shows whether your pipeline is accelerating or slowing.
+**A stale-deals view.** Filter deals on **Updated at** with **Older than…** 14 days and Stage not Won or Lost. The filter stays relative, so the saved view always shows the deals nobody has touched in two weeks. Any edit counts as an update, not only a stage change.
 
-**Win rate by stage.** Analyzing your win rate at each stage reveals where deals are most likely to fall out of the pipeline. If your qualification-to-proposal conversion is strong but your proposal-to-close rate is weak, that tells you exactly where to invest coaching and process improvement.
+**A weekly routine (Customermates Cloud).** Routines run a saved instruction for Mate on a schedule or when a record changes, using the owner's hosted AI credits. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Set one to **Every week** on Monday morning:
 
-**Pipeline coverage ratio.** A healthy pipeline typically contains three to five times the revenue target in total pipeline value. If your quarterly target is EUR 100,000, you should have EUR 300,000 to EUR 500,000 in active pipeline. Pipeline coverage below this range signals a sourcing problem.
+```text
+Find deals in Proposal or Negotiation that were not updated in the last 14 days. For each one, create a task "Check in: [deal name]", link it to the deal and assign it to the deal's assigned users. Do not send any messages.
+```
 
-**Average deal cycle time.** How long does it take from first contact to closed deal? Understanding your average cycle time helps you forecast more accurately and identify deals that are taking unusually long.
+The routine runs as its owner and sees only the deals that person can see. Creating tasks needs no approval; deletions would, so an unattended run refuses them. More patterns are on the [workflow automation](/features/workflow-automation) page.
 
-## Common Pipeline Configurations
+**Your own AI client through MCP.** Claude, ChatGPT and other MCP clients can move deals between stages and update fields with the [[derived.mcp.tools.total]] tools described in the [MCP documentation](/docs/mcp), on every plan and when self-hosting. A stage change from any source fires a `deal.updated` webhook with the changed fields, which an n8n workflow you run separately can pick up.
 
-**Standard B2B sales pipeline.** Stages like Lead, Qualified, Discovery, Proposal, Negotiation, and Closed Won or Lost. This covers most B2B sales processes and provides clear stage gates for deal progression.
+## Limits
 
-**Enterprise sales pipeline.** For complex, multi-stakeholder sales with additional stages for stakeholder mapping, technical evaluation, legal review, and contract negotiation. Enterprise cycles are longer, and the pipeline structure should reflect that complexity.
+<AcquisitionCallout title="What the pipeline does not do" variant="boundary">
+  The weighted pipeline is your value times your probabilities. There is no model that predicts revenue or close dates, and no report of time in stage, stage conversion or sales velocity. Cards are not highlighted when a deal goes idle; use the stale-deals view instead. Saved views and dashboards are personal and cannot be shared, so each teammate saves their own; a dashboard chart shared as a template can be copied. Deals have no file attachments, and there is no mobile app.
+</AcquisitionCallout>
 
-**Inbound lead pipeline.** Manage inbound leads through qualification stages: Initial Inquiry, Qualified, Demo Scheduled, Demo Completed, Proposal, and Closed. Pipeline analytics reveal which lead sources produce the highest-value opportunities.
+For metrics like win rate per person, Mate in Customermates Cloud can calculate them from your records with a read-only analysis tool, or you export the deals as XLSX. Chart options are on the [reporting](/features/reporting) page.
 
-**Renewal pipeline.** Track contract renewals separately from new business. Stages like Upcoming, In Discussion, Proposal Sent, and Renewed ensure no renewal is missed or left until the last minute.
+## How Customermates compares with other pipeline tools
 
-**SaaS trial-to-paid pipeline.** For software companies tracking free trial users through activation milestones: Trial Started, Activated, Engaged, Demo Requested, Negotiation, and Subscribed.
+Customermates publishes this page. Vendor details were checked on 8 October 2026 on the vendors' own pages, linked at the end.
 
-## Optimizing Your Pipeline
+| Tool | Fits best when | Pipeline details from the vendor |
+|---|---|---|
+| Pipedrive | You want a sales-focused CRM with several pipelines and idle deals flagged on the board | Multiple pipelines; a rotting feature that shows deals idle beyond a set time in red; Forecast view on the Growth plan |
+| HubSpot | You start free and expect to grow into marketing and service tools | Sales pipeline with editable stages in the free tools; custom pipelines start at Starter (15) and Professional (100) on seat-based plans, shared across all objects |
+| Pipeline CRM | You are a small or mid-size B2B team that wants a pipeline-first tool | Start plan with 1 pipeline and up to 250 active deals per account; Develop 2, Grow 5, Enterprise 20 pipelines |
+| Customermates | Deals depend on client conversations and you want AI to update the board | Stage board with weighted values on every plan; additional pipelines as extra stage columns; conversations from Pro |
 
-A pipeline is not a static structure. Regular optimization keeps your sales process healthy and your forecasts accurate.
+## What it costs
 
-**Weekly pipeline reviews.** Schedule weekly sessions to review pipeline health, identify stalled deals, and prioritize activities. A consistent review cadence catches problems early and keeps the team aligned.
+| Team | Plan | Per month |
+|---|---|---|
+| 3 people, board and dashboards only | Starter | [[commercial.price.starter.monthly.seats.3]] |
+| 5 people who also sell by email and LinkedIn | Pro | [[commercial.price.pro.monthly.seats.5]] |
 
-**Pipeline hygiene.** Remove dead deals regularly. Deals that have not progressed in 60 to 90 days without active engagement are unlikely to close and distort your metrics. Clean pipelines produce accurate forecasts.
+Over a year, the five-person Pro team pays [[commercial.price.pro.monthly.seats.5.months.12]]. Billing is monthly. Self-hosting the open-source core has no licence fee; you pay for your own server.
 
-**Stage gate criteria.** Define clear criteria for what qualifies a deal to move from one stage to the next. When every team member applies the same standards, your pipeline data becomes reliable and comparable across the team.
+## Frequently asked questions
 
-**Automate where useful.** A separately operated n8n instance can react to deal webhooks, create supported tasks, evaluate customer-defined date fields on its own schedule, or sync pipeline data to external reporting tools. Customermates itself sends no reminders.
+<Faq>
+<FaqItem question="What is the best sales pipeline software for a small team?">
+The one your team keeps up to date. For outbound volume, look at a tool with several pipelines and idle-deal alerts, such as Pipedrive. For a team whose deals move through email and LinkedIn conversations, the deal and the conversation should sit in one place, which is the case Customermates is built for.
+</FaqItem>
 
-## Why Choose Customermates for Pipeline Management
+<FaqItem question="Is there a CRM called Pipeline?">
+Yes. Pipeline CRM, renamed from PipelineDeals in 2020, is sales pipeline software for small and mid-size B2B teams. Its Start plan is $25 per user per month billed annually or $29 billed monthly, with one pipeline (prices checked on 8 October 2026 on the [Pipeline CRM pricing page](https://pipelinecrm.com/pricing/)).
+</FaqItem>
 
-**Open-source core.** The AGPL core CRM application and pipeline code are inspectable. Pipeline stages remain customer-defined fields; Customermates includes no hidden forecast or scoring algorithm, while managed-cloud features and connected providers remain separate.
+<FaqItem question="Can I have several pipelines in Customermates?">
+Yes, as separate single-select columns on deals, each with its own saved board view. Only the column set as the deal stage field has probabilities and weighted values.
+</FaqItem>
 
-**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
+<FaqItem question="Does Customermates forecast revenue?">
+No, not in the predictive sense. The weighted pipeline multiplies each deal's value by the probability you set for its stage. That is arithmetic on your own numbers, not a prediction.
+</FaqItem>
 
-**Simple, fair pricing.** Pipeline management is included from [[commercial.price.starter.monthly]] per user per month (Starter tier). Board and table views, custom stages, deal cards, dashboard charts, and MCP access for external AI clients are included at every tier. No premium tier required for advanced pipeline capabilities.
+<FaqItem question="Can my whole team see the same board?">
+Everyone whose role can read all deals sees the same deals and can build the same board; with **Assigned** read access, a person sees only the deals assigned to them. Saved views are personal, so each colleague saves their own board view.
+</FaqItem>
+</Faq>
 
-**Separate n8n for pipeline workflows.** Connect an n8n instance you run or subscribe to through REST, webhooks, MCP, or the community node. Its scheduler, 400+ connector catalog, runtime, plans, limits, logs, provider delivery, and costs remain external.
-
-**Self-hostable application and database.** Deploy the Customermates application and PostgreSQL database on your infrastructure. External AI and workflow providers still receive any data your configuration sends; self-hosting is not a data-residency or compliance guarantee.
-
-## Get Started with Your Sales Pipeline Today
-
-Set up your sales pipeline in Customermates. Define your stages, create your first deals, and start managing your pipeline visually. Every pipeline feature is available from day one, with no configuration gates or premium upgrades. Start your free trial and see your sales process come to life.
+Competitor details checked on 8 October 2026 against [Pipedrive on multiple pipelines](https://support.pipedrive.com/en/article/how-can-i-have-multiple-pipelines), [Pipedrive's rotting feature](https://support.pipedrive.com/en/article/the-rotting-feature), [Pipedrive's plan overview](https://support.pipedrive.com/en/article/new-pipedrive-plans), [HubSpot pipeline management](https://www.hubspot.com/products/crm/pipeline-management), [HubSpot's pipeline limits](https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines), [Pipeline CRM](https://pipelinecrm.com/) and [Pipeline CRM pricing](https://pipelinecrm.com/pricing/).

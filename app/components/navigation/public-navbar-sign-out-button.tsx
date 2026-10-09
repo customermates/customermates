@@ -1,14 +1,12 @@
 "use client";
 
 import { LogOut } from "lucide-react";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { signOutFromPublicNavbar } from "./public-navbar-sign-out";
+import { usePublicNavbarSignOut } from "./use-public-navbar-sign-out";
 
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 type Props = {
   className?: string;
@@ -19,27 +17,7 @@ type Props = {
 
 export function PublicNavbarSignOutButton({ className, onboardingIntent, onSignedOut, variant }: Props) {
   const t = useTranslations();
-  const [signingOut, setSigningOut] = useState(false);
-
-  async function signOut() {
-    if (signingOut) return;
-    setSigningOut(true);
-    try {
-      const result = await signOutFromPublicNavbar(onboardingIntent);
-      if (!result) return;
-      if (result.ok) {
-        onSignedOut?.();
-        setSigningOut(false);
-        return;
-      }
-
-      toastZodErrorTree(result.error);
-      setSigningOut(false);
-    } catch (error) {
-      setSigningOut(false);
-      throw error;
-    }
-  }
+  const { signOut, signingOut } = usePublicNavbarSignOut(onboardingIntent, onSignedOut);
 
   return (
     <Button

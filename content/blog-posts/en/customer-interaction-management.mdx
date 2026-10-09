@@ -1,271 +1,178 @@
 ---
-title: "Customer Interaction Management: Complete Guide (2026)"
-description: "Customer interaction management explained: definition, components, software, and best practices to handle every customer conversation across channels in 2026."
+title: "Customer Interaction Management for Small Teams"
+description: "What customer interaction management covers, how it differs from CRM and CCM, and a setup for small teams: channels, owners, states and a weekly check."
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /features/contact-management
+  - /blog/crm-strategy
+  - /docs/app-inbox
 
 hero:
-  title: "Customer Interaction Management: A Practical Guide for 2026"
-  description: Every conversation with a customer is data, a moment of truth, and a chance to keep them. This guide covers the components, the software, and the operating habits that turn scattered touchpoints into a real interaction system.
+  title: "Customer Interaction Management: Every Conversation on the Right Record"
+  description: "What CIM means in practice, where it ends and CRM, customer communication management or a helpdesk begins, and a setup a small team can run with one weekly check."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-04-10
+  updated: 2026-10-08
   tags:
     - Customer Interaction Management
-    - CRM Strategy
-    - Customer Experience
-    - Omnichannel
+    - Customer Communication
+    - Unified Inbox
+    - CRM
 ---
 
-# Customer Interaction Management: A Practical Guide for 2026
+# Customer Interaction Management: Every Conversation on the Right Record
 
-Customer interaction management (CIM) is the discipline of capturing, routing, and acting on every conversation a customer has with your business, across every channel, with the context of every prior conversation visible to whoever picks up the next one. It covers the email thread, the support ticket, the sales call, the live chat, the form submission, and the calendar invite, and it makes sure none of them get dropped on the floor.
+Customer interaction management (CIM) means tying every customer conversation to the right customer record: the channel a message arrived on, the customer and deal it concerns, the person who replies, and whether a reply is still owed. Done well, anyone on the team can open a customer and read the whole history before replying. For a team under twenty people, that usually means a CRM that holds the conversations, not a separate CIM product.
 
-The category sits next to CRM but is not the same thing. CRM is the system of record for who the customer is and what you sell them. CIM is the system of record for how you talk to them. Mature companies run both. Most companies run neither well, with conversations scattered across inboxes, support tools, and spreadsheets that never reconcile.
+The rest of this guide separates CIM from the terms it gets confused with, shows which kind of software fits which situation, and walks through a concrete setup. Customermates publishes this guide and the worked example uses Customermates; the steps work in any CRM with an inbox.
 
-I run an [open-source CRM](/blog/free-crm) and most of the painful conversations I have with founders are not about features. They are about the same problem, said five different ways: "I cannot find the last email I sent this customer." That is a customer interaction management problem, and it is solvable.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Definition">Capturing, assigning and answering customer conversations across channels, with the history attached to the customer record.</SummaryItem>
+  <SummaryItem label="CIM vs. CRM">CRM holds who the customer is and what you sell them. CIM is the conversation layer on top. Small teams run both in one tool.</SummaryItem>
+  <SummaryItem label="Not the same as CCM">Customer communication management software composes high-volume, regulated documents such as statements and policy letters.</SummaryItem>
+  <SummaryItem label="Minimum setup">Every channel in one list, every sender linked to a contact, a shared state per conversation, a named owner, one weekly check.</SummaryItem>
+  <SummaryItem label="Worked example">A five-person agency on Customermates Pro: one connected account per person, two saved inbox views and one draft-only routine.</SummaryItem>
+</ArticleSummary>
 
-## What Is Customer Interaction Management?
+## CIM, CRM, CCM and CSM: four terms, four jobs
 
-Customer interaction management is the strategic and operational system for handling every touchpoint between a business and its customers. It includes the channels (email, phone, chat, social, in-app), the tools that capture conversations, the rules that route them, the records that store them, and the people who act on them.
+Search results for "customer interaction management" mix contact-center software, CRM guides and enterprise document platforms. Wikipedia defines CIM as enterprise software that manages the interaction between an organization and its customers across email, SMS, telephone, instant messaging, scanned paper mail and social media ([source](https://en.wikipedia.org/wiki/Customer_interaction_management)). In a small company the same idea is a set of habits plus whatever tool holds the conversations.
 
-A working CIM system answers four questions on demand:
+| Term | What it manages | Typical buyer | Typical tools |
+| --- | --- | --- | --- |
+| Customer interaction management (CIM) | Two-way conversations and who answers them | Any team that talks to customers | CRM with inbox, helpdesk, contact center |
+| Customer relationship management (CRM) | Contacts, companies, deals and their history | Sales, account management, founders | CRM |
+| Customer communication management (CCM) | Templated, often regulated outbound documents | Insurers, banks, utilities, public bodies | Quadient Inspire, OpenText Communications (Exstream), SmartCOMM |
+| Customer service management (CSM) | Support cases, routing to agents, service levels | Support teams with ticket volume | Zendesk, Freshdesk, ServiceNow CSM |
 
-1. **What did we last talk about?** Full interaction history, regardless of channel, attached to the contact and the company.
-2. **Who is responsible right now?** Clear ownership, no orphan threads.
-3. **What is the next step?** A scheduled task, with a date and an owner.
-4. **What happened across the relationship?** A timeline view, not a tab spaghetti of disconnected systems.
+The CCM row is the one that causes wrong purchases. Quadient describes Inspire as software to "create, personalize, deliver and govern customer communications across print and digital channels" ([Quadient](https://www.quadient.com/en-us/customer-communications)). OpenText describes OpenText Communications, formerly Exstream, as CCM software for personalized, compliant communications across a variety of channels ([OpenText](https://www.opentext.com/products/customer-communications-management)), and Smart Communications calls its platform a CCM platform built for regulated enterprises ([Smart Communications](https://www.smartcommunications.com/)). These products produce one-to-many output. If your problem is "nobody knows what the client last wrote on WhatsApp", a CCM platform does not solve it.
 
-If you can answer all four for every customer in under 30 seconds, you have a CIM system. If you cannot, you have a collection of communication tools held together with hope.
+CSM is the other neighbor. In ServiceNow, the CSM interaction record lets agents accept and answer live chats, calls, email and SMS ([ServiceNow docs](https://www.servicenow.com/docs/r/xanadu/customer-service-management/csm-interaction-record-page.html)). That is CIM for a support desk with queues and agents. A consultancy or agency with a few hundred client conversations a month rarely needs queues; it needs the conversations next to the client and the deal.
 
-## Customer Interaction Management vs. Customer Relationship Management
+## What a working CIM setup answers
 
-CIM and CRM overlap heavily and the vendors blur the line on purpose. The cleanest working distinction:
+Test any setup with four questions. Pick a customer at random and try to answer them within a minute:
 
-- **CRM** owns the entity model: contacts, organizations, deals, services, and the structured data about each (industry, deal value, contract terms, custom fields).
-- **CIM** owns the conversation model: the messages, calls, meetings, tickets, and notes attached to those entities, plus the routing and workflow that decides who handles what.
+1. **What was said last, on any channel?** The email from Tuesday and the WhatsApp message from Thursday sit in one history.
+2. **Who answers next?** One named person, not "whoever saw it".
+3. **Is anything waiting for us?** A list of conversations where the customer wrote last and nobody has replied.
+4. **What is this about commercially?** The open deal, its stage and who is assigned to it.
 
-In a small company you run both inside one tool. CRMs that take logging and notes seriously, with native email sync, calendar sync, and webhook events for every change, function as CIM platforms for any team under about 50 people. Past that scale you usually layer a dedicated contact center or helpdesk on top, and the integration question becomes the most important one.
+If one answer requires logging into a second tool or asking a colleague, that is the gap to close first. Most small teams fail on the third question, because unanswered messages live in personal inboxes and phones.
 
-A useful way to picture it: CIM is the front of house, the conversations themselves; CRM is the back of house, the database those conversations update. You need both rooms.
+## Which software fits which situation
 
-## Why Customer Interaction Management Matters
+| Your situation | Look at | Why |
+| --- | --- | --- |
+| Under about 20 people, conversations are one-to-one with clients and prospects | A CRM with a unified inbox | Conversations sit on the customer record next to deals; no second system |
+| A support team answers many similar requests and needs routing by agent capacity | A helpdesk or contact center | Zendesk's omnichannel routing assigns email, messaging and call tickets by agent availability and capacity ([Zendesk help](https://support.zendesk.com/hc/en-us/articles/4409149119514)) |
+| You send thousands of regulated documents on a schedule | A CCM platform | Template governance, print and audit of what went to whom |
+| You run newsletters or campaigns | An email marketing tool connected to the CRM | Bulk sending is a different job from answering individual people |
 
-Three reasons, in order of how often they come up in real conversations.
+Many companies combine two rows. The connection matters more than the brand: a helpdesk that never writes back to the customer record rebuilds the fragmentation CIM was meant to remove. Freshdesk, for example, offers email, chat, phone and messaging in its Omni product and lists integrations with tools such as HubSpot ([Freshworks](https://www.freshworks.com/freshdesk/omni/)); check that the integration carries the conversation, not only the contact.
 
-**Customers expect continuity.** A customer who emails you on Tuesday and calls on Thursday expects the person on the phone to know about Tuesday's email. Salesforce's State of the Connected Customer research has put this number above 70 percent of consumers expecting connected experiences across channels. When the systems do not share context, the customer has to repeat themselves and the relationship costs trust on every interaction.
+## How to set up customer interaction management
 
-**Internal handoffs are where work falls.** Sales hands to onboarding, onboarding hands to support, support hands back to sales for an upsell. Every handoff is a moment where something gets dropped if the interaction history does not travel with the customer. CIM is the glue that holds the handoff together.
+<Steps>
+  <Step title="List every channel and who owns it">
+    Write down each inbox and messaging account customers use: shared mailboxes, personal Gmail or Outlook, LinkedIn, WhatsApp on someone's phone. Note who owns each account and whether colleagues should see it.
+  </Step>
+  <Step title="Bring the channels into one list">
+    Connect them to one tool so new messages appear in one place, newest first, and replies go out on the original channel.
+  </Step>
+  <Step title="Link every sender to a contact">
+    A message from an unknown address is the one that gets lost. Link the sender to an existing contact or create one, so the conversation appears on the contact's history and, through the contact, next to the organization and its deals.
+  </Step>
+  <Step title="Agree on a few shared states">
+    Unread, open, closed is enough. Agree what "closed" means, for example "answered and nothing promised".
+  </Step>
+  <Step title="Name an owner per customer">
+    Assign each client and open deal to a person. That person answers or hands over explicitly.
+  </Step>
+  <Step title="Check the waiting list once a week">
+    Thirty minutes: conversations where the customer wrote last, conversations with unlinked senders, deals with no recent contact.
+  </Step>
+</Steps>
 
-**Every interaction is data.** The transcript of a support call tells you which feature the customer struggles with. The pattern of email opens tells you which messaging works. The frequency of meetings tells you which accounts are at risk. None of this is useful if the data is in five places. Centralized interaction history is the raw material of every customer health score, churn model, and product decision worth making.
+## Worked example: a five-person agency in Customermates
 
-## The Five Core Components of a CIM System
+The agency has two founders, two project leads and one sales lead. Clients write by email, WhatsApp and LinkedIn. The setup below runs on Customermates Cloud on the Pro plan, because the [unified inbox](/features/unified-inbox) needs Pro or higher; Starter has no inbox.
 
-Different vendors carve this differently. The substance is consistent.
+**Channels.** Each person connects their own account under **My Profile › Channels**. The inbox takes Gmail, Outlook or IMAP for email, plus LinkedIn, WhatsApp, Instagram and Telegram. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, so the agency splits them: the two project leads and one founder connect their mailboxes, the other founder connects the WhatsApp number clients use, and the sales lead connects LinkedIn. Anyone who needs a mailbox and a messaging account at the same time needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]] per user. A new channel is private to its owner. A single conversation can be shared with the team from **Thread settings**; sharing a whole account with everyone needs Business.
 
-### 1. Multi-Channel Capture
+**Linking.** In **Thread settings**, each participant is linked to a contact or created as a new one. The address or handle is then added to the contact, so every later conversation with that person lands on the same contact. The contact's **Channels** block has a link that opens all conversations with that contact in the inbox. Contacts link to organizations and deals, so the project lead sees the deal and its assigned users from the same record. The basics of the record model are on the [contact management](/features/contact-management) page.
 
-Every conversation, regardless of channel, ends up in one place. Email syncs into the contact record. Calendar events log automatically. Phone calls drop a transcript or at least a logged activity. Chat sessions attach to the customer. Form submissions create or update the contact.
+**States.** Every conversation is **Unread**, **Open**, **Closed** or **Spam**. The state is shared, not per person, and a new incoming message sets it back to **Unread**, so a closed thread cannot hide a fresh question.
 
-The test is simple: can a new account owner walk in tomorrow, open the contact record, and see everything that has happened, without logging into another tool? If yes, capture is solved. If no, that is the first thing to fix.
+**Two saved views in the inbox.** Inbox filters save as personal views, so each person creates their own. A view only lists conversations that person can see: their own channels plus whatever teammates shared. On Pro, a team-wide waiting list therefore depends on sharing conversations one by one; on Business, shared accounts make it automatic.
 
-This usually starts with [email integration](/features/email-integration) and a calendar sync. A CRM with a native unified inbox spanning email, LinkedIn, WhatsApp, Instagram, and Telegram solves most of the capture problem in one place. Once those are reliable the rest follows.
+| View | Filters | Answers |
+| --- | --- | --- |
+| Waiting for us | State is Open, Last message is Received, Last message date older than 2 days | Is anything waiting for us? |
+| Unlinked people | Participants not fully linked | Which conversations are not on a customer record yet? |
 
-### 2. A Single Customer Timeline
+**One routine (Customermates Cloud only, uses hosted AI credits).** A routine runs Mate, the in-app assistant, on a schedule or on an event. The sales lead creates one with an email-received event and this instruction:
 
-Captured conversations need to live on a chronological view of the relationship. Not in the tool that captured them; on the customer's record. Email from June, then a meeting in July, then a support ticket in August, then a renewal call in September, all visible in one scrollable feed.
+> When a new email arrives from a contact linked to an open deal, read the thread and the deal, then save a reply as a draft in the thread. Do not send anything. Add one line to the deal notes summarizing what the client asked.
 
-This is what most teams mean when they say "single source of truth" for the customer. It is unglamorous database work and almost everything else in CIM depends on it. A solid [contact management foundation](/features/contact-management) is the substrate.
+The instruction says "draft" on purpose. Mate can send messages without a fresh approval when asked to, and a routine runs as its owner with that owner's channels, so it only sees emails that reach the sales lead's own or shared channels. Routines also have run and credit caps, and emails that arrive while a run is in progress or after the hourly cap start no run, so the routine helps but does not replace the weekly check. The [routines documentation](/docs/app-routines) lists the limits.
 
-### 3. Routing and Ownership
+**What it costs.** Five users on Pro come to [[commercial.price.pro.monthly.seats.5]] per month; on Business, with shared accounts and more connected accounts, [[commercial.price.business.monthly.seats.5]]. Both include monthly hosted AI credits per active user, see [pricing](/pricing). Billing is monthly.
 
-Every interaction needs an owner and a clear path to the right person. Inbound email from a customer goes to their account owner. New lead form goes to the round-robin queue. Support ticket above a severity threshold escalates to the manager. Sponsor change triggers an alert to the CSM.
+If you prefer your own AI client, Claude, ChatGPT and other MCP clients can read threads, save drafts and update records through the [MCP server](/docs/mcp). The MCP server does not enforce a confirmation before sending; whether the client asks first depends on the client.
 
-Routing rules live in the workflow layer of the system. They are the difference between "we will get to it" and "Maria will respond by 3 PM."
+## Measuring interaction quality without a contact center
 
-### 4. Workflow and Automation
+Contact centers report handle time and service levels. A small team needs fewer numbers, read every week:
 
-Once the interaction is captured and routed, the boring work of moving it forward should be automated. Auto-create follow-up tasks after a call. Send a templated thank-you after a meeting. Move the deal stage when a contract is signed. Trigger an internal Slack ping when a deal moves to Closed Won.
+| Metric | How to get it in a small team |
+| --- | --- |
+| Conversations waiting longer than two days | Count of the "Waiting for us" view |
+| Unlinked conversations | Count of the "Unlinked people" view |
+| Open deals nobody has touched lately | A saved deal view sorted by last updated, oldest first (a rough proxy, since any edit counts) |
+| Customer view of service | Ask in the quarterly review; CSAT or NPS surveys need a separate survey tool |
 
-Automation in CIM is not about replacing human conversation. It is about making sure the human conversation is the thing the human is doing, instead of typing meeting notes into three systems. [Workflow automation](/features/workflow-automation) tied directly into the CRM is the cleanest way to do this for small and mid-size teams.
+Customermates does not calculate first response time or resolution time, and it has no ticket queue with service-level timers. If those numbers matter contractually, a helpdesk is the better fit.
 
-### 5. Reporting and Analytics
+<AcquisitionCallout title="Where Customermates stops" variant="boundary">
+  No telephony or SMS, no website chat widget or web forms, no ticket queues, and no campaigns or bulk sending: messaging is one-to-one. It is not a CCM platform and does not compose print documents. Self-hosted installations include the core CRM with REST, webhooks and MCP, but no inbox and no Mate.
+</AcquisitionCallout>
 
-What gets measured gets managed. CIM systems should report on response time per channel, interaction volume per account, ticket resolution time, and the activity health of every relationship. The metrics that matter depend on the business; the discipline of pulling them weekly and acting on them does not.
+## Privacy: what to settle before you centralize conversations
 
-[Reporting](/features/reporting) views and dashboards belong in the same tool that holds the data. Exporting to a spreadsheet to make a chart is a smell.
+Pulling every conversation into one system concentrates personal data. Under the GDPR you need a legal basis for storing it, a data processing agreement with each provider, and a rule for how long you keep conversations of former clients. Decide who may see which accounts before connecting personal ones. In Customermates Cloud the primary production database is configured in the AWS Frankfurt region, a selected setting rather than a contractual residency guarantee; providers, including US companies, are listed on the [subprocessors page](/subprocessors), and the [DPA](/dpa) is public. Teams that need the data on their own servers can self-host the core CRM, without the inbox.
 
-## Types of Customer Interactions
-
-A practical typology, because the playbook differs by type.
-
-| Type                      | Examples                                           | Primary Channel         | Owner              |
-| ------------------------- | -------------------------------------------------- | ----------------------- | ------------------ |
-| Sales interactions        | Discovery calls, demos, proposal reviews           | Email, phone, video     | Sales              |
-| Onboarding interactions   | Kickoff, training, success milestone reviews       | Video, email, in-app    | Onboarding / CS    |
-| Support interactions      | Tickets, chat sessions, troubleshooting calls      | Helpdesk, chat          | Support            |
-| Account interactions      | QBRs, renewal calls, upsell conversations          | Video, in-person        | Account management |
-| Self-service interactions | Documentation reads, in-app guidance, AI assistant | Product, knowledge base | Product            |
-| Outbound interactions     | Newsletters, product updates, sponsored events     | Email, social           | Marketing          |
-
-A real CIM system handles all six and lets you see the complete history per customer regardless of which team owned which interaction. Which is the entire point.
-
-## Customer Interaction Management Software
-
-The CIM software category fragments into several adjacent product types. Pick the one that matches your motion, not the one with the loudest marketing.
-
-### CRM with Strong Activity Logging
-
-Modern CRMs (HubSpot, Pipedrive, Customermates, Salesforce, Zoho) function as CIM platforms for sales-led businesses. They connect email and notes to records and store activities; most also sync calendars and trigger workflows, though the depth varies by product. For teams under 50 people, this is often the entire stack you need.
-
-The differentiator is how easy the interaction record is to maintain. On Customermates Cloud from Pro, Customermates provides a unified inbox for connected messaging channels and a read-only CRM view of connected Google or Microsoft calendar events. Agents such as Claude or ChatGPT can read and write supported CRM records through [[derived.mcp.tools.total]] [MCP](https://modelcontextprotocol.io) tools; users still choose what the agent changes, and calendar events are not written back from Customermates.
-
-### Contact Centers and Helpdesks
-
-Zendesk, Freshdesk, Intercom, and Dialpad are the heavy lifters for support-heavy businesses. They handle ticket volumes the CRM was not designed for, route across agents, and host customer-facing knowledge bases. They earn their keep when support is the primary channel.
-
-The integration point with the CRM is the place to be careful. A ticket system that does not write back to the customer record creates the same fragmentation problem the CIM was supposed to solve.
-
-### Marketing Automation Platforms
-
-Marketo, Mailchimp, Customer.io, and similar tools own the outbound side: campaigns, drips, behavioral triggers, large-volume email. They are not CIM systems by themselves. They become part of one when their interaction data flows into the CRM and shows up on the customer timeline.
-
-### Conversational AI Platforms
-
-The newest layer: AI assistants and chatbots that handle initial inbound, route to the right agent, and log the conversation in the CRM. Useful when volume is too high for human-only handling. Risky when deployed without a clear escalation path.
-
-For a comparison of the CRM-side options, see [HubSpot vs Pipedrive](/compare/hubspot-vs-pipedrive) and the [Pipedrive alternative](/compare/pipedrive-alternative) breakdown.
-
-## Customer Interaction Management Best Practices
-
-These are the habits that separate teams running a real CIM system from teams running a collection of inboxes.
-
-### 1. Make the System of Record Visible to Everyone
-
-Every team that talks to customers needs a view of the same customer timeline. Sales should see the support tickets. Support should see the open deals. CS should see the marketing email history. The fastest way to break this is permission walls that exist for political reasons rather than data protection reasons. Be honest about which permissions actually protect the customer and which protect a turf battle.
-
-### 2. Automate Logging Before You Automate Routing
-
-Teams often try to build elaborate routing rules on top of a manual logging system. The rules look great on paper and break the moment a rep forgets to log a call. Get capture solved first: email sync, calendar sync, AI-driven note logging. Then layer routing on top of data that is actually there.
-
-### 3. Define a Response SLA per Channel and Track It
-
-Every channel needs a target response time and a measurement. Sales inbound: 5 minutes during business hours. Support tickets: 4 hours for standard priority. Customer success outreach: 24 hours. Without an SLA, "we got back to them" becomes the standard, and "we got back to them" is not a standard.
-
-### 4. Run a Weekly Conversation Hygiene Review
-
-30 minutes a week to look at: longest open tickets, oldest no-response leads, accounts with no activity in 90 days, deals stalled in pipeline. The discipline of looking at the queue every week is what catches problems before they become churn.
-
-### 5. Treat Notes as the Product
-
-The note from a call is not paperwork. It is the artifact the next person on the account will read. Train the team to write notes the way they would brief a coworker. Specifically: what was discussed, what was decided, what the next step is, who owns it, when it is due. AI tools have made this part dramatically easier; modern CRMs that connect to Claude or ChatGPT can draft the note from a call transcript in seconds.
-
-### 6. Centralize Templates Without Killing Personalization
-
-Templates for common emails (renewal heads-up, kickoff agenda, quarterly review prep) save real time. Templates that get sent verbatim with the customer's name as the only variable train customers to ignore your email. The compromise: templates as drafts, every send personalized in at least one substantive way.
-
-### 7. Close the Loop on Every Customer Question
-
-Every customer-asked question that did not get a clean answer becomes a gap in the documentation. Track them. Once a quarter, sweep the support data for common questions that could have been answered by better docs, in-app guidance, or product changes. The interactions you can prevent are the cheapest interactions of all.
-
-## CIM Challenges and How to Address Them
-
-A short field guide to the failures I see most.
-
-### Fragmented Tools and Data
-
-The most common problem. Email lives in Gmail, calls live in the phone system, support lives in Zendesk, sales lives in the CRM, and the customer timeline does not exist. Fix: pick one system to be the source of truth (usually the CRM), make sure every other system writes back to it, and audit the integrations quarterly. Customermates uses [[derived.webhooks.events.total]] webhook events, [[derived.webhooks.events.records]] record events (created, updated, and deleted across contacts, organizations, deals, services, and tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events, so any external tool can stay in sync without polling.
-
-### Manual Logging That Decays
-
-Reps log everything for the first two weeks, then logging fades, then the data becomes unreliable, then the team stops trusting the CRM, then they go back to spreadsheets. Fix: automate as much logging as possible. Sync email and calendar at minimum. Use AI agents to draft and write notes from call transcripts. Reduce the manual burden so logging is the path of least resistance.
-
-### Inconsistent Routing and Ownership
-
-Customer emails go to the inbox of whoever was on the last thread, not the current account owner. New leads pile up because nobody is sure who picks them up. Fix: write routing rules in the workflow layer, name an owner for every account, and make ownership visible on the customer record.
-
-### No Cross-Team Visibility
-
-Sales does not know what support is dealing with. Support does not know what sales promised. Both blame each other on the QBR. Fix: shared timeline, shared metrics, shared weekly review.
-
-### Resistance to Automation
-
-Teams sometimes treat automation as a threat to the human relationship. The framing is wrong. Automating the boring parts (logging, scheduling, follow-up reminders) gives the team more time for the conversations that actually matter. The right rule: automate the logistics, keep the conversations human.
-
-### Privacy and Compliance Gaps
-
-Especially in EU markets, capturing every conversation creates a GDPR exposure. Fix: pick tools that are GDPR-compliant by design, prefer EU-hosted vendors when the customer base is EU, document the data processing agreement, and limit retention to what the relationship justifies. Customermates is open source under [AGPL-3.0](/features/self-hosted) and self-hostable. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
-
-## Building a CIM System on a CRM Foundation
-
-For most small and mid-size teams, the realistic path is not buying a separate CIM platform. It is configuring the CRM to actually function as one. Here is the minimum viable setup.
-
-**Required integrations:**
-
-- Email sync, two-way, with full history captured to the contact record.
-- Calendar sync, two-way, with attendees auto-attached as contacts.
-- Helpdesk integration if support is a meaningful channel.
-- Webhook events to any external system that needs to react to changes.
-
-**Required automations:**
-
-- Auto-create a follow-up task after every meeting.
-- Auto-route inbound emails to the account owner.
-- Auto-flag any contact with no activity in 60 days.
-- Auto-update last-meeting-date on every meeting.
-
-**Required reports:**
-
-- Activity volume per account, per week.
-- Response time per channel.
-- Open tasks per owner.
-- Deals with no activity in 14 days.
-
-This setup costs nothing beyond your CRM seat and a few hours of configuration. It is also the substrate that makes AI agents useful: once the data is unified, an agent like Claude or ChatGPT, connected through MCP, can read the timeline and write the next action without you switching tools. That is the bet behind Customermates: an open-source CRM with a native unified inbox and [[derived.mcp.tools.total]] MCP tools, [from [[commercial.price.starter.monthly]] per user per month](/pricing), built so the AI you already use can run the interaction system for you.
-
-## Frequently Asked Questions
+## FAQ
 
 <Faq>
 <FaqItem question="What is customer interaction management in simple terms?">
-Customer interaction management is the discipline of capturing every conversation a customer has with your business, in one place, so anyone on your team can see what was said, what was decided, and what happens next. The goal is continuity: the customer never has to repeat themselves, and your team never has to guess.
+It is keeping every customer conversation, on every channel, attached to the right customer, with a named person responsible for the next reply. The test: anyone on the team can open a customer and see what was said last and whether something is waiting.
 </FaqItem>
 
 <FaqItem question="What is the difference between CIM and CRM?">
-CRM owns the database of who the customer is and what you sell them. CIM owns the record of how you talk to them. In a small company they live in the same tool. At scale they often live in adjacent tools that share data through integrations and webhooks.
+A CRM stores who the customer is, which company they belong to and which deals are open. CIM covers the conversations with them and who answers. In small teams a CRM with a built-in inbox does both; large organizations often run a contact center next to the CRM and connect the two.
 </FaqItem>
 
-<FaqItem question="What channels does customer interaction management cover?">
-Every channel the customer uses to reach you or vice versa: email, phone, video calls, live chat, social media, in-app messaging, support tickets, and forms. The point of CIM is that the channel does not matter to the customer record; what matters is that the conversation is captured and visible.
+<FaqItem question="What is CSM vs. CRM?">
+CSM usually means customer service management: support cases, queues and routing to agents, as in ServiceNow CSM or a helpdesk. Some teams use CSM for customer success management, the work of keeping clients after the sale. CRM is the record of customers and deals that both build on.
 </FaqItem>
 
-<FaqItem question="What software is best for customer interaction management?">
-For small and mid-size teams, a CRM with strong activity logging and email sync is usually enough. For support-heavy businesses, a helpdesk like Zendesk or Freshdesk on top of the CRM. For high-volume marketing, a marketing automation platform feeding back into the CRM. The combination matters more than any single tool.
+<FaqItem question="Is customer communication management the same thing?">
+No. Customer communication management (CCM) software such as Quadient Inspire or OpenText Communications (Exstream) composes and delivers templated, often regulated documents across print and digital channels. It suits insurers, banks and utilities. Teams whose problem is answering individual clients across email and chat need a CRM with an inbox or a helpdesk instead.
 </FaqItem>
 
-<FaqItem question="How do I measure customer interaction management performance?">
-Track response time per channel, interaction volume per account, open ticket count, and activity coverage (percentage of accounts with at least one logged interaction in the last 30 days). Review weekly. Add a customer-side metric like CSAT or NPS to triangulate the operational data with the customer's perception.
+<FaqItem question="What software do small businesses use for customer interaction management?">
+Most use a CRM with an inbox that connects their email and messaging accounts. Support-heavy businesses add a helpdesk such as Zendesk or Freshdesk. Customermates brings email, LinkedIn, WhatsApp, Instagram and Telegram into one inbox next to CRM records on Customermates Cloud from Pro.
 </FaqItem>
 
 <FaqItem question="Can AI handle customer interactions?">
-Yes, with limits. AI assistants and chatbots are useful for high-volume initial routing, common questions, and self-service. They are unsafe as the only layer for complex or high-stakes conversations, especially with B2B customers. The right design uses AI to handle the easy interactions and route the rest to humans, with full transcript captured to the CRM in either case.
-</FaqItem>
-
-<FaqItem question="What is omnichannel customer interaction management?">
-Omnichannel means the customer can switch channels mid-conversation without losing context. They start a chat, switch to email, then call the next day, and every system on your side has the full history. Multi-channel without omnichannel is just having more inboxes; omnichannel is having one customer view across channels.
-</FaqItem>
-
-<FaqItem question="How do I prevent customer interactions from getting lost?">
-Three things, in order. First, automate capture (email and calendar sync, AI-drafted notes) so logging is not optional. Second, name an owner for every account and make ownership visible on the record. Third, run a weekly hygiene review of the queue. The interactions you lose are the ones nobody owns and nobody reviews.
-</FaqItem>
-
-<FaqItem question="Is customer interaction management compliant with GDPR?">
-The discipline is. The implementation can fail. GDPR requires a lawful basis for processing, a data processing agreement with each vendor that touches personal data, and the ability to honor deletion and access requests. EU-hosted vendors with native GDPR support make this dramatically easier than US-hosted vendors with retrofitted compliance. Document your data flow before you scale it.
+AI can read a thread, summarize it and draft a reply. For client conversations, keep a person who checks the draft and presses send, unless the case is routine. In Customermates Cloud, Mate drafts replies and runs routines using hosted AI credits; external AI clients connect through MCP.
 </FaqItem>
 </Faq>
 
-## Closing Thought
-
-Customer interaction management is not a category to buy. It is a system to build, mostly out of tools you already have, glued together with discipline. The teams that get it right end up with one place where every conversation lives, every owner is named, and every next step has a date. The teams that do not get it right end up with five inboxes and a lot of customers who feel forgotten.
-
-If you want a CRM foundation that takes the boring parts off your plate, [Customermates](/pricing) is open source, self-hostable, runs its cloud database in Frankfurt, and is built so the AI agents you already use can run the interaction system for you. Or pick another tool. Just make sure you have one.
+To try the setup, start a Customermates trial ([[commercial.trial.days]] days, with the inbox), connect one channel per person, and build the "Waiting for us" view first. The [inbox guide](/docs/app-inbox) lists every filter and permission.

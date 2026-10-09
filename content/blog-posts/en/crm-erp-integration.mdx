@@ -1,302 +1,208 @@
 ---
-title: "CRM ERP Integration: Architecture and Implementation"
-description: "Plan a reliable CRM ERP integration: compare methods and define data ownership, mapping, idempotency, retries, monitoring, and rollout."
+title: "CRM ERP Integration: Architecture and First Flow"
+description: "How to connect a CRM and an ERP: who owns which field, four integration methods, idempotent events, reconciliation, and a first flow to build."
 
 relatedHrefs:
   - /blog/crm-and-erp
-  - /blog/erp-vs-crm
   - /features/api
   - /docs/webhooks
+  - /features/integrations
 
 hero:
-  title: "CRM ERP Integration: A Practical Architecture and Implementation Guide"
-  description: Connect sales and operations without creating two competing sources of truth. Design ownership, events, mapping, recovery, and monitoring before choosing a connector.
+  title: "CRM ERP Integration: Architecture, Methods and a First Flow You Can Build"
+  description: "Decide which system owns each field, pick the integration method that fits your ERP's interface, and ship one reliable event before you sync anything else."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-01-03
+  updated: 2026-10-08
   tags:
     - CRM
     - ERP
     - Integration
 ---
 
-# CRM ERP Integration: A Practical Architecture and Implementation Guide
+# Connecting a CRM to an ERP without creating two sources of truth
 
-**CRM ERP integration** connects customer and opportunity work with operational or financial processes. A good integration does not copy everything between two databases. It moves the smallest dependable set of identifiers and facts required for a business event, while keeping one authoritative system for every field.
+A CRM ERP integration passes a small set of identifiers and statuses between the system where you sell and the system where you deliver and bill. The CRM owns people, relationships, deals and conversations. The ERP owns the customer account used for billing, items, orders, stock and payments. The integration fires on defined business events, such as "deal won", and writes each system's reference number back into the other.
 
-The connector is only one component. Data ownership, validation, idempotency, retries, conflict handling, monitoring, and repair determine whether the integration stays reliable after launch.
+Most small teams should start with one one-way flow: a won deal creates the customer and an order in the ERP, and the ERP order number comes back to the deal. Build that through a native connector if your two systems have one, otherwise through the ERP's REST API and webhooks, using an automation platform such as n8n or a small service you run.
 
-## Why CRM ERP integration matters
+Customermates, an AI-native CRM, publishes this guide. Customermates is a CRM only, with no ERP functions and no native ERP connector; the section on it below shows how it connects through its REST API and webhooks. ERP vendor details were checked on 8 October 2026 on the vendors' own pages, linked at the end.
 
-Without a controlled handoff, teams often re-enter company, order, project, invoice, or status information. That creates delays and makes it difficult to know which value is current. Integration can reduce those handoffs when the process is sufficiently stable.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What moves">Identifiers and a few statuses per business event. Not every field, and not in both directions by default.</SummaryItem>
+  <SummaryItem label="Methods">Native connector, automation platform (iPaaS or n8n), direct API integration, or middleware. Or one suite whose ERP includes a CRM app.</SummaryItem>
+  <SummaryItem label="Decide first">One owning system per field, a stable ID strategy, and what happens when an event arrives twice or fails.</SummaryItem>
+  <SummaryItem label="Check your ERP">Whether its API is in your plan, whether it sends webhooks, and its rate limits. They differ a lot between vendors.</SummaryItem>
+  <SummaryItem label="Customermates">REST API and webhooks on every Cloud plan and when self-hosted. ERP references live in custom Text columns.</SummaryItem>
+</ArticleSummary>
 
-Useful outcomes include:
+## Which system owns which data
 
-- creating operational work from an accepted commercial event;
-- returning an ERP identifier to the CRM;
-- exposing selected fulfilment or payment context to customer-facing teams;
-- reducing duplicate maintenance of shared reference data;
-- preserving a traceable link from relationship context to transaction.
+Write this table for your own systems before you compare tools. Ownership is decided per field, not per object: the organization can live in both systems while its billing address belongs to the ERP and its account notes belong to the CRM.
 
-Integration is not automatically beneficial. If the underlying process, identifiers, or data ownership is unclear, automation can distribute errors faster.
-
-## Define the system boundary first
-
-Write an ownership matrix before evaluating tools.
-
-| Data or state | Typical authority | Possible reference on the other side |
+| Data | Usually owned by | What the other side keeps |
 | --- | --- | --- |
-| person and relationship context | CRM | ERP customer/contact reference where required |
-| opportunity stage and next action | CRM | commercial reference only |
-| product or item master | ERP | read-only product identifier or selected attributes |
-| order and fulfilment | ERP | order ID and selected status |
-| invoice and payment | ERP | invoice ID and selected customer-facing status |
-| conversation and activity | CRM | reference only when an operational process requires it |
+| Contacts, relationship history, conversations | CRM | The ERP keeps a contact person only if its documents need one |
+| Deal, stage, next step | CRM | Nothing, or a reference on the order |
+| Customer account for billing (legal name, VAT ID, billing address, payment terms) | ERP | ERP customer number, read-only in the CRM |
+| Items and prices | ERP | Item number on the CRM's product or service record |
+| Orders, delivery, stock | ERP | Order number and one customer-facing status |
+| Billing documents and payments | ERP | Document number and a coarse payment status, if account managers need it |
 
-This is an example, not a universal mapping. Assign ownership field by field for the actual systems.
+If two systems both write the same field, you have a conflict waiting to happen. Pick one owner, make the field read-only on the other side, and route corrections to the owner.
 
-## Four integration approaches
+## Four ways to connect a CRM and an ERP
 
-### 1. Native connector
+| Method | Fits when | Watch for |
+| --- | --- | --- |
+| Native connector | Both systems come from vendors that ship a connector for each other | Which objects, fields and directions it covers, which editions it needs, and who supports it when it breaks |
+| Automation platform (iPaaS, n8n, Make, Zapier) | You need a few flows between two systems with REST APIs and want visual logic | Idempotency, error queues and secrets are still your job. A visual flow is production software |
+| Direct API integration | One narrow, valuable flow between two stable APIs, and someone on the team writes code | You own authentication, retries, API version changes and monitoring |
+| Middleware or integration service | Several systems or high volume, with a shared data model and queues | More moving parts. Too heavy for moving five fields |
 
-A vendor-provided connector can reduce initial implementation work. Verify the exact editions, objects, fields, directions, frequency, limits, error handling, and support boundary. “Integration available” does not prove that your required workflow is covered.
+There is a fifth answer that some readers searching "CRM ERP Komplettlösung" or "can CRM be part of ERP" are after: one suite. Odoo, for example, ships a CRM app alongside its ERP apps, so the customer record is shared and there is nothing to sync. The tradeoff is that you use the suite's CRM. Note that Odoo makes its external API available only on its Custom plan, so connecting any outside system to Odoo needs that plan.
 
-### 2. Point-to-point API integration
+## Sync patterns and when to use them
 
-A custom service calls the CRM and ERP APIs directly. This offers precise mapping and behavior but leaves your team responsible for authentication, version changes, retries, monitoring, and maintenance. It suits a narrow, valuable flow when both APIs are stable.
+| Pattern | How it works | Use it for |
+| --- | --- | --- |
+| Event-driven, one way | A change in the owning system triggers a write in the other | The first flow. Direction and ownership stay obvious |
+| Scheduled reconciliation | A job compares cross-references and lists or repairs gaps | A safety net under every event flow |
+| Lookup at read time | One system asks the other for current data without storing a copy | Stock or payment status shown on demand |
+| Bidirectional | Both systems update related data | Only when the business really changes the data in both places, with per-field ownership and conflict rules |
 
-### 3. iPaaS or automation platform
+"Real time" is rarely the requirement it sounds like. An account manager who sees a payment status a minute late loses nothing; a duplicate order in the ERP costs real money. Design for retries and duplicates first, speed second.
 
-An integration platform provides triggers, connectors, transformations, and operational tooling. It can speed up common workflows. Check how it represents state, idempotency, queues, long-running failures, secrets, and versioned mappings. A visual workflow is still production software.
+## What your ERP's interface actually offers
 
-### 4. Middleware or integration service
+The ERP side usually decides how hard the integration is. Four examples show how much the interfaces differ:
 
-A dedicated service owns canonical models, event processing, mapping, queues, and reconciliation. It adds architecture but can reduce coupling when several systems or high transaction volumes are involved.
+| ERP | Interface, according to the vendor | What it means for the integration |
+| --- | --- | --- |
+| Microsoft Dynamics 365 Business Central | REST API v2.0 with entities such as customers, items, salesQuotes, salesOrders and salesInvoices, plus webhook subscriptions | Subscriptions expire after three days unless renewed, and notifications wait 30 seconds after the first change. More than 1,000 changes in that window arrive as one "collection" notification that you must resolve with a query |
+| Odoo | XML-RPC external API in version 18; version 19 documents the JSON-2 API and a migration path from XML-RPC and JSON-RPC | Available only on the Custom plan. Check which API your Odoo version runs before you build |
+| Lexware Office | REST API for contacts, articles, quotations, order confirmations, delivery notes and other vouchers, with event subscriptions | Up to 2 requests per second per client, so batch jobs need throttling |
+| Xentral | REST API for customers, products, sales orders, purchase orders, delivery notes and invoices, with webhooks and a list of webhook event types | Several API versions exist side by side, so pin the version in your mapping |
 
-Choose the simplest approach that supports the required reliability. Avoid introducing middleware solely to move a few stable fields, and avoid a fragile direct script for a business-critical multi-system process.
+Two questions save the most time: is the API included in the plan you pay for, and does the ERP push changes by webhook or do you have to poll it?
 
-## Choose the right sync pattern
+## Events, idempotency and reconciliation
 
-### Event-driven one-way flow
+An integration that only handles the happy path will create duplicates within weeks. Webhooks get retried, people click twice, and a timeout can hide a write that actually succeeded.
 
-A source event triggers a write into the target. This is often the safest starting point because ownership and direction remain clear.
+- **Idempotency.** Before creating anything in the target, check whether it already exists. The simplest check is the cross-reference itself: if the deal already holds an ERP order number, do not create another order.
+- **Stable IDs.** Store the other system's ID after the first match. Never match companies by name on every run; names change and subsidiaries share them.
+- **Retries.** Retry timeouts, rate limits and server errors with backoff. Stop on validation errors and put the event in a repair queue with the reason.
+- **Conflicts.** Decide them as business rules: the owner wins, or a person decides. Never apply "last write wins" across the board.
+- **Reconciliation.** Run a scheduled check that lists records missing a cross-reference or showing different statuses on both sides. It catches whatever the event flow missed.
+- **Logging.** Record event, source record, target reference, attempt count and result, without copying more customer data into logs than diagnosis needs.
 
-### Scheduled reconciliation
-
-A job compares records periodically and repairs missing or stale references. It is useful as a safety net even when primary updates are event-driven.
-
-### Request-time lookup
-
-One system requests current data from the other without persisting a copy. This reduces duplication but creates availability and latency dependencies.
-
-### Bidirectional synchronization
-
-Both systems may update related data. Use it only when the business truly requires two-way change. Define ownership per field, not per object, and establish explicit conflict rules.
-
-“Real time” should be a measured requirement. Many customer-facing statuses tolerate short delay and benefit from queueing and retry behavior.
-
-## Map entities and identifiers
-
-Begin with stable keys:
-
-- CRM organization ID;
-- ERP customer ID;
-- CRM deal or opportunity ID;
-- ERP order, project, or invoice ID;
-- product or item ID;
-- contact ID where the ERP process needs a person;
-- integration event ID and correlation ID.
-
-Store cross-system IDs after the first accepted match. Do not repeatedly match by mutable values such as company name.
-
-For each field, document:
-
-- source path and target path;
-- data type and allowed values;
-- required or optional status;
-- normalization and transformation;
-- authority and update direction;
-- behavior for missing, invalid, or conflicting data;
-- sensitive-data classification and retention needs.
-
-A mapping document is executable design evidence. Keep it versioned with the integration.
-
-## Design events for idempotency
-
-A target should be able to receive the same event more than once without creating duplicate work. Include a stable event ID and business reference, then record the processing result.
-
-A practical event envelope contains:
-
-- event type and schema version;
-- unique event ID;
-- occurred-at timestamp;
-- source system and source record ID;
-- correlation ID for the business flow;
-- minimal payload or reference;
-- producer version where useful.
-
-The consumer validates the schema, checks whether the event was processed, applies the change transactionally where possible, and stores the outcome.
-
-## Handle conflicts deliberately
-
-Conflicts are a business decision before they are a technical one. Common policies include:
-
-- source-of-truth wins;
-- newest valid update wins for a narrowly defined field;
-- target rejects the event and creates a repair case;
-- a person chooses when both values are materially plausible;
-- immutable transaction state is corrected with a new event, not overwritten.
-
-Never apply “last write wins” globally without understanding clocks, queued events, and field ownership.
-
-## Build retries, dead letters, and reconciliation
-
-A production integration needs more than a happy path:
-
-- retry temporary failures with backoff;
-- stop retrying permanent validation errors;
-- isolate events that require repair;
-- expose source, target, payload version, and error reason;
-- alert an accountable operator;
-- provide a safe replay mechanism;
-- reconcile cross-system IDs and key statuses on a schedule;
-- prevent repair actions from creating duplicates.
-
-The repair path should be tested before launch. Otherwise the first partial outage becomes an improvised data migration.
-
-## Step-by-step implementation
+## Building the first flow
 
 <Steps>
-  <Step title="Select one business event">
-    Choose a narrow flow with clear value, such as “accepted deal creates an ERP customer and order request.” Avoid a broad requirement such as “synchronize CRM and ERP.”
+  <Step title="Pick one business event">
+    "Deal won creates the ERP customer and order" is a good first event. "Sync CRM and ERP" is not an event.
   </Step>
-  <Step title="Document the preconditions">
-    List required source fields, permissions, status, approval, and duplicate checks. Decide what blocks the event.
+  <Step title="Define the preconditions">
+    List the fields that must be filled before the event may fire: billing address, VAT ID, items, quantities. Decide what blocks the event and who fixes it.
   </Step>
-  <Step title="Assign data ownership">
-    Create the field-level matrix and cross-system ID strategy. Resolve disagreements with process owners before coding.
+  <Step title="Write the field map">
+    For each field: source, target, type, owner, transformation, and what happens when it is missing or invalid. Keep the map versioned next to the integration.
   </Step>
-  <Step title="Choose the integration pattern">
-    Select native connector, API service, platform, or middleware based on volume, latency, reliability, internal skills, and operational ownership.
+  <Step title="Choose the method">
+    Native connector if one covers the flow; otherwise an automation platform or a small service against both REST APIs.
   </Step>
-  <Step title="Implement mapping and validation">
-    Use explicit schemas and transformations. Treat unknown enum values, invalid currencies, missing addresses, and unmatched products as named failure states.
+  <Step title="Build idempotency and the write-back">
+    Check the cross-reference before creating, then write the ERP number back to the CRM record in the same run.
   </Step>
-  <Step title="Add idempotency and observability">
-    Record event IDs, correlation IDs, attempts, processing time, target references, and final status. Logs should support diagnosis without exposing unnecessary customer data.
+  <Step title="Test the awkward cases">
+    Existing customer, two companies with the same name, missing address, unknown item, ERP timeout, the same event delivered twice, deal reopened after "won".
   </Step>
-  <Step title="Test representative and hostile cases">
-    Test existing customers, duplicates, subsidiaries, changed names, missing fields, invalid values, provider timeouts, target rejection, replay, cancellation, and partial failure.
-  </Step>
-  <Step title="Run a controlled rollout">
-    Start with a limited business unit or event subset. Reconcile every result manually until the error pattern is known, then widen gradually.
-  </Step>
-  <Step title="Operate the integration">
-    Assign owners for alerts, mapping changes, credential rotation, dependency upgrades, incident response, and periodic reconciliation.
+  <Step title="Roll out with reconciliation">
+    Start with one team or one deal type, compare both systems by hand for the first weeks, then switch on the scheduled reconciliation and name the person who handles failures.
   </Step>
 </Steps>
 
-## Common integration scenarios
+## Example: won deal to ERP order with Customermates
 
-### Accepted deal to ERP order request
+This is the setup in Customermates for the first flow above. It uses the [REST API](/features/api) and [webhooks](/docs/webhooks), which work on every Customermates Cloud plan and in a self-hosted installation. The receiver in the middle is yours: an n8n workflow or a small service.
 
-The CRM emits an event only after required commercial fields and approval are present. The integration resolves or creates the ERP customer, validates product references, submits the request, and writes the ERP reference back to the CRM. The ERP, not the CRM, owns the resulting order.
+**Columns.** Add custom columns of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. Deals carry linked services with per-deal quantities, so the services and their item numbers become the order lines. If account managers need delivery or payment state, add a Single Select column such as "ERP status" on deals and let only the integration write it.
 
-### ERP fulfilment status to CRM
+**Trigger.** The default deal Stage column has a "Won" option. Under **My Company → Webhooks**, subscribe a URL to `deal.updated` and set a secret. Each delivery is signed with HMAC-SHA256 in the `X-Webhook-Signature` header, and for update events the payload carries a `changes` object with the previous and current value of each changed field. Your receiver acts only when the stage changed to "Won".
 
-The ERP emits selected status changes. The CRM stores only the customer-facing reference needed by account teams. Internal warehouse details remain in the ERP unless a documented use case requires them.
+**Idempotency.** The standard webhook envelope has no unique event ID, so use the cross-reference: if the deal's "ERP order no." is already filled, stop.
 
-### Invoice or payment context in CRM
+**Customer match.** Look up the organization's "ERP customer no.". If it is empty, search the ERP by VAT ID or create the customer, then write the number back. To find a CRM organization by ERP number later, call `POST /api/v1/organizations/search` with an `equals` filter on that column's ID ([filter syntax](/docs/filter-syntax)).
 
-The ERP remains authoritative. The CRM may receive an invoice reference and coarse status for a customer conversation. Avoid turning the CRM copy into a financial ledger.
+**Write-back.** After the ERP accepts the order, call `PUT /api/v1/deals/{id}` with the new "ERP order no.". The update changes only the fields you send.
 
-### Customer identity synchronization
+**Failures.** Customermates retries a failed delivery automatically for timeouts, network errors, 5xx responses and 408, 425 and 429. Other 4xx responses are not retried, because they would fail the same way. Every delivery appears under **Recent Deliveries**, where you can resend it after fixing the cause.
 
-Choose which system creates the initial organization. Use stable IDs and a review path for ambiguous matches. Do not silently merge records from a company name alone.
+**Reconciliation.** Save a deal view filtered to Stage "Won" and "ERP order no." empty. Saved views are personal, so the person who handles integration failures keeps it. Anything that shows up there was missed by the event flow.
 
-## What determines integration cost and timeline
+**The reverse direction.** If your ERP sends webhooks, point them at the same receiver, look up the deal by "ERP order no." and set "ERP status". If it does not, poll the ERP on a schedule. The [n8n guide](/docs/n8n) lists the REST calls an n8n workflow needs; a community node also exists.
 
-There is no universal benchmark. Estimate from:
+In Customermates Cloud, Mate can work with these columns too, for example "list won deals from this month without an ERP order number". Mate uses hosted AI credits. An AI client of your own can do the same through [MCP](/docs/mcp).
 
-- number and quality of source systems;
-- API and webhook coverage;
-- entities, fields, transformations, and directions;
-- identity matching and historical data;
-- transaction volume and latency requirements;
-- security, privacy, and regulatory requirements;
-- environments, testing, monitoring, and support;
-- number of exception paths and repair tools;
-- internal process readiness and owner availability.
+<AcquisitionCallout title="What Customermates does not do here" variant="boundary">
+  Customermates has no ERP functions: no quotes, invoices, orders, payments, stock or purchasing. It has no native ERP connector and no built-in n8n; n8n runs separately. Record import and export use XLSX files, one record type at a time, with no scheduled sync. If you want CRM and ERP in one database, look at a suite that includes both instead.
+</AcquisitionCallout>
 
-Build an estimate by work package and uncertainty. A simple one-way event between stable APIs can be small; a bidirectional financial and inventory synchronization is a different programme.
+## What drives cost and effort
 
-## Using Customermates in a CRM ERP integration
+No honest benchmark covers all CRM ERP integrations; a one-way event between two documented APIs and a two-way sync of orders and stock are different projects. Estimate from these drivers:
 
-Customermates exposes supported CRM work through REST, webhooks, and MCP. Teams that operate n8n can use the separate Customermates community node as one integration option.
+- whether the ERP's API is in your current plan, or needs an upgrade;
+- whether both systems send webhooks, or one has to be polled;
+- the number of objects, fields, directions and transformations;
+- how messy existing customer data is, and how many duplicates need matching once;
+- rate limits and volume;
+- who runs the automation platform or service, and who answers its alerts.
 
-Customermates does not include a native universal ERP connector, an embedded n8n runtime, or ERP transaction modules such as quotes, invoices, orders, payments, purchasing, inventory, or production. Any ERP workflow must use the external ERP's supported interface and an independently operated integration layer.
+On the CRM side, the API and webhooks need no particular Customermates plan. A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month. The unified inbox, which brings email, LinkedIn and WhatsApp conversations to the same records, starts with Pro ([[commercial.price.pro.monthly]] per user per month).
 
-Use Customermates as the authority for the CRM records it models. Store stable ERP references and selected returned status only when the customer-facing workflow needs them.
+## Common mistakes
 
-## A safe first production flow
+- syncing every field before one event works end to end;
+- letting both systems own the same field;
+- matching companies by name instead of stored IDs;
+- no repair queue, so failed events vanish into logs;
+- ignoring cancellations, reopened deals and corrections;
+- launching without a reconciliation check or a named person for alerts.
 
-A sensible first flow is one-way and reversible where possible:
+For the difference between the two system types, and when a small team needs an ERP at all, read [CRM and ERP compared](/blog/crm-and-erp).
 
-1. A deal reaches a specifically approved state in Customermates.
-2. A webhook carries the deal and organization references to the integration.
-3. The integration validates required fields and checks its idempotency record.
-4. It resolves the ERP customer through a stable stored ID or creates a review case.
-5. It submits the permitted ERP request.
-6. It writes the ERP reference back through the supported Customermates API.
-7. A reconciliation job verifies that both systems retain the same cross-reference.
-8. Any validation or provider failure goes to an operator without advancing the CRM state falsely.
-
-This is an architecture pattern, not a built-in Customermates ERP workflow.
-
-## Common pitfalls
-
-- synchronizing every field before one business event works;
-- allowing both systems to own the same field;
-- matching companies by name on every run;
-- omitting idempotency and correlation IDs;
-- treating retries as an afterthought;
-- hiding validation errors in generic logs;
-- ignoring cancellation, deletion, and correction;
-- exposing more data than the target process needs;
-- launching without a reconciliation report;
-- leaving alerts without a named operator.
-
-## Frequently asked questions
+## FAQ
 
 <Faq>
 <FaqItem question="What is CRM ERP integration?">
-It is a controlled exchange of selected identifiers, events, and status between customer-facing CRM work and operational or financial ERP processes.
+It is the automated exchange of selected identifiers and statuses between the CRM, where you manage relationships and deals, and the ERP, where you manage orders, items, stock and billing. Done well, it moves only what a defined business event needs and keeps one owner for every field.
 </FaqItem>
 
-<FaqItem question="What is the best CRM ERP integration method?">
-It depends on scope and reliability needs. Native connectors suit supported standard flows; direct APIs suit narrow custom flows; platforms speed common orchestration; middleware helps decouple several critical systems.
+<FaqItem question="How do you integrate a CRM and an ERP?">
+Define field ownership, pick one business event such as "deal won", and choose a method: a native connector if your systems have one, otherwise the ERP's API and webhooks through an automation platform or a small service. Add idempotency checks, a write-back of the other system's ID, and a scheduled reconciliation before you go live.
 </FaqItem>
 
-<FaqItem question="What data should move between CRM and ERP?">
-Move only what a defined business event requires. Assign one authority to every shared field and retain stable cross-system IDs.
+<FaqItem question="Are CRM and ERP the same, and can a CRM be part of an ERP?">
+They are different systems: CRM covers selling and customer relationships, ERP covers delivery, purchasing, stock and finance. Some suites include both. Odoo, for example, offers a CRM app next to its ERP apps, which removes the need for an integration between the two.
 </FaqItem>
 
-<FaqItem question="Should CRM ERP sync be bidirectional?">
-Only when the process genuinely requires updates from both systems. One-way event flows with selected returned references are easier to reason about and operate.
+<FaqItem question="Should CRM and ERP sync in both directions?">
+Usually not at first. A one-way event from CRM to ERP, plus a returned order number and one status field, covers most needs of a small team. Add a second direction only for fields that really change in both places, with per-field ownership.
 </FaqItem>
 
-<FaqItem question="How much does CRM ERP integration cost?">
-Cost depends on systems, APIs, mapping, volume, controls, exceptions, testing, and operations. Estimate from your design rather than a generic range.
+<FaqItem question="Can you integrate CRM and ERP without code?">
+Often yes, with a native connector or an automation platform such as n8n, Make or Zapier. You still have to decide field ownership, handle duplicates and failures, and check whether your ERP plan includes API access.
 </FaqItem>
 
-<FaqItem question="Can CRM and ERP be integrated without code?">
-A platform or native connector may reduce custom code, but the team must still define ownership, mapping, validation, failure handling, monitoring, and repair.
-</FaqItem>
-
-<FaqItem question="Does Customermates include an ERP integration?">
-Customermates provides REST, webhooks, MCP, and a separate community n8n node. It does not include a universal native ERP connector or ERP transaction modules; the integration must be designed and operated externally.
+<FaqItem question="Does Customermates integrate with ERP systems?">
+Through its REST API and webhooks, yes, using an automation platform or service you run. There is no native ERP connector, and Customermates itself holds no ERP data such as orders or payments. ERP references go into custom columns on organizations, deals and services.
 </FaqItem>
 </Faq>
+
+ERP vendor details checked on 8 October 2026 against Microsoft's [Business Central API v2.0](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/api-reference/v2.0/) and [Business Central webhooks](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/api-reference/v2.0/dynamics-subscriptions), Odoo's [external API for version 18](https://www.odoo.com/documentation/18.0/developer/reference/external_api.html), [external API for version 19](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) and [pricing](https://www.odoo.com/pricing-plan), the [Lexware API documentation](https://developers.lexware.io/docs/) and the [Xentral developer documentation](https://developer.xentral.com/).

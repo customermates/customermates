@@ -1,16 +1,23 @@
 ---
-title: "Google Sheets CRM: Free Template + Setup (2026)"
-description: "Build a free Google Sheets CRM with templates, formulas, and automation tips. Learn 8 limitations and when to switch to a dedicated CRM."
+title: "Google Sheets CRM: Free Template and Setup Guide"
+description: "Build a Google Sheets CRM with five tabs, dropdowns, QUERY formulas and a daily Apps Script email, and learn the point where a spreadsheet stops working."
+
+relatedHrefs:
+  - /blog/excel-crm-template
+  - /blog/free-crm
+  - /features/simple-crm
+  - /docs/app-records
 
 hero:
-  title: "Google Sheets CRM: Free Templates, Setup Guide, and When to Upgrade"
-  description: Google Sheets works as a starter CRM for small teams. Get free templates, step-by-step setup instructions, and learn exactly when a spreadsheet stops being enough.
+  title: "Google Sheets CRM: A Free Template, Formulas and the Point Where It Stops Working"
+  description: "Tabs, columns, dropdowns and formulas for a spreadsheet CRM that one to three people can run in Google Sheets, a short Apps Script that emails you each morning, and a clean path into a CRM once the sheet is shared by too many people."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2025-12-22
+  updated: 2026-10-08
   tags:
     - Google Sheets
     - CRM Template
@@ -18,391 +25,210 @@ blogPost:
     - Free CRM
 ---
 
-# Google Sheets CRM: Free Templates, Step-by-Step Setup, and When to Upgrade
+# Google Sheets CRM: A Free Template, Formulas and the Point Where It Stops Working
 
-Google Sheets works as a starter CRM for small teams. Get free templates, step-by-step setup instructions, and learn exactly when a spreadsheet stops being enough.
+Yes, Google Sheets works as a CRM for one to three people. Give each kind of record its own tab (contacts, deals, activities), make every fixed value a dropdown, and let a Dashboard tab count and sum the rest with QUERY and COUNTIFS. Google itself does not sell a CRM: its [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) lists third-party ones such as Copper, Pipedrive, Streak and Zoho CRM, and Gmail, Forms and Apps Script are the parts you wire together yourself.
 
-Can Google Sheets be used as a CRM? Absolutely. Thousands of freelancers, solopreneurs, and small teams use Google Sheets as their first [CRM system](/blog/crm-systems) every day. It is free, accessible from any device, supports real-time collaboration, and requires zero technical setup. For anyone managing fewer than 200 contacts with a simple sales process, a well-structured Google Sheet is a legitimate starting point.
+Customermates publishes this guide and is the CRM in the migration example at the end. Everything before that section needs only a Google account.
 
-But "starting point" is the operative phrase. Google Sheets was built for general-purpose calculations, not customer relationship management. Understanding both the possibilities and the ceiling will save you months of frustration and prevent you from outgrowing your system at the worst possible time.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What you build">Five tabs: Lists, Contacts, Deals, Activities and a Dashboard with live follow-up and pipeline tables.</SummaryItem>
+  <SummaryItem label="What Google adds">Form responses that land in the sheet by themselves, change alerts by email, and Apps Script for a morning email of past next steps.</SummaryItem>
+  <SummaryItem label="Who it suits">One to three people, one sales process, conversations mostly by email.</SummaryItem>
+  <SummaryItem label="Where it breaks">Access is per file, not per row. Links between tabs are plain text, and LinkedIn or WhatsApp threads never reach the sheet unless someone types them in.</SummaryItem>
+  <SummaryItem label="How to move">Download as .xlsx and import one tab at a time: companies, then contacts, then deals.</SummaryItem>
+</ArticleSummary>
 
-This guide walks you through building a Google Sheets CRM from scratch, recommends proven templates, explains the specific limitations you will encounter, and helps you determine the exact moment it makes sense to move to a dedicated CRM like [Customermates](/).
+## Four setup rules for the sheet
 
-## What Is a Google Sheets CRM?
+1. **One header row, one row per record.** No merged cells, no blank rows, no subtotals between records.
+2. **Turn each data tab into a table.** Select the range and choose Format › Convert to table. Google's [tables guide](https://support.google.com/docs/answer/14239833) lets you set a type per column: Drop-down, Date, Currency, People chip and others. A Date column then flags "next Tuesday" with a warning, which matters once formulas compare dates.
+3. **Make every fixed value a dropdown.** Insert › Drop-down, or Data › Data validation with "Drop-down (from a range)" pointing at the Lists tab. According to Google's [dropdown help](https://support.google.com/docs/answer/186103), invalid entries are rejected by default. Keep it that way: "Proposal" and "proposal sent" are two stages to every formula.
+4. **Link by name.** A contact's company is the company's exact name, a deal's contact the person's full name. Names are readable, and CRM imports, Customermates included, match links by name.
 
-A Google Sheets CRM is a spreadsheet configured to track contacts, deals, interactions, and follow-ups in a structured way. Instead of buying CRM software, you use Google Sheets tabs, columns, data validation, conditional formatting, and formulas to replicate basic CRM functionality.
+## The template, tab by tab
 
-The approach works because the core of any [CRM](/blog/what-is-crm) is a structured database of customer information combined with a process for acting on that information. Google Sheets can handle the database part. Where it falls short is the process automation, relationship linking, and reporting that purpose-built CRM software provides natively.
+### Lists
 
-## How to Build a Google Sheets CRM: Step-by-Step Setup
+| Range | Values |
+| --- | --- |
+| A: Stage, B: Probability | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0% |
+| D: Contact type | Lead, Customer, Partner, Former customer |
+| E: Source | Referral, Website, LinkedIn, Event, Web form |
+| F: Activity type | Call, Email, Meeting, LinkedIn, WhatsApp |
+| G: Team | Full name of everyone who owns records |
 
-### Step 1: Create Your Master Spreadsheet
+These are the stages and probabilities a new Customermates workspace starts with in English, so the Stage column moves over later without renaming. Replace the percentages once you have a few months of won and lost deals to count.
 
-Open Google Sheets and create a new blank spreadsheet. Name it something clear like "Company Name CRM" so your team can find it easily. You will create four tabs: Contacts, Deals, Activities, and Dashboard.
+### Contacts
 
-### Step 2: Build the Contacts Sheet
+Columns A to J: First name, Last name, Company, Email, Phone, LinkedIn URL, Contact type, Source, Owner, Notes. Keep first and last name apart; most CRMs need both to create a person. If you sell to companies, add a Companies tab with Company, Website, Industry and City, and point the Company column's dropdown at it.
 
-Your Contacts sheet is the foundation. Every other sheet references it. Here is a proven column structure:
+### Deals
 
-| Column               | Purpose                                                     | Data Type              |
-| -------------------- | ----------------------------------------------------------- | ---------------------- |
-| A: First Name        | Contact first name                                          | Text                   |
-| B: Last Name         | Contact last name                                           | Text                   |
-| C: Email             | Primary email                                               | Text (email format)    |
-| D: Phone             | Primary phone number                                        | Text                   |
-| E: Company           | Company or organization name                                | Text                   |
-| F: Job Title         | Role at their company                                       | Text                   |
-| G: Source            | How you found them (referral, website, event)               | Dropdown               |
-| H: Status            | Lead status (New, Contacted, Qualified, Customer, Inactive) | Dropdown               |
-| I: Owner             | Team member responsible                                     | Dropdown               |
-| J: Last Contact Date | Date of most recent interaction                             | Date                   |
-| K: Next Follow-Up    | Date of next planned contact                                | Date                   |
-| L: Deal Value        | Estimated revenue potential                                 | Currency               |
-| M: Notes             | Free-text notes about the contact                           | Text                   |
-| N: Tags              | Categorization labels                                       | Text (comma-separated) |
+| Column | Content | Example |
+| --- | --- | --- |
+| A Deal | Text | Northwind website relaunch |
+| B Company | Dropdown | Northwind Studio |
+| C Contact | Full name | Sarah Okafor |
+| D Value | Number | 18000 |
+| E Stage | Dropdown from Lists!A | Proposal |
+| F Probability | Formula | 60% |
+| G Weighted | Formula | 10800 |
+| H Owner | Dropdown from Lists!G | Anna Berg |
+| I Next step | One sentence | Send revised scope |
+| J Next step date | Date | 2025-12-04 |
+| K Closed on | Date, filled when Won or Lost | |
 
-**Configuration steps:**
-
-1. Select the cells in column G (starting from G2), go to Data > Data Validation, and create a dropdown list with your lead sources (Referral, Website, LinkedIn, Cold Outreach, Event, Partner)
-2. Repeat for column H with status values: New, Contacted, Qualified, Proposal Sent, Customer, Inactive
-3. Repeat for column I with your team member names
-4. Select the header row, go to View > Freeze > 1 row
-5. Select the entire sheet, go to Format > Alternating colors, and pick a subtle color scheme
-6. Select column K (Next Follow-Up), go to Format > Conditional formatting, and create two rules: highlight cells red where the date is before today, and yellow where the date is within the next 3 days
-
-### Step 3: Build the Deals Sheet
-
-Track sales opportunities and their progress through your pipeline:
-
-| Column            | Purpose                              | Data Type  |
-| ----------------- | ------------------------------------ | ---------- |
-| A: Deal Name      | Descriptive name for the opportunity | Text       |
-| B: Company        | Associated company name              | Text       |
-| C: Contact        | Primary contact for this deal        | Text       |
-| D: Deal Value     | Expected revenue                     | Currency   |
-| E: Stage          | Pipeline stage                       | Dropdown   |
-| F: Probability    | Estimated likelihood of closing      | Percentage |
-| G: Weighted Value | Deal Value multiplied by Probability | Formula    |
-| H: Created Date   | When the deal was created            | Date       |
-| I: Expected Close | Target close date                    | Date       |
-| J: Owner          | Sales rep responsible                | Dropdown   |
-| K: Next Action    | What needs to happen next            | Text       |
-| L: Notes          | Additional context                   | Text       |
-
-**Pipeline stage best practice:** Define your stages based on buyer actions, not seller activities. "Demo Completed" is better than "Needs Follow-Up" because it is objective and verifiable. Keep your stages to five or fewer:
-
-- Prospecting
-- Discovery / Demo
-- Proposal Sent
-- Negotiation
-- Closed Won / Closed Lost
-
-For the Weighted Value formula in column G, enter: `=D2*F2`. This gives you a realistic view of your [sales pipeline](/blog/sales-pipeline) value by discounting deals by their close probability.
-
-### Step 4: Build the Activities Sheet
-
-Log every meaningful interaction. The rule: every call, email, or meeting gets logged before you close the tab. It takes 30 seconds and keeps your pipeline accurate.
-
-| Column              | Purpose                                    | Data Type |
-| ------------------- | ------------------------------------------ | --------- |
-| A: Date             | When the activity occurred                 | Date      |
-| B: Contact          | Who you interacted with                    | Text      |
-| C: Company          | Associated company                         | Text      |
-| D: Type             | Activity type (Call, Email, Meeting, Note) | Dropdown  |
-| E: Subject          | Brief description                          | Text      |
-| F: Details          | Full details of the interaction            | Text      |
-| G: Follow-Up Needed | Whether follow-up is required              | Checkbox  |
-| H: Follow-Up Date   | When to follow up                          | Date      |
-| I: Logged By        | Team member who logged the activity        | Dropdown  |
-
-### Step 5: Build a Dashboard Sheet
-
-Create a summary sheet using formulas that pull from your other tabs:
-
-**Total open pipeline value:**
+Put these in row 2 and fill them down:
 
 ```
-=SUMIF(Deals!E:E,"<>Closed Won",Deals!D:D)-SUMIF(Deals!E:E,"Closed Lost",Deals!D:D)
+F2  =IFERROR(VLOOKUP(E2,Lists!A:B,2,FALSE),0)
+G2  =D2*F2
 ```
 
-**Weighted pipeline value:**
+### Activities
+
+One row per conversation that mattered: Date, Contact, Deal, Type, Owner, Summary and Next step. It is the only tab that answers "what did we last tell them?", so fill it right after the call or nobody will.
+
+### Dashboard
+
+Four numbers:
 
 ```
-=SUMPRODUCT((Deals!E:E<>"Closed Won")*(Deals!E:E<>"Closed Lost")*Deals!G:G)
+Open pipeline      =SUMIFS(Deals!D2:D,Deals!E2:E,"<>Won",Deals!E2:E,"<>Lost",Deals!A2:A,"<>")
+Weighted pipeline  =SUMIFS(Deals!G2:G,Deals!E2:E,"<>Won",Deals!E2:E,"<>Lost",Deals!A2:A,"<>")
+Win rate           =COUNTIF(Deals!E2:E,"Won")/MAX(1,COUNTIF(Deals!E2:E,"Won")+COUNTIF(Deals!E2:E,"Lost"))
+Past next steps    =COUNTIFS(Deals!J2:J,"<"&TODAY(),Deals!E2:E,"<>Won",Deals!E2:E,"<>Lost")
 ```
 
-**Deals by stage** (repeat for each stage):
+Two functions make the Google version better than the Excel one. [QUERY](https://support.google.com/docs/answer/3093343) builds the pipeline by stage as a table that updates itself:
 
 ```
-=COUNTIF(Deals!E:E,"Discovery / Demo")
+=QUERY(Deals!A1:K,"select E, count(A), sum(D) where E is not null and E <> 'Won' and E <> 'Lost' group by E label count(A) 'Deals', sum(D) 'Value'",1)
 ```
 
-**Win rate:**
+And FILTER gives you a live follow-up list, every open deal whose next step date has passed:
 
 ```
-=COUNTIF(Deals!E:E,"Closed Won")/(COUNTIF(Deals!E:E,"Closed Won")+COUNTIF(Deals!E:E,"Closed Lost"))
+=FILTER(Deals!A2:J,Deals!J2:J<>"",TODAY()>Deals!J2:J,Deals!E2:E<>"Won",Deals!E2:E<>"Lost")
 ```
 
-**Average deal size:**
+Put each on its own block of the Dashboard and leave room below it, because both spill downwards.
 
+## What Google adds around the sheet
+
+**Lead capture with Google Forms.** Link a form to the spreadsheet under Responses › Select destination for responses, and Google's [Forms help](https://support.google.com/docs/answer/2917686) says each new response is added automatically. Leave the responses tab as it is and copy qualified leads into Contacts by hand. Editing or reordering its columns is the fastest way to break the form link.
+
+**Change alerts.** Tools › Notification settings › Edit notifications sends an email when anyone changes the file, right away or as a daily digest. Per Google's [notification help](https://support.google.com/docs/answer/91588), it covers other people's edits only. It tells you that Anna edited Deals. It does not tell you that a next step date passed.
+
+**A morning email from Apps Script.** For that, open Extensions › Apps Script and paste:
+
+```js
+function mailPastNextSteps() {
+  const rows = SpreadsheetApp.getActive().getSheetByName('Deals').getDataRange().getValues();
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const due = rows.slice(1).filter(r =>
+    r[9] instanceof Date && r[9] < today && r[4] !== 'Won' && r[4] !== 'Lost');
+  if (due.length) {
+    MailApp.sendEmail(Session.getEffectiveUser().getEmail(),
+      due.length + ' past next steps',
+      due.map(r => r[0] + ': ' + r[8]).join('\n'));
+  }
+}
 ```
-=AVERAGEIF(Deals!E:E,"Closed Won",Deals!D:D)
-```
 
-**Overdue follow-ups (contacts who need attention now):**
+Then add a trigger (clock icon › Add trigger), event source "Time-driven", type "Day timer", 7 to 8 am. Column J is index 9 because the array starts at 0. Google's [Apps Script quotas](https://developers.google.com/apps-script/guides/services/quotas) cap a free Gmail account at 100 email recipients and 90 minutes of trigger runtime a day; Workspace accounts get 1,500 recipients and 6 hours. One email a day is far below both.
 
-```
-=COUNTIFS(Contacts!K:K,"<"&TODAY(),Contacts!K:K,"<>")
-```
+**Filter views instead of filters.** A normal filter changes the view for everyone with access. Data › Create filter view saves a filter that changes only your own view, as Google's [filter help](https://support.google.com/docs/answer/3540681) explains. Give each person a "My open deals" filter view on Owner and Stage.
 
-**Contacts by status:**
+## Where a Google Sheets CRM stops working
 
-```
-=COUNTIF(Contacts!H:H,"Qualified")
-```
+Size is rarely the problem. Google allows up to 20 million cells per spreadsheet in its [Drive file limits](https://support.google.com/drive/answer/37603), far more than a small team fills. These limits show up first:
 
-You can create charts from these formulas by selecting the data and going to Insert > Chart. A bar chart showing deals per stage and a line chart showing pipeline value over time are the two most useful visualizations.
+- **Everyone sees everything.** Sharing works per file. Protected ranges stop edits, but Google's [protection help](https://support.google.com/docs/answer/1218656) says plainly that people can still copy and export a protected spreadsheet, and that protection "shouldn't be used as a security measure". A freelancer you add to update two deals can read the whole client list.
+- **Links are text.** Rename a company and every contact and deal that used the old name points nowhere until you run Find and replace.
+- **Conversations stay elsewhere.** Gmail threads, LinkedIn messages and WhatsApp chats reach the sheet only when someone summarizes them in Activities.
+- **Personal data multiplies.** Every download, copy and "make a copy for me" is another place a person's data lives. When someone uses their [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj) rights to see their data (Article 15) or have it erased (Article 17), you have to find all of them.
 
-## Best Google Sheets CRM Templates
+## Stay in Sheets, add a tool, or switch?
 
-If you prefer a ready-made starting point over building from scratch, several free templates are worth considering:
+| If this describes you | Do this |
+| --- | --- |
+| One person, a few hundred contacts, mostly email | Keep the template above and the Apps Script email |
+| Two or three people, one shared deal list, everyone may see everything | Keep the sheet, add filter views per person and notification rules |
+| You want CRM features but your team refuses to leave Sheets | Look at the CRM add-ons in the Google Workspace Marketplace, which work inside Sheets or Gmail |
+| Several people share deals, follow-ups slip, or deals move in LinkedIn and WhatsApp threads | Move to a CRM, starting with the import below |
+| You run Excel or Microsoft 365 rather than Google | Use the [Excel CRM template](/blog/excel-crm-template), which has the same layout plus a weekly tracker per salesperson |
 
-**Sheetify CRM** is one of the most popular Google Sheets CRM templates. It includes contact management, deal tracking, and a basic visual dashboard with charts. Good for solo users who want a polished look without custom setup.
+A simple rule of thumb: once two people edit the same deals every week and one follow-up has slipped, move. Before that, the sheet is fine.
 
-**Close.com Google Sheets CRM Template** provides a five-step setup process with clearly defined pipeline stages. It is particularly well-designed for outbound sales teams because it includes prospecting-specific fields.
+## Moving a Google Sheets CRM into Customermates
 
-**Zapier Spreadsheet CRM Template** focuses on simplicity and pairs well with Zapier automations. If you plan to connect your sheet to other tools (email, forms, calendar), this template has the cleanest integration points.
+Customermates imports Excel workbooks (.xlsx), one record type at a time, so a Google Sheet goes through a download first. There is no live sync with Google Sheets and no CSV import. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules, and the [Excel template guide](/blog/excel-crm-template#moving-the-template-into-customermates) maps every column of this layout to a field.
 
-**OnePageCRM Template** emphasizes next-action selling. Every contact has a required "Next Action" field, which enforces follow-up discipline that most spreadsheet CRMs lack.
+<Steps>
+  <Step title="Clean the tabs">Use Data › Data cleanup › Remove duplicates on Contacts and Deals, and fix any value that a dropdown flags. Every stage and type should be exactly one of the Lists values.</Step>
+  <Step title="Create the custom fields">In Customermates, open any record, click **Customize**, then **Add Field**. For each dropdown column (Contact type, Source, Industry), add a **Single Select** field with option labels that match your Lists tab exactly. Use Date fields for Next step date and Closed on. The deal Stage field already exists with the stages above.</Step>
+  <Step title="Download one tab at a time">The wizard reads the first tab of a workbook that is not named "Schema". Drag the tab you want to import to the front, then File › Download › Microsoft Excel (.xlsx). Repeat for each tab.</Step>
+  <Step title="Import in dependency order">Companies into **Organizations**, then Contacts, then Deals. On each list, open **Import and export**, choose **Add from file**, and match each column to a field, a custom field or a channel. Links are matched by name, ignoring case, so a company must exist before a contact can point to it. Owner goes into **Assigned**, matched by the team member's full name.</Step>
+  <Step title="Test with ten rows">The check lists every problem row before anything is added, and you can skip those rows. An import has no undo, so try a small file first. Bring only open next steps from Activities over as tasks; older history can go into a deal's Notes or stay in the archived sheet.</Step>
+</Steps>
 
-**HubSpot Free CRM Template** includes a quarterly sales tracking view alongside the standard contact and deal sheets. Useful if you report on sales performance by quarter.
+Deal values work differently: in Customermates a deal's value is the sum of its linked services. The Excel guide's [import steps](/blog/excel-crm-template#moving-the-template-into-customermates) show how to bring your price list in first.
 
-Any of these templates will save you 30 to 60 minutes of initial setup time. Choose the one that matches your sales process most closely and customize from there.
+### What replaces the Dashboard and the Apps Script
 
-## Extending Your Google Sheets CRM with Add-Ons and Automation
+- **QUERY by stage** becomes the Deals list as a board grouped by Stage, with total and weighted value per column, shown in the [pipeline view](/features/pipeline).
+- **The FILTER follow-up list** becomes a personal saved view of deals filtered on Next step date, sorted oldest first. Saved views are personal, like filter views.
+- **The morning email** can become a routine in Customermates Cloud. Customermates has no reminders or notifications, but a routine set to run daily at 08:00 can follow an instruction like this one, using hosted AI credits:
 
-### Google Forms for Lead Capture
+> List my open deals whose Next step date is today or earlier. For each one, create a task linked to the deal, assigned to me, named "Follow up" plus the deal name. Do not send or draft any messages.
 
-Create a Google Form that feeds directly into your Contacts sheet:
+A routine runs as its owner, and Mate sends messages when told to, so the last sentence matters. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; the [routines documentation](/docs/app-routines) has the run limits.
 
-1. Go to Google Forms and create a new form
-2. Add fields matching your Contacts sheet columns (Name, Email, Phone, Company, Source)
-3. Click the Responses tab, then click the green Sheets icon to link responses to your CRM spreadsheet
-4. New form submissions automatically appear as new rows in your Contacts sheet
+- **The Activities tab** gives way, on Pro and higher, to the [unified inbox](/features/unified-inbox), where Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram threads sit with the contact. Starter has no inbox.
 
-This is useful for capturing leads from your website, events, or partner referrals without manual data entry.
+If you still want a reporting copy in Google Sheets, webhooks can send record changes to a separately run [n8n](/docs/n8n) instance, which writes them into a sheet.
 
-### Zapier and Make Integrations
+## What it costs, and when Customermates is the wrong step
 
-Connect Google Sheets to other tools for basic automation:
+| Team | Plan | Per month |
+| --- | --- | --- |
+| 3 people, CRM without inbox | Starter, [[commercial.price.starter.monthly]] per user | [[commercial.price.starter.monthly.seats.3]] |
+| 3 people, with the unified inbox | Pro, [[commercial.price.pro.monthly]] per user | [[commercial.price.pro.monthly.seats.3]] |
+| Your own server | Self-hosted AGPL core | No licence fee, plus hosting; REST, webhooks and MCP, but no inbox and no Mate |
 
-- **New email in Gmail** > **Add row to Activities sheet** (log email interactions automatically)
-- **New Google Calendar event** > **Add row to Activities sheet** (log meetings)
-- **New row in Contacts sheet** > **Send welcome email via Gmail** (automated first touch)
-- **Cell updated in Deals sheet** > **Send Slack notification** (alert team when deal stages change)
+Billing is monthly, and the hosted trial runs [[commercial.trial.days]] days. Each hosted plan includes monthly hosted AI credits per active user; see [pricing](/pricing).
 
-These integrations are functional but brittle. They break when column positions change, require a paid Zapier or Make plan for anything beyond basic triggers, and cannot handle complex conditional logic.
+Customermates is the wrong step if your process lives in formulas: it has no formula fields, so custom calculations stay in a spreadsheet through the export. It is also wrong if you need a phone dialer, email campaigns or a native phone app. Customermates has none of those, so look for a CRM that ships them. And if the real requirement is "stay inside Google Sheets", a Marketplace add-on fits better than any separate CRM.
 
-### Google Apps Script for Custom Automation
-
-For technically inclined users, Google Apps Script can add capabilities like:
-
-- Automated email reminders for overdue follow-ups
-- Color-coded status updates based on deal age
-- Automatic timestamping when rows are edited
-- Data cleanup scripts that standardize formatting
-
-Apps Script is powerful but requires JavaScript knowledge and ongoing maintenance. Every schema change to your spreadsheet may require script updates.
-
-## The 8 Limitations of a Google Sheets CRM
-
-Is Google Sheets a good CRM? For getting started, yes. For growing beyond the basics, no. Here are the specific limitations you will encounter:
-
-### 1. No Relational Data
-
-Google Sheets stores data in flat tables. In a real CRM, a contact is linked to a company, a company is linked to multiple deals, and each deal has associated activities, emails, and files. In Google Sheets, you duplicate the company name in every row and hope nobody misspells it.
-
-When a company changes its name or a contact moves to a different organization, you need to find and update every instance across every sheet. A CRM handles this with a single edit to the source record. This is the fundamental architectural limitation that no amount of formulas or add-ons can fix.
-
-### 2. No Built-In Automation
-
-Google Sheets cannot natively trigger actions based on data changes. You cannot create a rule that says "when a deal moves to Proposal Sent, email the customer a pricing sheet" or "when a follow-up date passes, alert the assigned rep in Slack."
-
-You can build workarounds with Apps Script or Zapier, but these are fragile, limited to simple triggers, and require technical maintenance. In comparison, a CRM like Customermates emits webhook events on every record change and offers a community node for a separately operated n8n instance, so you can build visual [workflow automation](/features/workflow-automation) on stable record IDs instead of column positions.
-
-### 3. Poor Multi-User Collaboration
-
-While Google Sheets supports simultaneous editing, it was not designed for structured data management by a team:
-
-- Filter views break when multiple people apply different filters simultaneously
-- One person sorting the sheet disrupts everyone else's view
-- No role-based permissions (everyone can edit every cell, including formulas)
-- No audit trail showing who changed what value and when
-- Accidental row deletion or formula overwriting is common and often unnoticed
-
-### 4. No Pipeline Visualization
-
-Sales teams need to see their pipeline as a visual board with deals as cards that can be dragged between stages. Google Sheets displays data in rows and columns. You can create a chart showing deal counts by stage, but that is a summary, not a working tool. A CRM pipeline view is interactive, lets you drag deals between stages, and shows deal details on hover.
-
-### 5. Performance Degrades at Scale
-
-Google Sheets slows noticeably once you exceed 2,000 to 5,000 rows or have complex formulas referencing large ranges. A business tracking 5,000 contacts with active filtering and dashboard formulas will experience frustrating load times and occasional crashes.
-
-CRM databases are engineered to handle hundreds of thousands of records without performance degradation.
-
-### 6. Limited Reporting and Forecasting
-
-While you can create charts and pivot tables, every report must be manually built and maintained. When you add a new column or change a dropdown value, every formula and chart that references it may need updating. Sales forecasting, cohort analysis, and trend reporting are practically impossible in a spreadsheet.
-
-CRM software generates reports dynamically from structured data, adapting automatically as your data model evolves.
-
-### 7. No Email Integration
-
-Google Sheets cannot log emails automatically. Every email interaction must be manually recorded by copying information from Gmail into the Activities sheet. This is the first thing teams stop doing when they get busy, which means your CRM data becomes increasingly incomplete over time.
-
-CRM systems integrate with email providers to automatically log correspondence and associate it with the correct contact and deal records.
-
-### 8. GDPR and Compliance Gaps
-
-For EU businesses, using Google Sheets as a CRM creates compliance risks:
-
-- No access logging (required for demonstrating lawful data handling)
-- No data retention automation (you must manually track and delete expired data)
-- No right-to-erasure workflow (finding and removing all data for one person across multiple sheets is manual and error-prone)
-- No field-level encryption for sensitive data
-- Data potentially stored outside the EU depending on Google Workspace settings
-
-A CRM like Customermates adds role-based permissions and an audit log. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core. Learn more about [CRM best practices](/blog/crm-best-practices) for compliance.
-
-## When to Upgrade: 6 Signs Your Google Sheets CRM Is Costing You Money
-
-The switch from Google Sheets to a dedicated CRM is not about preference. It is about recognizing the point where your spreadsheet is actively losing you revenue. Here are the tipping points:
-
-### 1. More Than 3 Active Users
-
-When a third team member starts regularly entering and querying data, conflicting edits, broken filters, and data inconsistencies become a weekly problem. You spend more time fixing the spreadsheet than using it.
-
-### 2. More Than 200 to 500 Active Contacts
-
-At this volume, finding specific records takes too long, duplicates multiply, and maintaining follow-up discipline without automated reminders becomes impossible. If you are missing follow-ups, you are losing deals.
-
-### 3. You Need Email Communication History
-
-The moment you want to see a contact's email history alongside their CRM record, Google Sheets cannot help. This is a fundamental architectural limitation, not something you can solve with add-ons.
-
-### 4. You Want Process Automation
-
-If you catch yourself thinking "I wish this would happen automatically when I change this status," you have outgrown spreadsheets. [Sales automation](/features/sales-automation) is not a luxury; it is a multiplier.
-
-### 5. Reporting Takes More Than 5 Minutes
-
-When your manager asks "What is our close rate this quarter by source?" and it takes you 20 minutes to calculate the answer, the spreadsheet is no longer saving you time.
-
-### 6. Compliance Requirements Emerge
-
-Any requirement around data auditing, access control, or data retention means your Google Sheets CRM is now a liability, not an asset. This is especially critical for teams handling EU customer data under GDPR.
-
-## How to Migrate from Google Sheets to a Real CRM
-
-### Step 1: Clean Your Data
-
-Before migrating, invest one to two hours in data cleanup:
-
-1. Remove duplicate rows using Google Sheets' built-in Remove Duplicates feature (Data > Data cleanup > Remove duplicates)
-2. Standardize dropdown values (fix typos, merge similar categories)
-3. Fill in missing email addresses where possible
-4. Remove contacts you no longer need
-5. Verify that deal stages are consistent across all rows
-
-### Step 2: Download Each Tab as Excel
-
-1. Go to each sheet tab (Contacts, Deals, Activities) and move it to its own spreadsheet, or make it the first tab
-2. File > Download > Microsoft Excel (.xlsx)
-3. Save each file with a clear filename (contacts.xlsx, deals.xlsx, activities.xlsx)
-
-Customermates imports Excel workbooks and does not accept CSV. Other CRMs may expect CSV instead.
-
-### Step 3: Set Up Your CRM
-
-In Customermates:
-
-1. Create your pipeline with stages matching your Google Sheet dropdown values
-2. Set up custom fields that match your Google Sheet columns
-3. Configure user accounts and role-based permissions for your team
-4. Decide who owns which records and which roles may import and export data
-
-### Step 4: Import Your Data
-
-1. Import Companies first as organizations, then Contacts (these are the base entities everything else connects to)
-2. Import Deals next (link to existing contacts and organizations during the mapping step)
-3. Import open follow-ups from the Activities tab as tasks last
-
-In Customermates, open **Import and export** on each list and choose **Add from file**. The wizard lets you match spreadsheet columns to fields, custom fields, and channels, checks every row, and matches link columns by record name. It imports one record type at a time (up to 10,000 rows per file) and has no undo, so test with a small file first. An AI agent over MCP or the REST API are alternatives for larger or scripted migrations.
-
-### Step 5: Build What Google Sheets Could Not
-
-Now set up the capabilities your spreadsheet lacked:
-
-- **A follow-up view**: a custom follow-up date column plus a saved view sorted by it (Customermates has no built-in reminders)
-- **Unified inbox** on Pro and above, so Gmail, Outlook, and IMAP conversations sit next to the contact
-- **Pipeline views** with drag-and-drop deal management
-- **Lead routing and notifications** through webhooks or your own n8n instance
-- **Real-time dashboards** that update without manual formula maintenance
-- **Role-based permissions** so team members see only relevant data
-- **MCP integration for external AI clients** for data entry, follow-up drafting, and task management
-
-## Why Customermates Is the Natural Upgrade from Google Sheets
-
-Does Google have a CRM option? Not directly. Google Workspace includes productivity tools but no dedicated CRM. For teams upgrading from Google Sheets, Customermates offers the smoothest transition:
-
-**Familiar simplicity.** The interface is clean and intuitive. If your team can use Google Sheets, they can use Customermates. The learning curve is measured in hours, not weeks.
-
-**Transparent pricing.** From [[commercial.price.starter.monthly]] per user per month with the full core CRM included. No per-contact charges, no add-on costs to unlock the basics. That is barely more than many Google Workspace subscriptions.
-
-**Open automation interfaces.** Webhooks, the REST API, and a community node for a separately operated n8n instance let you automate the notifications and data updates that consumed your time in the spreadsheet, with visual workflows instead of Apps Script.
-
-**MCP integration for external AI clients.** Let artificial intelligence handle data entry, follow-up drafting, meeting summaries, and task management. These are the repetitive tasks that ate your time in Google Sheets.
-
-**Data protection you can document.** Audit logging and role-based access controls close the gaps Google Sheets leaves open. The cloud database runs in the AWS Frankfurt region, a [DPA](/dpa) is available, and all subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors).
-
-**Self-hostable and open source.** Deploy on your own servers for complete data control. Inspect and modify the source code. No vendor lock-in, ever.
-
-**Excel import.** Download each tab as an `.xlsx` file and bring it in with the import wizard, one record type at a time. The REST API and AI agents over MCP cover larger or scripted migrations.
-
-## Frequently Asked Questions
+## FAQ
 
 <Faq>
-<FaqItem question="Can Google Sheets be used as a CRM?">
-Yes. Google Sheets can function as a basic CRM for tracking contacts, deals, and interactions. It works best for solo users or teams of two to three people managing fewer than 200 to 500 contacts with a straightforward sales process. You will need to manually configure columns, data validation, and formulas to replicate CRM functionality. For anything beyond basic contact tracking, a dedicated [CRM system](/blog/crm-systems) provides automation, relational data, and reporting that spreadsheets cannot match.
+<FaqItem question="Can you use Google Sheets as a CRM?">
+Yes, for one to three people with one sales process. The five-tab layout above covers contacts, deals, activities and a dashboard, and Apps Script can email you past next steps each morning. It cannot restrict who sees which rows, keep links intact when a name changes, or pull in conversations from Gmail, LinkedIn or WhatsApp.
 </FaqItem>
 
-<FaqItem question="Is Google Sheets a good CRM?">
-Google Sheets is a good _starting_ CRM, but it is not a good _long-term_ CRM. It excels at being free, familiar, and immediately available. It falls short on automation, multi-user collaboration, email integration, pipeline visualization, and compliance. Most teams outgrow a Google Sheets CRM within 6 to 12 months of serious use. The key question is not whether to start with Google Sheets, but when to recognize you have outgrown it.
+<FaqItem question="Does Google have a CRM tool?">
+No. Google Workspace has Sheets, Gmail, Contacts and Forms, but no CRM of its own. The [Sales & CRM category](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) of the Workspace Marketplace lists third-party CRMs that connect to Google, among them Copper, Pipedrive, Streak and Zoho CRM.
 </FaqItem>
 
-<FaqItem question="Does Google have a CRM option?">
-Google does not offer a dedicated CRM product. Google Workspace (Gmail, Sheets, Calendar, Contacts) provides the building blocks that people combine into makeshift CRM workflows, but there is no unified CRM application from Google. Google Contacts is the closest thing, but it lacks deal tracking, pipeline management, automation, and reporting. For a purpose-built CRM that integrates well with Google Workspace, consider [Customermates](/) from [[commercial.price.starter.monthly]] per user per month.
+<FaqItem question="Is there a free CRM template for Google Sheets?">
+The layout on this page is free: copy the headers into a blank spreadsheet, add the dropdowns and paste the formulas. If you download a template elsewhere, check that it keeps one record per row, contacts apart from companies, and no merged cells. A template that fails those checks is hard to import into a CRM later.
 </FaqItem>
 
 <FaqItem question="How many contacts can a Google Sheets CRM handle?">
-Google Sheets supports up to 10 million cells per spreadsheet, but performance degrades significantly beyond 2,000 to 5,000 rows with active formulas and conditional formatting. For practical CRM use, expect a smooth experience up to about 500 contacts. Beyond that, searches slow down, formulas take longer to calculate, and the sheet becomes unwieldy for daily use.
+A spreadsheet holds up to 20 million cells, according to Google's [file limits](https://support.google.com/drive/answer/37603). The practical limit is people, not rows: shared access and slipped follow-ups become a problem long before the file fills up. Customermates currently reads up to 10,000 rows per import file, so split larger tabs.
 </FaqItem>
 
-<FaqItem question="What is the best free Google Sheets CRM template?">
-The best template depends on your sales process. Sheetify CRM is popular for solo users who want a polished dashboard. The Close.com template is well-suited for outbound sales teams. The Zapier template works best if you plan to connect your sheet to other tools via automation. Start with the template closest to your workflow and customize it rather than building from scratch.
+<FaqItem question="Can I connect a Google Sheets list to a CRM?">
+Some CRMs ship a Sheets add-on; the Workspace Marketplace lists Copper CRM for Google Sheets, for example. Customermates does not: it imports and exports .xlsx files, one record type at a time, with no live sync. You can export a list, edit it in Sheets, download it as .xlsx and import it again; its Record ID column updates the existing records instead of creating duplicates.
 </FaqItem>
 
-<FaqItem question="When should I switch from Google Sheets to a real CRM?">
-Switch when you notice any of these signs: more than 3 people using the spreadsheet, more than 500 contacts, missed follow-ups due to lack of reminders, compliance requirements (especially GDPR), or when building reports takes longer than using the information in them. The cost of a CRM like Customermates (from [[commercial.price.starter.monthly]] per user per month) is almost always less than the revenue lost from dropped follow-ups and messy data.
+<FaqItem question="Can you create a CRM in Excel instead?">
+Yes. The [Excel CRM template](/blog/excel-crm-template) uses the same structure with Excel tables, XLOOKUP and a weekly tracker per salesperson. Pick the tool your team already shares files in.
 </FaqItem>
 </Faq>
 
-## Conclusion
-
-Google Sheets is a capable starting point for customer relationship management. The templates and setup instructions in this guide will serve you well if you are a solo operator or a small team with basic needs. There is no shame in starting with a spreadsheet, and it is the right choice for many early-stage businesses.
-
-But recognize the ceiling. When your team grows, when you need automation, when follow-ups start falling through the cracks, or when compliance requirements surface, Google Sheets stops being a solution and starts being an obstacle that costs you real revenue.
-
-The good news is that modern CRM software has become remarkably affordable and easy to adopt. Customermates, from [[commercial.price.starter.monthly]] per user per month, provides what a Google Sheets CRM cannot: relational data, webhooks and API access for [workflow automation](/features/workflow-automation), pipeline visualization, a unified inbox on Pro and above, permissions with an audit log, and MCP integration for external AI clients, all in an [open-source](/blog/open-source-crm), self-hostable package.
-
-Start with the templates if you need to. But bookmark this guide for when it is time to graduate.
+Google details checked on 8 October 2026 against Google's help pages on [tables](https://support.google.com/docs/answer/14239833), [dropdowns](https://support.google.com/docs/answer/186103), [QUERY](https://support.google.com/docs/answer/3093343), [Forms responses](https://support.google.com/docs/answer/2917686), [notifications](https://support.google.com/docs/answer/91588), [filter views](https://support.google.com/docs/answer/3540681), [protected ranges](https://support.google.com/docs/answer/1218656), [Drive file limits](https://support.google.com/drive/answer/37603), the [Apps Script quotas](https://developers.google.com/apps-script/guides/services/quotas) and the [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm).

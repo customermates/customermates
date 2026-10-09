@@ -38,7 +38,7 @@ function headingText(html: string): string {
 }
 
 describe("hero headings", () => {
-  it("keeps the rotating homepage variants out of the h1", () => {
+  it("keeps the whole homepage claim, including its muted accent, inside one h1", () => {
     const html = renderToStaticMarkup(
       createElement(HomepageHero, {
         heroSection: {
@@ -46,17 +46,31 @@ describe("hero headings", () => {
           buttonLeftText: "Start free",
           buttonRightHref: "#demo",
           buttonRightText: "Watch",
+          stage: {
+            disclosure: "Sample data.",
+            label: "Product areas",
+            live: { prompt: "Try it live", status: "Live demo." },
+            tabs: [
+              { alt: "Inbox", capture: "homepage-inbox", caption: "Inbox caption", label: "Inbox" },
+              { alt: "Record", capture: "homepage-record", caption: "Record caption", label: "Customers" },
+              { alt: "Pipeline", capture: "homepage-pipeline", caption: "Pipeline caption", label: "Pipeline" },
+              { alt: "Dashboard", capture: "homepage-dashboard", caption: "Dashboard caption", label: "Dashboard" },
+              { alt: "Routines", capture: "homepage-routines", caption: "Routines caption", label: "Routines" },
+            ],
+          },
           startFree: "No card",
           subtitle: "Subtitle",
-          title: "The open-source CRM",
-          titleAccentRotations: ["for AI agents.", "for Claude.", "for ChatGPT."],
+          title: "The CRM that updates itself",
+          titleAccent: "from your inbox.",
           useCase: "Use case",
-        } as Parameters<typeof HomepageHero>[0]["heroSection"],
+        },
+        locale: "en",
       }),
     );
 
-    expect(headingText(html)).toBe("The open-source CRM for AI agents.");
-    expect(html).toContain("for Claude.");
+    expect(headingText(html)).toBe("The CRM that updates itself from your inbox.");
+    expect(html).toContain('role="tablist"');
+    expect(html.match(/role="tab"/gu)).toHaveLength(5);
   });
 
   it("keeps a page hero's accent phrase beside the h1 rather than inside it", () => {

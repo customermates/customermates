@@ -1,17 +1,17 @@
 ---
-title: "CRM für Immobilien: Makler & Hausverwaltungen"
-description: "Customermates ist das Open-Source-CRM für Immobilienmakler: Leads verwalten, Deals im Kanban verfolgen, Follow-ups im Blick. Ab [[commercial.price.starter.monthly]]/Monat."
+title: "Immobilien-CRM für Makler: Interessenten und Eigentümer"
+description: "CRM für Immobilienmakler und kleine Maklerbüros: Suchprofile, Aufträge, Besichtigungen und Empfehlungen, dazu E-Mail und WhatsApp direkt am Kontakt."
 industryName: "Immobilien"
 
 relatedHrefs:
-  - /for/realtors
-  - /for/property-management
-  - /for/mortgage-brokers
-  - /for/architects
+  - /features/unified-inbox
+  - /features/pipeline
+  - /features/lead-management
+  - /docs/app-routines
 
 hero:
-  title: "Das Open-Source-CRM für Immobilien, das mehr Abschlüsse bringt"
-  description: "Käufer, Verkäufer und Objekte in einer Pipeline, KI-Clients über MCP für die Datenpflege und ab Pro ein Posteingang für Käufer-E-Mail, WhatsApp und LinkedIn. Ein Immobilien-CRM für Makler, die Ergebnisse wollen statt Verwaltungsaufwand. Keine Lead-Gebühren, kein komplexes Setup."
+  title: "Das Immobilien-CRM für Makler, deren Geschäft aus Beziehungen entsteht"
+  description: "Suchkunden mit ihren Suchprofilen, Eigentümer mit ihren Aufträgen, frühere Kunden und Tippgeber an einem Ort. Ab Pro liegen E-Mail- und WhatsApp-Gespräche direkt am Kontakt, und in Customermates Cloud kann der Assistent Mate passende Suchkunden finden und Antwortentwürfe vorbereiten, die Sie prüfen und selbst senden. Objektdaten, Portale und Exposés bleiben in der Maklersoftware, die dafür gebaut ist."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: "Starten Sie heute mit mehr Immobilien-Abschlüssen"
-  description: "Richten Sie Ihre Phasen und Felder ein, importieren Sie Ihre Kontakte aus Excel und sehen Sie, welche Anfragen noch eine Antwort brauchen. Die Einrichtung dauert Minuten."
+  action: "Interessenten, Eigentümer und Tippgeber in einer Pipeline"
+  description: "Importieren Sie Ihre Kontakte aus Excel, legen Sie Felder für Suchprofile an und speichern Sie die Ansichten, die Sie jeden Morgen durchgehen. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatliche Zahlung."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,199 +28,222 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Warum Immobilienmakler ein CRM brauchen
+Ein Immobilien-CRM soll Ihnen sagen, welcher Suchkunde zu welchem Objekt passt, in welcher Phase jeder Auftrag steht und welchen früheren Kunden Sie seit einem Jahr nicht angerufen haben. Customermates übernimmt genau diesen Teil für Einzelmakler, kleine Teams und Maklerbüros, deren Geschäft aus Beziehungen kommt: Suchkunden mit Suchprofil, Eigentümer mit ihren Aufträgen, Tippgeber und Bestandskunden, dazu ab dem Tarif Pro die Gespräche per E-Mail und WhatsApp. Es ist ein Open-Source-KI-CRM aus Deutschland. Eine vollständige Maklersoftware ist es nicht: Es gibt keine Objektdatenbank, keine Exposés und keine Schnittstelle zu ImmoScout24 oder anderen Portalen. Der Abschnitt zu den Grenzen nennt Software, die das kann.
 
-Ein CRM für Immobilien ist das System, das verhindert, dass Deals, Leads und Kundenbeziehungen im Tagesgeschäft untergehen. Interessenten fragen oft bei mehreren Maklern gleichzeitig an und erwarten eine schnelle Antwort. Wer zu spät reagiert, verliert den Auftrag.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Passt zu">
+    Maklern, deren Umsatz am Nachfassen hängt: Suchkunden, Eigentümer,
+    Besichtigungsinteressenten, frühere Kunden und Tippgeber.
+  </SummaryItem>
+  <SummaryItem label="Aufbau">
+    Personen als Kontakte mit Feldern für das Suchprofil, jeder Verkaufs-,
+    Vermietungs- oder Suchauftrag als Deal, Besichtigungen als Aufgaben und
+    eine gespeicherte Ansicht für jede wiederkehrende Prüfung.
+  </SummaryItem>
+  <SummaryItem label="KI">
+    In Customermates Cloud findet Mate passende Suchkunden für ein neues
+    Objekt und speichert Antwortentwürfe; dafür nutzt Mate gehostete
+    KI-Credits. Alternativ verbinden Sie Ihren eigenen KI-Client über MCP.
+  </SummaryItem>
+  <SummaryItem label="Nicht enthalten">
+    Objektdatenbank, Exposés, Portalübertragung, Webformulare, SMS und
+    Telefonie sowie Mietbuchhaltung und Hausverwaltung.
+  </SummaryItem>
+</ArticleSummary>
 
-Immobilienmakler betreuen Dutzende aktive Beziehungen gleichzeitig: Käufer, Verkäufer, Vermieter, Mieter und Empfehlungspartner. Jeder steht in einer anderen Phase, jeder erwartet persönliche Betreuung. Ohne zentrales System werden Leads kalt, Follow-ups gehen unter und provisionsreife Deals stagnieren.
+## Was Makler von einem CRM brauchen
 
-Hier sind die häufigsten Probleme, die ein CRM für Immobilienmakler löst:
+Für das Interessentenmanagement muss ein CRM fünf Dinge leisten:
 
-- **Leads werden kalt**: Ein Interessent fragt nach einer Immobilie, aber Sie stecken in drei Besichtigungen und zwei Notarterminen. Bis Sie nachfassen, hat er einen anderen Makler beauftragt. Eine gespeicherte Ansicht mit allen unbeantworteten Anfragen zeigt, wer zuerst dran ist. Customermates verschickt selbst keine automatischen Antworten oder Erinnerungen; dafür können Sie ein separat betriebenes n8n oder einen anderen externen Dienst über die API anbinden.
-- **Follow-ups sind inkonsistent**: Manche Kunden bekommen tägliche Updates, andere hören wochenlang nichts. Ohne strukturierten Prozess hängt die Reaktionszeit vom Gedächtnis ab. Feste Phasen, ein Datumsfeld für den nächsten Kontakt und Ansichten danach machen den Prozess sichtbar.
-- **Objektzuordnung ist manuell**: Ein neues Objekt kommt herein, das perfekt für einen Käufer wäre, mit dem Sie letzten Monat gesprochen haben. Aber Sie müssen sich an das Gespräch erinnern. Eigene Felder und Filter für Käuferkriterien machen diesen Abgleich schnell.
-- **Pipeline-Transparenz fehlt**: Wie viele aktive Käufer haben Sie? Welche Objekte stehen kurz vor dem Abschluss? Wie hoch ist Ihre gewichtete Provision in der Pipeline? Ohne [visuelle Pipeline](/features/pipeline) bleibt das Raterei.
-- **Bestandskunden werden vergessen**: Das Paar, dem Sie vor drei Jahren beim Kauf geholfen haben, sucht jetzt etwas Größeres. Wenn Sie nie in Kontakt geblieben sind, nutzen sie einen anderen Makler. Ein Datumsfeld für den letzten Kontakt und eine sortierte Ansicht zeigen, bei wem Sie sich melden sollten.
-- **Daten sind über Tools verstreut**: Kontaktdaten im Handy, Notizen in Excel, E-Mails im Postfach, Deals im Kopf. Ein Immobilien-CRM bringt alles an einen Ort.
+- **Suchprofile, die sich abfragen lassen.** Kommt eine 3-Zimmer-Wohnung im Nordend herein, brauchen Sie die fünf Suchkunden, die passen, und nicht eine Liste mit 900 Namen.
+- **Zwei Arten von Kunden gleichzeitig.** Ein Eigentümer mit Verkaufsauftrag und ein Suchkunde mit Budget durchlaufen unterschiedliche Schritte, und manche Person ist beides.
+- **Anfragen über mehrere Kanäle.** Portalanfragen kommen per E-Mail, Interessenten antworten auf WhatsApp, der Tippgeber ruft an. Bleiben diese Nachrichten auf dem Handy, hinkt der Datensatz immer hinterher.
+- **Lange Pausen.** Wer „in einem halben Jahr" kaufen will oder vor fünf Jahren gekauft hat, gerät leicht aus dem Blick. Genau von diesen Menschen kommt oft der nächste Auftrag.
+- **Klare Zuständigkeit im Büro.** Jede Anfrage braucht einen verantwortlichen Makler, und die eigenen Gespräche eines Kollegen bleiben privat, bis er sie teilt.
 
-## Was ist ein CRM für Immobilien?
+## So richten Makler Customermates ein
 
-Ein Immobilien-CRM (Customer Relationship Management) ist eine Software, die Maklern, Hausverwaltungen und Immobilienteams hilft, Kontakte zu organisieren, Deals durch eine Vertriebspipeline zu verfolgen, Kommunikation zu bündeln und die eigene Pipeline auszuwerten, und zwar auf einer zentralen Plattform.
+Customermates kennt fünf Datensatztypen. So lassen sie sich der Maklerarbeit zuordnen; alle Feldnamen sind Beispiele, die Sie selbst anlegen. Unter **Mein Unternehmen › Einstellungen** können Sie Kontakte in Kunden umbenennen.
 
-Branchensoftware für Makler bringt oft Objektverwaltung, Exposé-Erstellung, Besichtigungsplanung und Portalanbindung an ImmoScout24 oder Immowelt mit. Customermates ist ein fokussiertes CRM: Es bildet Kontakte, Objekte als Organisationen oder Felder, Deals und Provisionen ab, plant aber keine Besichtigungen, erstellt keine Exposés und hat keine native Portalanbindung. Portalanfragen können Sie über die REST-API, Webhooks oder ein separat betriebenes n8n einspielen, sofern das Portal eine passende Schnittstelle bietet.
+| Datensatztyp | Wofür | Beispiele für eigene Felder |
+|---|---|---|
+| Kontakte | Suchkunden, Eigentümer, Vermieter, Mieter, Tippgeber | Rolle (Einzelauswahl: Suchkunde, Eigentümer, Vermieter, Mieter, Tippgeber, Bestandskunde), Suchgebiet (Einzelauswahl), Objektart (Einzelauswahl), Zimmer (Einzelauswahl: 1, 2, 3, 4, 5+), Budget bis (Währung), Finanzierung (Einzelauswahl: Offen, Zusage liegt vor, Eigenkapital), Quelle (Einzelauswahl), Nächster Kontakt (Datum) |
+| Organisationen | Banken und Finanzierungsvermittler, Notariate, Bauträger, Partnerbüros | Partnerart (Einzelauswahl), Empfehlungen (Text) |
+| Deals | Jeder Verkaufs-, Vermietungs- und Suchauftrag | Phase, Art (Einzelauswahl: Verkauf, Vermietung, Suchauftrag), Adresse (Text), Angebotspreis (Währung), Erwartete Provision (Währung), Exposé-Link (Link), Auftrag endet (Datum) |
+| Aufgaben | Besichtigungen und nächste Schritte, einem Makler zugewiesen | Besichtigung am (Datum & Uhrzeit), Rückmeldung (Einzelauswahl: Gefällt, Zweittermin, Passt nicht) |
+| Services | Für Makler selten nötig | Leer lassen oder für Festpreisleistungen wie eine Wertermittlung nutzen |
 
-Ein modernes CRM für Immobilien nutzt außerdem KI. Über MCP kann ein externer KI-Client Kundengespräche zusammenfassen, Notizen ablegen, Exposé-Texte entwerfen und nächste Schritte vorschlagen.
+Kontakte lassen sich mit Deals verknüpfen. So hängen die Interessenten direkt am Objekt, nach dem sie gefragt haben, und Verkauf und spätere Suche eines Eigentümers liegen beim selben Kontakt. Aufgaben haben kein eingebautes Fälligkeitsdatum, deshalb bekommt die Besichtigung ein eigenes Datumsfeld.
 
-## Schlüsselfunktionen eines Immobilien-CRM
+### Phasen für Verkauf und Suchauftrag
 
-Die Wahl des richtigen CRM für Immobilienmakler bedeutet, Funktionen gegen den tatsächlichen Arbeitsalltag abzuwägen. Hier sind die Fähigkeiten, die wirklich zählen.
+Die Phase eines Deals ist ein Feld mit Einzelauswahl, und jede Option kann eine Abschlusswahrscheinlichkeit tragen. Eine Phasenliste reicht für beide Seiten, wenn Sie nach Art filtern:
 
-### Visuelle Pipeline-Verwaltung
+| Phase | Verkauf oder Vermietung | Suchauftrag | Wahrscheinlichkeit |
+|---|---|---|---|
+| Anfrage | Bewertung angefragt | Erstanfrage | 10 % |
+| Termin | Akquisegespräch | Beratungsgespräch | 20 % |
+| Auftrag erteilt | Maklerauftrag unterschrieben | Suchauftrag erteilt | 40 % |
+| Vermarktung | Objekt in Vermarktung | Besichtigungen laufen | 50 % |
+| Reservierung | Kaufzusage liegt vor | Objekt reserviert | 70 % |
+| Notartermin | Kaufvertrag beim Notar | Kaufvertrag beim Notar | 90 % |
+| Abgeschlossen | Übergabe erfolgt | Übergabe erfolgt | 100 % |
+| Verloren | Verloren | Verloren | 0 % |
 
-Verfolgen Sie jeden Deal von der ersten Anfrage bis zum Notartermin auf einem [Kanban-Board](/features/pipeline) mit Drag-and-drop. Die Deal-Phase ist eine frei konfigurierbare Auswahlspalte; jede Phase trägt eine Wahrscheinlichkeit. Käufer- und Verkäufermandate trennen Sie über ein eigenes Auswahlfeld „Deal-Art“, gespeicherte persönliche Ansichten und Gruppierung nach Objektkategorie oder Teammitglied. Sehen Sie auf einen Blick, welche Deals Aufmerksamkeit brauchen, welche stagnieren und welche abschlussreif sind.
+Auf dem [Pipeline-Board](/features/pipeline) ist jeder Deal eine Karte, die Sie zwischen den Phasen verschieben. Gewichtete Werte ergeben sich aus Ihren Wahrscheinlichkeiten mal dem Deal-Wert, und der Deal-Wert kommt aus verknüpften Services. Für die Provision ist das Feld „Erwartete Provision" meist einfacher. In beiden Fällen ist das Rechnung, keine Vorhersage.
 
-### Kontaktverwaltung mit Objektpräferenzen
+### Gespeicherte Ansichten für den Morgen
 
-Jeder Kontakt (Käufer, Verkäufer, Vermieter, Mieter, Empfehlungspartner) bekommt ein Profil mit Präferenzen, Budget, Aktivitätsverlauf, Objektinteressen und vergangenen Transaktionen. Speichern Sie detaillierte Käuferkriterien (Lage, Budgetrahmen, Zimmeranzahl, Objekttyp, gewünschte Ausstattung) als eigene Felder in Ihrem [Kontaktmanagement](/features/contact-management). Wenn ein neues Objekt passt, filtern Sie die passenden Käufer und nehmen proaktiv Kontakt auf, bevor der Käufer es auf ImmoScout24 findet.
+1. **Objekte in Vermarktung:** Deals mit Art Verkauf in Vermarktung oder Reservierung, sortiert nach „Auftrag endet".
+2. **Kaufbereite Suchkunden:** Kontakte mit Rolle Suchkunde und Finanzierung „Zusage liegt vor", sortiert nach „Nächster Kontakt".
+3. **Anstehende Anrufe:** Kontakte mit einem Datum in „Nächster Kontakt", danach aufsteigend sortiert, damit die fälligen Kontakte oben stehen. Die Sortierung hält diese Ansicht aktuell; ein Filter auf ein eigenes Datumsfeld nimmt nur ein festes Datum.
+4. **Liegengebliebene Anfragen:** Deals in Anfrage oder Termin, deren Aktualisierungsdatum **Älter als…** 14 Tage ist.
+5. **Netzwerk:** Kontakte mit Rolle Bestandskunde oder Tippgeber, sortiert nach „Nächster Kontakt".
 
-### Lead-Erfassung und -Pflege
+Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben Filtern ihre eigene Ansicht an.
 
-Führen Sie Leads aus Immobilienportalen, Ihrer Website, Social Media und Empfehlungen in einem System zusammen. Neue Leads legen Sie manuell an, importieren sie per XLSX oder übertragen sie per REST-API oder n8n aus dem Portal. [Lead-Management](/features/lead-management) in Customermates heißt: eine Quelle als Auswahlfeld, eine Phase, eine verantwortliche Person und gespeicherte Ansichten. Automatisches Lead-Scoring, Zuweisungsregeln und automatische E-Mail-Sequenzen gibt es nicht.
+### Suchkunden zu einem neuen Objekt finden
 
-### Nachfassen über Ihre eigene Automatisierung
+Customermates gleicht Suchprofile nicht automatisch mit Objekten ab, und es gibt keine Objektdatenbank, gegen die es abgleichen könnte. Was funktioniert, ist ein Filter. Kommt eine 3-Zimmer-Wohnung im Nordend für 480.000 € herein, filtern Sie Kontakte nach Rolle Suchkunde, Suchgebiet Nordend, Zimmer 3 oder 4 und Budget bis mindestens 480.000. Währungsfelder lassen sich mit größer und kleiner filtern, Einzelauswahl-Felder mit „ist eines von" ([Filterreferenz](/docs/filter-syntax)). Verknüpfen Sie die Suchkunden, die Sie anrufen, mit dem Objekt-Deal, dann sehen Sie später, wer das Angebot schon kennt.
 
-Geschwindigkeit entscheidet im Immobiliengeschäft. Customermates hat keinen eingebauten Regel-Builder und versendet keine Sequenzen. Mit einem separat betriebenen n8n, das Sie über den Community-Node, die REST-API oder Webhooks anbinden ([Workflow-Automatisierung](/features/workflow-automation)), bauen Sie solche Regeln selbst, etwa eine Benachrichtigung bei jeder neuen Anfrage. In der Cloud kann eine [Routine](/docs/app-routines) des Mate-Assistenten nach Zeitplan offene Anfragen und stille Besichtigungskontakte auflisten und Nachfass-Nachrichten zur Prüfung entwerfen. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+In Customermates Cloud übernimmt eine [Routine](/docs/app-routines) diese Suche. Wählen Sie **Wenn sich etwas ändert**, das Ereignis **Deal aktualisiert**, unter **Geänderte Felder** die Phase und als **Datensatzfilter** Art = Verkauf und Phase = Vermarktung. Die **Anweisungen** könnten so lauten:
 
-### E-Mail-Integration
+```text
+Dieses Objekt ist gerade in die Vermarktung gegangen. Suche Kontakte mit
+Rolle Suchkunde, deren Suchgebiet und Objektart zum Objekt passen und deren
+Budget bis mindestens dem Angebotspreis entspricht. Verknüpfe sie mit diesem
+Deal. Lege eine Aufgabe „Passende Suchkunden anrufen" an, verknüpft mit dem
+Deal und diesen Kontakten, zugewiesen an mich. Sende keine Nachrichten.
+```
 
-Ab Pro verbinden Sie Ihr Gmail-, Outlook- oder IMAP-Postfach mit dem [einheitlichen Posteingang](/features/email-integration) und ordnen jede Kundenkonversation dem richtigen Kontakt zu. Kein Durchsuchen des Postfachs mehr nach der E-Mail von vor drei Wochen. Kontakte werden nicht synchronisiert; ab Pro wird der Kalender nur lesend angezeigt, Termine lassen sich nicht anlegen.
+### Anfragen und Gespräche in einem Posteingang (ab Pro)
 
-### KI-Agenten, die Ihre Datenpflege übernehmen
+In Customermates Cloud mit Pro, Business und Enterprise bringt der [einheitliche Posteingang](/features/unified-inbox) E-Mail aus Gmail, Outlook oder IMAP mit WhatsApp, LinkedIn, Instagram und Telegram zusammen. Sie antworten auf dem ursprünglichen Kanal. Leitet ein Portal Anfragen an Ihr Postfach weiter, landen sie hier zusammen mit Ihrer übrigen Post. Verknüpfen Sie einen Absender einmal mit einem Kontakt, erscheint jedes spätere Gespräch mit dieser Adresse in seiner Historie.
 
-Verbinden Sie Claude, ChatGPT oder einen anderen MCP-fähigen KI-Client über [MCP](/docs/mcp) ([[derived.mcp.tools.total]] Tools) mit Customermates; den Client wählen und bezahlen Sie selbst. Der Agent übernimmt die Verwaltung, die Makler meiden: Er protokolliert Gesprächsnotizen am richtigen Kontakt, verschiebt Deals zwischen Phasen, entwirft persönliche Nachfass-E-Mails, schreibt Exposé-Texte und schlägt passende Objekte aus den Käuferpräferenzen vor. In der Cloud erledigt der Mate-Assistent dasselbe in der App und fragt vor dem Versenden oder Löschen nach Ihrer Bestätigung.
+Zwei Punkte entscheiden über den Tarif. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer. Wer Postfach und WhatsApp im Posteingang haben will, braucht Business mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten. Und Ihre Gespräche bleiben privat: Kollegen, Administratoren eingeschlossen, sehen eine Konversation erst, wenn Sie sie teilen. Ein ganzes Konto zu teilen, etwa das Anfragepostfach des Büros, setzt Business voraus. SMS und Telefonate sind keine Kanäle.
 
-### Provisions- und Umsatztracking
+### Tägliches Nachfassen mit Mate (Customermates Cloud)
 
-Legen Sie eigene Felder für erwartete Provision, tatsächliche Provision, Aufteilungsvereinbarungen und Abschlussdaten an. Aus Deal-Wert und Phasenwahrscheinlichkeit berechnet Customermates gewichtete Deal-Werte und Pipeline-Summen: eine nachvollziehbare Rechnung aus Ihren eigenen Gewichten, keine KI-Prognose.
+Mate ist der Assistent in Customermates Cloud. Er nutzt die gehosteten KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer enthält; für das Lesen von Posteingangsgesprächen brauchen Sie mindestens Pro. Legen Sie eine zweite Routine an, **Nach Zeitplan**, **Täglich** um 08:00 Uhr:
 
-### Besichtigungs- und Aktivitätsprotokoll
+```text
+Suche Gespräche im Posteingang, in denen die letzte Nachricht vom Gegenüber
+kam, älter als ein Tag ist und ich noch nicht geantwortet habe. Speichere für
+jedes Gespräch mit einem Suchkunden oder Eigentümer einen kurzen
+Antwortentwurf, der die Frage beantwortet oder einen nächsten Schritt
+vorschlägt. Sende nichts. Schließe mit einer Liste: Name, Kanal, Anliegen,
+Entwurf gespeichert ja oder nein.
+```
 
-Halten Sie Besichtigungen, Anrufe, E-Mails, Meetings und Notizen an Kontakten und Deals fest; die Aktivitätshistorie zeigt jede Änderung am Datensatz. Wenn ein Kunde anruft und Sie sich erinnern müssen, was bei einer Besichtigung vor drei Wochen passiert ist, finden Sie es in den Notizen. Besichtigungstermine selbst planen Sie weiter in Ihrem Kalender.
+<AcquisitionCallout title="Entwürfe verlangen, nicht senden" variant="boundary">
+  Mate und Routinen können E-Mails und WhatsApp-Nachrichten ohne Rückfrage
+  senden, wenn sie dazu angewiesen werden. Eine Routine läuft als ihr
+  Besitzer und mit dessen Kanälen, also schreiben Sie „Sende nichts" in die
+  Anweisungen. Filtern Sie den Posteingang dann nach Entwurf, lesen Sie jeden
+  Entwurf und senden Sie ihn selbst.
+</AcquisitionCallout>
 
-### Empfehlungsquellen-Tracking
-
-Verfolgen Sie, woher Ihre Leads kommen: Bestandskunden, Partnermakler, Immobilienportale, Tag der offenen Tür oder Mundpropaganda. Gruppieren Sie Deals nach der Quelle und sehen Sie, welche Empfehlungsquellen die meisten Deals und höchsten Provisionen bringen.
-
-### Mobiler Zugriff
-
-Kundendetails prüfen, Deal-Status aktualisieren, Besichtigungsnotizen erfassen oder Ihre Pipeline prüfen: direkt vom Handy zwischen Terminen. Customermates läuft im Browser und passt sich an Smartphone-Bildschirme an; eine native iOS- oder Android-App gibt es nicht.
-
-## Wie sich Customermates von anderen Immobilien-CRMs unterscheidet
-
-Die meisten CRM-Plattformen für Immobilien fallen in zwei Kategorien: Branchensoftware mit Objektverwaltung und Portalanbindung oder Enterprise-Plattformen mit komplexem Setup und hohen Kosten. Customermates bietet einen dritten Weg: ein fokussiertes, offenes CRM.
-
-| Funktion                                                       | Customermates                                        | Flowfact             | Propstack            | Salesforce                        |
-| -------------------------------------------------------------- | ---------------------------------------------------- | -------------------- | -------------------- | --------------------------------- |
-| Preis (Stand: September 2026)                                  | Ab [[commercial.price.starter.monthly]]/Nutzer/Monat | Beim Anbieter anfragen | 99 €/Lizenz/Monat zzgl. MwSt. + 279 € Einrichtung | Ab 25 $/Nutzer/Monat (Starter Suite) |
-| Lead-Gebühren                                                  | Keine                                                | Keine                | Keine                | Keine                             |
-| Objektverwaltung, Exposés, Portalanbindung                     | Nein                                                 | Ja                   | Ja                   | Über Add-ons                      |
-| Einheitlicher Posteingang (E-Mail, WhatsApp, LinkedIn)         | Ab Pro                                               | Nein                 | Nein                 | Nein                              |
-| KI-Agenten bedienen das CRM (MCP)                              | Ja                                                   | Siehe Anbieter       | Siehe Anbieter       | Ab Enterprise Edition             |
-| Open Source                                                    | Ja                                                   | Nein                 | Nein                 | Nein                              |
-| Self-Hosting möglich                                           | Ja                                                   | Nein                 | Nein                 | Nein                              |
-| Automatisierung                                                | Webhooks, REST, n8n (separat), Cloud-Routinen        | Begrenzt             | Begrenzt             | Aufpreis                          |
-
-Der Salesforce-Preis stammt von der [Salesforce-Preisseite](https://www.salesforce.com/sales/pricing/), der Propstack-Preis von der [Propstack-Preisseite](https://www.propstack.de/preis/) (Standard-Tarif, 12 Monate Mindestlaufzeit), beide Stand September 2026. Die gehosteten MCP-Server von Salesforce sind seit April 2026 für Orgs ab Enterprise Edition allgemein verfügbar. Die übrigen Angaben zu anderen Anbietern sind eine grobe Einordnung; prüfen Sie aktuelle Preise und Funktionen beim jeweiligen Anbieter.
-
-**Branchenspezifische CRMs** wie Flowfact und Propstack sind für die Immobilienbranche gebaut und bringen Objektverwaltung, Exposés und Portalanbindung mit, kosten aber mehr und lassen sich weniger frei anpassen.
-
-**Enterprise-CRMs** wie [Salesforce](/compare/salesforce-alternative) und [HubSpot](/compare/hubspot-alternative) bieten mächtige Plattformen, erfordern aber oft teure Implementierung, laufende Beratungskosten und lange Konfiguration.
-
-**Customermates** gibt Ihnen ein fokussiertes Immobilien-CRM auf Open-Source-Basis ab [[commercial.price.starter.monthly]]/Nutzer/Monat oder [[commercial.price.pro.monthly]]/Nutzer/Monat in der Pro-Stufe für den einheitlichen Posteingang über E-Mail, LinkedIn und WhatsApp. Keine Lead-Gebühren, keine Add-on-Kosten über die gewählte Stufe hinaus. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; wer den Speicherort vollständig selbst bestimmen will, nutzt [Self-Hosting](/features/self-hosted).
-
-## CRM für Einzelmakler vs. Maklerbüros
-
-Ob Sie Einzelmakler sind oder ein Büro mit Dutzenden Mitarbeitern führen: Ihre CRM-Anforderungen unterscheiden sich. So skaliert Customermates für beide.
-
-### Einzelmakler
-
-Als Einzelmakler brauchen Sie ein Immobilien-CRM, das schnell eingerichtet, einfach zu pflegen und erschwinglich ist. Customermates startet bei [[commercial.price.starter.monthly]]/Nutzer/Monat für Kontakte, Deal-Pipeline, Aufgaben und eigene Felder. MCP verbindet einen unterstützten externen KI-Client; Client, Modell und Nutzung werden separat bezahlt. Pro für [[commercial.price.pro.monthly]]/Nutzer/Monat ergänzt verbundene Nachrichtenkanäle. Kontakte importieren Sie aus einer Excel-Arbeitsmappe (XLSX), ergänzen sie manuell oder legen sie über REST beziehungsweise MCP an; einen CSV-Import gibt es nicht.
+Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]]. Wenn Sie lieber Ihren eigenen KI-Client nutzen, verbinden Sie Claude, ChatGPT oder einen anderen Client über [MCP](/docs/mcp). Das funktioniert in jedem Tarif und auch selbst gehostet; die Modellnutzung rechnet Ihr KI-Anbieter ab.
 
 ### Teams und Maklerbüros
 
-Für Immobilienteams und Maklerbüros bietet Customermates eine gemeinsame Pipeline mit Rollen und Berechtigungen je Ressource und Aktion, Dashboards, Gruppierung nach verantwortlichem Makler und eine zentrale Kontaktdatenbank. Automatische Lead-Zuweisung gibt es nicht; neue Leads weisen Sie selbst zu oder über eine eigene Automatisierung per API. Ein Maklerbüro mit 15 Maklern zahlt in Pro [[commercial.price.pro.monthly.seats.15]]/Monat gesamt. Büros, die geteilte Posteingänge und mehr als [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Makler brauchen, wechseln zu Business für [[commercial.price.business.monthly]]/Nutzer/Monat.
+Deals und Kontakte haben zugewiesene Nutzer („Zugewiesen"), damit jede Anfrage einen verantwortlichen Makler hat. Eine eigene Rolle mit Lesezugriff „Zugewiesen" beschränkt einen Mitarbeiter auf die Datensätze, die ihm zugewiesen sind, und das Audit-Log hält fest, wer welchen Datensatz geändert hat. Eine automatische Verteilung von Anfragen gibt es nicht: Sie weisen jede Anfrage selbst zu, oder ein separat betriebener n8n-Workflow erledigt das über die [REST-API](/features/api).
 
-### Gewerbeimmobilien
+## Hausverwaltungen
 
-Gewerbliche Immobilienprofis müssen längere Deal-Zyklen, mehrere Stakeholder pro Transaktion und komplexe Objektportfolios tracken. Customermates bewältigt dies mit anpassbaren Pipeline-Phasen, eigenen Feldern für Objektdaten (Fläche, Nutzungsart, Mietrendite, Vertragslaufzeiten) und Deals, die mit mehreren Kontakten verknüpft sind.
+Customermates ist keine Hausverwaltungssoftware. Es gibt keine Mietbuchhaltung, keine Sollstellung, keine Nebenkostenabrechnung, keine Schadensmeldungen und kein Mieterportal. Zu einer Hausverwaltung passt es auf der Beziehungsseite: neue Verwaltungsmandate von Eigentümern gewinnen, Mietinteressenten für freie Einheiten nachverfolgen und die Gespräche mit Eigentümern und Handwerkern in einem Posteingang halten. Bilden Sie Objekte oder Eigentümergemeinschaften als Organisationen ab, Eigentümer und Mieter als Kontakte und jedes neue Verwaltungsmandat als Deal. Den laufenden Betrieb führen Sie in Ihrer Verwaltungssoftware; wenn nötig, verbinden Sie beide über die REST-API oder Webhooks.
 
-## Integrationen für den Immobilienalltag
+## Was Customermates für Makler nicht kann
 
-Customermates hat wenige native Integrationen. Verbindungen zu anderen Tools bauen Sie über die [REST-API](/features/api), Webhooks oder ein separat betriebenes n8n mit dem Customermates-Community-Node:
+- Keine Objektdatenbank, keine Fotos, keine Exposés und keine Übertragung an ImmoScout24, Immowelt oder andere Portale.
+- Keine Webformulare und keine automatische Verteilung von Anfragen.
+- Keine Serienmails, keine automatischen Nachfassketten und kein Newsletter. Marktberichte verschicken Sie mit Ihrem Newsletter-Werkzeug.
+- Keine SMS, keine Telefonie und keine Mobile-App.
+- Keine Terminbuchung für Besichtigungen und kein Schreiben in den Kalender. Ab Pro sehen Sie Ihren Kalender schreibgeschützt neben dem CRM.
+- Keine Dateiablage an Datensätzen. Verträge und Unterlagen liegen in Ihrer Dateiablage, der Link steht am Deal.
+- Keine Fälligkeiten und keine Erinnerungen an Aufgaben. Diese Arbeit übernehmen ein Datumsfeld mit gespeicherter Ansicht oder eine Routine.
 
-- **E-Mail:** ab Pro Gmail, Outlook oder IMAP mit dem einheitlichen Posteingang verbinden und Konversationen dem richtigen Kontakt zuordnen
-- **Kalender:** Ab Pro wird der Kalender in der Cloud nur lesend angezeigt; Termine lassen sich nicht anlegen. Besichtigungstermine planen Sie weiter in Google Calendar oder Outlook
-- **Immobilienportale:** Anfragen von ImmoScout24, Immowelt oder Kleinanzeigen über REST-API oder n8n übernehmen, sofern das Portal eine Schnittstelle oder E-Mail-Weiterleitung bietet
-- **Dokumententools:** DocuSign, PandaDoc oder andere E-Signatur-Plattformen per n8n oder API verknüpfen
-- **Kommunikation:** WhatsApp ist ab Pro Teil des Posteingangs; Slack oder SMS-Dienste binden Sie über n8n oder Webhooks an
-- **KI über MCP:** Claude, ChatGPT oder andere MCP-fähige Clients anbinden, um Exposé-Texte zu entwerfen, Kundenanforderungen zusammenzufassen, Nachfass-E-Mails zu formulieren oder passende Objekte vorzuschlagen
-- **Buchhaltung:** Provisionsdaten per API oder n8n an Ihre Buchhaltungssoftware (DATEV, lexoffice, sevdesk) übergeben
-- **Marketing:** E-Mail-Marketing-Plattformen, Social-Media-Tools und Landing-Page-Builder per Webhook oder n8n anbinden; Customermates selbst versendet keine Kampagnen
+Ist einer dieser Punkte der Grund für Ihre Suche, schauen Sie sich Software an, die dafür gebaut ist. Customermates veröffentlicht diese Seite; die Anbieterangaben wurden am 8. Oktober 2026 auf den Websites der Anbieter geprüft.
 
-n8n ist nicht in Customermates enthalten; Sie betreiben es selbst oder nutzen n8n Cloud.
+| Wenn Sie brauchen | Schauen Sie sich an | Was der Anbieter auf seiner Website nennt |
+|---|---|---|
+| Maklersoftware mit Portalübertragung und Exposé | [Propstack](https://www.propstack.de/) | Kundenmanagement, Vermarktung und Automatisierung, Schnittstellen zu ImmoScout24, Immowelt und Kleinanzeigen, Objektakten, App für iOS und Android |
+| Maklersoftware mit automatischer Anfragenverarbeitung | [FLOWFACT](https://flowfact.de/) | Portalübertragung an über 150 Immobilienportale, Suchprofil-Matching, automatische Anfragenverarbeitung, kostenfreie Version FLOWFACT Mini für Einzelkämpfer und Existenzgründer |
+| Maklersoftware mit eigener Website-Anbindung | [onOffice](https://onoffice.com/) | onOffice enterprise mit App, WP-Websites, die Leads direkt in die Datenbank spielen, und kostenlosem Test |
+| Mieten, Buchhaltung und Instandhaltung (US-Markt) | [Buildium](https://www.buildium.com/pricing/) | Online-Mietzahlungen, Buchhaltung, Wartungsanfragen, Mieter- und Eigentümerportal |
 
-## Preise, die für Immobilienmakler funktionieren
+Eine verbreitete Aufteilung sind zwei Systeme: Maklersoftware für die Objekte und Portale, Customermates für die Menschen und Gespräche rund um diese Objekte.
 
-Ein CRM für Immobilien sollte nicht Ihre Provisionen auffressen. Customermates hält die Preise einfach und transparent, abgerechnet wird monatlich:
+## Was es kostet
 
-- **Starter ([[commercial.price.starter.monthly]] pro Nutzer pro Monat):** Kontakte, Organisationen, Deals, eigene Felder, gespeicherte Ansichten, XLSX-Import und -Export, REST-API, Webhooks und MCP
-- **Pro ([[commercial.price.pro.monthly]] pro Nutzer pro Monat):** ergänzt den einheitlichen Posteingang (E-Mail, LinkedIn inklusive Sales Navigator, WhatsApp, Instagram und Telegram) sowie die schreibgeschützte Kalenderansicht
-- **Business ([[commercial.price.business.monthly]] pro Nutzer pro Monat):** [[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer, geteilte Posteingänge, priorisierter Support
-- **Keine Lead-Gebühren:** Der Preis hängt an der Nutzerzahl, nicht an der Zahl der Kontakte
-- **Self-hostbar:** Der [Open-Source-Kern](/features/self-hosted) läuft ohne Lizenzkosten auf Ihrer eigenen Infrastruktur, mit dem Funktionsumfang von Starter und ohne Posteingang und Mate
+Die Preise gelten pro aktivem Nutzer und Monat bei monatlicher Zahlung. REST, Webhooks und MCP sind in jedem Tarif enthalten. Gebühren pro Lead oder pro Kontakt gibt es nicht.
 
-Ein Einzelmakler zahlt in Pro [[commercial.price.pro.monthly]]/Monat. Ein Maklerbüro mit 15 Maklern zahlt [[commercial.price.pro.monthly.seats.15]]/Monat. Alle Details auf unserer [Preisseite](/pricing).
+| Team | Tarif | Pro Monat |
+|---|---|---|
+| Einzelmakler, nur Pipeline, ohne Posteingang | Starter | [[commercial.price.starter.monthly]] |
+| Einzelmakler, Postfach oder WhatsApp im Posteingang | Pro | [[commercial.price.pro.monthly]] |
+| Einzelmakler, Postfach und WhatsApp | Business | [[commercial.price.business.monthly]] |
+| Drei Makler, jeweils Postfach und WhatsApp | Business | [[commercial.price.business.monthly.seats.3]] |
+| Fünf Makler, nur Pipeline | Starter | [[commercial.price.starter.monthly.seats.5]] |
 
-Zum Vergleich (Stand September 2026): Propstack kostet laut [Preisseite](https://www.propstack.de/preis/) im Standard-Tarif 99 € pro Lizenz und Monat zzgl. MwSt. plus 279 € Einrichtungsgebühr bei 12 Monaten Mindestlaufzeit. Salesforce Sales Cloud beginnt mit der Starter Suite bei 25 $/Nutzer/Monat; die Pro Suite kostet 100 $/Nutzer/Monat bei jährlicher Abrechnung (Salesforce-Preisseite, Stand September 2026).
+Jeder Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate; die Mengen stehen auf der [Preisseite](/pricing). Den Open-Source-Kern auf eigenem Server zu betreiben kostet keine Lizenzgebühr, aber eine [selbst gehostete Installation](/features/self-hosted) hat keinen Posteingang, kein Mate und keine Routinen.
 
-## So wählen Sie das richtige CRM für Immobilien
+## Umzug aus Excel oder einer anderen Maklersoftware
 
-Nicht jedes CRM ist für den Arbeitsalltag von Immobilienprofis gebaut. Darauf sollten Sie bei der Wahl eines Immobilien-CRM achten:
+<Steps>
+  <Step title="Nach Excel exportieren">
+    Exportieren Sie Ihre Kontakte aus der bisherigen Software oder dem
+    Adressbuch und speichern Sie sie als Excel-Arbeitsmappe (.xlsx). Der
+    Import liest nur XLSX, jeweils einen Datensatztyp.
+  </Step>
+  <Step title="Zuerst die Felder anlegen">
+    Legen Sie Rolle, Suchgebiet, Budget bis und die übrigen Felder an, damit
+    der Import Ihre Spalten zuordnen kann.
+  </Step>
+  <Step title="Kontakte, dann Deals importieren">
+    Öffnen Sie in der jeweiligen Liste Import und Export und wählen Sie Aus
+    Datei hinzufügen. Erst die Personen, dann laufende Aufträge.
+  </Step>
+  <Step title="Kanäle verbinden">
+    Ab Pro verbinden Sie Ihr Postfach oder WhatsApp unter Mein Profil › Kanäle
+    und verknüpfen die Gesprächspartner mit ihren Kontakten.
+  </Step>
+  <Step title="Ansichten und Routinen speichern">
+    Speichern Sie die fünf Ansichten von oben und legen Sie in Customermates
+    Cloud die beiden Routinen an.
+  </Step>
+</Steps>
 
-1. **Pipeline-Flexibilität**: Können Sie Käufer, Verkäufer, Vermietung und Gewerbe sauber trennen? Lassen sich die Phasen an Ihren tatsächlichen Workflow anpassen?
-2. **Automatisierungstiefe**: Automatisiert das CRM Follow-ups, Lead-Zuweisung und Aufgabenerstellung selbst, oder brauchen Sie dafür ein externes Tool? Bei Customermates übernehmen das n8n oder ein anderer externer Dienst über die API, in der Cloud zusätzlich Routinen des Mate-Assistenten.
-3. **Kontakt- und Objektverwaltung**: Können Sie detaillierte Käuferpräferenzen und Objektkriterien speichern? Können Sie Kontakte nach Objektkriterien filtern und passenden Objekten zuordnen?
-4. **Mobiler Zugriff**: Funktioniert das CRM auf dem Handy, um Deals zu aktualisieren und Notizen zwischen Besichtigungen zu erfassen?
-5. **Preistransparenz**: Gibt es Lead-Gebühren, Kontakt-Limits, Einrichtungsgebühren oder Mindestlaufzeiten? Welche Funktionen stecken in welchem Tarif, und was kostet das CRM tatsächlich pro Makler?
-6. **Datenkontrolle und DSGVO**: Wo werden Ihre Daten gespeichert? Welche Unterauftragsverarbeiter sind beteiligt, gibt es einen AVV? Können Sie bei Bedarf selbst hosten?
-7. **Integrationsmöglichkeiten**: Lässt sich das CRM ohne teure Add-ons mit E-Mail, Kalender, Immobilienportalen und Dokumententools verbinden?
-8. **Setup-Komplexität**: Können Sie in Minuten starten, oder brauchen Sie Wochen Implementierung und Beraterkosten?
+## Kundendaten und Datenschutz
 
-Lesen Sie unseren umfassenden Leitfaden zu [CRM-Systemen](/blog/crm-systems) für einen tieferen Einblick, was ein CRM für jedes Unternehmen effektiv macht.
-
-## Erste Schritte mit Customermates für Immobilien
-
-Die Einrichtung Ihres Immobilien-CRM dauert Minuten, nicht Monate:
-
-1. **[Kostenloses Konto erstellen](/auth/signup):** keine Kreditkarte nötig, [[commercial.trial.days]] Tage zum Ausprobieren.
-2. **Kontakte importieren:** Kundendaten als Excel-Arbeitsmappe (XLSX) importieren, je Datensatztyp nacheinander, oder über REST beziehungsweise einen externen KI-Client per MCP anlegen. Einen CSV-Import gibt es nicht.
-3. **Pipeline einrichten:** Phasen für Käufer-Deals (Anfrage, Besichtigung, Angebot, Verhandlung, Vertrag, Notartermin) und Verkaufsaufträge (Aufnahme, Vermarktung, Besichtigungen, Angebote, Verkaufsabschluss) in der Phasenspalte anlegen und über ein Auswahlfeld „Deal-Art“ trennen. Das Kanban-Board mit Drag-and-drop zeigt Ihren Ablauf.
-4. **Eigene Felder hinzufügen:** Felder für Käuferpräferenzen (Lage, Budget, Zimmer, Objekttyp), Objektdetails, Provisionsbeträge, Empfehlungsquellen und alles andere erstellen, was Ihr Geschäft festhalten muss.
-5. **Automatisierung anbinden:** in der Cloud eine Routine für den wöchentlichen Überblick zum Nachfassen anlegen oder ein separat betriebenes n8n für Benachrichtigungen und Portalanfragen verbinden.
-6. **E-Mail verbinden:** ab Pro Gmail, Outlook oder IMAP verknüpfen und Kundenkonversationen den richtigen Kontakten zuordnen.
+In Customermates Cloud ist die primäre Produktionsdatenbank in der AWS-Region Frankfurt konfiguriert. Hosting und weitere Unterauftragsverarbeiter, darunter US-Anbieter, stehen auf der Seite zu den [Unterauftragsverarbeitern](/subprocessors), und ein [Auftragsverarbeitungsvertrag](/dpa) ist verfügbar. Customermates hat keine Zertifizierung wie ISO 27001 oder SOC 2.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question="Was ist das beste CRM für Immobilienmakler?">
-Das beste CRM für Immobilienmakler hängt von Ihren Anforderungen und Ihrem Budget ab. Wer Objektverwaltung, Exposés und Portalanbindung in einem Produkt braucht, ist mit Branchensoftware wie Flowfact oder Propstack besser bedient. Wer ein fokussiertes, offenes CRM ohne Lead-Gebühren sucht, bekommt mit Customermates ab [[commercial.price.starter.monthly]]/Nutzer/Monat Pipeline, Kontakte und MCP, mit dem einheitlichen Posteingang für E-Mail, LinkedIn und WhatsApp in Pro für [[commercial.price.pro.monthly]]/Nutzer/Monat. Enterprise-Plattformen wie Salesforce und HubSpot sind mächtig, erfordern aber mehr Setup und höhere Budgets.
-</FaqItem>
-
-<FaqItem question="Brauche ich ein immobilienspezifisches CRM oder reicht ein allgemeines CRM?">
-Ein allgemeines CRM mit starken Anpassungsmöglichkeiten reicht oft, wenn Sie Objektverwaltung und Portalanbindung nicht im CRM brauchen. Immobilienmakler brauchen anpassbare Pipeline-Phasen und objektbezogene Felder, beides unterstützt Customermates. Besichtigungsplanung, Exposé-Erstellung und Portal-Feeds sind dagegen nicht enthalten. Der Vorteil eines anpassbaren CRM ist, dass es sich an Ihren Workflow anpasst, statt Sie in einen vordefinierten Prozess zu zwängen.
-</FaqItem>
-
-<FaqItem question="Wie hilft ein CRM Immobilienmaklern, mehr Deals abzuschließen?">
-Ein Immobilien-CRM hilft, indem kein Lead unbeantwortet bleibt, keine Besichtigung unprotokolliert und kein Deal unbemerkt stagniert. Gespeicherte Ansichten zeigen offene Anfragen und stille Deals. Pipeline-Transparenz zeigt genau, welche Deals Aufmerksamkeit brauchen. Kontaktprofile mit vollständiger Historie geben Ihnen Kontext für jedes Gespräch. Wer ein CRM systematisch nutzt, reagiert schneller und fasst konsequenter nach.
-</FaqItem>
-
-<FaqItem question="Wie steht Customermates zur DSGVO?">
-Ob die Verarbeitung DSGVO-konform ist, hängt davon ab, wie Sie als Verantwortlicher ein Tool einsetzen. Customermates stellt dafür einen [Auftragsverarbeitungsvertrag (AVV)](/dpa) bereit und legt alle [Unterauftragsverarbeiter](/subprocessors) offen, auch US-Anbieter mit Standardvertragsklauseln. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt. Eine Zertifizierung wie ISO 27001 besteht nicht. Wer den Speicherort vollständig selbst bestimmen will, kann Customermates [selbst hosten](/features/self-hosted).
-</FaqItem>
-
-<FaqItem question="Kann ich Customermates für Wohn- und Gewerbeimmobilien nutzen?">
-Ja. Customermates hat eine konfigurierbare Phasenspalte; Wohnungskäufer, Wohnungsverkäufer, Gewerbevermietung und andere Deal-Typen trennen Sie über ein eigenes Auswahlfeld, Gruppierung und gespeicherte Ansichten. Eigene Felder halten objektspezifische Daten fest, etwa Fläche, Nutzungsart, Mietrendite und Vertragslaufzeiten für Gewerbeobjekte neben Zimmeranzahl und Lagepräferenzen für Wohnimmobilien.
+<FaqItem question="Welche Software ist die beste für Immobilienmakler?">
+Das hängt davon ab, was die Software tragen soll. Brauchen Sie Objektverwaltung, Exposés und Portalübertragung, ist Maklersoftware wie Propstack, FLOWFACT oder onOffice gebaut dafür. Geht es Ihnen vor allem um Suchprofile, Nachfassen und Gespräche an einem Ort, passt auch ein allgemeines CRM, eingerichtet wie oben beschrieben. Customermates ist unser eigenes Produkt; bitte berücksichtigen Sie das.
 </FaqItem>
 
 <FaqItem question="Was kostet ein CRM für Immobilienmakler?">
-Die Preise für Immobilien-CRMs variieren stark. Die Branchensoftware Propstack kostet laut Preisseite 99 € pro Lizenz und Monat zzgl. MwSt. plus 279 € Einrichtung. Salesforce Sales Cloud startet mit der Starter Suite bei 25 $/Nutzer/Monat, die Pro Suite kostet 100 $/Nutzer/Monat bei jährlicher Abrechnung (Stand September 2026). Customermates startet bei [[commercial.price.starter.monthly]]/Nutzer/Monat für das Kern-CRM, oder [[commercial.price.pro.monthly]]/Nutzer/Monat in Pro für den einheitlichen Posteingang, monatlich abgerechnet und ohne Lead-Gebühren.
+Customermates kostet [[commercial.price.starter.monthly]] pro Nutzer und Monat in Starter und [[commercial.price.pro.monthly]] in Pro mit Posteingang. FLOWFACT nannte am 8. Oktober 2026 für FLOWFACT Residential 87 € pro Lizenz und Monat zuzüglich MwSt. und einer Einrichtungsgebühr von 279 € zuzüglich MwSt.; die Version FLOWFACT Mini ist kostenfrei ([FLOWFACT](https://flowfact.de/)).
 </FaqItem>
 
-<FaqItem question="Kann ich Kontakte aus meinem aktuellen CRM oder meiner Tabelle importieren?">
-Ja, über eine Excel-Arbeitsmappe (XLSX). Sie importieren jeweils einen Datensatztyp, zum Beispiel erst Kontakte, dann Deals, und ordnen die Spalten Ihren Feldern zu. Einen CSV-Import gibt es nicht; speichern Sie eine CSV-Datei vorher als XLSX. Alternativ legen Sie Datensätze über die REST-API oder einen externen KI-Client per MCP an. Exportieren können Sie ebenfalls als XLSX, je Datensatztyp.
+<FaqItem question="Gleicht Customermates Suchprofile automatisch mit Objekten ab?">
+Nein. Es gibt keine Objektdatenbank und keinen automatischen Abgleich. Sie filtern Suchkunden nach Suchgebiet, Objektart, Zimmern und Budget, sobald ein Objekt hereinkommt. In Customermates Cloud erledigt eine Routine diese Suche, wenn ein Objekt in die Vermarktung geht, und verknüpft die passenden Suchkunden mit dem Deal.
+</FaqItem>
+
+<FaqItem question="Lässt sich Customermates mit ImmoScout24 oder anderen Portalen verbinden?">
+Nicht direkt. Anfragen, die ein Portal an Ihr Postfach schickt, landen ab Pro im einheitlichen Posteingang. Alles Weitere bauen Sie selbst oder mit einem separat betriebenen n8n-Workflow, der Kontakte über die [REST-API](/features/api) anlegt.
+</FaqItem>
+
+<FaqItem question="Eignet sich Customermates für Hausverwaltungen?">
+Nur für die Beziehungsseite: Eigentümer als Mandanten gewinnen, Mietinteressenten nachverfolgen, Gespräche mit Eigentümern und Handwerkern bündeln. Mietbuchhaltung, Nebenkostenabrechnung und Instandhaltung gehören in eine Hausverwaltungssoftware.
+</FaqItem>
+
+<FaqItem question="Gibt es kostenlose Maklersoftware?">
+FLOWFACT bietet laut [eigener Website](https://flowfact.de/) FLOWFACT Mini als kostenfreie Maklersoftware für Einzelkämpfer und Existenzgründer an; die Mindestlaufzeit steht auf derselben Seite. Customermates können Sie [[commercial.trial.days]] Tage kostenlos testen, und den Open-Source-Kern können Sie ohne Lizenzgebühr selbst hosten, dann ohne Posteingang und ohne Mate.
 </FaqItem>
 </Faq>
 
----
-
-Hören Sie auf, Immobilien-Leads durch langsame Follow-ups und verstreute Daten zu verlieren. Customermates gibt Ihnen die Pipeline-Transparenz und Kundenverwaltung, die Sie für mehr Abschlüsse brauchen, zu einem Preis, der sich für Ihr Geschäft rechnet. [Starten Sie jetzt Ihren kostenlosen Test](/auth/signup).
+Anbieterangaben am 8. Oktober 2026 geprüft auf den Seiten von [Propstack](https://www.propstack.de/), [FLOWFACT](https://flowfact.de/), [onOffice](https://onoffice.com/) und [Buildium](https://www.buildium.com/pricing/).

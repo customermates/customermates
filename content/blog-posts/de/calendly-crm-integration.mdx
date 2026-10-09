@@ -1,502 +1,186 @@
 ---
-title: "Calendly CRM Integration: Deals automatisieren"
-description: "Calendly CRM Integration: Calendly mit HubSpot, Salesforce oder Pipedrive verbinden. Setup-Anleitung, Routing-Formulare, Round-Robin und automatische Deals."
+title: "Calendly CRM Integration: nativ, Zapier oder Webhooks"
+description: "Calendly bindet HubSpot, Salesforce und Dynamics 365 nativ an. Andere CRMs brauchen eine Marktplatz-App, Zapier oder Webhooks. Tarife und Feldzuordnung."
+
+relatedHrefs:
+  - /features/integrations
+  - /docs/n8n
+  - /docs/app-routines
+  - /blog/gmail-crm-integration
 
 hero:
-  title: "Calendly CRM Integration: Deals automatisch aus jeder Buchung erstellen"
-  description: "Schluss mit Copy-Paste von Termindaten. Verbinden Sie Calendly mit Ihrem CRM, erstellen Sie automatisch Kontakte und Deals, leiten Sie Leads an den richtigen Vertriebsmitarbeiter weiter und verpassen Sie kein Follow-up mehr."
+  title: "Calendly CRM Integration: Welche CRMs nativ angebunden sind und wie Sie den Rest verbinden"
+  description: "Was die Calendly-Integrationen für HubSpot, Salesforce und Dynamics 365 leisten und welchen Calendly-Tarif sie voraussetzen, wie Sie jedes andere CRM anbinden und wie Sie Umbuchungen, wiederholte Buchungen und No-Shows sauber abbilden."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2025-12-10
+  updated: 2026-10-08
   tags:
     - CRM-Automation
     - Calendly-Integration
     - Vertriebseffizienz
 ---
 
-# Calendly CRM Integration: So verbinden Sie Calendly mit Ihrem CRM und automatisieren die Deal-Erstellung
+# Calendly mit dem CRM verbinden: native Integrationen, Webhooks und die Sonderfälle
 
-Ein Interessent bucht ein 30-minütiges Erstgespräch über Calendly. Sie prüfen Ihren Posteingang, öffnen das CRM, legen manuell einen Kontakt an, kopieren die E-Mail-Adresse, fügen die Telefonnummer hinzu, erstellen einen Deal, ordnen ihn einer Pipeline-Stufe zu, setzen eine Follow-up-Erinnerung. Fünf Minuten weg. Bei jeder einzelnen Buchung.
+Calendly hat native Integrationen für drei CRM-Systeme: HubSpot ab dem Standard-Tarif, Salesforce in Teams oder Enterprise und Microsoft Dynamics 365 mit Power Automate in Enterprise. Jedes andere CRM wird über eine App im Marktplatz des CRM-Anbieters, über eine Integrationsplattform wie Zapier oder Zoho Flow oder über die Webhooks von Calendly angebunden. Webhooks setzen einen kostenpflichtigen Calendly-Tarif voraus, und Sie legen sie über die Calendly-API an, nicht in den Einstellungen.
 
-Bei 20 Calendly-Terminen pro Woche sind das über 8 Stunden pro Monat für Dateneingabe, die eine Calendly CRM Integration automatisch erledigen könnte. Dieser Leitfaden zeigt jeden Weg von Calendly ins CRM, native Integrationen, Zapier und n8n für volle Kontrolle, plus fortgeschrittene Workflows wie Routing-Formulare, Round-Robin-Zuweisung und Post-Meeting-Automatisierung.
+Ganz gleich, welchen Weg Sie wählen: Legen Sie vor dem Bau fest, was eine Buchung im CRM anlegen soll und was eine Umbuchung ändern soll. Die Umbuchung ist die Stelle, an der es am leichtesten schiefgeht, denn Calendly meldet sie als Stornierung plus neue Buchung.
 
-## Warum Calendly mit dem CRM verbinden?
+Diesen Leitfaden veröffentlicht Customermates, ein KI-CRM für kleine Teams mit Kundenkontakt. Customermates hat keinen eigenen Calendly-Konnektor; der Abschnitt weiter unten zeigt die drei Wege, die stattdessen funktionieren. Die Angaben zu Calendly und den anderen Anbietern wurden am 8. Oktober 2026 auf deren eigenen Seiten geprüft, die Links stehen am Ende.
 
-Calendly löst die Terminplanung. Ihr CRM verwaltet Pipeline und Kundenbeziehungen. Ohne Brücke zwischen beiden entstehen vier Probleme:
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Nativ">HubSpot, Salesforce und Microsoft Dynamics 365, jeweils an einen bestimmten Calendly-Tarif gebunden.</SummaryItem>
+  <SummaryItem label="Alle anderen CRMs">Eine App aus dem Marktplatz des CRM-Anbieters, eine Integrationsplattform wie Zapier, Zoho Flow oder n8n oder ein eigener Webhook-Empfänger.</SummaryItem>
+  <SummaryItem label="Webhooks">Nicht im kostenlosen Free-Tarif, und nur über die API anzulegen. Die zentralen Events sind invitee.created, invitee.canceled und routing_form_submission.created.</SummaryItem>
+  <SummaryItem label="Häufigster Fehler">Eine Umbuchung löst eine Stornierung und eine neue Buchung aus. Prüfen Sie das Feld rescheduled, bevor Sie einen Deal als storniert schließen.</SummaryItem>
+  <SummaryItem label="Customermates">REST-API und Webhooks in jedem Tarif. Ab Pro in Customermates Cloud kommt der gebuchte Termin zusätzlich über den verbundenen Google- oder Outlook-Kalender des Gastgebers an.</SummaryItem>
+</ArticleSummary>
 
-### 1. Manuelle Doppelerfassung
+## Was die nativen CRM-Integrationen von Calendly leisten
 
-Jede Buchung erfordert das erneute Eintippen von Namen, E-Mail-Adressen, Telefonnummern und Antworten auf individuelle Fragen in CRM-Felder. Bei 20 Terminen pro Woche und 3 Minuten pro Eintrag sind das 4 Stunden pro Monat reine Dateneingabe. Über ein Jahr sind das 48 Stunden, mehr als eine volle Arbeitswoche, nur für das Kopieren von Daten zwischen zwei Bildschirmen.
+| CRM | Calendly-Tarif | Funktionsumfang laut Calendly |
+|---|---|---|
+| HubSpot | Standard, Teams oder Enterprise | Legt Kontakte und Leads bei einer Buchung an und aktualisiert sie, protokolliert Aktivitäten einschließlich Umbuchungen und Stornierungen und überträgt die Antworten auf Buchungsfragen in den HubSpot-Datensatz. Teams ergänzt das Routing nach HubSpot-Zuständigkeit. |
+| Salesforce | Teams oder Enterprise | Legt für neue Interessenten einen Lead, Kontakt oder eine Opportunity an, erzeugt Ereignisse oder Aufgaben an beliebigen Salesforce-Objekten, überträgt Buchungsdaten in ein benutzerdefiniertes Objekt und leitet bekannte Leads an ihren zuständigen Inhaber in Salesforce. In Enterprise lässt sich die Synchronisation auf bestimmte Gruppen begrenzen, etwa den Vertrieb. |
+| Microsoft Dynamics 365 | Enterprise | Auf der Preisseite als „Microsoft Dynamics 365 and Power Automate for CRM workflows“ aufgeführt. Weitere Details nennt Calendly dort nicht. |
 
-### 2. Verpasste Follow-ups
+Zwei Details entscheiden oft die Wahl. Die HubSpot-Seite von Calendly spricht von Kontakten, Leads, Aktivitäten und Routing, aber nicht von Deals. Wenn jede Buchung in HubSpot einen Deal eröffnen soll, testen Sie das, bevor Sie sich darauf verlassen. Beide Seiten beschreiben außerdem, dass Zusammenfassungen aus dem Calendly Notetaker am Datensatz landen; das gilt nur für Termine, die damit aufgezeichnet wurden.
 
-Wenn die Buchung nie im CRM landet, wird keine Aufgabe erstellt, keine Erinnerung ausgelöst, und der Lead wird kalt. Je länger ein neuer Lead auf eine Reaktion wartet, desto eher kühlt er ab. Eine Lücke zwischen Calendly und Ihrem CRM ist eine Lücke in Ihrer Pipeline.
+Steht Ihr CRM in dieser Tabelle und passt Ihr Calendly-Tarif, beginnen Sie mit der nativen Integration. Sie müssen nichts zusätzlich betreiben, und Calendly pflegt die Schnittstelle.
 
-### 3. Inkonsistente Daten
+## Ein CRM anbinden, das Calendly nicht nativ unterstützt
 
-Ein Mitarbeiter trägt den vollständigen Firmennamen ein, ein anderer kürzt ab, ein dritter vergisst es ganz. Ohne Automatisierung erodiert die CRM-Datenqualität mit jeder manuellen Eingabe. Nach sechs Monaten wird Ihr Reporting unzuverlässig, weil die zugrundeliegenden Daten inkonsistent sind.
+Ob Pipedrive, Freshworks, Zoho CRM oder ein kleineres System: Es bleiben vier Wege.
 
-### 4. Fehlende Attribution
+| Weg | Beispiel | Passt, wenn | Darauf achten |
+|---|---|---|---|
+| App im Marktplatz des CRM-Anbieters | Im Pipedrive Marketplace steht Calendly Sync von Outfunnel, das Kontakte, Leads, Deals, Aktivitäten oder Notizen anlegt. Im Freshworks Marketplace steht Calendly Events for CRM. | Es eine App für Ihr CRM gibt und sie abdeckt, was Sie brauchen | Apps von Drittanbietern haben eigene Bedingungen. Die Freshworks-App arbeitet in die andere Richtung: Sie plant, verschiebt und storniert Calendly-Termine aus dem CRM heraus. |
+| Integrationsplattform | Der Zapier-Trigger „Invitee Created or Rescheduled“ oder in Zoho Flow der Trigger „Event scheduled by invitee“ mit der Zoho-CRM-Aktion „Create or update contact“ | Niemand im Team programmiert und es für Ihr CRM einen Konnektor auf der Plattform gibt | Ein weiteres Konto, das Geld kostet und überwacht werden will. Prüfen Sie, wie der Trigger Umbuchungen behandelt. |
+| Webhooks in n8n oder eigenen Code | Der Calendly-Trigger-Node von n8n mit den Events „Event created“ und „Event canceled“ | Sie Abgleiche und Verzweigungen brauchen oder Ihr CRM nirgends einen Konnektor hat | Jemand muss den Workflow betreiben und überwachen. n8n läuft selbst gehostet auf eigener Infrastruktur oder als n8n Cloud. |
+| KI-Client mit zwei MCP-Konnektoren | Der MCP-Server von Calendly in Claude oder ChatGPT, daneben der Konnektor Ihres CRM | Sie Buchungen gesammelt durchgehen und jeden Schreibvorgang bestätigen möchten | Er arbeitet nur, wenn jemand fragt. Eine Synchronisation ist das nicht. |
 
-Sie können nicht über "Termine gebucht via Calendly" berichten, wenn die Daten in zwei getrennten Systemen liegen. Welche Landing Page hat die meisten Meetings generiert? Welcher Eventtyp hat die höchste Abschlussquote? Ohne Integration bleiben diese Fragen unbeantwortet.
+Für die vielen kleineren CRMs gilt meist eine der ersten beiden Zeilen. Suchen Sie zuerst im Marktplatz Ihres CRM-Anbieters, danach auf der Calendly-Seite von Zapier. Wer Buchungsdaten nicht über einen weiteren Cloud-Dienst leiten möchte, kann n8n auf eigener Infrastruktur betreiben.
 
-Eine richtige Calendly CRM Integration beseitigt alle vier Probleme auf einmal.
+## Was eine Buchung im CRM anlegen sollte
 
-## Welche CRMs integrieren nativ mit Calendly?
+Calendly liefert den Namen und die E-Mail-Adresse des Gastes, die Antworten auf Ihre Buchungsfragen, den Ereignistyp, den Gastgeber und die Startzeit. Ordnen Sie diese Daten zu, bevor Sie etwas bauen:
 
-Calendly bietet eingebaute Integrationen mit mehreren großen CRM-Plattformen. Hier ist, was jede native Verbindung leisten kann und wo sie an ihre Grenzen stößt.
+| Calendly-Daten | Ziel im CRM | Warum |
+|---|---|---|
+| E-Mail des Gastes | E-Mail des Kontakts, als Suchschlüssel | Wer wieder bucht, muss seinen bestehenden Kontakt finden |
+| Name des Gastes | Vor- und Nachname des Kontakts | Die meisten CRMs führen dafür zwei Felder |
+| Frage nach dem Unternehmen | Organisation, gefunden oder neu angelegt | Kontakt und Deal hängen dann am richtigen Unternehmen |
+| Weitere Fragen mit festen Antworten | Ein Auswahlfeld am Deal | Sie können später danach filtern und gruppieren |
+| Freitext-Antworten | Die Notizen des Deals | Freitext in einem Auswahlfeld macht Filter unbrauchbar |
+| Ereignistyp | Deal-Name und ein Feld für die Lead-Quelle | Zeigt, welche Buchungsseite Deals bringt |
+| Gastgeber | Zuständiger Nutzer am Deal | Round-Robin-Buchungen landen bei der richtigen Person |
+| Startzeit | Ein Datumsfeld am Deal | Anstehende Gespräche lassen sich in der Liste sortieren |
+| Link zur Calendly-Buchung | Ein Textfeld am Deal | Eine spätere Stornierung findet den richtigen Deal |
 
-### Calendly + HubSpot Integration
+Die letzte Zeile wird am häufigsten weggelassen. Genau sie braucht der Stornierungsschritt.
 
-Die [Calendly HubSpot Integration](https://calendly.com/integration/hubspot) ist eine der ausgereiftesten nativen Optionen:
+## Umbuchungen, wiederholte Buchungen und No-Shows
 
-- Erstellt oder aktualisiert automatisch HubSpot-Kontakte bei einer Buchung
-- Protokolliert das Meeting als Aktivität auf der Kontakt-Timeline
-- Kann Deals in einer bestimmten Pipeline und Stufe erstellen
-- Synchronisiert Antworten auf individuelle Fragen in HubSpot-Kontakteigenschaften
-- Ordnet Calendly-Eventtypen bestimmten HubSpot-Workflows zu
-- Verfügbar ab dem Calendly Professional Plan ($16/Benutzer/Monat)
+- **Umbuchungen.** Verschiebt ein Gast den Termin, sendet Calendly invitee.canceled für die alte Zeit und invitee.created für die neue. Die Stornierung enthält `rescheduled: true`, und über `old_invitee` und `new_invitee` lassen sich alte und neue Buchung einander zuordnen. Ein Workflow, der das Feld ignoriert, setzt den Deal auf storniert und legt danach einen zweiten an.
+- **Wiederholte Buchungen.** Suchen Sie im CRM nach der E-Mail-Adresse, bevor Sie einen Kontakt anlegen, und schreiben Sie die Adresse vorher klein. Viele Menschen tippen ihre Adresse bei jeder Buchung etwas anders.
+- **No-Shows.** Zapier bietet den Calendly-Trigger „Invitee No Show Created“. Die Webhook-Übersicht von Calendly nennt dagegen nur Buchungen, Stornierungen und Routing-Formulare. Wer auf Webhooks baut, markiert No-Shows also besser von Hand. Ein eigener No-Show-Status am Deal ist verlässlicher als eine Vermutung nach Zeitablauf.
+- **Routing-Formulare.** routing_form_submission.created wird ausgelöst, sobald jemand ein Routing-Formular absendet, auch wenn kein Termin gebucht wird. So erfassen Sie Interessenten, die sich qualifiziert, aber keinen Termin gewählt haben. Das Abonnement muss den Scope `organization` verwenden.
 
-**Was gut funktioniert:** Grundlegende Kontakterstellung, Aktivitäts-Logging und einfache Deal-Erstellung. Die Integration ist zuverlässig und erfordert minimale Konfiguration.
+## Wo Customermates passt
 
-**Wo es nicht reicht:** Komplexe Workflows wie bedingte Deal-Erstellung (Deal nur erstellen, wenn der Lead-Score einen Schwellenwert überschreitet), mehrstufige Post-Meeting-Sequenzen oder Tool-übergreifende Orchestrierung (Calendly + HubSpot + Slack + Google Sheets) erfordern zusätzlich Zapier oder n8n.
+Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt, etwa Beratungen und Agenturen. Einen Calendly-Konnektor gibt es nicht, Buchungen kommen also über einen von drei Wegen an.
 
-### Calendly + Salesforce Integration
+### Weg 1: Calendly-Webhooks in die REST-API
 
-Die [Calendly Salesforce Integration](https://calendly.com/integration/salesforce) verbindet sich direkt via OAuth:
+Das funktioniert in jedem Customermates-Tarif und auch bei Self-Hosting. Sie brauchen einen Calendly-Tarif mit Webhooks und eine Umgebung für den Workflow. Das Beispiel nutzt n8n; n8n läuft separat und gehört nicht zu Customermates.
 
-- Erstellt Salesforce-Leads oder -Kontakte aus Buchungen
-- Protokolliert Events als Salesforce-Aktivitäten
-- Ordnet Calendly-Eventtypen Salesforce-Datensatztypen zu
-- Unterstützt Routing-Regeln zur Zuweisung des richtigen Owners
-- Kann bestehende Lead-/Kontaktdatensätze aktualisieren statt Duplikate zu erstellen
+<Steps>
+<Step title="API-Key anlegen">
+Öffnen Sie in Customermates **Mein Profil › API & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der Key arbeitet mit Ihren Berechtigungen. Hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Header-Namen `x-api-key`. Details unter [API-Keys](/docs/api-keys).
+</Step>
+<Step title="Deal-Spalten vorbereiten">
+Ergänzen Sie in der Phasen-Spalte Ihrer Deals, einer Spalte vom Typ **Einzelauswahl**, die Optionen „Termin gebucht“ und „Storniert“. Legen Sie eine Spalte vom Typ **Datum & Uhrzeit** namens „Termin“ an, eine **Einzelauswahl** „Lead-Quelle“ mit einer Option je Ereignistyp und eine **Text**-Spalte „Calendly-Buchung“. `GET /api/v1/deals/configuration` liefert die Spalten-IDs und Optionen, die die API erwartet.
+</Step>
+<Step title="Buchung empfangen">
+Fügen Sie in n8n den Calendly-Trigger mit „Event created“ und „Event canceled“ hinzu. Alternativ verwenden Sie einen Webhook-Node und abonnieren dessen URL über die Calendly-API.
+</Step>
+<Step title="Kontakt finden oder anlegen">
+Senden Sie `POST /api/v1/contacts/search` mit der E-Mail des Gastes als `searchTerm` und übernehmen Sie nur einen exakten Treffer. Gibt es keinen, senden Sie `POST /api/v1/contacts` mit `firstName`, `lastName` und `identifiers: [{ "provider": "mail", "value": "<email>" }]`.
+</Step>
+<Step title="Deal anlegen">
+Senden Sie `POST /api/v1/deals` mit einem Namen wie „Anna Weber, Erstgespräch“, der Kontakt-ID in `contactIds`, der Customermates-Nutzer-ID des Gastgebers in `userIds` und `customFieldValues` für Phase, Termin, Lead-Quelle und Calendly-Link. Freitext-Antworten gehören in `notes`, das Markdown annimmt. Die Zuordnung von Gastgeber-E-Mail zu Nutzer-ID legen Sie einmal im Workflow fest.
+</Step>
+<Step title="Stornierung verarbeiten">
+Bei invitee.canceled suchen Sie den Deal über den Wert in „Calendly-Buchung“ mit einem `equals`-Filter (siehe [Filter-Syntax](/docs/filter-syntax)). Ist `rescheduled` wahr, aktualisieren Sie „Termin“ aus der neuen Buchung. Ist es falsch, setzen Sie die Phase mit `PUT /api/v1/deals/{id}` auf „Storniert“.
+</Step>
+</Steps>
 
-**Was gut funktioniert:** Straightforward Lead-Erstellung und Aktivitäts-Logging für Enterprise-Salesforce-Deployments.
+Eine Absicherung ist eingebaut. Customermates speichert E-Mail-Adressen kleingeschrieben und lehnt einen zweiten Kontakt mit einer Adresse ab, die schon ein anderer Kontakt hat („Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.“). Eine verpasste Suche scheitert also sichtbar, statt eine Dublette anzulegen. Der [n8n-Leitfaden](/docs/n8n) listet alle Endpunkte und die Regeln für Relationen bei Updates.
 
-**Wo es nicht reicht:** Erfordert Salesforce Enterprise oder höher für einige Funktionen. Komplexes Feld-Mapping, die Erstellung benutzerdefinierter Objekte und mehrstufige Automatisierung benötigen Middleware wie n8n. Salesforces Komplexität macht einfache Aufgaben überraschend aufwendig.
+### Weg 2: der Kalender, ab Pro in Customermates Cloud
 
-### Calendly + Pipedrive Integration
+Ist Calendly so eingestellt, dass Einladungen als „Calendar Invitations“ verschickt werden, legt der Google- oder Outlook-Kalender des Gastgebers den Termin an und trägt den Gast als Teilnehmer ein. Verbinden Sie dasselbe Konto in Customermates unter **Mein Profil › Kanäle** mit **Kanal verbinden**, dann kommt der Termin ohne Workflow-Tool an. Kalendertermine erscheinen in der Kategorie **Konto & Kalender** einer [Aktivitäts-Zeitleiste](/docs/app-dashboard) und am Datensatz eines Kontakts, dessen E-Mail-Adresse zu einem Teilnehmer passt. Customermates liest den Kalender nur. Termine bucht oder ändert es nicht.
 
-Pipedrive hat keine native Calendly-Integration direkt in der Calendly-Oberfläche. Stattdessen stehen zur Verfügung:
+Damit aus Buchungen Datensätze werden, kann eine Routine den Kalender regelmäßig durchgehen. Routinen laufen nur in Customermates Cloud und verbrauchen gehostete KI-Credits aus dem monatlichen Kontingent ihres Eigentümers. Wählen Sie **Nach Zeitplan**, stellen Sie **Wiederholung** auf **Stündlich** und geben Sie Anweisungen wie diese:
 
-- Pipedrive-eigene Marketplace-Apps für Calendly
-- Zapier-Vorlagen für Calendly-zu-Pipedrive-Workflows
-- n8n für selbst gehostete, DSGVO-konforme Automatisierung
+> Prüfen Sie meine Kalendertermine, die in den nächsten 14 Tagen beginnen. Suchen Sie für jeden Termin mit einem Gast, dessen E-Mail-Adresse nicht auf @unserefirma.de endet, den Kontakt über diese Adresse, oder legen Sie ihn mit Name und E-Mail des Gastes an. Hat dieser Kontakt keinen Deal in der Phase „Termin gebucht“, legen Sie einen Deal „[Name des Gastes], Erstgespräch“ an, setzen „Termin“ auf den Beginn des Termins und weisen ihn mir zu. Übernehmen Sie die Terminbeschreibung in die Notizen des Deals. Senden Sie keine E-Mail und keine Nachricht. Listen Sie auf, was Sie angelegt haben.
 
-Die Calendly Pipedrive Integration über Automatisierungstools funktioniert zuverlässig für die Erstellung von Kontakten, Deals und Aktivitäten aus Buchungen.
+Die letzten beiden Sätze sind wichtig. Eine Routine läuft als ihr Eigentümer, mit dessen Kanälen, und sie darf Nachrichten ohne Rückfrage senden, wenn ihre Anweisungen nichts anderes sagen. Es gibt auch einen Event-Trigger für Kalenderänderungen, **Kalendertermin geändert**. Er reagiert auf jede Änderung im verbundenen Kalender, und Ereignisse, die kurz nach dem Start eines Laufs eintreffen, werden übersprungen. Für Buchungen ist ein Zeitplan deshalb die sicherere Wahl. Die aktuellen Grenzen stehen unter [Routinen](/docs/app-routines).
 
-### Calendly + Zoho CRM
+### Weg 3: Ihr eigener KI-Client
 
-Für Zoho CRM existiert kein nativer Calendly-Connector. Die Integration wird über Zapier, Make oder n8n mit Calendly-Webhooks und der Zoho CRM API aufgebaut. Das bietet tatsächlich mehr Flexibilität als ein nativer Connector, da Sie bedingte Logik und Datentransformation hinzufügen können.
+Calendly betreibt einen MCP-Server unter `https://mcp.calendly.com/` mit Tools, die geplante Termine und deren Gäste auflisten. Laut Calendly brauchen Sie dafür keinen kostenpflichtigen Tarif, einzelne Aktionen hängen aber vom Tarif ab. Fügen Sie ihn in Claude oder ChatGPT neben dem [Customermates-Konnektor](/docs/connect-custom-connector) hinzu und fragen Sie etwa: „Listen Sie die seit Montag gebuchten Calendly-Termine mit ihren Gästen auf, legen Sie jeden fehlenden Gast als Kontakt in Customermates an und erstellen Sie je einen Deal in der Phase Termin gebucht.“ Die Customermates-Seite funktioniert in jedem Tarif und auch selbst gehostet und nutzt Ihren eigenen KI-Anbieter statt gehosteter Credits. Customermates führt aus, was der Client aufruft. Stellen Sie Freigaben für schreibende Tools deshalb in Ihrem KI-Client ein.
 
-### Calendly + Customermates
+### Was es für ein Team mit drei Personen kostet
 
-Customermates hat keine native Calendly-Integration. Die Verbindung läuft über ein separat betriebenes n8n (selbst gehostet oder n8n Cloud), das Calendly-Webhooks empfängt und die Customermates-REST-API aufruft; für n8n gibt es einen Customermates-Community-Node. n8n ist nicht in Customermates enthalten. Dafür haben Sie volle Kontrolle darüber, wie Buchungen auf Kontakte, Deals und Follow-up-Aktionen abgebildet werden.
+- **Webhook-Weg mit Starter:** [[commercial.price.starter.monthly.seats.3]] pro Monat für Customermates, dazu ein Calendly-Tarif mit Webhooks und der Betrieb von n8n.
+- **Kalender-Weg mit Pro:** [[commercial.price.pro.monthly.seats.3]] pro Monat. Darin enthalten sind die [Unified Inbox](/features/unified-inbox) und [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer. Routine-Läufe verbrauchen die monatlichen gehosteten KI-Credits pro aktivem Nutzer; Details unter [Preise](/pricing).
 
-## Calendly-Features, die die CRM-Integration beeinflussen
+<AcquisitionCallout title="Wo Customermates nicht passt" variant="boundary">
+Einen Calendly-Konnektor gibt es nicht. Jeder Weg braucht entweder einen Workflow, den Sie selbst betreiben, oder den Kalender plus eine Routine. In Pro ist das Gmail- oder Outlook-Postfach das [[commercial.entitlement.pro.includedAccountsPerUser]] enthaltene verbundene Konto pro Nutzer; Business enthält [[commercial.entitlement.business.includedAccountsPerUser]]. Aufgaben haben keine Fälligkeitsdaten, legen Sie das Folgedatum deshalb in eine Datumsspalte am Deal. Customermates bewertet Leads nicht automatisch; speichern Sie Antworten aus Routing-Formularen in Einzelauswahl-Spalten und filtern Sie danach. Eine selbst gehostete Installation hat REST, Webhooks und MCP, aber weder Kalender noch Inbox, Mate oder Routinen. Soll Calendly den Gastgeber schon bei der Buchung nach der Zuständigkeit im CRM wählen, ist das eine Calendly-Funktion für HubSpot und Salesforce.
+</AcquisitionCallout>
 
-### Routing-Formulare
+## Testen, bevor Sie sich darauf verlassen
 
-Calendly's Routing-Formulare ermöglichen qualifizierende Fragen, bevor ein Interessent überhaupt verfügbare Zeitslots sieht. Basierend auf den Antworten werden Interessenten zu verschiedenen Eventtypen, Teammitgliedern oder sogar externen URLs weitergeleitet.
+Spielen Sie diese sechs Buchungen mit einem Test-Ereignistyp durch, bevor Sie die Integration produktiv nutzen:
 
-**Auswirkung auf CRM-Integration:** Routing-Formular-Antworten fließen in das Webhook-Payload, sodass Ihr n8n-Workflow sie nutzen kann, um:
+1. Ein neuer Gast. Kontakt, Deal und alle zugeordneten Felder kommen an.
+2. Derselbe Gast noch einmal, die E-Mail in Großbuchstaben. Es entsteht kein zweiter Kontakt.
+3. Eine Umbuchung. Der Termin am Deal verschiebt sich, die Phase wechselt nicht auf storniert.
+4. Eine echte Stornierung. Die Phase wechselt, sonst entsteht nichts.
+5. Eine Buchung mit leer gelassener optionaler Frage. Der Workflow läuft trotzdem durch.
+6. Ein No-Show, falls Sie No-Shows über Zapier erfassen.
 
-- Verschiedene Lead-Scores im CRM zu setzen
-- Deals basierend auf Qualifizierung verschiedenen Pipelines zuzuordnen
-- Hochwertige Interessenten automatisch an erfahrene Vertriebler weiterzuleiten und geringwertige an SDRs
-
-### Round-Robin-Zuweisung
-
-Calendly verteilt Buchungen gleichmäßig auf Teammitglieder. Wenn ein Interessent bucht, geht das Meeting an den nächsten verfügbaren Vertriebler in der Rotation.
-
-**Auswirkung auf CRM-Integration:** Name und E-Mail des zugewiesenen Teammitglieds sind im Webhook-Payload enthalten. Ihre Integration sollte dies nutzen, um den korrekten Deal-Owner im CRM zu setzen, damit der richtige Vertriebler den Deal in seiner Pipeline sieht.
-
-### Gruppen-Events und Webinare
-
-Calendly unterstützt Gruppenbuchungen, bei denen mehrere Personen denselben Zeitslot buchen. Das ist nützlich für Webinare, Schulungen und Gruppendemos.
-
-**Auswirkung auf CRM-Integration:** Jeder Teilnehmer löst ein separates Webhook-Event aus, sodass Ihre Automatisierung individuelle Kontaktdatensätze und Deals für jeden Teilnehmer erstellt. Taggen Sie sie mit dem Eventnamen für einfaches Filtern.
-
-### Stornierung und Umbuchung
-
-Wenn eine Buchung storniert oder verschoben wird, sendet Calendly separate Webhook-Events (`invitee.canceled`). Ihre CRM-Integration sollte diese behandeln, nicht nur neue Buchungen.
-
-## Drei Wege zur Calendly CRM Integration
-
-### Option 1: Native Integration (falls verfügbar)
-
-Ideal für: Teams, die HubSpot oder Salesforce nutzen und grundlegendes Kontakt-Syncing und Aktivitäts-Logging benötigen.
-
-**Vorteile:** Schnelles Setup (unter 10 Minuten), kein zusätzliches Tool zu pflegen, eingebaute Feld-Mapping-Oberfläche.
-
-**Nachteile:** Beschränkt auf das, was Calendly bereitstellt. Keine bedingte Logik, keine mehrstufigen Workflows, keine Tool-übergreifende Orchestrierung. Kann weder Stornierungs-Workflows, Post-Meeting-Follow-ups noch Lead-Scoring basierend auf Buchungsdaten verarbeiten.
-
-**Einrichtungszeit:** 5-10 Minuten.
-**Monatliche Kosten:** Im Calendly Professional ($16/Benutzer/Monat) enthalten + CRM-Abonnement.
-
-### Option 2: Zapier
-
-Ideal für: Nicht-technische Teams, die einen visuellen Builder und fertige Vorlagen wünschen.
-
-Zapier verbindet Calendly mit über 7.000 Apps. Der Trigger "Invitee Created" feuert bei jeder Buchung, und Sie können Aktionen wie "Kontakt erstellen", "Deal erstellen", "Slack-Nachricht senden" und "Zeile zu Google Sheet hinzufügen" verketten.
-
-**Vorteile:** No-Code, schnelles Setup, große Vorlagenbibliothek, mehrstufige Workflows.
-
-**Nachteile:** Laufende monatliche Kosten (ab 20 EUR/Monat für mehrstufige Zaps, Kosten steigen mit Volumen), Daten laufen über Zapiers US-Server (DSGVO-Bedenken für EU-Teams), begrenztes Error-Handling, Pro-Aufgaben-Preise können bei Skalierung teuer werden.
-
-**Einrichtungszeit:** 15-30 Minuten.
-**Monatliche Kosten:** 20-70 EUR/Monat (abhängig vom Aufgabenvolumen) + CRM-Abonnement.
-
-### Option 3: n8n (selbst gehostete Automatisierung)
-
-Ideal für: Teams, die volle Kontrolle, DSGVO-Konformität und keine Pro-Ausführungs-Gebühren wünschen.
-
-n8n ist eine Open-Source-Workflow-Automatisierungsplattform, die Sie auf Ihrer eigenen Infrastruktur selbst hosten können. Daten verlassen nie Ihre Server. Sie zahlen nichts pro Ausführung, egal wie viele Calendly-Buchungen Sie verarbeiten.
-
-**Vorteile:** DSGVO-konform by Design (selbst gehostet), unbegrenzte Ausführungen, volle JavaScript/Python-Unterstützung für individuelle Logik, visueller Workflow-Builder, 400+ Integrationen, kostenlos bei Self-Hosting.
-
-**Nachteile:** Erfordert initiales Setup auf einem Server (Docker oder npm). Etwas steilere Lernkurve als Zapier für nicht-technische Nutzer.
-
-**Einrichtungszeit:** 30-60 Minuten (inklusive Server-Setup).
-**Monatliche Kosten:** 0 EUR (selbst gehostet) oder 20-50 EUR/Monat (n8n Cloud) + CRM-Abonnement.
-
-Auch für Teams, die Customermates nutzen, ist n8n ein eigener Dienst: Sie betreiben es selbst oder abonnieren n8n Cloud und verbinden es über den Community-Node oder die REST-API.
-
-### Vergleich: Nativ vs. Zapier vs. n8n
-
-| Funktion                            | Nativ (HubSpot/SF) | Zapier                | n8n                                  |
-| ----------------------------------- | ------------------ | --------------------- | ------------------------------------ |
-| Einrichtungszeit                    | 5-10 Min.          | 15-30 Min.            | 30-60 Min.                           |
-| Kontakterstellung                   | Ja                 | Ja                    | Ja                                   |
-| Deal-Erstellung                     | Einfach            | Ja                    | Ja                                   |
-| Bedingte Logik                      | Nein               | Eingeschränkt         | Voll (JavaScript)                    |
-| Stornierungsbehandlung              | Nein               | Ja                    | Ja                                   |
-| Post-Meeting-Automatisierung        | Nein               | Ja                    | Ja                                   |
-| Lead-Scoring                        | Nein               | Einfach               | Voll                                 |
-| DSGVO-Self-Hosting                  | Nein               | Nein                  | Ja                                   |
-| Pro-Aufgaben-Kosten                 | Keine              | 0,01-0,05 EUR/Aufgabe | Keine                                |
-| Monatliche Kosten (Automatisierung) | 0 EUR              | 20-70+ EUR            | 0 EUR (selbst gehostet)              |
-| Error-Handling                      | Einfach            | Einfach               | Fortgeschritten (Retry, Dead Letter) |
-
-## Schritt-für-Schritt: Calendly mit Customermates via n8n verbinden
-
-Hier ist eine konkrete Anleitung für die Verbindung von Calendly mit Customermates CRM (ab [[commercial.price.starter.monthly]] pro Nutzer/Monat, Starter-Stufe, mit voller REST-API inklusive). Dieses Muster funktioniert für jedes CRM mit einer API.
-
-### Voraussetzungen
-
-- Ein Calendly-Account (kostenlos oder bezahlt; Webhooks erfordern mindestens den Standard-Plan)
-- Ein Customermates-Account
-- Eine separat betriebene n8n-Instanz, entweder selbst gehostet oder als n8n Cloud; n8n ist nicht in Customermates eingebaut
-- Ein Customermates-API-Key (erstellen unter Profil > API Keys)
-
-### Schritt 1: Calendly-Webhook-Trigger in n8n erstellen
-
-1. Öffnen Sie n8n und erstellen Sie einen neuen Workflow
-2. Fügen Sie einen **Webhook**-Knoten als Trigger hinzu
-3. Setzen Sie die HTTP-Methode auf `POST`
-4. Kopieren Sie die Webhook-URL, die n8n generiert
-5. Gehen Sie in Calendly zu **Integrations > Webhooks** (oder nutzen Sie die Calendly API zum Abonnieren)
-6. Fügen Sie die n8n-Webhook-URL ein und abonnieren Sie diese Events:
-   - `invitee.created` (neue Buchung)
-   - `invitee.canceled` (Stornierung)
-7. Speichern und aktivieren
-
-Jede neue Calendly-Buchung sendet nun ein JSON-Payload an n8n mit dem Namen des Teilnehmers, E-Mail, Antworten auf individuelle Fragen, Eventtyp, zugewiesenem Teammitglied und geplanter Zeit.
-
-### Schritt 2: Daten extrahieren und transformieren
-
-Fügen Sie nach dem Webhook einen **Set**-Knoten (oder **Code**-Knoten) hinzu, um die Calendly-Felder zu mappen:
-
-```
-Kontaktname     -> payload.invitee.name
-Kontakt-E-Mail  -> payload.invitee.email
-Telefon         -> payload.questions_and_answers[0].answer  (falls erhoben)
-Unternehmen     -> payload.questions_and_answers[1].answer  (falls erhoben)
-Eventtyp        -> payload.event_type.name
-Geplante Zeit   -> payload.event.start_time
-Zugewiesener    -> payload.event_membership.user_email
-```
-
-Fügen Sie hier jede Transformationslogik hinzu: "Max Mustermann" in Vor- und Nachname aufteilen, Telefonnummernformat normalisieren, Lead-Quelle aus dem Eventtyp-Namen ableiten.
-
-### Schritt 3: Kontakt in Customermates erstellen oder aktualisieren
-
-Fügen Sie einen **HTTP Request**-Knoten hinzu:
-
-- **Methode:** POST
-- **URL:** `<BASE_URL>/api/v1/contacts` (die Adresse, unter der Sie Customermates öffnen)
-- **Headers:** `x-api-key: IHR_API_KEY`
-- **Body (JSON):**
-
-```json
-{
-  "firstName": "{{firstName}}",
-  "lastName": "{{lastName}}",
-  "identifiers": [{ "provider": "mail", "value": "{{email}}" }],
-  "customFieldValues": [
-    { "columnId": "{{spalteLeadQuelle}}", "value": "Calendly - {{eventType}}" }
-  ]
-}
-```
-
-Firma, Telefon oder Lead-Quelle legen Sie als eigene Spalten an oder verknüpfen eine Organisation; welche Spalten Ihr Workspace hat, zeigt `GET /api/v1/contacts/configuration`, das Schema steht in der [OpenAPI-Spec](/docs/openapi).
-
-Um Duplikate zu vermeiden, fügen Sie einen vorgelagerten HTTP-Request-Knoten hinzu, der den Kontakt per E-Mail sucht. Falls gefunden, aktualisieren statt neu erstellen. Nutzen Sie einen **IF**-Knoten, um zwischen beiden Pfaden zu verzweigen.
-
-### Schritt 4: Deal automatisch erstellen
-
-Fügen Sie einen weiteren **HTTP Request**-Knoten hinzu:
-
-- **Methode:** POST
-- **URL:** `<BASE_URL>/api/v1/deals`
-- **Body (JSON):**
-
-```json
-{
-  "name": "{{kontaktName}} - {{eventType}}",
-  "contactIds": ["{{contactId}}"],
-  "userIds": ["{{zustaendigerUserId}}"],
-  "customFieldValues": [
-    { "columnId": "{{spalteStufe}}", "value": "{{optionMeetingGebucht}}" },
-    { "columnId": "{{spalteAbschlussdatum}}", "value": "{{in30Tagen}}" }
-  ],
-  "notes": "Gebucht via Calendly am {{scheduledTime}}. Event: {{eventType}}."
-}
-```
-
-Die Deal-Stufe ist eine konfigurierbare Auswahlspalte; ihre Spalten- und Options-IDs liefert `GET /api/v1/deals/configuration`. Den zuständigen Vertriebler ordnen Sie über `userIds` zu, nachdem Sie die Calendly-Host-E-Mail einem Customermates-Nutzer zugeordnet haben.
-
-### Schritt 5: Follow-up-Aktionen hinzufügen
-
-Erweitern Sie den Workflow mit zusätzlichen Knoten:
-
-- **Slack-Benachrichtigung:** Informieren Sie den Vertriebskanal, dass ein neues Meeting gebucht wurde, inklusive Name des Interessenten, Unternehmen und geplanter Zeit
-- **E-Mail-Bestätigung:** Senden Sie dem Interessenten eine personalisierte Vorbereitungs-E-Mail via Gmail API mit Unterlagen
-- **Aufgabe erstellen:** Erstellen Sie eine Follow-up-Aufgabe in Customermates und schreiben Sie das Zieldatum in den Titel oder eine eigene Datumsspalte; ein natives Fälligkeitsdatum oder Erinnerungen haben Aufgaben dort nicht
-- **Google-Sheet-Protokoll:** Hängen Sie jede Buchung an eine gemeinsame Tabelle für Reporting und Attributionsanalyse an
-- **Lead-Scoring:** Basierend auf den Antworten auf individuelle Fragen einen Score vergeben und hochwertige Leads an erfahrene Vertriebler weiterleiten
-
-### Schritt 6: Stornierungen behandeln
-
-Fügen Sie einen separaten Zweig für `invitee.canceled` hinzu:
-
-1. Kontakt in Customermates per E-Mail suchen
-2. Deal-Stufe auf "Meeting storniert" aktualisieren
-3. Re-Engagement-Aufgabe für den zuständigen Vertriebler erstellen
-4. Optional eine "Schade, dass es nicht geklappt hat"-E-Mail-Sequenz auslösen
-5. Stornierung im Google Sheet protokollieren
-
-### Schritt 7: Aktivieren und testen
-
-1. Aktivieren Sie den Workflow in n8n
-2. Buchen Sie einen Testtermin über Ihren eigenen Calendly-Link
-3. Prüfen Sie in Customermates, ob Kontakt und Deal korrekt erstellt wurden
-4. Kontrollieren Sie, ob alle Felder korrekt gemappt sind (Name, E-Mail, Telefon, Unternehmen, Quelle)
-5. Testen Sie Grenzfälle: doppelte Buchung (gleiche E-Mail), storniertes Meeting, verschobenes Meeting, Buchung mit fehlenden Antworten auf individuelle Fragen
-6. Stornieren Sie eine Testbuchung und prüfen Sie, ob der Stornierungs-Workflow auslöst
-
-## Fortgeschrittene Calendly-CRM-Workflows
-
-Über die grundlegende Deal-Erstellung hinaus automatisieren leistungsstarke Vertriebsteams folgende Workflows:
-
-### Leads automatisch über Routing-Formulare qualifizieren
-
-Calendly's Routing-Formulare stellen qualifizierende Fragen, bevor Zeitslots angezeigt werden ("Wie groß ist Ihr Team?", "Wie hoch ist Ihr Jahresbudget?", "Was ist Ihre größte Herausforderung?"). Leiten Sie die Antworten über n8n weiter, um:
-
-- Einen Lead-Score im CRM basierend auf Antworten zu vergeben (Teamgröße > 50 = hohe Priorität)
-- Hochwertige Leads automatisch an erfahrene Vertriebler weiterzuleiten
-- Leads mit geringer Passung für Nurture-Sequenzen statt Sales-Calls zu markieren
-- Den Anruf ganz zu überspringen und auf eine Self-Serve-Onboarding-Seite umzuleiten, wenn der Lead zu klein ist
-
-### Deal-Fortschritt nach dem Meeting
-
-Nach Abschluss eines Meetings automatisch:
-
-1. Den Deal in die Stufe "Meeting abgeschlossen" verschieben
-2. Eine Follow-up-Aufgabe für den Vertriebler erstellen (fällig am nächsten Arbeitstag)
-3. Eine Meeting-Zusammenfassung per E-Mail an den Interessenten senden (mit Notizen-Vorlage)
-4. Einen Check-in für 3 Tage später planen
-5. Falls kein Deal-Fortschritt nach 7 Tagen, dem Vertriebler eine Erinnerung senden
-
-**Umsetzung:** Nutzen Sie einen verzögerten Trigger in n8n. Wenn der Deal bei "Meeting gebucht" erstellt wird, setzen Sie einen Wait-Knoten für die Meeting-Endzeit + 30 Minuten, dann führen Sie die Post-Meeting-Aktionen aus.
-
-### Multi-Kalender-Routing
-
-Wenn verschiedene Teammitglieder unterschiedliche Calendly-Eventtypen haben (z. B. "Sales Call mit Anna", "Demo mit Thomas", "Onboarding mit Sandra"), nutzen Sie n8n-Bedingungen, um jede Buchung dem richtigen zuzuordnen:
-
-- Pipeline (Vertriebspipeline vs. Onboarding-Pipeline)
-- Deal-Owner (abgeglichen mit dem Calendly-Host)
-- Slack-Kanal (#vertrieb vs. #onboarding)
-- E-Mail-Vorlage (Discovery-Vorbereitung vs. Demo-Vorbereitung vs. Onboarding-Willkommen)
-
-### Webinar- und Gruppen-Event-Follow-up
-
-Für Calendly-Gruppen-Events (Webinare, Workshops):
-
-1. Jeder Teilnehmer erstellt einen Kontakt im CRM, getaggt mit dem Eventnamen
-2. Nach dem Event eine Follow-up-Sequenz für alle Teilnehmer auslösen
-3. Teilnahme tracken (wer tatsächlich teilgenommen hat vs. wer sich registriert aber nicht erschienen ist)
-4. Leads basierend auf Engagement bewerten (Teilnehmer bekommen +10 Punkte, No-Shows bekommen +2)
-5. Heiße Leads an Vertriebler weiterleiten, kalte Leads mit Content nurturen
-
-### Re-Engagement für No-Shows
-
-Wenn ein Interessent bucht, aber nicht erscheint:
-
-1. 15 Minuten nach der geplanten Startzeit warten
-2. Prüfen, ob das Meeting stattgefunden hat (über Google Calendar oder manuelles CRM-Update)
-3. Falls No-Show, eine freundliche "Wir haben Sie vermisst"-E-Mail mit Umbuchungslink senden
-4. Eine Aufgabe für den Vertriebler erstellen, telefonisch nachzufassen
-5. Nach 3 Tagen ohne Antwort in eine Langzeit-Nurture-Sequenz aufnehmen
-
-## Best Practices für die Calendly CRM Integration
-
-### Calendly Custom Questions strategisch nutzen
-
-Jede Antwort auf eine individuelle Frage ist im Webhook-Payload verfügbar. Stellen Sie Fragen, die direkt auf CRM-Felder abbilden:
-
-- "Wie heißt Ihr Unternehmen?" wird zur Organisation im CRM
-- "Wie viele Mitarbeiter?" wird zur Unternehmensgröße
-- "Was ist Ihre größte Herausforderung?" wird zu den Deal-Notizen
-- "Wie sind Sie auf uns aufmerksam geworden?" wird zur Lead-Quelle
-- "In welchem Budgetrahmen bewegen Sie sich?" wird zum geschätzten Deal-Wert
-
-So wird Calendly zu einem leichtgewichtigen Lead-Qualifizierungsformular. Beschränken Sie sich auf maximal 3-4 Fragen, mehr reduziert die Buchungsabschlussrate.
-
-### Kontakte vor der Erstellung deduplizieren
-
-Suchen Sie immer nach bestehenden Kontakten per E-Mail, bevor Sie neue anlegen. Andernfalls erzeugen Wiederholungsbuchende doppelte CRM-Einträge. Nutzen Sie in n8n einen IF-Knoten nach dem E-Mail-Suchschritt, um zwischen "Erstellen" und "Aktualisieren" zu verzweigen.
-
-### Sinnvolle Standardwerte setzen
-
-Nicht jeder Datenpunkt kommt aus Calendly. Konfigurieren Sie sinnvolle Standardwerte in Ihrer Automatisierung:
-
-- **Lead Source:** "Calendly - Website" oder "Calendly - E-Mail-Signatur" (nach Eventtyp unterscheiden)
-- **Deal Owner:** Das Teammitglied, dessen Calendly-Link genutzt wurde
-- **Voraussichtliches Abschlussdatum:** 30 Tage nach dem gebuchten Meeting (an Ihren Verkaufszyklus anpassen)
-- **Pipeline-Stufe:** "Meeting gebucht"
-- **Deal-Wert:** Antwort auf individuelle Frage nutzen oder Standard basierend auf Eventtyp setzen
-
-### Zeitzonen explizit behandeln
-
-Calendly sendet Zeitstempel in UTC. Ihr CRM zeigt möglicherweise die lokale Zeit an. Stellen Sie sicher, dass Ihr n8n-Workflow Zeitzonen konvertiert, bevor Termindaten geschrieben werden, sonst sehen Ihre Vertriebler falsche Meeting-Zeiten. Nutzen Sie die `luxon`-Bibliothek im Code-Knoten von n8n für zuverlässige Zeitzonen-Konvertierung.
-
-### Fehler überwachen und alarmieren
-
-Fügen Sie in n8n einen Error-Handling-Zweig hinzu, der eine Slack-Nachricht oder E-Mail sendet, wenn ein Knoten fehlschlägt. Eine kaputte Integration, die stillschweigend Leads verliert, ist schlimmer als gar keine Integration. Richten Sie einen wöchentlichen Check ein, um zu verifizieren, dass der Webhook noch aktiv ist und Buchungen durchfließen.
-
-## CRM-Vergleich für die Calendly Integration
-
-| CRM           | Native Calendly Integration | Automatisierungskosten   | CRM-Preis                                            | Ideal für                                             |
-| ------------- | --------------------------- | ------------------------ | ---------------------------------------------------- | ----------------------------------------------------- |
-| HubSpot       | Ja (ab Professional)        | Inklusive                | Kostenlos bis $150+/Benutzer/Monat                   | Marketing-lastige Teams mit Budget                    |
-| Salesforce    | Ja (ab Enterprise)          | Inklusive                | $25-550/Benutzer/Monat                               | Großunternehmen                                       |
-| Pipedrive     | Via Marketplace/Zapier      | 20-70 EUR/Monat (Zapier) | $14-99/Benutzer/Monat                                | Pipeline-fokussierter Vertrieb                        |
-| Zoho CRM      | Via Zapier/n8n              | 0-70 EUR/Monat           | Kostenlos (bis 3 Nutzer); bezahlte Tarife laut Zoho-Preisseite | All-in-One-Suiten-Sucher                              |
-| Freshsales    | Via Zapier/n8n              | 0-70 EUR/Monat           | Kostenlos bis $69/Benutzer/Monat                     | Teams mit integriertem Telefon                        |
-| Customermates | Via n8n (separat betrieben) | 0 EUR (n8n selbst gehostet) | Ab [[commercial.price.starter.monthly]]/Nutzer/Monat | KMUs mit Fokus auf offene API und faire Preise        |
-
-Für kleine und mittelständische Teams liefert Customermates ab [[commercial.price.starter.monthly]] pro Nutzer/Monat in Kombination mit Ihrem eigenen, selbst gehosteten n8n (ohne Lizenzkosten, keine Pro-Aufgaben-Gebühren) eine Calendly CRM Integration zu einem Bruchteil dessen, was HubSpot oder Salesforce verlangen. Sie erhalten vollen API-Zugang, einen AVV, offengelegte Unterauftragsverarbeiter und keine Pro-Automatisierungs-Gebühren.
-
-## ROI der Calendly-CRM-Automatisierung
-
-Eine Beispielrechnung mit geschätzten Annahmen (keine Messwerte) für ein Team von 5 Vertrieblern mit 20 Terminen pro Woche:
-
-| Kennzahl                                 | Manuell       | Automatisiert   |
-| ---------------------------------------- | ------------- | --------------- |
-| Zeit pro Buchung (Dateneingabe)          | 3-5 Minuten   | 0 Minuten       |
-| Monatlicher Zeitaufwand für Dateneingabe | 4-7 Stunden   | 0 Stunden       |
-| Verpasste Follow-ups pro Monat           | 3-5           | 0               |
-| Doppelte Kontakte pro Monat              | 5-10          | 0               |
-| Lead-Reaktionszeit                       | 30-60 Minuten | Unter 5 Minuten |
-
-**Finanzielle Auswirkung:**
-
-Bei einem internen Stundensatz von 50 EUR entspricht eine Einsparung von 5 Stunden/Monat 250 EUR/Monat oder 3.000 EUR/Jahr an direkter Zeitersparnis.
-
-Rechnen Sie 2-3 zusätzlich gewonnene Deals pro Jahr durch besseres Follow-up hinzu (bei 1.000 EUR durchschnittlichem Deal-Wert): 2.000-3.000 EUR zusätzlicher Umsatz.
-
-Dazu kommt ein möglicher, schwer bezifferbarer Effekt durch schnellere Lead-Reaktion.
-
-**Jährlicher Gesamt-ROI in diesem Beispiel: rund 5.000-6.000 EUR.**
-
-Die Investition: Customermates Starter zu [[commercial.price.starter.monthly]]/Nutzer/Monat ([[commercial.price.starter.monthly.seats.5.months.12]]/Jahr für 5 Nutzer) plus eine selbst gehostete n8n-Instanz (ohne Lizenzkosten, nur Serverkosten). In diesem Beispiel amortisiert sich das schnell.
-
-## Fehlerbehebung häufiger Probleme
-
-**Webhook feuert nicht:** Prüfen Sie das Abonnement im Calendly-Entwicklerportal. Stellen Sie sicher, dass die n8n-Webhook-URL öffentlich erreichbar ist (nicht localhost). Nutzen Sie n8n's "Listen for Test Event"-Modus zur Bestätigung. Calendly erfordert HTTPS-URLs für Webhooks.
-
-**Doppelte Kontakte:** Fügen Sie einen E-Mail-Suchschritt vor der Kontakterstellung hinzu. Nutzen Sie einen IF-Knoten in n8n, um zwischen Erstellen und Aktualisieren zu verzweigen. Achten Sie auf Groß-/Kleinschreibung (john@example.com vs. John@example.com).
-
-**Feld-Mapping-Fehler:** Calendly's JSON-Payload verschachtelt Daten tief. Nutzen Sie n8n's Expression-Editor, um auf `$json.payload.invitee.name` zuzugreifen statt auf `$json.name`. Testen Sie mit einer echten Buchung und inspizieren Sie das vollständige Payload in n8n's Ausführungslog.
-
-**Zeitzonen-Abweichungen:** Konvertieren Sie UTC-Zeitstempel in Ihre lokale Zeitzone im Set-Knoten, bevor Sie ins CRM schreiben. Nutzen Sie `DateTime.fromISO(utcTime).setZone('Europe/Berlin').toISO()` im Code-Knoten von n8n.
-
-**API-Rate-Limits:** Wenn Sie viele Buchungen gleichzeitig verarbeiten (z. B. nach einem Webinar mit 100 Anmeldungen), fügen Sie eine kleine Verzögerung zwischen den API-Aufrufen in n8n mit dem Wait-Knoten hinzu. Die meisten CRM-APIs erlauben 100-200 Anfragen pro Minute.
-
-**Webhook läuft ab:** Calendly-Webhooks können ablaufen oder inaktiv werden. Richten Sie einen monatlichen Check ein (n8n Cron-Trigger), der über die Calendly API prüft, ob das Webhook-Abonnement noch aktiv ist.
-
-**Antworten auf individuelle Fragen fehlen:** Nicht alle individuellen Fragen sind Pflichtfelder. Fügen Sie Null-Checks in Ihrem n8n-Workflow hinzu, damit fehlende Antworten nicht den gesamten Flow unterbrechen. Nutzen Sie Standardwerte für optionale Felder.
-
-## Calendly-Alternativen und deren CRM-Integration
-
-Falls Calendly nicht Ihren Anforderungen entspricht, hier ein Vergleich der Alternativen bezüglich CRM-Integration:
-
-| Tool                 | CRM-Integrationsoptionen                   | Besonderes Feature                        |
-| -------------------- | ------------------------------------------ | ----------------------------------------- |
-| Calendly             | Nativ (HubSpot, Salesforce) + Zapier + n8n | Routing-Formulare, Round-Robin            |
-| Cal.com              | API + n8n (Open Source)                    | Selbst-hostbar, Open Source               |
-| SavvyCal             | Zapier + API                               | Kalender-Overlay, empfängerfreundliche UX |
-| Acuity (Squarespace) | Zapier + API                               | Stark für Dienstleistungsunternehmen      |
-| Microsoft Bookings   | Power Automate + API                       | Nativ für Microsoft 365-Teams             |
-
-Für Teams, die Open Source und Self-Hosting schätzen, ist Cal.com + Customermates + n8n ein vollständig selbst gehosteter Stack ohne Anbieterabhängigkeit.
-
-## FAQ
+## Häufige Fragen
 
 <Faq>
-<FaqItem question="Integriert sich Calendly mit CRM-Systemen?">
-Ja. Calendly integriert nativ mit HubSpot und Salesforce. Für andere CRMs wie Pipedrive, Zoho, Freshsales oder Customermates können Sie über Zapier, Make oder n8n eine Verbindung herstellen, indem Sie Calendly's Webhook- und API-System nutzen. Der Webhook-Ansatz ist tatsächlich flexibler als native Integrationen, weil Sie die Logik vollständig kontrollieren.
+<FaqItem question="Hat Calendly ein eigenes CRM?">
+Nein. Calendly ist eine Plattform für Terminbuchung. Es speichert Kontakte zu den Menschen, mit denen Sie Termine haben (Zapier führt dafür Kontakt-Trigger, die einen kostenpflichtigen Calendly-Tarif voraussetzen), aber keine Pipeline. Seine CRM-Integrationen übertragen Buchungen nach HubSpot, Salesforce und Dynamics 365, wo Phasen und Deal-Auswertungen liegen.
 </FaqItem>
 
-<FaqItem question="Was ist der beste Weg, Calendly mit einem CRM zu verbinden?">
-Für HubSpot und Salesforce starten Sie mit der nativen Integration für grundlegende Anforderungen. Für jedes andere CRM oder für fortgeschrittene Workflows (bedingte Deal-Erstellung, Lead-Scoring, Stornierungsbehandlung) bietet n8n die größte Flexibilität ohne Pro-Aufgaben-Kosten und volle DSGVO-Konformität. Zapier ist eine gute Alternative, wenn Sie einen visuellen No-Code-Builder bevorzugen und kein Self-Hosting benötigen.
+<FaqItem question="Welche Terminbuchungstools lassen sich mit CRM-Systemen verbinden?">
+Für Calendly gilt: nativ mit HubSpot, Salesforce und Microsoft Dynamics 365, jedes andere CRM über eine Marktplatz-App, Zapier, Zoho Flow, n8n oder die Calendly-Webhooks. Prüfen Sie bei jedem anderen Buchungstool dieselben drei Punkte: ob es Webhooks oder eine API hat, wie es Umbuchungen meldet und welcher Tarif dafür nötig ist.
 </FaqItem>
 
-<FaqItem question="Kann Calendly automatisch Deals in meinem CRM erstellen?">
-Ja. Ob über eine native Integration (HubSpot, Salesforce) oder ein Automatisierungstool (n8n, Zapier), jede Calendly-Buchung kann automatische Deal-Erstellung, Kontakterstellung, Aufgabenzuweisung, Benachrichtigungen und Follow-up-Sequenzen auslösen.
+<FaqItem question="Welchen Calendly-Tarif brauche ich für eine CRM-Integration?">
+Nicht Free. HubSpot und Webhooks gibt es ab Standard, Salesforce ab Teams, und Microsoft Dynamics 365 ist für Enterprise aufgeführt. Die Ausnahme ist der MCP-Server von Calendly für KI-Clients: Laut Calendly ist dafür kein kostenpflichtiger Tarif nötig, einzelne Aktionen hängen aber vom Tarif ab.
 </FaqItem>
 
-<FaqItem question="Ist die Calendly API kostenlos nutzbar?">
-Calendly's API und Webhook-System sind bei allen bezahlten Plänen (Standard ab $10/Benutzer/Monat und höher) verfügbar. Sie können Events wie `invitee.created` und `invitee.canceled` ohne zusätzliche Kosten abonnieren. Der kostenlose Calendly-Plan unterstützt weder Webhooks noch API-Zugang.
+<FaqItem question="Wie verbinde ich Calendly mit Pipedrive, Zoho CRM oder einem anderen CRM?">
+Suchen Sie zuerst im Marktplatz des CRM-Anbieters. Pipedrive listet Calendly Sync von Outfunnel. Für Zoho CRM bietet Zoho Flow Calendly-Trigger wie „Event scheduled by invitee“ und die Aktion „Create or update contact“. Passt nichts, verwenden Sie Zapier oder leiten Sie die Calendly-Webhooks an n8n oder eigenen Code weiter und rufen dort die API des CRM auf.
 </FaqItem>
 
-<FaqItem question="Wie vermeide ich doppelte Kontakte beim Sync von Calendly mit meinem CRM?">
-Fügen Sie in Ihrem Automatisierungs-Workflow einen Suchschritt hinzu, der bestehende Kontakte per E-Mail-Adresse sucht, bevor ein neuer erstellt wird. Falls eine Übereinstimmung gefunden wird, aktualisieren Sie den bestehenden Datensatz, anstatt ein Duplikat zu erstellen. Behandeln Sie Groß-/Kleinschreibung (E-Mails auf Kleinbuchstaben normalisieren) und prüfen Sie auf existierende Deals, um doppelte Deals für dasselbe Meeting zu vermeiden.
+<FaqItem question="Wie sollte eine Umbuchung in Calendly das CRM aktualisieren?">
+Calendly sendet eine Stornierung für die alte Zeit und eine neue Buchung für die neue. Die Stornierung trägt rescheduled mit dem Wert true. In diesem Fall aktualisieren Sie nur die Terminzeit am bestehenden Deal und ändern die Phase erst, wenn der Wert false ist.
 </FaqItem>
 
-<FaqItem question="Welches ist das günstigste CRM für eine Calendly Integration?">
-Customermates ab [[commercial.price.starter.monthly]] pro Nutzer/Monat ist eines der erschwinglichsten CRMs mit einer vollen REST-API für die Calendly Integration. In Kombination mit Ihrem eigenen, selbst gehosteten n8n (keine Pro-Aufgaben-Gebühren) kommen zu [[commercial.price.starter.monthly]]/Nutzer/Monat nur die Serverkosten für n8n hinzu. Vergleichen Sie dies mit HubSpot Professional ($100+/Benutzer/Monat für native Calendly-Integration) oder Salesforce Pro Suite ($100/Benutzer/Monat, Stand September 2026).
-</FaqItem>
-
-<FaqItem question="Kann ich Calendly-Stornierungen automatisch in meinem CRM verarbeiten?">
-Ja. Abonnieren Sie das Webhook-Event `invitee.canceled` in Ihrem Automatisierungstool (n8n oder Zapier). Bei einer Stornierung aktualisieren Sie die Deal-Stufe in Ihrem CRM, erstellen eine Re-Engagement-Aufgabe für den zuständigen Vertriebler und lösen optional eine Umbuchungs-E-Mail-Sequenz aus.
-</FaqItem>
-
-<FaqItem question="Funktioniert Calendly mit selbst gehosteten CRMs?">
-Ja. Calendly's Webhook-System sendet Daten an jede öffentlich erreichbare URL. Wenn Ihr CRM selbst gehostet ist (etwa Customermates mit eigenem n8n), müssen Sie nur den Webhook-Endpunkt von n8n freigeben. Nutzen Sie einen Reverse Proxy mit HTTPS für die Sicherheit.
+<FaqItem question="Lässt sich Customermates mit Calendly verbinden?">
+Nicht über einen nativen Konnektor. Buchungen erreichen Customermates über Calendly-Webhooks und die REST-API in jedem Tarif, über den verbundenen Google- oder Outlook-Kalender des Gastgebers ab Pro in Customermates Cloud oder über einen KI-Client, der die MCP-Konnektoren von Calendly und Customermates nutzt. Customermates bucht keine Termine und schreibt keine Kalendereinträge.
 </FaqItem>
 </Faq>
 
-## Fazit
-
-Eine Calendly CRM Integration ist kein Luxus. Sie ist grundlegende Vertriebsinfrastruktur. Jede Buchung, die nicht automatisch in Ihrem CRM landet, ist ein potenziell verpasstes Follow-up, ein vergessener Deal, ein Umsatzverlust.
-
-Für Teams, die HubSpot oder Salesforce nutzen, bringen native Integrationen Sie in Minuten ans Ziel. Für alle anderen, und für Teams, die fortgeschrittene Workflows wie Lead-Scoring, Stornierungsbehandlung und Post-Meeting-Automatisierung wollen, bietet n8n plus die API Ihres CRMs unbegrenzte Möglichkeiten ohne laufende Kosten.
-
-Wenn Sie ein CRM suchen, das gut mit Calendly und n8n zusammenarbeitet, liefert Customermates die Kernfunktionen, die Vertriebsteams brauchen, ab [[commercial.price.starter.monthly]] pro Nutzer/Monat, mit einer sauberen API, Integration für separat betriebenes n8n sowie EU-Datenbankregion, AVV und SCCs ohne Compliance-Zertifizierung. Der API-Zugang ist in jeder Stufe enthalten.
-
-Richten Sie die Integration einmal ein. Lassen Sie sie laufen. Nutzen Sie Ihre Zeit für Gespräche, nicht für Copy-Paste.
+Angaben zu den Anbietern am 8. Oktober 2026 geprüft auf den Calendly-Seiten zu [Preisen](https://calendly.com/pricing), zur [HubSpot-Integration](https://calendly.com/integration/hubspot), zur [Salesforce-Integration](https://calendly.com/integration/salesforce), zur [Webhook-Übersicht](https://calendly.com/help/webhooks-overview), zu [Payloads bei Umbuchungen](https://developer.calendly.com/see-how-webhook-payloads-change-when-invitees-reschedule-events), zu [Webhook-Abonnements](https://developer.calendly.com/receive-data-from-scheduled-events-in-real-time-with-webhook-subscriptions), zu [Benachrichtigungen](https://calendly.com/help/calendly-scheduling-notifications), zu [KI-Tools](https://calendly.com/help/connect-calendly-to-your-ai-tools) und zu den [MCP-Tools](https://developer.calendly.com/docs/mcp/supported-tools), außerdem im [Pipedrive Marketplace](https://www.pipedrive.com/en/marketplace/app/calendly-sync/0356741bcb89ba03), bei [Freshworks](https://www.freshworks.com/apps/calendly_events_for_crm/), [Zoho Flow](https://www.zohoflow.com/apps/calendly/integrations/zoho-crm/), [Zapier](https://zapier.com/apps/calendly/integrations), im [n8n-Calendly-Trigger](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.calendlytrigger/) und unter [n8n-Hosting](https://docs.n8n.io/hosting/).

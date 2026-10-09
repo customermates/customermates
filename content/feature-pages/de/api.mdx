@@ -1,17 +1,17 @@
 ---
-title: "CRM-API: REST, Webhooks, MCP und OpenAPI"
-description: "CRM API mit dokumentierten REST-Ressourcen, [[derived.webhooks.events.total]] Webhook-Eventtypen, OpenAPI-Spec und [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients."
+title: "CRM mit API: REST-Schnittstelle, Webhooks und MCP"
+description: "Customermates bietet eine REST-API mit OpenAPI-3.1-Spezifikation, Bulk-Endpunkten, signierten Webhooks und MCP in jedem Tarif, auch beim Self-Hosting."
 featureName: CRM API
 
 relatedHrefs:
-  - /features/account-management
-  - /features/customer-service
-  - /features/email-integration
-  - /features/follow-up
+  - /docs/api-keys
+  - /docs/webhooks
+  - /features/integrations
+  - /features/workflow-automation
 
 hero:
-  title: Eine CRM API, gebaut für Entwickler, die schnell liefern
-  description: Greifen Sie über eine saubere REST API auf unterstützte CRM-Ressourcen zu. Bauen Sie Integrationen mit Webhooks, API-Keys, OpenAPI-Spec und einer separaten n8n-Instanz. Der MCP-Endpoint gibt unterstützten externen KI-Clients zulässige Lese- und Schreiboperationen; Client, Modell, Abonnement und Nutzung bleiben separat.
+  title: Ein CRM mit REST-API, Webhooks und MCP in jedem Tarif
+  description: Lesen und schreiben Sie Kontakte, Organisationen, Deals, Services und Aufgaben über eine dokumentierte REST-API, reagieren Sie per Webhook auf Änderungen und lassen Sie Ihren eigenen KI-Client über MCP im CRM arbeiten. Alle drei Schnittstellen gibt es in jedem Cloud-Tarif und in der selbst gehosteten Open-Source-Version.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bereit loszulegen?
-  description: Starten Sie heute mit Customermates und wechseln Sie zu einem agentischen Open-Source CRM für flexible Workflows.
+  action: Senden Sie heute Ihren ersten API-Aufruf
+  description: Legen Sie in der Testphase einen API-Key an, laden Sie die OpenAPI-Spezifikation und schicken Sie eine Suchanfrage an Ihren eigenen Workspace.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,88 +28,124 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Was ist eine CRM API?
+Customermates ist ein CRM mit offener REST-Schnittstelle in jedem Tarif, ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat, und in der kostenlosen selbst gehosteten Version. Sie authentifizieren sich mit einem API-Key im Header `x-api-key`, das vollständige Schema liegt als OpenAPI-3.1-Dokument unter `/api/v1/openapi`, und [[derived.webhooks.events.total]] Webhook-Events melden Ihren Systemen jede Änderung. Einen eigenen Entwicklertarif oder ein kostenpflichtiges API-Add-on gibt es nicht.
 
-Eine CRM API (Application Programming Interface) ist eine Sammlung von Endpoints, die es externer Software ermöglichen, programmatisch auf Daten in Ihrem CRM zuzugreifen, diese zu erstellen, zu aktualisieren und zu löschen. Anstatt ausschließlich über die Benutzeroberfläche mit Ihrem CRM zu interagieren, ermöglicht eine API Entwicklern, individuelle Integrationen, automatisierte Workflows und Anwendungen zu erstellen, die direkt mit CRM-Daten arbeiten.
+Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt. Die API ist für zwei Gruppen interessant: Entwickler, die das CRM mit ERP, Buchhaltung oder Data-Warehouse verbinden wollen, und Teams, die einen KI-Client wie Claude oder ChatGPT Datensätze pflegen lassen wollen. Die erste Gruppe nutzt REST und Webhooks, die zweite den MCP-Endpunkt. Beide laufen über dieselben Berechtigungen.
 
-APIs sind unverzichtbar für Unternehmen, deren CRM als Teil eines größeren Technologie-Stacks funktionieren muss. Ob Sie ein individuelles Dashboard erstellen, Daten mit einem ERP- oder Buchhaltungssystem synchronisieren, Prozesse automatisieren, die über die Standard-UI hinausgehen, oder CRM-Funktionalität in eine andere Anwendung einbetten, die API ist das Tor, das dies ermöglicht.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Schnittstellen">REST unter `/api/v1`, OpenAPI-3.1-Spezifikation, [[derived.webhooks.events.total]] Webhook-Events und [[derived.mcp.tools.total]] MCP-Tools.</SummaryItem>
+  <SummaryItem label="Tarife">REST, Webhooks und MCP in Starter, Pro, Business und Enterprise sowie beim Self-Hosting. Inbox-Endpunkte brauchen ein verbundenes Konto, das in Customermates Cloud ab Pro verfügbar ist.</SummaryItem>
+  <SummaryItem label="Authentifizierung">Ein API-Key pro Client im Header `x-api-key`. Ein Key hat genau die Rechte der Rolle seines Besitzers.</SummaryItem>
+  <SummaryItem label="Grenzen">Bulk-Endpunkte nehmen bis zu 100 Datensätze pro Anfrage. Kein PATCH, keine Cursor-Paginierung, keine ODER-Filter, keine Scopes pro Key.</SummaryItem>
+</ArticleSummary>
 
-Eine gute CRM API ist gut dokumentiert, versioniert, vorhersagbar und gibt Ihnen Zugang zu denselben Daten und Operationen, die in der Benutzeroberfläche verfügbar sind. Sie sollte sich wie ein erstklassiges Produktfeature anfühlen, nicht wie ein nachträglicher Anbau für Enterprise-Kunden.
+## Was die REST-API abdeckt
 
-## So funktioniert die CRM API in Customermates
+Die REST-API arbeitet mit den fünf Datensatztypen des CRM: Kontakte, Organisationen, Deals, Services und Aufgaben. Jeder Typ hat dieselben Routen. Code, der für Kontakte funktioniert, funktioniert für Deals mit einem anderen Pfadsegment.
 
-Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressourcen und Operationen. API-Zugang ist in veröffentlichten Preisstufen ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten, ohne separate Entwickler-Stufe.
+| Ziel | Methode und Pfad |
+|---|---|
+| Einen Datensatz anlegen | `POST /api/v1/<typ>` |
+| Bis zu 100 Datensätze anlegen | `POST /api/v1/<typ>/many` |
+| Einen Datensatz lesen | `GET /api/v1/<typ>/{id}` |
+| Suchen, filtern, sortieren, blättern | `POST /api/v1/<typ>/search` |
+| Einen Datensatz aktualisieren | `PUT /api/v1/<typ>/{id}` |
+| Bis zu 100 Datensätze aktualisieren | `PUT /api/v1/<typ>/many` |
+| Einen oder bis zu 100 Datensätze löschen | `DELETE /api/v1/<typ>/{id}` oder `DELETE /api/v1/<typ>/many` mit `ids` |
+| Eigene Spalten, Optionen und filterbare Felder lesen | `GET /api/v1/<typ>/configuration` |
 
-**REST-Architektur mit vorhersagbaren Endpoints.** Die API folgt Standard-REST-Konventionen mit vorhersagbaren URL-Strukturen, Standard-HTTP-Methoden (GET, POST, PUT, PATCH, DELETE) und JSON-Request- und Response-Bodies. Endpoints folgen einem konsistenten Muster: `/api/v1/{resource}` für Sammlungen und `/api/v1/{resource}/{id}` für einzelne Datensätze.
+`<typ>` steht für `contacts`, `organizations`, `deals`, `services` oder `tasks`. Die Basis-URL ist die Adresse, unter der Sie Customermates öffnen, in der Cloud wie auf dem eigenen Server. Weitere Routen gibt es für Nutzer (`/api/v1/users/me`, `/api/v1/users/search`), für Webhooks und für die Inbox: Threads, Entwürfe, Versand von E-Mails und Chatnachrichten, Aktivitäten und lesender Kalenderzugriff.
 
-**Dokumentierte Operationen je Ressource.** Erstellen, lesen, aktualisieren oder löschen Sie nur dort, wo das aktuelle OpenAPI-Dokument die Operation ausweist. Die Verfügbarkeit unterscheidet sich je Ressource; vollständige UI/API-Feature-Parität ist nicht zugesichert.
+Vier Details sparen beim Einstieg Zeit:
 
-**OpenAPI-Spezifikation.** Die API ist mit einer vollständigen OpenAPI-3.1-Spezifikation dokumentiert, verfügbar unter `/api/v1/openapi`. Importieren Sie die Spec in Postman, Insomnia oder jeden beliebigen API-Client, um Endpoints interaktiv zu erkunden. Nutzen Sie die Spec zur automatischen Generierung von Client-Libraries in jeder Programmiersprache.
+- **Eigene Felder gehören zum Datensatz.** Eigene Spalten kommen unter `customFieldValues` als Paare aus `columnId` und `value` zurück. Rufen Sie einmal `/configuration` auf, um Spalten-IDs Namen zuzuordnen und die Optionen einer Einzelauswahl wie Ihrer Deal-Phase zu sehen.
+- **Die Suche erwartet einen JSON-Body.** `POST /search` nimmt `searchTerm`, `filters`, `sortDescriptor` und `pagination`. `pageSize` ist 5, 10, 25 oder 100. Filter folgen der [Filtersyntax](/docs/filter-syntax), die auch App und MCP verwenden.
+- **Verknüpfungen sind ID-Arrays.** Wer bei einem Kontakt `[]` oder `null` für `organizationIds` sendet, entfernt alle Verknüpfungen dieser Art. Lassen Sie das Feld weg, bleiben sie bestehen.
+- **Bulk-Schreibvorgänge laufen in einer Transaktion.** Eine `/many`-Anfrage schreibt ihren Stapel gemeinsam. Eine Migration von 2.000 Kontakten teilen Sie also in 20 Anfragen auf.
 
-**MCP-Endpoint für unterstützte externe KI-Clients.** Customermates stellt [[derived.mcp.tools.total]] MCP-Tools für zulässige CRM- und Messaging-Operationen bereit, je nach Client-Flow authentifiziert per API-Key oder OAuth-Bearer-Token. Unterstützte Clients wie Claude, ChatGPT oder Gemini bleiben extern und nutzen das Modell und Abonnement Ihrer Wahl; der gehostete Mate-Assistent ist eine separate Cloud-Funktion.
+## Webhooks: Das CRM meldet sich bei Ihnen
 
-**Filterung, Sortierung und Paginierung.** Nutzen Sie die je Ressource unterstützten Filter- und Sortierparameter. Mehrere nutzerseitige Filterbedingungen werden mit UND verknüpft, und generische Listen-Endpunkte verwenden `page` und `pageSize`; ODER auf oberster Ebene und Cursor-Paginierung werden nicht unterstützt.
+Ein Webhook schickt einen JSON-`POST` an Ihre URL, sobald ein abonniertes Ereignis eintritt. Admins und Mitglieder, deren Rolle **Verwalten** in der Zeile **API & Webhooks** hat, legen ihn unter **Mein Unternehmen → Webhooks** an: URL, Events, optional ein Secret, eigene Header und eine Body-Vorlage. Die [Webhook-Referenz](/docs/webhooks) listet jedes Event mit Payload.
 
-**Authentifizierung über API-Keys.** Authentifizieren Sie API-Anfragen mit sicheren API-Keys, die in Ihren Kontoeinstellungen generiert werden. Keys können jederzeit erstellt und widerrufen werden. Jeder Key erbt die Berechtigungen des Nutzers, der ihn erstellt hat, sodass der API-Zugang Ihre bestehende rollenbasierte Zugriffskontrolle respektiert. Die [Anleitung zu API-Keys](/docs/api-keys) zeigt, wie Sie einen Key erstellen, rotieren und löschen.
+- **Events:** [[derived.webhooks.events.records]] Datensatz-Events (angelegt, geändert und gelöscht für jeden der fünf Typen) und [[derived.webhooks.events.messaging]] Inbox- und Kalender-Events.
+- **Änderungen inklusive:** Ein `*.updated`-Payload enthält den vollständigen Datensatz und ein `changes`-Objekt mit altem und neuem Wert jedes geänderten Felds. Ein Schreibvorgang ohne Änderung löst kein Event aus.
+- **Signatur:** Mit gesetztem Secret wird jede Zustellung per HMAC-SHA256 über den Roh-Body signiert.
+- **Wiederholungen:** Bei Timeout, Netzwerkfehler, 5xx, 408, 425 oder 429 folgen bis zu 5 weitere Versuche. Andere 4xx-Antworten werden nicht wiederholt, weil ein zweiter Versuch genauso scheitern würde. Jede Zustellung hat 5 Sekunden Timeout.
+- **Zustellprotokoll:** Unter **Mein Unternehmen → Letzte Zustellungen** sehen Sie Statuscode und Antworttext jeder Zustellung und können sie erneut senden.
+- **Body-Vorlagen:** Eine Vorlage ersetzt das Standardformat der Zustellung. So nimmt ein Chat-Tool oder Automatisierungsendpunkt mit eigenem JSON-Format die Daten direkt an, ohne Middleware dazwischen.
 
-**Webhooks für Echtzeit-Event-Streaming.** Konfigurieren Sie Webhooks, um Echtzeit-HTTP-POST-Benachrichtigungen zu erhalten, wenn Ereignisse in Ihrem CRM eintreten. Customermates sendet [[derived.webhooks.events.total]] Webhook-Events: [[derived.webhooks.events.records]] Datensatz-Ereignisse (erstellt, aktualisiert und gelöscht für jede der fünf Entitäten: Kontakte, Organisationen, Deals, Services, Aufgaben) plus [[derived.webhooks.events.messaging]] Messaging- und Kalender-Ereignisse. Jedes davon kann eine Zustellung an eine von Ihnen angegebene URL auslösen. Webhooks beinhalten Retry-Logik mit exponentiellem Backoff für fehlgeschlagene Zustellungen. Alle Event-Payloads stehen unter [Webhooks](/docs/webhooks), und die [Anleitung zu Mein Unternehmen](/docs/app-company) zeigt, wo Admins Webhooks anlegen und Zustellungen prüfen.
+Zustellungen kommen nicht garantiert in Reihenfolge an. Zwei Änderungen am selben Kontakt im Abstand weniger Millisekunden können vertauscht eintreffen. Verarbeiten Sie sie deshalb anhand von `entityId` und dem `timestamp` im Payload.
 
-**Unterstützter Zugriff auf eigene Felder.** Lesen oder schreiben Sie Werte nur dort, wo die dokumentierten Ressourcen und Operationen dies ausweisen. Das aktuelle OpenAPI-Dokument, Feldtypen und Validierungsantworten bilden den Integrationsvertrag.
+## So senden Sie den ersten API-Aufruf
 
-**Große Datenoperationen über Integrationen.** In der App lässt sich jeder Datensatztyp als XLSX-Arbeitsmappe importieren und exportieren, im Rahmen von Berechtigungen und aktueller Ansicht und mit Zeilenlimit; CSV und einen generischen Batch-Endpunkt gibt es nicht. Für größere oder wiederkehrende Datenmengen kann eine kundenseitige Integration unterstützte Datensätze über dokumentierte API-Aufrufe anlegen oder aktualisieren und übernimmt Batching, Validierung, Zuordnung, Deduplizierung und Retries.
+<Steps>
+  <Step title="Key anlegen">Öffnen Sie **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen**, wählen Sie **Standard-API-Key**, vergeben Sie einen Namen wie `ERP-Sync, Produktion` und kopieren Sie den Key. Er wird nur einmal angezeigt. Ablauf und Rotation erklärt die [Anleitung zu API-Keys](/docs/api-keys).</Step>
+  <Step title="Schema laden">Rufen Sie `/api/v1/openapi` unter Ihrer Workspace-Adresse ab und importieren Sie das Dokument in Postman, Insomnia oder einen Client-Generator. Mit `GET /api/v1/deals/configuration` sehen Sie danach Ihre Deal-Phasen und eigenen Spalten.</Step>
+  <Step title="Suchen">Senden Sie `POST /api/v1/deals/search` mit dem Header `x-api-key` und einem Body wie `{"filters":[{"field":"updatedAt","operator":"inLastDays","value":7}],"pagination":{"page":1,"pageSize":25}}`. Die Antwort enthält alle Deals, die in den letzten sieben Tagen geändert wurden.</Step>
+  <Step title="Schreiben">Aktualisieren Sie einen Deal mit `PUT /api/v1/deals/{id}`. Was Ihr Nutzer in der App darf, darf der Key auch über die API.</Step>
+  <Step title="Abonnieren">Legen Sie einen Webhook für `deal.updated` mit Secret an, richten Sie ihn auf Ihren Endpunkt und prüfen Sie die erste Zustellung unter **Letzte Zustellungen**.</Step>
+</Steps>
 
-**Endpoint-Verhalten.** Planen Sie Durchsatz und Retries anhand der aktuellen API-Dokumentation und Antworten. Customermates veröffentlicht für diese API-Oberfläche keine generische Anwendungsquote oder Rate-Limit-Header.
+Ein falscher, abgelaufener oder gelöschter Key erhält HTTP `401`. Ein Key, dessen Besitzer auf **Inaktiv** steht, erhält `403`.
 
-**Versionierte API.** Routen liegen unter `/api/v1`. Behandeln Sie das aktuelle OpenAPI-Dokument als Vertrag; eine unbegrenzte Abwärtskompatibilität oder feste Deprecation-Frist wird hier nicht versprochen.
+## API-Keys und Berechtigungen
 
-## Zentrale Vorteile
+Keys gehören dem Nutzer, der sie angelegt hat, und handeln mit dessen aktueller Rolle. Eigene API-Nutzer oder Scopes pro Key gibt es nicht, ein Key lässt sich also nicht auf Lesezugriff beschränken. Soll eine Integration nur Deals lesen, legen Sie ihren Key unter einem Mitglied an, dessen Rolle genau das erlaubt. In Customermates Cloud wird dieses Mitglied wie jeder andere Nutzer abgerechnet.
 
-**Externe KI-Clients bedienen zulässige CRM-Daten.** Ein unterstützter Client kann per MCP Datensätze anlegen, Deal-Phasen aktualisieren und einzelne Follow-ups entwerfen, soweit erlaubt. Customermates liefert die MCP-Oberfläche, nicht den KI-Client, das Modell, das Abonnement oder ein autonomes Ergebnis.
+Zum Anlegen von Keys braucht eine Rolle **Verwalten** in der Zeile **API & Webhooks**. Eine neue eigene Rolle hat das nicht, standardmäßig legen also nur Admins Keys an. Dieselbe Berechtigung öffnet auch alle Webhooks des Workspace, was Sie vor der Vergabe wissen sollten. Verlässt jemand das Team, setzen Sie das Mitglied auf **Inaktiv**. Das Entziehen der Berechtigung allein blendet nur die Seite aus, bestehende Keys funktionieren weiter.
 
-**Bauen Sie auf dokumentierten CRM-Operationen auf.** Nutzen Sie die API für individuelle Dashboards, mobile Apps, Partner-Portale, kundenseitige Tools und interne Automatisierungsskripte, wenn die dokumentierten Ressourcen und Operationen Ihre Anforderungen erfüllen.
+## MCP: die Schnittstelle für KI-Clients
 
-**Automatisieren Sie über die UI hinaus mit Code oder einer separaten n8n-Instanz.** Nutzen Sie Ihre eigene n8n-Instanz für visuelle Workflows oder die API für Skripte. Customermates veröffentlicht Integrationsschnittstellen und einen Community-Node; n8n-Laufzeit, Tarif, Logs, Limits und Kosten bleiben separat.
+Der MCP-Endpunkt unter `/api/v1/mcp` gibt einem externen KI-Client [[derived.mcp.tools.total]] Tools für dieselben Datensätze, die Inbox und die Webhooks. Claude und ChatGPT verbinden sich per OAuth als benutzerdefinierter Konnektor, Claude Code, Codex, Cursor und Gemini nutzen einen API-Key. Client, Modell und Abonnement wählen Sie selbst, und MCP-Aufrufe verbrauchen keine gehosteten KI-Credits von Customermates. Alle Tools stehen im [MCP-Leitfaden](/docs/mcp).
 
-**Daten im gesamten Tech-Stack synchronisieren.** Halten Sie Ihre CRM-Daten konsistent mit ERP-Systemen, Buchhaltungssoftware, Marketing-Plattformen, Support-Desks und Data-Warehouses. API und Webhooks zusammen ermöglichen Push- und Pull-Synchronisierungsmuster für Echtzeit- oder geplante Datenflüsse.
+Mate, der Assistent in Customermates Cloud, ist eine eigene Funktion. Er nutzt gehostete KI-Credits und braucht keinen API-Key. Selbst gehostete Installationen haben MCP, aber kein Mate.
 
-**CRM-Daten in individuelle Anwendungen einbetten.** Erstellen Sie interne Tools, Kundenportale oder Partner-Dashboards, die CRM-Daten in Echtzeit ziehen. Die API macht jede Anwendung CRM-fähig, ohne dass Nutzer den Kontext wechseln müssen.
+## Was die API nicht kann
 
-**Entwicklerfreundlich ab dem ersten Tag.** Standard-REST-Konventionen, JSON, OpenAPI-Spec und dokumentierte Antworten geben Entwicklern einen vertrauten Startpunkt. Folgen Sie dem aktuellen API-Vertrag für Authentifizierung, unterstützte Operationen, Paginierung und Fehler.
+- **Kein PATCH.** Änderungen laufen über `PUT` auf einen Datensatz oder auf `/many`.
+- **Keine Cursor-Paginierung und kein ODER zwischen Filterregeln.** Blättern Sie mit `page` und `pageSize`. Für ODER führen Sie zwei Suchen aus oder nutzen den Operator `in` auf einem Feld.
+- **Kein Datei-Upload an Datensätze.** Datensätze haben keine Dateianhänge, Notizen enthalten Rich Text.
+- **Keine veröffentlichte Anfragequote und keine Rate-Limit-Header.** Teilen Sie Bulk-Jobs in Stapel zu 100 auf.
+- **Kein CSV-Export-Endpunkt und kein Export des gesamten Kontos.** Die App importiert und exportiert XLSX, jeweils einen Datensatztyp. Größere Mengen laufen über Ihr eigenes API-Skript.
+- **Keine Inbox und kein Mate beim Self-Hosting.** REST-Routen für Datensätze, Webhooks und MCP funktionieren dort, die Messaging-Routen brauchen Customermates Cloud ab Pro.
 
-**Open-Source-Transparenz.** Da Customermates Open Source ist, ist die API-Implementierung vollständig einsehbar. Entwickler können den Quellcode hinter jedem Endpoint lesen, genau verstehen, wie er funktioniert, und sogar Verbesserungen beitragen.
+Über den Pfad `/api/v1` hinaus wird keine feste Kompatibilitätsfrist zugesagt. Behandeln Sie das aktuelle OpenAPI-Dokument als Vertrag und testen Sie dagegen.
 
-## Häufige CRM-API-Anwendungsfälle
+## Wie andere CRMs den API-Zugang begrenzen
 
-**Individuelles Dashboard und Reporting.** Erstellen Sie interne Dashboards, die CRM-Daten mit Daten aus anderen Systemen kombinieren. Ziehen Sie Pipeline-Metriken, Aktivitätszahlen, Umsatzzahlen und Konversionsraten über die API und stellen Sie sie in einer maßgeschneiderten Oberfläche für Ihr Management dar.
+Diese Seite wird von Customermates veröffentlicht. Die Angaben stammen aus der Dokumentation der jeweiligen Anbieter, geprüft am 8. Oktober 2026. Sie ändern sich, folgen Sie daher den Links, bevor Sie damit planen.
 
-**Website- und Formular-Integration.** Wenn ein Besucher ein externes Formular absendet, nutzen Sie die API für unterstützte CRM-Datensätze. Ordnen Sie Formularfelder zu; berechnen Sie Lead-Scores oder Routing extern und schreiben Sie freigegebene Werte dort zurück, wo die API es erlaubt.
+| CRM | API im kostenlosen oder Einstiegstarif | Wie die Nutzung begrenzt wird |
+|---|---|---|
+| [HubSpot](https://developers.hubspot.com/docs/developer-tooling/platform/usage-guidelines) | Ja | Private Apps in Free und Starter: 100 Anfragen pro 10 Sekunden und 250.000 täglich pro Konto, mehr in Professional und Enterprise |
+| [Pipedrive](https://www.pipedrive.com/en/features/crm-api) | Jeder Tarif enthält ein API-Token | [Tägliches Token-Budget](https://pipedrive.readme.io/docs/core-api-concepts-rate-limiting): 30.000 Basis-Tokens mal Tarif-Multiplikator mal Nutzerlizenzen |
+| [Zoho CRM](https://www.zoho.com/crm/developer/docs/api/v8/api-limits.html) | Ja, auch in der Free Edition | Credits pro 24 Stunden: 5.000 in Free, in bezahlten Editionen mehr pro Nutzer |
+| [EspoCRM](https://docs.espocrm.com/development/api/) | Ja, auch in der [kostenlosen selbst gehosteten Version](https://www.espocrm.com/) | API-Key, HMAC oder Basic Auth über eigene API-Nutzer, deren Rollen die Rechte festlegen |
+| Customermates | Jeder Tarif und Self-Hosting | Keine veröffentlichte Quote, Bulk-Routen nehmen 100 Datensätze pro Anfrage |
 
-**Datenmigration von anderen CRMs.** Bereiten Sie Quelldaten außerhalb von Customermates auf und ordnen Sie sie zu, dann erstellen Sie unterstützte Datensätze über eine kundenseitige API-Integration. Für kleinere Umzüge verarbeitet der XLSX-Import in der App jeweils einen Datensatztyp innerhalb der Zeilenlimits; bei größeren Mengen übernimmt Ihre Integration Batching, Validierung, Feldzuordnung, Deduplizierung und Transformation.
+HubSpot oder Zoho CRM passen, wenn Sie einen kostenlosen Cloud-Tarif mit API-Zugang suchen und Ihre Integration mit den veröffentlichten Aufruflimits auskommt. Pipedrive passt, wenn ein Tagesbudget, das mit Tarif und Nutzerzahl wächst, zu Ihrem Volumen passt. EspoCRM passt, wenn Sie ein selbst gehostetes Open-Source-CRM mit getrennten API-Nutzern und eigenen Rollen wollen. Customermates passt zu einem kleinen Team, das Datensatz-API, Webhooks und einen MCP-Endpunkt für KI-Clients zum Preis des CRM selbst haben möchte, mit einem AGPL-Kern, den es selbst hosten kann. Es passt nicht, wenn Sie Scopes pro Key brauchen oder, in Customermates Cloud, einen API-Nutzer ohne kostenpflichtige Lizenz.
 
-**ERP- und Buchhaltungssystem-Sync.** Synchronisieren Sie Deal-Daten mit Ihrem ERP- oder Buchhaltungssystem. Wenn ein Deal gewonnen wird, übertragen Sie Rechnungsdaten an Ihr Abrechnungssystem. Wenn eine Zahlung eingeht, aktualisieren Sie die Deal-Phase oder ein eigenes Feld im CRM. Eine von Ihnen gebaute und betriebene Zwei-Wege-Integration hält beide Systeme abgestimmt.
+## Was es kostet
 
-**Webhook-gesteuerte Workflow-Orchestrierung.** Nutzen Sie Webhooks für externe Prozesse bei dokumentierten CRM-Ereignissen. Bei Deal-Gewinn kann Ihr Produkt bereitstellen, bei Kontaktaktualisierung unterstützte Änderungen synchronisieren. Muss ein eigenes Aufgaben-Datumsfeld beachtet werden, wertet ein externer Scheduler es aus und sendet eine Slack-Benachrichtigung über einen externen Anbieter; native Fälligkeit oder Überfälligkeit gibt es nicht.
+Für den API-Zugang gibt es keinen Aufpreis. Ein Team mit drei Personen zahlt in Starter [[commercial.price.starter.monthly.seats.3]] pro Monat und erhält REST, Webhooks und MCP. Dasselbe Team zahlt in Pro [[commercial.price.pro.monthly.seats.3]] und bekommt die [Unified Inbox](/features/unified-inbox) samt Messaging-Routen dazu. Die selbst gehostete Open-Source-Version kostet keine Lizenzgebühr, den Server betreiben Sie selbst. Abgerechnet wird monatlich, Details unter [Preise](/pricing). Wenn Sie Abläufe in n8n bauen: n8n ist ein eigenes Produkt mit eigenen Tarifen, die [n8n-Anleitung](/docs/n8n) zeigt die Einrichtung mit HTTP-Request-Nodes.
 
-**Mobile und Desktop-Anwendungen.** Erstellen Sie individuelle mobile oder Desktop-Anwendungen, die über die API auf CRM-Daten zugreifen. Vertriebsteams im Außendienst können Datensätze über maßgeschneiderte Interfaces einsehen und aktualisieren.
-
-**Datenanreicherungs-Pipelines.** Reichern Sie CRM-Kontakte mit Daten von Drittanbietern an. Nutzen Sie die API, um Kontakte zu lesen, Enrichment-Dienste aufzurufen und die angereicherten Daten zurückzuschreiben. Automatisieren Sie die Pipeline für zeitgesteuerte Ausführung oder lösen Sie sie via Webhooks bei neuen Kontakten aus.
-
-**Testen und Entwicklung mit Sandbox-Daten.** Nutzen Sie die API, um Testumgebungen mit realistischen CRM-Daten zu füllen. Erstellen Sie automatisierte Testsuiten, die CRM-Datensätze erstellen, ändern und verifizieren, um sicherzustellen, dass Ihre Integrationen korrekt funktionieren.
-
-## Warum Customermates für API-Zugang?
-
-**Open Source und voll transparent.** Die API ist Teil der Open-Source-Codebasis von Customermates. Einsehen, verstehen, beitragen. Kein Black-Box-API-Verhalten.
-
-**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
-
-**Einfache, veröffentlichte Preisgestaltung.** Dokumentierter API-Zugang ist in veröffentlichten Plänen ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten. Für unterstützte Operationen und Grenzen gilt die aktuelle Dokumentation; unbeschränkte Nutzung oder vollständige Parität wird nicht versprochen.
-
-**Self-hostbare Anwendung und Datenbank.** Beim Self-Hosting laufen Customermates-Anwendung und PostgreSQL-Datenbank auf Ihrer Infrastruktur. Verbundene externe Dienste bleiben separat; der Standort allein begründet keine Sicherheits- oder Compliance-Aussage.
-
-**Webhook-Zuverlässigkeit mit Retry-Logik.** Webhook-Zustellungen beinhalten automatische Retries mit exponentiellem Backoff. Zustellungsprotokolle ermöglichen die Inspektion von Payload und Antwort für jedes Webhook-Event, was das Debugging vereinfacht.
-
-**Separates n8n für hybride Workflows.** Kombinieren Sie API-Zugang mit einer n8n-Instanz, die Sie betreiben. Customermates bündelt n8n nicht; Abonnement, Hosting, Konnektoren, Limits, Logs und Nutzungskosten bleiben bei Ihnen.
-
-## Starten Sie heute mit der CRM API
-
-Beginnen Sie mit der Customermates API. Generieren Sie einen API-Key, erkunden Sie die OpenAPI-Spec und senden Sie Ihre erste Anfrage. Prüfen Sie im aktuellen OpenAPI-Dokument die für Ihre Integration unterstützten Ressourcen und Operationen. Dokumentierter API-Zugang ist ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten.
+<Faq>
+<FaqItem question="Was ist eine API im CRM, einfach erklärt?">
+Eine API ist der programmatische Zugang zu den Daten des CRM. Ein anderes Programm sendet HTTP-Anfragen, um Kontakte, Deals und andere Datensätze zu lesen, anzulegen, zu ändern oder zu löschen, statt dass jemand sich durch die Oberfläche klickt. Webhooks sind die Gegenrichtung: Das CRM ruft Ihr Programm auf, wenn sich Daten ändern.
+</FaqItem>
+<FaqItem question="Ist die API kostenlos?">
+In Customermates ist sie in jedem Tarif ohne Aufpreis enthalten und in der selbst gehosteten Version ohne Lizenzkosten nutzbar. Bei anderen Anbietern hängt das am Tarif: Pipedrive, HubSpot und Zoho CRM bieten API-Zugang auch im Einstiegstarif, begrenzen aber die Zahl der Aufrufe je nach Tarif. EspoCRM hat eine kostenlose selbst gehostete Version mit REST-API.
+</FaqItem>
+<FaqItem question="Welches CRM hat die beste API?">
+Das hängt vom Projekt ab. Prüfen Sie vier Punkte: ob die API im Tarif enthalten ist, den Sie tatsächlich kaufen, wie Aufrufe gezählt werden, ob Webhooks die Änderungen mitliefern und ob es eine maschinenlesbare Spezifikation gibt. Für ein kleines Team zählen API im Einstiegstarif, OpenAPI-Dokument und signierte Webhooks meist mehr als die Länge des Endpunktkatalogs.
+</FaqItem>
+<FaqItem question="Kann ich einen API-Key auf Lesezugriff beschränken?">
+Nein. Ein Key hat genau die Rechte des Nutzers, dem er gehört. Soll eine Integration nur lesen, legen Sie den Key unter einem Mitglied mit eingeschränkter Rolle an.
+</FaqItem>
+<FaqItem question="Deckt die API auch die Inbox ab?">
+Ja, in Customermates Cloud ab Pro, wenn Nutzer E-Mail, LinkedIn, WhatsApp, Instagram oder Telegram verbunden haben. Die Routen umfassen Threads, Entwürfe, den Versand von E-Mails und Chatnachrichten sowie Aktivitäten. Jede Anfrage sendet eine Nachricht, einen Massenversand gibt es nicht.
+</FaqItem>
+<FaqItem question="Brauche ich n8n oder Zapier für die API?">
+Nein. Jede Sprache, die HTTPS-Anfragen senden kann, funktioniert. n8n ist optional und läuft separat. Die [Übersicht der Integrationen](/features/integrations) vergleicht REST, Webhooks, MCP und n8n, zum Self-Hosting finden Sie mehr unter [Self-Hosting](/features/self-hosted).
+</FaqItem>
+</Faq>

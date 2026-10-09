@@ -1,17 +1,17 @@
 ---
-title: "Real Estate CRM for Agents: Leads, Deals, Follow-Ups"
-description: "Real estate CRM for agents and brokers: manage leads, track buyer and seller deals, keep follow-ups visible. Open source, from [[commercial.price.starter.monthly]]/user/month."
+title: "Real Estate CRM for Agents: Buyers, Sellers, Referrals"
+description: "A real estate CRM for agents and small brokerages: buyer search profiles, listings, viewings and referrals, with email and WhatsApp next to each client."
 industryName: "Real Estate"
 
 relatedHrefs:
-  - /for/realtors
-  - /for/property-management
-  - /for/mortgage-brokers
-  - /for/architects
+  - /features/unified-inbox
+  - /features/pipeline
+  - /features/lead-management
+  - /docs/app-routines
 
 hero:
-  title: "The Open-Source CRM for Real Estate Agents and Brokers"
-  description: "AI agents help keep your pipeline current and draft follow-ups, while on Pro a native inbox unifies buyer email, WhatsApp, and LinkedIn. A real estate CRM for agents and brokers who want results, not overhead. No per-lead fees."
+  title: "The Real Estate CRM for Agents Who Live on Relationships"
+  description: "Buyers with their search profiles, sellers with their listings, past clients and referral partners in one place. From Pro, email and WhatsApp conversations sit next to the client record, and in Customermates Cloud the assistant Mate can find matching buyers and prepare follow-up drafts for you to send. Listings, portals and transaction paperwork stay in the tools built for them."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: "Put Every Real Estate Deal in One Pipeline"
-  description: "Set up buyer and seller stages, add the fields you track, and see which leads still need an answer. Setup takes minutes."
+  action: "Put every buyer, seller and referral in one pipeline"
+  description: "Import your contacts from Excel, add search-profile fields, and save the views you work through every morning. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,196 +28,220 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## Why Real Estate Professionals Need a CRM
+A real estate CRM keeps track of who is looking for what, which listing is at which stage, and which past client you have not called in a year. Customermates does that job for solo agents, small teams and brokerages that win business through relationships: buyers with their search criteria, sellers with their listings, referral partners and past clients, plus, from the Pro plan, the email and WhatsApp conversations around them. It is an open-source, AI-native CRM built in Germany. It is not real estate software in the full sense: it has no listing database, no MLS or portal feed and no transaction paperwork. The limits section below names tools that have them.
 
-A CRM for real estate is the system that keeps your deals, leads, and client relationships from falling through the cracks. According to the [National Association of Realtors (NAR)](https://www.nar.realtor/research-and-statistics/research-reports/real-estate-in-a-digital-age), 73% of homebuyers interview only one agent before choosing, which means your speed and organization on that first contact can make or break the deal.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Fits">
+    Agents and brokers whose income depends on follow-up: buyer and seller
+    clients, open house leads, past clients and referral partners.
+  </SummaryItem>
+  <SummaryItem label="Setup">
+    People as contacts with search-profile fields, each listing or buyer
+    mandate as a deal, viewings as tasks, and a saved view for every routine
+    check.
+  </SummaryItem>
+  <SummaryItem label="AI">
+    In Customermates Cloud, Mate finds buyers that match a new listing and saves
+    reply drafts, using hosted AI credits. Or connect your own AI client through
+    MCP.
+  </SummaryItem>
+  <SummaryItem label="Not included">
+    Listing database, MLS, IDX or portal sync, web forms, texting and calls,
+    e-signature, and rent or property accounting.
+  </SummaryItem>
+</ArticleSummary>
 
-Real estate agents juggle dozens of active relationships at any time (buyers, sellers, landlords, tenants, referral partners), each at a different stage and each expecting personalized attention. Without a centralized system, leads go cold, follow-ups slip, and commission-ready deals stall.
+## What agents and brokers need from a CRM
 
-Here are the most common pain points a real estate CRM software solves:
+Whether a CRM helps an agent comes down to five specific jobs:
 
-- **Leads go cold**: A buyer inquires about a property, but you are in the middle of three viewings and two closings. By the time you follow up, they have moved on to another agent. A CRM makes every open inquiry visible so none is forgotten.
-- **Follow-ups are inconsistent**: Some clients get daily updates, others hear nothing for weeks. Without a structured process, responsiveness depends on memory rather than system. Saved views and, where useful, [automation](/features/workflow-automation) you connect make it consistent.
-- **Property matching is manual**: A new listing comes in that would be perfect for a buyer you spoke to last month. But you have to remember that conversation to make the connection. A CRM with custom fields and filters lets you find the matching buyers in seconds.
-- **Pipeline visibility is poor**: How many active buyers do you have? Which properties are closest to closing? What is your expected commission this quarter? Without a [visual pipeline](/features/pipeline), the answer is guesswork.
-- **Past clients are forgotten**: The couple you helped buy their first home three years ago is now looking to upgrade. If you never stayed in touch, they will use a different agent. A date field for the next check-in and a saved view keep past clients on your list.
-- **Data is scattered across tools**: Contact info lives in your phone, notes in a spreadsheet, emails in your inbox, and deals in your head. A CRM for real estate agents brings everything into one place.
+- **Search profiles you can query.** When a three-bedroom house in a certain neighborhood comes in, you need the five buyers who fit, not a list of 900 names.
+- **Two kinds of client at once.** A seller with a listing and a buyer with a budget move through different steps, and many people are both.
+- **Inquiries on several channels.** Portal leads arrive by email, buyers answer on WhatsApp, and a referral partner calls. If those messages stay on your phone, the record is always behind.
+- **Long gaps.** A buyer who is "six months out" or a client who bought five years ago is easy to lose. The next deal often comes from exactly those people.
+- **Clear ownership in a team.** In a brokerage, every inquiry needs one agent responsible for it, and an agent's own conversations should stay private unless shared.
 
-## What Is a CRM for Real Estate?
+## A real estate setup in Customermates
 
-A real estate CRM (Customer Relationship Management) is software that helps agents, brokers, and property teams organize contacts, track deals through a sales pipeline, keep communication in context, and review performance from one centralized platform.
+Customermates has five record types. Here is one way to map them to an agent's work; every field name below is an example you create yourself. Under **My Company › Settings** you can rename Contacts to Clients.
 
-Unlike general-purpose CRMs, a CRM built for real estate workflows handles the unique demands of the industry: buyer and seller deals side by side, property-specific custom fields, viewings, commission tracking, and connections to property portals and listing platforms.
+| Record type | Used for | Example custom fields |
+|---|---|---|
+| Contacts | Buyers, sellers, landlords, tenants, referral partners | Role (single select: Buyer, Seller, Landlord, Tenant, Partner, Past client), Search area (single select), Property type (single select), Bedrooms (single select: 1, 2, 3, 4, 5+), Max budget (currency), Financing (single select: Unclear, Pre-approved, Cash), Lead source (single select), Next check-in (date) |
+| Organizations | Lenders, law and title firms, developers, other brokerages | Partner type (single select), Referrals sent (text) |
+| Deals | Each listing and each buyer or rental mandate | Stage, Side (single select: Listing, Buyer, Rental), Address (text), Asking price (currency), Expected commission (currency), Listing link (link), Agreement ends (date) |
+| Tasks | Viewings and next steps, assigned to an agent | Viewing at (date and time), Feedback (single select: Liked it, Second viewing, Not a fit) |
+| Services | Rarely needed by agents | Leave empty, or use for fixed-fee services such as a valuation |
 
-A modern real estate CRM also works with AI to draft property descriptions, summarize client notes, and update records, which saves administrative work.
+People link to deals, so interested buyers can sit on the listing they asked about, and a seller's listing and later home search can sit on the same contact. Tasks have no built-in due date, which is why the viewing gets its own date field.
 
-## Key Features of a Real Estate CRM
+### Stages for listings and buyers
 
-Choosing the right CRM for real estate agents means evaluating features against actual daily workflows. Here are the capabilities that matter most.
+The deal stage is a single-select field, and each option can carry a win probability. One stage list can serve both sides if you filter by Side:
 
-### Visual Pipeline Management
+| Stage | Listing side | Buyer side | Probability |
+|---|---|---|---|
+| Lead | Valuation requested | First inquiry | 10% |
+| Appointment | Listing presentation | Buyer consultation | 20% |
+| Agreement signed | Listing agreement | Buyer agreement | 40% |
+| Active | On the market | Touring homes | 50% |
+| Offer | Offer received | Offer made | 70% |
+| Under contract | Under contract | Under contract | 90% |
+| Closed | Closed | Closed | 100% |
+| Lost | Lost | Lost | 0% |
 
-Track every deal from first inquiry to closing on a drag-and-drop [kanban board](/features/pipeline). The deal stage is one configurable column; add a single-select "Deal type" field (buyer, seller, rental, commercial) and group or filter by it, or by owner, to see each side separately. See at a glance which deals need attention, which are stalling, and which are ready to close.
+On the [pipeline board](/features/pipeline) each deal is a card you drag between stages. Weighted values come from your own probabilities times the deal value, and the deal value comes from linked services, so for commission tracking the Expected commission field is usually simpler. Either way it is arithmetic, not a forecast.
 
-### Contact Management with Property Preferences
+### Saved views for the morning check
 
-Every contact (buyer, seller, landlord, tenant, referral partner) gets a complete profile with preferences, budget, communication history, property interests, and past transactions. Store detailed buyer criteria (location, budget range, bedrooms, property type, must-have features) as custom fields in your [contact management](/features/contact-management) system. When a new listing matches, you can proactively reach out before the buyer finds it on a portal.
+1. **Active listings:** deals with Side Listing in Active or Offer, sorted by Agreement ends.
+2. **Buyers ready to move:** contacts with Role Buyer and Financing Pre-approved, sorted by Next check-in.
+3. **Who is due:** contacts with a Next check-in date, sorted by it, earliest first, so the people to call sit at the top. A sort keeps this view current; a filter on a custom date takes a fixed date.
+4. **Stalled leads:** deals in Lead or Appointment with an updated date **Older than…** 14 days.
+5. **Sphere:** contacts with Role Past client or Partner, sorted by Next check-in.
 
-### Lead Capture and Nurturing
+Saved views are personal, so each colleague sets the same filters and saves their own view.
 
-Bring leads from property portals, your website, social media, and referrals into one system: enter them manually, import them from an Excel workbook (XLSX), or create them through the REST API from your own integration. [Lead management](/features/lead-management) with owners, a lead-source field and saved views shows who follows up with whom. Customermates has no web forms, lead scoring, automatic routing or nurture sequences.
+### Matching buyers to a new listing
 
-### Follow-Up Through Your Own Automation
+Customermates does not match buyers to properties automatically, and there is no property database to match against. What works is a filter. When a three-bedroom home in Riverside comes in at $480,000, filter contacts by Role Buyer, Search area Riverside, Bedrooms 3 or 4, and Max budget at least 480,000. Currency fields support greater-than and less-than filters, and single-select fields support "is one of" ([filter reference](/docs/filter-syntax)). Link the buyers you call to the listing deal so you can see later who heard about it.
 
-Speed-to-lead matters in real estate. Customermates has no built-in sequences or reminders. It sends webhooks when records change and exposes a REST API, so a separately operated n8n instance or another tool can react, for example by sending a welcome message from your mail system or creating a task for a lead that has not moved in 14 days ([workflow automation](/features/workflow-automation)). On Customermates Cloud, a [routine](/docs/app-routines) can have the Mate assistant list stale leads each morning and draft follow-ups for you to review.
+In Customermates Cloud, a [routine](/docs/app-routines) can do the lookup for you. Choose **When something changes**, the event **Deal Updated**, the changed field Stage, and record filters Side = Listing and Stage = Active. Instructions like these:
 
-### Email Integration
+```text
+This listing just went active. Find contacts with Role Buyer whose Search
+area and Property type match the listing and whose Max budget is at least
+the Asking price. Link them to this deal. Create one task "Call matching
+buyers" linked to the deal and those contacts, assigned to me. Do not send
+any messages.
+```
 
-On Pro and above, connect your Gmail, Outlook or IMAP mailbox to the unified inbox through [email integration](/features/email-integration) and link each client conversation to the right contact. No more searching your inbox for that email from three weeks ago.
+### Inquiries and conversations in one inbox (Pro and above)
 
-### AI agents that do your data entry
+In Customermates Cloud on Pro, Business and Enterprise, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with WhatsApp, LinkedIn, Instagram and Telegram. You reply on the original channel. If a portal forwards inquiries to your mailbox, they arrive here with your other mail. Link a sender to a contact once, and every later conversation with that address appears on their timeline.
 
-Connect AI clients such as Claude or ChatGPT to Customermates through its MCP server ([[derived.mcp.tools.total]] tools); you choose and pay for the AI client. The agent handles the admin you avoid: it logs call notes to the right contact, moves deals between stages, drafts personalized follow-up emails, writes property descriptions, and finds buyers whose saved criteria match a listing. You focus on relationships and closings instead of updating records.
+Two details decide the plan. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, so an agent who wants both a mailbox and WhatsApp in the inbox needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]]. And your conversations stay private: colleagues, admins included, see a thread only after you share it. Sharing a whole account, such as an office inquiry mailbox, needs Business. SMS and phone calls are not channels.
 
-### Commission and Revenue Tracking
+### A daily follow-up routine with Mate (Customermates Cloud)
 
-Add custom fields for expected commission, actual commission, split arrangements, and closing dates. Give each stage a probability, and Customermates calculates weighted deal values and weighted pipeline totals from your own stage weights. That is a deterministic calculation, not a prediction, but it shows what your open deals are realistically worth.
+Mate is the assistant inside Customermates Cloud. It uses hosted AI credits included per active user on every cloud plan; reading inbox conversations needs Pro or higher. Set up a second routine with **On a schedule**, **Every day** at 08:00:
 
-### Viewing and Activity Logging
+```text
+Find inbox conversations where the last message came from the other person
+more than one day ago and I have not answered. For each one linked to a
+buyer or seller, save a short reply draft in that conversation that answers
+their question or proposes a next step. Do not send anything. End with a
+list: name, channel, what they asked, draft saved yes or no.
+```
 
-Record viewings, calls and meetings as notes or tasks on contacts and deals; the activity history shows what changed and when. There is no call-logging or telephony integration. When a client calls and you need to remember what happened at a viewing three weeks ago, it is all there, organized and searchable.
+<AcquisitionCallout title="Tell Mate to draft, not send" variant="boundary">
+  Mate and routines can send email and WhatsApp messages without asking first
+  when told to send. A routine runs as its owner, with that owner's channels,
+  so say "do not send" in the instructions. Then filter the inbox by Draft,
+  read each draft and send it yourself.
+</AcquisitionCallout>
 
-### Referral Source Tracking
+Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]]. If you prefer your own AI client, connect Claude, ChatGPT or another client through [MCP](/docs/mcp); it works on every plan and on self-hosted installations, with model use billed by your AI provider.
 
-Track where your leads come from: past clients, partner agents, online portals, open houses, word of mouth. Store the source in a single-select field, then group deals by it or build a dashboard to see which sources bring the most deals, and double down on what works.
+### Teams and brokerages
 
-### Mobile Access
+Deals and contacts have assigned users ("Assigned"), so each inquiry has a responsible agent. A custom role with Assigned read access limits an agent to the records assigned to them, and the audit log records who changed which record. Customermates has no automatic lead routing: you assign each inquiry yourself, or an n8n workflow you run separately assigns it through the [REST API](/features/api).
 
-Customermates runs in the browser and adapts to phone screens, so you can check client details, update deal status, or add viewing notes between appointments. There is no native iOS or Android app.
+## Property managers
 
-## How Customermates Compares to Other Real Estate CRMs
+Customermates is not property management software. It has no rent collection, tenant ledger, maintenance tickets, owner statements or tenant portal. Where it fits a property management firm is the relationship side: winning new owners as clients, tracking leasing inquiries for vacant units, and keeping owner and vendor conversations in one inbox. Model buildings or owner associations as organizations, owners and tenants as contacts, and each new management mandate as a deal. Run the operations in dedicated software and keep the two connected through the REST API or webhooks if you need to.
 
-Most real estate CRM platforms fall into two categories: industry-specific tools with per-lead pricing, or enterprise platforms with complex setup and high costs. Customermates offers a third path.
+## What Customermates does not do for real estate
 
-| Feature                                          | Customermates                                        | Wise Agent     | Follow Up Boss      | Salesforce            |
-| ------------------------------------------------ | ---------------------------------------------------- | -------------- | ------------------- | --------------------- |
-| Price (as of September 2026)                     | From [[commercial.price.starter.monthly]]/user/month | From $49/month | From $69/user/month | From $25/user/month   |
-| Per-lead fees                                    | None                                                 | None           | None                | None                  |
-| Native unified inbox (email, WhatsApp, LinkedIn) | Yes (Pro)                                            | No             | No                  | No                    |
-| AI agents operate the CRM (MCP)                  | Yes                                                  | See vendor     | See vendor          | Enterprise Edition and above |
-| Open source                                      | Yes                                                  | No             | No                  | No                    |
-| Self-hosting option                              | Yes                                                  | No             | No                  | No                    |
-| Data location                                    | Cloud database in Frankfurt; self-hostable           | See vendor     | See vendor          | Region depends on plan |
-| Built-in automation builder                      | No (webhooks, REST, separate n8n)                    | See vendor     | See vendor          | Yes                   |
+- No listing database, property photos, flyers or brochures, and no MLS, IDX or portal syndication.
+- No web forms or landing pages for lead capture, and no automatic lead routing.
+- No drip campaigns, email sequences or bulk email. Market updates go out from your newsletter tool.
+- No texting, calling or dialer, and no mobile app.
+- No showing booking or calendar write. On Pro you can see your calendar read-only next to the CRM.
+- No file storage on records. Keep documents in your e-signature or file tool and put the link on the deal.
+- No task due dates or reminder notifications. A date field plus a saved view, or a routine, does that work.
 
-**Industry-specific CRMs** like Wise Agent and Follow Up Boss are built for real estate and bring features such as built-in follow-up automation and lead routing. As of September 2026, [Wise Agent](https://wiseagent.com/pricing.asp) lists its CRM plan at $49 per month billed monthly (up to five team members), and [Follow Up Boss](https://www.followupboss.com/pricing) lists its Grow plan at $69 per user per month billed monthly. Salesforce prices come from the [Salesforce pricing page](https://www.salesforce.com/sales/pricing/) (Starter Suite, billed annually); Salesforce Hosted MCP Servers became generally available in April 2026 for Enterprise Edition orgs and above.
+If one of these is the reason you are shopping, look at a tool built for it. Customermates publishes this page; vendor details were checked on 8 October 2026 on each vendor's own website.
 
-**Enterprise CRMs** like [Salesforce](/compare/salesforce-alternative) and [HubSpot](/compare/hubspot-alternative) offer powerful platforms, but configuring them for real estate workflows usually takes more setup work.
+| If you need | Look at | What the vendor's site lists |
+|---|---|---|
+| A US agent CRM with lead routing, calling and texting | [Follow Up Boss](https://www.followupboss.com/pricing) | Lead distribution, automated Action Plans, calling and texting (calling is an add-on on Grow), Zillow Pro, mobile apps |
+| One flat price for a small US team with drip campaigns | [Wise Agent](https://wiseagent.com/pricing.asp) | CRM plan for up to 5 team members on a shared login, transaction management, lead automation and routing, drip campaigns |
+| German broker software with portal transfer and exposés | [Propstack](https://www.propstack.de/) or [FLOWFACT](https://flowfact.de/) | Propstack: ImmoScout24, Immowelt and Kleinanzeigen interfaces, property files, iOS and Android app. FLOWFACT: transfer to more than 150 portals, search-profile matching |
+| Rent, accounting and maintenance for rentals | [Buildium](https://www.buildium.com/pricing/) | Online rent payments, accounting, maintenance requests, resident and owner portals, leasing |
 
-**Customermates** is a focused, open-source real estate CRM starting at [[commercial.price.starter.monthly]]/user/month, or [[commercial.price.pro.monthly]]/user/month on Pro for the unified inbox across email, LinkedIn, and WhatsApp. No per-lead fees. It does not include listing management, web forms, sequences or a mobile app. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, [self-host](/features/self-hosted) the open-source core.
+A common split is two systems: listing software or an MLS tool for the properties, and Customermates for the people and conversations around them.
 
-## CRM for Real Estate Agents vs. Brokerages
+## What it costs
 
-Whether you are a solo agent or run a brokerage with dozens of team members, your CRM needs are different. Here is how Customermates scales for both.
+Prices are per active user per month, billed monthly. Every plan includes REST, webhooks and MCP. There are no per-lead or per-contact fees.
 
-### Solo Agents
+| Team | Plan | Per month |
+|---|---|---|
+| Solo agent, pipeline only, no inbox | Starter | [[commercial.price.starter.monthly]] |
+| Solo agent, one mailbox or WhatsApp in the inbox | Pro | [[commercial.price.pro.monthly]] |
+| Solo agent, mailbox plus WhatsApp | Business | [[commercial.price.business.monthly]] |
+| Three agents, mailbox plus WhatsApp each | Business | [[commercial.price.business.monthly.seats.3]] |
+| Five agents, pipeline only | Starter | [[commercial.price.starter.monthly.seats.5]] |
 
-For an individual agent, Customermates provides contacts, a configurable deal pipeline, tasks, custom fields, and MCP access for external AI clients. Add records manually, import them from an Excel workbook (XLSX), or migrate data through REST or MCP; there is no CSV import and no built-in follow-up scheduler.
+Each cloud plan adds monthly hosted AI credits per active user for Mate; the amounts are on the [pricing page](/pricing). Running the open-source core on your own server costs no licence fee, but a [self-hosted installation](/features/self-hosted) has no inbox, no Mate and no routines.
 
-### Teams and Brokerages
+## Moving in from a spreadsheet or another CRM
 
-For real estate teams and brokerages, Customermates provides a shared pipeline with roles and permissions per resource and action, dashboards grouped by owner, and a central contact database. Lead routing and assignment rules are not built in; you assign an owner manually or through your own integration. A 15-agent brokerage on Pro pays [[commercial.price.pro.monthly.seats.15]]/month total. Brokerages that need shared inboxes and more than [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per agent move to Business at [[commercial.price.business.monthly]]/user/month.
+<Steps>
+  <Step title="Export to Excel">
+    Export your contacts from your current CRM or phone and save them as an
+    Excel workbook (.xlsx). The import reads XLSX only, one record type at a
+    time.
+  </Step>
+  <Step title="Create your fields first">
+    Add Role, Search area, Max budget and the other fields above, so the
+    import can map your columns to them.
+  </Step>
+  <Step title="Import contacts, then deals">
+    On each list, open Import and export and choose Add from file. Import
+    people first, then your active listings and buyer mandates.
+  </Step>
+  <Step title="Connect your channels">
+    On Pro or higher, connect your mailbox or WhatsApp under My Profile ›
+    Channels and link the people you write with to their contacts.
+  </Step>
+  <Step title="Save the views and routines">
+    Save the five views above, then add the matching and follow-up routines in
+    Customermates Cloud.
+  </Step>
+</Steps>
 
-### Commercial Real Estate
+## Client data
 
-Commercial real estate professionals need to track longer deal cycles, multiple stakeholders per transaction, and complex property portfolios. Customermates handles this with customizable pipeline stages, typed custom fields for property data (square footage, zoning, cap rates, lease terms), and multi-contact deal associations.
+In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region. Hosting and the other subprocessors, US providers among them, are on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available. Customermates holds no certification such as ISO 27001 or SOC 2.
 
-## Integrations for Real Estate Workflows
-
-Customermates connects to the tools real estate professionals already use through its [REST API](/features/api), webhooks, MCP, and a separately operated n8n instance with the Customermates community node:
-
-- **Email**: On Pro, connect Gmail, [Outlook](/features/outlook-integration) or IMAP to the unified inbox and link conversations to contacts
-- **Calendar**: On Pro, see your calendar read-only next to the CRM; there is no booking or calendar write
-- **Property portals**: No native portal integration; inquiry feeds from Zillow, Realtor.com, Rightmove or ImmoScout24 can be passed in through your own integration via REST
-- **Document tools**: Store the link to a DocuSign or PandaDoc envelope on the deal; records do not hold file attachments
-- **Communication**: WhatsApp is part of the Pro inbox; [Slack](/features/slack-integration) or other tools connect through webhooks or n8n; SMS is not a channel
-- **AI clients**: Connect Claude, ChatGPT, or any MCP-compatible assistant to draft property descriptions, summarize client requirements, or generate follow-up emails
-- **Accounting**: Pass commission data to your accounting software through your own REST or n8n integration
-
-n8n is not part of Customermates; you run it yourself or use n8n's own hosted service.
-
-## Pricing That Works for Real Estate
-
-Real estate CRM software should not eat into your commissions. Customermates keeps pricing simple and transparent:
-
-- **Starter ([[commercial.price.starter.monthly]] per user per month):** pipeline, custom fields, AI clients through MCP, REST API and webhooks
-- **Pro ([[commercial.price.pro.monthly]] per user per month):** adds the unified inbox (email, LinkedIn including Sales Navigator, WhatsApp, Instagram, and Telegram) plus the read-only calendar view
-- **Business ([[commercial.price.business.monthly]] per user per month):** [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user, shared inboxes, priority support
-- **No per-lead charges:** pay the same whether you have 10 or 10,000 contacts
-- **Self-hostable:** the [open-source core](/features/self-hosted) runs on your own server with no licence cost; the inbox and Mate are cloud-only
-
-A solo agent on Pro pays [[commercial.price.pro.monthly]]/month. A brokerage with 15 agents pays [[commercial.price.pro.monthly.seats.15]]/month. See our full [pricing details](/pricing).
-
-For comparison, the table above lists entry prices for Wise Agent and Follow Up Boss; Salesforce lists its Starter Suite at $25 and its Pro Suite at $100 per user per month (Salesforce pricing page, September 2026).
-
-## How to Choose the Right CRM for Real Estate
-
-Not every CRM is built for how real estate professionals actually work. Here is what to evaluate when choosing a real estate CRM:
-
-1. **Pipeline flexibility**: Can you separate buyers, sellers, rentals, and commercial deals? Can you customize stages to match your actual workflow?
-2. **Automation depth**: Does the CRM automate follow-ups, lead assignment, and task creation? Are automations included in the price or sold as add-ons?
-3. **Contact and property management**: Can you store detailed buyer preferences and property criteria? Can you filter and match contacts to listings?
-4. **Mobile access**: Does the CRM work on your phone for updating deals and logging notes between showings?
-5. **Pricing transparency**: Are there per-lead fees, per-contact charges, setup fees or minimum terms? Which features sit in which plan, and what is the real total cost per agent?
-6. **Data control and compliance**: Where is your data stored, which subprocessors are involved, is a DPA available, and can you self-host if needed?
-7. **Integration capabilities**: Does it connect to your email, calendar, property portals, and document tools without expensive add-ons?
-8. **Setup complexity**: Can you get started in minutes, or does it require weeks of implementation and consultant fees?
-
-Read our comprehensive guide to [CRM systems](/blog/crm-systems) for a deeper look at what makes a CRM effective for any business.
-
-## Getting Started with Customermates for Real Estate
-
-Setting up your real estate CRM takes minutes, not months:
-
-1. **[Create your free account](/auth/signup):** no credit card required, [[commercial.trial.days]] days of Pro to try it.
-2. **Import your records:** from an Excel workbook (XLSX), one record type at a time, or through the REST API or an AI agent connected over MCP. There is no CSV import.
-3. **Set up your pipeline:** define stages such as Inquiry, Viewing, Offer, Negotiation, Contract and Closing, and add a "Deal type" field to tell buyer deals from seller mandates. Use the drag-and-drop Kanban board to visualize your workflow.
-4. **Add custom fields:** create fields for buyer preferences (location, budget, bedrooms, property type), property details, commission amounts, referral sources, and anything else your business tracks.
-5. **Connect automation if you need it:** use webhooks, the REST API or your own n8n instance for lead follow-ups and check-ins, or a cloud routine for a daily list of stale leads.
-6. **Connect your email (Pro):** link Gmail, Outlook or IMAP and assign client conversations to the right contacts.
-
-## Frequently Asked Questions
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is the best CRM for real estate agents?">
-The best CRM for real estate agents depends on your specific needs and budget. For agents who want a focused, affordable CRM with AI clients through MCP and no per-lead fees, Customermates starts at [[commercial.price.starter.monthly]]/user/month, with the unified inbox for email, LinkedIn, and WhatsApp available on Pro at [[commercial.price.pro.monthly]]/user/month. Industry-specific tools like Wise Agent and Follow Up Boss add built-in follow-up automation. Enterprise platforms like Salesforce and HubSpot are powerful but take more setup.
-</FaqItem>
-
-<FaqItem question="Do I need a real estate-specific CRM, or can I use a general CRM?">
-A general CRM with strong customization capabilities often works better than a rigid industry-specific tool. Real estate agents need custom pipeline stages, property-related fields, and a way to track viewings, which Customermates supports through its configurable pipeline, custom fields and tasks. The advantage of a customizable CRM is that it adapts to your workflow rather than forcing you into a predefined process.
-</FaqItem>
-
-<FaqItem question="How does a CRM help real estate agents close more deals?">
-A real estate CRM helps by making sure no lead goes unfollowed, no viewing goes unrecorded, and no deal stalls without attention. Pipeline visibility shows you exactly which deals need action, and contact profiles with full history give you context for every conversation. Agents who work from one system tend to respond faster and follow up more consistently.
-</FaqItem>
-
-<FaqItem question="How does Customermates handle GDPR for real estate?">
-GDPR compliance depends on how you, as controller, use any tool. Customermates provides a [DPA](/dpa), discloses its [subprocessors](/subprocessors), including US providers covered by standard contractual clauses, and runs the cloud database in the AWS Frankfurt region. It holds no certification such as ISO 27001 or SOC 2. You can also [self-host](/features/self-hosted) the open-source core and choose where the data lives.
-</FaqItem>
-
-<FaqItem question="Can I use Customermates for both residential and commercial real estate?">
-Yes. The deal stage is one configurable column, and a single-select "Deal type" field plus saved views let you work residential buyers, residential sellers, commercial leases and other deal types separately. Custom fields let you track property-specific data like square footage, zoning, cap rates, and lease terms for commercial deals alongside bedroom count and neighborhood preferences for residential.
+<FaqItem question="What CRM do realtors use?">
+In the US, agents can choose CRMs built for real estate, such as Follow Up Boss or Wise Agent, and many brokerages supply their own tools. In Germany, broker software such as Propstack, FLOWFACT or onOffice also manages the properties themselves; Propstack and FLOWFACT list interfaces to portals such as ImmoScout24. Agents who mostly need follow-up, search profiles and their conversations in one place can also use a general CRM set up as described above. Customermates is our own product, so weigh that.
 </FaqItem>
 
 <FaqItem question="How much does a real estate CRM cost?">
-Real estate CRM pricing varies widely. Industry-specific tools such as Wise Agent and Follow Up Boss list their entry plans at $49/month and $69/user/month, billed monthly. Salesforce lists its Starter Suite at $25 and its Pro Suite at $100 per user per month (September 2026). Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM, or [[commercial.price.pro.monthly]]/user/month on Pro for the unified inbox; there are no per-lead fees at any tier.
+Vendor pricing pages show a wide range. On 8 October 2026, Follow Up Boss listed its Grow plan at $69 per user per month billed monthly, and Wise Agent listed its CRM plan at $49 per month for up to five team members on a shared login ([Follow Up Boss pricing](https://www.followupboss.com/pricing), [Wise Agent pricing](https://wiseagent.com/pricing.asp)). Customermates costs [[commercial.price.starter.monthly]] per user per month on Starter and [[commercial.price.pro.monthly]] on Pro with the inbox.
 </FaqItem>
 
-<FaqItem question="Can I import contacts from my current CRM or spreadsheet?">
-Yes. Customermates imports contacts, organizations and deals from an Excel workbook (XLSX), one record type at a time. There is no CSV import, so save a CSV export as XLSX first. Larger migrations can also run through REST or an external AI client over MCP.
+<FaqItem question="Can Customermates match buyers to properties automatically?">
+No. There is no property database and no automatic matching. You filter buyers by search area, property type, bedrooms and budget when a listing comes in, or in Customermates Cloud a routine does that lookup when a listing goes active and links the matching buyers to it.
+</FaqItem>
+
+<FaqItem question="Does it connect to the MLS, Zillow or ImmoScout24?">
+Not natively. Inquiries that portals send to your mailbox land in the unified inbox on Pro and higher. For anything else, your own integration or an n8n workflow you run separately can create contacts through the [REST API](/features/api).
+</FaqItem>
+
+<FaqItem question="Is Customermates a good fit for property management?">
+Only for the relationship side: winning owners, leasing inquiries, and owner and vendor conversations. Rent collection, accounting, maintenance and tenant portals need property management software such as Buildium.
+</FaqItem>
+
+<FaqItem question="Is there a free real estate CRM?">
+Customermates has a free trial of [[commercial.trial.days]] days and an open-source core you can self-host without a licence fee, without the inbox and Mate. In Germany, FLOWFACT lists FLOWFACT Mini as free broker software for solo agents and founders, with a minimum contract term stated on [its website](https://flowfact.de/).
 </FaqItem>
 </Faq>
 
----
-
-Stop losing real estate leads to slow follow-ups and scattered data. Customermates gives you pipeline visibility and client management at a price that works for your business. [Start your free trial today](/auth/signup).
+Competitor details checked on 8 October 2026 against [Follow Up Boss pricing](https://www.followupboss.com/pricing), [Wise Agent pricing](https://wiseagent.com/pricing.asp), [Buildium pricing](https://www.buildium.com/pricing/), [Propstack](https://www.propstack.de/), [FLOWFACT](https://flowfact.de/) and [onOffice](https://onoffice.com/).

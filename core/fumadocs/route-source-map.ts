@@ -1,6 +1,7 @@
 import type { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
 
 import {
+  aboutSource,
   affiliateSource,
   apiDocsSource,
   apiOverviewSource,
@@ -43,6 +44,10 @@ export const ROUTE_SOURCE_MAP = {
   "/n8n-crm": {
     source: automationSource,
     path: ["automation"],
+  },
+  "/about": {
+    source: aboutSource,
+    path: ["about"],
   },
   "/help-and-feedback": {
     source: helpAndFeedbackSource,

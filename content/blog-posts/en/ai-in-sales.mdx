@@ -1,22 +1,23 @@
 ---
-title: "AI in Sales: Practical Use Cases, Tools, and Implementation"
-description: "Explore practical AI sales use cases, the tool categories behind them, and how to introduce one controlled workflow with a trustworthy CRM handoff."
+title: "AI in Sales: Use Cases, Tools and How to Start"
+description: "AI in sales saves the most time on research, call notes, follow-ups and CRM updates. Which tool fits which job, the limits, and a first workflow to try."
 
 relatedHrefs:
+  - /blog/ai-crm
   - /blog/ai-sales-agent
-  - /blog/ai-sdr
-  - /blog/agentic-crm
-  - /features/sales-automation
+  - /blog/chatgpt-for-sales
+  - /features/workflow-automation
 
 hero:
-  title: "AI in Sales: Use Cases, Tool Categories, and a Practical Starting Point"
-  description: AI can assist research, preparation, conversation review, and CRM work. The useful approach starts with one measurable task and an explicit control boundary.
+  title: "AI in Sales: Where It Helps, Which Tools Fit and How to Start"
+  description: "Most of the time AI saves in sales today is reading and writing around the deal: research, meeting prep, follow-ups and CRM upkeep. A guide by sales task, with the limits and one workflow to try first."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-04-26
+  updated: 2026-10-08
   tags:
     - ai-in-sales
     - ai-for-sales
@@ -24,185 +25,153 @@ blogPost:
     - CRM
 ---
 
-# AI in Sales: Use Cases, Tool Categories, and a Practical Starting Point
+# AI in Sales: Where It Helps, Which Tools Fit and How to Start
 
-**AI in sales** means applying machine-learning or generative systems to defined work across prospecting, qualification, account management, forecasting support, conversation review, and administration. It is not one product and it is not automatically autonomous.
+AI in sales is the use of language models and machine learning for the work around a sale: researching an account, preparing a meeting, writing up a call, drafting the follow-up and keeping the CRM current. Most of the time it saves today comes from that reading and writing. Scoring leads and projecting revenue count as AI too, but those models learn from past deals, so they pay off for teams with a long, clean deal history and much less for a five-person consultancy.
 
-The most useful implementations begin with a narrow question: which decision or repetitive task can improve if the system receives reliable context, produces a reviewable result, and records the accepted outcome in the right place?
+The selling itself stays with people: earning trust, judging scope and price, deciding when to push. A good start is one repetitive task, done as a draft that a person reads before anything goes out.
 
-> **Customermates product boundary:** Customermates provides CRM records and supported actions, not every AI capability described in this guide. External tool-aware AI clients can work with supported CRM data through MCP. Customermates does not natively source or enrich leads, score them, forecast revenue, transcribe calls, run outreach sequences, send bulk campaigns, provide telephony or SMS, or book meetings.
+Customermates, an AI-native CRM, publishes this guide and appears in its own labelled section. Facts about other vendors come from their own pages, checked on 8 October 2026.
 
-## What AI in sales can mean
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What it is">Language models and machine learning applied to sales research, writing, summaries, CRM updates and, where the data allows it, scoring.</SummaryItem>
+  <SummaryItem label="Pays off first">Meeting preparation, follow-up drafts and CRM upkeep. These work with the records and conversations a team already has and need no years of deal history.</SummaryItem>
+  <SummaryItem label="Stays human">Relationships, judgment on scope and price, and every message you would not send unread.</SummaryItem>
+  <SummaryItem label="Choosing tools">General assistants, the AI in your CRM, call recorders and prospecting databases do different jobs. Pick by the job you lose the most time on.</SummaryItem>
+  <SummaryItem label="Rules in the EU">GDPR covers customer data in prompts. Since 2 February 2025, the EU AI Act also requires companies that use AI to look after their staff's AI literacy.</SummaryItem>
+</ArticleSummary>
 
-The category spans several techniques:
+## Where AI helps in a sales process
 
-- **prediction and classification:** ranking or grouping cases from historical data;
-- **generation:** drafting text, summaries, questions, or structured proposals;
-- **retrieval:** finding relevant information across approved sources;
-- **conversation analysis:** extracting themes or actions from supported transcripts or messages;
-- **agentic tool use:** letting a model call approved business actions under defined permissions;
-- **rules and automation:** deterministic triggers that may use no model at all.
+The table follows a deal from first research to the pipeline review. The last column is the part a person should keep.
 
-These techniques solve different problems. A team should not use generative output where a deterministic validation rule is sufficient, or call a rules-based workflow an AI agent merely because one step uses a model.
+| Sales task | What AI does | What it needs | What stays with you |
+|---|---|---|---|
+| Account research | Turns a company's website, news and recent posts into a one-page brief | Web access and the questions you care about | Checking every fact the brief states without a source |
+| Finding prospects | Searches a database by industry, role and company size and suggests similar accounts | A prospecting database such as LinkedIn Sales Navigator | Deciding who is worth a message |
+| Meeting preparation | Pulls the last emails and messages, the open deal and the open tasks into a short brief | Conversations and deals in one place | What to ask and what to propose |
+| Call notes | Transcribes a call and lists decisions and next steps | A meeting recorder and the other side's consent | Which commitments were really made |
+| Follow-ups | Drafts a reply in the thread, in the client's language, that refers to the open deal | The thread, the deal and your tone of voice | Reading it before it is sent |
+| CRM upkeep | Moves deals to the next stage, writes notes and links new contacts after a conversation | A CRM the AI can operate through an API or MCP | Rules on what the AI may change without asking |
+| Pipeline review | Finds deals with no next step or no contact for weeks | Clean stages and activity history | Which stalled deal to chase, and which to close as lost |
+| Lead scoring | Ranks leads by how much they resemble past wins | Hundreds of won and lost deals with consistent fields; with fewer, the ranking is not reliable | Whether the score fits an account you know |
+| Revenue forecasting | Projects the quarter from pipeline and history | A long, consistent deal history; without it, the projection is a guess | The number you commit to |
+| Coaching | Reviews recorded calls against a rubric and role-plays objections | Recorded calls and a written rubric | Feedback to people and any judgment of their performance |
 
-## Practical AI use cases in sales
+The first seven rows work with the data a small team already has. Scoring and forecasting do not: a consultancy that closes 40 deals a year gives a model too little to learn from. At that size, a weighted pipeline, where each deal's value is multiplied by the probability you set for its stage, is easier to check and to explain to a partner. A wholesaler with thousands of orders a year is different: it has enough data for models that suggest reorders or add-on sales.
 
-### 1. Account research
+## Generative AI, scoring models and plain automation
 
-A system can assemble an account brief from permitted sources. The output should retain links, observation dates, and uncertainty so the representative can distinguish evidence from inference.
+Four kinds of technology get sold as "AI in sales". They fail in different ways, so it helps to know which one a product uses before you trust it.
 
-### 2. Meeting preparation
+| Kind | What it does | What it needs | How it goes wrong |
+|---|---|---|---|
+| Generative AI | Writes and summarises: briefs, call notes, drafts, answers about your data | Context in the prompt or access to your systems; useful from day one | Invents plausible details, such as a project the client never mentioned |
+| Predictive (scoring) models | Scores leads and projects revenue from past outcomes | Large, consistent history | Learns from thin or skewed data, and its reasons are not easy to question |
+| Rules-based automation | "When a deal is won, create a kick-off task" | A rule, no model | Keeps running the old rule after the process changed |
+| AI agents | A language model that calls tools such as the CRM, inbox and calendar to finish multi-step work | Permissions and clear instructions | Acts on a misunderstanding, quickly and at scale |
 
-AI can summarize existing CRM context, open tasks, recent activity, and conversation history. This works only when those records are current and the summary links back to them.
+Many sales tasks need no model at all. If the rule fits in one sentence, [workflow automation](/features/workflow-automation) is cheaper and behaves the same way every time. Agents are a topic of their own, covered in the [guide to AI sales agents](/blog/ai-sales-agent).
 
-### 3. Message drafting
+## Which AI tools fit which job
 
-A model can prepare a first draft from approved positioning and known account context. A reviewer should be able to see the evidence, recipient, channel, and final text before delivery.
+This is not a ranking. Each row names a kind of tool, examples described from the vendors' own pages, and the situation it fits.
 
-### 4. Inbound request classification
+| Job | Kind of tool | Examples | Fits when |
+|---|---|---|---|
+| Writing, research and summaries on demand | General AI assistant | Claude and ChatGPT. Claude connects to other services through [connectors](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities), including custom remote MCP servers | You want help with any text and can give it the context |
+| AI inside a large sales platform | The CRM vendor's own AI | [Salesforce](https://www.salesforce.com/sales/ai/) describes Agentforce for Sales updating fields such as stage and next steps, and AI summaries for every account, opportunity, lead and contact. [HubSpot](https://www.hubspot.com/products/artificial-intelligence)'s Prospecting Agent monitors buying signals and launches personalised outreach; custom agents built in its agent builder consume HubSpot Credits | Your team already runs on that platform |
+| Calls and meetings | Conversation intelligence | [Gong](https://www.gong.io/conversation-intelligence/) captures, transcribes and analyses calls, meetings and emails, flags deal risks and gives managers material for coaching | Your team sells in many recorded calls and has managers who coach |
+| Finding prospects | Prospecting database with AI | [LinkedIn Sales Navigator](https://business.linkedin.com/sell/sales-navigator/ai-for-sales): Account IQ summarises account activity and earnings calls, Lead IQ identifies relationship paths and lookalike leads, Message Assist drafts outreach | You prospect cold, mostly on LinkedIn |
+| Keeping the CRM current from conversations | AI-native CRM | Customermates (section below) and the products compared in the [AI CRM guide](/blog/ai-crm) | Client conversations run over email, LinkedIn and WhatsApp |
 
-An incoming request can be categorized by topic, urgency, or likely owner. The workflow needs an uncertain state and a human route when the request does not match a known category.
+A team that writes twenty follow-ups a week gains more from an assistant that sees the CRM and the threads than from a call recorder. A team that spends its day on calls gains more from the recorder. If you mainly want a better writing partner, start with the guide to [ChatGPT for sales](/blog/chatgpt-for-sales).
 
-### 5. Qualification support
+## How to start: one workflow, four weeks
 
-AI can collect answers and summarize how they map to a documented qualification framework. The person who owns the opportunity should accept or correct the result.
+<Steps>
+  <Step title="Pick the task you repeat most">Write down how often it happens and how long it takes. Example: follow-ups on open proposals, ten a week at about ten minutes each.</Step>
+  <Step title="Put the context in one place">An AI writes a usable follow-up only if it sees the thread, the deal and what was promised. Paste that into a chat, connect your AI client to the CRM, or use a CRM that holds the conversations.</Step>
+  <Step title="Run it read-only for a week">Ask for summaries and lists only. Compare them with what you know about each deal and note every invented detail.</Step>
+  <Step title="Move to drafts, not sends">Let the AI save drafts that you edit and send yourself. Count how many go out with only small changes.</Step>
+  <Step title="Write the rules down">One page: tone of voice, what the AI may never promise (prices, dates, discounts) and which actions need a person. Walk the team through it and keep the page, because it also documents the AI literacy measures described further down.</Step>
+  <Step title="Expand when the edits get small">After two to four weeks, compare the time per accepted draft with your baseline. Add the next task only when this one runs with little correction.</Step>
+</Steps>
 
-### 6. CRM note and field proposals
+## Example: meeting briefs and follow-up drafts in Customermates
 
-After a verified interaction, a model can suggest structured updates. Server-side permissions, required fields, stable record IDs, and human review protect the system of record.
+This section shows one setup in Customermates, the CRM that publishes this guide. Mate, the assistant inside it, runs in Customermates Cloud and uses hosted AI credits.
 
-### 7. Follow-up task creation
+Take a three-person consultancy on the Pro plan:
 
-The system can turn an accepted next step into a CRM task linked to the relevant account or deal. It should not invent due dates, owners, or commitments that the source conversation did not establish.
+- **Records:** contacts, organizations and deals. The deal stage is a single-select field with stage probabilities: First call 10%, Scoping 30%, Proposal sent 60%, Won 100%, Lost 0%.
+- **Inbox:** each consultant connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, usually the work mailbox in Gmail or Outlook. The [unified inbox](/features/unified-inbox) shows those threads next to the contacts and deals, and on Pro Customermates can read that account's calendar without writing to it.
+- **Knowledge Base:** one page with the services, how the firm writes to clients and what Mate may never promise. Mate reads the Knowledge Base in chats and in routine runs, so the rules from step five live in one place instead of in every prompt.
 
-### 8. Conversation summarization
+Each consultant then adds a [routine](/docs/app-routines) that runs **On a schedule**, **Every day** at 07:30:
 
-For supported conversation data, AI can produce a compact summary and extract proposed actions. Check whether the source is a message thread, transcript, or note; access to one does not imply access to all.
+```text
+Look at my calendar events for today. For each meeting with someone
+outside our company, find the contact, the organization and any open
+deal. Write a short brief per meeting: the last three messages in
+either direction, the deal stage and value, open tasks, and one
+question I should ask. Say what you could not find.
+Do not send or change anything.
+```
 
-### 9. Objection clustering
+The briefs appear in the run's **Run details**, where the consultant can reply to ask a follow-up question. Later in the day, in a chat with Mate:
 
-Aggregated, appropriately governed conversation data can reveal recurring objections. A useful analysis includes examples and sampling limits instead of presenting model-generated themes as complete market truth.
+```text
+Find my deals in the stage "Proposal sent" where our last message is
+older than seven days. For each, save a two-sentence follow-up as a
+draft in the latest thread, in the language of that conversation.
+Do not send anything.
+```
 
-### 10. Coaching and role-play
+Both instructions say "Do not send" for a reason. When asked to send an email or chat message, Mate sends it without a second confirmation; it stops for approval before deletions and a few admin actions. A routine runs as its owner, with the owner's channels and permissions, and refuses anything that would need approval, because nobody is there to give it.
 
-Models can simulate scenarios or review a representative's response against a rubric. They should support coaching, not serve as an unexamined performance or employment decision system.
+**What it costs:** Pro for three people is [[commercial.price.pro.monthly.seats.3]] per month, billed monthly. That covers the inbox, [[commercial.entitlement.pro.includedAccountsPerUser]] connected account and up to [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per person, plus monthly hosted AI credits per active user; see [pricing](/pricing). Starter, at [[commercial.price.starter.monthly.seats.3]] per month, includes Mate and [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per person but no inbox and no calendar, so the brief would only see CRM records. Pro includes the [[commercial.trial.days]]-day free trial.
 
-### 11. Pipeline review assistance
+**With your own AI client instead:** Claude, ChatGPT and other clients can do the same work through the [Customermates MCP server](/docs/mcp), on every plan and on a self-hosted instance. The model then runs on your own AI subscription. Messaging and calendar tools need Pro or higher in the cloud. The server asks clients to confirm before sending or deleting, but whether you see that confirmation depends on the client.
 
-AI can surface records with missing next steps, stale activity, or inconsistent fields. This is different from forecasting: a CRM hygiene check does not create a reliable revenue prediction.
+<AcquisitionCallout title="What Customermates does not do" variant="boundary">
+No lead scoring, no data enrichment and no revenue forecasting: the weighted pipeline is deal value times the stage probability you set. No call recording or transcription, no email sequences or bulk sending, and no calendar booking. Routines are capped per hour and ignore further events for a short window after a run starts, so they suit daily or weekly reviews better than handling every inbound email. Self-hosted, you get the open-source core with REST, webhooks and MCP, but no inbox, Mate or routines. A large sales team that wants scoring models is better served by the platform AI from Salesforce or HubSpot, and a team that coaches from hundreds of recorded calls by a conversation intelligence tool.
+</AcquisitionCallout>
 
-### 12. Handoff preparation
+## Risks to settle before you start
 
-A system can compile the source, need, stakeholders, history, and next action before moving an opportunity between teams. The receiving person should be able to audit and correct the package.
-
-## AI in sales is a stack, not one feature
-
-A real workflow may include:
-
-| Layer | Responsibility | Question to verify |
-| --- | --- | --- |
-| Business system | durable customer, deal, task, and activity state | Which system owns each field and relation? |
-| Data source | external or internal evidence | Where did the fact come from, and may it be used? |
-| Model | classification, extraction, or generation | What context and instruction produced the result? |
-| Orchestration | order, retries, and stop conditions | What happens after a partial failure? |
-| Delivery channel | customer-facing communication | Who approves the recipient and final content? |
-| Monitoring | quality, cost, and exception evidence | Can the team diagnose and correct mistakes? |
-
-Tool selection should follow this architecture. A long feature list cannot compensate for unclear ownership between layers.
-
-## Where Customermates fits in an AI sales stack
-
-Customermates can provide the durable CRM context: contacts, organizations, deals, services, tasks, custom fields, views, dashboards, and activity history. External AI clients can use MCP for supported work under the requesting user's permissions. REST, webhooks, and the separate Customermates community node for self-operated n8n provide other integration routes.
-
-On entitled cloud accounts, the separately licensed unified inbox brings supported email and social conversations beside CRM context. An external AI client can read an allowed thread, save a draft reply to an existing thread, send one email, or start and send one supported chat. Sends are immediate: compatible clients are instructed to ask first and the server enforces user permissions, but an authorized external MCP call does not encounter a universal second approval gate. This does not add native enrichment, scoring, forecasting, call transcription, sequences, bulk outreach, telephony, SMS, or calendar booking.
-
-Treat Customermates as the CRM and action boundary, while documenting the external model, data source, automation runtime, and channel provider separately.
-
-## Start with one auditable CRM task
-
-A low-risk first workflow is more informative than a broad demo:
-
-1. Pick a recurring task with a clear source and accepted output.
-2. Write the success rubric and stop conditions before choosing a tool.
-3. Select representative records, including incomplete and conflicting cases.
-4. Begin in read-only mode and compare the result with the source.
-5. Add one reversible write, such as a proposed field update or follow-up task.
-6. Require review and capture every correction.
-7. Measure time saved, correction time, completeness, and downstream usefulness.
-8. Expand only when the error pattern and recovery path are understood.
-
-For example, ask an approved client to summarize an existing account and propose one next task. That tests context quality, record identity, permissions, and review without pretending to automate the whole sales process.
-
-## How to choose AI tools for sales
-
-Evaluate by workflow and evidence:
-
-- Does the product solve the intended job without requiring undeclared components?
-- Which data sources, regions, processors, retention rules, and contracts apply?
-- Can it show sources for factual claims and separate facts from inferences?
-- Are read, draft, write, send, and delete actions permissioned independently?
-- Does the CRM integration preserve IDs, relations, required fields, and activity?
-- How does it handle uncertain input, duplicates, opt-outs, and partial failures?
-- Can the team export the operational evidence needed to audit outcomes?
-- What is the total cost of licences, model and data usage, integration, and review?
-
-Compare finalists on the same examples. Do not choose from vendor claims or generic productivity statistics alone.
-
-## Risks to manage
-
-- **Poor source data:** AI can amplify stale or wrongly matched records.
-- **Hallucinated detail:** generated personalization may sound specific without being true.
-- **Automation bias:** reviewers may accept plausible output too quickly.
-- **Privacy and legal mismatch:** the lawful use of data depends on the actual workflow, not the word “AI.”
-- **Unclear ownership:** multiple systems may overwrite the same field or status.
-- **Customer-experience damage:** a technically correct workflow can still feel intrusive or irrelevant.
-- **Unmeasured review cost:** time spent correcting output can erase the expected gain.
-
-A useful governance rule is simple: the higher the impact and irreversibility, the stronger the evidence and human control should be.
-
-## Measuring AI in sales
-
-Choose metrics that connect the workflow to a customer or business outcome:
-
-- source-backed fact accuracy;
-- human acceptance and correction rates;
-- time to prepare an accepted result;
-- CRM completeness and duplicate rate;
-- qualified handoffs accepted by the next owner;
-- opt-outs, complaints, and exception volume;
-- opportunity progression after an accepted handoff;
-- total operating cost per accepted outcome.
-
-Generated text, tool calls, and messages sent describe activity. They do not by themselves demonstrate better sales.
+- **Invented details.** Generative models write plausible facts. Ask for a source on every claim in a research brief, and never let a first message to a new contact go out unread.
+- **Sending without review.** Look up which actions your tool performs without asking, and say in every instruction whether it may send.
+- **Customer data in prompts.** GDPR applies as soon as personal data reaches an AI provider. Use an account covered by a data processing agreement and send only what the task needs.
+- **AI literacy.** The EU AI Act requires every company that uses AI at work to take measures for its staff's AI literacy. The FAQ below has the details.
+- **Recording calls.** A call recorder needs the other side's consent. In Germany, recording the non-public spoken word without authorisation is a criminal offence under [§ 201 StGB](https://dejure.org/gesetze/StGB/201.html).
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What does AI in sales mean?">
-It means using predictive, generative, retrieval, analysis, or agentic systems for defined sales work. The category includes many separate tools and workflows rather than one capability.
+<FaqItem question="How is AI used in sales?">
+Mostly for the reading and writing around a deal: researching accounts, preparing meetings, summarising calls and threads, drafting follow-ups and updating the CRM. Larger teams also use AI to analyse recorded calls for coaching. Scoring leads and projecting revenue are uses as well, but they need a long deal history to be worth much.
 </FaqItem>
 
-<FaqItem question="What are practical AI use cases in sales?">
-Common uses include account research, meeting preparation, drafting, request classification, qualification support, conversation summaries, CRM update proposals, task creation, and handoff preparation.
+<FaqItem question="Which AI tool is best for sales?">
+There is no single best tool, only the best fit for the job you lose the most time on. Claude or ChatGPT covers writing and research, Salesforce or HubSpot AI fits teams already on those platforms, Gong fits teams with many recorded calls and Sales Navigator fits cold prospecting on LinkedIn. Customermates, which publishes this guide, fits small teams whose client conversations run over email, LinkedIn and WhatsApp.
 </FaqItem>
 
 <FaqItem question="Will AI replace salespeople?">
-AI can reduce repeatable preparation and administration. People remain responsible for strategy, judgment, relationships, negotiation, exceptions, and accountable decisions.
-</FaqItem>
-
-<FaqItem question="Is AI in sales GDPR-compliant?">
-Compliance depends on the specific purpose, data, legal basis, processors, retention, security, and customer interaction. Review the real workflow rather than relying on a product claim.
+Not in sales that runs on relationships. AI takes over a large share of the typing: notes, summaries, first drafts and CRM updates. The part a buyer signs with stays human: understanding their situation, judging scope and price, and standing behind the offer. The work most exposed is high-volume outreach that follows a script.
 </FaqItem>
 
 <FaqItem question="What is the difference between AI and sales automation?">
-Sales automation may follow deterministic rules. AI systems classify, retrieve, generate, or select tool actions from context. Many useful workflows combine both.
+Sales automation follows rules you write, such as "when a deal is won, create a task". It needs no model and does the same thing every time. AI reads context and decides what to write or which action fits, so it copes with messy input but can be wrong. Useful setups combine both: rules for the fixed steps, AI for the reading and writing.
 </FaqItem>
 
-<FaqItem question="What is the CRM's role in an AI sales stack?">
-The CRM keeps durable customer, relationship, opportunity, task, and activity state. It should enforce permissions and data structure even when an external AI client proposes or performs an action.
+<FaqItem question="Can I put customer data into ChatGPT or another AI tool?">
+Under GDPR you need a legal basis, and the provider should process the data under a data processing agreement. Use a business account that comes with one, check where the provider processes the data, and paste only what the task needs. When the AI works through your CRM instead of a copied text, the CRM's permissions decide which records it can read.
 </FaqItem>
 
-<FaqItem question="Does Customermates include all of these AI sales tools?">
-No. Customermates provides CRM data and supported actions through MCP, REST, and webhooks, plus a separate cloud messaging surface where entitled. Other capabilities require explicitly selected external systems.
+<FaqItem question="What does the EU AI Act require from a sales team?">
+Article 4 has required providers and deployers of AI systems to take measures for the AI literacy of their staff since 2 February 2025. That includes a sales team using ChatGPT: according to the [European Commission's FAQ](https://digital-strategy.ec.europa.eu/en/faqs/ai-literacy-questions-answers), staff should know risks such as hallucination. No certificate is needed; the Commission says organisations can keep an internal record of trainings and guidance. A one-page rule set and a short team briefing are a sensible start.
 </FaqItem>
 </Faq>
+
+Vendor and legal details checked on 8 October 2026 against [Salesforce AI for sales](https://www.salesforce.com/sales/ai/), [HubSpot AI](https://www.hubspot.com/products/artificial-intelligence), [Gong conversation intelligence](https://www.gong.io/conversation-intelligence/), [LinkedIn Sales Navigator AI](https://business.linkedin.com/sell/sales-navigator/ai-for-sales), [Claude connectors](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities), the [European Commission's AI literacy FAQ](https://digital-strategy.ec.europa.eu/en/faqs/ai-literacy-questions-answers) and [§ 201 StGB](https://dejure.org/gesetze/StGB/201.html).

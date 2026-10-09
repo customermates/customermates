@@ -19,16 +19,12 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const OUTBOUND_PER_PAGE = 4;
 const EXPLICIT_BLOG_CLUSTERS = [
   "agentic-crm",
-  "ai-bdr",
   "ai-in-sales",
   "ai-sales-agent",
-  "ai-sdr",
   "crm-and-erp",
   "crm-erp-integration",
-  "erp-vs-crm",
   "free-crm",
   "open-source-crm",
-  "white-label-crm",
 ] as const;
 
 const COLLECTIONS = {

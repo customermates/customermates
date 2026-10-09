@@ -1,143 +1,176 @@
 ---
-title: "Customizable CRM System: How to Pick One in 2026"
-description: "Customizable CRM means custom fields, custom objects, custom views, and custom workflows. What to look for, the top platforms, and the open-source path."
+title: "Customizable CRM: Adapt One or Build Your Own?"
+description: "What a customizable CRM lets you change, where vendors put custom objects, and when building your own CRM is worth it. With a worked setup and a checklist."
+
+relatedHrefs:
+  - /blog/open-source-crm
+  - /docs/concepts
+  - /features/self-hosted
+  - /blog/how-to-choose-crm
 
 hero:
-  title: "Customizable CRM System: A Practical Guide"
-  description: Most CRMs let you add custom fields. A truly customizable CRM lets your data model fit your business, not the other way around.
+  title: "Customizable CRM: What You Can Change, and When to Build Your Own"
+  description: "Most small teams need a CRM whose fields, stages and views they can reshape, not a CRM written from scratch. Here is how to tell the two apart, where vendors draw the line, and what a worked setup looks like."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-04-27
+  updated: 2026-10-08
   tags:
     - Customizable CRM
+    - Custom CRM
     - Custom Fields
     - Open Source CRM
 ---
 
-# Customizable CRM System
+# Customizable CRM: What You Can Change, and When to Build Your Own
 
-A customizable CRM system is a pre-built CRM that lets business users adapt the data model, views, and workflows to fit their process, instead of forcing the team to work around the vendor's defaults. Done well, customization is what makes a CRM stick. Done badly, it produces a Frankenstein nobody trusts.
+A customizable CRM is a ready-made CRM in which you change the data model, the pipeline and the views yourself, without writing code. For most small teams that is enough: custom fields, your own deal stages and saved views cover how a consultancy, agency or service business actually works. Building your own CRM only pays off when you need record types no product offers, and then the realistic options are a CRM with custom objects or a no-code database, rather than code written from scratch.
 
-This guide explains what "customizable" actually means in 2026, where most CRMs draw the line, and how to evaluate options including the open-source path.
+The deciding question is narrow. Do you need new kinds of records, or new fields on the usual ones? The rest of this page helps you answer that before you pay for a plan.
 
-## What does customizable CRM actually mean?
+Customermates publishes this article and is one of the products it describes.
 
-Five different things hide under the word "customizable":
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Customizable vs custom">Customizable means you configure a finished product. Custom means you build and maintain the system yourself, with code or a no-code platform.</SummaryItem>
+  <SummaryItem label="Where the line sits">Custom fields are standard. Custom objects (new record types) are where vendors split by plan: HubSpot needs an Enterprise subscription, Zoho CRM offers custom modules from Enterprise.</SummaryItem>
+  <SummaryItem label="Customermates">Five record types you can rename from presets, ten custom field types, your own stages with weights, personal saved views, REST, webhooks and MCP. No custom objects.</SummaryItem>
+  <SummaryItem label="Build your own">Worth it when your records do not map onto contacts, companies and deals. Otherwise you take on authentication, permissions, email sync and import for little gain.</SummaryItem>
+</ArticleSummary>
 
-- **Custom fields.** Add fields to existing entities (contact, deal). Available in almost every CRM.
-- **Custom objects.** Create new entity types beyond the built-in ones (e.g., "Project" or "Subscription"). Available in Salesforce, HubSpot Enterprise, Folk Premium, Zoho Enterprise, Pipedrive higher tiers.
-- **Custom views.** Filter, sort, group, and save views per user or team. Most modern CRMs support this; depth varies.
-- **Custom workflows / automations.** Trigger actions based on field changes, time, or external events. Native automations vary widely in flexibility; webhooks and APIs cover the gap.
-- **Custom UI.** Reorder fields, hide tabs, build dashboards, embed widgets. Limited in most SaaS CRMs; full in open-source CRMs you self-host.
+## What "customizable" covers, layer by layer
 
-Buyers usually mean the first two when they say "customizable." Vendors usually market all five but only deliver the first two well on the entry tier.
+Vendors use the word for very different depths. Split it into layers and test each one in a trial:
 
-## What every CRM that calls itself customizable should ship
+| Layer | What it means | How to test it in a trial |
+|---|---|---|
+| Custom fields | New fields on existing records: a date, a currency amount, a dropdown | Add the five fields you would really fill in. Check that filters and sorting work on them. |
+| Pipeline and stages | Your own stage names, more than one pipeline, stage probabilities | Rebuild your current sales steps. See whether a stage is a fixed system field or something you define. |
+| Naming | Calling deals "Projects" or contacts "Clients" | Rename and check the new label appears in lists, forms and exports. |
+| Views | Saved filters, sorting, grouping, board or table | Save three views. Find out whether colleagues can see them or only you. |
+| Custom objects | New record types with their own fields and relations, such as "Property" or "Contract" | Ask which plan includes them and how many. This is the most common upsell. |
+| Automation and access | Triggers on field changes, API, webhooks, roles | Fire a webhook on a changed field. Read and write one record over the API. |
 
-Six baseline capabilities:
+Two layers decide most purchases: custom fields and custom objects. Field types matter more than field counts. A dropdown keeps data consistent; free text drifts as soon as several people type into it.
 
-1. **Multiple typed custom field types.** Plain text is not enough. You need date, datetime, currency, single-select, link, email, phone. Customermates ships typed custom columns such as text, number, date, single select, and link. [HubSpot](https://www.hubspot.com/products/crm/customization) and [Zoho](https://www.zoho.com/crm/customization/) are in the same range; Salesforce ships far more.
-2. **Per-entity custom fields.** Add fields to contacts, deals, organizations, tasks, and (if available) custom objects independently.
-3. **Saved views with filters and sorts.** Multiple per user, each remembering its own filters and sort.
-4. **A real REST or GraphQL API.** Without programmatic access, customization stops at the UI ceiling.
-5. **Webhooks.** Without webhooks, automations have to poll, which is slow and expensive.
-6. **Open data export.** A spreadsheet file (CSV or XLSX) at minimum, plus API access to every record.
+## Where vendors put custom objects
 
-If a vendor charges for any of these as a premium upsell, that is a signal the customization story is mostly marketing. The data layer should be open by default.
+Custom objects are the clearest dividing line between plans. These are the vendors' own statements:
 
-## How the leading customizable CRMs compare
+| Product | Custom objects | Source |
+|---|---|---|
+| HubSpot | Available with Enterprise subscriptions (Sales Hub, Marketing Hub, Service Hub and other Enterprise hubs) | [HubSpot knowledge base](https://knowledge.hubspot.com/object-settings/create-custom-objects) |
+| Zoho CRM | Custom modules on Enterprise and Ultimate; not on Free, Starter, Standard or Professional | [Zoho CRM edition comparison](https://www.zoho.com/crm/comparison.html) |
+| Attio | Free up to 3, Plus up to 5, Pro up to 12, Enterprise unlimited | [Attio pricing](https://attio.com/pricing) |
+| Twenty | Unlimited on Pro, Organization and Enterprise; the open-source core can be self-hosted | [Twenty pricing](https://twenty.com/pricing) |
+| EspoCRM | Entity Manager creates custom entities, fields and relationships; open source | [EspoCRM features](https://www.espocrm.com/features/) |
+| Pipedrive | The cited help page covers custom fields on leads, deals, people, organizations, products and projects; the number of fields depends on the plan | [Pipedrive support](https://support.pipedrive.com/en/article/custom-fields) |
+| Customermates | None. Five fixed record types with custom fields on each | [Customermates data model](/docs/concepts) |
 
-| CRM                          | Custom fields                  | Custom objects                            | API + webhooks                                               | Self-hosting              | Price (entry)                                     |
-| ---------------------------- | ------------------------------ | ----------------------------------------- | ------------------------------------------------------------ | ------------------------- | ------------------------------------------------- |
-| **Salesforce**               | 100+ types, deep               | Yes                                       | Yes, full                                                    | No                        | $25/user/mo                                       |
-| **HubSpot**                  | 10 types                       | Enterprise tier                           | Yes, paid                                                    | No                        | $20/user/mo (Starter)                             |
-| **Zoho CRM**                 | 10+ types                      | Yes (Enterprise)                          | Yes                                                          | No (Vault on-prem option) | Free up to 3 users; paid plans see zoho.com       |
-| **Pipedrive**                | 10 types                       | Higher tiers                              | Yes                                                          | No                        | $14/user/mo                                       |
-| **monday CRM**               | Many                           | Yes (board-level)                         | Yes                                                          | No                        | €12/seat/mo (as of September 2026)                |
-| **SuiteCRM**                 | Unlimited                      | Yes                                       | Yes                                                          | Yes (open-source)         | Free self-host                                    |
-| **Customermates**            | Typed custom columns           | 5 built-in entities, all custom-fieldable | Yes, full + [[derived.webhooks.events.total]] webhooks + MCP | Yes (Docker)              | From [[commercial.price.starter.monthly]]/user/mo |
-| **Knack / Caspio (no-code)** | Unlimited                      | Build from scratch                        | Yes                                                          | No                        | $30+/mo                                           |
+Vendor details checked on 8 October 2026 against the linked official pages. Plans change, so confirm the tier you need on the vendor's site before you buy.
 
-Two patterns are visible. Closed SaaS CRMs (Salesforce, HubSpot, Pipedrive, monday) ship strong customization in the UI but gate higher capabilities behind enterprise tiers. Open-source CRMs (SuiteCRM, Customermates) ship the data model and API openly, with no upsell, and self-hosting is real.
+If you need a "Property" record that links to several owners and tenants, or a "Contract" record with its own lifecycle, choose a product from the upper rows. If your business is people, companies, opportunities and the services you sell, custom objects are usually a plan upgrade you don't need.
 
-## When to use a customizable SaaS CRM
+## Adapt a product, use a no-code builder, or build your own
 
-If you need a CRM that fits your sales process more than the average vendor's defaults, and you do not want to host or maintain anything, a customizable SaaS CRM is the right choice. Pipedrive, HubSpot, and Zoho all do this well. The trade-off is the upsell: custom objects, advanced workflows, and full API access usually live on the second or third tier, doubling the per-user cost.
+| Choose | When | What you take on |
+|---|---|---|
+| A customizable CRM | Your work is people, companies, deals and follow-up, plus fields specific to your trade | Living with the vendor's record model and its plan boundaries |
+| A CRM with custom objects | You need one or two extra record types with relations, such as properties or contracts | A higher plan with most vendors; more setup and more to keep tidy |
+| A no-code database (Airtable, Knack, Caspio and similar) | Your data model is genuinely unusual and changes often | You design and maintain everything: permissions, email capture, import, the views your team uses |
+| Code from scratch | The CRM is your product, or it must sit deep inside your own software | Authentication, roles, email and calendar sync, search, audit history, import and export, backups, security updates, for as long as it runs |
 
-Pick this when: your team is 5 to 50, your data model is mostly standard CRM (contacts, deals, organizations) with maybe one or two extra fields per entity, and you want vendor-managed updates and support.
+Nobody can give you an honest fixed price for a custom CRM without a specification. The cost that people underestimate is not the first version; it is the years of maintenance, because every feature a rented CRM ships becomes your backlog. Before you commission a build, write down the record types your current tool cannot represent. If the list is empty, you need a better-configured CRM, not a new one.
 
-## When to use a no-code custom CRM builder
+A middle path has opened up: start from a CRM with a full API and let an AI client do the custom work against it. With an open-source CRM that exposes REST, webhooks and an MCP server, a small script or an AI client can cover the one workflow that is specific to you, while the vendor maintains everything else.
 
-Tools like [Knack](https://www.knack.com/solutions/custom-crm/), [Caspio](https://www.caspio.com), Airtable + Softr, and Notion + Make let you build a CRM from scratch. The data model is whatever you draw, the UI is what you configure, and the integrations are what you wire up.
+## A worked setup in Customermates
 
-Pick this when: your data model is genuinely unusual (an academic CRM tracking student-advisor relationships, a real-estate CRM tracking deals across properties and agents, a partner-management CRM tracking commission flows). The cost of building is real, but the result fits exactly.
+Here is how a five-person consultancy would shape Customermates to its process. Every step is configuration, no code.
 
-The downside: you become the maintainer. As the team grows, the no-code system needs ongoing care. Most teams that pick this path eventually move to a real CRM once the workflow stabilizes.
+<Steps>
+  <Step title="Rename the record types">
+    Under **Data model** in company settings, choose preset names: Contacts become **Clients**, Deals become **Projects**, Services become **Packages**. Free-text names are not possible; the presets are listed in the [company settings docs](/docs/app-company#how-do-i-rename-record-types-in-the-data-model). The API and MCP keep the original names.
+  </Step>
+  <Step title="Define the stage field">
+    A new workspace starts with a **Stage** column on deals. Edit its options to match your sales steps, for example Enquiry, Scoping call, Proposal sent, Signed, Lost. Give each option a weight, and every deal gets a weighted value from those fixed percentages, summed into a weighted pipeline total.
+  </Step>
+  <Step title="Add custom fields where they drive a decision">
+    On Projects: **Engagement type** (Single Select: retainer, fixed scope, workshop), **Day rate** (Currency), **Contract renewal** (Date). On Clients: **Source** (Single Select) and **Direct line** (Phone). Ten field types are available, listed in the [data model docs](/docs/concepts#what-are-custom-columns).
+  </Step>
+  <Step title="Save the views each person works from">
+    A board of Projects grouped by Stage, a table of retainers sorted by **Contract renewal**, and a list of Clients grouped by **Source**. Saved views are personal, so each colleague sets the same filters and saves their own view.
+  </Step>
+  <Step title="Bring existing data in">
+    Export each sheet from your old tool as an Excel workbook and import one record type at a time, Clients first, then Projects, mapping columns to your new custom fields. The [records docs](/docs/app-records#how-do-i-import-or-export-records) list the file limits.
+  </Step>
+  <Step title="Automate one step (Customermates Cloud)">
+    A Routine with the trigger "deal updated", watching only the **Stage** field and filtered to Proposal sent: "Draft a short follow-up to the main client contact referencing the proposal. Save it as a draft, do not send." Routines run Mate, use hosted AI credits and run as their owner. Without the "do not send" line, a routine may send the message itself. See [Routines](/docs/app-routines).
+  </Step>
+</Steps>
 
-## When to use an open-source customizable CRM
+Connected email, LinkedIn and WhatsApp conversations appear next to these records in the [unified inbox](/features/unified-inbox) on Pro and higher. Starter has no inbox. If you work with Claude, ChatGPT or another AI client, it reads and writes the same records, including your custom fields, through [MCP](/docs/mcp) with [[derived.mcp.tools.total]] tools.
 
-Open-source CRMs (SuiteCRM, Customermates, Vtiger Community, EspoCRM) give you the customization of a SaaS CRM plus the freedom to host on your own infrastructure, modify the code, and own the data forever.
+## What Customermates does not let you customize
 
-Pick this when:
+These limits matter if you are comparing customizable CRMs:
 
-- Data sovereignty matters (EU GDPR contacts, regulated industry, security review).
-- You want to avoid the SaaS upsell ladder. Open-source CRMs typically ship custom fields, custom objects (via code or admin UI), API, and webhooks at the base level.
-- You have a developer in the team or your stack is technical enough to manage Docker.
+- **No custom objects.** You get contacts, organizations, deals, services and tasks. A "Property" or "Contract" record type is not possible. Choose Twenty, Attio, EspoCRM or an Enterprise plan elsewhere if you need one.
+- **Ten field types, no number field.** Text, date, date range, date and time, date and time range, currency, single select, link, email and phone. There is no plain number, multi-select, checkbox or formula field.
+- **Renaming uses presets.** Deals can become Opportunities, Projects or Jobs, not any word you type.
+- **Permissions stop at the record type.** Roles control read and manage access per record type, including "only records assigned to me". There are no field-level permissions.
+- **Saved views are personal.** There are no shared team views.
+- **No tagging.** Use a Single Select field instead, which also keeps values consistent.
+- **Tasks have no built-in due date.** Add a Date field and sort by it; nothing alerts you when that date passes.
+- **Import and export are Excel workbooks**, one record type at a time. There is no whole-account export.
 
-Customermates is one option here. The data model is five entities (contacts, organizations, deals, services, tasks), all linkable to each other, with typed custom columns (text, number, date, single select, link, and more) on every entity. Two things set it apart on the modern end. The MCP server exposes [[derived.mcp.tools.total]] tools so AI agents like Claude, ChatGPT, and Gemini read and write the same data the UI sees and take over the data entry. And a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM, so customer conversations sit next to the records they belong to (messaging is on the Pro tier and up). Self-hosting is two files (`docker-compose.yml` and `.env`) plus `docker compose up -d`.
+For self-hosting, the open-source core includes records, custom fields, views, roles, REST, [webhooks](/docs/webhooks) and MCP. The inbox, Mate and Routines are cloud-only. Details are on the [self-hosted page](/features/self-hosted).
 
-## A practical evaluation checklist
+## What it costs to run
 
-Before paying for any "customizable" CRM, run this checklist:
+Customermates is billed per user and month, monthly only. For the five-person consultancy above:
 
-1. **List the custom fields you actually need.** If it is fewer than five per entity, almost any CRM works.
-2. **List the custom objects you need.** If you need them, check the entry-tier price (HubSpot gates this on Enterprise; Salesforce includes it; Customermates considers all five entities first-class).
-3. **Test the API and webhooks.** Build a one-hour proof of concept. If the API requires upgrading or the webhooks are flaky, that is your future pain.
-4. **Check the data exit.** Try exporting a contact list with custom fields to CSV or Excel. If it is missing fields or rounds the data, escalate before committing.
-5. **Check the per-user cost at the tier you actually need.** Most CRMs look cheap on the entry tier but require a higher tier to unlock real customization.
-6. **Check self-hosting and open-source options.** If sovereignty or cost is a constraint, [SuiteCRM](https://suitecrm.com) and Customermates are the two mature paths.
+| Plan | Five users per month | What the setup above uses |
+|---|---|---|
+| Starter | [[commercial.price.starter.monthly.seats.5]] | Custom fields, stages, views, import, API, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user |
+| Pro | [[commercial.price.pro.monthly.seats.5]] | Everything above, plus the unified inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user |
 
-## When customization becomes a problem
+A year on Pro for five people comes to [[commercial.price.pro.monthly.seats.5.months.12]]. Each plan includes monthly hosted AI credits per active user for Mate; see [pricing](/pricing). Self-hosting has no licence fee for the open-source core; you pay for your own server and the time to run it.
 
-A common failure mode: the team customizes everything in the first month, ends up with 40 custom fields per entity, and nobody knows what they all do. Six months later the data is unreliable because half the fields are stale.
+## Keeping a customized CRM usable
 
-Three rules to avoid this:
+Customization fails more often through too many fields than too few. Three rules help:
 
-- **Add fields only when they cause a workflow.** "Nice to have" fields rot. Fields that drive automations or required reports survive.
-- **Use single-select fields with limited options instead of free text.** Single-select stays clean. Free text drifts.
-- **Audit every quarter.** Delete fields nobody fills, archive fields nobody reads.
-
-The customization power of a CRM is also its biggest risk. Discipline matters more than feature count.
-
-## Conclusion
-
-A customizable CRM system in 2026 is not about counting field types. It is about whether the data model can fit your business without forcing every team into the vendor's enterprise tier. The leading SaaS CRMs (Salesforce, HubSpot, Pipedrive, Zoho) deliver real customization on higher tiers. Open-source CRMs (SuiteCRM, Customermates) deliver it at the base level with no upsell, and let you self-host. No-code builders like Knack or Caspio give you total flexibility at the cost of becoming the maintainer.
-
-If you want a customizable CRM that already includes the API, webhooks, custom fields, and an MCP server for AI agent automation, [Customermates](/pricing) ships from [[commercial.price.starter.monthly]] per user per month. The first [[commercial.trial.days]] days on Pro are free, no credit card. If self-hosting is a hard requirement, the same product is on [GitHub](https://github.com/customermates/customermates) under AGPL-3.0.
+1. Add a field only when someone filters, sorts or decides on it. "Might be useful" fields stay empty.
+2. Prefer Single Select over free text for anything you will group by later.
+3. Every quarter, delete fields that nobody has filled in. In Customermates, deleting a field removes its values for good, so export first if in doubt.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is the most customizable CRM?">
-For raw flexibility on the SaaS side, Salesforce is the deepest with 100+ field types, custom objects, and Apex code. For open-source customization without the vendor lock-in, SuiteCRM and Customermates ship the data model and API openly with no upsell. For total custom-from-scratch builds, no-code platforms like Knack, Caspio, or Airtable + Softr let you design the data model however you want. The right pick depends on whether you want a managed SaaS, an open-source path, or a fully bespoke build.
+<FaqItem question="What is the difference between a customizable CRM and a custom CRM?">
+A customizable CRM is a finished product that you adapt with fields, stages, views and automation, and the vendor maintains it. A custom CRM is software built for you, with code or a no-code platform, and you maintain it. Customizable is faster and cheaper for most small teams; custom only pays off when no product can represent your records.
 </FaqItem>
 
-<FaqItem question="What is the difference between customizable CRM and custom CRM?">
-A customizable CRM is a pre-built CRM (Salesforce, HubSpot, Pipedrive, Customermates) that you adapt by adding custom fields, custom objects, custom views, and automations through the admin UI. A custom CRM is one you build from scratch with code or a no-code platform (Knack, Caspio, Airtable). Customizable is faster to deploy and maintained by the vendor; custom fits exactly but you become the maintainer.
+<FaqItem question="Can I build my own CRM?">
+Yes. A no-code database like Airtable, Knack or Caspio can give you a working first version quickly if your process is clear. Coding one from scratch is a long project, because you also build login, roles, email sync, search, import and backups. If your records are people, companies and deals, configuring an existing CRM gets you further for less.
 </FaqItem>
 
-<FaqItem question="Can I build my own custom CRM?">
-Yes, in three ways: (1) no-code platforms like Knack or Caspio let you build a CRM in hours without programming, (2) low-code platforms like Airtable + Softr or Notion + Make give you more flexibility with some setup, (3) full custom development with Postgres + a backend framework gives total control but takes weeks to months. For most teams, picking a customizable open-source CRM (SuiteCRM, Customermates) and adapting it is faster than building from scratch.
+<FaqItem question="How much does a custom CRM cost?">
+It depends on the specification, so be wary of any fixed figure. Count the maintenance, not just the first build: security updates, hosting, backups and every feature you would otherwise get from a vendor. For comparison, five users on Customermates Pro cost [[commercial.price.pro.monthly.seats.5]] a month, or [[commercial.price.pro.monthly.seats.5.months.12]] over twelve months, and other vendors publish their prices on their pricing pages.
 </FaqItem>
 
-<FaqItem question="Can I build a CRM in Excel or Google Sheets?">
-Yes for very small teams or solo operators. Excel and Google Sheets handle a few hundred contacts and basic pipeline tracking fine. Where they break: relationships between entities, automation, multi-user access controls, audit trails, mobile, AI integration. When you outgrow a spreadsheet, the next step is usually a customizable CRM with custom fields and an API rather than another spreadsheet.
+<FaqItem question="Can I build a CRM in Excel?">
+For one person and a few hundred contacts, yes. It breaks down when several people edit at once, when you need links between clients and projects, or when conversations should sit next to the record. Our [Excel CRM template guide](/blog/excel-crm-template) shows a workable layout and when to move on. Customermates imports Excel workbooks, one record type at a time.
 </FaqItem>
 
-<FaqItem question="What features should a customizable CRM have?">
-Six baseline capabilities: (1) multiple typed custom field types beyond plain text, (2) per-entity custom fields, (3) saved views with filters and sorts, (4) a real REST or GraphQL API, (5) webhooks for automation, (6) open data export. If a vendor charges extra for any of these, the customization story is mostly marketing. Customermates ships all six at the [[commercial.price.starter.monthly]] per user per month Starter tier, including typed custom columns, [[derived.webhooks.events.total]] webhook events, an OpenAPI-documented REST API, an MCP server, and XLSX import and export one entity type at a time.
+<FaqItem question="Which CRM offers the most flexible data model for custom objects?">
+Among the products checked here, Twenty includes unlimited custom objects on its Pro, Organization and Enterprise plans, Attio allows up to 12 on Pro and unlimited on Enterprise, EspoCRM creates custom entities in its Entity Manager, and HubSpot and Zoho CRM reserve custom objects for Enterprise tiers. Customermates has no custom objects.
+</FaqItem>
+
+<FaqItem question="Can I keep my CRM data on my own server?">
+Yes, with a self-hostable CRM. Customermates, Twenty and EspoCRM can all run on your own infrastructure. With Customermates, the self-hosted version runs with Docker Compose and includes custom fields, views, REST, webhooks and MCP, but not the inbox, Mate or Routines. See the [open-source CRM guide](/blog/open-source-crm) for the trade-offs.
 </FaqItem>
 </Faq>

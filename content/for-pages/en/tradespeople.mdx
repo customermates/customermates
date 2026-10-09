@@ -1,17 +1,17 @@
 ---
-title: "CRM for Tradespeople: Jobs, Quotes & Follow-Ups"
-description: "CRM for tradespeople: track every lead, quote, and job, and see which estimates need chasing before they go cold. Open source, self-hostable, no per-job fees."
+title: "CRM for Tradespeople: Enquiries, Quotes and Repeat Work"
+description: "When a CRM helps a trade business and when job software fits better: enquiries, open quotes and service dates in one place, with WhatsApp on Pro."
 industryName: "Tradespeople"
 
 relatedHrefs:
-  - /for/construction
-  - /for/contractors
-  - /for/electricians
-  - /for/plumbers
+  - /features/unified-inbox
+  - /features/follow-up
+  - /docs/app-routines
+  - /blog/crm-for-small-business
 
 hero:
-  title: "The CRM for Tradespeople That Keeps Every Job on Track"
-  description: "From first inquiry to completed job, every quote and job sits in one pipeline, AI clients or the Mate assistant keep it current and draft quote follow-ups for you to review, and on Pro customer email and WhatsApp live in one inbox, linked to each customer. A trades CRM built for how you actually work."
+  title: "A CRM for Tradespeople That Keeps Enquiries and Quotes from Going Cold"
+  description: "Every enquiry, open quote and returning customer in one place. From Pro, WhatsApp and email arrive in one inbox next to the customer record, and in Customermates Cloud the assistant Mate drafts the follow-ups for you to check, using hosted AI credits. Scheduling, quotes and invoices stay in your job or accounting software."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to get started?
-  description: "Run your trade business on an open-source CRM: no per-job fees, from [[commercial.price.starter.monthly]]/user/month."
+  action: Put every enquiry and open quote on one board
+  description: "Import your customer list from Excel, set your job stages and save the views you check every morning. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,139 +28,186 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## Why tradespeople need a CRM
+A CRM like Customermates suits a trade business whose problem sits in the office: enquiries that arrive by WhatsApp while you're on a job, quotes nobody chases and service customers who are never called back. It does not schedule crews, write quotes, send invoices or run on a native phone app. If you want one app that does all of that, a field-service or trade-software product such as Jobber, Housecall Pro or, in Germany, HERO or Plancraft fits better, and the table below shows where the line runs.
 
-A CRM for tradespeople replaces the scattered notes, missed callbacks, and spreadsheet chaos with a single system that tracks every lead, every quote, and every job. In the trades, business runs on personal relationships, referrals, and repeat clients, but as your workload grows, keeping everything in your head or on scraps of paper stops working.
+Customermates is an open-source, AI-native CRM built in Germany. This page shows how electricians, plumbers, heating and HVAC firms, solar installers, builders, cleaning companies and garages set it up, what it costs, and what they keep elsewhere.
 
-Without a tradesperson CRM, common problems pile up fast:
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Fits">
+    Trade businesses with someone in the office, or an owner at the kitchen
+    table at night, who loses work between the first message and the signed
+    quote.
+  </SummaryItem>
+  <SummaryItem label="Setup">
+    Customers as contacts, landlords and contractors as organizations, every
+    enquiry as a job on a board, and date fields for quotes and next services.
+  </SummaryItem>
+  <SummaryItem label="AI">
+    In Customermates Cloud, Mate drafts enquiry replies and quote follow-ups,
+    using hosted AI credits. Or connect your own AI client through MCP.
+  </SummaryItem>
+  <SummaryItem label="Not included">
+    Scheduling and dispatch, quotes and invoices, time tracking, a native
+    mobile app and telephony.
+  </SummaryItem>
+</ArticleSummary>
 
-- **Inquiries vanish**: A homeowner calls while you are on a roof. You scribble a number, but it disappears into a pocket or truck console.
-- **Quotes go cold**: You send an estimate on Monday, get busy all week, and a competitor who followed up on Wednesday wins the job.
-- **Client data lives everywhere**: Contacts in your phone, job notes in emails, invoices in a folder: nobody else on your team can find anything.
-- **Repeat business slips away**: A customer you did great work for last year needs you again, but you have no system to stay in touch.
-- **Nobody knows who is on which job**: Who visited the client, which site is next, and what was agreed lives in text messages.
-- **No visibility into your pipeline**: You do not know how many quotes are pending or what your pipeline is worth.
+## CRM or job management software?
 
-A CRM for trade businesses brings structure to the business side of your work so you can focus on the trade itself. Customermates gives you [pipeline management](/features/pipeline), [contact tracking](/features/contact-management), and [task management](/features/task-management), without enterprise complexity or cost. It is not field service software: it does not schedule or dispatch crews, and it does not produce quotes or invoices. Run it next to your invoicing tool.
+Most products sold as a CRM for tradespeople are job management suites with a customer list inside. They are the right choice when the field side is your bottleneck. A CRM is the better choice when the jobs run fine and the leaks are earlier: the call-back you forgot, the quote that sat for three weeks.
 
-## How Customermates works as a trades CRM
+| Your main need | Customermates | Field-service or trade software |
+|---|---|---|
+| Logging every enquiry, whichever channel it came in on | Yes: jobs on a board, WhatsApp and email in the inbox on Pro | Varies by product |
+| Seeing which quotes need a call | Saved views by stage and date, Mate drafts in Cloud | Varies by product |
+| Booking and dispatching technicians | No | Core feature |
+| Writing quotes and invoices, taking payments | No | Core feature |
+| Native app for the crew, offline use | No, the web app adapts to phone screens | Core feature |
+| Time tracking, site diary, materials | No | Often included |
+| Open source and self-hosting | Yes, AGPL core | Varies by product |
 
-Customermates is built for trade businesses of every size, from a sole trader to a growing crew with office staff. Here is how it supports every stage of a job.
+Some firms run both: job software for the work itself and Customermates for the commercial side, such as builders bidding on tenders or HVAC firms selling replacements and maintenance contracts. That only makes sense if the overlap does not double your typing.
 
-### Job pipeline from inquiry to completion
+## What a trade business needs from a CRM
 
-Track every opportunity from first call through site visit, quote, acceptance, and job completion. The [Kanban pipeline view](/features/pipeline) lets you drag jobs between stages so you always see where every job stands. Each stage can carry a probability, so you see weighted values for your open quotes. Whether you are a [plumber](/for/plumbers), [electrician](/for/electricians), or [HVAC technician](/for/hvac), the stages adapt to your workflow.
+- **Enquiries come in everywhere.** A WhatsApp with three photos, a missed call, an email from a property manager, a message on Instagram. If they don't land in one list, some never get an answer.
+- **Quotes go quiet.** You visit the site, send the price and get busy. The customer who hears nothing for ten days often books someone else.
+- **Two kinds of work.** A dripping tap is booked the same day. A heat pump, a rewire or a roof runs through a site visit, a quote and weeks of waiting. A pipeline has to show both without burying the large jobs.
+- **Repeat work has a date.** Boiler services, electrical inspections, gas safety checks, HVAC maintenance, window cleaning rounds. The money is in calling customers before they call someone else.
+- **Some customers are companies.** Landlords, property managers and general contractors send many jobs across many sites, and you need their history in one place.
 
-### Quote tracking and follow-up
+## A trade setup in Customermates
 
-Sending quotes is only half the battle; winning the work requires timely follow-up. You write the quote in your usual tool, then record its value on the job and move it to **Quote sent**. A saved view of jobs in that stage, sorted by last update, shows at a glance which estimates need chasing and how much revenue is pending. On Customermates Cloud, a [routine](/docs/app-routines) can check that view for you: every Monday, the Mate assistant lists quotes that have not moved for a week and drafts a follow-up for each one for you to review.
+Customermates has five record types. Under **My Company › Settings** you can rename them from a preset list: Contacts to Clients and Deals to Jobs fit most trades. Every field name below is an example.
 
-### Customer records with full history
+| Record type | Used for | Example custom fields |
+|---|---|---|
+| Contacts (Clients) | Homeowners, tenants, site contacts | Customer type (single select: Private, Landlord, Commercial), Site address (text), Next service (date) |
+| Organizations | Landlords, property managers, general contractors | Account type (single select), Payment terms (text) |
+| Deals (Jobs) | Each enquiry and job | Stage, Job type (single select), Site address, Quote sent on (date), Planned for (date), Photos and documents (link) |
+| Services | Your standard items, each with a price | Boiler service, Socket installation, Call-out fee |
+| Tasks | Next steps, assigned to a person | A "Due on" date field you add, because tasks have no built-in due date |
 
-Every client gets a complete profile: contact details, property address, past jobs, notes, and custom data, plus linked email and WhatsApp conversations on Pro. When a repeat customer calls, you know exactly what you did last time, when you did it, and what it was worth. Build lasting relationships with proper records instead of relying on memory. Manage all of this from [contact management](/features/contact-management).
+### Stages and the value of open quotes
 
-### Task assignment for the crew
+The stage is a single-select field you define, and each option can carry a win probability. A starting point: New enquiry 10%, Site visit 25%, Quote sent 40%, Accepted 90%, Booked 100%, Done 100%, Lost 0%. Same-day repair calls skip from New enquiry to Booked; large jobs walk through every stage. Filter the board by Job type when you want to see only one kind.
 
-Assign [tasks](/features/task-management) to team members with notes, linked to the job and the customer: who is visiting the client tomorrow, what materials need ordering, which inspection is coming up. Add a custom date field for the planned day and a saved view sorted by it. Customermates does not book appointments or check availability; keep your calendar or scheduling tool for that.
+A job's value comes from the services linked to it, price times quantity. A heat pump installation quoted at €14,000 sits in Quote sent at a weighted €5,600. That is arithmetic from your own probabilities, not a forecast. On the [pipeline board](/features/pipeline) each job is a card you drag between stages, and you can assign several people to it.
 
-### Invoicing handoff
+### Four saved views for the morning
 
-Customermates does not create quotes or invoices. It tracks jobs through to completion and hands off to your invoicing tool: when a job moves to "Completed", a webhook can tell a separately operated [n8n workflow](/features/workflow-automation) or your own integration to create the invoice or request a review in the tool that does that job.
+1. **New enquiries:** jobs in New enquiry, newest first.
+2. **Quotes to chase:** jobs in Quote sent, sorted by Quote sent on, oldest first.
+3. **Booked this week:** jobs in Booked, sorted by Planned for. This is a list, not a schedule; it does not check who is free.
+4. **Services due:** clients with a Next service date, sorted by it, soonest first. Date filters on your own fields take fixed dates (before, after, between), so a sort keeps this view current without editing it.
 
-### Repeat business tracking
+Saved views are personal, so each colleague sets the same filters and saves their own view.
 
-Your most profitable work comes from returning clients and their referrals. Add a single-select field for recurring services (boiler servicing, electrical inspections, or annual gutter cleaning) and a custom date field for the next service. A saved view sorted by that date shows who is due. On Customermates Cloud, a routine can list those clients every month and draft the reminder message for you to send.
+### WhatsApp and email in one inbox (Pro and above)
 
-### Automation with n8n
+On Pro, Business and Enterprise in Customermates Cloud, the [unified inbox](/features/unified-inbox) brings in email from Gmail, Outlook or IMAP, WhatsApp, Instagram, Telegram and LinkedIn. You reply on the original channel. The filter **Participants: not fully linked** shows the people who are not yet linked to a contact, which in a trade business usually means new enquiries. Link the sender once and every conversation with that number or address appears on the client's timeline. Photos a customer sends stay in the conversation; records have no file attachments.
 
-Connect your separately operated [n8n instance](/features/workflow-automation) through the Customermates community node, the API, and webhooks for workflows you own. n8n is not included in Customermates:
+Plan for two details. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, so a sole trader who wants WhatsApp and a mailbox in the inbox needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]]. A team on Pro can split it: the office connects WhatsApp, the owner connects email. And conversations stay private to whoever connected the account until they share a thread; sharing a whole account needs Business. Phone calls and SMS are not channels.
 
-- Send a follow-up email from your own mail account 3 days after a job moves to "Quote sent"
-- Trigger a satisfaction survey when a job is marked complete
-- Send annual service messages to past clients
-- Notify your team when a job moves to "Accepted"
-- Request referrals and reviews from happy customers
-- Create a task when a repeat client's maintenance window opens
+### An evening enquiry round with Mate (Customermates Cloud)
 
-### AI agents that operate your CRM
+Mate is the assistant inside Customermates Cloud and runs on hosted AI credits that each cloud plan includes per active user; reading inbox conversations needs Pro or higher. A [routine](/docs/app-routines) runs a saved instruction on a schedule. Choose **Every day** at 18:00 and write something like:
 
-Connect Claude, ChatGPT, or another AI client through the MCP server ([[derived.mcp.tools.total]] tools) and let it do the data entry. Agents draft professional follow-up emails, summarize long client email threads, log job notes, and move jobs between stages. You choose and pay for the AI client. On Customermates Cloud, the Mate assistant does the same inside the app and asks for confirmation before it sends a message or deletes anything.
+```text
+Look at inbox conversations where the last message was received today
+and the sender is not linked to a contact. For each one that is a job
+enquiry, create a job in the stage New enquiry with the job type and site
+address if the customer gave them. Save a short draft reply that thanks
+them and asks for photos and two times that suit them for a site visit.
+Do not send anything. End with a list: name, channel, job type, draft
+saved yes or no.
+```
 
-## Key features of a CRM for tradespeople
+A second routine on Monday morning can find jobs in Quote sent with no update for ten days and save a polite follow-up draft for each.
 
-### Pipeline management with Kanban view
+<AcquisitionCallout title="Ask for drafts, not sends" variant="boundary">
+  Mate and routines can send email and chat messages without asking first,
+  and a routine runs as its owner with that owner's channels. Tell it to save
+  drafts only, then filter the inbox by Draft: has some, read each one and send
+  it yourself. Each run has a credit cap, so one day's enquiries is a sensible
+  batch.
+</AcquisitionCallout>
 
-Visualize your entire business on a drag-and-drop Kanban board: New Inquiry, Site Visit Booked, Quote Sent, Follow-Up Needed, Accepted, In Progress, Completed. Filter by job type, value, or date. See your whole pipeline at a glance and know exactly what needs attention today.
+Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]]; the inbox round above needs Pro, because Starter has no inbox. Prefer your own AI client? Connect Claude, ChatGPT or another client through [MCP](/docs/mcp), on any plan or a self-hosted server, with model use billed by your AI provider.
 
-### Custom fields for trade-specific data
+## Adjustments by trade
 
-Track everything relevant to your trade: job type, property address, access instructions, estimated value, materials needed, permit status, and projected timeline. Custom fields sit directly on job and contact records, so you need no separate spreadsheets or systems. Photos and documents stay in your file storage; store the link in a link field.
+| Trade | Stage or field worth adding |
+|---|---|
+| Electricians | Job type options for call-out, rewire, consumer unit, EV charger, inspection; Next inspection date on the client |
+| Plumbing and heating | Job type for repair, boiler swap, bathroom, annual service; Next service date; landlord clients as organizations |
+| HVAC | Separate Job type values for repair calls and replacement sales, so the replacement quotes have their own view; Maintenance contract (single select) |
+| Solar installers | Stages for Survey, Proposal sent, Financing, Grid application, Installed; a link field to the design file |
+| Builders and contractors | Bid due (date) and Tender source on the job; subcontractors as contacts at their own organization |
+| Cleaning companies | Contract type (single select: one-off, weekly, monthly), Renewal date; one job per contract |
+| Garages | Vehicle registration and make as text fields on the job, Next MOT or inspection (date) on the client |
 
-### Mobile-friendly for the field
+## What Customermates does not do for trades
 
-Access your CRM from the job site on any phone or tablet browser. Add notes after a site visit, update job stages, and check client details without installing an app. There is no native iOS or Android app.
+- No scheduling board, dispatch, routes or technician availability. A job with a Planned for date is a reminder for you, not a booking.
+- No quotes, invoices or payments. Write the quote in your trade or accounting software and record its value on the job.
+- No time tracking, site diary, materials or stock.
+- No native iOS or Android app and no offline mode. The browser version adapts to phone screens.
+- Tasks have no due dates, reminders or notifications. Add a date field and a saved view, or let a routine do the checking.
+- No phone system or SMS, and no bulk messages to all customers.
 
-### Open source and self-hostable
+If one of these is the main reason you are shopping, look at software built for it. Customermates publishes this page; vendor details were checked on 8 October 2026 on each vendor's own website.
 
-Customermates is [open source](https://github.com/customermates/customermates). Inspect the code, contribute, or self-host the core on your own server (with the Starter feature set) for complete control over where data lives. Records can be exported one record type at a time as Excel workbooks (XLSX) or read through the REST API.
+| If you need | Look at | What the vendor's site lists |
+|---|---|---|
+| Scheduling, quotes, invoicing and an app for a small service team | [Jobber](https://www.getjobber.com/pricing/) | Scheduling, quotes, invoicing, payments, a mobile app, a client hub and CRM on every plan |
+| Dispatch, quotes and payments with route planning | [Housecall Pro](https://www.housecallpro.com/pricing/) | Scheduling and dispatching, quotes, invoices and payments from the Basic plan and a mobile app in every plan; Essentials adds routes |
+| A larger residential or commercial trade operation | [ServiceTitan](https://www.servicetitan.com/) | Dispatch, estimates, a technician app, invoicing, service agreements and a customer portal for HVAC, plumbing, electrical and other trades |
+| A German Handwerk suite with quotes, invoices and time tracking | [HERO](https://hero-software.de/) or [Plancraft](https://plancraft.com/de-de) | Quotes, invoices, time tracking and a mobile app; Plancraft also lists a scheduling board and DATEV export |
+| Site photos, chat and documentation per project | [Craftnote](https://craftnote.de/) | Digital project folder, photo documentation, project chat, time tracking and a scheduling board |
+| A garage management system | [Tekmetric](https://www.tekmetric.com/) | Repair orders and estimates, digital vehicle inspections, scheduling, payments and two-way texting |
 
-### Data protection and data location
+## What it costs
 
-Client addresses, property details, and financial data deserve proper protection. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
+Prices are per active user per month, billed monthly. Every plan includes REST, webhooks and MCP.
 
-## Pricing that works for trade businesses
+| Team | Plan | Per month |
+|---|---|---|
+| Sole trader, board and views, no inbox | Starter | [[commercial.price.starter.monthly]] |
+| Sole trader, WhatsApp in the inbox | Pro | [[commercial.price.pro.monthly]] |
+| Owner plus office manager, each with one account in the inbox | Pro | [[commercial.price.pro.monthly.seats.2]] |
+| Owner, office and three engineers who log jobs | Pro | [[commercial.price.pro.monthly.seats.5]] |
 
-Trade businesses do not need a CRM that costs hundreds per month. Customermates keeps it simple, billed monthly per user, no per-job fees:
+Each cloud plan adds monthly hosted AI credits per active user for Mate; the amounts are on the [pricing page](/pricing). Seats are per user, so engineers who never log in need no account. You can run the open-source core on your own server with no licence fee, but a [self-hosted installation](/features/self-hosted) has no inbox, no Mate and no routines.
 
-- **Starter ([[commercial.price.starter.monthly]] per user per month)**: job pipeline, custom fields, dashboards, REST API, webhooks, MCP, and the Mate assistant with monthly AI credits
-- **Pro ([[commercial.price.pro.monthly]] per user per month)**: adds the unified inbox, with customer email and WhatsApp linked to your customers
-- **No hidden costs**: no surcharges for contacts, webhooks, or API access
-- **Self-hostable**: run the open-source core on your own infrastructure with no licence cost; the inbox and Mate are cloud-only
+## Moving in from a spreadsheet or phone contacts
 
-For a sole trader, that is [[commercial.price.starter.monthly]] per month on Starter. For a team of 4 with an office coordinator, it is [[commercial.price.starter.monthly.seats.4]] per month. Field service platforms such as [ServiceTitan](https://www.servicetitan.com/) or [Jobber](https://getjobber.com/) also include scheduling, dispatch, and invoicing, which Customermates does not; if you need those every day, such a platform is the better choice.
-
-See the full breakdown on our [pricing page](/pricing).
-
-## Getting started in minutes
-
-Setting up Customermates for your trade business is fast:
-
-1. **Create an account**: free, no credit card required. The first [[commercial.trial.days]] days are on us.
-2. **Import your customers**: upload an Excel workbook (XLSX) for contacts, organizations, or jobs, one record type at a time, or use the REST API or an AI client over MCP.
-3. **Set up your pipeline**: create stages that match your workflow: Inquiry, Site Visit, Quote Sent, Follow-Up, Accepted, In Progress, Completed.
-4. **Add custom fields**: define fields for job type, property address, quote amount, materials, and crew assignment.
-5. **Set up follow-ups**: create saved views for open quotes and upcoming services, and on Customermates Cloud a routine that checks them for you.
-
-No IT team needed, no weeks of setup. Customermates is open source, and records can be exported one record type at a time as Excel workbooks (XLSX).
+Save your customer list as an Excel workbook (.xlsx); CSV files are not accepted. Import landlords and contractors as organizations first, then contacts with a column naming their company, so the import links them. Open jobs come last, with stage, job type and quote dates. Records import and export one record type at a time; the [records guide](/docs/app-records) has the limits. In Customermates Cloud the primary database is configured in the AWS Frankfurt region, the [subprocessors](/subprocessors) are listed, and a data processing agreement is available.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is a CRM for tradespeople?">
-A CRM (Customer Relationship Management) for tradespeople is software that helps you manage leads, quotes, jobs, and clients in one place. Instead of tracking everything in spreadsheets, text messages, and notebooks, a trades CRM gives you a pipeline view of your business, a clear list of quotes that need follow-up, and a complete history with every client.
+<FaqItem question="What is the best CRM for tradespeople?">
+It depends on where you lose work. If booking jobs, sending invoices and running a crew app are the daily pain, a job management suite such as Jobber, Housecall Pro or ServiceTitan fits, or HERO and Plancraft in Germany. If the jobs run well and enquiries and quotes slip, a CRM such as Customermates fits. It is our own product, so weigh that.
 </FaqItem>
 
-<FaqItem question="How is Customermates different from field service software like ServiceTitan or Jobber?">
-Field service platforms bundle scheduling, dispatch, quotes, invoicing, and payments into one package. Customermates focuses on the CRM and pipeline side: lead tracking, client relationships, quote follow-up, and customer conversations. It does not schedule, dispatch, or invoice. If you already invoice elsewhere and your problem is lost inquiries and forgotten quotes, Customermates is a good fit; connect your other tools through the API, webhooks, or a separately operated n8n.
+<FaqItem question="Does a sole trader need a CRM?">
+Not always. A notebook and your phone work while you remember every open quote. It stops working when enquiries arrive on three channels and quotes wait for weeks. A sole trader pays [[commercial.price.starter.monthly]] per month on Starter, or [[commercial.price.pro.monthly]] on Pro with WhatsApp or email in the inbox.
 </FaqItem>
 
-<FaqItem question="Can I use Customermates on my phone at the job site?">
-Yes, in the browser. Customermates adapts to phone screens, so you can update job stages, add notes, and check client history from the field. There is no native iOS or Android app.
+<FaqItem question="Can Customermates create quotes and invoices?">
+No. Write quotes and invoices in your trade or accounting software and record the value on the job. A webhook fires when a job is updated, for example when its stage changes, so an n8n workflow you run separately can pass an accepted job to another tool, provided that tool has an API.
 </FaqItem>
 
-<FaqItem question="How does Customermates handle GDPR?">
-GDPR compliance depends on how you, as the controller, use any tool. Customermates provides a [DPA](/dpa) under Art. 28 GDPR and discloses its [subprocessors](/subprocessors), including US providers covered by standard contractual clauses. In the managed cloud, the application database runs in the AWS Frankfurt region. Customermates holds no compliance certification, and it can be self-hosted on your own infrastructure.
+<FaqItem question="Can I use it on my phone on site?">
+Yes, in the browser. You can look up a client, add a note and move a job to the next stage. There is no native app and no offline mode.
 </FaqItem>
 
-<FaqItem question="How much does a CRM for tradespeople cost?">
-Customermates starts at [[commercial.price.starter.monthly]] per user per month for the core CRM, or [[commercial.price.pro.monthly]] per user per month on Pro for the unified inbox, billed monthly. A sole trader pays [[commercial.price.starter.monthly]]/month on Starter. A team of 3 pays [[commercial.price.starter.monthly.seats.3]]/month. There are no per-job fees. You can also self-host the open-source core with no licence cost.
+<FaqItem question="Can it handle WhatsApp enquiries?">
+Yes, on Pro and above in Customermates Cloud. Connect a WhatsApp account under My Profile › Channels and its conversations appear in the inbox, where you reply and link the sender to a client. Self-hosted installations have no inbox.
 </FaqItem>
 
-<FaqItem question="Can I track repeat business and annual maintenance jobs?">
-Yes. Mark clients with a single-select field for the recurring service and add a custom date field for the next service. A saved view sorted by that date shows who is due. Customermates sends no reminders itself; on Customermates Cloud a routine can list due clients and draft messages, or a separately operated n8n workflow can send follow-up emails when a service window opens.
-</FaqItem>
-
-<FaqItem question="Does Customermates work for different trades?">
-Yes. Whether you are a [plumber](/for/plumbers), [electrician](/for/electricians), [HVAC technician](/for/hvac), or [general contractor](/for/contractors), Customermates adapts to your workflow with custom fields and configurable pipeline stages. The CRM works for any trade business that manages client inquiries, quotes, and jobs.
+<FaqItem question="Can I track maintenance contracts and annual services?">
+Yes, with fields you add. Put a Next service date and a Contract type single select on the client, and save a view sorted by Next service, soonest first. Customermates sends no reminders on its own; in Cloud a monthly routine can list due customers and save a draft message for each.
 </FaqItem>
 </Faq>

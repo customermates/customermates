@@ -1,17 +1,17 @@
 ---
-title: "CRM Reporting: Dashboards & Analysen"
-description: "CRM Reporting mit konfigurierbaren Dashboard-Diagrammen zu Pipeline, Deals und Aufgaben. Jeder Nutzer baut sein eigenes Dashboard, ohne BI-Tool."
-featureName: CRM Reporting
+title: "CRM-Reporting und Auswertungen: Dashboards und Pipeline"
+description: "CRM-Reporting in Customermates: Dashboard-Diagramme zu Deals, Kontakten und Aufgaben, gewichtete Pipeline und Auswertung mit Mate. Einrichtung und Grenzen."
+featureName: CRM-Reporting
 
 relatedHrefs:
-  - /features/outlook-integration
   - /features/pipeline
-  - /features/project-management
   - /features/sales
+  - /features/workflow-automation
+  - /docs/app-dashboard
 
 hero:
-  title: CRM Reporting, das Antworten liefert statt nur Daten
-  description: Bauen Sie Dashboards aus konfigurierbaren Diagramm-Widgets über Pipeline, Deals und Aktivität. Unterstützte externe KI-Clients können zulässige CRM-Daten über MCP abfragen; Client und Modell bleiben getrennt.
+  title: CRM-Reporting für kleine Teams, die klare Zahlen brauchen und kein BI-Projekt
+  description: Bauen Sie Ihr persönliches Dashboard aus Diagrammen zu Deals, Kontakten, Organisationen, Leistungen und Aufgaben. Sehen Sie Gesamt- und gewichtete Pipeline nach Phase, und fragen Sie in Customermates Cloud Mate nach Werten, die kein Diagramm zeigt, etwa einem Median oder einer Rangliste.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -19,8 +19,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bereit, Ihre CRM-Daten in Entscheidungen zu verwandeln?
-  description: Beginnen Sie noch heute mit dem Erstellen von Dashboards und dem Tracking von Leistungskennzahlen in Customermates. Alle Reporting-Funktionen sind von Tag eins an enthalten.
+  action: Erstellen Sie Ihr erstes Pipeline-Diagramm in der Testphase
+  description: Prüfen Sie die Phasenwahrscheinlichkeiten, legen Sie zwei eigene Felder an und erstellen Sie in wenigen Minuten ein Diagramm der gewichteten Pipeline. Dashboards sind ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten, monatlich abgerechnet.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -28,84 +28,135 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-## Was ist CRM Reporting?
+CRM-Reporting heißt: Sie zählen und summieren, was ohnehin im CRM steht, damit Fragen wie „Was liegt in der Pipeline?“ oder „Welche Kunden bringen den meisten Umsatz?“ ohne Excel-Liste beantwortet sind. In Customermates gibt es dafür drei Stellen: Diagramme auf dem Dashboard, nach einem Feld gruppierte Listen und die gewichtete Pipeline in den Unternehmenseinstellungen. Auswertungen, die echte Rechenarbeit über viele Datensätze brauchen, etwa einen Median oder eine Rangliste, übernimmt Mate in Customermates Cloud, Ihr eigener KI-Client über MCP oder Excel nach einem Export.
 
-CRM Reporting ist der Prozess, Ihre Kundendaten in verwertbare Business Intelligence zu verwandeln. Anstatt einzelne Datensätze und Deal-Listen zu durchsuchen, aggregieren Reporting-Tools Ihre Daten in Dashboards, Diagramme und Zusammenfassungen, die Muster und Trends auf einen Blick sichtbar machen.
+Der Umfang ist bewusst klein. Wenn Sie Vertriebstrichter mit Konversionsraten, Verweildauer pro Phase, Vertriebsziele oder Umsatzprognosen brauchen, nennt der Abschnitt zu den Grenzen passende Werkzeuge.
 
-Effektives CRM Reporting beantwortet die Fragen, die für Vertriebsleiter und Geschäftsführer am wichtigsten sind. Wie viel Umsatz steckt in der Pipeline? Welche Vertriebsphasen haben die höchsten Abbruchraten? Wie performt jedes Teammitglied im Vergleich zu seinen Zielen? Wie lange dauert es durchschnittlich, einen Deal abzuschließen? Ohne strukturiertes Reporting erfordern diese Fragen stundenlange manuelle Analysen. Mit den richtigen Reporting-Tools sind die Antworten sofort verfügbar.
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Was Sie bekommen">Diagramm-Widgets, die Datensätze zählen oder Deal-Wert und gewichteten Deal-Wert summieren, gruppiert nach einem Einzelauswahl-Feld oder pro Datensatz, dazu ein Aktivitätsverlauf als Widget.</SummaryItem>
+  <SummaryItem label="Tarife">Dashboards und gewichtete Pipeline gehören zu jedem Tarif, ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat, und zur Self-Hosted-Version.</SummaryItem>
+  <SummaryItem label="KI">In Customermates Cloud beantwortet Mate Fragen, die Berechnungen über viele Datensätze brauchen, und nutzt dafür gehostete KI-Credits. Ihr eigener KI-Client liest dieselben Daten über MCP.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine Zeitreihen-Diagramme, keine Konversionsraten, keine Verweildauer, keine Ziele, keine vorausschauende Umsatzprognose, kein geplanter Berichtsversand und kein gemeinsames Team-Dashboard.</SummaryItem>
+</ArticleSummary>
 
-Für wachsende Teams ist CRM Reporting kein Luxusfeature. Es ist der Mechanismus, der verstreute Aktivitäten in strategische Entscheidungsfindung verwandelt.
+## Was ein Diagramm-Widget auswertet
 
-## Fünf essenzielle CRM-Berichte, die jedes Team braucht
+Jedes Diagramm nimmt einen Datensatztyp (im Editor **Element**), eine **Metrik** und eine **Gruppierung**. Welche Metriken es gibt, hängt vom Typ ab:
 
-Nicht jedes Team braucht die gleichen Berichte, aber diese fünf decken die Grundlagen ab, die nahezu jede Vertriebsorganisation verfolgen sollte.
+| Element | Anzahl | Deal-Wert | Gewichteter Deal-Wert | Anzahl Leistungen in Deals |
+|---|---|---|---|---|
+| Kontakte | Ja | Ja, aus ihren Deals | Ja, aus ihren Deals | Nein |
+| Organisationen | Ja | Ja, aus ihren Deals | Ja, aus ihren Deals | Nein |
+| Deals | Ja | Ja | Ja | Nein |
+| Leistungen | Ja | Ja | Nein | Ja |
+| Aufgaben | Ja | Nein | Nein | Nein |
 
-**Pipeline-Bericht.** Eine Momentaufnahme aller aktiven Deals, organisiert nach Phase, mit Gesamtwert, Deal-Anzahl und gewichtetem Wert in jeder Phase. Dieser Bericht beantwortet die Frage: Haben wir genug Pipeline, um unser Ziel zu erreichen? Prüfen Sie ihn wöchentlich, um Sourcing-Lücken früh zu erkennen.
+Als **Gruppierung** wählen Sie **Keine Gruppierung** (eine Summe), ein eigenes Einzelauswahl-Feld dieses Typs wie Phase oder Lead-Quelle oder, bei einer anderen Metrik als der Anzahl, jeden Datensatz einzeln. Die letzte Variante liefert zum Beispiel „Deal-Wert pro Organisation“ oder „Deal-Wert pro Leistung“. Aufgaben lassen sich nur zählen und nur nach einem Einzelauswahl-Feld gruppieren oder gar nicht.
 
-**Vertriebsleistungsbericht.** Individuelle und Team-Performance gemessen an gewonnenen Deals, abgeschlossenem Umsatz, erledigten Aktivitäten und Win Rate. Dies ist die Grundlage für Coaching-Gespräche, Quota-Tracking und Leistungsbeurteilungen. Prüfen Sie ihn je nach Verkaufszyklus wöchentlich oder monatlich.
+Der gewichtete Deal-Wert steht zur Verfügung, sobald unter **Mein Unternehmen › Einstellungen** ein Deal-Phasenfeld mit Abschlusswahrscheinlichkeiten hinterlegt ist. Ein neuer Arbeitsbereich hat bereits ein Feld „Phase“ mit vorbelegten Wahrscheinlichkeiten, das funktioniert also ab dem ersten Deal.
 
-**Konversionstrichter-Bericht.** Phase-für-Phase-Konversionsraten, die zeigen, wo Deals fortschreiten und wo sie abspringen. Wenn 80 Prozent der qualifizierten Deals die Angebotsphase erreichen, aber nur 30 Prozent der Angebote zum Abschluss kommen, macht der Trichterbericht diese Lücke sichtbar und handlungsfähig.
+**Filter** grenzen ein, was ein Diagramm zählt, über jedes Standard- oder eigene Feld, auch mit Zeiträumen auf Erstell- und Änderungsdatum oder auf Ihren eigenen Datumsfeldern. Ein Diagramm über Kontakte, Organisationen oder Leistungen mit einer Deal-Metrik bekommt einen zweiten Filter für die verknüpften Deals. So werten Sie „gewonnener Deal-Wert pro Organisation“ aus, ohne offene Deals mitzuzählen.
 
-**Umsatzprognose-Bericht.** Eine vorausschauende Projektion des erwarteten Umsatzes basierend auf Pipeline-Wert, phasenspezifischen Gewinnwahrscheinlichkeiten und erwarteten Abschlussdaten. Gewichtete Pipeline-Prognosen ersetzen Vermutungen durch datenbasierte Vorhersagen. Prüfen Sie ihn wöchentlich, um Ressourcenzuweisung anzupassen und realistische Ziele zu setzen.
+Als **Darstellung** stehen vertikale oder horizontale Balkendiagramme, jeweils mit oder ohne Wertbeschriftung, ein Ringdiagramm und ein Radardiagramm zur Wahl. Eine Live-Vorschau zeigt das Ergebnis vor dem Speichern.
 
-**Aktivitätsbericht.** Eine Zusammenfassung der erledigten Aufgaben, gesendeten E-Mails, geführten Anrufe, protokollierten Meetings und hinzugefügten Notizen im gesamten Team. Aktivitätsberichte helfen Managern, den Aufwand hinter den Ergebnissen zu verstehen und Coaching-Möglichkeiten zu erkennen, bevor sie zu Leistungsproblemen werden.
+Die zweite Widget-Art, der **Aktivitätsverlauf**, zeigt Änderungen an Datensätzen, die neuesten zuerst, ab Pro auch Nachrichten und Kalendertermine aus verbundenen Konten. Sie filtern ihn nach Kategorie, Konto oder verknüpften Datensätzen, zum Beispiel „alles, was bei den Deals meiner drei größten Kunden passiert ist“.
 
-## So funktioniert CRM Reporting in Customermates
+## Auswertungen für kleine Teams und wie Sie sie anlegen
 
-Customermates bietet Reporting über konfigurierbare Dashboard-Widgets zu Ihren CRM-Daten, ohne separates BI-Tool. Widgets aktualisieren sich bei Änderungen unterstützter Datensätze; ein externer KI-Client kann zulässige Daten über MCP abfragen.
+Die Beispiele setzen das Standardfeld „Phase“ voraus und zwei Einzelauswahl-Felder, die Sie bei Deals ergänzen: „Lead-Quelle“ und „Verlustgrund“.
 
-**Externe KI-Clients können CRM-Daten aktualisieren und abfragen.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können über MCP zulässige Kontakte, Deal-Felder und Notizen aktualisieren oder erlaubte Datensätze abfragen. Bei einem externen Client bleiben Abo, Modellnutzung und Anbieter-Verarbeitung bei Ihnen. In den Cloud-Tarifen beantwortet zusätzlich der gehostete Mate-Assistent Fragen zur Pipeline direkt im CRM und nutzt dafür monatliche gehostete KI-Credits.
+| Frage | Element | Metrik | Gruppierung | Filter |
+|---|---|---|---|---|
+| Was liegt in der Pipeline, nach Phase? | Deals | Deal-Wert | Phase | Phase ist nicht Gewonnen oder Verloren |
+| Was ist sie wert, wenn die Wahrscheinlichkeiten stimmen? | Deals | Gewichteter Deal-Wert | Phase | Phase ist nicht Gewonnen oder Verloren |
+| Woher kommt gewonnenes Geschäft? | Deals | Deal-Wert | Lead-Quelle | Phase ist Gewonnen, eigenes Datumsfeld „Abgeschlossen am“ zwischen erstem und letztem Tag des Quartals |
+| Welche Kunden bringen den meisten Umsatz? | Organisationen | Deal-Wert | Jede Organisation | Verknüpfte Deals: Phase ist Gewonnen |
+| Welche Leistungen verkaufen sich? | Leistungen | Deal-Wert | Jede Leistung | Verknüpfte Deals: Phase ist Gewonnen |
+| Warum verlieren wir? | Deals | Anzahl | Verlustgrund | Phase ist Verloren |
+| Wie viel offene Arbeit gibt es? | Aufgaben | Anzahl | Status | Status ist nicht Erledigt oder Archiviert |
 
-**Pipeline-Dashboards.** Bauen Sie ein Dashboard aus Diagramm-Widgets (Balken-, Doughnut- oder Radardiagramme), die die Deal-Verteilung über Phasen und den Pipeline-Wert nach Phase zeigen. Widgets aktualisieren sich automatisch, wenn Deals fortschreiten, sodass Sie immer den aktuellen Stand Ihres Geschäfts sehen.
+Aufgaben haben keinen eingebauten Status und kein Fälligkeitsdatum. Das Feld „Status“ in der letzten Zeile ist ein eigenes Einzelauswahl-Feld, mit dem ein neuer Arbeitsbereich startet; Sie können es wie jedes andere Feld umbenennen, ändern oder löschen.
 
-**Umsatz- und Deal-Diagramme.** Stellen Sie gewonnene und verlorene Deals nach Vertriebsmitarbeiter, Lead-Quelle, Organisation oder jedem benutzerdefinierten Feld dar, über den Zeitraum, den Sie filtern. Identifizieren Sie, welche Kanäle die wertvollsten Deals liefern.
+Zwei Fragen beantwortet eine Liste besser als ein Diagramm. **Wer arbeitet an welchen Deals?** Stellen Sie die Deal-Liste auf das Board um und gruppieren Sie nach **Zugewiesen**: Jede Person bekommt eine Spalte mit Anzahl und Summen ihrer Deals. **Wie viele Deals haben wir pro Monat angelegt?** Gruppieren Sie die Deal-Tabelle nach Erstelldatum, zusammengefasst nach Monat. Als Ansicht gespeichert, sind beide Auswertungen einen Klick entfernt. Ansichten gehören der Person, die sie speichert.
 
-**Aufgaben- und Aktivitätsdiagramme.** Stellen Sie Aufgaben nach Verantwortlichem, verknüpftem Datensatz oder kundendefinierten eigenen Feldern dar. Native Aufgaben haben keine Fälligkeits- oder Statusfelder; diese Werte bilden Sie mit eigenen Feldern ab.
+## Welchen Tarif Sie brauchen
 
-**Filtern und Segmentieren nach jedem Feld.** Jedes Widget kann nach jedem Standard- oder benutzerdefinierten Feld gefiltert und segmentiert werden. Pipeline-Wert für eine bestimmte Region? Filtern Sie nach Ihrem benutzerdefinierten Regionsfeld. Ein Quartal mit einem anderen vergleichen? Legen Sie den Zeitraum fest. Die Filterung ist flexibel genug, um die spezifischen Fragen Ihres Unternehmens zu beantworten.
+| Tarif | Reporting-Funktionen | Preis |
+|---|---|---|
+| Starter | Diagramm-Widgets, Aktivitätsverlauf mit Datensatzänderungen, gewichtete Pipeline, gruppierte Listen, XLSX-Export, REST, MCP | [[commercial.price.starter.monthly]] pro Nutzer und Monat |
+| Pro | Starter plus Nachrichten und Kalendertermine im Aktivitätsverlauf über den einheitlichen Posteingang | [[commercial.price.pro.monthly]] pro Nutzer und Monat |
+| Business | Pro plus ein teamweiter Verlauf über alle Kanäle | [[commercial.price.business.monthly]] pro Nutzer und Monat |
+| Self-Hosted | Diagramme, gewichtete Pipeline, Export, REST und MCP auf Ihrem eigenen Server; ohne Inbox, Mate und Routinen | Keine Lizenzgebühr |
 
-**Dashboards pro Nutzer.** Jeder Nutzer baut ein persönliches Dashboard. Ein Vertriebsmitarbeiter verfolgt Pipeline und Aufgaben; ein Manager konfiguriert seine eigene breitere Sicht auf zulässige Datensätze. Dashboard-Konfigurationen sind persönlich und keine teamweit geteilten Objekte.
+Mate nutzt gehostete KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer und Monat enthält; die Mengen stehen auf der [Preisseite](/pricing). Ein Team mit drei Personen zahlt im Starter-Tarif [[commercial.price.starter.monthly.seats.3]] pro Monat, ein Team mit fünf Personen im Pro-Tarif [[commercial.price.pro.monthly.seats.5]]. Es gibt kein Reporting-Zusatzpaket und keine Kosten pro Bericht.
 
-## Reporting-Best-Practices
+## Ein Dashboard für das wöchentliche Pipeline-Meeting einrichten
 
-Gutes Reporting bedeutet nicht nur die richtigen Tools zu haben. Es geht darum, einen Reporting-Rhythmus aufzubauen, der Handlung antreibt.
+<Steps>
+  <Step title="Phasenwahrscheinlichkeiten prüfen">Öffnen Sie **Mein Unternehmen › Einstellungen**, prüfen Sie, dass das Deal-Phasenfeld auf „Phase“ steht, und passen Sie die Abschlusswahrscheinlichkeit jeder Phase an. **Gesamtpipeline** und **Gewichtete Pipeline** zeigen das Ergebnis direkt darunter.</Step>
+  <Step title="Die Felder anlegen, die Ihre Fragen brauchen">Öffnen Sie einen Deal, klicken Sie auf **Anpassen** und legen Sie ein Einzelauswahl-Feld „Lead-Quelle“ (Empfehlung, LinkedIn, Website, Veranstaltung), ein Einzelauswahl-Feld „Verlustgrund“ und ein Datumsfeld „Abgeschlossen am“ an. Ein Diagramm kann nur nach dem gruppieren, was Sie erfassen.</Step>
+  <Step title="Das erste Diagramm erstellen">Klicken Sie auf dem **Dashboard** auf **Widget hinzufügen**, wählen Sie **Diagramm**, als Element Deals, als Metrik den gewichteten Deal-Wert und als Gruppierung Phase. Schließen Sie im Reiter **Filter** Gewonnen und Verloren aus und klicken Sie auf **Widget erstellen**.</Step>
+  <Step title="Drei weitere hinzufügen">Gewonnener Deal-Wert nach Lead-Quelle, gewonnener Deal-Wert pro Organisation und die Anzahl verlorener Deals nach Verlustgrund. Verschieben und vergrößern Sie die Widgets nach Bedarf; die Anordnung wird für Sie gespeichert.</Step>
+  <Step title="Die Vorlage teilen, nicht das Dashboard">Aktivieren Sie bei jedem Diagramm **Als Vorlage freigeben**. Kolleginnen und Kollegen wählen es unter **Mit einer Vorlage starten** und erhalten eine eigene Kopie, die nur die Datensätze zählt, die ihre Rolle lesen darf.</Step>
+</Steps>
 
-**Einen Review-Rhythmus etablieren.** Operative Berichte wie Pipeline-Status und Aktivitätszusammenfassungen sollten täglich oder wöchentlich geprüft werden, um Probleme früh zu erkennen. Leistungs- und KPI-Berichte sind bei wöchentlicher oder monatlicher Prüfung effektiver, da sie Trends über die Zeit zeigen. Quartalberichte eignen sich am besten für strategische Reviews und Zielsetzung.
+Die [Dashboard-Dokumentation](/docs/app-dashboard) beschreibt jede Option des Widget-Editors.
 
-**Dashboards fokussiert halten.** Die effektivsten Dashboards verfolgen fünf bis sieben Kernmetriken, nicht fünfzig. Jedes Widget sollte eine spezifische Frage beantworten, die zu einer spezifischen Handlung führt. Wenn eine Metrik nicht zu einer Entscheidung führt, entfernen Sie sie vom Dashboard.
+## Was das Reporting in Customermates nicht kann, und was Sie stattdessen nutzen
 
-**Definitionen standardisieren.** Stellen Sie sicher, dass jedes Teammitglied übereinstimmt, was als qualifizierter Deal zählt, wann ein Deal in die nächste Phase wechselt und wie Aktivitäten protokolliert werden. Inkonsistente Dateneingabe produziert unzuverlässige Berichte.
+Customermates veröffentlicht diese Seite. Die Angaben zu anderen Anbietern wurden am 8. Oktober 2026 auf deren eigenen Seiten geprüft.
 
-**Berichtslieferung extern automatisieren.** Eine separat betriebene n8n-Instanz kann Pipeline-Zusammenfassungen über Slack oder andere Anbieter planen, kundendefinierte Schwellenwerte auswerten und Leistungs-Digests zustellen. In der Cloud kann außerdem eine Mate-Routine einen gespeicherten Prompt nach Zeitplan ausführen, etwa für eine Pipeline-Zusammenfassung. Customermates bündelt weder n8n noch Slack und hat keine Alarm-Engine.
+| Sie brauchen | In Customermates | Wo Sie suchen sollten |
+|---|---|---|
+| Umsatzprognosen über Phasengewichte hinaus | Nicht vorhanden. Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit, die Sie für seine Phase festlegen, sonst nichts. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional und Enterprise enthalten Umsatzprognosen (Forecasting); [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) bietet eine Forecast-Ansicht |
+| Einen Berichtsbaukasten mit Konversionsraten, Zielen und vielen Berichtstypen | Nicht vorhanden. Diagramme zählen und summieren, sie teilen keine Phase durch eine andere. | HubSpot Sales Hub Professional (eigene Berichte); Pipedrive Insights (eigene Berichte, Dashboards und Ziele) |
+| Verläufe über die Zeit, etwa Umsatz pro Monat | Nicht als Diagramm. Gruppieren Sie eine Liste nach Monat oder exportieren Sie. | Excel oder eine andere Tabellenkalkulation |
+| Eigene BI-Auswertungen auf den Rohdaten | Kein eingebauter Anschluss an ein BI-Tool | Self-Hosted: Ihre Daten liegen in Ihrer eigenen PostgreSQL-Datenbank, die [Metabase](https://www.metabase.com/docs/latest/databases/connecting) unterstützt; die Open-Source-Edition ist kostenlos und selbst gehostet. Nutzen Sie einen Datenbanknutzer mit reinem Lesezugriff und rechnen Sie damit, Abfragen nach einem Update anzupassen, weil die Tabellen das interne Schema des Produkts sind. |
+| Ein Dashboard, das das ganze Team bearbeitet | Nicht vorhanden. Jedes Dashboard ist persönlich; Vorlagen geben jeder Person eine Kopie. | |
+| Berichte per E-Mail nach Zeitplan | Nicht eingebaut | Eine Routine in Customermates Cloud oder n8n, beides weiter unten beschrieben |
 
-**Auf die Daten reagieren.** Das beste Reporting-System der Welt ist wertlos, wenn die Erkenntnisse nicht zu Handlung führen. Jedes Report-Review sollte mit konkreten nächsten Schritten enden: Deals für Follow-Up, Prozesse zum Anpassen, Coaching-Gespräche zum Führen oder Ressourcen zum Umverteilen.
+Für eine einmalige Auswertung exportieren Sie die Liste über das Menü **Import und Export** der Deal-Liste als Excel-Arbeitsmappe. Der Export übernimmt sichtbare Spalten, Filter und Sortierung, den Rest erledigt eine [PivotTable](https://support.microsoft.com/de-de/office/erstellen-einer-pivottable-zum-analysieren-von-arbeitsblattdaten-a9a84538-bfe9-40a9-a8e9-f99134456576). Exportiert wird ein Datensatztyp nach dem anderen; die Grenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).
 
-## Häufige Reporting-Anwendungsfälle
+## Wie das Reporting mit Mate, MCP und der API zusammenspielt
 
-**Wöchentliche Pipeline-Reviews.** Starten Sie jede Woche mit einem klaren Bild Ihrer Pipeline. Prüfen Sie den Gesamtwert nach Phase, identifizieren Sie stagnierende Deals und priorisieren Sie Follow-Ups basierend auf Deal-Alter und -Wert.
+**Mate (Customermates Cloud).** Mate hat ein Analysewerkzeug mit reinem Lesezugriff für Fragen, die Rechenarbeit über viele Datensätze brauchen: einen Median, eine Rangliste, eine Abschlussquote oder eine Verknüpfung von Deals und Organisationen. Mate liest dabei die Datensätze, die Ihre Rolle sehen darf, rechnet in einer isolierten Sandbox und ändert nichts. Jede Frage verbraucht gehostete KI-Credits. Ein Beispiel:
 
-**Monatliches Performance-Tracking.** Prüfen Sie unterstützte Deal-Anzahlen und Werte monatlich in persönlichen Dashboards. Konversionsraten, Zykluszeit, Ziele und nutzerübergreifende Performance benötigen kundendefinierte Felder oder Berechnungen in einem separaten Reporting-System.
+```text
+Für Deals, die seit dem 1. Juli auf Gewonnen oder Verloren stehen: Wie hoch ist die Abschlussquote je Lead-Quelle, wie hoch ist der Median der gewonnenen Deal-Werte, und welche drei Organisationen haben den meisten gewonnenen Wert gebracht?
+```
 
-**Lead-Quellen-Analyse.** Speichern Sie die Lead-Quelle in einem eigenen Feld und stellen Sie unterstützte Deal-Anzahlen oder Werte nach Quelle dar. Berechnen Sie Quellen-Konversionsraten und Attribution bei Bedarf in einem separaten Reporting-System.
+Die Antwort ist eine Chat-Nachricht, kein gespeichertes Diagramm. Mate kann aber auch Dashboard-Widgets für Sie anlegen oder ändern, wenn Sie sie beschreiben.
 
-**Prognosen und Planung.** Customermates multipliziert jeden Deal-Wert mit der Wahrscheinlichkeit, die Sie für seine Phase hinterlegen. Dashboards zeigen so gewichtete Deal-Werte und gewichtete Pipeline-Summen Ihrer aktuellen Deals. Das ist eine feste Berechnung, keine vorausschauende Prognose; Projektionen auf Basis historischer Konversionsraten gehören in ein separates Reporting-System.
+**Routinen (Customermates Cloud).** Eine Routine führt eine gespeicherte Anweisung nach Zeitplan aus, etwa „Fasse jeden Montag um 8 Uhr die offene Pipeline nach Phase zusammen und liste Deals auf, die seit 30 Tagen nicht geändert wurden.“ Sie läuft unter Ihrem Konto als Eigentümer, mit Ihren Rechten und Credits, und die Zusammenfassung des Laufs bleibt bei der Routine. Ab Pro kann sie Ihnen die Zusammenfassung auch über Ihr verbundenes Postfach per E-Mail senden. Mate sendet dabei ohne erneute Rückfrage; schreiben Sie „Entwurf“ in die Anweisung, wenn Sie den Text vorher lesen möchten. Auslöser und Grenzen erklärt die Seite zur [Workflow-Automatisierung](/features/workflow-automation).
 
-**Eingaben für Vertriebscoaching.** Nutzen Sie unterstützte Datensätze und kundendefinierte Felder als Coaching-Grundlage. Nutzerübergreifende Performance-Vergleiche, Konversionsraten, Ziele und Zyklusmetriken benötigen eine separate Berechnung oder ein externes Reporting-System.
+**Ihr eigener KI-Client über MCP.** Claude, ChatGPT und andere MCP-Clients nutzen [[derived.mcp.tools.total]] Werkzeuge, in jedem Tarif und auch beim Self-Hosting. Wenn ein Client Deals auflistet, enthält die Antwort die Summe aus Deal-Wert und gewichtetem Wert über alle passenden Deals. „Wie hoch ist unsere gewichtete Pipeline bei Organisationen in Bayern?“ hat damit eine exakte Antwort. Die Einrichtung steht in der [MCP-Dokumentation](/docs/mcp).
 
-## Warum Customermates für CRM Reporting?
+**REST und Webhooks.** Wenn Berichte in ein anderes System gehören, lesen Sie Datensätze über die [REST-API](/features/api) oder empfangen bei jeder Änderung einen Webhook und pflegen damit Ihre eigene Reporting-Tabelle. [n8n](/docs/n8n) kann beides nach Zeitplan erledigen; es läuft separat und gehört nicht zu Customermates.
 
-**Native Dashboards für gespeicherte CRM-Daten.** Persönliche Dashboard-Widgets visualisieren unterstützte Anzahlen, Werte und Gruppierungen ohne separates BI-Tool. Abgeleitete Kennzahlen wie Konversionsraten, Zykluszeit, Attribution oder nutzerübergreifende Performance benötigen separat gepflegte Felder oder Berechnungen in einem externen Reporting-System.
+## Häufige Fragen
 
-**Open Source und transparent.** Ihr Reporting läuft auf Code, den Sie einsehen und erweitern können. Keine Black-Box-Algorithmen oder versteckten Datentransformationen zwischen Ihren Rohdaten und Ihren Berichten.
+<Faq>
+<FaqItem question="Welche CRM-Auswertungen sind typisch?">
+Für ein kleines Team decken fünf die meisten Entscheidungen ab: Pipeline-Wert nach Phase, gewichtete Pipeline, gewonnener Umsatz nach Lead-Quelle, Umsatz pro Kunde und verlorene Deals nach Verlustgrund. Alle fünf sind in Customermates Diagramm-Widgets. Aktivitätsberichte, Vertriebstrichter und Umsatzprognosen sind in größeren CRM-Systemen üblich; Customermates hat einen Aktivitätsverlauf, aber weder Trichter noch Prognose.
+</FaqItem>
 
-**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Customermates besitzt keine Compliance-Zertifizierung.
+<FaqItem question="Kann Customermates Umsatz prognostizieren?">
+Nicht im vorausschauenden Sinn. Es berechnet eine gewichtete Pipeline: den Wert jedes Deals mal die Abschlusswahrscheinlichkeit, die Sie für seine Phase festlegen. Nichts lernt aus vergangenen Deals oder sagt Abschlusstermine voraus. Wenn Sie das brauchen, sehen Sie sich HubSpot Sales Hub Professional oder die Forecast-Ansicht von Pipedrive an.
+</FaqItem>
 
-**Einfache, faire Preisgestaltung.** CRM Reporting ist ab [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter-Stufe) enthalten. Dashboard-Diagramm-Widgets, Filter und MCP-Zugang für externe KI-Clients sind in jeder Stufe enthalten. Keine Kosten pro Bericht, und Sie können so viele Widgets hinzufügen, wie Sie brauchen.
+<FaqItem question="Kann mein Team ein gemeinsames Dashboard nutzen?">
+Nein. Dashboards und gespeicherte Ansichten sind persönlich. Ein Diagramm können Sie mit **Als Vorlage freigeben** teilen, und jede Person startet daraus eine eigene Kopie. Diese Kopie zählt nur die Datensätze, die die jeweilige Rolle lesen darf, deshalb sehen zwei Personen im selben Diagramm unter Umständen unterschiedliche Zahlen.
+</FaqItem>
 
-**Separates n8n für proaktives Reporting.** Verbinden Sie Ihre eigene n8n-Instanz über dokumentierte Schnittstellen, um Digests zu planen, Schwellenwerte auszuwerten und externe Anbieter mit Alarmen zu beauftragen. n8n-Laufzeit, Anbieterzugänge, Limits, Protokolle und Kosten bleiben extern.
+<FaqItem question="Kann ich CRM-Berichte nach Excel exportieren?">
+Exportiert werden Datensätze, keine Diagramme. Jede Liste lässt sich als Excel-Arbeitsmappe mit den aktuellen Filtern, der Sortierung und den sichtbaren Spalten exportieren, jeweils ein Datensatztyp. Ein CSV-Format gibt es nicht; den Bericht bauen Sie in Excel mit einer PivotTable.
+</FaqItem>
 
-**Self-hostbare Anwendung und Datenbank.** Betreiben Sie die Customermates-Anwendung und PostgreSQL-Datenbank auf eigener Infrastruktur. Externe KI-, Workflow- und Zustellungsanbieter erhalten weiterhin die von Ihrer Konfiguration gesendeten Daten; Self-Hosting ist keine Compliance-Zertifizierung.
+<FaqItem question="Welche Auswertungen enthält der Starter-Tarif?">
+Alle Diagramm-Widgets, die gewichtete Pipeline, gruppierte Listen, der Aktivitätsverlauf mit Datensatzänderungen und der XLSX-Export sind in Starter enthalten. Pro ergänzt Nachrichten und Kalendertermine im Verlauf. Die Analyse durch Mate braucht Customermates Cloud und gehostete KI-Credits, die jeder Cloud-Tarif enthält.
+</FaqItem>
 
-## Starten Sie heute mit CRM Reporting
-
-CRM Reporting beginnt mit persönlichen Dashboard-Widgets über zulässige Datensätze. Wenn Ihr Team Deals, Kontakte und Aktivitäten erfasst, aktualisieren sich konfigurierte Widgets mit unterstützten Daten. Erstellen Sie ein Konto, ergänzen Sie die Felder für Ihren Prozess und bauen Sie Ansichten für Ihre Geschäftsfragen.
+<FaqItem question="Kann ich Auswertungen stattdessen mit ChatGPT oder Claude erstellen?">
+Ja. Verbinden Sie den Client über MCP. Er kann dann Datensätze auflisten und filtern, die Wertsummen passender Deals lesen und Dashboard-Widgets anlegen. Für das Modell, das Abonnement und den Umgang mit Ihren Daten ist Ihr KI-Anbieter zuständig, nicht Customermates.
+</FaqItem>
+</Faq>

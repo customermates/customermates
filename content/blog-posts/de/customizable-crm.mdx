@@ -1,143 +1,176 @@
 ---
-title: "Anpassbares CRM-System: Auswahl und Vergleich 2026"
-description: "Anpassbares CRM heißt Custom Fields, Custom Objects, Custom Views und Workflows. Worauf achten, die Top-Plattformen und der Open-Source-Pfad."
+title: "Individuelles CRM: anpassen oder selbst bauen?"
+description: "Was Sie an einem anpassbaren CRM ändern können, welche Anbieter eigene Datensatztypen erlauben und wann sich ein selbst gebautes CRM lohnt."
+
+relatedHrefs:
+  - /blog/open-source-crm
+  - /docs/concepts
+  - /features/self-hosted
+  - /blog/how-to-choose-crm
 
 hero:
-  title: "Anpassbares CRM-System: Praxis-Guide"
-  description: Die meisten CRMs erlauben Custom Fields. Ein wirklich anpassbares CRM lässt das Datenmodell zu Ihrem Geschäft passen, nicht umgekehrt.
+  title: "Individuelles CRM: Was sich anpassen lässt und wann Sie selbst bauen sollten"
+  description: "Die meisten kleinen Teams brauchen ein CRM, dessen Felder, Phasen und Ansichten sie selbst gestalten, kein von Grund auf programmiertes System. So erkennen Sie den Unterschied, so ziehen die Anbieter die Grenze, und so sieht eine konkrete Einrichtung aus."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-04-27
+  updated: 2026-10-08
   tags:
+    - Individuelles CRM
     - Anpassbares CRM
-    - Custom Fields
+    - Eigene Felder
     - Open Source CRM
 ---
 
-# Anpassbares CRM-System
+# Individuelles CRM: Was sich anpassen lässt und wann Sie selbst bauen sollten
 
-Ein anpassbares CRM-System ist ein vorgefertigtes CRM, in dem Business-Anwender das Datenmodell, die Ansichten und die Workflows an den eigenen Prozess anpassen können, statt das Team zu zwingen, sich um die Standardvorgaben des Anbieters herum zu organisieren. Richtig gemacht, ist Anpassbarkeit der Grund, warum ein CRM hängen bleibt. Schlecht gemacht, entsteht ein Frankenstein, dem niemand traut.
+Ein individuelles CRM bekommen die meisten Unternehmen nicht durch Programmierung, sondern durch Konfiguration: eigene Felder, eigene Deal-Phasen und gespeicherte Ansichten in einem fertigen Produkt. Für Beratungen, Agenturen und Dienstleister reicht das in aller Regel. Ein selbst gebautes CRM lohnt sich erst, wenn Sie Datensatztypen brauchen, die kein Produkt abbildet. Dann sind ein CRM mit eigenen Objekten oder eine No-Code-Datenbank meist realistischer als eine Eigenentwicklung.
 
-Dieser Guide erklärt, was „anpassbar" 2026 wirklich bedeutet, wo die meisten CRMs die Linie ziehen und wie Sie Optionen evaluieren, einschließlich des Open-Source-Pfads.
+Die entscheidende Frage ist eng: Brauchen Sie neue Arten von Datensätzen oder nur neue Felder an den üblichen? Diese Seite hilft Ihnen, das vor dem Kauf zu klären.
 
-## Was bedeutet anpassbares CRM tatsächlich?
+Customermates veröffentlicht diesen Artikel und ist eines der beschriebenen Produkte.
 
-Fünf verschiedene Dinge verstecken sich unter dem Wort „anpassbar":
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Anpassbar oder individuell entwickelt">Anpassbar heißt: Sie konfigurieren ein fertiges Produkt. Individuell entwickelt heißt: Sie bauen und pflegen das System selbst, mit Code oder einer No-Code-Plattform.</SummaryItem>
+  <SummaryItem label="Wo die Grenze liegt">Eigene Felder sind Standard. Eigene Objekte, also neue Datensatztypen, trennen die Tarife: HubSpot verlangt ein Enterprise-Abo, Zoho CRM bietet benutzerdefinierte Module ab Enterprise.</SummaryItem>
+  <SummaryItem label="Customermates">Fünf Datensatztypen mit umbenennbaren Bezeichnungen aus Vorgaben, zehn Feldtypen, eigene Phasen mit Gewichtung, persönliche Ansichten, REST, Webhooks und MCP. Keine eigenen Objekte.</SummaryItem>
+  <SummaryItem label="Selbst bauen">Sinnvoll, wenn Ihre Daten nicht in Kontakte, Unternehmen und Deals passen. Sonst übernehmen Sie Anmeldung, Rechte, E-Mail-Anbindung und Import ohne echten Gewinn.</SummaryItem>
+</ArticleSummary>
 
-- **Custom Fields.** Felder zu bestehenden Entitäten (Kontakt, Deal) hinzufügen. In fast jedem CRM verfügbar.
-- **Custom Objects.** Neue Entitätstypen jenseits der eingebauten erstellen (z. B. „Projekt" oder „Abonnement"). Verfügbar in Salesforce, HubSpot Enterprise, Folk Premium, Zoho Enterprise, Pipedrive höhere Tarife.
-- **Custom Views.** Filtern, sortieren, gruppieren und Ansichten pro User oder Team speichern. Die meisten modernen CRMs unterstützen das, die Tiefe variiert.
-- **Custom Workflows / Automatisierungen.** Aktionen basierend auf Feldänderungen, Zeit oder externen Events auslösen. Native Automatisierungen variieren stark in Flexibilität, Webhooks und APIs decken die Lücke.
-- **Custom UI.** Felder umsortieren, Tabs verstecken, Dashboards bauen, Widgets einbetten. In den meisten SaaS-CRMs begrenzt, voll in Open-Source-CRMs, die Sie selbst hosten.
+## Was „anpassbar" konkret bedeutet
 
-Käufer meinen meist die ersten beiden, wenn sie „anpassbar" sagen. Anbieter vermarkten alle fünf, liefern aber nur die ersten beiden gut auf der Einstiegsstufe.
+Anbieter meinen mit dem Wort sehr unterschiedliche Tiefen. Zerlegen Sie es in Ebenen und prüfen Sie jede im Testzeitraum:
 
-## Was jedes CRM, das sich anpassbar nennt, mitbringen sollte
+| Ebene | Bedeutung | So prüfen Sie es im Test |
+|---|---|---|
+| Eigene Felder | Zusätzliche Felder an bestehenden Datensätzen: Datum, Betrag, Auswahlliste | Legen Sie die fünf Felder an, die Sie wirklich pflegen würden. Prüfen Sie, ob Filter und Sortierung darauf funktionieren. |
+| Pipeline und Phasen | Eigene Phasennamen, mehrere Pipelines, Abschlusswahrscheinlichkeiten | Bilden Sie Ihre heutigen Vertriebsschritte nach. Ist die Phase ein festes Systemfeld oder selbst definiert? |
+| Bezeichnungen | Deals heißen „Projekte", Kontakte heißen „Kunden" | Benennen Sie um und prüfen Sie Listen, Formulare und Exporte. |
+| Ansichten | Gespeicherte Filter, Sortierung, Gruppierung, Board oder Tabelle | Speichern Sie drei Ansichten. Sehen Kollegen sie, oder nur Sie? |
+| Eigene Objekte | Neue Datensatztypen mit eigenen Feldern und Verknüpfungen, etwa „Immobilie" oder „Vertrag" | Fragen Sie, in welchem Tarif und in welcher Anzahl. Hier verlangen Anbieter am häufigsten einen höheren Tarif. |
+| Automatisierung und Zugriff | Auslöser bei Feldänderungen, API, Webhooks, Rollen | Lösen Sie einen Webhook bei einer Feldänderung aus. Lesen und schreiben Sie einen Datensatz über die API. |
 
-Sechs Basis-Fähigkeiten:
+Über die meisten Käufe entscheiden zwei Ebenen: eigene Felder und eigene Objekte. Dabei zählen die Feldtypen mehr als die Anzahl. Eine Auswahlliste hält die Daten einheitlich, Freitext läuft auseinander, sobald mehrere Personen etwas eintragen.
 
-1. **Mehrere typisierte Custom-Field-Typen.** Plain-Text reicht nicht. Sie brauchen Datum, Datum/Zeit, Währung, Single-Select, Link, E-Mail, Telefon. Customermates liefert zehn typisierte Feldtypen. [HubSpot](https://www.hubspot.de/products/crm/customization) und [Zoho](https://www.zoho.com/de/crm/customization.html) liegen im selben Bereich, Salesforce liefert deutlich mehr.
-2. **Custom Fields pro Entität.** Felder unabhängig zu Kontakten, Deals, Unternehmen, Aufgaben und (falls verfügbar) Custom Objects hinzufügen.
-3. **Gespeicherte Ansichten mit Filtern und Sortierung.** Mehrere pro User, jede mit eigenen Filtern und eigener Sortierung.
-4. **Eine echte REST- oder GraphQL-API.** Ohne programmatischen Zugriff endet die Anpassbarkeit an der UI-Decke.
-5. **Webhooks.** Ohne Webhooks müssen Automatisierungen pollen, was langsam und teuer ist.
-6. **Offener Datenexport.** Eine Tabellendatei (CSV oder Excel) als Minimum, dazu eine API für den vollständigen Zugriff.
+## Welche Anbieter eigene Objekte erlauben
 
-Wenn ein Anbieter eines davon als Premium-Upsell verlangt, ist das ein Signal, dass die Anpassbarkeits-Story größtenteils Marketing ist. Die Datenschicht sollte standardmäßig offen sein.
+Eigene Objekte sind die deutlichste Trennlinie zwischen Tarifen. Die Angaben stammen von den Anbietern selbst:
 
-## Wie die führenden anpassbaren CRMs sich vergleichen
+| Produkt | Eigene Objekte | Quelle |
+|---|---|---|
+| HubSpot | Mit Enterprise-Abos verfügbar (Sales Hub, Marketing Hub, Service Hub und weitere Enterprise-Hubs) | [HubSpot Knowledge Base](https://knowledge.hubspot.com/object-settings/create-custom-objects) |
+| Zoho CRM | Benutzerdefinierte Module in Enterprise und Ultimate, nicht in Free, Starter, Standard oder Professional | [Zoho CRM Editionsvergleich](https://www.zoho.com/crm/comparison.html) |
+| Attio | Free bis 3, Plus bis 5, Pro bis 12, Enterprise unbegrenzt | [Attio Preise](https://attio.com/pricing) |
+| Twenty | Unbegrenzt in Pro, Organization und Enterprise, der Open-Source-Kern lässt sich selbst hosten | [Twenty Preise](https://twenty.com/pricing) |
+| EspoCRM | Der Entity Manager legt eigene Entitäten, Felder und Beziehungen an, Open Source | [EspoCRM Funktionen](https://www.espocrm.com/features/) |
+| Pipedrive | Die verlinkte Hilfeseite beschreibt eigene Felder an Leads, Deals, Personen, Organisationen, Produkten und Projekten, die Anzahl hängt vom Tarif ab | [Pipedrive Support](https://support.pipedrive.com/en/article/custom-fields) |
+| Customermates | Keine. Fünf feste Datensatztypen, jeweils mit eigenen Feldern | [Datenmodell von Customermates](/docs/concepts) |
 
-| CRM                          | Custom Fields                    | Custom Objects                                 | API + Webhooks                                                                                                                                                       | Self-Hosting         | Preis (Einstieg)                                |
-| ---------------------------- | -------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ----------------------------------------------- |
-| **Salesforce**               | 100+ Typen, tief                 | Ja                                             | Ja, vollständig                                                                                                                                                      | Nein                 | $25/User/Mo                                     |
-| **HubSpot**                  | 10 Typen                         | Enterprise-Tarif                               | Ja, kostenpflichtig                                                                                                                                                  | Nein                 | $20/User/Mo (Starter)                           |
-| **Zoho CRM**                 | 10+ Typen                        | Ja (Enterprise)                                | Ja                                                                                                                                                                   | Nein (Vault on-prem) | Kostenlos bis 3 Nutzer; bezahlte Tarife laut Zoho-Preisseite |
-| **Pipedrive**                | 10 Typen                         | Höhere Tarife                                  | Ja                                                                                                                                                                   | Nein                 | $14/User/Mo                                     |
-| **monday CRM**               | Viele                            | Ja (Board-Ebene)                               | Ja                                                                                                                                                                   | Nein                 | 12 €/Sitz/Mo (Stand: September 2026)            |
-| **SuiteCRM**                 | Unbegrenzt                       | Ja                                             | Ja                                                                                                                                                                   | Ja (Open Source)     | Kostenlos selbst gehostet                       |
-| **Customermates**            | 10 Typen, unbegrenzt pro Entität | 5 eingebaute Entitäten, alle mit Custom Fields | Ja, vollständig + [[derived.webhooks.events.total]] Webhooks ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) + MCP | Ja (Docker)          | Ab [[commercial.price.starter.monthly]]/User/Mo |
-| **Knack / Caspio (No-Code)** | Unbegrenzt                       | Von Grund auf bauen                            | Ja                                                                                                                                                                   | Nein                 | $30+/Mo                                         |
+Angaben der Anbieter am 8. Oktober 2026 auf den verlinkten offiziellen Seiten geprüft. Tarife ändern sich, prüfen Sie den benötigten Tarif deshalb vor dem Kauf auf der Website des Anbieters.
 
-Zwei Muster sind sichtbar. Closed-SaaS-CRMs (Salesforce, HubSpot, Pipedrive, monday) liefern starke Anpassbarkeit in der UI, sperren höhere Fähigkeiten aber hinter Enterprise-Tarifen. Open-Source-CRMs (SuiteCRM, Customermates) liefern das Datenmodell und die API offen, ohne Upsell, und Self-Hosting ist real.
+Brauchen Sie einen Datensatz „Immobilie", der mehrere Eigentümer und Mieter verknüpft, oder einen „Vertrag" mit eigenem Lebenszyklus, wählen Sie ein Produkt aus den oberen Zeilen. Besteht Ihr Geschäft aus Personen, Firmen, Verkaufschancen und den Leistungen, die Sie verkaufen, ist ein höherer Tarif für eigene Objekte meist überflüssig.
 
-## Wann ein anpassbares SaaS-CRM nutzen
+## Anpassen, No-Code oder selbst entwickeln
 
-Wenn Sie ein CRM brauchen, das zu Ihrem Vertriebsprozess besser passt als die Standardvorgaben des durchschnittlichen Anbieters, und Sie nichts hosten oder warten wollen, ist ein anpassbares SaaS-CRM die richtige Wahl. Pipedrive, HubSpot und Zoho machen das gut. Der Trade-off ist der Upsell: Custom Objects, fortgeschrittene Workflows und voller API-Zugriff leben meist auf der zweiten oder dritten Stufe und verdoppeln die Pro-User-Kosten.
+| Wählen Sie | Wenn | Was Sie dafür übernehmen |
+|---|---|---|
+| Ein anpassbares CRM | Ihre Arbeit besteht aus Personen, Firmen, Deals und Nachfassen, dazu branchenspezifische Felder | Das Datenmodell und die Tarifgrenzen des Anbieters |
+| Ein CRM mit eigenen Objekten | Sie brauchen ein oder zwei zusätzliche Datensatztypen mit Verknüpfungen, etwa Immobilien oder Verträge | Bei den meisten Anbietern einen höheren Tarif, mehr Einrichtung und mehr Pflege |
+| Eine No-Code-Datenbank (Airtable, Knack, Caspio und ähnliche) | Ihr Datenmodell ist wirklich ungewöhnlich und ändert sich oft | Alles selbst entwerfen und pflegen: Rechte, E-Mail-Erfassung, Import, die Ansichten Ihres Teams |
+| Eigenentwicklung | Das CRM ist Ihr Produkt oder muss tief in Ihre eigene Software | Anmeldung, Rollen, E-Mail- und Kalenderanbindung, Suche, Änderungshistorie, Import und Export, Backups, Sicherheitsupdates, solange das System läuft |
 
-Wählen Sie das, wenn: Ihr Team 5 bis 50 Personen hat, Ihr Datenmodell weitgehend Standard-CRM ist (Kontakte, Deals, Unternehmen) mit vielleicht ein oder zwei zusätzlichen Feldern pro Entität, und Sie anbieterverwaltete Updates und Support wollen.
+Einen seriösen Festpreis für ein individuell entwickeltes CRM gibt es ohne Pflichtenheft nicht. Unterschätzt wird selten die erste Version, sondern die Wartung über Jahre: Jede Funktion, die ein gemietetes CRM mitliefert, landet bei Ihnen auf der Aufgabenliste. Schreiben Sie vor der Beauftragung auf, welche Datensatztypen Ihr heutiges Werkzeug nicht abbilden kann. Bleibt die Liste leer, brauchen Sie ein besser eingerichtetes CRM, kein neues.
 
-## Wann einen No-Code-Custom-CRM-Builder nutzen
+Inzwischen gibt es einen Mittelweg: ein CRM mit vollständiger API als Basis, und die individuelle Arbeit erledigt ein Skript oder ein KI-Client. Bietet ein Open-Source-CRM REST, Webhooks und einen MCP-Server, deckt ein kleines Skript oder ein KI-Client den einen Ablauf ab, der nur bei Ihnen so läuft. Den Rest pflegt der Anbieter.
 
-Tools wie [Knack](https://www.knack.com/solutions/custom-crm/), [Caspio](https://www.caspio.com), Airtable + Softr und Notion + Make erlauben es, ein CRM von Grund auf zu bauen. Das Datenmodell ist, was Sie zeichnen, die UI ist, was Sie konfigurieren, und die Integrationen sind das, was Sie verdrahten.
+## Beispiel: eine Beratung richtet Customermates ein
 
-Wählen Sie das, wenn: Ihr Datenmodell wirklich ungewöhnlich ist (ein akademisches CRM, das Studenten-Berater-Beziehungen verfolgt; ein Immobilien-CRM, das Deals über Objekte und Makler verfolgt; ein Partner-Management-CRM, das Provisionsflüsse verfolgt). Die Bau-Kosten sind real, aber das Ergebnis passt exakt.
+So würde eine Beratung mit fünf Personen Customermates an ihren Ablauf anpassen. Jeder Schritt ist Konfiguration, kein Code.
 
-Der Nachteil: Sie werden zum Maintainer. Wenn das Team wächst, braucht das No-Code-System fortlaufende Pflege. Die meisten Teams, die diesen Pfad wählen, wechseln irgendwann zu einem echten CRM, sobald der Workflow stabil ist.
+<Steps>
+  <Step title="Datensatztypen umbenennen">
+    Unter **Datenmodell** in den Unternehmenseinstellungen wählen Sie Bezeichnungen aus Vorgaben: Kontakte werden zu **Kunden**, Deals zu **Projekte**, Services zu **Pakete**. Freier Text ist nicht möglich, die Vorgaben stehen in der [Dokumentation der Unternehmenseinstellungen](/docs/app-company#how-do-i-rename-record-types-in-the-data-model). API und MCP behalten die ursprünglichen Namen.
+  </Step>
+  <Step title="Das Phasenfeld festlegen">
+    Ein neuer Workspace startet mit einer Spalte **Phase** an Deals. Passen Sie die Optionen an Ihre Schritte an, etwa Anfrage, Klärungsgespräch, Angebot verschickt, Beauftragt, Verloren. Geben Sie jeder Option eine Gewichtung, dann erhält jeder Deal einen gewichteten Wert aus diesen festen Prozentsätzen, summiert zur gewichteten Pipeline.
+  </Step>
+  <Step title="Eigene Felder dort anlegen, wo sie eine Entscheidung tragen">
+    An Projekten: **Auftragsart** (Einzelauswahl: Retainer, Festpreis, Workshop), **Tagessatz** (Währung), **Vertragsverlängerung** (Datum). An Kunden: **Quelle** (Einzelauswahl) und **Durchwahl** (Telefon). Zehn Feldtypen stehen zur Wahl, aufgelistet in der [Dokumentation zum Datenmodell](/docs/concepts#what-are-custom-columns).
+  </Step>
+  <Step title="Ansichten für jede Person speichern">
+    Ein Board der Projekte nach Phase gruppiert, eine Tabelle der Retainer nach **Vertragsverlängerung** sortiert, eine Kundenliste nach **Quelle** gruppiert. Gespeicherte Ansichten sind persönlich, deshalb legt jede Person ihre eigene an.
+  </Step>
+  <Step title="Bestehende Daten übernehmen">
+    Exportieren Sie jede Tabelle aus Ihrem alten Werkzeug als Excel-Arbeitsmappe und importieren Sie einen Datensatztyp nach dem anderen, erst Kunden, dann Projekte. Dabei ordnen Sie die Spalten Ihren neuen Feldern zu. Die Dateigrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records#how-do-i-import-or-export-records).
+  </Step>
+  <Step title="Einen Schritt automatisieren (Customermates Cloud)">
+    Eine Routine mit dem Auslöser „Deal aktualisiert", die nur das Feld **Phase** beobachtet und auf „Angebot verschickt" filtert: „Kurze Nachfass-Mail an den Hauptansprechpartner mit Bezug auf das Angebot verfassen. Als Entwurf speichern, nicht senden." Routinen laufen über Mate, verbrauchen gehostete KI-Credits und arbeiten mit den Rechten und Kanälen ihres Eigentümers. Ohne den Satz „nicht senden" darf eine Routine die Nachricht selbst verschicken. Mehr unter [Routinen](/docs/app-routines).
+  </Step>
+</Steps>
 
-## Wann ein Open-Source-anpassbares-CRM nutzen
+Verbundene E-Mail-, LinkedIn- und WhatsApp-Unterhaltungen erscheinen ab Pro im [einheitlichen Posteingang](/features/unified-inbox) neben diesen Datensätzen. Starter hat keinen Posteingang. Arbeiten Sie mit Claude, ChatGPT oder einem anderen KI-Client, liest und schreibt dieser dieselben Datensätze samt Ihrer eigenen Felder über [MCP](/docs/mcp) mit [[derived.mcp.tools.total]] Tools.
 
-Open-Source-CRMs (SuiteCRM, Customermates, Vtiger Community, EspoCRM) geben Ihnen die Anpassbarkeit eines SaaS-CRM plus die Freiheit, auf eigener Infrastruktur zu hosten, den Code zu modifizieren und die Daten dauerhaft zu besitzen.
+## Was sich in Customermates nicht anpassen lässt
 
-Wählen Sie das, wenn:
+Diese Grenzen sollten Sie beim Vergleich kennen:
 
-- Datensouveränität wichtig ist (DSGVO-Kontakte aus der EU, regulierte Branche, Sicherheits-Review).
-- Sie den SaaS-Upsell-Tarifleiter vermeiden wollen. Open-Source-CRMs liefern Custom Fields, Custom Objects (über Code oder Admin-UI), API und Webhooks meist auf der Basis-Stufe.
-- Sie einen Entwickler im Team haben oder Ihr Stack technisch genug ist, Docker zu managen.
+- **Keine eigenen Objekte.** Es gibt Kontakte, Organisationen, Deals, Services und Aufgaben. Ein Datensatztyp „Immobilie" oder „Vertrag" ist nicht möglich. Brauchen Sie einen, sehen Sie sich Twenty, Attio, EspoCRM oder einen Enterprise-Tarif anderer Anbieter an.
+- **Zehn Feldtypen, kein Zahlenfeld.** Text, Datum, Datumsbereich, Datum & Uhrzeit, Datums- und Uhrzeitbereich, Währung, Einzelauswahl, Link, E-Mail und Telefon. Ein reines Zahlenfeld, Mehrfachauswahl, Kontrollkästchen oder Formelfelder gibt es nicht.
+- **Umbenennen nur aus Vorgaben.** Deals können Chancen, Projekte oder Aufträge heißen, aber kein frei gewähltes Wort.
+- **Rechte enden beim Datensatztyp.** Rollen regeln Lesen und Verwalten pro Datensatztyp, auch „nur mir zugewiesene Datensätze". Feldbezogene Rechte gibt es nicht.
+- **Gespeicherte Ansichten sind persönlich.** Geteilte Team-Ansichten gibt es nicht.
+- **Keine Schlagworte.** Nutzen Sie stattdessen ein Einzelauswahl-Feld, das hält die Werte auch einheitlich.
+- **Aufgaben haben kein eingebautes Fälligkeitsdatum.** Legen Sie ein Datumsfeld an und sortieren Sie danach; eine Benachrichtigung bei Ablauf gibt es nicht.
+- **Import und Export laufen über Excel-Arbeitsmappen**, ein Datensatztyp nach dem anderen. Einen Export des gesamten Kontos gibt es nicht.
 
-Customermates ist eine Option dort. Das Datenmodell sind fünf Entitäten (Kontakte, Unternehmen, Deals, Services, Aufgaben), alle untereinander verknüpfbar, mit zehn typisierten Custom-Field-Typen, die pro Entität unbegrenzt sind. Zwei Dinge heben es am modernen Ende ab. Der MCP-Server stellt [[derived.mcp.tools.total]] Tools bereit, sodass KI-Agenten wie Claude, ChatGPT und Gemini dieselben Daten lesen und schreiben, die die UI sieht, und die Dateneingabe übernehmen. Und ein nativer, einheitlicher Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ins CRM, sodass Kundengespräche direkt neben den passenden Datensätzen liegen (Messaging ab der Pro-Stufe). Self-Hosting ist zwei Dateien (`docker-compose.yml` und `.env`) plus `docker compose up -d`.
+Selbst gehostet enthält der Open-Source-Kern Datensätze, eigene Felder, Ansichten, Rollen, REST, [Webhooks](/docs/webhooks) und MCP. Posteingang, Mate und Routinen gibt es nur in der Cloud. Details auf der [Seite zum Self-Hosting](/features/self-hosted).
 
-## Eine praktische Evaluations-Checkliste
+## Was der Betrieb kostet
 
-Bevor Sie für irgendein „anpassbares" CRM bezahlen, gehen Sie diese Checkliste durch:
+Customermates wird pro Nutzer und Monat abgerechnet, ausschließlich monatlich. Für die Beratung mit fünf Personen:
 
-1. **Listen Sie die Custom Fields auf, die Sie tatsächlich brauchen.** Wenn es weniger als fünf pro Entität sind, funktioniert fast jedes CRM.
-2. **Listen Sie die Custom Objects auf, die Sie brauchen.** Wenn Sie sie brauchen, prüfen Sie den Einstiegspreis (HubSpot sperrt das auf Enterprise; Salesforce inkludiert es; Customermates hat keine Custom Objects, behandelt aber alle fünf eingebauten Entitäten als erstklassig).
-3. **Testen Sie die API und Webhooks.** Bauen Sie einen einstündigen Proof of Concept. Wenn die API ein Upgrade verlangt oder die Webhooks unzuverlässig sind, ist das Ihr zukünftiger Schmerz.
-4. **Prüfen Sie den Daten-Exit.** Versuchen Sie, eine Kontaktliste mit Custom Fields als CSV- oder Excel-Datei zu exportieren. Wenn Felder fehlen oder Daten gerundet werden, eskalieren Sie vor dem Commit.
-5. **Prüfen Sie die Pro-User-Kosten auf der Stufe, die Sie wirklich brauchen.** Die meisten CRMs sehen auf der Einstiegsstufe günstig aus, brauchen aber eine höhere Stufe für echte Anpassbarkeit.
-6. **Prüfen Sie Self-Hosting- und Open-Source-Optionen.** Wenn Souveränität oder Kosten ein Constraint sind, sind [SuiteCRM](https://suitecrm.com) und Customermates die zwei reifen Pfade.
+| Tarif | Fünf Nutzer pro Monat | Was die Einrichtung oben nutzt |
+|---|---|---|
+| Starter | [[commercial.price.starter.monthly.seats.5]] | Eigene Felder, Phasen, Ansichten, Import, API, Webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer |
+| Pro | [[commercial.price.pro.monthly.seats.5]] | Alles davon, dazu der einheitliche Posteingang mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto pro Nutzer und [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer |
 
-## Wenn Anpassbarkeit zum Problem wird
+Ein Jahr Pro für fünf Personen ergibt [[commercial.price.pro.monthly.seats.5.months.12]]. Jeder Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, siehe [Preise](/pricing). Für den selbst gehosteten Open-Source-Kern fällt keine Lizenzgebühr an. Sie zahlen Ihren eigenen Server und die Zeit für den Betrieb.
 
-Ein häufiger Failure-Mode: Das Team passt im ersten Monat alles an, landet bei 40 Custom Fields pro Entität, und niemand weiß, was sie alle tun. Sechs Monate später sind die Daten unzuverlässig, weil die Hälfte der Felder veraltet ist.
+## Damit das angepasste CRM nutzbar bleibt
 
-Drei Regeln, um das zu vermeiden:
+Anpassungen scheitern häufiger an zu vielen Feldern als an zu wenigen. Drei Regeln helfen:
 
-- **Felder nur hinzufügen, wenn sie einen Workflow auslösen.** „Wäre nett zu haben"-Felder verrotten. Felder, die Automatisierungen oder Pflicht-Reports treiben, überleben.
-- **Single-Select-Felder mit begrenzten Optionen statt Freitext nutzen.** Single-Select bleibt sauber. Freitext driftet.
-- **Jedes Quartal auditieren.** Felder löschen, die niemand befüllt, archivieren, was niemand liest.
+1. Legen Sie ein Feld nur an, wenn jemand danach filtert, sortiert oder entscheidet. Felder für „vielleicht später" bleiben leer.
+2. Nehmen Sie Einzelauswahl statt Freitext für alles, wonach Sie später gruppieren wollen.
+3. Löschen Sie einmal im Quartal Felder, die niemand befüllt. In Customermates entfernt das Löschen eines Felds alle seine Werte endgültig, exportieren Sie im Zweifel vorher.
 
-Die Anpassbarkeits-Macht eines CRM ist auch sein größtes Risiko. Disziplin zählt mehr als Feature-Anzahl.
-
-## Fazit
-
-Ein anpassbares CRM-System 2026 geht nicht ums Zählen von Feldtypen. Es geht darum, ob das Datenmodell zu Ihrem Geschäft passen kann, ohne jedes Team in den Enterprise-Tarif des Anbieters zu zwingen. Die führenden SaaS-CRMs (Salesforce, HubSpot, Pipedrive, Zoho) liefern echte Anpassbarkeit auf höheren Tarifen. Open-Source-CRMs (SuiteCRM, Customermates) liefern sie auf der Basis-Stufe ohne Upsell und erlauben Self-Hosting. No-Code-Builder wie Knack oder Caspio geben totale Flexibilität zum Preis, dass Sie zum Maintainer werden.
-
-Wenn Sie ein anpassbares CRM wollen, das API, Webhooks, Custom Fields und einen MCP-Server für KI-Agent-Automatisierung schon enthält, [Customermates](/pricing) liefert das ab [[commercial.price.starter.monthly]] pro User pro Monat. Die ersten [[commercial.trial.days]] Tage auf Pro sind kostenlos, keine Kreditkarte. Wenn Self-Hosting Pflicht ist, dasselbe Produkt liegt auf [GitHub](https://github.com/customermates/customermates) unter AGPL-3.0.
-
-## Häufig gestellte Fragen
+## Häufige Fragen
 
 <Faq>
-<FaqItem question="Was ist das anpassbarste CRM?">
-Für rohe Flexibilität auf der SaaS-Seite ist Salesforce am tiefsten mit 100+ Feldtypen, Custom Objects und Apex-Code. Für Open-Source-Anpassbarkeit ohne Vendor-Lock-in liefern SuiteCRM und Customermates das Datenmodell und die API offen ohne Upsell. Für vollständig maßgeschneiderte Builds erlauben No-Code-Plattformen wie Knack, Caspio oder Airtable + Softr, das Datenmodell beliebig zu entwerfen. Die richtige Wahl hängt davon ab, ob Sie ein gemanagtes SaaS, einen Open-Source-Pfad oder einen vollständig maßgeschneiderten Build wollen.
+<FaqItem question="Was ist der Unterschied zwischen einem anpassbaren und einem individuell entwickelten CRM?">
+Ein anpassbares CRM ist ein fertiges Produkt, das Sie mit Feldern, Phasen, Ansichten und Automatisierungen an Ihren Ablauf anpassen. Die Wartung übernimmt der Anbieter. Ein individuell entwickeltes CRM wird für Sie gebaut, mit Code oder einer No-Code-Plattform, und Sie pflegen es selbst. Für die meisten kleinen Teams ist die anpassbare Variante schneller und günstiger. Eine Eigenentwicklung lohnt sich erst, wenn kein Produkt Ihre Datensätze abbilden kann.
 </FaqItem>
 
-<FaqItem question="Was ist der Unterschied zwischen anpassbarem CRM und Custom CRM?">
-Ein anpassbares CRM ist ein vorgefertigtes CRM (Salesforce, HubSpot, Pipedrive, Customermates), das Sie durch Hinzufügen von Custom Fields, Custom Objects, Custom Views und Automatisierungen über die Admin-UI anpassen. Ein Custom CRM ist eines, das Sie von Grund auf mit Code oder einer No-Code-Plattform (Knack, Caspio, Airtable) bauen. Anpassbar ist schneller bereitgestellt und vom Anbieter gewartet; Custom passt exakt, aber Sie werden zum Maintainer.
+<FaqItem question="Wie kann ich selbst ein CRM erstellen?">
+Mit einer No-Code-Datenbank wie Airtable, Knack oder Caspio kommen Sie bei klarem Ablauf schnell zu einer ersten funktionierenden Version. Eine Programmierung von Grund auf ist ein langes Projekt, weil Sie auch Anmeldung, Rollen, E-Mail-Anbindung, Suche, Import und Backups bauen. Bestehen Ihre Daten aus Personen, Firmen und Deals, kommen Sie mit einem eingerichteten CRM weiter und günstiger.
 </FaqItem>
 
-<FaqItem question="Kann ich mein eigenes CRM bauen?">
-Ja, auf drei Wegen: (1) No-Code-Plattformen wie Knack oder Caspio erlauben einen CRM-Bau in Stunden ohne Programmierung, (2) Low-Code-Plattformen wie Airtable + Softr oder Notion + Make geben mehr Flexibilität mit etwas Setup, (3) vollständig kundenspezifische Entwicklung mit Postgres + Backend-Framework gibt totale Kontrolle, dauert aber Wochen bis Monate. Für die meisten Teams ist es schneller, ein anpassbares Open-Source-CRM (SuiteCRM, Customermates) zu wählen und anzupassen, als von Grund auf zu bauen.
+<FaqItem question="Was kostet ein individuelles CRM-System?">
+Das hängt vom Pflichtenheft ab, misstrauen Sie deshalb pauschalen Zahlen. Rechnen Sie die Wartung mit ein, nicht nur die erste Version: Sicherheitsupdates, Hosting, Backups und jede Funktion, die ein Anbieter sonst mitliefern würde. Zum Vergleich: Fünf Nutzer kosten in Customermates Pro [[commercial.price.pro.monthly.seats.5]] im Monat, über zwölf Monate [[commercial.price.pro.monthly.seats.5.months.12]]. Andere Anbieter nennen ihre Preise auf ihren Preisseiten.
 </FaqItem>
 
-<FaqItem question="Kann ich ein CRM in Excel oder Google Sheets bauen?">
-Ja für sehr kleine Teams oder Solo-Operatoren. Excel und Google Sheets bewältigen ein paar hundert Kontakte und Basis-Pipeline-Tracking gut. Wo sie brechen: Beziehungen zwischen Entitäten, Automatisierung, Mehrbenutzer-Zugriffskontrollen, Audit-Trails, Mobile, KI-Integration. Wenn Sie aus einer Tabelle herauswachsen, ist der nächste Schritt meist ein anpassbares CRM mit Custom Fields und API statt einer weiteren Tabelle.
+<FaqItem question="Kann ich ein CRM in Excel erstellen?">
+Für eine Person und einige hundert Kontakte ja. Es stößt an Grenzen, sobald mehrere Personen gleichzeitig bearbeiten, Kunden mit Projekten verknüpft werden sollen oder Unterhaltungen neben dem Datensatz liegen sollen. Unsere [Anleitung zur Excel-CRM-Vorlage](/blog/excel-crm-template) zeigt einen brauchbaren Aufbau und wann der Wechsel ansteht. Customermates importiert Excel-Arbeitsmappen, einen Datensatztyp nach dem anderen.
 </FaqItem>
 
-<FaqItem question="Welche Features sollte ein anpassbares CRM haben?">
-Sechs Basis-Fähigkeiten: (1) mehrere typisierte Custom-Field-Typen jenseits von Plain-Text, (2) Custom Fields pro Entität, (3) gespeicherte Ansichten mit Filtern und Sortierung, (4) eine echte REST- oder GraphQL-API, (5) Webhooks für Automatisierung, (6) offener Datenexport. Wenn ein Anbieter für eines davon extra verlangt, ist die Anpassbarkeits-Story größtenteils Marketing. Customermates liefert alle sechs auf der [[commercial.price.starter.monthly]]-pro-User-pro-Monat-Starter-Stufe inklusive 10 typisierter Feldtypen, Excel-Export (XLSX) je Datensatztyp, [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging), vollständigem OpenAPI-3.1-REST und einem MCP-Server.
+<FaqItem question="Welche CRM-Lösungen bieten die flexibelsten Anpassungsmöglichkeiten?">
+Bei eigenen Objekten bietet Twenty laut Preisseite unbegrenzt viele in Pro, Organization und Enterprise, Attio bis zu 12 in Pro und unbegrenzt in Enterprise, EspoCRM legt eigene Entitäten im Entity Manager an, HubSpot und Zoho CRM reservieren sie für Enterprise-Tarife. Customermates hat keine eigenen Objekte, dafür eigene Felder an allen fünf Datensatztypen.
+</FaqItem>
+
+<FaqItem question="Kann ich CRM-Daten auf dem eigenen Server speichern?">
+Ja, mit einem selbst hostbaren CRM. Customermates, Twenty und EspoCRM lassen sich auf eigener Infrastruktur betreiben. Die selbst gehostete Version von Customermates läuft mit Docker Compose und enthält eigene Felder, Ansichten, REST, Webhooks und MCP, aber keinen Posteingang, kein Mate und keine Routinen. Die Abwägungen beschreibt der [Leitfaden zu Open-Source-CRM](/blog/open-source-crm).
 </FaqItem>
 </Faq>

@@ -1,17 +1,17 @@
 ---
-title: "CRM for Architects: Project Pipelines & RFP Tracking"
-description: "CRM for architects: track project pursuits, RFPs, design phases and client relationships in one pipeline. Open source and self-hostable."
+title: "CRM for Architects: Pursuits, Clients and Consultants"
+description: "A CRM for architecture firms: competitions, RFQs and private commissions in one pipeline, with clients, consultants and conversations on each project."
 industryName: "Architects"
 
 relatedHrefs:
-  - /for/construction
-  - /for/contractors
-  - /for/real-estate
   - /for/professional-services
+  - /features/pipeline
+  - /features/unified-inbox
+  - /docs/app-routines
 
 hero:
-  title: "The CRM for Architects That Helps You Win More Projects"
-  description: "AI clients keep your pursuit pipeline current and draft the follow-ups, while email, LinkedIn and WhatsApp sit in one inbox on Pro. Track project pursuits, RFPs and design phases in one architect CRM, open source and quick to set up."
+  title: "The CRM for Architects Who Win Work Through Relationships and Submissions"
+  description: "Track competitions, RFQs and private commissions in one pipeline, and keep every client and consultant with their history. From Pro, email, LinkedIn and WhatsApp arrive in one inbox, and in Customermates Cloud the assistant Mate can draft follow-ups using hosted AI credits. Fees, hours and drawings stay in the tools you already use."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to get started?
-  description: Manage project pursuits and client relationships with an open-source CRM with no per-project fees, from [[commercial.price.starter.monthly]]/user/month.
+  action: Put every pursuit and client in one place
+  description: Import your client and consultant lists from Excel, set up your pursuit stages and save the views you check on Monday. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,162 +28,188 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## Why architects need a CRM
+An architecture firm needs a CRM for the part of the work that happens before a contract: deciding which competitions and RFQs to pursue, meeting submission deadlines, following up after an interview, and staying in touch with past clients and the consultants you team with. Customermates is an open-source, AI-native CRM built in Germany that does that part. It does not track hours, invoice fees or plan staff, so if you want one system for the whole practice, the limits section below names practice management tools built for architects.
 
-A CRM for architects is not optional overhead; it is the system that turns scattered project pursuits into a repeatable pipeline. Architecture firms juggle long project timelines, complex client relationships, RFP responses, design phase transitions, consultant coordination, and portfolio references simultaneously. When that information lives in spreadsheets, email threads, and the heads of individual partners, projects slip through the cracks.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Fits">
+    Studios and small firms that win work through referrals, repeat clients,
+    competitions and RFQs, and already have tools for fees and hours.
+  </SummaryItem>
+  <SummaryItem label="Setup">
+    Deals renamed to Projects, a pursuit stage with win probabilities, a
+    procurement route field, a submission deadline and a design phase field.
+  </SummaryItem>
+  <SummaryItem label="AI">
+    In Customermates Cloud, Mate summarizes a client's history and saves
+    follow-up drafts, using hosted AI credits. Or connect your own AI client
+    through MCP.
+  </SummaryItem>
+  <SummaryItem label="Not included">
+    Time tracking, fee invoicing, resource planning, proposal templates, file
+    storage on records and CAD or BIM integration.
+  </SummaryItem>
+</ArticleSummary>
 
-The problems compound as architecture firms grow:
+## What an architecture firm needs from a CRM
 
-- **Pursuits go quiet**: Your firm spends days preparing a presentation for a private client. Afterwards nobody follows up, and the commission goes to a firm that kept the relationship warm. Public procurement works differently: what counts there is a clean, documented submission process (deadlines, submitted documents, clarification questions), because contact with the contracting authority outside the formal procedure is not allowed during evaluation.
-- **Design phase transitions stall**: A residential project moves from schematic design to design development. Without a central record of project phases, the principal architect has to chase updates from every team member to understand where things stand.
-- **Past clients are forgotten**: You designed a corporate headquarters five years ago. The same client is now planning a campus expansion. Without a system to maintain the relationship, they shortlist firms they found through new searches instead of calling you.
-- **Consultant coordination falls apart**: The structural engineer needs updated drawings. The landscape architect is waiting on site survey data. The MEP consultant has questions about the program. Without a central contact record, nobody knows who talked to whom.
-- **Referral networks go cold**: A commercial developer referred three projects to your firm last year. You never tracked the source, never thanked them, and the referrals stop coming.
-- **Portfolio opportunities are missed**: You completed a mixed-use project, but nobody linked it to the client record. When a similar RFQ comes in, you cannot quickly find relevant past work.
+Most CRMs assume one buyer and a short sales cycle. Architecture works differently:
 
-Architecture firm CRM software solves these problems by giving every team member (from principals to project architects to marketing coordinators) a single source of truth for relationships, pursuits, and projects.
+- **Several parties on one project.** A client or developer, an owner's representative, a project manager, and your structural, MEP and landscape consultants all belong to the same pursuit.
+- **Fixed deadlines.** A competition or RFQ has a submission date that does not move. Missing it ends the pursuit.
+- **Different rules per procurement route.** After presenting to a private client you follow up. In a public procurement, communication usually goes through the channels the procedure defines, so you document rather than chase.
+- **Long gaps between commissions.** A client may come back with the next building years later. The firm that kept in touch is on the shortlist.
+- **References on demand.** An RFQ asks for comparable projects and named consultants, and you need them in minutes, not after a search through old folders.
 
-## How Customermates works as architect CRM software
+## An architect setup in Customermates
 
-Customermates adapts to how architecture firms operate, from initial project pursuit through design phases and into long-term client relationships. You configure stages and custom fields to match your practice; it is a CRM, not a project management or accounting system.
+Customermates has five record types. Under **My Company › Settings** you can rename Deals to **Projects** and Services to **Offerings**, so the app speaks your language. Every field name below is an example.
 
-### Project pipeline management
+| Record type | Used for | Example custom fields |
+|---|---|---|
+| Organizations | Clients, developers, public authorities and consultant firms | Organization type (Single Select: Private client, Developer, Public authority, Consultant, Contractor) |
+| Contacts | People at those organizations | Role (Single Select: Client representative, Project manager, Structural engineer, MEP engineer, Landscape architect), Referred by |
+| Projects (Deals) | Each pursuit, from first inquiry to contract | Stage, Procurement route (Direct commission, Invited competition, Open competition, Public RFQ), Submission deadline (Date & Time), Interview date (Date), Construction value (Currency), Building type, Design phase, Project folder (Link) |
+| Offerings (Services) | Fee packages with a price | Feasibility study, Planning application package, Fee estimate per €1,000 |
+| Tasks | Next steps, assigned to a person | A "Due on" date field you add, because tasks have no built-in due date |
 
-Every project pursuit becomes a deal in your [pipeline](/features/pipeline). Track each opportunity from initial inquiry through qualification, RFP/RFQ response, interview, selection, contract negotiation, and project kickoff. The Kanban board gives principals and business development managers a visual overview of the pursuit pipeline: drag opportunities between stages, filter by project type or value, and spot stalled pursuits early.
+A project's value comes from its linked offerings, price times quantity. For a bespoke fee, an offering "Fee estimate per €1,000" priced at €1,000 with a quantity of 85 gives a project worth €85,000.
 
-Customermates does not send follow-up reminders. Keep the presentation date in a custom date column and use a saved view of the "Interview" stage sorted by that date, so no private-client pursuit sits without a follow-up. On Customermates Cloud, a [routine](/docs/app-routines) can have the Mate assistant list stalled pursuits every week and draft follow-ups for you to review.
+### Pursuit stages and weighted values
 
-### Design phase tracking
+The stage is a Single Select field you define, and each option gets a win probability. A starting point: Lead 10%, Go or no-go 20%, Preparing submission 30%, Submitted 40%, Shortlisted 60%, Negotiating fee 80%, Won 100%, Lost 0%.
 
-Architecture projects move through distinct phases: programming, schematic design, design development, construction documents, bidding, and construction administration. The deal stage is one configurable column, so use it for the pursuit and track the design phase in a custom single-select field. Group or filter by that field to show the principal architect which projects are in SD, which are in DD, and which are in CA.
+A project worth €85,000 in Shortlisted has a weighted value of €51,000. That is arithmetic from your own probabilities, not a forecast. On the [pipeline board](/features/pipeline) each project is a card you drag between stages.
 
-For firms working under fee structures tied to design phases, this gives a clear overview of where fees are pending.
+Track the design phase in its own Single Select field (Schematic design, Design development, Construction documents, Bidding, Construction administration) rather than in the stage. A board grouped by Design phase and filtered to won projects shows where every active job stands, and dragging a card there changes its phase.
 
-### RFP and proposal management
+### Saved views for the week
 
-Track every RFP, RFQ, and SOQ your firm pursues. Store submission dates, required team members, client contacts, interview dates, and decision timelines as custom fields and linked contacts on the deal record. Customermates does not generate proposal documents; keep those in your document system and store the link on the deal.
+1. **Submissions due:** projects in Preparing submission, sorted by Submission deadline.
+2. **Waiting on a decision:** projects in Submitted or Shortlisted, sorted by Interview date.
+3. **Active projects by phase:** won projects on a board grouped by Design phase.
+4. **Consultants by discipline:** contacts with a consultant role, grouped by Role, for the team list in your next RFQ.
+5. **Past clients gone quiet:** organizations of type Private client or Developer, sorted by last update, oldest first. This works if you update the organization's notes after each contact.
 
-For automated notifications, send [webhooks](/features/workflow-automation) to n8n (operated separately) or another tool, which can notify the team when a pursuit reaches the interview stage.
+Saved views are personal, so each colleague sets the same filters and saves their own view. The [records guide](/docs/app-records) explains grouping, filters and import.
 
-Over time, filter won and lost pursuits by project type, size, and client to see where your firm wins most consistently.
+### Win rates by procurement route
 
-### Client relationship management
+Filter projects to Won and Lost and group them by Procurement route. Customermates shows the count and value per group, so you can compare how direct commissions, invited competitions and public RFQs turn out for your firm. It does not calculate a win rate or conversion statistics for you; the division is yours.
 
-Every client has a profile with [contact management](/features/contact-management): organization details, key decision-makers, past projects, active pursuits, notes, and activity history. When a past client reaches out about a new project, you have the context of your relationship at hand.
+### Client and consultant conversations (Pro and above)
 
-This matters in architecture because relationships span decades. The developer you designed a retail center for in 2019 may come back with a mixed-use tower in 2028.
+In Customermates Cloud on Pro, Business and Enterprise, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with LinkedIn, WhatsApp, Instagram and Telegram. You reply on the original channel. Link a participant to a contact once, and every conversation with that address appears on the contact's timeline.
 
-### Contractor and consultant coordination
+Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and Business [[commercial.entitlement.business.includedAccountsPerUser]]. Conversations from your own accounts stay private: colleagues, admins included, see a thread only after you share it, or after you share the whole account on Business and above.
 
-Architecture projects involve a network of consultants: structural engineers, MEP engineers, landscape architects, interior designers, lighting consultants, and specialty contractors. Maintain records for every collaborator with specialties, past project experience, contact details, and notes. Link consultants to the projects they have worked on so you can assemble the right team for each new pursuit.
+### A weekly pursuit review with Mate (Customermates Cloud)
 
-When an RFP requires you to name your consulting team, filter your network by specialty to find the right partners.
+Mate is the assistant inside Customermates Cloud and runs on hosted AI credits; reading inbox conversations needs Pro or higher. Before an interview, ask it in the chat for a summary of the client's history: past projects, recent emails and open tasks.
 
-### Portfolio and project history
+For the weekly review, set up a [routine](/docs/app-routines), a saved instruction that Mate runs on a schedule or when a record changes. Choose **Every week** under **Repeats**, Monday at 08:00, with instructions like these:
 
-Link completed projects to client records, team members, and consultant partners. Classify projects with custom single-select fields by type (residential, commercial, institutional, healthcare, hospitality, mixed-use), size, and location. When preparing for a new pursuit, filter for relevant past work that demonstrates your firm's experience in that project type.
+```text
+Find projects in the stages Submitted and Shortlisted that have not been
+updated for 14 days. If the procurement route is Direct commission or
+Invited competition, read the latest inbox conversation with the client
+contact and, if my last message has no answer, save a short follow-up as a
+draft reply. If the route is Open competition or Public RFQ, do not draft
+anything. Do not send anything. End with a list: project, client, stage,
+route, days since the last update, draft saved yes or no.
+```
 
-## Key features for architecture firms
+<AcquisitionCallout title="Ask for drafts, not sends" variant="boundary">
+  Mate and routines can send email and chat messages without asking first, so
+  tell a review routine to save drafts only. Filter the inbox by Draft: has
+  some, read each draft and send it yourself.
+</AcquisitionCallout>
 
-### Pipeline management with Kanban view
+A second routine can react to an event: trigger it when a project is updated, with Stage under **Changed fields**, and instruct it to create a task "Confirm consultant team" linked to that project and assigned to the same people, but only if the new stage is Won. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
-Visualize your pursuit pipeline on a Kanban board. Define stages that match your workflow: Lead, Qualification, RFP Response, Interview, Selection, Contract, Active Project, Complete. Drag pursuits between stages as they progress. Filter by project type, estimated fee, or assigned principal. Stage probabilities give you weighted pipeline totals.
+Prefer your own AI client? Connect Claude, ChatGPT or another client through [MCP](/docs/mcp). It works on every plan and on self-hosted installations, with model use billed by your AI provider.
 
-### Custom fields for architecture data
+## What Customermates does not do for architects
 
-Track the data points that matter to your practice: project type, estimated construction value, estimated fee, project size in square meters, design phase, building permit status, sustainability targets, and milestone dates. Typed custom columns live directly on deal and contact records.
+- No time tracking, fee invoicing, project controlling or resource planning.
+- No proposal or SOQ templates and no document generation. Keep submissions in your file storage and the link on the project.
+- No file storage on records and no CAD or BIM integration. Files sent in messages stay in the inbox thread.
+- Tasks have no due dates, reminders or notifications. Use a date field and a saved view, or a routine.
+- No mobile app and no calendar booking.
 
-### Organization and contact relationships
+If you want one system for pursuits, hours and fees, look at practice management software. Customermates publishes this page; vendor details were checked on 8 October 2026 on each vendor's own website.
 
-Architecture projects involve multiple stakeholders. Link contacts to organizations and deals, and use a custom field to record each contact's role: client, developer, owner's representative, general contractor, structural engineer, MEP consultant, landscape architect. Track which developers, contractors, and consultants you have worked with repeatedly and identify your strongest referral sources.
+| If you need | Look at | What the vendor's site lists |
+|---|---|---|
+| Pipeline, project planning, time tracking and invoicing for A&E firms | [Monograph](https://www.monograph.com/) | Pipeline management, proposal builder, time tracking, invoicing, payments and project accounting |
+| CRM with time, billing and accounting | [BQE CORE](https://www.bqe.com/core) | CRM, project management, time and expense tracking, billing and accounting; names architecture, engineering and consulting |
+| An ERP for larger project-based firms | [Deltek Vantagepoint](https://www.deltek.com/en/products/project-erp/vantagepoint) | CRM and pipeline, project management, accounting and resource planning for architecture, engineering and consulting firms |
+| A business development CRM for AEC with proposal tools | [TrebleHook](https://treblehook.com/) | Pursuit management, proposal templates, file storage, eSignatures and win-rate dashboards; runs on Salesforce |
+| Resourcing, timesheets and project finance | [CMap](https://www.cmap.io/) | Pipeline and quoting, resource planning, timesheets, job costing and invoicing for architects, engineers and consultants |
 
-### Automation with webhooks and n8n
+A workable split is two systems: Customermates for pursuits and relationships, and your practice management tool for hours and fees. A webhook fires when a project changes, so an [n8n workflow](/docs/n8n) you run separately can pass a won project to the other tool, provided that tool has an API.
 
-Customermates has no built-in workflow builder. It emits [webhooks](/features/workflow-automation) on record changes and exposes a REST API, and n8n (operated separately) connects through the Customermates community node. With these you can:
+## What it costs
 
-- Notify the team when a project advances to the interview stage
-- Create a task checklist when a project's design phase changes from SD to DD
-- Flag pursuits that have sat in "RFP submitted" for more than a week
-- Alert leadership when high-value pursuits reach the selection stage
+Prices are per user per month, billed monthly. Every plan includes REST, webhooks and MCP.
 
-### Unified inbox for client and consultant communication
+| Firm | Plan | Per month |
+|---|---|---|
+| Sole practitioner, pipeline only | Starter | [[commercial.price.starter.monthly]] |
+| Sole practitioner, one mailbox in the inbox | Pro | [[commercial.price.pro.monthly]] |
+| Studio of three, pipeline only | Starter | [[commercial.price.starter.monthly.seats.3]] |
+| Firm of eight, one mailbox each | Pro | [[commercial.price.pro.monthly.seats.8]] |
 
-On Pro and above, email, LinkedIn, and WhatsApp come together in one [unified inbox](/features/email-integration) inside the CRM, and you link each conversation to the client or consultant. RFP questions, consultant coordination, and client updates stop bouncing between personal inboxes. The Mate assistant can draft replies that you confirm before they are sent.
+Each plan adds monthly hosted AI credits per active user for Mate; the amounts are on the [pricing page](/pricing). Running the open-source core on your own server costs no licence fee, but a [self-hosted installation](/features/self-hosted) has no inbox, no Mate and no routines.
 
-### AI clients that operate your CRM
+## Moving in from spreadsheets
 
-Connect Claude, ChatGPT, or another AI client through the MCP server ([[derived.mcp.tools.total]] tools) and let it do the data entry: log pursuit updates, move deals between stages, and draft project narratives for RFP responses. You choose and pay for the AI client. It can also summarize lengthy RFP requirements. Learn more in our guide on [using ChatGPT to summarize meeting notes](/blog/chatgpt-summarize-notes).
+<Steps>
+  <Step title="Save your lists as Excel">
+    The import reads Excel workbooks (.xlsx). CSV files are not accepted, so
+    save them as .xlsx first.
+  </Step>
+  <Step title="Import organizations first">
+    Clients, developers and consultant firms. On the Organizations list, open
+    Import and export, choose Add from file and map your columns.
+  </Step>
+  <Step title="Import contacts">
+    Add a column with each person's organization name; the import links them
+    to the organization of that name.
+  </Step>
+  <Step title="Import open pursuits as projects">
+    Include the stage, procurement route and submission deadline, then link
+    offerings and quantities so each project gets its value.
+  </Step>
+  <Step title="Save the views and the routine">
+    Save the views above, then set up the weekly review if you use
+    Customermates Cloud.
+  </Step>
+</Steps>
 
-### Data protection and self-hosting
+## Client data and confidentiality
 
-Client financials, fee structures, consultant agreements, and design information are sensitive. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, for example for government projects or competitions, self-host the open-source core.
-
-### Open source and transparent
-
-Customermates is [open source](https://github.com/customermates/customermates). You can inspect the code, contribute improvements, or self-host and choose where your data lives. Records can be taken out through the REST API and XLSX export (one record type at a time).
-
-## CRM for architecture firms vs. generic CRM
-
-Generic CRMs like [Salesforce](https://www.salesforce.com/) or [HubSpot](https://www.hubspot.com/) are built for general-purpose sales processes. Architecture does not work that way. Projects involve selection committees, months-long RFP cycles, multi-phase design workflows, and client relationships that span decades.
-
-Adapting a large CRM to architecture often means customization and ongoing maintenance. Customermates is smaller: configurable stages, typed custom fields, and saved views that you set up yourself, with the flexibility of open source.
-
-Compared to AEC-oriented platforms such as [TrebleHook](https://treblehook.com/), BQE CORE, or Scoro, which combine CRM with project management, time tracking, or billing to different degrees, Customermates focuses on CRM and relationship management, without bundling project management and accounting features you may already have elsewhere. It is open source and self-hostable. If your firm also handles construction projects, see our [CRM for construction](/for/construction) page. For individual practitioners, our [CRM for freelancers](/for/freelancers) may also be relevant.
-
-## Pricing for architecture firms
-
-Customermates keeps pricing straightforward:
-
-- **Starter ([[commercial.price.starter.monthly]] per user per month)**: pipeline, custom fields, views, REST, webhooks, and MCP
-- **Pro ([[commercial.price.pro.monthly]] per user per month)**: adds the unified inbox for email, LinkedIn, and WhatsApp plus read-only calendar access, useful once RFP and consultant coordination outgrows plain email
-- **Self-hostable**: keep client data and project records on your own servers; the open-source core has no licence cost, and the inbox and Mate are cloud-only
-- **Priced per user**: no per-contact or per-project charges
-
-For an architecture office of 8 users, that is [[commercial.price.starter.monthly.seats.8]] per month on Starter. Billing is monthly.
-
-See the full breakdown on our [pricing page](/pricing).
-
-## Getting started
-
-Setting up Customermates for your architecture firm:
-
-1. **Create an account**: no credit card required. The first [[commercial.trial.days]] days are free.
-2. **Import your records**: from an Excel workbook (XLSX), one record type at a time, or through the REST API. There is no CSV import.
-3. **Set up your pipeline**: pursuit stages (Lead, RFP, Interview, Selection, Contract) and a design phase field for active projects (SD, DD, CD, Bidding, CA, Complete).
-4. **Add custom fields**: project type, estimated fee, square meters, design phase, permit status, and milestone dates.
-5. **Invite your team**: add principals, project architects, BD staff, and coordinators with appropriate roles and permissions.
-6. **Connect automations**: if you need them, through webhooks, n8n, or a cloud routine.
-
-Customermates is open source and self-hostable. Pricing stays predictable, and records can be taken out through the REST API and XLSX export (one record type at a time).
+In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region. Hosting and the other subprocessors, US providers among them, are on the [subprocessors page](/subprocessors), and a data processing agreement is available. A custom role with Assigned read access limits a freelancer to the projects assigned to them. Customermates holds no certification such as ISO 27001 or SOC 2; if a public client requires one, check that before you move their data.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is a CRM for architects?">
-A CRM (Customer Relationship Management) for architects is software that helps architecture firms manage project pursuits, client relationships, consultant networks, and project-related communication in one system. Instead of tracking opportunities in spreadsheets and email, an architecture firm CRM gives you pipeline visibility and a history of every client and project, from the first RFP response to the tenth project with the same client.
+<FaqItem question="What is a CRM used for in architecture?">
+It holds the business side before and between projects: who your clients and consultants are, which competitions and RFQs you are pursuing, when each submission is due, and what was said in the last conversation. Design work, hours and fees live in other software.
 </FaqItem>
 
-<FaqItem question="How is a CRM for architects different from project management software?">
-Project management software focuses on design execution: task assignments, deadlines, deliverables, and resource allocation. A CRM for architects focuses on the business development and relationship side: tracking pursuits, managing the pipeline, nurturing client relationships, and keeping consultant contacts. Many architecture firms use both. Customermates connects to other tools through the REST API, webhooks, and n8n.
+<FaqItem question="Can a CRM help an architecture firm organize leads and track proposal win rates?">
+Yes, if every pursuit is a record with a stage and a procurement route. In Customermates you group won and lost projects by route and compare counts and values. The win rate itself you calculate from those numbers; Customermates does not compute it.
 </FaqItem>
 
-<FaqItem question="What size architecture firm benefits from a CRM?">
-Any architecture practice managing more than a handful of active pursuits and client relationships benefits from a CRM. Solo practitioners and small firms gain pipeline visibility and stop losing follow-ups on proposals. Larger firms get cross-team coordination and a shared view of pursuits and relationships.
+<FaqItem question="Do I need a CRM or practice management software?">
+If hours, fees and staffing are your problem, practice management software such as Monograph, BQE CORE or Deltek Vantagepoint covers them along with a pipeline. If those already work and your problem is follow-up, deadlines and relationships, a CRM such as Customermates is the smaller step. It is our own product, so weigh that.
 </FaqItem>
 
-<FaqItem question="Can I track design phases and project milestones in Customermates?">
-Yes, with custom fields. Use a single-select field for the design phase (programming, schematic design, design development, construction documents, bidding, construction administration) and date fields for milestones such as client approvals or permit submissions. Filtered and grouped views show which projects are in which phase. There are no automatic milestone reminders.
+<FaqItem question="Can I track design phases in Customermates?">
+Yes, with a Single Select field for the phase and date fields for milestones such as a client sign-off or permit submission. A board grouped by that field shows which projects are in which phase. There are no automatic milestone reminders.
 </FaqItem>
 
-<FaqItem question="How does Customermates handle RFP and proposal tracking?">
-Every RFP, RFQ, and SOQ becomes a deal in your pursuit pipeline. Store submission dates, team assignments, client contacts, interview dates, and decision timelines on the record, and use saved views sorted by date to see what is next. Customermates sends no reminders itself; a cloud routine or an external tool connected through REST or webhooks can do the checking.
-</FaqItem>
-
-<FaqItem question="How does Customermates handle GDPR?">
-GDPR compliance depends on how your firm uses any tool. Customermates provides a [DPA](/dpa), discloses its subprocessors (including US providers under standard contractual clauses) on the [subprocessors page](/subprocessors), and runs the cloud database in the AWS Frankfurt region. It holds no certification such as ISO 27001 or SOC 2. For projects with strict confidentiality requirements, you can self-host the open-source core on your own infrastructure.
-</FaqItem>
-
-<FaqItem question="How does Customermates compare to TrebleHook, BQE CORE, or Scoro?">
-TrebleHook is a business development CRM for AEC firms, while BQE CORE and Scoro combine client management with project management, time tracking, and billing. Customermates focuses on CRM and relationship management: pipeline tracking, contact management, and an API for automation, starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month. If you already have project management and accounting software and need a CRM layer for pursuits and client relationships, Customermates fits well. It is also open source and self-hostable.
+<FaqItem question="Does a small studio need a CRM?">
+A spreadsheet works while you can keep every open pursuit in your head. It stops working when two competitions overlap with a live project and a past client calls. A sole practitioner pays [[commercial.price.starter.monthly]] per month on Starter.
 </FaqItem>
 </Faq>

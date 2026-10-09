@@ -1,6 +1,6 @@
 ---
-title: "EspoCRM Alternative: Open-Source CRM Compared"
-description: "EspoCRM vs. Customermates: two AGPL open-source CRMs compared on licence, stack, self-hosting, cloud pricing, extensions, inbox channels and AI through MCP."
+title: "EspoCRM Alternative: Open-Source CRMs for Small Teams"
+description: "EspoCRM alternatives compared: Customermates, SuiteCRM, Twenty and Odoo on licence, hosting, extension costs, chat channels, MCP and migration."
 competitorName: EspoCRM
 
 relatedHrefs:
@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "EspoCRM Alternative: Customermates and EspoCRM Compared"
-  description: "EspoCRM and Customermates are both AGPL open-source CRMs you can self-host. They differ in stack, in how features are packaged, in messaging channels and in how AI clients work with them. This comparison shows where each fits, based on EspoCRM's official pages as of 27 September 2026."
+  description: "EspoCRM is a mature open-source CRM with custom entities, campaigns and a catalogue of paid extensions. Customermates is an open-source CRM built in Germany that puts email, LinkedIn, WhatsApp, Instagram and Telegram next to your deals from Pro, and lets Mate (Customermates Cloud, hosted AI credits) or your own AI client over MCP do the CRM work. EspoCRM details are from espocrm.com, checked on 8 October 2026."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -25,66 +25,78 @@ comparison:
   - title: Licence & Deployment
     features:
       - name: Open-source licence
-        source: AGPL-3.0 core; separately licensed ee/ directory
-        competitor: AGPL-3.0 (since version 8.1)
+        source: AGPL-3.0 core; ee/ under a separate commercial licence
+        competitor: AGPLv3 (GPLv3 until December 2023)
       - name: Self-hosting
-        source: Docker Compose (application + PostgreSQL 16)
-        competitor: Installer, manual install or Docker image
-      - name: Technology stack
+        source: Docker Compose with two services, the app and PostgreSQL 16
+        competitor: Web installer, install script or Docker
+      - name: Technology
         source: TypeScript, Next.js, PostgreSQL
-        competitor: PHP with MySQL, MariaDB or PostgreSQL
+        competitor: PHP 8.3 to 8.5 with MySQL, MariaDB or PostgreSQL
       - name: Managed cloud
         source: true
         competitor: true
+      - name: Self-hosted add-ons
+        source: None to license; core with REST, webhooks and MCP, no inbox or Mate
+        competitor: Paid extensions, licensed per instance for a limited period
   - title: Pricing
     features:
-      - name: Cloud entry price
-        source: From [[commercial.price.starter.monthly]] / user / month
-        competitor: €12.90 / user / month (Basic, min. 3 users)
+      - name: Cloud price per user / month
+        source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: "Basic €12.90, Enterprise €22.00, Ultimate €59.00"
+      - name: Minimum users
+        source: None
+        competitor: 3 on Basic, 5 on Enterprise, 10 on Ultimate
       - name: Billing period
         source: Monthly
-        competitor: 6 or 12 months (Basic, Enterprise)
+        competitor: 6 months or 1 year (Basic and Enterprise)
       - name: Free trial
         source: "[[commercial.trial.days]] days"
         competitor: 30 days (cloud)
-      - name: Paid extensions for self-hosting
-        source: None; self-hosting uses the Starter feature set
-        competitor: Yearly licences (e.g. Advanced Pack, Google Integration)
   - title: CRM Features
     features:
-      - name: Contacts, organizations, deals
-        source: true
-        competitor: true
-      - name: Custom fields
-        source: true
-        competitor: true
+      - name: Standard record types
+        source: Contacts, organizations, deals, services, tasks
+        competitor: Accounts, contacts, leads, opportunities and more
       - name: Custom entity types
         source: false
+        competitor: Entity Manager
+      - name: Custom fields
+        source: Ten field types
         competitor: true
-      - name: Kanban pipeline with weighted values
+      - name: Stage probabilities and weighted pipeline
         source: true
-        competitor: Kanban view
-      - name: Workflows and BPM
-        source: No built-in builder; webhooks, REST, n8n community node, cloud routines
+        competitor: Probabilities per opportunity stage
+      - name: Kanban board
+        source: true
+        competitor: true
+      - name: Reports, workflows, BPM
+        source: Dashboards, webhooks, n8n community node; Routines in Customermates Cloud
         competitor: Advanced Pack extension
+      - name: Quotations and inventory
+        source: false
+        competitor: Sales Pack extension
+      - name: Customer portal
+        source: false
+        competitor: true
   - title: Communication
     features:
       - name: Email
-        source: Gmail, Outlook, IMAP in the unified inbox (Pro+)
-        competitor: IMAP/SMTP built in; Gmail and Outlook via extensions
+        source: Gmail, Outlook and IMAP in the unified inbox (Pro+)
+        competitor: Email sync and sending in the core; Google Integration extension
       - name: LinkedIn, WhatsApp, Instagram, Telegram
         source: Unified inbox (Pro+)
-        competitor: false
+        competitor: No official extension listed
       - name: Mass email and campaigns
         source: false
         competitor: true
   - title: AI & Interfaces
     features:
-      - name: MCP server for AI clients
-        source: "Built in, [[derived.mcp.tools.total]] tools"
-        competitor: Community projects only
-      - name: AI features
-        source: Mate assistant (cloud) and external clients via MCP
+      - name: MCP for AI clients
+        source: "Built in, [[derived.mcp.tools.total]] tools, every plan and self-hosted"
+        competitor: Free MCP Extension (AGPLv3) with record and Stream tools
+      - name: In-app AI
+        source: Mate (Customermates Cloud, hosted AI credits)
         competitor: Intelligence extension
       - name: REST API
         source: true
@@ -92,7 +104,7 @@ comparison:
 
 cta:
   action: Evaluating EspoCRM alternatives?
-  description: "Try Customermates with your own pipeline and connect an AI client over MCP in the first session."
+  description: "Start a trial, export one EspoCRM list to Excel and import it, then connect a mailbox or WhatsApp. You will see quickly whether your data and conversations fit the Customermates model."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -100,83 +112,136 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-> [EspoCRM](https://www.espocrm.com/) is a long-standing open-source CRM written in PHP. Since version 8.1 in January 2024 it is licensed under the [AGPL-3.0](https://www.espocrm.com/blog/espocrm-license/), and it runs on your own server or on EspoCRM Cloud. Customermates is a younger open-source CRM with an AGPL core, a unified inbox for email and chat channels, and a built-in MCP server for AI clients. Both are serious options; they suit different teams.
+> The right EspoCRM alternative depends on what you need that EspoCRM does not give you. For another established open-source CRM with quotations and marketing features, look at SuiteCRM. For unlimited custom objects with a free self-hosted core, look at Twenty. For CRM, accounting and inventory in one system, look at Odoo. Customermates fits small client-facing teams whose clients write on WhatsApp, LinkedIn, Instagram or Telegram as well as by email, and who want an AI assistant or their own AI client to keep the CRM current. If you depend on custom entities, campaigns or a customer portal, EspoCRM remains the better tool. Customermates publishes this comparison; every EspoCRM and third-party detail comes from the vendors' own sites, checked on 8 October 2026.
+
+## Which alternative fits which team
+
+| Your situation | Look at | Why |
+|---|---|---|
+| You model your own record types, such as properties, policies or cases | Stay with EspoCRM, or Twenty | EspoCRM's Entity Manager creates custom entities and relationships; Twenty has unlimited custom objects. Customermates has five fixed record types |
+| You send newsletters or campaigns from the CRM | Stay with EspoCRM | Mass email and campaigns are in EspoCRM's core; Customermates has no bulk sending |
+| You need quotations or inventory beside the CRM | EspoCRM with the Sales Pack, SuiteCRM or Odoo | Customermates has neither |
+| Clients reach you on WhatsApp, LinkedIn, Instagram or Telegram as well as email | Customermates Pro or Business | These channels share one inbox with your mailboxes; EspoCRM's extension catalogue lists none of them |
+| You want an assistant that drafts follow-ups and updates records on a schedule | Customermates Cloud | Mate and Routines run there on hosted AI credits |
+| You self-host and want an AI client connection without licensing add-ons per instance | Customermates core, or EspoCRM core with its free MCP Extension | Both are AGPL; reports, workflows and BPM in EspoCRM remain paid extensions |
+| You want CRM, accounting and stock in one system | Odoo | See the [Odoo comparison](/compare/odoo) |
+
+## Who EspoCRM is a good choice for
+
+EspoCRM has been around for 12 years and says more than 50,000 companies use it. It is a classic sales and service CRM. Leads convert into accounts, contacts and opportunities. Opportunities move through Prospecting, Qualification, Proposal and Negotiation to Closed Won or Closed Lost, each stage with its own probability. The core adds a calendar for meetings and calls, a Stream of record changes, a customer self-service portal, Kanban boards, mass email and campaigns. An administrator can create custom entities, fields and relationships in the Entity Manager, and formula scripts calculate fields or trigger actions.
+
+The deeper modules are extensions. The Advanced Pack adds reports, workflows and business process management. The Sales Pack adds products, quotations, purchases and inventory. Others cover project management, VoIP, Zoom, Stripe, MailChimp, Outlook and Google, where the Google Integration syncs Google Calendar, connects Google Contacts and handles secure sign-in for email accounts. Intelligence, the AI extension, offers summaries, intelligent paste and an AI email composer on OpenAI, Gemini, Claude or another OpenAI-compatible provider. EspoCRM also distributes a free MCP Extension under AGPLv3, which gives AI clients create, read, update and delete tools plus access to the Stream.
+
+EspoCRM's pricing page lists all extensions as included in its Cloud plans. If your team wants to design its own data model and run marketing from the CRM, EspoCRM covers more ground than Customermates does.
 
 ## Why teams look for an EspoCRM alternative
 
-EspoCRM is flexible and mature. Teams that look elsewhere usually name one of these reasons:
+**Self-hosted extensions are time-limited.** The EspoCRM core is free under AGPLv3. Reports, workflows, BPM, quotations and the AI extension are paid. EspoCRM's extension licence agreement grants use "on a single EspoCRM Application instance on a single server for the Licensed Period". When that period ends, you renew or uninstall the extension. The extension pages show no prices, so ask EspoCRM for current prices before you budget.
 
-- **Extensions add up.** Reports, workflows and BPM come with the [Advanced Pack](https://www.espocrm.com/extensions/), Gmail and Outlook sync with separate integration extensions, and AI features with the Intelligence extension. On a self-hosted installation, each is a yearly licence per instance.
-- **Messaging beyond email.** EspoCRM handles email well, but WhatsApp, LinkedIn, Instagram or Telegram conversations are not part of the core product.
-- **AI clients.** EspoCRM's AI features live in its Intelligence extension. There is no official MCP server; the MCP servers that exist are community projects.
-- **Stack preference.** Some teams prefer a TypeScript and PostgreSQL stack over PHP.
+**Cloud plans are billed for six or twelve months.** EspoCRM Cloud Basic costs €12.90 per user per month with at least 3 users, Enterprise €22.00 with at least 5, and Ultimate €59.00 with at least 10. Basic and Enterprise are billed for 6 months or a year. Users added after the purchase are charged monthly.
 
-## EspoCRM vs. Customermates at a glance
+**Conversations outside email.** EspoCRM syncs and sends email in the core. Its extension catalogue lists no official integration for WhatsApp, LinkedIn, Instagram or Telegram, so those threads stay outside the CRM unless you add a third-party integration.
 
-| Question                         | Customermates                                         | EspoCRM                                                  |
-| -------------------------------- | ----------------------------------------------------- | -------------------------------------------------------- |
-| Licence                          | AGPL-3.0 core; `ee/` under a separate licence         | AGPL-3.0                                                 |
-| Data model                       | Contacts, organizations, deals, services, tasks, plus custom fields | Standard entities plus custom entity types     |
-| Self-hosting                     | Docker Compose with PostgreSQL 16                     | Installer or Docker; MySQL, MariaDB or PostgreSQL        |
-| Cloud entry price                | [[commercial.price.starter.monthly]] per user / month, billed monthly | €12.90 per user / month, minimum 3 users, 6 or 12 months |
-| Email                            | Gmail, Outlook, IMAP in the unified inbox (Pro+)       | IMAP/SMTP built in; Gmail and Outlook through extensions |
-| Chat channels                    | LinkedIn, WhatsApp, Instagram, Telegram (Pro+)        | Not included                                             |
-| Campaigns and mass email         | Not included                                          | Included                                                 |
-| AI                               | MCP with [[derived.mcp.tools.total]] tools; Mate assistant on Cloud | Intelligence extension; no official MCP server   |
-| Native mobile app                | No, responsive web                                    | No official native app                                   |
+**Running PHP yourself.** A self-hosted EspoCRM needs Apache, Nginx or IIS, PHP 8.3 to 8.5 with a list of required PHP extensions, and MySQL, MariaDB or PostgreSQL. EspoCRM also documents a Docker setup. Customermates runs as two containers: the app and PostgreSQL 16.
 
-EspoCRM prices are from the [EspoCRM Cloud](https://www.espocrm.com/cloud/) and [extensions](https://www.espocrm.com/extensions/) pages as shown on 27 September 2026; EspoCRM Cloud plans include all extensions.
+## What a five-person team pays
 
-## Where EspoCRM is the better fit
+Prices checked on 8 October 2026 from [EspoCRM's pricing page](https://www.espocrm.com/pricing/). Customermates bills monthly per user, in euros, with no minimum team size.
 
-- **You need custom entity types.** EspoCRM's entity manager lets you add new record types; Customermates has a fixed set of five record families extended with custom fields.
-- **You send campaigns from the CRM.** EspoCRM includes mass email and campaigns. Customermates messaging is one-to-one by design; there are no bulk sends.
-- **You want deep BPM.** The Advanced Pack brings business process management that Customermates does not attempt.
-- **Your team runs PHP applications** and wants the CRM on the same stack.
+| Plan for five people | Per month | Per billing period |
+|---|---|---|
+| EspoCRM Cloud Basic | €64.50 | €387.00 for 6 months, €774.00 for a year |
+| EspoCRM Cloud Enterprise | €110.00 | €660.00 for 6 months, €1,320.00 for a year |
+| Customermates Starter | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5]], monthly |
+| Customermates Pro | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5]], monthly |
+| Customermates Business | [[commercial.price.business.monthly.seats.5]] | [[commercial.price.business.monthly.seats.5]], monthly |
 
-## Where Customermates is the better fit
+These rows buy different things:
 
-- **Conversations across channels.** On Customermates Cloud from Pro, email (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram and Telegram arrive in one [unified inbox](/features/unified-inbox), linked to contacts.
-- **AI clients that operate the CRM.** Claude, ChatGPT, Cursor and other MCP clients connect to the [built-in MCP server](/docs/mcp) on every plan and every installation, with the permissions of the connected user. On Customermates Cloud, the Mate assistant works in the app and asks for a fresh approval before destructive actions and sends.
-- **No extension licences.** The [self-hosted edition](/features/self-hosted) is the open-source core with the Starter feature set; there is nothing extra to license per instance. The inbox and Mate are cloud-only.
-- **Monthly billing** from [[commercial.price.starter.monthly]] per user, without a minimum user count.
+- **EspoCRM Basic and Customermates Starter cost about the same.** Basic includes every extension, campaigns, 3 GB of file storage per user and 100,000 records. Starter is the core CRM with Mate on hosted AI credits and [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, and it has no inbox. For classic CRM modules, Basic gives you more.
+- **Customermates Pro is what the inbox costs.** Each user connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, which can be a mailbox, LinkedIn, WhatsApp, Instagram or Telegram. No EspoCRM plan includes those chat channels.
+- **Business is for people who need several channels each.** It includes [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user and accounts shared with the team.
+- **Small teams hit EspoCRM's minimum.** Two people on Basic still pay for three, €38.70 a month. Two people on Customermates Pro pay [[commercial.price.pro.monthly.seats.2]].
 
-## Self-hosting compared
+Self-hosted, both cores cost nothing in licence fees. You pay for the server and the time to run updates, backups and TLS.
 
-Both products can run on your infrastructure. EspoCRM publishes an installer and a Docker image and supports MySQL, MariaDB or PostgreSQL. Customermates ships a Docker Compose file with two services: the application and PostgreSQL 16. In both cases your team owns updates, backups, TLS and monitoring. The difference is what the self-hosted edition includes: EspoCRM's core plus any extensions you license, or the Customermates core with REST, webhooks and MCP. See the [open-source CRM guide](/blog/open-source-crm) for a licence-first checklist.
+## Where Customermates fits
 
-## Migrating from EspoCRM
+Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other service businesses and founders. It is built in Germany.
 
-1. **Export** accounts, contacts and opportunities from EspoCRM to spreadsheets.
-2. **Map** EspoCRM fields to Customermates organizations, contacts and deals, and create custom fields for the rest.
-3. **Import** each record type as an XLSX workbook (organizations first, then contacts, then deals), or move data through the REST API.
-4. **Rebuild** stages as the deal-stage options and assign probabilities.
-5. **Connect** your mailboxes and chat channels on Pro and link conversations to contacts.
+**Client conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list, and you reply on the original channel. Link a participant to a contact once, and the conversation is filed with that contact. Starter has no inbox.
+
+**AI that does the CRM work.** In Customermates Cloud, Mate summarizes threads, drafts replies, updates records and builds views. It uses hosted AI credits, a monthly allowance per active user shown on the [pricing page](/pricing). Mate asks for a fresh approval before every deletion. Sending a message runs without one, so tell it to save drafts when you want to review first. Routines run a saved instruction on a schedule or when a record changes, always as their owner.
+
+**Your own AI client over MCP.** The [MCP server](/docs/mcp) is included on every plan and on self-hosted installs, with a catalogue of [[derived.mcp.tools.total]] tools. Claude, ChatGPT and other clients connect with OAuth or an API key and act with the connected user's permissions. Its messaging tools work only on Pro and higher in Customermates Cloud, where the same connection lists inbox threads, saves drafts and sends messages. Model calls from your client run on your own AI provider.
+
+**Self-hosting without add-on licences.** The [self-hosted edition](/features/self-hosted) is the AGPL core with REST, webhooks and MCP, deployed with Docker Compose. Nothing extra is licensed per instance. It has no inbox, no Mate and no hosted credits.
+
+**Where the cloud runs.** In Customermates Cloud, the primary database is configured in the AWS Frankfurt region, a [DPA](/dpa) is available, and the subprocessors, including US providers, are listed on the legal pages. Customermates holds no compliance certification.
+
+## Where Customermates is the wrong choice
+
+- **No custom entities.** You work with contacts, organizations, deals, services and tasks. You can rename them from presets and add custom fields of ten types, but you cannot add a sixth record type.
+- **No mass email, campaigns or sequences.** Messages go one at a time, written by you or drafted by Mate.
+- **No customer portal, quotations, inventory or telephony.**
+- **No BPM or visual workflow designer.** Automation runs through Routines in Customermates Cloud, webhooks and the separate n8n community node.
+- **Tasks have no built-in due date.** Add a custom date field if you need one.
+- **No native mobile apps and no single sign-on.** Saved views are personal, and permissions apply per record type and action, not per field.
+
+## Moving from EspoCRM
+
+Most EspoCRM sales data has a direct home. Under Data model in the company settings, you can call organizations "Accounts" and deals "Opportunities", so your team keeps its vocabulary.
+
+| In EspoCRM | In Customermates |
+|---|---|
+| Accounts | Organizations, renamed "Accounts" |
+| Contacts | Contacts |
+| Leads | Contacts with a single-select field such as "Lifecycle" (Lead, Customer) |
+| Opportunities | Deals, renamed "Opportunities" |
+| Products from the Sales Pack | Services, renamed "Products", linked to deals with quantities |
+| Custom entities | Custom fields on the closest record type |
+| Campaigns, mass email, portal | No equivalent; keep a dedicated tool |
+
+The stages line up almost one to one. A new Customermates workspace starts with Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Delete Demo if you never used it, and copy your EspoCRM probabilities into the stage weights. The weighted pipeline then multiplies each deal's value by its stage probability. It is arithmetic on your own numbers and does not predict anything.
+
+<Steps>
+  <Step title="Export from EspoCRM">Export each list you want to keep to an Excel file: accounts, contacts, leads and opportunities.</Step>
+  <Step title="Prepare the workspace">Choose your record names under Data model, create custom fields for the attributes you keep, and set the stage probabilities.</Step>
+  <Step title="Import one record type at a time">Import organizations first, then contacts, then deals. Link columns match records by name, so a contact's account column finds the organization you imported before. Customermates imports XLSX workbooks only; the [records documentation](/docs/app-records) lists the limits.</Step>
+  <Step title="Rebuild lists as views">Turn each EspoCRM list filter into a saved view. Views are personal, so each person saves their own.</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp, then set up routines for Mate or connect your own AI client over MCP.</Step>
+</Steps>
+
+## Other EspoCRM alternatives worth a look
+
+Customermates publishes this list. Details come from each vendor's site, checked on 8 October 2026.
+
+- **SuiteCRM** is the closest match in scope. It is open source, you can host it on your own server, and SuiteCRM 8 is the current major version. Its site highlights reporting and dashboards, customer segmentation, targeted marketing and quotations, and it offers a hosted trial, support, implementation, training and a managed package called SuiteASSURED.
+- **Twenty** suits teams that want custom objects in a hosted product with a free self-hosted core. It has unlimited custom objects, an MCP server, AI agents, webhooks and REST and GraphQL APIs. Cloud Pro costs $9 per user per month billed yearly. Organization, at $19 per user per month billed yearly, adds row-level permissions and SAML or OIDC single sign-on. You can self-host the open-source core for free. The [Twenty comparison](/compare/twenty-alternative) goes into detail.
+- **Odoo** fits when the CRM is one part of running the business. Its free plan covers one app with unlimited users on Odoo Online, the paid plans include all apps from accounting to inventory and HR, and the Community edition is a free open-source download.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="Is EspoCRM open source?">
-Yes. EspoCRM is licensed under the AGPL-3.0 since version 8.1, released in January 2024. Its paid extensions are sold under separate yearly licences.
-</FaqItem>
-
-<FaqItem question="Is Customermates open source like EspoCRM?">
-Yes. First-party code outside the `ee/` directory is AGPL-3.0-only; code in `ee/` uses a separate commercial licence, except client material that Section 6 of that licence keeps under the AGPL. The self-hosted edition is the open-source core with the Starter feature set.
+<FaqItem question="Is EspoCRM free?">
+The core is. EspoCRM is open source under AGPLv3 and free to self-host. Reports, workflows, BPM, quotations and AI come as paid extensions, licensed per instance for a limited period. EspoCRM Cloud starts at €12.90 per user per month on Basic, with at least 3 users and billing for 6 months or a year, and it includes all extensions.
 </FaqItem>
 
 <FaqItem question="Does EspoCRM have an MCP server?">
-We found no official EspoCRM MCP server as of 27 September 2026; the available MCP servers are community projects. Customermates includes an MCP server with [[derived.mcp.tools.total]] tools on every plan and installation.
+Yes. EspoCRM distributes a free MCP Extension under AGPLv3. It runs through EspoCRM's REST API, exposes create, read, update and delete tools and Stream access, and lets an administrator choose which tools AI clients see. Customermates has its MCP server built in, with a catalogue of [[derived.mcp.tools.total]] tools, on every plan and on self-hosted installs; its inbox tools work on Pro and higher in Customermates Cloud.
 </FaqItem>
 
-<FaqItem question="Which is cheaper, EspoCRM or Customermates?">
-It depends on the setup. Self-hosted, both core products have no licence fee, but EspoCRM extensions such as the Advanced Pack are yearly licences. In the cloud, EspoCRM Basic lists €12.90 per user per month with a three-user minimum and 6 or 12 month billing; Customermates starts at [[commercial.price.starter.monthly]] per user per month, billed monthly.
+<FaqItem question="What is the best open-source alternative to EspoCRM?">
+It depends on the gap. SuiteCRM is closest in scope, Twenty offers unlimited custom objects, and Odoo adds accounting and inventory. Customermates fits small teams that want WhatsApp, LinkedIn and email conversations next to their deals.
+</FaqItem>
+
+<FaqItem question="Is SuiteCRM really free?">
+The software is. SuiteCRM is open source and you can host it on your own server at no licence cost. The SuiteCRM site also offers a hosted option, support, implementation, training and the SuiteASSURED package, so your real cost is hosting plus whatever help you buy.
 </FaqItem>
 
 <FaqItem question="Can Customermates send email campaigns like EspoCRM?">
-No. Customermates messaging is one-to-one, with no bulk sends. Use a dedicated email provider for campaigns and connect it to CRM events through webhooks.
+No. Customermates sends one message at a time, with no bulk sends or sequences. If campaigns matter, keep EspoCRM or use a dedicated email marketing tool and connect it to CRM events through webhooks.
 </FaqItem>
 </Faq>
 
-## Conclusion
-
-EspoCRM is a strong choice when you need custom entity types, campaigns and BPM on a PHP stack. Customermates fits teams that want customer conversations across email and chat channels next to their deals, AI clients that operate the CRM through MCP, and monthly billing without extension licences. Compare it with another modern open-source CRM in the [Twenty alternative](/compare/twenty-alternative) page, or [start a free trial](/auth/signup).
+Competitor details checked on 8 October 2026 against EspoCRM's [pricing page](https://www.espocrm.com/pricing/), [extensions](https://www.espocrm.com/extensions/), [MCP Extension](https://www.espocrm.com/extensions/mcp/), [Intelligence](https://www.espocrm.com/extensions/intelligence/), [Advanced Pack](https://www.espocrm.com/extensions/advanced-pack/), [Google Integration](https://www.espocrm.com/extensions/google-integration/), [extension licence agreement](https://www.espocrm.com/extension-license-agreement/), [features](https://www.espocrm.com/features/), [licence announcement](https://www.espocrm.com/blog/espocrm-license/), [server requirements](https://docs.espocrm.com/administration/server-configuration/), [installation guide](https://docs.espocrm.com/administration/installation/), [sales management guide](https://docs.espocrm.com/user-guide/sales-management/) and [homepage](https://www.espocrm.com/), and against [SuiteCRM](https://suitecrm.com/), [Twenty's pricing](https://twenty.com/pricing) and [Odoo's pricing](https://www.odoo.com/pricing).

@@ -1,161 +1,168 @@
 ---
-title: "AI Sales Agent: Capabilities, Architecture, and Evaluation"
-description: "Understand AI sales agents, their data and action layers, and how to evaluate a bounded workflow without confusing the agent with your CRM."
+title: "AI Sales Agent: What It Does and How to Test One"
+description: "AI sales agents qualify inbound leads, prospect, research and update the CRM. What each type does, what it costs, where it fails and a four-week pilot."
 
 relatedHrefs:
   - /blog/agentic-crm
-  - /blog/ai-sdr
   - /blog/ai-in-sales
-  - /docs/mcp
+  - /blog/agentforce
+  - /docs/app-routines
 
 hero:
-  title: "AI Sales Agent: What It Is, How It Works, and How to Evaluate One"
-  description: AI sales agents range from drafting assistants to systems that can use approved tools. This guide separates the categories, architecture, controls, and CRM boundary.
+  title: "AI Sales Agent: What It Does, Where It Fails and How to Test One"
+  description: "An AI sales agent is a language model that uses your CRM, inbox and calendar to finish a sales task on its own. Which types exist, including AI SDRs and AI BDRs, what they cost, and how to test one before it writes to a real customer."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-04-30
+  updated: 2026-10-08
   tags:
     - ai-sales-agent
     - AI Agents
+    - AI SDR
     - sales-automation
     - CRM
 ---
 
-# AI Sales Agent: What It Is, How It Works, and How to Evaluate One
+# AI Sales Agent: What It Does, Where It Fails and How to Test One
 
-An **AI sales agent** is software that uses a language model, business context, and approved tools to complete bounded sales tasks. Depending on the product, that may mean researching an account, drafting a message, summarizing a conversation, updating a CRM record, or coordinating several steps. It does not automatically mean autonomous prospecting from first contact to closed deal.
+An AI sales agent is software in which a language model calls tools, such as your CRM, inbox, calendar or a lead database, to finish a sales task with several steps instead of only suggesting text. Most products sold under the name cover one slice of the job: answering inbound leads, outbound prospecting (often called AI SDR or AI BDR), account research, or keeping the CRM current. Today they reliably take over research, first drafts, routing and record-keeping. Choosing whom to target, judging a deal and standing behind an offer stay with people.
 
-The useful question is not simply whether a product calls itself an agent. Ask which data it can read, which actions it can take, where a person must approve the next step, and which system keeps the durable customer record.
+Customermates, an AI-native CRM, publishes this guide and describes its own setup in a clearly labelled section. Facts about other vendors come from their own pages, checked on 8 October 2026.
 
-> **Customermates product boundary:** Customermates is the CRM and action layer in this architecture, not a prospecting agent or an all-in-one autonomous sales system. Tool-aware AI clients can work with supported CRM records through MCP. Where licensed and enabled, the unified inbox supports individual conversations on its documented channels. Customermates does not provide native lead sourcing, enrichment, lead scoring, forecasting, sequences, bulk outreach, telephony, SMS, or calendar booking.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What it is">A language model with permission to use sales tools. It reads, decides the next step and acts, within rules you set.</SummaryItem>
+  <SummaryItem label="Four types">Inbound qualification, outbound prospecting (AI SDR or BDR), research for reps, and agents that operate the CRM.</SummaryItem>
+  <SummaryItem label="Works well">Research briefs, reply drafts, routing inbound requests and updating records after a conversation.</SummaryItem>
+  <SummaryItem label="Goes wrong">Invented details, wrong recipients, duplicate records and messages sent that nobody read. Cold email also has legal limits in Germany.</SummaryItem>
+  <SummaryItem label="How to start">One workflow, read-only first, then drafts, and sending only after four weeks of small edits.</SummaryItem>
+</ArticleSummary>
 
-## What counts as an AI sales agent?
+## Four types of AI sales agent
 
-The term covers three materially different product shapes:
+The label covers products that do very different work. The examples are described from each vendor's own page.
 
-| Category | Typical job | Human role | Main evaluation risk |
-| --- | --- | --- | --- |
-| AI sales copilot | Suggest, summarize, or draft | A person triggers and reviews each step | Useful output may never reach the system of record |
-| Agentic workflow | Complete a defined sequence with approved tools | A person sets policy and handles exceptions | A brittle handoff can create duplicate or stale records |
-| Autonomous sales agent | Select and execute multiple next steps | A person supervises goals and guardrails | Claims of autonomy may exceed the actual controls and evidence |
+| Type | What it does | Example from the vendor's page | Fits when |
+|---|---|---|---|
+| Inbound qualification | Answers website visitors and new leads, asks qualifying questions, offers meeting times | [Salesforce's Agentforce SDR](https://www.salesforce.com/sales/ai-sales-agent/) greets website visitors, creates lead records, answers product questions and offers real-time calendar availability. [11x's Julian](https://www.11x.ai/) is a phone agent for inbound prospects | Many inbound requests arrive and slow replies cost you deals |
+| Outbound prospecting (AI SDR or BDR) | Finds leads, writes and sends outreach, handles replies, books meetings | [Artisan's Ava](https://www.artisan.co/ai-sales-agent) covers lead discovery, enrichment, campaign creation, autonomous replies and scheduling, with human-in-the-loop controls. [11x's Alice](https://www.11x.ai/) runs multi-channel sequences across email, phone, chat, social networks, SMS and WhatsApp | You sell to a large, well-defined market by cold outreach |
+| Research and rep assistance | Prepares account and contact briefs, summarises deals, flags stalled ones | [Salesloft](https://www.salesloft.com/platform/ai-agents) lists agents for account research, person research, deal summaries and stalled-deal insights | Reps already run their day in a sales engagement platform such as Salesloft |
+| CRM operation | Reads and changes records, drafts and sends messages from the conversation history, runs on a schedule or on record changes | [HubSpot's Prospecting Agent](https://www.hubspot.com/products/artificial-intelligence) monitors buying signals, starts personalised outreach and drafts follow-ups and CRM updates after meetings. Customermates' assistant Mate (section below) | You want the CRM kept current from real conversations |
 
-These categories are not a maturity ladder. A narrowly scoped copilot can be more valuable than a broader agent if its context is reliable and its actions are easy to verify.
+**AI SDR versus AI BDR.** Vendors use both terms loosely. An AI SDR (sales development representative) usually qualifies leads and hands a meeting-ready opportunity to a salesperson, inbound or outbound. An AI BDR (business development representative) usually opens new outbound conversations. Compare the steps a product actually performs, not its label.
 
-## AI sales-agent categories to compare
+## Which steps an agent can take over
 
-### Research and preparation
+Sales development runs through seven steps. The middle column is what works reliably in small-team selling today; the right column is what to check in a demo.
 
-Research tools assemble information about an account, market, or contact. Verify where the data comes from, whether you are entitled to use it, how recently it was observed, and whether citations survive into the review step. Research is not the same as CRM enrichment: writing third-party data into a customer record introduces mapping, provenance, and deletion questions.
+| Step | What an agent does well today | What to check |
+|---|---|---|
+| 1. Define targets | Turns a written target profile into search filters | Who decides the profile and the exclusion list. That decision stays yours |
+| 2. Find and verify contacts | Searches a lead database you license | Where each contact fact comes from, and whether you may use it |
+| 3. Research the account | Writes a one-page brief from websites, news and your history with the client | Every fact without a source. Models invent plausible details |
+| 4. Write the message | Drafts in the client's language and refers to real context | Whether a person sees the exact recipient and text before it goes out |
+| 5. Sort replies | Separates interest, objections, referrals and opt-outs | That an opt-out stops all further contact, everywhere |
+| 6. Qualify and hand over | Applies your qualification rule and routes the lead | Wrong routing on the edge cases you care about |
+| 7. Update the CRM | Creates or updates contact, organization, deal and notes | Duplicates, broken links between records and what happens when two systems disagree |
 
-### Drafting and conversation support
+Steps 3, 4 and 7 pay off first for most teams, because they involve a lot of typing and little judgment. Step 1 is the one to keep: an agent that picks its own targets produces volume, not pipeline.
 
-Drafting tools prepare email or social messages, meeting notes, or follow-up suggestions. Check whether they work on existing conversations or can initiate new outreach, whether a person sees the final recipient and text, and whether sending is a separate action.
+## Can an AI sales agent replace your SDR or BDR team?
 
-### CRM operations
+For inbound work, partly. An inbound agent can answer a visitor at night, ask the qualifying questions and offer a meeting slot, and that is where the gain is most visible. For outbound work in relationship sales, no. An agent can research and draft much faster than a person, but it cannot judge which of fifty plausible accounts is worth a partner's time, or notice that a contact's last post makes the timing wrong.
 
-CRM-operating agents read and update supported contacts, organizations, deals, services, tasks, or custom fields. The CRM should still validate permissions and record structure on the server. A natural-language request is not a substitute for authorization.
+Agentforce is a good test case. Salesforce describes its SDR agent as working inbound leads within guardrails you set, answering questions from your business data and offering calendar slots. That replaces a share of first-response work. It does not replace the person who owns targeting, discovery calls and the handover.
 
-### Workflow orchestration
+### What does an AI sales agent cost?
 
-Orchestrators connect research, messaging, CRM, and other tools. They are useful when every handoff is explicit. They are risky when a workflow silently assumes that an external identifier, company name, or email address is a stable key.
+It depends on the pricing model. Agentforce prices, checked on 8 October 2026 from [Salesforce's pricing page](https://www.salesforce.com/agentforce/pricing/):
 
-## How an AI sales agent works
+| Agentforce pricing model | Price | Worked example |
+|---|---|---|
+| Flex Credits | $500 per 100,000 credits; an Agentforce action uses 20 credits (a voice action 30) | 20 credits cost $0.10, so 10,000 actions a month cost $1,000 |
+| Per conversation | $2 per conversation, for customer-facing agents | 800 inbound conversations a month cost $1,600 |
+| Sales Cloud add-on | $125 per user per month, with unmetered Agentforce use for employees | A five-person team pays $625 a month on top of its Sales Cloud licences |
 
-A dependable setup has six layers:
+Outbound agents add costs that never show up on the agent's price list: the lead data, sending domains and mailboxes, and the hours someone spends reviewing drafts and fixing records. Count those before comparing list prices.
 
-1. **Instructions:** the task, audience, evidence requirements, and stop conditions.
-2. **Context:** CRM records, conversation history, product facts, and permitted external sources.
-3. **Model:** the component that interprets the request and prepares a result or tool call.
-4. **Tools:** typed actions such as reading a record, creating a task, or drafting a reply.
-5. **Control boundary:** permissions, approvals, validation, rate controls, and audit evidence.
-6. **System of record:** the place where the final customer state remains inspectable after the agent run ends.
+## Cold outreach by agents in Germany
 
-An attractive model response cannot compensate for incomplete context or an unsafe tool boundary. Before evaluating output quality, verify that the system can distinguish a suggestion from a committed change and a draft from a delivered message.
+An outbound agent that writes to strangers is a legal question before it is a software question. Under [§ 7 (2) no. 2 UWG](https://dejure.org/gesetze/UWG/7.html), advertising by email without the recipient's prior express consent is an unreasonable nuisance, and the rule makes no exception for business recipients. The narrow exception in § 7 (3) covers existing customers whose address you received in a sale. For phone calls, businesses need at least presumed consent and consumers express consent.
 
-## Where Customermates fits, and where it does not
+So in Germany an autonomous email agent that writes cold to purchased lists is usually not an option, however good its texts are. Agents fit better where the contact started the conversation: inbound requests, replies, existing clients and LinkedIn conversations you began yourself. GDPR also applies to every contact fact the agent collects. This is general information, not legal advice.
 
-Customermates provides the structured CRM context for contacts, organizations, deals, services, tasks, custom fields, views, and activity history. External AI clients can use the documented MCP connection to perform supported CRM work under the requesting user's permissions. REST and webhooks provide additional integration surfaces, while the separate Customermates community node is an option for teams that operate n8n themselves.
+## A four-week pilot
 
-Messaging is a separate commercial surface. On entitled cloud accounts, the unified inbox covers supported email and social channels. An external AI client may read an allowed thread, save a draft reply to an existing thread, send one email, or start and send one supported chat. The send tools deliver immediately: Customermates tells compatible clients to ask first and enforces the requesting user's permissions, but the external MCP route does not add a universal second approval after an authorized call. Sequences and bulk campaigns remain outside the current product.
+<Steps>
+  <Step title="Pick one workflow">Choose a task you repeat weekly, for example answering new inbound requests or following up on sent proposals. Write down how often it happens and how long it takes now.</Step>
+  <Step title="Write the rules on one page">Your qualification rule, tone of voice, what the agent may never promise (prices, dates, discounts) and when it must stop: unclear recipient, opt-out, conflicting records.</Step>
+  <Step title="Week one: read-only">Let the agent produce briefs and lists only. Compare them with what you know and note every invented fact.</Step>
+  <Step title="Week two: one reversible write">Allow it to create a task or update one field. Check the records for duplicates and wrong links afterwards.</Step>
+  <Step title="Weeks three and four: drafts">The agent saves drafts in the real threads, you edit and send. Count how many go out with only small changes.</Step>
+  <Step title="Decide on sending">Allow sending only for the message type where your edits have become small, and test it with a recipient you control first.</Step>
+</Steps>
 
-That makes Customermates suitable as a controlled CRM layer inside a wider AI sales stack. It should not be described as the data provider, outreach engine, model host, or autonomous agent.
+Before you sign with a vendor, ask five questions: which steps it performs itself and which need another product; where its contact data comes from; whether reading, drafting, writing and sending are separate permissions; how an opt-out stops every channel; and what a failed run leaves behind in your CRM.
 
-## A bounded evaluation workflow
+## Example: a small-team sales agent in Customermates
 
-Start with one reversible workflow whose outcome is easy to inspect:
+This section describes Customermates, the CRM that publishes this guide. Mate, its assistant, runs in Customermates Cloud and uses hosted AI credits. Routines are saved instructions that Mate runs on a schedule or when a record changes.
 
-1. Select an existing account and define the records the client may read.
-2. Ask the client to summarize the account and list the evidence behind each conclusion.
-3. Let it propose one CRM update or create one follow-up task.
-4. Require a person to review the exact fields before any write.
-5. Compare the resulting record with the source context and inspect duplicate handling.
-6. Record errors, corrections, and time saved before widening the permissions.
+Take a three-person consultancy on the Pro plan. Each consultant connects [[commercial.entitlement.pro.includedAccountsPerUser]] account in the [unified inbox](/features/unified-inbox), usually the work mailbox in Gmail or Outlook; LinkedIn, WhatsApp, Instagram and Telegram are the other channels. Business includes [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user, enough for mailbox plus LinkedIn. Deals have a single-select stage field: First call, Scoping, Proposal sent, Won, Lost. The firm's services and writing rules sit in one Knowledge Base page that Mate can read in chats and routine runs.
 
-Only add message drafting after the record workflow is reliable. Treat delivery as a separate permission and test it with a controlled recipient before using it in real customer work.
+**Inbound triage, every morning.** A [routine](/docs/app-routines) set to **On a schedule**, **Every day** at 08:00:
 
-## How to evaluate AI sales-agent software
+```text
+Look at the threads in my inbox that received a message from outside
+our company since yesterday at 08:00. For each sender, find the
+contact and organization or create them. If the message asks about
+our services, create a deal in the stage "First call" assigned to me
+and save a reply draft in the thread that suggests a short call. List what you did and what you
+were unsure about. Do not send anything.
+```
 
-Use the same evidence sheet for every candidate:
+**Proposal follow-up, on a record change.** A second routine set to **When something changes**, event **Deal Updated**, changed field "Stage", filtered to deals assigned to the owner: when a deal moves to "Proposal sent", Mate creates a task linked to the deal and its contact, and saves a short follow-up draft in the latest thread.
 
-- **Task fit:** Which exact workflow does the product own from input to verified result?
-- **Data provenance:** Can reviewers see where account and contact facts came from?
-- **Action model:** Are reads, drafts, writes, and sends distinct permissions?
-- **CRM fidelity:** Does the integration preserve identifiers, relations, required fields, and activity history?
-- **Human control:** Can a reviewer inspect the recipient, content, and side effect before an irreversible action?
-- **Failure recovery:** Are retries idempotent, and can a partial run be diagnosed without guessing?
-- **Security and legal review:** Which processors, regions, retention rules, and contractual terms apply to your deployment?
-- **Operational economics:** What do licences, model usage, data providers, inboxes, integration work, and ongoing review cost together?
+Both instructions end with "Do not send anything" on purpose. When asked to send an email or chat message, Mate sends it without a second confirmation. It asks for approval before deletions and a few admin actions, and a routine refuses those because nobody is there to approve. A routine runs as its owner, with the owner's channels and permissions. Event triggers ignore further events for a short window after a run starts, so a daily sweep is the safer design for inbound mail. Each run also has a credit cap, so on a busy inbox a run can stop part-way and is then marked Partial; the limits are listed in the [routines documentation](/docs/app-routines).
 
-Do not rank products from feature tables alone. Run the same representative records through each finalist and score correctness, review effort, and recovery, not just output fluency.
+For outbound, Mate works one contact at a time: with a connected LinkedIn account that has its own Sales Navigator subscription, it can search Sales Navigator, save leads to lists, create the contacts in the CRM and write a first message for you to review in the chat. It sends only when you tell it to, one message at a time.
 
-## What an AI sales-agent stack costs
+**What it costs:** Pro for three people is [[commercial.price.pro.monthly.seats.3]] per month, billed monthly, with the inbox, up to [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per person and monthly hosted AI credits per active user; see [pricing](/pricing). Starter, at [[commercial.price.starter.monthly.seats.3]] per month for three people, includes Mate and [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per person but no inbox, so the agent would only see CRM records. The trial runs [[commercial.trial.days]] days.
 
-There is no reliable universal price for an AI sales agent. The total depends on the product category and on components that are often billed separately: user licences, model usage, enrichment data, sending infrastructure, orchestration, CRM access, implementation, and human review.
+**With your own AI client:** Claude, ChatGPT and other clients can do the same CRM work through the [Customermates MCP server](/docs/mcp), on every plan and self-hosted, using your own AI subscription. Messaging tools need Pro or higher in the cloud. The server tells clients to confirm before sending or deleting, but whether you see that confirmation depends on the client.
 
-Build a scenario from your own volumes. State how many accounts enter the workflow, how many runs reach a paid data source, how many messages require review, and how exceptions are handled. A lower list price can become expensive when staff must repair poor matches or duplicate records.
-
-## Common limits and failure modes
-
-- **Confident but unsupported research:** require sources and observation dates.
-- **Identity mismatches:** use stable IDs and explicit matching rules instead of company names alone.
-- **Context loss between tools:** define which system owns each field and status.
-- **Over-broad permissions:** begin with reads and reversible writes before enabling delivery or deletion.
-- **Automation without a stop condition:** halt on ambiguous recipients, missing consent evidence, conflicting records, or incomplete required fields.
-- **No feedback loop:** capture corrections so the workflow can be improved rather than silently repeated.
-
-AI can reduce mechanical work, but a sales process still needs positioning, judgment, and accountable owners. The most credible deployment is one where people can explain what the agent did and why.
+<AcquisitionCallout title="What Customermates does not do" variant="boundary">
+Customermates is not an autonomous outbound agent. It has no lead database of its own, no data enrichment and no lead scoring. There are no email sequences, no bulk sending, no telephony or SMS and no calendar booking. Self-hosted, you get the open-source core with REST, webhooks and MCP, but no inbox, Mate or routines. A team that prospects at volume by cold outreach is better served by a dedicated outbound agent such as Artisan or 11x, a Salesforce team by Agentforce, and a HubSpot team by HubSpot's own agents.
+</AcquisitionCallout>
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is an AI sales agent?">
-It is software that combines a model, context, and tools to complete defined sales tasks. The scope can range from drafting assistance to multi-step workflows, so the allowed data and actions matter more than the label.
+<FaqItem question="What does an AI sales agent do?">
+It uses a language model plus tools to complete sales tasks: answering and qualifying inbound leads, researching accounts, drafting and sometimes sending messages, sorting replies and updating the CRM. Most products cover one or two of these well. Ask which steps a product performs itself and which need another tool.
 </FaqItem>
 
-<FaqItem question="What is the best AI sales agent?">
-There is no universal winner. Choose against a representative workflow, then compare accuracy, provenance, controls, CRM fidelity, recovery, and total operating cost.
+<FaqItem question="Will AI replace sales agents?">
+Not in sales built on relationships. AI takes over much of the typing: research, notes, first drafts and record updates. Understanding a client's situation, judging scope and price, and owning the relationship stay with people. The work most exposed is high-volume, scripted first contact.
 </FaqItem>
 
-<FaqItem question="How much does an AI sales agent cost?">
-Cost depends on licences, model and data usage, sending infrastructure, integration work, and human review. Model your own volumes rather than relying on a generic benchmark.
+<FaqItem question="Can Agentforce replace my BDR team?">
+It can take over a share of inbound first response: Salesforce describes its SDR agent answering lead questions from your business data and offering meeting slots, within guardrails you set. Targeting, discovery and the handover still need a person. Run it on one lead source first and compare its qualification decisions with your team's.
 </FaqItem>
 
-<FaqItem question="Can an AI sales agent replace a salesperson?">
-It can assist or automate bounded tasks, but account judgment, positioning, negotiation, and accountability remain human responsibilities. The correct boundary depends on the workflow and its risk.
+<FaqItem question="What does an AI sales agent cost?">
+Pricing models differ: per seat, per conversation, per action or per credit. Salesforce lists $2 per conversation or Flex Credits at $500 per 100,000, with 20 credits per Agentforce action, checked on 8 October 2026. Add the lead data, mailboxes and review time an outbound agent needs before you compare.
 </FaqItem>
 
-<FaqItem question="Is an open-source CRM the same as an open-source AI sales agent?">
-No. A CRM can provide inspectable records and tools while the model, data provider, and orchestration layer remain separate products with their own licences and terms.
+<FaqItem question="What is the difference between an AI SDR and an AI BDR?">
+An AI SDR usually qualifies leads and hands a meeting-ready opportunity to a salesperson, inbound or outbound. An AI BDR usually focuses on opening new outbound conversations. Vendors mix the terms, so compare the steps each product performs.
 </FaqItem>
 
-<FaqItem question="Is AI sales automation GDPR-compliant?">
-Compliance cannot be inferred from a product category or hosting location. It depends on the data, purpose, legal basis, processors, retention, security measures, and workflow. Obtain appropriate legal review for the actual deployment.
-</FaqItem>
-
-<FaqItem question="Can Customermates run an AI sales-agent workflow?">
-Customermates can act as the CRM and supported action layer for an external tool-aware AI client through MCP. It is not a native lead source, enrichment service, sequence engine, or autonomous sales agent.
+<FaqItem question="May an AI agent send cold emails in Germany?">
+Advertising emails without prior express consent are an unreasonable nuisance under § 7 (2) no. 2 UWG, and that applies to business recipients too. An agent is therefore usually limited to existing customers, inbound requests and conversations the contact started. Have your actual setup checked by a lawyer.
 </FaqItem>
 </Faq>
+
+Vendor and legal details checked on 8 October 2026 against [Salesforce Agentforce SDR](https://www.salesforce.com/sales/ai-sales-agent/), [Agentforce pricing](https://www.salesforce.com/agentforce/pricing/), [HubSpot AI](https://www.hubspot.com/products/artificial-intelligence), [Salesloft AI agents](https://www.salesloft.com/platform/ai-agents), [Artisan Ava](https://www.artisan.co/ai-sales-agent), [11x](https://www.11x.ai/) and [§ 7 UWG](https://dejure.org/gesetze/UWG/7.html).
