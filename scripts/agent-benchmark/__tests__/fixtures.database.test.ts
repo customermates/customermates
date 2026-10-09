@@ -92,7 +92,7 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     const appended = "2026-09-05: Procurement requested the revised security questionnaire by 2026-09-10.";
     const notes = parseMarkdownToJSON(`${serializeJSONToMarkdown(deal.notes)}\n\n${appended}`);
     await db.prisma.recordValue.updateMany({ where: { companyId: noteFixture.companyId, typeId: presetId(noteFixture.companyId, "deal"), recordId: noteFixture.ids["nova-deal"], fieldId: presetId(noteFixture.companyId, "deal.notes") }, data: { jsonValue: recordJson(notes) } });
-    const noteCall = { name: "mutate_crm_record", input: { mutation: { action: "update", ref: { typeId: presetId(noteFixture.companyId, "deal"), recordId: noteFixture.ids["nova-deal"] }, fields: [{ fieldId: presetId(noteFixture.companyId, "deal.notes") }] } }, outcome: "ok" as const };
+    const noteCall = { name: "mutate_crm_record", input: { mutation: { action: "update", ref: { typeId: presetId(noteFixture.companyId, "deal"), recordId: noteFixture.ids["nova-deal"] }, fields: [{ fieldId: presetId(noteFixture.companyId, "deal.notes"), append: appended }] } }, outcome: "ok" as const };
     const noteScore = await scoreBenchmarkCase(db, noteFixture, { turns: [{ text: "Appended the requested note.", tools: [noteCall], terminalCode: "completed" }] });
     expect(noteScore.checks.filter((check) => !check.passed)).toEqual([]);
 
