@@ -3,6 +3,7 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, selectConfigureList } from "./configure";
+import { calculationChip, calculationFlow, chooseValueSource, pickOption } from "./calculation-flow";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 
@@ -52,13 +53,13 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
   });
   const dialog = page.getByRole("dialog");
   const id = (key: string) => presetId(companyId, key);
-  const addMoneyField = async (name: string, source: string) => {
+  const addCalculatedField = async (name: string, source: string) => {
     await addFromConfigure(page, "Field");
     await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
-    await selectOption(page, "Value type", "Money");
-    await selectOption(page, "Value source", source);
+    await chooseValueSource(page, source);
     await openDrawerTab(page, "Calculation");
-    await expect(dialog.locator('[data-calculation-editor="linear"]')).toHaveCount(1);
+    await expect(calculationFlow(page)).toHaveCount(1);
+    await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toHaveCount(0);
   };
   const selectType = async (label: string, typeId: string) => {
     await selectConfigureList(page, label);
@@ -69,27 +70,31 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
   await test.step("create snapshot and rollup definitions on Services, and a singular lookup on Line items", async () => {
     await openConfigure(page);
     await selectType("Services", id("service"));
-    await addMoneyField("Original price", "Saved at an event");
-    const calculation = dialog.getByRole("region", { name: "Calculation", exact: true });
-    await calculation.getByRole("combobox", { name: "Use", exact: true }).click();
-    await page.getByRole("option", { name: "Field", exact: true }).click();
-    await calculation.getByRole("combobox", { name: "Field", exact: true }).click();
-    await page.getByRole("option", { name: "Price", exact: true }).click();
-    await selectOption(page, "Capture value", "When the record is created");
-    await expect(dialog.getByRole("switch", { name: "Allow a manually entered replacement value", exact: true })).not.toBeChecked();
+    await addCalculatedField("Original price", "Calculated from this record");
+    await pickOption(page, calculationChip(page, "pick-value"), "Price");
+    await openDrawerTab(page, "More options");
+    await selectOption(page, "Updates", "Saved when the record is created");
+    await expect(dialog.getByRole("switch", { name: "Let people type over it", exact: true })).not.toBeChecked();
+    await expect(calculationFlow(page).locator("[data-calculation-sentence]")).toHaveText(
+      "Original price is calculated as Price. It is saved when the record is created.",
+    );
     await applyConfiguration(page);
 
-    await addMoneyField("Sold amount", "Total from linked records");
-    await selectOption(page, "Relationship", "Line items");
-    await selectOption(page, "Aggregation", "Sum");
-    await selectOption(page, "Value", "Amount");
+    await addCalculatedField("Sold amount", "Counted or totalled from linked records");
+    await pickOption(page, calculationChip(page, "pick-relationship"), "Line items · One to many");
+    await expect(calculationChip(page, "aggregate")).toHaveText("Sum");
+    await pickOption(page, calculationChip(page, "pick-field"), "Amount");
+    await expect(calculationFlow(page).locator('[data-calculation-node="result"]')).toContainText("Money");
     await applyConfiguration(page);
 
     await selectType("Line items", id("lineItem"));
-    await addMoneyField("Catalog price", "Value from a linked record");
-    await selectOption(page, "Relationship", "Service");
-    await selectOption(page, "Value", "Price");
-    await expect(calculation.getByRole("combobox", { name: "Aggregation", exact: true })).toHaveCount(0);
+    await addCalculatedField("Catalog price", "Taken from a linked record");
+    await pickOption(page, calculationChip(page, "pick-relationship"), "Service · Many to one");
+    await pickOption(page, calculationChip(page, "pick-field"), "Price");
+    await expect(calculationChip(page, "aggregate")).toHaveCount(0);
+    await expect(calculationFlow(page).locator("[data-calculation-sentence]")).toHaveText(
+      "Catalog price shows the Price of the linked Service.",
+    );
     await page.screenshot({ path: testInfo.outputPath("lookup-calculation-editor.png"), animations: "disabled" });
     await applyConfiguration(page);
   });
@@ -237,8 +242,8 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
   await test.step("switch Deal Value to manual, retain its result, and continue weighting the entered amount", async () => {
     await followConfigureLink(page);
     await openConfigureRow(page, "Fields", "Value");
-    await selectOption(page, "Value source", "Entered manually");
-    await expect(dialog.locator('[data-calculation-editor="linear"]')).toHaveCount(0);
+    await chooseValueSource(page, "Entered manually");
+    await expect(calculationFlow(page)).toHaveCount(0);
     await applyConfiguration(page);
     expect((await readModel(database, companyId)).fields.find((field) => field.id === id("deal.totalValue"))?.behavior).toEqual({ kind: "input" });
     await expect.poll(dealValues).toEqual({ "Configured opportunity/Value": money("3000"), "Configured opportunity/Weighted value": money("1800") });
