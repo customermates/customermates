@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { FormOutputField } from "@/components/forms/form-output-field";
+import { EmptyValue } from "@/components/shared/empty-value";
 
 import { EntityDetailField } from "./entity-detail-field";
 import { EntityDetailFieldActions } from "./entity-detail-field-actions";
@@ -17,7 +18,7 @@ type Props = {
 };
 
 export function EntityDetailStaticField({ fieldId, label, value, help, action }: Props) {
-  const displayValue = value === null || value === undefined || value === "" ? "—" : value;
+  const displayValue = value === null || value === undefined || value === "" ? <EmptyValue /> : value;
 
   return (
     <EntityDetailField fieldId={fieldId}>

@@ -686,11 +686,12 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.cardinality.${edge.cardinality}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
-  "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: Common.colors.${color}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.clickActions.${store.valueType}.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${store.form.source}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${value}",
   "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.types.${value}",
+  "app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: Common.colors.${color}",
+  "app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: RecordModel.types.${value}",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.cardinality.${value}",
   "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.deletion.${value}",
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.blockers.${blocker.reason}",
@@ -877,6 +878,7 @@ export const DYNAMIC_KEY_SITES = [
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key", 1],
+  ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 1],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [

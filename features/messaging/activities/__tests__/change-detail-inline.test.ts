@@ -34,7 +34,6 @@ vi.mock("../activities-row", () => ({
   TypeBadge: () => null,
 }));
 vi.mock("@/app/[locale]/(protected)/records/[typeId]/components/record-value", () => ({
-  EmptyValue: () => "—",
   RecordValue: ({ result }: { result: { state: string; value?: { text?: string; value?: unknown } } }) =>
     result.state === "value" ? String(result.value?.text ?? result.value?.value ?? "rich") : result.state,
 }));
@@ -51,6 +50,7 @@ vi.mock("@/components/card/app-card-body", () => ({ AppCardBody: passthrough }))
 const { AuditDetail } = await import("../audit-detail");
 const { RecordAuditDetail } = await import("../record-audit-detail");
 
+const EMPTY = '<span data-empty-value=""></span>';
 const ARROW = "lucide-arrow-right";
 const BASE = {
   id: "entry-1",
@@ -132,8 +132,8 @@ describe("change detail", () => {
     const markup = renderToStaticMarkup(createElement(RecordAuditDetail, { entry }));
 
     expect(markup).toMatch(new RegExp(`Name.*Old name.*${ARROW}.*New name`));
-    expect(markup).toMatch(new RegExp(`RecordModel.assignedTo.*—.*${ARROW}.*Ada`));
-    expect(markup).toMatch(new RegExp(`Deals.*—.*${ARROW}.*info:Renewal`));
+    expect(markup).toMatch(new RegExp(`RecordModel.assignedTo.*${EMPTY}.*${ARROW}.*Ada`));
+    expect(markup).toMatch(new RegExp(`Deals.*${EMPTY}.*${ARROW}.*info:Renewal`));
     expect(markup).not.toContain("RecordModel.previousValue");
     expect(markup).not.toContain("rounded-md border p-3");
   });
@@ -151,8 +151,8 @@ describe("change detail", () => {
         }),
       );
 
-    expect(render(DomainEvent.WEBHOOK_CREATED)).toMatch(new RegExp(`—.*${ARROW}.*https://receiver.example`));
-    expect(render(DomainEvent.WEBHOOK_DELETED)).toMatch(new RegExp(`https://receiver.example.*${ARROW}.*—`));
+    expect(render(DomainEvent.WEBHOOK_CREATED)).toMatch(new RegExp(`${EMPTY}.*${ARROW}.*https://receiver.example`));
+    expect(render(DomainEvent.WEBHOOK_DELETED)).toMatch(new RegExp(`https://receiver.example.*${ARROW}.*${EMPTY}`));
   });
 
   it("shows a record access change per type and role as previous → current", () => {
@@ -186,7 +186,7 @@ describe("change detail", () => {
 
     expect(markup).toContain("42");
     expect(markup).not.toContain(ARROW);
-    expect(markup).not.toContain("—");
+    expect(markup).not.toContain("data-empty-value");
   });
 
   it("diffs rich text by line, skips a change without a visible difference and falls back for restricted values", () => {

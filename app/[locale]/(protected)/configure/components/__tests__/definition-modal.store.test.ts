@@ -68,15 +68,16 @@ describe("configuration modal contracts", () => {
     ];
     const store = new FieldModalStore(root, model, vi.fn());
     store.edit(model, id("deal"), field);
-    expect(store.form.options[0].probability).toBe("0");
-    store.onChange("options.0.attributes.0.value", { kind: "decimal", value: "3.50", currency: null });
+    const [probability, priority] = store.form.choices.columns;
+    expect(store.form.choices.options[0].cells[probability.id]).toBe("0");
+    store.onChange(`choices.options.0.cells.${priority.id}`, "3.50");
     const operation = validate(store.operations()).operations[0];
     expect(operation.operation).toBe("putField");
     if (operation.operation !== "putField") throw new Error("Expected field operation");
     expect(operation.field.options[0].attributes).toEqual([
+      { key: "probability", value: { kind: "decimal", value: "0", currency: null } },
       { key: "priority", value: { kind: "decimal", value: "3.50", currency: null } },
       { key: "active", value: { kind: "boolean", value: false } },
-      { key: "probability", value: { kind: "decimal", value: "0", currency: null } },
     ]);
   });
   it("round trips a deeply composed seeded calculation unchanged", () => {
