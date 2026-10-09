@@ -2035,6 +2035,7 @@
     "unverified": "Unbestätigt"
   },
   "EntityDetail": {
+    "configureField": "Feld {field} bearbeiten",
     "donePersonalizing": "Fertig",
     "fieldCancelled": "Verschieben von {field} abgebrochen.",
     "fieldDropped": "{field} abgelegt.",

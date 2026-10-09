@@ -2035,6 +2035,7 @@
     "unverified": "Sin verificar"
   },
   "EntityDetail": {
+    "configureField": "Editar campo {field}",
     "donePersonalizing": "Listo",
     "fieldCancelled": "Se ha cancelado el movimiento de {field}.",
     "fieldDropped": "Se ha colocado {field}.",
