@@ -14,8 +14,8 @@ describe("record detail panel widths", () => {
   it("reads widths a member resized on the old detail page from the migrated record-detail row", () => {
     const migratedDetail = {
       columnWidths: {
-        [`panel:${LAYOUT}:details`]: 500,
-        [`panel:${LAYOUT}:activities`]: 200,
+        [`panel:${LAYOUT}:details`]: 700,
+        [`panel:${LAYOUT}:activities`]: 300,
         name: 240,
       },
     };
@@ -23,10 +23,10 @@ describe("record detail panel widths", () => {
     const widths = recordPanelWidths(null, migratedDetail);
 
     expect(widths).toEqual({
-      [`panel:${LAYOUT}:details`]: 500,
-      [`panel:${LAYOUT}:activities`]: 200,
+      [`panel:${LAYOUT}:details`]: 700,
+      [`panel:${LAYOUT}:activities`]: 300,
     });
-    expect(readStoredPanelSizes(widths, LAYOUT, PANELS)).toEqual([500, 200]);
+    expect(readStoredPanelSizes(widths, LAYOUT, PANELS)).toEqual([700, 300]);
   });
 
   it("prefers widths saved on the generic record page over the migrated ones", () => {

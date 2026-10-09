@@ -20,10 +20,10 @@ import { EntityDetailPanels } from "../entity-detail-panels";
 const LAYOUT_ID = "details-activities";
 const STORED = {
   [`panel:${LAYOUT_ID}:details`]: 600,
-  [`panel:${LAYOUT_ID}:activities`]: 300,
+  [`panel:${LAYOUT_ID}:activities`]: 400,
   "panel:details:details": 700,
 };
-const STORED_TEMPLATE = "minmax(320px, 600fr) 1px minmax(320px, 300fr)";
+const STORED_TEMPLATE = "minmax(320px, 600fr) 1px minmax(320px, 400fr)";
 
 const roots: Root[] = [];
 const containers: HTMLElement[] = [];
@@ -115,8 +115,8 @@ describe("EntityDetailPanels resizable layout", () => {
     expect(saved.columnWidths["panel:details:details"]).toBe(700);
     const details = saved.columnWidths[`panel:${LAYOUT_ID}:details`] ?? 0;
     const activities = saved.columnWidths[`panel:${LAYOUT_ID}:activities`] ?? 0;
-    expect(details).toBeGreaterThan(600 / (600 + 360) * (details + activities));
-    expect(activities).toBeLessThan(360 / (600 + 360) * (details + activities));
+    expect(details).toBeGreaterThan((600 / (600 + 360)) * (details + activities));
+    expect(activities).toBeLessThan((360 / (600 + 360)) * (details + activities));
     expect(grid(element).style.getPropertyValue("--panel-grid-template")).not.toBe(STORED_TEMPLATE);
   });
 
