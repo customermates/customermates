@@ -39,7 +39,14 @@ test("edits an existing snapshot as a lookup with an Updates mode and keeps its 
   const id = (key: string) => presetId(companyId, key);
   const dialog = page.getByRole("dialog");
   await openConfigure(page, id("lineItem"));
+  const seeded = (await readModel(database, companyId)).fields.find((field) => field.id === id("lineItem.savedPrice"));
   await openConfigureRow(page, "Fields", "Saved unit price");
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Quoted unit price");
+  await saveDrawer(page);
+  const renamed = (await readModel(database, companyId)).fields.find((field) => field.id === id("lineItem.savedPrice"));
+  expect(renamed?.label).toBe("Quoted unit price");
+  expect(renamed?.behavior).toEqual(seeded?.behavior);
+  await openConfigureRow(page, "Fields", "Quoted unit price");
   await openDrawerTab(page, "Calculation");
   const flow = calculationFlow(page);
   await expect(dialog.getByRole("combobox", { name: "Value source", exact: true })).toContainText(
@@ -52,7 +59,7 @@ test("edits an existing snapshot as a lookup with an Updates mode and keeps its 
   await expect(flow.locator('[data-calculation-node="result"]')).toContainText("Money");
   await expect(flow.locator("[data-calculation-example]")).toBeVisible();
   await expect(flow.locator("[data-calculation-sentence]")).toHaveText(
-    "Saved unit price shows the Price of the linked Service. It is saved when Pricing changes to Saved price. People can type over it.",
+    "Quoted unit price shows the Price of the linked Service. It is saved when Pricing changes to Saved price. People can type over it.",
   );
   const more = dialog.locator('[data-slot="collapsible-section-trigger"]').filter({ hasText: "More options" });
   await expect(more).toHaveAttribute("aria-expanded", "false");
@@ -80,7 +87,7 @@ test("edits an existing snapshot as a lookup with an Updates mode and keeps its 
     },
   });
 
-  await openConfigureRow(page, "Fields", "Saved unit price");
+  await openConfigureRow(page, "Fields", "Quoted unit price");
   await openDrawerTab(page, "More options");
   await selectOption(page, "Updates", "Always up to date");
   await expect(dialog.getByRole("switch", { name: "Let people type over it", exact: true })).toHaveCount(0);
@@ -100,7 +107,7 @@ test("edits an existing snapshot as a lookup with an Updates mode and keeps its 
   expect(errors).toEqual([]);
 });
 
-test("names what is missing and refuses to save an incomplete flow", async ({ page, companyId }) => {
+test("names what is missing and refuses to save an incomplete flow", async ({ page, database, companyId }) => {
   const errors = captureErrors(page);
   const dialog = page.getByRole("dialog");
   await openConfigure(page, presetId(companyId, "deal"));
@@ -116,6 +123,8 @@ test("names what is missing and refuses to save an incomplete flow", async ({ pa
   await expect(linked).toHaveAttribute("data-invalid", "true");
   await expect(linked).toContainText("Pick which value to add up.");
   await expect(dialog.getByRole("status")).toHaveCount(0);
+  await expect(dialog).toBeVisible();
+  expect((await readModel(database, companyId)).fields.some((field) => field.label === "Open total")).toBe(false);
 
   await pickOption(page, calculationChip(page, "aggregate"), "Number");
   await expect(linked).toContainText("of linked Line items");
@@ -134,6 +143,7 @@ test("fits the flow and its picker to a phone screen", async ({ page, companyId 
   await openDrawerTab(page, "Calculation");
   const flow = calculationFlow(page);
   await expect(flow.locator('[data-calculation-node="step"]')).toHaveCount(2);
+  await expect.poll(async () => Math.round((await page.getByRole("dialog").boundingBox())?.x ?? -1)).toBe(0);
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(390);
   for (const node of await flow.locator("[data-calculation-node]").all()) {

@@ -57,7 +57,7 @@ export function calculationDraft(behavior: CalculatedBehavior) {
     source,
     expression,
     updates: (behavior.kind === "snapshot" ? behavior.capture : "live") as CalculationUpdates,
-    allowManualOverride: behavior.kind === "snapshot" ? (behavior.allowManualOverride ?? false) : false,
+    allowManualOverride: behavior.kind === "snapshot" ? behavior.allowManualOverride : false,
     triggerFieldId: behavior.kind === "snapshot" ? behavior.triggerFieldId : undefined,
     triggerValue: behavior.kind === "snapshot" ? behavior.triggerValue : undefined,
   };
@@ -67,7 +67,7 @@ export function calculationBehavior(draft: {
   source: CalculationSource;
   expression: CalculationExpression;
   updates: CalculationUpdates;
-  allowManualOverride: boolean;
+  allowManualOverride: boolean | undefined;
   triggerFieldId?: string;
   triggerValue?: RecordScalar | null;
 }): CalculatedBehavior {
@@ -76,7 +76,7 @@ export function calculationBehavior(draft: {
     kind: "snapshot",
     expression: draft.expression,
     capture: draft.updates,
-    allowManualOverride: draft.allowManualOverride,
+    ...(draft.allowManualOverride === undefined ? {} : { allowManualOverride: draft.allowManualOverride }),
     ...(draft.updates === "whenChanged"
       ? {
           triggerFieldId: draft.triggerFieldId,
@@ -111,6 +111,7 @@ export function withAggregate(flow: LinkedFlow, reducer: Related["reducer"]): Li
   const outer = reducer === "count" ? "sum" : reducer;
   return {
     ...flow,
+    value: reducer === "count" ? UNSET : flow.value,
     hops: flow.hops.map((hop, index) => ({ ...hop, reducer: index === flow.hops.length - 1 ? reducer : outer })),
   };
 }
@@ -317,24 +318,39 @@ export function derivedValueType(
   expression: CalculationExpression,
   typeId: string,
   model: RecordModelView,
-): { valueType: RecordValueType; currency: string | null } | null {
+): {
+  valueType: RecordValueType;
+  currency: string | null;
+  options: RecordModelView["fields"][number]["options"];
+} | null {
   const flow = linkedFlow(expression);
   const reducer = aggregateOf(flow);
-  if (flow.hops.length && reducer === "count") return { valueType: "number", currency: null };
+  if (flow.hops.length && reducer === "count") return { valueType: "number", currency: null, options: [] };
   const fieldOf = (id: string) => model.fields.find((field) => field.id === id);
   const terminal = flow.value.kind === "field" ? fieldOf(flow.value.fieldId) : undefined;
   const inferred = calculationResultType(expression, typeId, model);
   if (!inferred) return null;
   if (terminal && (reducer === "one" || reducer === "min" || reducer === "max"))
-    return { valueType: terminal.valueType, currency: terminal.format?.currency ?? null };
-  if (inferred !== "currency") return { valueType: inferred, currency: null };
+    return { valueType: terminal.valueType, currency: terminal.format?.currency ?? null, options: terminal.options };
+  const leafFields = formulaInputs(flow.value).flatMap(({ expression: input }) => {
+    const leaf = input.kind === "related" ? linkedFlow(input).value : input;
+    return leaf.kind === "field" ? (fieldOf(leaf.fieldId) ?? []) : [];
+  });
+  if (inferred === "select") {
+    return {
+      valueType: "select",
+      currency: null,
+      options: leafFields.find((field) => field.valueType === "select")?.options ?? [],
+    };
+  }
+  if (inferred !== "currency") return { valueType: inferred, currency: null, options: [] };
   const currencies = formulaInputs(flow.value).flatMap(({ expression: input }) => {
     const leaf = input.kind === "related" ? linkedFlow(input).value : input;
     if (leaf.kind === "field") return fieldOf(leaf.fieldId)?.format?.currency ?? [];
     if (leaf.kind === "literal" && leaf.value?.kind === "decimal") return leaf.value.currency ?? [];
     return [];
   });
-  return { valueType: "currency", currency: currencies[0] ?? null };
+  return { valueType: "currency", currency: currencies[0] ?? null, options: [] };
 }
 
 type Labels = { model: RecordModelView; t: Translate; operatorLabel: (operator: Operator) => string };
@@ -450,7 +466,7 @@ export function calculationSentence(
     typeId: string;
     field: string;
     updates: CalculationUpdates;
-    allowManualOverride: boolean;
+    allowManualOverride: boolean | undefined;
     trigger?: { field: string; value?: string };
   },
   labels: Labels,

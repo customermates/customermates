@@ -42,6 +42,7 @@ import {
   expressionAt,
   linkedExpression,
   linkedFlow,
+  linkedTypeIds,
   relationshipChoices,
   withAggregate,
   type CalculationSource,
@@ -81,7 +82,7 @@ const initial = () => ({
   hasDefaultValue: false,
   defaultValue: undefined as unknown,
   publishedSummary: false,
-  allowManualOverride: false,
+  allowManualOverride: false as boolean | undefined,
   options: [] as Array<{
     id: string;
     label: string;
@@ -153,7 +154,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             ...(field.behavior.kind === "snapshot"
               ? {
                   updates: field.behavior.capture,
-                  allowManualOverride: field.behavior.allowManualOverride ?? false,
+                  allowManualOverride: field.behavior.allowManualOverride,
                   triggerFieldId: field.behavior.triggerFieldId ?? "",
                   triggerValue: recordDraftValue(field.behavior.triggerValue),
                 }
@@ -275,7 +276,14 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return this.form.source === "input" ? "formula" : this.form.source;
   }
   get derivedType() {
-    return this.isCalculated ? derivedValueType(this.form.expression, this.typeId, this.model) : null;
+    const derived = this.isCalculated ? derivedValueType(this.form.expression, this.typeId, this.model) : null;
+    if (
+      derived?.valueType === "text" &&
+      this.form.valueType !== "channels" &&
+      CONTACT_VALUE_TYPES.includes(this.form.valueType)
+    )
+      return { ...derived, valueType: this.form.valueType };
+    return derived;
   }
   get valueType(): RecordField["valueType"] | "channels" {
     return this.derivedType?.valueType ?? this.form.valueType;
@@ -299,14 +307,17 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   }
   chooseSource = (source: ValueSource) => {
     const linked = linkedFlow(this.form.expression);
-    const first = linked.hops[0] && relationshipChoices(this.typeId, this.model, true);
     const keeps =
       source === "formula" ||
       source === "input" ||
       (source === "rollup" && linked.hops.length > 0) ||
       (source === "lookup" &&
         linked.hops.length > 0 &&
-        Boolean(first?.some((choice) => choice.relation.id === linked.hops[0].relationId)));
+        linked.hops.every((hop, index) =>
+          relationshipChoices(linkedTypeIds(linked, this.typeId, this.model)[index], this.model, true).some(
+            (choice) => choice.relation.id === hop.relationId && choice.direction === hop.direction,
+          ),
+        ));
     this.onChange("source", source);
     if (!keeps) this.onChange("expression", UNSET);
     else if (source === "lookup" || source === "rollup") {
@@ -443,28 +454,30 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         onClick: CONTACT_VALUE_TYPES.includes(valueType) ? form.onClick : null,
       },
       options:
-        valueType === "select"
-          ? form.options.map((option) => ({
-              id: option.id,
-              label: option.label,
-              color: option.color,
-              attributes: [
-                ...option.attributes,
-                ...(option.probability
-                  ? [
-                      {
-                        key: "probability",
-                        value: {
-                          kind: "decimal" as const,
-                          value: option.probability,
-                          currency: null,
+        derived?.valueType === "select"
+          ? derived.options
+          : valueType === "select"
+            ? form.options.map((option) => ({
+                id: option.id,
+                label: option.label,
+                color: option.color,
+                attributes: [
+                  ...option.attributes,
+                  ...(option.probability
+                    ? [
+                        {
+                          key: "probability",
+                          value: {
+                            kind: "decimal" as const,
+                            value: option.probability,
+                            currency: null,
+                          },
                         },
-                      },
-                    ]
-                  : []),
-              ],
-            }))
-          : [],
+                      ]
+                    : []),
+                ],
+              }))
+            : [],
     };
     return [{ operation: "putField", field }];
   }

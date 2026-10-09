@@ -347,6 +347,7 @@ export const CalculationFlow = observer(function CalculationFlow({
                       {
                         id: "remove-input",
                         label: t("RecordModel.removeInput"),
+                        destructive: true,
                         onSelect: () =>
                           change(
                             replaceExpression(expression, path.slice(0, -1), {
@@ -381,7 +382,7 @@ export const CalculationFlow = observer(function CalculationFlow({
         name={fieldLabel}
       />
 
-      {example.complete && (
+      {example.data && (
         <ConfigureNodeRows label={t("RecordModel.calculationFlow.example.title")}>
           <li data-calculation-example="">
             {example.data?.value === null || example.data?.recordId === null ? (
@@ -844,7 +845,7 @@ function LinkedFlowView({
   };
   const goFurther = {
     heading: t("RecordModel.calculationFlow.picker.goFurther"),
-    items: relationshipChoices(lastTypeId, model, lookup).map((choice) => ({
+    items: (reducer === "average" ? [] : relationshipChoices(lastTypeId, model, lookup)).map((choice) => ({
       id: `further:${choice.relation.id}:${choice.direction}`,
       label: choice.label,
       icon: <RecordTypeGlyph icon={typeOf(choice.targetTypeId)?.icon} />,
@@ -887,18 +888,20 @@ function LinkedFlowView({
         groups: [
           {
             heading: t("RecordModel.aggregation"),
-            items: AGGREGATES.map((candidate) => ({
-              id: candidate,
-              label: aggregateLabels[candidate],
-              checked: candidate === aggregate,
-              onSelect: () => {
-                const next = withAggregate(flow, candidate);
-                const types = aggregateTypes(candidate);
-                onChange(
-                  valueField && types && !types.includes(valueField.valueType) ? { ...next, value: UNSET } : next,
-                );
-              },
-            })),
+            items: AGGREGATES.filter((candidate) => candidate !== "average" || flow.hops.length < 2).map(
+              (candidate) => ({
+                id: candidate,
+                label: aggregateLabels[candidate],
+                checked: candidate === aggregate,
+                onSelect: () => {
+                  const next = withAggregate(flow, candidate);
+                  const types = aggregateTypes(candidate);
+                  onChange(
+                    valueField && types && !types.includes(valueField.valueType) ? { ...next, value: UNSET } : next,
+                  );
+                },
+              }),
+            ),
           },
         ],
       }}

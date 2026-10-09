@@ -68,16 +68,14 @@ describe("value source and updates mapping", () => {
       const behavior = (field as RecordField).behavior;
       if (behavior.kind === "input") continue;
       const draft = calculationDraft(behavior);
-      expect(calculationBehavior(draft), field.label).toEqual(
-        behavior.kind === "snapshot"
-          ? { ...behavior, allowManualOverride: behavior.allowManualOverride ?? false }
-          : behavior,
-      );
+      expect(calculationBehavior(draft), field.label).toEqual(behavior);
     }
     for (const kind of ["formula", "lookup", "rollup"] as const) {
       const behavior = { kind, expression: amountTotal };
       expect(calculationBehavior(calculationDraft(behavior))).toEqual(behavior);
     }
+    const withoutOverride = { kind: "snapshot" as const, expression: amountTotal, capture: "create" as const };
+    expect(calculationBehavior(calculationDraft(withoutOverride))).toEqual(withoutOverride);
     for (const capture of ["create", "explicit"] as const) {
       const behavior = { kind: "snapshot" as const, expression: amountTotal, capture, allowManualOverride: false };
       expect(calculationBehavior(calculationDraft(behavior))).toEqual(behavior);
@@ -96,7 +94,7 @@ describe("value source and updates mapping", () => {
     expect(calculationDraft({ kind: "snapshot", expression: amountTotal, capture: "create" })).toMatchObject({
       source: "rollup",
       updates: "create",
-      allowManualOverride: false,
+      allowManualOverride: undefined,
     });
     expect(
       calculationDraft({ kind: "snapshot", expression: expressionOf("deal.weightedValue"), capture: "explicit" }),
@@ -142,6 +140,8 @@ describe("linked flow", () => {
   it("aggregates the last hop and carries a matching reducer through the outer hops", () => {
     const flow = linkedFlow({ kind: "related", ...linkedFlow(amountTotal).hops[0], expression: amountTotal });
     expect(withAggregate(flow, "count").hops.map((hop) => hop.reducer)).toEqual(["sum", "count"]);
+    expect(withAggregate(flow, "count").value).toEqual(UNSET);
+    expect(withAggregate(flow, "max").value).toBe(flow.value);
     expect(withAggregate(flow, "max").hops.map((hop) => hop.reducer)).toEqual(["max", "max"]);
     expect(withAggregate(flow, "one").hops.map((hop) => hop.reducer)).toEqual(["one", "one"]);
   });
@@ -191,18 +191,32 @@ describe("formula steps", () => {
 
 describe("derived value type", () => {
   it("takes the looked up field's type, money for money sums and a number for counts", () => {
-    expect(derivedValueType(expressionOf("lineItem.savedPrice"), id("lineItem"), model)).toEqual({
+    expect(derivedValueType(expressionOf("lineItem.savedPrice"), id("lineItem"), model)).toMatchObject({
       valueType: "currency",
       currency: fieldOf("service.amount").format?.currency ?? null,
     });
     expect(derivedValueType(amountTotal, id("deal"), model)).toMatchObject({ valueType: "currency" });
-    expect(derivedValueType({ ...amountTotal, reducer: "count" }, id("deal"), model)).toEqual({
+    expect(derivedValueType({ ...amountTotal, reducer: "count" }, id("deal"), model)).toMatchObject({
       valueType: "number",
       currency: null,
     });
-    expect(derivedValueType(expressionOf("deal.totalQuantity"), id("deal"), model)).toEqual({
+    expect(derivedValueType(expressionOf("deal.totalQuantity"), id("deal"), model)).toMatchObject({
       valueType: "number",
       currency: null,
+    });
+  });
+
+  it("carries the options of a looked up choice field", () => {
+    const stage: CalculationExpression = {
+      kind: "related",
+      relationId: id("lineItem.deal"),
+      direction: "outgoing",
+      reducer: "one",
+      expression: { kind: "field", fieldId: id("deal.stage") },
+    };
+    expect(derivedValueType(stage, id("lineItem"), model)).toMatchObject({
+      valueType: "select",
+      options: fieldOf("deal.stage").options,
     });
   });
 

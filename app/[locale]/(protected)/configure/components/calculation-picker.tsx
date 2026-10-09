@@ -7,6 +7,7 @@ import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
+import { cn } from "@/core/utils/cn";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
 export type CalculationPickerItem = {
@@ -14,6 +15,7 @@ export type CalculationPickerItem = {
   label: string;
   icon?: ReactNode;
   checked?: boolean;
+  destructive?: boolean;
   onSelect?: () => void;
   page?: CalculationPickerPage;
 };
@@ -81,6 +83,10 @@ export function CalculationPicker({
                   {group.items.map((item) => (
                     <CommandItem
                       key={item.id}
+                      className={cn(
+                        item.destructive &&
+                          "text-destructive data-[selected=true]:bg-destructive/10 data-[selected=true]:text-destructive dark:data-[selected=true]:bg-destructive/20",
+                      )}
                       data-calculation-option={item.id}
                       value={`${group.heading} ${item.label} ${item.id}`}
                       onSelect={() => {
