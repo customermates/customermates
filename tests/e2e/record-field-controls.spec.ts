@@ -5,8 +5,11 @@ import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, op
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 
-async function choose(page: Page, label: string, option: string) {
-  await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
+async function choose(page: Page, label: string | RegExp, option: string) {
+  await page
+    .getByRole("dialog")
+    .getByRole("combobox", typeof label === "string" ? { name: label, exact: true } : { name: label })
+    .click();
   await page.getByRole("option", { name: option, exact: true }).filter({ visible: true }).click();
 }
 
@@ -41,6 +44,7 @@ function calculationRegion(page: Page) {
 }
 
 async function pickValue(page: Page, option: string) {
+  await expect(page.locator('[data-slot="popover-content"]')).toHaveCount(0);
   await calculationRegion(page)
     .locator('[data-calculation-node="inputs"] [data-calculation-chip="pick-value"]')
     .first()
@@ -518,7 +522,7 @@ test("captures snapshots on request and on stage changes while preserving manual
         })
         .check();
     else {
-      await choose(page, "When this field changes", "Decision");
+      await choose(page, /^When this field changes/, "Decision");
       await choose(page, "To this value", "Approved");
     }
     await apply(page);
@@ -652,7 +656,7 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
   await addField(page, "Disabled snapshot", "Number", "Calculated from this record");
   await pickValue(page, "Source amount");
   await chooseUpdates(page, "Saved when a field changes");
-  await choose(page, "When this field changes", "Capture flag");
+  await choose(page, /^When this field changes/, "Capture flag");
   await expect(dialog.getByRole("switch", { name: "To this value", exact: true })).not.toBeChecked();
   await apply(page);
   const readModel = async () =>
