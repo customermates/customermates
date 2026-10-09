@@ -7,7 +7,7 @@ import { openRecordDetails } from "./record-rows";
 
 async function choose(page: Page, label: string, option: string) {
   await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
-  await page.getByRole("option", { name: option, exact: true }).click();
+  await page.getByRole("option", { name: option, exact: true }).filter({ visible: true }).click();
 }
 
 async function apply(page: Page) {
@@ -45,7 +45,7 @@ async function pickValue(page: Page, option: string) {
     .locator('[data-calculation-node="inputs"] [data-calculation-chip="pick-value"]')
     .first()
     .click();
-  await page.getByRole("option", { name: option, exact: true }).click();
+  await page.getByRole("option", { name: option, exact: true }).filter({ visible: true }).click();
 }
 
 async function pickFixedValue(page: Page, type: string, value: string) {

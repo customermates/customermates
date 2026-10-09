@@ -45,7 +45,7 @@ export function CalculationPicker({
   const open = openProp ?? uncontrolledOpen;
   const current = stack.at(-1) ?? page;
   const setOpen = (next: boolean) => {
-    if (!next) setStack([]);
+    if (next) setStack([]);
     if (openProp === undefined) setUncontrolledOpen(next);
     onOpenChange?.(next);
   };
