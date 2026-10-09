@@ -16,7 +16,7 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
     return this.scopedCompanyId ?? super.companyId;
   }
 
-  getSortableFields(): Array<{ field: string; resolvedFields: string[] }> {
+  getSortableFields() {
     return [];
   }
 
