@@ -67,7 +67,7 @@ export function invalidRecordQueryPart(
       continue;
     }
     if (["contains", "startsWith"].includes(filter.operator)) {
-      if (filter.value?.kind !== "text" || !["text", "email", "phone", "url"].includes(field.valueType))
+      if (filter.value?.kind !== "text" || !["text", "email", "phone", "url", "richText"].includes(field.valueType))
         return "filters";
       continue;
     }
