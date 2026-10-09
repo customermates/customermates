@@ -198,8 +198,8 @@ export const CalculationFlow = observer(function CalculationFlow({
   const issues = store.calculationIssues;
   const list = model.types.find((type) => type.id === typeId);
   const fieldLabel = store.form.label.trim() || t("RecordModel.calculationFlow.thisField");
-  const labels = { model, t: (key: string, values?: Record<string, string>) => t(key, values) };
   const operatorLabel = (operator: Operator) => t(`RecordModel.operators.${operator}`);
+  const labels = { model, t: (key: string, values?: Record<string, string>) => t(key, values), operatorLabel };
   const typeLabel = (valueType: string) => t(`RecordModel.types.${valueType}`);
   const issueMessage = (issue: FlowIssue) => issueText(issue, labels.t, operatorLabel);
   const listIcon = (id: string | undefined) => (
@@ -425,7 +425,6 @@ export const CalculationFlow = observer(function CalculationFlow({
       updates: store.form.updates,
       allowManualOverride: store.form.allowManualOverride,
       trigger: store.triggerField ? { field: store.triggerField.label, value: triggerValueLabel } : undefined,
-      operatorLabel,
     },
     labels,
   );

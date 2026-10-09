@@ -337,7 +337,7 @@ export function derivedValueType(
   return { valueType: "currency", currency: currencies[0] ?? null };
 }
 
-type Labels = { model: RecordModelView; t: Translate };
+type Labels = { model: RecordModelView; t: Translate; operatorLabel: (operator: Operator) => string };
 
 function listLabels(flow: LinkedFlow, typeId: string, { model, t }: Labels, plural: boolean) {
   const types = linkedTypeIds(flow, typeId, model)
@@ -353,7 +353,7 @@ function listLabels(flow: LinkedFlow, typeId: string, { model, t }: Labels, plur
 }
 
 export function expressionText(expression: CalculationExpression, typeId: string, labels: Labels): string {
-  const { model, t } = labels;
+  const { model, t, operatorLabel } = labels;
   const fieldName = (id: string) =>
     model.fields.find((candidate) => candidate.id === id)?.label ?? t("RecordModel.field");
   if (expression.kind === "field") return fieldName(expression.fieldId);
@@ -393,11 +393,9 @@ export function expressionText(expression: CalculationExpression, typeId: string
     case "if":
       return t("RecordModel.calculationFlow.text.if", { condition: first, then: second, otherwise: third });
     case "and":
-      return args.join(` ${t("RecordModel.calculationFlow.text.and")} `);
     case "or":
-      return args.join(` ${t("RecordModel.calculationFlow.text.or")} `);
     case "coalesce":
-      return args.join(` ${t("RecordModel.calculationFlow.text.orElse")} `);
+      return `${operatorLabel(expression.operator)} (${args.join(", ")})`;
     case "concat":
       return args.join(" & ");
     case "not":
@@ -416,7 +414,7 @@ export function expressionText(expression: CalculationExpression, typeId: string
 export function literalText(value: RecordScalar | null, model: RecordModelView, t: Translate): string {
   if (!value) return t("RecordModel.missing");
   if (value.kind === "text") return `“${value.value}”`;
-  if (value.kind === "boolean") return t(value.value ? "RecordModel.yes" : "RecordModel.no");
+  if (value.kind === "boolean") return value.value ? t("RecordModel.yes") : t("RecordModel.no");
   if (value.kind === "decimal") return value.currency ? `${value.value} ${value.currency}` : value.value;
   if (value.kind === "select") {
     return (
@@ -454,13 +452,12 @@ export function calculationSentence(
     updates: CalculationUpdates;
     allowManualOverride: boolean;
     trigger?: { field: string; value?: string };
-    operatorLabel: (operator: Operator) => string;
   },
   labels: Labels,
 ): string {
   const { t, model } = labels;
   const issue = calculationIssues(input.source, input.expression, input.typeId, model)[0];
-  if (issue) return issueText(issue, t, input.operatorLabel);
+  if (issue) return issueText(issue, t, labels.operatorLabel);
   const field = input.field;
   const flow = linkedFlow(input.expression);
   const reducer = aggregateOf(flow);

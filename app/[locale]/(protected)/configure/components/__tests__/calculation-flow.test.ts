@@ -51,9 +51,8 @@ const sentence = (
       updates,
       allowManualOverride: true,
       trigger: { field: "Pricing", value: "Saved price" },
-      operatorLabel: (operator) => operator,
     },
-    { model, t },
+    { model, t, operatorLabel: (operator) => operator },
   );
 const amountTotal: CalculationExpression = {
   kind: "related",
