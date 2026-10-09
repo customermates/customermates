@@ -117,6 +117,7 @@ test("configures and persists all fourteen field types, multiple values and cale
     ["Phone numbers", "Phone"],
     ["Web addresses", "Web address"],
     ["Responsible member", "Member"],
+    ["Notes", "Formatted text"],
   ];
   const dialog = page.getByRole("dialog");
   for (const [label, valueType] of definitions) {
@@ -523,7 +524,7 @@ test("captures snapshots on request and on stage changes while preserving manual
         .check();
     else {
       await choose(page, /^When this field changes/, "Decision");
-      await choose(page, "To this value", "Approved");
+      await choose(page, /^To this value/, "Approved");
     }
     await apply(page);
   }
@@ -657,7 +658,7 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
   await pickValue(page, "Source amount");
   await chooseUpdates(page, "Saved when a field changes");
   await choose(page, /^When this field changes/, "Capture flag");
-  await expect(dialog.getByRole("switch", { name: "To this value", exact: true })).not.toBeChecked();
+  await expect(dialog.getByRole("switch", { name: /^To this value/ })).not.toBeChecked();
   await apply(page);
   const readModel = async () =>
     RecordModelSchema.parse(

@@ -426,7 +426,7 @@ describe("bounded classifier evidence", () => {
       "They cover configurable records, record-model management, workspace, saved views, the Knowledge Base, messaging",
     );
     expect(excerpt).toContain("widgets, routines, webhooks, admin and support");
-    expect(excerpt).toContain("Customermates exposes 49 MCP tools, all enabled by default.");
+    expect(excerpt).toContain("Customermates exposes 51 MCP tools, all enabled by default.");
     expect(excerpt.length).toBeLessThanOrEqual(478);
   });
 

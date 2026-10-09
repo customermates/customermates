@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { recordChannelsEnabled } from "./record-channels";
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -254,6 +255,10 @@ export function compileRecordQuery(
           AND value.state = 'value'
           AND element ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
     }
+    if (z.uuid().safeParse(query.search).success) {
+      matches.push(Prisma.sql`SELECT id FROM "CrmRecord"
+        WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId} AND id = ${query.search}`);
+    }
     const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
     if (richTextFields.length) {
       const permitted = richTextFields.map(
@@ -263,6 +268,7 @@ export function compileRecordQuery(
       matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordValue" value
         ${searchRecordSource}
         WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId}
+          AND value."fieldId" IN (${Prisma.join(richTextFields.map((field) => field.id))})
           AND value.state = 'value'
           AND EXISTS (SELECT 1 FROM ${RICH_TEXT_NODES} WHERE node.text #>> '{}' ILIKE ${search})
           AND (${Prisma.join(permitted, " OR ")})`);
