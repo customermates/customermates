@@ -44,7 +44,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
-import { expressionSummary } from "@/app/[locale]/(protected)/configure/components/calculation-editor";
+import { expressionText } from "@/app/[locale]/(protected)/configure/components/calculation-flow";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "./record-relationship-editor";
@@ -528,7 +528,11 @@ export function calculatedFieldLabel(
   const expression = field.behavior.kind === "input" ? undefined : field.behavior.expression;
   return expression && expressionResolves(expression, model)
     ? t("RecordModel.calculatedValue", {
-        formula: expressionSummary(expression, model, (key) => t(`RecordModel.${key}`)),
+        formula: expressionText(expression, field.typeId, {
+          model,
+          t: (key: string, values?: Record<string, string>) => t(key, values),
+          operatorLabel: (operator) => t(`RecordModel.operators.${operator}`),
+        }),
       })
     : t("RecordModel.calculatedValuePlain");
 }
