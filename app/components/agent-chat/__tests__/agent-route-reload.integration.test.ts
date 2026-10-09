@@ -31,6 +31,7 @@ vi.mock("@/components/modal/app-modal-action", () => ({
   APP_MODAL_ACTION_RAIL_CLASS: "",
   AppModalAction: () => null,
   AppModalActionRail: () => null,
+  appModalActionSlots: (actions: unknown[]) => actions.length,
 }));
 vi.mock("@/components/ui/dialog", () => ({
   Dialog: ({ children }: { children: ReactNode }) => createElement("section", null, children),

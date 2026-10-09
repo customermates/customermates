@@ -25,7 +25,7 @@ import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { cn } from "@/core/utils/cn";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
-import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
 
 import { PopoverSection as Section } from "./popover-section";
 
@@ -201,7 +201,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
       align="end"
       headerAction={
         ai.available && (
-          <ViewAiAction
+          <AskAiAction
             id={id ? `${id}-ask-ai` : undefined}
             onClick={() => {
               pendingAi.current = ai.openCurrent;
