@@ -830,6 +830,88 @@
     "liveDemoTitle": "Démo en direct de Customermates",
     "open": "Ouvrir dans un nouvel onglet"
   },
+  "CommandPalette": {
+    "fieldOf": "Champ de {list}",
+    "groups": {
+      "actions": "Actions",
+      "bestMatch": "Meilleur résultat",
+      "listsAndViews": "Listes et vues",
+      "pagesAndSettings": "Pages et paramètres",
+      "records": "Enregistrements",
+      "suggestions": "Suggestions"
+    },
+    "labels": {
+      "addRole": "Ajouter un rôle",
+      "addWebhook": "Ajouter un webhook",
+      "connectChannel": "Connecter un canal",
+      "createApiKey": "Créer une clé API",
+      "themeDark": "Passer au thème sombre",
+      "themeLight": "Passer au thème clair",
+      "themeSystem": "Utiliser le thème du système"
+    },
+    "record": {
+      "addTo": "Ajouter à {list}…",
+      "assign": "Attribuer à…",
+      "change": "Modifier {field}…",
+      "deleteNamed": "Supprimer {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nouveau, créer, nouvel enregistrement",
+        "inviteMembers": "ajouter un utilisateur, inviter un collègue, équipe",
+        "sendFeedback": "signaler un problème, suggestion, support",
+        "shortcuts": "raccourcis, touches, clavier",
+        "signOut": "déconnexion, logout, quitter",
+        "switchView": "changer de vue, vues enregistrées",
+        "themeDark": "mode sombre, mode nuit",
+        "themeLight": "mode clair",
+        "themeSystem": "thème automatique, suivre le système"
+      },
+      "page": {
+        "configure": "modèle de données, schéma, listes, champs, relations",
+        "dashboard": "accueil, aperçu, widgets, graphiques",
+        "documentation": "docs, aide, guide, manuel",
+        "inbox": "messages, e-mail, courriel, conversations, discussions",
+        "knowledgeBase": "wiki, notes, fiches, articles",
+        "routines": "automatisations, planifications, tâches récurrentes",
+        "settings": "préférences, options, compte, espace de travail"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nouvelle clé API, générer un jeton"
+        },
+        "channels": {
+          "connect": "connecter un e-mail, ajouter un compte, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "photo de profil, photo, image",
+          "country": "emplacement, région",
+          "displayLanguage": "langue, langue de l'interface, traduction",
+          "firstName": "nom, prénom",
+          "formattingLocale": "format de date, format des nombres, région",
+          "lastName": "nom de famille",
+          "theme": "apparence, mode sombre, mode clair, couleurs"
+        },
+        "roles": {
+          "create": "nouveau rôle, permissions"
+        },
+        "webhooks": {
+          "create": "nouveau webhook"
+        }
+      },
+      "settings": {
+        "activity": "journal d'audit, historique, modifications",
+        "api-keys": "jetons, API, MCP, développeur, clés d'accès",
+        "billing": "forfait, abonnement, factures, paiement, tarifs",
+        "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations",
+        "members": "équipe, utilisateurs, personnes, collègues",
+        "profile": "mon profil, compte, préférences, personnel",
+        "roles": "permissions, accès, droits",
+        "webhook-deliveries": "livraisons de webhook, journal des webhooks, événements envoyés",
+        "webhooks": "intégrations, rappels, événements, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Ajouter",
@@ -3274,7 +3356,6 @@
       "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
       "resetLayout": "Réinitialiser la disposition",
       "showFewer": "Afficher moins",
-      "sublistOf": "Sous-liste de {list}",
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"
     },
@@ -3549,7 +3630,7 @@
         "singular": "Tâche"
       }
     },
-    "sublistExplanation": "Chaque entrée appartient à un élément {parent}, se modifie à l’intérieur, partage ses accès et est supprimée avec lui.",
+    "sublistSentence": "Sous-liste de {list} · chaque entrée vit dans un élément {parent}, partage ses accès et est supprimée avec lui.",
     "suggestedAttribute": "Suggestion",
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
@@ -3660,6 +3741,7 @@
   },
   "RoleModal": {
     "create": "Créer",
+    "dataModelNote": "Créer et modifier des listes, des champs et des relations dans Configurer.",
     "edit": "Modifier",
     "manageAccess": "Gérer",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",

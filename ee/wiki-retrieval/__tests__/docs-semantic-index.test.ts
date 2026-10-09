@@ -4,6 +4,7 @@ import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
 import type { DocsPendingChunk } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import type * as WikiEmbeddingServiceModule from "../wiki-embedding.service";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -22,12 +23,14 @@ vi.mock("@/features/mcp-tools/docs-corpus", () => ({
 }));
 
 vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
-vi.mock("../wiki-embedding.service", () => ({
+vi.mock("../wiki-embedding.service", async (importOriginal) => ({
+  ...(await importOriginal<typeof WikiEmbeddingServiceModule>()),
   isWikiSemanticSearchAvailable: () => state.available,
 }));
 vi.mock("../wiki-embedding-model", () => ({
   WIKI_EMBEDDING_MODEL: "google/gemini-embedding-001",
   WIKI_EMBEDDING_BATCH_SIZE: 2,
+  embeddingVectorLiteral: (vector: number[]) => `[${vector.join(",")}]`,
   wikiEmbeddingWorstCaseMicrocents: (texts: string[]) => texts.reduce((total, text) => total + text.length, 0) * 15,
   wikiEmbeddingAttemptCharge: (texts: string[]) => ({
     model: "google/gemini-embedding-001",

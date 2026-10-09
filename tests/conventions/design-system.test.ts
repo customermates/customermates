@@ -7,6 +7,7 @@ import {
   type SourceFile,
   attributesOf,
   finding,
+  formatFindings,
   moduleReferences,
   outsideAllowlist,
   patternFindings,
@@ -396,5 +397,99 @@ const NATIVE_TITLE_ALLOWLIST: Allowlist = {};
 describe("rule 4: tooltips through the app Tooltip, never title attributes", () => {
   it("sets no native title attribute on product elements", () => {
     enforce(nativeTitleFindings(sourcesExcept(new Set(), NATIVE_TITLE_EXEMPTIONS)), NATIVE_TITLE_ALLOWLIST);
+  });
+});
+
+const ROW_CONTAINER_TAGS = new Set(["CollapsibleSection", "AppCardBody"]);
+const INSET_ROW_DIVIDER = /(?:^|\s)(?:divide-y|border-y)(?:\s|$)/;
+const OWN_FRAME = /(?=.*(?:^|\s)rounded-\w+(?:\s|$))(?=.*(?:^|\s)border(?:\s|$))/;
+
+function stringConstants(source: SourceFile) {
+  const constants = new Map<string, ts.Node>();
+  visit(source.ast, (node) => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer)
+      constants.set(node.name.text, node.initializer);
+  });
+  return constants;
+}
+
+function insetRowDividerFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    const constants = stringConstants(source);
+    visit(source.ast, (container) => {
+      const tag = tagNameOf(container);
+      if (!tag || !ROW_CONTAINER_TAGS.has(tag)) return;
+      visit(container, (node) => {
+        if (!ts.isJsxAttribute(node) || node.name.getText(source.ast) !== "className") return;
+        const expression = node.initializer && ts.isJsxExpression(node.initializer) ? node.initializer.expression : undefined;
+        const resolved = expression && ts.isIdentifier(expression) ? constants.get(expression.text) : undefined;
+        visit(resolved ?? node, (literal) => {
+          if (
+            (ts.isStringLiteral(literal) || ts.isNoSubstitutionTemplateLiteral(literal)) &&
+            INSET_ROW_DIVIDER.test(literal.text) &&
+            !OWN_FRAME.test(literal.text)
+          )
+            findings.push(finding(source, node.getStart(source.ast), `<${tag}> rows: ${literal.text}`));
+        });
+      });
+    });
+  }
+
+  return findings;
+}
+
+describe("rule 68: rows inside cards and sections through SectionRows", () => {
+  it("draws no inset row dividers inside a card body or collapsible section", () => {
+    expect(formatFindings(insetRowDividerFindings(PRODUCT_SOURCES))).toEqual([]);
+  });
+});
+
+const SENTENCE_COMPONENT = /^[A-Z]\w*Sentence\w*$/;
+const SENTENCE_ATTRIBUTE = /^data-[\w-]*sentence[\w-]*$/;
+const CHIP_TAGS = new Set(["AppChip", "ClickableChip", "MemberChip"]);
+
+function sentenceScopes(source: SourceFile) {
+  const scopes: ts.Node[] = [];
+  visit(source.ast, (node) => {
+    if (ts.isFunctionDeclaration(node) && node.name && SENTENCE_COMPONENT.test(node.name.text)) scopes.push(node);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && SENTENCE_COMPONENT.test(node.name.text))
+      scopes.push(node);
+    if (
+      (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) &&
+      attributesOf(node).properties.some(
+        (property) => ts.isJsxAttribute(property) && SENTENCE_ATTRIBUTE.test(property.name.getText(source.ast)),
+      )
+    )
+      scopes.push(node);
+  });
+  return scopes;
+}
+
+function sentenceChipFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+  let scopeCount = 0;
+
+  for (const source of sources)
+    for (const scope of sentenceScopes(source)) {
+      scopeCount += 1;
+      visit(scope, (node) => {
+        if (!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) return;
+        const tag = tagNameOf(node);
+        if (tag && CHIP_TAGS.has(tag))
+          findings.push(finding(source, node.getStart(source.ast), `<${tag}> inside a sentence, use <InlineChip>`));
+      });
+    }
+
+  return { findings, scopeCount };
+}
+
+describe("rule 66: chips inside sentences use the inline chip", () => {
+  it("renders every chip inside a sentence component as the shared InlineChip", () => {
+    const { findings, scopeCount } = sentenceChipFindings(PRODUCT_SOURCES);
+
+    expect(scopeCount).toBeGreaterThan(0);
+    expect(formatFindings(findings)).toEqual([]);
   });
 });
