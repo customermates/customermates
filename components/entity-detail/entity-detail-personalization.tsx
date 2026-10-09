@@ -34,6 +34,7 @@ export type EntityDetailPersonalizationValue = {
   fieldOrder: string[];
   columnOrder: string[];
   previewFieldValues: Record<string, EntityDetailPreviewItem[]>;
+  fieldSettingsHref?: (fieldId: string) => string | null;
   setIsPersonalizing: (value: boolean) => void;
   toggleStarredField: (fieldId: string) => void;
   toggleFieldVisibility: (fieldId: string) => void;
