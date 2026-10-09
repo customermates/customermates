@@ -51440,107 +51440,131 @@
                         "maxItems": 250,
                         "type": "array",
                         "items": {
-                          "type": "object",
-                          "properties": {
-                            "fieldId": {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                            },
-                            "value": {
-                              "anyOf": [
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "kind": {
-                                      "type": "string",
-                                      "enum": [
-                                        "text",
-                                        "textList",
-                                        "decimal",
-                                        "boolean",
-                                        "date",
-                                        "dateTime",
-                                        "range",
-                                        "select",
-                                        "selectList",
-                                        "member",
-                                        "richText"
-                                      ]
-                                    },
-                                    "value": {
-                                      "anyOf": [
-                                        {
-                                          "type": "string",
-                                          "maxLength": 100000
-                                        },
-                                        {
-                                          "type": "boolean"
-                                        },
-                                        {
-                                          "minItems": 1,
-                                          "maxItems": 100,
-                                          "type": "array",
-                                          "items": {
-                                            "type": "string",
-                                            "maxLength": 100000
-                                          }
-                                        }
-                                      ]
-                                    },
-                                    "currency": {
-                                      "anyOf": [
-                                        {
-                                          "type": "string",
-                                          "pattern": "^[A-Z]{3}$"
-                                        },
-                                        {
-                                          "type": "null"
-                                        }
-                                      ]
-                                    },
-                                    "start": {
-                                      "anyOf": [
-                                        {
-                                          "type": "string"
-                                        },
-                                        {
-                                          "type": "null"
-                                        }
-                                      ]
-                                    },
-                                    "end": {
-                                      "anyOf": [
-                                        {
-                                          "type": "string"
-                                        },
-                                        {
-                                          "type": "null"
-                                        }
-                                      ]
-                                    },
-                                    "documentJson": {
-                                      "type": "string",
-                                      "maxLength": 1000000
-                                    }
-                                  },
-                                  "required": [
-                                    "kind"
-                                  ],
-                                  "additionalProperties": false,
-                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fieldId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                 },
-                                {
-                                  "type": "null"
+                                "value": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "enum": [
+                                            "text",
+                                            "textList",
+                                            "decimal",
+                                            "boolean",
+                                            "date",
+                                            "dateTime",
+                                            "range",
+                                            "select",
+                                            "selectList",
+                                            "member",
+                                            "richText"
+                                          ]
+                                        },
+                                        "value": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "maxLength": 100000
+                                            },
+                                            {
+                                              "type": "boolean"
+                                            },
+                                            {
+                                              "minItems": 1,
+                                              "maxItems": 100,
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string",
+                                                "maxLength": 100000
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "currency": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "pattern": "^[A-Z]{3}$"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "start": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "end": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "documentJson": {
+                                          "type": "string",
+                                          "maxLength": 1000000
+                                        }
+                                      },
+                                      "required": [
+                                        "kind"
+                                      ],
+                                      "additionalProperties": false,
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
-                              ]
+                              },
+                              "required": [
+                                "fieldId",
+                                "value"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fieldId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "append": {
+                                  "type": "string",
+                                  "maxLength": 65535,
+                                  "description": "Markdown for a Formatted text field or plain text for a Text field, added after the current value with a blank line in between."
+                                }
+                              },
+                              "required": [
+                                "fieldId",
+                                "append"
+                              ],
+                              "additionalProperties": false
                             }
-                          },
-                          "required": [
-                            "fieldId",
-                            "value"
-                          ],
-                          "additionalProperties": false
+                          ]
                         }
                       },
                       "assignedUserIds": {
@@ -51787,7 +51811,7 @@
                       "action"
                     ],
                     "additionalProperties": false,
-                    "description": "create requires typeId and fields; update requires ref, expectedVersion and fields; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action."
+                    "description": "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action."
                   }
                 },
                 "required": [
@@ -52081,6 +52105,28 @@
                   "search": {
                     "type": "string",
                     "maxLength": 200
+                  },
+                  "sortDescriptor": {
+                    "description": "Order by deletion time; newest first when omitted.",
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string",
+                        "const": "deletedAt"
+                      },
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "field",
+                      "direction"
+                    ],
+                    "additionalProperties": false
                   },
                   "page": {
                     "default": 1,

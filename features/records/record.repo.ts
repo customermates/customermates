@@ -148,6 +148,7 @@ export interface RecordRepo {
   saveModel(model: RecordModel, actorId: string, change?: RecordRevisionChange): Promise<void>;
   setGrants(typeId: string, grants: Array<{ roleId: string; actions: Action[] }>): Promise<void>;
   getRecordCompanyWide(ref: RecordRef, options?: TrashReadOptions): Promise<StoredRecord | null>;
+  lockRecord(ref: RecordRef): Promise<void>;
   getRecordsCompanyWide(refs: RecordRef[], options?: TrashReadOptions): Promise<StoredRecord[]>;
   getEmbeddedChildrenCompanyWide(
     typeId: string,

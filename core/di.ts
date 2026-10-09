@@ -656,7 +656,12 @@ export const getIngestUnipileWebhookInteractor = () =>
 export const getUserIdsValidator = () => new ValidateUserIdsInteractor(getUserRepo());
 export const getAssigneeGuardValidator = () => new ValidateAssigneeGuardInteractor(getUserService());
 export const getQueryParamsPrecheck = () =>
-  new QueryParamsPrecheckInteractor(getUserIdsValidator(), getThreadIdsValidator(), getConnectedAccountIdsValidator());
+  new QueryParamsPrecheckInteractor(
+    getUserIdsValidator(),
+    getThreadIdsValidator(),
+    getConnectedAccountIdsValidator(),
+    getWebhookIdsValidator(),
+  );
 export const getWidgetIdsValidator = () => new ValidateWidgetIdsInteractor(getWidgetRepo());
 export const getWebhookIdsValidator = () => new ValidateWebhookIdsInteractor(getWebhookRepo());
 export const getWebhookDeliveryIdsValidator = () => new ValidateWebhookDeliveryIdsInteractor(getWebhookDeliveryRepo());

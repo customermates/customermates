@@ -111,6 +111,8 @@ export function fieldReadPredicate(
   return readableField(field, root);
 }
 
+const RICH_TEXT_NODES = Prisma.sql`jsonb_path_query(value."jsonValue", 'strict $.**.text') node(text)`;
+
 function storageColumn(field: RecordField): Prisma.Sql {
   if (field.multiple) return Prisma.sql`array_to_string(value."textListValue", ',')`;
   if (["number", "currency"].includes(field.valueType)) return Prisma.sql`value."decimalValue"`;
@@ -252,6 +254,19 @@ export function compileRecordQuery(
           AND value.state = 'value'
           AND element ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
     }
+    const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
+    if (richTextFields.length) {
+      const permitted = richTextFields.map(
+        (field) =>
+          Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, searchRecord)})`,
+      );
+      matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordValue" value
+        ${searchRecordSource}
+        WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId}
+          AND value.state = 'value'
+          AND EXISTS (SELECT 1 FROM ${RICH_TEXT_NODES} WHERE node.text #>> '{}' ILIKE ${search})
+          AND (${Prisma.join(permitted, " OR ")})`);
+    }
     if (recordChannelsEnabled(model, query.typeId)) {
       matches.push(Prisma.sql`SELECT association."recordId" AS id FROM "RecordIdentityLink" association
         JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = association."identityId"
@@ -329,6 +344,15 @@ export function compileRecordQuery(
         );
         continue;
       }
+    }
+    if (field.valueType === "richText") {
+      if (filter.operator !== "contains" || filter.value.kind !== "text")
+        throw new Error("Formatted text query must be validated before compilation");
+      const pattern = `%${filter.value.value.replace(/[\\%_]/g, "\\$&")}%`;
+      conditions.push(
+        Prisma.sql`EXISTS (SELECT 1 FROM "RecordValue" value CROSS JOIN LATERAL ${RICH_TEXT_NODES} WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}.id AND value."fieldId" = ${field.id} AND value.state = 'value' AND node.text #>> '{}' ILIKE ${pattern})`,
+      );
+      continue;
     }
     if (filter.operator === "contains" || filter.operator === "startsWith") {
       if (filter.value.kind !== "text") throw new Error("Text query must be validated before compilation");

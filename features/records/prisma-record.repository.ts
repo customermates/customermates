@@ -895,6 +895,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
   }
 
+  async lockRecord(ref: RecordRef) {
+    await this.prisma
+      .$queryRaw`SELECT 1 FROM "CrmRecord" WHERE "companyId" = ${this.companyId} AND "typeId" = ${ref.typeId} AND id = ${ref.recordId} FOR UPDATE`;
+  }
+
   async getRecordsCompanyWide(refs: RecordRef[], options: TrashReadOptions = {}) {
     if (!refs.length) return [];
     return this.prisma.crmRecord.findMany({
