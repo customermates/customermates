@@ -18,6 +18,7 @@ export interface TrashKindHandler {
   readonly restoreOrder: number;
   visibility(alias: Prisma.Sql): Promise<Prisma.Sql>;
   restore(items: TrashItem[]): Promise<TrashKindRestore>;
+  restoreInBackground?(items: TrashItem[]): Promise<string>;
   impact(items: TrashItem[]): Promise<TrashKindImpact>;
   purge(items: TrashItem[], actorId: string | null): Promise<void>;
 }

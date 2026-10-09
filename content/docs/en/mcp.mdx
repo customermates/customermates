@@ -148,9 +148,9 @@ Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by defa
 **Read-only** means the tool does not write. **Can delete data** marks a tool that includes destructive operations; not every action on it deletes (a configuration preview, for example, writes nothing). Tools that send messages, invitations or support requests, move email or change provider data have real effects even without the destructive flag. Set client approval for the actual operation: the server enforces authorization and validation, but an external MCP call does not open the hosted assistant's approval dialog.
 
 {/* mcp-catalog:flags */}
-**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`, `read_recently_deleted_configuration`
+**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`, `read_recently_deleted_configuration`
 
-**Can delete data:** `mutate_crm_record`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
+**Can delete data:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
@@ -204,7 +204,7 @@ Read one record by typeId and recordId, including typed values, notes, relations
 
 #### `mutate_crm_record`
 
-Create, update, delete, link or unlink through one validated operation. Supply expectedRevision and an idempotencyKey; updates and deletions also require the current record version. Use typed field-assignment arrays. Omitted inputs stay unchanged; null clears an optional input. Calculated fields are read-only. Delete can permanently remove records and cascading line items; preview first and pass expectedImpactHash. Pending results carry an operation ID.
+Create, update, delete, link or unlink through one validated operation. Supply expectedRevision and an idempotencyKey; updates and deletions also require the current record version. Use typed field-assignment arrays. Omitted inputs stay unchanged; null clears an optional input. Calculated fields are read-only. Preview a delete first and pass expectedImpactHash. Pending results carry an operation ID. Delete moves records, their sub-list rows and cascading records to Trash for 30 days and returns a trashBatchId for restoring them; permanent: true deletes them permanently right away.
 
 **Can delete data.** Required: `expectedRevision`, `idempotencyKey`, `mutation`.
 
@@ -225,6 +225,18 @@ Count or aggregate once per source record at an explicit grain. Specify a source
 Read a durable operation by operationId until it completes, fails or is cancelled. Poll with backoff. While staging runs, previous complete data remains readable and workspace CRM writes are paused. A pending response does not mean publication succeeded.
 
 **Read-only.** Required: `operationId`.
+
+#### `read_trash`
+
+List deleted items in Trash, newest first, with who deleted them, when, and the days left before they are deleted permanently. Filter by kind, list and name. Only items you could see and delete are listed; administrators see all.
+
+**Read-only.** Optional: `kinds`, `typeIds`, `search`, `page`, `pageSize`.
+
+#### `manage_trash`
+
+Restore Trash items (or every item of one delete by its batchId), preview exactly what a permanent deletion removes, delete items permanently, or empty Trash as an administrator. Permanent deletion cannot be undone and erases the deleted records' values from history.
+
+**Can delete data.** Required: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
 {/* /mcp-catalog */}
 
 ### Batch update by channel identifiers [#batch-identifier-update]
@@ -673,7 +685,7 @@ Plans refuse the same way. Messaging, calendar and social tools need a plan with
 ### Tool metadata and server-side constraints
 
 - **Backend rules apply to every caller.** The shared operations enforce tenant scope, current record access, schema permissions, expected revisions and transaction integrity. MCP annotations guide the client; they grant no permission.
-- **Preview destructive effects.** Deletion can permanently remove cascading records. Confirm the concrete preview with the user, then pass its impact hash; a changed dependency or version needs a fresh preview.
+- **Preview destructive effects.** A delete moves the record and its cascading records to Trash, where `manage_trash` can restore them for 30 days; `permanent: true`, `delete_permanently` and `empty` cannot be undone. Confirm the concrete preview with the user, then pass its impact hash; a changed dependency or version needs a fresh preview.
 - **Retry the same request.** After a lost response, keep the idempotency key and payload. A different change needs a new key. Use operation status for staged work instead of issuing another create.
 - **Prepare messages as drafts.** `save_message_draft` keeps the message in the inbox for review. `send_email` and `send_chat_message` send immediately, so external clients must handle confirmation before calling them. Success means the provider accepted the message, not that it arrived. A failure says whether retrying can help, and its structured result carries `retryable: true` only then: after a timeout or provider error during sending, check the conversation before sending again.
 - **Use the live schemas.** `tools/list` describes supported argument shapes. Customer schemas supply the stable ids and permitted operations; labels and descriptions cannot override policy.

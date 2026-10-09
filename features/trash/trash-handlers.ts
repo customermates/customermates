@@ -5,7 +5,8 @@ import type { TrashKindHandler } from "./trash-kind-handler";
 import type { TrashDeletionPreview } from "./trash.schema";
 
 import { Prisma } from "@/generated/prisma";
-import { TRASH_ITEM_ALIAS } from "./prisma-trash.repository";
+import { TRASH_ITEM_ALIAS } from "./trash-item-alias";
+import { compareRecordKey } from "@/features/records/record-json";
 
 export async function trashVisibility(handlers: TrashKindHandler[]): Promise<Prisma.Sql> {
   const predicates = await Promise.all(handlers.map((handler) => handler.visibility(TRASH_ITEM_ALIAS)));
@@ -35,7 +36,7 @@ export async function trashDeletionPreview(
   }
   const preview = {
     items: items.map((item) => ({ itemId: item.id, kind: item.kind, label: item.label })),
-    removedRecords: [...removedRecords.values()].sort((left, right) => left.typeId.localeCompare(right.typeId)),
+    removedRecords: [...removedRecords.values()].sort((left, right) => compareRecordKey(left.typeId, right.typeId)),
     removedLinks,
   };
   const impactHash = createHash("sha256")

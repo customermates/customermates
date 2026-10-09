@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { TrashItem } from "@/features/trash/trash.repo";
 import type { TrashKindHandler, TrashKindImpact, TrashKindRestore } from "@/features/trash/trash-kind-handler";
 
@@ -20,6 +21,7 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
   constructor(
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
+    private background: Pick<BackgroundTaskService, "dispatch">,
   ) {
     super();
   }
@@ -64,6 +66,21 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
     const result = await new RecordTrashService(this.records).restore(stored, model, policy, journal);
     await journal.flush(model, this.userId, randomUUID(), { kind: "mutation" });
     return result;
+  }
+
+  async restoreInBackground(items: TrashItem[]): Promise<string> {
+    const state = await this.records.getState();
+    if (!state || state.activeOperationId) throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
+    const operationId = randomUUID();
+    await this.records.createOperation({
+      id: operationId,
+      userId: this.userId,
+      kind: "restore",
+      expectedRevision: state.revision,
+      request: { itemIds: items.map((item) => item.id), idempotencyKey: operationId },
+    });
+    await this.background.dispatch("record-operation", { operationId, ownerUserId: this.userId });
+    return operationId;
   }
 
   async impact(items: TrashItem[]): Promise<TrashKindImpact> {

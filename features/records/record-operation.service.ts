@@ -23,6 +23,8 @@ import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
 import { RecordTrashService } from "./record-trash.service";
+import type { RecordModel } from "./record-model.schema";
+import { RestoreSummarySchema } from "./record-query.schema";
 
 const CursorSchema = z.union([
   z.object({
@@ -37,8 +39,11 @@ const SourcesSchema = z.object({
   captures: z.array(z.object({ ref: RecordRefSchema, fieldIds: z.array(z.uuid()) })),
   affectedTypeIds: z.array(z.uuid()),
 });
+const RestoreRequestSchema = z.object({ itemIds: z.array(z.uuid()), idempotencyKey: z.string() });
+const RestoreCursorSchema = z.object({ phase: z.literal("restore"), index: z.number().int().nonnegative() });
 const BACKGROUND_FANOUT_LIMIT = 1000000;
 const BATCH_SIZE = 50;
+const RESTORE_BATCH_SIZE = 20;
 
 export class RecordOperationService extends UserAccessor {
   constructor(
@@ -63,6 +68,7 @@ export class RecordOperationService extends UserAccessor {
           if (state?.activeOperationId !== operationId || state.revision !== operation.expectedRevision)
             throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
           const current = await this.records.getModel();
+          if (operation.kind === "restore") return await this.advanceRestore(operation, current, policy);
           const staging = createRecordStagingRepo(this.records, operationId, this.companyId);
           const journal = new RecordJournal(staging, current, BACKGROUND_FANOUT_LIMIT, {
             base: this.records,
@@ -338,6 +344,57 @@ export class RecordOperationService extends UserAccessor {
       );
       return { done: true };
     }
+  }
+
+  private async advanceRestore(
+    operation: NonNullable<Awaited<ReturnType<RecordRepo["getOperation"]>>>,
+    model: RecordModel,
+    policy: Awaited<ReturnType<RecordAccessPolicy["load"]>>,
+  ): Promise<{ done: boolean }> {
+    const request = RestoreRequestSchema.parse(operation.request);
+    const cursor = RestoreCursorSchema.parse(operation.cursor ?? { phase: "restore", index: 0 });
+    const summary = RestoreSummarySchema.parse(
+      (await this.records.getStageRow(operation.id, "restore", "summary")) ?? {
+        restoredItemIds: [],
+        blocked: [],
+        restoredRecords: 0,
+        droppedLinks: 0,
+      },
+    );
+    const batch = request.itemIds.slice(cursor.index, cursor.index + RESTORE_BATCH_SIZE);
+    if (batch.length) {
+      const journal = new RecordJournal(this.records, model, BACKGROUND_FANOUT_LIMIT);
+      const items = await this.records.getRecordTrashItemsCompanyWide({ ids: batch });
+      const result = await new RecordTrashService(this.records).restore(
+        items,
+        model,
+        policy,
+        journal,
+        BACKGROUND_FANOUT_LIMIT,
+      );
+      await journal.flush(model, this.userId, request.idempotencyKey, { kind: "mutation", operationId: operation.id });
+      await this.records.stageRow(operation.id, "restore", "summary", {
+        restoredItemIds: [...summary.restoredItemIds, ...result.restoredItemIds],
+        blocked: [...summary.blocked, ...result.blocked],
+        restoredRecords: summary.restoredRecords + result.restoredRecords,
+        droppedLinks: summary.droppedLinks + result.droppedLinks,
+      });
+      await this.records.updateOperation(operation.id, {
+        state: "staging",
+        cursor: { phase: "restore", index: cursor.index + batch.length },
+        processed: cursor.index + batch.length,
+        total: request.itemIds.length,
+        leaseUntil: new Date(Date.now() + 60000),
+      });
+      return { done: false };
+    }
+    await this.records.updateOperation(operation.id, {
+      state: "completed",
+      result: { status: "completed", refs: [], schemaRevision: model.revision, restore: summary },
+      leaseUntil: null,
+    });
+    await this.records.clearOperationLock(operation.id);
+    return { done: true };
   }
 
   async fail(operationId: string, errorCode: string): Promise<void> {

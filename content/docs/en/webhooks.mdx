@@ -252,7 +252,9 @@ The `notes` field in payloads is Tiptap JSON, the structure the editor stores. R
 
 ## What do delete payloads contain? [#what-do-delete-payloads-contain]
 
-For `record.deleted`, `data.record` carries the qualified `ref`, the authorized before-values and the removed relationships; `afterVersion` is null. Source filters match immediately before removal, and the owner's current access is checked again before delivery.
+`record.deleted` fires when a record moves to Trash. `data.record` carries the qualified `ref`, the authorized before-values and the relationships it leaves; `afterVersion` is null. Source filters match immediately before the move, and the owner's current access is checked again before delivery. `record.restored` fires when it comes back from Trash and carries the after-values like `record.created`.
+
+`record.deletedPermanently` fires when a record is deleted permanently, by hand or 30 days after it went to Trash. Its `data.record` carries only the `ref`: the values are erased, and the record's earlier events lose their field values too, keeping who changed it and when. It reaches every webhook of the record's list that selected it and whose owner can read that list, without source filters.
 
 ## How do I debug a delivery? [#how-do-i-debug-a-delivery]
 
@@ -263,7 +265,7 @@ For `record.deleted`, `data.record` carries the qualified `ref`, the authorized 
 
 ## Which events exist? [#which-events-exist]
 
-A webhook can subscribe to [[derived.webhooks.events.total]] events: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] messaging events. For a CRM webhook, select **Record created**, **Record updated** or **Record deleted** (`record.created`, `record.updated`, `record.deleted`) and set its [record source](#record-event-sources); this covers lists you created yourself too. All use the [standard envelope](#what-does-the-payload-look-like). Routines can be triggered by the same events except **Email Deleted** (`messaging.email.deleted`) and **Chat Deleted** (`messaging.chat.deleted`); **Message Deleted** (`messaging.message.deleted`) does trigger routines. See [Routines](/docs/app-routines#how-do-event-triggers-work).
+A webhook can subscribe to [[derived.webhooks.events.total]] events: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] messaging events. For a CRM webhook, select **Record created**, **Record updated**, **Record moved to Trash**, **Record restored** or **Record deleted permanently** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) and set its [record source](#record-event-sources); this covers lists you created yourself too. All use the [standard envelope](#what-does-the-payload-look-like). Routines can be triggered by the same events except **Record deleted permanently** (`record.deletedPermanently`), **Email Deleted** (`messaging.email.deleted`) and **Chat Deleted** (`messaging.chat.deleted`); **Message Deleted** (`messaging.message.deleted`) does trigger routines. See [Routines](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record events [#record-events]
 
@@ -271,7 +273,9 @@ A webhook can subscribe to [[derived.webhooks.events.total]] events: [[derived.w
 | --- | --- | --- |
 | `record.created` | A record of a configured source type is created | the record change with its after-values |
 | `record.updated` | A field, assignment, identity, or link changes on a configured source type | the record change with before/after values |
-| `record.deleted` | A record of a configured source type is deleted | the record change with its before-values |
+| `record.deleted` | A record of a configured source type moves to Trash | the record change with its before-values |
+| `record.restored` | A record of a configured source type is restored from Trash | the record change with its after-values |
+| `record.deletedPermanently` | A record of the list is deleted permanently | the `ref` only; values are erased |
 
 Fifteen type-specific identifiers are retired. They stay only so older webhooks and delivery records remain readable: they cannot be selected for a webhook or routine, and nothing emits them. Replace them with a generic event and a record source.
 
