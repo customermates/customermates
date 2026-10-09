@@ -3392,6 +3392,7 @@
     },
     "privateAccess": "Solo administradores",
     "probability": "Probabilidad %",
+    "probabilityNeedsNumber": "La probabilidad es un atributo numérico. Añádela con Añadir atributo.",
     "progressUnavailable": "No se pudo cargar el progreso. Tu borrador se conserva.",
     "publishSummary": "Publicar resumen",
     "publishSummaryHelp": "Los miembros que pueden leer este registro ven este valor aunque los datos vinculados sean privados. Guardar aprueba los datos usados en este cálculo. Un resumen de un solo valor o un total sobre un solo registro muestra ese valor exactamente.",

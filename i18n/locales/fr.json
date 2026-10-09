@@ -3392,6 +3392,7 @@
     },
     "privateAccess": "Administrateurs uniquement",
     "probability": "Probabilité %",
+    "probabilityNeedsNumber": "La probabilité est un attribut numérique. Ajoutez-la plutôt avec Ajouter un attribut.",
     "progressUnavailable": "Impossible de charger la progression. Votre brouillon est conservé.",
     "publishSummary": "Publier le résumé",
     "publishSummaryHelp": "Les membres qui peuvent lire cette fiche voient cette valeur même si les données liées sont privées. Enregistrer approuve les données utilisées dans ce calcul. Un résumé d'une seule valeur ou un total sur un seul enregistrement affiche cette valeur exactement.",
