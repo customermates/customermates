@@ -100,7 +100,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
           onSelect: () =>
             router.push(
               `${WEBHOOK_DELIVERIES_HREF}?${encodeGetParams({
-                filters: [{ field: FilterFieldKey.url, operator: FilterOperatorKey.equals, value: item.url }],
+                filters: [{ field: FilterFieldKey.webhookId, operator: FilterOperatorKey.in, value: [item.id] }],
               })}`,
             ),
         }}
