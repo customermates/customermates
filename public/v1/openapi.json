@@ -44840,6 +44840,18 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "effect": {
+                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the Channels, avatar or calendar setting.",
+                                "type": "string",
+                                "enum": [
+                                  "countsRecords",
+                                  "triggerChanged",
+                                  "subscriptionRemoved",
+                                  "channels",
+                                  "avatar",
+                                  "calendar"
+                                ]
                               }
                             },
                             "required": [

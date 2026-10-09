@@ -14474,7 +14474,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
-  it("blocks incompatible widget dependencies and hides reports after access is revoked", async () => {
+  it("lets a widget count records when its measured field is deleted and hides reports after access is revoked", async () => {
     const f = await fixture();
     await f.create("service", "Catalog", [["service.amount", decimal("17.25")]]);
     await f.run(() =>
@@ -14512,10 +14512,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: {
         valid: false,
         deletion: {
-          blockers: expect.arrayContaining([
+          blockers: expect.arrayContaining([expect.objectContaining({ reason: "calculation" })]),
+          cleaned: expect.arrayContaining([
             expect.objectContaining({
-              reason: "widget",
-              source: expect.objectContaining({ kind: "widget", id: saved.data.id, label: "Visible price" }),
+              consumer: expect.objectContaining({ kind: "widget", id: saved.data.id, label: "Visible price" }),
+              effect: "countsRecords",
             }),
           ]),
         },
@@ -14535,6 +14536,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toMatchObject({ ok: true });
+    if (!preview.ok || !preview.data.deletion) throw new Error("Expected a deletion preview");
+    expect(preview.data.deletion.blockers.some((blocker) => blocker.reason === "widget")).toBe(false);
     const stored = await f.run(() => f.widgets.findOwned(saved.data.id), f.member);
     if (!stored) throw new Error("Widget missing");
     expect(await f.run(() => f.widgetReader.read(stored), f.member)).toMatchObject({
