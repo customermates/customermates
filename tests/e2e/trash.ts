@@ -23,6 +23,7 @@ export async function restoreFromTrash(page: Page, label: string) {
   await openTrash(page, { configuration: true });
   await openRowMenu(page, label);
   await page.getByRole("menuitem", { name: "Restore", exact: true }).click();
+  await expect(page.getByText(/^(1 item restored|Restored)/).first()).toBeVisible();
   await expect(trashRow(page, label)).toHaveCount(0);
 }
 
@@ -36,5 +37,6 @@ export async function deleteFromTrashPermanently(page: Page, label: string) {
   if (await typed.count()) await typed.fill(label);
   await confirmation.getByRole("button", { name: "Delete permanently", exact: true }).click();
   await expect(confirmation).not.toBeVisible();
+  await expect(page.getByText("Deleted permanently", { exact: true }).first()).toBeVisible();
   await expect(trashRow(page, label)).toHaveCount(0);
 }

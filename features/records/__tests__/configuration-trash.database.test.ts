@@ -212,6 +212,20 @@ describeDatabase("configuration trash", () => {
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
   }, 180_000);
 
+  it("restores a deleted list through Trash", async () => {
+    const f = await fixture();
+    const deleted = await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
+    );
+    if (!deleted.ok || deleted.data.status !== "completed") throw new Error(JSON.stringify(deleted));
+    const batchId = deleted.data.trashBatchId;
+    const restored = await f.as(() => f.trash.restore.invoke({ batchId } as never));
+    expect(restored).toMatchObject({ ok: true, data: { status: "completed", blocked: [] } });
+    const model = await f.as(() => new PrismaRecordRepo().getModel());
+    expect(model.types.find((type) => type.id === f.id("organization"))?.archived).toBe(false);
+    expect(await f.items()).toEqual([]);
+  }, 180_000);
+
   it("lists only the deleted list, not what was deleted with it, and deletes it permanently with exact counts", async () => {
     const f = await fixture();
     const created = await f.as(async () =>
