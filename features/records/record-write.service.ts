@@ -20,8 +20,8 @@ import type { RecordMutation } from "./record-query.schema";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { validateNotes } from "@/core/validation/validate-notes";
-import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
+import { MAX_NOTES_JSON_SIZE, validateNotes } from "@/core/validation/validate-notes";
+import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
@@ -29,7 +29,7 @@ import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from ".
 import type { RecordIdentityInput } from "./record-identity.schema";
 import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from "./record-identity";
 import { channelClass } from "@/ee/messaging/provider";
-import { canonicalRecordJson } from "./record-json";
+import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { recordTrashLabel } from "./record-trash-label";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
@@ -86,13 +86,14 @@ export function appendedRecordValue(field: RecordField, current: CalculatedValue
     if (value.length > MAX_TEXT_LENGTH) reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
     return { kind: "text", value };
   }
-  const before =
-    existing?.kind === "richText" ? (JSON.parse(existing.documentJson) as { content?: unknown[] }) : { content: [] };
+  const document =
+    existing?.kind === "richText" ? (JSON.parse(existing.documentJson) as { content?: unknown[] }) : null;
+  const before = document && serializeJSONToMarkdown(document).trim() ? (document.content ?? []) : [];
   const added = parseMarkdownToJSON(append) as { content?: unknown[] };
-  return {
-    kind: "richText",
-    documentJson: JSON.stringify({ type: "doc", content: [...(before.content ?? []), ...(added.content ?? [])] }),
-  };
+  const documentJson = JSON.stringify({ type: "doc", content: [...before, ...(added.content ?? [])] });
+  if (documentJson.length > MAX_NOTES_JSON_SIZE)
+    reject(CustomErrorCode.notesExceedsMaxLength, "validation", ["fields"]);
+  return { kind: "richText", documentJson };
 }
 
 function isAppend(update: RecordFieldUpdate): update is Extract<RecordFieldUpdate, { append: string }> {
@@ -275,6 +276,14 @@ export class RecordWriteService {
     trashBatchId?: string;
   }> {
     if (!policy.actor) reject(CustomErrorCode.permissionDenied, "authorization");
+    const locked =
+      mutation.action === "update" || mutation.action === "delete"
+        ? [mutation.ref]
+        : mutation.action === "updateMany" || mutation.action === "deleteMany"
+          ? mutation.targets.map((target) => target.ref)
+          : [];
+    for (const ref of locked.toSorted((left, right) => compareRecordKey(recordKey(left), recordKey(right))))
+      await this.records.lockRecord(ref);
     await this.validateAccess(mutation, policy);
     if (mutation.action === "updateMany") {
       const seeds = new Map<string, RecordRef>();
@@ -511,7 +520,6 @@ export class RecordWriteService {
         );
       }
     } else if (mutation.action === "update") {
-      if (mutation.fields.some(isAppend)) await this.records.lockRecord(mutation.ref);
       const row = await editable(mutation.ref);
       if (!isAppendOnlyUpdate(mutation) && row.version !== mutation.expectedVersion)
         reject(CustomErrorCode.recordVersionChanged, "conflict");

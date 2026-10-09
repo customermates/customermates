@@ -3649,6 +3649,7 @@
   },
   "RoleModal": {
     "create": "Créer",
+    "dataModelNote": "Créer et modifier des listes, des champs et des relations dans Configurer.",
     "edit": "Modifier",
     "manageAccess": "Gérer",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
