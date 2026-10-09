@@ -198,13 +198,13 @@ Bis zu 1.000 exakte E-Mail-, Telefon- oder unterstützte Profilkennungen über d
 
 #### `read_crm_record`
 
-Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Werte, Notizen, Beziehungsübersichten und aktueller Datensatz- und Konfigurationsversionen. Kanäle erscheinen bei Typen mit aktivierter Kanal-Funktion. Mehrere Datensätze können dieselbe indizierte Kennung teilen.
+Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Werte, formatierter Texte, Beziehungsübersichten und aktueller Datensatz- und Konfigurationsversionen. Kanäle erscheinen bei Typen mit aktivierter Kanal-Funktion. Mehrere Datensätze können dieselbe indizierte Kennung teilen.
 
 **Nur lesend.** Pflicht: `typeId`, `recordId`. Optional: `includeRelationships`, `includePaths`.
 
 #### `mutate_crm_record`
 
-Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Löschen kann Datensätze und abhängige Positionen dauerhaft entfernen: vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID.
+Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben; `{ fieldId, append }` hängt Markdown nach einer Leerzeile an ein Feld vom Typ Formatierter Text oder Text an, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Datensatzversion. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Löschen kann Datensätze und abhängige Positionen dauerhaft entfernen: vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID.
 
 **Kann Daten löschen.** Pflicht: `expectedRevision`, `idempotencyKey`, `mutation`.
 

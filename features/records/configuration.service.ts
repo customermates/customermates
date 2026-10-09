@@ -134,11 +134,9 @@ export class RecordConfigurationService extends UserAccessor {
       if (operation.operation === "putAccessPreset") register(operation.preset.id);
       if (operation.operation === "putCapability") register(operation.capability.id);
     }
-    for (const operation of input.operations) {
-      if (operation.operation === "createType") {
-        register(`${operation.reference}.name`, true);
-      }
-    }
+    for (const operation of input.operations)
+      if (operation.operation === "createType") register(`${operation.reference}.name`, true);
+
     const resolve = (reference: string): string => {
       if (reference.startsWith("path:$")) return `path:${resolve(reference.slice(5))}`;
       if (reference.startsWith("relationship:$")) {

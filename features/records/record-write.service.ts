@@ -98,6 +98,17 @@ function isAppend(update: RecordFieldUpdate): update is Extract<RecordFieldUpdat
   return "append" in update;
 }
 
+function isAppendOnlyUpdate(mutation: Extract<RecordMutation, { action: "update" }>) {
+  return (
+    mutation.fields.length > 0 &&
+    mutation.fields.every(isAppend) &&
+    mutation.assignedUserIds === undefined &&
+    mutation.identities === undefined &&
+    !mutation.linkChanges?.length &&
+    !mutation.captureFieldIds?.length
+  );
+}
+
 function comparableResult(result: CalculatedValue): unknown {
   if (result.state !== "value") return result;
   const value = result.value;
@@ -214,7 +225,10 @@ export class RecordWriteService {
       const row = await this.records.getRecordCompanyWide(ref);
       if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
       if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
-      if ((mutation.action === "update" || mutation.action === "delete") && row.version !== mutation.expectedVersion)
+      if (
+        (mutation.action === "delete" || (mutation.action === "update" && !isAppendOnlyUpdate(mutation))) &&
+        row.version !== mutation.expectedVersion
+      )
         reject(CustomErrorCode.recordVersionChanged, "conflict");
     }
     if (mutation.action === "link" || mutation.action === "unlink") {
@@ -488,16 +502,9 @@ export class RecordWriteService {
         );
       }
     } else if (mutation.action === "update") {
-      const appends = mutation.fields.filter(isAppend);
-      if (appends.length) await this.records.lockRecord(mutation.ref);
+      if (mutation.fields.some(isAppend)) await this.records.lockRecord(mutation.ref);
       const row = await editable(mutation.ref);
-      const appendOnly =
-        appends.length === mutation.fields.length &&
-        mutation.assignedUserIds === undefined &&
-        mutation.identities === undefined &&
-        !mutation.linkChanges?.length &&
-        !mutation.captureFieldIds?.length;
-      if (!appendOnly && row.version !== mutation.expectedVersion)
+      if (!isAppendOnlyUpdate(mutation) && row.version !== mutation.expectedVersion)
         reject(CustomErrorCode.recordVersionChanged, "conflict");
       if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
         if (mutation.assignedUserIds.length)
