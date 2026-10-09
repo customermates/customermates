@@ -254,7 +254,7 @@ export const searchRecordsV2Tool = {
   name: "search_crm_records",
   title: "Search accessible records",
   description:
-    "Search text across accessible configured record types, including custom types. Optionally restrict typeIds; includeEmbedded reveals embedded records such as line items. Follow nextCursor for more results; preserve the same searchTerm, typeIds and includeEmbedded. A record id finds that record; a phrase in double quotes matches exactly; when nothing matches, similarly spelled titles are returned. Results carry stable typeId and recordId references. Restricted field values never participate in search.",
+    "Search text across accessible configured record types, including custom types. Optionally restrict typeIds; includeEmbedded reveals embedded records such as line items. Follow nextCursor for more results; preserve the same searchTerm, typeIds and includeEmbedded. A record id finds that record; a phrase in double quotes matches only as written; when nothing matches, similarly spelled titles are returned. Results carry stable typeId and recordId references. Restricted field values never participate in search.",
   inputSchema: RecordSearchSchema,
   outputSchema: RecordSearchResultSchema,
   annotations: read,

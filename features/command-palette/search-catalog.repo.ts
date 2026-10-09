@@ -13,10 +13,12 @@ export abstract class SearchCatalogRepo {
     model: string,
     rows: ReadonlyArray<{ contentHash: string; embedding: string }>,
   ): Promise<void>;
+  abstract withIndexingLock(scope: SearchCatalogScope, run: () => Promise<boolean>): Promise<boolean>;
   abstract semanticMatches(args: {
     companyId: string;
     buildHash: string;
     locale: string;
+    targetIds: readonly string[];
     vector: number[];
     model: string;
     minSimilarity: number;

@@ -301,6 +301,7 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     const f = await workspace("Hot leads");
     const acme = await f.createOrganization("Acme Corporation");
     const globex = await f.createOrganization("Globex");
+    await f.createOrganization("Acme Cooperation Partners");
     const records = new SearchRecordsInteractor(repo, f.policy);
     const titles = async (searchTerm: string) => {
       const result = await runWithTenant(f.admin, () => records.invoke({ searchTerm, limit: 40, cursor: null }));
@@ -312,7 +313,8 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
 
     expect(await titles(globex.recordId)).toEqual(["Globex"]);
     expect(await titles('"acme corp"')).toEqual(["Acme Corporation"]);
-    expect(await titles("Acme Corportion")).toEqual(["Acme Corporation"]);
+    expect(await titles('"acme coop"')).toEqual(["Acme Cooperation Partners"]);
+    expect(await titles("Acme Corportion")).toEqual(["Acme Corporation", "Acme Cooperation Partners"]);
     expect(await titles('"Acme Corportion"')).toEqual([]);
     expect(await titles("Zyxwv")).toEqual([]);
     expect(acme.recordId).not.toBe(globex.recordId);

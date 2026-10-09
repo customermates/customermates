@@ -65,10 +65,10 @@ export function compileRecordSearch(
         ? Prisma.sql`SELECT id FROM "CrmRecord" WHERE "companyId" = ${companyId} AND "typeId" = ${type.id}
           AND id IN (${Prisma.join(request.refs.filter((ref) => ref.typeId === type.id).map((ref) => ref.recordId))})`
         : similarTerm !== null
-          ? Prisma.sql`SELECT value."recordId" AS id FROM "RecordValue" value
+          ? Prisma.sql`SELECT value."recordId" AS id, word_similarity(${similarTerm}, value."textValue") AS similarity
+            FROM "RecordValue" value
             WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."fieldId" = ${title.id}
-              AND value.state = 'value'
-              AND word_similarity(${similarTerm}, value."textValue") >= ${SIMILAR_TITLE_MIN_WORD_SIMILARITY}`
+              AND value.state = 'value' AND ${similarTerm} <% value."textValue"`
           : compileRecordQuery(
               companyId,
               RecordQuerySchema.parse({ typeId: type.id, search: request.search.searchTerm }),
@@ -88,7 +88,8 @@ export function compileRecordSearch(
       WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id}
         AND ${recordReadPredicate(companyId, scope, root)} AND ${after}
         ${similarTerm !== null ? Prisma.sql`AND ${titleAccess}` : Prisma.empty}
-      ORDER BY record."createdAt" DESC, record.id ASC LIMIT ${pageLimit}`;
+      ORDER BY ${similarTerm !== null ? Prisma.sql`matched.similarity DESC,` : Prisma.empty} record."createdAt" DESC, record.id ASC
+      LIMIT ${pageLimit}`;
     return Prisma.sql`SELECT record."typeId", record.id AS "recordId", record."createdAt", record.version, record."protectedKind",
       CASE WHEN ${titleAccess} THEN COALESCE(title.state, 'missing') ELSE 'restricted' END AS state,
       CASE WHEN ${titleAccess} AND title.state = 'value' THEN title."textValue" ELSE NULL END AS title,

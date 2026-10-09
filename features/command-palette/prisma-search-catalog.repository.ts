@@ -9,6 +9,7 @@ const STATIC_SYNC_LOCK = "SearchCatalogEntry:static";
 const WORKSPACE_SYNC_LOCK = "SearchCatalogEntry:workspace:";
 const SYNC_TIMEOUT_MS = 60_000;
 const STATIC_BUILD_RETENTION_DAYS = 7;
+const INDEXING_LOCK_TIMEOUT_MS = 300_000;
 
 const syncedBuilds = new Map<string, Promise<void>>();
 let embeddingColumn: Promise<boolean> | undefined;
@@ -144,6 +145,19 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
     );
   }
 
+  async withIndexingLock(scope: SearchCatalogScope, run: () => Promise<boolean>): Promise<boolean> {
+    const key = "companyId" in scope ? `${WORKSPACE_SYNC_LOCK}${scope.companyId}:embed` : `${STATIC_SYNC_LOCK}:embed`;
+    return prisma.$transaction(
+      async (tx) => {
+        const rows = await tx.$queryRaw<Array<{ locked: boolean }>>(
+          Prisma.sql`SELECT pg_try_advisory_xact_lock(hashtext(${key})) AS "locked"`,
+        );
+        return rows[0]?.locked ? run() : false;
+      },
+      { timeout: INDEXING_LOCK_TIMEOUT_MS, maxWait: SYNC_TIMEOUT_MS },
+    );
+  }
+
   async pendingEmbeddings(scope: SearchCatalogScope, model: string, limit: number): Promise<SearchCatalogText[]> {
     if (!(await this.semanticIndexAvailable())) return [];
     return prisma.$queryRaw<SearchCatalogText[]>(Prisma.sql`
@@ -175,6 +189,7 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
     companyId: string;
     buildHash: string;
     locale: string;
+    targetIds: readonly string[];
     vector: number[];
     model: string;
     minSimilarity: number;
@@ -188,6 +203,7 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
         FROM "SearchCatalogEntry" e
         WHERE (${scopeFilter({ buildHash: args.buildHash })} AND e."locale" = ${args.locale}
             OR ${scopeFilter({ companyId: args.companyId })})
+          AND e."targetId" = ANY(${[...args.targetIds]}::text[])
           AND e."model" = ${args.model} AND e."embedding" IS NOT NULL
       )
       SELECT d."targetId", (1 - d."distance")::float8 AS "similarity"

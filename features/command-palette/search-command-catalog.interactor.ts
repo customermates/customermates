@@ -15,6 +15,8 @@ import type {
 
 import { createHash } from "node:crypto";
 
+import * as Sentry from "@sentry/nextjs";
+
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -100,7 +102,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
     if (input.scope === "records") return { ok: true, data: empty };
 
     const { model, policy, views } = loaded;
-    await this.scheduler.schedule(catalogFingerprint(model.revision, views));
+    void this.scheduler.schedule(catalogFingerprint(model.revision, views));
     const vector = await this.queryVector(input.searchTerm);
     if (!vector) return { ok: true, data: { ...empty, degraded: true } };
 
@@ -119,22 +121,26 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
       ...scope.views.map((view) => `view:${view.id}`),
       ...scope.fields.map((field) => `field:${field.id}`),
     ]);
-    const [semantic, docs] = await Promise.all([
-      input.scope === "docs" ? Promise.resolve([]) : this.catalogMatches(input.locale, vector),
-      input.scope === null || input.scope === "docs"
-        ? this.docsMatches(input.locale, vector, input.scope === "docs" ? SCOPED_DOCS_MATCH_LIMIT : DOCS_MATCH_LIMIT)
-        : Promise.resolve([]),
-    ]);
-    return {
-      ok: true,
-      data: {
-        semantic: semantic
-          .filter((match) => allowed.has(match.targetId) && inScope(match.targetId, input.scope))
-          .map((match) => ({ key: match.targetId, similarity: match.similarity })),
-        docs,
-        degraded: false,
-      },
-    };
+    const targetIds = [...allowed].filter((key) => inScope(key, input.scope));
+    try {
+      const [semantic, docs] = await Promise.all([
+        targetIds.length === 0 ? Promise.resolve([]) : this.catalogMatches(input.locale, vector, targetIds),
+        input.scope === null || input.scope === "docs"
+          ? this.docsMatches(input.locale, vector, input.scope === "docs" ? SCOPED_DOCS_MATCH_LIMIT : DOCS_MATCH_LIMIT)
+          : Promise.resolve([]),
+      ]);
+      return {
+        ok: true,
+        data: {
+          semantic: semantic.map((match) => ({ key: match.targetId, similarity: match.similarity })),
+          docs,
+          degraded: false,
+        },
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      return { ok: true, data: { ...empty, degraded: true } };
+    }
   }
 
   private async queryVector(searchTerm: string): Promise<QueryVector | null> {
@@ -149,13 +155,13 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
     return embedded?.value ?? null;
   }
 
-  private async catalogMatches(locale: string, vector: QueryVector) {
+  private async catalogMatches(locale: string, vector: QueryVector, targetIds: readonly string[]) {
     const catalog = await staticSearchCatalog();
-    await this.searchCatalog.ensureStaticCatalog(catalog);
     return this.searchCatalog.semanticMatches({
       companyId: this.companyId,
       buildHash: catalog.buildHash,
       locale,
+      targetIds,
       vector: vector.vector,
       model: vector.model,
       minSimilarity: SEMANTIC_MATCH_MIN_SIMILARITY,
