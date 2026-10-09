@@ -40,7 +40,7 @@ import {
   RecordOperationInputSchema,
   RecordOperationStatusSchema,
 } from "@/features/records/record-operation.interactor";
-import { runInteractor, toonResult } from "./utils";
+import { recordToonResult, runInteractor, toonResult } from "./utils";
 import {
   ResolveRecordIdentitiesSchema,
   ResolveRecordIdentitiesResultSchema,
@@ -170,7 +170,7 @@ export const queryRecordsV2Tool = {
   outputSchema: RecordQueryResultSchema,
   annotations: read,
   execute: (input: z.infer<typeof RecordQuerySchema>) =>
-    runInteractor(getQueryRecordsInteractor().invoke(input), toonResult),
+    runInteractor(getQueryRecordsInteractor().invoke(input), recordToonResult),
 };
 export const readRecordV2Tool = {
   name: "read_crm_record",
@@ -181,7 +181,7 @@ export const readRecordV2Tool = {
   outputSchema: RecordDtoSchema,
   annotations: read,
   execute: (input: z.infer<typeof RecordReadSchema>) =>
-    runInteractor(getGetRecordInteractor().invoke(input), toonResult),
+    runInteractor(getGetRecordInteractor().invoke(input), recordToonResult),
 };
 export const mutateRecordV2Tool = {
   name: "mutate_crm_record",

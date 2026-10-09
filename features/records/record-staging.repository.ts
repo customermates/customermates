@@ -71,6 +71,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     await base.stageRow(operationId, "schema", "model", model);
     if (change) await base.stageRow(operationId, "schema", "change", change);
   };
+  overrides.lockRecord = () => Promise.resolve();
   overrides.setGrants = (typeId, grants) => base.stageRow(operationId, "grants", typeId, { typeId, grants });
   overrides.getIdentitiesCompanyWide = async (ref) => {
     const row = await base.getStageRow(operationId, "identity", recordKey(ref));
