@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { runRowAction } from "./record-rows";
 
 function collectErrors(page: Page) {
   const errors: string[] = [];
@@ -29,9 +30,7 @@ async function addServices(page: Page, typeId: string, names: string[]) {
 
 async function deleteFromRow(page: Page, name: string) {
   const row = page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
-  await row.hover();
-  await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
-  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+  await runRowAction(page, row, name, "Delete");
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("It moves to Trash");
   await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
@@ -113,9 +112,7 @@ test("deletes a record permanently after confirming what disappears", async ({ p
   await deleteFromRow(page, "Gone Service");
   await page.goto("/en/trash");
   const row = trashRow(page, "Gone Service");
-  await row.hover();
-  await row.getByRole("button", { name: "More actions for Gone Service", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Delete permanently", exact: true }).click();
+  await runRowAction(page, row, "Gone Service", "Delete permanently");
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("Delete Gone Service permanently?");
   await expect(confirmation).toContainText("Services: 1 record");
