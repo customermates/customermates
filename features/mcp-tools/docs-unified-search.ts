@@ -259,9 +259,7 @@ function rerankCandidates(
   sources: readonly DocsSource[],
 ): { candidates: RankableSection[]; sections: DocsSection[] } {
   const head = ranked.slice(0, DOCS_RERANK_LEXICAL);
-  const lexical = ranked.filter(
-    (entry, index) => index < DOCS_RERANK_LEXICAL || entry.listRank < DOCS_RERANK_PER_LIST,
-  );
+  const lexical = ranked.filter((entry, index) => index < DOCS_RERANK_LEXICAL || entry.listRank < DOCS_RERANK_PER_LIST);
   const lexicalKeys = new Set(lexical.map(({ section }) => docsSectionKey(section)));
   const topPages: string[] = [];
   for (const { section } of ranked) {
