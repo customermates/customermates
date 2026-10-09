@@ -15,33 +15,20 @@ vi.mock("mobx-react-lite", () => ({
   observer: <T extends ComponentType<any>>(component: T) => component,
 }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("lucide-react", () => ({
-  LoaderCircle: () => null,
-  Plus: () => null,
-  RefreshCw: () => null,
-}));
+vi.mock("lucide-react", () => ({ LoaderCircle: () => null, Plus: () => null, RefreshCw: () => null }));
 vi.mock("@/components/ui/button", () => ({
   buttonVariants: () => "",
-  Button: ({
-    children,
-    "aria-label": label,
-  }: {
-    children: ReactNode;
-    "aria-label"?: string;
-  }) => createElement("button", { "aria-label": label }, children),
+  Button: ({ children, "aria-label": label }: { children: ReactNode; "aria-label"?: string }) =>
+    createElement("button", { "aria-label": label }, children),
 }));
-vi.mock("@/core/errors/report-application-error", () => ({
-  runUserAction: vi.fn(),
-}));
+vi.mock("@/core/errors/report-application-error", () => ({ runUserAction: vi.fn() }));
 vi.mock("@/app/components/topbar-actions-context", () => ({
   useSetTopBarActions: (actions: ReactNode) => {
     harness.topBarActions = actions;
   },
 }));
 vi.mock("../subscription-panel", () => ({ SubscriptionPanel: () => null }));
-vi.mock("../subscribe-manage-button", () => ({
-  SubscribeManageButton: () => null,
-}));
+vi.mock("../subscribe-manage-button", () => ({ SubscribeManageButton: () => null }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     subscriptionStore: { subscription: null, handleRefresh: vi.fn() },
@@ -51,9 +38,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 
 const { SubscriptionView } = await import("../subscription-view");
 
-const subscription = (
-  overrides: Partial<SubscriptionDto> = {},
-): SubscriptionDto => ({
+const subscription = (overrides: Partial<SubscriptionDto> = {}): SubscriptionDto => ({
   activeUsers: 3,
   currentPeriodEnd: null,
   hasBillingPortal: true,
@@ -66,12 +51,8 @@ const subscription = (
 });
 
 function refreshShown(initialSubscription: SubscriptionDto) {
-  renderToStaticMarkup(
-    createElement(SubscriptionView, { initialSubscription }),
-  );
-  return renderToStaticMarkup(
-    createElement("div", null, harness.topBarActions),
-  ).includes("Common.actions.refresh");
+  renderToStaticMarkup(createElement(SubscriptionView, { initialSubscription }));
+  return renderToStaticMarkup(createElement("div", null, harness.topBarActions)).includes("Common.actions.refresh");
 }
 
 beforeEach(() => {
@@ -91,28 +72,16 @@ describe("SubscriptionView refresh action", () => {
   });
 
   it("is hidden while the workspace has no Lemon Squeezy subscription to refresh", () => {
+    expect(refreshShown(subscription({ hasActiveSubscription: false, hasBillingPortal: false }))).toBe(false);
     expect(
       refreshShown(
-        subscription({ hasActiveSubscription: false, hasBillingPortal: false }),
-      ),
-    ).toBe(false);
-    expect(
-      refreshShown(
-        subscription({
-          hasActiveSubscription: false,
-          hasBillingPortal: false,
-          status: SubscriptionStatus.pastDue,
-        }),
+        subscription({ hasActiveSubscription: false, hasBillingPortal: false, status: SubscriptionStatus.pastDue }),
       ),
     ).toBe(false);
   });
 
   it("is hidden for an enterprise plan and during a trial", () => {
-    expect(
-      refreshShown(subscription({ plan: SubscriptionPlan.enterprise })),
-    ).toBe(false);
-    expect(
-      refreshShown(subscription({ status: SubscriptionStatus.trial })),
-    ).toBe(false);
+    expect(refreshShown(subscription({ plan: SubscriptionPlan.enterprise }))).toBe(false);
+    expect(refreshShown(subscription({ status: SubscriptionStatus.trial }))).toBe(false);
   });
 });

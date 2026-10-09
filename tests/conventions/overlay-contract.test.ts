@@ -7,14 +7,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 const ENFORCED = true;
 
-const SCANNED_DIRECTORIES = [
-  "app",
-  "components",
-  "features",
-  "ee",
-  "core",
-  "workflows",
-];
+const SCANNED_DIRECTORIES = ["app", "components", "features", "ee", "core", "workflows"];
 
 /**
  * CUS-60 pins the overlay contract that shadcn does not ship: every overlay derives its
@@ -36,8 +29,7 @@ const SCANNED_DIRECTORIES = [
  * whenever browser chrome is showing, and it does not shrink for the on-screen keyboard.
  * Inline-axis `vw` has no equivalent failure mode and stays allowed for width clamps.
  */
-const LEGACY_VIEWPORT_UNIT =
-  /\b(?:max-|min-)?h-(?:\[[^\]]*?\dvh\b[^\]]*\]|screen\b)/;
+const LEGACY_VIEWPORT_UNIT = /\b(?:max-|min-)?h-(?:\[[^\]]*?\dvh\b[^\]]*\]|screen\b)/;
 const RAW_SAFE_AREA = /env\(\s*safe-area-inset-/;
 const FIXED_FLOATING_SURFACE = /"[^"]*\bfixed\b[^"]*\bz-\d/;
 const DETACHED_ABSOLUTE_PANEL = /"[^"]*\babsolute\b[^"]*\btop-full\b[^"]*"/;
@@ -86,27 +78,12 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
   },
   {
     file: "components/ui/tooltip.tsx",
-    mustContain: [
-      "--radix-tooltip-content-available-width",
-      "collisionPadding",
-    ],
+    mustContain: ["--radix-tooltip-content-available-width", "collisionPadding"],
   },
-  {
-    file: "components/ui/dialog.tsx",
-    mustContain: ["max-h-(--overlay-block-budget)"],
-  },
-  {
-    file: "components/ui/alert-dialog.tsx",
-    mustContain: ["max-h-(--overlay-block-budget)"],
-  },
-  {
-    file: "components/ui/sheet.tsx",
-    mustContain: ["max-h-(--sheet-block-budget)", "sheet-body"],
-  },
-  {
-    file: "components/ui/drawer.tsx",
-    mustContain: ["max-h-(--sheet-block-budget)", "drawer-body"],
-  },
+  { file: "components/ui/dialog.tsx", mustContain: ["max-h-(--overlay-block-budget)"] },
+  { file: "components/ui/alert-dialog.tsx", mustContain: ["max-h-(--overlay-block-budget)"] },
+  { file: "components/ui/sheet.tsx", mustContain: ["max-h-(--sheet-block-budget)", "sheet-body"] },
+  { file: "components/ui/drawer.tsx", mustContain: ["max-h-(--sheet-block-budget)", "drawer-body"] },
 ];
 
 const CONTROLLED_FOCUS_RETURN_SURFACES = [
@@ -127,13 +104,7 @@ const DOCUMENTED_OVERLAY_TYPES = [
   "CommandDialog",
 ];
 
-const OVERLAY_FOOTER_COMPONENTS = [
-  "DialogFooter",
-  "DrawerFooter",
-  "SheetFooter",
-  "AlertDialogFooter",
-  "PopoverFooter",
-];
+const OVERLAY_FOOTER_COMPONENTS = ["DialogFooter", "DrawerFooter", "SheetFooter", "AlertDialogFooter", "PopoverFooter"];
 
 const OVERLAY_FOOTER_DIVIDER = new RegExp(
   `<(?:${OVERLAY_FOOTER_COMPONENTS.join("|")})\\b(?:(?!>).)*\\bborder-(?:t|b)\\b(?:(?!>).)*>`,
@@ -162,21 +133,14 @@ function allLines(): Line[] {
   for (const absolute of sourceFiles()) {
     const file = relative(REPO_ROOT, absolute);
     const text = readFileSync(absolute, "utf8");
-    text
-      .split("\n")
-      .forEach((raw, index) =>
-        lines.push({ file, line: index + 1, text: raw }),
-      );
+    text.split("\n").forEach((raw, index) => lines.push({ file, line: index + 1, text: raw }));
   }
   return lines;
 }
 
 const LINES = allLines();
 
-function violations(
-  match: (line: Line) => boolean,
-  skip: (file: string) => boolean = () => false,
-) {
+function violations(match: (line: Line) => boolean, skip: (file: string) => boolean = () => false) {
   return LINES.filter((line) => !skip(line.file) && match(line)).map(
     (line) => `${line.file}:${line.line}: ${line.text.trim().slice(0, 160)}`,
   );
@@ -189,13 +153,9 @@ function sourcePatternViolations(pattern: RegExp) {
     const file = relative(REPO_ROOT, absolute);
     const text = readFileSync(absolute, "utf8");
 
-    for (const match of text.matchAll(
-      new RegExp(pattern.source, pattern.flags),
-    )) {
+    for (const match of text.matchAll(new RegExp(pattern.source, pattern.flags))) {
       const line = text.slice(0, match.index).split("\n").length;
-      found.push(
-        `${file}:${line}: ${match[0].replace(/\s+/g, " ").slice(0, 160)}`,
-      );
+      found.push(`${file}:${line}: ${match[0].replace(/\s+/g, " ").slice(0, 160)}`);
     }
   }
 
@@ -219,24 +179,16 @@ const OVERLAY_FOOTER_BLOCK = /<AppCardFooter\b[^>]*>[\s\S]*?<\/AppCardFooter>/g;
  */
 const SELF_FOOTERING_COMPONENTS = /<FormFooterActions\b/;
 
-function nestedOverlayFooterViolations(
-  sources: { file: string; text: string }[],
-) {
+function nestedOverlayFooterViolations(sources: { file: string; text: string }[]) {
   const found: string[] = [];
 
   for (const { file, text } of sources)
     for (const match of text.matchAll(OVERLAY_FOOTER_BLOCK)) {
       const inner = match[0].slice(match[0].indexOf(">") + 1);
-      if (
-        !SELF_FOOTERING_COMPONENTS.test(inner) &&
-        !inner.includes("<AppCardFooter")
-      )
-        continue;
+      if (!SELF_FOOTERING_COMPONENTS.test(inner) && !inner.includes("<AppCardFooter")) continue;
 
       const line = text.slice(0, match.index).split("\n").length;
-      found.push(
-        `${file}:${line}: ${match[0].replace(/\s+/g, " ").slice(0, 160)}`,
-      );
+      found.push(`${file}:${line}: ${match[0].replace(/\s+/g, " ").slice(0, 160)}`);
     }
 
   return found;
@@ -246,9 +198,7 @@ const APP_MODAL_HEADER = /<AppCardHeader\b[^>]*>[\s\S]*?<\/AppCardHeader>/g;
 const INTERACTIVE_HEADER_DESCENDANT =
   /<(?:AppModalAction|Button|button|a|Link|IntlLink|Checkbox|Switch|Form[A-Z][A-Za-z]+|[A-Z][A-Za-z]+Trigger)\b/;
 
-function appModalHeaderActionViolations(
-  sources: { file: string; text: string }[],
-) {
+function appModalHeaderActionViolations(sources: { file: string; text: string }[]) {
   const found: string[] = [];
 
   for (const { file, text } of sources) {
@@ -258,9 +208,7 @@ function appModalHeaderActionViolations(
       if (!INTERACTIVE_HEADER_DESCENDANT.test(match[0])) continue;
 
       const line = text.slice(0, match.index).split("\n").length;
-      found.push(
-        `${file}:${line}: ${match[0].replace(/\s+/g, " ").slice(0, 160)}`,
-      );
+      found.push(`${file}:${line}: ${match[0].replace(/\s+/g, " ").slice(0, 160)}`);
     }
   }
 
@@ -269,41 +217,25 @@ function appModalHeaderActionViolations(
 
 describe("overlay contract", () => {
   it("keeps the decision guide beside the shared primitives", () => {
-    const guide = readFileSync(
-      join(REPO_ROOT, "components/ui/overlay-contract.md"),
-      "utf8",
-    );
+    const guide = readFileSync(join(REPO_ROOT, "components/ui/overlay-contract.md"), "utf8");
 
-    for (const type of DOCUMENTED_OVERLAY_TYPES)
-      expect(guide).toContain(`**${type}**`);
+    for (const type of DOCUMENTED_OVERLAY_TYPES) expect(guide).toContain(`**${type}**`);
     expect(guide).toContain("../../tests/conventions/overlay-contract.test.ts");
     expect(guide).toContain("Preferred patterns:");
     expect(guide).toContain("Prohibited patterns:");
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
-    "uses no legacy viewport units",
-    () => {
-      const found = violations((line) => LEGACY_VIEWPORT_UNIT.test(line.text));
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("uses no legacy viewport units", () => {
+    const found = violations((line) => LEGACY_VIEWPORT_UNIT.test(line.text));
 
-      expect(
-        found,
-        `Use the overlay tokens or svh/dvh instead of vh/vw/screen:\n${found.join("\n")}`,
-      ).toEqual([]);
-    },
-  );
+    expect(found, `Use the overlay tokens or svh/dvh instead of vh/vw/screen:\n${found.join("\n")}`).toEqual([]);
+  });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
-    "reads safe-area insets through the shared tokens",
-    () => {
-      const found = violations((line) => RAW_SAFE_AREA.test(line.text));
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("reads safe-area insets through the shared tokens", () => {
+    const found = violations((line) => RAW_SAFE_AREA.test(line.text));
 
-      expect(
-        found,
-        `Use var(--safe-top|right|bottom|left) from styles/globals.css:\n${found.join("\n")}`,
-      ).toEqual([]);
-    },
-  );
+    expect(found, `Use var(--safe-top|right|bottom|left) from styles/globals.css:\n${found.join("\n")}`).toEqual([]);
+  });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "routes floating surfaces through a collision-aware primitive",
@@ -320,19 +252,14 @@ describe("overlay contract", () => {
     },
   );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
-    "has no detached absolute dropdown panels",
-    () => {
-      const found = violations((line) =>
-        DETACHED_ABSOLUTE_PANEL.test(line.text),
-      );
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has no detached absolute dropdown panels", () => {
+    const found = violations((line) => DETACHED_ABSOLUTE_PANEL.test(line.text));
 
-      expect(
-        found,
-        `An absolute top-full panel is clipped by scrolling ancestors and cannot flip. Use Popover:\n${found.join("\n")}`,
-      ).toEqual([]);
-    },
-  );
+    expect(
+      found,
+      `An absolute top-full panel is clipped by scrolling ancestors and cannot flip. Use Popover:\n${found.join("\n")}`,
+    ).toEqual([]);
+  });
 
   it("pins the viewport contract", () => {
     const layout = readFileSync(join(REPO_ROOT, "app/layout.tsx"), "utf8");
@@ -348,18 +275,14 @@ describe("overlay contract", () => {
 
     for (const { file, mustContain } of PRIMITIVE_DEFAULTS) {
       const text = readFileSync(join(REPO_ROOT, file), "utf8");
-      for (const needle of mustContain)
-        if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
+      for (const needle of mustContain) if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
 
     expect(missing, missing.join("\n")).toEqual([]);
   });
 
   it("keeps AppModal responsive while supporting guarded wide task modals", () => {
-    const appModal = readFileSync(
-      join(REPO_ROOT, "components/modal/app-modal.tsx"),
-      "utf8",
-    );
+    const appModal = readFileSync(join(REPO_ROOT, "components/modal/app-modal.tsx"), "utf8");
 
     expect(appModal).toContain('useIsWiderThan("md")');
     expect(appModal).toMatch(/<Dialog\b[^>]*\bopen={isOpen}/);
@@ -368,45 +291,18 @@ describe("overlay contract", () => {
   });
 
   it("keeps task overlay headers left-aligned", () => {
-    const contract = readFileSync(
-      join(REPO_ROOT, "components/ui/overlay-contract.ts"),
-      "utf8",
-    );
+    const contract = readFileSync(join(REPO_ROOT, "components/ui/overlay-contract.ts"), "utf8");
     expect(contract).toContain('OVERLAY_HEADER_ALIGNMENT_CLASS = "text-left"');
 
-    for (const file of [
-      "dialog.tsx",
-      "drawer.tsx",
-      "sheet.tsx",
-      "popover.tsx",
-      "alert-dialog.tsx",
-    ]) {
-      const primitive = readFileSync(
-        join(REPO_ROOT, "components/ui", file),
-        "utf8",
-      );
-      expect(
-        primitive,
-        `${file} must reuse the shared header alignment`,
-      ).toContain("OVERLAY_HEADER_ALIGNMENT_CLASS");
+    for (const file of ["dialog.tsx", "drawer.tsx", "sheet.tsx", "popover.tsx", "alert-dialog.tsx"]) {
+      const primitive = readFileSync(join(REPO_ROOT, "components/ui", file), "utf8");
+      expect(primitive, `${file} must reuse the shared header alignment`).toContain("OVERLAY_HEADER_ALIGNMENT_CLASS");
     }
 
-    const dialog = readFileSync(
-      join(REPO_ROOT, "components/ui/dialog.tsx"),
-      "utf8",
-    );
-    const drawer = readFileSync(
-      join(REPO_ROOT, "components/ui/drawer.tsx"),
-      "utf8",
-    );
-    const alertDialog = readFileSync(
-      join(REPO_ROOT, "components/ui/alert-dialog.tsx"),
-      "utf8",
-    );
-    const appCardHeader = readFileSync(
-      join(REPO_ROOT, "components/card/app-card-header.tsx"),
-      "utf8",
-    );
+    const dialog = readFileSync(join(REPO_ROOT, "components/ui/dialog.tsx"), "utf8");
+    const drawer = readFileSync(join(REPO_ROOT, "components/ui/drawer.tsx"), "utf8");
+    const alertDialog = readFileSync(join(REPO_ROOT, "components/ui/alert-dialog.tsx"), "utf8");
+    const appCardHeader = readFileSync(join(REPO_ROOT, "components/card/app-card-header.tsx"), "utf8");
 
     expect(dialog).not.toContain("text-center sm:text-left");
     expect(drawer).not.toContain("drawer-content:text-center");
@@ -420,46 +316,21 @@ describe("overlay contract", () => {
       text: readFileSync(absolute, "utf8"),
     }));
     const found = appModalHeaderActionViolations(sources);
-    const appModal = readFileSync(
-      join(REPO_ROOT, "components/modal/app-modal.tsx"),
-      "utf8",
-    );
-    const appModalAction = readFileSync(
-      join(REPO_ROOT, "components/modal/app-modal-action.tsx"),
-      "utf8",
-    );
-    const appCardHeader = readFileSync(
-      join(REPO_ROOT, "components/card/app-card-header.tsx"),
-      "utf8",
-    );
-    const dialog = readFileSync(
-      join(REPO_ROOT, "components/ui/dialog.tsx"),
-      "utf8",
-    );
-    const drawer = readFileSync(
-      join(REPO_ROOT, "components/ui/drawer.tsx"),
-      "utf8",
-    );
-    const sheet = readFileSync(
-      join(REPO_ROOT, "components/ui/sheet.tsx"),
-      "utf8",
-    );
-    const overlayContract = readFileSync(
-      join(REPO_ROOT, "components/ui/overlay-contract.ts"),
-      "utf8",
-    );
+    const appModal = readFileSync(join(REPO_ROOT, "components/modal/app-modal.tsx"), "utf8");
+    const appModalAction = readFileSync(join(REPO_ROOT, "components/modal/app-modal-action.tsx"), "utf8");
+    const appCardHeader = readFileSync(join(REPO_ROOT, "components/card/app-card-header.tsx"), "utf8");
+    const dialog = readFileSync(join(REPO_ROOT, "components/ui/dialog.tsx"), "utf8");
+    const drawer = readFileSync(join(REPO_ROOT, "components/ui/drawer.tsx"), "utf8");
+    const sheet = readFileSync(join(REPO_ROOT, "components/ui/sheet.tsx"), "utf8");
+    const overlayContract = readFileSync(join(REPO_ROOT, "components/ui/overlay-contract.ts"), "utf8");
 
     expect(
       found,
       `AppModal headers contain titles and metadata only. Pass controls through <AppModal actions={...}>:\n${found.join("\n")}`,
     ).toEqual([]);
     expect(appModal).toContain("actions?: AppModalActions");
-    expect(appModalAction).toContain(
-      "orderAppModalActions(actions).map((action)",
-    );
-    expect(appModal).toContain(
-      "<AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />",
-    );
+    expect(appModalAction).toContain("orderAppModalActions(actions).map((action)");
+    expect(appModal).toContain("<AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />");
     expect(appModalAction).toContain('data-slot="app-modal-actions"');
     expect(appModal).toContain("data-overlay-action-count={hasActions");
     expect(appModal).toContain("data-overlay-actions={hasActions");
@@ -467,31 +338,21 @@ describe("overlay contract", () => {
     expect(appModalAction).toContain('data-slot="app-modal-action"');
     expect(appModalAction).toContain('data-size="icon"');
     expect(appModalAction).toContain("OVERLAY_ACTION_RAIL_CLASS");
-    expect(overlayContract).toContain(
-      'variant: variant === "destructive" ? "ghostDestructive" : "ghost"',
-    );
+    expect(overlayContract).toContain('variant: variant === "destructive" ? "ghostDestructive" : "ghost"');
     expect(overlayContract).toContain('size: "icon-sm"');
-    expect(overlayContract).toContain(
-      "`absolute ${overlayIconControlClass()}`",
-    );
+    expect(overlayContract).toContain("`absolute ${overlayIconControlClass()}`");
     expect(overlayContract).not.toContain("rounded-xs");
     for (const surface of [dialog, drawer, sheet]) {
       expect(surface).toContain("className={cn(OVERLAY_CLOSE_CLASS");
-      expect(surface).toContain(
-        '<span className="sr-only">{t("Common.actions.close")}</span>',
-      );
-      expect(surface).toContain(
-        '<TooltipContent>{t("Common.actions.close")}</TooltipContent>',
-      );
+      expect(surface).toContain('<span className="sr-only">{t("Common.actions.close")}</span>');
+      expect(surface).toContain('<TooltipContent>{t("Common.actions.close")}</TooltipContent>');
     }
     expect(dialog).toContain("OVERLAY_CLOSE_POSITION_CLASS");
     expect(drawer).toContain("OVERLAY_CLOSE_POSITION_CLASS");
     expect(sheet).toContain("OVERLAY_SAFE_CLOSE_POSITION_CLASS");
     expect(appCardHeader).toContain("in-data-[overlay-action-count=1]:pr-24!");
     expect(appCardHeader).toContain("in-data-[overlay-action-count=2]:pr-36!");
-    expect(drawer).toContain(
-      "group-data-[overlay-actions]/drawer-content:hidden!",
-    );
+    expect(drawer).toContain("group-data-[overlay-actions]/drawer-content:hidden!");
 
     expect(
       appModalHeaderActionViolations([
@@ -530,12 +391,9 @@ describe("overlay contract", () => {
         if (match.index === undefined || match.index > bodyAt) continue;
 
         const attributes = match[2] ?? "";
-        if (attributes.includes("min-h-0") && attributes.includes("flex-1"))
-          continue;
+        if (attributes.includes("min-h-0") && attributes.includes("flex-1")) continue;
 
-        violations.push(
-          `${relative(REPO_ROOT, file)}: <${match[1]}> wraps AppCardBody without min-h-0 flex-1`,
-        );
+        violations.push(`${relative(REPO_ROOT, file)}: <${match[1]}> wraps AppCardBody without min-h-0 flex-1`);
       }
     }
 
@@ -551,10 +409,7 @@ describe("overlay contract", () => {
     // variants that match at any depth. It also leaves a bare padded strip for a reader whose
     // FormFooterActions returns null. The footer belongs beside AppCardBody, not around FormFooterActions.
     const violations = nestedOverlayFooterViolations(
-      sourceFiles().map((file) => ({
-        file: relative(REPO_ROOT, file),
-        text: readFileSync(file, "utf8"),
-      })),
+      sourceFiles().map((file) => ({ file: relative(REPO_ROOT, file), text: readFileSync(file, "utf8") })),
     );
 
     expect(
@@ -565,42 +420,26 @@ describe("overlay contract", () => {
     // The probe lives here rather than in a fixture file, because sourceFiles() walks __tests__.
     expect(
       nestedOverlayFooterViolations([
-        {
-          file: "bad.tsx",
-          text: "<AppCardFooter>\n  <FormFooterActions store={s} />\n</AppCardFooter>",
-        },
+        { file: "bad.tsx", text: "<AppCardFooter>\n  <FormFooterActions store={s} />\n</AppCardFooter>" },
       ]),
     ).toHaveLength(1);
-    expect(
-      nestedOverlayFooterViolations([
-        { file: "good.tsx", text: "<FormFooterActions store={s} />" },
-      ]),
-    ).toHaveLength(0);
+    expect(nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormFooterActions store={s} />" }])).toHaveLength(
+      0,
+    );
   });
 
   it("keeps delegated sheet card footers above the bottom safe area", () => {
-    const appCardFooter = readFileSync(
-      join(REPO_ROOT, "components/card/app-card-footer.tsx"),
-      "utf8",
-    );
+    const appCardFooter = readFileSync(join(REPO_ROOT, "components/card/app-card-footer.tsx"), "utf8");
 
-    expect(appCardFooter).toContain(
-      "in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]",
-    );
+    expect(appCardFooter).toContain("in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]");
   });
 
   it("keeps task-overlay headers and action footers divider-free", () => {
     const entityDetail = readFileSync(
-      join(
-        REPO_ROOT,
-        "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx",
-      ),
+      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx"),
       "utf8",
     );
-    const responsiveOverlay = readFileSync(
-      join(REPO_ROOT, "components/modal/responsive-overlay.tsx"),
-      "utf8",
-    );
+    const responsiveOverlay = readFileSync(join(REPO_ROOT, "components/modal/responsive-overlay.tsx"), "utf8");
     const footerViolations = sourcePatternViolations(OVERLAY_FOOTER_DIVIDER);
 
     expect(
@@ -613,22 +452,13 @@ describe("overlay contract", () => {
     for (const [file, functionName] of SHARED_OVERLAY_FOOTERS) {
       const source = functionSource(file, functionName);
       expect(source, `${functionName} must exist in ${file}`).not.toBe("");
-      expect(
-        source,
-        `${functionName} must not add an internal divider`,
-      ).not.toMatch(/\bborder-(?:t|b)\b/);
+      expect(source, `${functionName} must not add an internal divider`).not.toMatch(/\bborder-(?:t|b)\b/);
     }
   });
 
   it("pins focus return for controlled overlays without primitive triggers", () => {
-    const hook = readFileSync(
-      join(REPO_ROOT, "components/ui/use-overlay-focus-return.ts"),
-      "utf8",
-    );
-    const focusTarget = readFileSync(
-      join(REPO_ROOT, "components/ui/overlay-focus-target.ts"),
-      "utf8",
-    );
+    const hook = readFileSync(join(REPO_ROOT, "components/ui/use-overlay-focus-return.ts"), "utf8");
+    const focusTarget = readFileSync(join(REPO_ROOT, "components/ui/overlay-focus-target.ts"), "utf8");
 
     expect(hook).toContain("openRef.current = open");
     expect(hook).toContain("previousOpenRef.current = open");
@@ -641,54 +471,32 @@ describe("overlay contract", () => {
     expect(focusTarget).toContain("WeakRef<HTMLElement>");
     expect(focusTarget).toContain("document.getElementById(target.id)");
     expect(focusTarget).toContain("candidate.getClientRects().length === 0");
-    expect(focusTarget).toContain(
-      "[data-overlay-surface][data-state='closed']",
-    );
+    expect(focusTarget).toContain("[data-overlay-surface][data-state='closed']");
     expect(focusTarget).toContain("element.focus({ preventScroll: true })");
 
     const entityDrawer = readFileSync(
-      join(
-        REPO_ROOT,
-        "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx",
-      ),
+      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"),
       "utf8",
     );
-    expect(entityDrawer).toContain(
-      "focusReturnTarget={store.focusReturnTarget}",
-    );
-    expect(entityDrawer).toContain(
-      "focusReturnFallback={store.focusReturnFallback}",
-    );
+    expect(entityDrawer).toContain("focusReturnTarget={store.focusReturnTarget}");
+    expect(entityDrawer).toContain("focusReturnFallback={store.focusReturnFallback}");
 
-    const appSidebar = readFileSync(
-      join(REPO_ROOT, "app/components/app-sidebar.tsx"),
-      "utf8",
-    );
+    const appSidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
     expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");
     expect(appSidebar).toContain("feedbackModalStore.openFrom(invoker");
     expect(appSidebar).toContain('document.getElementById("sidebar-trigger")');
 
     const missing = CONTROLLED_FOCUS_RETURN_SURFACES.filter(
-      (file) =>
-        !readFileSync(join(REPO_ROOT, file), "utf8").includes(
-          "useOverlayFocusReturn(",
-        ),
+      (file) => !readFileSync(join(REPO_ROOT, file), "utf8").includes("useOverlayFocusReturn("),
     );
 
-    expect(
-      missing,
-      `Controlled overlays missing focus return:\n${missing.join("\n")}`,
-    ).toEqual([]);
+    expect(missing, `Controlled overlays missing focus return:\n${missing.join("\n")}`).toEqual([]);
   });
 
   it("defines the overlay tokens exactly once", () => {
     const css = readFileSync(join(REPO_ROOT, "styles/globals.css"), "utf8");
 
-    for (const token of [
-      "--viewport-block",
-      "--overlay-block-budget",
-      "--sheet-block-budget",
-    ])
+    for (const token of ["--viewport-block", "--overlay-block-budget", "--sheet-block-budget"])
       expect(css).toContain(`${token}:`);
 
     expect(css).toContain("@supports (height: 1dvh)");
@@ -696,32 +504,17 @@ describe("overlay contract", () => {
 
   it("sees the expected overlay surface", () => {
     expect(LINES.length).toBeGreaterThan(20000);
-    expect(LINES.some((line) => line.file === "components/ui/dialog.tsx")).toBe(
-      true,
-    );
-    expect(LINES.some((line) => FIXED_FLOATING_SURFACE.test(line.text))).toBe(
-      true,
-    );
-    expect(
-      LINES.some((line) =>
-        line.text.includes("--radix-popover-content-available-width"),
-      ),
-    ).toBe(true);
+    expect(LINES.some((line) => line.file === "components/ui/dialog.tsx")).toBe(true);
+    expect(LINES.some((line) => FIXED_FLOATING_SURFACE.test(line.text))).toBe(true);
+    expect(LINES.some((line) => line.text.includes("--radix-popover-content-available-width"))).toBe(true);
   });
 
   it("keeps the fixed-surface allowlist free of stale entries", () => {
     const stale = [...FIXED_SURFACE_ALLOWLIST].filter(
-      (file) =>
-        !LINES.some(
-          (line) =>
-            line.file === file && FIXED_FLOATING_SURFACE.test(line.text),
-        ),
+      (file) => !LINES.some((line) => line.file === file && FIXED_FLOATING_SURFACE.test(line.text)),
     );
 
-    expect(
-      stale,
-      `No longer a raw fixed surface, drop from the allowlist:\n${stale.join("\n")}`,
-    ).toEqual([]);
+    expect(stale, `No longer a raw fixed surface, drop from the allowlist:\n${stale.join("\n")}`).toEqual([]);
   });
 
   it("detects the contract violations in synthetic sources", () => {
@@ -735,18 +528,9 @@ describe("overlay contract", () => {
       `const prose = "the layout is fixed and the height is one screen";`,
     ];
 
-    expect(probe.filter((line) => LEGACY_VIEWPORT_UNIT.test(line))).toEqual([
-      probe[0],
-      probe[1],
-    ]);
-    expect(probe.filter((line) => FIXED_FLOATING_SURFACE.test(line))).toEqual([
-      probe[2],
-    ]);
-    expect(probe.filter((line) => DETACHED_ABSOLUTE_PANEL.test(line))).toEqual([
-      probe[3],
-    ]);
-    expect(probe.filter((line) => RAW_SAFE_AREA.test(line))).toEqual([
-      probe[5],
-    ]);
+    expect(probe.filter((line) => LEGACY_VIEWPORT_UNIT.test(line))).toEqual([probe[0], probe[1]]);
+    expect(probe.filter((line) => FIXED_FLOATING_SURFACE.test(line))).toEqual([probe[2]]);
+    expect(probe.filter((line) => DETACHED_ABSOLUTE_PANEL.test(line))).toEqual([probe[3]]);
+    expect(probe.filter((line) => RAW_SAFE_AREA.test(line))).toEqual([probe[5]]);
   });
 });
