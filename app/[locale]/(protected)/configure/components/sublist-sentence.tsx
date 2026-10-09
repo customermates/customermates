@@ -17,8 +17,15 @@ export function SublistSentence({
   onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
   const t = useTranslations();
-  const sentence = confirmationSentence((values) => t("RecordModel.sublistSentence", { ...values, parent: parent.label }), {
-    list: { label: parent.pluralLabel, icon: { list: parent.icon }, href: focusHref({ kind: "list", id: parent.id }) },
-  });
+  const sentence = confirmationSentence(
+    (values) => t("RecordModel.sublistSentence", { ...values, parent: parent.label }),
+    {
+      list: {
+        label: parent.pluralLabel,
+        icon: { list: parent.icon },
+        href: focusHref({ kind: "list", id: parent.id }),
+      },
+    },
+  );
   return <ConfirmationSentenceView sentence={sentence} onNavigate={onNavigate} />;
 }
