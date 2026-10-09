@@ -13,6 +13,7 @@ import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordValue } from "./record-value";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -43,7 +44,7 @@ export function RecordCell({
   const t = useTranslations();
   const intl = useHydratedIntlStore();
   const copy = useCopyToClipboard();
-  const empty = <span className="text-muted-foreground">—</span>;
+  const empty = <EmptyValue />;
   if (column.kind === "identity") {
     return record.identities?.length ? (
       <ChannelIconStack

@@ -39,8 +39,9 @@ describe("AppModalAction", () => {
     expect(html).toContain('data-slot="app-modal-action"');
     expect(html).toContain('data-variant="neutral"');
     expect(html).toContain('data-as-child=""');
-    expect(html).toContain("size-9");
-    expect(html).not.toContain("size-8");
+    expect(html).toContain("size-8");
+    expect(html).toContain("rounded-md");
+    expect(html).not.toContain("rounded-xs");
     expect(html).toContain("disabled");
     expect(html).toContain('aria-hidden="true"');
     expect(html).toContain('data-slot="tooltip-content">Refresh</span>');
@@ -75,7 +76,7 @@ describe("AppModalAction", () => {
     });
 
     expect(html).toContain('data-variant="destructive"');
-    expect(html).toContain("size-9");
+    expect(html).toContain("size-8");
     expect(html).toContain("text-destructive");
     expect(html).not.toContain("bg-destructive text-white");
   });
