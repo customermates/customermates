@@ -1,6 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ValidateWidgetIdsInteractor } from "@/core/validation/validators/validate-widget-ids.interactor";
 import type { TrashRepo } from "@/features/trash/trash.repo";
+import type { DeleteWidgetRepo } from "./delete-widget.repo";
 
 import { randomUUID } from "node:crypto";
 
@@ -16,10 +17,6 @@ const Schema = z.object({
   id: z.uuid(),
 });
 export type DeleteWidgetData = Data<typeof Schema>;
-
-export abstract class DeleteWidgetRepo {
-  abstract trashWidget(id: string): Promise<{ name: string } | null>;
-}
 
 const DeleteWidgetResultSchema = z.object({ id: z.uuid(), trashBatchId: z.uuid() });
 export type DeleteWidgetResult = Data<typeof DeleteWidgetResultSchema>;

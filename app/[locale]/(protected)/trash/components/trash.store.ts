@@ -3,7 +3,12 @@ import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import type { ConfirmationSentence } from "@/components/modal/confirmation-sentence";
 import type { MovedToTrash } from "@/features/trash/moved-to-trash";
-import type { RestoreTrashData, TrashDeletionPreview, TrashItemDto } from "@/features/trash/trash.schema";
+import type {
+  RestoreTrashData,
+  TrashDeletionPreview,
+  TrashItemDto,
+  TrashRestoreBlocker,
+} from "@/features/trash/trash.schema";
 
 import { action, makeObservable, observable } from "mobx";
 import { toast } from "sonner";
@@ -20,12 +25,22 @@ import {
   restoreTrashAction,
 } from "../actions";
 
+const RESTORE_BLOCKED_KEYS: Record<TrashRestoreBlocker["reason"], string> = {
+  listDeleted: "Trash.restoreBlocked.listDeleted",
+  parentDeleted: "Trash.restoreBlocked.parentDeleted",
+  notFound: "Trash.restoreBlocked.notFound",
+  requiresRestore: "Trash.restoreBlocked.requiresRestore",
+  nameTaken: "Trash.restoreBlocked.nameTaken",
+};
+
+const countBy = <T>(values: T[]) =>
+  values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map<T, number>());
+
 const UNDO_TOAST_DURATION_MS = 8000;
 
 export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   isMutating = false;
   pendingRestoreOperation: string | null = null;
-  private restoreListeners = new Set<() => unknown>();
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -68,6 +83,15 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     this.isMutating = value;
   }
 
+  private async whileMutating<T>(work: () => Promise<T>): Promise<T> {
+    this.setMutating(true);
+    try {
+      return await work();
+    } finally {
+      this.setMutating(false);
+    }
+  }
+
   private setPendingRestoreOperation(operationId: string | null) {
     this.pendingRestoreOperation = operationId;
   }
@@ -77,7 +101,6 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     await Promise.all([
       this.isReady ? this.refreshQuery() : undefined,
       this.rootStore.recordWorkspaceStore.invalidate(),
-      ...[...this.restoreListeners].map((listener) => listener()),
     ]);
   };
 
@@ -91,11 +114,6 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     this.setPendingRestoreOperation(null);
   };
 
-  onRestored = (listener: () => unknown) => {
-    this.restoreListeners.add(listener);
-    return () => this.restoreListeners.delete(listener);
-  };
-
   announceMovedToTrash = ({ trashBatchId }: MovedToTrash, onRestored?: () => unknown) => {
     toast.success(this.t("Trash.movedToTrash"), {
       duration: UNDO_TOAST_DURATION_MS,
@@ -103,13 +121,13 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
         label: this.t("Trash.undo"),
         onClick: () =>
           runUserAction(async () => {
-            if (await this.restore({ batchId: trashBatchId })) await onRestored?.();
+            if ((await this.restore({ batchId: trashBatchId })) === "restored") await onRestored?.();
           }),
       },
     });
   };
 
-  restore = async (data: RestoreTrashData): Promise<boolean> => {
+  restore = async (data: RestoreTrashData): Promise<"restored" | "pending" | false> => {
     if (this.isMutating) return false;
     this.setMutating(true);
     try {
@@ -122,22 +140,23 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       if (outcome.status === "pending") {
         this.setPendingRestoreOperation(outcome.operationId);
         this.toastSuccess("Trash.restorePending");
-        return true;
+        return "pending";
       }
-      if (outcome.blocked.length > 0)
-        this.toastError("Trash.restoreBlocked", { values: { count: outcome.blocked.length } });
-      else if (outcome.droppedLinks > 0)
+      const restoredCount = outcome.restoredItemIds.length;
+      if (restoredCount > 0 && outcome.droppedLinks > 0)
         this.toastSuccess("Trash.restoredWithDroppedLinks", { values: { count: outcome.droppedLinks } });
-      else this.toastSuccess("Trash.restored", { values: { count: outcome.restoredItemIds.length } });
-      const restored = outcome.restoredItemIds.length > 0;
-      if (restored) await this.afterRestore();
-      return restored;
+      else if (restoredCount > 0) this.toastSuccess("Trash.restored", { values: { count: restoredCount } });
+      for (const [reason, count] of countBy(outcome.blocked.map((blocker) => blocker.reason)))
+        this.toastError(RESTORE_BLOCKED_KEYS[reason], { values: { count } });
+      if (restoredCount === 0) return false;
+      await this.afterRestore();
+      return "restored";
     } finally {
       this.setMutating(false);
     }
   };
 
-  restoreItems = (itemIds: string[]) => this.restore({ itemIds });
+  restoreItems = async (itemIds: string[]) => (await this.restore({ itemIds })) !== false;
 
   private previewSentences(preview: TrashDeletionPreview): Array<string | ConfirmationSentence> {
     return [
@@ -180,7 +199,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
 
   requestPermanentDelete = async (itemIds: string[], name?: string) => {
     if (itemIds.length === 0 || this.isMutating) return;
-    const result = await previewTrashDeletionAction({ itemIds });
+    const result = await this.whileMutating(() => previewTrashDeletionAction({ itemIds }));
     if (!result.ok) {
       toastZodErrorTree(result.error);
       return;
@@ -206,7 +225,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
 
   requestEmpty = async () => {
     if (!this.canEmpty || this.isMutating) return;
-    const result = await previewTrashDeletionAction({ all: true });
+    const result = await this.whileMutating(() => previewTrashDeletionAction({ all: true }));
     if (!result.ok) {
       toastZodErrorTree(result.error);
       return;

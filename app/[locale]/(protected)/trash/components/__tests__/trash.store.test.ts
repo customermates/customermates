@@ -87,7 +87,7 @@ describe("TrashStore", () => {
       },
     });
     expect(await store.restoreItems([ITEM_ID])).toBe(false);
-    expect(sonner.toast.error).toHaveBeenCalledWith('Trash.restoreBlocked:{"count":1}', expect.anything());
+    expect(sonner.toast.error).toHaveBeenCalledWith('Trash.restoreBlocked.listDeleted:{"count":1}', expect.anything());
 
     trashActions.restoreTrashAction.mockResolvedValueOnce({
       ok: true,

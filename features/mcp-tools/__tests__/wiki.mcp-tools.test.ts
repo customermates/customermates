@@ -94,7 +94,7 @@ describe("manage_wiki_pages registry", () => {
   });
 
   it("says delete moves to Trash and that a changed page restarts chunking", () => {
-    expect(manageWikiPagesTool.description).toContain("delete moves the page to Trash;");
+    expect(manageWikiPagesTool.description).toContain("delete moves the page to Trash,");
     expect(manageWikiPagesTool.description).toContain("restart at 0 if updatedAt changes.");
   });
 });

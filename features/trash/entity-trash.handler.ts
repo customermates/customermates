@@ -1,22 +1,34 @@
-import type { Resource } from "@/generated/prisma";
+import type { Prisma } from "@/generated/prisma";
 import type { TrashItem, TrashRepo } from "./trash.repo";
 import type { TrashKindHandler, TrashKindImpact, TrashKindRestore } from "./trash-kind-handler";
 import type { TrashKind, TrashRestoreBlocker } from "./trash.schema";
 
-import { Action, Prisma } from "@/generated/prisma";
-import { rolePermits } from "@/core/base/permission.service";
-import { UserAccessor } from "@/core/base/user-accessor";
+import type { DomainEvent } from "@/features/event/domain-events";
+import type { EventService } from "@/features/event/event.service";
 
 export type TrashableEntityRepo = {
   restoreTrashed(ids: string[]): Promise<string[]>;
   purgeTrashed(ids: string[]): Promise<void>;
 };
 
+export type EntityTrashAudit =
+  | {
+      restored: DomainEvent.ROUTINE_RESTORED;
+      deletedPermanently: DomainEvent.ROUTINE_DELETED_PERMANENTLY;
+      label: "name";
+    }
+  | {
+      restored: DomainEvent.WIKI_PAGE_RESTORED;
+      deletedPermanently: DomainEvent.WIKI_PAGE_DELETED_PERMANENTLY;
+      label: "title";
+    };
+
 export type EntityTrashKind = {
   kind: TrashKind;
   restoreOrder: number;
   visibility: (alias: Prisma.Sql) => Promise<Prisma.Sql>;
   blockers?: (items: TrashItem[]) => Promise<TrashRestoreBlocker[]>;
+  audit?: EntityTrashAudit;
 };
 
 export class EntityTrashHandler implements TrashKindHandler {
@@ -27,6 +39,8 @@ export class EntityTrashHandler implements TrashKindHandler {
     private definition: EntityTrashKind,
     private repo: TrashableEntityRepo,
     private trash: TrashRepo,
+    private events: EventService,
+    private scopedCompanyId?: string,
   ) {
     this.kinds = [definition.kind];
     this.restoreOrder = definition.restoreOrder;
@@ -44,6 +58,11 @@ export class EntityTrashHandler implements TrashKindHandler {
     const missing = candidates.filter((item) => !restored.has(item.targetId));
     const restoredItemIds = candidates.filter((item) => restored.has(item.targetId)).map((item) => item.id);
     await this.trash.remove([...restoredItemIds, ...missing.map((item) => item.id)]);
+    await this.publish(
+      "restored",
+      candidates.filter((item) => restored.has(item.targetId)),
+      null,
+    );
     return {
       restoredItemIds,
       blocked: [
@@ -59,29 +78,22 @@ export class EntityTrashHandler implements TrashKindHandler {
     return Promise.resolve({ removedRecords: [], removedLinks: 0 });
   }
 
-  async purge(items: TrashItem[]): Promise<void> {
+  async purge(items: TrashItem[], actorId: string | null): Promise<void> {
     await this.repo.purgeTrashed(items.map((item) => item.targetId));
     await this.trash.remove(items.map((item) => item.id));
-  }
-}
-
-const kindSql = (kind: TrashKind) => Prisma.raw(`'${kind}'`);
-
-export class EntityTrashVisibility extends UserAccessor {
-  owned(kind: TrashKind) {
-    return (alias: Prisma.Sql) =>
-      Promise.resolve(Prisma.sql`(${alias}.kind = ${kindSql(kind)} AND ${alias}."ownerUserId" = ${this.userId})`);
+    await this.publish("deletedPermanently", items, actorId);
   }
 
-  permitted(kind: TrashKind, resource: Resource) {
-    return (alias: Prisma.Sql) =>
-      Promise.resolve(
-        rolePermits(this.user.role, resource, Action.delete) ? Prisma.sql`${alias}.kind = ${kindSql(kind)}` : Prisma.sql`FALSE`,
+  private async publish(change: "restored" | "deletedPermanently", items: TrashItem[], actorId: string | null) {
+    const audit = this.definition.audit;
+    if (!audit) return;
+    const system = this.scopedCompanyId === undefined ? undefined : { systemCompanyId: this.scopedCompanyId };
+    for (const item of items) {
+      await this.events.publish(
+        audit[change],
+        { entityId: item.targetId, payload: { id: item.targetId, [audit.label]: item.label } } as never,
+        change === "deletedPermanently" && actorId === null ? system : undefined,
       );
-  }
-
-  administered(kind: TrashKind) {
-    return (alias: Prisma.Sql) =>
-      Promise.resolve(this.user.role?.isSystemRole ? Prisma.sql`${alias}.kind = ${kindSql(kind)}` : Prisma.sql`FALSE`);
+    }
   }
 }

@@ -104,7 +104,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       );
     if (!all) {
       const count = await this.prisma.$executeRaw(
-        Prisma.sql`UPDATE "DataView" SET ${Prisma.join(changes)}, "updatedAt" = CURRENT_TIMESTAMP WHERE "companyId" = ${companyId} AND "userId" = ${userId} AND "surfaceKey" = ${surfaceKey} AND id = ${viewKey}`,
+        Prisma.sql`UPDATE "DataView" SET ${Prisma.join(changes)}, "updatedAt" = CURRENT_TIMESTAMP WHERE "companyId" = ${companyId} AND "userId" = ${userId} AND "surfaceKey" = ${surfaceKey} AND id = ${viewKey} AND "deletedAt" IS NULL`,
       );
       return count === 1;
     }

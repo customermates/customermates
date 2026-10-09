@@ -2,7 +2,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import deepEqual from "fast-deep-equal";
 import { recordJson } from "@/features/records/record-storage";
 import type { RepoArgs } from "@/core/utils/types";
-import type { DeleteWidgetRepo } from "./delete-widget.interactor";
+import type { DeleteWidgetRepo } from "./delete-widget.repo";
 import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";

@@ -571,7 +571,7 @@ export class PrismaWikiPageRepo
       const pages = await this.prisma.$queryRaw<Array<{ id: string; sample: string }>>(Prisma.sql`
         SELECT "id", left("markdown", ${WIKI_LANGUAGE_SAMPLE_CHARACTERS}) AS "sample"
         FROM "WikiPage"
-        WHERE "companyId" = ${this.companyId} AND "id" > ${after}
+        WHERE "companyId" = ${this.companyId} AND "deletedAt" IS NULL AND "id" > ${after}
         ORDER BY "id" ASC LIMIT 100
       `);
       for (const page of pages) {
@@ -728,7 +728,7 @@ export class PrismaWikiPageRepo
 
   async findImportedPage(sourceUrl: string) {
     return this.prisma.wikiPage.findFirst({
-      where: { companyId: this.companyId, sourceUrl, deletedAt: null },
+      where: { companyId: this.companyId, sourceUrl },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       select: {
         id: true,

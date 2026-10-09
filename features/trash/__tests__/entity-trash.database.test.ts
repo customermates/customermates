@@ -26,7 +26,8 @@ const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tena
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
 const { PrismaTrashRepo } = await import("../prisma-trash.repository");
-const { EntityTrashHandler, EntityTrashVisibility } = await import("../entity-trash.handler");
+const { EntityTrashHandler } = await import("../entity-trash.handler");
+const { EntityTrashVisibility } = await import("../entity-trash-visibility");
 const { QueryTrashInteractor } = await import("../query-trash.interactor");
 const { RestoreTrashInteractor } = await import("../restore-trash.interactor");
 const { DeleteTrashPermanentlyInteractor } = await import("../delete-trash-permanently.interactor");
@@ -82,6 +83,7 @@ async function fixture() {
       { kind: "view", restoreOrder: 2, visibility: visibility.owned("view") },
       new PrismaDataViewRepo(),
       trashRepo,
+      events,
     ),
     new EntityTrashHandler(
       {
@@ -97,11 +99,13 @@ async function fixture() {
       },
       widgets,
       trashRepo,
+      events,
     ),
     new EntityTrashHandler(
       { kind: "routine", restoreOrder: 2, visibility: visibility.administered("routine") },
       getRoutineRepo(),
       trashRepo,
+      events,
     ),
   ];
   const trash = {
@@ -193,7 +197,12 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
     expect(live).toEqual([{ id: loose.id }]);
 
     const viewItems = (await f.items(f.admin)).filter((item) => item.kind === "view");
-    expect(await f.purge(f.admin, viewItems.map((item) => item.id))).toMatchObject({ ok: true });
+    expect(
+      await f.purge(
+        f.admin,
+        viewItems.map((item) => item.id),
+      ),
+    ).toMatchObject({ ok: true });
     expect(
       await runWithoutTenant(() =>
         prisma.widget.findMany({ where: { companyId: f.seed.company.id }, select: { id: true } }),

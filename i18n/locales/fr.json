@@ -1174,7 +1174,9 @@
       },
       "routine": {
         "created": "Routine créée",
-        "deleted": "Routine supprimée",
+        "deleted": "Routine déplacée dans la corbeille",
+        "deletedPermanently": "Routine supprimée définitivement",
+        "restored": "Routine restaurée",
         "updated": "Routine mise à jour"
       },
       "user": {
@@ -1188,7 +1190,9 @@
       },
       "wiki_page": {
         "created": "Page de la base de connaissances créée",
-        "deleted": "Page de la base de connaissances supprimée",
+        "deleted": "Page de la base de connaissances déplacée dans la corbeille",
+        "deletedPermanently": "Page de la base de connaissances supprimée définitivement",
+        "restored": "Page de la base de connaissances restaurée",
         "updated": "Page de la base de connaissances mise à jour"
       }
     },
@@ -3968,11 +3972,17 @@
     "permanentMessage": "{count, plural, one {Cet élément est supprimé} other {Ces # éléments sont supprimés}} définitivement.",
     "permanentRecords": "{list} : {count, plural, one {# enregistrement} other {# enregistrements}}",
     "restore": "Restaurer",
-    "restoreBlocked": "{count, plural, one {# élément n'a pas pu être restauré car sa liste ou son parent est dans la corbeille} other {# éléments n'ont pas pu être restaurés car leur liste ou leur parent est dans la corbeille}}",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car leur liste est dans la corbeille. Restaurez d'abord la liste.",
+      "nameTaken": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un autre élément utilise désormais leur nom ou leur place.",
+      "notFound": "{count, plural, one {# élément n'existe plus et a quitté} other {# éléments n'existent plus et ont quitté}} la corbeille.",
+      "parentDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car ce à quoi ils appartiennent est dans la corbeille. Restaurez-le d'abord.",
+      "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord."
+    },
     "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
     "restoredInBackground": "Restaur\u00e9",
     "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
-    "restorePending": "Restauration en arrière-plan",
+    "restorePending": "Restauration en arrière-plan. La corbeille affiche la progression.",
     "searchPlaceholder": "Rechercher dans la corbeille",
     "undo": "Annuler"
   },

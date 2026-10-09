@@ -272,12 +272,11 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
         id: this.form.id,
         expectedUpdatedAt: this.form.updatedAt,
       });
-      if (generation !== this.viewGeneration) return false;
       if (!result.ok) {
-        this.setError(serializedFailureErrorTree(result.failure));
+        if (generation === this.viewGeneration) this.setError(serializedFailureErrorTree(result.failure));
         return false;
       }
-      this.completeMutation(null, previousSelection);
+      if (generation === this.viewGeneration) this.completeMutation(null, previousSelection);
       return { trashBatchId: result.data.trashBatchId };
     } finally {
       if (generation === this.viewGeneration) this.setIsLoading(false);

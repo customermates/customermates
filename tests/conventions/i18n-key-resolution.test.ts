@@ -999,6 +999,16 @@ const OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE = Object.fromEntries(
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
+    file: "app/[locale]/(protected)/trash/components/trash.store.ts",
+    keys: [
+      "Trash.restoreBlocked.listDeleted",
+      "Trash.restoreBlocked.parentDeleted",
+      "Trash.restoreBlocked.notFound",
+      "Trash.restoreBlocked.requiresRestore",
+      "Trash.restoreBlocked.nameTaken",
+    ],
+  },
+  {
     file: "app/[locale]/(protected)/records/[typeId]/components/record-editor-fields.tsx",
     keys: [
       "RecordModel.captureOnSave",

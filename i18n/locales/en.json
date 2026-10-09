@@ -1174,7 +1174,9 @@
       },
       "routine": {
         "created": "Routine Created",
-        "deleted": "Routine Deleted",
+        "deleted": "Routine Moved to Trash",
+        "deletedPermanently": "Routine Deleted Permanently",
+        "restored": "Routine Restored",
         "updated": "Routine Updated"
       },
       "user": {
@@ -1188,7 +1190,9 @@
       },
       "wiki_page": {
         "created": "Knowledge Base Page Created",
-        "deleted": "Knowledge Base Page Deleted",
+        "deleted": "Knowledge Base Page Moved to Trash",
+        "deletedPermanently": "Knowledge Base Page Deleted Permanently",
+        "restored": "Knowledge Base Page Restored",
         "updated": "Knowledge Base Page Updated"
       }
     },
@@ -3968,11 +3972,17 @@
     "permanentMessage": "{count, plural, one {This item is} other {These # items are}} deleted permanently.",
     "permanentRecords": "{list}: {count, plural, one {# record} other {# records}}",
     "restore": "Restore",
-    "restoreBlocked": "{count, plural, one {# item could not be restored because its list or parent is in Trash} other {# items could not be restored because their list or parent is in Trash}}",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because their list is in Trash. Restore the list first.",
+      "nameTaken": "{count, plural, one {# item stays} other {# items stay}} in Trash because another item now uses their name or place.",
+      "notFound": "{count, plural, one {# item} other {# items}} no longer exist and left Trash.",
+      "parentDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because what they belong to is in Trash. Restore that first.",
+      "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first."
+    },
     "restored": "{count, plural, one {# item restored} other {# items restored}}",
     "restoredInBackground": "Restored",
     "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
-    "restorePending": "Restoring in the background",
+    "restorePending": "Restoring in the background. Trash shows the progress.",
     "searchPlaceholder": "Search Trash",
     "undo": "Undo"
   },

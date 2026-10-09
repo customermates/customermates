@@ -106,7 +106,8 @@ import { MutateRecordInteractor } from "@/features/records/mutate-record.interac
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
-import { EntityTrashHandler, EntityTrashVisibility } from "@/features/trash/entity-trash.handler";
+import { EntityTrashHandler } from "@/features/trash/entity-trash.handler";
+import { EntityTrashVisibility } from "@/features/trash/entity-trash-visibility";
 import { RecordTrashHandler } from "@/features/records/record-trash.handler";
 import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import type { TrashKindHandler } from "@/features/trash/trash-kind-handler";
@@ -514,14 +515,28 @@ export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => 
 ];
 const entityTrashHandlers = (companyId?: string) => {
   const visibility = new EntityTrashVisibility();
+  const events = getEventService();
   const trash = getTrashRepo(companyId);
   const widgets = new PrismaWidgetRepo(companyId);
   const wikiPages = getWikiPageRepo(companyId);
   return [
     new EntityTrashHandler(
-      { kind: "view", restoreOrder: 2, visibility: visibility.owned("view") },
+      {
+        kind: "view",
+        restoreOrder: 2,
+        visibility: visibility.owned("view"),
+        blockers: async (items) => {
+          const model = await new PrismaRecordRepo(companyId, getBackgroundTaskService()).getModel();
+          const live = new Set(model.types.filter((type) => !type.archived).map((type) => type.id));
+          return items
+            .filter((item) => item.typeId !== null && !live.has(item.typeId))
+            .map((item) => ({ itemId: item.id, reason: "listDeleted" as const, typeId: item.typeId }));
+        },
+      },
       new PrismaDataViewRepo(companyId),
       trash,
+      events,
+      companyId,
     ),
     new EntityTrashHandler(
       {
@@ -537,17 +552,35 @@ const entityTrashHandlers = (companyId?: string) => {
       },
       widgets,
       trash,
+      events,
+      companyId,
     ),
     new EntityTrashHandler(
-      { kind: "routine", restoreOrder: 2, visibility: visibility.administered("routine") },
+      {
+        kind: "routine",
+        restoreOrder: 2,
+        visibility: visibility.administered("routine"),
+        audit: {
+          restored: DomainEvent.ROUTINE_RESTORED,
+          deletedPermanently: DomainEvent.ROUTINE_DELETED_PERMANENTLY,
+          label: "name",
+        },
+      },
       getRoutineRepo(companyId),
       trash,
+      events,
+      companyId,
     ),
     new EntityTrashHandler(
       {
         kind: "wikiPage",
         restoreOrder: 2,
         visibility: visibility.permitted("wikiPage", Resource.wiki),
+        audit: {
+          restored: DomainEvent.WIKI_PAGE_RESTORED,
+          deletedPermanently: DomainEvent.WIKI_PAGE_DELETED_PERMANENTLY,
+          label: "title",
+        },
         blockers: async (items) => {
           const blocked = new Set(await wikiPages.guidesBlockingRestore(items.map((item) => item.targetId)));
           return items
@@ -557,6 +590,8 @@ const entityTrashHandlers = (companyId?: string) => {
       },
       wikiPages,
       trash,
+      events,
+      companyId,
     ),
   ];
 };
