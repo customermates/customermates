@@ -126,6 +126,16 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   await expect(node).toContainText("Sub-list of Deals");
   await expect(node.locator("[data-configure-sublist-explanation]")).toBeVisible();
   await expect(page.locator("[data-configure-sublist-group]")).toHaveCount(1);
+  const header = node.getByRole("button", { name: "Milestones", exact: true });
+  const headerBox = await header.boundingBox();
+  const dealHeaderBox = await deal.getByRole("button", { name: "Deals", exact: true }).boundingBox();
+  expect(headerBox?.height).toBeCloseTo(dealHeaderBox?.height ?? 0, 0);
+  const iconBox = await header.locator("svg").boundingBox();
+  const fieldNameBox = await node.locator("[data-configure-graph-field] .font-medium").first().boundingBox();
+  expect(fieldNameBox?.x).toBeCloseTo(iconBox?.x ?? 0, 0);
+  await expect(page.locator("[data-configure-relationship]").first().locator("..")).toHaveCSS("z-index", "auto");
+  await node.getByRole("button", { name: "Sub-list of Deals", exact: true }).click();
+  await expect(deal).toHaveAttribute("data-focus-highlight", "");
   await expect(node.getByRole("button", { name: "Add to Milestones", exact: true })).toBeVisible();
   await node.getByRole("button", { name: "Add to Milestones", exact: true }).focus();
   await page.keyboard.press("Enter");
