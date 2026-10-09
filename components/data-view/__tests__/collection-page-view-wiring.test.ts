@@ -15,6 +15,7 @@ const harness = vi.hoisted(() => ({
   roleEdit: vi.fn(),
   routineCreate: vi.fn(),
   routineEdit: vi.fn(),
+  routerPush: vi.fn(),
   setTopBarActions: vi.fn(),
   sync: vi.fn(),
   toolbarProps: vi.fn(),
@@ -26,6 +27,11 @@ const harness = vi.hoisted(() => ({
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+}));
+
+vi.mock("@/i18n/navigation", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  useRouter: () => ({ push: harness.routerPush }),
 }));
 
 vi.mock("@/app/components/topbar-actions-context", () => ({
@@ -291,6 +297,13 @@ const fixtures: Fixture[] = [
         bodyTemplate: undefined,
         enabled: true,
       });
+      const actions = (
+        props.rowActions as (value: typeof item) => { props: { contextAction: { onSelect: () => void } } }
+      )(item);
+      actions.props.contextAction.onSelect();
+      expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
+        "/settings/webhook-deliveries?filters=webhookId%3Ain%3Arow",
+      );
     },
     verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),
   },

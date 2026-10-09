@@ -2,6 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { configureTopBar, openConfigure, openConfigureRow, openDrawerTab } from "./configure";
+import { calculationChip, calculationFlow, pickOption } from "./calculation-flow";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 function captureErrors(page: Page) {
@@ -97,30 +98,32 @@ test("moves graph lists, keeps the layout per person and resets it", async ({ pa
   expect(errors).toEqual([]);
 });
 
-test("shows a live calculation path at the top of the Calculation tab", async ({ page, companyId }) => {
+test("shows the calculation as a node flow in the Calculation section", async ({ page, companyId }) => {
   const errors = captureErrors(page);
   await openConfigure(page, presetId(companyId, "deal"));
   await openConfigureRow(page, "Fields", "Value");
   await openDrawerTab(page, "Calculation");
   const dialog = page.getByRole("dialog");
-  const path = dialog.getByRole("figure", { name: "How the value is calculated", exact: true });
-  const steps = path.getByRole("list", { name: "Calculation path", exact: true }).getByRole("listitem");
-  await expect(steps).toHaveText(["Deal", /^via Line items \(.+\)$/, "Line item · Amount", "Sum", "Value"]);
-  await expect(path.locator("[data-calculation-sentence]")).toHaveText(
-    "Value = the sum of Amount across linked Line items.",
-  );
-  await expect(steps.first().locator("svg")).toHaveCount(1);
+  const flow = calculationFlow(page);
+  await expect(flow).toHaveAttribute("data-calculation-flow", "rollup");
+  await expect(flow.locator('[data-calculation-node="list"]')).toContainText("Deals");
+  await expect(calculationChip(page, "relationship")).toHaveText("Line items · One to many");
+  await expect(flow.locator('[data-calculation-node="linked"]')).toContainText("Line items");
+  await expect(calculationChip(page, "aggregate")).toHaveText("Sum");
+  await expect(calculationChip(page, "value")).toHaveText("Amount");
+  await expect(flow.locator('[data-calculation-node="result"]')).toContainText("Money");
+  await expect(flow.locator("[data-calculation-sentence]")).toHaveText("Value adds up the Amount of all linked Line items.");
+  await expect(flow.locator('[data-calculation-node="list"] svg').first()).toBeVisible();
 
-  await dialog.getByRole("combobox", { name: "Aggregation", exact: true }).click();
-  await page.getByRole("option", { name: "Average", exact: true }).click();
-  await expect(steps.nth(3)).toHaveText("Average");
-  await expect(path.locator("[data-calculation-sentence]")).toHaveText(
-    "Value = the average of Amount across linked Line items.",
+  await pickOption(page, calculationChip(page, "aggregate"), "Average");
+  await expect(calculationChip(page, "aggregate")).toHaveText("Average");
+  await expect(flow.locator("[data-calculation-sentence]")).toHaveText(
+    "Value is the average Amount of all linked Line items.",
   );
 
-  await dialog.getByRole("combobox", { name: "Relationship", exact: true }).click();
-  const relationshipOption = page.getByRole("option", { name: "Line items", exact: true });
-  await expect(relationshipOption.locator("span > svg").first()).toBeVisible();
+  await calculationChip(page, "relationship").click();
+  const relationshipOption = page.getByRole("option", { name: "Line items · One to many", exact: true });
+  await expect(relationshipOption.locator("svg").first()).toBeVisible();
   await page.keyboard.press("Escape");
   await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();

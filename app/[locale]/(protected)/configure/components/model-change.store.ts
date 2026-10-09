@@ -68,6 +68,9 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
   }
   abstract operations(): ConfigurationChange["operations"];
   protected abstract projectLatestModel(model: RecordModelView): Form | null;
+  protected validateDraft(): BaseModalStore<Form>["error"] {
+    return undefined;
+  }
   protected enrichPreviewChange(change: ConfigurationChange, _preview: ConfigurationPreview): ConfigurationChange {
     return change;
   }
@@ -277,6 +280,11 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
   }
   onSubmit = async () => {
     if (!this.isOpen || this.isLoading || this.pendingOperationId || this.isReadOnly) return;
+    const invalid = this.validateDraft();
+    if (invalid) {
+      this.setError(invalid);
+      return;
+    }
     const session = this.sessionGeneration;
     const draft = this.draftGeneration;
     const submittedForm = toJS(this.form);
