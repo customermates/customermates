@@ -172,3 +172,21 @@ test("fits the flow and its picker to a phone screen", async ({ page, companyId 
   await expect(option).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test("keeps the flow unchanged when drafting from a description isn't available", async ({ page, companyId }) => {
+  const errors = captureErrors(page);
+  const dialog = page.getByRole("dialog");
+  await openConfigure(page, presetId(companyId, "deal"));
+  await openConfigureRow(page, "Fields", "Weighted value");
+  await openDrawerTab(page, "Calculation");
+  const flow = calculationFlow(page);
+  const sentence = await flow.locator("[data-calculation-sentence]").textContent();
+  const composer = dialog.getByRole("textbox", { name: "Describe the calculation", exact: true });
+  await expect(composer).toBeVisible();
+  await composer.fill("Weighted value is the value times the stage probability");
+  await composer.press("Enter");
+  await expect(dialog.getByText("Drafting isn't available right now.", { exact: true })).toBeVisible();
+  await expect(flow.locator("[data-calculation-sentence]")).toHaveText(sentence ?? "");
+  await expect(dialog.getByRole("button", { name: "Save", exact: true }).first()).toBeDisabled();
+  expect(errors).toEqual([]);
+});
