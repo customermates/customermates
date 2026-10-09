@@ -128,7 +128,10 @@ describeDatabase("record field append", () => {
         f.mutation({ action: "update", ref, expectedVersion: 1, fields: [{ fieldId: f.id("deal.notes"), append }] }),
       ),
     );
-    expect(results.map((result) => result.ok), JSON.stringify(results)).toEqual([true, true]);
+    expect(
+      results.map((result) => result.ok),
+      JSON.stringify(results),
+    ).toEqual([true, true]);
     const markdown = serializeJSONToMarkdown((await f.stored(ref, f.id("deal.notes")))?.jsonValue as object);
     expect(markdown).toContain("Called the buyer.");
     expect(markdown).toContain("Sent the revised quote.");
