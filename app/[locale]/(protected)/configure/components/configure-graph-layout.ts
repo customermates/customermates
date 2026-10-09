@@ -13,6 +13,7 @@ const SOURCE_CHROME_HEIGHT = 100;
 const SOURCE_ROW_HEIGHT = 48;
 const PROMPT_HEIGHT = 128;
 const RELATIONSHIP_CHIP = { width: 120, height: 28 };
+const LABEL_CLEARANCE = { width: 96, height: 32 };
 const ICON_CHIP = { width: 24, height: 24 };
 const GROUP_PREFIX = "group:";
 
@@ -95,19 +96,66 @@ export function configureGraphLayout(
   return { positions, routes };
 }
 
-export function configureRoutePath(points: readonly ConfigureGraphPoint[]) {
-  const [first, ...rest] = points;
-  if (!first) return "";
-  if (rest.length < 2)
-    return [first, ...rest].map((point, index) => `${index ? "L" : "M"} ${point.x} ${point.y}`).join(" ");
-  let path = `M ${first.x} ${first.y}`;
-  for (let index = 0; index < rest.length - 1; index++) {
-    const point = rest[index];
-    const next = rest[index + 1];
-    path += ` Q ${point.x} ${point.y} ${(point.x + next.x) / 2} ${(point.y + next.y) / 2}`;
+type ConfigureGraphCurve = { from: ConfigureGraphPoint; control: ConfigureGraphPoint; to: ConfigureGraphPoint };
+
+const midpoint = (a: ConfigureGraphPoint, b: ConfigureGraphPoint) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+function routeCurves(points: readonly ConfigureGraphPoint[]): ConfigureGraphCurve[] {
+  const last = points[points.length - 1];
+  if (points.length < 2) return [];
+  const curves: ConfigureGraphCurve[] = [];
+  let from = points[0];
+  for (let index = 1; index < points.length - 1; index++) {
+    const to = midpoint(points[index], points[index + 1]);
+    curves.push({ from, control: points[index], to });
+    from = to;
   }
-  const last = rest[rest.length - 1];
-  return `${path} L ${last.x} ${last.y}`;
+  return [...curves, { from, control: midpoint(from, last), to: last }];
+}
+
+function curvesPath(curves: readonly ConfigureGraphCurve[]) {
+  const [first] = curves;
+  if (!first) return "";
+  const segments = curves.map(({ control, to }) => `Q ${control.x} ${control.y} ${to.x} ${to.y}`);
+  return `M ${first.from.x} ${first.from.y} ${segments.join(" ")}`;
+}
+
+const LABEL_SAMPLES = 24;
+
+function curveSamples(curves: readonly ConfigureGraphCurve[]) {
+  return curves.flatMap(({ from, control, to }) =>
+    Array.from({ length: LABEL_SAMPLES + 1 }, (_, step) => {
+      const t = step / LABEL_SAMPLES;
+      const u = 1 - t;
+      return {
+        x: u * u * from.x + 2 * u * t * control.x + t * t * to.x,
+        y: u * u * from.y + 2 * u * t * control.y + t * t * to.y,
+      };
+    }),
+  );
+}
+
+function covered(point: ConfigureGraphPoint, obstacles: readonly ConfigureGraphPosition[]) {
+  return obstacles.some(
+    (box) =>
+      point.x > box.x - LABEL_CLEARANCE.width / 2 &&
+      point.x < box.x + box.width + LABEL_CLEARANCE.width / 2 &&
+      point.y > box.y - LABEL_CLEARANCE.height / 2 &&
+      point.y < box.y + box.height + LABEL_CLEARANCE.height / 2,
+  );
+}
+
+function visibleLabel(
+  label: ConfigureGraphPoint,
+  curves: readonly ConfigureGraphCurve[],
+  obstacles: readonly ConfigureGraphPosition[],
+) {
+  if (!covered(label, obstacles)) return label;
+  const distance = (point: ConfigureGraphPoint) => Math.hypot(point.x - label.x, point.y - label.y);
+  const [nearest] = curveSamples(curves)
+    .filter((point) => !covered(point, obstacles))
+    .sort((a, b) => distance(a) - distance(b));
+  return nearest ?? label;
 }
 
 const PLACEMENT_GAP = 40;
@@ -163,27 +211,25 @@ export function configureEdgeGeometry(
   source: ConfigureGraphPosition,
   target: ConfigureGraphPosition,
   lane: number,
+  obstacles: readonly ConfigureGraphPosition[] = [],
 ) {
   const dx = source.x - anchors.source.x;
   const dy = source.y - anchors.source.y;
   if (Math.abs(target.x - anchors.target.x - dx) < 0.5 && Math.abs(target.y - anchors.target.y - dy) < 0.5) {
-    return {
-      path: configureRoutePath(route.points.map((point) => ({ x: point.x + dx, y: point.y + dy }))),
-      label: { x: route.label.x + dx, y: route.label.y + dy },
-    };
+    const curves = routeCurves(route.points.map((point) => ({ x: point.x + dx, y: point.y + dy })));
+    const label = { x: route.label.x + dx, y: route.label.y + dy };
+    return { path: curvesPath(curves), label: visibleLabel(label, curves, obstacles) };
   }
   const start = boundaryPoint(source, { x: target.x + target.width / 2, y: target.y + target.height / 2 });
   const end = boundaryPoint(target, { x: source.x + source.width / 2, y: source.y + source.height / 2 });
   const length = Math.hypot(end.x - start.x, end.y - start.y) || 1;
   const offset = lane * LANE_GAP;
   const normal = { x: -(end.y - start.y) / length, y: (end.x - start.x) / length };
-  const middle = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+  const middle = midpoint(start, end);
   const label = { x: middle.x + normal.x * offset, y: middle.y + normal.y * offset };
   const control = { x: middle.x + normal.x * offset * 2, y: middle.y + normal.y * offset * 2 };
-  return {
-    path: `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`,
-    label,
-  };
+  const curves = [{ from: start, control, to: end }];
+  return { path: curvesPath(curves), label: visibleLabel(label, curves, obstacles) };
 }
 
 const VIEWPORT_PADDING = 16;

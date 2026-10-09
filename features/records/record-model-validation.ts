@@ -101,6 +101,117 @@ function normalizeType(value: RecordValueType | null): RecordValueType | null {
   return value && ["email", "phone", "url"].includes(value) ? "text" : value;
 }
 
+type CalculationInputField = Pick<RecordField, "id" | "typeId" | "archived" | "valueType" | "multiple" | "options">;
+
+function inferExpressionType(
+  expression: CalculationExpression,
+  typeId: string,
+  fields: ReadonlyMap<string, CalculationInputField>,
+  relations: ReadonlyMap<string, RecordModel["relationships"][number]>,
+  report: (code: string) => void,
+): RecordValueType | null {
+  const invalid = (code: string) => {
+    report(code);
+    return null;
+  };
+  const expressionType = (child: CalculationExpression, childTypeId: string) =>
+    inferExpressionType(child, childTypeId, fields, relations, report);
+  if (expression.kind === "literal") return primitiveType(expression.value);
+  if (expression.kind === "field" || expression.kind === "optionAttribute") {
+    const field = fields.get(expression.fieldId);
+    if (!field || field.archived || field.typeId !== typeId) return invalid("invalid_field_reference");
+    if (field.valueType === "select" && field.multiple) return invalid("multiple_choice_not_calculable");
+    if (field.valueType === "channels") return invalid("channels_not_calculable");
+    if (expression.kind === "field") return normalizeType(field.valueType);
+    if (field.valueType !== "select") return invalid("option_attribute_requires_select");
+    const attributeTypes = new Set(
+      field.options.flatMap((option) =>
+        option.attributes
+          .filter((attribute) => attribute.key === expression.attribute)
+          .map((attribute) => primitiveType(attribute.value)),
+      ),
+    );
+    if (attributeTypes.size > 1) return invalid("option_attribute_type_mismatch");
+    return [...attributeTypes][0] ?? null;
+  }
+  if (expression.kind === "related") {
+    const relation = relations.get(expression.relationId);
+    if (!relation || relation.archived) return invalid("invalid_relationship_reference");
+    const outgoing = expression.direction === "outgoing";
+    if ((outgoing ? relation.sourceTypeId : relation.targetTypeId) !== typeId)
+      return invalid("invalid_relationship_direction");
+    if (expression.reducer === "one" && (outgoing ? relation.sourceCardinality : relation.targetCardinality) !== "one")
+      return invalid("lookup_requires_singular_relationship");
+    const result = expressionType(expression.expression, outgoing ? relation.targetTypeId : relation.sourceTypeId);
+    if (expression.reducer === "count") return "number";
+    if (["sum", "average"].includes(expression.reducer) && result && !["number", "currency"].includes(result))
+      return invalid("numeric_aggregation_required");
+    return result;
+  }
+  const args = expression.arguments.map((argument) => expressionType(argument, typeId));
+  const operator = expression.operator;
+  const required =
+    operator === "if"
+      ? 3
+      : ["not", "lower", "upper", "trim"].includes(operator)
+        ? 1
+        : ["coalesce", "concat", "and", "or"].includes(operator)
+          ? null
+          : 2;
+  if ((required !== null && args.length !== required) || args.length === 0) return invalid("invalid_argument_count");
+  if (operator === "if") {
+    if (args[0] !== "boolean" || (args[1] && args[2] && args[1] !== args[2]))
+      return invalid("conditional_type_mismatch");
+    return args[1] ?? args[2];
+  }
+  if (operator === "coalesce") {
+    const concrete = new Set(args.filter(Boolean));
+    if (concrete.size > 1) return invalid("coalesce_type_mismatch");
+    return args.find(Boolean) ?? null;
+  }
+  if (["equal", "lessThan", "greaterThan"].includes(operator)) {
+    if (args[0] && args[1] && args[0] !== args[1]) return invalid("comparison_type_mismatch");
+    return "boolean";
+  }
+  if (["and", "or", "not"].includes(operator)) {
+    if (args.some((type) => type && type !== "boolean")) return invalid("boolean_argument_required");
+    return "boolean";
+  }
+  if (["concat", "lower", "upper", "trim"].includes(operator)) {
+    if (args.some((type) => type && type !== "text")) return invalid("text_argument_required");
+    return "text";
+  }
+  if (operator === "daysBetween") {
+    if (
+      args.some((type) => type && !["date", "dateTime"].includes(type)) ||
+      (args[0] && args[1] && args[0] !== args[1])
+    )
+      return invalid("date_argument_required");
+    return "number";
+  }
+  if (args.some((type) => type && !["number", "currency"].includes(type))) return invalid("numeric_argument_required");
+  if ((operator === "add" || operator === "subtract") && args[0] && args[1] && args[0] !== args[1])
+    return invalid("currency_type_mismatch");
+  if (operator === "multiply" && args.every((type) => type === "currency")) return invalid("currency_type_mismatch");
+  if (operator === "divide" && args[1] === "currency")
+    return args[0] === "currency" ? "number" : invalid("currency_type_mismatch");
+  return args.includes("currency") ? "currency" : "number";
+}
+
+export function calculationResultType(
+  expression: CalculationExpression,
+  typeId: string,
+  model: { fields: CalculationInputField[]; relationships: RecordModel["relationships"] },
+): RecordValueType | null {
+  return inferExpressionType(
+    expression,
+    typeId,
+    new Map(model.fields.map((field) => [field.id, field])),
+    new Map(model.relationships.map((relation) => [relation.id, relation])),
+    () => undefined,
+  );
+}
+
 export function validateRecordModel(model: RecordModel): {
   issues: ModelIssue[];
   calculationOrder: string[];
@@ -116,104 +227,8 @@ export function validateRecordModel(model: RecordModel): {
   )
     issues.push({ code: "duplicate_definition_id" });
 
-  const expressionType = (
-    expression: CalculationExpression,
-    typeId: string,
-    owner: RecordField,
-  ): RecordValueType | null => {
-    const invalid = (code: string) => {
-      issues.push({ code, fieldId: owner.id });
-      return null;
-    };
-    if (expression.kind === "literal") return primitiveType(expression.value);
-    if (expression.kind === "field" || expression.kind === "optionAttribute") {
-      const field = fields.get(expression.fieldId);
-      if (!field || field.archived || field.typeId !== typeId) return invalid("invalid_field_reference");
-      if (field.valueType === "select" && field.multiple) return invalid("multiple_choice_not_calculable");
-      if (field.valueType === "channels") return invalid("channels_not_calculable");
-      if (expression.kind === "field") return normalizeType(field.valueType);
-      if (field.valueType !== "select") return invalid("option_attribute_requires_select");
-      const attributeTypes = new Set(
-        field.options.flatMap((option) =>
-          option.attributes
-            .filter((attribute) => attribute.key === expression.attribute)
-            .map((attribute) => primitiveType(attribute.value)),
-        ),
-      );
-      if (attributeTypes.size > 1) return invalid("option_attribute_type_mismatch");
-      return [...attributeTypes][0] ?? null;
-    }
-    if (expression.kind === "related") {
-      const relation = relations.get(expression.relationId);
-      if (!relation || relation.archived) return invalid("invalid_relationship_reference");
-      const outgoing = expression.direction === "outgoing";
-      if ((outgoing ? relation.sourceTypeId : relation.targetTypeId) !== typeId)
-        return invalid("invalid_relationship_direction");
-      if (
-        expression.reducer === "one" &&
-        (outgoing ? relation.sourceCardinality : relation.targetCardinality) !== "one"
-      )
-        return invalid("lookup_requires_singular_relationship");
-      const result = expressionType(
-        expression.expression,
-        outgoing ? relation.targetTypeId : relation.sourceTypeId,
-        owner,
-      );
-      if (expression.reducer === "count") return "number";
-      if (["sum", "average"].includes(expression.reducer) && result && !["number", "currency"].includes(result))
-        return invalid("numeric_aggregation_required");
-      return result;
-    }
-    const args = expression.arguments.map((argument) => expressionType(argument, typeId, owner));
-    const operator = expression.operator;
-    const required =
-      operator === "if"
-        ? 3
-        : ["not", "lower", "upper", "trim"].includes(operator)
-          ? 1
-          : ["coalesce", "concat", "and", "or"].includes(operator)
-            ? null
-            : 2;
-    if ((required !== null && args.length !== required) || args.length === 0) return invalid("invalid_argument_count");
-    if (operator === "if") {
-      if (args[0] !== "boolean" || (args[1] && args[2] && args[1] !== args[2]))
-        return invalid("conditional_type_mismatch");
-      return args[1] ?? args[2];
-    }
-    if (operator === "coalesce") {
-      const concrete = new Set(args.filter(Boolean));
-      if (concrete.size > 1) return invalid("coalesce_type_mismatch");
-      return args.find(Boolean) ?? null;
-    }
-    if (["equal", "lessThan", "greaterThan"].includes(operator)) {
-      if (args[0] && args[1] && args[0] !== args[1]) return invalid("comparison_type_mismatch");
-      return "boolean";
-    }
-    if (["and", "or", "not"].includes(operator)) {
-      if (args.some((type) => type && type !== "boolean")) return invalid("boolean_argument_required");
-      return "boolean";
-    }
-    if (["concat", "lower", "upper", "trim"].includes(operator)) {
-      if (args.some((type) => type && type !== "text")) return invalid("text_argument_required");
-      return "text";
-    }
-    if (operator === "daysBetween") {
-      if (
-        args.some((type) => type && !["date", "dateTime"].includes(type)) ||
-        (args[0] && args[1] && args[0] !== args[1])
-      )
-        return invalid("date_argument_required");
-      return "number";
-    }
-    if (args.some((type) => type && !["number", "currency"].includes(type)))
-      return invalid("numeric_argument_required");
-    if ((operator === "add" || operator === "subtract") && args[0] && args[1] && args[0] !== args[1])
-      return invalid("currency_type_mismatch");
-    if (operator === "multiply" && args.every((type) => type === "currency")) return invalid("currency_type_mismatch");
-    if (operator === "divide" && args[1] === "currency")
-      return args[0] === "currency" ? "number" : invalid("currency_type_mismatch");
-    return args.includes("currency") ? "currency" : "number";
-  };
+  const expressionType = (expression: CalculationExpression, typeId: string, owner: RecordField) =>
+    inferExpressionType(expression, typeId, fields, relations, (code) => issues.push({ code, fieldId: owner.id }));
 
   for (const type of model.types) {
     const paths = type.relationshipPaths ?? [];
@@ -354,7 +369,12 @@ export function validateRecordModel(model: RecordModel): {
     for (const reference of binding.fields) {
       const field = fields.get(reference.fieldId);
       const expectedType = binding.kind === "avatar" ? "url" : binding.kind === "calendar" ? "dateTimeRange" : "text";
-      if (!field || field.archived || field.typeId !== binding.typeId || field.valueType !== expectedType) {
+      if (
+        !field ||
+        field.archived ||
+        field.typeId !== binding.typeId ||
+        field.valueType !== expectedType
+      ) {
         issues.push({
           code: "capability_requires_field",
           fieldId: reference.fieldId,

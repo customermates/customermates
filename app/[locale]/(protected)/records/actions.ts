@@ -7,6 +7,7 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordChoicesInput } from "@/features/records/get-record-choices.interactor";
 import type { ResetDataViewStateInput } from "@/features/data-view/reset-data-view-state.schema";
 import type { PreviewRecordDeletionInput } from "@/features/records/preview-record-deletion.interactor";
+import type { PreviewCalculationInput } from "@/features/records/preview-calculation.interactor";
 import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
 import type { RecordActivityPresentationInput } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
 import type { SaveRecordDetailLayoutInput } from "@/features/records/record-detail-layout.schema";
@@ -22,6 +23,7 @@ import {
   getGetRecordModelInteractor,
   getApplyRecordConfigurationInteractor,
   getPreviewRecordConfigurationInteractor,
+  getPreviewCalculationInteractor,
   getGetRecentlyDeletedInteractor,
   getMutateRecordInteractor,
   getGetRecordInteractor,
@@ -99,6 +101,9 @@ export async function getRecentlyDeletedAction() {
 }
 export async function previewRecordConfigurationAction(change: ConfigurationChange) {
   return serializeResultWithFailure(getPreviewRecordConfigurationInteractor().invoke(change));
+}
+export async function previewCalculationAction(input: PreviewCalculationInput) {
+  return serializeResult(getPreviewCalculationInteractor().invoke(input));
 }
 export async function applyRecordConfigurationAction(change: ConfigurationChange) {
   return serializeResultWithFailure(getApplyRecordConfigurationInteractor().invoke(change));
