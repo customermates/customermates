@@ -64,7 +64,8 @@ describe("group summary presentation", () => {
       }),
     );
     expect(html).toContain(">0<");
-    expect(html).toContain("—");
+    expect(html).toContain('aria-label="Budget · RecordModel.reducers.sum: RecordModel.missing"');
+    expect(html).not.toContain("—");
     expect(html).toContain("RecordModel.restricted");
     expect(html).toContain("RecordModel.calculationError");
     expect(html).not.toContain("currency_mismatch");
