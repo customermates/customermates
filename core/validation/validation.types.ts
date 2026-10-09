@@ -16,6 +16,8 @@ export enum CustomErrorCode {
   recordCalculationBudget = "recordCalculationBudget",
   recordProtected = "recordProtected",
   recordMeasureDateIntervalInvalid = "recordMeasureDateIntervalInvalid",
+  trashItemNotFound = "trashItemNotFound",
+  trashChanged = "trashChanged",
 
   agentApprovalUnavailable = "agentApprovalUnavailable",
   agentConversationNotFound = "agentConversationNotFound",
