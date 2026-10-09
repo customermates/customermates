@@ -2032,6 +2032,7 @@
     "unverified": "Non vérifié"
   },
   "EntityDetail": {
+    "configureField": "Modifier le champ {field}",
     "donePersonalizing": "Terminé",
     "fieldCancelled": "Déplacement de {field} annulé.",
     "fieldDropped": "Champ {field} déposé.",

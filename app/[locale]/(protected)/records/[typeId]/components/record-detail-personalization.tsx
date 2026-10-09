@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { recordChannelsField } from "@/features/records/record-channels";
 import { cn } from "@/core/utils/cn";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { focusHref } from "@/components/focus/focus-href";
+import { recordColumns } from "@/features/records/record-columns";
 
 const LayoutContext = createContext<{
   layout: RecordDetailLayoutStore;
@@ -36,7 +38,21 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
   const [isPersonalizing, setIsPersonalizing] = useState(false);
   const [previewFieldValues, setPreviewFieldValues] = useState<Record<string, EntityDetailPreviewItem[]>>({});
   const hasRelatedDraft = store.hasRelatedDraft;
-  const channelsFieldId = recordChannelsField(store.presentation.model, store.presentation.typeId)?.id;
+  const { typeId, model, canManageSchema } = store.presentation;
+  const fieldSettingsHref = useMemo(() => {
+    if (!canManageSchema) return undefined;
+    const hrefs = new Map(
+      recordColumns(typeId, model).flatMap((column) =>
+        column.kind === "field"
+          ? [[column.id, focusHref({ kind: "field", id: column.field.id, typeId })] as const]
+          : column.kind === "relationship"
+            ? [[column.id, focusHref({ kind: "relationship", id: column.relation.id, typeId })] as const]
+            : [],
+      ),
+    );
+    return (fieldId: string) => hrefs.get(fieldId) ?? null;
+  }, [canManageSchema, model, typeId]);
+  const channelsFieldId = recordChannelsField(model, typeId)?.id;
   useEffect(() => {
     if (initial) layout?.hydrate(initial);
   }, [initial, layout]);
@@ -69,6 +85,7 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
             fieldOrder: layout.layout.fieldOrder,
             columnOrder: layout.layout.fieldOrder,
             previewFieldValues,
+            fieldSettingsHref,
             setIsPersonalizing: (next) => store.runAfterChannelDraft(() => setIsPersonalizing(next)),
             toggleStarredField: (id) => store.runAfterChannelDraft(() => layout.togglePinned(id)),
             toggleFieldVisibility: (id) => store.runAfterChannelDraft(() => layout.toggleHidden(id)),
@@ -87,6 +104,7 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
       channelsFieldId,
       isPersonalizing,
       previewFieldValues,
+      fieldSettingsHref,
       setPreviewFieldValue,
     ],
   );

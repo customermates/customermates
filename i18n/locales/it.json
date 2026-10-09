@@ -2032,6 +2032,7 @@
     "unverified": "Non verificato"
   },
   "EntityDetail": {
+    "configureField": "Modifica campo {field}",
     "donePersonalizing": "Fine",
     "fieldCancelled": "Spostamento di {field} annullato.",
     "fieldDropped": "Campo {field} posizionato.",
