@@ -7,12 +7,11 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowDownAZ, ArrowUpAZ, GripVertical, SlidersHorizontal } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, GripVertical, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -25,7 +24,8 @@ import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { cn } from "@/core/utils/cn";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
-import { AskAiAction } from "@/components/ui/ask-ai-action";
+import { AppModalActionRail } from "@/components/modal/app-modal-action";
+import { useAskAiAction } from "@/components/ui/ask-ai-action";
 
 import { PopoverSection as Section } from "./popover-section";
 
@@ -99,6 +99,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 }: Props<E>) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
+  const askAiAction = useAskAiAction();
   const ai = useViewAi(store, {
     registerPageContext: false,
     entry: "appearance",
@@ -200,15 +201,35 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     <ResponsiveOverlay
       align="end"
       headerAction={
-        ai.available && (
-          <AskAiAction
-            id={id ? `${id}-ask-ai` : undefined}
-            onClick={() => {
-              pendingAi.current = ai.openCurrent;
-              setIsOpen(false);
-            }}
-          />
-        )
+        <AppModalActionRail
+          actions={[
+            ...(ai.available
+              ? [
+                  askAiAction({
+                    anchorId: id ? `${id}-ask-ai` : undefined,
+                    onClick: () => {
+                      pendingAi.current = ai.openCurrent;
+                      setIsOpen(false);
+                    },
+                  }),
+                ]
+              : []),
+            ...(store.resetToSharedDefaults && store.differsFromSharedDefaults
+              ? [
+                  {
+                    id: "reset-shared-defaults",
+                    anchorId: id ? `${id}-reset` : undefined,
+                    icon: RotateCcw,
+                    label: t("RecordModel.resetDefaults"),
+                    onClick: async () => {
+                      await store.resetToSharedDefaults?.();
+                      setIsOpen(false);
+                    },
+                  },
+                ]
+              : []),
+          ]}
+        />
       }
       open={isOpen}
       popoverClassName="w-72"
@@ -312,21 +333,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                 )}
               </div>
             </Section>
-          )}
-
-          {store.resetToSharedDefaults && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() =>
-                runUserAction(async () => {
-                  await store.resetToSharedDefaults?.();
-                  setIsOpen(false);
-                })
-              }
-            >
-              {t("RecordModel.resetDefaults")}
-            </Button>
           )}
 
           {orderedColumns.length > 0 && (

@@ -846,7 +846,6 @@
       "discard": "Verwerfen",
       "expand": "Aufklappen",
       "jumpToLatest": "Zu den neuesten Nachrichten",
-      "labelHistory": "Verlauf",
       "loadMore": "Mehr laden",
       "open": "Öffnen",
       "openApp": "App öffnen",
@@ -2035,6 +2034,7 @@
     "unverified": "Unbestätigt"
   },
   "EntityDetail": {
+    "configureField": "Feld {field} bearbeiten",
     "donePersonalizing": "Fertig",
     "fieldCancelled": "Verschieben von {field} abgebrochen.",
     "fieldDropped": "{field} abgelegt.",
@@ -2971,13 +2971,13 @@
     },
     "addOption": "Option hinzufügen",
     "addPathStep": "Beziehungsschritt hinzufügen",
-    "addProbability": "Wahrscheinlichkeit hinzufügen",
     "addRelationship": "Beziehung hinzufügen",
     "aggregation": "Zusammenfassung",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
     "ascending": "Aufsteigend",
     "assignedTo": "Zugewiesen an",
     "attribute": "Attributname",
+    "attributeNameTaken": "Ein anderes Attribut hat bereits diesen Namen",
     "behavior": "Wertquelle",
     "behaviors": {
       "formula": "Berechnet",
@@ -2987,7 +2987,8 @@
       "snapshot": "Bei einem Ereignis gespeichert"
     },
     "board": "Board",
-    "calculatedReadOnly": "{field} wird berechnet und kann nicht bearbeitet werden.",
+    "calculatedValue": "Berechnet: {formula}",
+    "calculatedValuePlain": "Berechneter Wert",
     "calculationError": "Berechnung nicht verfügbar",
     "calculationInput": "Eingabe {number}",
     "calculationNavigation": "Berechnungsnavigation",
@@ -3430,8 +3431,8 @@
     "reloadLists": "Listen neu laden",
     "removeGroupSummary": "Übersicht entfernen",
     "removeInput": "Eingabe entfernen",
-    "removeOption": "Option entfernen",
     "removePathStep": "{label} und folgende Schritte entfernen",
+    "renameAttribute": "Umbenennen",
     "renewPublishedSummaries": "Veröffentlichte Zusammenfassungen erneut freigeben",
     "renewPublishedSummariesHelp": "Die geänderten Eingaben für diese Zusammenfassungen freigeben. Ihre Werte bleiben für Leser sichtbar, die keinen Zugriff auf die verknüpften Eingaben haben.",
     "required": "Erforderlich",
@@ -3479,6 +3480,7 @@
       }
     },
     "sublistSentence": "Unterliste von {parent} · jeder Eintrag lebt in genau einem Datensatz vom Typ {singular}, teilt dessen Zugriff und wird mit ihm gelöscht.",
+    "suggestedAttribute": "Vorschlag",
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
     "summaryField": "Feld für die Übersicht",

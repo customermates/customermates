@@ -331,6 +331,53 @@ describe("F14a: chips use the standard size and set a variant only for a color",
   });
 });
 
+const VALUE_SURFACES = [
+  "components/data-view/",
+  "components/chip/",
+  "app/[locale]/(protected)/records/[typeId]/components/record-cell.tsx",
+  "app/[locale]/(protected)/records/[typeId]/components/record-value.tsx",
+  "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx",
+  "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
+];
+const HINT_ICONS = new Set(["Pencil", "PencilLine", "SquarePen", "Lock", "LockKeyhole"]);
+const HINT_SLOT = /["'`][^"'`]*\bsize-6\b[^"'`]*\bopacity-0\b[^"'`]*["'`]/;
+
+function inlineHintFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    if (!VALUE_SURFACES.some((surface) => source.file.startsWith(surface))) continue;
+    findings.push(...patternFindings([source], HINT_SLOT));
+    visit(source.ast, (node) => {
+      if (
+        ts.isImportSpecifier(node) &&
+        HINT_ICONS.has(node.name.text) &&
+        ts.isImportDeclaration(node.parent.parent.parent) &&
+        (node.parent.parent.parent.moduleSpecifier as ts.StringLiteral).text === "lucide-react"
+      )
+        findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
+    });
+  }
+
+  return findings;
+}
+
+const INLINE_HINT_ALLOWLIST: Allowlist = {};
+
+describe("rule 64: values are the edit target, without reserved hint slots", () => {
+  it("keeps pencil and lock hints and reserved hint slots out of rows, cards and value renderers", () => {
+    enforce(inlineHintFindings(PRODUCT_SOURCES), INLINE_HINT_ALLOWLIST);
+  });
+
+  it("recognizes a pencil hint and a reserved hint slot", () => {
+    const source = sourceFromText(
+      "components/data-view/cell.tsx",
+      'import { Pencil } from "lucide-react";\nconst HINT = "inline-flex size-6 opacity-0 group-hover/row:opacity-100";',
+    );
+    expect(inlineHintFindings([source]).map(({ line }) => line)).toEqual([2, 1]);
+  });
+});
+
 const SENTENCE_ATTRIBUTE = /sentence|explanation/i;
 const SENTENCE_RENDERER = "components/modal/confirmation-sentence.tsx";
 

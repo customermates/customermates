@@ -846,7 +846,6 @@
       "discard": "Abandonner",
       "expand": "Agrandir",
       "jumpToLatest": "Aller aux derniers messages",
-      "labelHistory": "Historique",
       "loadMore": "Charger plus",
       "open": "Ouvrir",
       "openApp": "Ouvrir l'application",
@@ -2035,6 +2034,7 @@
     "unverified": "Non vérifié"
   },
   "EntityDetail": {
+    "configureField": "Modifier le champ {field}",
     "donePersonalizing": "Terminé",
     "fieldCancelled": "Déplacement de {field} annulé.",
     "fieldDropped": "Champ {field} déposé.",
@@ -2971,13 +2971,13 @@
     },
     "addOption": "Ajouter une option",
     "addPathStep": "Ajouter une étape de relation",
-    "addProbability": "Ajouter une probabilité",
     "addRelationship": "Ajouter une relation",
     "aggregation": "Agrégation",
     "allowManualOverride": "Autoriser une valeur de remplacement manuelle",
     "ascending": "Croissant",
     "assignedTo": "Attribué à",
     "attribute": "Nom de l’attribut",
+    "attributeNameTaken": "Un autre attribut porte déjà ce nom",
     "behavior": "Source de la valeur",
     "behaviors": {
       "formula": "Calculé",
@@ -2987,7 +2987,8 @@
       "snapshot": "Enregistré lors d’un événement"
     },
     "board": "Tableau Kanban",
-    "calculatedReadOnly": "{field} est calculé et ne peut pas être modifié.",
+    "calculatedValue": "Calculé : {formula}",
+    "calculatedValuePlain": "Valeur calculée",
     "calculationError": "Calcul indisponible",
     "calculationInput": "Entrée {number}",
     "calculationNavigation": "Navigation du calcul",
@@ -3430,8 +3431,8 @@
     "reloadLists": "Recharger les listes",
     "removeGroupSummary": "Supprimer la synthèse",
     "removeInput": "Supprimer l’entrée",
-    "removeOption": "Supprimer l’option",
     "removePathStep": "Supprimer {label} et les étapes suivantes",
+    "renameAttribute": "Renommer",
     "renewPublishedSummaries": "Renouveler les synthèses publiées",
     "renewPublishedSummariesHelp": "Approuver les données modifiées de ces synthèses. Leurs valeurs restent visibles pour les lecteurs qui ne peuvent pas accéder aux données liées.",
     "required": "Obligatoire",
@@ -3479,6 +3480,7 @@
       }
     },
     "sublistSentence": "Sous-liste de {parent} · chaque entrée vit dans un seul élément de type {singular}, partage ses accès et est supprimée avec lui.",
+    "suggestedAttribute": "Suggestion",
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
     "summaryField": "Champ de la synthèse",
