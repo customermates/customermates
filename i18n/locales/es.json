@@ -3282,7 +3282,6 @@
       "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
       "resetLayout": "Restablecer diseño",
       "showFewer": "Mostrar menos",
-      "sublistOf": "Sublista de {list}",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar"
     },
@@ -3557,7 +3556,7 @@
         "singular": "Tarea"
       }
     },
-    "sublistExplanation": "Cada entrada pertenece a un registro de {parent}, se edita dentro de él, comparte su acceso y se elimina con él.",
+    "sublistSentence": "Sublista de {list} · cada entrada vive dentro de un registro de {parent}, comparte su acceso y se elimina con él.",
     "suggestedAttribute": "Sugerencia",
     "summaryAggregation": "Cálculo",
     "summaryApprovalRequired": "Este resumen está publicado. Un administrador debe aprobar los cambios en los datos usados en el cálculo.",
