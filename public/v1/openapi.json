@@ -40900,7 +40900,7 @@
                           },
                           "archived": {
                             "type": "boolean",
-                            "description": "True while the item is in Recently deleted."
+                            "description": "True while the item is in Trash."
                           },
                           "position": {
                             "type": "integer",
@@ -41949,7 +41949,7 @@
                           },
                           "archived": {
                             "type": "boolean",
-                            "description": "True while the item is in Recently deleted."
+                            "description": "True while the item is in Trash."
                           },
                           "publishedSummary": {
                             "type": "boolean"
@@ -42353,7 +42353,7 @@
                           },
                           "archived": {
                             "type": "boolean",
-                            "description": "True while the item is in Recently deleted."
+                            "description": "True while the item is in Trash."
                           }
                         },
                         "required": [
@@ -42504,203 +42504,6 @@
                     "relationships",
                     "accessPresets",
                     "capabilities"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not authenticated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not authorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/model/deleted": {
-      "post": {
-        "operationId": "readRecentlyDeletedConfiguration",
-        "summary": "Read lists, fields and relationships in Recently deleted",
-        "tags": [
-          "records"
-        ],
-        "security": [
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The operation was accepted or completed.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "schemaRevision": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "target": {
-                            "type": "object",
-                            "properties": {
-                              "kind": {
-                                "type": "string",
-                                "enum": [
-                                  "type",
-                                  "field",
-                                  "relationship",
-                                  "channels"
-                                ]
-                              },
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                              }
-                            },
-                            "required": [
-                              "kind",
-                              "id"
-                            ],
-                            "additionalProperties": false
-                          },
-                          "label": {
-                            "type": "string"
-                          },
-                          "typeId": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "format": "uuid",
-                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "typeLabel": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "deletedAt": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "deletedBy": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          }
-                        },
-                        "required": [
-                          "target",
-                          "label",
-                          "typeId",
-                          "typeLabel",
-                          "deletedAt",
-                          "deletedBy"
-                        ],
-                        "additionalProperties": false
-                      }
-                    }
-                  },
-                  "required": [
-                    "schemaRevision",
-                    "items"
                   ],
                   "additionalProperties": false
                 }
@@ -42978,7 +42781,7 @@
                                   "type": "boolean"
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 },
                                 "position": {
@@ -43408,7 +43211,7 @@
                                         }
                                       },
                                       "archived": {
-                                        "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                        "description": "Always false. Use the delete operation to move an item to Trash.",
                                         "type": "boolean"
                                       }
                                     },
@@ -43791,7 +43594,7 @@
                                   "additionalProperties": false
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 },
                                 "options": {
@@ -44053,7 +43856,7 @@
                                   "description": "Show the messages of directly linked source records on each target record's activity timeline."
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 }
                               },
@@ -44326,85 +44129,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
-                              "const": "restore"
-                            },
-                            "target": {
-                              "type": "object",
-                              "properties": {
-                                "kind": {
-                                  "type": "string",
-                                  "enum": [
-                                    "type",
-                                    "field",
-                                    "relationship",
-                                    "channels"
-                                  ]
-                                },
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                }
-                              },
-                              "required": [
-                                "kind",
-                                "id"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "target"
-                          ],
-                          "additionalProperties": false,
-                          "description": "Restore an item from Recently deleted together with what was deleted with it."
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
-                              "const": "deletePermanently"
-                            },
-                            "target": {
-                              "type": "object",
-                              "properties": {
-                                "kind": {
-                                  "type": "string",
-                                  "enum": [
-                                    "type",
-                                    "field",
-                                    "relationship",
-                                    "channels"
-                                  ]
-                                },
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                }
-                              },
-                              "required": [
-                                "kind",
-                                "id"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "target"
-                          ],
-                          "additionalProperties": false,
-                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and Channels its identifiers."
+                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -45186,7 +44911,7 @@
                                   "type": "boolean"
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 },
                                 "position": {
@@ -45616,7 +45341,7 @@
                                         }
                                       },
                                       "archived": {
-                                        "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                        "description": "Always false. Use the delete operation to move an item to Trash.",
                                         "type": "boolean"
                                       }
                                     },
@@ -45999,7 +45724,7 @@
                                   "additionalProperties": false
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 },
                                 "options": {
@@ -46261,7 +45986,7 @@
                                   "description": "Show the messages of directly linked source records on each target record's activity timeline."
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 }
                               },
@@ -46534,85 +46259,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
-                              "const": "restore"
-                            },
-                            "target": {
-                              "type": "object",
-                              "properties": {
-                                "kind": {
-                                  "type": "string",
-                                  "enum": [
-                                    "type",
-                                    "field",
-                                    "relationship",
-                                    "channels"
-                                  ]
-                                },
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                }
-                              },
-                              "required": [
-                                "kind",
-                                "id"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "target"
-                          ],
-                          "additionalProperties": false,
-                          "description": "Restore an item from Recently deleted together with what was deleted with it."
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
-                              "const": "deletePermanently"
-                            },
-                            "target": {
-                              "type": "object",
-                              "properties": {
-                                "kind": {
-                                  "type": "string",
-                                  "enum": [
-                                    "type",
-                                    "field",
-                                    "relationship",
-                                    "channels"
-                                  ]
-                                },
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                }
-                              },
-                              "required": [
-                                "kind",
-                                "id"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "target"
-                          ],
-                          "additionalProperties": false,
-                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and Channels its identifiers."
+                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",

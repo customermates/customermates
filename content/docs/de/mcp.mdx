@@ -148,7 +148,7 @@ Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle
 **Nur lesend** bedeutet, dass ein Tool nicht schreibt. **Kann Daten löschen** kennzeichnet ein Tool mit destruktiven Aktionen; nicht jede seiner Aktionen löscht (eine Konfigurationsvorschau schreibt zum Beispiel nichts). Tools, die Nachrichten, Einladungen oder Supportanfragen versenden, E-Mails verschieben oder Anbieterdaten ändern, haben auch ohne destruktives Kennzeichen reale Auswirkungen. Stellen Sie die Client-Freigabe für die konkrete Aktion ein: Das Backend prüft Berechtigungen und Eingaben, aber ein externer MCP-Aufruf öffnet keinen Freigabedialog des gehosteten Assistenten.
 
 {/* mcp-catalog:flags */}
-**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`, `read_recently_deleted_configuration`
+**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -547,12 +547,6 @@ Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Absc
 Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen, Zugriffsvorlagen und gemeinsamen Standards prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen. Mit delete verschieben Sie eine Liste, ein Feld oder eine Beziehung nach „Zuletzt gelöscht“, mit restore holen Sie sie zurück, mit deletePermanently entfernen Sie sie endgültig.
 
 **Kann Daten löschen.** Pflicht: `action`, `change`.
-
-#### `read_recently_deleted_configuration`
-
-Listet die Listen, Felder und Beziehungen unter „Zuletzt gelöscht“ mit Löschenden und Zeitpunkt. Nur Personen, die das Datenmodell verwalten, können sie lesen; wiederherstellen oder endgültig löschen erfolgt über configure_record_model.
-
-**Nur lesend.** Keine Argumente.
 
 #### `cancel_crm_operation`
 

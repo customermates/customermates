@@ -148,7 +148,7 @@ Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by defa
 **Read-only** means the tool does not write. **Can delete data** marks a tool that includes destructive operations; not every action on it deletes (a configuration preview, for example, writes nothing). Tools that send messages, invitations or support requests, move email or change provider data have real effects even without the destructive flag. Set client approval for the actual operation: the server enforces authorization and validation, but an external MCP call does not open the hosted assistant's approval dialog.
 
 {/* mcp-catalog:flags */}
-**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`, `read_recently_deleted_configuration`
+**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Can delete data:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -547,12 +547,6 @@ A pending result returns an operation id. Read its progress until it completes; 
 Preview or apply a typed configuration bundle containing types, fields, relationships, calculations, access presets and shared defaults. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Recently deleted, restore to bring it back, and deletePermanently to remove it for good.
 
 **Can delete data.** Required: `action`, `change`.
-
-#### `read_recently_deleted_configuration`
-
-List the lists, fields and relationships in Recently deleted, with who deleted them and when. Only people who manage the data model can read it; restore or permanently delete an item with configure_record_model.
-
-**Read-only.** No arguments.
 
 #### `cancel_crm_operation`
 
