@@ -20,6 +20,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { SectionRows } from "@/components/ui/section-rows";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormLabel } from "@/components/forms/form-label";
@@ -79,11 +80,11 @@ export const RoleModal = observer(({ store }: Props) => {
         className="grid gap-y-3 py-3 sm:col-span-5 sm:grid-cols-subgrid sm:items-center sm:gap-y-0"
         {...row.data}
       >
-        <h3 className="min-w-0 break-words text-sm font-medium">
-          {row.label}
+        <h3 className="min-w-0 break-words text-sm font-medium">{row.label}</h3>
 
-          {row.note && <span className="block text-xs font-normal text-muted-foreground">{row.note}</span>}
-        </h3>
+        {row.note && (
+          <p className="-mt-2 text-xs text-muted-foreground sm:order-last sm:col-span-5 sm:mt-0 sm:pt-1">{row.note}</p>
+        )}
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:contents">
           <p className="w-full text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">
@@ -139,6 +140,7 @@ export const RoleModal = observer(({ store }: Props) => {
       label,
       path: `permissions.${resource}`,
       access: RESOURCE_ACCESS[resource],
+      note: resource === "dataModel" ? t("RoleModal.dataModelNote") : undefined,
       lockedRead: manageImpliesReadAll(resource) && MANAGE_ACTIONS.some((action) => access[action]),
       data: { "data-resource-permission": resource },
     });
@@ -155,8 +157,7 @@ export const RoleModal = observer(({ store }: Props) => {
       <span>{t("RoleModal.readAccess")}</span>
     </div>
   );
-  const tableClass =
-    "grid grid-cols-1 divide-y divide-border border-y border-border sm:grid-cols-[minmax(7rem,1fr)_repeat(3,minmax(3.5rem,auto))_auto] sm:gap-x-4";
+  const tableClass = "grid grid-cols-1 sm:grid-cols-[minmax(7rem,1fr)_repeat(3,minmax(3.5rem,auto))_auto] sm:gap-x-4";
 
   return (
     <AppModal
@@ -221,33 +222,31 @@ export const RoleModal = observer(({ store }: Props) => {
             )}
 
             <CollapsibleSection defaultOpen title={t("RoleModal.workspacePermissions")}>
-              <div className={tableClass}>
+              <SectionRows className={tableClass}>
                 {header(t("RoleModal.resourceHeader"))}
 
                 {SYSTEM_RESOURCE_ORDER.filter(
                   (resource) => store.rootStore.appMode !== "self-hosted" || !CLOUD_RESOURCES.has(resource),
                 ).map(renderResource)}
-              </div>
+              </SectionRows>
             </CollapsibleSection>
 
             <CollapsibleSection defaultOpen title={t("RoleModal.recordTypes")}>
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
+              <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
 
-                <div className={tableClass}>
-                  {header(t("RoleModal.resourceHeader"))}
+              <SectionRows className={tableClass}>
+                {header(t("RoleModal.resourceHeader"))}
 
-                  {store.context?.types.map((type, index) =>
-                    renderAccessRow({
-                      key: type.id,
-                      label: type.label,
-                      path: `recordGrants.${index}`,
-                      access: RECORD_TYPE_ACCESS,
-                      data: { "data-record-permission": type.id },
-                    }),
-                  )}
-                </div>
-              </div>
+                {store.context?.types.map((type, index) =>
+                  renderAccessRow({
+                    key: type.id,
+                    label: type.label,
+                    path: `recordGrants.${index}`,
+                    access: RECORD_TYPE_ACCESS,
+                    data: { "data-record-permission": type.id },
+                  }),
+                )}
+              </SectionRows>
             </CollapsibleSection>
           </AppCardBody>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Command as CommandPrimitive, useCommandState } from "cmdk";
+import { Command as CommandPrimitive, defaultFilter as commandScore, useCommandState } from "cmdk";
 import { SearchIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
@@ -28,6 +28,7 @@ function CommandDialog({
   focusReturnTarget,
   focusReturnFallback,
   open,
+  onEscapeKeyDown,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
   title: string;
@@ -37,6 +38,7 @@ function CommandDialog({
   showCloseButton?: boolean;
   focusReturnTarget?: HTMLElement | null;
   focusReturnFallback?: HTMLElement | null;
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
 }) {
   const focusReturn = useOverlayFocusReturn(open, focusReturnTarget, focusReturnFallback);
 
@@ -45,6 +47,7 @@ function CommandDialog({
       <DialogContent
         className={cn("overflow-hidden p-0", className)}
         showCloseButton={showCloseButton}
+        onEscapeKeyDown={onEscapeKeyDown}
         {...focusReturn}
       >
         <DialogHeader className="sr-only">
@@ -200,4 +203,5 @@ export {
   CommandShortcut,
   CommandSeparator,
   useCommandInputAria,
+  commandScore,
 };

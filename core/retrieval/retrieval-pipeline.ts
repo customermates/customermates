@@ -63,7 +63,7 @@ export function fuseRankings<Key extends string>(args: {
   return [...pinned, ...fused];
 }
 
-async function withinDeadline<T>(
+export async function withinDeadline<T>(
   promise: Promise<T>,
   deadlineMs: number,
   gives: () => boolean,

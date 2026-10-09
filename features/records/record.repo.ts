@@ -23,8 +23,7 @@ import type { RecordAccessMap, RecordQuery, RecordReadScope } from "./record-que
 import type { RecordGroupingResult } from "./record-grouping.schema";
 import type { RecordMeasure } from "./record-measure.schema";
 import type { MeasureRow } from "./record-measure";
-import type { RecordSearch } from "./record-search.schema";
-import type { RecordSearchRow } from "./record-search-query";
+import type { RecordSearchRequest, RecordSearchRow } from "./record-search-query";
 import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
 import type { RecordDetailLayout } from "./record-detail-layout.schema";
 import type { RecordRevisionChange } from "./record-revision.schema";
@@ -112,11 +111,7 @@ export interface RecordRepo {
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
   getLastFieldWritersCompanyWide(targets: Array<{ ref: RecordRef; fieldId: string }>): Promise<Map<string, string>>;
   getModel(): Promise<RecordModel>;
-  searchRecords(
-    request: { search: RecordSearch; includeEmbedded?: boolean } | { refs: RecordRef[] },
-    model: RecordModel,
-    access: RecordAccessMap,
-  ): Promise<RecordSearchRow[]>;
+  searchRecords(request: RecordSearchRequest, model: RecordModel, access: RecordAccessMap): Promise<RecordSearchRow[]>;
   getViewStatesCompanyWide(
     typeIds: string[],
     afterKey?: string,

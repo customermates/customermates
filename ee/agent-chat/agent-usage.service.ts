@@ -48,6 +48,8 @@ export type AgentRetrievalGrant = {
   periodEnd: Date;
 };
 
+export type PlatformRetrievalPurpose = "docsIndexing" | "commandCatalogIndexing";
+
 export type AgentRetrievalCharge = {
   model: string;
   inputTokens: number;
@@ -318,7 +320,7 @@ export class AgentUsageService {
     return this.repo.admitsHostedAiRetrievalUnscoped(now);
   }
 
-  async accruePlatformUsage(args: { purpose: "docsIndexing"; charge: AgentRetrievalCharge; now?: Date }) {
+  async accruePlatformUsage(args: { purpose: PlatformRetrievalPurpose; charge: AgentRetrievalCharge; now?: Date }) {
     assertMicrocentCount(args.charge.costMicrocents, "Platform AI cost");
     assertMicrocentCount(args.charge.inputTokens, "Platform AI input tokens");
     if (args.charge.costMicrocents === 0 && args.charge.inputTokens === 0) return;
@@ -330,7 +332,7 @@ export class AgentUsageService {
   }
 
   async reservePlatformRetrieval(args: {
-    purpose: "docsIndexing";
+    purpose: PlatformRetrievalPurpose;
     model: string;
     worstCaseMicrocents: number;
     now?: Date;

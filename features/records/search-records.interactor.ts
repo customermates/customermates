@@ -15,6 +15,15 @@ import { recordInvariant } from "./record-invariant";
 import { RecordSearchSchema } from "./record-search.schema";
 import { CalculatedValueSchema } from "./record-model.schema";
 import { recordWriteFailure } from "./mutate-record.interactor";
+import { SIMILAR_TITLE_MIN_LENGTH } from "./record-search-query";
+
+const QUOTED_PHRASE = /^"(.+)"$/su;
+
+export function parseRecordSearchTerm(searchTerm: string): { term: string; similarTitles: boolean } {
+  const quoted = QUOTED_PHRASE.exec(searchTerm)?.[1]?.trim();
+  if (quoted) return { term: quoted, similarTitles: false };
+  return { term: searchTerm, similarTitles: Array.from(searchTerm).length >= SIMILAR_TITLE_MIN_LENGTH };
+}
 
 export function recordSearchHit(row: RecordSearchRow, model: RecordModel, canEdit = false): RecordSearchHit {
   const type = recordInvariant(model.types.find((type) => type.id === row.typeId));
@@ -55,11 +64,16 @@ export class SearchRecordsInteractor extends AuthenticatedInteractor<RecordSearc
         if (input.cursor && input.cursor.revision !== model.revision)
           return failConflict(CustomErrorCode.recordSchemaChanged);
         try {
-          const rows = await this.records.searchRecords(
-            { search: input, includeEmbedded: input.includeEmbedded === true },
-            model,
-            policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
-          );
+          const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
+          const { term, similarTitles } = parseRecordSearchTerm(input.searchTerm);
+          const search = { ...input, searchTerm: term };
+          const includeEmbedded = input.includeEmbedded === true;
+          const exact = await this.records.searchRecords({ search, includeEmbedded }, model, access);
+          const similar =
+            exact.length === 0 && similarTitles && !input.cursor
+              ? await this.records.searchRecords({ search, includeEmbedded, similarTitles }, model, access)
+              : [];
+          const rows = exact.length > 0 ? exact : similar.slice(0, input.limit);
           const selected = rows.slice(0, input.limit);
           const last = selected.at(-1);
           return {

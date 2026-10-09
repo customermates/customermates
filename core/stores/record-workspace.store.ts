@@ -67,6 +67,12 @@ export class RecordWorkspaceStore {
     );
   }
 
+  get activeEditor(): RecordEditorStore | null {
+    if (this.editor?.isOpen && this.editor.record) return this.editor;
+    const page = this.pageEditor;
+    return page && page.actorScope === this.actorScope && page.editor.record ? page.editor : null;
+  }
+
   private get actorScope() {
     const user = this.root.userStore.user;
     return user ? `${user.companyId}:${user.id}` : null;

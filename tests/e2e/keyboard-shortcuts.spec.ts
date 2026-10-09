@@ -61,8 +61,9 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
 
   await page.keyboard.press(`${mod.key}+k`);
   await expect(page.locator("#global-search-input")).toBeVisible();
-  await expect(page.locator('[cmdk-item] [data-shortcut="goDashboard"]')).toContainText("then");
   await expect(page.locator('[cmdk-item] [data-shortcut="add"]')).toHaveText("C");
+  await page.keyboard.type("dashb");
+  await expect(page.locator('[cmdk-item] [data-shortcut="goDashboard"]')).toContainText("then");
   await page.keyboard.press("c");
   await expect(addPicker(page)).toHaveCount(0);
   await page.keyboard.press("Escape");
@@ -99,7 +100,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await expect.poll(() => new URL(page.url()).pathname).toBe(new URL(firstList).pathname);
 
   await page.keyboard.press(`${mod.key}+k`);
-  await expect(page.locator('[cmdk-item][data-value^="palette-view-"]').first()).toBeVisible();
+  await expect(page.locator('[cmdk-item][data-value="cmd:action.switchView"] [data-shortcut="switchView"]')).toHaveText("V");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
 

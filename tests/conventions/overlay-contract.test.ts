@@ -483,7 +483,10 @@ describe("overlay contract", () => {
 
     const appSidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
     expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");
-    expect(appSidebar).toContain("feedbackModalStore.openFrom(invoker");
+    expect(appSidebar).toContain("sendFeedback(invoker");
+    expect(readFileSync(join(REPO_ROOT, "app/components/navigation/use-account-actions.ts"), "utf8")).toContain(
+      "feedbackModalStore.openFrom(invoker",
+    );
     expect(appSidebar).toContain('document.getElementById("sidebar-trigger")');
 
     const missing = CONTROLLED_FOCUS_RETURN_SURFACES.filter(

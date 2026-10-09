@@ -11,7 +11,14 @@ export const RecordSearchCursorSchema = z
 
 export const RecordSearchSchema = z
   .object({
-    searchTerm: z.string().trim().min(1).max(200),
+    searchTerm: z
+      .string()
+      .trim()
+      .min(1)
+      .max(200)
+      .describe(
+        "Text to find in titles and searchable fields; a record id finds that record. Wrap a phrase in double quotes to match it only as written. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor.",
+      ),
     typeIds: z.array(z.uuid()).min(1).max(100).optional(),
     includeEmbedded: z.boolean().optional(),
     limit: z.number().int().min(1).max(100).default(40),

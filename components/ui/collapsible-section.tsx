@@ -8,6 +8,8 @@ import { Collapsible as CollapsiblePrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
 
+import { SECTION_INSET_CLASS } from "./section-rows";
+
 type Props = {
   title: ReactNode;
   summary?: ReactNode;
@@ -73,7 +75,10 @@ export function CollapsibleSection({
         ) : null}
       </div>
 
-      <CollapsiblePrimitive.Content className="flex flex-col gap-3 px-3 pb-3" data-slot="collapsible-section-content">
+      <CollapsiblePrimitive.Content
+        className={cn("flex flex-col gap-3 px-3 pb-3", SECTION_INSET_CLASS)}
+        data-slot="collapsible-section-content"
+      >
         {children}
       </CollapsiblePrimitive.Content>
     </CollapsiblePrimitive.Root>

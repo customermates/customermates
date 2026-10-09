@@ -140,9 +140,11 @@ describe("guarded account-state route contract", () => {
 
   it("uses the existing avatar sign-out and never duplicates it inside recovery cards", () => {
     const sidebar = source("app/components/app-sidebar.tsx");
+    const accountActions = source("app/components/navigation/use-account-actions.ts");
     expect(sidebar).toContain("<NavUser");
-    expect(sidebar).toContain("signOutAction()");
-    expect(sidebar).toContain("if (!restricted) runUserAction(() => userStore.updateTheme(next))");
+    expect(sidebar).toContain("useAccountActions(restricted)");
+    expect(accountActions).toContain("signOutAction()");
+    expect(accountActions).toContain("if (!restricted) runUserAction(() => userStore.updateTheme(next))");
     expect(source("app/[locale]/(protected)/legal-update/components/legal-update-view.tsx")).not.toContain(
       "signOutAction",
     );

@@ -4,20 +4,10 @@ import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import { docsPendingEmbeddingTexts } from "@/features/mcp-tools/docs-embedding-input";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 
-import { isWikiSemanticSearchAvailable } from "./wiki-embedding.service";
-import {
-  embedWikiTexts,
-  WIKI_EMBEDDING_BATCH_SIZE,
-  WIKI_EMBEDDING_MODEL,
-  wikiEmbeddingAttemptCharge,
-  wikiEmbeddingWorstCaseMicrocents,
-} from "./wiki-embedding-model";
+import { embedPlatformTexts, isWikiSemanticSearchAvailable } from "./wiki-embedding.service";
+import { embeddingVectorLiteral, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
 
 const DOCS_INDEX_BATCHES_PER_STEP = 8;
-
-function vectorLiteral(vector: number[]) {
-  return `[${vector.join(",")}]`;
-}
 
 export class DocsSemanticIndexService {
   constructor(
@@ -43,35 +33,13 @@ export class DocsSemanticIndexService {
       );
       if (pending.length === 0) return { indexed, remaining: false };
       const texts = docsPendingEmbeddingTexts(corpus, pending);
-      const reservationId = await this.usage.reservePlatformRetrieval({
-        purpose: "docsIndexing",
-        model: WIKI_EMBEDDING_MODEL,
-        worstCaseMicrocents: wikiEmbeddingWorstCaseMicrocents(texts),
-      });
-      if (!reservationId) return { indexed, remaining: false };
-      let attemptedCharge = wikiEmbeddingAttemptCharge(texts);
-      let embedded: Awaited<ReturnType<typeof embedWikiTexts>>;
-      try {
-        embedded = await embedWikiTexts(texts, "document", {
-          maxRetries: 0,
-          onCharge: (charge) => {
-            attemptedCharge = charge;
-          },
-        });
-      } catch (error) {
-        await this.usage.settlePlatformRetrieval({
-          reservationId,
-          charge: attemptedCharge,
-        });
-        throw error;
-      }
-      const { vectors, charge } = embedded;
-      await this.usage.settlePlatformRetrieval({ reservationId, charge });
+      const vectors = await embedPlatformTexts(this.usage, "docsIndexing", texts);
+      if (!vectors) return { indexed, remaining: false };
       await this.repo.storeEmbeddings(
         WIKI_EMBEDDING_MODEL,
         pending.map((chunk, index) => ({
           contentHash: chunk.contentHash,
-          embedding: vectorLiteral(vectors[index]),
+          embedding: embeddingVectorLiteral(vectors[index]),
         })),
       );
       indexed += pending.length;
