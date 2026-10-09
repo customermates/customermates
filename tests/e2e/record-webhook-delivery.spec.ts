@@ -95,16 +95,41 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
       ]);
 
     await page.goto("/en/settings/webhooks");
+    await page.locator("#settings-webhooks-add").click();
+    await webhook.locator("#webhook-modal-url").fill(receiverUrl);
+    await webhook.locator("#webhook-modal-description").fill("Second receiver");
+    await webhook.locator("#webhook-modal-events").click();
+    await page.getByRole("option", { name: "Record updated", exact: true }).click();
+    await page.keyboard.press("Escape");
+    await webhook.getByRole("combobox", { name: "Records from", exact: false }).click();
+    await page.getByRole("option", { name: "Projects", exact: true }).click();
+    await webhook.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(webhook).not.toBeVisible();
+    const webhooks = await database.query(
+      'SELECT id, description FROM "Webhook" WHERE "companyId"=$1 AND url=$2 ORDER BY "createdAt"',
+      [companyId, receiverUrl],
+    );
+    expect(webhooks.rows).toHaveLength(2);
+    const [first, second] = webhooks.rows as Array<{ id: string; description: string | null }>;
+    expect(second.description).toBe("Second receiver");
+
     const showDeliveries = page.getByRole("menuitem", { name: "Show deliveries", exact: true });
-    await expect(async () => {
-      await page.getByRole("button", { name: `More actions for ${receiverUrl}`, exact: true }).click();
-      await expect(showDeliveries).toBeVisible({ timeout: 1000 });
-    }).toPass();
-    await showDeliveries.click();
-    await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries\?/);
-    expect(new URL(page.url()).searchParams.getAll("filters")).toContain(`url:equals:${receiverUrl}`);
-    await expect(page.getByText(receiverUrl).first()).toBeVisible();
+    const openDeliveries = async (row: ReturnType<typeof page.locator>, webhookId: string) => {
+      await page.goto("/en/settings/webhooks");
+      await expect(async () => {
+        await row.getByRole("button", { name: `More actions for ${receiverUrl}`, exact: true }).click();
+        await expect(showDeliveries).toBeVisible({ timeout: 1000 });
+      }).toPass();
+      await showDeliveries.click();
+      await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries\?/);
+      expect(new URL(page.url()).searchParams.getAll("filters")).toContain(`webhookId:in:${webhookId}`);
+    };
+    const rows = page.getByRole("row").filter({ hasText: receiverUrl });
+    await openDeliveries(rows.filter({ hasNotText: "Second receiver" }), first.id);
+    await expect(page.getByRole("cell", { name: receiverUrl, exact: true }).first()).toBeVisible();
     await expect(page.getByText("Delivered", { exact: true }).first()).toBeVisible();
+    await openDeliveries(rows.filter({ hasText: "Second receiver" }), second.id);
+    await expect(page.getByRole("cell", { name: receiverUrl, exact: true })).toHaveCount(0);
     expect(errors).toEqual([]);
   } finally {
     await page.close();
@@ -170,7 +195,7 @@ test("delivers only deleted records that matched the webhook filter before remov
     await page.locator("#settings-webhooks-add").click();
     await dialog.locator("#webhook-modal-url").fill(receiverUrl);
     await dialog.locator("#webhook-modal-events").click();
-    await page.getByRole("option", { name: "Record deleted", exact: true }).click();
+    await page.getByRole("option", { name: "Record moved to Trash", exact: true }).click();
     await page.keyboard.press("Escape");
     await dialog.getByRole("combobox", { name: "Records from", exact: false }).click();
     await page.getByRole("option", { name: "Projects", exact: true }).click();

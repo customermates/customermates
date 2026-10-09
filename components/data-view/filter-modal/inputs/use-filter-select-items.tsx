@@ -30,7 +30,11 @@ import {
   getConnectedAccountsAction,
   getMessagingFilterOptionsAction,
 } from "@/app/[locale]/(protected)/actions";
-import { getUsersAction, resolveUserOptionsAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import {
+  getUsersAction,
+  getWebhooksAction,
+  resolveUserOptionsAction,
+} from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
 import {
   THREAD_STATE_CHIP_COLOR,
@@ -190,6 +194,19 @@ export function filterOptionSources(
         })),
     },
     [FilterFieldKey.url]: NO_FILTER_OPTIONS,
+    [FilterFieldKey.webhookId]: {
+      getItems: async (params) => {
+        const result = await getWebhooksAction(params);
+        return {
+          ...result,
+          items: result.items.map((webhook) => ({
+            key: webhook.id,
+            value: webhook.id,
+            textValue: webhook.description?.trim() ? `${webhook.url} · ${webhook.description.trim()}` : webhook.url,
+          })),
+        };
+      },
+    },
     [FilterFieldKey.name]: NO_FILTER_OPTIONS,
     [FilterFieldKey.firstName]: NO_FILTER_OPTIONS,
     [FilterFieldKey.lastName]: NO_FILTER_OPTIONS,

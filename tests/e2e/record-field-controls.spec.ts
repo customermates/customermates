@@ -7,7 +7,7 @@ import { openRecordDetails } from "./record-rows";
 
 async function choose(page: Page, label: string, option: string) {
   await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
-  await page.getByRole("option", { name: option, exact: true }).click();
+  await page.getByRole("option", { name: option, exact: true }).filter({ visible: true }).click();
 }
 
 async function apply(page: Page) {
@@ -34,6 +34,41 @@ async function addField(page: Page, name: string, valueType: string, behavior?: 
   if (behavior) await choose(page, "Value source", behavior);
   if (behavior && behavior !== "Entered manually") await openDrawerTab(page, "Calculation");
   else if (valueType === "Single choice") await openDrawerTab(page, "Options");
+}
+
+function calculationRegion(page: Page) {
+  return page.getByRole("dialog").getByRole("region", { name: "Calculation", exact: true });
+}
+
+async function pickValue(page: Page, option: string) {
+  await calculationRegion(page)
+    .locator('[data-calculation-node="inputs"] [data-calculation-chip="pick-value"]')
+    .first()
+    .click();
+  await page.getByRole("option", { name: option, exact: true }).filter({ visible: true }).click();
+}
+
+async function pickFixedValue(page: Page, type: string, value: string) {
+  await pickValue(page, "Fixed value");
+  await page.locator('[id="calculation-fixed-value.literalKind"]').click();
+  await page.getByRole("option", { name: type, exact: true }).click();
+  const input = page.locator('[id="calculation-fixed-value.value.value"]');
+  if (type === "Yes or no") {
+    await input.click();
+    await page.getByRole("option", { name: value, exact: true }).click();
+  } else if (type === "Date") {
+    await input.click();
+    await page.getByRole("button", { name: value, exact: true }).click();
+    await page.keyboard.press("Escape");
+    await expect(page.locator('[data-slot="calendar"]')).toHaveCount(0);
+  } else await input.fill(value);
+  await page.getByRole("button", { name: "Use this value", exact: true }).click();
+  await expect(page.locator('[id="calculation-fixed-value.literalKind"]')).toHaveCount(0);
+}
+
+async function chooseUpdates(page: Page, mode: string) {
+  await openDrawerTab(page, "More options");
+  await choose(page, "Updates", mode);
 }
 
 async function list(page: Page, typeId: string) {
@@ -268,97 +303,113 @@ test("builds every calculation operator with the linear editor and persists resu
   const cases = [
     {
       operator: "Add",
+      id: "add",
       type: "Number",
       arguments: [n("7"), n("3")],
       result: "10",
     },
     {
       operator: "Subtract",
+      id: "subtract",
       type: "Number",
       arguments: [n("7"), n("3")],
       result: "4",
     },
     {
       operator: "Multiply",
+      id: "multiply",
       type: "Number",
       arguments: [n("7"), n("3")],
       result: "21",
     },
     {
       operator: "Divide",
+      id: "divide",
       type: "Number",
       arguments: [n("7"), n("2")],
       result: "3.5",
     },
     {
       operator: "Equals",
+      id: "equal",
       type: "Yes or no",
       arguments: [t("same"), t("same")],
       result: true,
     },
     {
       operator: "Less than",
+      id: "lessThan",
       type: "Yes or no",
       arguments: [n("7"), n("8")],
       result: true,
     },
     {
       operator: "Greater than",
+      id: "greaterThan",
       type: "Yes or no",
       arguments: [n("7"), n("2")],
       result: true,
     },
     {
       operator: "All conditions",
+      id: "and",
       type: "Yes or no",
       arguments: [b("Yes"), b("No")],
       result: false,
     },
     {
       operator: "Any condition",
+      id: "or",
       type: "Yes or no",
       arguments: [b("No"), b("Yes")],
       result: true,
     },
-    { operator: "Not", type: "Yes or no", arguments: [b("No")], result: true },
+    { operator: "Not", id: "not", type: "Yes or no", arguments: [b("No")], result: true },
     {
       operator: "If, then, otherwise",
+      id: "if",
       type: "Number",
       arguments: [b("Yes"), n("11"), n("22")],
       result: "11",
     },
     {
       operator: "First available value",
+      id: "coalesce",
       type: "Number",
-      arguments: [{ type: "No value", value: "" }, n("9")],
+      arguments: [{ type: "Field", value: "Missing number" }, n("9")],
       result: "9",
     },
     {
       operator: "Join text",
+      id: "concat",
       type: "Text",
       arguments: [t("first"), t("second"), t("third")],
       result: "firstsecondthird",
     },
     {
       operator: "Lowercase",
+      id: "lower",
       type: "Text",
       arguments: [t("MiXeD")],
       result: "mixed",
     },
     {
       operator: "Uppercase",
+      id: "upper",
       type: "Text",
       arguments: [t("MiXeD")],
       result: "MIXED",
     },
     {
       operator: "Remove surrounding spaces",
+      id: "trim",
       type: "Text",
       arguments: [t("  neat  ")],
       result: "neat",
     },
     {
       operator: "Days between",
+      id: "daysBetween",
       type: "Number",
       arguments: [
         { type: "Date", value: "Today" },
@@ -368,6 +419,7 @@ test("builds every calculation operator with the linear editor and persists resu
     },
     {
       operator: "Divide",
+      id: "divide",
       label: "Division error",
       type: "Number",
       arguments: [n("7"), n("0")],
@@ -375,40 +427,29 @@ test("builds every calculation operator with the linear editor and persists resu
     },
   ];
   const dialog = page.getByRole("dialog");
-  const calculation = dialog.getByRole("region", {
-    name: "Calculation",
-    exact: true,
-  });
+  const calculation = calculationRegion(page);
+  await addField(page, "Missing number", "Number");
+  await apply(page);
   for (const example of cases) {
     await test.step(`configure ${example.label ?? example.operator}`, async () => {
-      await addField(page, example.label ?? example.operator, example.type, "Calculated");
-      await calculation.getByRole("combobox", { name: "Use", exact: true }).click();
-      await page.getByRole("option", { name: "Calculation", exact: true }).click();
-      await choose(page, "Calculation", example.operator);
-      if (example.operator === "Join text") {
+      await addField(page, example.label ?? example.operator, example.type, "Calculated from this record");
+      await expect(dialog.locator('[data-calculation-flow="formula"]')).toHaveCount(1);
+      await calculation.getByRole("button", { name: "Add input", exact: true }).click();
+      await calculation.locator('[data-calculation-node="step"] [data-calculation-chip="operation"]').click();
+      await page.locator(`[data-calculation-option="${example.id}"]`).click();
+      await expect(calculation.locator('[data-calculation-node="step"]')).toHaveCount(1);
+      await expect(calculation.locator('[data-calculation-chip="operation"]')).toHaveText(example.operator);
+      if (example.operator === "Join text")
         await calculation.getByRole("button", { name: "Add input", exact: true }).click();
-        await calculation.getByRole("button", { name: "Add input", exact: true }).click();
-        await calculation.getByRole("button", { name: "Remove input", exact: true }).last().click();
+      await expect(
+        calculation.locator('[data-calculation-node="inputs"] [data-calculation-chip="pick-value"]'),
+      ).toHaveCount(example.arguments.length);
+      for (const argument of example.arguments) {
+        if (argument.type === "Field") await pickValue(page, argument.value);
+        else await pickFixedValue(page, argument.type, argument.value);
       }
-      for (const [index, argument] of example.arguments.entries()) {
-        const label =
-          example.operator === "If, then, otherwise" ? ["Condition", "Then", "Otherwise"][index] : `Input ${index + 1}`;
-        await calculation.getByRole("button", { name: new RegExp(`^${label}\\b`) }).click();
-        await calculation.getByRole("combobox", { name: "Value type", exact: true }).click();
-        await page.getByRole("option", { name: argument.type, exact: true }).click();
-        if (argument.type === "Yes or no") {
-          await calculation.getByRole("combobox", { name: "Fixed value", exact: true }).click();
-          await page.getByRole("option", { name: argument.value, exact: true }).click();
-        } else if (argument.type === "Date") {
-          await calculation.locator('[id$=".value.value"]').click();
-          await page.getByRole("button", { name: argument.value, exact: true }).click();
-          await page.keyboard.press("Escape");
-        } else if (argument.type !== "No value") {
-          await calculation.getByRole("textbox", { name: "Fixed value", exact: true }).fill(argument.value);
-        }
-        await calculation.getByRole("button", { name: "Result", exact: true }).click();
-      }
-      await expect(dialog.locator('[data-calculation-editor="linear"]')).toHaveCount(1);
+      await expect(calculation.locator('[data-calculation-chip="pick-value"]')).toHaveCount(0);
+      await expect(calculation.locator('[data-calculation-node="step"]')).toHaveCount(1);
       await apply(page);
     });
   }
@@ -462,22 +503,17 @@ test("captures snapshots on request and on stage changes while preserving manual
     await dialog.getByRole("textbox", { name: "Option", exact: true }).last().fill(label);
   }
   await apply(page);
-  for (const [label, capture] of [
-    ["Requested amount", "On request"],
-    ["Approved amount", "When a field changes to a value"],
+  for (const [label, updates] of [
+    ["Requested amount", "Saved on request"],
+    ["Approved amount", "Saved when a field changes"],
   ]) {
-    await addField(page, label, "Number", "Saved at an event");
-    await dialog
-      .getByRole("region", { name: "Calculation", exact: true })
-      .getByRole("combobox", { name: "Use", exact: true })
-      .click();
-    await page.getByRole("option", { name: "Field", exact: true }).click();
-    await choose(page, "Field", "Source amount");
-    await choose(page, "Capture value", capture);
+    await addField(page, label, "Number", "Calculated from this record");
+    await pickValue(page, "Source amount");
+    await chooseUpdates(page, updates);
     if (label === "Requested amount")
       await dialog
         .getByRole("switch", {
-          name: "Allow a manually entered replacement value",
+          name: "Let people type over it",
           exact: true,
         })
         .check();
@@ -497,6 +533,24 @@ test("captures snapshots on request and on stage changes while preserving manual
   );
   const requested = model.fields.find((field) => field.typeId === typeId && field.label === "Requested amount")!;
   const approved = model.fields.find((field) => field.typeId === typeId && field.label === "Approved amount")!;
+  const sourceAmount = model.fields.find((field) => field.typeId === typeId && field.label === "Source amount")!;
+  const decision = model.fields.find((field) => field.typeId === typeId && field.label === "Decision")!;
+  expect(requested.behavior).toMatchObject({
+    kind: "snapshot",
+    expression: { kind: "field", fieldId: sourceAmount.id },
+    capture: "explicit",
+    allowManualOverride: true,
+  });
+  expect(approved.behavior).toMatchObject({
+    kind: "snapshot",
+    expression: { kind: "field", fieldId: sourceAmount.id },
+    capture: "whenChanged",
+    triggerFieldId: decision.id,
+    triggerValue: {
+      kind: "select",
+      value: decision.options.find((option) => option.label === "Approved")?.id,
+    },
+  });
   const requestedRow = () => dialog.locator(`[data-entity-field="${requested.id}"]`);
   const read = async () =>
     (
@@ -595,14 +649,9 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
     } else await dialog.getByRole("textbox", { name: "Default value", exact: true }).fill(value);
     await apply(page);
   }
-  await addField(page, "Disabled snapshot", "Number", "Saved at an event");
-  await dialog
-    .getByRole("region", { name: "Calculation", exact: true })
-    .getByRole("combobox", { name: "Use", exact: true })
-    .click();
-  await page.getByRole("option", { name: "Field", exact: true }).click();
-  await choose(page, "Field", "Source amount");
-  await choose(page, "Capture value", "When a field changes to a value");
+  await addField(page, "Disabled snapshot", "Number", "Calculated from this record");
+  await pickValue(page, "Source amount");
+  await chooseUpdates(page, "Saved when a field changes");
   await choose(page, "When this field changes", "Capture flag");
   await expect(dialog.getByRole("switch", { name: "To this value", exact: true })).not.toBeChecked();
   await apply(page);
