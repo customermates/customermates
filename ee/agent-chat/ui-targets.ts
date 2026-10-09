@@ -220,7 +220,6 @@ export function agentSidebarGroupId(targetId: string) {
   return section === "settings" && targetId.startsWith("nav-settings-") ? SETTINGS_MENU_TARGET : null;
 }
 
-
 export function agentRouteVisible(path: string, appMode: AppMode, canAccess: (resource: Resource) => boolean) {
   const [section, slug] = routeSegments(path);
   const settingsSection = settingsSectionOfRoute(section, slug);

@@ -108,7 +108,6 @@ describe("agent interface targets", () => {
     expect(agentSidebarGroupId("nav-settings-unknown")).toBeNull();
   });
 
-
   it("opens a page only when the sidebar would show it for the role and installation", () => {
     const reads =
       (...resources: Resource[]) =>
