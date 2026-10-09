@@ -10,7 +10,6 @@ import type { ReactNode } from "react";
 import { ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 
 import { recordSearchKey, recordSearchLabel } from "@/features/records/record-search.schema";
@@ -30,10 +29,6 @@ import {
 import { initialsFor } from "@/core/utils/initials";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { signOutAction } from "@/app/[locale]/actions";
-import { FeedbackType } from "@/features/feedback/send-feedback.schema";
-import { Theme } from "@/generated/prisma";
 import { useRecordEditorDeletion } from "@/app/[locale]/(protected)/records/[typeId]/components/use-record-deletion";
 import {
   bestCandidate,
@@ -46,6 +41,7 @@ import {
 } from "./command-palette/command-palette-search";
 import { recordEntries, staticEntries, workspaceEntries } from "./command-palette/palette-entries";
 import { RecordCommandLevel } from "./command-palette/record-command-level";
+import { useAccountActions } from "./navigation/use-account-actions";
 
 const SECTION_LIMIT = 8;
 
@@ -89,8 +85,6 @@ export const GlobalSearchModal = observer(() => {
     addPickerStore,
     agentChatEnabled,
     agentChatStore,
-    companyInviteModalStore,
-    feedbackModalStore,
     globalSearchModalStore,
     keyboardShortcutsStore,
     navigationGuard,
@@ -100,10 +94,11 @@ export const GlobalSearchModal = observer(() => {
   } = rootStore;
   const router = useRouter();
   const pathname = usePathname();
-  const { setTheme } = useTheme();
+  const { changeTheme, signOut, inviteMembers, sendFeedback } = useAccountActions();
   const { isOpen, debouncedSearchTerm, isLoading, results, recentItems, level } = globalSearchModalStore;
-  const editor = isOpen ? recordWorkspaceStore.activeEditor : null;
-  const deletion = useRecordEditorDeletion(editor);
+  const activeEditor = recordWorkspaceStore.activeEditor;
+  const deletion = useRecordEditorDeletion(activeEditor);
+  const editor = isOpen ? activeEditor : null;
   const [selectedValue, setSelectedValue] = useState("");
   const navigated = useRef(false);
   const snapshot = useRef<OrderSnapshot>({ term: "", sections: [], rows: new Map() });
@@ -112,7 +107,7 @@ export const GlobalSearchModal = observer(() => {
 
   const searchTerm = globalSearchModalStore.form.searchTerm ?? "";
   const { scope, term } = parsePaletteQuery(searchTerm);
-  const query = searchTerm.trim();
+  const query = scope ? term : searchTerm.trim();
   const hasQuery = term.length > 0;
   const mateAvailable = agentChatEnabled && agentChatStore.enabled === true;
   const navigation = recordWorkspaceStore.navigation;
@@ -125,7 +120,7 @@ export const GlobalSearchModal = observer(() => {
     can: (resource, action) => userStore.can(resource, action),
   };
   const recordContext: PaletteRecordContext | null =
-    editor?.record && !editor.isReadOnly && !editor.hasUnsavedChanges
+    editor?.record && !editor.isReadOnly && !editor.isBusy && !editor.hasUnsavedChanges
       ? {
           typeId: editor.presentation.typeId,
           title: editor.titleText,
@@ -133,13 +128,16 @@ export const GlobalSearchModal = observer(() => {
           relationships: editor.presentation.model.relationships,
           typeLabels: new Map((navigation?.types ?? []).map((type) => [type.id, type.label])),
           canDelete: editor.presentation.permittedActions.includes("delete"),
-          canAssign: !editor.record.protectedKind,
+          canAssign:
+            !editor.record.protectedKind &&
+            !editor.presentation.model.types.find((type) => type.id === editor.presentation.typeId)?.embedded,
         }
       : null;
+  const contextEntries = recordEntries(translate, recordContext);
   const entries = [
     ...staticEntries(translate, environment),
     ...workspaceEntries(translate, navigation, globalSearchModalStore.catalog),
-    ...recordEntries(translate, recordContext),
+    ...contextEntries,
   ];
   const entryByKey = new Map(entries.map((entry) => [entry.key, entry]));
 
@@ -159,32 +157,16 @@ export const GlobalSearchModal = observer(() => {
       agentChatStore.submitDraft();
     });
 
-  const changeTheme = (theme: Theme) => {
-    setTheme(theme);
-    runUserAction(() => userStore.updateTheme(theme));
-  };
-
   const actions: Record<CommandActionId, (target: HTMLElement | null) => void> = {
     add: (target) => addPickerStore.openFrom(target ?? document.body),
-    askMate: () => agentChatStore.open(),
     switchView: (target) => viewPickerStore.openFrom(target ?? document.body),
     shortcuts: (target) => keyboardShortcutsStore.openFrom(target ?? document.body),
-    themeLight: () => changeTheme(Theme.light),
-    themeDark: () => changeTheme(Theme.dark),
-    themeSystem: () => changeTheme(Theme.system),
-    inviteMembers: () => {
-      runUserAction(() => companyInviteModalStore.generateInviteLink());
-      companyInviteModalStore.open();
-    },
-    sendFeedback: (target) => {
-      feedbackModalStore.onInitOrRefresh({ type: FeedbackType.general, feedback: "" });
-      feedbackModalStore.openFrom(target ?? document.body);
-    },
-    signOut: () =>
-      runUserAction(async () => {
-        const result = await signOutAction();
-        if (!result.ok) toastZodErrorTree(result.error);
-      }),
+    themeLight: () => changeTheme("light"),
+    themeDark: () => changeTheme("dark"),
+    themeSystem: () => changeTheme("system"),
+    inviteMembers,
+    sendFeedback: (target) => sendFeedback(target ?? document.body),
+    signOut,
   };
 
   const runEntry = (entry: PaletteEntry) => {
@@ -261,7 +243,7 @@ export const GlobalSearchModal = observer(() => {
   ];
 
   const hits = scope === null || scope === "records" ? (results?.results ?? []) : [];
-  const ranked = hasQuery ? rankCandidates(term, entries, scope) : [];
+  const ranked = hasQuery || scope ? rankCandidates(term, entries, scope) : [];
   const bestEntry = bestCandidate(term, ranked);
   const bestHit = !bestEntry && hits[0] && exactTitleMatch(term, recordSearchLabel(hits[0], t)) ? hits[0] : undefined;
   const bestKey = bestEntry?.key ?? (bestHit ? recordSearchKey(bestHit) : undefined);
@@ -269,7 +251,7 @@ export const GlobalSearchModal = observer(() => {
     ranked.filter((entry) => kinds.includes(entry.kind) && entry.key !== bestKey).slice(0, SECTION_LIMIT);
 
   const suggestions = [
-    ...recordEntries(translate, recordContext),
+    ...contextEntries,
     ...(currentListId && !recordContext ? [`create:${currentListId}`, "cmd:action.switchView"] : []).flatMap(
       (key) => entryByKey.get(key) ?? [],
     ),

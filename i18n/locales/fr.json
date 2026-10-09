@@ -858,7 +858,6 @@
     "synonyms": {
       "action": {
         "add": "nouveau, créer, nouvel enregistrement",
-        "askMate": "IA, assistant, discussion, question",
         "inviteMembers": "ajouter un utilisateur, inviter un collègue, équipe",
         "sendFeedback": "signaler un problème, suggestion, support",
         "shortcuts": "raccourcis, touches, clavier",

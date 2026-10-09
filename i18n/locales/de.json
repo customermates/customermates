@@ -858,7 +858,6 @@
     "synonyms": {
       "action": {
         "add": "neu, erstellen, anlegen, neuer Datensatz",
-        "askMate": "KI, Assistent, Chat, Frage",
         "inviteMembers": "Benutzer hinzufügen, Kollegen einladen, Team",
         "sendFeedback": "Problem melden, Vorschlag, Support kontaktieren",
         "shortcuts": "Hotkeys, Tasten, Tastatur",

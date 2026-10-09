@@ -167,29 +167,31 @@ export function recordEntries(t: PaletteTranslator, context: PaletteRecordContex
         },
       ]
     : [];
-  const links: PaletteEntry[] = context.relationships.flatMap((relationship) =>
-    (["outgoing", "incoming"] as const).flatMap((direction) => {
-      const own = direction === "outgoing" ? relationship.sourceTypeId : relationship.targetTypeId;
-      const other = direction === "outgoing" ? relationship.targetTypeId : relationship.sourceTypeId;
-      const listLabel = context.typeLabels.get(other);
-      if (own !== context.typeId || !listLabel) return [];
-      const label = t("CommandPalette.record.addTo", { list: listLabel });
-      return [
-        {
-          key: `record:link:${relationship.id}:${direction}`,
-          kind: "action" as const,
-          contextual: true,
-          label,
-          keywords: [direction === "outgoing" ? relationship.sourceLabel : relationship.targetLabel],
-          icon: Link2,
-          run: {
-            kind: "level" as const,
-            level: { kind: "link" as const, relationId: relationship.id, direction, label },
+  const links: PaletteEntry[] = context.relationships
+    .filter((relationship) => !relationship.archived)
+    .flatMap((relationship) =>
+      (["outgoing", "incoming"] as const).flatMap((direction) => {
+        const own = direction === "outgoing" ? relationship.sourceTypeId : relationship.targetTypeId;
+        const other = direction === "outgoing" ? relationship.targetTypeId : relationship.sourceTypeId;
+        const listLabel = context.typeLabels.get(other);
+        if (own !== context.typeId || !listLabel) return [];
+        const label = t("CommandPalette.record.addTo", { list: listLabel });
+        return [
+          {
+            key: `record:link:${relationship.id}:${direction}`,
+            kind: "action" as const,
+            contextual: true,
+            label,
+            keywords: [direction === "outgoing" ? relationship.sourceLabel : relationship.targetLabel],
+            icon: Link2,
+            run: {
+              kind: "level" as const,
+              level: { kind: "link" as const, relationId: relationship.id, direction, label },
+            },
           },
-        },
-      ];
-    }),
-  );
+        ];
+      }),
+    );
   const deletion: PaletteEntry[] = context.canDelete
     ? [
         {

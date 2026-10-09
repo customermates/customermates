@@ -35,6 +35,7 @@ const relationship = {
   targetLabel: "Deals",
   sourceCardinality: "many",
   targetCardinality: "many",
+  archived: false,
 } as unknown as RecordRelationship;
 
 describe("static palette entries", () => {
@@ -119,7 +120,7 @@ describe("record palette entries", () => {
         field("amount", "number"),
         field("total", "select", { behavior: { kind: "calculated" } } as unknown as Partial<RecordFieldView>),
       ],
-      relationships: [relationship],
+      relationships: [relationship, { ...relationship, id: "gone", archived: true }],
       typeLabels: new Map([
         [DEALS, "Deal"],
         [CONTACTS, "Contact"],

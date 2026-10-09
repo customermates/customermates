@@ -82,7 +82,7 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
         ? { linkedTo: { ref: editor.record.ref, relationId: relationship.id, direction: level.direction } }
         : {}),
     },
-    level.kind === "link" && singular && editor.record !== null,
+    level.kind === "link" && relationship !== undefined && editor.record !== null,
     0,
   );
 
@@ -193,9 +193,15 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
 
   if (level.kind === "link" && relationship) {
     const title = (record: RecordChoice) =>
-      record.title.state === "value" && record.title.value.kind === "text"
-        ? record.title.value.value
-        : t("RecordModel.record");
+      record.title.state === "restricted"
+        ? t("RecordModel.restricted")
+        : record.title.state === "error"
+          ? t("RecordModel.calculationError")
+          : record.title.state === "value" && record.title.value.kind === "text"
+            ? record.title.value.value
+            : t("RecordModel.record");
+    const linkedIds = new Set((linked.data?.records ?? []).map((record) => record.ref.recordId));
+    const unavailable = linked.loading || linked.failed;
     const choose = (record: RecordChoice) =>
       apply(() => {
         if (singular) {
@@ -218,11 +224,13 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
         {(choices.data?.records ?? []).map((record) => (
           <CommandItem
             key={record.ref.recordId}
-            disabled={singular && linked.loading}
+            disabled={unavailable || linkedIds.has(record.ref.recordId)}
             value={`link:${record.ref.recordId}`}
             onSelect={() => choose(record)}
           >
             <span className="min-w-0 flex-1 truncate">{title(record)}</span>
+
+            {linkedIds.has(record.ref.recordId) && <Check aria-hidden className="size-4 text-muted-foreground" />}
           </CommandItem>
         ))}
 

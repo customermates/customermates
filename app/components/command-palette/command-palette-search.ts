@@ -55,8 +55,8 @@ export function foldText(text: string): string {
 }
 
 export function parsePaletteQuery(raw: string): { scope: PaletteScope | null; term: string } {
-  const match = /^([a-z]) (.*)$/i.exec(raw.trimStart());
-  const scope = match ? SCOPE_PREFIXES[match[1].toLowerCase()] : undefined;
+  const match = /^([a-z]) (.*)$/.exec(raw.trimStart());
+  const scope = match ? SCOPE_PREFIXES[match[1]] : undefined;
   if (!match || !scope) return { scope: null, term: raw.trim() };
   return { scope, term: match[2].trim() };
 }
@@ -76,11 +76,16 @@ export function rankCandidates<T extends PaletteCandidate>(
   candidates: readonly T[],
   scope: PaletteScope | null,
 ): Ranked<T>[] {
-  return candidates
-    .filter((candidate) => scopeIncludes(scope, candidate.kind))
+  const scoped = candidates.filter((candidate) => scopeIncludes(scope, candidate.kind));
+  if (!foldText(term)) return scope ? scoped.map((candidate) => ({ ...candidate, score: 0 })) : [];
+  return scoped
     .map((candidate, index) => {
       const score = candidateScore(term, candidate);
-      return { candidate, index, score: score > 0 && candidate.contextual ? Math.min(1, score + CONTEXT_BOOST) : score };
+      return {
+        candidate,
+        index,
+        score: score > 0 && candidate.contextual ? Math.min(1, score + CONTEXT_BOOST) : score,
+      };
     })
     .filter((entry) => entry.score >= MIN_SCORE)
     .sort(

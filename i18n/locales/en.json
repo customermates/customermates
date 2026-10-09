@@ -858,7 +858,6 @@
     "synonyms": {
       "action": {
         "add": "new, create, new record",
-        "askMate": "AI, assistant, chat, question",
         "inviteMembers": "add user, invite colleague, team",
         "sendFeedback": "report a problem, suggestion, contact support",
         "shortcuts": "hotkeys, keys, keyboard",

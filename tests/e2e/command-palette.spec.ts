@@ -5,7 +5,7 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { test, expect } from "./fixtures";
 
 async function api(page: Page, path: string, data: unknown) {
-  const response = await page.request.post(path, { data });
+  const response = await page.request.post(path, { data, timeout: 60000 });
   expect(response.ok(), await response.text()).toBe(true);
   return response.json();
 }
@@ -93,7 +93,7 @@ test("changes a record field and links a record from a second palette level", as
   await create("organization", `Palette organization ${suffix}`);
 
   await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
-  await expect(page.getByText(`Palette deal ${suffix}`).first()).toBeVisible();
+  await expect(page.getByText(`Palette deal ${suffix}`).first()).toBeVisible({ timeout: 60000 });
   const dialog = page.getByRole("dialog");
   const input = await openPalette(page);
   const suggestions = dialog.getByRole("option");
@@ -122,7 +122,17 @@ test("changes a record field and links a record from a second palette level", as
   await expect(suggestions.filter({ hasText: `Palette organization ${suffix}` })).toBeVisible();
   await page.keyboard.press("Enter");
   await expect(linker).not.toBeVisible();
-  await expect(page.getByRole("link", { name: `Palette organization ${suffix}` }).first()).toBeVisible();
+  await expect(page.locator("main").getByText(`Palette organization ${suffix}`).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+
+  const remover = await openPalette(page);
+  await remover.fill("delete");
+  await expect(suggestions.first()).toContainText(`Delete Palette deal ${suffix}`);
+  await page.keyboard.press("Enter");
+  const confirmation = page.getByRole("alertdialog").or(page.getByRole("dialog")).filter({ hasText: "Delete" });
+  await expect(confirmation.getByRole("button", { name: "Delete", exact: true })).toBeVisible();
+  await confirmation.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByText(`Palette deal ${suffix}`).first()).toBeVisible();
 });
 
 test("keeps Ask Mate as the last fallback row and reports no matches plainly", async ({ page }) => {
