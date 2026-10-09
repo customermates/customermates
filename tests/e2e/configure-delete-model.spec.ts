@@ -1,3 +1,4 @@
+import { calculationChip, calculationFlow, pickOption } from "./calculation-flow";
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { randomUUID } from "node:crypto";
@@ -20,7 +21,6 @@ import {
   selectConfigureList,
 } from "./configure";
 import { expect, test } from "./fixtures";
-import { calculationChip, calculationFlow, pickOption } from "./calculation-flow";
 
 async function readModel(database: Client, companyId: string) {
   const result = await database.query(

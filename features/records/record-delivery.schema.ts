@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { EventEnvelopeSchema } from "@/features/event/event-envelope";
-import { RecordEventPayloadSchema, RecordHistoryChangesSchema } from "./record-event.schema";
+import { RecordEventKindSchema, RecordEventPayloadSchema, RecordHistoryChangesSchema } from "./record-event.schema";
 
 export const RecordDeliveryEnvelopeSchema = EventEnvelopeSchema.extend({
-  event: z.enum(["record.created", "record.updated", "record.deleted"]),
+  event: RecordEventKindSchema,
   data: z
     .object({
       causeId: z.string().nullable(),

@@ -21,8 +21,8 @@ export class RecordConfigurationWriter {
     prepared: PreparedConfiguration,
     previous: RecordModel,
     limit = SYNCHRONOUS_RECORD_LIMIT,
-  ): Promise<void> {
-    const row = await this.records.getRecordCompanyWide(ref);
+  ): Promise<{ trashed: boolean }> {
+    const row = await this.records.getRecordCompanyWide(ref, { includeTrash: true });
     if (!row) throw new RecordWriteError(CustomErrorCode.recordNotFound, "not_found");
     for (const field of configurationInputFields(previous, prepared.model).filter(
       (field) => field.typeId === ref.typeId,
@@ -45,6 +45,7 @@ export class RecordConfigurationWriter {
         prepared.model.revision,
       );
     }
+    return { trashed: row.deletedAt !== null };
   }
 
   async apply(
@@ -58,7 +59,7 @@ export class RecordConfigurationWriter {
       throw new RecordWriteError(CustomErrorCode.recordRelationConflict, "conflict");
     const refs: RecordRef[] = [];
     for (const typeId of prepared.affectedTypeIds) {
-      const page = await this.records.getRecordRefsCompanyWide(typeId, undefined, limit + 1);
+      const page = await this.records.getRecordRefsCompanyWide(typeId, undefined, limit + 1, { includeTrash: true });
       refs.push(...page);
       if (refs.length > limit) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
     }
@@ -70,9 +71,10 @@ export class RecordConfigurationWriter {
     await this.records.saveModel(prepared.model, userId, prepared.change);
     if (prepared.deletion) await this.records.deleteDefinitions(prepared.deletion);
     await this.records.applyConsumerCleanups(prepared.cleanups);
-    for (const ref of refs) await this.initializeRecord(ref, prepared, previous, limit);
+    const live: RecordRef[] = [];
+    for (const ref of refs) if (!(await this.initializeRecord(ref, prepared, previous, limit)).trashed) live.push(ref);
     for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
-    const recalculated = await this.calculations.recalculate(prepared.model, refs, new Map(), limit);
+    const recalculated = await this.calculations.recalculate(prepared.model, live, new Map(), limit);
     if (!recalculated.complete) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) await this.records.touch(ref);
     return refs;

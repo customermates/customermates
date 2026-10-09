@@ -4,15 +4,11 @@ import type { WikiEmbeddingService } from "./wiki-embedding.service";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { wikiSemanticChunks } from "@/features/wiki/wiki-chunks";
 
-import { WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
+import { embeddingVectorLiteral, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
 
 export const WIKI_SEMANTIC_INDEX_BATCH_PAGES = 8;
 
 export type WikiSemanticIndexPage = { id: string; title: string; markdown: string; updatedAt: Date };
-
-function vectorLiteral(vector: number[]) {
-  return `[${vector.join(",")}]`;
-}
 
 export class WikiSemanticIndexService extends UserAccessor {
   constructor(
@@ -48,7 +44,7 @@ export class WikiSemanticIndexService extends UserAccessor {
             "document",
           );
           if (!vectors) return { indexed, remaining: false };
-          batch.forEach((chunk, index) => known.set(chunk.contentHash, vectorLiteral(vectors[index])));
+          batch.forEach((chunk, index) => known.set(chunk.contentHash, embeddingVectorLiteral(vectors[index])));
         }
 
         const written = await this.repo.replaceSemanticChunks({

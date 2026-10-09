@@ -660,8 +660,10 @@ export class RecordConfigurationService extends UserAccessor {
     if (validationCount <= SYNCHRONOUS_RECORD_LIMIT) {
       const invalid = new Set<string>();
       for (const typeId of checkedTypes) {
-        const refs = await this.records.getRecordRefsCompanyWide(typeId, undefined, SYNCHRONOUS_RECORD_LIMIT + 1);
-        const rows = await this.records.getRecordsCompanyWide(refs);
+        const refs = await this.records.getRecordRefsCompanyWide(typeId, undefined, SYNCHRONOUS_RECORD_LIMIT + 1, {
+          includeTrash: true,
+        });
+        const rows = await this.records.getRecordsCompanyWide(refs, { includeTrash: true });
         for (const row of rows) {
           for (const field of inputs.filter((field) => field.typeId === typeId)) {
             if (invalid.has(field.id)) continue;

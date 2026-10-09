@@ -830,6 +830,88 @@
     "liveDemoTitle": "Demo live di Customermates",
     "open": "Apri in una nuova scheda"
   },
+  "CommandPalette": {
+    "fieldOf": "Campo di {list}",
+    "groups": {
+      "actions": "Azioni",
+      "bestMatch": "Miglior risultato",
+      "listsAndViews": "Elenchi e viste",
+      "pagesAndSettings": "Pagine e impostazioni",
+      "records": "Record",
+      "suggestions": "Suggerimenti"
+    },
+    "labels": {
+      "addRole": "Aggiungi ruolo",
+      "addWebhook": "Aggiungi webhook",
+      "connectChannel": "Collega un canale",
+      "createApiKey": "Crea chiave API",
+      "themeDark": "Passa al tema scuro",
+      "themeLight": "Passa al tema chiaro",
+      "themeSystem": "Usa il tema di sistema"
+    },
+    "record": {
+      "addTo": "Aggiungi a {list}…",
+      "assign": "Assegna a…",
+      "change": "Modifica {field}…",
+      "deleteNamed": "Elimina {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nuovo, crea, nuovo record",
+        "inviteMembers": "aggiungi utente, invita collega, team",
+        "sendFeedback": "segnala un problema, suggerimento, supporto",
+        "shortcuts": "tasti rapidi, tasti, tastiera",
+        "signOut": "logout, disconnetti, esci",
+        "switchView": "cambia vista, viste salvate",
+        "themeDark": "modalità scura, modalità notte",
+        "themeLight": "modalità chiara",
+        "themeSystem": "tema automatico, segui il sistema"
+      },
+      "page": {
+        "configure": "modello dati, schema, elenchi, campi, relazioni",
+        "dashboard": "home, panoramica, widget, grafici",
+        "documentation": "documenti, aiuto, guida, manuale",
+        "inbox": "messaggi, email, posta, conversazioni, chat",
+        "knowledgeBase": "wiki, note, pagine, articoli",
+        "routines": "automazioni, pianificazioni, attività ricorrenti",
+        "settings": "preferenze, opzioni, account, spazio di lavoro"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nuova chiave API, genera token"
+        },
+        "channels": {
+          "connect": "collega email, aggiungi account, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "immagine del profilo, foto, immagine",
+          "country": "posizione, regione",
+          "displayLanguage": "lingua, lingua dell'interfaccia, traduzione",
+          "firstName": "nome di battesimo",
+          "formattingLocale": "formato data, formato numeri, regione",
+          "lastName": "cognome, nome di famiglia",
+          "theme": "aspetto, modalità scura, modalità chiara, colori"
+        },
+        "roles": {
+          "create": "nuovo ruolo, permessi"
+        },
+        "webhooks": {
+          "create": "nuovo webhook"
+        }
+      },
+      "settings": {
+        "activity": "registro di audit, cronologia, modifiche",
+        "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso",
+        "billing": "piano, abbonamento, fatture, pagamento, prezzi",
+        "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni",
+        "members": "team, utenti, persone, colleghi",
+        "profile": "il mio profilo, account, preferenze, personale",
+        "roles": "permessi, accesso, diritti",
+        "webhook-deliveries": "consegne webhook, registro webhook, eventi inviati",
+        "webhooks": "integrazioni, callback, eventi, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Aggiungi",
@@ -1070,6 +1152,8 @@
       "subjectRequired": "Aggiungi un oggetto.",
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
+      "trashChanged": "Il cestino è cambiato nel frattempo. Controlla cosa verrà eliminato e riprova.",
+      "trashItemNotFound": "Questo elemento non è più nel cestino.",
       "unipileAccountRestricted": "Il provider ha limitato questo canale. Ricollegarlo non risolve; risolvi prima la limitazione con il provider.",
       "unipileDisconnectedAccount": "Il canale è disconnesso. Il proprietario deve ricollegarlo in Canali prima che possa essere usato di nuovo.",
       "unipileFeatureUnavailable": "Non è disponibile su questo canale. Riprovare non servirà; il team è stato avvisato.",
@@ -1150,7 +1234,9 @@
       },
       "record": {
         "created": "Record creato",
-        "deleted": "Record eliminato",
+        "deleted": "Record spostato nel cestino",
+        "deletedPermanently": "Record eliminato definitivamente",
+        "restored": "Record ripristinato",
         "updated": "Record aggiornato"
       },
       "record_grants": {
@@ -3018,7 +3104,9 @@
         "relationship": "Scegli quali record collegati usare.",
         "step": "Scegli i valori per {operation}.",
         "sum": "Scegli quale valore sommare.",
-        "take": "Scegli quale valore prendere."
+        "take": "Scegli quale valore prendere.",
+        "trigger": "Scegli il campo che attiva il salvataggio.",
+        "triggerValue": "Scegli il valore che attiva il salvataggio."
       },
       "moreOptions": "Altre opzioni",
       "of": "di",
@@ -3275,7 +3363,6 @@
       "relationshipLabel": "{label}: {source} verso {target}, {cardinality}",
       "resetLayout": "Ripristina layout",
       "showFewer": "Mostra meno",
-      "sublistOf": "Sottoelenco di {list}",
       "zoomIn": "Ingrandisci",
       "zoomOut": "Riduci"
     },
@@ -3550,7 +3637,7 @@
         "singular": "Attività"
       }
     },
-    "sublistExplanation": "Ogni voce appartiene a un record di {parent}, si modifica al suo interno, ne condivide l’accesso e viene eliminata con esso.",
+    "sublistSentence": "Sottoelenco di {list} · ogni voce vive all’interno di un record di {parent}, ne condivide l’accesso e viene eliminata con esso.",
     "suggestedAttribute": "Suggerimento",
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",
@@ -3654,6 +3741,7 @@
   },
   "RoleModal": {
     "create": "Crea",
+    "dataModelNote": "Creare e modificare elenchi, campi e relazioni in Configura.",
     "edit": "Modifica",
     "manageAccess": "Gestione",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",
@@ -3705,7 +3793,8 @@
           "messageReceived": "Ricevi un nuovo messaggio in arrivo non duplicato tramite un account collegato.",
           "messageUpdated": "Modifica un messaggio nel provider di messaggistica collegato.",
           "recordCreated": "Crea un record in Customermates: {entity}.",
-          "recordDeleted": "Elimina un record in Customermates: {entity}.",
+          "recordDeleted": "Spostare un record nel cestino in Customermates: {entity}.",
+          "recordRestored": "Ripristinare un record dal cestino in Customermates: {entity}.",
           "recordUpdated": "Apporta una modifica effettiva a un record in Customermates: {entity}.",
           "relationCreated": "Fai accettare una richiesta di collegamento LinkedIn tramite un account collegato."
         },

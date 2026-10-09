@@ -71,7 +71,7 @@ test("edits an existing snapshot as a lookup with an Updates mode and keeps its 
   await expect(dialog.getByRole("switch", { name: "Let people type over it", exact: true })).toBeChecked();
 
   await selectOption(page, "Updates", "Saved on request");
-  await expect(dialog.getByRole("combobox", { name: "When this field changes", exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole("combobox", { name: /^When this field changes/ })).toHaveCount(0);
   await saveDrawer(page);
   const saved = (await readModel(database, companyId)).fields.find((field) => field.id === id("lineItem.savedPrice"));
   expect(saved?.behavior).toEqual({
@@ -120,8 +120,11 @@ test("names what is missing and refuses to save an incomplete flow", async ({ pa
   await expect(flow.locator("[data-calculation-sentence]")).toHaveText("Pick which value to add up.");
   await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
   const linked = flow.locator('[data-calculation-node="linked"]');
-  await expect(linked).toHaveAttribute("data-invalid", "true");
-  await expect(linked).toContainText("Pick which value to add up.");
+  await expect(linked).toHaveAttribute("data-calculation-invalid", "true");
+  await expect(calculationChip(page, "pick-field")).toBeFocused();
+  await expect(page.getByText("Pick which value to add up.", { exact: true })).toHaveCount(1);
+  await expect(flow.locator("[data-calculation-sentence]")).toHaveCount(0);
+  await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
   await expect(dialog.getByRole("status")).toHaveCount(0);
   await expect(dialog).toBeVisible();
   expect((await readModel(database, companyId)).fields.some((field) => field.label === "Open total")).toBe(false);
@@ -131,7 +134,17 @@ test("names what is missing and refuses to save an incomplete flow", async ({ pa
   await expect(calculationChip(page, "pick-field")).toHaveCount(0);
   await expect(flow.locator("[data-calculation-sentence]")).toHaveText("Open total counts the linked Line items.");
   await expect(flow.locator('[data-calculation-node="result"]')).toContainText("Number");
-  await expect(linked).not.toHaveAttribute("data-invalid", "true");
+  await expect(linked).not.toHaveAttribute("data-calculation-invalid", "true");
+
+  await openDrawerTab(page, "More options");
+  await selectOption(page, "Updates", "Saved when a field changes");
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
+  const trigger = dialog.getByRole("combobox", { name: /^When this field changes/ });
+  await expect(trigger).toHaveAttribute("aria-invalid", "true");
+  await expect(trigger).toBeFocused();
+  await expect(dialog.getByText("Pick the field that triggers saving.", { exact: true })).toBeVisible();
+  await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
+  expect((await readModel(database, companyId)).fields.some((field) => field.label === "Open total")).toBe(false);
   expect(errors).toEqual([]);
 });
 

@@ -830,6 +830,88 @@
     "liveDemoTitle": "Demo en directo de Customermates",
     "open": "Abrir en una nueva pestaña"
   },
+  "CommandPalette": {
+    "fieldOf": "Campo de {list}",
+    "groups": {
+      "actions": "Acciones",
+      "bestMatch": "Mejor resultado",
+      "listsAndViews": "Listas y vistas",
+      "pagesAndSettings": "Páginas y ajustes",
+      "records": "Registros",
+      "suggestions": "Sugerencias"
+    },
+    "labels": {
+      "addRole": "Añadir rol",
+      "addWebhook": "Añadir webhook",
+      "connectChannel": "Conectar un canal",
+      "createApiKey": "Crear clave de API",
+      "themeDark": "Cambiar al tema oscuro",
+      "themeLight": "Cambiar al tema claro",
+      "themeSystem": "Usar el tema del sistema"
+    },
+    "record": {
+      "addTo": "Añadir a {list}…",
+      "assign": "Asignar a…",
+      "change": "Cambiar {field}…",
+      "deleteNamed": "Eliminar {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nuevo, crear, nuevo registro",
+        "inviteMembers": "añadir usuario, invitar compañero, equipo",
+        "sendFeedback": "informar de un problema, sugerencia, soporte",
+        "shortcuts": "teclas rápidas, teclas, teclado",
+        "signOut": "salir, desconectar, logout",
+        "switchView": "cambiar vista, vistas guardadas",
+        "themeDark": "modo oscuro, modo noche",
+        "themeLight": "modo claro",
+        "themeSystem": "tema automático, seguir el sistema"
+      },
+      "page": {
+        "configure": "modelo de datos, esquema, listas, campos, relaciones",
+        "dashboard": "inicio, resumen, widgets, gráficos",
+        "documentation": "docs, ayuda, guía, manual",
+        "inbox": "mensajes, correo, email, conversaciones, chats",
+        "knowledgeBase": "wiki, notas, páginas, artículos",
+        "routines": "automatizaciones, programaciones, tareas recurrentes",
+        "settings": "preferencias, opciones, cuenta, espacio de trabajo"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nueva clave de API, generar token"
+        },
+        "channels": {
+          "connect": "conectar correo, añadir cuenta, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "foto de perfil, foto, imagen",
+          "country": "ubicación, región",
+          "displayLanguage": "idioma, lengua, traducción",
+          "firstName": "nombre, nombre de pila",
+          "formattingLocale": "formato de fecha, formato de número, región",
+          "lastName": "apellido, apellidos",
+          "theme": "apariencia, modo oscuro, modo claro, colores"
+        },
+        "roles": {
+          "create": "nuevo rol, permisos"
+        },
+        "webhooks": {
+          "create": "nuevo webhook"
+        }
+      },
+      "settings": {
+        "activity": "registro de auditoría, historial, cambios",
+        "api-keys": "tokens, API, MCP, desarrollador, claves de acceso",
+        "billing": "plan, suscripción, facturas, pago, precios",
+        "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones",
+        "members": "equipo, usuarios, personas, compañeros",
+        "profile": "mi perfil, cuenta, preferencias, personal",
+        "roles": "permisos, acceso, derechos",
+        "webhook-deliveries": "entregas de webhook, registro de webhooks, eventos enviados",
+        "webhooks": "integraciones, callbacks, eventos, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Añadir",
@@ -1070,6 +1152,8 @@
       "subjectRequired": "Añade un asunto.",
       "termsNotAgreed": "Debes aceptar los términos y condiciones.",
       "threadNotFound": "ID de conversación no encontrado o no accesible.",
+      "trashChanged": "La papelera ha cambiado mientras tanto. Revisa lo que se eliminará e inténtalo de nuevo.",
+      "trashItemNotFound": "Este elemento ya no está en la papelera.",
       "unipileAccountRestricted": "El proveedor ha restringido este canal. Reconectarlo no lo soluciona; resuelve primero la restricción con el proveedor.",
       "unipileDisconnectedAccount": "El canal está desconectado. Su propietario debe volver a conectarlo en Canales antes de poder usarlo de nuevo.",
       "unipileFeatureUnavailable": "Esto no está disponible en este canal. Reintentar no ayudará; se ha notificado al equipo.",
@@ -1150,7 +1234,9 @@
       },
       "record": {
         "created": "Registro creado",
-        "deleted": "Registro eliminado",
+        "deleted": "Registro movido a la papelera",
+        "deletedPermanently": "Registro eliminado definitivamente",
+        "restored": "Registro restaurado",
         "updated": "Registro actualizado"
       },
       "record_grants": {
@@ -3018,7 +3104,9 @@
         "relationship": "Elige qué registros vinculados usar.",
         "step": "Elige los valores para {operation}.",
         "sum": "Elige qué valor sumar.",
-        "take": "Elige qué valor tomar."
+        "take": "Elige qué valor tomar.",
+        "trigger": "Elige el campo que activa el guardado.",
+        "triggerValue": "Elige el valor que activa el guardado."
       },
       "moreOptions": "Más opciones",
       "of": "de",
@@ -3275,7 +3363,6 @@
       "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
       "resetLayout": "Restablecer diseño",
       "showFewer": "Mostrar menos",
-      "sublistOf": "Sublista de {list}",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar"
     },
@@ -3550,7 +3637,7 @@
         "singular": "Tarea"
       }
     },
-    "sublistExplanation": "Cada entrada pertenece a un registro de {parent}, se edita dentro de él, comparte su acceso y se elimina con él.",
+    "sublistSentence": "Sublista de {list} · cada entrada vive dentro de un registro de {parent}, comparte su acceso y se elimina con él.",
     "suggestedAttribute": "Sugerencia",
     "summaryAggregation": "Cálculo",
     "summaryApprovalRequired": "Este resumen está publicado. Un administrador debe aprobar los cambios en los datos usados en el cálculo.",
@@ -3654,6 +3741,7 @@
   },
   "RoleModal": {
     "create": "Crear",
+    "dataModelNote": "Crear y cambiar listas, campos y relaciones en Configurar.",
     "edit": "Editar",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
@@ -3705,7 +3793,8 @@
           "messageReceived": "Recibe un mensaje entrante nuevo que no sea un duplicado mediante una cuenta conectada.",
           "messageUpdated": "Edita un mensaje en el proveedor de mensajería conectado.",
           "recordCreated": "Crea un registro en Customermates: {entity}.",
-          "recordDeleted": "Elimina un registro en Customermates: {entity}.",
+          "recordDeleted": "Mover un registro a la papelera en Customermates: {entity}.",
+          "recordRestored": "Restaurar un registro de la papelera en Customermates: {entity}.",
           "recordUpdated": "Realiza un cambio efectivo en un registro de Customermates: {entity}.",
           "relationCreated": "Haz que se acepte una solicitud de conexión de LinkedIn mediante una cuenta conectada."
         },

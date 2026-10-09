@@ -18,6 +18,7 @@ import { channelClass } from "@/ee/messaging/provider";
 export const StagedRecordSchema = z.object({
   ref: RecordRefSchema,
   deleted: z.boolean(),
+  trashItemId: z.string().nullable().default(null),
   version: z.number().int().positive(),
   protectedKind: z.string().nullable(),
   systemData: z.unknown(),
@@ -52,10 +53,11 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       return value.bind(target);
     },
   });
-  const stageRecord = (row: StoredRecord, deleted = false) =>
+  const stageRecord = (row: StoredRecord, deleted = false, trashItemId: string | null = null) =>
     base.stageRow(operationId, "record", recordKey({ typeId: row.typeId, recordId: row.id }), {
       ref: { typeId: row.typeId, recordId: row.id },
       deleted,
+      trashItemId,
       version: row.version,
       protectedKind: row.protectedKind,
       systemData: row.systemData,
@@ -71,6 +73,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     await base.stageRow(operationId, "schema", "model", model);
     if (change) await base.stageRow(operationId, "schema", "change", change);
   };
+  overrides.lockRecord = () => Promise.resolve();
   overrides.setGrants = (typeId, grants) => base.stageRow(operationId, "grants", typeId, { typeId, grants });
   overrides.getIdentitiesCompanyWide = async (ref) => {
     const row = await base.getStageRow(operationId, "identity", recordKey(ref));
@@ -94,14 +97,15 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     await base.stageIdentityChannelsCompanyWide(operationId, identities);
     await base.stageRow(operationId, "identity", recordKey(ref), { ref, identities });
   };
-  overrides.getRecordCompanyWide = async (ref) => {
+  overrides.getRecordCompanyWide = async (ref, options = {}) => {
     const [record, overlay, values] = await Promise.all([
-      base.getRecordCompanyWide(ref),
+      base.getRecordCompanyWide(ref, { includeTrash: true }),
       base.getStageRow(operationId, "record", recordKey(ref)),
       base.getStageRowsByPrefix(operationId, "value", `${recordKey(ref)}:`),
     ]);
     const row = overlay ? StagedRecordSchema.parse(overlay) : null;
     if (row?.deleted || (!record && !row)) return null;
+    if (record?.deletedAt && !options.includeTrash) return null;
     const result: StoredRecord = row
       ? {
           companyId,
@@ -110,6 +114,8 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
           version: row.version,
           protectedKind: row.protectedKind,
           systemData: row.systemData as Prisma.JsonValue,
+          deletedAt: record?.deletedAt ?? null,
+          trashItemId: record?.trashItemId ?? null,
           createdAt: new Date(row.createdAt),
           updatedAt: new Date(row.updatedAt),
           assignments: row.assignedUserIds.map((userId) => ({ userId })),
@@ -138,12 +144,12 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     }
     return { ...result, values: [...merged.values()] };
   };
-  overrides.getRecordsCompanyWide = async (refs) =>
-    (await Promise.all(refs.map((ref) => staged.getRecordCompanyWide(ref)))).filter(
+  overrides.getRecordsCompanyWide = async (refs, options) =>
+    (await Promise.all(refs.map((ref) => staged.getRecordCompanyWide(ref, options)))).filter(
       (record): record is StoredRecord => record !== null,
     );
-  overrides.getRecordRefsCompanyWide = (typeId, afterId, take) =>
-    base.getStageRecordRefsCompanyWide(operationId, typeId, afterId, take);
+  overrides.getRecordRefsCompanyWide = (typeId, afterId, take, options) =>
+    base.getStageRecordRefsCompanyWide(operationId, typeId, afterId, take, options);
   overrides.linkedRecordsCompanyWide = (ref, relationId, direction, take) =>
     base.linkedStageRecordsCompanyWide(operationId, ref, relationId, direction, take);
   overrides.create = async (ref, assignedUserIds) => {
@@ -155,6 +161,8 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       version: 1,
       protectedKind: null,
       systemData: null,
+      deletedAt: null,
+      trashItemId: null,
       createdAt: now,
       updatedAt: now,
       assignments: assignedUserIds.map((userId) => ({ userId })),
@@ -174,6 +182,13 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
   overrides.delete = async (ref) => {
     const record = await staged.getRecordCompanyWide(ref);
     if (record) await stageRecord(record, true);
+  };
+  overrides.addTrashItems = async (items) => {
+    for (const item of items) await base.stageRow(operationId, "trash-item", item.id, item);
+  };
+  overrides.moveToTrash = async (ref, trashItemId) => {
+    const record = await staged.getRecordCompanyWide(ref);
+    if (record) await stageRecord(record, true, trashItemId);
   };
   overrides.setAssignments = async (ref, ids) => {
     const record = await staged.getRecordCompanyWide(ref);

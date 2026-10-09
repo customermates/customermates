@@ -78,6 +78,7 @@ async function legacySnapshot(client: Client) {
 
 const OPTIONAL_VECTOR_COLUMNS = [
   'ALTER TABLE "DocsChunk" ADD COLUMN     "embedding" vector(768);',
+  'ALTER TABLE "SearchCatalogEntry" ADD COLUMN     "embedding" vector(768);',
   'ALTER TABLE "WikiPageChunk" ADD COLUMN     "embedding" vector(768);',
 ];
 
@@ -829,7 +830,10 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
 
     await applyConfigurableRecordsMigration(client);
 
-    expect(await mateState()).toEqual(before);
+    expect(await mateState()).toEqual({
+      ...before,
+      pages: before.pages.map((page) => ({ row: { ...(page.row as Record<string, unknown>), deletedAt: null } })),
+    });
     expect(await rows(client, 'SELECT count(*)::int AS count FROM "EventLog" WHERE "subjectId"=$1', [pageId])).toEqual([
       { count: 0 },
     ]);

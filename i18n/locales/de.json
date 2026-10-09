@@ -830,6 +830,88 @@
     "liveDemoTitle": "Customermates-Live-Demo",
     "open": "In neuem Tab öffnen"
   },
+  "CommandPalette": {
+    "fieldOf": "Feld in {list}",
+    "groups": {
+      "actions": "Aktionen",
+      "bestMatch": "Bester Treffer",
+      "listsAndViews": "Listen und Ansichten",
+      "pagesAndSettings": "Seiten und Einstellungen",
+      "records": "Datensätze",
+      "suggestions": "Vorschläge"
+    },
+    "labels": {
+      "addRole": "Rolle hinzufügen",
+      "addWebhook": "Webhook hinzufügen",
+      "connectChannel": "Kanal verbinden",
+      "createApiKey": "API-Key erstellen",
+      "themeDark": "Dunkle Darstellung verwenden",
+      "themeLight": "Helle Darstellung verwenden",
+      "themeSystem": "Darstellung des Systems verwenden"
+    },
+    "record": {
+      "addTo": "Zu {list} hinzufügen…",
+      "assign": "Zuweisen an…",
+      "change": "{field} ändern…",
+      "deleteNamed": "{name} löschen"
+    },
+    "synonyms": {
+      "action": {
+        "add": "neu, erstellen, anlegen, neuer Datensatz",
+        "inviteMembers": "Benutzer hinzufügen, Kollegen einladen, Team",
+        "sendFeedback": "Problem melden, Vorschlag, Support kontaktieren",
+        "shortcuts": "Hotkeys, Tasten, Tastatur",
+        "signOut": "ausloggen, Logout, abmelden",
+        "switchView": "Ansicht ändern, gespeicherte Ansichten",
+        "themeDark": "dunkel, dunkler Modus, Nachtmodus",
+        "themeLight": "heller Modus, hell",
+        "themeSystem": "automatische Darstellung, wie System"
+      },
+      "page": {
+        "configure": "Datenmodell, Schema, Listen, Felder, Beziehungen",
+        "dashboard": "Startseite, Übersicht, Start, Widgets, Diagramme",
+        "documentation": "Doku, Hilfe, Anleitung, Handbuch",
+        "inbox": "Nachrichten, E-Mail, Mails, Unterhaltungen, Chats",
+        "knowledgeBase": "Wiki, Notizen, Seiten, Artikel",
+        "routines": "Automatisierungen, Zeitpläne, wiederkehrende Aufgaben",
+        "settings": "Einstellungen, Optionen, Konto, Arbeitsbereich"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "neuer API-Schlüssel, Token erzeugen"
+        },
+        "channels": {
+          "connect": "E-Mail verbinden, Konto hinzufügen, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "Profilbild, Foto, Bild",
+          "country": "Standort, Region",
+          "displayLanguage": "Sprache, Oberflächensprache, Übersetzung",
+          "firstName": "Name, Vorname",
+          "formattingLocale": "Datumsformat, Zahlenformat, Region, Währungsformat",
+          "lastName": "Familienname, Zuname",
+          "theme": "Aussehen, dunkel, hell, dunkler Modus, heller Modus, Farben, Theme"
+        },
+        "roles": {
+          "create": "neue Rolle, Berechtigungen"
+        },
+        "webhooks": {
+          "create": "neuer Webhook"
+        }
+      },
+      "settings": {
+        "activity": "Audit-Log, Verlauf, Änderungen, Protokoll",
+        "api-keys": "Token, API, MCP, Entwickler, Zugangsschlüssel",
+        "billing": "Tarif, Abonnement, Rechnungen, Zahlung, Preise",
+        "channels": "verbundene Konten, E-Mail-Konten, LinkedIn, WhatsApp, Integrationen",
+        "members": "Team, Benutzer, Personen, Kollegen",
+        "profile": "Konto, Einstellungen, persönlich, Name",
+        "roles": "Berechtigungen, Zugriff, Rechte",
+        "webhook-deliveries": "Webhook-Zustellungen, Webhook-Protokoll, gesendete Ereignisse",
+        "webhooks": "Integrationen, Callbacks, Ereignisse, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Hinzufügen",
@@ -1070,6 +1152,8 @@
       "subjectRequired": "Bitte einen Betreff hinzufügen.",
       "termsNotAgreed": "Du musst den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
+      "trashChanged": "Der Papierkorb hat sich zwischenzeitlich geändert. Prüfe, was gelöscht wird, und versuche es erneut.",
+      "trashItemNotFound": "Dieses Element ist nicht mehr im Papierkorb.",
       "unipileAccountRestricted": "Der Anbieter hat diesen Kanal eingeschränkt. Neu verbinden behebt das nicht; kläre die Einschränkung zuerst mit dem Anbieter.",
       "unipileDisconnectedAccount": "Der Kanal ist getrennt. Die Person, der er gehört, muss ihn unter Kanäle neu verbinden, bevor er wieder nutzbar ist.",
       "unipileFeatureUnavailable": "Das ist auf diesem Kanal nicht verfügbar. Ein erneuter Versuch hilft nicht; das Team wurde benachrichtigt.",
@@ -1150,7 +1234,9 @@
       },
       "record": {
         "created": "Datensatz erstellt",
-        "deleted": "Datensatz gelöscht",
+        "deleted": "Datensatz in den Papierkorb verschoben",
+        "deletedPermanently": "Datensatz endgültig gelöscht",
+        "restored": "Datensatz wiederhergestellt",
         "updated": "Datensatz aktualisiert"
       },
       "record_grants": {
@@ -3018,7 +3104,9 @@
         "relationship": "Wähle, welche verknüpften Datensätze verwendet werden.",
         "step": "Wähle die Werte für {operation}.",
         "sum": "Wähle, welcher Wert summiert wird.",
-        "take": "Wähle, welcher Wert übernommen wird."
+        "take": "Wähle, welcher Wert übernommen wird.",
+        "trigger": "Wähle das Feld, das das Speichern auslöst.",
+        "triggerValue": "Wähle den Wert, der das Speichern auslöst."
       },
       "moreOptions": "Weitere Optionen",
       "of": "von",
@@ -3275,7 +3363,6 @@
       "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
       "resetLayout": "Layout zurücksetzen",
       "showFewer": "Weniger anzeigen",
-      "sublistOf": "Unterliste von {list}",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern"
     },
@@ -3550,7 +3637,7 @@
         "singular": "Aufgabe"
       }
     },
-    "sublistExplanation": "Jeder Eintrag gehört zu genau einem Datensatz in {parent}, wird darin bearbeitet, teilt dessen Zugriff und wird mit ihm gelöscht.",
+    "sublistSentence": "Unterliste von {list} · jeder Eintrag gehört zu genau einem Datensatz vom Typ {parent}, teilt dessen Zugriff und wird mit ihm gelöscht.",
     "suggestedAttribute": "Vorschlag",
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
@@ -3654,6 +3741,7 @@
   },
   "RoleModal": {
     "create": "Erstellen",
+    "dataModelNote": "Listen, Felder und Beziehungen in Konfigurieren anlegen und ändern.",
     "edit": "Bearbeiten",
     "manageAccess": "Verwalten",
     "ownRoleAlert": "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.",
@@ -3705,7 +3793,8 @@
           "messageReceived": "Empfange eine neue, nicht doppelte eingehende Nachricht über ein verbundenes Konto.",
           "messageUpdated": "Bearbeite eine Nachricht beim verbundenen Messaging-Anbieter.",
           "recordCreated": "Erstelle einen Datensatz in Customermates: {entity}.",
-          "recordDeleted": "Lösche einen Datensatz in Customermates: {entity}.",
+          "recordDeleted": "Einen Datensatz in Customermates in den Papierkorb verschieben: {entity}.",
+          "recordRestored": "Einen Datensatz in Customermates aus dem Papierkorb wiederherstellen: {entity}.",
           "recordUpdated": "Nimm eine echte Änderung an einem Datensatz in Customermates vor: {entity}.",
           "relationCreated": "Lass eine LinkedIn-Kontaktanfrage über ein verbundenes Konto annehmen."
         },
