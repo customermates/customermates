@@ -3,6 +3,7 @@ import type { DataViewStateRepo, SurfaceViewState } from "@/core/data-view/data-
 import type { StoredViewRow } from "./data-view-row-mapping";
 import { Prisma } from "@/generated/prisma";
 import type { ResetDataViewStateInput } from "./reset-data-view-state.schema";
+import type { CommandCatalogRepo, RecordViewName } from "@/features/command-palette/command-catalog.repo";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -82,7 +83,19 @@ function toDto(row: StoredViewRow): DataViewDto {
   };
 }
 
-export class PrismaDataViewRepo extends TenantRepository implements DataViewStateRepo {
+export class PrismaDataViewRepo extends TenantRepository implements DataViewStateRepo, CommandCatalogRepo {
+  async listRecordViewNames(): Promise<RecordViewName[]> {
+    return runAsViewOwner(async () => {
+      const { companyId, id: userId } = this.user;
+      const rows = await this.prisma.dataView.findMany({
+        where: { companyId, userId, surfaceKey: { startsWith: "records:" } },
+        orderBy: [{ surfaceKey: "asc" }, { position: "asc" }, { name: "asc" }],
+        select: { id: true, surfaceKey: true, name: true },
+      });
+      return rows.map((row) => ({ typeId: row.surfaceKey.slice("records:".length), id: row.id, name: row.name }));
+    });
+  }
+
   async resetOwnedViewState({ surfaceKey, viewKey, fields }: ResetDataViewStateInput): Promise<boolean> {
     const { companyId, id: userId } = this.user;
     const all = viewKey === ALL_VIEW_KEY;

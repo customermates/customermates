@@ -10,6 +10,7 @@ import { CountSystemTasksInteractor } from "@/features/records/count-system-task
 import { CheckRecordIdentityInteractor } from "@/features/records/check-record-identity.interactor";
 import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-identity-record-choices.interactor";
 import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
+import { GetCommandCatalogInteractor } from "@/features/command-palette/get-command-catalog.interactor";
 import { GetRecordPresentationInteractor } from "@/features/records/get-record-presentation.interactor";
 import { PrismaEventOutboxRepo } from "@/features/event/prisma-event-outbox.repository";
 import { PrismaRecordOperationQueueRepo } from "@/features/records/prisma-record-operation-queue.repository";
@@ -433,6 +434,9 @@ export const getGetRecordActivitiesInteractor = () =>
 export const getGetIdentityRecordChoicesInteractor = () =>
   new GetIdentityRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordIdentityReader = () => new RecordIdentityReader(getRecordRepo(), getRecordAccessPolicy());
+export const getGetCommandCatalogInteractor = () =>
+  new GetCommandCatalogInteractor(getRecordRepo(), getRecordAccessPolicy(), getDataViewRepo());
+
 export const getGetRecordNavigationInteractor = () =>
   new GetRecordNavigationInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getDiscoverRecordTypesInteractor = () =>
