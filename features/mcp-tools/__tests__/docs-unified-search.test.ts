@@ -269,6 +269,43 @@ describe("unified documentation search", () => {
     });
   });
 
+  it("offers a section that leads one retrieval list even when fusion ranks it outside the lexical head", async () => {
+    const sections = docsCorpusSections("docs", "en");
+    const expected = sections.find(
+      (section) => section.slug === "app-company" && section.anchor === "how-does-the-role-editor-work",
+    );
+    if (!expected) throw new Error("Missing role editor fixture.");
+    const others = sections
+      .filter((section) => section.slug !== "app-company")
+      .map((section, index, all) => ({
+        section,
+        rank: all.filter((other, before) => before < index && other.slug === section.slug).length,
+      }))
+      .sort((left, right) => left.rank - right.rank)
+      .map(({ section }) => section);
+    const fullText = [...others.slice(0, 18), expected, ...others.slice(18, 30)];
+    const semantic = others.slice(30, 60);
+    let offered: readonly RankableSection[] = [];
+    const ranker = (_query: string, candidates: readonly RankableSection[]) => {
+      offered = candidates;
+      return Promise.resolve(null);
+    };
+    await unifiedDocsSearchResult(
+      { ...INPUT, query: "Can users only see their own contacts?" },
+      {
+        repo: repo(
+          fullText.map((section) => row(section)),
+          semantic.map((section) => row(section)),
+        ),
+        embed: () => Promise.resolve({ vector: [1], version: "test" }),
+        ranker,
+        relevanceFloor: null,
+      },
+    );
+    expect(offered.some(({ section }) => section === expected)).toBe(true);
+    expect(offered.length).toBeLessThanOrEqual(120);
+  });
+
   it("returns no pages below the relevance floor, and lets the re-rank reject a loose match", async () => {
     const embed = () => Promise.resolve({ vector: [1], version: "m" });
     const loose = (coverage: number, similarity: number) =>

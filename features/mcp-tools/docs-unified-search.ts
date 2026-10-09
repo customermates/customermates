@@ -17,6 +17,7 @@ import { stableDocsRanker } from "./docs-section-ranking";
 const DOCS_FULL_TEXT_CANDIDATES = 40;
 const DOCS_SEMANTIC_CANDIDATES = 30;
 const DOCS_RERANK_LEXICAL = 20;
+const DOCS_RERANK_PER_LIST = 20;
 const DOCS_RERANK_TOP_PAGES = 5;
 const DOCS_RERANK_MAX_CANDIDATES = 120;
 const DOCS_RERANK_RETURNED = 3;
@@ -42,6 +43,7 @@ export type UnifiedDocsSearch = {
 };
 
 type RankedSection = { section: DocsSection; part: number };
+type FusedSection = RankedSection & { listRank: number };
 
 const EXACT_TOOL_NAME = /\b[a-z][a-z0-9]*(?:_[a-z0-9]+){2,}\b/;
 const TOOL_CATALOG_QUESTION =
@@ -68,7 +70,7 @@ export function pinnedDocsSections(query: string, scope: Omit<DocsScope, "buildH
   return [];
 }
 
-function leadWithPinned(ranked: readonly RankedSection[], pinned: readonly DocsSection[]): RankedSection[] {
+function leadWithPinned(ranked: readonly FusedSection[], pinned: readonly DocsSection[]): FusedSection[] {
   if (pinned.length === 0) return [...ranked];
   const keys = new Set(pinned.map(docsSectionKey));
   return [
@@ -77,6 +79,7 @@ function leadWithPinned(ranked: readonly RankedSection[], pinned: readonly DocsS
         ranked.find((entry) => docsSectionKey(entry.section) === docsSectionKey(section)) ?? {
           section,
           part: 0,
+          listRank: 0,
         },
     ),
     ...ranked.filter((entry) => !keys.has(docsSectionKey(entry.section))),
@@ -181,12 +184,18 @@ async function fusedSections(
   deps: UnifiedDocsDeps,
   stopwatch: RetrievalStopwatch,
   limits: { fullText: number; semantic: number },
-): Promise<{ sections: RankedSection[]; relevance: RelevanceVerdict }> {
+): Promise<{ sections: FusedSection[]; relevance: RelevanceVerdict }> {
   const units = fullTextUnits(query);
   const pinned = pinnedDocsSections(query, scope);
   if (!stored) {
     return {
-      sections: leadWithPinned(inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText), pinned),
+      sections: leadWithPinned(
+        inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText).map((section, listRank) => ({
+          ...section,
+          listRank,
+        })),
+        pinned,
+      ),
       relevance: "kept",
     };
   }
@@ -220,12 +229,17 @@ async function fusedSections(
     },
     relevanceFloor: deps.relevanceFloor,
   });
+  const listRank = (key: string) =>
+    Math.min(
+      ...[fused.fullText, fused.semantic ?? []].map((list) => list.indexOf(key)).filter((index) => index >= 0),
+      Number.MAX_SAFE_INTEGER,
+    );
   const sections = fused.ranked.flatMap((key) => {
     const row = rows.get(key);
     const section = row ? rowSection(scope.locale, row, stored) : undefined;
-    if (row && section) return [{ section, part: row.partOrdinal }];
+    if (row && section) return [{ section, part: row.partOrdinal, listRank: listRank(key) }];
     const pinnedSection = pinnedByKey.get(key);
-    return pinnedSection ? [{ section: pinnedSection, part: 0 }] : [];
+    return pinnedSection ? [{ section: pinnedSection, part: 0, listRank: 0 }] : [];
   });
   return { sections, relevance: fused.relevance };
 }
@@ -240,11 +254,14 @@ async function storedBuild(deps: UnifiedDocsDeps): Promise<DocsStoredBuild | nul
 }
 
 function rerankCandidates(
-  ranked: readonly RankedSection[],
+  ranked: readonly FusedSection[],
   locale: DocsLocale,
   sources: readonly DocsSource[],
 ): { candidates: RankableSection[]; sections: DocsSection[] } {
-  const lexical = ranked.slice(0, DOCS_RERANK_LEXICAL);
+  const head = ranked.slice(0, DOCS_RERANK_LEXICAL);
+  const lexical = ranked.filter(
+    (entry, index) => index < DOCS_RERANK_LEXICAL || entry.listRank < DOCS_RERANK_PER_LIST,
+  );
   const lexicalKeys = new Set(lexical.map(({ section }) => docsSectionKey(section)));
   const topPages: string[] = [];
   for (const { section } of ranked) {
@@ -252,7 +269,7 @@ function rerankCandidates(
     if (!topPages.includes(page)) topPages.push(page);
     if (topPages.length === DOCS_RERANK_TOP_PAGES) break;
   }
-  for (const { section } of lexical) {
+  for (const { section } of head) {
     const page = `${section.source}:${section.slug}`;
     if (!topPages.includes(page)) topPages.push(page);
   }
