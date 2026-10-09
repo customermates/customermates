@@ -118,6 +118,14 @@ describe("FormFooterActions (design rule 31)", () => {
     expect(button("f-reset")).toBeNull();
   });
 
+  it("shows Save in a top bar only while something changed (design rule 61)", () => {
+    const store = fakeStore();
+    render(inForm(store, createElement(FormFooterActions, { anchorScope: "f", placement: "topbar" })));
+    expect(button("f-save")).toBeNull();
+    markDirty(store);
+    expect(button("f-save")?.disabled).toBe(false);
+  });
+
   it("disables Save with a busy state while saving", () => {
     const store = fakeStore({ hasUnsavedChanges: true, isLoading: true });
     render(inForm(store, createElement(FormFooterActions, { anchorScope: "f" }), vi.fn()));
