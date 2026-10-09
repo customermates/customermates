@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { aggregateOf, linkedExpression, linkedFlow, linkedTypeIds } from "@/features/records/calculation-sentence";
 import { omit } from "lodash";
 import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
@@ -31,15 +33,11 @@ import {
   CALCULATION_UPDATES,
   UNSET,
   VALUE_SOURCES,
-  aggregateOf,
   calculationBehavior,
   calculationDraft,
   calculationIssues,
   derivedValueType,
   expressionAt,
-  linkedExpression,
-  linkedFlow,
-  linkedTypeIds,
   relationshipChoices,
   withAggregate,
   type CalculationSource,
@@ -347,13 +345,23 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   };
   protected override validateDraft() {
     const issue = this.calculationIssues[0];
-    if (!issue) return undefined;
+    const value = this.form.triggerValue;
+    const changes = this.isCalculated && this.form.updates === "whenChanged";
+    const missingTrigger = changes && !this.triggerField;
+    const missingValue =
+      changes && Boolean(this.triggerField) && (value === undefined || value === null || value === "");
+    if (!issue && !missingTrigger && !missingValue) return undefined;
     return {
       errors: [],
-      properties: { expression: { errors: [this.issueMessage(issue)] } },
+      properties: {
+        ...(issue ? { expression: { errors: [this.issueMessage(issue)] } } : {}),
+        ...(missingTrigger ? { triggerFieldId: { errors: [this.triggerMessages.field] } } : {}),
+        ...(missingValue ? { triggerValue: { errors: [this.triggerMessages.value] } } : {}),
+      },
     } as FieldModalStore["error"];
   }
   issueMessage: (issue: FlowIssue) => string = () => "";
+  triggerMessages = { field: "", value: "" };
   stepType(path: ExpressionPath) {
     const step = expressionAt(this.form.expression, path);
     return step ? calculationResultType(step, this.typeId, this.model) : null;
@@ -509,6 +517,12 @@ export const FieldModal = observer(function FieldModal({
     whenChanged: t("RecordModel.calculationFlow.updateModes.whenChanged"),
     explicit: t("RecordModel.calculationFlow.updateModes.explicit"),
   };
+  useEffect(() => {
+    store.triggerMessages = {
+      field: t("RecordModel.calculationFlow.missing.trigger"),
+      value: t("RecordModel.calculationFlow.missing.triggerValue"),
+    };
+  }, [store, t]);
   const askAi = useRecordAiAction({
     registerContext: true,
     active: store.isOpen,
@@ -689,6 +703,7 @@ export const FieldModal = observer(function FieldModal({
               {store.form.updates === "whenChanged" && (
                 <>
                   <FormSelect
+                    required
                     id="triggerFieldId"
                     items={store.triggerFields.map((field) => ({
                       value: field.id,
@@ -697,12 +712,20 @@ export const FieldModal = observer(function FieldModal({
                     label={t("RecordModel.triggerField")}
                   />
 
+                  {store.getError("triggerFieldId") && (
+                    <p className="-mt-2 text-xs text-destructive">{store.triggerMessages.field}</p>
+                  )}
+
                   {store.triggerField && (
                     <RecordInputField
-                      field={{ ...store.triggerField, required: false }}
+                      field={{ ...store.triggerField, required: true }}
                       id="triggerValue"
                       label={t("RecordModel.triggerValue")}
                     />
+                  )}
+
+                  {store.getError("triggerValue") && (
+                    <p className="-mt-2 text-xs text-destructive">{store.triggerMessages.value}</p>
                   )}
                 </>
               )}

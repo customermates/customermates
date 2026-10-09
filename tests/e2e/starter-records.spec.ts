@@ -109,7 +109,7 @@ test("creates, edits, connects, assigns, reloads, and deletes all five starter t
     await expect(page.getByRole("link", { name: record.title, exact: true })).not.toBeVisible();
   }
   const remaining = await database.query(
-    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND id=ANY($2::text[])',
+    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND id=ANY($2::text[]) AND "deletedAt" IS NULL',
     [companyId, [...records.values()].map((record) => record.id)],
   );
   expect(remaining.rows).toEqual([{ count: 0 }]);

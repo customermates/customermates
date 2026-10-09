@@ -40,7 +40,7 @@ import {
   RecordOperationInputSchema,
   RecordOperationStatusSchema,
 } from "@/features/records/record-operation.interactor";
-import { runInteractor, toonResult } from "./utils";
+import { recordToonResult, runInteractor, toonResult } from "./utils";
 import {
   ResolveRecordIdentitiesSchema,
   ResolveRecordIdentitiesResultSchema,
@@ -170,7 +170,7 @@ export const queryRecordsV2Tool = {
   outputSchema: RecordQueryResultSchema,
   annotations: read,
   execute: (input: z.infer<typeof RecordQuerySchema>) =>
-    runInteractor(getQueryRecordsInteractor().invoke(input), toonResult),
+    runInteractor(getQueryRecordsInteractor().invoke(input), recordToonResult),
 };
 export const readRecordV2Tool = {
   name: "read_crm_record",
@@ -181,13 +181,13 @@ export const readRecordV2Tool = {
   outputSchema: RecordDtoSchema,
   annotations: read,
   execute: (input: z.infer<typeof RecordReadSchema>) =>
-    runInteractor(getGetRecordInteractor().invoke(input), toonResult),
+    runInteractor(getGetRecordInteractor().invoke(input), recordToonResult),
 };
 export const mutateRecordV2Tool = {
   name: "mutate_crm_record",
   title: "Change a record or relationship",
   description:
-    "Create, update, delete, link or unlink records. updateMany applies one shared patch atomically to a typed target array; deleteMany previews and deletes the whole selection atomically. Each target supplies its latest version. Use field-assignment arrays and stable references. Omitted fields remain unchanged; null explicitly clears an optional input. To add to a Formatted text or single Text field without rewriting it, send { fieldId, append } in an update: the text is added after the current value with a blank line, and an update that only appends never conflicts with a newer record version. Calculated fields cannot be written. Preserve the idempotency key on retries of the exact payload. Read the latest record version before update/delete; resolve_record_identifiers returns versions for identifier-matched updateMany targets. Delete can permanently remove records and cascading line items. Preview deletion and pass its impactHash as expectedImpactHash to reject changed cascading effects. Pending operations pause workspace CRM writes and preserve the previous complete state for reads.",
+    "Create, update, delete, link or unlink records. updateMany applies one shared patch atomically to a typed target array; deleteMany previews and deletes the whole selection atomically. Each target supplies its latest version. Use field-assignment arrays and stable references. Omitted fields remain unchanged; null explicitly clears an optional input. To add to a Formatted text or single Text field without rewriting it, send { fieldId, append } in an update: the text is added after the current value with a blank line, and an update that only appends never conflicts with a newer record version. Calculated fields cannot be written. Preserve the idempotency key on retries of the exact payload. Read the latest record version before update/delete; resolve_record_identifiers returns versions for identifier-matched updateMany targets. delete and deleteMany move the records, their sub-list rows and cascading records to Trash, where read_trash lists them and manage_trash restores them for 30 days; the result carries trashBatchId to restore the whole delete. permanent: true deletes permanently right away (erasure requests) and cannot be undone. Preview deletion and pass its impactHash as expectedImpactHash to reject changed cascading effects. Pending operations pause workspace CRM writes and preserve the previous complete state for reads.",
   inputSchema: MutateRecordSchema,
   outputSchema: z.object({ result: RecordOperationResultSchema }).strict(),
   annotations: destructive,

@@ -6,7 +6,7 @@ import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
 import { editorSchema } from "@/components/editor/editor-extensions";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const MAX_JSON_SIZE = 262_144;
+export const MAX_NOTES_JSON_SIZE = 262_144;
 export const MAX_NOTES_LENGTH = 65_535;
 
 function detectNotesFormat(input: string | object): "json" | "markdown" {
@@ -47,7 +47,7 @@ export function validateNotes(
       }
 
       const jsonString = JSON.stringify(parsed);
-      if (jsonString.length > MAX_JSON_SIZE) throw new Error(CustomErrorCode.notesExceedsMaxLength);
+      if (jsonString.length > MAX_NOTES_JSON_SIZE) throw new Error(CustomErrorCode.notesExceedsMaxLength);
 
       return parsed;
     }
