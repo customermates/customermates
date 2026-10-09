@@ -1,43 +1,36 @@
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 export const TRASH_PURGE_COMPANY_LIMIT = 50;
-export const TRASH_PURGE_BATCH_SIZE = 100;
-export const TRASH_PURGE_PASSES = 5;
 
-export abstract class ExpiredTrashRepo {
-  abstract findExpiredTrashCompaniesUnscoped(
+export type ExpiredTrashRepo = {
+  findExpiredTrashCompaniesUnscoped(
     now: Date,
     limit: number,
   ): Promise<Array<{ companyId: string; administratorId: string | null }>>;
-}
-
-export type PurgeCompanyTrash = (companyId: string, administratorId: string, now: Date, take: number) => Promise<number>;
+};
 
 @SystemInteractor
 export class PurgeExpiredTrashInteractor {
   constructor(
     private repo: ExpiredTrashRepo,
-    private purgeCompany: PurgeCompanyTrash,
+    private background: Pick<BackgroundTaskService, "dispatch">,
   ) {}
 
-  async invoke(args: { now?: Date } = {}): Promise<{ purged: number; skippedCompanies: string[] }> {
+  async invoke(args: { now?: Date } = {}): Promise<{ dispatched: string[]; skipped: string[] }> {
     const now = args.now ?? new Date();
     const companies = await this.repo.findExpiredTrashCompaniesUnscoped(now, TRASH_PURGE_COMPANY_LIMIT);
-    let purged = 0;
-    const skippedCompanies: string[] = [];
+    const dispatched: string[] = [];
+    const skipped: string[] = [];
     for (const { companyId, administratorId } of companies) {
       if (!administratorId) {
-        skippedCompanies.push(companyId);
+        skipped.push(companyId);
         continue;
       }
-      for (let pass = 0; pass < TRASH_PURGE_PASSES; pass++) {
-        const count = await this.purgeCompany(companyId, administratorId, now, TRASH_PURGE_BATCH_SIZE);
-        purged += count;
-        if (count < TRASH_PURGE_BATCH_SIZE) break;
-      }
+      await this.background.dispatch("purge-trash", { companyId, administratorId, now: now.toISOString() });
+      dispatched.push(companyId);
     }
-    if (skippedCompanies.length)
-      console.warn("Trash retention skipped companies without an active administrator", skippedCompanies);
-    return { purged, skippedCompanies };
+    return { dispatched, skipped };
   }
 }

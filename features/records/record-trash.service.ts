@@ -77,16 +77,17 @@ export class RecordTrashService {
   ): Promise<RecordRestoreResult> {
     const result: RecordRestoreResult = { restoredItemIds: [], blocked: [], restoredRecords: 0, droppedLinks: 0 };
     let pending = items;
+    let waitingOnParent: RecordRestoreBlocker[] = [];
     let progressed = true;
     while (pending.length && progressed) {
       progressed = false;
       const waiting: RecordTrashItem[] = [];
-      result.blocked = [];
+      waitingOnParent = [];
       for (const item of pending) {
         const blocker = await this.accessible(item, model, policy);
         if (blocker?.reason === "parentDeleted") {
           waiting.push(item);
-          result.blocked.push(blocker);
+          waitingOnParent.push(blocker);
           continue;
         }
         if (blocker) {
@@ -107,12 +108,7 @@ export class RecordTrashService {
       }
       pending = waiting;
     }
-    result.blocked = [
-      ...result.blocked.filter((blocker) => blocker.reason !== "parentDeleted"),
-      ...result.blocked.filter(
-        (blocker) => blocker.reason === "parentDeleted" && pending.some((item) => item.id === blocker.itemId),
-      ),
-    ];
+    result.blocked.push(...waitingOnParent);
     return result;
   }
 

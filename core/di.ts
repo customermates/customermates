@@ -107,7 +107,6 @@ import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import { RecordTrashHandler } from "@/features/records/record-trash.handler";
 import { ConfigurationTrashHandler } from "@/features/records/configuration-trash.handler";
 import { PurgeExpiredTrashInteractor } from "@/features/trash/purge-expired-trash.interactor";
-import { purgeCompanyTrash } from "@/features/trash/purge-company-trash";
 import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import type { TrashKindHandler } from "@/features/trash/trash-kind-handler";
 import { QueryTrashInteractor } from "@/features/trash/query-trash.interactor";
@@ -516,7 +515,7 @@ export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => 
   ),
 ];
 export const getPurgeExpiredTrashInteractor = () =>
-  new PurgeExpiredTrashInteractor(getTrashRepo(), purgeCompanyTrash(getTrashRepo, getTrashKindHandlers));
+  new PurgeExpiredTrashInteractor(getTrashRepo(), getBackgroundTaskService());
 export const getQueryTrashInteractor = () =>
   new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());
 export const getRestoreTrashInteractor = () => new RestoreTrashInteractor(getTrashRepo(), getTrashKindHandlers());

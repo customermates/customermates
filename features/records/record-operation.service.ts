@@ -11,7 +11,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "./record-model.schema";
 import { ConfigurationChangeSchema } from "./configuration.schema";
 import type { RecordConfigurationService } from "./configuration.service";
-import { RecordConfigurationWriter } from "./record-configuration-writer";
+import { purgeTrashOfDeletedLists, RecordConfigurationWriter } from "./record-configuration-writer";
 import { MutateRecordSchema } from "./record-query.schema";
 import { RecordWriteError, RecordWriteService } from "./record-write.service";
 import { RecordCalculationService, calculationSources, recordKey } from "./record-calculation.service";
@@ -298,7 +298,10 @@ export class RecordOperationService extends UserAccessor {
 
           if (prepared) {
             await this.records.saveModel(prepared.model, this.userId, prepared.change);
-            if (prepared.deletion) await this.records.deleteDefinitions(prepared.deletion);
+            if (prepared.deletion) {
+              await purgeTrashOfDeletedLists(this.records, prepared, this.userId);
+              await this.records.deleteDefinitions(prepared.deletion);
+            }
             await this.records.applyConsumerCleanups(prepared.cleanups);
             for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
           } else {

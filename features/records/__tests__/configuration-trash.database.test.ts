@@ -44,7 +44,7 @@ const { RestoreTrashInteractor } = await import("@/features/trash/restore-trash.
 const { PreviewTrashDeletionInteractor } = await import("@/features/trash/preview-trash-deletion.interactor");
 const { DeleteTrashPermanentlyInteractor } = await import("@/features/trash/delete-trash-permanently.interactor");
 const { PurgeExpiredTrashInteractor } = await import("@/features/trash/purge-expired-trash.interactor");
-const { purgeCompanyTrash } = await import("@/features/trash/purge-company-trash");
+const { purgeExpiredCompanyTrash } = await import("@/features/trash/purge-company-trash");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -115,8 +115,29 @@ async function fixture() {
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers()),
   };
   const id = (key: string) => presetId(seed.company.id, key);
+  const employer = randomUUID();
   await runWithTenant(admin, () =>
-    runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),
+    runInTransaction(
+      () => {
+        const model = createCrmPreset(seed.company.id);
+        model.relationships.push({
+          id: employer,
+          sourceTypeId: id("contact"),
+          targetTypeId: id("organization"),
+          sourceLabel: "Employer",
+          targetLabel: "Staff",
+          sourceCardinality: "many",
+          targetCardinality: "many",
+          onSourceDelete: "unlink",
+          onTargetDelete: "cascade",
+          messagesOnSource: false,
+          messagesOnTarget: false,
+          archived: false,
+        });
+        return repo.saveModel(model, admin.id);
+      },
+      { timeout: 30000 },
+    ),
   );
   const revision = () =>
     runWithoutTenant(() => prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId: seed.company.id } })).then(
@@ -132,7 +153,29 @@ async function fixture() {
     runWithoutTenant(() =>
       prisma.trashItem.findMany({ where: { companyId: seed.company.id }, orderBy: { deletedAt: "asc" } }),
     );
-  return { seed, admin, id, apply, mutate, trash, change, as, items, handlers, revision };
+  const create = async (
+    typeKey: string,
+    fieldKey: string,
+    name: string,
+    links: Array<{ relationId: string; record: { typeId: string; recordId: string } }> = [],
+  ) => {
+    const typeId = id(typeKey);
+    const result = await runWithTenant(admin, async () =>
+      mutate.invoke({
+        mutation: {
+          action: "create",
+          typeId,
+          fields: [{ fieldId: id(fieldKey), value: text(name) }],
+          links: links.map((link) => ({ ...link, direction: "outgoing" as const })),
+        },
+        expectedRevision: await revision(),
+        idempotencyKey: randomUUID(),
+      }),
+    );
+    if (!result.ok || result.data.status !== "completed") throw new Error(JSON.stringify(result));
+    return result.data.refs.find((ref) => ref.typeId === typeId) as { typeId: string; recordId: string };
+  };
+  return { seed, admin, id, employer, apply, mutate, trash, change, as, items, handlers, revision, create };
 }
 
 afterAll(async () => {
@@ -159,7 +202,8 @@ describeDatabase("configuration trash", () => {
       ),
     ).toMatchObject({ ok: false });
 
-    expect(await f.as(() => f.trash.restore.invoke({ batchId: deleted.data.trashBatchId } as never))).toMatchObject({
+    const batchId = deleted.data.trashBatchId;
+    expect(await f.as(() => f.trash.restore.invoke({ batchId } as never))).toMatchObject({
       ok: true,
       data: { status: "completed", blocked: [] },
     });
@@ -206,6 +250,70 @@ describeDatabase("configuration trash", () => {
     ).toBe(0);
   }, 180_000);
 
+  it("purges trashed records of a permanently deleted list through Trash, cascaded records in other lists included", async () => {
+    const f = await fixture();
+    const organization = await f.create("organization", "organization.name", "Erased Org");
+    const contact = await f.create("contact", "contact.firstName", "Erased Staff", [
+      { relationId: f.employer, record: organization },
+    ]);
+    const { version } = await runWithoutTenant(() =>
+      prisma.crmRecord.findUniqueOrThrow({
+        where: {
+          companyId_typeId_id: { companyId: f.seed.company.id, typeId: organization.typeId, id: organization.recordId },
+        },
+        select: { version: true },
+      }),
+    );
+    await f.as(async () =>
+      f.mutate.invoke({
+        mutation: { action: "delete", ref: organization, expectedVersion: version },
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+      }),
+    );
+    expect(
+      await runWithoutTenant(() =>
+        prisma.crmRecord.findUnique({
+          where: {
+            companyId_typeId_id: { companyId: f.seed.company.id, typeId: contact.typeId, id: contact.recordId },
+          },
+          select: { deletedAt: true },
+        }),
+      ),
+    ).toMatchObject({ deletedAt: expect.any(Date) });
+    await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
+    );
+    const listed = await f.as(() => f.trash.query.invoke({ kinds: ["list"] } as never));
+    const itemIds = listed.ok ? listed.data.items.map((item) => item.id) : [];
+    const preview = await f.as(() => f.trash.preview.invoke({ itemIds }));
+    if (!preview.ok) throw new Error("Preview failed");
+    expect(preview.data.removedRecords).toEqual([{ typeId: f.id("organization"), label: "Organizations", count: 2 }]);
+    expect(
+      await f.as(() => f.trash.remove.invoke({ itemIds, expectedImpactHash: preview.data.impactHash })),
+    ).toMatchObject({ ok: true });
+    expect(
+      await runWithoutTenant(() =>
+        prisma.crmRecord.count({
+          where: { companyId: f.seed.company.id, id: { in: [organization.recordId, contact.recordId] } },
+        }),
+      ),
+    ).toBe(0);
+    const events = await runWithoutTenant(() =>
+      prisma.eventLog.findMany({
+        where: { companyId: f.seed.company.id, subjectId: { in: [organization.recordId, contact.recordId] } },
+        select: { subjectId: true, kind: true, payload: true },
+      }),
+    );
+    expect(
+      events
+        .filter((event) => event.kind === "record.deletedPermanently")
+        .map((event) => event.subjectId)
+        .sort(),
+    ).toEqual([organization.recordId, contact.recordId].sort());
+    expect(JSON.stringify(events)).not.toContain("Erased");
+  }, 180_000);
+
   it("deletes expired items permanently in the daily job, per company and idempotently", async () => {
     const f = await fixture();
     const fieldId = f.id("deal.notes");
@@ -234,6 +342,7 @@ describeDatabase("configuration trash", () => {
     );
     expect(await f.items()).toHaveLength(2);
     const now = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+    const dispatched: unknown[] = [];
     const job = new PurgeExpiredTrashInteractor(
       {
         findExpiredTrashCompaniesUnscoped: async (at, limit) =>
@@ -241,12 +350,19 @@ describeDatabase("configuration trash", () => {
             (due) => due.companyId === f.seed.company.id,
           ),
       },
-      purgeCompanyTrash((companyId) => new PrismaTrashRepo(companyId), f.handlers),
+      {
+        dispatch: (_id, payload) => {
+          dispatched.push(payload);
+          return Promise.resolve();
+        },
+      },
     );
-    const early = await job.invoke({ now: new Date() });
-    expect(early.purged).toBe(0);
-    const first = await job.invoke({ now });
-    expect(first.purged).toBeGreaterThanOrEqual(2);
+    expect(await job.invoke({ now: new Date() })).toEqual({ dispatched: [], skipped: [] });
+    expect(await job.invoke({ now })).toEqual({ dispatched: [f.seed.company.id], skipped: [] });
+    expect(dispatched).toEqual([{ companyId: f.seed.company.id, administratorId: f.admin.id, now: now.toISOString() }]);
+    const purge = () =>
+      f.as(() => purgeExpiredCompanyTrash(new PrismaTrashRepo(f.seed.company.id), f.handlers(f.seed.company.id), now));
+    expect(await purge()).toEqual({ hasMore: false });
     expect(await f.items()).toEqual([]);
     expect(
       await runWithoutTenant(() =>
@@ -266,7 +382,8 @@ describeDatabase("configuration trash", () => {
         }),
       ),
     ).toEqual([{ actorId: null }]);
-    expect((await job.invoke({ now })).purged).toBe(0);
+    expect(await purge()).toEqual({ hasMore: false });
+    expect(await job.invoke({ now })).toEqual({ dispatched: [], skipped: [] });
   }, 180_000);
 
   it("backfills Trash items for configuration that was deleted before the migration", async () => {

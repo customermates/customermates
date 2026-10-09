@@ -699,22 +699,28 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   async countDefinitionDeletion({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion) {
     const companyId = this.companyId;
     const surfaces = typeIds.map(recordSurfaceKey);
-    const [records, values, links, relationships, views, personalizations, grants, identityLinks] = await Promise.all([
-      this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
-      this.prisma.recordValue.count({
-        where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
-      }),
-      this.prisma.recordLink.count({ where: { companyId, relationId: { in: relationIds } } }),
-      this.prisma.recordRelationshipDefinition.count({ where: { companyId, id: { in: relationIds } } }),
-      this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaces } } }),
-      this.prisma.p13n.count({
-        where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
-      }),
-      this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
-      this.countIdentityLinks(channelTypeIds),
-    ]);
+    const [records, cascaded, values, links, relationships, views, personalizations, grants, identityLinks] =
+      await Promise.all([
+        this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
+        this.prisma.$queryRaw<Array<{ count: number }>>(Prisma.sql`
+        SELECT COUNT(*)::integer AS count FROM "CrmRecord" record
+        JOIN "TrashItem" item ON item."companyId" = record."companyId" AND item.id = record."trashItemId"
+        WHERE record."companyId" = ${companyId} AND item.kind = 'record'
+          AND item."typeId" = ANY(${typeIds}::text[]) AND NOT record."typeId" = ANY(${typeIds}::text[])`),
+        this.prisma.recordValue.count({
+          where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
+        }),
+        this.prisma.recordLink.count({ where: { companyId, relationId: { in: relationIds } } }),
+        this.prisma.recordRelationshipDefinition.count({ where: { companyId, id: { in: relationIds } } }),
+        this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaces } } }),
+        this.prisma.p13n.count({
+          where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
+        }),
+        this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
+        this.countIdentityLinks(channelTypeIds),
+      ]);
     return {
-      records,
+      records: records + (cascaded[0]?.count ?? 0),
       values,
       links,
       relationships,
@@ -737,11 +743,6 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   async deleteDefinitions({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion): Promise<void> {
     const companyId = this.companyId;
     const surfaces = typeIds.map(recordSurfaceKey);
-    const trashed = await this.prisma.trashItem.findMany({
-      where: { companyId, kind: "record", typeId: { in: typeIds } },
-      select: { id: true },
-    });
-    await this.purgeTrashItems(trashed.map((item) => item.id));
     const views = await this.prisma.trashItem.findMany({
       where: { companyId, kind: "view", surfaceKey: { in: surfaces } },
       select: { id: true },
@@ -1313,12 +1314,16 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     );
   }
 
-  async getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string }) {
+  async getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string } | { typeIds: string[] }) {
     const rows = await this.prisma.trashItem.findMany({
       where: {
         companyId: this.companyId,
         kind: "record",
-        ...("ids" in selection ? { id: { in: selection.ids } } : { batchId: selection.batchId }),
+        ...("ids" in selection
+          ? { id: { in: selection.ids } }
+          : "typeIds" in selection
+            ? { typeId: { in: selection.typeIds } }
+            : { batchId: selection.batchId }),
       },
       orderBy: [{ deletedAt: "asc" }, { id: "asc" }],
     });

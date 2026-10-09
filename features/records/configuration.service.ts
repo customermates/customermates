@@ -542,11 +542,12 @@ export class RecordConfigurationService extends UserAccessor {
             const kind = consumer.key.startsWith("view:") ? "view" : "personalLayout";
             const id = consumer.key.slice(consumer.key.indexOf(":") + 1);
             cleanups.push({ kind, id, state });
-            if (!consumer.trashed)
+            if (!consumer.trashed) {
               cleaned.push({
                 consumer: { kind, id, typeId: consumer.typeId, label: consumer.name ?? "" },
                 target: cause,
               });
+            }
             continue;
           }
           if (consumer.trashed || blockedTypes.has(consumer.typeId)) continue;

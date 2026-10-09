@@ -5,7 +5,7 @@ import type { ApplyRecordConfigurationInteractor } from "./configure-records.int
 import type { PreviewRecordConfigurationInteractor } from "./preview-record-configuration.interactor";
 import type { TrashItem } from "@/features/trash/trash.repo";
 import type { TrashKindHandler, TrashKindImpact, TrashKindRestore } from "@/features/trash/trash-kind-handler";
-import type { TrashKind, TrashRestoreBlocker } from "@/features/trash/trash.schema";
+import type { TrashRestoreBlocker } from "@/features/trash/trash.schema";
 
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -15,7 +15,10 @@ const CONFIGURATION_KINDS = ["list", "field", "relationship", "channels"] as con
 const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2, channels: 3 };
 
 function target(item: TrashItem): ConfigurationTarget {
-  return { kind: item.kind === "list" ? "type" : (item.kind as Exclude<TrashKind, "list">), id: item.targetId } as ConfigurationTarget;
+  return {
+    kind: item.kind === "list" ? "type" : item.kind,
+    id: item.targetId,
+  } as ConfigurationTarget;
 }
 
 export class ConfigurationTrashHandler implements TrashKindHandler {
@@ -88,12 +91,13 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
       if (!preview.ok) throw new RecordWriteError(CustomErrorCode.trashChanged, "conflict");
       const removed = preview.data.deletion?.removed;
       if (!removed) continue;
-      if (item.kind === "list" && removed.records)
+      if (item.kind === "list" && removed.records) {
         removedRecords.push({
           typeId: item.targetId,
           label: model.types.find((type) => type.id === item.targetId)?.pluralLabel ?? item.label,
           count: removed.records,
         });
+      }
       removedLinks = removedLinks === null || removed.links === null ? null : removedLinks + removed.links;
     }
     return { removedRecords, removedLinks };

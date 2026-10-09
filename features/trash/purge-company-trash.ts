@@ -1,24 +1,22 @@
 import type { TrashRepo } from "./trash.repo";
 import type { TrashKindHandler } from "./trash-kind-handler";
-import type { PurgeCompanyTrash } from "./purge-expired-trash.interactor";
 
-import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { purgeTrashItems } from "./delete-trash-permanently.interactor";
 
-export function purgeCompanyTrash(
-  trash: (companyId: string) => TrashRepo,
-  handlers: (companyId: string) => TrashKindHandler[],
-): PurgeCompanyTrash {
-  return (companyId, administratorId, now, take) =>
-    runAsBackgroundTenant(administratorId, () =>
-      runInTransaction(
-        async () => {
-          const items = await trash(companyId).findExpired(now, take);
-          await purgeTrashItems(handlers(companyId), items, null);
-          return items.length;
-        },
-        { timeout: 60000 },
-      ),
-    );
+export const TRASH_PURGE_BATCH_SIZE = 100;
+
+export function purgeExpiredCompanyTrash(
+  trash: TrashRepo,
+  handlers: TrashKindHandler[],
+  now: Date,
+): Promise<{ hasMore: boolean }> {
+  return runInTransaction(
+    async () => {
+      const items = await trash.findExpired(now, TRASH_PURGE_BATCH_SIZE);
+      await purgeTrashItems(handlers, items, null);
+      return { hasMore: items.length === TRASH_PURGE_BATCH_SIZE };
+    },
+    { timeout: 60000 },
+  );
 }
