@@ -2034,6 +2034,7 @@
     "unverified": "Non verificato"
   },
   "EntityDetail": {
+    "configureField": "Modifica campo {field}",
     "donePersonalizing": "Fine",
     "fieldCancelled": "Spostamento di {field} annullato.",
     "fieldDropped": "Campo {field} posizionato.",
@@ -2986,7 +2987,8 @@
       "snapshot": "Salvato durante un evento"
     },
     "board": "Bacheca",
-    "calculatedReadOnly": "{field} è calcolato e non può essere modificato.",
+    "calculatedValue": "Calcolato: {formula}",
+    "calculatedValuePlain": "Valore calcolato",
     "calculationError": "Calcolo non disponibile",
     "calculationInput": "Valore {number}",
     "calculationNavigation": "Navigazione del calcolo",

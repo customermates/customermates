@@ -2034,6 +2034,7 @@
     "unverified": "Non vérifié"
   },
   "EntityDetail": {
+    "configureField": "Modifier le champ {field}",
     "donePersonalizing": "Terminé",
     "fieldCancelled": "Déplacement de {field} annulé.",
     "fieldDropped": "Champ {field} déposé.",
@@ -2986,7 +2987,8 @@
       "snapshot": "Enregistré lors d’un événement"
     },
     "board": "Tableau Kanban",
-    "calculatedReadOnly": "{field} est calculé et ne peut pas être modifié.",
+    "calculatedValue": "Calculé : {formula}",
+    "calculatedValuePlain": "Valeur calculée",
     "calculationError": "Calcul indisponible",
     "calculationInput": "Entrée {number}",
     "calculationNavigation": "Navigation du calcul",

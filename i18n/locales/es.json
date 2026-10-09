@@ -2034,6 +2034,7 @@
     "unverified": "Sin verificar"
   },
   "EntityDetail": {
+    "configureField": "Editar campo {field}",
     "donePersonalizing": "Listo",
     "fieldCancelled": "Se ha cancelado el movimiento de {field}.",
     "fieldDropped": "Se ha colocado {field}.",
@@ -2986,7 +2987,8 @@
       "snapshot": "Guardado en un evento"
     },
     "board": "Tablero",
-    "calculatedReadOnly": "{field} se calcula y no se puede editar.",
+    "calculatedValue": "Calculado: {formula}",
+    "calculatedValuePlain": "Valor calculado",
     "calculationError": "Cálculo no disponible",
     "calculationInput": "Entrada {number}",
     "calculationNavigation": "Navegación del cálculo",

@@ -2034,6 +2034,7 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
+    "configureField": "Edit field {field}",
     "donePersonalizing": "Done",
     "fieldCancelled": "Cancelled moving {field}.",
     "fieldDropped": "Placed {field}.",
@@ -2986,7 +2987,8 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
-    "calculatedReadOnly": "{field} is calculated and can’t be edited.",
+    "calculatedValue": "Calculated: {formula}",
+    "calculatedValuePlain": "Calculated value",
     "calculationError": "Calculation unavailable",
     "calculationInput": "Input {number}",
     "calculationNavigation": "Calculation navigation",
