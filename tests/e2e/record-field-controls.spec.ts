@@ -86,27 +86,38 @@ test("configures and persists all fourteen field types, multiple values and cale
       if (["Email", "Phone", "Web address"].includes(valueType))
         await dialog.getByRole("switch", { name: "Allow several values", exact: true }).check();
       if (valueType === "Single choice") {
+        const popover = page.locator('[data-slot="popover-content"]');
+        const addAttribute = async (name: string, type?: string) => {
+          await dialog.getByRole("button", { name: "Add attribute", exact: true }).click();
+          await popover.getByRole("textbox", { name: "Attribute name", exact: true }).fill(name);
+          if (type) {
+            await popover.getByRole("combobox", { name: "Value type", exact: true }).click();
+            await page.getByRole("option", { name: type, exact: true }).click();
+          }
+          await popover.getByRole("button", { name: "Save", exact: true }).click();
+          await expect(popover).toHaveCount(0);
+        };
         await dialog.getByRole("button", { name: "Add option", exact: true }).click();
         await dialog.getByRole("textbox", { name: "Option", exact: true }).fill("Accepted");
         await dialog.getByRole("button", { name: "Add option", exact: true }).click();
         await dialog.getByRole("textbox", { name: "Option", exact: true }).nth(1).fill("Removed draft option");
-        await dialog.getByRole("button", { name: "Remove option", exact: true }).nth(1).click();
-        await dialog.getByRole("button", { name: "Add probability", exact: true }).click();
+        await dialog.getByRole("button", { name: "More actions for Removed draft option", exact: true }).click();
+        await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+        await expect(dialog.getByRole("textbox", { name: "Option", exact: true })).toHaveCount(1);
+        await dialog.getByRole("button", { name: "Add attribute", exact: true }).click();
+        await popover.getByRole("button", { name: "Probability %", exact: true }).click();
         await dialog.getByRole("textbox", { name: "Probability %", exact: true }).fill("0");
         await dialog.getByRole("combobox", { name: "Color", exact: true }).click();
         await page.getByRole("option", { name: "Green", exact: true }).click();
-        await dialog.getByRole("button", { name: "Add attribute", exact: true }).click();
-        await dialog.getByRole("textbox", { name: "Attribute name", exact: true }).fill("priority");
-        await dialog.getByRole("textbox", { name: "Fixed value", exact: true }).fill("2.25");
-        await dialog.getByRole("button", { name: "Add attribute", exact: true }).click();
-        await dialog.getByRole("textbox", { name: "Attribute name", exact: true }).nth(1).fill("active");
-        await dialog.locator('[id="options.0.attributes.1.literalKind"]').click();
-        await page.getByRole("option", { name: "Yes or no", exact: true }).click();
-        await dialog.locator('[id="options.0.attributes.1.value.value"]').click();
+        await addAttribute("priority");
+        await dialog.getByRole("textbox", { name: "priority", exact: true }).fill("2.25");
+        await addAttribute("active", "Yes or no");
+        await dialog.getByRole("combobox", { name: "active", exact: true }).click();
         await page.getByRole("option", { name: "No", exact: true }).click();
-        await dialog.getByRole("button", { name: "Add attribute", exact: true }).click();
-        await dialog.getByRole("textbox", { name: "Attribute name", exact: true }).nth(2).fill("removed");
-        await dialog.getByRole("button", { name: "Remove input", exact: true }).nth(2).click();
+        await addAttribute("removed");
+        await dialog.getByRole("button", { name: "More actions for removed", exact: true }).click();
+        await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+        await expect(dialog.locator('[data-option-column="removed"]')).toHaveCount(0);
       }
       await apply(page);
     });
@@ -126,9 +137,9 @@ test("configures and persists all fourteen field types, multiple values and cale
       label: "Accepted",
       color: "success",
       attributes: [
+        { key: "probability", value: { kind: "decimal", value: "0", currency: null } },
         { key: "priority", value: { kind: "decimal", value: "2.25", currency: null } },
         { key: "active", value: { kind: "boolean", value: false } },
-        { key: "probability", value: { kind: "decimal", value: "0", currency: null } },
       ],
     }),
   ]);

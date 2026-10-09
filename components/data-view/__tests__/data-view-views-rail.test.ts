@@ -235,6 +235,23 @@ describe("data view rail", () => {
     }
   });
 
+  it("sits flush inside a panel without border, background or padding and with a ghost view menu", () => {
+    const inline = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }), false);
+    const rail = classesOf(inline.match(/<nav[^>]*>/)?.[0] ?? "");
+    const menu = classesOf(controlOf(inline, "global-data-views-menu"));
+    const joined = classesOf(
+      render(store({ activeViewKey: "v-a", views: THREE_VIEWS })).match(/<nav[^>]*>/)?.[0] ?? "",
+    );
+
+    for (const token of ["border-b", "border-border", "bg-background", "px-4"]) {
+      expect(rail, token).not.toContain(token);
+      expect(joined, token).toContain(token);
+    }
+    expect(menu).toContain("size-8");
+    for (const token of ["rounded-full", "bg-secondary", "shadow-xs", "border-border"])
+      expect(menu, token).not.toContain(token);
+  });
+
   it("renders the create control as a dashed New view pill with no plus icon", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
     const control = controlOf(html, "global-data-views-new");

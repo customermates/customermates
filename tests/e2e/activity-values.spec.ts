@@ -162,7 +162,7 @@ test("renders change values with the shared value renderers on every activity su
   await page.goto(`/en/records/${dealTypeId}`);
   await openRecordDetails(page, "Value renderer deal");
   const drawer = page.getByRole("dialog").first();
-  await drawer.getByRole("tab", { name: "History", exact: true }).click();
+  await drawer.getByRole("tab", { name: "Activities", exact: true }).click();
   const { detail: historyEntry, ...historyEntryOpened } = await openEntry(page, drawer, /Record created/);
   await expect(chip(historyEntry, "Won")).toHaveAttribute("data-variant", wonColor);
   await expect(historyEntry.getByRole("button", { name: "Browser Administrator", exact: true })).toBeVisible();

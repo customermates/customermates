@@ -31,7 +31,7 @@ export const RecordRowActions = observer(function RecordRowActions({
   onDelete,
 }: {
   name: string;
-  onOpen: (returnFocusTo: HTMLElement | null) => void;
+  onOpen?: (returnFocusTo: HTMLElement | null) => void;
   onDelete?: () => unknown;
 }) {
   const t = useTranslations();
@@ -64,16 +64,18 @@ export const RecordRowActions = observer(function RecordRowActions({
             event.preventDefault();
           }}
         >
-          <DropdownMenuItem
-            onSelect={() => {
-              openedDetails.current = true;
-              onOpen(trigger.current);
-            }}
-          >
-            <PanelLeftOpen className="size-4" />
+          {onOpen && (
+            <DropdownMenuItem
+              onSelect={() => {
+                openedDetails.current = true;
+                onOpen(trigger.current);
+              }}
+            >
+              <PanelLeftOpen className="size-4" />
 
-            {t("RecordModel.openDetails")}
-          </DropdownMenuItem>
+              {t("RecordModel.openDetails")}
+            </DropdownMenuItem>
+          )}
 
           {onDelete && (
             <DropdownMenuItem variant="destructive" onSelect={() => runUserAction(onDelete)}>

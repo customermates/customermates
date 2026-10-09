@@ -46,7 +46,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
 
   return (
     <>
-      <ol className="flex flex-col">
+      <ol className="-mx-2 flex flex-col">
         {items.map((entry, index) => {
           const isLast = index === items.length - 1 && !hasMore;
           const time = intlStore.formatRelativeTime(entry.at);
