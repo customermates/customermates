@@ -18,8 +18,7 @@ function chipIcon(column: RecordChipColumn) {
   if (column.kind === "relationship")
     return `list:${column.direction === "outgoing" ? column.relation.targetTypeId : column.relation.sourceTypeId}`;
   if (column.kind === "relationshipPath") return `list:${column.targetTypeId}`;
-  if (column.kind === "system") return column.id === "system:assignedTo" ? "type:member" : "type:dateTime";
-  return "identity";
+  return column.id === "system:assignedTo" ? "type:member" : "type:dateTime";
 }
 
 export function linkSummary(record: RecordRow, column: RecordChipColumn) {
@@ -35,13 +34,13 @@ export function linkSummary(record: RecordRow, column: RecordChipColumn) {
 
 export function isEmptyColumn(record: RecordRow, column: RecordChipColumn) {
   if (column.kind === "field") {
+    if (column.field.valueType === "channels") return !record.identities?.length;
     const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
     if (result?.state === "value" && result.value.kind === "boolean") return !result.value.value;
     return isEmptyResult(result);
   }
   if (column.kind === "relationship" || column.kind === "relationshipPath")
     return !linkSummary(record, column)?.records.length;
-  if (column.kind === "identity") return !record.identities?.length;
   if (column.id === "system:assignedTo") return record.assignedUsers.length === 0;
   return false;
 }

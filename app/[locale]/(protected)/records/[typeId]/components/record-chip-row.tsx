@@ -86,6 +86,14 @@ const PropertyChip = observer(function PropertyChip({
           <ChipLabel name={name}>{member ? memberName(member) : t("RecordModel.member")}</ChipLabel>
         </AppChip>
       );
+    } else if (field.valueType === "channels") {
+      chip = (
+        <span className="inline-flex max-w-full min-w-0 items-center gap-1">
+          {icon}
+
+          <RecordValue field={field} identities={record.identities} overflowMenu={false} result={result} />
+        </span>
+      );
     } else if (result?.state === "value" && result.value.kind === "selectList") {
       chip = (
         <span className="inline-flex max-w-full min-w-0 items-center gap-1">
