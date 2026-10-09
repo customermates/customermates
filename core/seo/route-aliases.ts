@@ -52,8 +52,6 @@ const RETIRED_ROUTE_ALIASES = {
   "/docs/self-host-vs-cloud": "/docs/self-hosting",
   "/docs/setup-ai-assistant": "/docs/connect-custom-connector",
   "/docs/webhook-events": "/docs/webhooks",
-
-  "/settings/webhooks/deliveries": "/settings/webhook-deliveries",
 } as const satisfies Record<string, string>;
 
 const DUPLICATE_ROUTE_ALIASES = {

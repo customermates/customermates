@@ -104,6 +104,7 @@ export const PROTECTED_ROUTES = [
   "/settings/roles",
   "/settings/webhooks",
   "/settings/webhook-deliveries",
+  "/settings/webhooks/deliveries",
   "/subscription-expired",
   "/test/error",
   "/test/overlays",
