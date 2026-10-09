@@ -343,7 +343,7 @@ describe("overlay contract", () => {
     expect(overlayContract).toContain("`absolute ${overlayIconControlClass()}`");
     expect(overlayContract).not.toContain("rounded-xs");
     for (const surface of [dialog, drawer, sheet]) {
-      expect(surface).toContain("className={cn(OVERLAY_CLOSE_CLASS");
+      expect(surface).toMatch(/className=\{cn\(\s*OVERLAY_CLOSE_CLASS,/);
       expect(surface).toContain('<span className="sr-only">{t("Common.actions.close")}</span>');
       expect(surface).toContain('<TooltipContent>{t("Common.actions.close")}</TooltipContent>');
     }
