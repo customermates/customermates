@@ -87,7 +87,7 @@ test("keeps the current record draft when a previous real save response arrives 
     expect(
       (
         await database.query(
-          'SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "fieldId"=$3',
+          'SELECT value."textValue" FROM "RecordValue" value JOIN "CrmRecord" record ON record."companyId"=value."companyId" AND record."typeId"=value."typeId" AND record.id=value."recordId" AND record."deletedAt" IS NULL WHERE value."companyId"=$1 AND value."typeId"=$2 AND value."fieldId"=$3',
           [companyId, typeId, presetId(companyId, "service.name")],
         )
       ).rows,
@@ -190,7 +190,7 @@ test("keeps a newly opened record draft when an accepted deletion response arriv
     expect(
       (
         await database.query(
-          'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+          'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
           [companyId, typeId],
         )
       ).rows,
@@ -218,7 +218,7 @@ test("keeps a newly opened record draft when an accepted deletion response arriv
     expect(
       (
         await database.query(
-          'SELECT "textValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "fieldId"=$3',
+          'SELECT value."textValue" FROM "RecordValue" value JOIN "CrmRecord" record ON record."companyId"=value."companyId" AND record."typeId"=value."typeId" AND record.id=value."recordId" AND record."deletedAt" IS NULL WHERE value."companyId"=$1 AND value."typeId"=$2 AND value."fieldId"=$3',
           [companyId, typeId, presetId(companyId, "service.name")],
         )
       ).rows,

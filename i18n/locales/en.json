@@ -1152,6 +1152,8 @@
       "subjectRequired": "Add a subject.",
       "termsNotAgreed": "You must agree to the terms and conditions.",
       "threadNotFound": "Thread ID not found or not accessible.",
+      "trashChanged": "Trash changed in the meantime. Review what will be deleted and try again.",
+      "trashItemNotFound": "This item is no longer in Trash.",
       "unipileAccountRestricted": "The provider has restricted this channel. Reconnecting won't fix it; resolve the restriction with the provider first.",
       "unipileDisconnectedAccount": "The channel is disconnected. Its owner needs to reconnect it under Channels before it can be used again.",
       "unipileFeatureUnavailable": "This is not available on this channel. Retrying will not help; the team has been notified.",
@@ -1232,7 +1234,9 @@
       },
       "record": {
         "created": "Record created",
-        "deleted": "Record deleted",
+        "deleted": "Record moved to Trash",
+        "deletedPermanently": "Record deleted permanently",
+        "restored": "Record restored",
         "updated": "Record updated"
       },
       "record_grants": {
@@ -3781,7 +3785,8 @@
           "messageReceived": "Receive a new, non-duplicate incoming message through a connected account.",
           "messageUpdated": "Edit a message in the connected messaging provider.",
           "recordCreated": "Create a record in Customermates: {entity}.",
-          "recordDeleted": "Delete a record in Customermates: {entity}.",
+          "recordDeleted": "Move a record to Trash in Customermates: {entity}.",
+          "recordRestored": "Restore a record from Trash in Customermates: {entity}.",
           "recordUpdated": "Make a real change to a record in Customermates: {entity}.",
           "relationCreated": "Have a LinkedIn connection request accepted through a connected account."
         },
