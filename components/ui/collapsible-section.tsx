@@ -11,6 +11,7 @@ import { cn } from "@/core/utils/cn";
 type Props = {
   title: ReactNode;
   summary?: ReactNode;
+  actions?: ReactNode;
   defaultOpen?: boolean;
   open?: boolean;
   id?: string;
@@ -22,6 +23,7 @@ type Props = {
 export function CollapsibleSection({
   title,
   summary,
+  actions,
   defaultOpen = false,
   open: openProp,
   id,
@@ -45,23 +47,31 @@ export function CollapsibleSection({
       open={open}
       onOpenChange={setOpen}
     >
-      <CollapsiblePrimitive.Trigger
-        className="flex h-10 w-full items-center gap-2 rounded-lg px-3 text-start text-sm font-semibold outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
-        data-slot="collapsible-section-trigger"
-        id={id}
-        type="button"
-      >
-        <ChevronRight
-          aria-hidden
-          className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-90")}
-        />
+      <div className="flex items-center gap-2" data-slot="collapsible-section-header">
+        <CollapsiblePrimitive.Trigger
+          className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-lg px-3 text-start text-sm font-semibold outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
+          data-slot="collapsible-section-trigger"
+          id={id}
+          type="button"
+        >
+          <ChevronRight
+            aria-hidden
+            className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-90")}
+          />
 
-        <span className="min-w-0 flex-1 truncate">{title}</span>
+          <span className="min-w-0 flex-1 truncate">{title}</span>
 
-        {summary !== undefined && summary !== null && !open ? (
-          <span className="max-w-[50%] shrink-0 truncate text-xs font-normal text-muted-foreground">{summary}</span>
+          {summary !== undefined && summary !== null && !open ? (
+            <span className="max-w-[50%] shrink-0 truncate text-xs font-normal text-muted-foreground">{summary}</span>
+          ) : null}
+        </CollapsiblePrimitive.Trigger>
+
+        {open && actions ? (
+          <div className="flex shrink-0 items-center gap-1 pe-2" data-slot="collapsible-section-actions">
+            {actions}
+          </div>
         ) : null}
-      </CollapsiblePrimitive.Trigger>
+      </div>
 
       <CollapsiblePrimitive.Content className="flex flex-col gap-3 px-3 pb-3" data-slot="collapsible-section-content">
         {children}
