@@ -1,3 +1,4 @@
+import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RepoArgs } from "@/core/utils/types";
 import { RecordFieldSchema } from "@/features/records/record-model.schema";
@@ -268,11 +269,9 @@ export class PrismaRoutineRepo
         query: trigger?.query ?? null,
         changedFieldIds: trigger?.changedFieldIds ?? [],
         sources: sources ?? null,
-        events: routine.triggerEvents.filter((event) => event.startsWith("record.")) as (
-          | "record.created"
-          | "record.updated"
-          | "record.deleted"
-        )[],
+        events: routine.triggerEvents.filter((event): event is RecordEventKind =>
+          (RECORD_EVENT_KINDS as readonly string[]).includes(event),
+        ),
         enabled: routine.enabled,
       },
       action,
