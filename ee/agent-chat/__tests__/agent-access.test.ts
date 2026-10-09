@@ -282,7 +282,7 @@ describe("agent access", () => {
     );
     expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
     expect(usage.reserveUsage).toHaveBeenCalledBefore(repo.admitAgentTurnOrThrow);
-    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledOnce();
+    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledTimes(2);
     expect(background.dispatchTracked).toHaveBeenCalledWith(
       "agent-turn",
       expect.objectContaining({ appBaseUrl: "http://127.0.0.1:4016" }),
@@ -845,7 +845,7 @@ describe("agent access", () => {
     expect(usage.prepareTurn).not.toHaveBeenCalled();
     expect(usage.reserveUsage).not.toHaveBeenCalled();
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
-    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).not.toHaveBeenCalled();
+    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledOnce();
   });
 
   it("fails closed when a completed replay has no client-renderable canonical content", async () => {

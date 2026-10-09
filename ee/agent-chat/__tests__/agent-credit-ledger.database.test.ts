@@ -1621,7 +1621,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(conversations).toBe(AGENT_MAX_CONCURRENT_RUNS_PER_USER);
   });
 
-  it("rolls back partial chat admission and durably releases its credit reservation", async () => {
+  it("rolls back partial chat admission together with its credit reservation", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
     const fixtureConversationId = randomUUID();
@@ -1688,12 +1688,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         prisma.agentMessage.count({ where: { companyId } }),
       ]),
     );
-    expect(afterFailure[0]).toHaveLength(1);
-    expect(afterFailure[0][0]).toMatchObject({
-      state: "released",
-      chargedMicrocents: 0n,
-      providerStartedAt: null,
-    });
+    expect(afterFailure[0]).toHaveLength(0);
     expect(afterFailure[1]).toBeNull();
     expect(afterFailure[2]).toBe(1);
     expect(afterFailure[3]).toBe(0);
@@ -1713,5 +1708,115 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       retry: false,
     });
     expect(retry.ok && retry.data.disposition).toBe("run");
+  });
+
+  it("admits only one of two concurrent chat sends when the remaining allowance covers one reservation", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const send = () => {
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+      return new SendAgentMessageInteractor(
+        repo,
+        new AgentUsageService(repo),
+        entitlements as never,
+        backgroundTasks() as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
+      ).invoke({ clientRequestId: randomUUID(), text: "Contend for credits", retry: false });
+    };
+
+    const calibration = await seedActiveSeat(anchor);
+    authState.user = createMockUser({
+      id: calibration.userId,
+      companyId: calibration.companyId,
+      email: `calibration-${calibration.userId}@example.com`,
+    });
+    const calibrated = await send();
+    expect(calibrated.ok && calibrated.data.disposition).toBe("run");
+    const turnReservation = await runWithoutTenant(() =>
+      prisma.agentUsageEvent.findFirstOrThrow({ where: { userId: calibration.userId, state: "reserved" } }),
+    );
+    const turnMicrocents = Number(turnReservation.reservedMicrocents);
+    expect(turnMicrocents).toBeLessThan(100 * CREDIT);
+
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({ id: userId, companyId, email: `contended-${userId}@example.com` });
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+    await runWithoutTenant(() =>
+      repo.reserveUsageEventUnscoped({
+        id: randomUUID(),
+        companyId,
+        userId,
+        sessionId: randomUUID(),
+        reservedMicrocents: 100 * CREDIT - turnMicrocents,
+        planSnapshot: "starter",
+        subscriptionStatusSnapshot: "active",
+        allowanceMicrocentsSnapshot: 100 * CREDIT,
+        periodStart: anchor,
+        periodEnd: anchor,
+      }),
+    );
+
+    const outcomes = await Promise.allSettled([send(), send()]);
+    const admitted = outcomes.filter(
+      (outcome) => outcome.status === "fulfilled" && outcome.value.ok && outcome.value.data.disposition === "run",
+    );
+    expect(admitted).toHaveLength(1);
+
+    const [events, leases, turns] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentUsageEvent.findMany({ where: { userId }, select: { reservedMicrocents: true } }),
+        prisma.agentRunLease.count({ where: { userId } }),
+        prisma.agentTurnRequest.count({ where: { userId } }),
+      ]),
+    );
+    expect(events).toHaveLength(2);
+    expect(events.reduce((total, event) => total + Number(event.reservedMicrocents), 0)).toBe(100 * CREDIT);
+    expect(leases).toBe(1);
+    expect(turns).toBe(1);
+  });
+
+  it("re-reads the credit state when it was not read inside the reserving transaction", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+    const usage = new AgentUsageService(repo);
+    const { resolveAgentModel } = await import("@/ee/agent-chat/model-catalog");
+    const prepare = () => usage.prepareTurn(userId, new Date(), { model: resolveAgentModel() });
+
+    const outside = await runWithoutTenant(prepare);
+    const otherTransaction = await runWithoutTenant(() => runInTransaction(prepare, { companyId }));
+    expect(outside.creditState?.readIn).toBeNull();
+    expect(otherTransaction.creditState?.readIn).not.toBeNull();
+
+    await runWithoutTenant(() =>
+      repo.reserveUsageEventUnscoped({
+        id: randomUUID(),
+        companyId,
+        userId,
+        sessionId: randomUUID(),
+        reservedMicrocents: 100 * CREDIT - 1,
+        planSnapshot: "starter",
+        subscriptionStatusSnapshot: "active",
+        allowanceMicrocentsSnapshot: 100 * CREDIT,
+        periodStart: anchor,
+        periodEnd: anchor,
+      }),
+    );
+
+    for (const stale of [outside, otherTransaction]) {
+      if (!stale.reservation || !stale.creditState) throw new Error("Expected a prepared reservation.");
+      const { reservation, creditState } = stale;
+      await expect(
+        runWithoutTenant(() =>
+          runInTransaction(
+            () => usage.reserveUsage({ reservationId: randomUUID(), companyId, userId, reservation, creditState }),
+            { companyId },
+          ),
+        ),
+      ).rejects.toThrow(/exceeds the current allowance/);
+    }
+
+    const rows = await runWithoutTenant(() => prisma.agentUsageEvent.findMany({ where: { userId } }));
+    expect(rows).toHaveLength(1);
   });
 });

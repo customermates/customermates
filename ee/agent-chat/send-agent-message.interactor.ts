@@ -7,7 +7,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { resolveRequestOrigin } from "@/core/config/environment";
-import { type Validated } from "@/core/validation/validation.utils";
+import { isInteractorFailure, type Validated } from "@/core/validation/validation.utils";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { env } from "@/env";
@@ -148,6 +148,12 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     }
   }
 
+  private findTurnConversation(mode: AgentInvocationMode, conversationId: string, retryTurnRequestId?: string) {
+    return mode === "routine"
+      ? this.repo.findConversation(conversationId)
+      : this.repo.findInteractiveConversation(conversationId, retryTurnRequestId);
+  }
+
   private async schemaDigest() {
     try {
       const discovery = await this.recordTypes.invoke({ includeEmbedded: false, page: 1, pageSize: 25 });
@@ -178,9 +184,14 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const user = this.user;
     const now = new Date();
     const model = resolveAgentModel();
-    await this.repo.normalizeExpiredAgentRunLease(now, model.modelId);
-
-    const replay = await this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model.modelId);
+    const prefetchedConversationId = data.retry ? undefined : data.conversationId;
+    const [replay, prefetchedConversation] = await Promise.all([
+      runInTransaction(async () => {
+        await this.repo.normalizeExpiredAgentRunLease(now, model.modelId);
+        return this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model.modelId);
+      }),
+      prefetchedConversationId ? this.findTurnConversation(mode, prefetchedConversationId, undefined) : null,
+    ]);
     const pageRoute = data.pageContext?.route ?? null;
     const contexts: AgentContextAttachment[] = data.contexts ?? [];
     const contextsChanged =
@@ -273,14 +284,15 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const requestedConversationId =
       decision.disposition === "retry" ? decision.turn.conversationId : data.conversationId;
-    const conversation = requestedConversationId
-      ? mode === "routine"
-        ? await this.repo.findConversation(requestedConversationId)
-        : await this.repo.findInteractiveConversation(
+    const conversation = prefetchedConversationId
+      ? prefetchedConversation
+      : requestedConversationId
+        ? await this.findTurnConversation(
+            mode,
             requestedConversationId,
             decision.disposition === "retry" ? decision.turn.id : undefined,
           )
-      : null;
+        : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
@@ -339,33 +351,35 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
-    const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
-      model: turnModel,
-      requiredContextBytes,
-      creditCeilingMicrocents:
-        mode === "routine" && conversation
-          ? conversation.creditCeilingMicrocents === null
-            ? null
-            : agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
-          : null,
-      webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface)),
-    });
-    const reservation = creditAdmission.reservation;
-    if (!reservation) {
-      return creditAdmission.summary.blockedReason === "credits_exhausted"
-        ? failRateLimit(CustomErrorCode.agentLimitReached)
-        : failUnavailable(CustomErrorCode.agentServiceUnavailable);
-    }
-
+    const creditCeilingMicrocents =
+      mode === "routine" && conversation
+        ? conversation.creditCeilingMicrocents === null
+          ? null
+          : agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
+        : null;
     const runId = randomUUID();
     const reservationId = randomUUID();
     const conversationId = conversation?.id ?? randomUUID();
     const conversationIsNew = !conversation;
+    const turnRequestId = decision.disposition === "retry" ? decision.turn.id : randomUUID();
+    const userMessageId = decision.disposition === "retry" ? decision.turn.userMessageId : randomUUID();
     try {
       const claimed = await runInTransaction(async () => {
         const phaseOneAt = new Date();
+        const creditAdmission = await this.usageService.prepareTurn(user.id, phaseOneAt, {
+          model: turnModel,
+          requiredContextBytes,
+          creditCeilingMicrocents,
+          webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface)),
+        });
+        const reservation = creditAdmission.reservation;
+        if (!reservation) {
+          return creditAdmission.summary.blockedReason === "credits_exhausted"
+            ? failRateLimit(CustomErrorCode.agentLimitReached)
+            : failUnavailable(CustomErrorCode.agentServiceUnavailable);
+        }
+
         if (conversationIsNew) {
-          if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "at-user-limit" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
             title: data.text,
@@ -380,20 +394,56 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           expiresAt: new Date(phaseOneAt.getTime() + AGENT_RUN_LEASE_MS),
           now: phaseOneAt,
         });
-        if (lease === "atUserLimit") return "at-user-limit" as const;
-        if (lease === "conversationBusy") return "conversation-busy" as const;
+        if (lease !== "claimed") {
+          if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
+          return { outcome: lease };
+        }
 
         const admitted = await this.usageService.reserveUsage({
           reservationId,
           companyId: user.companyId,
           userId: user.id,
           reservation,
+          ...(creditAdmission.creditState ? { creditState: creditAdmission.creditState } : {}),
         });
-        if (!admitted) return "not-admitted" as const;
+        if (!admitted) return { outcome: "notAdmitted" as const };
 
-        return "claimed" as const;
+        const admission = await this.repo.admitAgentTurnOrThrow({
+          conversationId,
+          title: data.text,
+          runId,
+          reservationId,
+          modelSpec: reservation.budget.modelSpec,
+          servingProvider: reservation.budget.servingProvider,
+          recentMessageLimit: AGENT_REPLAY_COUNT,
+          claimedInTransaction: true,
+          ...(mode === "routine" ? { routineRunId: data.clientRequestId } : {}),
+          ...(wikiContext.wikiCatalogSnapshot !== undefined
+            ? { wikiCatalogSnapshot: wikiContext.wikiCatalogSnapshot }
+            : {}),
+          turn:
+            decision.disposition === "retry"
+              ? {
+                  kind: "retry",
+                  turnRequestId,
+                  priorRunId: decision.turn.runId,
+                  priorAttemptCount: decision.turn.attemptCount,
+                  userMessageId,
+                }
+              : {
+                  kind: "create",
+                  turnRequestId,
+                  clientRequestId: data.clientRequestId,
+                  text: data.text,
+                  contexts,
+                  pageRoute,
+                  userMessageId,
+                },
+        });
+        return { outcome: "admitted" as const, reservation, admission };
       });
-      if (claimed === "not-admitted") {
+      if (isInteractorFailure(claimed)) return claimed;
+      if (claimed.outcome === "notAdmitted") {
         await this.repo.releasePreProviderAdmissionOrThrowUnscoped({
           companyId: user.companyId,
           userId: user.id,
@@ -403,76 +453,19 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         if (conversationIsNew) await this.repo.deleteUnusedAgentConversation(conversationId);
         return failUnavailable(CustomErrorCode.agentServiceUnavailable);
       }
-      if (claimed === "at-user-limit") {
-        if (mode === "routine") {
-          return {
-            ok: true as const,
-            data: {
-              disposition: "atCapacity",
-              clientRequestId: data.clientRequestId,
-              conversationId,
-              retryAllowed: true,
-            },
-          };
-        }
-        if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
+      if (claimed.outcome !== "admitted") {
         return {
           ok: true as const,
           data: {
-            disposition: "running",
+            disposition: claimed.outcome === "atUserLimit" && mode === "routine" ? "atCapacity" : "running",
             clientRequestId: data.clientRequestId,
             conversationId,
-            retryAllowed: false,
-          },
-        };
-      }
-      if (claimed === "conversation-busy") {
-        if (conversationIsNew) return failConflict(CustomErrorCode.agentTurnAlreadyRunning);
-        return {
-          ok: true as const,
-          data: {
-            disposition: "running",
-            clientRequestId: data.clientRequestId,
-            conversationId,
-            retryAllowed: false,
+            retryAllowed: claimed.outcome === "atUserLimit" && mode === "routine",
           },
         };
       }
 
-      const turnRequestId = decision.disposition === "retry" ? decision.turn.id : randomUUID();
-      const userMessageId = decision.disposition === "retry" ? decision.turn.userMessageId : randomUUID();
-      const admission = await this.repo.admitAgentTurnOrThrow({
-        conversationId,
-        title: data.text,
-        runId,
-        reservationId,
-        modelSpec: reservation.budget.modelSpec,
-        servingProvider: reservation.budget.servingProvider,
-        recentMessageLimit: AGENT_REPLAY_COUNT,
-        ...(mode === "routine" ? { routineRunId: data.clientRequestId } : {}),
-        ...(wikiContext.wikiCatalogSnapshot !== undefined
-          ? { wikiCatalogSnapshot: wikiContext.wikiCatalogSnapshot }
-          : {}),
-        turn:
-          decision.disposition === "retry"
-            ? {
-                kind: "retry",
-                turnRequestId,
-                priorRunId: decision.turn.runId,
-                priorAttemptCount: decision.turn.attemptCount,
-                userMessageId,
-              }
-            : {
-                kind: "create",
-                turnRequestId,
-                clientRequestId: data.clientRequestId,
-                text: data.text,
-                contexts,
-                pageRoute,
-                userMessageId,
-              },
-      });
-
+      const { reservation, admission } = claimed;
       const priorToolsets = toolsetsFromActivities(activitiesInMessages(admission.recentMessages));
       const earlierRequestToolsets = admission.recentMessages
         .filter((message) => message.role === "user")
