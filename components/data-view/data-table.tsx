@@ -421,17 +421,16 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
 
-                        {group.summaries?.length ? <GroupSummaries summaries={group.summaries} /> : null}
-
                         {onAddToGroup && group.writable !== false && store.groupingResult?.supportsDragWriteBack && (
                           <IconButton
                             fieldAction
-                            className={cn(!group.summaries?.length && "ml-auto")}
                             icon={Plus}
                             label={t("DataView.addToGroup", { group: label })}
                             onClick={() => onAddToGroup(group)}
                           />
                         )}
+
+                        {group.summaries?.length ? <GroupSummaries summaries={group.summaries} /> : null}
                       </div>
                     </TableCell>
                   </TableRow>
