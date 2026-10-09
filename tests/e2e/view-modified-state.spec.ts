@@ -44,6 +44,10 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await applyAssignee();
   await expect(all).toHaveAttribute("data-view-modified", "");
   await expect(save).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("view-modified-light.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.screenshot({ path: testInfo.outputPath("view-modified-dark.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "light" });
   await reset.click();
   await expect(all).not.toHaveAttribute("data-view-modified");
   await expect(reset).toHaveCount(0);
