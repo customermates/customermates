@@ -11,7 +11,12 @@ import type { RecordAccessPolicy } from "./record-access";
 import { cleanRecordMeasure, recordMeasureIsValid } from "./record-measure-validation";
 import { cleanRecordViewState, recordViewStateIsValid } from "./record-view-state";
 import { cleanRecordDetailLayout, recordDetailLayoutIsValid } from "./record-detail-layout";
-import { applyConfigurationLifecycle, deletionReference, isLifecycleOperation } from "./configuration-lifecycle";
+import {
+  applyConfigurationLifecycle,
+  assignMissingNameFields,
+  deletionReference,
+  isLifecycleOperation,
+} from "./configuration-lifecycle";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordWriteError, normalizeRecordScalar } from "./record-write.service";
@@ -382,6 +387,7 @@ export class RecordConfigurationService extends UserAccessor {
         model.fields[slot] = ordered[offset];
       });
     }
+    assignMissingNameFields(model);
     if (!RecordModelSchema.safeParse(model).success)
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);

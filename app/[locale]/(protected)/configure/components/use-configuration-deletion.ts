@@ -76,9 +76,23 @@ export function deletionBlockerSentences(t: Translate, deletion: Deletion, model
   );
 }
 
+function nameFieldSentence(t: Translate, entry: Deletion["cleaned"][number], model: RecordModelView | null) {
+  const consumers = referenceChip(entry.consumer, model);
+  return entry.replacement
+    ? confirmationSentence((values) => t("RecordModel.configurationDeletion.cleaned.nameField", values), {
+        consumers,
+        replacement: referenceChip(entry.replacement, model),
+      })
+    : confirmationSentence((values) => t("RecordModel.configurationDeletion.cleaned.nameFieldNone", values), {
+        consumers,
+      });
+}
+
 function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelView | null): ConfirmationSentence[] {
   const groups = new Map<string, { key: string; target: DeletionReference; consumers: DeletionReference[] }>();
+  const named = deletion.cleaned.filter((entry) => entry.replacement !== undefined);
   for (const entry of deletion.cleaned) {
+    if (entry.replacement !== undefined) continue;
     const key =
       entry.consumer.kind === "personalLayout" || entry.consumer.kind === "detailLayout"
         ? "personalLayouts"
@@ -93,7 +107,7 @@ function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelVi
       group.consumers.push(entry.consumer);
     groups.set(id, group);
   }
-  return [...groups.values()].map(({ key, target, consumers }) =>
+  const sentences = [...groups.values()].map(({ key, target, consumers }) =>
     confirmationSentence(
       (values) => t(`RecordModel.configurationDeletion.cleaned.${key}`, { ...values, count: consumers.length }),
       key === "personalLayouts"
@@ -104,6 +118,7 @@ function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelVi
           },
     ),
   );
+  return [...named.map((entry) => nameFieldSentence(t, entry, model)), ...sentences];
 }
 
 export function issueSentences(

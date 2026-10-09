@@ -37,6 +37,7 @@ import { openRecordDetails } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
+import { recordInvariant } from "../../features/records/record-invariant";
 
 async function post(page: Page, path: string, data: unknown): Promise<unknown> {
   const response = await page.request.post(path, { data });
@@ -244,7 +245,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       typeId: type.id,
       fields: [
         {
-          fieldId: type.primaryFieldId,
+          fieldId: recordInvariant(type.primaryFieldId),
           value: { kind: "text", value: "Assigned project" },
         },
       ],
@@ -255,7 +256,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       typeId: type.id,
       fields: [
         {
-          fieldId: type.primaryFieldId,
+          fieldId: recordInvariant(type.primaryFieldId),
           value: { kind: "text", value: "Other member project" },
         },
       ],
@@ -632,7 +633,7 @@ test("admits an assigned-record writer and separately delegates schema configura
       typeId: approved.id,
       fields: [
         {
-          fieldId: approved.primaryFieldId,
+          fieldId: recordInvariant(approved.primaryFieldId),
           value: { kind: "text", value: "Unassigned approved record" },
         },
       ],
@@ -1539,7 +1540,7 @@ test("configures self-type singular and many relationships, edits from both ends
       action: "create",
       typeId: type.id,
       fields: [
-        { fieldId: type.primaryFieldId, value: { kind: "text", value: title } },
+        { fieldId: recordInvariant(type.primaryFieldId), value: { kind: "text", value: title } },
       ],
     });
   const alpha = await create("Alpha node");
@@ -1936,7 +1937,7 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
       action: "create",
       typeId: type.id,
       fields: [
-        { fieldId: type.primaryFieldId, value: { kind: "text", value: title } },
+        { fieldId: recordInvariant(type.primaryFieldId), value: { kind: "text", value: title } },
       ],
       ...(manager
         ? {
@@ -2194,7 +2195,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
       action: "create",
       typeId: type.id,
       fields: [
-        { fieldId: type.primaryFieldId, value: { kind: "text", value: title } },
+        { fieldId: recordInvariant(type.primaryFieldId), value: { kind: "text", value: title } },
         { fieldId: stageId, value: { kind: "select", value: stage } },
         {
           fieldId: budgetId,
@@ -2856,7 +2857,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     typeId: sourceType.id,
     fields: [
       {
-        fieldId: sourceType.primaryFieldId,
+        fieldId: recordInvariant(sourceType.primaryFieldId),
         value: { kind: "text", value: canary },
       },
       {
@@ -2870,7 +2871,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     typeId: summaryType.id,
     fields: [
       {
-        fieldId: summaryType.primaryFieldId,
+        fieldId: recordInvariant(summaryType.primaryFieldId),
         value: { kind: "text", value: "Readable archive summary" },
       },
     ],

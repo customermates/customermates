@@ -3061,7 +3061,6 @@
         "binding": "{source} verwendet {target} in seinen Einstellungen.",
         "calculation": "{source} berechnet sich aus {target}.",
         "parentAccess": "{source} erhält seinen Zugriff über {target}.",
-        "primaryField": "{target} benennt die Datensätze von {source} und kann nicht gelöscht werden.",
         "protected": "{source} steuert den Zugriff auf den Arbeitsbereich und kann nicht gelöscht werden.",
         "requiresRestore": "Stelle zuerst {target} wieder her, {source} gehört dazu.",
         "routine": "Die Routine {source} reagiert auf {target}.",
@@ -3071,6 +3070,8 @@
       },
       "cleaned": {
         "listDefaults": "{target} wird aus dem Standardlayout von {consumers} entfernt.",
+        "nameField": "{consumers} werden stattdessen mit {replacement} angezeigt.",
+        "nameFieldNone": "{consumers} hat kein Feld mehr, das die Einträge benennen kann, sie erscheinen daher ohne Namen.",
         "personalLayouts": "{target} wird aus {count, plural, one {# persönlichen Layout} other {# persönlichen Layouts}} entfernt.",
         "view": "{count, plural, one {{target} wird aus der Ansicht {consumers} entfernt.} other {{target} wird aus # Ansichten entfernt: {consumers}.}}",
         "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}"
@@ -3507,6 +3508,7 @@
     "typeSettings": "Typeinstellungen",
     "unavailableOption": "Nicht verfügbare Option",
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
+    "untitledRecord": "{singular} ohne Namen",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
     "value": "Wert",

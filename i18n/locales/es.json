@@ -3061,7 +3061,6 @@
         "binding": "{source} usa {target} en su configuración.",
         "calculation": "{source} se calcula a partir de {target}.",
         "parentAccess": "{source} obtiene su acceso a través de {target}.",
-        "primaryField": "{target} da nombre a los registros de {source} y no se puede eliminar.",
         "protected": "{source} controla el acceso al espacio de trabajo y no se puede eliminar.",
         "requiresRestore": "Restaura primero {target}, {source} pertenece a él.",
         "routine": "La rutina {source} reacciona a {target}.",
@@ -3071,6 +3070,8 @@
       },
       "cleaned": {
         "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
+        "nameField": "{consumers} se mostrará con {replacement} en su lugar.",
+        "nameFieldNone": "{consumers} ya no tiene un campo que dé nombre a sus registros, así que aparecen sin nombre.",
         "personalLayouts": "{target} se quita de {count, plural, one {# diseño personal} other {# diseños personales}}.",
         "view": "{count, plural, one {{target} se quita de la vista {consumers}.} other {{target} se quita de # vistas: {consumers}.}}",
         "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}"
@@ -3507,6 +3508,7 @@
     "typeSettings": "Configuración del tipo",
     "unavailableOption": "Opción no disponible",
     "unlinkRecord": "Desvincular {name}",
+    "untitledRecord": "{singular} sin nombre",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
     "value": "Valor",

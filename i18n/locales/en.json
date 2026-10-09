@@ -3061,7 +3061,6 @@
         "binding": "{source} uses {target} in its settings.",
         "calculation": "{source} calculates from {target}.",
         "parentAccess": "{source} gets its access through {target}.",
-        "primaryField": "{target} names the records of {source} and can't be deleted.",
         "protected": "{source} controls workspace access and can't be deleted.",
         "requiresRestore": "Restore {target} first, {source} belongs to it.",
         "routine": "The routine {source} reacts to {target}.",
@@ -3071,6 +3070,8 @@
       },
       "cleaned": {
         "listDefaults": "{target} is removed from the default layout of {consumers}.",
+        "nameField": "{consumers} will be shown by {replacement} instead.",
+        "nameFieldNone": "{consumers} has no field left that can name its records, so they show as untitled.",
         "personalLayouts": "{target} is removed from {count, plural, one {# personal layout} other {# personal layouts}}.",
         "view": "{count, plural, one {{target} is removed from the view {consumers}.} other {{target} is removed from # views: {consumers}.}}",
         "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}"
@@ -3507,6 +3508,7 @@
     "typeSettings": "Type settings",
     "unavailableOption": "Unavailable option",
     "unlinkRecord": "Unlink {name}",
+    "untitledRecord": "Untitled {singular}",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
     "value": "Value",

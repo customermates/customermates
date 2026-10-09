@@ -27,6 +27,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { toChipColor } from "@/constants/chip-colors";
 import { isInteractiveClick } from "@/components/data-view/is-interactive-click";
+import { recordTitle } from "@/components/records/record-title";
 import { cn } from "@/core/utils/cn";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -267,16 +268,6 @@ export function RecordCalculatedCell({ field, children }: { field: RecordFieldVi
   );
 }
 
-function choiceTitle(record: RecordChoice, t: ReturnType<typeof useTranslations>) {
-  return record.title.state === "restricted"
-    ? t("RecordModel.restricted")
-    : record.title.state === "error"
-      ? t("RecordModel.calculationError")
-      : record.title.state === "value" && record.title.value.kind === "text"
-        ? record.title.value.value
-        : t("RecordModel.record");
-}
-
 const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
   records,
   record,
@@ -362,7 +353,9 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
                     value={choice.ref.recordId}
                     onSelect={() => toggle(choice)}
                   >
-                    <span className="flex-1 truncate">{choiceTitle(choice, t)}</span>
+                    <span className="flex-1 truncate">
+                      {recordTitle(choice.title, records.presentation.linkLabels[choice.ref.typeId], t)}
+                    </span>
 
                     {isLinked && <Check aria-hidden className="size-4" />}
                   </CommandItem>

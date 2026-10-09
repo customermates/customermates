@@ -18,6 +18,7 @@ import { recordLinkColor } from "@/features/records/record-presentation";
 import { EntityDetailAvatarSummaryValue } from "@/components/entity-detail/entity-detail-summary";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
+import { recordTitle } from "@/components/records/record-title";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordMemberSchema } from "@/features/records/record-model.schema";
@@ -80,14 +81,7 @@ const RelatedSummary = observer(function RelatedSummary({
     id: record.ref.recordId,
     ref: record.ref,
     startContent: <RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />,
-    label:
-      record.title.state === "value" && record.title.value.kind === "text"
-        ? record.title.value.value
-        : record.title.state === "restricted"
-          ? t("RecordModel.restricted")
-          : record.title.state === "error"
-            ? t("RecordModel.calculationError")
-            : t("RecordModel.record"),
+    label: recordTitle(record.title, store.presentation.linkLabels[record.ref.typeId], t),
   }));
   return (
     <div className="flex min-w-0 items-center gap-1">
@@ -173,6 +167,7 @@ const SummaryValue = observer(function SummaryValue({
       column={column}
       linkColors={store.presentation.linkColors}
       linkIcons={store.presentation.linkIcons}
+      linkLabels={store.presentation.linkLabels}
       record={store.record}
       onMore={() => undefined}
       onOpen={() => undefined}

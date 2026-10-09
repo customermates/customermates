@@ -12,7 +12,11 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordWriteError } from "./record-write.service";
 import { expressionFieldDependencies, expressionRelationshipDependencies } from "./record-model-validation";
 
-export type ConfigurationDeletion = { target: ConfigurationTarget; cascade: ConfigurationTarget[] };
+export type ConfigurationDeletion = {
+  target: ConfigurationTarget;
+  cascade: ConfigurationTarget[];
+  nameField?: { typeId: string; replacementId: string | null };
+};
 export type ConfigurationDeletionRecord = ConfigurationDeletion & { actorId: string; deletedAt: Date };
 
 export type ConfigurationLifecycle = {
@@ -87,6 +91,40 @@ function setDeleted(model: RecordModel, target: ConfigurationTarget, archived: b
   const index = items.findIndex((item) => item.id === target.id);
   if (index < 0) invalid();
   items[index] = { ...items[index], archived };
+}
+
+export function canNameRecords(field: RecordModel["fields"][number]) {
+  return !field.archived && field.valueType === "text" && !field.multiple;
+}
+
+function fieldsInOrder(model: RecordModel, typeId: string) {
+  return model.fields.filter((field) => field.typeId === typeId).sort((left, right) => left.position - right.position);
+}
+
+function nextNameField(model: RecordModel, deleted: RecordModel["fields"][number]) {
+  const fields = fieldsInOrder(model, deleted.typeId);
+  const index = fields.findIndex((field) => field.id === deleted.id);
+  return [...fields.slice(index + 1), ...fields.slice(0, index)].find(canNameRecords) ?? null;
+}
+
+function setNameField(model: RecordModel, typeId: string, fieldId: string | null) {
+  model.types = model.types.map((type) =>
+    type.id === typeId
+      ? {
+          ...type,
+          primaryFieldId: fieldId,
+          defaults: { ...type.defaults, hiddenColumns: type.defaults.hiddenColumns.filter((id) => id !== fieldId) },
+        }
+      : type,
+  );
+}
+
+export function assignMissingNameFields(model: RecordModel) {
+  for (const type of model.types) {
+    if (type.archived || type.primaryFieldId) continue;
+    const field = fieldsInOrder(model, type.id).find(canNameRecords);
+    if (field) setNameField(model, type.id, field.id);
+  }
 }
 
 function activeType(model: RecordModel, id: string): boolean {
@@ -321,18 +359,21 @@ export function applyConfigurationLifecycle(
     const deleted = isDeleted(model, target);
     if (operation.operation === "delete") {
       if (deleted) invalid();
-      if (target.kind === "field") {
-        const field = model.fields.find((candidate) => candidate.id === target.id);
-        if (!field || !activeType(model, field.typeId)) invalid();
-        if (model.types.some((type) => type.primaryFieldId === target.id)) {
-          blockers.push({
-            reason: "primaryField",
-            source: reference({ kind: "type", id: field.typeId }),
-            target: reference(target),
-          });
-        }
+      const field = target.kind === "field" ? model.fields.find((candidate) => candidate.id === target.id) : undefined;
+      if (target.kind === "field" && (!field || !activeType(model, field.typeId))) invalid();
+      const named = field && model.types.find((type) => type.primaryFieldId === field.id);
+      const deletion: ConfigurationDeletion = { target, cascade: deleteWithCascade(model, target) };
+      if (field && named) {
+        const replacement = nextNameField(model, field);
+        setNameField(model, named.id, replacement?.id ?? null);
+        deletion.nameField = { typeId: named.id, replacementId: replacement?.id ?? null };
+        cleaned.push({
+          consumer: reference({ kind: "type", id: named.id }),
+          target: reference(target),
+          replacement: replacement ? reference({ kind: "field", id: replacement.id }) : null,
+        });
       }
-      deletions.push({ target, cascade: deleteWithCascade(model, target) });
+      deletions.push(deletion);
     } else if (operation.operation === "restore") {
       if (!deleted) invalid();
       if (!canRestore(model, target)) {
@@ -340,7 +381,10 @@ export function applyConfigurationLifecycle(
         continue;
       }
       setDeleted(model, target, false);
-      const cascade = records.get(targetKey(target))?.cascade ?? [];
+      const record = records.get(targetKey(target));
+      const named = record?.nameField && model.types.find((type) => type.id === record.nameField?.typeId);
+      if (named && named.primaryFieldId === record?.nameField?.replacementId) setNameField(model, named.id, target.id);
+      const cascade = record?.cascade ?? [];
       for (const kind of ["type", "relationship", "field"] as const) {
         for (const item of cascade.filter((entry) => entry.kind === kind))
           if (isDeleted(model, item) && canRestore(model, item)) setDeleted(model, item, false);
