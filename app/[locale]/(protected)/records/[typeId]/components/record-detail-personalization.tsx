@@ -137,7 +137,7 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
         >
           <RotateCcw className="size-4" />
 
-          <span>{t("RecordModel.resetDetailLayout")}</span>
+          <span className="hidden sm:inline">{t("RecordModel.resetDetailLayout")}</span>
         </Button>
       )}
 
