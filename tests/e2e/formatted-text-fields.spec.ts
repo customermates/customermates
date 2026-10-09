@@ -89,5 +89,35 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   await openRecordDetails(page, name);
   await expect(drawer.getByRole("textbox", { name: "Summary", exact: true })).toContainText("Expansion likely in Q3");
   await page.screenshot({ path: testInfo.outputPath("formatted-text-drawer.png"), animations: "disabled" });
+  await drawer.getByRole("button", { name: "Close", exact: true }).click();
+
+  const dealTypeId = presetId(companyId, "deal");
+  const latest = await post(page, "/api/v1/model/discover", {});
+  const created = await post(page, "/api/v1/records/mutate", {
+    expectedRevision: latest.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId: dealTypeId,
+      fields: [
+        { fieldId: presetId(companyId, "deal.name"), value: { kind: "text", value: `Card ${name}` } },
+        {
+          fieldId: presetId(companyId, "deal.notes"),
+          value: {
+            kind: "richText",
+            documentJson: JSON.stringify({
+              type: "doc",
+              content: [{ type: "paragraph", content: [{ type: "text", text: "Budget approved for the pilot." }] }],
+            }),
+          },
+        },
+      ],
+    },
+  });
+  const dealId = created.refs.find((ref: { typeId: string }) => ref.typeId === dealTypeId).recordId;
+  await page.goto(`/en/records/${dealTypeId}?viewMode=card`);
+  const card = page.locator(`[data-item-id="${dealId}"]`);
+  await expect(card.locator("[data-card-excerpt]")).toHaveText("Budget approved for the pilot.");
+  await expect(card.locator("[data-chip-row]")).not.toContainText("Budget approved");
   expect(errors).toEqual([]);
 });

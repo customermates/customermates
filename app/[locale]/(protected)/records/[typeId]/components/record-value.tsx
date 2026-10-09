@@ -17,7 +17,7 @@ import { cn } from "@/core/utils/cn";
 
 type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
 
-function formattedTextExcerpt(documentJson: string) {
+export function formattedTextExcerpt(documentJson: string) {
   const blocks: string[] = [];
   const visit = (node: FormattedTextNode) => {
     if (node.content?.some((child) => child.type === "text")) {
