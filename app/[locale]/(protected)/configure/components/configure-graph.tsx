@@ -2,7 +2,7 @@
 
 import "@xyflow/react/dist/style.css";
 
-import type { Edge, EdgeProps, Node, NodeChange, NodeProps } from "@xyflow/react";
+import type { Edge, EdgeProps, Node, NodeChange, NodeProps, ReactFlowState } from "@xyflow/react";
 import type { RecordField, RecordModelView, RecordRelationship } from "@/features/records/record-model.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 import type {
@@ -41,7 +41,7 @@ import {
   ReactFlowProvider,
   applyNodeChanges,
   useInternalNode,
-  useNodes,
+  useStore,
   useReactFlow,
 } from "@xyflow/react";
 import { Cable, Link2, Maximize, Plus, RotateCcw, Sigma, ZoomIn, ZoomOut } from "lucide-react";
@@ -237,12 +237,9 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         onClick={() => onSelectList(list.type.id)}
       />
 
-      {parent && <SublistSentence className="nodrag px-3.5 pb-2.5 text-xs" parent={parent} />}
+      {parent && <SublistSentence className="nodrag ps-10 pe-3.5 pb-2.5 text-xs" parent={parent} />}
 
-      <ConfigureNodeRows
-        label={t("RecordModel.fields")}
-        lead={visible.some(({ calculated }) => calculated) ? "marker" : "none"}
-      >
+      <ConfigureNodeRows label={t("RecordModel.fields")}>
         {visible.map(({ field, calculated, sources }) => {
           const kind = t(`RecordModel.types.${recordFieldTypeKey(field)}`);
           const detail =
@@ -335,7 +332,7 @@ function AccountsNodeView({ data: { accounts } }: NodeProps<AccountsNode>) {
 
       <ConfigureNodeHeader href={CONNECTED_ACCOUNTS_HREF} icon={Cable} name={t("RecordModel.graph.accounts")} />
 
-      <ConfigureNodeRows label={t("RecordModel.graph.accounts")} lead="icon">
+      <ConfigureNodeRows label={t("RecordModel.graph.accounts")}>
         {visible.map((account) => {
           const Icon = getProviderIcon(account.provider as MessagingProvider);
           const label = getProviderDisplayLabel({ ...account, provider: account.provider as MessagingProvider }, t);
@@ -425,13 +422,17 @@ function useNodeBox(id: string, fallback: ConfigureGraphPosition | undefined): C
   };
 }
 
+const NO_NODES: Node[] = [];
+
+const settledNodes = (state: ReactFlowState) => (state.nodes.some((node) => node.dragging) ? NO_NODES : state.nodes);
+
 function GraphEdgeView({ data, source, target }: EdgeProps<GraphEdge>) {
   const t = useTranslations();
   const { canManage, disabled, labelOf, listOf, onEditRelationship } = useGraphActions();
   const descriptionId = useId();
   const sourceBox = useNodeBox(source, data?.anchors.source);
   const targetBox = useNodeBox(target, data?.anchors.target);
-  const nodes = useNodes();
+  const nodes = useStore(settledNodes);
   if (!data || !sourceBox || !targetBox) return null;
   const { edge, route, anchors, lane } = data;
   const obstacles = nodes.flatMap((node) =>
