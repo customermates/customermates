@@ -153,13 +153,14 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
       AND (${alias}."claimedAt" IS NULL
         OR ${alias}."claimedAt" < CURRENT_TIMESTAMP - make_interval(secs => ${CLAIM_EXPIRY_SECONDS}))`;
     const rows = await prisma.$queryRaw<SearchCatalogText[]>(Prisma.sql`
-      UPDATE "SearchCatalogEntry" e SET "claimedAt" = CURRENT_TIMESTAMP
-      WHERE ${claimable(Prisma.sql`e`)} AND e."contentHash" IN (
+      WITH picked AS MATERIALIZED (
         SELECT c."contentHash" FROM "SearchCatalogEntry" c
         WHERE ${claimable(Prisma.sql`c`)}
         ORDER BY c."contentHash" LIMIT ${limit}
         FOR UPDATE SKIP LOCKED
       )
+      UPDATE "SearchCatalogEntry" e SET "claimedAt" = CURRENT_TIMESTAMP
+      WHERE ${claimable(Prisma.sql`e`)} AND e."contentHash" IN (SELECT p."contentHash" FROM picked p)
       RETURNING e."targetId", e."text", e."contentHash"
     `);
     return [...new Map(rows.map((row) => [row.contentHash, row])).values()];
