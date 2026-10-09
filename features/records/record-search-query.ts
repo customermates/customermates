@@ -70,11 +70,11 @@ export function compileRecordSearch(
               AND value.state = 'value'
               AND word_similarity(${similarTerm}, value."textValue") >= ${SIMILAR_TITLE_MIN_WORD_SIMILARITY}`
           : compileRecordQuery(
-            companyId,
-            RecordQuerySchema.parse({ typeId: type.id, search: request.search.searchTerm }),
-            model,
-            access,
-          ).matching;
+              companyId,
+              RecordQuerySchema.parse({ typeId: type.id, search: request.search.searchTerm }),
+              model,
+              access,
+            ).matching;
     const after = cursor
       ? Prisma.sql`(record."createdAt" < (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') OR (record."createdAt" = (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') AND (${type.id}, record.id) > (${cursor.ref.typeId}, ${cursor.ref.recordId})))`
       : Prisma.sql`TRUE`;

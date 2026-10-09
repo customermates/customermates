@@ -4,7 +4,6 @@ import { captureRecordEventMatches } from "./record-event-capture";
 import { RecordEventSubscriptionSchema } from "./record-event-subscription.schema";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { compileRecordSearch, type RecordSearchRequest, type RecordSearchRow } from "./record-search-query";
-import type { RecordSearch } from "./record-search.schema";
 import { recordInvariant } from "./record-invariant";
 import type { StoredStateRow, StoredPersonalizationRow } from "@/features/data-view/data-view-row-mapping";
 import {

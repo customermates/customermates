@@ -47,7 +47,7 @@ export class SearchCatalogIndexService extends UserAccessor {
 
   private async pendingBatches(
     scope: SearchCatalogScope,
-    embed: (texts: string[]) => Promise<number[][] | null>,
+    embedBatch: (texts: string[]) => Promise<number[][] | null>,
   ): Promise<boolean> {
     for (let batch = 0; batch < SEARCH_CATALOG_BATCHES_PER_STEP; batch += 1) {
       const pending: SearchCatalogText[] = await this.repo.pendingEmbeddings(
@@ -56,7 +56,7 @@ export class SearchCatalogIndexService extends UserAccessor {
         WIKI_EMBEDDING_BATCH_SIZE,
       );
       if (pending.length === 0) return false;
-      const vectors = await embed(pending.map((entry) => entry.text));
+      const vectors = await embedBatch(pending.map((entry) => entry.text));
       if (!vectors) return false;
       await this.repo.storeEmbeddings(
         scope,

@@ -2,6 +2,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import type { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { RecordMutation } from "@/features/records/record-query.schema";
+import type * as WikiEmbeddingModel from "@/ee/wiki-retrieval/wiki-embedding-model";
 
 import { randomUUID } from "node:crypto";
 
@@ -12,7 +13,12 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
 vi.mock("@/env", () => ({
-  env: { APP_MODE: "cloud", BASE_URL: "http://127.0.0.1:4000", DATABASE_URL: process.env.DATABASE_URL, NODE_ENV: "test" },
+  env: {
+    APP_MODE: "cloud",
+    BASE_URL: "http://127.0.0.1:4000",
+    DATABASE_URL: process.env.DATABASE_URL,
+    NODE_ENV: "test",
+  },
 }));
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -20,7 +26,7 @@ vi.mock("next-intl/server", () => ({
 }));
 vi.mock("@/ee/agent-chat/agent-availability", () => ({ isAgentChatAvailable: () => true }));
 vi.mock("@/ee/wiki-retrieval/wiki-embedding-model", async (importOriginal) => {
-  const original = await importOriginal<typeof import("@/ee/wiki-retrieval/wiki-embedding-model")>();
+  const original = await importOriginal<typeof WikiEmbeddingModel>();
   return {
     ...original,
     embedWikiTexts: vi.fn((texts: string[]) =>
@@ -126,7 +132,13 @@ async function workspace(viewName: string) {
           status: "active",
         },
       });
-    return { company, adminRole, memberRole, admin: await user(adminRole.id, "Admin"), member: await user(memberRole.id, "Member") };
+    return {
+      company,
+      adminRole,
+      memberRole,
+      admin: await user(adminRole.id, "Admin"),
+      member: await user(memberRole.id, "Member"),
+    };
   });
   const admin: TenantUser = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
   const member: TenantUser = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
@@ -207,8 +219,9 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     await runWithTenant(second.admin, () => indexer(fakeEmbeddings().service).indexPending());
 
     const catalog = await staticSearchCatalog();
-    const stored = await runWithoutTenant(() =>
-      prisma.$queryRaw<Array<{ companyId: string | null; targetId: string; text: string; embedded: boolean }>>`
+    const stored = await runWithoutTenant(
+      () =>
+        prisma.$queryRaw<Array<{ companyId: string | null; targetId: string; text: string; embedded: boolean }>>`
         SELECT "companyId", "targetId", "text", "embedding" IS NOT NULL AS "embedded" FROM "SearchCatalogEntry"
         WHERE "buildHash" = ${catalog.buildHash} OR "companyId" = ANY(${[first.companyId, second.companyId]}::text[])`,
     );
@@ -292,7 +305,9 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     const titles = async (searchTerm: string) => {
       const result = await runWithTenant(f.admin, () => records.invoke({ searchTerm, limit: 40, cursor: null }));
       if (!result.ok) throw new Error("Expected record search result");
-      return result.data.results.map((hit) => (hit.title.state === "value" ? hit.title.value.value : null));
+      return result.data.results.map((hit) =>
+        hit.title.state === "value" && hit.title.value.kind === "text" ? hit.title.value.value : null,
+      );
     };
 
     expect(await titles(globex.recordId)).toEqual(["Globex"]);

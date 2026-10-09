@@ -76,7 +76,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
     private catalog: CommandCatalogRepo,
     private searchCatalog: SearchCatalogRepo,
     private docs: DocsChunkRepo,
-    private embed: QueryEmbedding | null,
+    private embedQuery: QueryEmbedding | null,
     private scheduler: SearchCatalogIndexScheduler,
   ) {
     super();
@@ -138,11 +138,11 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
   }
 
   private async queryVector(searchTerm: string): Promise<QueryVector | null> {
-    const embed = this.embed;
-    if (!embed || !(await this.searchCatalog.semanticIndexAvailable())) return null;
+    const embedQuery = this.embedQuery;
+    if (!embedQuery || !(await this.searchCatalog.semanticIndexAvailable())) return null;
     const wait = new QueryEmbeddingWait();
     const embedded = await withinDeadline(
-      embed(searchTerm, wait).catch(() => null),
+      embedQuery(searchTerm, wait).catch(() => null),
       COMMAND_SEARCH_EMBEDDING_WAIT_MS,
       () => wait.abandon(),
     );

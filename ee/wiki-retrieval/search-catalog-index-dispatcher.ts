@@ -3,7 +3,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import * as Sentry from "@sentry/node";
 
 import { UserAccessor } from "@/core/base/user-accessor";
-import { SearchCatalogIndexScheduler } from "@/features/command-palette/search-catalog-index-scheduler";
+import type { SearchCatalogIndexScheduler } from "@/features/command-palette/search-catalog-index-scheduler";
 
 import { isWikiSemanticSearchAvailable } from "./wiki-embedding.service";
 

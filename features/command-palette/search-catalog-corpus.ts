@@ -40,7 +40,7 @@ async function buildStaticSearchCatalog(): Promise<StaticSearchCatalog> {
   const entries: StaticSearchCatalogEntry[] = [];
   for (const locale of APP_LOCALES) {
     const translate = await getTranslator(locale);
-    const t = (key: string) => translate(key as Parameters<typeof translate>[0]);
+    const t = (key: string) => translate(key);
     for (const command of STATIC_COMMANDS) {
       const parent = command.parentId ? staticCommand(command.parentId) : undefined;
       const label = t(command.labelKey);

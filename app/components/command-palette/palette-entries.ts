@@ -9,7 +9,12 @@ import type { PaletteCandidate } from "./command-palette-search";
 
 import { Layers, Link2, ListChecks, Plus, SquarePen, Trash2, UserRoundCheck } from "lucide-react";
 
-import { commandAvailable, commandSynonyms, STATIC_COMMANDS, staticCommand } from "@/components/keyboard/command-registry";
+import {
+  commandAvailable,
+  commandSynonyms,
+  STATIC_COMMANDS,
+  staticCommand,
+} from "@/components/keyboard/command-registry";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { focusHref } from "@/components/focus/focus-href";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";

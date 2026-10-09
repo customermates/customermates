@@ -1,7 +1,11 @@
 "use server";
 
 import type { CommandSearchInput, CommandSearchResult } from "@/features/command-palette/command-search.schema";
-import type { RecordSearch, RecordSearchResult, ResolveRecordSearchInput } from "@/features/records/record-search.schema";
+import type {
+  RecordSearch,
+  RecordSearchResult,
+  ResolveRecordSearchInput,
+} from "@/features/records/record-search.schema";
 import {
   getGetCommandCatalogInteractor,
   getResolveRecordSearchInteractor,

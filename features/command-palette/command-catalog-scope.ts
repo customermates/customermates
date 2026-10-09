@@ -3,7 +3,11 @@ import type { RecordViewName } from "./command-catalog.repo";
 
 export type CommandCatalogAccess = { canManageSchema: boolean; canReadType: (typeId: string) => boolean };
 
-export function commandCatalogScope(model: RecordModel, access: CommandCatalogAccess, views: readonly RecordViewName[]) {
+export function commandCatalogScope(
+  model: RecordModel,
+  access: CommandCatalogAccess,
+  views: readonly RecordViewName[],
+) {
   const lists = model.types
     .filter((type) => !type.archived && !type.embedded && type.navigationVisible && access.canReadType(type.id))
     .map((type) => type.id);

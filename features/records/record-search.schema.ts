@@ -17,7 +17,7 @@ export const RecordSearchSchema = z
       .min(1)
       .max(200)
       .describe(
-        'Text to find in titles and searchable fields; a record id finds that record. Wrap a phrase in double quotes to match it exactly. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor.',
+        "Text to find in titles and searchable fields; a record id finds that record. Wrap a phrase in double quotes to match it exactly. Otherwise, when nothing matches, records with a similarly spelled title are returned, best first and without nextCursor.",
       ),
     typeIds: z.array(z.uuid()).min(1).max(100).optional(),
     includeEmbedded: z.boolean().optional(),
