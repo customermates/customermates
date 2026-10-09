@@ -2043,6 +2043,7 @@
     "hideField": "Masquer {field} dans les détails",
     "overview": "Vue d’ensemble",
     "personalize": "Personnaliser",
+    "pinMore": "Épingler un champ",
     "pinField": "Épingler {field} dans l’aperçu",
     "reorderInstructions": "Appuyez sur Espace ou Entrée pour saisir un champ. Utilisez les flèches pour le déplacer, Espace ou Entrée pour le déposer et Échap pour annuler.",
     "sections": {
