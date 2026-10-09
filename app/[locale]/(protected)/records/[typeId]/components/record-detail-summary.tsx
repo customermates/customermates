@@ -166,7 +166,6 @@ const SummaryValue = observer(function SummaryValue({
       linkIcons={store.presentation.linkIcons}
       linkLabels={store.presentation.linkLabels}
       record={store.record}
-      onMore={() => undefined}
       onOpen={() => undefined}
     />
   ) : (

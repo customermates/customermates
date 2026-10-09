@@ -26,11 +26,11 @@ import { RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { RecordCell } from "./record-cell";
 import {
-  RecordCalculatedCell,
+  RecordCalculatedValue,
   RecordInlineField,
   RecordInlineRelationship,
   canEditInline,
-  isCalculatedForEditor,
+  isCalculatedField,
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
 import { RecordRowActions, recordRowName } from "./record-row-actions";
@@ -95,53 +95,63 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
     ?.fields.find((field) => field.role === "image")?.fieldId;
   const view = resolveDataViewView(store.viewMode, store.canBoard);
+  const columnHeaders = JSON.stringify(recordColumns.map((column) => [column.id, column.label]));
   const columns = useMemo<ColumnDef<RecordRow>[]>(
     () =>
-      recordColumns.map((column) => ({
-        id: column.id,
-        header: column.label,
+      (JSON.parse(columnHeaders) as [string, string][]).map(([id, header]) => ({
+        id,
+        header,
         cell: ({ row }) => {
-          const cell = (
+          const column = store.recordColumns.find((candidate) => candidate.id === id);
+          if (!column) return null;
+          const renderCell = (inTrigger: boolean) => (
             <RecordCell
               avatarFieldId={column.id === store.type?.primaryFieldId ? avatarFieldId : undefined}
               column={column}
+              inTrigger={inTrigger}
               linkColors={store.presentation.linkColors}
               linkIcons={store.presentation.linkIcons}
               linkLabels={store.presentation.linkLabels}
               record={row.original}
-              onMore={() => openRecord(row.original)}
               onOpen={openRelated}
             />
           );
           if (column.kind === "relationship" && hasInlineRelationshipEditor(store, row.original, column.relation)) {
+            const summary = row.original.relationships.find(
+              (entry) => entry.relationId === column.relation.id && entry.direction === column.direction,
+            );
             return (
               <RecordInlineRelationship
                 direction={column.direction}
+                empty={!summary?.records.length}
                 label={column.label}
                 record={row.original}
                 records={store}
                 relation={column.relation}
+                onOpenRecord={openRelated}
               >
-                {cell}
+                {renderCell(true)}
               </RecordInlineRelationship>
             );
           }
-          if (column.kind !== "field") return cell;
+          if (column.kind !== "field") return renderCell(false);
           if (canEditInline(store, row.original, column.field)) {
             return (
               <RecordInlineField field={column.field} record={row.original} records={store}>
-                {cell}
+                {renderCell(true)}
               </RecordInlineField>
             );
           }
-          return isCalculatedForEditor(store, row.original, column.field) ? (
-            <RecordCalculatedCell field={column.field}>{cell}</RecordCalculatedCell>
+          return isCalculatedField(store, column.field) ? (
+            <RecordCalculatedValue field={column.field} model={store.presentation.model}>
+              {renderCell(false)}
+            </RecordCalculatedValue>
           ) : (
-            cell
+            renderCell(false)
           );
         },
       })),
-    [recordColumns, openRecord, openRelated, avatarFieldId, store],
+    [columnHeaders, openRelated, avatarFieldId, store],
   );
   const deletion = useRecordDeletion({
     onDeleted: () => root.recordWorkspaceStore.invalidate(),
