@@ -33,7 +33,7 @@ import {
   restoreRecentlyDeleted,
 } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, runRowAction } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
@@ -2446,13 +2446,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
     ).toEqual([type.primaryFieldId, budgetId, stageId]);
     await presentationCloseAppearanceUi(reader.page, testInfo);
     const alphaCard = reader.page.locator(`[data-item-id="${alpha.recordId}"]`);
-    await alphaCard.hover();
-    await alphaCard
-      .getByRole("button", { name: "More actions for Alpha portfolio", exact: true })
-      .click();
-    await reader.page
-      .getByRole("menuitem", { name: "Open details", exact: true })
-      .click();
+    await runRowAction(reader.page, alphaCard, "Alpha portfolio", "Open details");
     const readerDetail = reader.page.getByRole("dialog", {
       name: type.label,
       exact: true,

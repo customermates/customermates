@@ -57,6 +57,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         className="animate-page-result-in motion-reduce:animate-none"
         columnStyle={columnStyle}
         columns={resolvedColumns}
+        renderCard={renderCard}
         rowActions={rowActions}
         store={store}
         onAddToGroup={onAddToGroup}

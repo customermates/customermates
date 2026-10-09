@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, recordItem, rowActionFocusTarget } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 test("edits identity channels in the generic drawer and searches persisted channels", async ({
@@ -51,7 +51,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   await discard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(discard).not.toBeVisible();
   await expect(dialog).not.toBeVisible();
-  await expect(page.getByRole("button", { name: "More actions for Identity Person", exact: true })).toBeFocused();
+  await expect(rowActionFocusTarget(recordItem(page, "Identity Person"), "Identity Person")).toBeFocused();
   await page.reload();
   await openRecordDetails(page, "Identity Person");
   await expect(dialog.getByText("person@example.test", { exact: true })).toBeVisible();

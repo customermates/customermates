@@ -4,7 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, recordItem, rowActionFocusTarget, rowActionLabels, runRowAction } from "./record-rows";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data });
@@ -114,7 +114,7 @@ function trackErrors(page: Page) {
   return errors;
 }
 
-test("rows and cards open the record page and keep only Open details and Delete in More actions", async ({
+test("rows and cards open the record page and keep only Open details and Delete as row actions", async ({
   page,
   companyId,
 }) => {
@@ -130,10 +130,8 @@ test("rows and cards open the record page and keep only Open details and Delete 
   const errors = trackErrors(page);
 
   const row = page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
-  await row.hover();
-  await row.getByRole("button", { name: `More actions for ${name}` }).click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Open details", "Delete"]);
-  await page.getByRole("menuitem", { name: "Open details" }).click();
+  expect(await rowActionLabels(page, row, name)).toEqual(["Open details", "Delete"]);
+  await runRowAction(page, row, name, "Open details");
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
   await page.keyboard.press("Escape");
@@ -160,7 +158,7 @@ test("record drawer Cancel closes clean forms and guards unsaved changes", async
   await expect(drawer).not.toBeVisible();
   await page.waitForLoadState("networkidle");
   const errors = trackErrors(page);
-  const moreActions = page.getByRole("button", { name: `More actions for ${name}`, exact: true });
+  const moreActions = rowActionFocusTarget(recordItem(page, name), name);
 
   await openRecordDetails(page, name);
   await expect(input).toHaveValue(name);
@@ -499,6 +497,38 @@ test("grouped tables show a quiet group band that adds into the group and hide t
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await expect(band).toContainText("2");
+});
+
+test("phone rows show the title and the card chip row instead of table columns", async ({ page, companyId }) => {
+  test.setTimeout(180000);
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  const typeId = await createLabList(page, presetId(companyId, "contact"));
+  const model = await readModel(page);
+  const type = model.types.find((candidate) => candidate.id === typeId)!;
+  const money = model.fields.find((field) => field.typeId === typeId && field.label === "Money")!;
+  await api(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId,
+      fields: [
+        { fieldId: type.primaryFieldId, value: { kind: "text", value: "Lab phone" } },
+        { fieldId: money.id, value: { kind: "decimal", value: "342000", currency: "EUR" } },
+      ],
+    },
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/en/records/${typeId}`);
+  await expect(page.locator("#records-add")).toBeEnabled();
+  const rows = page.locator("[data-phone-rows]");
+  await expect(rows).toBeVisible();
+  await expect(page.getByRole("columnheader")).toHaveCount(0);
+  const item = rows.locator("[data-row-id]").filter({ hasText: "Lab phone" });
+  await expect(item.locator(`[data-chip-column="${money.id}"]`)).toHaveText("€342K");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await item.getByText("Lab phone", { exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
 });
 
 test("board columns keep a one-line header and a persisted, keyboard-resizable width", async ({

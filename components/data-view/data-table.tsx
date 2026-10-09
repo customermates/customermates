@@ -25,6 +25,8 @@ import { ColumnResizeHandle } from "./column-resize-handle";
 import { useGroupLabel, visibleGroups } from "./group-label";
 import { GroupSummaries } from "./group-summaries";
 import { isInteractiveClick } from "./is-interactive-click";
+import { DataViewItemLayout } from "./data-view-item-layout";
+import { useIsWiderThan } from "@/hooks/use-media-query";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -35,6 +37,7 @@ type Props<E extends HasId> = {
   onRowHref?: (item: E) => string | undefined;
   columnStyle?: (columnId: string) => DataTableColumnStyle;
   onAddToGroup?: (group: DataViewGroup) => void;
+  renderCard?: (item: E) => ReactNode;
 };
 
 export type DataTableColumnStyle = { align?: "end"; emphasis?: boolean };
@@ -54,10 +57,12 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   onRowHref,
   columnStyle,
   onAddToGroup,
+  renderCard,
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
   const groupLabel = useGroupLabel(store.groupingResult);
+  const wide = useIsWiderThan("sm");
   const [resizeSession, setResizeSession] = useState<ColumnResizeSession>();
 
   function resetColumnWidth(columnId: string) {
@@ -239,7 +244,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
               key={cell.id}
               className={
                 columnId === "__actions"
-                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
+                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static md:pointer-fine:w-0 md:pointer-fine:p-0 focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
                   : isSelectionCell
                     ? "w-10"
                     : cn(
@@ -268,6 +273,77 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const rowsById = new Map(table.getRowModel().rows.map((row) => [row.original.id, row]));
   const leafColumnCount = table.getVisibleLeafColumns().length;
   const groups = visibleGroups(store.groupingResult);
+  if (renderCard && !wide) {
+    const itemsById = new Map(store.items.map((item) => [item.id, item]));
+    const renderPhoneRow = (item: E) => {
+      const href = onRowHref?.(item);
+      const open = () => {
+        if (onRowClick) onRowClick(item);
+        else if (href) navigateToHref(href);
+      };
+      return (
+        <li
+          key={item.id}
+          className="group/row relative px-4 py-3 transition-colors hover:bg-accent has-[>a:focus-visible]:bg-accent"
+          data-row-id={item.id}
+        >
+          {href && (
+            <a
+              aria-label={t("Common.actions.open")}
+              className="absolute inset-0 outline-none"
+              href={href}
+              onClick={(event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
+                event.preventDefault();
+                event.stopPropagation();
+                open();
+              }}
+            />
+          )}
+
+          <div className="pointer-events-none relative [&_[data-add-property]]:pointer-events-auto [&_[data-chip-column]]:pointer-events-auto">
+            {renderCard(item)}
+          </div>
+
+          {rowActions && (
+            <div className="absolute top-2 right-2">
+              <DataViewItemLayout.Provider value="card">{rowActions(item)}</DataViewItemLayout.Provider>
+            </div>
+          )}
+        </li>
+      );
+    };
+    return (
+      <ul
+        className={cn("divide-y divide-border border-b border-border", className)}
+        data-phone-rows=""
+        data-slot="table"
+      >
+        {!store.isGrouped
+          ? store.items.map(renderPhoneRow)
+          : groups.map((group) => (
+              <Fragment key={group.key}>
+                <li className="flex items-center gap-2 bg-muted/40 px-4 py-2" data-slot="group-header-row">
+                  {group.color ? (
+                    <AppChip size="sm" variant={group.color}>
+                      <span className="truncate">{groupLabel(group)}</span>
+                    </AppChip>
+                  ) : (
+                    <span className="min-w-0 truncate text-sm font-medium">{groupLabel(group)}</span>
+                  )}
+
+                  <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
+                </li>
+
+                {group.itemIds.flatMap((id) => {
+                  const item = itemsById.get(id);
+                  return item ? [renderPhoneRow(item)] : [];
+                })}
+              </Fragment>
+            ))}
+      </ul>
+    );
+  }
   const overflow = store.groupingResult?.overflow;
 
   return (
@@ -296,7 +372,8 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                     columnStyle?.(columnId)?.align === "end" && "text-right [&_button]:ml-auto",
                     canResize && "group/resize-header",
                     canSort && "cursor-pointer select-none",
-                    isSelectionCol && "w-10",
+                    columnId === "__select" && "w-10",
+                    columnId === "__actions" && "w-px md:pointer-fine:w-0 md:pointer-fine:p-0",
                   )}
                   style={
                     liveWidth != null

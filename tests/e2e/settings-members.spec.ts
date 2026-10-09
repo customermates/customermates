@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { rowActionGroup, rowActionLabels, runRowAction } from "./record-rows";
 
 test("the members row menu deletes another member through the guarded deactivation", async ({
   page,
@@ -28,29 +29,23 @@ test("the members row menu deletes another member through the guarded deactivati
   );
 
   await page.goto("/en/settings/members");
+  const memberRow = (name: string) => page.getByRole("row").filter({ hasText: name });
   await expect(async () => {
-    await page.getByRole("button", { name: "More actions for Invited Member", exact: true }).click();
-    await expect(page.getByRole("menuitem")).toHaveText(["Open details"], { timeout: 1000 });
+    expect(await rowActionLabels(page, memberRow("Invited Member"), "Invited Member")).toEqual(["Open details"]);
   }).toPass();
-  await page.keyboard.press("Escape");
-
-  const ownMenu = page.getByRole("button", {
-    name: "More actions for Browser Administrator",
-    exact: true,
-  });
-  await ownMenu.click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Open details"]);
-  await page.keyboard.press("Escape");
-
-  const memberMenu = page.getByRole("button", {
-    name: "More actions for Nora Second",
-    exact: true,
-  });
-  await memberMenu.click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Open details", "Delete"]);
-  const remove = page.getByRole("menuitem", { name: "Delete", exact: true });
-  await expect(remove).toHaveAttribute("data-variant", "destructive");
-  await remove.click();
+  expect(await rowActionLabels(page, memberRow("Browser Administrator"), "Browser Administrator")).toEqual([
+    "Open details",
+  ]);
+  expect(await rowActionLabels(page, memberRow("Nora Second"), "Nora Second")).toEqual(["Open details", "Delete"]);
+  await memberRow("Nora Second").hover();
+  const inlineRemove = rowActionGroup(memberRow("Nora Second")).getByRole("button", { name: "Delete", exact: true });
+  if (await inlineRemove.isVisible()) await expect(inlineRemove).toHaveAttribute("data-variant", /destructive/i);
+  else {
+    await memberRow("Nora Second").getByRole("button", { name: "More actions for Nora Second", exact: true }).click();
+    await expect(page.getByRole("menuitem", { name: "Delete", exact: true })).toHaveAttribute("data-variant", "destructive");
+    await page.keyboard.press("Escape");
+  }
+  await runRowAction(page, memberRow("Nora Second"), "Nora Second", "Delete");
 
   const confirm = page.getByRole("alertdialog", { name: "Confirm Deletion" });
   await expect(confirm).toContainText("Nora Second is deactivated and loses access to this workspace.");
