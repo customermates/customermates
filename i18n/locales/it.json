@@ -3020,9 +3020,6 @@
       "moreOptions": "Altre opzioni",
       "of": "di",
       "ofLinked": "di {list} collegati",
-      "pickField": "Scegli un campo",
-      "pickRelationship": "Scegli una relazione",
-      "pickValue": "Scegli un valore",
       "picker": {
         "fields": "Campi",
         "fixedValue": "Valore fisso",
@@ -3037,6 +3034,9 @@
         "relationships": "Record collegati",
         "use": "Usa questo valore"
       },
+      "pickField": "Scegli un campo",
+      "pickRelationship": "Scegli una relazione",
+      "pickValue": "Scegli un valore",
       "private": "Privato",
       "sentence": {
         "average": "{field} è la media di {value} di tutti i {list} collegati.",
@@ -3053,9 +3053,9 @@
         "throughList": "{list} di {via}",
         "typeOver": "Si può sovrascrivere."
       },
+      "shown": "Visibile a tutti",
       "showToEveryone": "Mostra a chiunque possa vedere il record ({list})",
       "showToEveryoneHelp": "Vedranno questo valore anche se non possono aprire il record collegato ({list}).",
-      "shown": "Visibile a tutti",
       "step": "Passo {number}",
       "take": "Prendi",
       "text": {
