@@ -445,3 +445,51 @@ describe("rule 68: rows inside cards and sections through SectionRows", () => {
     expect(formatFindings(insetRowDividerFindings(PRODUCT_SOURCES))).toEqual([]);
   });
 });
+
+const SENTENCE_COMPONENT = /^[A-Z]\w*Sentence\w*$/;
+const SENTENCE_ATTRIBUTE = /^data-[\w-]*sentence[\w-]*$/;
+const CHIP_TAGS = new Set(["AppChip", "ClickableChip", "MemberChip"]);
+
+function sentenceScopes(source: SourceFile) {
+  const scopes: ts.Node[] = [];
+  visit(source.ast, (node) => {
+    if (ts.isFunctionDeclaration(node) && node.name && SENTENCE_COMPONENT.test(node.name.text)) scopes.push(node);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && SENTENCE_COMPONENT.test(node.name.text))
+      scopes.push(node);
+    if (
+      (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) &&
+      attributesOf(node).properties.some(
+        (property) => ts.isJsxAttribute(property) && SENTENCE_ATTRIBUTE.test(property.name.getText(source.ast)),
+      )
+    )
+      scopes.push(node);
+  });
+  return scopes;
+}
+
+function sentenceChipFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+  let scopeCount = 0;
+
+  for (const source of sources)
+    for (const scope of sentenceScopes(source)) {
+      scopeCount += 1;
+      visit(scope, (node) => {
+        if (!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) return;
+        const tag = tagNameOf(node);
+        if (tag && CHIP_TAGS.has(tag))
+          findings.push(finding(source, node.getStart(source.ast), `<${tag}> inside a sentence, use <InlineChip>`));
+      });
+    }
+
+  return { findings, scopeCount };
+}
+
+describe("rule 66: chips inside sentences use the inline chip", () => {
+  it("renders every chip inside a sentence component as the shared InlineChip", () => {
+    const { findings, scopeCount } = sentenceChipFindings(PRODUCT_SOURCES);
+
+    expect(scopeCount).toBeGreaterThan(0);
+    expect(formatFindings(findings)).toEqual([]);
+  });
+});
