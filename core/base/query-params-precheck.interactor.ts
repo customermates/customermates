@@ -5,6 +5,7 @@ import type { FilterEntityKind } from "@/core/types/filter-field-value-kind";
 import type { ValidateConnectedAccountIdsInteractor } from "@/core/validation/validators/validate-connected-account-ids.interactor";
 import type { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import type { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
+import type { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
 import { parseRecordReferenceKey } from "@/features/records/record-reference-key";
 import { z } from "zod";
 
@@ -26,6 +27,7 @@ export class QueryParamsPrecheckInteractor {
     private userValidator: ValidateUserIdsInteractor,
     private threadValidator: ValidateThreadIdsInteractor,
     private connectedAccountValidator: ValidateConnectedAccountIdsInteractor,
+    private webhookValidator: ValidateWebhookIdsInteractor,
   ) {}
 
   async invoke(
@@ -102,6 +104,8 @@ export class QueryParamsPrecheckInteractor {
         return this.threadValidator;
       case "connectedAccount":
         return this.connectedAccountValidator;
+      case "webhook":
+        return this.webhookValidator;
     }
   }
 

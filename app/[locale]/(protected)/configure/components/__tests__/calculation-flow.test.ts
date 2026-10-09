@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { aggregateOf, linkedExpression, linkedFlow } from "@/features/records/calculation-sentence";
 import type { CalculationExpression, RecordField } from "@/features/records/record-model.schema";
 
 import { recordInvariant } from "@/features/records/record-invariant";
@@ -12,13 +13,11 @@ import {
   calculationBehavior,
   calculationDraft,
   calculationIssues,
-  calculationSentence,
+  issueText,
   derivedValueType,
   expressionAt,
   formulaInputs,
   formulaSteps,
-  linkedExpression,
-  linkedFlow,
   removeStep,
   replaceExpression,
   withAggregate,
@@ -36,24 +35,10 @@ const expressionOf = (key: string) => {
 };
 const t = (key: string, values: Record<string, string> = {}) =>
   `${key.replace("RecordModel.calculationFlow.", "")}${Object.keys(values).length ? JSON.stringify(values) : ""}`;
-const sentence = (
-  source: "formula" | "lookup" | "rollup",
-  expression: CalculationExpression,
-  typeId: string,
-  updates: "live" | "create" | "whenChanged" | "explicit" = "live",
-) =>
-  calculationSentence(
-    {
-      source,
-      expression,
-      typeId,
-      field: "Result",
-      updates,
-      allowManualOverride: true,
-      trigger: { field: "Pricing", value: "Saved price" },
-    },
-    { model, t, operatorLabel: (operator) => operator },
-  );
+const missing = (source: "formula" | "lookup" | "rollup", expression: CalculationExpression, typeId: string) => {
+  const issue = calculationIssues(source, expression, typeId, model)[0];
+  return issue ? issueText(issue, t, (operator) => operator) : null;
+};
 const amountTotal: CalculationExpression = {
   kind: "related",
   relationId: id("lineItem.deal"),
@@ -120,6 +105,48 @@ describe("value source and updates mapping", () => {
       triggerFieldId: id("lineItem.pricingMode"),
       triggerValue: { kind: "select", value: "saved" },
     });
+  });
+});
+
+describe("stored path shapes", () => {
+  const hop = (reducer: "one" | "sum" | "count" | "average" | "min" | "max", relation = "lineItem.deal") => ({
+    relationId: id(relation),
+    direction: "incoming" as const,
+    reducer,
+  });
+  const shapes: Array<[string, ReturnType<typeof hop>[], "lookup" | "rollup"]> = [
+    ["one", [hop("one")], "lookup"],
+    ["one, one", [hop("one"), hop("one", "lineItem.service")], "lookup"],
+    ["sum", [hop("sum")], "rollup"],
+    ["sum, one", [hop("sum"), hop("one", "lineItem.service")], "rollup"],
+    ["one, sum", [hop("one", "lineItem.service"), hop("sum")], "rollup"],
+    ["sum, sum", [hop("sum"), hop("sum", "lineItem.service")], "rollup"],
+    ["count", [hop("count")], "rollup"],
+    ["sum, count", [hop("sum"), hop("count", "lineItem.service")], "rollup"],
+    ["max, one", [hop("max"), hop("one", "lineItem.service")], "rollup"],
+  ];
+  const value: CalculationExpression = { kind: "field", fieldId: id("service.amount") };
+
+  it.each(shapes)("round-trips %s live and as a snapshot with its real source", (_, hops, source) => {
+    const expression = linkedExpression({ hops, value });
+    for (const behavior of [
+      { kind: source, expression },
+      { kind: "snapshot" as const, expression, capture: "explicit" as const },
+    ]) {
+      const draft = calculationDraft(behavior);
+      expect(draft.source).toBe(source);
+      expect(calculationBehavior(draft)).toEqual(behavior);
+      const flow = linkedFlow(expression);
+      expect(withAggregate(flow, aggregateOf(flow)).hops).toEqual(hops);
+    }
+  });
+
+  it("keeps singular hops as one when the aggregate changes", () => {
+    const flow = { hops: [hop("sum"), hop("one", "lineItem.service")], value };
+    expect(aggregateOf(flow)).toBe("sum");
+    expect(withAggregate(flow, "max").hops.map((entry) => entry.reducer)).toEqual(["max", "one"]);
+    expect(withAggregate(flow, "count").hops.map((entry) => entry.reducer)).toEqual(["count", "one"]);
+    expect(withAggregate({ hops: [hop("one")], value }, "sum").hops.map((entry) => entry.reducer)).toEqual(["sum"]);
   });
 });
 
@@ -231,40 +258,17 @@ describe("derived value type", () => {
   });
 });
 
-describe("calculation sentence", () => {
-  it("describes every starter calculation without holes or trailing separators", () => {
-    for (const field of model.fields) {
-      const behavior = (field as RecordField).behavior;
-      if (behavior.kind === "input") continue;
-      const draft = calculationDraft(behavior);
-      const text = sentence(draft.source, draft.expression, field.typeId, draft.updates);
-      expect(text, field.label).not.toMatch(/\s(of|the)\s(of|the)\s|""|·\s*$|undefined|null|\{\}/);
-      expect(text).not.toMatch(/missing\./);
-    }
-    expect(sentence("rollup", amountTotal, id("deal"))).toBe(
-      'sentence.sum{"field":"Result","value":"Amount","list":"Line items"}',
-    );
-  });
-
+describe("missing parts", () => {
   it("names what is missing while the flow is incomplete", () => {
     const pick = { ...amountTotal, expression: UNSET };
-    expect(sentence("rollup", pick, id("deal"))).toBe("missing.sum");
-    expect(sentence("lookup", { ...pick, reducer: "one" }, id("lineItem"))).toBe("missing.take");
-    expect(sentence("rollup", { ...pick, reducer: "count" }, id("deal"))).toBe(
-      'sentence.count{"field":"Result","list":"Line items"}',
-    );
-    expect(sentence("lookup", UNSET, id("deal"))).toBe("missing.relationship");
-    expect(sentence("formula", { kind: "operation", operator: "add", arguments: [UNSET, UNSET] }, id("deal"))).toBe(
+    expect(missing("rollup", pick, id("deal"))).toBe("missing.sum");
+    expect(missing("lookup", { ...pick, reducer: "one" }, id("lineItem"))).toBe("missing.take");
+    expect(missing("rollup", { ...pick, reducer: "count" }, id("deal"))).toBeNull();
+    expect(missing("lookup", UNSET, id("deal"))).toBe("missing.relationship");
+    expect(missing("formula", { kind: "operation", operator: "add", arguments: [UNSET, UNSET] }, id("deal"))).toBe(
       'missing.step{"operation":"add"}',
     );
     expect(calculationIssues("formula", UNSET, id("deal"), model)).toEqual([{ node: "input" }]);
-  });
-
-  it("adds the saving moment and the manual override for saved calculations", () => {
-    const text = sentence("lookup", expressionOf("lineItem.savedPrice"), id("lineItem"), "whenChanged");
-    expect(text).toContain('sentence.savedWhenChangedTo{"field":"Pricing","value":"Saved price"}');
-    expect(text).toContain("sentence.typeOver");
-    expect(sentence("lookup", expressionOf("lineItem.savedPrice"), id("lineItem"), "live")).not.toContain("typeOver");
   });
 
   it("flags a complete flow whose values don't fit together", () => {

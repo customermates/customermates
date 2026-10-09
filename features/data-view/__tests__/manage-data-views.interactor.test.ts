@@ -86,7 +86,12 @@ function setup() {
     invoke: vi.fn().mockResolvedValue({ ok: true, data: { id: VIEW_ID } }),
   };
   const validator = { invoke: vi.fn().mockResolvedValue(undefined) };
-  const queryPrecheck = new QueryParamsPrecheckInteractor(validator as never, validator as never, validator as never);
+  const queryPrecheck = new QueryParamsPrecheckInteractor(
+    validator as never,
+    validator as never,
+    validator as never,
+    validator as never,
+  );
   const entitlements = { require: vi.fn().mockResolvedValue(null) };
   const interactor = new ManageDataViewsInteractor(
     sources,

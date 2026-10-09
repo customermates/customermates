@@ -661,6 +661,7 @@ const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.cardinality.${cardinality}",
+  "features/records/calculation-sentence.ts :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.types.${valueType}",
   "app/[locale]/(protected)/configure/components/calculation-literal-input.tsx :: t :: RecordModel.${key}",
@@ -878,7 +879,7 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
-  ["app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key", 1],
+  ["app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key", 2],
   ["app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: key", 1],
   ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 1],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],

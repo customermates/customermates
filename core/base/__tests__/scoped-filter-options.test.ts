@@ -11,7 +11,12 @@ const folder = JSON.stringify([accountId, "folder:with/slashes"]);
 
 function setup() {
   const validator = { invoke: vi.fn() };
-  const precheck = new QueryParamsPrecheckInteractor(validator as never, validator as never, validator as never);
+  const precheck = new QueryParamsPrecheckInteractor(
+    validator as never,
+    validator as never,
+    validator as never,
+    validator as never,
+  );
   const issues: unknown[] = [];
   const run = async (fields: FilterableField[], filters: Filter[]) => {
     await precheck.invoke({ filterableFields: fields, sortableFields: [] }, { filters }, {

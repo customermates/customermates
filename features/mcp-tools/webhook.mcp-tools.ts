@@ -197,7 +197,7 @@ const ManageWebhooksSchema = z.object({
     .describe(
       "list and list_deliveries only. " +
         filtersDescription(
-          `list: ${filterFieldsHint([FilterFieldKey.createdAt, FilterFieldKey.updatedAt])}; list_deliveries: ${filterFieldsHint([FilterFieldKey.event, FilterFieldKey.url, FilterFieldKey.createdAt])}`,
+          `list: ${filterFieldsHint([FilterFieldKey.createdAt, FilterFieldKey.updatedAt])}; list_deliveries: ${filterFieldsHint([FilterFieldKey.webhookId, FilterFieldKey.event, FilterFieldKey.url, FilterFieldKey.createdAt])}`,
         ),
     ),
   sortDescriptor: SortDescriptorSchema.optional().describe(
