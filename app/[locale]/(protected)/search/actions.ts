@@ -39,5 +39,5 @@ export async function commandSearchAction(input: CommandSearchInput) {
   if (records && !records.ok) return serializeResult(records);
   if (!catalog.ok) return serializeResult(catalog);
   const result: CommandSearchResult = { ...catalog.data, records: records?.data ?? NO_RECORDS };
-  return serializeResult({ ok: true as const, data: result });
+  return serializeResult<CommandSearchResult>({ ok: true as const, data: result });
 }

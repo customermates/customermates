@@ -1,6 +1,6 @@
 import { commandScore } from "@/components/ui/command";
 
-export type PaletteScope = "lists" | "views" | "settings" | "records";
+export type PaletteScope = "lists" | "views" | "settings" | "docs" | "records";
 
 export type PaletteCandidateKind = "list" | "view" | "page" | "setting" | "field" | "action";
 
@@ -26,6 +26,7 @@ const SCOPE_PREFIXES: Record<string, PaletteScope> = {
   l: "lists",
   v: "views",
   s: "settings",
+  d: "docs",
   r: "records",
 };
 
@@ -42,6 +43,7 @@ const SCOPE_KINDS: Record<PaletteScope, readonly PaletteCandidateKind[]> = {
   lists: ["list", "view"],
   views: ["view"],
   settings: ["page", "setting", "field"],
+  docs: [],
   records: [],
 };
 
@@ -149,4 +151,49 @@ export function stableOrder(previous: readonly string[], next: readonly string[]
   const kept = previous.filter((key) => present.has(key));
   const keptSet = new Set(kept);
   return [...kept, ...next.filter((key) => !keptSet.has(key))];
+}
+
+export type SemanticHit = { key: string; similarity: number };
+
+const RRF_K = 60;
+
+export function fuseCandidates<T extends PaletteCandidate>(
+  ranked: readonly Ranked<T>[],
+  semantic: readonly SemanticHit[],
+  candidates: readonly T[],
+  scope: PaletteScope | null,
+): Ranked<T>[] {
+  const byKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
+  const scores = new Map<string, number>();
+  const add = (key: string, rank: number) => scores.set(key, (scores.get(key) ?? 0) + 1 / (RRF_K + rank + 1));
+  ranked.forEach((entry, rank) => add(entry.key, rank));
+  semantic
+    .filter((hit) => {
+      const candidate = byKey.get(hit.key);
+      return candidate !== undefined && scopeIncludes(scope, candidate.kind);
+    })
+    .forEach((hit, rank) => add(hit.key, rank));
+  return [...scores]
+    .sort(([, a], [, b]) => b - a)
+    .flatMap(([key, score]) => {
+      const candidate = byKey.get(key);
+      return candidate ? [{ ...candidate, score }] : [];
+    });
+}
+
+export function semanticBestCandidate<T extends PaletteCandidate>(
+  semantic: readonly SemanticHit[],
+  candidates: readonly T[],
+  scope: PaletteScope | null,
+  threshold: { minSimilarity: number; margin: number },
+): T | null {
+  const byKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
+  const hits = semantic.filter((hit) => {
+    const candidate = byKey.get(hit.key);
+    return candidate !== undefined && scopeIncludes(scope, candidate.kind);
+  });
+  const [top, next] = hits;
+  if (!top || top.similarity < threshold.minSimilarity) return null;
+  if (next && top.similarity - next.similarity < threshold.margin) return null;
+  return byKey.get(top.key) ?? null;
 }

@@ -5,9 +5,11 @@ import {
   bestCandidate,
   exactTitleMatch,
   foldText,
+  fuseCandidates,
   listGroups,
   parsePaletteQuery,
   rankCandidates,
+  semanticBestCandidate,
   stableOrder,
 } from "../command-palette-search";
 
@@ -28,6 +30,7 @@ describe("palette query parsing", () => {
     expect(parsePaletteQuery("l deals")).toEqual({ scope: "lists", term: "deals" });
     expect(parsePaletteQuery("v vip")).toEqual({ scope: "views", term: "vip" });
     expect(parsePaletteQuery("s theme")).toEqual({ scope: "settings", term: "theme" });
+    expect(parsePaletteQuery("d webhooks")).toEqual({ scope: "docs", term: "webhooks" });
     expect(parsePaletteQuery("r acme")).toEqual({ scope: "records", term: "acme" });
     expect(parsePaletteQuery("S Corp")).toEqual({ scope: null, term: "S Corp" });
   });
@@ -140,5 +143,48 @@ describe("record context", () => {
     const ranked = rankCandidates("stage", withRecord, null);
     expect(ranked[0]?.key).toBe("record:field:stage");
     expect(bestCandidate("stage", ranked)?.key).toBe("record:field:stage");
+  });
+});
+
+describe("semantic fusion", () => {
+  const threshold = { minSimilarity: 0.66, margin: 0.03 };
+
+  it("adds meaning matches the typed text misses and boosts agreement", () => {
+    const instant = rankCandidates("pipeline", candidates, null);
+    const fused = fuseCandidates(
+      instant,
+      [
+        { key: "list:deals", similarity: 0.72 },
+        { key: "cmd:setting.profile.theme", similarity: 0.5 },
+        { key: "unknown:target", similarity: 0.9 },
+      ],
+      candidates,
+      null,
+    );
+    expect(fused.map((entry) => entry.key)).toEqual(["list:deals", "cmd:setting.profile.theme"]);
+  });
+
+  it("respects the prefix scope", () => {
+    expect(fuseCandidates([], [{ key: "list:deals", similarity: 0.9 }], candidates, "settings")).toEqual([]);
+  });
+
+  it("trusts a meaning match only above the calibrated threshold and margin", () => {
+    expect(
+      semanticBestCandidate([{ key: "cmd:setting.profile.theme", similarity: 0.71 }], candidates, null, threshold)?.key,
+    ).toBe("cmd:setting.profile.theme");
+    expect(
+      semanticBestCandidate([{ key: "cmd:setting.profile.theme", similarity: 0.6 }], candidates, null, threshold),
+    ).toBeNull();
+    expect(
+      semanticBestCandidate(
+        [
+          { key: "cmd:setting.profile.theme", similarity: 0.71 },
+          { key: "cmd:page.dashboard", similarity: 0.7 },
+        ],
+        candidates,
+        null,
+        threshold,
+      ),
+    ).toBeNull();
   });
 });

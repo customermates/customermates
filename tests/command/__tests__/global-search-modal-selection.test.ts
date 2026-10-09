@@ -71,6 +71,8 @@ function searchStore(recentItems: RecordSearchHit[]) {
       recentItems,
       recentCommandKeys: [] as string[],
       catalog: null as CommandCatalog | null,
+      semantic: [] as { key: string; similarity: number }[],
+      docs: [] as { key: string; title: string; section: string | null; href: string; similarity: number }[],
       level: null,
       form: { searchTerm: "" },
       focusReturnTarget: null,
