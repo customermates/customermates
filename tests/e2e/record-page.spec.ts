@@ -34,7 +34,8 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
     await expect(lines.getByRole("table")).toBeVisible();
     await expect(lines.getByRole("status")).toHaveCount(0);
     const services = container.getByRole("region", { name: "Services", exact: true });
-    await expect(services.getByText("—", { exact: true })).toBeVisible();
+    await expect(services.locator("[data-empty-value]")).toHaveCount(1);
+    await expect(services.getByText("—", { exact: true })).toHaveCount(0);
     await expect(services.getByRole("status")).toHaveCount(0);
     await expect(services.getByRole("alert")).toHaveCount(0);
   };
@@ -59,7 +60,9 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await main.getByRole("tab", { name: "Notes", exact: true }).click();
   await main.getByRole("textbox", { name: "Notes", exact: true }).fill("Saved quote reviewed locally.");
   await main.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(main.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Opportunity with notes" })).toBeVisible();
+  await expect(
+    main.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Opportunity with notes" }),
+  ).toBeVisible();
   await expect(main.getByRole("button", { name: "Reset", exact: true })).not.toBeVisible();
   await waitForDealReads(main);
   await page.reload();
