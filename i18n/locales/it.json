@@ -3201,7 +3201,6 @@
       "relationshipLabel": "{label}: {source} verso {target}, {cardinality}",
       "resetLayout": "Ripristina layout",
       "showFewer": "Mostra meno",
-      "sublistOf": "Sottoelenco di {list}",
       "zoomIn": "Ingrandisci",
       "zoomOut": "Riduci"
     },
@@ -3479,7 +3478,6 @@
         "singular": "Attività"
       }
     },
-    "sublistExplanation": "Ogni voce appartiene a un record di {parent}, si modifica al suo interno, ne condivide l’accesso e viene eliminata con esso.",
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",
     "summaryField": "Campo del riepilogo",
@@ -3507,6 +3505,7 @@
     "typeSettings": "Impostazioni del tipo",
     "unavailableOption": "Opzione non disponibile",
     "unlinkRecord": "Scollega {name}",
+    "sublistSentence": "Sottoelenco di {parent} · ogni voce vive in un solo record di tipo {singular}, ne condivide l’accesso e viene eliminata con esso.",
     "updatedAt": "Aggiornato il",
     "useChannelAvatar": "Usa l’immagine del profilo del canale",
     "value": "Valore",

@@ -56,7 +56,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import { recordChannelsBinding } from "@/features/records/record-channels";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
-import { highlightFocusTarget } from "@/components/focus/focus-target";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { upsertP13nAction } from "@/app/actions";
@@ -88,6 +87,7 @@ import {
   ConfigureNodeRows,
 } from "./configure-node";
 import { isResolvedField } from "./configure-model";
+import { SublistSentence } from "./sublist-sentence";
 
 export type ConfigureGraphAccounts =
   | { state: "available"; accounts: ConfigureGraphSource[] }
@@ -98,7 +98,7 @@ type Props = {
   model: RecordModelView;
   catalog: ConfigureGraphCatalog;
   accounts: ConfigureGraphAccounts;
-  focusedListId?: string | null;
+  focusedList?: { id: string } | null;
   layout: ConfigureGraphLayout | null;
   onLayoutChange: (layout: ConfigureGraphLayout | null) => void;
   canManage: boolean;
@@ -124,9 +124,7 @@ type GraphActions = Pick<
   | "onEditRelationship"
 > & {
   labelOf: (typeId: string) => string;
-  singularOf: (typeId: string) => string;
-  iconOf: (typeId: string) => string;
-  focusList: (typeId: string) => void;
+  typeOf: (typeId: string | null) => RecordModelView["types"][number] | undefined;
   listOf: (items: string[]) => string;
   hasChannels: (typeId: string) => boolean;
   isExpanded: (nodeId: string) => boolean;
@@ -174,28 +172,6 @@ type ListNode = Node<{ list: ConfigureGraphList }, "list">;
 type AccountsNode = Node<{ accounts: ConfigureGraphSource[] }, "accounts">;
 type PromptNode = Node<{ state: "available" | "locked" }, "prompt">;
 
-function SublistExplanation({ parentId }: { parentId: string }) {
-  const t = useTranslations();
-  const { labelOf, singularOf, iconOf, focusList } = useGraphActions();
-  const ParentIcon = recordTypeIcon(iconOf(parentId));
-  return (
-    <div className="flex flex-col items-start gap-1.5 px-3.5 pb-2.5" data-configure-sublist-explanation="">
-      <ClickableChip
-        className="nodrag"
-        data-configure-sublist-parent={parentId}
-        startContent={<ParentIcon aria-hidden />}
-        onClick={() => focusList(parentId)}
-      >
-        {t("RecordModel.graph.sublistOf", { list: labelOf(parentId) })}
-      </ClickableChip>
-
-      <p className="text-xs text-muted-foreground">
-        {t("RecordModel.sublistExplanation", { parent: singularOf(parentId) })}
-      </p>
-    </div>
-  );
-}
-
 function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
   const t = useTranslations();
   const {
@@ -203,6 +179,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
     canAddSublist,
     disabled,
     listOf,
+    typeOf,
     hasChannels,
     isExpanded,
     toggleExpanded,
@@ -211,6 +188,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
     onAdd,
     onEditChannels,
   } = useGraphActions();
+  const parent = list.parentId ? typeOf(list.parentId) : undefined;
   const open = isExpanded(list.type.id);
   const visible = open ? list.fields : list.fields.slice(0, GRAPH_VISIBLE_FIELDS);
   const hidden = list.fields.length - GRAPH_VISIBLE_FIELDS;
@@ -259,7 +237,7 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         onClick={() => onSelectList(list.type.id)}
       />
 
-      {list.parentId && <SublistExplanation parentId={list.parentId} />}
+      {parent && <SublistSentence className="nodrag px-3.5 pb-2.5 text-xs" parent={parent} />}
 
       <ConfigureNodeRows
         label={t("RecordModel.fields")}
@@ -619,7 +597,7 @@ function ConfigureGraphCanvas({
   model,
   catalog,
   accounts,
-  focusedListId,
+  focusedList,
   layout,
   onLayoutChange,
   canManage,
@@ -736,9 +714,9 @@ function ConfigureGraphCanvas({
       .catch(reportApplicationError);
   }, [ready, flow, measured, flowNodes, positions, direction]);
   useEffect(() => {
-    if (!ready || !focusedListId || !placed.current) return;
-    void flow.fitView({ nodes: [{ id: focusedListId }], ...focusView() }).catch(reportApplicationError);
-  }, [ready, flow, focusedListId, measured]);
+    if (!ready || !focusedList || !placed.current) return;
+    void flow.fitView({ nodes: [{ id: focusedList.id }], ...focusView() }).catch(reportApplicationError);
+  }, [ready, flow, focusedList, measured]);
   useEffect(() => {
     const element = container.current;
     if (!ready || !element) return;
@@ -870,12 +848,7 @@ function ConfigureGraphCanvas({
       canAddSublist,
       disabled,
       labelOf: (typeId) => model.types.find((type) => type.id === typeId)?.pluralLabel ?? "",
-      singularOf: (typeId) => model.types.find((type) => type.id === typeId)?.label ?? "",
-      iconOf: (typeId) => model.types.find((type) => type.id === typeId)?.icon ?? "",
-      focusList: (typeId) => {
-        void flow.fitView({ nodes: [{ id: typeId }], ...focusView() }).catch(reportApplicationError);
-        highlightFocusTarget({ kind: "list", id: typeId });
-      },
+      typeOf: (typeId) => model.types.find((type) => type.id === typeId),
       listOf: (items) => new Intl.ListFormat(locale, { style: "short", type: "unit" }).format(items),
       hasChannels: (typeId) => Boolean(recordChannelsBinding(model, typeId)),
       isExpanded: (nodeId) => layout?.expanded?.includes(nodeId) ?? false,

@@ -48,6 +48,7 @@ import {
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { configureCardinality } from "./configure-graph-model";
 import { TypeSettingsFields } from "./type-modal";
+import { SublistSentence } from "./sublist-sentence";
 import { recordFieldTypeKey } from "@/features/records/record-input-value";
 
 type Props = {
@@ -434,11 +435,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
           <div className="min-w-0">
             <h1 className="truncate text-lg font-semibold">{selected.pluralLabel}</h1>
 
-            {parent && (
-              <p className="text-sm text-muted-foreground" data-configure-sublist-explanation="">
-                {`${t("RecordModel.graph.sublistOf", { list: parent.pluralLabel })} · ${t("RecordModel.sublistExplanation", { parent: parent.label })}`}
-              </p>
-            )}
+            {parent && <SublistSentence className="text-sm" parent={parent} />}
 
             <p className="text-sm text-muted-foreground">
               {t("RecordModel.listCounts", counts)}

@@ -28,6 +28,7 @@ import { FormRecordTypeIcon } from "@/components/records/form-record-type-icon";
 import { configureFieldOrder, moveConfigureField, reorderFieldOperations, typeDefinition } from "./configure-model";
 import { ModelChangeSheet } from "./model-change-sheet";
 import { suggestListPlural } from "./list-plural";
+import { SublistSentence } from "./sublist-sentence";
 
 const initialType = () => ({
   name: "",
@@ -370,11 +371,7 @@ export const TypeModal = observer(function TypeModal({ store }: { store: TypeMod
             />
           )}
 
-          {store.parentType && (
-            <p className="text-sm text-muted-foreground">
-              {t("RecordModel.sublistExplanation", { parent: store.parentType.label })}
-            </p>
-          )}
+          {store.parentType && <SublistSentence className="text-sm" parent={store.parentType} />}
 
           {(!store.original || store.section === "settings") && <TypeSettingsFields store={store} />}
 

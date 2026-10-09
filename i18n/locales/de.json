@@ -3201,7 +3201,6 @@
       "relationshipLabel": "{label}: {source} zu {target}, {cardinality}",
       "resetLayout": "Layout zurücksetzen",
       "showFewer": "Weniger anzeigen",
-      "sublistOf": "Unterliste von {list}",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern"
     },
@@ -3479,7 +3478,6 @@
         "singular": "Aufgabe"
       }
     },
-    "sublistExplanation": "Jeder Eintrag gehört zu genau einem Datensatz in {parent}, wird darin bearbeitet, teilt dessen Zugriff und wird mit ihm gelöscht.",
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
     "summaryField": "Feld für die Übersicht",
@@ -3507,6 +3505,7 @@
     "typeSettings": "Typeinstellungen",
     "unavailableOption": "Nicht verfügbare Option",
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
+    "sublistSentence": "Unterliste von {parent} · jeder Eintrag lebt in genau einem Datensatz vom Typ {singular}, teilt dessen Zugriff und wird mit ihm gelöscht.",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
     "value": "Wert",

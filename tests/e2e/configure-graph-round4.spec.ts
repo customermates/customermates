@@ -134,7 +134,10 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   const fieldNameBox = await node.locator("[data-configure-graph-field] .font-medium").first().boundingBox();
   expect(fieldNameBox?.x).toBeCloseTo(iconBox?.x ?? 0, 0);
   await expect(page.locator("[data-configure-relationship]").first().locator("..")).toHaveCSS("z-index", "auto");
-  await node.getByRole("button", { name: "Sub-list of Deals", exact: true }).click();
+  await expect(node.locator("[data-configure-sublist-explanation]")).toContainText(
+    "Sub-list of Deals · each entry lives inside one Deal",
+  );
+  await node.locator("[data-configure-sublist-explanation]").getByRole("link", { name: "Deals", exact: true }).click();
   await expect(deal).toHaveAttribute("data-focus-highlight", "");
   await expect(node.getByRole("button", { name: "Add to Milestones", exact: true })).toBeVisible();
   await node.getByRole("button", { name: "Add to Milestones", exact: true }).focus();

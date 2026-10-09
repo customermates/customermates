@@ -330,3 +330,51 @@ describe("F14a: chips use the standard size and set a variant only for a color",
     expect(nonStandardChipFindings([source]).map(({ line }) => line)).toEqual([1, 2, 5]);
   });
 });
+
+const SENTENCE_ATTRIBUTE = /sentence|explanation/i;
+const SENTENCE_RENDERER = "components/modal/confirmation-sentence.tsx";
+
+function standardChipsInSentenceFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources)
+    visit(source.ast, (node) => {
+      if (!ts.isJsxElement(node)) return;
+      const sentence = attributesOf(node).properties.some(
+        (property) => ts.isJsxAttribute(property) && SENTENCE_ATTRIBUTE.test(property.name.getText(source.ast)),
+      );
+      if (!sentence) return;
+      visit(node, (child) => {
+        if (child !== node && CHIP_TAGS.has(tagNameOf(child) ?? ""))
+          findings.push(finding(source, child.getStart(source.ast), tagNameOf(child) ?? ""));
+      });
+    });
+
+  return findings;
+}
+
+const STANDARD_CHIP_IN_SENTENCE_ALLOWLIST: Allowlist = {};
+
+describe("rule 66: chips inside sentences use the shared inline chip", () => {
+  it("never puts a standard chip inside a sentence", () => {
+    enforce(standardChipsInSentenceFindings(PRODUCT_SOURCES), STANDARD_CHIP_IN_SENTENCE_ALLOWLIST);
+  });
+
+  it("renders blocker, hint and explanation sentences with the inline chip", () => {
+    const renderer = PRODUCT_SOURCES.find(({ file }) => file === SENTENCE_RENDERER);
+    expect(renderer?.text).toContain("<InlineChip");
+    expect(renderer?.text).not.toMatch(/<(AppChip|ClickableChip)\b/);
+  });
+
+  it("recognizes a standard chip inside a sentence", () => {
+    const source = sourceFromText(
+      "sentence.tsx",
+      [
+        'const a = <p data-calculation-sentence="">Uses <AppChip>Amount</AppChip></p>;',
+        'const b = <p data-calculation-sentence="">Uses <InlineChip>Amount</InlineChip></p>;',
+        "const c = <div><AppChip>Amount</AppChip></div>;",
+      ].join("\n"),
+    );
+    expect(standardChipsInSentenceFindings([source]).map(({ line }) => line)).toEqual([1]);
+  });
+});
