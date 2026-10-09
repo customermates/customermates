@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
@@ -22,8 +22,10 @@ export function EntityDetailFieldActions({ fieldId, label, className }: Props) {
     hiddenFieldIds = [],
     isPersonalizing = false,
     toggleFieldVisibility = () => undefined,
+    fieldSettingsHref,
   } = useEntityDetailPersonalization();
   const hidden = hiddenFieldIds.includes(fieldId);
+  const settingsHref = isPersonalizing ? fieldSettingsHref?.(fieldId) : null;
 
   if (!enabled) return null;
 
@@ -40,6 +42,16 @@ export function EntityDetailFieldActions({ fieldId, label, className }: Props) {
           label={hidden ? t("EntityDetail.showField", { field: label }) : t("EntityDetail.hideField", { field: label })}
           pressed={hidden}
           onClick={() => toggleFieldVisibility(fieldId)}
+        />
+      ) : null}
+
+      {settingsHref ? (
+        <IconButton
+          fieldAction
+          className="size-5"
+          href={settingsHref}
+          icon={Pencil}
+          label={t("EntityDetail.configureField", { field: label })}
         />
       ) : null}
     </span>

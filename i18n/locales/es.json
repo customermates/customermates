@@ -846,7 +846,6 @@
       "discard": "Descartar",
       "expand": "Ampliar",
       "jumpToLatest": "Ir a lo más reciente",
-      "labelHistory": "Historial",
       "loadMore": "Cargar más",
       "open": "Abrir",
       "openApp": "Abrir la aplicación",
@@ -2035,6 +2034,7 @@
     "unverified": "Sin verificar"
   },
   "EntityDetail": {
+    "configureField": "Editar campo {field}",
     "donePersonalizing": "Listo",
     "fieldCancelled": "Se ha cancelado el movimiento de {field}.",
     "fieldDropped": "Se ha colocado {field}.",
@@ -3020,9 +3020,6 @@
       "moreOptions": "Más opciones",
       "of": "de",
       "ofLinked": "de {list} vinculados",
-      "pickField": "Elegir un campo",
-      "pickRelationship": "Elegir una relación",
-      "pickValue": "Elegir un valor",
       "picker": {
         "fields": "Campos",
         "fixedValue": "Valor fijo",
@@ -3037,6 +3034,9 @@
         "relationships": "Registros vinculados",
         "use": "Usar este valor"
       },
+      "pickField": "Elegir un campo",
+      "pickRelationship": "Elegir una relación",
+      "pickValue": "Elegir un valor",
       "private": "Privado",
       "sentence": {
         "average": "{field} es el promedio de {value} de todos los {list} vinculados.",
@@ -3053,9 +3053,9 @@
         "throughList": "{list} de {via}",
         "typeOver": "Se puede escribir encima."
       },
+      "shown": "Visible para todos",
       "showToEveryone": "Mostrar a todos los que pueden ver el registro ({list})",
       "showToEveryoneHelp": "Verán este valor aunque no puedan abrir el registro vinculado ({list}).",
-      "shown": "Visible para todos",
       "step": "Paso {number}",
       "take": "Tomar",
       "text": {

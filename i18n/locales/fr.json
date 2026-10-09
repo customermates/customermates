@@ -846,7 +846,6 @@
       "discard": "Abandonner",
       "expand": "Agrandir",
       "jumpToLatest": "Aller aux derniers messages",
-      "labelHistory": "Historique",
       "loadMore": "Charger plus",
       "open": "Ouvrir",
       "openApp": "Ouvrir l'application",
@@ -2035,6 +2034,7 @@
     "unverified": "Non vérifié"
   },
   "EntityDetail": {
+    "configureField": "Modifier le champ {field}",
     "donePersonalizing": "Terminé",
     "fieldCancelled": "Déplacement de {field} annulé.",
     "fieldDropped": "Champ {field} déposé.",
@@ -3020,9 +3020,6 @@
       "moreOptions": "Plus d'options",
       "of": "de",
       "ofLinked": "des {list} liés",
-      "pickField": "Choisir un champ",
-      "pickRelationship": "Choisir une relation",
-      "pickValue": "Choisir une valeur",
       "picker": {
         "fields": "Champs",
         "fixedValue": "Valeur fixe",
@@ -3037,6 +3034,9 @@
         "relationships": "Enregistrements liés",
         "use": "Utiliser cette valeur"
       },
+      "pickField": "Choisir un champ",
+      "pickRelationship": "Choisir une relation",
+      "pickValue": "Choisir une valeur",
       "private": "Privé",
       "sentence": {
         "average": "{field} est la moyenne de {value} de tous les {list} liés.",
@@ -3053,9 +3053,9 @@
         "throughList": "{list} de {via}",
         "typeOver": "On peut saisir une autre valeur par-dessus."
       },
+      "shown": "Visible par tous",
       "showToEveryone": "Afficher à tous ceux qui peuvent voir l'enregistrement ({list})",
       "showToEveryoneHelp": "Ils verront cette valeur même s'ils ne peuvent pas ouvrir l'enregistrement lié ({list}).",
-      "shown": "Visible par tous",
       "step": "Étape {number}",
       "take": "Reprendre",
       "text": {

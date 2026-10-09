@@ -846,7 +846,6 @@
       "discard": "Verwerfen",
       "expand": "Aufklappen",
       "jumpToLatest": "Zu den neuesten Nachrichten",
-      "labelHistory": "Verlauf",
       "loadMore": "Mehr laden",
       "open": "Öffnen",
       "openApp": "App öffnen",
@@ -2035,6 +2034,7 @@
     "unverified": "Unbestätigt"
   },
   "EntityDetail": {
+    "configureField": "Feld {field} bearbeiten",
     "donePersonalizing": "Fertig",
     "fieldCancelled": "Verschieben von {field} abgebrochen.",
     "fieldDropped": "{field} abgelegt.",
@@ -3020,9 +3020,6 @@
       "moreOptions": "Weitere Optionen",
       "of": "von",
       "ofLinked": "der verknüpften {list}",
-      "pickField": "Feld wählen",
-      "pickRelationship": "Verknüpfung wählen",
-      "pickValue": "Wert wählen",
       "picker": {
         "fields": "Felder",
         "fixedValue": "Fester Wert",
@@ -3037,6 +3034,9 @@
         "relationships": "Verknüpfte Datensätze",
         "use": "Diesen Wert verwenden"
       },
+      "pickField": "Feld wählen",
+      "pickRelationship": "Verknüpfung wählen",
+      "pickValue": "Wert wählen",
       "private": "Privat",
       "sentence": {
         "average": "{field} ist der Durchschnitt von {value} aller verknüpften {list}.",
@@ -3053,9 +3053,9 @@
         "throughList": "{list} von {via}",
         "typeOver": "Er kann überschrieben werden."
       },
+      "shown": "Für alle sichtbar",
       "showToEveryone": "Allen zeigen, die diesen Datensatz ({list}) sehen können",
       "showToEveryoneHelp": "Sie sehen diesen Wert, auch wenn sie den verknüpften Datensatz ({list}) nicht öffnen können.",
-      "shown": "Für alle sichtbar",
       "step": "Schritt {number}",
       "take": "Übernimm",
       "text": {

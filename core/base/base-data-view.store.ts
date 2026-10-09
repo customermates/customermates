@@ -119,6 +119,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return "name";
   }
 
+  get differsFromSharedDefaults(): boolean {
+    return false;
+  }
+
   constructor(rootStore: RootStore, resource?: Resource) {
     super(rootStore);
     this.resource = resource;

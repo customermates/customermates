@@ -846,7 +846,6 @@
       "discard": "Discard",
       "expand": "Expand",
       "jumpToLatest": "Jump to latest",
-      "labelHistory": "History",
       "loadMore": "Load more",
       "open": "Open",
       "openApp": "Open app",
@@ -2035,6 +2034,7 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
+    "configureField": "Edit field {field}",
     "donePersonalizing": "Done",
     "fieldCancelled": "Cancelled moving {field}.",
     "fieldDropped": "Placed {field}.",
@@ -3020,9 +3020,6 @@
       "moreOptions": "More options",
       "of": "of",
       "ofLinked": "of linked {list}",
-      "pickField": "Pick a field",
-      "pickRelationship": "Pick a relationship",
-      "pickValue": "Pick a value",
       "picker": {
         "fields": "Fields",
         "fixedValue": "Fixed value",
@@ -3037,6 +3034,9 @@
         "relationships": "Linked records",
         "use": "Use this value"
       },
+      "pickField": "Pick a field",
+      "pickRelationship": "Pick a relationship",
+      "pickValue": "Pick a value",
       "private": "Private",
       "sentence": {
         "average": "{field} is the average {value} of all linked {list}.",
@@ -3053,9 +3053,9 @@
         "throughList": "{list} of the {via}",
         "typeOver": "People can type over it."
       },
+      "shown": "Shown to everyone",
       "showToEveryone": "Show to everyone who can see the {list}",
       "showToEveryoneHelp": "They'll see this value even if they can't open the {list}.",
-      "shown": "Shown to everyone",
       "step": "Step {number}",
       "take": "Take",
       "text": {
