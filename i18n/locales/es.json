@@ -846,7 +846,6 @@
       "discard": "Descartar",
       "expand": "Ampliar",
       "jumpToLatest": "Ir a lo más reciente",
-      "labelHistory": "Historial",
       "loadMore": "Cargar más",
       "open": "Abrir",
       "openApp": "Abrir la aplicación",
@@ -2035,6 +2034,7 @@
     "unverified": "Sin verificar"
   },
   "EntityDetail": {
+    "configureField": "Editar campo {field}",
     "donePersonalizing": "Listo",
     "fieldCancelled": "Se ha cancelado el movimiento de {field}.",
     "fieldDropped": "Se ha colocado {field}.",
@@ -2987,7 +2987,8 @@
       "snapshot": "Guardado en un evento"
     },
     "board": "Tablero",
-    "calculatedReadOnly": "{field} se calcula y no se puede editar.",
+    "calculatedValue": "Calculado: {formula}",
+    "calculatedValuePlain": "Valor calculado",
     "calculationError": "Cálculo no disponible",
     "calculationInput": "Entrada {number}",
     "calculationNavigation": "Navegación del cálculo",
@@ -4028,7 +4029,8 @@
   },
   "WebhooksCard": {
     "emptyBody": "Añade un webhook para enviar los eventos del espacio de trabajo a tus sistemas.",
-    "emptyTitle": "Aún no hay webhooks"
+    "emptyTitle": "Aún no hay webhooks",
+    "showDeliveries": "Ver entregas"
   },
   "Wiki": {
     "conflict": "Esta página ha cambiado. Tus cambios siguen aquí. Recarga para usar la versión más reciente.",

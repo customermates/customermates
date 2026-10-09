@@ -846,7 +846,6 @@
       "discard": "Scarta",
       "expand": "Espandi",
       "jumpToLatest": "Vai ai messaggi più recenti",
-      "labelHistory": "Cronologia",
       "loadMore": "Carica altro",
       "open": "Apri",
       "openApp": "Apri l'applicazione",
@@ -2035,6 +2034,7 @@
     "unverified": "Non verificato"
   },
   "EntityDetail": {
+    "configureField": "Modifica campo {field}",
     "donePersonalizing": "Fine",
     "fieldCancelled": "Spostamento di {field} annullato.",
     "fieldDropped": "Campo {field} posizionato.",
@@ -2987,7 +2987,8 @@
       "snapshot": "Salvato durante un evento"
     },
     "board": "Bacheca",
-    "calculatedReadOnly": "{field} è calcolato e non può essere modificato.",
+    "calculatedValue": "Calcolato: {formula}",
+    "calculatedValuePlain": "Valore calcolato",
     "calculationError": "Calcolo non disponibile",
     "calculationInput": "Valore {number}",
     "calculationNavigation": "Navigazione del calcolo",
@@ -4028,7 +4029,8 @@
   },
   "WebhooksCard": {
     "emptyBody": "Aggiungi un webhook per inviare gli eventi dello spazio di lavoro ai tuoi sistemi.",
-    "emptyTitle": "Ancora nessun webhook"
+    "emptyTitle": "Ancora nessun webhook",
+    "showDeliveries": "Mostra consegne"
   },
   "Wiki": {
     "conflict": "Questa pagina è cambiata. Le tue modifiche sono ancora qui. Ricarica per usare l’ultima versione.",

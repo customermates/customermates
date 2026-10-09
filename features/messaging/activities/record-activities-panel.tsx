@@ -93,13 +93,11 @@ export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
   const store = useRecordActivityViews(record, viewSyncToUrl);
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground">{t("Common.actions.labelHistory")}</span>
-
-        <FilterPopover compact store={store} />
-      </div>
-
-      <DataViewViewsRail countLabel={(count) => t("DataView.views.activityCount", { count })} store={store} />
+      <DataViewViewsRail
+        actions={<FilterPopover compact store={store} />}
+        countLabel={(count) => t("DataView.views.activityCount", { count })}
+        store={store}
+      />
 
       <ActivitiesFeed store={store} />
     </div>
