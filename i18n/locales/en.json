@@ -3659,6 +3659,7 @@
   },
   "RoleModal": {
     "create": "Create",
+    "dataModelNote": "Create and change lists, fields and relationships in Configure.",
     "edit": "Edit",
     "manageAccess": "Manage",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
