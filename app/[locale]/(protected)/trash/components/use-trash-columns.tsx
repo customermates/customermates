@@ -76,7 +76,7 @@ export function useTrashColumns(): ColumnDef<TrashItemDto>[] {
         id: "deletedAt",
         header: t("Trash.columns.deletedAt"),
         cell: ({ row }) => (
-          <span className="text-sm">{intlStore.formatNumericalShortDateTime(row.original.deletedAt)}</span>
+          <span className="text-sm">{intlStore.formatNumericalShortDateTime(new Date(row.original.deletedAt))}</span>
         ),
       },
       {

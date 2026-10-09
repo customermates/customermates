@@ -1,5 +1,4 @@
-import type { LucideIcon   Trash2,
-} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import {
   BookOpen,
@@ -22,6 +21,7 @@ import {
   Server,
   Shield,
   SquareTerminal,
+  Trash2,
   UserCircle,
   Webhook,
   Workflow,

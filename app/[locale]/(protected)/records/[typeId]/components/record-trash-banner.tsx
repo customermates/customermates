@@ -32,7 +32,7 @@ export const RecordTrashBanner = observer(function RecordTrashBanner({ trash }: 
           {trash.deletedBy && <MemberChip member={trash.deletedBy} />}
 
           {t("Trash.bannerDeleted", {
-            date: intlStore.formatNumericalShortDateTime(trash.deletedAt),
+            date: intlStore.formatNumericalShortDateTime(new Date(trash.deletedAt)),
             count: trash.daysLeft,
           })}
         </span>
