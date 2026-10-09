@@ -3,8 +3,12 @@ import { RecordRevisionChangeSchema, type RecordRevisionChange } from "./record-
 import { captureRecordEventMatches } from "./record-event-capture";
 import { RecordEventSubscriptionSchema } from "./record-event-subscription.schema";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
-import { compileRecordSearch, type RecordSearchRow } from "./record-search-query";
-import type { RecordSearch } from "./record-search.schema";
+import {
+  compileRecordSearch,
+  SIMILAR_TITLE_MIN_WORD_SIMILARITY,
+  type RecordSearchRequest,
+  type RecordSearchRow,
+} from "./record-search-query";
 import { recordInvariant } from "./record-invariant";
 import type { StoredStateRow, StoredPersonalizationRow } from "@/features/data-view/data-view-row-mapping";
 import {
@@ -966,12 +970,17 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async searchRecords(
-    request: { search: RecordSearch; includeEmbedded?: boolean } | { refs: RecordRef[] },
+    request: RecordSearchRequest,
     model: RecordModel,
     access: RecordAccessMap,
   ): Promise<RecordSearchRow[]> {
     const sql = compileRecordSearch(this.companyId, model, access, request);
-    return sql ? this.prisma.$queryRaw<RecordSearchRow[]>(sql) : [];
+    if (!sql) return [];
+    if ("search" in request && request.similarTitles) {
+      await this.prisma
+        .$executeRaw`SELECT set_config('pg_trgm.word_similarity_threshold', ${String(SIMILAR_TITLE_MIN_WORD_SIMILARITY)}, true)`;
+    }
+    return this.prisma.$queryRaw<RecordSearchRow[]>(sql);
   }
 
   async query(
