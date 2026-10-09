@@ -85,7 +85,10 @@ export function recordEventChanges(
   after: RecordHistorySnapshot | null,
   model: RecordModel,
   cause: RecordEventPayload["cause"],
-): { kind: "record.created" | "record.updated" | "record.deleted"; payload: RecordEventPayload } | null {
+): {
+  kind: "record.created" | "record.updated" | "record.deleted" | "record.restored";
+  payload: RecordEventPayload;
+} | null {
   const before = entry.before;
   if (!before && !after) return null;
   const previous = new Map(before?.values.map((field) => [field.fieldId, field]) ?? []);
@@ -133,6 +136,7 @@ export class RecordJournal {
   readonly repository: RecordRepo;
   private entries = new Map<string, RecordJournalEntry>();
   private emittedDeletions = new Set<string>();
+  private restored = new Set<string>();
   private dirty = new Set<string>();
 
   constructor(
@@ -181,6 +185,13 @@ export class RecordJournal {
         for (const link of links) await this.linkChange(link.relationId, link.source, link.target, false, true);
         await records.delete(ref);
       },
+      moveToTrash: async (ref, trashItemId) => {
+        await this.capture(ref);
+        const links = await records.getLinksCompanyWide(ref, limit * 4 + 1);
+        if (links.length > limit * 4) throw new CalculationBudgetExceeded();
+        for (const link of links) await this.linkChange(link.relationId, link.source, link.target, false, true);
+        await records.moveToTrash(ref, trashItemId);
+      },
     };
     this.repository = new Proxy(records, {
       get(target, property) {
@@ -209,10 +220,21 @@ export class RecordJournal {
     this.dirty.clear();
   }
 
-  async stageDeletion(ref: RecordRef): Promise<void> {
+  async stageDeletion(ref: RecordRef, trashItemId: string): Promise<void> {
     if (!this.staging) throw new Error("A staged deletion requires a staged journal");
     await this.capture(ref);
-    await this.records.delete(ref);
+    await this.records.moveToTrash(ref, trashItemId);
+  }
+
+  async prepareRestore(refs: RecordRef[]): Promise<void> {
+    for (const ref of refs) {
+      await this.capture(ref);
+      this.restored.add(recordKey(ref));
+    }
+  }
+
+  async restoreLink(link: { relationId: string; source: RecordRef; target: RecordRef }): Promise<void> {
+    await this.linkChange(link.relationId, link.source, link.target, true, false);
   }
 
   async stageDeletedLink(link: { relationId: string; source: RecordRef; target: RecordRef }): Promise<void> {
@@ -314,6 +336,7 @@ export class RecordJournal {
     const after = await snapshot(this.records, entry.ref, model);
     const event = recordEventChanges(entry, after, model, cause);
     if (!event) return;
+    if (event.kind === "record.created" && this.restored.has(recordKey(entry.ref))) event.kind = "record.restored";
     if (this.staging && entry.before && after && after.version <= entry.before.version)
       event.payload.afterVersion = entry.before.version + 1;
     await this.records.appendEvent(entry.ref, actorId, causeId, event.kind, event.payload);

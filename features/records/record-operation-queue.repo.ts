@@ -2,7 +2,7 @@ export type DueRecordOperation = {
   companyId: string;
   operationId: string;
   ownerUserId: string;
-  kind: "mutation" | "configuration" | "provider-avatar";
+  kind: "mutation" | "configuration" | "provider-avatar" | "restore";
 };
 
 export abstract class RecordOperationQueueRepo {

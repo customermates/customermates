@@ -1070,6 +1070,8 @@
       "subjectRequired": "Bitte einen Betreff hinzufügen.",
       "termsNotAgreed": "Du musst den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
+      "trashChanged": "Der Papierkorb hat sich zwischenzeitlich geändert. Prüfe, was gelöscht wird, und versuche es erneut.",
+      "trashItemNotFound": "Dieses Element ist nicht mehr im Papierkorb.",
       "unipileAccountRestricted": "Der Anbieter hat diesen Kanal eingeschränkt. Neu verbinden behebt das nicht; kläre die Einschränkung zuerst mit dem Anbieter.",
       "unipileDisconnectedAccount": "Der Kanal ist getrennt. Die Person, der er gehört, muss ihn unter Kanäle neu verbinden, bevor er wieder nutzbar ist.",
       "unipileFeatureUnavailable": "Das ist auf diesem Kanal nicht verfügbar. Ein erneuter Versuch hilft nicht; das Team wurde benachrichtigt.",
@@ -1150,7 +1152,9 @@
       },
       "record": {
         "created": "Datensatz erstellt",
-        "deleted": "Datensatz gelöscht",
+        "deleted": "Datensatz in den Papierkorb verschoben",
+        "deletedPermanently": "Datensatz endgültig gelöscht",
+        "restored": "Datensatz wiederhergestellt",
         "updated": "Datensatz aktualisiert"
       },
       "record_grants": {
@@ -3697,7 +3701,8 @@
           "messageReceived": "Empfange eine neue, nicht doppelte eingehende Nachricht über ein verbundenes Konto.",
           "messageUpdated": "Bearbeite eine Nachricht beim verbundenen Messaging-Anbieter.",
           "recordCreated": "Erstelle einen Datensatz in Customermates: {entity}.",
-          "recordDeleted": "Lösche einen Datensatz in Customermates: {entity}.",
+          "recordDeleted": "Einen Datensatz in Customermates in den Papierkorb verschieben: {entity}.",
+          "recordRestored": "Einen Datensatz in Customermates aus dem Papierkorb wiederherstellen: {entity}.",
           "recordUpdated": "Nimm eine echte Änderung an einem Datensatz in Customermates vor: {entity}.",
           "relationCreated": "Lass eine LinkedIn-Kontaktanfrage über ein verbundenes Konto annehmen."
         },
