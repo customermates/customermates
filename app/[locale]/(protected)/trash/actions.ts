@@ -12,12 +12,9 @@ import type {
   TrashItemDto,
 } from "@/features/trash/trash.schema";
 
-import { getTranslations } from "next-intl/server";
-
 import {
   getDeleteTrashPermanentlyInteractor,
   getEmptyTrashInteractor,
-  getGetRecordModelInteractor,
   getGetTrashedRecordInteractor,
   getPreviewTrashDeletionInteractor,
   getQueryTrashInteractor,
@@ -26,15 +23,11 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
-import { toTrashQuery, trashFilterableFields } from "./components/trash-page-model";
+import { TRASH_FILTERABLE_FIELDS, toTrashQuery } from "./components/trash-page-model";
 
 export async function getTrashAction(params?: GetQueryParams): Promise<GetResult<TrashItemDto>> {
   const query = toTrashQuery(params);
-  const [page, model, t] = await Promise.all([
-    unwrapValidated(getQueryTrashInteractor().invoke(query)),
-    unwrapValidated(getGetRecordModelInteractor().invoke({})),
-    getTranslations(),
-  ]);
+  const page = await unwrapValidated(getQueryTrashInteractor().invoke(query));
   return {
     items: page.items,
     filters: params?.filters,
@@ -45,10 +38,7 @@ export async function getTrashAction(params?: GetQueryParams): Promise<GetResult
       totalPages: Math.max(1, Math.ceil(page.total / query.pageSize)),
       total: page.total,
     } as PaginationResponse,
-    filterableFields: trashFilterableFields({
-      kindLabel: (kind) => t(`Trash.kinds.${kind}`),
-      lists: model.types.map((type) => ({ id: type.id, label: type.pluralLabel })),
-    }),
+    filterableFields: TRASH_FILTERABLE_FIELDS,
   };
 }
 

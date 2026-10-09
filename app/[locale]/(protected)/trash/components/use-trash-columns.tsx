@@ -69,8 +69,7 @@ export function useTrashColumns(): ColumnDef<TrashItemDto>[] {
       {
         id: "deletedBy",
         header: t("Trash.columns.deletedBy"),
-        cell: ({ row }) =>
-          row.original.deletedBy ? <MemberChip member={row.original.deletedBy} /> : <EmptyValue />,
+        cell: ({ row }) => (row.original.deletedBy ? <MemberChip member={row.original.deletedBy} /> : <EmptyValue />),
       },
       {
         id: "deletedAt",
@@ -83,9 +82,7 @@ export function useTrashColumns(): ColumnDef<TrashItemDto>[] {
         id: "expiresAt",
         header: t("Trash.columns.expiresAt"),
         cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {t("Trash.daysLeft", { count: row.original.daysLeft })}
-          </span>
+          <span className="text-sm text-muted-foreground">{t("Trash.daysLeft", { count: row.original.daysLeft })}</span>
         ),
       },
     ],

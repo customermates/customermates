@@ -3,7 +3,7 @@ import {
   getMessagingThreadAction,
   getIdentityRecordChoicesAction,
 } from "@/app/[locale]/(protected)/inbox/actions";
-import { getRecordChoicesAction } from "@/app/[locale]/(protected)/records/actions";
+import { getRecordChoicesAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
 import { resolveSearchReferencesAction } from "@/app/[locale]/(protected)/search/actions";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { Filter, FilterOption, GetQueryParams } from "@/core/base/base-get.schema";
@@ -43,6 +43,8 @@ import {
 import { useFilterOptions } from "@/components/data-view/filter-options-context";
 import { isCustomField } from "@/components/data-view/table-view.utils";
 import { Avatar } from "@/components/ui/avatar";
+import { recordTypeIcon } from "@/components/records/record-type-icon";
+import { TRASH_KINDS } from "@/features/trash/trash.schema";
 import { type ChipColor } from "@/constants/chip-colors";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -338,6 +340,23 @@ export function filterOptionSources(
       getItems: () =>
         getOperatorWorkspaceTagsAction().then((tags) => ({
           items: tags.map((tag) => ({ key: tag, value: tag, textValue: tag })),
+        })),
+    },
+    [FilterFieldKey.kind]: {
+      items: () => TRASH_KINDS.map((kind) => ({ key: kind, value: kind, textValue: t(`Trash.kinds.${kind}`) })),
+    },
+    [FilterFieldKey.list]: {
+      getItems: () =>
+        getRecordNavigationAction().then((navigation) => ({
+          items: navigation.types.map((type) => {
+            const Icon = recordTypeIcon(type.icon);
+            return {
+              key: type.id,
+              value: type.id,
+              textValue: type.pluralLabel,
+              startContent: <Icon aria-hidden className="size-4 shrink-0" />,
+            };
+          }),
         })),
     },
   };

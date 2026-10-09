@@ -24,21 +24,27 @@ const UNDO_TOAST_DURATION_MS = 8000;
 
 export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   isMutating = false;
+  pendingRestoreOperation: string | null = null;
   private restoreListeners = new Set<() => unknown>();
 
   constructor(rootStore: RootStore) {
     super(rootStore);
-    makeObservable<TrashStore, "setMutating">(this, { isMutating: observable, setMutating: action });
+    makeObservable<TrashStore, "setMutating" | "setPendingRestoreOperation">(this, {
+      isMutating: observable,
+      pendingRestoreOperation: observable,
+      setMutating: action,
+      setPendingRestoreOperation: action,
+    });
     this.viewSyncToUrl = false;
   }
 
   get columnsDefinition(): TableColumn[] {
     return [
       { uid: "name", sortable: false },
-      { uid: "kind", sortable: false },
-      { uid: "deletedBy", sortable: false },
-      { uid: "deletedAt", sortable: false },
-      { uid: "expiresAt", sortable: false },
+      { uid: "kind", sortable: false, label: this.t("Trash.columns.kind") },
+      { uid: "deletedBy", sortable: false, label: this.t("Trash.columns.deletedBy") },
+      { uid: "deletedAt", sortable: false, label: this.t("Trash.columns.deletedAt") },
+      { uid: "expiresAt", sortable: false, label: this.t("Trash.columns.expiresAt") },
     ];
   }
 
@@ -61,6 +67,29 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   private setMutating(value: boolean) {
     this.isMutating = value;
   }
+
+  private setPendingRestoreOperation(operationId: string | null) {
+    this.pendingRestoreOperation = operationId;
+  }
+
+  private afterRestore = async () => {
+    this.clearSelection();
+    await Promise.all([
+      this.isReady ? this.refreshQuery() : undefined,
+      this.rootStore.recordWorkspaceStore.invalidate(),
+      ...[...this.restoreListeners].map((listener) => listener()),
+    ]);
+  };
+
+  restoreOperationCompleted = async () => {
+    this.setPendingRestoreOperation(null);
+    this.toastSuccess("Trash.restoredInBackground");
+    await this.afterRestore();
+  };
+
+  restoreOperationStopped = () => {
+    this.setPendingRestoreOperation(null);
+  };
 
   onRestored = (listener: () => unknown) => {
     this.restoreListeners.add(listener);
@@ -90,21 +119,18 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
         return false;
       }
       const outcome = result.data;
-      if (outcome.status === "pending") this.toastSuccess("Trash.restorePending");
-      else if (outcome.blocked.length > 0)
+      if (outcome.status === "pending") {
+        this.setPendingRestoreOperation(outcome.operationId);
+        this.toastSuccess("Trash.restorePending");
+        return true;
+      }
+      if (outcome.blocked.length > 0)
         this.toastError("Trash.restoreBlocked", { values: { count: outcome.blocked.length } });
       else if (outcome.droppedLinks > 0)
         this.toastSuccess("Trash.restoredWithDroppedLinks", { values: { count: outcome.droppedLinks } });
       else this.toastSuccess("Trash.restored", { values: { count: outcome.restoredItemIds.length } });
-      const restored = outcome.status === "pending" || outcome.restoredItemIds.length > 0;
-      if (restored) {
-        this.clearSelection();
-        await Promise.all([
-          this.isReady ? this.refreshQuery() : undefined,
-          this.rootStore.recordWorkspaceStore.invalidate(),
-          ...[...this.restoreListeners].map((listener) => listener()),
-        ]);
-      }
+      const restored = outcome.restoredItemIds.length > 0;
+      if (restored) await this.afterRestore();
       return restored;
     } finally {
       this.setMutating(false);
@@ -186,15 +212,20 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       return;
     }
     const preview = result.data;
-    this.confirmPermanent(preview, this.t("Trash.emptyTitle"), async () => {
-      const emptied = await emptyTrashAction({ expectedImpactHash: preview.impactHash });
-      if (!emptied.ok) {
-        toastZodErrorTree(emptied.error);
-        return false;
-      }
-      await this.afterPermanentDelete();
-      return true;
-    }, this.t("Trash.emptyConfirmation"));
+    this.confirmPermanent(
+      preview,
+      this.t("Trash.emptyTitle"),
+      async () => {
+        const emptied = await emptyTrashAction({ expectedImpactHash: preview.impactHash });
+        if (!emptied.ok) {
+          toastZodErrorTree(emptied.error);
+          return false;
+        }
+        await this.afterPermanentDelete();
+        return true;
+      },
+      this.t("Trash.emptyConfirmation"),
+    );
   };
 
   get selectedItemIds() {

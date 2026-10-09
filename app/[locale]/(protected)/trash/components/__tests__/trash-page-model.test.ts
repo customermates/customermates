@@ -1,15 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { TRASH_KINDS } from "@/features/trash/trash.schema";
 
-import {
-  TRASH_FILTER,
-  TRASH_PAGE_SIZE,
-  toTrashQuery,
-  trashFilterableFields,
-  trashKindLabelKey,
-} from "../trash-page-model";
+import { TRASH_FILTER, TRASH_PAGE_SIZE, toTrashQuery, trashKindLabelKey } from "../trash-page-model";
 
 describe("toTrashQuery", () => {
   it("reads the first page of everything by default", () => {
@@ -40,27 +33,6 @@ describe("toTrashQuery", () => {
         searchTerm: "   ",
       }),
     ).toEqual({ page: 1, pageSize: TRASH_PAGE_SIZE });
-  });
-});
-
-describe("trashFilterableFields", () => {
-  it("offers every kind and every list as an any-of filter", () => {
-    const fields = trashFilterableFields({
-      kindLabel: (kind) => `kind:${kind}`,
-      lists: [{ id: "type-1", label: "Contacts" }],
-    });
-    expect(fields).toEqual([
-      {
-        field: TRASH_FILTER.kind,
-        operators: [FilterOperatorKey.in],
-        options: TRASH_KINDS.map((kind) => ({ value: kind, label: `kind:${kind}` })),
-      },
-      {
-        field: TRASH_FILTER.list,
-        operators: [FilterOperatorKey.in],
-        options: [{ value: "type-1", label: "Contacts" }],
-      },
-    ]);
   });
 });
 

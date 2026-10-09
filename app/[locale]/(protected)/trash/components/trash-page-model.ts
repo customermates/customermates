@@ -31,26 +31,10 @@ export function toTrashQuery(params: GetQueryParams = {}): QueryTrashData {
   };
 }
 
-export function trashFilterableFields({
-  kindLabel,
-  lists,
-}: {
-  kindLabel: (kind: TrashKind) => string;
-  lists: Array<{ id: string; label: string }>;
-}): FilterableField[] {
-  return [
-    {
-      field: TRASH_FILTER.kind,
-      operators: [FilterOperatorKey.in],
-      options: TRASH_KINDS.map((kind) => ({ value: kind, label: kindLabel(kind) })),
-    },
-    {
-      field: TRASH_FILTER.list,
-      operators: [FilterOperatorKey.in],
-      options: lists.map((list) => ({ value: list.id, label: list.label })),
-    },
-  ];
-}
+export const TRASH_FILTERABLE_FIELDS: FilterableField[] = [
+  { field: TRASH_FILTER.kind, operators: [FilterOperatorKey.in] },
+  { field: TRASH_FILTER.list, operators: [FilterOperatorKey.in] },
+];
 
 export type TrashKindLabelKey = TrashKind | "dashboardView";
 

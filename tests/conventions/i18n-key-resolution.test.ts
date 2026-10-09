@@ -664,7 +664,7 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
-  "app/[locale]/(protected)/trash/actions.ts :: t :: Trash.kinds.${kind}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Trash.kinds.${kind}",
   "app/[locale]/(protected)/trash/components/use-trash-columns.tsx :: t :: Trash.kinds.${trashKindLabelKey(item)}",
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.${key}",
   'app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.condition${index === 0 ? "If" : index === 1 ? "Then" : "Otherwise"}',

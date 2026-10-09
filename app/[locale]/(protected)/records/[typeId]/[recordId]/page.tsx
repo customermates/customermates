@@ -38,8 +38,8 @@ export default async function RecordPage({ params }: { params: Promise<{ typeId:
       <RecordDetailPage
         key={`${parsed.data.typeId}:${parsed.data.recordId}`}
         initial={initial}
-        trash={trash}
         panelLayoutInitial={recordPanelWidths(panelLayout, migratedDetail)}
+        trash={trash}
       />
     </PageContainer>
   );
