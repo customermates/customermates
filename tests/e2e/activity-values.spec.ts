@@ -88,10 +88,10 @@ test("renders change values with the shared value renderers on every activity su
   await page.getByRole("option", { name: "Won", exact: true }).click();
   await record.getByRole("button", { name: "Save", exact: true }).click();
   await expect(record).not.toBeVisible();
-  const stage = await database.query(
-    'SELECT definition FROM "RecordFieldDefinition" WHERE "companyId"=$1 AND id=$2',
-    [companyId, presetId(companyId, "deal.stage")],
-  );
+  const stage = await database.query('SELECT definition FROM "RecordFieldDefinition" WHERE "companyId"=$1 AND id=$2', [
+    companyId,
+    presetId(companyId, "deal.stage"),
+  ]);
   const won = (stage.rows[0].definition.options as Array<{ label: string; color?: string | null }>).find(
     (option) => option.label === "Won",
   );
@@ -114,14 +114,23 @@ test("renders change values with the shared value renderers on every activity su
 
   const { detail: createdWebhook, ...createdWebhookOpened } = await openEntry(page, feed, /Webhook Created/);
   await expect(chip(createdWebhook, "Record created")).toBeVisible();
-  await expect(createdWebhook.getByText("—", { exact: true }).first()).toBeVisible();
+  await expect(createdWebhook.locator("[data-empty-value]").first()).toBeAttached();
+  await expect(createdWebhook.getByText("—", { exact: true })).toHaveCount(0);
   await closeEntry(page, createdWebhookOpened);
 
-  const { detail: accessEntry, ...accessEntryOpened } = await openEntry(page, feed, /Record access changed .*Value readers/);
+  const { detail: accessEntry, ...accessEntryOpened } = await openEntry(
+    page,
+    feed,
+    /Record access changed .*Value readers/,
+  );
   await expect(chip(accessEntry, "Read access: All")).toBeVisible();
   await closeEntry(page, accessEntryOpened);
 
-  const { detail: recordEntry, ...recordEntryOpened } = await openEntry(page, feed, /Record created .*Value renderer deal/);
+  const { detail: recordEntry, ...recordEntryOpened } = await openEntry(
+    page,
+    feed,
+    /Record created .*Value renderer deal/,
+  );
   await expect(chip(recordEntry, "Won")).toHaveAttribute("data-variant", wonColor);
   await expect(recordEntry.getByRole("button", { name: "Browser Administrator", exact: true })).toBeVisible();
   await recordEntry.screenshot({ path: testInfo.outputPath("record-created.png"), animations: "disabled" });
@@ -141,7 +150,11 @@ test("renders change values with the shared value renderers on every activity su
   const card = page
     .locator('[data-uid="app-card"]')
     .filter({ has: page.getByRole("heading", { name: "Value history", exact: true }) });
-  const { detail: widgetEntry, ...widgetEntryOpened } = await openEntry(page, card, /Record created .*Value renderer deal/);
+  const { detail: widgetEntry, ...widgetEntryOpened } = await openEntry(
+    page,
+    card,
+    /Record created .*Value renderer deal/,
+  );
   await expect(chip(widgetEntry, "Won")).toHaveAttribute("data-variant", wonColor);
   await expect(widgetEntry.getByRole("button", { name: "Browser Administrator", exact: true })).toBeVisible();
   await closeEntry(page, widgetEntryOpened);
@@ -149,7 +162,7 @@ test("renders change values with the shared value renderers on every activity su
   await page.goto(`/en/records/${dealTypeId}`);
   await openRecordDetails(page, "Value renderer deal");
   const drawer = page.getByRole("dialog").first();
-  await drawer.getByRole("tab", { name: "History", exact: true }).click();
+  await drawer.getByRole("tab", { name: "Activities", exact: true }).click();
   const { detail: historyEntry, ...historyEntryOpened } = await openEntry(page, drawer, /Record created/);
   await expect(chip(historyEntry, "Won")).toHaveAttribute("data-variant", wonColor);
   await expect(historyEntry.getByRole("button", { name: "Browser Administrator", exact: true })).toBeVisible();

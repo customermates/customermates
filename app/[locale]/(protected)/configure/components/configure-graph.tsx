@@ -479,7 +479,6 @@ function GraphEdgeView({ data, source, target }: EdgeProps<GraphEdge>) {
       "aria-describedby": calculated ? descriptionId : undefined,
       "aria-label": label,
       "data-configure-relationship": relation.id,
-      size: "md" as const,
       startContent: calculated ? <Sigma aria-hidden /> : undefined,
       tooltip: (
         <>
@@ -536,11 +535,10 @@ function GraphEdgeView({ data, source, target }: EdgeProps<GraphEdge>) {
             aria-label={title}
             data-configure-graph-edge={edge.kind}
             role="img"
-            size="md"
             tooltip={title}
             variant={calculation ? "default" : "secondary"}
           >
-            {calculation ? <Sigma aria-hidden className="size-3.5" /> : <Link2 aria-hidden className="size-3.5" />}
+            {calculation ? <Sigma aria-hidden className="size-3" /> : <Link2 aria-hidden className="size-3" />}
           </AppChip>
         </div>
       </EdgeLabelRenderer>

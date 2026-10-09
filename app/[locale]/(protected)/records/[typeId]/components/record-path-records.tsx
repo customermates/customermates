@@ -19,6 +19,7 @@ import {
   useRecordChoices,
 } from "./record-relationship-editor";
 import { RecordDetailField } from "./record-detail-field";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
 
 export const RecordPathRecords = observer(function RecordPathRecords({
@@ -83,7 +84,6 @@ export const RecordPathRecords = observer(function RecordPathRecords({
                 <AppChip
                   key={`${record.ref.typeId}:${record.ref.recordId}`}
                   startContent={<RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />}
-                  tooltip={title}
                   variant={recordLinkColor(store.presentation.linkColors, record.ref.typeId)}
                 >
                   <button
@@ -98,7 +98,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
               );
             })}
 
-            {result.data?.total === 0 && <span className="text-muted-foreground">—</span>}
+            {result.data?.total === 0 && <EmptyValue />}
           </div>
         )}
 

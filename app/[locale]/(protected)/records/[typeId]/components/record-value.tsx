@@ -10,12 +10,9 @@ import { AppChip } from "@/components/chip/app-chip";
 import { MemberChip } from "@/components/chip/member-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { ContactValue } from "@/components/records/contact-value";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { toChipColor } from "@/constants/chip-colors";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
-
-export function EmptyValue() {
-  return <span className="text-muted-foreground">—</span>;
-}
 
 type DecimalFormat = { currency?: string | null; compact?: boolean; maximumFractionDigits?: number };
 
@@ -45,11 +42,13 @@ export const RecordValue = observer(function RecordValue({
   field,
   members = [],
   wrap = false,
+  overflowMenu = true,
 }: {
   result?: CalculatedValue;
   field: RecordFieldView;
   members?: RecordMember[];
   wrap?: boolean;
+  overflowMenu?: boolean;
 }) {
   const intl = useHydratedIntlStore();
   const valueFormat = useRecordValueFormat();
@@ -76,6 +75,7 @@ export const RecordValue = observer(function RecordValue({
             variant: toChipColor(option?.color),
           };
         })}
+        overflowMenu={overflowMenu}
       />
     );
   }

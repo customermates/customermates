@@ -82,17 +82,17 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
   const trigger = compact ? (
     <Button
       aria-label={t("Common.ariaLabels.tooltipFilters")}
-      className="relative size-3 rounded-sm text-muted-foreground hover:bg-transparent hover:text-foreground"
+      className="relative text-muted-foreground"
       disabled={store.isDisabled}
       id={id}
-      size="icon-xs"
+      size="icon-sm"
       type="button"
       variant="ghost"
     >
-      <Filter className="size-3" />
+      <Filter className="size-3.5" />
 
       {activeFilterCount > 0 && (
-        <span aria-hidden="true" className="absolute -right-1 -top-1 size-1.5 rounded-full bg-primary" />
+        <span aria-hidden="true" className="absolute right-1.5 top-1.5 size-2 rounded-full bg-primary" />
       )}
     </Button>
   ) : (

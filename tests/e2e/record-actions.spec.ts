@@ -141,10 +141,19 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(row.getByRole("button", { name: "Edit Value", exact: true })).toHaveCount(0);
   await expect(drawer).not.toBeVisible();
 
-  await expect(row.getByRole("button", { name: "Open Example organization", exact: true }).locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "info");
-  await row.getByRole("button", { name: "Open Example organization", exact: true }).click();
+  const organizations = row.getByRole("button", { name: "Edit Organizations", exact: true });
+  await expect(organizations.locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "info");
+  await organizations.click();
+  const picker = page.locator('[data-slot="popover-content"][data-state="open"]');
+  await expect(picker.getByRole("option").last()).toHaveText("Open Example organization");
+  await picker.getByRole("option", { name: "Open Example organization", exact: true }).click();
   const organization = page.getByRole("dialog", { name: "Organization", exact: true });
   await expect(organization.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
+  await organization.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(organization).not.toBeVisible();
+  await organizations.locator('[data-chip-id]').first().click({ modifiers: ["ControlOrMeta"] });
+  await expect(organization.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
+  await expect(picker).toHaveCount(0);
   await organization.getByRole("button", { name: "Close", exact: true }).click();
   await expect(organization).not.toBeVisible();
 
@@ -178,10 +187,11 @@ test("record tables edit number fields in place without opening the drawer", asy
   const row = page.getByRole("row").filter({ hasText: name });
   await row.hover();
   await row.getByRole("button", { name: "Edit Price", exact: true }).click();
-  const editor = page.locator('[data-slot="popover-content"]');
-  await editor.getByRole("textbox", { name: "Price", exact: false }).fill("250");
-  await editor.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(editor).not.toBeVisible();
+  const editor = row.locator("[data-in-place-editor]");
+  await expect(editor.locator("input")).toBeFocused();
+  await editor.locator("input").fill("250");
+  await editor.locator("input").press("Enter");
+  await expect(editor).toHaveCount(0);
   await expect(row).toContainText("250");
   await expect(drawer).not.toBeVisible();
 });
@@ -218,12 +228,19 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
   await page.goto(`/en/records/${id("deal")}`);
   const crowdedRow = page.getByRole("row").filter({ hasText: `Crowded deal ${suffix}` });
   const quietRow = page.getByRole("row").filter({ hasText: `Quiet deal ${suffix}` });
-  const more = crowdedRow.getByRole("button", { name: /^\+\d+$/ });
+  const organizations = crowdedRow.getByRole("button", { name: "Edit Organizations", exact: true });
+  const more = organizations
+    .locator('[data-slot="badge"]:not([aria-hidden="true"] *)')
+    .filter({ hasText: /^\+\d+$/ });
+  await expect(more).toHaveCount(1);
   await expect(more).toBeVisible();
+  const visible = await organizations.locator('[data-chip-id]:not([aria-hidden="true"] *)').count();
+  await expect(more).toHaveText(`+${8 - visible}`);
   const [crowdedBox, quietBox] = await Promise.all([crowdedRow.boundingBox(), quietRow.boundingBox()]);
   expect(Math.abs(crowdedBox!.height - quietBox!.height)).toBeLessThan(2);
-  await more.click();
-  await expect(page.getByRole("menuitem").filter({ hasText: "Stacked organization" }).first()).toBeVisible();
+  await organizations.click();
+  const picker = page.locator('[data-slot="popover-content"][data-state="open"]');
+  await expect(picker.getByRole("option").filter({ hasText: /^Open Stacked organization/ })).toHaveCount(8);
   await page.keyboard.press("Escape");
 });
 

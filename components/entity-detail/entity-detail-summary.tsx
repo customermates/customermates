@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { TruncatedText } from "@/components/shared/truncated-text";
+import { EmptyValue } from "@/components/shared/empty-value";
 
 export type EntityDetailSummaryField = {
   id: string;
@@ -28,11 +29,15 @@ type AvatarSummaryValueProps = {
 };
 
 export function EntityDetailAvatarSummaryValue({ items, onItemClick }: AvatarSummaryValueProps) {
-  return items.length > 0 ? <AvatarStack items={[...items]} size="default" onAvatarClick={onItemClick} /> : "—";
+  return items.length > 0 ? (
+    <AvatarStack items={[...items]} size="default" onAvatarClick={onItemClick} />
+  ) : (
+    <EmptyValue />
+  );
 }
 
 function SummaryValue({ children }: { children: ReactNode }) {
-  const value = children === null || children === undefined || children === "" ? "—" : children;
+  const value = children === null || children === undefined || children === "" ? <EmptyValue /> : children;
   const isPlainText = typeof value === "string" || typeof value === "number";
 
   return (

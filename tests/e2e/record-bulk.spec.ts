@@ -49,7 +49,10 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
-  await page.getByRole("dialog", { name: "Edit", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Edit", exact: true })
+    .getByRole("button", { name: "Save", exact: true })
+    .click();
   await expect(page.locator("[data-record-mass-actions]")).not.toBeVisible();
   const prices = () =>
     database.query(
@@ -128,7 +131,10 @@ test("shows a conflict and leaves every selected record unchanged when another t
     .getByRole("button", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("50");
-  await page.getByRole("dialog", { name: "Edit", exact: true }).getByRole("button", { name: "Save", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Edit", exact: true })
+    .getByRole("button", { name: "Save", exact: true })
+    .click();
   await expect(page.locator("[data-sonner-toast]")).toContainText("changed");
   await expect(page.locator("[data-record-mass-actions]")).toContainText("2 items selected");
   const prices = await database.query(
@@ -269,8 +275,11 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     label.includes("Optional discount"),
   );
   if (discountColumn < 0) throw new Error("The optional discount column must be visible");
-  await expect(row("Selected A").getByRole("cell").nth(discountColumn)).toHaveText("—");
-  await expect(row("Selected B").getByRole("cell").nth(discountColumn)).toHaveText("—");
+  for (const name of ["Selected A", "Selected B"]) {
+    const cell = row(name).getByRole("cell").nth(discountColumn);
+    await expect(cell).toHaveText("");
+    await expect(cell.locator("[data-empty-value]")).toHaveCount(1);
+  }
   await expect(row("Other C").getByRole("cell").nth(discountColumn)).toHaveText("3.75");
   await expect(page).toHaveURL((url) => !url.searchParams.has("searchTerm"));
   await expect

@@ -846,7 +846,6 @@
       "discard": "Discard",
       "expand": "Expand",
       "jumpToLatest": "Jump to latest",
-      "labelHistory": "History",
       "loadMore": "Load more",
       "open": "Open",
       "openApp": "Open app",
@@ -2037,6 +2036,7 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
+    "configureField": "Edit field {field}",
     "donePersonalizing": "Done",
     "fieldCancelled": "Cancelled moving {field}.",
     "fieldDropped": "Placed {field}.",
@@ -2971,13 +2971,13 @@
     },
     "addOption": "Add option",
     "addPathStep": "Add a relationship step",
-    "addProbability": "Add probability",
     "addRelationship": "Add relationship",
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
     "ascending": "Ascending",
     "assignedTo": "Assigned to",
     "attribute": "Attribute name",
+    "attributeNameTaken": "Another attribute already has this name",
     "behavior": "Value source",
     "behaviors": {
       "formula": "Calculated",
@@ -2987,7 +2987,8 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
-    "calculatedReadOnly": "{field} is calculated and can’t be edited.",
+    "calculatedValue": "Calculated: {formula}",
+    "calculatedValuePlain": "Calculated value",
     "calculationError": "Calculation unavailable",
     "calculationInput": "Input {number}",
     "calculationNavigation": "Calculation navigation",
@@ -3431,8 +3432,8 @@
     "reloadLists": "Reload lists",
     "removeGroupSummary": "Remove summary",
     "removeInput": "Remove input",
-    "removeOption": "Remove option",
     "removePathStep": "Remove {label} and following steps",
+    "renameAttribute": "Rename",
     "renewPublishedSummaries": "Renew published summaries",
     "renewPublishedSummariesHelp": "Approve the changed inputs for these summaries. Their values remain visible to readers who cannot access the linked inputs.",
     "required": "Required",
@@ -3480,6 +3481,7 @@
       }
     },
     "sublistExplanation": "Each entry belongs to one {parent} record, is edited inside it, shares its access and is removed with it.",
+    "suggestedAttribute": "Suggested",
     "summaryAggregation": "Calculation",
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
     "summaryField": "Summary field",

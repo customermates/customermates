@@ -10,6 +10,7 @@ import { recordColumns } from "@/features/records/record-columns";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
 import { EntityDetailSummaryRail } from "@/components/entity-detail/entity-detail-summary";
 import { RecordValue } from "./record-value";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { RecordCell } from "./record-cell";
 import { useRecordChoices } from "./record-relationship-editor";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
@@ -75,7 +76,7 @@ const RelatedSummary = observer(function RelatedSummary({
   ];
   if (query.loading) return <span className="text-muted-foreground">{t("Loading.text")}</span>;
   if (query.failed) return <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>;
-  if (!records.length && !query.data?.total) return "—";
+  if (!records.length && !query.data?.total) return <EmptyValue />;
   const items = records.map((record) => ({
     id: record.ref.recordId,
     ref: record.ref,
@@ -134,7 +135,7 @@ const SummaryValue = observer(function SummaryValue({
         }
       />
     ) : (
-      "—"
+      <EmptyValue />
     );
   }
   if (column.id === "system:assignedTo") {
@@ -159,11 +160,7 @@ const SummaryValue = observer(function SummaryValue({
           />
         )}
 
-        {users.length < store.form.assignedUserIds.length
-          ? t("RecordModel.restricted")
-          : users.length === 0
-            ? "—"
-            : null}
+        {users.length < store.form.assignedUserIds.length ? t("RecordModel.restricted") : null}
       </span>
     );
   }
@@ -174,11 +171,10 @@ const SummaryValue = observer(function SummaryValue({
       linkColors={store.presentation.linkColors}
       linkIcons={store.presentation.linkIcons}
       record={store.record}
-      onMore={() => undefined}
       onOpen={() => undefined}
     />
   ) : (
-    "—"
+    <EmptyValue />
   );
 });
 

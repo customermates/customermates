@@ -271,3 +271,109 @@ describe("I2 round 3 and rule 59: row click opens, every table has the row menu 
     expect(tablesWithoutRowMenuFindings([source]).map(({ line }) => line)).toEqual([1]);
   });
 });
+
+const CHIP_TAGS = new Set(["AppChip", "ClickableChip"]);
+const CHIP_OWNER_DIRECTORY = "components/chip/";
+const NON_COLOR_CHIP_VARIANTS = new Set(["outline", "ghost", "link"]);
+
+function chipAttribute(node: ts.JsxElement | ts.JsxSelfClosingElement, name: string) {
+  return attributesOf(node).properties.find(
+    (property): property is ts.JsxAttribute => ts.isJsxAttribute(property) && property.name.getText() === name,
+  );
+}
+
+function nonStandardChipFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    if (source.file.startsWith(CHIP_OWNER_DIRECTORY)) continue;
+    visit(source.ast, (node) => {
+      if ((!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) || !CHIP_TAGS.has(tagNameOf(node) ?? "")) return;
+      const size = chipAttribute(node, "size");
+      const sizeValue = size?.initializer;
+      const customSize = size && !(sizeValue && ts.isStringLiteral(sizeValue) && sizeValue.text === "sm");
+      const variant = chipAttribute(node, "variant");
+      let nonColorVariant = false;
+      if (variant?.initializer)
+        visit(variant.initializer, (part) => {
+          if (ts.isStringLiteralLike(part) && NON_COLOR_CHIP_VARIANTS.has(part.text)) nonColorVariant = true;
+        });
+      if (customSize || nonColorVariant)
+        findings.push(finding(source, node.getStart(source.ast), (size ?? variant)!.getText(source.ast)));
+    });
+  }
+
+  return findings;
+}
+
+const NON_STANDARD_CHIP_ALLOWLIST: Allowlist = {
+  "app/[locale]/(protected)/inbox/components/thread-settings.tsx":
+    "the thread settings control is a toolbar button styled as a chip; its owner decides between chip and Button",
+};
+
+describe("F14a: chips use the standard size and set a variant only for a color", () => {
+  it("never gives a chip a custom size or a non-color variant outside the shared chip components", () => {
+    enforce(nonStandardChipFindings(PRODUCT_SOURCES), NON_STANDARD_CHIP_ALLOWLIST);
+  });
+
+  it("recognizes a custom chip size and an outline chip and allows colors", () => {
+    const source = sourceFromText(
+      "chips.tsx",
+      [
+        'const a = <AppChip size="md">A</AppChip>;',
+        'const b = <ClickableChip variant="outline">B</ClickableChip>;',
+        'const c = <AppChip variant={done ? "success" : "secondary"}>C</AppChip>;',
+        'const d = <AppChip size="sm" variant={option.color}>D</AppChip>;',
+        'const e = <AppChip variant={muted ? "outline" : "secondary"}>E</AppChip>;',
+      ].join("\n"),
+    );
+    expect(nonStandardChipFindings([source]).map(({ line }) => line)).toEqual([1, 2, 5]);
+  });
+});
+
+const VALUE_SURFACES = [
+  "components/data-view/",
+  "components/chip/",
+  "app/[locale]/(protected)/records/[typeId]/components/record-cell.tsx",
+  "app/[locale]/(protected)/records/[typeId]/components/record-value.tsx",
+  "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx",
+  "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
+];
+const HINT_ICONS = new Set(["Pencil", "PencilLine", "SquarePen", "Lock", "LockKeyhole"]);
+const HINT_SLOT = /["'`][^"'`]*\bsize-6\b[^"'`]*\bopacity-0\b[^"'`]*["'`]/;
+
+function inlineHintFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    if (!VALUE_SURFACES.some((surface) => source.file.startsWith(surface))) continue;
+    findings.push(...patternFindings([source], HINT_SLOT));
+    visit(source.ast, (node) => {
+      if (
+        ts.isImportSpecifier(node) &&
+        HINT_ICONS.has(node.name.text) &&
+        ts.isImportDeclaration(node.parent.parent.parent) &&
+        (node.parent.parent.parent.moduleSpecifier as ts.StringLiteral).text === "lucide-react"
+      )
+        findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
+    });
+  }
+
+  return findings;
+}
+
+const INLINE_HINT_ALLOWLIST: Allowlist = {};
+
+describe("rule 64: values are the edit target, without reserved hint slots", () => {
+  it("keeps pencil and lock hints and reserved hint slots out of rows, cards and value renderers", () => {
+    enforce(inlineHintFindings(PRODUCT_SOURCES), INLINE_HINT_ALLOWLIST);
+  });
+
+  it("recognizes a pencil hint and a reserved hint slot", () => {
+    const source = sourceFromText(
+      "components/data-view/cell.tsx",
+      'import { Pencil } from "lucide-react";\nconst HINT = "inline-flex size-6 opacity-0 group-hover/row:opacity-100";',
+    );
+    expect(inlineHintFindings([source]).map(({ line }) => line)).toEqual([2, 1]);
+  });
+});
