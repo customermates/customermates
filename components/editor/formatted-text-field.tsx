@@ -124,7 +124,7 @@ export function FormattedTextField({
 
       {!isEditing && (overflowing || expanded) && (
         <Button className="h-auto px-0" size="sm" type="button" variant="link" onClick={() => setExpanded(!expanded)}>
-          {t(expanded ? "Common.actions.showLess" : "Common.actions.showMore")}
+          {expanded ? t("Common.actions.showLess") : t("Common.actions.showMore")}
         </Button>
       )}
     </div>

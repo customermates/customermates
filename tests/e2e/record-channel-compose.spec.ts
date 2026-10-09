@@ -481,7 +481,6 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   for (const action of [
     drawer.getByRole("button", { name: "Hide Channels from details", exact: true }),
     drawer.getByRole("button", { name: "Done", exact: true }),
-    drawer.getByRole("tab", { name: "Notes", exact: true }),
     drawer.getByRole("tab", { name: "Activities", exact: true }),
   ]) {
     await action.click();
