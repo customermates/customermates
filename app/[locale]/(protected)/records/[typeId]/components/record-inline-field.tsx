@@ -652,7 +652,7 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
             {linkedRecords.length > 0 && (
               <CommandGroup className="border-t border-border" data-slot="open-linked-records">
                 {linkedRecords.map((choice) => {
-                  const name = choiceTitle(choice, t);
+                  const name = recordTitle(choice.title, records.presentation.linkLabels[choice.ref.typeId], t);
                   return (
                     <CommandItem
                       key={`open:${choice.ref.recordId}`}
