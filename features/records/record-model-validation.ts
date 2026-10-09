@@ -369,12 +369,7 @@ export function validateRecordModel(model: RecordModel): {
     for (const reference of binding.fields) {
       const field = fields.get(reference.fieldId);
       const expectedType = binding.kind === "avatar" ? "url" : binding.kind === "calendar" ? "dateTimeRange" : "text";
-      if (
-        !field ||
-        field.archived ||
-        field.typeId !== binding.typeId ||
-        field.valueType !== expectedType
-      ) {
+      if (!field || field.archived || field.typeId !== binding.typeId || field.valueType !== expectedType) {
         issues.push({
           code: "capability_requires_field",
           fieldId: reference.fieldId,
