@@ -3457,6 +3457,7 @@
     },
     "privateAccess": "Administrators only",
     "probability": "Probability %",
+    "probabilityNeedsNumber": "Probability is a number attribute. Add it with Add attribute instead.",
     "progressUnavailable": "Could not load progress. Your draft is retained.",
     "rangeEnd": "Until",
     "rangeStart": "From",

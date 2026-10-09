@@ -3457,6 +3457,7 @@
     },
     "privateAccess": "Solo administradores",
     "probability": "Probabilidad %",
+    "probabilityNeedsNumber": "La probabilidad es un atributo numérico. Añádela con Añadir atributo.",
     "progressUnavailable": "No se pudo cargar el progreso. Tu borrador se conserva.",
     "rangeEnd": "Hasta",
     "rangeStart": "Desde",

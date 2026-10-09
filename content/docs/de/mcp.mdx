@@ -163,7 +163,7 @@ Jede Datensatzreferenz enthält `typeId` und `recordId`. `query_crm_records` lie
 
 `query_crm_records` nimmt eine `pageSize` von 1 bis 500 und liefert genau so viele Datensätze pro Seite. Die übrigen seitenweisen Tools wie `list_users`, `get_messaging_threads` und `get_calendars` begrenzen die Größe auf 100: `pageSize` akzeptiert jede ganze Zahl von 1 bis 100 und liefert genau so viele Datensätze pro Seite, nur die letzte kann weniger enthalten; `page` zählt in dieser Größe, Seite 2 bei `pageSize` 50 enthält also die Datensätze 51 bis 100, und das Ergebnis nennt beide.
 
-`read_crm_record` liefert die aktuelle Datensatzversion und Schemarevision. Eingabefelder über typisierte Zuweisungen in `mutate_crm_record` ändern, Beziehungen über dessen link- und unlink-Aktionen. Jede Liste kann ein Feld Kanäle haben; seine E-Mails, Telefonnummern und Profile sind indexierte Identitätsverknüpfungen, während ein normales E-Mail-Feld nie zum Zuordnungsschlüssel wird. Ein übergebenes `identities`-Array behält nur die darin enthaltenen Kanäle; ohne dieses Feld bleiben sie unverändert.
+`read_crm_record` liefert die aktuelle Datensatzversion und Schemarevision. Eingabefelder über typisierte Zuweisungen in `mutate_crm_record` ändern, Beziehungen über dessen link- und unlink-Aktionen. Um einem Feld vom Typ Formatierter Text oder Text etwas hinzuzufügen, ohne es neu zu schreiben, in einer Änderung `{ fieldId, append }` senden: Der Text kommt mit einer Leerzeile nach dem aktuellen Wert, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Änderung anderer. Jede Liste kann ein Feld Kanäle haben; seine E-Mails, Telefonnummern und Profile sind indexierte Identitätsverknüpfungen, während ein normales E-Mail-Feld nie zum Zuordnungsschlüssel wird. Ein übergebenes `identities`-Array behält nur die darin enthaltenen Kanäle; ohne dieses Feld bleiben sie unverändert.
 
 {/* mcp-catalog:records */}
 #### `discover_record_types`
@@ -198,13 +198,13 @@ Bis zu 1.000 exakte E-Mail-, Telefon- oder unterstützte Profilkennungen über d
 
 #### `read_crm_record`
 
-Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Werte, Notizen, Beziehungsübersichten und aktueller Datensatz- und Konfigurationsversionen. Kanäle erscheinen bei Typen mit aktivierter Kanal-Funktion. Mehrere Datensätze können dieselbe indizierte Kennung teilen.
+Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Werte, formatierter Texte, Beziehungsübersichten und aktueller Datensatz- und Konfigurationsversionen. Kanäle erscheinen bei Typen mit aktivierter Kanal-Funktion. Mehrere Datensätze können dieselbe indizierte Kennung teilen.
 
 **Nur lesend.** Pflicht: `typeId`, `recordId`. Optional: `includeRelationships`, `includePaths`.
 
 #### `mutate_crm_record`
 
-Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Löschen kann Datensätze und abhängige Positionen dauerhaft entfernen: vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID.
+Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben; `{ fieldId, append }` hängt Markdown nach einer Leerzeile an ein Feld vom Typ Formatierter Text oder Text an, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Datensatzversion. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Löschen kann Datensätze und abhängige Positionen dauerhaft entfernen: vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID.
 
 **Kann Daten löschen.** Pflicht: `expectedRevision`, `idempotencyKey`, `mutation`.
 

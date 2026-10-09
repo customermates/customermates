@@ -3457,6 +3457,7 @@
     },
     "privateAccess": "Solo amministratori",
     "probability": "Probabilità %",
+    "probabilityNeedsNumber": "La probabilità è un attributo numerico. Aggiungila invece con Aggiungi attributo.",
     "progressUnavailable": "Impossibile caricare l’avanzamento. La bozza viene conservata.",
     "rangeEnd": "A",
     "rangeStart": "Da",
