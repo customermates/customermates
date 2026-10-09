@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { RecordCell } from "./record-cell";
+import { RecordCardContent } from "./record-chip-row";
 import {
   RecordCalculatedValue,
   RecordInlineField,
@@ -153,6 +154,31 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       })),
     [columnHeaders, openRelated, avatarFieldId, store],
   );
+  const renderCard = useCallback(
+    (record: RecordRow) => {
+      const primary = store.recordColumns.find((column) => column.id === store.primaryColumnId);
+      return (
+        <RecordCardContent
+          record={record}
+          records={store}
+          title={
+            primary && (
+              <RecordCell
+                avatarFieldId={avatarFieldId}
+                column={primary}
+                linkColors={store.presentation.linkColors}
+                linkIcons={store.presentation.linkIcons}
+                record={record}
+                onOpen={openRelated}
+              />
+            )
+          }
+          onOpenRecord={openRelated}
+        />
+      );
+    },
+    [avatarFieldId, openRelated, store],
+  );
   const deletion = useRecordDeletion({
     onDeleted: () => root.recordWorkspaceStore.invalidate(),
     onPending: (operationId) => store.setBulkState(false, operationId),
@@ -259,7 +285,14 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       break;
     case "content":
       body = (
-        <DataViewContent columns={columns} rowActions={rowActions} rowHref={recordHref} store={store} view={view} />
+        <DataViewContent
+          columns={columns}
+          renderCard={renderCard}
+          rowActions={rowActions}
+          rowHref={recordHref}
+          store={store}
+          view={view}
+        />
       );
       break;
     default: {
