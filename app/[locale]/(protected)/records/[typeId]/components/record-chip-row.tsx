@@ -313,7 +313,13 @@ export const RecordChipRow = observer(function RecordChipRow({
     <DataViewItemLayout.Provider value="card">
       <div className="flex min-w-0 flex-wrap items-center gap-1" data-chip-row="">
         {entries.map((entry) => (
-          <span key={entry.column.id} className="inline-flex max-w-full min-w-0" data-chip-column={entry.column.id}>
+          <span
+            key={entry.column.id}
+            aria-label={entry.column.label}
+            className="inline-flex max-w-full min-w-0"
+            data-chip-column={entry.column.id}
+            role="group"
+          >
             <PropertyChip entry={entry} record={record} records={records} onOpenRecord={onOpenRecord} />
           </span>
         ))}
