@@ -16,7 +16,7 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordColumnPresentation } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
-import { movedToTrashOr } from "@/app/[locale]/(protected)/trash/components/trash.store";
+import { movedToTrashOr } from "@/features/trash/moved-to-trash";
 
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
   presentation: RecordPresentationResult;

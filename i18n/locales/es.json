@@ -4194,7 +4194,6 @@
     "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
     "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
     "searchPlaceholder": "Buscar en la papelera",
-    "title": "Papelera",
     "undo": "Deshacer"
   }
 }

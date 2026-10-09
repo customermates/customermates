@@ -2,9 +2,10 @@ import type { FilterableField, GetQueryParams } from "@/core/base/base-get.schem
 import type { QueryTrashData, TrashKind } from "@/features/trash/trash.schema";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { TRASH_KINDS } from "@/features/trash/trash.schema";
 
-export const TRASH_FILTER = Object.freeze({ kind: "kind", list: "list" } as const);
+export const TRASH_FILTER = Object.freeze({ kind: FilterFieldKey.kind, list: FilterFieldKey.list } as const);
 
 export const TRASH_PAGE_SIZE = 25;
 

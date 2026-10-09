@@ -46729,6 +46729,11 @@
                           "type": "integer",
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
+                        },
+                        "trashBatchId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                         }
                       },
                       "required": [
@@ -51647,6 +51652,9 @@
                         "type": "string",
                         "pattern": "^[a-f0-9]{64}$"
                       },
+                      "permanent": {
+                        "type": "boolean"
+                      },
                       "relationId": {
                         "type": "string",
                         "format": "uuid",
@@ -51697,7 +51705,7 @@
                       "action"
                     ],
                     "additionalProperties": false,
-                    "description": "create requires typeId and fields; update requires ref, expectedVersion and fields; delete requires ref and expectedVersion; link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically. Use only fields for that action."
+                    "description": "create requires typeId and fields; update requires ref, expectedVersion and fields; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action."
                   }
                 },
                 "required": [
@@ -51751,6 +51759,11 @@
                           "type": "integer",
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
+                        },
+                        "trashBatchId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                         }
                       },
                       "required": [
@@ -54563,6 +54576,11 @@
                                   "type": "integer",
                                   "minimum": -9007199254740991,
                                   "maximum": 9007199254740991
+                                },
+                                "trashBatchId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                 }
                               },
                               "required": [
@@ -55775,6 +55793,8 @@
                         "record.created",
                         "record.updated",
                         "record.deleted",
+                        "record.restored",
+                        "record.deletedPermanently",
                         "messaging.message.received",
                         "messaging.message.updated",
                         "messaging.message.deleted",
@@ -57158,14 +57178,16 @@
                             },
                             "events": {
                               "minItems": 1,
-                              "maxItems": 3,
+                              "maxItems": 5,
                               "type": "array",
                               "items": {
                                 "type": "string",
                                 "enum": [
                                   "record.created",
                                   "record.updated",
-                                  "record.deleted"
+                                  "record.deleted",
+                                  "record.restored",
+                                  "record.deletedPermanently"
                                 ]
                               }
                             }
@@ -57233,6 +57255,8 @@
                           "record.created",
                           "record.updated",
                           "record.deleted",
+                          "record.restored",
+                          "record.deletedPermanently",
                           "messaging.message.received",
                           "messaging.message.updated",
                           "messaging.message.deleted",
@@ -59982,14 +60006,16 @@
                               },
                               "events": {
                                 "minItems": 1,
-                                "maxItems": 3,
+                                "maxItems": 5,
                                 "type": "array",
                                 "items": {
                                   "type": "string",
                                   "enum": [
                                     "record.created",
                                     "record.updated",
-                                    "record.deleted"
+                                    "record.deleted",
+                                    "record.restored",
+                                    "record.deletedPermanently"
                                   ]
                                 }
                               }
@@ -60167,6 +60193,8 @@
                               "record.created",
                               "record.updated",
                               "record.deleted",
+                              "record.restored",
+                              "record.deletedPermanently",
                               "messaging.message.received",
                               "messaging.message.updated",
                               "messaging.message.deleted",
@@ -62916,14 +62944,16 @@
                                   },
                                   "events": {
                                     "minItems": 1,
-                                    "maxItems": 3,
+                                    "maxItems": 5,
                                     "type": "array",
                                     "items": {
                                       "type": "string",
                                       "enum": [
                                         "record.created",
                                         "record.updated",
-                                        "record.deleted"
+                                        "record.deleted",
+                                        "record.restored",
+                                        "record.deletedPermanently"
                                       ]
                                     }
                                   }
@@ -83207,6 +83237,8 @@
                         "recordCalculationBudget",
                         "recordProtected",
                         "recordMeasureDateIntervalInvalid",
+                        "trashItemNotFound",
+                        "trashChanged",
                         "agentApprovalUnavailable",
                         "agentConversationNotFound",
                         "agentLimitReached",

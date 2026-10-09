@@ -48,6 +48,7 @@ import {
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
+import { TRASH_KINDS } from "@/features/trash/trash.schema";
 
 const STARTER_TYPE_KEYS = RECORD_PRESET_KEYS.flatMap((preset) =>
   (["plural", "singular"] as const).map((form) => `RecordModel.starterTypes.${preset}.${form}`),
@@ -156,6 +157,7 @@ const DATE_BUCKET_KEYS = [
   "Common.dateBuckets.week",
 ] as const;
 const WIKI_PAGE_KIND_KEYS = WIKI_PAGE_KINDS.map((kind) => `Wiki.kind.${kind}`);
+const TRASH_KIND_KEYS = [...TRASH_KINDS, "dashboardView"].map((kind) => `Trash.kinds.${kind}`);
 const DATE_PRESET_KEYS = [
   "Common.datePresets.endTime",
   "Common.datePresets.inAMonth",
@@ -575,6 +577,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.providers.${*}", PROVIDER_KEYS],
   ["Common.themes.${*}", THEME_KEYS],
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
+  ["Trash.kinds.${*}", TRASH_KIND_KEYS],
   ["ConnectedAccountsCard.statusLabels.${*}", CONNECTED_ACCOUNT_STATUS_KEYS],
   ["ConnectedAccountsCard.signatureTemplates.${*}", SIGNATURE_TEMPLATE_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
@@ -661,6 +664,8 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
+  "app/[locale]/(protected)/trash/actions.ts :: t :: Trash.kinds.${kind}",
+  "app/[locale]/(protected)/trash/components/use-trash-columns.tsx :: t :: Trash.kinds.${trashKindLabelKey(item)}",
   "app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.${key}",
   'app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.condition${index === 0 ? "If" : index === 1 ? "Then" : "Otherwise"}',
   'app/[locale]/(protected)/configure/components/calculation-input.tsx :: t :: RecordModel.range${end === "start" ? "Start" : "End"}',

@@ -4194,7 +4194,6 @@
     "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
     "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
     "searchPlaceholder": "Rechercher dans la corbeille",
-    "title": "Corbeille",
     "undo": "Annuler"
   }
 }

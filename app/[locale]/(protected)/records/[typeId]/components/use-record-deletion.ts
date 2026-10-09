@@ -7,7 +7,7 @@ import type { RecordMutation } from "@/features/records/record-query.schema";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { previewRecordDeletionAction, mutateRecordAction } from "../../actions";
-import { movedToTrashOr, type MovedToTrash } from "@/app/[locale]/(protected)/trash/components/trash.store";
+import { movedToTrashOr, type MovedToTrash } from "@/features/trash/moved-to-trash";
 
 export function useRecordDeletion({
   onDeleted,

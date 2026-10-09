@@ -2,10 +2,10 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { FormEvent } from "react";
 
 import type { ConfirmationSentence } from "./confirmation-sentence";
-import type { MovedToTrash } from "@/app/[locale]/(protected)/trash/components/trash.store";
+import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
-import { isMovedToTrash } from "@/app/[locale]/(protected)/trash/components/trash.store";
+import { isMovedToTrash } from "@/features/trash/moved-to-trash";
 
 export interface DeleteConfirmationData {
   title: string;

@@ -30,4 +30,6 @@ export enum FilterFieldKey {
   firstName = "firstName",
   lastName = "lastName",
   ownerUserId = "ownerUserId",
+  kind = "kind",
+  list = "list",
 }

@@ -4170,7 +4170,7 @@
     "emptyTitle": "Svuotare il cestino?",
     "emptyTitleState": "Il cestino è vuoto",
     "inTrash": "Nel cestino",
-    "kindInList": "{kind} in {list}",
+    "kindInList": "{kind} della lista {list}",
     "kinds": {
       "channels": "Canali",
       "dashboardView": "Vista della dashboard",
@@ -4194,7 +4194,6 @@
     "restored": "{count, plural, one {# elemento ripristinato} other {# elementi ripristinati}}",
     "restoredWithDroppedLinks": "Ripristinato. {count, plural, one {# collegamento non è stato ripristinato} other {# collegamenti non sono stati ripristinati}} perché il record collegato è stato eliminato definitivamente.",
     "searchPlaceholder": "Cerca nel cestino",
-    "title": "Cestino",
     "undo": "Annulla"
   }
 }

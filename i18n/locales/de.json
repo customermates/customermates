@@ -4170,7 +4170,7 @@
     "emptyTitle": "Papierkorb leeren?",
     "emptyTitleState": "Der Papierkorb ist leer",
     "inTrash": "Im Papierkorb",
-    "kindInList": "{kind} in {list}",
+    "kindInList": "{kind} der Liste {list}",
     "kinds": {
       "channels": "Kanäle",
       "dashboardView": "Dashboard-Ansicht",
@@ -4194,7 +4194,6 @@
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
     "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
     "searchPlaceholder": "Papierkorb durchsuchen",
-    "title": "Papierkorb",
     "undo": "Rückgängig"
   }
 }
