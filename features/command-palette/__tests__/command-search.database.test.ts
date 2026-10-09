@@ -317,6 +317,14 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     expect(await titles("Acme Corportion")).toEqual(["Acme Corporation", "Acme Cooperation Partners"]);
     expect(await titles('"Acme Corportion"')).toEqual([]);
     expect(await titles("Zyxwv")).toEqual([]);
+
+    const trashed = await f.createOrganization("Initech Systems");
+    await runWithoutTenant(() =>
+      prisma.crmRecord.updateMany({ where: { id: trashed.recordId }, data: { deletedAt: new Date() } }),
+    );
+    expect(await titles(trashed.recordId)).toEqual([]);
+    expect(await titles("Initech")).toEqual([]);
+    expect(await titles("Initek Systems")).toEqual([]);
     expect(acme.recordId).not.toBe(globex.recordId);
   }, 120000);
 });

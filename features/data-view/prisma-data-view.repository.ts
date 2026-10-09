@@ -98,7 +98,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
 
   async listWorkspaceRecordViewNames(): Promise<RecordViewName[]> {
     const rows = await this.prisma.dataView.findMany({
-      where: { companyId: this.companyId, surfaceKey: { startsWith: "records:" } },
+      where: { companyId: this.companyId, surfaceKey: { startsWith: "records:" }, deletedAt: null },
       orderBy: [{ surfaceKey: "asc" }, { position: "asc" }, { id: "asc" }],
       select: { id: true, surfaceKey: true, name: true },
     });

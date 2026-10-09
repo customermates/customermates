@@ -8,12 +8,20 @@ import { z } from "zod";
 
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo, StoredRecord } from "./record.repo";
-import type { CalculatedValue, RecordModel, RecordRef, RecordScalar, RecordField } from "./record-model.schema";
+import type {
+  CalculatedValue,
+  RecordModel,
+  RecordRef,
+  RecordScalar,
+  RecordField,
+  RecordFieldUpdate,
+} from "./record-model.schema";
 import type { RecordMutation } from "./record-query.schema";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { validateNotes } from "@/core/validation/validate-notes";
+import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
 import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
@@ -22,6 +30,7 @@ import type { RecordIdentityInput } from "./record-identity.schema";
 import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from "./record-identity";
 import { channelClass } from "@/ee/messaging/provider";
 import { canonicalRecordJson } from "./record-json";
+import { recordTrashLabel } from "./record-trash-label";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 export { RecordWriteError } from "./record-write-error";
@@ -65,6 +74,42 @@ export function normalizeRecordScalar(value: RecordScalar | null, field: RecordF
   return value;
 }
 
+const MAX_TEXT_LENGTH = 100_000;
+
+export function appendedRecordValue(field: RecordField, current: CalculatedValue, append: string): RecordScalar {
+  if (field.multiple || (field.valueType !== "text" && field.valueType !== "richText"))
+    reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+  const existing = current.state === "value" ? current.value : null;
+  if (field.valueType === "text") {
+    const before = existing?.kind === "text" ? existing.value : "";
+    const value = before.trim() ? `${before}\n\n${append.trim()}` : append.trim();
+    if (value.length > MAX_TEXT_LENGTH) reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+    return { kind: "text", value };
+  }
+  const before =
+    existing?.kind === "richText" ? (JSON.parse(existing.documentJson) as { content?: unknown[] }) : { content: [] };
+  const added = parseMarkdownToJSON(append) as { content?: unknown[] };
+  return {
+    kind: "richText",
+    documentJson: JSON.stringify({ type: "doc", content: [...(before.content ?? []), ...(added.content ?? [])] }),
+  };
+}
+
+function isAppend(update: RecordFieldUpdate): update is Extract<RecordFieldUpdate, { append: string }> {
+  return "append" in update;
+}
+
+function isAppendOnlyUpdate(mutation: Extract<RecordMutation, { action: "update" }>) {
+  return (
+    mutation.fields.length > 0 &&
+    mutation.fields.every(isAppend) &&
+    mutation.assignedUserIds === undefined &&
+    mutation.identities === undefined &&
+    !mutation.linkChanges?.length &&
+    !mutation.captureFieldIds?.length
+  );
+}
+
 function comparableResult(result: CalculatedValue): unknown {
   if (result.state !== "value") return result;
   const value = result.value;
@@ -95,7 +140,9 @@ export class RecordWriteService {
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ) {
     await this.validateAccess(mutation, policy);
-    const pending = mutation.action === "delete" ? [mutation.ref] : mutation.targets.map((target) => target.ref);
+    const targets = mutation.action === "delete" ? [mutation.ref] : mutation.targets.map((target) => target.ref);
+    const pending = [...targets];
+    const rootOf = new Map(targets.map((ref) => [recordKey(ref), recordKey(ref)]));
     const deleted = new Map<string, StoredRecord>();
     const affected = new Map<string, RecordRef>();
     const links = new Map<string, { relationId: string; source: RecordRef; target: RecordRef }>();
@@ -124,8 +171,10 @@ export class RecordWriteService {
         const outgoing = recordKey(edge.source) === key;
         const opposite = outgoing ? edge.target : edge.source;
         const behavior = outgoing ? relation.onSourceDelete : relation.onTargetDelete;
-        if (behavior === "cascade") pending.push(opposite);
-        else if (behavior === "restrict") restrictions.add(recordKey(opposite));
+        if (behavior === "cascade") {
+          if (!rootOf.has(recordKey(opposite))) rootOf.set(recordKey(opposite), recordInvariant(rootOf.get(key)));
+          pending.push(opposite);
+        } else if (behavior === "restrict") restrictions.add(recordKey(opposite));
         add(opposite);
       }
     }
@@ -141,7 +190,7 @@ export class RecordWriteService {
       .digest("hex");
     if (mutation.expectedImpactHash && mutation.expectedImpactHash !== impactHash)
       reject(CustomErrorCode.recordVersionChanged, "conflict");
-    return { deleted, affected, links, impactHash };
+    return { deleted, affected, links, impactHash, rootOf };
   }
 
   async validateAccess(mutation: RecordMutation, policy: Policy): Promise<void> {
@@ -181,7 +230,10 @@ export class RecordWriteService {
       const row = await this.records.getRecordCompanyWide(ref);
       if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
       if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
-      if ((mutation.action === "update" || mutation.action === "delete") && row.version !== mutation.expectedVersion)
+      if (
+        (mutation.action === "delete" || (mutation.action === "update" && !isAppendOnlyUpdate(mutation))) &&
+        row.version !== mutation.expectedVersion
+      )
         reject(CustomErrorCode.recordVersionChanged, "conflict");
     }
     if (mutation.action === "link" || mutation.action === "unlink") {
@@ -195,6 +247,7 @@ export class RecordWriteService {
         reject(CustomErrorCode.permissionDenied, "authorization");
       for (const field of mutation.fields) {
         if (
+          "value" in field &&
           field.value?.kind === "member" &&
           !(await this.policy.validAssignees(policy.actor, [field.value.value], policy.canAssignOthers))
         )
@@ -212,12 +265,14 @@ export class RecordWriteService {
       skipCalculations?: boolean;
       skipTouches?: boolean;
       createRecordId?: string;
+      trashBatchId?: string;
       beforeDeletion?: (refs: RecordRef[]) => Promise<void>;
     } = {},
   ): Promise<{
     refs: RecordRef[];
     changedFieldIds: string[];
     captures: Array<{ ref: RecordRef; fieldIds: string[] }>;
+    trashBatchId?: string;
   }> {
     if (!policy.actor) reject(CustomErrorCode.permissionDenied, "authorization");
     await this.validateAccess(mutation, policy);
@@ -271,6 +326,7 @@ export class RecordWriteService {
     const captures = new Map<string, Set<string>>();
     const deleted = new Set<string>();
     const fresh = new Set<string>();
+    let trashBatchId: string | undefined;
     const assignIdentities = async (ref: RecordRef, inputs: RecordIdentityInput[] | undefined) => {
       if (!inputs) return;
       if (!recordChannelsEnabled(model, ref.typeId))
@@ -454,8 +510,10 @@ export class RecordWriteService {
         );
       }
     } else if (mutation.action === "update") {
+      if (mutation.fields.some(isAppend)) await this.records.lockRecord(mutation.ref);
       const row = await editable(mutation.ref);
-      if (row.version !== mutation.expectedVersion) reject(CustomErrorCode.recordVersionChanged, "conflict");
+      if (!isAppendOnlyUpdate(mutation) && row.version !== mutation.expectedVersion)
+        reject(CustomErrorCode.recordVersionChanged, "conflict");
       if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
         if (mutation.assignedUserIds.length)
           reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
@@ -464,7 +522,22 @@ export class RecordWriteService {
           reject(CustomErrorCode.permissionDenied, "authorization");
         await this.records.setAssignments(mutation.ref, mutation.assignedUserIds);
       }
-      await assignFields(mutation.ref, mutation.fields, false, row);
+      await assignFields(
+        mutation.ref,
+        mutation.fields.map((update) => {
+          if (!isAppend(update)) return update;
+          const field = fields.get(update.fieldId);
+          if (!field || field.typeId !== mutation.ref.typeId)
+            reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+          const current = decodeRecordValue(
+            row.values.find((value) => value.fieldId === field.id),
+            field,
+          );
+          return { fieldId: update.fieldId, value: appendedRecordValue(field, current, update.append) };
+        }),
+        false,
+        row,
+      );
       await assignIdentities(mutation.ref, mutation.identities);
       for (const change of mutation.linkChanges ?? []) {
         await link(
@@ -496,7 +569,30 @@ export class RecordWriteService {
           recordId: row.id,
         })),
       );
-      for (const key of deleted) await this.records.delete(recordInvariant(seeds.get(key)));
+      trashBatchId = options.trashBatchId ?? randomUUID();
+      const actorId = policy.actor.id;
+      const items = new Map(
+        [...new Set(plan.rootOf.values())].filter((key) => deleted.has(key)).map((key) => [key, randomUUID()]),
+      );
+      await this.records.addTrashItems(
+        [...items].map(([key, id]) => {
+          const row = recordInvariant(plan.deleted.get(key));
+          return {
+            id,
+            typeId: row.typeId,
+            targetId: row.id,
+            label: recordTrashLabel(row, model),
+            batchId: recordInvariant(trashBatchId),
+            deletedById: actorId,
+          };
+        }),
+      );
+      for (const key of deleted) {
+        await this.records.moveToTrash(
+          recordInvariant(seeds.get(key)),
+          recordInvariant(items.get(recordInvariant(plan.rootOf.get(key)))),
+        );
+      }
     } else await link(mutation.relationId, mutation.source, mutation.target, mutation.action === "unlink");
 
     const recalculated = options.skipCalculations
@@ -514,6 +610,7 @@ export class RecordWriteService {
         ref: recordInvariant(seeds.get(key)),
         fieldIds: [...fieldIds],
       })),
+      ...(trashBatchId ? { trashBatchId } : {}),
     };
   }
 }

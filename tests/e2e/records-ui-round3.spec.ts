@@ -332,6 +332,79 @@ test("edits every field type inline in rows and on board cards, with validation,
   expect(errors).toEqual([]);
 });
 
+test("board cards show one chip row with icons, hide empty and grouped values and add empty fields", async ({
+  page,
+  companyId,
+}) => {
+  test.setTimeout(180000);
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  const typeId = await createLabList(page, presetId(companyId, "contact"));
+  const model = await readModel(page);
+  const labField = (label: string) => {
+    const found = model.fields.find((field) => field.typeId === typeId && field.label === label);
+    if (!found) throw new Error(`The lab field ${label} is missing`);
+    return found;
+  };
+  const type = model.types.find((candidate) => candidate.id === typeId)!;
+  const choice = labField("Choice");
+  await api(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId,
+      fields: [
+        { fieldId: type.primaryFieldId, value: { kind: "text", value: "Lab card" } },
+        { fieldId: labField("Number").id, value: { kind: "decimal", value: "2", currency: null } },
+        { fieldId: labField("Money").id, value: { kind: "decimal", value: "342000", currency: "EUR" } },
+        { fieldId: choice.id, value: { kind: "select", value: choice.options[0].id } },
+      ],
+    },
+  });
+  await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${choice.id}`);
+  const errors = trackErrors(page);
+  const card = page.locator("[data-item-id]").filter({ hasText: "Lab card" });
+  await expect(card).toBeVisible();
+  await expect(page.locator("#records-add")).toBeEnabled();
+  await page.waitForLoadState("networkidle");
+  const chip = (label: string) => card.locator(`[data-chip-column="${labField(label).id}"]`);
+
+  await expect(card.locator("[data-chip-row]")).toBeVisible();
+  await expect(chip("Money")).toHaveText("€342K");
+  await expect(chip("Number")).toContainText("Number");
+  await expect(chip("Double")).toContainText("Double");
+  await expect(chip("Choice")).toHaveCount(0);
+  for (const empty of ["Text", "Date", "Owner", "Phone"]) await expect(chip(empty)).toHaveCount(0);
+  await expect(card).not.toContainText("Money");
+
+  await chip("Money").hover();
+  await expect(page.getByRole("tooltip", { name: "Money", exact: true })).toBeVisible();
+  await chip("Double").hover();
+  await expect(page.getByRole("tooltip", { name: "Calculated: (Number × 2)", exact: true })).toBeVisible();
+
+  const editor = page.locator('[data-slot="popover-content"][data-state="open"]').last();
+  await chip("Money").getByRole("button", { name: "Edit Money", exact: true }).click();
+  await expect(editor).toContainText("Money");
+  await expect(editor.locator("input").first()).toHaveValue(/342,?000/);
+  await page.keyboard.press("Escape");
+  await expect(editor).toHaveCount(0);
+  await expect(page.locator(`[data-group-key="value:${choice.options[0].id}"]`).locator(card)).toBeVisible();
+
+  await card.hover();
+  const add = card.getByRole("button", { name: "Add property", exact: true });
+  await expect(add).toBeVisible();
+  await add.click();
+  await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Phone", "Contacts"]);
+  await page.getByRole("menuitem", { name: "Text", exact: true }).click();
+  await expect(editor).toContainText("Text");
+  await editor.locator("input").first().fill("Card text");
+  await editor.locator("input").first().press("Enter");
+  await expect(editor).toHaveCount(0);
+  await expect(chip("Text")).toHaveText("Card text");
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}\\?`));
+  expect(errors).toEqual([]);
+});
+
 test("board columns keep a one-line header and a persisted, keyboard-resizable width", async ({
   page,
   database,

@@ -19,7 +19,7 @@ export class PrismaThreadRecordsRepo extends TenantRepository implements ThreadR
 
   async listLinks(threadId: string, take: number) {
     const rows = await this.prisma.messagingThreadRecordLink.findMany({
-      where: { companyId: this.companyId, threadId },
+      where: { companyId: this.companyId, threadId, record: { is: { deletedAt: null } } },
       orderBy: [{ typeId: "asc" }, { recordId: "asc" }],
       take,
       select: { typeId: true, recordId: true, record: { select: { protectedKind: true } } },
@@ -34,7 +34,13 @@ export class PrismaThreadRecordsRepo extends TenantRepository implements ThreadR
   async has(threadId: string, ref: RecordRef) {
     return Boolean(
       await this.prisma.messagingThreadRecordLink.findFirst({
-        where: { companyId: this.companyId, threadId, typeId: ref.typeId, recordId: ref.recordId },
+        where: {
+          companyId: this.companyId,
+          threadId,
+          typeId: ref.typeId,
+          recordId: ref.recordId,
+          record: { is: { deletedAt: null } },
+        },
         select: { recordId: true },
       }),
     );

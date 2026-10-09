@@ -24,7 +24,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen, et
 | **Body-Vorlage** | Optionales JSON-Dokument, das den Standardumschlag ersetzt. |
 | **Aktiviert** | Standardmäßig eingeschaltet. Ein deaktivierter Webhook erhält nichts und behält seine Konfiguration, Sie können ihn also pausieren, ohne ihn zu löschen. |
 
-Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten ihn und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf **Löschen** und bestätigen; seine bisherigen Zustellungen bleiben im Reiter [Zustellungen](app:settings/webhooks/deliveries) erhalten. Die Liste zeigt **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Die [Suche](app:settings/webhooks?focus=search) durchsucht die URL, die [Filter](app:settings/webhooks?focus=filter) decken Erstellungs- und Änderungsdatum ab.
+Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten ihn und klicken auf **Speichern**. Zum Entfernen klicken Sie oben im Dialog auf **Löschen** und bestätigen; seine bisherigen Zustellungen bleiben auf der Seite [Zustellungen](app:settings/webhook-deliveries) erhalten. Um die Zustellungen eines Webhooks zu sehen, wählen Sie im Menü **Weitere Aktionen** seiner Zeile **Zustellungen anzeigen**: [Zustellungen](app:settings/webhook-deliveries) öffnet sich gefiltert auf die URL dieses Webhooks, und Sie können den Filter wie jeden anderen entfernen. Die Liste zeigt **URL**, **Beschreibung**, **Ereignisse**, **Status** (**Aktiviert** oder **Deaktiviert**), **Erstellt am** und **Aktualisiert am**. Die [Suche](app:settings/webhooks?focus=search) durchsucht die URL, die [Filter](app:settings/webhooks?focus=filter) decken Erstellungs- und Änderungsdatum ab.
 
 Verwenden Sie einen HTTPS-Endpunkt. Reines `http://` wird für jeden Host nur akzeptiert, solange der Webhook keine eigenen Header hat. Mit eigenen Headern muss die URL `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Das wird beim Speichern und erneut vor jeder Zustellung geprüft.
 
@@ -236,7 +236,7 @@ function verify(rawBody: string, received: string, secret: string) {
 
 Eine Zustellung schlägt fehl, wenn der HTTP-Status außerhalb von 2xx liegt, die Request nach 5 Sekunden timeoutet oder keine Antwort eintrifft. Customermates wiederholt Timeouts, Netzwerkfehler, 5xx-Responses sowie 408, 425 und 429 automatisch, mit bis zu 10 Versuchen insgesamt und wachsenden Pausen von höchstens einer Stunde. Andere 4xx-Responses, etwa 400, 401, 403, 404 und 422, werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Eine Zustellung schlägt außerdem schon vor dem Senden fehl, mit Status-Code 422, wenn Header an eine Adresse gehen würden, die sie nicht erlaubt, oder die Body-Vorlage nicht gerendert werden kann.
 
-Jede Zustellung wird im Reiter [Zustellungen](app:settings/webhooks/deliveries) von Webhooks protokolliert, die neueste zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Die [Suche](app:settings/webhooks/deliveries?focus=search) durchsucht Ereignis und URL, die [Filter](app:settings/webhooks/deliveries?focus=filter) decken Ereignis, URL und Erstellungsdatum ab. Über MCP nutzen Sie `manage_webhooks` mit `action: "list_deliveries"`. Zustellungen bleiben erhalten, solange der Workspace besteht.
+Jede Zustellung wird auf der Seite [Zustellungen](app:settings/webhook-deliveries) protokolliert, die neueste zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Die [Suche](app:settings/webhook-deliveries?focus=search) durchsucht Ereignis und URL, die [Filter](app:settings/webhook-deliveries?focus=filter) decken Ereignis, URL und Erstellungsdatum ab. Über MCP nutzen Sie `manage_webhooks` mit `action: "list_deliveries"`. Zustellungen bleiben erhalten, solange der Workspace besteht.
 
 Wiederholungen laufen innerhalb derselben Zustellung und erzeugen keine weiteren Einträge: Jeder Eintrag zeigt das letzte Ergebnis, kann also **Fehlgeschlagen** zeigen, während noch Wiederholungen ausstehen, und zu **Zugestellt** wechseln, sobald eine gelingt.
 
@@ -254,18 +254,20 @@ Das `notes`-Feld in Payloads ist Tiptap-JSON, die Struktur, die der Editor speic
 
 ## Was enthalten Delete-Payloads? [#what-do-delete-payloads-contain]
 
-Bei `record.deleted` enthält `data.record` die eindeutige `ref`, die zulässigen Vorher-Werte und die entfernten Beziehungen; `afterVersion` ist null. Quellfilter gelten unmittelbar vor der Entfernung, der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft.
+`record.deleted` wird gesendet, wenn ein Datensatz in den Papierkorb verschoben wird. `data.record` enthält die eindeutige `ref`, die zulässigen Vorher-Werte und die Beziehungen, die er verlässt; `afterVersion` ist null. Quellfilter gelten unmittelbar vor dem Verschieben, der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft. `record.restored` wird gesendet, wenn er aus dem Papierkorb zurückkommt, und enthält wie `record.created` die Nachher-Werte.
+
+`record.deletedPermanently` wird gesendet, wenn ein Datensatz endgültig gelöscht wird, von Hand oder 30 Tage nachdem er in den Papierkorb kam. `data.record` enthält nur die `ref`: Die Werte werden entfernt, und auch die früheren Ereignisse des Datensatzes verlieren ihre Feldwerte; erhalten bleibt, wer ihn wann geändert hat. Es erreicht jeden Webhook der Liste, der es ausgewählt hat und dessen Eigentümer die Liste lesen darf, ohne Quellfilter.
 
 ## Wie untersuche ich eine fehlgeschlagene Zustellung? [#how-do-i-debug-a-delivery]
 
-- Suchen Sie die Zustellung unter [Zustellungen](app:settings/webhooks/deliveries) und öffnen Sie sie, um die **Ereignis-Details** zu sehen.
+- Suchen Sie die Zustellung unter [Zustellungen](app:settings/webhook-deliveries) und öffnen Sie sie, um die **Ereignis-Details** zu sehen.
 - Nutzen Sie [webhook.site](https://webhook.site) beim Testen als Einweg-Empfänger.
 - `manage_webhooks` mit `action: "list_deliveries"` unterstützt `searchTerm` auf URL und Ereignisname.
 - Customermates speichert nur den HTTP-Status-Code und den Statustext, den Ihr Empfänger zurückgegeben hat (zum Beispiel `404` und `Not Found`), angezeigt als **Status-Code** und **Antwort-Nachricht** in **Ereignis-Details**. Der Response-Body wird nicht gespeichert, protokollieren Sie ihn also auf der Empfängerseite. Ohne Antwort zeigt **Status-Code** einen Strich (in der Liste bleibt die Spalte leer) und **Antwort-Nachricht** nennt die Ursache, etwa den Timeout.
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 
-Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Messaging-Ereignisse. Für einen CRM-Webhook wählen Sie **Datensatz erstellt**, **Datensatz aktualisiert** oder **Datensatz gelöscht** (`record.created`, `record.updated`, `record.deleted`) und legen die [Datensatzquelle](#record-event-sources) fest; das gilt auch für Listen, die Sie selbst angelegt haben. Alle nutzen den [Standardumschlag](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus. Siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
+Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Messaging-Ereignisse. Für einen CRM-Webhook wählen Sie **Datensatz erstellt**, **Datensatz aktualisiert**, **Datensatz in den Papierkorb verschoben**, **Datensatz wiederhergestellt** oder **Datensatz endgültig gelöscht** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) und legen die [Datensatzquelle](#record-event-sources) fest; das gilt auch für Listen, die Sie selbst angelegt haben. Alle nutzen den [Standardumschlag](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **Datensatz endgültig gelöscht** (`record.deletedPermanently`), **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus. Siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record-Events [#record-events]
 
@@ -273,7 +275,9 @@ Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[deri
 | --- | --- | --- |
 | `record.created` | Ein Datensatz eines konfigurierten Quelltyps wird erstellt | die Datensatzänderung mit den neuen Werten |
 | `record.updated` | Feld, Zuweisung, Identität oder Verknüpfung eines konfigurierten Quelltyps ändert sich | die Datensatzänderung mit vorherigen und neuen Werten |
-| `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird gelöscht | die Datensatzänderung mit den vorherigen Werten |
+| `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird in den Papierkorb verschoben | die Datensatzänderung mit den vorherigen Werten |
+| `record.restored` | Ein Datensatz eines konfigurierten Quelltyps wird aus dem Papierkorb wiederhergestellt | die Datensatzänderung mit den neuen Werten |
+| `record.deletedPermanently` | Ein Datensatz der Liste wird endgültig gelöscht | nur die `ref`; die Werte sind entfernt |
 
 Fünfzehn typspezifische Bezeichner sind stillgelegt. Sie bleiben nur erhalten, damit ältere Webhooks und Zustellungseinträge lesbar bleiben: Für Webhooks und Routinen lassen sie sich nicht auswählen, und nichts löst sie aus. Ersetzen Sie sie durch ein generisches Ereignis mit Datensatzquelle.
 

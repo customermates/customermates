@@ -1549,7 +1549,7 @@ test("configures self-type singular and many relationships, edits from both ends
   const links = async (relationId: string) =>
     (
       await database.query(
-        'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3',
+        'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3 AND "deletedAt" IS NULL',
         [companyId, relationId, type.id],
       )
     ).rows
@@ -1867,7 +1867,7 @@ test("configures self-type singular and many relationships, edits from both ends
   expect(
     (
       await database.query(
-        'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+        'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
         [companyId, type.id],
       )
     ).rows,
@@ -2031,7 +2031,7 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
     expect(
       (
         await database.query(
-          'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3',
+          'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3 AND "deletedAt" IS NULL',
           [companyId, parent.id, type.id],
         )
       ).rows,
@@ -3117,15 +3117,17 @@ test("keeps retained values restricted after a delegated manager converts fields
         summaryType.id,
         field.label,
       );
-      await openDrawerTab(manager.page, "Calculation");
+      await openDrawerTab(manager.page, "More options");
+      await expect(
+        dialog.getByRole("combobox", { name: "Updates", exact: true }),
+      ).toBeVisible();
+      await expect(dialog.locator("#publishedSummary")).toHaveCount(0);
       await expect(
         dialog.getByRole("switch", {
-          name: englishMessages.RecordModel.publishSummary,
-          exact: true,
+          name: /^Show to everyone who can see the /,
         }),
       ).toHaveCount(0);
-      await openDrawerTab(manager.page, "General");
-      await dialog.locator("#behavior").click();
+      await dialog.locator("#source").click();
       await manager.page
         .getByRole("option", { name: "Entered manually", exact: true })
         .click();
@@ -3307,11 +3309,11 @@ test("publishes and withdraws a private-input summary through the field UI witho
   };
   const applyPublication = async (next: boolean) => {
     const dialog = await summaryFieldEditorUi(page, deal.typeId, summary.label);
-    await openDrawerTab(page, "Calculation");
+    await openDrawerTab(page, "More options");
     const toggle = dialog.getByRole("switch", {
-      name: englishMessages.RecordModel.publishSummary,
-      exact: true,
+      name: /^Show to everyone who can see the /,
     });
+    await expect(toggle).toHaveAttribute("id", "publishedSummary");
     if (next) await toggle.check();
     else await toggle.uncheck();
     await saveDrawer(page);
@@ -3350,6 +3352,10 @@ test("publishes and withdraws a private-input summary through the field UI witho
     await openDrawerTab(member.page, "Calculation");
     await expect(
       delegated.getByRole("region", { name: "Calculation", exact: true }),
+    ).toBeVisible();
+    await openDrawerTab(member.page, "More options");
+    await expect(
+      delegated.getByRole("combobox", { name: "Updates", exact: true }),
     ).toBeVisible();
     await expect(delegated.locator("#publishedSummary")).toHaveCount(0);
     await expect(
@@ -3396,7 +3402,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
       deal.typeId,
       summary.label,
     );
-    await openDrawerTab(member.page, "Calculation");
+    await openDrawerTab(member.page, "More options");
     await expect(stillDelegated.locator("#publishedSummary")).toHaveCount(0);
     await expect(
       stillDelegated.getByText(

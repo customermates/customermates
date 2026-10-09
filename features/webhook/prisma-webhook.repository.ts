@@ -1,3 +1,4 @@
+import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
 import {
@@ -81,9 +82,8 @@ export class PrismaWebhookRepo
     input: RepoArgs<UpsertWebhookRepo, "upsertWebhookOrThrow">,
     previous?: WebhookDto,
   ) {
-    const events = webhook.events.filter(
-      (event): event is "record.created" | "record.updated" | "record.deleted" =>
-        event === "record.created" || event === "record.updated" || event === "record.deleted",
+    const events = webhook.events.filter((event): event is RecordEventKind =>
+      (RECORD_EVENT_KINDS as readonly string[]).includes(event),
     );
     if (!events.length) {
       if (input.recordTrigger || input.recordSources?.length || input.recordOwnerUserId)

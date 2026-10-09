@@ -62,7 +62,7 @@ export function compileRecordSearch(
     const scope = access.get(type.id) ?? { access: "none" as const, userId: "" };
     const matching =
       "refs" in request
-        ? Prisma.sql`SELECT id FROM "CrmRecord" WHERE "companyId" = ${companyId} AND "typeId" = ${type.id}
+        ? Prisma.sql`SELECT id FROM "CrmRecord" WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND "deletedAt" IS NULL
           AND id IN (${Prisma.join(request.refs.filter((ref) => ref.typeId === type.id).map((ref) => ref.recordId))})`
         : similarTerm !== null
           ? Prisma.sql`SELECT value."recordId" AS id, word_similarity(${similarTerm}, value."textValue") AS similarity
@@ -82,7 +82,7 @@ export function compileRecordSearch(
       SELECT record.id, record."typeId", record."createdAt", record.version, record."protectedKind" FROM matches matched
       JOIN LATERAL (
         SELECT id, "companyId", "typeId", "createdAt", version, "protectedKind" FROM "CrmRecord"
-        WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND id = matched.id
+        WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND id = matched.id AND "deletedAt" IS NULL
         OFFSET 0
       ) record ON TRUE
       WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id}

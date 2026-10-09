@@ -55,6 +55,7 @@ const REPOSITORY_MODEL: Record<string, string> = {
   "ee/messaging/persistence/prisma-messaging.repository.ts": "MessagingThread",
   "ee/calendar/prisma-calendar.repository.ts": "Calendar",
   "ee/calendar/prisma-calendar-events.repository.ts": "CalendarEvent",
+  "features/trash/prisma-trash.repository.ts": "TrashItem",
 };
 
 const COMPUTED_SORT_REPOSITORIES: string[] = [];

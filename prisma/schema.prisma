@@ -260,6 +260,7 @@ model Company {
   searchCatalogEntries        SearchCatalogEntry[]
   wikiWebsiteCrawls           WikiWebsiteCrawl[]
   wikiSourceDocuments         WikiSourceDocument[]
+  trashItems                  TrashItem[]
 }
 
 enum WikiPageKind {
@@ -283,6 +284,7 @@ model WikiPage {
   sourceFetchedAt         DateTime?
   sourceContentHash       String?
   sourceImportedUpdatedAt DateTime?
+  deletedAt               DateTime?
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   company                 Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -462,12 +464,12 @@ model P13n {
 }
 
 model DataView {
-  id               String   @id @default(uuid())
+  id               String    @id @default(uuid())
   companyId        String
   userId           String
   surfaceKey       String
   name             String
-  position         Int      @default(0)
+  position         Int       @default(0)
   filters          Json?
   searchTerm       String?
   sortDescriptor   Json?
@@ -478,10 +480,11 @@ model DataView {
   columnWidths     Json?
   hiddenColumns    Json?
   pageSize         Int?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deletedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   widgets          Widget[]
 
   @@index([companyId])
@@ -518,6 +521,7 @@ model Widget {
   layout         Json?
   isTemplate     Boolean    @default(false)
   viewId         String?
+  deletedAt      DateTime?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -1533,6 +1537,7 @@ model Routine {
   lastRunAt       DateTime?
   lastRunStatus   RoutineRunStatus?
   disabledReason  String?
+  deletedAt       DateTime?
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1619,6 +1624,41 @@ enum ConversionEventType {
   paid
 }
 
+enum TrashKind {
+  record
+  list
+  field
+  relationship
+  channels
+  view
+  widget
+  routine
+  wikiPage
+}
+
+model TrashItem {
+  companyId   String
+  id          String    @default(uuid())
+  kind        TrashKind
+  targetId    String
+  typeId      String?
+  surfaceKey  String?
+  ownerUserId String?
+  label       String
+  deletedById String?
+  deletedAt   DateTime  @default(now())
+  expiresAt   DateTime
+  batchId     String
+  payload     Json?
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, id])
+  @@unique([companyId, kind, targetId])
+  @@index([companyId, deletedAt])
+  @@index([companyId, batchId])
+  @@index([expiresAt])
+}
+
 model RecordSchemaState {
   companyId         String  @id
   revision          Int     @default(0)
@@ -1696,6 +1736,8 @@ model CrmRecord {
   version       Int                         @default(1)
   protectedKind String?
   systemData    Json?
+  deletedAt     DateTime?
+  trashItemId   String?
   createdAt     DateTime                    @default(now())
   updatedAt     DateTime                    @updatedAt
   company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1825,6 +1867,7 @@ model RecordLink {
   sourceId     String
   targetTypeId String
   targetId     String
+  deletedAt    DateTime?
   createdAt    DateTime                     @default(now())
   updatedAt    DateTime                     @updatedAt
   company      Company                      @relation(fields: [companyId], references: [id], onDelete: Cascade)

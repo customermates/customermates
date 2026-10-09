@@ -28,7 +28,7 @@ export function recordReadPredicate(
       JOIN LATERAL (SELECT ${parent}.id FROM "CrmRecord" ${parent}
         WHERE ${parent}."companyId" = ${companyId} AND ${parent}."typeId" = ${scope.parent.typeId}
         AND ${parent}.id = ${link}."targetId" AND ${recordReadPredicate(companyId, scope.parent.scope, parent, depth + 1)} OFFSET 0) ${parent} ON TRUE
-      WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${scope.parent.relationId}
+      WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${scope.parent.relationId} AND ${link}."deletedAt" IS NULL
       AND ${link}."sourceTypeId" = ${record}."typeId" AND ${link}."targetTypeId" = ${scope.parent.typeId}
       AND ${link}."sourceId" = ${record}.id OFFSET 0)`;
   }
@@ -105,12 +105,14 @@ export function fieldReadPredicate(
     return Prisma.sql`NOT EXISTS (
       SELECT 1 FROM "RecordLink" ${link}
       JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${targetTypeId} AND ${target}."id" = ${targetId}
-      WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relation.id} AND ${sourceId} = ${record}."id"
-      AND NOT (${accessPredicate} AND ${dependencyPredicate})
+      WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relation.id} AND ${link}."deletedAt" IS NULL
+      AND ${sourceId} = ${record}."id" AND NOT (${accessPredicate} AND ${dependencyPredicate})
     )`;
   };
   return readableField(field, root);
 }
+
+const RICH_TEXT_NODES = Prisma.sql`jsonb_path_query(value."jsonValue", 'strict $.**.text') node(text)`;
 
 function storageColumn(field: RecordField): Prisma.Sql {
   if (field.multiple) return Prisma.sql`array_to_string(value."textListValue", ',')`;
@@ -209,6 +211,7 @@ export function compileRecordQuery(
   const conditions: Prisma.Sql[] = [
     Prisma.sql`${record}."companyId" = ${companyId}`,
     Prisma.sql`${record}."typeId" = ${query.typeId}`,
+    Prisma.sql`${record}."deletedAt" IS NULL`,
     recordReadPredicate(companyId, scope, record),
   ];
   let searchSource = Prisma.empty;
@@ -255,6 +258,19 @@ export function compileRecordQuery(
     if (z.uuid().safeParse(query.search).success) {
       matches.push(Prisma.sql`SELECT id FROM "CrmRecord"
         WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId} AND id = ${query.search}`);
+    }
+    const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
+    if (richTextFields.length) {
+      const permitted = richTextFields.map(
+        (field) =>
+          Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, searchRecord)})`,
+      );
+      matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordValue" value
+        ${searchRecordSource}
+        WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId}
+          AND value.state = 'value'
+          AND EXISTS (SELECT 1 FROM ${RICH_TEXT_NODES} WHERE node.text #>> '{}' ILIKE ${search})
+          AND (${Prisma.join(permitted, " OR ")})`);
     }
     if (recordChannelsEnabled(model, query.typeId)) {
       matches.push(Prisma.sql`SELECT association."recordId" AS id FROM "RecordIdentityLink" association
@@ -334,6 +350,15 @@ export function compileRecordQuery(
         continue;
       }
     }
+    if (field.valueType === "richText") {
+      if (filter.operator !== "contains" || filter.value.kind !== "text")
+        throw new Error("Formatted text query must be validated before compilation");
+      const pattern = `%${filter.value.value.replace(/[\\%_]/g, "\\$&")}%`;
+      conditions.push(
+        Prisma.sql`EXISTS (SELECT 1 FROM "RecordValue" value CROSS JOIN LATERAL ${RICH_TEXT_NODES} WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value."recordId" = ${record}.id AND value."fieldId" = ${field.id} AND value.state = 'value' AND node.text #>> '{}' ILIKE ${pattern})`,
+      );
+      continue;
+    }
     if (filter.operator === "contains" || filter.operator === "startsWith") {
       if (filter.value.kind !== "text") throw new Error("Text query must be validated before compilation");
       const pattern = `${filter.operator === "contains" ? "%" : ""}${filter.value.value.replace(/[\\%_]/g, "\\$&")}%`;
@@ -372,7 +397,7 @@ export function compileRecordQuery(
         : filter.recordIds.length
           ? Prisma.sql`${target}.id IN (${Prisma.join(filter.recordIds)})`
           : Prisma.sql`FALSE`;
-    const matching = Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link} JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetId} WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relation.id} AND ${sourceId} = ${record}.id AND ${recordReadPredicate(companyId, scope, target)} AND ${selected})`;
+    const matching = Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link} JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetId} WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relation.id} AND ${link}."deletedAt" IS NULL AND ${sourceId} = ${record}.id AND ${recordReadPredicate(companyId, scope, target)} AND ${selected})`;
     conditions.push(filter.operator === "none" ? Prisma.sql`NOT (${matching})` : matching);
   }
   for (const [index, filter] of (query.relatedFilters ?? []).entries()) {
@@ -410,7 +435,7 @@ export function compileRecordQuery(
       const sourceId = step.direction === "outgoing" ? Prisma.sql`${link}."sourceId"` : Prisma.sql`${link}."targetId"`;
       const targetId = step.direction === "outgoing" ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
       const scope = access.get(step.typeId) ?? { userId: "", access: "none" as const };
-      const endpoint = Prisma.sql`${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relation.id}
+      const endpoint = Prisma.sql`${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relation.id} AND ${link}."deletedAt" IS NULL
         AND ${link}."sourceTypeId" = ${step.relation.sourceTypeId} AND ${link}."targetTypeId" = ${step.relation.targetTypeId}
         AND ${sourceId} = ${parent}.id`;
       joins.push(

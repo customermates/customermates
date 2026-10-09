@@ -110,6 +110,15 @@ import { MutateRecordInteractor } from "@/features/records/mutate-record.interac
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
+import { RecordTrashHandler } from "@/features/records/record-trash.handler";
+import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
+import type { TrashKindHandler } from "@/features/trash/trash-kind-handler";
+import { QueryTrashInteractor } from "@/features/trash/query-trash.interactor";
+import { RestoreTrashInteractor } from "@/features/trash/restore-trash.interactor";
+import { PreviewTrashDeletionInteractor } from "@/features/trash/preview-trash-deletion.interactor";
+import { DeleteTrashPermanentlyInteractor } from "@/features/trash/delete-trash-permanently.interactor";
+import { EmptyTrashInteractor } from "@/features/trash/empty-trash.interactor";
+import { GetTrashedRecordInteractor } from "@/features/trash/get-trashed-record.interactor";
 import { QueryRecordMeasureInteractor } from "@/features/records/query-record-measure.interactor";
 import { QueryRecordsInteractor } from "@/features/records/query-records.interactor";
 import { GetRecordInteractor } from "@/features/records/get-record.interactor";
@@ -500,6 +509,31 @@ export const getApplyRecordConfigurationInteractor = () =>
     new RecordConfigurationWriter(getRecordRepo(), getRecordCalculationService()),
     getBackgroundTaskService(),
   );
+export const getTrashRepo = (companyId?: string) => new PrismaTrashRepo(companyId);
+export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => [
+  new RecordTrashHandler(
+    new PrismaRecordRepo(companyId, getBackgroundTaskService()),
+    getRecordAccessPolicy(),
+    getBackgroundTaskService(),
+  ),
+];
+export const getQueryTrashInteractor = () =>
+  new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());
+export const getRestoreTrashInteractor = () => new RestoreTrashInteractor(getTrashRepo(), getTrashKindHandlers());
+export const getPreviewTrashDeletionInteractor = () =>
+  new PreviewTrashDeletionInteractor(getTrashRepo(), getTrashKindHandlers());
+export const getDeleteTrashPermanentlyInteractor = () =>
+  new DeleteTrashPermanentlyInteractor(getTrashRepo(), getTrashKindHandlers());
+export const getEmptyTrashInteractor = () =>
+  new EmptyTrashInteractor(getTrashRepo(), getRecordAccessPolicy(), getTrashKindHandlers());
+export const getGetTrashedRecordInteractor = () =>
+  new GetTrashedRecordInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getGetRecordEditorInteractor(),
+    getTrashRepo(),
+    getTrashKindHandlers(),
+  );
 export const getRecordOperationService = () =>
   new RecordOperationService(getRecordRepo(), getRecordAccessPolicy(), getRecordConfigurationService());
 export const getGetRecordOperationInteractor = () =>
@@ -649,7 +683,12 @@ export const getIngestUnipileWebhookInteractor = () =>
 export const getUserIdsValidator = () => new ValidateUserIdsInteractor(getUserRepo());
 export const getAssigneeGuardValidator = () => new ValidateAssigneeGuardInteractor(getUserService());
 export const getQueryParamsPrecheck = () =>
-  new QueryParamsPrecheckInteractor(getUserIdsValidator(), getThreadIdsValidator(), getConnectedAccountIdsValidator());
+  new QueryParamsPrecheckInteractor(
+    getUserIdsValidator(),
+    getThreadIdsValidator(),
+    getConnectedAccountIdsValidator(),
+    getWebhookIdsValidator(),
+  );
 export const getWidgetIdsValidator = () => new ValidateWidgetIdsInteractor(getWidgetRepo());
 export const getWebhookIdsValidator = () => new ValidateWebhookIdsInteractor(getWebhookRepo());
 export const getWebhookDeliveryIdsValidator = () => new ValidateWebhookDeliveryIdsInteractor(getWebhookDeliveryRepo());
