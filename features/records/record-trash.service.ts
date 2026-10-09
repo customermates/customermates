@@ -51,20 +51,21 @@ export class RecordTrashService {
     if (!type || type.archived) return { itemId: item.id, reason: "listDeleted", typeId: item.typeId };
     const ref = { typeId: item.typeId, recordId: item.targetId };
     const row = await this.records.getRecordCompanyWide(ref, { includeTrash: true });
-    if (!row || !policy.allowed(item.typeId, "delete"))
+    const members = await this.records.countTrashedRecordsCompanyWide([item.id]);
+    if (!row || !members.records.every((entry) => policy.allowed(entry.typeId, "delete")))
       return { itemId: item.id, reason: "notFound", typeId: item.typeId };
-    if (!type.parentRelationshipId) {
-      if (!(await policy.canRead(row))) return { itemId: item.id, reason: "notFound", typeId: item.typeId };
-      return null;
+    if (type.parentRelationshipId) {
+      const parentRef = await this.records.getTrashedParentCompanyWide(ref, type.parentRelationshipId);
+      if (!parentRef || !(await this.records.getRecordCompanyWide(parentRef))) {
+        return {
+          itemId: item.id,
+          reason: "parentDeleted",
+          typeId: item.typeId,
+          ...(parentRef ? { parent: parentRef } : {}),
+        };
+      }
     }
-    const parentLink = (await this.records.getTrashedLinksCompanyWide([ref], SYNCHRONOUS_RECORD_LIMIT * 4)).find(
-      (link) => link.relationId === type.parentRelationshipId && recordKey(link.source) === recordKey(ref),
-    );
-    const parent = parentLink ? await this.records.getRecordCompanyWide(parentLink.target) : null;
-    if (!parentLink || !parent)
-      return { itemId: item.id, reason: "parentDeleted", typeId: item.typeId, parent: parentLink?.target };
-    if (!(await policy.canRead(parent))) return { itemId: item.id, reason: "notFound", typeId: item.typeId };
-    return null;
+    return (await policy.canRead(row)) ? null : { itemId: item.id, reason: "notFound", typeId: item.typeId };
   }
 
   async restore(
@@ -74,19 +75,49 @@ export class RecordTrashService {
     journal: RecordJournal,
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ): Promise<RecordRestoreResult> {
-    const records = journal.repository;
-    const blocked: RecordRestoreBlocker[] = [];
-    const restorable: RecordTrashItem[] = [];
-    for (const item of items) {
-      const blocker = await this.accessible(item, model, policy);
-      if (blocker) blocked.push(blocker);
-      else restorable.push(item);
+    const result: RecordRestoreResult = { restoredItemIds: [], blocked: [], restoredRecords: 0, droppedLinks: 0 };
+    let pending = items;
+    let progressed = true;
+    while (pending.length && progressed) {
+      progressed = false;
+      const waiting: RecordTrashItem[] = [];
+      result.blocked = [];
+      for (const item of pending) {
+        const blocker = await this.accessible(item, model, policy);
+        if (blocker?.reason === "parentDeleted") {
+          waiting.push(item);
+          result.blocked.push(blocker);
+          continue;
+        }
+        if (blocker) {
+          result.blocked.push(blocker);
+          continue;
+        }
+        const refs = await journal.repository.getTrashedRecordRefsCompanyWide(
+          [item.id],
+          limit - result.restoredRecords + 1,
+        );
+        if (result.restoredRecords + refs.length > limit)
+          throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+        result.droppedLinks += await this.restoreRecords(refs, model, journal, limit);
+        await journal.repository.removeTrashItems([item.id]);
+        result.restoredItemIds.push(item.id);
+        result.restoredRecords += refs.length;
+        progressed = true;
+      }
+      pending = waiting;
     }
-    const refs = await records.getTrashedRecordRefsCompanyWide(
-      restorable.map((item) => item.id),
-      limit + 1,
-    );
-    if (refs.length > limit) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+    result.blocked = [
+      ...result.blocked.filter((blocker) => blocker.reason !== "parentDeleted"),
+      ...result.blocked.filter(
+        (blocker) => blocker.reason === "parentDeleted" && pending.some((item) => item.id === blocker.itemId),
+      ),
+    ];
+    return result;
+  }
+
+  async restoreRecords(refs: RecordRef[], model: RecordModel, journal: RecordJournal, limit: number) {
+    const records = journal.repository;
     await journal.prepareRestore(refs);
     await records.restoreRecords(refs);
     const restored = new Set(refs.map(recordKey));
@@ -131,13 +162,7 @@ export class RecordTrashService {
     if (!recalculated.complete) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) seeds.set(recordKey(ref), ref);
     for (const [key, ref] of seeds) if (!restored.has(key)) await records.touch(ref);
-    await records.removeTrashItems(restorable.map((item) => item.id));
-    return {
-      restoredItemIds: restorable.map((item) => item.id),
-      blocked,
-      restoredRecords: refs.length,
-      droppedLinks,
-    };
+    return droppedLinks;
   }
 
   async purge(

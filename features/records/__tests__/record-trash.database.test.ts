@@ -43,6 +43,8 @@ const { PreviewTrashDeletionInteractor } = await import("@/features/trash/previe
 const { DeleteTrashPermanentlyInteractor } = await import("@/features/trash/delete-trash-permanently.interactor");
 const { EmptyTrashInteractor } = await import("@/features/trash/empty-trash.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
+const { RecordConfigurationService } = await import("../configuration.service");
+const { RecordOperationService } = await import("../record-operation.service");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -84,7 +86,9 @@ async function fixture() {
   const search = new SearchRecordsInteractor(repo, policy);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const trashRepo = new PrismaTrashRepo();
-  const handlers = [new RecordTrashHandler(repo, policy, { dispatch: () => Promise.resolve() })];
+  const handler = new RecordTrashHandler(repo, policy, { dispatch: () => Promise.resolve() });
+  const handlers = [handler];
+  const worker = new RecordOperationService(repo, policy, new RecordConfigurationService(repo));
   const trash = {
     query: new QueryTrashInteractor(trashRepo, repo, handlers),
     restore: new RestoreTrashInteractor(trashRepo, handlers),
@@ -165,6 +169,9 @@ async function fixture() {
       }),
     );
   return {
+    repo,
+    handler,
+    worker,
     seed,
     admin,
     member,
@@ -327,6 +334,9 @@ describeDatabase("record trash", () => {
         links: [{ relationId: f.primaryContact, direction: "outgoing", record: contact }],
       }),
     ).toBeTruthy();
+    expect(
+      await runWithTenant(f.admin, async () => f.repo.validateRelationshipCardinality(await f.repo.getModel())),
+    ).toEqual([]);
     const restored = await runWithTenant(f.admin, () =>
       f.trash.restore.invoke({ batchId: deleted.trashBatchId } as never),
     );
@@ -439,6 +449,76 @@ describeDatabase("record trash", () => {
       await runWithTenant(f.admin, () => f.trash.empty.invoke({ expectedImpactHash: everything.data.impactHash })),
     ).toMatchObject({ ok: true });
     expect(await runWithoutTenant(() => prisma.crmRecord.count({ where: { companyId: f.seed.company.id } }))).toBe(0);
+  }, 180_000);
+
+  it("restores a deal and a line item deleted together, whatever their order", async () => {
+    const f = await fixture();
+    const deal = await f.created({
+      action: "create",
+      typeId: f.id("deal"),
+      fields: [{ fieldId: f.id("deal.name"), value: text("Together") }],
+    });
+    const item = await f.created({
+      action: "create",
+      typeId: f.id("lineItem"),
+      fields: [],
+      links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }],
+    });
+    const versions = await runWithTenant(f.admin, async () =>
+      Promise.all([deal, item].map(async (ref) => ({ ref, read: await f.read.invoke(ref) }))),
+    );
+    const deleted = await f.mutation({
+      action: "deleteMany",
+      targets: versions.map(({ ref, read }) => ({ ref, expectedVersion: read.ok ? read.data.version : 0 })),
+    });
+    if (!deleted.ok || deleted.data.status !== "completed") throw new Error(JSON.stringify(deleted));
+    const restored = await runWithTenant(f.admin, () =>
+      f.trash.restore.invoke({ batchId: deleted.data.trashBatchId } as never),
+    );
+    expect(restored).toMatchObject({ ok: true, data: { blocked: [], restoredRecords: 2 } });
+    for (const ref of [deal, item]) expect(await f.rows(ref)).toEqual({ deletedAt: null, trashItemId: null });
+  }, 180_000);
+
+  it("restores a large delete page by page as a background operation", async () => {
+    const f = await fixture();
+    const deal = await f.created({
+      action: "create",
+      typeId: f.id("deal"),
+      fields: [{ fieldId: f.id("deal.name"), value: text("Large") }],
+    });
+    for (let index = 0; index < 3; index++) {
+      await f.created({
+        action: "create",
+        typeId: f.id("lineItem"),
+        fields: [{ fieldId: f.id("lineItem.quantity"), value: decimal("1") }],
+        links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }],
+      });
+    }
+    const deleted = await f.remove(deal);
+    const items = await runWithoutTenant(() =>
+      prisma.trashItem.findMany({ where: { companyId: f.seed.company.id, batchId: deleted.trashBatchId } }),
+    );
+    const operationId = await runWithTenant(f.admin, () =>
+      runInTransaction(() => f.handler.restoreInBackground(items as never)),
+    );
+    let done = false;
+    for (let step = 0; step < 20 && !done; step++)
+      done = (await runWithTenant(f.admin, () => f.worker.advance(operationId))).done;
+    const operation = await runWithoutTenant(() =>
+      prisma.recordOperation.findUniqueOrThrow({
+        where: { companyId_id: { companyId: f.seed.company.id, id: operationId } },
+      }),
+    );
+    expect(operation).toMatchObject({
+      state: "completed",
+      result: { restore: { restoredRecords: 4, restoredItemIds: [items[0]?.id], blocked: [] } },
+    });
+    expect(await f.field(deal, f.id("deal.totalQuantity"))).toMatchObject({ value: { value: "3" } });
+    expect(
+      await runWithoutTenant(() =>
+        prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId: f.seed.company.id } }),
+      ),
+    ).toMatchObject({ activeOperationId: null });
   }, 180_000);
 
   it("blocks restoring a line item while its deal is in Trash", async () => {

@@ -202,6 +202,7 @@ export interface RecordRepo {
   getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string }): Promise<RecordTrashItem[]>;
   getTrashedRecordRefsCompanyWide(trashItemIds: string[], take: number): Promise<RecordRef[]>;
   getTrashedLinksCompanyWide(refs: RecordRef[], take: number): Promise<TrashedRecordLink[]>;
+  getTrashedParentCompanyWide(ref: RecordRef, relationId: string): Promise<RecordRef | null>;
   restoreRecords(refs: RecordRef[]): Promise<void>;
   restoreLink(id: string): Promise<void>;
   dropTrashedLink(id: string): Promise<void>;
