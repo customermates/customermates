@@ -3275,7 +3275,6 @@
       "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
       "resetLayout": "Reset layout",
       "showFewer": "Show fewer",
-      "sublistOf": "Sub-list of {list}",
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out"
     },
@@ -3550,7 +3549,7 @@
         "singular": "Task"
       }
     },
-    "sublistExplanation": "Each entry belongs to one {parent} record, is edited inside it, shares its access and is removed with it.",
+    "sublistSentence": "Sub-list of {list} · each entry lives inside one {parent}, shares its access and is removed with it.",
     "suggestedAttribute": "Suggested",
     "summaryAggregation": "Calculation",
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
