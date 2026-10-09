@@ -1,3 +1,5 @@
+import { sentenceTemplate } from "@/core/utils/sentence-template";
+
 import type { CalculationExpression, RecordFieldView, RecordModelView, RecordScalar } from "./record-model.schema";
 
 type Related = Extract<CalculationExpression, { kind: "related" }>;
@@ -34,7 +36,6 @@ const SYMBOLS: Partial<Record<Operator, string>> = {
   lessThan: "<",
   greaterThan: ">",
 };
-const TOKEN = "\u0000";
 
 export function linkedFlow(expression: CalculationExpression): LinkedFlow {
   const hops: LinkedHop[] = [];
@@ -128,11 +129,7 @@ function fill(
   values: Record<string, SentenceSegment[]>,
   translate: (tokens: Record<string, string>) => string,
 ): SentenceSegment[] {
-  const names = Object.keys(values);
-  const text = translate(Object.fromEntries(names.map((name, index) => [name, `${TOKEN}${index}${TOKEN}`])));
-  return text
-    .split(TOKEN)
-    .flatMap((part, index) => (index % 2 === 0 ? (part ? [part] : []) : values[names[Number(part)]]));
+  return sentenceTemplate<SentenceReference>(translate, values);
 }
 
 function join(parts: SentenceSegment[][], separator: string): SentenceSegment[] {
