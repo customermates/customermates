@@ -40,7 +40,7 @@ export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
 
 export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
   {
-    scope: "settings-webhooks-deliveries",
+    scope: "settings-webhook-deliveries",
     route: WEBHOOK_DELIVERIES_HREF,
     label: "webhook deliveries",
   },
@@ -476,7 +476,8 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   roles: "Settings link to Roles and their permissions",
   billing: "Settings link to Billing, the plan, subscription, trial status and invoices",
   activity: "Settings link to Activity, the audit log of changes in the workspace",
-  webhooks: "Settings link to Webhooks, with a Deliveries tab for sent webhook deliveries",
+  webhooks: "Settings link to Webhooks; each webhook row offers Show deliveries for its sent deliveries",
+  "webhook-deliveries": "Settings link to Deliveries, the sent webhook deliveries, directly below Webhooks",
 };
 
 export function settingsNavKeys(section: SettingsSection): string[] {

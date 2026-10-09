@@ -108,6 +108,7 @@ describe("agent interface targets", () => {
     expect(agentSidebarGroupId("nav-settings-unknown")).toBeNull();
   });
 
+
   it("opens a page only when the sidebar would show it for the role and installation", () => {
     const reads =
       (...resources: Resource[]) =>
@@ -131,7 +132,7 @@ describe("agent interface targets", () => {
   it("names every routable target's page with the label keys the sidebar can show", () => {
     expect(agentUiPageLabelKeys("/settings/members")).toEqual(["SettingsNav.members"]);
     expect(agentUiPageLabelKeys("/settings/api-keys")).toEqual(["SettingsNav.apiKeys"]);
-    expect(agentUiPageLabelKeys("/settings/webhooks/deliveries")).toEqual(["SettingsNav.webhooks"]);
+    expect(agentUiPageLabelKeys("/settings/webhook-deliveries")).toEqual(["SettingsNav.deliveries"]);
     expect(agentUiPageLabelKeys("/inbox")).toEqual(["NavigationBar.inbox"]);
     expect(agentUiPageLabelKeys("/routines")).toEqual(["NavigationBar.routines"]);
     expect(agentUiPageLabelKeys("*")).toEqual([]);
