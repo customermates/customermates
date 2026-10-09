@@ -2,7 +2,7 @@
 
 import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
 import type {
-  CalculatedValue,
+  CalculationExpression,
   RecordFieldView,
   RecordModelView,
   RecordRef,
@@ -10,6 +10,7 @@ import type {
   RecordScalar,
 } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
+import type { RecordColumn } from "@/features/records/record-columns";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordsStore } from "./records.store";
 
@@ -47,6 +48,7 @@ import { expressionSegments, sentenceText } from "@/features/records/calculation
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "./record-relationship-editor";
+import { isEmptyResult } from "./record-chip-row-model";
 
 const EDIT_TARGET_SELECTOR = "[data-edit-target]";
 const EDIT_TARGET_CLASS =
@@ -78,13 +80,6 @@ export function hasInlineRelationshipEditor(records: RecordsStore, record: Recor
     records.canUpdateRecord(record) &&
     !records.presentation.model.types.some((type) => type.embedded && type.parentRelationshipId === relation.id)
   );
-}
-
-export function isEmptyResult(result: CalculatedValue | undefined) {
-  if (!result || result.state === "missing") return true;
-  if (result.state !== "value") return false;
-  const value = result.value;
-  return (value.kind === "selectList" || value.kind === "textList") && value.value.length === 0;
 }
 
 export function editsInPlace(field: RecordFieldView) {
@@ -514,13 +509,24 @@ export const RecordInlineField = observer(function RecordInlineField({
   );
 });
 
+function expressionResolves(expression: CalculationExpression, model: RecordModelView): boolean {
+  if (expression.kind === "field" || expression.kind === "optionAttribute")
+    return model.fields.some((field) => field.id === expression.fieldId);
+  if (expression.kind === "literal") return true;
+  if (expression.kind === "related") {
+    if (!model.relationships.some((relation) => relation.id === expression.relationId)) return false;
+    return expression.reducer === "count" || expressionResolves(expression.expression, model);
+  }
+  return expression.arguments.every((argument) => expressionResolves(argument, model));
+}
+
 export function calculatedFieldLabel(
   field: RecordFieldView,
   model: RecordModelView,
   t: ReturnType<typeof useTranslations>,
 ) {
   const expression = field.behavior.kind === "input" ? undefined : field.behavior.expression;
-  return expression
+  return expression && expressionResolves(expression, model)
     ? t("RecordModel.calculatedValue", {
         formula: sentenceText(
           expressionSegments(expression, field.typeId, {
@@ -746,5 +752,41 @@ export const RecordInlineRelationship = observer(function RecordInlineRelationsh
         )}
       </PopoverContent>
     </Popover>
+  );
+});
+
+export const RecordPropertyEditor = observer(function RecordPropertyEditor({
+  records,
+  record,
+  column,
+  onDone,
+  onOpenRecord,
+}: {
+  records: RecordsStore;
+  record: RecordRow;
+  column: RecordColumn<RecordFieldView>;
+  onDone: () => void;
+  onOpenRecord: (ref: RecordRef) => void;
+}) {
+  if (column.kind === "relationship") {
+    return (
+      <InlineRelationshipPicker
+        direction={column.direction}
+        label={column.label}
+        record={record}
+        records={records}
+        relation={column.relation}
+        onDone={onDone}
+        onOpenRecord={onOpenRecord}
+      />
+    );
+  }
+  if (column.kind !== "field") return null;
+  return (
+    <>
+      <p className="text-xs font-medium text-muted-foreground">{column.label}</p>
+
+      <InlineFieldForm field={column.field} record={record} records={records} onDone={onDone} />
+    </>
   );
 });

@@ -51,7 +51,7 @@ export function calculationDraft(behavior: CalculatedBehavior) {
       ? behavior.kind
       : linked.hops.length === 0
         ? "formula"
-        : aggregateOf(linked) === "one"
+        : linked.hops.every((hop) => hop.reducer === "one")
           ? "lookup"
           : "rollup";
   return {
@@ -89,10 +89,15 @@ export function calculationBehavior(draft: {
 
 export function withAggregate(flow: LinkedFlow, reducer: Related["reducer"]): LinkedFlow {
   const outer = reducer === "count" ? "sum" : reducer;
+  const many = flow.hops.map((hop) => hop.reducer !== "one");
+  const last = many.lastIndexOf(true) === -1 ? flow.hops.length - 1 : many.lastIndexOf(true);
   return {
     ...flow,
     value: reducer === "count" ? UNSET : flow.value,
-    hops: flow.hops.map((hop, index) => ({ ...hop, reducer: index === flow.hops.length - 1 ? reducer : outer })),
+    hops: flow.hops.map((hop, index) => ({
+      ...hop,
+      reducer: reducer === "one" ? "one" : index === last ? reducer : many[index] ? outer : "one",
+    })),
   };
 }
 
@@ -123,7 +128,9 @@ export function relationshipChoices(typeId: string, model: RecordModelView, sing
       .filter((end) => !singularOnly || end.single)
       .flatMap((end) => {
         const targetTypeId = hopTargetTypeId({ relationId: relation.id, direction: end.direction }, model);
-        return targetTypeId ? [{ relation, direction: end.direction, label: end.label, targetTypeId }] : [];
+        return targetTypeId
+          ? [{ relation, direction: end.direction, label: end.label, targetTypeId, single: end.single }]
+          : [];
       });
   });
 }

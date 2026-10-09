@@ -2971,6 +2971,7 @@
     },
     "addOption": "Añadir opción",
     "addPathStep": "Añadir un paso de relación",
+    "addProperty": "Añadir propiedad",
     "addRelationship": "Añadir relación",
     "aggregation": "Agregación",
     "ascending": "Ascendente",
@@ -3016,7 +3017,9 @@
         "relationship": "Elige qué registros vinculados usar.",
         "step": "Elige los valores para {operation}.",
         "sum": "Elige qué valor sumar.",
-        "take": "Elige qué valor tomar."
+        "take": "Elige qué valor tomar.",
+        "trigger": "Elige el campo que activa el guardado.",
+        "triggerValue": "Elige el valor que activa el guardado."
       },
       "moreOptions": "Más opciones",
       "of": "de",
@@ -3454,6 +3457,7 @@
     },
     "privateAccess": "Solo administradores",
     "probability": "Probabilidad %",
+    "probabilityNeedsNumber": "La probabilidad es un atributo numérico. Añádela con Añadir atributo.",
     "progressUnavailable": "No se pudo cargar el progreso. Tu borrador se conserva.",
     "rangeEnd": "Hasta",
     "rangeStart": "Desde",

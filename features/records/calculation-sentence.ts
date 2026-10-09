@@ -51,7 +51,7 @@ export function linkedExpression({ hops, value }: LinkedFlow): CalculationExpres
 }
 
 export function aggregateOf(flow: LinkedFlow): Related["reducer"] {
-  return flow.hops.at(-1)?.reducer ?? "one";
+  return flow.hops.findLast((hop) => hop.reducer !== "one")?.reducer ?? "one";
 }
 
 export function hopTargetTypeId(

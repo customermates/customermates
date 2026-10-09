@@ -454,7 +454,7 @@ export const FieldOptionsEditor = observer(function FieldOptionsEditor({ store }
                 WIDE_OPTION_LABEL[step],
               )}
             >
-              {t("RecordModel.option")}
+              {t("RecordModel.name")}
             </span>
 
             {columns.length > 0 && (

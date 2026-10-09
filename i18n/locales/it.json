@@ -2971,6 +2971,7 @@
     },
     "addOption": "Aggiungi opzione",
     "addPathStep": "Aggiungi un passaggio di relazione",
+    "addProperty": "Aggiungi proprietà",
     "addRelationship": "Aggiungi relazione",
     "aggregation": "Aggregazione",
     "ascending": "Crescente",
@@ -3016,7 +3017,9 @@
         "relationship": "Scegli quali record collegati usare.",
         "step": "Scegli i valori per {operation}.",
         "sum": "Scegli quale valore sommare.",
-        "take": "Scegli quale valore prendere."
+        "take": "Scegli quale valore prendere.",
+        "trigger": "Scegli il campo che attiva il salvataggio.",
+        "triggerValue": "Scegli il valore che attiva il salvataggio."
       },
       "moreOptions": "Altre opzioni",
       "of": "di",
@@ -3454,6 +3457,7 @@
     },
     "privateAccess": "Solo amministratori",
     "probability": "Probabilità %",
+    "probabilityNeedsNumber": "La probabilità è un attributo numerico. Aggiungila invece con Aggiungi attributo.",
     "progressUnavailable": "Impossibile caricare l’avanzamento. La bozza viene conservata.",
     "rangeEnd": "A",
     "rangeStart": "Da",
