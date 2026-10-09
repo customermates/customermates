@@ -2034,6 +2034,7 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
+    "configureField": "Edit field {field}",
     "donePersonalizing": "Done",
     "fieldCancelled": "Cancelled moving {field}.",
     "fieldDropped": "Placed {field}.",
