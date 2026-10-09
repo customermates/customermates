@@ -265,6 +265,7 @@ export function compileRecordQuery(
       matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordValue" value
         ${searchRecordSource}
         WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId}
+          AND value."fieldId" IN (${Prisma.join(richTextFields.map((field) => field.id))})
           AND value.state = 'value'
           AND EXISTS (SELECT 1 FROM ${RICH_TEXT_NODES} WHERE node.text #>> '{}' ILIKE ${search})
           AND (${Prisma.join(permitted, " OR ")})`);
