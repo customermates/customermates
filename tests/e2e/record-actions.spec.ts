@@ -241,7 +241,7 @@ test("record drawer tabs remember the last tab and flag invalid fields on other 
   const tabs = drawer.getByRole("tablist", { name: "Overview", exact: true });
   await expect(tabs.getByRole("tab")).toHaveText(["Overview", "Activities"]);
   const name = drawer.getByRole("textbox", { name: "Name", exact: false });
-  const original = await name.inputValue();
+  const renamed = `Tabbed ${randomUUID().slice(0, 6)}`;
   await name.fill("");
   await tabs.getByRole("tab", { name: "Activities" }).click();
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
@@ -250,12 +250,12 @@ test("record drawer tabs remember the last tab and flag invalid fields on other 
   await expect(overview.locator("[data-tab-error-dot]")).toBeVisible();
   await expect(drawer).toBeVisible();
   await overview.click();
-  await name.fill(original);
+  await name.fill(renamed);
   await tabs.getByRole("tab", { name: "Activities" }).click();
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
 
-  await openRecordDetails(page, "Example organization");
+  await openRecordDetails(page, renamed);
   await expect(drawer.getByRole("tab", { name: "Activities" })).toHaveAttribute("data-state", "active");
   await page.setViewportSize({ width: 360, height: 800 });
   const list = drawer.locator('[data-slot="segmented-control-list"]');
