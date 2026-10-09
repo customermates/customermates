@@ -171,6 +171,11 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await expect(
     page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
   ).not.toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "Budget", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Appearance", exact: true }).click();
+  await expect(page.getByRole("checkbox", { name: "Budget", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reset to shared defaults", exact: true })).toHaveCount(0);
+  await page.keyboard.press("Escape");
   const configured = await database.query(
     'SELECT definition FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND id=$2',
     [companyId, typeId],

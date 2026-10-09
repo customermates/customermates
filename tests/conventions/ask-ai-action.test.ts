@@ -18,7 +18,6 @@ const OVERLAY_ICON_CONTROL_SURFACES = [
 
 const ASK_AI_LABEL_OWNERS = [
   "components/ui/ask-ai-action.tsx",
-  "app/components/agent-chat/record-ai-action.tsx",
   "components/data-view/views/data-view-views-rail.tsx",
 ];
 
@@ -63,9 +62,7 @@ describe("Ask AI and overlay header controls (rule 62)", () => {
       .sort();
 
     expect(owners).toEqual([...ASK_AI_LABEL_OWNERS].sort());
-    expect(read("app/components/agent-chat/record-ai-action.tsx")).toContain(
-      'kind: "assistant"',
-    );
+    expect(read("components/ui/ask-ai-action.tsx")).toContain('kind: "assistant"');
     expect(read("components/data-view/views/data-view-views-rail.tsx")).toMatch(
       /<DropdownMenuItem[^>]*id="global-data-views-ai"/,
     );
