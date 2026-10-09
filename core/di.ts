@@ -1269,7 +1269,7 @@ export const getUpsertDataViewInteractor = () =>
   new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
 
 export const getDeleteDataViewInteractor = () =>
-  new DeleteDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
+  new DeleteDataViewInteractor(getDataViewRepo(), getP13nRepo(), getTrashRepo(), getRecordViewPolicy());
 
 export const getSaveDataViewStateInteractor = () =>
   new SaveDataViewStateInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());

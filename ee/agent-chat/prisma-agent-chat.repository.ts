@@ -57,6 +57,7 @@ import {
   workspaceIndexingShareMicrocents,
 } from "./agent-credit-policy";
 import { isAgentTurnClassifierTrace, type AgentTurnClassifierTrace } from "./agent-classifier-trace";
+import { LIVE_WIDGET } from "@/features/widget/live-widget";
 
 type StoredAgentTurnRow = {
   id: string;
@@ -733,6 +734,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         where: {
           companyId: this.companyId,
           userId: this.userId,
+          ...LIVE_WIDGET,
         },
         select,
       }),

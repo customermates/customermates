@@ -19,6 +19,7 @@ import { BREAKPOINTS } from "@/constants/breakpoints";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { getRecordActivityWidgetReader, getRecordWidgetReader } from "@/core/di";
+import { LIVE_WIDGET } from "./live-widget";
 
 export class PrismaWidgetRepo
   extends TenantRepository
@@ -30,6 +31,14 @@ export class PrismaWidgetRepo
     UpdateWidgetLayoutsRepo,
     FindWidgetsByIdsRepo
 {
+  constructor(private readonly scopedCompanyId?: string) {
+    super();
+  }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
   private get dtoSelect() {
     return {
       id: true,
@@ -80,6 +89,7 @@ export class PrismaWidgetRepo
             userId,
             companyId,
             ...(viewId === undefined ? {} : { viewId }),
+            ...LIVE_WIDGET,
           },
           select: this.dtoSelect,
           orderBy: [{ createdAt: "asc" }, { id: "asc" }],
@@ -93,10 +103,42 @@ export class PrismaWidgetRepo
   }
 
   @Transaction
-  async deleteWidget(id: string) {
+  async trashWidget(id: string) {
     const { id: userId, companyId } = this.user;
+    const widget = await this.prisma.widget.findFirst({
+      where: { id, companyId, userId, ...LIVE_WIDGET },
+      select: { name: true },
+    });
+    if (!widget) return null;
+    await this.prisma.widget.updateMany({ where: { id, companyId, userId }, data: { deletedAt: new Date() } });
+    return widget;
+  }
 
-    await this.prisma.widget.deleteMany({ where: { id, companyId, userId } });
+  async restoreTrashed(ids: string[]) {
+    const rows = await this.prisma.widget.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      select: { id: true },
+    });
+    const restored = rows.map((row) => row.id);
+    await this.prisma.widget.updateMany({
+      where: { id: { in: restored }, companyId: this.companyId },
+      data: { deletedAt: null },
+    });
+    return restored;
+  }
+
+  async purgeTrashed(ids: string[]) {
+    await this.prisma.widget.deleteMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+    });
+  }
+
+  async widgetsOnTrashedViews(ids: string[]) {
+    const rows = await this.prisma.widget.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, view: { is: { deletedAt: { not: null } } } },
+      select: { id: true },
+    });
+    return rows.map((row) => row.id);
   }
 
   async findIds(ids: Set<string>) {
@@ -105,7 +147,7 @@ export class PrismaWidgetRepo
     const { id: userId, companyId } = this.user;
 
     const widgets = await this.prisma.widget.findMany({
-      where: { id: { in: Array.from(ids) }, companyId, userId },
+      where: { id: { in: Array.from(ids) }, companyId, userId, ...LIVE_WIDGET },
       select: { id: true },
     });
 
@@ -119,6 +161,7 @@ export class PrismaWidgetRepo
       where: {
         companyId,
         isTemplate: true,
+        ...LIVE_WIDGET,
       },
       include: {
         user: {
@@ -147,7 +190,7 @@ export class PrismaWidgetRepo
   async getWidgetKind(id: string) {
     const { id: userId, companyId } = this.user;
     const widget = await this.prisma.widget.findFirst({
-      where: { id, companyId, OR: [{ userId }, { isTemplate: true }] },
+      where: { id, companyId, OR: [{ userId }, { isTemplate: true }], ...LIVE_WIDGET },
       select: { kind: true },
     });
 
@@ -164,6 +207,7 @@ export class PrismaWidgetRepo
             id,
             companyId,
             OR: [{ userId }, { isTemplate: true }],
+            ...LIVE_WIDGET,
           },
           select: this.dtoSelect,
         });
@@ -186,6 +230,7 @@ export class PrismaWidgetRepo
         id: { in: Array.from(widgetIds) },
         companyId,
         userId,
+        ...LIVE_WIDGET,
       },
       select: { id: true, layout: true },
     });
@@ -201,7 +246,7 @@ export class PrismaWidgetRepo
         if (deepEqual(widget.layout, recordJson(layout))) return null;
 
         const saved = await this.prisma.widget.update({
-          where: { id: widget.id, companyId, userId },
+          where: { id: widget.id, companyId, userId, deletedAt: null },
           data: { layout, version: { increment: 1 } },
           select: { id: true, version: true },
         });
