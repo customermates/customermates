@@ -7,14 +7,14 @@ import { cn } from "@/core/utils/cn";
 import { IntlLink } from "@/i18n/navigation";
 import {
   OVERLAY_ACTION_RAIL_CLASS,
-  OVERLAY_ICON_CONTROL_CLASS,
-  OVERLAY_ICON_CONTROL_DESTRUCTIVE_CLASS,
-  OVERLAY_ICON_CONTROL_NEUTRAL_CLASS,
+  overlayIconControlClass,
+  type OverlayIconControlVariant,
 } from "@/components/ui/overlay-contract";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 
-export type AppModalActionVariant = "neutral" | "destructive";
+export type AppModalActionVariant = OverlayIconControlVariant;
 
 export type AppModalActionKind = "assistant" | "customize" | "other" | "destructive" | "navigate";
 
@@ -59,20 +59,24 @@ export type AppModalActionProps = AppModalButtonActionProps | LinkActionProps;
 
 export const APP_MODAL_ACTION_RAIL_CLASS = OVERLAY_ACTION_RAIL_CLASS;
 
-const actionVariantClassMap: Record<AppModalActionVariant, string> = {
-  neutral: OVERLAY_ICON_CONTROL_NEUTRAL_CLASS,
-  destructive: OVERLAY_ICON_CONTROL_DESTRUCTIVE_CLASS,
-};
-
 function isLinkAction(props: AppModalActionProps): props is LinkActionProps {
   return typeof props.href === "string";
 }
 
+export function isAskAiAction(action: AppModalActionProps) {
+  return action.kind === "assistant" && !isLinkAction(action);
+}
+
+export function appModalActionSlots(actions: readonly AppModalActionProps[]) {
+  return actions.reduce((slots, action) => slots + (isAskAiAction(action) ? 2 : 1), 0);
+}
+
 export function AppModalAction(props: AppModalActionProps) {
+  if (isAskAiAction(props) && props.onClick) return <AskAiAction id={props.anchorId} onClick={props.onClick} />;
   const { icon: Icon, label, tooltip, variant = "neutral" } = props;
   const isBusy = "busy" in props && props.busy === true;
   const isDisabled = !isLinkAction(props) && (props.disabled === true || isBusy);
-  const className = cn(OVERLAY_ICON_CONTROL_CLASS, actionVariantClassMap[variant]);
+  const className = overlayIconControlClass(variant);
   const content = <Icon aria-hidden className={cn("size-4", isBusy && "animate-spin")} />;
 
   const control = isLinkAction(props) ? (
@@ -171,7 +175,7 @@ export function AppModalActionRail({
   return (
     <TooltipProvider>
       <div
-        className={cn("flex min-h-9 shrink-0 items-center gap-2 self-start", className)}
+        className={cn("flex min-h-8 shrink-0 items-center gap-2 self-start", className)}
         data-slot="app-modal-actions"
       >
         {orderAppModalActions(actions).map((action) => (

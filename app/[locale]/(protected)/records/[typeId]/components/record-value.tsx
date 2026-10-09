@@ -10,12 +10,9 @@ import { AppChip } from "@/components/chip/app-chip";
 import { MemberChip } from "@/components/chip/member-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { ContactValue } from "@/components/records/contact-value";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { toChipColor } from "@/constants/chip-colors";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
-
-export function EmptyValue() {
-  return <span className="text-muted-foreground">—</span>;
-}
 
 type DecimalFormat = { currency?: string | null; compact?: boolean; maximumFractionDigits?: number };
 

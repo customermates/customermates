@@ -174,6 +174,7 @@ vi.mock("@/components/shared/icon", () => ({
   Icon: () => createElement("span"),
 }));
 vi.mock("@/components/ui/button", () => ({
+  buttonVariants: () => "",
   Button: ({ children, asChild, ...props }: { children?: ReactNode; asChild?: boolean; [key: string]: unknown }) => {
     const buttonProps = {
       ...Object.fromEntries(Object.entries(props).filter(([name]) => !["size", "variant"].includes(name))),

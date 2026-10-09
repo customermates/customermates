@@ -8,8 +8,7 @@ import { Sparkles } from "lucide-react";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import { agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
 import type { AppModalButtonActionProps } from "@/components/modal/app-modal-action";
 
 type Props = {
@@ -49,5 +48,5 @@ export const RecordAiAction = observer(function RecordAiAction({
   ...props
 }: Props & { className?: string }) {
   const askAi = useRecordAiAction(props);
-  return askAi ? <ViewAiAction className={className} onClick={() => runUserAction(askAi.onClick)} /> : null;
+  return askAi ? <AskAiAction className={className} placement="topbar" onClick={askAi.onClick} /> : null;
 });

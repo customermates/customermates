@@ -43,15 +43,16 @@ export const GroupSummaries = observer(function GroupSummaries({
         const content =
           (compact ? format("compact") : full) ??
           (result.state === "missing"
-            ? "—"
+            ? ""
             : result.state === "restricted"
               ? t("RecordModel.restricted")
               : t("RecordModel.calculationError"));
+        const spoken = full ?? (content || t("RecordModel.missing"));
         return (
           <Tooltip key={`${summary.fieldId}:${summary.aggregation}`}>
             <TooltipTrigger asChild>
               <span
-                aria-label={`${label}: ${full ?? content}`}
+                aria-label={`${label}: ${spoken}`}
                 className={cn("min-w-0 truncate", result.state === "error" && "text-destructive")}
               >
                 {content}

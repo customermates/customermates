@@ -37,7 +37,8 @@ test("shows admin and configuration history on the workspace activity page and f
   const detail = page.getByRole("dialog");
   await expect(detail.getByText("Contacts · Activity auditors", { exact: true })).toBeVisible();
   await expect(detail.getByText("Read access: All", { exact: true })).toBeVisible();
-  await expect(detail.getByText("—", { exact: true })).toBeVisible();
+  await expect(detail.locator("[data-empty-value]")).toHaveCount(1);
+  await expect(detail.getByText("—", { exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(detail).not.toBeVisible();
 

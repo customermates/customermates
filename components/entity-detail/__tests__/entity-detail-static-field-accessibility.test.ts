@@ -67,15 +67,18 @@ describe("EntityDetailStaticField", () => {
     expect(pinPosition).toBeLessThan(outputPosition);
   });
 
-  it.each([null, undefined, ""])("renders the empty-value fallback for %s", (value) => {
-    expect(renderField(value)).toContain("—");
+  it.each([null, undefined, ""])("renders the shared empty value for %s", (value) => {
+    const markup = renderField(value);
+
+    expect(markup).toContain('data-empty-value=""');
+    expect(markup).not.toContain("—");
   });
 
   it("preserves zero as a meaningful value", () => {
     const markup = renderField(0);
 
     expect(markup).toContain(">0</span>");
-    expect(markup).not.toContain("—");
+    expect(markup).not.toContain("data-empty-value");
   });
 
   it("omits the help action when no explanation is supplied", () => {

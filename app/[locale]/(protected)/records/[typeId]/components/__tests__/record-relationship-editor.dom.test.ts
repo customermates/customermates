@@ -212,7 +212,8 @@ describe("relationship loading presentation and response ownership", () => {
       finish({ ok: true, data: results([]) });
       await Promise.resolve();
     });
-    expect(field.textContent).toBe("—");
+    expect(field.textContent).toBe("");
+    expect(field.querySelector("[data-empty-value]")).not.toBeNull();
   });
 });
 

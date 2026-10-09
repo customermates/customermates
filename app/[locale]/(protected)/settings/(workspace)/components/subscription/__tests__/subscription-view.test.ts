@@ -17,6 +17,7 @@ vi.mock("mobx-react-lite", () => ({
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("lucide-react", () => ({ LoaderCircle: () => null, Plus: () => null, RefreshCw: () => null }));
 vi.mock("@/components/ui/button", () => ({
+  buttonVariants: () => "",
   Button: ({ children, "aria-label": label }: { children: ReactNode; "aria-label"?: string }) =>
     createElement("button", { "aria-label": label }, children),
 }));
