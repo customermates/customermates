@@ -1892,6 +1892,7 @@
       "editTitle": "Edit view",
       "linkCopied": "Link copied",
       "menu": "View actions",
+      "modified": "Unsaved changes",
       "moveLeft": "Move left",
       "moveRight": "Move right",
       "name": "Name",
@@ -1901,7 +1902,8 @@
       "pickerPlaceholder": "Find a view…",
       "pickerTitle": "Switch view",
       "railLabel": "Saved views",
-      "recordCount": "{count, plural, one {# record} other {# records}}"
+      "recordCount": "{count, plural, one {# record} other {# records}}",
+      "resetChanges": "Reset changes"
     }
   },
   "Diagrams": {
