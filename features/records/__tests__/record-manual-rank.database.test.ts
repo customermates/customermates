@@ -92,6 +92,12 @@ async function fixture() {
     });
     if (!result.ok || result.data.status !== "completed") throw new Error(JSON.stringify(result));
     const recordId = result.data.refs[0].recordId;
+    await runWithoutTenant(() =>
+      prisma.crmRecord.updateMany({
+        where: { companyId: seed.company.id, id: recordId },
+        data: { createdAt: new Date(Date.UTC(2026, 0, 1) + names.size * 1000) },
+      }),
+    );
     names.set(recordId, name);
     return recordId;
   };
