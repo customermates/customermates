@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { omit } from "lodash";
 import { action, makeObservable, observable, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
@@ -7,7 +8,7 @@ import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordField, RecordModelView, CalculationExpression } from "@/features/records/record-model.schema";
+import type { RecordField, RecordModelView } from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
@@ -18,15 +19,36 @@ import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-c
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
+import { cn } from "@/core/utils/cn";
 import { RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
 import { ModelChangeSheet } from "./model-change-sheet";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
-import { CalculationInput } from "./calculation-input";
+import { CalculationFlow } from "./calculation-flow-editor";
 import { isResolvedField } from "./configure-model";
-import { CalculationPath } from "./calculation-path";
+import {
+  CALCULATION_UPDATES,
+  UNSET,
+  VALUE_SOURCES,
+  aggregateOf,
+  calculationBehavior,
+  calculationDraft,
+  calculationIssues,
+  derivedValueType,
+  expressionAt,
+  linkedExpression,
+  linkedFlow,
+  linkedTypeIds,
+  relationshipChoices,
+  withAggregate,
+  type CalculationSource,
+  type CalculationUpdates,
+  type ExpressionPath,
+  type FlowIssue,
+  type ValueSource,
+} from "./calculation-flow";
 import { FieldOptionsEditor } from "./field-options-editor";
 import {
   moveOption,
@@ -37,7 +59,12 @@ import {
 } from "./field-option-columns";
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
-import { CONTACT_VALUE_TYPES, MULTIPLE_VALUE_TYPES } from "@/features/records/record-model-validation";
+import {
+  CONTACT_VALUE_TYPES,
+  MULTIPLE_VALUE_TYPES,
+  calculationResultType,
+  expressionRelationshipDependencies,
+} from "@/features/records/record-model-validation";
 import { recordChannelsBinding } from "@/features/records/record-channels";
 import { channelsAvatarAvailable, channelsFieldOperations } from "./channels-field";
 
@@ -47,24 +74,21 @@ const initial = () => ({
   id: undefined as string | undefined,
   label: "",
   valueType: "text" as RecordField["valueType"] | "channels",
-  behavior: "input" as RecordField["behavior"]["kind"],
+  source: "input" as ValueSource,
   required: false,
   multiple: false,
   providerAvatar: false,
   currency: "eur",
   decimalPlaces: "",
   onClick: "open" as "open" | "copy",
-  expression: {
-    kind: "literal",
-    value: { kind: "decimal", value: "0", currency: null },
-  } as CalculationExpression,
-  capture: "explicit" as "explicit" | "create" | "whenChanged",
+  expression: UNSET,
+  updates: "live" as CalculationUpdates,
   triggerFieldId: "",
   triggerValue: undefined as unknown,
   hasDefaultValue: false,
   defaultValue: undefined as unknown,
   publishedSummary: false,
-  allowManualOverride: false,
+  allowManualOverride: false as boolean | undefined,
   choices: { columns: [] as OptionAttributeColumn[], options: [] as OptionDraft[] },
 });
 export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>> {
@@ -103,7 +127,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     model: RecordModelView,
     typeId: string,
     field: RecordField | null,
-    preset: Partial<Pick<ReturnType<typeof initial>, "behavior" | "valueType">> = {},
+    preset: Partial<Pick<ReturnType<typeof initial>, "source" | "valueType">> = {},
   ) => {
     this.resetModel(model);
     this.typeId = typeId;
@@ -118,7 +142,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
             id: field.id,
             label: field.label,
             valueType: field.valueType,
-            behavior: field.behavior.kind,
+            source: field.behavior.kind === "input" ? "input" : calculationDraft(field.behavior).source,
             required: field.required,
             multiple: field.multiple ?? false,
             publishedSummary: field.publishedSummary,
@@ -133,8 +157,8 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
               : { expression: field.behavior.expression }),
             ...(field.behavior.kind === "snapshot"
               ? {
-                  capture: field.behavior.capture,
-                  allowManualOverride: field.behavior.allowManualOverride ?? false,
+                  updates: field.behavior.capture,
+                  allowManualOverride: field.behavior.allowManualOverride,
                   triggerFieldId: field.behavior.triggerFieldId ?? "",
                   triggerValue: recordDraftValue(field.behavior.triggerValue),
                 }
@@ -206,7 +230,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     const hadDefault = this.form.hasDefaultValue;
     this.onChange("valueType", multiple ? "select" : choice);
     this.onChange("multiple", multiple);
-    if (multiple) this.onChange("behavior", "input");
+    if (multiple) this.onChange("source", "input");
     if (!fromChoice || !hadDefault || previous === undefined) return;
     const ids = Array.isArray(previous) ? previous.map(String) : [String(previous)];
     if (!multiple && ids.length > 1) return;
@@ -259,6 +283,92 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       options: optionsWithAttributes(this.form.choices.columns, this.form.choices.options),
     };
   }
+  get isCalculated() {
+    return this.form.source !== "input";
+  }
+  get calculationSource(): CalculationSource {
+    return this.form.source === "input" ? "formula" : this.form.source;
+  }
+  get derivedType() {
+    const derived = this.isCalculated ? derivedValueType(this.form.expression, this.typeId, this.model) : null;
+    if (
+      derived?.valueType === "text" &&
+      this.form.valueType !== "channels" &&
+      CONTACT_VALUE_TYPES.includes(this.form.valueType)
+    )
+      return { ...derived, valueType: this.form.valueType };
+    return derived;
+  }
+  get valueType(): RecordField["valueType"] | "channels" {
+    return this.derivedType?.valueType ?? this.form.valueType;
+  }
+  get calculationIssues() {
+    return this.isCalculated
+      ? calculationIssues(this.calculationSource, this.form.expression, this.typeId, this.model)
+      : [];
+  }
+  get linkedTypeIds() {
+    return [
+      ...new Set(
+        this.isCalculated
+          ? [...expressionRelationshipDependencies(this.form.expression)].flatMap((relationId) => {
+              const relation = this.model.relationships.find((candidate) => candidate.id === relationId);
+              return relation ? [relation.sourceTypeId, relation.targetTypeId] : [];
+            })
+          : [],
+      ),
+    ].filter((id) => id !== this.typeId);
+  }
+  chooseSource = (source: ValueSource) => {
+    const linked = linkedFlow(this.form.expression);
+    const keeps =
+      source === "formula" ||
+      source === "input" ||
+      (source === "rollup" && linked.hops.length > 0) ||
+      (source === "lookup" &&
+        linked.hops.length > 0 &&
+        linked.hops.every((hop, index) =>
+          relationshipChoices(linkedTypeIds(linked, this.typeId, this.model)[index], this.model, true).some(
+            (choice) => choice.relation.id === hop.relationId && choice.direction === hop.direction,
+          ),
+        ));
+    this.onChange("source", source);
+    if (!keeps) this.onChange("expression", UNSET);
+    else if (source === "lookup" || source === "rollup") {
+      this.onChange(
+        "expression",
+        linkedExpression(
+          withAggregate(
+            linked,
+            source === "lookup" ? "one" : aggregateOf(linked) === "one" ? "sum" : aggregateOf(linked),
+          ),
+        ),
+      );
+    }
+  };
+  protected override validateDraft() {
+    const issue = this.calculationIssues[0];
+    const value = this.form.triggerValue;
+    const changes = this.isCalculated && this.form.updates === "whenChanged";
+    const missingTrigger = changes && !this.triggerField;
+    const missingValue =
+      changes && Boolean(this.triggerField) && (value === undefined || value === null || value === "");
+    if (!issue && !missingTrigger && !missingValue) return undefined;
+    return {
+      errors: [],
+      properties: {
+        ...(issue ? { expression: { errors: [this.issueMessage(issue)] } } : {}),
+        ...(missingTrigger ? { triggerFieldId: { errors: [this.triggerMessages.field] } } : {}),
+        ...(missingValue ? { triggerValue: { errors: [this.triggerMessages.value] } } : {}),
+      },
+    } as FieldModalStore["error"];
+  }
+  issueMessage: (issue: FlowIssue) => string = () => "";
+  triggerMessages = { field: "", value: "" };
+  stepType(path: ExpressionPath) {
+    const step = expressionAt(this.form.expression, path);
+    return step ? calculationResultType(step, this.typeId, this.model) : null;
+  }
   get triggerFields() {
     return this.model.fields.filter(
       (field): field is RecordField =>
@@ -270,7 +380,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
   }
   protected override afterChange(id?: string): void {
     if (id === "valueType" && !["number", "currency"].includes(this.form.valueType)) this.form.decimalPlaces = "";
-    if (id === "valueType" && this.form.valueType === "channels") this.form.behavior = "input";
+    if (id === "valueType" && this.form.valueType === "channels") this.form.source = "input";
     if (id === "valueType" || id === "multiple") {
       this.form.hasDefaultValue = false;
       this.form.defaultValue = undefined;
@@ -324,7 +434,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     const trigger = this.triggerField;
     const triggerValue = trigger ? recordInputValue(form.triggerValue, trigger) : null;
     const behavior: RecordField["behavior"] =
-      form.behavior === "input"
+      form.source === "input"
         ? {
             kind: "input",
             ...(form.hasDefaultValue
@@ -333,28 +443,25 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
                 }
               : {}),
           }
-        : form.behavior === "snapshot"
-          ? {
-              kind: "snapshot",
-              expression: form.expression,
-              capture: form.capture,
-              allowManualOverride: form.allowManualOverride,
-              ...(form.capture === "whenChanged"
-                ? {
-                    triggerFieldId: form.triggerFieldId,
-                    ...(triggerValue ? { triggerValue } : {}),
-                  }
-                : {}),
-            }
-          : { kind: form.behavior, expression: form.expression };
+        : calculationBehavior({
+            source: form.source,
+            expression: form.expression,
+            updates: form.updates,
+            allowManualOverride: form.allowManualOverride,
+            triggerFieldId: form.triggerFieldId,
+            triggerValue,
+          });
+    const derived = this.derivedType;
+    const valueType = derived?.valueType ?? form.valueType;
+    const currency = derived?.currency ?? form.currency.toUpperCase();
     const field = {
       id: form.id ?? this.definitionId,
       typeId: this.typeId,
       label: form.label,
-      valueType: form.valueType,
+      valueType,
       behavior,
       required: form.required,
-      multiple: MULTIPLE_VALUE_TYPES.includes(form.valueType) && form.multiple,
+      multiple: !derived && MULTIPLE_VALUE_TYPES.includes(valueType) && form.multiple,
       position:
         this.original?.position ??
         Math.max(
@@ -363,14 +470,19 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         ) + 1,
       format: {
         ...this.original?.format,
-        currency: form.valueType === "currency" ? form.currency.toUpperCase() : null,
+        currency: valueType === "currency" ? currency : null,
         decimalPlaces:
-          ["number", "currency"].includes(form.valueType) && form.decimalPlaces.trim() !== ""
+          ["number", "currency"].includes(valueType) && form.decimalPlaces.trim() !== ""
             ? Number(form.decimalPlaces)
             : null,
-        onClick: CONTACT_VALUE_TYPES.includes(form.valueType) ? form.onClick : null,
+        onClick: CONTACT_VALUE_TYPES.includes(valueType) ? form.onClick : null,
       },
-      options: form.valueType === "select" ? optionsWithAttributes(form.choices.columns, form.choices.options) : [],
+      options:
+        derived?.valueType === "select"
+          ? derived.options
+          : valueType === "select"
+            ? optionsWithAttributes(form.choices.columns, form.choices.options)
+            : [],
     };
     return [{ operation: "putField", field }];
   }
@@ -400,6 +512,20 @@ export const FieldModal = observer(function FieldModal({
     if (typeof value === "boolean") return value ? t("RecordModel.yes") : t("RecordModel.no");
     return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
   };
+  const thisList = store.model.types.find((type) => type.id === store.typeId);
+  const linkedList = store.model.types.find((type) => type.id === store.linkedTypeIds[0]);
+  const updateLabels: Record<CalculationUpdates, string> = {
+    live: t("RecordModel.calculationFlow.updateModes.live"),
+    create: t("RecordModel.calculationFlow.updateModes.create"),
+    whenChanged: t("RecordModel.calculationFlow.updateModes.whenChanged"),
+    explicit: t("RecordModel.calculationFlow.updateModes.explicit"),
+  };
+  useEffect(() => {
+    store.triggerMessages = {
+      field: t("RecordModel.calculationFlow.missing.trigger"),
+      value: t("RecordModel.calculationFlow.missing.triggerValue"),
+    };
+  }, [store, t]);
   const askAi = useRecordAiAction({
     registerContext: true,
     active: store.isOpen,
@@ -447,70 +573,42 @@ export const FieldModal = observer(function FieldModal({
           <>
             {!store.isChannels && <FormInput required id="label" label={t("RecordModel.name")} />}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormSelect
-                disabled={store.isChannels}
-                id="valueType"
-                items={
-                  store.isChannels
-                    ? [{ value: "channels", label: t("EntityChannels.heading") }]
-                    : RecordValueTypeSchema.options.flatMap((value) =>
-                        value === "select"
-                          ? [
-                              { value, label: t("RecordModel.types.select") },
-                              { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
-                            ]
-                          : [{ value, label: t(`RecordModel.types.${value}`) }],
-                      )
-                }
-                label={t("RecordModel.valueType")}
-                value={store.form.valueType === "select" && store.form.multiple ? "multiSelect" : store.form.valueType}
-                onValueChange={store.chooseValueType}
-              />
-
+            <div className={cn("grid gap-4", !store.isCalculated && "sm:grid-cols-2")}>
               {!store.isChannels && (
                 <FormSelect
-                  id="behavior"
-                  items={(store.form.valueType === "select" && store.form.multiple
-                    ? ["input"]
-                    : ["input", "formula", "lookup", "rollup", "snapshot"]
-                  ).map((value) => ({
-                    value,
-                    label: t(`RecordModel.behaviors.${value}`),
-                  }))}
+                  id="source"
+                  items={(store.form.valueType === "select" && store.form.multiple ? ["input"] : VALUE_SOURCES).map(
+                    (value) => ({
+                      value,
+                      label: t(`RecordModel.behaviors.${value}`),
+                    }),
+                  )}
                   label={t("RecordModel.behavior")}
-                  onValueChange={(behavior) => {
-                    store.onChange("behavior", behavior);
-                    if (behavior === "lookup" || behavior === "rollup") {
-                      const relation = store.model.relationships.find(
-                        (relation) =>
-                          !relation.archived &&
-                          (relation.sourceTypeId === store.typeId || relation.targetTypeId === store.typeId),
-                      );
-                      if (!relation) return;
-                      const direction = relation.sourceTypeId === store.typeId ? "outgoing" : "incoming";
-                      const targetId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
-                      const field = store.model.fields.find(
-                        (field) =>
-                          field.typeId === targetId && !field.archived && field.valueType === store.form.valueType,
-                      );
-                      const current = store.form.expression;
-                      store.onChange(
-                        "expression",
-                        current.kind === "related"
-                          ? { ...current, reducer: behavior === "lookup" ? "one" : "sum" }
-                          : {
-                              kind: "related",
-                              relationId: relation.id,
-                              direction,
-                              reducer: behavior === "lookup" ? "one" : "sum",
-                              expression: field
-                                ? { kind: "field", fieldId: field.id }
-                                : { kind: "literal", value: null },
-                            },
-                      );
-                    }
-                  }}
+                  onValueChange={(source) => store.chooseSource(source as ValueSource)}
+                />
+              )}
+
+              {!store.isCalculated && (
+                <FormSelect
+                  disabled={store.isChannels}
+                  id="valueType"
+                  items={
+                    store.isChannels
+                      ? [{ value: "channels", label: t("EntityChannels.heading") }]
+                      : RecordValueTypeSchema.options.flatMap((value) =>
+                          value === "select"
+                            ? [
+                                { value, label: t("RecordModel.types.select") },
+                                { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
+                              ]
+                            : [{ value, label: t(`RecordModel.types.${value}`) }],
+                        )
+                  }
+                  label={t("RecordModel.valueType")}
+                  value={
+                    store.form.valueType === "select" && store.form.multiple ? "multiSelect" : store.form.valueType
+                  }
+                  onValueChange={store.chooseValueType}
                 />
               )}
             </div>
@@ -525,22 +623,22 @@ export const FieldModal = observer(function FieldModal({
               </>
             )}
 
-            {store.form.valueType === "currency" && (
+            {store.valueType === "currency" && !store.derivedType?.currency && (
               <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
             )}
 
-            {store.form.valueType !== "channels" && CONTACT_VALUE_TYPES.includes(store.form.valueType) && (
+            {store.valueType !== "channels" && CONTACT_VALUE_TYPES.includes(store.valueType) && (
               <FormSelect
                 id="onClick"
                 items={(["open", "copy"] as const).map((value) => ({
                   value,
-                  label: t(`RecordModel.clickActions.${store.form.valueType}.${value}`),
+                  label: t(`RecordModel.clickActions.${store.valueType}.${value}`),
                 }))}
                 label={t("RecordModel.clickAction")}
               />
             )}
 
-            {["number", "currency"].includes(store.form.valueType) && (
+            {["number", "currency"].includes(store.valueType) && (
               <FormInput
                 description={t("RecordModel.decimalPlacesHelp")}
                 id="decimalPlaces"
@@ -553,7 +651,7 @@ export const FieldModal = observer(function FieldModal({
               />
             )}
 
-            {store.form.behavior === "input" && !store.isChannels && (
+            {!store.isCalculated && !store.isChannels && (
               <div className="space-y-3">
                 <FormSwitch id="hasDefaultValue" label={t("RecordModel.setDefaultValue")} />
 
@@ -569,93 +667,94 @@ export const FieldModal = observer(function FieldModal({
 
             {!store.isChannels && <FormSwitch id="required" label={t("RecordModel.required")} />}
 
-            {["text", "email", "phone", "url"].includes(store.form.valueType) && (
+            {!store.isCalculated && ["text", "email", "phone", "url"].includes(store.form.valueType) && (
               <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
             )}
           </>
 
-          {store.form.behavior !== "input" && (
+          {store.isCalculated && (
             <CollapsibleSection
               defaultOpen
-              summary={t(`RecordModel.behaviors.${store.form.behavior}`)}
+              open={store.getError("expression") ? true : undefined}
+              summary={t(`RecordModel.behaviors.${store.form.source}`)}
               title={t("RecordModel.fieldTabs.calculation")}
             >
-              <>
-                <CalculationPath
-                  expression={store.form.expression}
-                  fieldLabel={store.form.label.trim() || t("RecordModel.calculationPath.thisField")}
-                  model={store.model}
-                  snapshot={
-                    store.form.behavior === "snapshot"
-                      ? {
-                          allowManualOverride: store.form.allowManualOverride,
-                          capture: store.form.capture,
-                          triggerLabel: store.triggerField?.label,
-                          triggerValueLabel: triggerValueLabel(),
-                        }
-                      : undefined
-                  }
-                  typeId={store.typeId}
-                />
+              <CalculationFlow store={store} triggerValueLabel={triggerValueLabel()} />
+            </CollapsibleSection>
+          )}
 
-                <CalculationInput
-                  behavior={store.form.behavior}
-                  currency={store.form.currency}
-                  model={store.model}
-                  typeId={store.typeId}
-                  value={store.form.expression}
-                  onChange={(expression) => store.onChange("expression", expression)}
-                />
+          {store.isCalculated && (
+            <CollapsibleSection
+              summary={[
+                updateLabels[store.form.updates],
+                ...(linkedList
+                  ? [
+                      store.form.publishedSummary
+                        ? t("RecordModel.calculationFlow.shown")
+                        : t("RecordModel.calculationFlow.private"),
+                    ]
+                  : []),
+              ].join(" · ")}
+              title={t("RecordModel.calculationFlow.moreOptions")}
+            >
+              <FormSelect
+                id="updates"
+                items={CALCULATION_UPDATES.map((value) => ({ value, label: updateLabels[value] }))}
+                label={t("RecordModel.calculationFlow.updates")}
+              />
 
-                {store.form.behavior === "snapshot" && (
-                  <>
-                    <FormSwitch id="allowManualOverride" label={t("RecordModel.allowManualOverride")} />
+              {store.form.updates === "whenChanged" && (
+                <>
+                  <FormSelect
+                    required
+                    id="triggerFieldId"
+                    items={store.triggerFields.map((field) => ({
+                      value: field.id,
+                      label: field.label,
+                    }))}
+                    label={t("RecordModel.triggerField")}
+                  />
 
-                    <FormSelect
-                      id="capture"
-                      items={[
-                        { value: "explicit", label: t("RecordModel.captureExplicit") },
-                        { value: "create", label: t("RecordModel.captureCreate") },
-                        { value: "whenChanged", label: t("RecordModel.captureChanged") },
-                      ]}
-                      label={t("RecordModel.capture")}
+                  {store.getError("triggerFieldId") && (
+                    <p className="-mt-2 text-xs text-destructive">{store.triggerMessages.field}</p>
+                  )}
+
+                  {store.triggerField && (
+                    <RecordInputField
+                      field={{ ...store.triggerField, required: true }}
+                      id="triggerValue"
+                      label={t("RecordModel.triggerValue")}
                     />
+                  )}
 
-                    {store.form.capture === "whenChanged" && (
-                      <>
-                        <FormSelect
-                          id="triggerFieldId"
-                          items={store.triggerFields.map((field) => ({
-                            value: field.id,
-                            label: field.label,
-                          }))}
-                          label={t("RecordModel.triggerField")}
-                        />
+                  {store.getError("triggerValue") && (
+                    <p className="-mt-2 text-xs text-destructive">{store.triggerMessages.value}</p>
+                  )}
+                </>
+              )}
 
-                        {store.triggerField && (
-                          <RecordInputField
-                            field={{ ...store.triggerField, required: false }}
-                            id="triggerValue"
-                            label={t("RecordModel.triggerValue")}
-                          />
-                        )}
-                      </>
-                    )}
-                  </>
-                )}
+              {store.form.updates !== "live" && (
+                <FormSwitch id="allowManualOverride" label={t("RecordModel.calculationFlow.typeOver")} />
+              )}
 
-                {(store.canPublishSummary || store.original?.publishedSummary) && (
-                  <div className="space-y-2">
-                    {store.canPublishSummary ? (
-                      <FormSwitch id="publishedSummary" label={t("RecordModel.publishSummary")} />
-                    ) : (
-                      <p className="text-sm">{t("RecordModel.summaryApprovalRequired")}</p>
-                    )}
+              {linkedList && (store.canPublishSummary || store.original?.publishedSummary) && (
+                <div className="space-y-2">
+                  {store.canPublishSummary ? (
+                    <FormSwitch
+                      id="publishedSummary"
+                      label={t("RecordModel.calculationFlow.showToEveryone", { list: thisList?.label ?? "" })}
+                    />
+                  ) : (
+                    <p className="text-sm">{t("RecordModel.summaryApprovalRequired")}</p>
+                  )}
 
-                    <p className="text-xs text-muted-foreground">{t("RecordModel.publishSummaryHelp")}</p>
-                  </div>
-                )}
-              </>
+                  {store.form.publishedSummary && (
+                    <p className="text-xs text-muted-foreground">
+                      {t("RecordModel.calculationFlow.showToEveryoneHelp", { list: linkedList.label })}
+                    </p>
+                  )}
+                </div>
+              )}
             </CollapsibleSection>
           )}
 
