@@ -56,8 +56,6 @@ test("the members row menu deletes another member through the guarded deactivati
     .toBe("inactive");
 
   await expect(page.getByRole("row").filter({ hasText: "Nora Second" })).toContainText("Inactive");
-  await memberMenu.click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Open details"]);
-  await page.keyboard.press("Escape");
+  expect(await rowActionLabels(page, memberRow("Nora Second"), "Nora Second")).toEqual(["Open details"]);
   expect(errors).toEqual([]);
 });
