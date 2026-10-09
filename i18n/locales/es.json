@@ -761,7 +761,7 @@
       "cronExpression": "Programación",
       "currency": "Moneda",
       "debounceSeconds": "Retardo",
-      "delete": "Eliminado",
+      "delete": "Movido a la papelera",
       "deletePermanently": "Eliminado definitivamente",
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",

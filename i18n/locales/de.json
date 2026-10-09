@@ -761,7 +761,7 @@
       "cronExpression": "Zeitplan",
       "currency": "Währung",
       "debounceSeconds": "Verzögerung",
-      "delete": "Gelöscht",
+      "delete": "In den Papierkorb verschoben",
       "deletePermanently": "Endgültig gelöscht",
       "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",

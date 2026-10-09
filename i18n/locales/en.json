@@ -761,7 +761,7 @@
       "cronExpression": "Schedule",
       "currency": "Currency",
       "debounceSeconds": "Debounce",
-      "delete": "Deleted",
+      "delete": "Moved to Trash",
       "deletePermanently": "Permanently deleted",
       "disabledReason": "Disabled reason",
       "effectiveAt": "Effective from",

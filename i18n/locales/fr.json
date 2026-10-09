@@ -761,7 +761,7 @@
       "cronExpression": "Planification",
       "currency": "Devise",
       "debounceSeconds": "Délai d’attente",
-      "delete": "Supprimé",
+      "delete": "Placé dans la corbeille",
       "deletePermanently": "Supprimé définitivement",
       "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
