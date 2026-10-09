@@ -119,10 +119,13 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     expect(runs.structured).toMatchObject({ nextCursor: null });
 
     const deleted = await run({ action: "delete", id });
-    expect(deleted.structured).toMatchObject({ deleted: true, id });
+    expect(deleted.structured).toMatchObject({ deleted: true, id, trashBatchId: expect.any(String) });
 
-    const gone = await runWithoutTenant(() => prisma.routine.findUnique({ where: { id }, select: { id: true } }));
-    expect(gone).toBeNull();
+    const trashed = await runWithoutTenant(() =>
+      prisma.routine.findUnique({ where: { id }, select: { deletedAt: true } }),
+    );
+    expect(trashed?.deletedAt).toBeInstanceOf(Date);
+    expect((await run({ action: "list" })).text).not.toContain("MCP probe renamed");
   });
 
   it("leaves an audit row for every routine change made through the tool", async () => {
@@ -168,7 +171,7 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
   });
 
   it("rejects an update without an id instead of creating a new routine", async () => {
-    const before = await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }));
+    const before = await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } }));
     const result = await run({
       action: "update",
       name: "Must not be created",
@@ -180,7 +183,7 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
 
     expect(result.structured).not.toHaveProperty("id");
-    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }))).toBe(before);
+    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } }))).toBe(before);
   });
 
   it("refuses a schedule tighter than the interval floor", async () => {
@@ -195,7 +198,7 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
 
     expect(result.text.toLowerCase()).toContain("minute");
-    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }))).toBe(0);
+    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } }))).toBe(0);
   });
 
   it("refuses to delete for a caller who is not an active system administrator", async () => {

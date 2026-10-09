@@ -291,7 +291,7 @@ describe("routine administration", () => {
       new DeleteRoutineInteractor(repo as never, eventServiceStub().service, trashStub()).invoke({ id: ROUTINE_ID }),
     ).resolves.toEqual({
       ok: true,
-      data: ROUTINE_ID,
+      data: { id: ROUTINE_ID, trashBatchId: expect.any(String) },
     });
 
     currentUser = member();
@@ -348,6 +348,6 @@ describe("routine administration", () => {
     });
     expect(repo.isActiveSystemAdministrator).toHaveBeenCalledWith("admin-user");
     expect(repo.trashRoutineOrThrow).toHaveBeenCalledOnce();
-    expect(repo.trashRoutineOrThrow).toHaveBeenCalledWith(ROUTINE_ID);
+    expect(repo.trashRoutineOrThrow).toHaveBeenCalledWith(ROUTINE_ID, expect.any(Date));
   });
 });

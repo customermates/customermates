@@ -45,7 +45,7 @@ describe("scoped record activity view links", () => {
   beforeEach(() => {
     browser.history.pushState.mockClear();
     browser.history.replaceState.mockClear();
-    harness.deleteDataViewAction.mockReset().mockResolvedValue({ ok: true });
+    harness.deleteDataViewAction.mockReset().mockResolvedValue({ ok: true, data: { id: "view", trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
     vi.stubGlobal("window", browser);
   });
   afterEach(() => vi.unstubAllGlobals());
@@ -96,7 +96,7 @@ describe("scoped record activity view links", () => {
       applyView: vi.fn(),
       discardPendingViewState: vi.fn(),
     };
-    expect(await deleteView(store as unknown as BaseDataViewStore<Item>, VIEW)).toBe(true);
+    expect(await deleteView(store as unknown as BaseDataViewStore<Item>, VIEW)).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
     expect(store.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
     expect(browser.history.replaceState).toHaveBeenCalledExactlyOnceWith(
       null,
@@ -106,9 +106,9 @@ describe("scoped record activity view links", () => {
   });
 
   it("does not replace a newer selection when an earlier active-view deletion finishes", async () => {
-    let finish = (_value: { ok: true }) => {};
+    let finish = (_value: { ok: true; data: { id: string; trashBatchId: string } }) => {};
     harness.deleteDataViewAction.mockReturnValue(
-      new Promise<{ ok: true }>((resolve) => {
+      new Promise<{ ok: true; data: { id: string; trashBatchId: string } }>((resolve) => {
         finish = resolve;
       }),
     );
@@ -123,8 +123,8 @@ describe("scoped record activity view links", () => {
     };
     const deleting = deleteView(store as unknown as BaseDataViewStore<Item>, VIEW);
     store.activeViewKey = "newer-view";
-    finish({ ok: true });
-    expect(await deleting).toBe(true);
+    finish({ ok: true, data: { id: VIEW.id, trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
+    expect(await deleting).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
     expect(store.applyView).not.toHaveBeenCalled();
     expect(store.refresh).toHaveBeenCalledOnce();
     expect(browser.history.replaceState).not.toHaveBeenCalled();

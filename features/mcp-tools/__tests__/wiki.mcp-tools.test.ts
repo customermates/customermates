@@ -93,8 +93,8 @@ describe("manage_wiki_pages registry", () => {
     expect(ALL_MCP_TOOLS.filter(({ name }) => name === "manage_wiki_pages")).toEqual([manageWikiPagesTool]);
   });
 
-  it("warns that delete is irreversible and that a changed page restarts chunking", () => {
-    expect(manageWikiPagesTool.description).toContain("delete is IRREVERSIBLE.");
+  it("says delete moves to Trash and that a changed page restarts chunking", () => {
+    expect(manageWikiPagesTool.description).toContain("delete moves the page to Trash;");
     expect(manageWikiPagesTool.description).toContain("restart at 0 if updatedAt changes.");
   });
 });
@@ -507,7 +507,7 @@ describe("manage_wiki_pages writes", () => {
 
   it("passes the optimistic-concurrency token to update and delete", async () => {
     calls.update.mockResolvedValue({ ok: true, data: page("Updated") });
-    calls.delete.mockResolvedValue({ ok: true, data: page() });
+    calls.delete.mockResolvedValue({ ok: true, data: { ...page(), trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
 
     await run({
       action: "update",
@@ -533,6 +533,7 @@ describe("manage_wiki_pages writes", () => {
     expect(decode(mcpToolResultText(deleted))).toEqual({
       deleted: true,
       id: PAGE_ID,
+      trashBatchId: "40000000-0000-4000-8000-0000000000b1",
     });
   });
 

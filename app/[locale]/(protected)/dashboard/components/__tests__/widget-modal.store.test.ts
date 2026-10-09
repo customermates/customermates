@@ -334,7 +334,7 @@ describe("generic widget modal", () => {
   it("synchronizes an accepted earlier deletion while preserving the new widget draft", async () => {
     const { store, removeItem } = setup();
     const old = chart("Earlier saved widget");
-    const response = deferred<{ ok: true; data: { id: string } }>();
+    const response = deferred<{ ok: true; data: { id: string; trashBatchId: string } }>();
     mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
     await store.loadById(old.id);
     mocks.deleteWidgetAction.mockReturnValueOnce(response.promise);
@@ -342,9 +342,9 @@ describe("generic widget modal", () => {
     store.close();
     start(store);
     store.onChange("name", "Later unsaved widget");
-    response.resolve({ ok: true, data: { id: old.id } });
-    expect(await deletion).toBe(true);
-    expect(removeItem).toHaveBeenCalledWith({ id: old.id });
+    response.resolve({ ok: true, data: { id: old.id, trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
+    expect(await deletion).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
+    expect(removeItem).toHaveBeenCalledWith(old.id);
     expect(store.form.name).toBe("Later unsaved widget");
     expect(store.isOpen).toBe(true);
     expect(store.isLoading).toBe(false);
@@ -354,10 +354,10 @@ describe("generic widget modal", () => {
       old = chart();
     mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
     await store.loadById(old.id);
-    mocks.deleteWidgetAction.mockResolvedValueOnce({ ok: true, data: { id: old.id } });
-    expect(await store.delete()).toBe(true);
+    mocks.deleteWidgetAction.mockResolvedValueOnce({ ok: true, data: { id: old.id, trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
+    expect(await store.delete()).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
     expect(mocks.deleteWidgetAction).toHaveBeenCalledWith({ id: old.id });
-    expect(removeItem).toHaveBeenCalledWith({ id: old.id });
+    expect(removeItem).toHaveBeenCalledWith(old.id);
     expect(store.isOpen).toBe(false);
   });
   it("builds activity drafts from the same generic scope and shared activity kinds", () => {

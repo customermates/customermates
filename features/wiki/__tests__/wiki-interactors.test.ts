@@ -269,7 +269,7 @@ describe("DeleteWikiPageInteractor", () => {
       expectedUpdatedAt: UPDATED_AT,
     });
 
-    expect(result).toEqual({ ok: true, data: deleted });
+    expect(result).toEqual({ ok: true, data: { ...deleted, trashBatchId: expect.any(String) } });
     expect(events.publish).toHaveBeenCalledWith(DomainEvent.WIKI_PAGE_DELETED, {
       entityId: PAGE_ID,
       payload: deleted,

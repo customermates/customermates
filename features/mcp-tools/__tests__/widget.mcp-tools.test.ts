@@ -453,11 +453,12 @@ describe("manage_widgets read and delete", () => {
 
   it("deletes either stored kind after existence is confirmed", async () => {
     spies.getWidgetById.mockResolvedValue({ ok: true, data: activityWidget() });
-    spies.deleteWidget.mockResolvedValue({ ok: true, data: WIDGET_ID });
+    spies.deleteWidget.mockResolvedValue({ ok: true, data: { id: WIDGET_ID, trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
 
     expect(decode(await run({ action: "delete", id: WIDGET_ID }))).toEqual({
       id: WIDGET_ID,
       deleted: true,
+      trashBatchId: "40000000-0000-4000-8000-0000000000b1",
     });
     expect(spies.deleteWidget).toHaveBeenCalledWith({ id: WIDGET_ID });
   });

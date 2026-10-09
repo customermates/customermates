@@ -159,7 +159,7 @@ describe("data view ownership", () => {
       new DeleteDataViewInteractor(repo, selection, trashStub()).invoke({ id: OWN_VIEW_ID }),
     );
 
-    expect(result).toEqual({ ok: true, data: { id: OWN_VIEW_ID } });
+    expect(result).toEqual({ ok: true, data: { id: OWN_VIEW_ID, trashBatchId: expect.any(String) } });
     expect(selection.clearActiveViewKeyIfMatches).toHaveBeenCalledWith({
       p13nId: SURFACE,
       expectedActiveViewKey: OWN_VIEW_ID,
