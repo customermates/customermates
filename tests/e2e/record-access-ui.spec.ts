@@ -2392,7 +2392,8 @@ test("keeps personal views separate from shared defaults and completes their UI 
     ).toBeVisible();
     await expect(
       open
-        .locator(`[data-item-id="${beta.recordId}"] [data-chip-column="${budgetId}"]`),
+        .locator(`[data-item-id="${beta.recordId}"]`)
+        .getByRole("group", { name: "Budget", exact: true }),
     ).toBeVisible();
     await expect(
       target
