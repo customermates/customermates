@@ -56,7 +56,7 @@ function CommandDialog({
         <Command
           {...commandProps}
           className={cn(
-            "**:data-[slot=command-input-wrapper]:h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5",
+            "**:data-[slot=command-input-wrapper]:h-11 **:[[cmdk-group-heading]]:pt-2 **:[[cmdk-group-heading]]:pb-1 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-input]]:h-11 **:[[cmdk-item]]:min-h-10 md:**:[[cmdk-item]]:min-h-8 md:**:[[cmdk-item]]:py-1",
             commandProps?.className,
           )}
         >
