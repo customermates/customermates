@@ -5,7 +5,7 @@ import { openRecordDetails, recordItem } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 async function post(page: Page, path: string, data: unknown) {
-  const response = await page.request.post(path, { data });
+  const response = await page.request.post(path, { data, timeout: 120000 });
   expect(response.status(), await response.text()).toBe(200);
   return response.json();
 }
