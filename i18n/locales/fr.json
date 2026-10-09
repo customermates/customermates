@@ -3017,7 +3017,9 @@
         "relationship": "Choisissez les enregistrements liés à utiliser.",
         "step": "Choisissez les valeurs pour {operation}.",
         "sum": "Choisissez la valeur à additionner.",
-        "take": "Choisissez la valeur à reprendre."
+        "take": "Choisissez la valeur à reprendre.",
+        "trigger": "Choisissez le champ qui déclenche l'enregistrement.",
+        "triggerValue": "Choisissez la valeur qui déclenche l'enregistrement."
       },
       "moreOptions": "Plus d'options",
       "of": "de",
