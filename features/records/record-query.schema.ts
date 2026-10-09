@@ -205,7 +205,7 @@ const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
         .strict()
         .optional()
         .describe(
-          "Moves the record in its list's manual order (sort system:manual): right after afterRecordId, right before beforeRecordId, between both, or first when neither is given. With groupFieldId (a single choice field), the order is kept within records that share the record's value of that field, as in a board column. Changing only the order creates no new version, history entry or webhook.",
+          "Moves the record in its list's manual order (sort system:manual): right after afterRecordId, right before beforeRecordId, between both, or first when neither is given. With groupFieldId (a single choice input field, not a calculated one), the order is kept within records that share the record's value of that field, as in a board column. Changing only the order creates no new version, history entry or webhook.",
         ),
     })
     .strict(),

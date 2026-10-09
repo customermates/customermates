@@ -99,6 +99,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
     );
     if (
       result.ok ||
+      (input.mutation.action === "update" && input.mutation.placement) ||
       !result.error.issues.some(
         (issue) => issue.code === "custom" && issue.params?.error === CustomErrorCode.recordCalculationBudget,
       )
