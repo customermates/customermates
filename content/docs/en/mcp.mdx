@@ -163,7 +163,7 @@ Every record reference carries both `typeId` and `recordId`. `query_crm_records`
 
 `query_crm_records` takes a `pageSize` from 1 to 500 and returns exactly that many records per page. The other paged tools, such as `list_users`, `get_messaging_threads` and `get_calendars`, cap the size at 100: `pageSize` accepts any whole number from 1 to 100 and returns exactly that many records per page, fewer only on the last; `page` counts in that size, so page 2 at `pageSize` 50 holds records 51 to 100, and the result reports both.
 
-`read_crm_record` returns the current record version and schema revision. Change input fields through typed assignments in `mutate_crm_record` and relationships through its link and unlink actions. Any list can have a Channels field; its emails, phones and profiles are indexed identity associations, while an ordinary email field never becomes a matching key. Replacing `identities` keeps only the channels in the array; omitting it leaves them unchanged.
+`read_crm_record` returns the current record version and schema revision. Change input fields through typed assignments in `mutate_crm_record` and relationships through its link and unlink actions. To add to a Formatted text or Text field without rewriting it, send `{ fieldId, append }` in an update: the text goes after the current value with a blank line in between, and an update that only appends never conflicts with someone else's newer change. Any list can have a Channels field; its emails, phones and profiles are indexed identity associations, while an ordinary email field never becomes a matching key. Replacing `identities` keeps only the channels in the array; omitting it leaves them unchanged.
 
 {/* mcp-catalog:records */}
 #### `discover_record_types`
@@ -198,13 +198,13 @@ Resolve up to 1,000 exact email, phone or supported profile identifiers through 
 
 #### `read_crm_record`
 
-Read one record by typeId and recordId, including typed values, notes, relationship summaries and current record/configuration versions. Channels appear on types with Channels enabled; identifiers can match several accessible records.
+Read one record by typeId and recordId, including typed values, formatted text, relationship summaries and current record/configuration versions. Channels appear on types with Channels enabled; identifiers can match several accessible records.
 
 **Read-only.** Required: `typeId`, `recordId`. Optional: `includeRelationships`, `includePaths`.
 
 #### `mutate_crm_record`
 
-Create, update, delete, link or unlink through one validated operation. Supply expectedRevision and an idempotencyKey; updates and deletions also require the current record version. Use typed field-assignment arrays. Omitted inputs stay unchanged; null clears an optional input. Calculated fields are read-only. Delete can permanently remove records and cascading line items; preview first and pass expectedImpactHash. Pending results carry an operation ID.
+Create, update, delete, link or unlink through one validated operation. Supply expectedRevision and an idempotencyKey; updates and deletions also require the current record version. Use typed field-assignment arrays; `{ fieldId, append }` adds markdown after a blank line to a Formatted text or Text field, and an update that only appends never conflicts with a newer record version. Omitted inputs stay unchanged; null clears an optional input. Calculated fields are read-only. Delete can permanently remove records and cascading line items; preview first and pass expectedImpactHash. Pending results carry an operation ID.
 
 **Can delete data.** Required: `expectedRevision`, `idempotencyKey`, `mutation`.
 
