@@ -279,7 +279,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                 <span className="text-xs text-muted-foreground">{t("OperatorWorkspaces.tags.suggestions")}</span>
 
                 {tagSuggestions.map((tag) => (
-                  <ClickableChip key={tag} size="sm" variant="outline" onClick={() => setTags([...tags, tag])}>
+                  <ClickableChip key={tag} size="sm" onClick={() => setTags([...tags, tag])}>
                     {tag}
                   </ClickableChip>
                 ))}

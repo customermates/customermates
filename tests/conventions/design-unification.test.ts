@@ -271,3 +271,62 @@ describe("I2 round 3 and rule 59: row click opens, every table has the row menu 
     expect(tablesWithoutRowMenuFindings([source]).map(({ line }) => line)).toEqual([1]);
   });
 });
+
+const CHIP_TAGS = new Set(["AppChip", "ClickableChip"]);
+const CHIP_OWNER_DIRECTORY = "components/chip/";
+const NON_COLOR_CHIP_VARIANTS = new Set(["outline", "ghost", "link"]);
+
+function chipAttribute(node: ts.JsxElement | ts.JsxSelfClosingElement, name: string) {
+  return attributesOf(node).properties.find(
+    (property): property is ts.JsxAttribute => ts.isJsxAttribute(property) && property.name.getText() === name,
+  );
+}
+
+function nonStandardChipFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    if (source.file.startsWith(CHIP_OWNER_DIRECTORY)) continue;
+    visit(source.ast, (node) => {
+      if ((!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) || !CHIP_TAGS.has(tagNameOf(node) ?? "")) return;
+      const size = chipAttribute(node, "size");
+      const sizeValue = size?.initializer;
+      const customSize = size && !(sizeValue && ts.isStringLiteral(sizeValue) && sizeValue.text === "sm");
+      const variant = chipAttribute(node, "variant");
+      let nonColorVariant = false;
+      if (variant?.initializer)
+        visit(variant.initializer, (part) => {
+          if (ts.isStringLiteralLike(part) && NON_COLOR_CHIP_VARIANTS.has(part.text)) nonColorVariant = true;
+        });
+      if (customSize || nonColorVariant)
+        findings.push(finding(source, node.getStart(source.ast), (size ?? variant)!.getText(source.ast)));
+    });
+  }
+
+  return findings;
+}
+
+const NON_STANDARD_CHIP_ALLOWLIST: Allowlist = {
+  "app/[locale]/(protected)/inbox/components/thread-settings.tsx":
+    "the thread settings control is a toolbar button styled as a chip; its owner decides between chip and Button",
+};
+
+describe("F14a: chips use the standard size and set a variant only for a color", () => {
+  it("never gives a chip a custom size or a non-color variant outside the shared chip components", () => {
+    enforce(nonStandardChipFindings(PRODUCT_SOURCES), NON_STANDARD_CHIP_ALLOWLIST);
+  });
+
+  it("recognizes a custom chip size and an outline chip and allows colors", () => {
+    const source = sourceFromText(
+      "chips.tsx",
+      [
+        'const a = <AppChip size="md">A</AppChip>;',
+        'const b = <ClickableChip variant="outline">B</ClickableChip>;',
+        'const c = <AppChip variant={done ? "success" : "secondary"}>C</AppChip>;',
+        'const d = <AppChip size="sm" variant={option.color}>D</AppChip>;',
+        'const e = <AppChip variant={muted ? "outline" : "secondary"}>E</AppChip>;',
+      ].join("\n"),
+    );
+    expect(nonStandardChipFindings([source]).map(({ line }) => line)).toEqual([1, 2, 5]);
+  });
+});

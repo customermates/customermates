@@ -135,7 +135,6 @@ export const CalculationPath = observer(function CalculationPath({
 
             <li className="min-w-0 max-w-full">
               <AppChip
-                size="md"
                 startContent={
                   step.result ? (
                     <Sigma aria-hidden />
