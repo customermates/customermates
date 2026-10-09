@@ -3,7 +3,12 @@
 import "@xyflow/react/dist/style.css";
 
 import type { Edge, EdgeProps, Node, NodeChange, NodeProps } from "@xyflow/react";
-import type { RecordField, RecordModelView, RecordRelationship } from "@/features/records/record-model.schema";
+import type {
+  RecordField,
+  RecordModelView,
+  RecordRelationship,
+  RecordType,
+} from "@/features/records/record-model.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 import type {
   ConfigureGraphCatalog,
@@ -78,6 +83,7 @@ import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 import { recordFieldTypeKey } from "@/features/records/record-input-value";
 import { ConfigureListAddItems } from "./configure-add-menu";
+import { SublistSentence } from "./sublist-sentence";
 import {
   ConfigureNode,
   ConfigureNodeCount,
@@ -124,8 +130,7 @@ type GraphActions = Pick<
   | "onEditRelationship"
 > & {
   labelOf: (typeId: string) => string;
-  singularOf: (typeId: string) => string;
-  iconOf: (typeId: string) => string;
+  typeOf: (typeId: string) => RecordType | undefined;
   focusList: (typeId: string) => void;
   listOf: (items: string[]) => string;
   hasChannels: (typeId: string) => boolean;
@@ -175,24 +180,23 @@ type AccountsNode = Node<{ accounts: ConfigureGraphSource[] }, "accounts">;
 type PromptNode = Node<{ state: "available" | "locked" }, "prompt">;
 
 function SublistExplanation({ parentId }: { parentId: string }) {
-  const t = useTranslations();
-  const { labelOf, singularOf, iconOf, focusList } = useGraphActions();
-  const ParentIcon = recordTypeIcon(iconOf(parentId));
+  const { typeOf, focusList } = useGraphActions();
+  const parent = typeOf(parentId);
+  if (!parent) return null;
   return (
-    <div className="flex flex-col items-start gap-1.5 px-3.5 pb-2.5" data-configure-sublist-explanation="">
-      <ClickableChip
-        className="nodrag"
-        data-configure-sublist-parent={parentId}
-        startContent={<ParentIcon aria-hidden />}
-        onClick={() => focusList(parentId)}
-      >
-        {t("RecordModel.graph.sublistOf", { list: labelOf(parentId) })}
-      </ClickableChip>
-
-      <p className="text-xs text-muted-foreground">
-        {t("RecordModel.sublistExplanation", { parent: singularOf(parentId) })}
-      </p>
-    </div>
+    <p
+      className="nodrag px-3.5 pb-2.5 text-xs text-muted-foreground"
+      data-configure-sublist-explanation=""
+      data-configure-sublist-parent={parentId}
+    >
+      <SublistSentence
+        parent={parent}
+        onNavigate={(event) => {
+          event.preventDefault();
+          focusList(parentId);
+        }}
+      />
+    </p>
   );
 }
 
@@ -870,8 +874,7 @@ function ConfigureGraphCanvas({
       canAddSublist,
       disabled,
       labelOf: (typeId) => model.types.find((type) => type.id === typeId)?.pluralLabel ?? "",
-      singularOf: (typeId) => model.types.find((type) => type.id === typeId)?.label ?? "",
-      iconOf: (typeId) => model.types.find((type) => type.id === typeId)?.icon ?? "",
+      typeOf: (typeId) => model.types.find((type) => type.id === typeId),
       focusList: (typeId) => {
         void flow.fitView({ nodes: [{ id: typeId }], ...focusView() }).catch(reportApplicationError);
         highlightFocusTarget({ kind: "list", id: typeId });
