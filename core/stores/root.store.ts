@@ -38,6 +38,7 @@ import { ProfileSettingsStore } from "@/app/[locale]/(protected)/settings/(accou
 import { UserStore } from "@/app/[locale]/(protected)/settings/(account)/components/user.store";
 import { RoutineModalStore } from "@/app/[locale]/(protected)/routines/components/routine-modal.store";
 import { RoutinesStore } from "@/app/[locale]/(protected)/routines/components/routines.store";
+import { TrashStore } from "@/app/[locale]/(protected)/trash/components/trash.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/subscription-expired/components/subscription-expired.store";
 import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test.store";
 import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
@@ -83,6 +84,7 @@ export class RootStore {
   private _webhookDeliveriesStore?: WebhookDeliveriesStore;
   private _webhooksStore?: WebhooksStore;
   private _routinesStore?: RoutinesStore;
+  private _trashStore?: TrashStore;
   private _widgetsGridStore?: WidgetsStore;
   private _operatorUsersStore?: OperatorUsersStore;
   private _operatorAuditStore?: OperatorAuditStore;
@@ -328,6 +330,10 @@ export class RootStore {
 
   get routinesStore() {
     return (this._routinesStore ??= new RoutinesStore(this));
+  }
+
+  get trashStore() {
+    return (this._trashStore ??= new TrashStore(this));
   }
 
   get webhookModalStore() {
