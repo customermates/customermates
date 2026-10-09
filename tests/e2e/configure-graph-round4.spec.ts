@@ -100,7 +100,7 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   await page.getByRole("menuitem", { name: "Sub-list", exact: true }).click();
   const drawer = configureDrawer(page);
   await expect(drawer.getByText("New sub-list of Deals", { exact: true })).toBeVisible();
-  await expect(drawer).toContainText("Each entry belongs to one Deal record");
+  await expect(drawer).toContainText("Sub-list of Deals · each entry lives inside one Deal");
   await expect(drawer.getByRole("combobox", { name: "Access" })).toHaveCount(0);
   await drawer.locator("#name").fill("Milestone");
   await expect(drawer.getByRole("textbox", { name: "Plural name", exact: true })).toHaveValue("Milestones");
