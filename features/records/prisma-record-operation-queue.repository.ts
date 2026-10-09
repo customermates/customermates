@@ -13,7 +13,7 @@ export class PrismaRecordOperationQueueRepo extends TenantRepository implements 
         JOIN "RecordSchemaState" state
           ON state."companyId" = operation."companyId" AND state."activeOperationId" = operation.id
         WHERE operation.state IN ('pending', 'staging')
-          AND operation.kind IN ('mutation', 'configuration', 'provider-avatar')
+          AND operation.kind IN ('mutation', 'configuration', 'provider-avatar', 'restore')
           AND (operation."leaseUntil" IS NULL OR operation."leaseUntil" <= ${now})
         ORDER BY COALESCE(operation."leaseUntil", operation."createdAt"), operation."companyId", operation.id
         LIMIT ${take}

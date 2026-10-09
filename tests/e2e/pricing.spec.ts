@@ -188,7 +188,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
   await expect.poll(totals).toEqual({ Value: "2600", Quantity: "5", "Weighted value": "0" });
   const lines = await database.query(
-    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
     [companyId, typeId("lineItem")],
   );
   expect(lines.rows).toEqual([{ count: 3 }]);
@@ -211,7 +211,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   await expect(dialogs).not.toBeVisible();
   await expect.poll(totals).toEqual({ Value: "600", Quantity: "3", "Weighted value": "0" });
   const remaining = await database.query(
-    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+    'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
     [companyId, typeId("lineItem")],
   );
   expect(remaining.rows).toEqual([{ count: 1 }]);
