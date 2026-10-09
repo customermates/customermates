@@ -89,7 +89,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
     await expect(main.locator("[data-detail-panel-switcher]")).not.toBeVisible();
     await expect(main.getByRole("region", { name: "Overview", exact: true })).toBeVisible();
     await expect(main.getByRole("region", { name: "Notes", exact: true })).toBeVisible();
-    await expect(main.getByRole("region", { name: "History", exact: true })).toBeVisible();
+    await expect(main.getByRole("region", { name: "Activities", exact: true })).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath("record-detail-desktop.png"),
       fullPage: true,
