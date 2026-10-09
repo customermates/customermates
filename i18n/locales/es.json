@@ -2971,6 +2971,7 @@
     },
     "addOption": "Añadir opción",
     "addPathStep": "Añadir un paso de relación",
+    "addProperty": "Añadir propiedad",
     "addRelationship": "Añadir relación",
     "aggregation": "Agregación",
     "allowManualOverride": "Permitir un valor de reemplazo manual",
@@ -2987,7 +2988,6 @@
       "snapshot": "Guardado en un evento"
     },
     "board": "Tablero",
-    "addProperty": "Añadir propiedad",
     "calculatedValue": "Calculado: {formula}",
     "calculatedValuePlain": "Valor calculado",
     "calculationError": "Cálculo no disponible",
