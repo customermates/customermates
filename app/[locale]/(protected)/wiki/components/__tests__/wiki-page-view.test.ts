@@ -439,7 +439,7 @@ describe("Wiki document view", () => {
       expect(store.hasUnsavedChanges).toBe(false);
       expect(navigationGuard.isGuarding).toBe(false);
       expect(container.querySelector('[aria-label="Common.actions.reset"]')).toBeNull();
-      expect(container.querySelector<HTMLButtonElement>('[aria-label="Common.actions.save"]')?.disabled).toBe(true);
+      expect(container.querySelector('[aria-label="Common.actions.save"]')).toBeNull();
     },
   );
 
@@ -948,13 +948,7 @@ describe("Wiki document view", () => {
       ]),
     );
     const save = () => container.querySelector<HTMLButtonElement>('header [aria-label="Common.actions.save"]');
-    expect(save()?.disabled).toBe(true);
-    expect(
-      container
-        .querySelector("header")
-        ?.querySelectorAll("button")
-        .item((container.querySelector("header")?.querySelectorAll("button").length ?? 0) - 1),
-    ).toBe(save());
+    expect(save()).toBeNull();
     expect(container.querySelector('header [aria-label="Wiki.newPage"]')?.getAttribute("data-variant")).toBe("default");
     expect(harness.toolbarRenders).toBeLessThan(10);
     const settledRenders = harness.toolbarRenders;

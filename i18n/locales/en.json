@@ -928,7 +928,6 @@
       "discard": "Discard",
       "expand": "Expand",
       "jumpToLatest": "Jump to latest",
-      "labelHistory": "History",
       "loadMore": "Load more",
       "open": "Open",
       "openApp": "Open app",
@@ -2117,6 +2116,7 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
+    "configureField": "Edit field {field}",
     "donePersonalizing": "Done",
     "fieldCancelled": "Cancelled moving {field}.",
     "fieldDropped": "Placed {field}.",
@@ -3053,6 +3053,7 @@
     },
     "addOption": "Add option",
     "addPathStep": "Add a relationship step",
+    "addProperty": "Add property",
     "addRelationship": "Add relationship",
     "aggregation": "Aggregation",
     "allowManualOverride": "Allow a manually entered replacement value",
@@ -3069,7 +3070,8 @@
       "snapshot": "Saved at an event"
     },
     "board": "Board",
-    "calculatedReadOnly": "{field} is calculated and can’t be edited.",
+    "calculatedValue": "Calculated: {formula}",
+    "calculatedValuePlain": "Calculated value",
     "calculationError": "Calculation unavailable",
     "calculationInput": "Input {number}",
     "calculationNavigation": "Calculation navigation",
@@ -4110,7 +4112,8 @@
   },
   "WebhooksCard": {
     "emptyBody": "Add a webhook to send workspace events to your systems.",
-    "emptyTitle": "No webhooks yet"
+    "emptyTitle": "No webhooks yet",
+    "showDeliveries": "Show deliveries"
   },
   "Wiki": {
     "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",

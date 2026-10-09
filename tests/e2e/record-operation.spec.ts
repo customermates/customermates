@@ -224,7 +224,8 @@ test("keeps complete application reads, History and a blocked form draft while a
     const historyStarted = performance.now();
     if (!(await history.isVisible())) await readMain.getByRole("tab", { name: "Activities", exact: true }).click();
     await expect(history).toBeVisible();
-    await expect(history.getByText("History", { exact: true })).toBeVisible();
+    await expect(history.getByRole("navigation", { name: "Saved views", exact: true })).toBeVisible();
+    await expect(history.getByText("History", { exact: true })).toHaveCount(0);
     const creation = history.locator("ol").getByText("Browser Administrator", { exact: true });
     await expect(creation).toHaveCount(1);
     await creation.scrollIntoViewIfNeeded();

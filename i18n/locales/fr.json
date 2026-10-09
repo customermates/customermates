@@ -928,7 +928,6 @@
       "discard": "Abandonner",
       "expand": "Agrandir",
       "jumpToLatest": "Aller aux derniers messages",
-      "labelHistory": "Historique",
       "loadMore": "Charger plus",
       "open": "Ouvrir",
       "openApp": "Ouvrir l'application",
@@ -2117,6 +2116,7 @@
     "unverified": "Non vérifié"
   },
   "EntityDetail": {
+    "configureField": "Modifier le champ {field}",
     "donePersonalizing": "Terminé",
     "fieldCancelled": "Déplacement de {field} annulé.",
     "fieldDropped": "Champ {field} déposé.",
@@ -3053,6 +3053,7 @@
     },
     "addOption": "Ajouter une option",
     "addPathStep": "Ajouter une étape de relation",
+    "addProperty": "Ajouter une propriété",
     "addRelationship": "Ajouter une relation",
     "aggregation": "Agrégation",
     "allowManualOverride": "Autoriser une valeur de remplacement manuelle",
@@ -3069,7 +3070,8 @@
       "snapshot": "Enregistré lors d’un événement"
     },
     "board": "Tableau Kanban",
-    "calculatedReadOnly": "{field} est calculé et ne peut pas être modifié.",
+    "calculatedValue": "Calculé : {formula}",
+    "calculatedValuePlain": "Valeur calculée",
     "calculationError": "Calcul indisponible",
     "calculationInput": "Entrée {number}",
     "calculationNavigation": "Navigation du calcul",
@@ -4110,7 +4112,8 @@
   },
   "WebhooksCard": {
     "emptyBody": "Ajoutez un webhook pour envoyer les événements de l’espace de travail à vos systèmes.",
-    "emptyTitle": "Aucun webhook pour le moment"
+    "emptyTitle": "Aucun webhook pour le moment",
+    "showDeliveries": "Afficher les livraisons"
   },
   "Wiki": {
     "conflict": "Cette page a changé. Vos modifications sont toujours là. Rechargez pour utiliser la dernière version.",

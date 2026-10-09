@@ -928,7 +928,6 @@
       "discard": "Verwerfen",
       "expand": "Aufklappen",
       "jumpToLatest": "Zu den neuesten Nachrichten",
-      "labelHistory": "Verlauf",
       "loadMore": "Mehr laden",
       "open": "Öffnen",
       "openApp": "App öffnen",
@@ -2117,6 +2116,7 @@
     "unverified": "Unbestätigt"
   },
   "EntityDetail": {
+    "configureField": "Feld {field} bearbeiten",
     "donePersonalizing": "Fertig",
     "fieldCancelled": "Verschieben von {field} abgebrochen.",
     "fieldDropped": "{field} abgelegt.",
@@ -3053,6 +3053,7 @@
     },
     "addOption": "Option hinzufügen",
     "addPathStep": "Beziehungsschritt hinzufügen",
+    "addProperty": "Eigenschaft hinzufügen",
     "addRelationship": "Beziehung hinzufügen",
     "aggregation": "Zusammenfassung",
     "allowManualOverride": "Manuell eingegebenen Ersatzwert erlauben",
@@ -3069,7 +3070,8 @@
       "snapshot": "Bei einem Ereignis gespeichert"
     },
     "board": "Board",
-    "calculatedReadOnly": "{field} wird berechnet und kann nicht bearbeitet werden.",
+    "calculatedValue": "Berechnet: {formula}",
+    "calculatedValuePlain": "Berechneter Wert",
     "calculationError": "Berechnung nicht verfügbar",
     "calculationInput": "Eingabe {number}",
     "calculationNavigation": "Berechnungsnavigation",
@@ -4110,7 +4112,8 @@
   },
   "WebhooksCard": {
     "emptyBody": "Füge einen Webhook hinzu, um Workspace-Ereignisse an deine Systeme zu senden.",
-    "emptyTitle": "Noch keine Webhooks"
+    "emptyTitle": "Noch keine Webhooks",
+    "showDeliveries": "Zustellungen anzeigen"
   },
   "Wiki": {
     "conflict": "Diese Seite wurde geändert. Deine Änderungen sind noch vorhanden. Lade die neueste Version, um fortzufahren.",

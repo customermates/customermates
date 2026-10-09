@@ -256,8 +256,8 @@ test("paginates and retries record and widget history, restores a personal timel
       ])
     ).rows;
   const beforeParentPresentation = await parentPresentation();
-  await drawer.getByRole("tab", { name: english.Common.actions.labelHistory, exact: true }).click();
-  const drawerHistory = drawer.getByRole("tabpanel", { name: english.Common.actions.labelHistory, exact: true });
+  await drawer.getByRole("tab", { name: english.EntityTimeline.types.activities, exact: true }).click();
+  const drawerHistory = drawer.getByRole("tabpanel", { name: english.EntityTimeline.types.activities, exact: true });
   await drawerHistory.getByRole("link", { name: viewName, exact: true }).click();
   await expect(drawerHistory.getByRole("link", { name: viewName, exact: true })).toHaveAttribute(
     "aria-current",
@@ -1398,8 +1398,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   await expect(retryRecord).toHaveCount(0);
   await expect(price).toHaveValue("20");
   await expect(price).toBeEditable();
-  await expect(main.getByRole("button", { name: "Save", exact: true })).toBeVisible();
-  await expect(main.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+  await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   expect(await receiptCount()).toBe(beforeSave + 1);
   expect(await sourceRows()).toEqual(afterSave);
   await expect(main.locator('[aria-busy="true"]')).toHaveCount(0);
@@ -1605,7 +1604,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
   await retry.click();
   await expect(retry).toHaveCount(0);
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toBeEditable();
-  await expect(main.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+  await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   await expect(main.locator(`[data-entity-field="${id("deal.totalValue")}"]`)).toContainText("€200.00");
   await expect(main.locator(`[data-entity-field="${id("deal.weightedValue")}"]`)).toContainText("€120.00");
   const row = embedded
@@ -1614,7 +1613,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
   await expect(row.getByRole("cell", { name: "2", exact: true })).toBeVisible();
   await notesTab.click();
   await expect(main.getByRole("textbox", { name: notes.label, exact: true })).toHaveText("");
-  await expect(main.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+  await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   expect(await receipts()).toBe(beforeReceipts + 1);
   expect(await persisted()).toEqual(accepted);
   await page.unrouteAll({ behavior: "wait" });

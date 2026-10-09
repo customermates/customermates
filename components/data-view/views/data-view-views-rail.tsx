@@ -38,6 +38,7 @@ import { type ViewDeleteNotice, useViewCommands } from "./use-view-commands";
 import { useViewAi } from "./use-view-ai";
 
 type Props<E extends HasId> = {
+  actions?: ReactNode;
   allLabel?: string;
   countLabel?: (count: number) => string;
   allowDuplicate?: boolean;
@@ -61,6 +62,7 @@ function isPlainClick(event: MouseEvent<HTMLAnchorElement>): boolean {
 const VIEW_FOCUS_KINDS: FocusKind[] = ["view"];
 
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
+  actions,
   allLabel,
   allowDuplicate = true,
   countLabel,
@@ -166,7 +168,10 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       }}
       aria-label={t("DataView.views.railLabel")}
       className={cn(
-        "flex shrink-0 items-start gap-1.5 border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]",
+        "flex shrink-0 gap-1.5",
+        joinsTopBar
+          ? "items-start border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]"
+          : "items-center",
         store.hasSelection && store.supportsSelection && "hidden md:flex",
       )}
       data-data-view-rail=""
@@ -180,7 +185,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           className="min-w-0 flex-1"
           focusable={false}
           observedKey={chips.length}
-          railClassName="items-center gap-1 pt-0 pb-4"
+          railClassName={cn("items-center gap-1 pt-0", joinsTopBar && "pb-4")}
           railProps={{
             "aria-label": t("DataView.views.railLabel"),
             "aria-orientation": "horizontal",
@@ -261,12 +266,14 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         </OverflowRail>
       </TooltipProvider>
 
+      {actions}
+
       {store.isReady && (
         <DropdownMenu modal={false} open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               aria-label={t("DataView.views.menu")}
-              className={cn(VIEW_SURFACE_CLASS, "size-7 rounded-full")}
+              className={cn(joinsTopBar && [VIEW_SURFACE_CLASS, "size-7 rounded-full"])}
               id="global-data-views-menu"
               size="icon-sm"
               variant="ghost"
