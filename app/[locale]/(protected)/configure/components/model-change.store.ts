@@ -60,6 +60,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
       setSummaryRenewalsApproved: action,
       resetModel: action,
       setPreview: action,
+      showDraftErrors: action,
       setPendingOperation: action,
       markRefreshRequired: action,
       resolveConflicts: action,
@@ -68,6 +69,9 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
   }
   abstract operations(): ConfigurationChange["operations"];
   protected abstract projectLatestModel(model: RecordModelView): Form | null;
+  showDraftErrors = (error: BaseModalStore<Form>["error"]) => {
+    this.error = error;
+  };
   protected validateDraft(): BaseModalStore<Form>["error"] {
     return undefined;
   }
@@ -282,7 +286,7 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
     if (!this.isOpen || this.isLoading || this.pendingOperationId || this.isReadOnly) return;
     const invalid = this.validateDraft();
     if (invalid) {
-      this.setError(invalid);
+      this.showDraftErrors(invalid);
       return;
     }
     const session = this.sessionGeneration;

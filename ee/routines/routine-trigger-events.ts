@@ -3,7 +3,11 @@ import type { z } from "zod";
 import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 
-const NON_TRIGGERING_EVENTS = [DomainEvent.MESSAGING_EMAIL_DELETED, DomainEvent.MESSAGING_CHAT_DELETED] as const;
+const NON_TRIGGERING_EVENTS = [
+  DomainEvent.MESSAGING_EMAIL_DELETED,
+  DomainEvent.MESSAGING_CHAT_DELETED,
+  "record.deletedPermanently",
+] as const;
 
 export const RoutineTriggerEventSchema = WebhookCurrentEventSchema.exclude([...NON_TRIGGERING_EVENTS]);
 

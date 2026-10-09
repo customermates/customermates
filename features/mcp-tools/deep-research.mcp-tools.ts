@@ -5,18 +5,12 @@ import type { WikiOutlineEntry } from "@/features/wiki/wiki-markdown-sections";
 
 import { customMcpFailure, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsHits } from "./docs.mcp-tools";
-import {
-  UNTRUSTED_RECORD_TEXT_CLOSE,
-  UNTRUSTED_RECORD_TEXT_HANDLING,
-  UNTRUSTED_RECORD_TEXT_OPEN,
-  stripUntrustedRecordTextMarkers,
-} from "./untrusted-record-content";
+import { UNTRUSTED_RECORD_TEXT_HANDLING, untrustedRecordText } from "./untrusted-record-content";
 
 import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
-import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import {
   getGetRecordInteractor,
   getGetRecordModelInteractor,
@@ -126,10 +120,7 @@ async function fetchRecord(ref: RecordRef) {
   const documents: string[] = [];
   const fields = record.fields.map((field) => {
     if (field.result.state !== "value" || field.result.value.kind !== "richText") return field;
-    const markdown = serializeJSONToMarkdown(JSON.parse(field.result.value.documentJson));
-    documents.push(
-      `Field ${field.fieldId}:\n${UNTRUSTED_RECORD_TEXT_OPEN}\n${stripUntrustedRecordTextMarkers(markdown)}\n${UNTRUSTED_RECORD_TEXT_CLOSE}`,
-    );
+    documents.push(`Field ${field.fieldId}:\n${untrustedRecordText(field.result.value.documentJson)}`);
     return { fieldId: field.fieldId, result: { state: "value", format: "markdown below" } };
   });
   const text = [

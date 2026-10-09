@@ -49,7 +49,7 @@ export function recordAccessForActor({
   actor: RecordActor | null;
   grants: RecordTypeGrant[];
   model: RecordModel;
-  records: Pick<RecordRepo, "linkedRecordsCompanyWide" | "getRecordCompanyWide">;
+  records: Pick<RecordRepo, "linkedRecordsCompanyWide" | "getRecordCompanyWide" | "getTrashedParentCompanyWide">;
   companyId: string;
   userId: string;
 }) {
@@ -110,13 +110,11 @@ export function recordAccessForActor({
     if (isAdmin) return true;
     const parent = parentOf(record.typeId);
     if (parent) {
-      const refs = await records.linkedRecordsCompanyWide(
-        { typeId: record.typeId, recordId: record.id },
-        parent.id,
-        "outgoing",
-        1,
-      );
-      const row = refs[0] ? await records.getRecordCompanyWide(refs[0]) : null;
+      const ref = { typeId: record.typeId, recordId: record.id };
+      const parentRef = record.deletedAt
+        ? await records.getTrashedParentCompanyWide(ref, parent.id)
+        : (await records.linkedRecordsCompanyWide(ref, parent.id, "outgoing", 1))[0];
+      const row = parentRef ? await records.getRecordCompanyWide(parentRef) : null;
       return row !== null && canRead(row, depth + 1);
     }
     const scope = readScope(record.typeId);

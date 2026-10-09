@@ -1,10 +1,11 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
+import type { MouseEvent } from "react";
 
 import { LayoutDashboard, Link2, Repeat, Table2, TextCursorInput, Webhook } from "lucide-react";
 
-import { AppChip } from "@/components/chip/app-chip";
+import { InlineChip } from "@/components/chip/inline-chip";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { IntlLink } from "@/i18n/navigation";
 
@@ -53,24 +54,24 @@ export function ConfirmationSentenceView({
   onNavigate,
 }: {
   sentence: ConfirmationSentence;
-  onNavigate?: () => void;
+  onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
   return (
-    <span className="leading-7">
+    <span>
       {sentence.map((part, index) =>
         typeof part === "string" ? (
           <span key={index}>{part}</span>
         ) : (
           <IntlLink
             key={index}
-            className="mx-0.5 inline-flex max-w-full align-middle"
+            className="inline-flex max-w-full align-top"
             data-confirmation-chip=""
             href={part.href}
             onClick={onNavigate}
           >
-            <AppChip interactive startContent={<ChipIcon icon={part.icon} />}>
+            <InlineChip interactive startContent={<ChipIcon icon={part.icon} />}>
               {part.label}
-            </AppChip>
+            </InlineChip>
           </IntlLink>
         ),
       )}

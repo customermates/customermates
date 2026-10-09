@@ -57,6 +57,7 @@ export const ModelChangeSheet = observer(function ModelChangeSheet({
           dirty={creating || store.hasUnsavedChanges || store.previewReady}
           editable={!store.isReadOnly}
           saving={store.isLoading}
+          store={store}
           onSave={store.onSubmit}
         />
       </AppCard>
