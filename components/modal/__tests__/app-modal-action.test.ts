@@ -4,15 +4,30 @@ import { ExternalLink, RefreshCw, Trash2 } from "lucide-react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/ui/tooltip", () => ({
-  Tooltip: ({ children }: { children: ReactNode }) => createElement("div", { "data-slot": "tooltip" }, children),
-  TooltipTrigger: ({ asChild, children }: { asChild?: boolean; children: ReactNode }) =>
-    createElement("span", { "data-as-child": asChild ? "" : undefined, "data-slot": "tooltip-trigger" }, children),
+  Tooltip: ({ children }: { children: ReactNode }) =>
+    createElement("div", { "data-slot": "tooltip" }, children),
+  TooltipTrigger: ({
+    asChild,
+    children,
+  }: {
+    asChild?: boolean;
+    children: ReactNode;
+  }) =>
+    createElement(
+      "span",
+      {
+        "data-as-child": asChild ? "" : undefined,
+        "data-slot": "tooltip-trigger",
+      },
+      children,
+    ),
   TooltipContent: ({ children }: { children: ReactNode }) =>
     createElement("span", { "data-slot": "tooltip-content" }, children),
 }));
 
 vi.mock("@/i18n/navigation", () => ({
-  IntlLink: ({ children, ...props }: { children: ReactNode; href: string }) => createElement("a", props, children),
+  IntlLink: ({ children, ...props }: { children: ReactNode; href: string }) =>
+    createElement("a", props, children),
 }));
 
 import { AppModalAction, type AppModalActionProps } from "../app-modal-action";
@@ -39,8 +54,9 @@ describe("AppModalAction", () => {
     expect(html).toContain('data-slot="app-modal-action"');
     expect(html).toContain('data-variant="neutral"');
     expect(html).toContain('data-as-child=""');
-    expect(html).toContain("size-9");
-    expect(html).not.toContain("size-8");
+    expect(html).toContain("size-8");
+    expect(html).toContain("rounded-md");
+    expect(html).not.toContain("rounded-xs");
     expect(html).toContain("disabled");
     expect(html).toContain('aria-hidden="true"');
     expect(html).toContain('data-slot="tooltip-content">Refresh</span>');
@@ -62,7 +78,9 @@ describe("AppModalAction", () => {
     expect(html).toContain('role="button"');
     expect(html).toContain('tabindex="0"');
     expect(html).toContain("disabled");
-    expect(html).toContain('data-slot="tooltip-content">Event-triggered routines need real event data.</span>');
+    expect(html).toContain(
+      'data-slot="tooltip-content">Event-triggered routines need real event data.</span>',
+    );
   });
 
   it("keeps destructive styling semantic without changing the shared footprint", () => {
@@ -75,7 +93,7 @@ describe("AppModalAction", () => {
     });
 
     expect(html).toContain('data-variant="destructive"');
-    expect(html).toContain("size-9");
+    expect(html).toContain("size-8");
     expect(html).toContain("text-destructive");
     expect(html).not.toContain("bg-destructive text-white");
   });
@@ -90,7 +108,9 @@ describe("AppModalAction", () => {
     });
 
     expect(html).toContain('aria-busy="true"');
-    expect(html).toMatch(/<span[^>]*aria-busy="true"[^>]*data-slot="app-modal-action-disabled-trigger"/);
+    expect(html).toMatch(
+      /<span[^>]*aria-busy="true"[^>]*data-slot="app-modal-action-disabled-trigger"/,
+    );
     expect(html).toContain("disabled");
     expect(html).toContain("animate-spin");
   });
@@ -114,7 +134,9 @@ describe("AppModalAction", () => {
     expect(internal).toContain('aria-label="Open in Inbox"');
     expect(internal).toContain('data-overlay-action=""');
     expect(internal).toContain('data-size="icon"');
-    expect(internal).toContain('data-slot="tooltip-content">Open in Inbox</span>');
+    expect(internal).toContain(
+      'data-slot="tooltip-content">Open in Inbox</span>',
+    );
     expect(internal).not.toContain('target="_blank"');
     expect(external).toContain('target="_blank"');
     expect(external).toContain('rel="noopener noreferrer"');
@@ -143,7 +165,12 @@ describe("AppModalAction", () => {
       label: "Open in Inbox",
       href: "/inbox",
     });
-    const plain = renderAction({ id: "delete-webhook", icon: Trash2, label: "Delete", onClick: vi.fn() });
+    const plain = renderAction({
+      id: "delete-webhook",
+      icon: Trash2,
+      label: "Delete",
+      onClick: vi.fn(),
+    });
 
     expect(anchored).toMatch(/<button[^>]*id="connected-account-resync"/);
     expect(busy).toMatch(/<button[^>]*id="webhook-delivery-modal-resend"/);
