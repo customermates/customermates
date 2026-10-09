@@ -43,7 +43,7 @@ A role in [Roles](app:settings/roles) grants **Create**, **Edit**, **Delete** an
 
 ## How do I stop the API keys of a former member? [#how-do-i-stop-the-api-keys-of-a-former-member]
 
-The **API & Webhooks** permission controls the [API keys](app:settings/api-keys) and [Webhooks](app:settings/webhooks) pages, including the [Deliveries](app:settings/webhooks/deliveries) tab, and the key and webhook operations behind them, not the use of a key. A call made with an existing key, or through an OAuth connection, is checked against the owner's permissions on the records it touches. Removing **API & Webhooks** from a role therefore hides its members' keys from them but leaves those keys working.
+The **API & Webhooks** permission controls the [API keys](app:settings/api-keys), [Webhooks](app:settings/webhooks) and [Deliveries](app:settings/webhook-deliveries) pages and the key and webhook operations behind them, not the use of a key. A call made with an existing key, or through an OAuth connection, is checked against the owner's permissions on the records it touches. Removing **API & Webhooks** from a role therefore hides its members' keys from them but leaves those keys working.
 
 To stop a member's keys, open the member in [Members](app:settings/members), set **Status** to **Inactive** and click **Save**. This needs **Edit** and **Read access** **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with an inactive member's keys that reads or changes workspace data is refused. Nobody can list or delete another member's keys.
 

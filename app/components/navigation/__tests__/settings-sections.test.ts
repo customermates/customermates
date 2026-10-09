@@ -13,6 +13,7 @@ describe("settings sections", () => {
       "billing",
       "activity",
       "webhooks",
+      "webhook-deliveries",
     ]);
     expect(settingsSectionOf("billing")).toBe("workspace");
     expect(settingsSectionOf("unknown")).toBeNull();
@@ -26,6 +27,7 @@ describe("settings sections", () => {
       "roles",
       "activity",
       "webhooks",
+      "webhook-deliveries",
     ]);
     expect(visibleSubroutes("account", "cloud", () => true).map(({ slug }) => slug)).toEqual([
       "profile",

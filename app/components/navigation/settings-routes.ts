@@ -6,7 +6,8 @@ export type SettingsSlug =
   | "roles"
   | "billing"
   | "activity"
-  | "webhooks";
+  | "webhooks"
+  | "webhook-deliveries";
 
 export function settingsHref(slug: SettingsSlug) {
   return `/settings/${slug}`;
@@ -14,4 +15,4 @@ export function settingsHref(slug: SettingsSlug) {
 
 export const SETTINGS_ENTRY_HREF = settingsHref("profile");
 
-export const WEBHOOK_DELIVERIES_HREF = `${settingsHref("webhooks")}/deliveries`;
+export const WEBHOOK_DELIVERIES_HREF = settingsHref("webhook-deliveries");
