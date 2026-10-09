@@ -72,6 +72,7 @@ export function useTrashColumns(): ColumnDef<TrashItemDto>[] {
         cell: ({ row }) => (row.original.deletedBy ? <MemberChip member={row.original.deletedBy} /> : <EmptyValue />),
       },
       {
+        accessorKey: "deletedAt",
         id: "deletedAt",
         header: t("Trash.columns.deletedAt"),
         cell: ({ row }) => (
