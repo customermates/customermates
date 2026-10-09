@@ -335,16 +335,9 @@ export class RecordConfigurationService extends UserAccessor {
         grants.push({ typeId, grants: operation.grants });
       }
       if (operation.operation === "putCapability") {
-        const input = resolveDefinition(operation.capability) as RecordModel["capabilities"][number];
-        const existing = current.capabilities.find((candidate) => candidate.id === input.id);
-        const binding =
-          input.kind === "channels" && existing?.kind === "channels"
-            ? { ...input, enabled: existing.enabled !== false }
-            : input.kind === "channels"
-              ? { ...input, enabled: true }
-              : input;
-        if (binding.kind !== "channels" && !policy.isAdmin)
-          throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+        const binding = resolveDefinition(operation.capability) as RecordModel["capabilities"][number];
+        const existing = current.capabilities.find((candidate) => candidate.id === binding.id);
+        if (!policy.isAdmin) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
         const protectedKind = (kind: string) => kind === "membershipAuthorization";
         if (
           (existing && (existing.typeId !== binding.typeId || existing.kind !== binding.kind)) ||
@@ -457,9 +450,13 @@ export class RecordConfigurationService extends UserAccessor {
       }
     }
     const changedTypes = new Set<string>();
+    const channelTypes = new Set<string>(lifecycle?.removed?.channelTypeIds);
     for (const field of model.fields) {
       const before = current.fields.find((candidate) => candidate.id === field.id);
-      if (fieldValueDefinition(before) !== fieldValueDefinition(field)) changedTypes.add(field.typeId);
+      if (before && (before.valueType === "channels") !== (field.valueType === "channels"))
+        validation.issues.push({ code: "channels_type_change", fieldId: field.id, typeId: field.typeId });
+      if (fieldValueDefinition(before) === fieldValueDefinition(field)) continue;
+      (field.valueType === "channels" ? channelTypes : changedTypes).add(field.typeId);
     }
     let changed = true;
     while (changed) {
@@ -477,11 +474,7 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
-    const viewTypes = new Set([
-      ...changedTypes,
-      ...(lifecycle?.removed?.channelTypeIds ?? []),
-      ...(lifecycle?.channelTypeIds ?? []),
-    ]);
+    const viewTypes = new Set([...changedTypes, ...channelTypes]);
     const changedRelations = new Set(
       [...current.relationships, ...model.relationships]
         .filter(

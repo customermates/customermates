@@ -21,7 +21,6 @@ export type ConfigurationLifecycle = {
   blockers: DeletionBlocker[];
   cleaned: DeletionCleanup[];
   deletedTargets: ConfigurationTarget[];
-  channelTypeIds: string[];
 };
 
 type LifecycleOperation = Extract<
@@ -39,14 +38,8 @@ export function isLifecycleOperation(
   );
 }
 
-function channelsBinding(model: RecordModel, id: string) {
-  return model.capabilities.find((binding) => binding.id === id && binding.kind === "channels");
-}
-
 export function deletionReference(model: RecordModel, target: ConfigurationTarget): DeletionReference {
   const typeLabel = (id: string) => model.types.find((type) => type.id === id)?.pluralLabel ?? "";
-  if (target.kind === "channels")
-    return { kind: "channels", id: target.id, typeId: channelsBinding(model, target.id)?.typeId, label: "Channels" };
   if (target.kind === "type") return { kind: "type", id: target.id, label: typeLabel(target.id) };
   if (target.kind === "field") {
     const field = model.fields.find((candidate) => candidate.id === target.id);
@@ -66,22 +59,12 @@ function invalid(): never {
 }
 
 function isDeleted(model: RecordModel, target: ConfigurationTarget): boolean {
-  if (target.kind === "channels") {
-    const binding = channelsBinding(model, target.id);
-    return binding ? binding.enabled === false : invalid();
-  }
   if (target.kind === "type") return model.types.find((type) => type.id === target.id)?.archived ?? invalid();
   if (target.kind === "field") return model.fields.find((field) => field.id === target.id)?.archived ?? invalid();
   return model.relationships.find((relation) => relation.id === target.id)?.archived ?? invalid();
 }
 
 function setDeleted(model: RecordModel, target: ConfigurationTarget, archived: boolean) {
-  if (target.kind === "channels") {
-    const index = model.capabilities.findIndex((binding) => binding.id === target.id && binding.kind === "channels");
-    if (index < 0) invalid();
-    model.capabilities[index] = { ...model.capabilities[index], enabled: !archived };
-    return;
-  }
   const items: Array<{ id: string; archived: boolean }> =
     target.kind === "type" ? model.types : target.kind === "field" ? model.fields : model.relationships;
   const index = items.findIndex((item) => item.id === target.id);
@@ -119,7 +102,6 @@ function deleteWithCascade(model: RecordModel, target: ConfigurationTarget): Con
 }
 
 function canRestore(model: RecordModel, target: ConfigurationTarget): boolean {
-  if (target.kind === "channels") return activeType(model, channelsBinding(model, target.id)?.typeId ?? "");
   if (target.kind === "type") {
     const type = model.types.find((candidate) => candidate.id === target.id);
     const parent = model.relationships.find((relation) => relation.id === type?.parentRelationshipId);
@@ -217,7 +199,7 @@ function dependencyBlockers(
 
 function cleanListDefaults(
   model: RecordModel,
-  removed: { fieldIds: Set<string>; relationIds: Set<string>; channelTypeIds?: Set<string> },
+  removed: { fieldIds: Set<string>; relationIds: Set<string> },
   reference: (target: ConfigurationTarget) => DeletionReference,
   cause: DeletionReference,
 ): DeletionCleanup[] {
@@ -231,7 +213,6 @@ function cleanListDefaults(
     );
     const stale = (id: string | null | undefined) => {
       if (!id) return false;
-      if (id === "system:channels") return Boolean(removed.channelTypeIds?.has(type.id));
       if (removed.fieldIds.has(id)) return true;
       if (id.startsWith("relationship:")) return removed.relationIds.has(id.split(":")[1]);
       if (id.startsWith("path:")) return pathIds.has(id.slice("path:".length));
@@ -271,13 +252,12 @@ function removePermanently(
   const typeIds = new Set(targets.filter((target) => target.kind === "type").map((target) => target.id));
   const fieldIds = new Set(targets.filter((target) => target.kind === "field").map((target) => target.id));
   const relationIds = new Set(targets.filter((target) => target.kind === "relationship").map((target) => target.id));
-  const channelTypeIds = new Set(
-    targets.flatMap((target) => {
-      const typeId = target.kind === "channels" ? channelsBinding(model, target.id)?.typeId : undefined;
-      return typeId && !typeIds.has(typeId) ? [typeId] : [];
-    }),
-  );
   for (const field of model.fields) if (typeIds.has(field.typeId)) fieldIds.add(field.id);
+  const channelTypeIds = new Set(
+    model.fields
+      .filter((field) => field.valueType === "channels" && fieldIds.has(field.id) && !typeIds.has(field.typeId))
+      .map((field) => field.typeId),
+  );
   for (const relation of model.relationships)
     if (typeIds.has(relation.sourceTypeId) || typeIds.has(relation.targetTypeId)) relationIds.add(relation.id);
   const crosses = (path: Array<{ relationId: string }>) => path.some((step) => relationIds.has(step.relationId));
@@ -290,9 +270,7 @@ function removePermanently(
     );
   model.fields = model.fields.filter((field) => !fieldIds.has(field.id));
   model.relationships = model.relationships.filter((relation) => !relationIds.has(relation.id));
-  model.capabilities = model.capabilities.filter(
-    (binding) => !typeIds.has(binding.typeId) && !(binding.kind === "channels" && channelTypeIds.has(binding.typeId)),
-  );
+  model.capabilities = model.capabilities.filter((binding) => !typeIds.has(binding.typeId));
   return {
     removed: {
       typeIds: [...typeIds],
@@ -367,16 +345,8 @@ export function applyConfigurationLifecycle(
     );
   }
   const softDeleted = deletions.flatMap((deletion) => [deletion.target, ...deletion.cascade]);
-  const channelTypeIds = new Set(
-    operations.flatMap((operation) =>
-      operation.target.kind === "channels" && operation.operation !== "deletePermanently"
-        ? [deletionReference(before, operation.target).typeId ?? ""]
-        : [],
-    ),
-  );
   if (softDeleted.length) {
     const sets = {
-      channelTypeIds,
       typeIds: new Set(softDeleted.filter((item) => item.kind === "type").map((item) => item.id)),
       fieldIds: new Set(softDeleted.filter((item) => item.kind === "field").map((item) => item.id)),
       relationIds: new Set(softDeleted.filter((item) => item.kind === "relationship").map((item) => item.id)),
@@ -390,14 +360,6 @@ export function applyConfigurationLifecycle(
     const result = removePermanently(model, permanent);
     removed = result.removed;
     blockers.push(...dependencyBlockers(model, result.sets, reference, true));
-    if (result.removed.channelTypeIds.length) {
-      cleanListDefaults(
-        model,
-        { fieldIds: new Set(), relationIds: new Set(), channelTypeIds: new Set(result.removed.channelTypeIds) },
-        reference,
-        reference(permanent[0]),
-      );
-    }
   }
   return {
     deletions,
@@ -413,6 +375,5 @@ export function applyConfigurationLifecycle(
     ),
     cleaned,
     deletedTargets: softDeleted,
-    channelTypeIds: [...channelTypeIds],
   };
 }

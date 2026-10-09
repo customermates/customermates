@@ -58,9 +58,6 @@ export class GetRecentlyDeletedInteractor extends AuthenticatedInteractor<
         const deletedNow = (target: { kind: string; id: string }) =>
           (target.kind === "type" ? model.types : target.kind === "field" ? model.fields : model.relationships).some(
             (item) => item.id === target.id && item.archived,
-          ) ||
-          model.capabilities.some(
-            (binding) => target.kind === "channels" && binding.id === target.id && binding.enabled === false,
           );
         const hiddenSince = new Map<string, number>();
         for (const deletion of deletions.values()) {
@@ -81,12 +78,6 @@ export class GetRecentlyDeletedInteractor extends AuthenticatedInteractor<
           ...model.relationships
             .filter((relation) => relation.archived)
             .map((relation) => ({ kind: "relationship" as const, id: relation.id })),
-          ...model.capabilities
-            .filter(
-              (binding) =>
-                binding.kind === "channels" && binding.enabled === false && !archivedTypes.has(binding.typeId),
-            )
-            .map((binding) => ({ kind: "channels" as const, id: binding.id })),
         ].filter((target) => !cascaded.has(targetKey(target)));
         const records = targets.map((target) => deletions.get(targetKey(target)));
         const names = await this.records.getUserNamesCompanyWide(

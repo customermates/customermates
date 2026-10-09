@@ -8,6 +8,7 @@ import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { recordKey } from "./record-calculation.service";
 import type { RecordSearchRow } from "./record-search-query";
 import type { RecordModel } from "./record-model.schema";
+import { recordChannelsTypeIds } from "./record-channels";
 
 export type IdentityLookup = Pick<RecordIdentityInput, "provider" | "value">;
 export type IdentityMatch = IdentityLookup & {
@@ -83,17 +84,7 @@ export class RecordIdentityReader {
             })),
           };
         }
-        const bound = new Set(
-          model.capabilities
-            .filter(
-              (binding) =>
-                binding.kind === "channels" &&
-                binding.enabled !== false &&
-                (!typeIds || typeIds.includes(binding.typeId)) &&
-                model.types.some((type) => type.id === binding.typeId && !type.archived),
-            )
-            .map((binding) => binding.typeId),
-        );
+        const bound = new Set(recordChannelsTypeIds(model).filter((typeId) => !typeIds || typeIds.includes(typeId)));
         const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
         const matches: VersionedIdentityMatch[] = [];
         for (let offset = 0; offset < identifiers.length; offset += 500) {

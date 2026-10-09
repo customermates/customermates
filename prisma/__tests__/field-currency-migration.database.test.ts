@@ -8,12 +8,12 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { populateLegacyWorkspace } from "@/tests/helpers/legacy-crm-fixture";
 import {
   applyConfigurableRecordsMigration,
+  CONFIGURABLE_RECORDS_MIGRATION,
   createLegacyMigrationDatabase,
+  migrationNames,
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
 
-const FIELD_CURRENCY_MIGRATION = "20261007000000_field_currency";
-const ACTIVITY_SOURCES_MIGRATION = "20261007040000_activity_sources";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];
@@ -76,8 +76,8 @@ describeDatabase("field currency migration", { timeout: 240000 }, () => {
     ).toEqual([...starter].sort());
     expect(before.definitions.find((field) => field.id === swiss.columns.budget)?.currency).toBe("USD");
 
-    await client.query(await readMigration(FIELD_CURRENCY_MIGRATION));
-    await client.query(await readMigration(ACTIVITY_SOURCES_MIGRATION));
+    for (const migration of await migrationNames((name) => name > CONFIGURABLE_RECORDS_MIGRATION))
+      await client.query(await readMigration(migration));
 
     const after = await currencyFields(client, swiss.companyId);
     expect(after.definitions).toEqual(after.snapshot);

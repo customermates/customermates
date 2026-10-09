@@ -18,7 +18,7 @@ import { formatChannelIdentifier, threadCounterpart } from "../thread-display";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
-import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
+import { RecordModelSchema } from "@/features/records/record-model.schema";
 
 export class PrismaRecordActivitiesRepo extends TenantRepository implements RecordActivitiesRepo {
   constructor(private readonly permissions: PermissionService) {
@@ -75,7 +75,7 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
           select: { revision: true, createdAt: true, actorId: true, change: true, snapshot: true },
         })
       : [];
-    const snapshots = new Map(rows.map((row) => [row.revision, readRecordModelSnapshot(row.snapshot)]));
+    const snapshots = new Map(rows.map((row) => [row.revision, RecordModelSchema.parse(row.snapshot)]));
     const parsed = rows.flatMap((row) => {
       if (!requested.includes(row.revision)) return [];
       const result = RecordRevisionChangeSchema.safeParse(row.change);

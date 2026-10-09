@@ -1,4 +1,5 @@
 import type { RecordRepo } from "./record.repo";
+import { recordChannelsField } from "./record-channels";
 import type { RecordField, RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordEventPayload, RecordHistorySnapshot, RecordJournalEntry } from "./record-event.schema";
 
@@ -44,9 +45,7 @@ async function snapshot(
   const dependencies = new Map(
     (await records.getRecordDependenciesCompanyWide(ref)).map((entry) => [entry.fieldId, entry.sources]),
   );
-  const identities = model.capabilities.some((binding) => binding.typeId === ref.typeId && binding.kind === "channels")
-    ? await records.getIdentitiesCompanyWide(ref)
-    : [];
+  const identities = recordChannelsField(model, ref.typeId) ? await records.getIdentitiesCompanyWide(ref) : [];
   return {
     version: row.version,
     assignedUserIds: row.assignments.map((assignment) => assignment.userId).sort(),

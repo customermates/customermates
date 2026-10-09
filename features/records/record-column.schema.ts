@@ -4,7 +4,6 @@ export const RecordSystemColumnSchema = z.enum(["system:createdAt", "system:upda
 export const RecordFieldKeySchema = z.union([z.uuid(), RecordSystemColumnSchema]);
 export const RecordColumnKeySchema = z.union([
   RecordFieldKeySchema,
-  z.literal("system:channels"),
   z.string().regex(/^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
   z
     .string()
