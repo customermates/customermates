@@ -15787,7 +15787,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: false });
     expect(
-      await f.run(() => f.preview.run(change([{ operation: "putField", field: { ...source, archived: true } }]))),
+      await f.run(() => f.preview.invoke(change([{ operation: "putField", field: { ...source, archived: true } }]))),
     ).toMatchObject({ ok: false });
     expect(await f.run(() => f.preview.run(change(lifecycle("deletePermanently", sourceId))))).toMatchObject({
       ok: false,
@@ -16130,14 +16130,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       prisma.dataView.findFirstOrThrow({ where: { companyId: f.company.id, surfaceKey: `records:${contactTypeId}` } }),
     );
     expect(cleanedView.columnOrder).not.toContain("system:channels");
-    expect(await f.run(async () => f.preview.invoke(await change([deletion])))).toMatchObject({
+    expect(await f.run(async () => f.preview.run(await change([deletion])))).toMatchObject({
       ok: true,
       data: {
         valid: true,
         deletion: { removed: { records: 0, values: 0, links: 0, identifiers: 2, identifierRecords: 1 } },
       },
     });
-    expect(await f.run(async () => f.configure.invoke(await change([deletion])))).toMatchObject({
+    expect(await f.run(async () => f.configure.run(await change([deletion])))).toMatchObject({
       ok: true,
       data: { status: "completed" },
     });

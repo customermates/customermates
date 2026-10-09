@@ -358,12 +358,12 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
   describe("previews and permanent deletion scoped to what the caller can read", () => {
     const configure = async (actor: TenantUser, operations: ConfigurationChange["operations"]) => {
       const expectedRevision = (await modelFor(actors.admin)).revision;
-      return runWithTenant(actor, () => apply.invoke({ expectedRevision, idempotencyKey: randomUUID(), operations }));
+      return runWithTenant(actor, () => apply.run({ expectedRevision, idempotencyKey: randomUUID(), operations }));
     };
     const previewAs = async (actor: TenantUser, operations: ConfigurationChange["operations"]) => {
       const expectedRevision = (await modelFor(actors.admin)).revision;
       const result = await runWithTenant(actor, () =>
-        preview.invoke({ expectedRevision, idempotencyKey: randomUUID(), operations }),
+        preview.run({ expectedRevision, idempotencyKey: randomUUID(), operations }),
       );
       if (!result.ok) throw new Error(JSON.stringify(result.error));
       return result.data;
