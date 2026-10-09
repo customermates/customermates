@@ -1556,7 +1556,7 @@ test("configures self-type singular and many relationships, edits from both ends
   const links = async (relationId: string) =>
     (
       await database.query(
-        'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3',
+        'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3 AND "deletedAt" IS NULL',
         [companyId, relationId, type.id],
       )
     ).rows
@@ -1874,7 +1874,7 @@ test("configures self-type singular and many relationships, edits from both ends
   expect(
     (
       await database.query(
-        'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+        'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
         [companyId, type.id],
       )
     ).rows,
@@ -2038,7 +2038,7 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
     expect(
       (
         await database.query(
-          'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3',
+          'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3 AND "deletedAt" IS NULL',
           [companyId, parent.id, type.id],
         )
       ).rows,

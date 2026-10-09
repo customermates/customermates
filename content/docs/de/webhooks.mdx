@@ -254,7 +254,9 @@ Das `notes`-Feld in Payloads ist Tiptap-JSON, die Struktur, die der Editor speic
 
 ## Was enthalten Delete-Payloads? [#what-do-delete-payloads-contain]
 
-Bei `record.deleted` enthält `data.record` die eindeutige `ref`, die zulässigen Vorher-Werte und die entfernten Beziehungen; `afterVersion` ist null. Quellfilter gelten unmittelbar vor der Entfernung, der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft.
+`record.deleted` wird gesendet, wenn ein Datensatz in den Papierkorb verschoben wird. `data.record` enthält die eindeutige `ref`, die zulässigen Vorher-Werte und die Beziehungen, die er verlässt; `afterVersion` ist null. Quellfilter gelten unmittelbar vor dem Verschieben, der aktuelle Zugriff des Eigentümers wird vor der Zustellung erneut geprüft. `record.restored` wird gesendet, wenn er aus dem Papierkorb zurückkommt, und enthält wie `record.created` die Nachher-Werte.
+
+`record.deletedPermanently` wird gesendet, wenn ein Datensatz endgültig gelöscht wird, von Hand oder 30 Tage nachdem er in den Papierkorb kam. `data.record` enthält nur die `ref`: Die Werte werden entfernt, und auch die früheren Ereignisse des Datensatzes verlieren ihre Feldwerte; erhalten bleibt, wer ihn wann geändert hat. Es erreicht jeden Webhook der Liste, der es ausgewählt hat und dessen Eigentümer die Liste lesen darf, ohne Quellfilter.
 
 ## Wie untersuche ich eine fehlgeschlagene Zustellung? [#how-do-i-debug-a-delivery]
 
@@ -265,7 +267,7 @@ Bei `record.deleted` enthält `data.record` die eindeutige `ref`, die zulässige
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 
-Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Messaging-Ereignisse. Für einen CRM-Webhook wählen Sie **Datensatz erstellt**, **Datensatz aktualisiert** oder **Datensatz gelöscht** (`record.created`, `record.updated`, `record.deleted`) und legen die [Datensatzquelle](#record-event-sources) fest; das gilt auch für Listen, die Sie selbst angelegt haben. Alle nutzen den [Standardumschlag](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus. Siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
+Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Messaging-Ereignisse. Für einen CRM-Webhook wählen Sie **Datensatz erstellt**, **Datensatz aktualisiert**, **Datensatz in den Papierkorb verschoben**, **Datensatz wiederhergestellt** oder **Datensatz endgültig gelöscht** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) und legen die [Datensatzquelle](#record-event-sources) fest; das gilt auch für Listen, die Sie selbst angelegt haben. Alle nutzen den [Standardumschlag](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **Datensatz endgültig gelöscht** (`record.deletedPermanently`), **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus. Siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record-Events [#record-events]
 
@@ -273,7 +275,9 @@ Ein Webhook kann [[derived.webhooks.events.total]] Ereignisse abonnieren: [[deri
 | --- | --- | --- |
 | `record.created` | Ein Datensatz eines konfigurierten Quelltyps wird erstellt | die Datensatzänderung mit den neuen Werten |
 | `record.updated` | Feld, Zuweisung, Identität oder Verknüpfung eines konfigurierten Quelltyps ändert sich | die Datensatzänderung mit vorherigen und neuen Werten |
-| `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird gelöscht | die Datensatzänderung mit den vorherigen Werten |
+| `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird in den Papierkorb verschoben | die Datensatzänderung mit den vorherigen Werten |
+| `record.restored` | Ein Datensatz eines konfigurierten Quelltyps wird aus dem Papierkorb wiederhergestellt | die Datensatzänderung mit den neuen Werten |
+| `record.deletedPermanently` | Ein Datensatz der Liste wird endgültig gelöscht | nur die `ref`; die Werte sind entfernt |
 
 Fünfzehn typspezifische Bezeichner sind stillgelegt. Sie bleiben nur erhalten, damit ältere Webhooks und Zustellungseinträge lesbar bleiben: Für Webhooks und Routinen lassen sie sich nicht auswählen, und nichts löst sie aus. Ersetzen Sie sie durch ein generisches Ereignis mit Datensatzquelle.
 
