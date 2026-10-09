@@ -22,9 +22,9 @@ test("creates a multiple choice field and edits, filters, bulk edits and groups 
   await openDrawerTab(page, "Options");
   for (const [index, option] of ["Alpha", "Beta", "Gamma"].entries()) {
     await drawer.getByRole("button", { name: "Add option", exact: true }).click();
-    await drawer.locator(`[id="options.${index}.label"]`).fill(option);
+    await drawer.locator(`[id="choices.options.${index}.label"]`).fill(option);
   }
-  await drawer.locator('[id="options.0.color"]').click();
+  await drawer.locator('[id="choices.options.0.color"]').click();
   await page.getByRole("option", { name: "Green", exact: true }).click();
   await saveDrawer(page);
 

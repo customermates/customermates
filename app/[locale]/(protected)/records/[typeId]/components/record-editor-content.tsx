@@ -189,7 +189,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
         <EntityDetailPanels
           activities={
             store.record ? (
-              <div className="p-4">
+              <div className="px-4 pt-1 pb-4 @6xl/detail:pt-4">
                 <RecordActivitiesPanel
                   key={`${store.record.ref.typeId}:${store.record.ref.recordId}`}
                   viewSyncToUrl
@@ -284,9 +284,9 @@ const RecordEditorBody = observer(function RecordEditorBody({
               ? [
                   {
                     value: "activities",
-                    label: t("Common.actions.labelHistory"),
+                    label: t("EntityTimeline.types.activities"),
                     content: (
-                      <AppCardBody className="overflow-y-auto overscroll-contain">
+                      <AppCardBody className="overflow-y-auto overscroll-contain pt-1">
                         <RecordActivitiesPanel
                           key={`${store.record.ref.typeId}:${store.record.ref.recordId}`}
                           record={store.record.ref}
