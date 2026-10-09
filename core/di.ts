@@ -111,6 +111,7 @@ import { GetRecordInteractor } from "@/features/records/get-record.interactor";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import { PermissionService } from "@/core/base/permission.service";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
+import { PreviewCalculationInteractor } from "@/features/records/preview-calculation.interactor";
 import { SaveRecordDetailLayoutInteractor } from "@/features/records/record-detail-layout.interactor";
 import { RecordDetailLayoutReader } from "@/features/records/record-detail-layout-reader";
 import { ReadRecordDetailLayoutInteractor } from "@/features/records/read-record-detail-layout.interactor";
@@ -447,6 +448,8 @@ export const getRecordAccessPolicy = () => new RecordAccessPolicy(getUserRepo(),
 export const getPreviewRecordDeletionInteractor = () =>
   new PreviewRecordDeletionInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
 export const getRecordCalculationService = () => new RecordCalculationService(getRecordRepo());
+export const getPreviewCalculationInteractor = () =>
+  new PreviewCalculationInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordWriteService = () =>
   new RecordWriteService(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordConfigurationService = () => new RecordConfigurationService(getRecordRepo());
