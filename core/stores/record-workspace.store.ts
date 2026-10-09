@@ -11,6 +11,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import type { RecordDetailLayoutResult } from "@/features/records/record-detail-layout.schema";
 import { RecordDetailLayoutStore, type RecordDetailLayoutNotifications } from "./record-detail-layout.store";
 import { toast } from "sonner";
+import { handOffSheet } from "@/components/ui/overlay-contract";
 
 export type RecordDraftHandoff = {
   presentation: RecordEditorContext;
@@ -252,6 +253,7 @@ export class RecordWorkspaceStore {
             return;
           }
           const editor = new RecordEditorStore(this.root, result.data, this.invalidate);
+          handOffSheet();
           this.setEditor(editor);
           editor.edit(result.data, result.data.record);
           if (target) editor.openFrom(target, fallback);
