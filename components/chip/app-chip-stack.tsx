@@ -55,6 +55,7 @@ type Props<T extends ChipStackItem> = {
   maxWidth?: number;
   extraCount?: number;
   overflowMenu?: boolean;
+  onMoreClick?: (trigger: HTMLElement) => void;
 };
 
 export function AppChipStack<T extends ChipStackItem>({
@@ -67,6 +68,7 @@ export function AppChipStack<T extends ChipStackItem>({
   maxWidth,
   extraCount = 0,
   overflowMenu = true,
+  onMoreClick,
 }: Props<T>) {
   const navigateToHref = useNavigateToHref();
   const GAP_PX = 8;
@@ -328,7 +330,22 @@ export function AppChipStack<T extends ChipStackItem>({
         })}
       </TooltipProvider>
 
-      {hiddenCount > 0 && (!overflowMenu || ensuredHiddenItems.length === 0) && (
+      {hiddenCount > 0 && onMoreClick && extraCount > 0 && (
+        <button
+          className="relative inline-flex flex-none"
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onMoreClick(event.currentTarget);
+          }}
+        >
+          <AppChip interactive className="max-w-full cursor-pointer" size={size} variant={variant}>
+            {moreLabel(hiddenCount)}
+          </AppChip>
+        </button>
+      )}
+
+      {hiddenCount > 0 && !(onMoreClick && extraCount > 0) && (!overflowMenu || ensuredHiddenItems.length === 0) && (
         <AppChip
           className="max-w-full flex-none"
           size={size}
@@ -339,7 +356,7 @@ export function AppChipStack<T extends ChipStackItem>({
         </AppChip>
       )}
 
-      {hiddenCount > 0 && overflowMenu && ensuredHiddenItems.length > 0 && (
+      {hiddenCount > 0 && !(onMoreClick && extraCount > 0) && overflowMenu && ensuredHiddenItems.length > 0 && (
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button ref={moreTriggerRef} className="flex-none inline-flex" type="button">

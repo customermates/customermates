@@ -133,6 +133,7 @@ export const RecordValue = observer(function RecordValue({
               ? intl.formatDescriptiveShortDate(new Date(value ?? ""), { timeZone: "UTC" })
               : intl.formatDescriptiveShortDateTime(new Date(value ?? "")),
           )
+          .filter(Boolean)
           .join(" – ")}
       </span>
     );

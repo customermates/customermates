@@ -246,32 +246,36 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     >
       <TooltipProvider>
         <div className="flex flex-col">
-          <Section label={t("Common.table.layout")}>
-            <SegmentedControl
-              items={[
-                {
-                  value: "table",
-                  label: t("Common.table.layouts.table"),
-                  id: anchorScope ? `${anchorScope}-layout-table` : undefined,
-                  controls: false,
-                },
-                {
-                  value: "board",
-                  label: t("Common.table.layouts.board"),
-                  id: anchorScope ? `${anchorScope}-layout-board` : undefined,
-                  disabled: !canBoard,
-                  controls: false,
-                },
-              ]}
-              label={t("Common.table.layout")}
-              value={currentLayout}
-              onValueChange={handleLayoutChange}
-            />
+          {store.supportsBoard && (
+            <Section label={t("Common.table.layout")}>
+              <SegmentedControl
+                items={[
+                  {
+                    value: "table",
+                    label: t("Common.table.layouts.table"),
+                    id: anchorScope ? `${anchorScope}-layout-table` : undefined,
+                    controls: false,
+                  },
+                  {
+                    value: "board",
+                    label: t("Common.table.layouts.board"),
+                    id: anchorScope ? `${anchorScope}-layout-board` : undefined,
+                    disabled: !canBoard,
+                    controls: false,
+                  },
+                ]}
+                label={t("Common.table.layout")}
+                value={currentLayout}
+                onValueChange={handleLayoutChange}
+              />
 
-            {!canBoard && (
-              <p className="mt-1.5 text-xs text-muted-foreground">{t("Common.ariaLabels.switchToBoardViewDisabled")}</p>
-            )}
-          </Section>
+              {!canBoard && (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  {t("Common.ariaLabels.switchToBoardViewDisabled")}
+                </p>
+              )}
+            </Section>
+          )}
 
           {store.groupableFields.length > 0 && (
             <Section label={t("Common.table.groupBy")}>

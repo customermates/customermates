@@ -235,7 +235,11 @@ export class RecordWorkspaceStore {
     this.editor?.close();
   };
 
-  open = (input: { typeId: string; recordId?: string }, target?: HTMLElement | null, fallback?: HTMLElement | null) => {
+  open = (
+    input: { typeId: string; recordId?: string; values?: Record<string, unknown> },
+    target?: HTMLElement | null,
+    fallback?: HTMLElement | null,
+  ) => {
     this.root.navigationGuard.tryNavigate(() =>
       runUserAction(async () => {
         const scope = this.actorScope;
@@ -254,6 +258,8 @@ export class RecordWorkspaceStore {
           const editor = new RecordEditorStore(this.root, result.data, this.invalidate);
           this.setEditor(editor);
           editor.edit(result.data, result.data.record);
+          for (const [fieldId, value] of Object.entries(input.values ?? {}))
+            editor.onChange(`values.${fieldId}`, value);
           if (target) editor.openFrom(target, fallback);
         } finally {
           if (opening === this.opening) this.setOpening(false);

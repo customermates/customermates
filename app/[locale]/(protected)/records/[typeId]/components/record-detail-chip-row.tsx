@@ -17,7 +17,6 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { RecordValueTypeIcon } from "@/components/records/record-value-type-icon";
-import { ContactValue } from "@/components/records/contact-value";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,9 +25,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { IconButton } from "@/components/ui/icon-button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
-import { getChannelIcon } from "@/ee/messaging/provider-icon";
-import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { type RecordChipColumn, type RecordChipEntry, recordChipRowModel } from "./record-chip-row-model";
@@ -164,26 +160,6 @@ function PlaceholderChip({ store, column }: { store: RecordEditorStore; column: 
   );
 }
 
-function IdentityChips({ row }: { row: RecordRow }) {
-  return (
-    <>
-      {(row.identities ?? []).map((identity) => {
-        const Icon = getChannelIcon(identity.provider);
-        const label =
-          channelDisplayLabel(identity.provider, identity.value, identity.profileUrl) ||
-          identity.displayName ||
-          identity.value;
-        const kind = isEmailProvider(identity.provider) ? "email" : isPhoneProvider(identity.provider) ? "phone" : null;
-        return (
-          <AppChip key={identity.id} startContent={<Icon className="size-3" />} tooltip={label}>
-            {kind ? <ContactValue kind={kind} label={label} value={identity.value} /> : label}
-          </AppChip>
-        );
-      })}
-    </>
-  );
-}
-
 function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
   if (store.isReadOnly) return false;
   if (column.kind === "field") return isRecordFieldWritable(column.field) && column.field.valueType !== "richText";
@@ -210,7 +186,6 @@ const DetailChip = observer(function DetailChip({
   const { toggleStarredField } = useEntityDetailPersonalization();
   const [open, setOpen] = useState(false);
   const column = entry.column;
-  if (column.kind === "identity") return <IdentityChips row={row} />;
   if (column.id === "system:assignedTo") {
     return (
       <AppChipStack
@@ -331,7 +306,13 @@ export const RecordDetailChipRow = observer(function RecordDetailChipRow({
     <div className={className} data-record-chip-row="">
       <div className="flex min-w-0 flex-wrap items-center gap-1">
         {entries.map((entry) => (
-          <span key={entry.column.id} className="inline-flex max-w-full min-w-0" data-chip-column={entry.column.id}>
+          <span
+            key={entry.column.id}
+            aria-label={entry.column.label}
+            className="inline-flex max-w-full min-w-0"
+            data-chip-column={entry.column.id}
+            role="group"
+          >
             <DetailChip entry={entry} readOnly={isPersonalizing} row={row} store={store} />
           </span>
         ))}

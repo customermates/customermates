@@ -26,6 +26,18 @@ import { RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { RecordCell } from "./record-cell";
 import { RecordCardContent } from "./record-chip-row";
+import type { DataTableColumnStyle } from "@/components/data-view/data-table";
+import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
+import type { RecordFieldView } from "@/features/records/record-model.schema";
+
+const NUMBER_TYPES: RecordFieldView["valueType"][] = ["number", "currency"];
+const END_ALIGNED_TYPES: RecordFieldView["valueType"][] = [
+  ...NUMBER_TYPES,
+  "date",
+  "dateTime",
+  "dateRange",
+  "dateTimeRange",
+];
 import {
   RecordCalculatedValue,
   RecordInlineField,
@@ -79,7 +91,10 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     return () => root.layoutStore.clearRuntimeIdentity("entity", key);
   }, [root, presentation.typeId, store.type?.pluralLabel, t]);
   const openEditor = useCallback(
-    (ref: { typeId: string; recordId?: string }, returnFocusTo?: HTMLElement | null) => {
+    (
+      ref: { typeId: string; recordId?: string; values?: Record<string, unknown> },
+      returnFocusTo?: HTMLElement | null,
+    ) => {
       const target = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       root.recordWorkspaceStore.open(ref, returnFocusTo ?? target);
     },
@@ -113,6 +128,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
               linkColors={store.presentation.linkColors}
               linkIcons={store.presentation.linkIcons}
               record={row.original}
+              onMore={() => openRecord(row.original)}
               onOpen={openRelated}
             />
           );
@@ -151,7 +167,35 @@ const RecordsPageViewContent = observer(function RecordsPageView({
           );
         },
       })),
-    [columnHeaders, openRelated, avatarFieldId, store],
+    [columnHeaders, openRelated, openRecord, avatarFieldId, store],
+  );
+  const columnStyle = useCallback(
+    (columnId: string): DataTableColumnStyle => {
+      const column = store.recordColumns.find((candidate) => candidate.id === columnId);
+      const firstNumber = store.visibleColumns
+        .map((visible) => store.recordColumns.find((candidate) => candidate.id === visible.uid))
+        .find((candidate) => candidate?.kind === "field" && NUMBER_TYPES.includes(candidate.field.valueType));
+      const endAligned =
+        (column?.kind === "field" && END_ALIGNED_TYPES.includes(column.field.valueType)) ||
+        columnId === "system:createdAt" ||
+        columnId === "system:updatedAt";
+      return {
+        align: endAligned ? "end" : undefined,
+        emphasis: columnId === store.primaryColumnId || column === firstNumber,
+      };
+    },
+    [store],
+  );
+  const addToGroup = useCallback(
+    (group: DataViewGroup) => {
+      const fieldId = store.groupingResult?.columnId;
+      if (!fieldId) return;
+      openEditor({
+        typeId: store.presentation.typeId,
+        values: { [fieldId]: group.key.startsWith("value:") ? group.key.slice("value:".length) : undefined },
+      });
+    },
+    [openEditor, store],
   );
   const renderCard = useCallback(
     (record: RecordRow) => {
@@ -289,12 +333,14 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     case "content":
       body = (
         <DataViewContent
+          columnStyle={columnStyle}
           columns={columns}
           renderCard={renderCard}
           rowActions={rowActions}
           rowHref={recordHref}
           store={store}
           view={view}
+          onAddToGroup={store.presentation.permittedActions.includes("create") ? addToGroup : undefined}
         />
       );
       break;

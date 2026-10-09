@@ -1851,6 +1851,7 @@
     }
   },
   "DataView": {
+    "addToGroup": "Aggiungi a {group}",
     "board": {
       "chooseField": "Raggruppa per campo",
       "createField": "Crea un campo a scelta singola",

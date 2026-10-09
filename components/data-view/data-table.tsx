@@ -5,7 +5,7 @@ import type { ColumnDef, Row, SortingState, VisibilityState } from "@tanstack/re
 import type { ReactNode } from "react";
 
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Fragment, useMemo, useState } from "react";
@@ -14,9 +14,11 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { IconButton } from "@/components/ui/icon-button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/core/utils/cn";
 import type { Prisma } from "@/generated/prisma";
+import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
 
 import { columnResizeLabel, MIN_COLUMN_WIDTH, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
 import { ColumnResizeHandle } from "./column-resize-handle";
@@ -31,7 +33,11 @@ type Props<E extends HasId> = {
   onRowClick?: (item: E) => void;
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
+  columnStyle?: (columnId: string) => DataTableColumnStyle;
+  onAddToGroup?: (group: DataViewGroup) => void;
 };
+
+export type DataTableColumnStyle = { align?: "end"; emphasis?: boolean };
 
 const fixedWidthStyle = (width: number) => ({
   width,
@@ -46,6 +52,8 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   onRowClick,
   rowActions,
   onRowHref,
+  columnStyle,
+  onAddToGroup,
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
@@ -77,8 +85,10 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const columnVisibility: VisibilityState = useMemo(() => {
     const visibility: VisibilityState = {};
     for (const uid of store.hiddenColumns) visibility[uid] = false;
+    const groupedBy = store.isGrouped ? store.groupingResult?.grouping.field : undefined;
+    if (groupedBy) visibility[groupedBy] = false;
     return visibility;
-  }, [store.hiddenColumns]);
+  }, [store.hiddenColumns, store.isGrouped, store.groupingResult?.grouping.field]);
 
   const selectionColumn: ColumnDef<E> = useMemo(
     () => ({
@@ -223,6 +233,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
             ) : (
               content
             );
+          const style = isSelectionCell ? undefined : columnStyle?.(columnId);
           return (
             <TableCell
               key={cell.id}
@@ -231,8 +242,13 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
                   : isSelectionCell
                     ? "w-10"
-                    : undefined
+                    : cn(
+                        style && !style.emphasis && !isNameCell && "text-muted-foreground",
+                        style?.align === "end" &&
+                          "text-right [&_[data-edit-target]]:justify-end [&_[data-inline-edit-space]]:justify-end",
+                      )
               }
+              data-align={style?.align}
               style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
             >
               {liveWidth != null && !isSelectionCell ? (
@@ -276,7 +292,8 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                 <TableHead
                   key={header.id}
                   className={cn(
-                    "relative",
+                    "sticky top-0 z-10 bg-background",
+                    columnStyle?.(columnId)?.align === "end" && "text-right [&_button]:ml-auto",
                     canResize && "group/resize-header",
                     canSort && "cursor-pointer select-none",
                     isSelectionCol && "w-10",
@@ -405,6 +422,16 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
 
                         {group.summaries?.length ? <GroupSummaries summaries={group.summaries} /> : null}
+
+                        {onAddToGroup && group.writable !== false && store.groupingResult?.supportsDragWriteBack && (
+                          <IconButton
+                            fieldAction
+                            className={cn(!group.summaries?.length && "ml-auto")}
+                            icon={Plus}
+                            label={t("DataView.addToGroup", { group: label })}
+                            onClick={() => onAddToGroup(group)}
+                          />
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

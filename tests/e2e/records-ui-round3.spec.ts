@@ -41,6 +41,7 @@ async function createLabList(page: Page, contactTypeId: string) {
       field("$member", "Owner", "member", 7),
       field("$bool", "Done", "boolean", 8),
       field("$phone", "Phone", "phone", 9),
+      field("$emails", "Emails", "email", 11, { multiple: true }),
       field("$double", "Double", "number", 10, {
         behavior: {
           kind: "formula",
@@ -394,7 +395,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   const add = card.getByRole("button", { name: "Add property", exact: true });
   await expect(add).toBeVisible();
   await add.click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Phone", "Contacts"]);
+  await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Phone", "Emails", "Contacts"]);
   await page.getByRole("menuitem", { name: "Text", exact: true }).click();
   await expect(editor).toContainText("Text");
   await editor.locator("input").first().fill("Card text");
@@ -403,6 +404,97 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await expect(chip("Text")).toHaveText("Card text");
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}\\?`));
   expect(errors).toEqual([]);
+});
+
+test("rows keep the row click on calculated values, toggle in selection mode and edit multi-value contacts from blank space", async ({
+  page,
+  companyId,
+}) => {
+  test.setTimeout(180000);
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  const typeId = await createLabList(page, presetId(companyId, "contact"));
+  const model = await readModel(page);
+  const type = model.types.find((candidate) => candidate.id === typeId)!;
+  await api(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: { action: "create", typeId, fields: [{ fieldId: type.primaryFieldId, value: { kind: "text", value: "Lab two" } }] },
+  });
+  await page.goto(`/en/records/${typeId}`);
+  await expect(page.locator("#records-add")).toBeEnabled();
+  await page.waitForLoadState("networkidle");
+  const errors = trackErrors(page);
+  const row = (name: string) => page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
+  const selectAll = page.getByRole("checkbox", { name: "Select all rows", exact: true });
+
+  await row("Lab one").getByRole("checkbox").click();
+  await expect(selectAll).toHaveAttribute("data-state", "indeterminate");
+  await row("Lab two").getByRole("button", { name: "Edit Text", exact: true }).click();
+  await expect(page.locator("[data-in-place-editor]")).toHaveCount(0);
+  await expect(row("Lab two").getByRole("checkbox")).toHaveAttribute("data-state", "checked");
+  await expect(selectAll).toHaveAttribute("data-state", "checked");
+  await row("Lab two").getByRole("button", { name: "Edit Choice", exact: true }).click();
+  await expect(page.getByRole("menu")).toHaveCount(0);
+  await expect(row("Lab two").getByRole("checkbox")).toHaveAttribute("data-state", "unchecked");
+  await row("Lab one").getByRole("checkbox").click();
+  await expect(selectAll).toHaveAttribute("data-state", "unchecked");
+
+  await row("Lab one").hover();
+  await row("Lab one").getByRole("button", { name: "Edit Emails", exact: true }).click();
+  const editor = page.locator('[data-slot="popover-content"][data-state="open"]');
+  await editor.locator("textarea").fill("first@example.test\nsecond@example.test");
+  await editor.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(editor).toHaveCount(0);
+  const space = row("Lab one").locator("[data-inline-edit-space]").filter({ hasText: "first@example.test" });
+  await space.scrollIntoViewIfNeeded();
+  const box = await space.boundingBox();
+  if (!box) throw new Error("The emails cell is not rendered");
+  await page.mouse.click(box.x + 4, box.y + box.height / 2);
+  await expect(editor.locator("textarea")).toHaveValue("first@example.test\nsecond@example.test");
+  await page.keyboard.press("Escape");
+  await expect(editor).toHaveCount(0);
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
+
+  await row("Lab one").locator("[data-calculated-field]").click();
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
+  expect(errors).toEqual([]);
+});
+
+test("grouped tables show a quiet group band that adds into the group and hide the grouped column", async ({
+  page,
+  companyId,
+}) => {
+  test.setTimeout(180000);
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  const typeId = await createLabList(page, presetId(companyId, "contact"));
+  const model = await readModel(page);
+  const type = model.types.find((candidate) => candidate.id === typeId)!;
+  const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice")!;
+  await api(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId,
+      fields: [
+        { fieldId: type.primaryFieldId, value: { kind: "text", value: "Lab grouped" } },
+        { fieldId: choice.id, value: { kind: "select", value: choice.options[0].id } },
+      ],
+    },
+  });
+  await page.goto(`/en/records/${typeId}?viewMode=table&groupBy=${choice.id}`);
+  await expect(page.locator("#records-add")).toBeEnabled();
+  const band = page.locator('[data-slot="group-header-row"]').filter({ hasText: choice.options[0].label });
+  await expect(band).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Choice", exact: false })).toHaveCount(0);
+  await expect(page.locator('td[data-align="end"]').first()).toBeVisible();
+  await band.getByRole("button", { name: `Add to ${choice.options[0].label}`, exact: true }).click();
+  const drawer = page.getByRole("dialog", { name: "Lab item", exact: true });
+  await expect(drawer.getByRole("combobox", { name: "Choice", exact: true })).toContainText(choice.options[0].label);
+  await drawer.getByRole("textbox", { name: "Lab item", exact: false }).fill("Added in group");
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+  await expect(band).toContainText("2");
 });
 
 test("board columns keep a one-line header and a persisted, keyboard-resizable width", async ({

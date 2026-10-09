@@ -125,3 +125,20 @@ describe("record chip row model", () => {
     expect(isEmptyColumn(row({ relationships: [] }), services)).toBe(true);
   });
 });
+
+describe("pinned chip rows", () => {
+  it("keeps empty pinned fields as placeholder entries in their pinned order", () => {
+    const { entries } = recordChipRowModel(columns, row(), { keepEmpty: true });
+
+    expect(entries.map((entry) => [entry.column.id, entry.empty])).toEqual([
+      ["value", false],
+      ["weighted", false],
+      ["quantity", false],
+      ["tags", true],
+      ["done", true],
+      ["notes", true],
+      ["relationship:services", false],
+      ["system:assignedTo", true],
+    ]);
+  });
+});

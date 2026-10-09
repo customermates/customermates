@@ -12,7 +12,8 @@ import type { DataViewView } from "./data-view-state";
 import { useColumnLabel } from "@/components/data-view/use-column-label";
 
 import { DataKanbanView } from "./data-kanban-view";
-import { DataTable } from "./data-table";
+import { DataTable, type DataTableColumnStyle } from "./data-table";
+import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
 
 type Props<E extends HasId> = {
   columns: ColumnDef<E>[];
@@ -20,6 +21,8 @@ type Props<E extends HasId> = {
   rowHref?: (item: E) => string | undefined;
   rowActions?: (item: E) => ReactNode;
   renderCard?: (item: E) => ReactNode;
+  columnStyle?: (columnId: string) => DataTableColumnStyle;
+  onAddToGroup?: (group: DataViewGroup) => void;
   store: BaseDataViewStore<E>;
   view: DataViewView;
 };
@@ -30,6 +33,8 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   rowHref,
   rowActions,
   renderCard,
+  columnStyle,
+  onAddToGroup,
   store,
   view,
 }: Props<E>) {
@@ -50,9 +55,11 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
     return (
       <DataTable
         className="animate-page-result-in motion-reduce:animate-none"
+        columnStyle={columnStyle}
         columns={resolvedColumns}
         rowActions={rowActions}
         store={store}
+        onAddToGroup={onAddToGroup}
         onRowClick={interactive ? onRowClick : undefined}
         onRowHref={rowHref}
       />
