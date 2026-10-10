@@ -244,6 +244,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
                   onOpen={canOpen ? () => open(record) : undefined}
                 />
               )}
+              rowHref={canOpen ? (record) => `/records/${record.ref.typeId}/${record.ref.recordId}` : undefined}
               store={list}
               totals={list.totals}
               view="table"
