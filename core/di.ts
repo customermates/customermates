@@ -44,7 +44,6 @@ import { UpsertRecordActivityWidgetInteractor } from "@/features/widget/record-a
 import { RecordActivityWidgetReader } from "@/features/widget/record-activity-widget-reader";
 import { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
 import { RecordWidgetReader } from "@/features/widget/record-widget-reader";
-import { GetWidgetGalleryInteractor } from "@/features/widget/get-widget-gallery.interactor";
 import { PreviewRecordWidgetInteractor } from "@/features/widget/preview-record-widget.interactor";
 import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
@@ -1698,8 +1697,6 @@ export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo();
 export const getRecordWidgetReader = () =>
   new RecordWidgetReader(getRecordRepo(), getQueryRecordMeasureInteractor(), getUserRepo());
 export const getPreviewRecordWidgetInteractor = () => new PreviewRecordWidgetInteractor(getRecordWidgetReader());
-export const getGetWidgetGalleryInteractor = () =>
-  new GetWidgetGalleryInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getUpsertRecordWidgetInteractor = () =>
   new UpsertRecordWidgetInteractor(
     getRecordWidgetRepo(),

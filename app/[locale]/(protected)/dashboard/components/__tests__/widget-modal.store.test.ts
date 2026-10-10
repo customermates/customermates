@@ -15,7 +15,6 @@ const mocks = vi.hoisted(() => ({
   getWidgetByIdAction: vi.fn(),
   upsertRecordWidgetAction: vi.fn(),
   upsertRecordActivityWidgetAction: vi.fn(),
-  getWidgetGalleryAction: vi.fn(),
 }));
 vi.mock("../../actions", () => mocks);
 const model = createCrmPreset(randomUUID());
@@ -94,14 +93,13 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.getCompanyWidgetsAction.mockResolvedValue({ ok: true, data: { widgets: [] } });
   mocks.getWidgetByIdAction.mockResolvedValue(null);
-  mocks.getWidgetGalleryAction.mockResolvedValue({ ok: true, data: { schemaRevision: 1, templates: [] } });
 });
 
 describe("generic widget modal", () => {
   it("refreshes an accepted earlier activity widget without replacing a newer chart draft", async () => {
     const { store, refresh } = setup();
     store.add();
-    store.startFromKind(WidgetKind.activityTimeline, "Earlier activity");
+    store.startFromKind(WidgetKind.activityTimeline, { activityName: "Earlier activity" });
     const response = deferred<{ ok: true; data: WidgetDto }>();
     mocks.upsertRecordActivityWidgetAction.mockReturnValueOnce(response.promise);
     const save = store.onSubmit();
@@ -366,7 +364,7 @@ describe("generic widget modal", () => {
   it("builds activity drafts from the same generic scope and shared activity kinds", () => {
     const { store } = setup();
     store.add();
-    store.startFromKind(WidgetKind.activityTimeline, "Recent activity");
+    store.startFromKind(WidgetKind.activityTimeline, { activityName: "Recent activity" });
     expect(store.form).toMatchObject({
       kind: "activityTimeline",
       name: "Recent activity",
@@ -442,7 +440,7 @@ describe("widget preview ownership", () => {
   it("applies the same ownership guard to activity query changes", async () => {
     const { store } = setup();
     store.add();
-    store.startFromKind(WidgetKind.activityTimeline, "History");
+    store.startFromKind(WidgetKind.activityTimeline, { activityName: "History" });
     const wait = deferred<string>();
     const preview = store.runPreview(() => wait.promise);
     store.onChange("activityQuery.kinds", ["audit"]);
@@ -451,66 +449,25 @@ describe("widget preview ownership", () => {
   });
 });
 
-describe("starter widget gallery", () => {
-  const deal = model.types.find((type) => type.label === "Deal");
-  const stage = model.fields.find((field) => field.typeId === deal?.id && field.valueType === "select");
-  const template = (displayType: DisplayType, groupBy: object | null) => ({
-    key: `starter:${displayType}`,
-    recipe: displayType === DisplayType.areaChart ? ("valueOverTime" as const) : ("stageFunnel" as const),
-    labels: { type: "Deals", group: "Stage" },
-    measure: {
-      source: { typeId: deal?.id ?? "", filters: [], relationships: [] },
-      aggregation: "count" as const,
-      valueFieldId: null,
-      groupBy,
-      groupLimit: 100,
-    },
-    displayOptions: { ...displayOptions, displayType },
-  });
-
-  it("prefetches templates with the record types so the chooser opens without a layout shift", async () => {
-    mocks.getWidgetGalleryAction.mockResolvedValue({
-      ok: true,
-      data: { schemaRevision: 7, templates: [template(DisplayType.number, null)] },
-    });
-    const { store } = setup();
-    await vi.waitFor(() => expect(store.galleryTemplates).toHaveLength(1));
-    const loaded = store.galleryTemplates;
-    store.add();
-    expect(store.galleryTemplates).toBe(loaded);
-    await vi.waitFor(() => expect(mocks.getWidgetGalleryAction).toHaveBeenCalledTimes(2));
-    expect(store.galleryTemplates).toBe(loaded);
-    store.setRecordTypes(discovery, { schemaRevision: 8, templates: [] });
-    expect(store.galleryTemplates).toEqual([]);
-  });
-
-  it("loads the resolved templates and starts an editable draft without the source-type reset", async () => {
-    const funnel = template(DisplayType.funnelChart, { path: [], fieldId: stage?.id });
-    const area = template(DisplayType.areaChart, { path: [], fieldId: "system:createdAt", dateInterval: "month" });
-    mocks.getWidgetGalleryAction.mockResolvedValue({
-      ok: true,
-      data: { schemaRevision: 7, templates: [funnel, area] },
-    });
+describe("display type starters", () => {
+  it("starts a chart draft with the chosen display type and the default data", () => {
     const { store } = setup();
     store.add();
-    await vi.waitFor(() => expect(store.galleryTemplates).toHaveLength(2));
-    expect(store.form.kind === "chart" && store.form.measure.source.typeId).not.toBe(deal?.id);
-    store.startFromGallery(store.galleryTemplates[0], "Deals by stage");
+    store.startFromKind(WidgetKind.chart, { displayType: DisplayType.funnelChart });
     expect(store.creationStep).toBe("configure");
+    expect(store.expandedSection).toBe("config");
     expect(store.form).toMatchObject({
-      name: "Deals by stage",
-      expectedRevision: 7,
+      kind: "chart",
       displayOptions: { displayType: DisplayType.funnelChart },
-      measure: { aggregation: "count", groupBy: { path: [], fieldId: stage?.id } },
+      measure: { aggregation: "count", groupBy: null, source: { typeId: discovery.types[0].id } },
     });
     expect(store.hasUnsavedChanges).toBe(false);
-    store.setCreationStep("choose");
-    store.startFromGallery(store.galleryTemplates[1], "Won value per month");
-    expect(store.form).toMatchObject({
-      displayOptions: { displayType: DisplayType.areaChart },
-      measure: { groupBy: { dateInterval: "month", timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone } },
-    });
-    store.onChange("measure.aggregation", "sum");
-    expect(store.form.kind === "chart" && store.form.measure.aggregation).toBe("sum");
+  });
+
+  it("ignores a display type for an activity timeline", () => {
+    const { store } = setup();
+    store.add();
+    store.startFromKind(WidgetKind.activityTimeline, { activityName: "Activity", displayType: DisplayType.number });
+    expect(store.form).toMatchObject({ kind: "activityTimeline", name: "Activity" });
   });
 });

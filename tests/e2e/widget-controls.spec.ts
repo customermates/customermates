@@ -33,17 +33,17 @@ test("persists every chart style, appearance, a copied template, resizing and de
   }
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
-  await dialog.locator("#widget-kind-chart").click();
+  await dialog.locator("#widget-starter-verticalBarChart").click();
   await dialog
     .getByRole("button", { name: englishMessages.Dashboard.widgetEditor.kind.change, exact: true })
     .click();
   await expect(dialog.locator("#widget-modal-kind")).toBeVisible();
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
-  await expect(dialog.locator("#widget-kind-chart")).toBeFocused();
+  await expect(dialog.locator("#widget-starter-verticalBarChart")).toBeFocused();
   expect(
     (await database.query('SELECT COUNT(*)::integer AS count FROM "Widget" WHERE "companyId"=$1', [companyId])).rows,
   ).toEqual([{ count: 0 }]);
-  await dialog.locator("#widget-kind-chart").click();
+  await dialog.locator("#widget-starter-verticalBarChart").click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Complete chart controls");
   await dialog.getByRole("combobox", { name: "Records from", exact: true }).click();
   await page.getByRole("option", { name: "Services", exact: true }).click();
@@ -259,7 +259,7 @@ test("preserves widget previews and accessible draft confirmations across respon
     await page.setViewportSize({ width: initialWidth, height: 900 });
     await page.locator("#dashboard-add-widget").click();
     const widget = page.getByRole("dialog", { name: "Add widget", exact: true });
-    await page.getByRole("dialog").locator("#widget-kind-chart").click();
+    await page.getByRole("dialog").locator("#widget-starter-verticalBarChart").click();
     await expect(widget).toHaveAttribute("data-overlay-surface", surface);
     await widget.getByRole("textbox", { name: "Name", exact: true }).fill("Keep this responsive widget draft");
     await widget.getByRole("combobox", { name: "Records from", exact: true }).click();

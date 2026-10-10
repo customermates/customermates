@@ -3591,7 +3591,7 @@ test("copies another member's widget template into an independent owned widget w
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
   const dialog = page.getByRole("dialog");
-  await dialog.locator("#widget-kind-chart").click();
+  await dialog.locator("#widget-starter-verticalBarChart").click();
   await dialog
     .getByRole("textbox", { name: "Name", exact: false })
     .fill(sourceName);
