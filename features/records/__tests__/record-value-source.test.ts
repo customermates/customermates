@@ -5,6 +5,9 @@ import type { RecordField, RecordModelView } from "../record-model.schema";
 import { createCrmPreset, presetId } from "../crm-preset";
 import { calculationSentence, sentenceText } from "../calculation-sentence";
 import { recordValueSource } from "../record-value-source";
+import type { SentenceModel } from "../formula-references";
+
+import { formulaReferences, withFormulaReferences } from "../formula-references";
 
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const model = { ...createCrmPreset(company), capabilities: [] } as unknown as RecordModelView;
@@ -28,12 +31,16 @@ const t = (key: string, values: Record<string, string> = {}) =>
       "RecordModel.valueSource.savedWhenChangedTo": "Saved when {field} changes to {value}",
     }[key] ?? key,
   );
+const format = {
+  decimal: (value: string) => value,
+  isoDate: (value: string) => value,
+};
 type SourceField = Parameters<typeof recordValueSource>[0]["field"];
-const source = (field: SourceField) => recordValueSource({ model, field, t, locale: "en" });
+const source = (field: SourceField) => recordValueSource({ model, field, t, format });
 const calculated = model.fields.filter((field) => field.behavior.kind !== "input");
 const ofShape = (match: (described: NonNullable<ReturnType<typeof calculationSentence>>) => boolean) =>
   calculated.find((field) => {
-    const described = calculationSentence({ model, field, t, locale: "en" });
+    const described = calculationSentence({ model, field, t, format });
     return described !== null && described.saved === null && match(described);
   });
 
@@ -78,6 +85,42 @@ describe("record value source line", () => {
       id: id("lineItem.pricingMode"),
       label: "Pricing",
       typeId: id("lineItem"),
+    });
+  });
+
+  it("names a lookup's linked list and field from the formula references of a one-list payload", () => {
+    const savedPrice = fieldOf("lineItem.savedPrice");
+    if (savedPrice.behavior.kind !== "snapshot") throw new Error("The saved price is a snapshot");
+    const lookup = {
+      ...savedPrice,
+      behavior: { kind: "lookup", expression: savedPrice.behavior.expression },
+    } as RecordField;
+    const present = {
+      fields: model.fields.filter((field) => field.typeId === id("lineItem")),
+      types: model.types.filter((type) => type.id === id("lineItem")),
+      relationships: model.relationships.filter((relation) => relation.id === id("lineItem.deal")),
+    };
+    const describe = (sentenceModel: SentenceModel) =>
+      recordValueSource({ model: sentenceModel, field: lookup, t, format });
+
+    expect(describe(present)).toBeNull();
+
+    const references = formulaReferences([lookup], createCrmPreset(company), present, () => true);
+    const result = describe(withFormulaReferences(present, references));
+    expect(sentenceText(result?.segments ?? [])).toBe("From Service · Price");
+    expect(result?.segments).toContainEqual({ kind: "list", id: id("service"), label: "Service", icon: "package" });
+    expect(result?.segments).toContainEqual({
+      kind: "field",
+      id: id("service.amount"),
+      label: "Price",
+      typeId: id("service"),
+    });
+    expect(
+      formulaReferences([lookup], createCrmPreset(company), present, (typeId) => typeId !== id("service")),
+    ).toEqual({
+      fields: [],
+      types: [],
+      relationships: [],
     });
   });
 

@@ -98,7 +98,6 @@ const RECORD_TOP_LEVEL_DYNAMIC_KEYS = [
   "missing",
   "restricted",
   "calculationError",
-  "field",
   "relationship",
   "option",
   "member",

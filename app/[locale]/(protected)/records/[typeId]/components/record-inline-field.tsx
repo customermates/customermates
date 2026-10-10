@@ -2,9 +2,7 @@
 
 import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
 import type {
-  CalculationExpression,
   RecordFieldView,
-  RecordModelView,
   RecordRef,
   RecordRelationship,
   RecordScalar,
@@ -45,9 +43,12 @@ import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation"
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useRecordValueFormat } from "./record-value";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
-import { expressionSegments, sentenceText } from "@/features/records/calculation-sentence";
+import type { SentenceValueFormat } from "@/features/records/calculation-sentence";
+import type { SentenceModel } from "@/features/records/formula-references";
+
+import { expressionResolves, expressionSegments, sentenceText } from "@/features/records/calculation-sentence";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "./record-relationship-editor";
@@ -544,22 +545,11 @@ export const RecordInlineField = observer(function RecordInlineField({
   );
 });
 
-function expressionResolves(expression: CalculationExpression, model: RecordModelView): boolean {
-  if (expression.kind === "field" || expression.kind === "optionAttribute")
-    return model.fields.some((field) => field.id === expression.fieldId);
-  if (expression.kind === "literal") return true;
-  if (expression.kind === "related") {
-    if (!model.relationships.some((relation) => relation.id === expression.relationId)) return false;
-    return expression.reducer === "count" || expressionResolves(expression.expression, model);
-  }
-  return expression.arguments.every((argument) => expressionResolves(argument, model));
-}
-
 export function calculatedFieldLabel(
   field: RecordFieldView,
-  model: RecordModelView,
+  model: SentenceModel,
   t: ReturnType<typeof useTranslations>,
-  locale: string,
+  format: SentenceValueFormat,
 ) {
   const expression = field.behavior.kind === "input" ? undefined : field.behavior.expression;
   return expression && expressionResolves(expression, model)
@@ -568,12 +558,18 @@ export function calculatedFieldLabel(
           expressionSegments(expression, field.typeId, {
             model,
             t: (key: string, values?: Record<string, string>) => t(key, values),
-            locale,
+            format,
             operatorLabel: (operator) => t(`RecordModel.operators.${operator}`),
           }),
         ),
       })
     : t("RecordModel.calculatedValuePlain");
+}
+
+export function CalculatedFieldText({ field, model }: { field: RecordFieldView; model: SentenceModel }) {
+  const t = useTranslations();
+  const valueFormat = useRecordValueFormat();
+  return calculatedFieldLabel(field, model, t, valueFormat);
 }
 
 export function RecordCalculatedValue({
@@ -582,11 +578,9 @@ export function RecordCalculatedValue({
   children,
 }: {
   field: RecordFieldView;
-  model: RecordModelView;
+  model: SentenceModel;
   children: ReactNode;
 }) {
-  const t = useTranslations();
-  const intl = useHydratedIntlStore();
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -599,7 +593,9 @@ export function RecordCalculatedValue({
         </span>
       </TooltipTrigger>
 
-      <TooltipContent>{calculatedFieldLabel(field, model, t, intl.formattingLocale)}</TooltipContent>
+      <TooltipContent>
+        <CalculatedFieldText field={field} model={model} />
+      </TooltipContent>
     </Tooltip>
   );
 }

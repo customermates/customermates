@@ -26,12 +26,16 @@ const t = (key: string, values: Record<string, string> = {}) =>
       "RecordModel.relationship": "Relationship",
     }[key] ?? key,
   );
-const describe_ = (key: string) => calculationSentence({ model, field: fieldOf(key), t, locale: "en" });
+const format = {
+  decimal: (value: string, { currency }: { currency: string | null }) => `${value}${currency ? ` ${currency}` : ""}`,
+  isoDate: (value: string, dateOnly: boolean) => `${dateOnly ? "date" : "time"} ${value}`,
+};
+const describe_ = (key: string) => calculationSentence({ model, field: fieldOf(key), t, format });
 
 describe("shared calculation sentence", () => {
   it("describes every starter calculation without holes or leftover placeholders", () => {
     for (const field of model.fields) {
-      const described = calculationSentence({ model, field, t, locale: "en" });
+      const described = calculationSentence({ model, field, t, format });
       if (field.behavior.kind === "input") {
         expect(described).toBeNull();
         continue;
@@ -78,7 +82,7 @@ describe("shared calculation sentence", () => {
     const field = fieldOf("lineItem.savedPrice");
     if (field.behavior.kind !== "snapshot") throw new Error("snapshot expected");
     const restricted = { ...field, behavior: { kind: "snapshot" as const, capture: "create" as const } };
-    expect(calculationSentence({ model, field: restricted, t, locale: "en" })).toEqual({
+    expect(calculationSentence({ model, field: restricted, t, format })).toEqual({
       sentence: null,
       value: null,
       list: null,
@@ -91,7 +95,7 @@ describe("shared calculation sentence", () => {
   const context = {
     model,
     t,
-    locale: "en",
+    format,
     operatorLabel: (operator: string) => t(`RecordModel.operators.${operator}`),
   };
 
@@ -134,10 +138,15 @@ describe("shared calculation sentence", () => {
     expect(missing).toContain("of the Deals");
   });
 
-  it("formats numbers, money and dates for the locale", () => {
-    expect(literalText({ kind: "decimal", value: "1234.5", currency: "EUR" }, model, t, "en")).toBe("€1,234.50");
-    expect(literalText({ kind: "decimal", value: "1234.5", currency: null }, model, t, "de")).toBe("1.234,5");
-    expect(literalText({ kind: "date", value: "2026-03-02" }, model, t, "en")).toBe("Mar 2, 2026");
+  it("formats numbers, money and dates through the shared value formatters at full precision", () => {
+    expect(literalText({ kind: "decimal", value: "1234.56789012", currency: "EUR" }, model, t, format)).toBe(
+      "1234.56789012 EUR",
+    );
+    expect(literalText({ kind: "decimal", value: "0.125", currency: null }, model, t, format)).toBe("0.125");
+    expect(literalText({ kind: "date", value: "2026-03-02" }, model, t, format)).toBe("date 2026-03-02");
+    expect(literalText({ kind: "dateTime", value: "2026-03-02T09:30:00Z" }, model, t, format)).toBe(
+      "time 2026-03-02T09:30:00Z",
+    );
   });
 
   it("does not double the parentheses inside and, or and first available value", () => {
