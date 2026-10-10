@@ -1367,6 +1367,18 @@
         "title": "Filtres",
         "trigger": "Filtre"
       },
+      "searchFields": {
+        "inbox": "Objet, message ou participant",
+        "members": "Nom",
+        "operatorAudit": "Action",
+        "operatorUsers": "Nom ou e-mail",
+        "operatorWorkspaces": "E-mail d’un membre",
+        "records": "Un champ de texte",
+        "routines": "Nom",
+        "trash": "Nom",
+        "webhookDeliveries": "URL ou événement",
+        "webhooks": "URL"
+      },
       "selectionLimit": "Vous pouvez sélectionner jusqu'à {count} valeurs.",
       "selectOperator": "Sélectionner une condition…",
       "unavailableValue": "Filtre non disponible"

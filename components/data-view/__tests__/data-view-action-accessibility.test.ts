@@ -79,7 +79,6 @@ describe("data-view action accessibility", () => {
     const html = renderToStaticMarkup(
       createElement(DataViewToolbar<Item>, {
         addLabel: "Add routine",
-        isSearchable: false,
         onAdd: vi.fn(),
         showDisplayOptions: false,
         store: store(),

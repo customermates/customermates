@@ -92,7 +92,10 @@ test("sorts a list in manual order from display options and follows placements",
   await openAppearance();
   await expectSortOptionsWithoutManual();
   await page.locator("#records-layout-board").click();
-  await expectSortOptionsWithoutManual();
+  await sortSelect.click();
+  await expect(manualOption).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(manualOption).toHaveCount(0);
   await page.locator("#records-layout-table").click();
   await closeAppearance();
 
