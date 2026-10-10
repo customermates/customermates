@@ -7,7 +7,7 @@ import type { PaletteEntry, PaletteRecordContext, PaletteTranslator } from "./co
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles } from "lucide-react";
+import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -33,12 +33,18 @@ import { useRecordEditorDeletion } from "@/app/[locale]/(protected)/records/[typ
 import {
   bestCandidate,
   exactTitleMatch,
+  fuseCandidates,
   listGroups,
   parsePaletteQuery,
   rankCandidates,
+  semanticBestCandidate,
   stableOrder,
   viewsOf,
 } from "./command-palette/command-palette-search";
+import {
+  SEMANTIC_BEST_MATCH_MARGIN,
+  SEMANTIC_BEST_MATCH_MIN_SIMILARITY,
+} from "@/features/command-palette/command-search.schema";
 import { recordEntries, staticEntries, workspaceEntries } from "./command-palette/palette-entries";
 import { RecordCommandLevel } from "./command-palette/record-command-level";
 import { useAccountActions } from "./navigation/use-account-actions";
@@ -243,10 +249,24 @@ export const GlobalSearchModal = observer(() => {
   ];
 
   const hits = scope === null || scope === "records" ? (results?.results ?? []) : [];
-  const ranked = hasQuery || scope ? rankCandidates(term, entries, scope) : [];
-  const bestEntry = bestCandidate(term, ranked);
+  const instant = hasQuery || scope ? rankCandidates(term, entries, scope) : [];
+  const ranked = hasQuery ? fuseCandidates(instant, globalSearchModalStore.semantic, entries, scope) : instant;
+  const bestEntry =
+    bestCandidate(term, instant) ??
+    (hasQuery
+      ? semanticBestCandidate(globalSearchModalStore.semantic, entries, scope, {
+          minSimilarity: SEMANTIC_BEST_MATCH_MIN_SIMILARITY,
+          margin: SEMANTIC_BEST_MATCH_MARGIN,
+        })
+      : null);
   const bestHit = !bestEntry && hits[0] && exactTitleMatch(term, recordSearchLabel(hits[0], t)) ? hits[0] : undefined;
   const bestKey = bestEntry?.key ?? (bestHit ? recordSearchKey(bestHit) : undefined);
+  useEffect(() => {
+    globalSearchModalStore.setInstantMatcher((raw) => {
+      const parsed = parsePaletteQuery(raw);
+      return bestCandidate(parsed.term, rankCandidates(parsed.term, entries, parsed.scope)) !== null;
+    });
+  });
   const rankedOf = (kinds: readonly string[]) =>
     ranked.filter((entry) => kinds.includes(entry.kind) && entry.key !== bestKey).slice(0, SECTION_LIMIT);
 
@@ -258,6 +278,15 @@ export const GlobalSearchModal = observer(() => {
     ...(recordContext ? [] : [entryByKey.get("cmd:action.add")].filter((entry) => entry !== undefined)),
   ];
 
+  const docsRows: PaletteRowData[] = globalSearchModalStore.docs
+    .slice(0, scope === "docs" ? undefined : 3)
+    .map((hit) => ({
+      key: hit.key,
+      label: hit.title,
+      subtitle: hit.section ?? undefined,
+      icon: BookOpen,
+      onSelect: () => closeThen(() => navigationGuard.tryNavigate(() => router.push(hit.href))),
+    }));
   const sections: PaletteSection[] = level
     ? []
     : hasQuery || scope
@@ -296,6 +325,7 @@ export const GlobalSearchModal = observer(() => {
             heading: t("CommandPalette.groups.actions"),
             rows: rankedOf(["action"]).map((entry) => entryRow(entry)),
           },
+          { key: "docs", heading: t("CommandPalette.groups.docs"), rows: docsRows },
         ]
       : [
           {
@@ -325,8 +355,7 @@ export const GlobalSearchModal = observer(() => {
     rows: new Map(orderedSections.map((section) => [section.key, section.rows.map((row) => row.key)])),
   };
 
-  const recordsPending =
-    hasQuery && (scope === null || scope === "records") && (isLoading || debouncedSearchTerm !== term);
+  const recordsPending = hasQuery && (isLoading || debouncedSearchTerm !== term);
   const showAskMate = mateAvailable && !level && !(recordsPending && visibleSections.length === 0);
   const showNoResults = hasQuery && !recordsPending && orderedSections.length === 0;
   const firstValue = orderedSections[0]?.rows[0]?.key ?? (showAskMate ? "palette-ask-mate" : "");
