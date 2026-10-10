@@ -25,7 +25,7 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
       footerAction={
         store.isQueryModified && (
           <AppModalCloseContext.Provider value={null}>
-            <FormFooterActions dirty anchorScope={id} editable placement="overlay" onSave={store.saveQueryToView} />
+            <FormFooterActions dirty editable anchorScope={id} placement="overlay" onSave={store.saveQueryToView} />
           </AppModalCloseContext.Provider>
         )
       }
