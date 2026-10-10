@@ -176,7 +176,7 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
   await openRecordDetails(page, firstName);
 
   await expect(drawer.locator("[data-entity-detail-summary], [data-summary-cell]")).toHaveCount(0);
-  await drawer.getByRole("button", { name: "Pin a field", exact: true }).click();
+  await drawer.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
   await page.getByRole("menuitemcheckbox", { name: "Last name", exact: true }).click();
   await expect(page.getByRole("menuitemcheckbox", { name: "Last name", exact: true })).toHaveAttribute(
     "aria-checked",
@@ -202,7 +202,16 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
   await openRecordDetails(page, `${firstName} Pinned`);
   await expect(lastName).toContainText("Pinned");
   await lastName.getByRole("button", { name: "Edit Last name", exact: true }).click();
-  await editor.getByRole("button", { name: "Unpin Last name from the overview", exact: true }).click();
+  await expect(editor).toContainText("Last name");
+  await expect(editor.getByRole("button", { name: "Unpin Last name from the overview", exact: true })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await drawer.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
+  await page.getByRole("menuitemcheckbox", { name: "Last name", exact: true }).click();
+  await expect(page.getByRole("menuitemcheckbox", { name: "Last name", exact: true })).toHaveAttribute(
+    "aria-checked",
+    "false",
+  );
+  await page.keyboard.press("Escape");
   await expect(lastName).toHaveCount(0);
 });
 
@@ -233,7 +242,7 @@ test("edits header links with the card picker, keeps contact values outside edit
   await openRecordDetails(page, firstName);
 
   for (const field of ["Organizations", "Avatar", "Channels"]) {
-    await drawer.getByRole("button", { name: "Pin a field", exact: true }).click();
+    await drawer.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
     await page.getByRole("menuitemcheckbox", { name: field, exact: true }).click();
     await page.keyboard.press("Escape");
   }
@@ -256,15 +265,15 @@ test("edits header links with the card picker, keeps contact values outside edit
   await expect(organizations).toContainText(organization);
   await organizations.getByRole("button", { name: "Edit Organizations", exact: true }).click();
   await expect(picker.getByRole("option", { name: `Open ${organization}`, exact: true })).toBeVisible();
-  await expect(
-    picker.getByRole("option", { name: "Unpin Organizations from the overview", exact: true }),
-  ).toBeVisible();
+  await expect(picker.getByRole("option", { name: "Unpin Organizations from the overview", exact: true })).toHaveCount(
+    0,
+  );
   await page.keyboard.press("Escape");
 
   const channels = chips.getByRole("group", { name: "Channels", exact: true });
   await expect(channels.locator("[data-placeholder-chip]")).toBeVisible();
   await channels.getByRole("button", { name: "Edit Channels", exact: true }).click();
-  await expect(picker.getByRole("button", { name: "Unpin Channels from the overview", exact: true })).toBeVisible();
+  await expect(picker.getByRole("button", { name: "Unpin Channels from the overview", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
 
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
@@ -272,7 +281,7 @@ test("edits header links with the card picker, keeps contact values outside edit
   await page.reload();
   await openRecordDetails(page, firstName);
   await expect(organizations).toContainText(organization);
-  await drawer.getByRole("button", { name: "Pin a field", exact: true }).click();
+  await drawer.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
   await page.getByRole("menuitemcheckbox", { name: "Avatar", exact: true }).click();
   await page.keyboard.press("Escape");
   await expect(avatar).toHaveCount(0);
