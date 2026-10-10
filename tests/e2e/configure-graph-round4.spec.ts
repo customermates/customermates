@@ -136,9 +136,9 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   const headerBox = await header.boundingBox();
   const dealHeaderBox = await deal.getByRole("button", { name: "Deals", exact: true }).boundingBox();
   expect(headerBox?.height).toBeCloseTo(dealHeaderBox?.height ?? 0, 0);
-  const iconBox = await header.locator("svg").boundingBox();
+  const nameBox = await header.locator(".font-semibold").boundingBox();
   const fieldNameBox = await node.locator("[data-configure-graph-field] .font-medium").first().boundingBox();
-  expect(fieldNameBox?.x).toBeCloseTo(iconBox?.x ?? 0, 0);
+  expect(fieldNameBox?.x).toBeCloseTo(nameBox?.x ?? 0, 0);
   await expect(page.locator("[data-configure-relationship]").first().locator("..")).toHaveCSS("z-index", "auto");
   await explanation.getByRole("link", { name: "Deals", exact: true }).click();
   await expect(deal).toHaveAttribute("data-focus-highlight", "");
