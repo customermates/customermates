@@ -142,9 +142,13 @@ test("board columns add a record with the column value, open the option, and col
 
   await page.goto(`/en/records/${typeId}`);
   const chip = open.locator("[data-kanban-edit-option]");
+  await expect(chip).toHaveText("New");
+  await open.hover();
   await chip.hover();
   await expect(page.getByRole("tooltip")).toHaveText("Edit field");
+  await page.mouse.move(0, 0);
   await chip.focus();
+  await expect(page.getByRole("tooltip")).toHaveText("Edit field");
   await page.keyboard.press("Enter");
   await expect(optionRow).toBeVisible();
   await expect(optionRow).toHaveAttribute("data-focus-highlight", "");
