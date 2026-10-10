@@ -22,7 +22,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "query_crm_records",
   "read_crm_operation",
   "read_crm_record",
-  "read_recently_deleted_configuration",
   "read_trash",
   "resolve_record_identifiers",
   "search",

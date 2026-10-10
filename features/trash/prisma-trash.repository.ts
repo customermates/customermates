@@ -1,13 +1,22 @@
-import type { TrashDeletedBy, TrashItem, TrashItemInput, TrashListQuery, TrashRepo } from "./trash.repo";
+import type {
+  TrashDeletedBy,
+  TrashItem,
+  TrashItemInput,
+  TrashListQuery,
+  TrashRepo,
+  TrashSelection,
+} from "./trash.repo";
+import type { ExpiredTrashRepo } from "./purge-expired-trash.interactor";
 
 import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { deleteTrashItems, insertTrashItems } from "./trash-item-store";
 import { TRASH_ITEM_ALIAS } from "./trash-item-alias";
 
 type TrashItemRow = Omit<TrashItem, "payload"> & { payload: Prisma.JsonValue };
 
-export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
+export class PrismaTrashRepo extends TenantRepository implements TrashRepo, ExpiredTrashRepo {
   constructor(private readonly scopedCompanyId?: string) {
     super();
   }
@@ -56,7 +65,7 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
     return { items, total: counts[0]?.count ?? 0 };
   }
 
-  async find(selection: { ids: string[] } | { batchId: string } | { all: true }, visibility: Prisma.Sql) {
+  async find(selection: TrashSelection, visibility: Prisma.Sql) {
     const item = TRASH_ITEM_ALIAS;
     if ("ids" in selection && !selection.ids.length) return [];
     const selected =
@@ -71,6 +80,28 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo {
         ${item}."batchId", ${item}.payload
       FROM "TrashItem" ${item} WHERE ${this.conditions(visibility)} AND ${selected}
       ORDER BY ${item}."deletedAt" ASC, ${item}.id ASC`);
+  }
+
+  async findExpired(now: Date, take: number) {
+    const item = TRASH_ITEM_ALIAS;
+    return this.prisma.$queryRaw<TrashItemRow[]>(Prisma.sql`
+      SELECT ${item}.id, ${item}.kind::text AS kind, ${item}."targetId", ${item}."typeId", ${item}."surfaceKey",
+        ${item}."ownerUserId", ${item}.label, ${item}."deletedById", ${item}."deletedAt", ${item}."expiresAt",
+        ${item}."batchId", ${item}.payload
+      FROM "TrashItem" ${item} WHERE ${item}."companyId" = ${this.companyId} AND ${item}."expiresAt" <= ${now}
+      ORDER BY ${item}."expiresAt" ASC, ${item}.id ASC LIMIT ${take}`);
+  }
+
+  @BypassTenantGuard
+  async findExpiredTrashCompaniesUnscoped(now: Date, limit: number) {
+    return this.prisma.$queryRaw<Array<{ companyId: string; administratorId: string | null }>>(Prisma.sql`
+      SELECT due."companyId", (
+        SELECT member.id FROM "User" member JOIN "UserRole" role ON role.id = member."roleId"
+        WHERE member."companyId" = due."companyId" AND member.status = 'active' AND role."isSystemRole"
+        ORDER BY member."createdAt", member.id LIMIT 1
+      ) AS "administratorId"
+      FROM (SELECT DISTINCT "companyId" FROM "TrashItem" WHERE "expiresAt" <= ${now}) due
+      ORDER BY due."companyId" LIMIT ${limit}`);
   }
 
   async deletedBy(userIds: string[]): Promise<Map<string, TrashDeletedBy>> {
