@@ -1291,11 +1291,13 @@
         "event": "Event",
         "firstName": "First name",
         "isPlatformOperator": "Platform operator",
+        "kind": "Kind",
         "lastActiveAt": "Last active",
         "lastMessageAt": "Last activity",
         "lastMessageDirection": "Last message",
         "lastMessageSentAt": "Last message date",
         "lastName": "Last name",
+        "list": "List",
         "name": "Name",
         "ownerUserId": "Owner",
         "participantContactId": "Linked records",
@@ -2034,6 +2036,7 @@
     "appRecords": "Records",
     "appRoutines": "Routines",
     "appSearch": "Global Search",
+    "appTrash": "Trash",
     "architectureSecurity": "Architecture & Security",
     "concepts": "Core Concepts",
     "connectCli": "CLI & editors",
@@ -2132,6 +2135,7 @@
     "overview": "Overview",
     "personalize": "Customize",
     "pinField": "Pin {field} to the overview",
+    "pinMore": "Pin a field",
     "reorderInstructions": "Press Space or Enter to pick up a field. Use the arrow keys to move it, Space or Enter to drop, and Escape to cancel.",
     "sections": {
       "notes": "Notes"
@@ -2637,6 +2641,7 @@
     "routines": "Routines",
     "search": "Search",
     "settings": "Settings",
+    "trash": "Trash",
     "wiki": "Knowledge Base"
   },
   "NotFoundPage": {
@@ -4074,6 +4079,58 @@
     "signoff": "Best regards,\nBen",
     "subject": "Your account is inactive: we can help you restore access",
     "title": "Subscription inactivated"
+  },
+  "Trash": {
+    "bannerDeleted": "Deleted {date}. {count, plural, =0 {Deletes permanently today} one {Deletes permanently in # day} other {Deletes permanently in # days}}.",
+    "columns": {
+      "deletedAt": "Deleted at",
+      "deletedBy": "Deleted by",
+      "expiresAt": "Deletes permanently",
+      "kind": "Kind"
+    },
+    "daysLeft": "{count, plural, =0 {Deletes permanently today} one {Deletes permanently in # day} other {Deletes permanently in # days}}",
+    "deletedPermanently": "Deleted permanently",
+    "deletePermanently": "Delete permanently",
+    "deletePermanentlyManyTitle": "Delete {count, plural, one {# item} other {# items}} permanently?",
+    "deletePermanentlyTitle": "Delete {name} permanently?",
+    "empty": "Empty trash",
+    "emptyBody": "Deleted items stay here for 30 days, then they are deleted permanently.",
+    "emptyConfirmation": "empty trash",
+    "emptyTitle": "Empty trash?",
+    "emptyTitleState": "Trash is empty",
+    "inTrash": "In Trash",
+    "kindInList": "{kind} in {list}",
+    "kinds": {
+      "channels": "Channels",
+      "dashboardView": "Dashboard view",
+      "field": "Field",
+      "list": "List",
+      "record": "Record",
+      "relationship": "Relationship",
+      "routine": "Routine",
+      "view": "View",
+      "widget": "Widget",
+      "wikiPage": "Knowledge Base page"
+    },
+    "movedToTrash": "Moved to Trash",
+    "movesToTrash": "It moves to Trash, where you can restore it for 30 days.",
+    "permanentIrreversible": "This cannot be undone.",
+    "permanentMessage": "{count, plural, one {This item is} other {These # items are}} deleted permanently.",
+    "permanentRecords": "{list}: {count, plural, one {# record} other {# records}}",
+    "restore": "Restore",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because their list is in Trash. Restore the list first.",
+      "nameTaken": "{count, plural, one {# item stays} other {# items stay}} in Trash because another item now uses their name or place.",
+      "notFound": "{count, plural, one {# item} other {# items}} no longer exist and left Trash.",
+      "parentDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because what they belong to is in Trash. Restore that first.",
+      "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first."
+    },
+    "restored": "{count, plural, one {# item restored} other {# items restored}}",
+    "restoredInBackground": "Restored",
+    "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
+    "restorePending": "Restoring in the background. Trash shows the progress.",
+    "searchPlaceholder": "Search Trash",
+    "undo": "Undo"
   },
   "TrialExpiredOffer": {
     "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",
