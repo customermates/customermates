@@ -10,6 +10,8 @@ import { RecordSystemColumnSchema } from "./record-column.schema";
 import { RecordQuerySchema } from "./record-query.schema";
 import { isTemporalRecordType } from "./record-temporal-filter";
 import { recordCollation } from "./record-collation";
+import { MANUAL_ORDER_SORT_KEY } from "./record-column.schema";
+import { recordManualOrderKey } from "./record-rank";
 
 function alias(index: number): Prisma.Sql {
   return Prisma.raw(`"record_${index}"`);
@@ -459,6 +461,7 @@ export function compileRecordQuery(
     conditions.push(filter.operator === "none" ? Prisma.sql`NOT (${related})` : related);
   }
   const ordering = query.sort.map((sort) => {
+    if (sort.fieldId === MANUAL_ORDER_SORT_KEY) return Prisma.sql`${recordManualOrderKey(record)} ASC`;
     if (sort.fieldId === "system:createdAt" || sort.fieldId === "system:updatedAt") {
       const column =
         sort.fieldId === "system:createdAt" ? Prisma.sql`${record}."createdAt"` : Prisma.sql`${record}."updatedAt"`;

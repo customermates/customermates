@@ -193,7 +193,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
           }
           initialPanel={params.get("viewSurface") === SURFACE.entityTimeline ? "activities" : "details"}
           panelLayout={panelLayout}
-          summary={<RecordDetailChipRow className="px-4 pb-3" store={store} />}
+          summary={<RecordDetailChipRow className="px-4 pt-2 pb-3" store={store} />}
         />
       </AppForm>
     );
@@ -209,7 +209,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
           </AppCardHeader>
 
           <RecordHeaderActions
-            className="mt-2"
+            className="mt-[1.375rem]"
             deletion={deletion}
             layout={detailLayout}
             name={name}

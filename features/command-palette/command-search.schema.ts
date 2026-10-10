@@ -15,6 +15,11 @@ export const CommandSearchInputSchema = z
     searchTerm: z.string().trim().min(1).max(200),
     scope: z.enum(COMMAND_SEARCH_SCOPES).nullable(),
     locale: z.enum(APP_LOCALES),
+    semantic: z
+      .boolean()
+      .describe(
+        "False when instant or keyword matching already found a confident result; the query is then not embedded.",
+      ),
   })
   .strict();
 export type CommandSearchInput = z.infer<typeof CommandSearchInputSchema>;

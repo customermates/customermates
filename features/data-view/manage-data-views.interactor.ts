@@ -1,4 +1,5 @@
 import type { SortableField } from "@/core/base/base-query-builder";
+import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { DataViewConfigurationRepo } from "./data-view-configuration.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
@@ -455,9 +456,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             .filter((field) => field.valueType === "select" && !field.multiple)
             .map((field) => [field.id, field.options.map((option) => option.id)]),
         ),
-        sortableFields: columns
-          .filter((column) => column.sortable)
-          .map((column) => ({ field: column.id, resolvedFields: [column.id], label: column.label })),
+        sortableFields: [
+          ...columns
+            .filter((column) => column.sortable)
+            .map((column) => ({ field: column.id, resolvedFields: [column.id], label: column.label })),
+          { field: MANUAL_ORDER_SORT_KEY, resolvedFields: [MANUAL_ORDER_SORT_KEY], label: "Manual" },
+        ],
         groupableFields: [] as GroupableFieldSpec[],
         groupableDtos: fields
           .filter((field) => field.valueType === "select" && !field.multiple)

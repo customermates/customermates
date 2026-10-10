@@ -3,7 +3,7 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 
-import { useId, useRef, useState } from "react";
+import { useId, useRef } from "react";
 
 import {
   DndContext,
@@ -15,12 +15,18 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { Layers } from "lucide-react";
+import { ChevronsLeftRight, Ellipsis } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ChipColor } from "@/constants/chip-colors";
@@ -32,15 +38,12 @@ import { cn } from "@/core/utils/cn";
 import { isInteractiveClick } from "./is-interactive-click";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 import { BoardGroupingPrompt } from "./board-grouping-prompt";
-import { ColumnResizeHandle } from "./column-resize-handle";
-import { clampWidth, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
-import { BOARD_LANE_WIDTH_KEY } from "@/core/data-view/data-view-state.schema";
 import {
   DATA_KANBAN_CARDS_CLASS_NAME,
   DATA_KANBAN_COLUMN_CLASS_NAME,
   DATA_KANBAN_HEADER_CLASS_NAME,
-  DATA_KANBAN_LANE_WIDTH_BOUNDS,
   DATA_KANBAN_ROOT_CLASS_NAME,
+  DATA_KANBAN_STRIP_CLASS_NAME,
   DATA_KANBAN_TRACK_CLASS_NAME,
 } from "./data-view-geometry";
 import { useGroupLabel, visibleGroups } from "./group-label";
@@ -169,42 +172,8 @@ type LoadMoreAction = {
   onClick: () => void;
 };
 
-const KanbanColumn = observer(function KanbanColumn({
-  id,
-  label,
-  count,
-  summaries,
-  color,
-  weight,
-  droppable,
-  recordLabels,
-  loadMore,
-  width,
-  resizeHandle,
-  children,
-}: {
-  id: string;
-  label: string;
-  count: number;
-  summaries?: RecordGroupSummaryResult[];
-  color?: ChipColor;
-  weight?: number;
-  droppable: boolean;
-  recordLabels?: { singular: string; plural: string };
-  loadMore?: LoadMoreAction;
-  width?: number;
-  resizeHandle?: ReactNode;
-  children: ReactNode;
-}) {
-  const t = useTranslations();
-  const { setNodeRef } = useDroppable({ id, disabled: !droppable });
-
-  const countLabel = recordLabels
-    ? t("DataView.kanbanCount", { count, singular: recordLabels.singular, plural: recordLabels.plural })
-    : String(count);
-  const rateLabel = t("Common.stageProbability");
-
-  const headerContent = color ? (
+function KanbanColumnLabel({ label, color }: { label: string; color?: ChipColor }) {
+  return color ? (
     <AppChip size="sm" variant={color}>
       {label}
     </AppChip>
@@ -217,43 +186,104 @@ const KanbanColumn = observer(function KanbanColumn({
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
   );
+}
+
+function KanbanCount({
+  count,
+  recordLabels,
+  details = [],
+}: {
+  count: number;
+  recordLabels?: { singular: string; plural: string };
+  details?: string[];
+}) {
+  const t = useTranslations();
+  const countLabel = [
+    recordLabels
+      ? t("DataView.kanbanCount", { count, singular: recordLabels.singular, plural: recordLabels.plural })
+      : String(count),
+    ...details,
+  ].join(", ");
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span aria-label={countLabel} className="shrink-0 text-xs text-muted-foreground tabular-nums">
+          {count}
+        </span>
+      </TooltipTrigger>
+
+      <TooltipContent>{countLabel}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+const KanbanColumn = observer(function KanbanColumn({
+  id,
+  label,
+  count,
+  summaries,
+  color,
+  weight,
+  droppable,
+  recordLabels,
+  loadMore,
+  onCollapse,
+  children,
+}: {
+  id: string;
+  label: string;
+  count: number;
+  summaries?: RecordGroupSummaryResult[];
+  color?: ChipColor;
+  weight?: number;
+  droppable: boolean;
+  recordLabels?: { singular: string; plural: string };
+  loadMore?: LoadMoreAction;
+  onCollapse: () => void;
+  children: ReactNode;
+}) {
+  const t = useTranslations();
+  const { setNodeRef } = useDroppable({ id, disabled: !droppable });
+  const moreLabel = t("RecordModel.moreActions", { name: label });
+  const details = weight === undefined ? [] : [`${t("Common.stageProbability")}: ${weight}%`];
 
   return (
-    <div
-      ref={setNodeRef}
-      className={DATA_KANBAN_COLUMN_CLASS_NAME}
-      data-group-key={id}
-      style={width === undefined ? undefined : { width }}
-    >
-      <div className={DATA_KANBAN_HEADER_CLASS_NAME}>
-        {headerContent}
+    <div ref={setNodeRef} className={DATA_KANBAN_COLUMN_CLASS_NAME} data-group-key={id}>
+      <div className={cn(DATA_KANBAN_HEADER_CLASS_NAME, "group/header")}>
+        <KanbanColumnLabel color={color} label={label} />
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground tabular-nums">
-              <Layers aria-hidden="true" className="size-3.5 shrink-0 opacity-70" />
+        <KanbanCount count={count} details={summaries?.length ? [] : details} recordLabels={recordLabels} />
 
-              {count}
-            </span>
-          </TooltipTrigger>
-
-          <TooltipContent>{countLabel}</TooltipContent>
-        </Tooltip>
-
-        {weight !== undefined && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{weight}%</span>
-            </TooltipTrigger>
-
-            <TooltipContent>{rateLabel}</TooltipContent>
-          </Tooltip>
+        {summaries?.length ? (
+          <GroupSummaries lead details={details} summaries={summaries} />
+        ) : (
+          <span className="ml-auto" />
         )}
 
-        {summaries?.length ? <GroupSummaries compact summaries={summaries} /> : null}
-      </div>
+        <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover/header:opacity-100 focus-within:opacity-100 has-data-[state=open]:opacity-100 any-pointer-coarse:opacity-100">
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button aria-label={moreLabel} className="text-muted-foreground" size="icon-xs" variant="ghost">
+                    <Ellipsis aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
 
-      {resizeHandle}
+              <TooltipContent>{moreLabel}</TooltipContent>
+            </Tooltip>
+
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={onCollapse}>
+                <ChevronsLeftRight className="size-4" />
+
+                {t("DataView.collapseColumn")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
 
       <div className={DATA_KANBAN_CARDS_CLASS_NAME}>{children}</div>
 
@@ -275,6 +305,51 @@ const KanbanColumn = observer(function KanbanColumn({
   );
 });
 
+const KanbanStrip = observer(function KanbanStrip({
+  id,
+  label,
+  color,
+  count,
+  droppable,
+  recordLabels,
+  onExpand,
+}: {
+  id: string;
+  label: string;
+  color?: ChipColor;
+  count: number;
+  droppable: boolean;
+  recordLabels?: { singular: string; plural: string };
+  onExpand: () => void;
+}) {
+  const t = useTranslations();
+  const { setNodeRef, isOver } = useDroppable({ id, disabled: !droppable });
+  const expandLabel = t("DataView.expandColumn", { name: label });
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          ref={setNodeRef}
+          aria-label={expandLabel}
+          className={cn(DATA_KANBAN_STRIP_CLASS_NAME, isOver && "bg-accent ring-2 ring-ring/40")}
+          data-group-key={id}
+          data-kanban-strip=""
+          type="button"
+          onClick={onExpand}
+        >
+          <span className="flex min-h-0 items-center gap-2 [writing-mode:vertical-rl]">
+            <KanbanColumnLabel color={color} label={label} />
+
+            <KanbanCount count={count} recordLabels={recordLabels} />
+          </span>
+        </button>
+      </TooltipTrigger>
+
+      <TooltipContent>{expandLabel}</TooltipContent>
+    </Tooltip>
+  );
+});
+
 export const DataKanbanView = observer(function DataKanbanView<E extends HasCustomFieldValues>({
   store,
   renderCard,
@@ -289,11 +364,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const groupLabel = useGroupLabel(store.groupingResult);
   const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
   const writeBackColumnId = store.groupingResult?.columnId;
-  const [laneResize, setLaneResize] = useState<ColumnResizeSession>();
-  const storedLaneWidth = store.columnWidths[BOARD_LANE_WIDTH_KEY];
-  const laneWidth =
-    laneResize?.currentWidth ??
-    (storedLaneWidth === undefined ? undefined : clampWidth(storedLaneWidth, DATA_KANBAN_LANE_WIDTH_BOUNDS));
 
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 4 },
@@ -308,6 +378,8 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   );
 
   const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true });
+  const openGroups = groups.filter((group) => !store.isGroupCollapsed(group.key));
+  const collapsedGroups = groups.filter((group) => store.isGroupCollapsed(group.key));
 
   if (!store.isGrouped) {
     return (
@@ -393,7 +465,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     >
       <div ref={boardRef} className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root" tabIndex={-1}>
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
-          {groups.map((group) => {
+          {openGroups.map((group) => {
             const loadMore = group.hasMore
               ? {
                   label: loadMoreLabel,
@@ -412,26 +484,9 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 label={groupLabel(group)}
                 loadMore={loadMore}
                 recordLabels={store.recordLabels}
-                resizeHandle={
-                  <ColumnResizeHandle
-                    bounds={DATA_KANBAN_LANE_WIDTH_BOUNDS}
-                    className="-right-2 hover:opacity-100"
-                    columnId={BOARD_LANE_WIDTH_KEY}
-                    label={t("DataView.resizeBoardColumns")}
-                    measure={(handle) => handle.parentElement?.getBoundingClientRect().width}
-                    resizing={laneResize !== undefined}
-                    onCommit={(width) => store.setViewOptions({ columnWidth: { uid: BOARD_LANE_WIDTH_KEY, width } })}
-                    onLiveWidth={setLaneResize}
-                    onReset={() =>
-                      store.setViewOptions({
-                        columnWidths: withoutColumnWidth(store.columnWidths, BOARD_LANE_WIDTH_KEY),
-                      })
-                    }
-                  />
-                }
                 summaries={group.summaries}
                 weight={group.weight}
-                width={laneWidth}
+                onCollapse={() => store.toggleGroupCollapsed(group.key)}
               >
                 {group.itemIds.map((itemId) => {
                   const item = itemsById.get(itemId);
@@ -454,6 +509,19 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
               </KanbanColumn>
             );
           })}
+
+          {collapsedGroups.map((group) => (
+            <KanbanStrip
+              key={group.key}
+              color={group.color}
+              count={group.count}
+              droppable={supportsDragWriteBack && group.writable !== false}
+              id={group.key}
+              label={groupLabel(group)}
+              recordLabels={store.recordLabels}
+              onExpand={() => store.toggleGroupCollapsed(group.key)}
+            />
+          ))}
         </div>
 
         {overflow && (

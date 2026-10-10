@@ -149,6 +149,8 @@ function store(grouping: Partial<GroupingResult>, moveItemBetweenGroups = vi.fn(
       ...grouping,
     },
     loadMoreInGroup: vi.fn(),
+    isGroupCollapsed: () => false,
+    toggleGroupCollapsed: vi.fn(),
     moveItemBetweenGroups,
   } as unknown as BaseDataViewStore<Item>;
 }
@@ -277,7 +279,7 @@ describe("board drag gating", () => {
     const moveItemBetweenGroups = vi.fn();
     render(store({ groups: PROBABILITY_GROUPS }, moveItemBetweenGroups));
 
-    expect(document.body.textContent).toContain("80%");
+    expect(document.querySelector('[aria-label*="80%"]')).not.toBeNull();
 
     await drop("e-1", "won", "new");
 

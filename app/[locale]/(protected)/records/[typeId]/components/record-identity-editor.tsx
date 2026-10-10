@@ -79,7 +79,7 @@ const AddChannelSearchField = observer(
   },
 );
 
-const RecordChannelPopover = observer(({ editor }: { editor: RecordEditorStore }) => {
+export const RecordChannelPopover = observer(({ editor }: { editor: RecordEditorStore }) => {
   const t = useTranslations();
   const [store] = useState(() => new RecordChannelStore(editor));
 

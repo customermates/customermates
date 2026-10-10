@@ -3,22 +3,16 @@
 import type { ComponentProps, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
-import { createContext, useContext } from "react";
-
 import { AppLink } from "@/components/shared/app-link";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { cn } from "@/core/utils/cn";
 
-type RowLead = "none" | "marker" | "icon";
-
-const RowLeadContext = createContext<RowLead>("none");
-
-const MORE_INSET: Record<RowLead, string | undefined> = { none: undefined, marker: "ps-9", icon: "ps-10" };
-
 const HEADER_TRIGGER =
   "flex min-w-0 flex-1 items-center gap-2.5 px-3.5 pt-3 pb-2.5 text-left outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:pointer-events-none";
 
-const ROW_LAYOUT = "flex h-9 w-full items-center gap-2 px-3.5 text-left text-sm";
+const ROW_LAYOUT = "flex h-9 w-full items-center gap-2.5 px-3.5 text-left text-sm";
+
+const NAME_INSET = "ps-10";
 
 const ROW_BUTTON = "nodrag outline-none hover:bg-accent/50 focus-visible:bg-accent/60 disabled:pointer-events-none";
 
@@ -95,31 +89,22 @@ export function ConfigureNodeHeader({
   );
 }
 
-export function ConfigureNodeRows({
-  label,
-  lead = "none",
-  children,
-}: {
-  label: string;
-  lead?: RowLead;
-  children: ReactNode;
-}) {
+export function ConfigureNodeRows({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <RowLeadContext.Provider value={lead}>
-      <ul aria-label={label} className="border-t border-border py-1">
-        {children}
-      </ul>
-    </RowLeadContext.Provider>
+    <ul aria-label={label} className="border-t border-border py-1">
+      {children}
+    </ul>
   );
 }
 
 type RowContent = { marker?: ReactNode; name: ReactNode; detail?: ReactNode; kind: ReactNode };
 
 function ConfigureNodeRowContent({ marker, name, detail, kind }: RowContent) {
-  const lead = useContext(RowLeadContext);
   return (
     <>
-      {marker ?? (lead === "marker" && <span aria-hidden className="size-3.5 shrink-0" />)}
+      <span aria-hidden className="flex size-4 shrink-0 items-center justify-center">
+        {marker}
+      </span>
 
       <span className="min-w-0 flex-1 truncate">
         <span className="font-medium">{name}</span>
@@ -172,14 +157,13 @@ export function ConfigureNodeMore({
   label: string;
   onToggle: () => void;
 }) {
-  const lead = useContext(RowLeadContext);
   return (
     <li>
       <button
         aria-expanded={expanded}
         className={cn(
           "nodrag flex h-9 w-full items-center px-3.5 text-left text-sm text-muted-foreground outline-none hover:bg-accent/50 hover:text-foreground focus-visible:bg-accent/60",
-          MORE_INSET[lead],
+          NAME_INSET,
         )}
         type="button"
         onClick={onToggle}
@@ -192,7 +176,9 @@ export function ConfigureNodeMore({
 }
 
 export function ConfigureNodeFooter({ children }: { children: ReactNode }) {
-  return <div className="border-t border-border px-3.5 py-2 text-sm text-muted-foreground">{children}</div>;
+  return (
+    <div className={cn("border-t border-border py-2 pe-3.5 text-sm text-muted-foreground", NAME_INSET)}>{children}</div>
+  );
 }
 
 export function ConfigureNodeCount({ count, unit }: { count: number; unit: string }) {

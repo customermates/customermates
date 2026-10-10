@@ -21,10 +21,8 @@ function dropUndefinedKeys<T extends Record<string, unknown>>(value: T): T {
   return next as T;
 }
 
-export const BOARD_LANE_WIDTH_KEY = "board:lanes";
-
 export function isPersistedColumnWidthKey(key: string, columnIds: ReadonlySet<string>) {
-  return key === BOARD_LANE_WIDTH_KEY || columnIds.has(key);
+  return columnIds.has(key);
 }
 
 export const DataViewStateWireSchema = z

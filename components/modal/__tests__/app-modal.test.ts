@@ -156,7 +156,7 @@ describe("AppModal actions", () => {
     expect(html).toContain(`data-root="${surface}"`);
     expect(html).toContain('data-overlay-actions=""');
     expect(html).toContain('data-overlay-action-count="1"');
-    expect(html).toContain("top-2 right-12");
+    expect(html).toContain("top-[1.375rem] right-12");
     expect(html).toContain("min-h-8");
     expect(html).toContain("gap-2");
     expect(html).toContain('data-overlay-action=""');

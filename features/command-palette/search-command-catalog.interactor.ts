@@ -103,6 +103,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
 
     const { model, policy, views } = loaded;
     void this.scheduler.schedule(catalogFingerprint(model.revision, views));
+    if (!input.semantic) return { ok: true, data: empty };
     const vector = await this.queryVector(input.searchTerm);
     if (!vector) return { ok: true, data: { ...empty, degraded: true } };
 

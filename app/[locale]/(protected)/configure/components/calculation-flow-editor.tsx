@@ -421,7 +421,7 @@ export const CalculationFlow = observer(function CalculationFlow({
                           valueType: resultType?.valueType ?? "text",
                           multiple: false,
                           format: {
-                            currency: resultType?.currency ?? null,
+                            currency: resultType?.valueType === "currency" ? store.form.currency.toUpperCase() : null,
                             decimalPlaces:
                               store.form.decimalPlaces.trim() === "" ? null : Number(store.form.decimalPlaces),
                           },
@@ -705,7 +705,7 @@ function FormulaFlow({
                 name={t("RecordModel.calculationFlow.step", { number: String(number + 1) })}
               />
 
-              <ConfigureNodeRows label={operatorLabel(step.operator)} lead="marker">
+              <ConfigureNodeRows label={operatorLabel(step.operator)}>
                 <li>
                   <ConfigureNodeStaticRow
                     kind=""

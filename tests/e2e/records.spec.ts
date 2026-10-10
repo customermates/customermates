@@ -107,7 +107,12 @@ test("creates a custom list and field through the UI, then persists a decimal re
   expect(linked.rows).toHaveLength(1);
   await expect(page.getByRole("columnheader", { name: "Created at", exact: false })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Assigned to", exact: false })).toBeVisible();
-  await page.getByRole("button", { name: `Open ${client.name}`, exact: true }).click();
+  await page
+    .getByRole("row")
+    .filter({ hasText: recordName })
+    .getByRole("button", { name: "Edit Client organization", exact: true })
+    .click();
+  await page.getByRole("option", { name: `Open ${client.name}`, exact: true }).click();
   await expect(dialog.getByText(recordName, { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: `Unlink ${recordName}`, exact: true }).click();
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
