@@ -856,6 +856,8 @@
       "change": "{field} ändern…",
       "deleteNamed": "{name} löschen"
     },
+    "resolve": "Zu „{query}“ springen",
+    "resolving": "Passendes Ziel wird gesucht…",
     "synonyms": {
       "action": {
         "add": "neu, erstellen, anlegen, neuer Datensatz",
