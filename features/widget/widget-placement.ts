@@ -8,6 +8,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { WidgetLayoutSchema } from "./widget-display.schema";
 import { placeWidget, withLargePlacement } from "./widget-grid";
+import { LIVE_WIDGET } from "./live-widget";
 
 export type WidgetPlacementRow = { id: string; kind: "chart" | "activityTimeline"; layout: WidgetLayout | null };
 
@@ -18,7 +19,7 @@ export async function listWidgetPlacements(
   viewId: string | null,
 ): Promise<WidgetPlacementRow[]> {
   const rows = await prisma.widget.findMany({
-    where: { companyId, userId, viewId },
+    where: { companyId, userId, viewId, ...LIVE_WIDGET },
     select: { id: true, kind: true, layout: true },
     orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   });

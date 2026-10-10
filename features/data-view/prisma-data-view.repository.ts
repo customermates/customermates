@@ -84,6 +84,14 @@ function toDto(row: StoredViewRow): DataViewDto {
 }
 
 export class PrismaDataViewRepo extends TenantRepository implements DataViewStateRepo, CommandCatalogRepo {
+  constructor(private readonly scopedCompanyId?: string) {
+    super();
+  }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
   async listRecordViewNames(): Promise<RecordViewName[]> {
     return runAsViewOwner(async () => {
       const { companyId, id: userId } = this.user;
@@ -118,7 +126,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       );
     if (!all) {
       const count = await this.prisma.$executeRaw(
-        Prisma.sql`UPDATE "DataView" SET ${Prisma.join(changes)}, "updatedAt" = CURRENT_TIMESTAMP WHERE "companyId" = ${companyId} AND "userId" = ${userId} AND "surfaceKey" = ${surfaceKey} AND id = ${viewKey}`,
+        Prisma.sql`UPDATE "DataView" SET ${Prisma.join(changes)}, "updatedAt" = CURRENT_TIMESTAMP WHERE "companyId" = ${companyId} AND "userId" = ${userId} AND "surfaceKey" = ${surfaceKey} AND id = ${viewKey} AND "deletedAt" IS NULL`,
       );
       return count === 1;
     }
@@ -142,7 +150,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
 
       const [views, personalization] = await Promise.all([
         this.prisma.dataView.findMany({
-          where: { companyId, surfaceKey, userId },
+          where: { companyId, surfaceKey, userId, deletedAt: null },
           orderBy: [{ position: "asc" }, { createdAt: "asc" }],
           select: VIEW_SELECT,
         }),
@@ -168,7 +176,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       const { companyId, id: userId } = this.user;
 
       const rows = await this.prisma.dataView.findMany({
-        where: { companyId, surfaceKey, userId },
+        where: { companyId, surfaceKey, userId, deletedAt: null },
         orderBy: [{ position: "asc" }, { name: "asc" }],
         select: VIEW_SELECT,
       });
@@ -182,7 +190,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       const { companyId, id: userId } = this.user;
 
       const row = await this.prisma.dataView.findFirst({
-        where: { id, companyId, userId },
+        where: { id, companyId, userId, deletedAt: null },
         select: VIEW_SELECT,
       });
 
@@ -195,7 +203,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       const { companyId, id: userId } = this.user;
 
       const aggregate = await this.prisma.dataView.aggregate({
-        where: { companyId, userId, surfaceKey },
+        where: { companyId, userId, surfaceKey, deletedAt: null },
         _max: { position: true },
       });
 
@@ -233,13 +241,13 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       if (args.state !== undefined) Object.assign(data, writePartialStoredState(args.state));
 
       const affected = await this.prisma.dataView.updateMany({
-        where: { id: args.id, companyId, userId },
+        where: { id: args.id, companyId, userId, deletedAt: null },
         data,
       });
       if (affected.count === 0) return null;
 
       const row = await this.prisma.dataView.findFirst({
-        where: { id: args.id, companyId, userId },
+        where: { id: args.id, companyId, userId, deletedAt: null },
         select: VIEW_SELECT,
       });
 
@@ -252,7 +260,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       const { companyId, id: userId } = this.user;
 
       const affected = await this.prisma.dataView.updateMany({
-        where: { id, companyId, userId, surfaceKey },
+        where: { id, companyId, userId, surfaceKey, deletedAt: null },
         data: writePartialStoredState(state),
       });
 
@@ -260,15 +268,38 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
     });
   }
 
-  async deleteOwned(id: string): Promise<boolean> {
+  async trashOwned(id: string): Promise<boolean> {
     return runAsViewOwner(async () => {
       const { companyId, id: userId } = this.user;
 
-      const affected = await this.prisma.dataView.deleteMany({
-        where: { id, companyId, userId },
+      const affected = await this.prisma.dataView.updateMany({
+        where: { id, companyId, userId, deletedAt: null },
+        data: { deletedAt: new Date() },
       });
 
       return affected.count > 0;
+    });
+  }
+
+  async restoreTrashed(ids: string[]): Promise<string[]> {
+    const rows = await this.prisma.dataView.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      select: { id: true },
+    });
+    const restored = rows.map((row) => row.id);
+    await this.prisma.dataView.updateMany({
+      where: { id: { in: restored }, companyId: this.companyId },
+      data: { deletedAt: null },
+    });
+    return restored;
+  }
+
+  async purgeTrashed(ids: string[]): Promise<void> {
+    await this.prisma.widget.deleteMany({
+      where: { companyId: this.companyId, viewId: { in: ids }, view: { is: { deletedAt: { not: null } } } },
+    });
+    await this.prisma.dataView.deleteMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
     });
   }
 }

@@ -120,7 +120,17 @@ export const DeleteTrashPermanentlySchema = z
   })
   .strict();
 export type DeleteTrashPermanentlyData = z.infer<typeof DeleteTrashPermanentlySchema>;
-export const TrashDeletionResultSchema = z.object({ deletedItemIds: z.array(z.uuid()) }).strict();
+export const TrashDeletionResultSchema = z
+  .object({
+    deletedItemIds: z.array(z.uuid()).describe("Items deleted permanently."),
+    pendingItemIds: z
+      .array(z.uuid())
+      .describe("Items whose permanent deletion continues in the background; they stay in Trash until it completes."),
+    failedItemIds: z
+      .array(z.uuid())
+      .describe("Items that could not be deleted; they stay in Trash and the rest is unaffected."),
+  })
+  .strict();
 export type TrashDeletionResult = z.infer<typeof TrashDeletionResultSchema>;
 
 export const EmptyTrashSchema = z.object({ expectedImpactHash: z.string().regex(/^[a-f0-9]{64}$/) }).strict();

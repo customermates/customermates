@@ -3,16 +3,25 @@ import type { RecordAccessPolicy } from "./record-access";
 import type { ConfigurationChange, ConfigurationTarget } from "./configuration.schema";
 import type { ApplyRecordConfigurationInteractor } from "./configure-records.interactor";
 import type { PreviewRecordConfigurationInteractor } from "./preview-record-configuration.interactor";
-import type { TrashItem } from "@/features/trash/trash.repo";
+import type { RecordModel } from "./record-model.schema";
+import type { TrashItem, TrashRepo } from "@/features/trash/trash.repo";
 import type { TrashKindHandler, TrashKindImpact, TrashKindRestore } from "@/features/trash/trash-kind-handler";
 import type { TrashRestoreBlocker } from "@/features/trash/trash.schema";
 
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { runInSavepoint } from "@/core/decorators/transaction-runner";
 import { RecordWriteError } from "./record-write-error";
 
 const CONFIGURATION_KINDS = ["list", "field", "relationship"] as const;
 const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2 };
+
+function targetExists(model: RecordModel, item: TrashItem) {
+  if (item.kind === "list") return model.types.some((type) => type.id === item.targetId);
+  if (item.kind === "field") return model.fields.some((field) => field.id === item.targetId);
+  if (item.kind === "relationship") return model.relationships.some((relation) => relation.id === item.targetId);
+  return model.capabilities.some((capability) => capability.id === item.targetId);
+}
 
 function target(item: TrashItem): ConfigurationTarget {
   return {
@@ -30,6 +39,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     private policy: RecordAccessPolicy,
     private preview: PreviewRecordConfigurationInteractor,
     private apply: ApplyRecordConfigurationInteractor,
+    private trash: Pick<TrashRepo, "remove">,
   ) {}
 
   async visibility(alias: Prisma.Sql): Promise<Prisma.Sql> {
@@ -54,18 +64,20 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
   async restore(items: TrashItem[]): Promise<TrashKindRestore> {
     const result: TrashKindRestore = { restoredItemIds: [], blocked: [], restoredRecords: 0, droppedLinks: 0 };
     for (const item of [...items].sort((left, right) => ORDER[left.kind] - ORDER[right.kind])) {
-      const change = await this.change(item, "restore");
-      const preview = await this.preview.run(change);
-      if (!preview.ok || !preview.data.valid) {
-        result.blocked.push(this.blocker(item, preview.ok ? preview.data : null));
-        continue;
+      const restored = await runInSavepoint(async () => {
+        const change = await this.change(item, "restore");
+        const preview = await this.preview.run(change);
+        if (!preview.ok || !preview.data.valid) return this.blocker(item, preview.ok ? preview.data : null);
+        const applied = await this.apply.run(change);
+        if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashItemNotFound, "not_found");
+        return null;
+      });
+      if (restored.ok && !restored.value) result.restoredItemIds.push(item.id);
+      else {
+        result.blocked.push(
+          restored.ok && restored.value ? restored.value : { itemId: item.id, reason: "notFound", typeId: item.typeId },
+        );
       }
-      const applied = await this.apply.run(change);
-      if (!applied.ok) {
-        result.blocked.push({ itemId: item.id, reason: "notFound", typeId: item.typeId });
-        continue;
-      }
-      result.restoredItemIds.push(item.id);
     }
     return result;
   }
@@ -88,7 +100,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     let removedLinks: number | null = 0;
     for (const item of items) {
       const preview = await this.preview.run(await this.change(item, "deletePermanently"));
-      if (!preview.ok) throw new RecordWriteError(CustomErrorCode.trashChanged, "conflict");
+      if (!preview.ok) continue;
       const removed = preview.data.deletion?.removed;
       if (!removed) continue;
       if (item.kind === "list" && removed.records) {
@@ -105,6 +117,10 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
 
   async purge(items: TrashItem[]): Promise<void> {
     for (const item of [...items].sort((left, right) => ORDER[right.kind] - ORDER[left.kind])) {
+      if (!targetExists(await this.records.getModel(), item)) {
+        await this.trash.remove([item.id]);
+        continue;
+      }
       const applied = await this.apply.run(await this.change(item, "deletePermanently"));
       if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashChanged, "conflict");
     }

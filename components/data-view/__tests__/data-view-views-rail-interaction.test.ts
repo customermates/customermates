@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 
+const TRASH_BATCH_ID = "40000000-0000-4000-8000-0000000000b1";
 const harness = vi.hoisted(() => ({
   agent: {
     enabled: true,
@@ -292,7 +293,9 @@ beforeEach(() => {
   harness.appMode.current = "cloud";
   harness.calls.length = 0;
   harness.confirmations.length = 0;
-  harness.deleteDataViewAction.mockReset().mockResolvedValue({ data: { id: "v-a" }, ok: true });
+  harness.deleteDataViewAction
+    .mockReset()
+    .mockResolvedValue({ data: { id: "v-a", trashBatchId: TRASH_BATCH_ID }, ok: true });
   harness.routerPush.mockReset();
   harness.searchParams.current = "";
   harness.upsertDataViewAction.mockReset().mockResolvedValue({ data: view({ id: "v-new", name: "Hot" }), ok: true });
@@ -832,7 +835,7 @@ describe("data view rail interaction", () => {
     expect(harness.confirmations[0].entityName).toBe("Ada");
 
     await act(async () => {
-      expect(await harness.confirmations[0].onConfirm()).toBe(true);
+      expect(await harness.confirmations[0].onConfirm()).toEqual({ trashBatchId: TRASH_BATCH_ID });
     });
 
     expect(harness.deleteDataViewAction).toHaveBeenCalledExactlyOnceWith({ id: "v-a" });
@@ -867,7 +870,7 @@ describe("data view rail interaction", () => {
     if (!owningRail) throw new Error("Expected mounted child rail");
     act(() => byText(owningRail, "DataView.views.delete").click());
     await act(async () => {
-      expect(await harness.confirmations[0].onConfirm()).toBe(true);
+      expect(await harness.confirmations[0].onConfirm()).toEqual({ trashBatchId: TRASH_BATCH_ID });
     });
     expect(child.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
     expect(parent.applyView).not.toHaveBeenCalled();
@@ -885,7 +888,7 @@ describe("data view rail interaction", () => {
   it("does not move deletion focus into a replacement store on the same mounted rail", async () => {
     const earlier = store({ activeViewKey: "v-a" });
     const host = render(earlier);
-    let finish!: (result: { ok: boolean; data: { id: string } }) => void;
+    let finish!: (result: { ok: boolean; data: { id: string; trashBatchId: string } }) => void;
     harness.deleteDataViewAction.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
@@ -900,8 +903,8 @@ describe("data view rail interaction", () => {
     if (!all) throw new Error("Expected replacement All chip");
     vi.spyOn(all, "getClientRects").mockReturnValue([{}] as unknown as DOMRectList);
     await act(async () => {
-      finish({ ok: true, data: { id: "v-a" } });
-      expect(await pending).toBe(true);
+      finish({ ok: true, data: { id: "v-a", trashBatchId: TRASH_BATCH_ID } });
+      expect(await pending).toEqual({ trashBatchId: TRASH_BATCH_ID });
     });
     expect(harness.confirmations[0].focusAfterConfirm?.()).toBe(false);
     expect(document.activeElement).not.toBe(all);

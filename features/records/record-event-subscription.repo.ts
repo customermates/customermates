@@ -9,4 +9,5 @@ export abstract class RecordEventSubscriptionRepo {
   ): Promise<void>;
   abstract remove(id: string): Promise<void>;
   abstract pause(id: string): Promise<void>;
+  abstract resume(id: string): Promise<void>;
 }

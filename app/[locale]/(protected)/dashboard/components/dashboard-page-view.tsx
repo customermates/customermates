@@ -238,11 +238,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
         deleteNotice={(view) => {
           const widgets = widgetsStore.activeViewKey === view.id ? widgetsStore.items.map((widget) => widget.name) : [];
           return {
-            message: t("Dashboard.deleteView", {
-              name: view.name,
-              count: widgets.length,
-              main: t("Dashboard.mainView"),
-            }),
+            message: t("Dashboard.deleteView", { name: view.name, count: widgets.length }),
             details: widgets,
           };
         }}

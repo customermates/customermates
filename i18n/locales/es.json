@@ -1262,7 +1262,9 @@
       },
       "routine": {
         "created": "Rutina creada",
-        "deleted": "Rutina eliminada",
+        "deleted": "Rutina movida a la papelera",
+        "deletedPermanently": "Rutina eliminada definitivamente",
+        "restored": "Rutina restaurada",
         "updated": "Rutina actualizada"
       },
       "user": {
@@ -1276,7 +1278,9 @@
       },
       "wiki_page": {
         "created": "Página de la base de conocimientos creada",
-        "deleted": "Página de la base de conocimientos eliminada",
+        "deleted": "Página de la base de conocimiento movida a la papelera",
+        "deletedPermanently": "Página de la base de conocimiento eliminada definitivamente",
+        "restored": "Página de la base de conocimiento restaurada",
         "updated": "Página de la base de conocimientos actualizada"
       }
     },
@@ -1296,13 +1300,11 @@
         "event": "Evento",
         "firstName": "Nombre",
         "isPlatformOperator": "Operador de plataforma",
-        "kind": "Tipo",
         "lastActiveAt": "Última actividad",
         "lastMessageAt": "Última actividad",
         "lastMessageDirection": "Último mensaje",
         "lastMessageSentAt": "Fecha del último mensaje",
         "lastName": "Apellidos",
-        "list": "Lista",
         "name": "Nombre",
         "ownerUserId": "Propietario",
         "participantContactId": "Registros vinculados",
@@ -1315,6 +1317,8 @@
         "subscriptionStatus": "Suscripción",
         "timelineKind": "Tipo",
         "timelineThreadId": "Conversación",
+        "trashKind": "Tipo",
+        "trashList": "Lista",
         "updatedAt": "Actualizado el",
         "url": "URL",
         "webhookId": "Webhook",
@@ -1812,7 +1816,7 @@
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
-    "deleteView": "¿Eliminar «{name}»? {count, plural, =0 {No tiene widgets.} one {Su widget pasa a {main}:} other {Sus # widgets pasan a {main}:}}",
+    "deleteView": "¿Eliminar «{name}»? {count, plural, =0 {No tiene widgets.} one {Su widget va con ella a la papelera:} other {Sus # widgets van con ella a la papelera:}}",
     "displayTypeRequirements": {
       "grouping": "Elige una agrupación para clasificar los grupos.",
       "noGrouping": "Establece Agrupar por en Sin agrupación para mostrar un número.",
@@ -4106,6 +4110,8 @@
     "deletePermanently": "Eliminar definitivamente",
     "deletePermanentlyManyTitle": "¿Eliminar {count, plural, one {# elemento} other {# elementos}} definitivamente?",
     "deletePermanentlyTitle": "¿Eliminar {name} definitivamente?",
+    "deletionPartlyFailed": "Algunos elementos no se pudieron eliminar y permanecen en la Papelera. Todo lo demás se eliminó de forma permanente.",
+    "deletionPending": "Algunos elementos se siguen eliminando en segundo plano. Permanecen en la Papelera hasta que termine.",
     "empty": "Vaciar papelera",
     "emptyBody": "Los elementos eliminados se quedan aquí 30 días y después se eliminan definitivamente.",
     "emptyConfirmation": "vaciar papelera",

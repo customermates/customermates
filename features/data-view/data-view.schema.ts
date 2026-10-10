@@ -82,5 +82,5 @@ export const SelectDataViewResultSchema = z.object({
 });
 export type SelectDataViewResult = Data<typeof SelectDataViewResultSchema>;
 
-export const DeleteDataViewResultSchema = z.object({ id: z.string() });
+export const DeleteDataViewResultSchema = z.object({ id: z.string(), trashBatchId: z.uuid() });
 export type DeleteDataViewResult = Data<typeof DeleteDataViewResultSchema>;

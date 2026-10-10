@@ -1,3 +1,4 @@
+import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { WikiPageDto, WikiPageKind } from "@/features/wiki/wiki.schema";
@@ -67,6 +68,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
       unavailable: observable,
       receivePage: action,
       receiveServerPage: action,
+      showRestored: action,
       releaseView: action,
       load: action,
       startCreate: action,
@@ -105,6 +107,11 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
       this.setIsLoading(true);
     }
     this.onChanged(page?.id ?? null);
+  };
+
+  showRestored = (pageId: string) => {
+    if (this.pendingMutationSelection) this.pendingMutationSelection = { ...this.pendingMutationSelection, pageId };
+    this.onChanged(pageId);
   };
 
   receiveServerPage = (page: WikiPageDto | null, requestedPageId?: string) => {
@@ -258,7 +265,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     }
   };
 
-  delete = async (): Promise<boolean> => {
+  delete = async (): Promise<boolean | MovedToTrash> => {
     if (!this.allows(Action.delete) || !this.form.id || !this.form.updatedAt || this.isLoading) return false;
 
     const generation = this.viewGeneration;
@@ -269,13 +276,12 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
         id: this.form.id,
         expectedUpdatedAt: this.form.updatedAt,
       });
-      if (generation !== this.viewGeneration) return false;
       if (!result.ok) {
-        this.setError(serializedFailureErrorTree(result.failure));
+        if (generation === this.viewGeneration) this.setError(serializedFailureErrorTree(result.failure));
         return false;
       }
-      this.completeMutation(null, previousSelection);
-      return true;
+      if (generation === this.viewGeneration) this.completeMutation(null, previousSelection);
+      return { trashBatchId: result.data.trashBatchId };
     } finally {
       if (generation === this.viewGeneration) this.setIsLoading(false);
     }

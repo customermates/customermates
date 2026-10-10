@@ -7,7 +7,7 @@ export const TRASH_HREF = "/trash";
 export const CONFIGURATION_TRASH_HREF = `${TRASH_HREF}?${encodeGetParams({
   filters: [
     {
-      field: FilterFieldKey.kind,
+      field: FilterFieldKey.trashKind,
       operator: FilterOperatorKey.in,
       value: ["list", "field", "relationship"],
     },
