@@ -17,7 +17,7 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordColumnPresentation, recordDefaults } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
-import { movedToTrashOr } from "@/features/trash/moved-to-trash";
+import { movedToTrashOr, movingToTrash } from "@/features/trash/moved-to-trash";
 import { focusHref } from "@/components/focus/focus-href";
 
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
@@ -140,7 +140,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       }
       if (result.data.status === "pending") {
         this.setBulkState(false, result.data.operationId);
-        return true;
+        return mutation.action === "deleteMany"
+          ? movingToTrash(result.data.operationId, mutation.targets.length)
+          : true;
       }
       try {
         await this.bulkCompleted();
@@ -242,8 +244,10 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   override groupEditHref(groupKey: string): string | undefined {
     const field = this.groupChoiceField;
-    if (!this.presentation.canManageSchema || !field || !this.groupOption(groupKey)) return undefined;
-    return focusHref({ kind: "field", id: field.id, typeId: this.presentation.typeId });
+    if (!this.presentation.canManageSchema || !field) return undefined;
+    const option = this.groupOption(groupKey);
+    if (!option) return undefined;
+    return focusHref({ kind: "option", id: `${field.id}.${option.id}`, typeId: this.presentation.typeId });
   }
   override async moveItemBetweenGroups(
     params: Parameters<BaseDataViewStore<RecordRow>["moveItemBetweenGroups"]>[0],

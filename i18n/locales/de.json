@@ -761,7 +761,7 @@
       "cronExpression": "Zeitplan",
       "currency": "Währung",
       "debounceSeconds": "Verzögerung",
-      "delete": "Gelöscht",
+      "delete": "In den Papierkorb verschoben",
       "deletePermanently": "Endgültig gelöscht",
       "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",
@@ -3252,13 +3252,9 @@
       "deleteColumn": "Spalte löschen",
       "deleteColumnMessage": "Die Spalte {name} mit verknüpften Datensätzen wird aus {list} entfernt.",
       "deleteColumnTitle": "Spalte {name} löschen?",
-      "deletedBy": "Gelöscht",
       "deleteField": "Feld löschen",
       "deleteList": "Liste löschen",
-      "deleteMessage": "{name} wird nach „Zuletzt gelöscht“ in Konfigurieren verschoben. Dort kannst du es wiederherstellen.",
-      "deletePermanently": "Endgültig löschen",
-      "deletePermanentlyMessage": "Dadurch werden {name} und alles darin Gespeicherte endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
-      "deletePermanentlyTitle": "{name} endgültig löschen?",
+      "deleteMessage": "{name} wird in den Papierkorb verschoben. Dort kannst du es 30 Tage lang wiederherstellen.",
       "deleteRelationship": "Beziehung löschen",
       "deleteTitle": "{name} löschen?",
       "issues": {
@@ -3269,33 +3265,7 @@
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
       },
-      "kind": "Typ",
-      "kinds": {
-        "channels": "Kanalfeld",
-        "field": "Feld",
-        "relationship": "Beziehung",
-        "type": "Liste"
-      },
-      "list": "Liste",
-      "moved": "Nach „Zuletzt gelöscht“ verschoben",
-      "noAccess": "Nur Personen, die das Datenmodell verwalten, sehen „Zuletzt gelöscht“.",
-      "openConfigure": "Konfigurieren öffnen",
-      "recentlyDeleted": "Zuletzt gelöscht",
-      "recentlyDeletedEmpty": "Es wurde nichts gelöscht",
-      "recentlyDeletedHelp": "Gelöschte Listen, Felder, Beziehungen und Kanalfelder bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
-      "removed": {
-        "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
-        "hidden": "Enthält Datensätze, die Sie nicht sehen können.",
-        "identifiers": "{count, plural, one {# Kennung} other {# Kennungen}} an {records, plural, one {# Datensatz} other {# Datensätzen}}",
-        "links": "{count, plural, one {# Verknüpfung zwischen Datensätzen} other {# Verknüpfungen zwischen Datensätzen}}",
-        "nothingStored": "Es werden keine gespeicherten Daten entfernt.",
-        "records": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-        "values": "{count, plural, one {# gespeicherter Wert} other {# gespeicherte Werte}}",
-        "views": "{count, plural, one {# gespeicherte Ansicht oder persönliches Layout} other {# gespeicherte Ansichten oder persönliche Layouts}}"
-      },
-      "restore": "Wiederherstellen",
-      "restoreMessage": "{name} kann noch nicht wiederhergestellt werden.",
-      "restoreTitle": "{name} wiederherstellen"
+      "moved": "In den Papierkorb verschoben"
     },
     "configure": "Konfigurieren",
     "configureList": "{list} konfigurieren",
@@ -4136,6 +4106,7 @@
     },
     "movedToTrash": "In den Papierkorb verschoben",
     "movesToTrash": "Es wird in den Papierkorb verschoben und kann dort 30 Tage lang wiederhergestellt werden.",
+    "moving": "{count, plural, one {# Element wird in den Papierkorb verschoben…} other {# Elemente werden in den Papierkorb verschoben…}}",
     "permanentIrreversible": "Das kann nicht rückgängig gemacht werden.",
     "permanentMessage": "{count, plural, one {Dieses Element wird} other {Diese # Elemente werden}} endgültig gelöscht.",
     "permanentRecords": "{list}: {count, plural, one {# Datensatz} other {# Datensätze}}",
@@ -4150,7 +4121,7 @@
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
     "restoredInBackground": "Wiederhergestellt",
     "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
-    "restorePending": "Wird im Hintergrund wiederhergestellt. Der Papierkorb zeigt den Fortschritt.",
+    "restoring": "Wird wiederhergestellt…",
     "undo": "Rückgängig"
   },
   "TrialExpiredOffer": {

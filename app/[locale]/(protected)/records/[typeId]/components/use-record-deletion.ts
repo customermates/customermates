@@ -8,7 +8,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import type { RecordEditorStore } from "./record-editor.store";
 import { previewRecordDeletionAction, mutateRecordAction } from "../../actions";
-import { movedToTrashOr, type MovedToTrash } from "@/features/trash/moved-to-trash";
+import { movedToTrashOr, movingToTrash, type MovedToTrash } from "@/features/trash/moved-to-trash";
 
 export function useRecordDeletion({
   onDeleted,
@@ -122,7 +122,7 @@ export function useRecordDeletion({
           requests.current.delete(payloadKey);
           if (result.data.status === "pending") {
             if (isCurrent()) onPending(result.data.operationId);
-            return true;
+            return movingToTrash(result.data.operationId, targets.length);
           }
           if (isCurrent()) await onDeleted();
           else await onInvalidated?.();

@@ -761,7 +761,7 @@
       "cronExpression": "Schedule",
       "currency": "Currency",
       "debounceSeconds": "Debounce",
-      "delete": "Deleted",
+      "delete": "Moved to Trash",
       "deletePermanently": "Permanently deleted",
       "disabledReason": "Disabled reason",
       "effectiveAt": "Effective from",
@@ -3252,13 +3252,9 @@
       "deleteColumn": "Delete column",
       "deleteColumnMessage": "The related-record column {name} is removed from {list}.",
       "deleteColumnTitle": "Delete column {name}?",
-      "deletedBy": "Deleted",
       "deleteField": "Delete field",
       "deleteList": "Delete list",
-      "deleteMessage": "{name} moves to Recently deleted in Configure. You can restore it there.",
-      "deletePermanently": "Delete permanently",
-      "deletePermanentlyMessage": "This permanently deletes {name} and everything stored in it. This cannot be undone.",
-      "deletePermanentlyTitle": "Delete {name} permanently?",
+      "deleteMessage": "{name} moves to Trash. You can restore it there for 30 days.",
       "deleteRelationship": "Delete relationship",
       "deleteTitle": "Delete {name}?",
       "issues": {
@@ -3269,33 +3265,7 @@
         "savedView": "Saved views or personal layouts still use {subject}.",
         "summaryApproval": "{subject} needs a renewed summary approval."
       },
-      "kind": "Type",
-      "kinds": {
-        "channels": "Channels field",
-        "field": "Field",
-        "relationship": "Relationship",
-        "type": "List"
-      },
-      "list": "List",
-      "moved": "Moved to Recently deleted",
-      "noAccess": "Only people who manage the data model can see Recently deleted.",
-      "openConfigure": "Open Configure",
-      "recentlyDeleted": "Recently deleted",
-      "recentlyDeletedEmpty": "Nothing has been deleted",
-      "recentlyDeletedHelp": "Deleted lists, fields, relationships and Channels fields stay here until you restore them or delete them permanently.",
-      "removed": {
-        "grants": "{count, plural, one {# role grant} other {# role grants}}",
-        "hidden": "It contains records you can't see.",
-        "identifiers": "{count, plural, one {# identifier} other {# identifiers}} on {records, plural, one {# record} other {# records}}",
-        "links": "{count, plural, one {# link between records} other {# links between records}}",
-        "nothingStored": "No stored data is removed.",
-        "records": "{count, plural, one {# record} other {# records}}",
-        "values": "{count, plural, one {# stored value} other {# stored values}}",
-        "views": "{count, plural, one {# saved view or personal layout} other {# saved views or personal layouts}}"
-      },
-      "restore": "Restore",
-      "restoreMessage": "{name} can't be restored yet.",
-      "restoreTitle": "Restore {name}"
+      "moved": "Moved to Trash"
     },
     "configure": "Configure",
     "configureList": "Configure {list}",
@@ -4136,6 +4106,7 @@
     },
     "movedToTrash": "Moved to Trash",
     "movesToTrash": "It moves to Trash, where you can restore it for 30 days.",
+    "moving": "{count, plural, one {Moving # item to Trash…} other {Moving # items to Trash…}}",
     "permanentIrreversible": "This cannot be undone.",
     "permanentMessage": "{count, plural, one {This item is} other {These # items are}} deleted permanently.",
     "permanentRecords": "{list}: {count, plural, one {# record} other {# records}}",
@@ -4150,7 +4121,7 @@
     "restored": "{count, plural, one {# item restored} other {# items restored}}",
     "restoredInBackground": "Restored",
     "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
-    "restorePending": "Restoring in the background. Trash shows the progress.",
+    "restoring": "Restoring…",
     "undo": "Undo"
   },
   "TrialExpiredOffer": {
