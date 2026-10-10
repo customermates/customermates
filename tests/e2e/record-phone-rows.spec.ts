@@ -84,7 +84,7 @@ test("sub-list phone rows open the record on tap", async ({ page, companyId }) =
   const row = lineItems.locator("[data-phone-rows] [data-row-id]");
   await expect(row).toHaveCount(1);
   await expect(row).toContainText("Phone line");
-  await row.getByRole("link", { name: "Open", exact: true }).click();
+  await row.getByRole("button", { name: "Open", exact: true }).click();
   const editor = page.getByRole("dialog");
   await expect(editor).toBeVisible();
   await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Phone line");
