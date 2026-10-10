@@ -50,6 +50,7 @@ import type { Resource } from "@/generated/prisma";
 import { Action } from "@/generated/prisma";
 import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces";
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
+import { isRecordSortField } from "@/features/records/record-query-validation";
 
 export type DataViewConfigurationSources = Record<
   Exclude<
@@ -447,7 +448,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           kind: "field" as const,
           id: field.id,
           label: field.label,
-          sortable: !["richText", "dateRange", "dateTimeRange"].includes(field.valueType),
+          sortable: isRecordSortField(field),
           field,
         }));
       return {

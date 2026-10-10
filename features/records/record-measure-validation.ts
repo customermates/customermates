@@ -1,4 +1,4 @@
-import type { RecordModel } from "./record-model.schema";
+import type { RecordField, RecordModel } from "./record-model.schema";
 import type { RecordMeasure } from "./record-measure.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -55,15 +55,18 @@ export function recordMeasureIssue(measure: RecordMeasure, model: RecordModel): 
   const field = model.fields.find(
     (field) => field.typeId === typeId && field.id === (fieldId ?? type?.primaryFieldId) && !field.archived,
   );
-  if (
-    !field ||
-    (field.multiple && field.valueType !== "select") ||
-    ["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType)
-  )
-    return invalid();
+  if (!field || !isRecordMeasureGroupField(field)) return invalid();
   if (interval && (fieldId === null || !["date", "dateTime"].includes(field.valueType)))
     return dateIntervalIssue("dateInterval");
   return null;
+}
+
+export function isRecordMeasureGroupField(field: Pick<RecordField, "archived" | "multiple" | "valueType">): boolean {
+  return (
+    !field.archived &&
+    (!field.multiple || field.valueType === "select") &&
+    !["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType)
+  );
 }
 
 export function recordMeasureIsValid(measure: RecordMeasure, model: RecordModel): boolean {
