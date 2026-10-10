@@ -12,6 +12,7 @@ import { RecordEditor } from "./record-editor";
 import { RecordEditorContent } from "./record-editor-content";
 import { RecordTrashBanner } from "./record-trash-banner";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
+import { recordTitle } from "@/components/records/record-title";
 import { recordPanelsP13nId } from "./record-panels-personalization";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
@@ -40,6 +41,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
       },
     );
     editor.edit(initial, initial.record);
+    editor.setTrash(trash ?? null);
     const handoff = root.recordWorkspaceStore.takeDraftHandoff(initial.record?.ref);
     if (handoff && initial.record) editor.restoreDraft(handoff, initial, initial.record);
     return editor;
@@ -50,6 +52,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
     [root, store, root.userStore.user?.companyId, root.userStore.user?.id],
   );
   useEffect(() => root.recordWorkspaceStore.subscribe(store.refreshRecord), [root, store]);
+  useEffect(() => store.setTrash(trash ?? null), [store, trash]);
   useEffect(() => {
     if (applied.current === initial) return;
     applied.current = initial;
@@ -57,10 +60,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
   }, [initial, store]);
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
   const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
-  const name =
-    title?.state === "value" && title.value.kind === "text"
-      ? title.value.value
-      : (type?.label ?? t("RecordModel.record"));
+  const name = store.record ? recordTitle(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));
   const avatar = store.presentation.model.capabilities.find(
     (binding) => binding.kind === "avatar" && binding.typeId === type?.id,
   );
@@ -94,10 +94,10 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
       store={store}
     />
   );
-  if (!trash) return content;
+  if (!store.trash) return content;
   return (
     <div className="flex min-h-0 flex-col">
-      <RecordTrashBanner trash={trash} />
+      <RecordTrashBanner trash={store.trash} />
 
       <div className="min-h-0 flex-1">{content}</div>
     </div>

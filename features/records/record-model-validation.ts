@@ -241,8 +241,11 @@ export function validateRecordModel(model: RecordModel): {
       if (!steps || steps.some((step) => !types.has(step.typeId) || types.get(step.typeId)?.archived))
         issues.push({ code: "invalid_relationship_path", typeId: type.id });
     }
-    const primary = fields.get(type.primaryFieldId);
-    if (!primary || primary.typeId !== type.id || primary.archived || primary.valueType !== "text")
+    const primary = type.primaryFieldId ? fields.get(type.primaryFieldId) : null;
+    if (
+      type.primaryFieldId &&
+      (!primary || primary.typeId !== type.id || primary.archived || primary.valueType !== "text")
+    )
       issues.push({ code: "invalid_primary_field", typeId: type.id });
     const columns = new Set(recordColumns(type.id, model).map((column) => column.id));
     for (const id of [...type.defaults.columns, ...type.defaults.hiddenColumns, ...type.defaults.pinnedFields]) {
@@ -276,7 +279,7 @@ export function validateRecordModel(model: RecordModel): {
       }
       summaries.add(key);
     }
-    if (type.defaults.hiddenColumns.includes(type.primaryFieldId))
+    if (type.primaryFieldId && type.defaults.hiddenColumns.includes(type.primaryFieldId))
       issues.push({ code: "primary_field_hidden", typeId: type.id });
     if (
       type.defaults.groupBy &&

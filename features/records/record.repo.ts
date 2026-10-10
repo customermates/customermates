@@ -40,7 +40,9 @@ export type RecordDefinitionDeletion = {
 export type ConfigurationConsumerCleanup =
   | { kind: "view" | "personalLayout"; id: string; state: DataViewState }
   | { kind: "detailLayout"; id: string; layout: RecordDetailLayout }
-  | { kind: "widget"; id: string; measure: RecordMeasure };
+  | { kind: "widget"; id: string; measure: RecordMeasure }
+  | { kind: "eventSubscription"; subscription: RecordEventSubscriptionDefinition }
+  | { kind: "eventSubscriptionRemoval"; id: string };
 
 export type RecordTrashItem = {
   id: string;
@@ -75,6 +77,8 @@ export interface RecordActorRepo {
   getCurrentRecordActorCompanyWide(): Promise<RecordActor | null>;
   findRecordAssigneesCompanyWide(ids: string[]): Promise<string[]>;
 }
+
+export type RecordPlacement = { afterRecordId?: string; beforeRecordId?: string };
 
 export interface RecordRepo {
   getIdentitiesCompanyWide(ref: RecordRef): Promise<RecordIdentity[]>;
@@ -192,6 +196,7 @@ export interface RecordRepo {
   measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]>;
   create(ref: RecordRef, assignedUserIds: string[]): Promise<void>;
   touch(ref: RecordRef): Promise<void>;
+  placeRecord(ref: RecordRef, placement: RecordPlacement, groupFieldId: string | null): Promise<boolean>;
   delete(ref: RecordRef): Promise<void>;
   moveToTrash(ref: RecordRef, trashItemId: string): Promise<void>;
   addTrashItems(items: RecordTrashItemInput[]): Promise<void>;

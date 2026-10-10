@@ -349,10 +349,25 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         field.behavior.kind === "input",
     );
   }
+  get draftBehavior(): RecordField["behavior"] | null {
+    if (this.form.source === "input") return null;
+    const trigger = this.triggerField;
+    return calculationBehavior({
+      source: this.form.source,
+      expression: this.form.expression,
+      updates: this.form.updates,
+      allowManualOverride: this.form.allowManualOverride,
+      triggerFieldId: this.form.triggerFieldId,
+      triggerValue: trigger ? recordInputValue(this.form.triggerValue, trigger) : null,
+    });
+  }
   get triggerField() {
     return this.triggerFields.find((field) => field.id === this.form.triggerFieldId);
   }
   protected override afterChange(id?: string): void {
+    const derivedCurrency = this.derivedType?.currency;
+    if ((id === "expression" || id === "source") && !this.original && derivedCurrency)
+      this.form.currency = derivedCurrency.toLowerCase();
     if (id === "valueType" && !["number", "currency"].includes(this.form.valueType)) this.form.decimalPlaces = "";
     if (id === "valueType" && this.form.valueType === "channels") {
       this.form.source = "input";
@@ -430,7 +445,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
           });
     const derived = this.derivedType;
     const valueType = derived?.valueType ?? form.valueType;
-    const currency = derived?.currency ?? form.currency.toUpperCase();
+    const currency = form.currency.toUpperCase();
     const field = {
       id: form.id ?? this.definitionId,
       typeId: this.typeId,
@@ -476,14 +491,6 @@ export const FieldModal = observer(function FieldModal({
   const deletion = useConfigurationDeletion(onDeleted);
   const original = store.original;
   const deleteTarget = original ? { target: { kind: "field" as const, id: original.id }, name: original.label } : null;
-  const triggerValueLabel = () => {
-    const trigger = store.triggerField;
-    const value = store.form.triggerValue;
-    if (!trigger || value === undefined || value === null || value === "") return undefined;
-    if (trigger.valueType === "select") return trigger.options.find((option) => option.id === value)?.label;
-    if (typeof value === "boolean") return value ? t("RecordModel.yes") : t("RecordModel.no");
-    return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
-  };
   const thisList = store.model.types.find((type) => type.id === store.typeId);
   const linkedList = store.model.types.find((type) => type.id === store.linkedTypeIds[0]);
   const updateLabels: Record<CalculationUpdates, string> = {
@@ -595,7 +602,7 @@ export const FieldModal = observer(function FieldModal({
               </>
             )}
 
-            {store.valueType === "currency" && !store.derivedType?.currency && (
+            {store.valueType === "currency" && (
               <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
             )}
 
@@ -651,7 +658,7 @@ export const FieldModal = observer(function FieldModal({
               summary={t(`RecordModel.behaviors.${store.form.source}`)}
               title={t("RecordModel.fieldTabs.calculation")}
             >
-              <CalculationFlow store={store} triggerValueLabel={triggerValueLabel()} />
+              <CalculationFlow store={store} />
             </CollapsibleSection>
           )}
 

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import type { RecordColumn } from "@/features/records/record-columns";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
 import type { RecordDto, RecordRef } from "@/features/records/record-model.schema";
-import type { RecordLinkColors, RecordLinkIcons } from "@/features/records/record-presentation";
+import type { RecordLinkColors, RecordLinkIcons, RecordLinkLabels } from "@/features/records/record-presentation";
 
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordLinkColor } from "@/features/records/record-presentation";
@@ -15,6 +15,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordValue } from "./record-value";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { Avatar } from "@/components/ui/avatar";
+import { recordTitle } from "@/components/records/record-title";
 
 const LINKED_CHIPS_MAX_WIDTH = 240;
 
@@ -22,6 +23,7 @@ export function RecordCell({
   column,
   linkColors,
   linkIcons,
+  linkLabels,
   record,
   onOpen,
   inTrigger = false,
@@ -31,6 +33,7 @@ export function RecordCell({
   column: RecordColumn<RecordFieldView>;
   linkColors: RecordLinkColors;
   linkIcons: RecordLinkIcons;
+  linkLabels: RecordLinkLabels;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
   inTrigger?: boolean;
@@ -107,14 +110,7 @@ export function RecordCell({
     id: `${related.ref.typeId}:${related.ref.recordId}`,
     ref: related.ref,
     startContent: <RecordChipIcon icons={linkIcons} typeId={related.ref.typeId} />,
-    label:
-      related.title.state === "value" && related.title.value.kind === "text"
-        ? related.title.value.value
-        : related.title.state === "restricted"
-          ? t("RecordModel.restricted")
-          : related.title.state === "error"
-            ? t("RecordModel.calculationError")
-            : t("RecordModel.record"),
+    label: recordTitle(related.title, linkLabels[related.ref.typeId], t),
   }));
   return (
     <AppChipStack

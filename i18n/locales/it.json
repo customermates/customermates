@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Azioni",
       "bestMatch": "Miglior risultato",
+      "docs": "Documentazione",
       "listsAndViews": "Elenchi e viste",
       "pagesAndSettings": "Pagine e impostazioni",
       "records": "Record",
@@ -874,7 +875,8 @@
         "inbox": "messaggi, email, posta, conversazioni, chat",
         "knowledgeBase": "wiki, note, pagine, articoli",
         "routines": "automazioni, pianificazioni, attività ricorrenti",
-        "settings": "preferenze, opzioni, account, spazio di lavoro"
+        "settings": "preferenze, opzioni, account, spazio di lavoro",
+        "trash": "elementi eliminati, cestino, ripristina, annulla eliminazione"
       },
       "setting": {
         "apiKeys": {
@@ -1462,7 +1464,8 @@
     "sort": {
       "ascending": "Crescente",
       "descending": "Decrescente",
-      "field": "Ordina per"
+      "field": "Ordina per",
+      "manual": "Manuale"
     },
     "stageProbability": "Probabilità della fase",
     "systemTasks": {
@@ -1951,13 +1954,14 @@
     "boardMoveRequested": "Spostamento in {group} richiesto.",
     "boardMoveTarget": "Sposta il record in {group}.",
     "boardPickedUp": "Record selezionato.",
+    "collapseColumn": "Comprimi colonna",
     "collapseGroup": "Comprimi il gruppo {group}",
     "dragToReorder": "Trascina per riordinare",
+    "expandColumn": "Espandi {name}",
     "expandGroup": "Espandi il gruppo {group}",
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Nessun valore",
-    "resizeBoardColumns": "Ridimensiona le colonne della bacheca. Trascina o usa le frecce; tocca due volte o premi Invio per ripristinare.",
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
     "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
     "rowActions": "Azioni riga",
@@ -1981,6 +1985,7 @@
       "editTitle": "Modifica vista",
       "linkCopied": "Link copiato",
       "menu": "Azioni vista",
+      "modified": "Modifiche non salvate",
       "moveLeft": "Sposta a sinistra",
       "moveRight": "Sposta a destra",
       "name": "Nome",
@@ -1990,7 +1995,8 @@
       "pickerPlaceholder": "Trova una vista…",
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
-      "recordCount": "{count, plural, one {# record} other {# record}}"
+      "recordCount": "{count, plural, one {# record} other {# record}}",
+      "resetChanges": "Ripristina modifiche"
     }
   },
   "Diagrams": {
@@ -2132,6 +2138,7 @@
     "overview": "Panoramica",
     "personalize": "Personalizza",
     "pinField": "Fissa {field} nella panoramica",
+    "pinMore": "Fissa un campo",
     "reorderInstructions": "Premi Spazio o Invio per selezionare un campo. Usa le frecce per spostarlo, Spazio o Invio per rilasciarlo ed Esc per annullare.",
     "sections": {
       "notes": "Note"
@@ -3218,7 +3225,6 @@
         "binding": "{source} usa {target} nelle sue impostazioni.",
         "calculation": "{source} viene calcolato da {target}.",
         "parentAccess": "{source} ottiene l’accesso tramite {target}.",
-        "primaryField": "{target} dà il nome ai record di {source} e non può essere eliminato.",
         "protected": "{source} controlla l’accesso all’area di lavoro e non può essere eliminato.",
         "requiresRestore": "Ripristina prima {target}, {source} ne fa parte.",
         "routine": "La routine {source} reagisce a {target}.",
@@ -3227,10 +3233,18 @@
         "widget": "Il widget {source} misura {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} non viene più usato come immagine del profilo di {consumers}.",
+        "bindingCalendar": "{target} non viene più usato per gli eventi di calendario di {consumers}.",
+        "bindingChannels": "{target} non viene più usato per i canali in {consumers}.",
         "listDefaults": "{target} viene rimosso dal layout predefinito di {consumers}.",
+        "nameField": "{consumers} verrà mostrato con {replacement}.",
+        "nameFieldNone": "{consumers} non ha più un campo che dia il nome ai record, quindi appaiono senza nome.",
         "personalLayouts": "{target} viene rimosso da {count, plural, one {# layout personale} other {# layout personali}}.",
         "view": "{count, plural, one {{target} viene rimosso dalla vista {consumers}.} other {{target} viene rimosso da # viste: {consumers}.}}",
-        "widget": "{count, plural, one {{target} viene rimosso dai filtri o dal raggruppamento del widget {consumers}.} other {{target} viene rimosso dai filtri o dal raggruppamento di # widget: {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {Il webhook {consumers} non invia più le modifiche ai record, perché {target} era il suo unico trigger.} other {# webhook non inviano più le modifiche ai record, perché {target} era il loro unico trigger: {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} viene rimosso dal trigger del webhook {consumers}.} other {{target} viene rimosso dal trigger di # webhook: {consumers}.}}",
+        "widget": "{count, plural, one {{target} viene rimosso dai filtri o dal raggruppamento del widget {consumers}.} other {{target} viene rimosso dai filtri o dal raggruppamento di # widget: {consumers}.}}",
+        "widgetCount": "{count, plural, one {Il widget {consumers} conta i record invece di misurare {target}.} other {# widget contano i record invece di misurare {target}: {consumers}.}}"
       },
       "configureActions": "Azioni di Configura",
       "deleteColumn": "Elimina colonna",
@@ -3661,8 +3675,17 @@
     "typeSettings": "Impostazioni del tipo",
     "unavailableOption": "Opzione non disponibile",
     "unlinkRecord": "Scollega {name}",
+    "untitledRecord": "{singular} senza nome",
     "updatedAt": "Aggiornato il",
     "useChannelAvatar": "Usa l’immagine del profilo del canale",
+    "valueSource": {
+      "calculated": "Calcolato · {formula}",
+      "from": "Da {list} · {value}",
+      "savedOnCreate": "Salvato alla creazione di {list}",
+      "savedOnRequest": "Salvato su richiesta",
+      "savedWhenChanged": "Salvato quando {field} cambia",
+      "savedWhenChangedTo": "Salvato quando {field} diventa {value}"
+    },
     "valueType": "Tipo di valore",
     "yes": "Sì"
   },

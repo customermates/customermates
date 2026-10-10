@@ -66,12 +66,12 @@ describe("Configure edge geometry", () => {
   });
 
   it("moves a label that a list would cover to a visible point of its edge", () => {
-    const cover = { x: 400, y: 50, width: 100, height: 100 };
-    const obstacles = [box(0, 0), box(600, 0), cover];
-    const geometry = configureEdgeGeometry(route, anchors, box(0, 0), box(600, 0), 0, obstacles);
+    const cover = { x: 500, y: 50, width: 60, height: 100 };
+    const obstacles = [box(0, 0), box(800, 0), cover];
+    const geometry = configureEdgeGeometry(route, anchors, box(0, 0), box(800, 0), 0, obstacles);
     expect(geometry.label.y).toBe(100);
     const clear = (other: { x: number; width: number }) =>
-      geometry.label.x <= other.x - 48 || geometry.label.x >= other.x + other.width + 48;
+      geometry.label.x <= other.x - 60 || geometry.label.x >= other.x + other.width + 60;
     expect(obstacles.every(clear)).toBe(true);
   });
 

@@ -413,6 +413,7 @@ model SearchCatalogEntry {
   contentHash String
   model       String?
   embedding   Unsupported("vector(768)")?
+  claimedAt   DateTime?
   createdAt   DateTime                    @default(now())
   company     Company?                    @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
@@ -1736,6 +1737,7 @@ model CrmRecord {
   version       Int                         @default(1)
   protectedKind String?
   systemData    Json?
+  rank          String?
   deletedAt     DateTime?
   trashItemId   String?
   createdAt     DateTime                    @default(now())

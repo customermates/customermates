@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChip } from "@/components/chip/app-chip";
 import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
+import { recordTitle } from "@/components/records/record-title";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { cn } from "@/core/utils/cn";
 import {
@@ -41,7 +42,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
       pageSize: 25,
       ...(store.record ? { throughPath: { ref: store.record.ref, pathId: path.id } } : {}),
     },
-    store.isOpen && store.record !== null,
+    store.isOpen && store.record !== null && !store.trash,
     attempt + store.relatedRevision,
   );
   useEffect(() => {
@@ -72,14 +73,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
             )}
 
             {result.data?.records.map((record) => {
-              const title =
-                record.title.state === "restricted"
-                  ? t("RecordModel.restricted")
-                  : record.title.state === "error"
-                    ? t("RecordModel.calculationError")
-                    : record.title.state === "value" && record.title.value.kind === "text"
-                      ? record.title.value.value
-                      : t("RecordModel.record");
+              const title = recordTitle(record.title, store.presentation.linkLabels[record.ref.typeId], t);
               return (
                 <AppChip
                   key={`${record.ref.typeId}:${record.ref.recordId}`}

@@ -14,7 +14,8 @@ import { EmptyValue } from "@/components/shared/empty-value";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
-import { AvatarStack } from "@/components/shared/avatar-stack";
+import { MemberAvatar, memberName } from "@/components/chip/member-chip";
+import { auditEventTone } from "@/components/entity-detail/audit-event-tone";
 import { Icon } from "@/components/shared/icon";
 import { countryLabelForLocale } from "@/constants/countries";
 import { getCurrencyLabel } from "@/constants/currencies";
@@ -147,10 +148,14 @@ export function ChangeValue({ value }: { value: ChangeValueDescriptor }) {
       );
     case "members":
       return (
-        <AvatarStack
-          items={value.members}
+        <AppChipStack
+          items={value.members.map((member) => ({
+            id: member.id,
+            label: memberName(member),
+            startContent: <MemberAvatar member={member} />,
+          }))}
           size="sm"
-          onAvatarClick={(member) => runUserAction(() => userModalStore.loadById(member.id))}
+          onChipClick={(member) => runUserAction(() => userModalStore.loadById(member.id))}
         />
       );
     case "records":
@@ -188,6 +193,35 @@ export function InlineChange({ previous, current }: { previous: ReactNode; curre
 
       <div className="min-w-0 flex-1">{current}</div>
     </div>
+  );
+}
+
+export type AuditChangeKind = "created" | "removed" | "changed";
+
+export function auditChangeKind(event: string): AuditChangeKind {
+  const tone = auditEventTone(event);
+  return tone === "created" ? "created" : tone === "deleted" ? "removed" : "changed";
+}
+
+export function FieldChangeRow({
+  label,
+  kind,
+  previous,
+  current,
+}: {
+  label: string;
+  kind: AuditChangeKind;
+  previous: ReactNode;
+  current: ReactNode;
+}) {
+  return (
+    <ChangeRow label={label}>
+      {kind === "changed" ? (
+        <InlineChange current={current} previous={previous} />
+      ) : (
+        <div className="min-w-0 break-words">{kind === "removed" ? previous : current}</div>
+      )}
+    </ChangeRow>
   );
 }
 

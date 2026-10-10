@@ -3,7 +3,7 @@ import type { RecordModel } from "./record-model.schema";
 import type { RecordQuery } from "./record-query.schema";
 
 import { scalarMatchesType } from "./record-model-validation";
-import { RecordSystemColumnSchema } from "./record-column.schema";
+import { MANUAL_ORDER_SORT_KEY, RecordSystemColumnSchema } from "./record-column.schema";
 import { RecordQuerySchema } from "./record-query.schema";
 import { recordFilterOperators } from "./record-filter";
 import { isTemporalRecordType, temporalFilterIsValid } from "./record-temporal-filter";
@@ -89,6 +89,10 @@ export function invalidRecordQueryPart(
   }
   for (const sort of query.sort) {
     if (sort.fieldId === "system:createdAt" || sort.fieldId === "system:updatedAt") continue;
+    if (sort.fieldId === MANUAL_ORDER_SORT_KEY) {
+      if (sort.direction !== "asc") return "sort";
+      continue;
+    }
     const field = fields.get(sort.fieldId);
     if (
       !field ||
@@ -151,4 +155,24 @@ export function invalidRecordQueryPart(
       return "includeRelationships";
   }
   return null;
+}
+
+type QueryParts = Pick<RecordQuery, "filters" | "relationships" | "relatedFilters">;
+
+export function keepValidQueryParts<T extends Partial<QueryParts> & { typeId: string }>(
+  query: T,
+  model: RecordModel,
+): T {
+  const parsed = RecordQuerySchema.parse(query);
+  const empty = { ...parsed, filters: [], relationships: [], relatedFilters: [] };
+  const keeps = <K extends keyof QueryParts>(key: K) =>
+    (query[key] as unknown[] | undefined)?.filter(
+      (item) => !invalidRecordQueryPart({ ...empty, [key]: [item] }, model),
+    );
+  return {
+    ...query,
+    filters: keeps("filters") ?? [],
+    relationships: keeps("relationships") ?? [],
+    ...(query.relatedFilters ? { relatedFilters: keeps("relatedFilters") } : {}),
+  };
 }
