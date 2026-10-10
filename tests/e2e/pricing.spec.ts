@@ -93,7 +93,10 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     return Object.fromEntries(rows.rows.map((row) => [row.label, row.value]));
   };
   await expect.poll(totals).toEqual({ Value: "2600", Quantity: "5", "Weighted value": "1560" });
-  await expect(dialogs.getByText("€2,600.00", { exact: true })).toBeVisible();
+  await expect(
+    dialogs.locator(`[data-entity-field="${typeId("deal.totalValue")}"]`).getByText("€2,600.00", { exact: true }),
+  ).toBeVisible();
+  await expect(lineItems.locator('[data-slot="table-totals"]').getByText("€2,600.00", { exact: true })).toBeVisible();
   await expect(dialogs.getByText("€1,560.00", { exact: true })).toBeVisible();
   await expect(
     dialogs
