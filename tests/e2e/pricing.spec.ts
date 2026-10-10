@@ -294,5 +294,11 @@ test("refreshes the deal from in-place sub-list edits in the drawer and locks th
   await openRecordDetails(page, "Drawer opportunity renamed");
   await expect(lineItems.getByRole("button", { name: "Edit Quantity", exact: true })).toBeVisible();
   await expect(lineItems.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(lineItems.locator("[data-phone-rows]")).toBeVisible();
+  await expect(lineItems.getByRole("columnheader")).toHaveCount(0);
+  await expect(lineItems.locator("[data-phone-rows] [data-row-id]")).toHaveCount(1);
+  await expect(lineItems.locator("[data-phone-rows] [data-chip-row]")).toBeVisible();
   expect(errors).toEqual([]);
 });
