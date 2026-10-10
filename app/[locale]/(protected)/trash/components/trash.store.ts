@@ -198,10 +198,13 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
 
   private afterPermanentDelete = async () => {
     this.clearSelection();
-    await Promise.all([this.refreshQuery(), this.rootStore.recordWorkspaceStore.refreshNavigation()]);
+    await Promise.all([
+      this.isReady ? this.refreshQuery() : undefined,
+      this.rootStore.recordWorkspaceStore.refreshNavigation(),
+    ]);
   };
 
-  requestPermanentDelete = async (itemIds: string[], name?: string) => {
+  requestPermanentDelete = async (itemIds: string[], name?: string, onDeleted?: () => unknown) => {
     if (itemIds.length === 0 || this.isMutating) return;
     const result = await this.whileMutating(() => previewTrashDeletionAction({ itemIds }));
     if (!result.ok) {
@@ -228,6 +231,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
           return false;
         }
         await this.afterPermanentDelete();
+        await onDeleted?.();
         return true;
       },
       configuration,

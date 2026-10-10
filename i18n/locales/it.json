@@ -875,7 +875,8 @@
         "inbox": "messaggi, email, posta, conversazioni, chat",
         "knowledgeBase": "wiki, note, pagine, articoli",
         "routines": "automazioni, pianificazioni, attività ricorrenti",
-        "settings": "preferenze, opzioni, account, spazio di lavoro"
+        "settings": "preferenze, opzioni, account, spazio di lavoro",
+        "trash": "elementi eliminati, cestino, ripristina, annulla eliminazione"
       },
       "setting": {
         "apiKeys": {

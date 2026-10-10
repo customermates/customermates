@@ -899,7 +899,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["features/command-palette/search-catalog-corpus.ts :: t :: parent.labelKey", 1],
   ["app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key", 2],
   ["app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: key", 1],
-  ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 1],
+  ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 2],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [
