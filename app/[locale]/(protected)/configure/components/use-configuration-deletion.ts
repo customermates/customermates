@@ -35,13 +35,6 @@ const DUPLICATE_ISSUES = {
 
 export function referenceChip(reference: DeletionReference, model: RecordModelView | null): ConfirmationChip {
   const typeIcon = (typeId: string | undefined) => model?.types.find((type) => type.id === typeId)?.icon ?? "list";
-  if (reference.kind === "channels") {
-    return {
-      label: reference.label,
-      icon: "field",
-      href: `/configure?typeId=${reference.typeId}&tab=fields`,
-    };
-  }
   if (reference.kind === "type") {
     return {
       label: reference.label,
@@ -80,7 +73,6 @@ const EFFECT_SENTENCES = {
   countsRecords: "widgetCount",
   triggerChanged: "webhookTrigger",
   webhookPaused: "webhookPaused",
-  channels: "bindingChannels",
   avatar: "bindingAvatar",
   calendar: "bindingCalendar",
 } as const;

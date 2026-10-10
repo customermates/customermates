@@ -174,7 +174,7 @@ export async function addChannelsField(page: Page, typeId: string) {
   await addFromConfigure(page, "Channels");
   const dialog = configureDrawer(page);
   await expect(dialog.getByRole("combobox", { name: "Value type", exact: true })).toContainText("Channels");
-  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Channels");
   await saveDrawer(page);
   await openConfigureTab(page, "Fields");
   await expect(configureRow(page, "Fields", "Channels")).toBeVisible();

@@ -2128,14 +2128,12 @@
       "sourceLookup": "Per Suche gefunden",
       "trigger": "Kanal hinzufügen"
     },
-    "ariaCopy": "Kopieren",
     "ariaStartThread": "{provider} Nachricht verfassen",
     "ariaUnlink": "{provider}-Kanal entfernen",
     "compose": {
       "noAccount": "Kein nutzbares {provider} Konto verbunden. Verbinde eines unter Einstellungen › Kanäle."
     },
-    "emptyHint": "Noch keine Kanäle. Füge eine E-Mail, LinkedIn, WhatsApp, … hinzu",
-    "heading": "Kanäle",
+    "emptyHint": "Noch keine Kanäle. E-Mail-Adressen, WhatsApp-Telefonnummern und soziale Konten, über die Nachrichten diesem Datensatz zugeordnet werden.",
     "tooltipOpenInbox": "Zum Posteingang",
     "tooltipStartNewThread": "Neue Nachricht",
     "tooltipUnlinkChannel": "Kanal entfernen",
@@ -3216,13 +3214,13 @@
       "oneToOne": "Eins zu eins"
     },
     "changeBlocked": "Diese Änderung kann noch nicht übernommen werden",
-    "channelsField": {
-      "detail": "E-Mail-Adressen, Telefonnummern und soziale Konten, über die Nachrichten Datensätzen zugeordnet werden",
-      "short": "E-Mail, Telefon, Social"
-    },
-    "channelsHelp": "Füge Datensätzen in dieser Liste E-Mail-Adressen, Telefonnummern und soziale Konten hinzu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "channelsHelp": "E-Mail-Adressen, WhatsApp-Telefonnummern und soziale Konten, über die Nachrichten diesem Datensatz zugeordnet werden. Telefonnummern werden nur bei WhatsApp-Chats zugeordnet. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
     "clickAction": "Beim Klicken",
     "clickActions": {
+      "channels": {
+        "copy": "Kopieren",
+        "open": "E-Mail, Anruf oder Profil öffnen"
+      },
       "email": {
         "copy": "Adresse kopieren",
         "open": "Im Mailprogramm öffnen"
@@ -3256,7 +3254,6 @@
       "cleaned": {
         "bindingAvatar": "{target} wird nicht mehr als Profilbild von {consumers} verwendet.",
         "bindingCalendar": "{target} wird nicht mehr für die Kalendertermine von {consumers} verwendet.",
-        "bindingChannels": "{target} wird nicht mehr für Kanäle in {consumers} verwendet.",
         "listDefaults": "{target} wird aus dem Standardlayout von {consumers} entfernt.",
         "nameField": "{consumers} werden stattdessen mit {replacement} angezeigt.",
         "nameFieldNone": "In {consumers} kann kein Feld mehr die Datensätze benennen, sie erscheinen daher als „{singular} ohne Namen“.",
@@ -3649,6 +3646,7 @@
     "triggerValue": "Auf diesen Wert",
     "types": {
       "boolean": "Ja oder nein",
+      "channels": "Kanäle",
       "currency": "Geldbetrag",
       "date": "Datum",
       "dateRange": "Datumsbereich",
@@ -4122,7 +4120,6 @@
     "inTrash": "Im Papierkorb",
     "kindInList": "{kind} der Liste {list}",
     "kinds": {
-      "channels": "Kanäle",
       "dashboardView": "Dashboard-Ansicht",
       "field": "Feld",
       "list": "Liste",

@@ -2128,14 +2128,12 @@
       "sourceLookup": "Encontrado por búsqueda",
       "trigger": "Añadir canal"
     },
-    "ariaCopy": "Copiar",
     "ariaStartThread": "Redactar un mensaje de {provider}",
     "ariaUnlink": "Desvincular el canal de {provider}",
     "compose": {
       "noAccount": "No hay ninguna cuenta de {provider} utilizable conectada. Conecta una en Mi perfil."
     },
-    "emptyHint": "Aún no hay canales. Añade un correo, LinkedIn, WhatsApp, …",
-    "heading": "Canales",
+    "emptyHint": "Aún no hay canales. Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro.",
     "tooltipOpenInbox": "Ir a la bandeja de entrada",
     "tooltipStartNewThread": "Mensaje nuevo",
     "tooltipUnlinkChannel": "Desvincular el canal",
@@ -3216,13 +3214,13 @@
       "oneToOne": "Uno a uno"
     },
     "changeBlocked": "Este cambio todavía no se puede aplicar",
-    "channelsField": {
-      "detail": "Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con los registros",
-      "short": "Correo, teléfono, redes"
-    },
-    "channelsHelp": "Añade direcciones de correo, números de teléfono y cuentas sociales a los registros de esta lista. Un identificador puede vincularse con varios registros.",
+    "channelsHelp": "Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro. Los números de teléfono solo se asocian en los chats de WhatsApp. Un identificador puede vincularse con varios registros.",
     "clickAction": "Al hacer clic",
     "clickActions": {
+      "channels": {
+        "copy": "Copiar",
+        "open": "Abrir correo, llamada o perfil"
+      },
       "email": {
         "copy": "Copiar dirección",
         "open": "Abrir en la app de correo"
@@ -3256,7 +3254,6 @@
       "cleaned": {
         "bindingAvatar": "{target} deja de usarse como foto de perfil de {consumers}.",
         "bindingCalendar": "{target} deja de usarse para los eventos de calendario de {consumers}.",
-        "bindingChannels": "{target} deja de usarse para los canales en {consumers}.",
         "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
         "nameField": "{consumers} se mostrará con {replacement} en su lugar.",
         "nameFieldNone": "Ningún campo de {consumers} puede ya dar nombre a sus registros, así que aparecen como «{singular} sin nombre».",
@@ -3649,6 +3646,7 @@
     "triggerValue": "A este valor",
     "types": {
       "boolean": "Sí o no",
+      "channels": "Canales",
       "currency": "Importe",
       "date": "Fecha",
       "dateRange": "Intervalo de fechas",
@@ -4122,7 +4120,6 @@
     "inTrash": "En la papelera",
     "kindInList": "{kind} en {list}",
     "kinds": {
-      "channels": "Canales",
       "dashboardView": "Vista del panel",
       "field": "Campo",
       "list": "Lista",

@@ -36,7 +36,7 @@ function inputAssignments(
   const seen = new Set<string>();
   for (const entry of row.fields) {
     const field = definitions.get(entry.fieldId);
-    if (!field || field.archived || seen.has(field.id)) return null;
+    if (!field || field.archived || field.valueType === "channels" || seen.has(field.id)) return null;
     seen.add(field.id);
     if (field.behavior.kind === "snapshot") {
       if (entry.result.state === "restricted" || entry.result.state === "error") return null;
@@ -53,7 +53,8 @@ function inputAssignments(
       value: entry.result.state === "value" ? entry.result.value : null,
     });
   }
-  if (fields.some((field) => field.behavior.kind === "input" && !seen.has(field.id))) return null;
+  if (fields.some((field) => field.behavior.kind === "input" && field.valueType !== "channels" && !seen.has(field.id)))
+    return null;
   return { assignments, captured };
 }
 

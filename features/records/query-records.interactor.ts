@@ -45,7 +45,11 @@ export function recordDto(
     relationships: [],
     fields: model.fields
       .filter(
-        (field) => field.typeId === record.typeId && !field.archived && (!selected || selected.includes(field.id)),
+        (field) =>
+          field.typeId === record.typeId &&
+          !field.archived &&
+          field.valueType !== "channels" &&
+          (!selected || selected.includes(field.id)),
       )
       .map((field) => ({
         fieldId: field.id,

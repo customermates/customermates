@@ -1,4 +1,4 @@
-import { recordChannelsEnabled } from "./record-channels";
+import { recordChannelsField } from "./record-channels";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
@@ -46,7 +46,7 @@ export type RecordPresentationResult = {
   model: RecordModelView;
   typeId: string;
   canManageSchema: boolean;
-  systemColumnLabels: Record<"system:createdAt" | "system:updatedAt" | "system:assignedTo" | "system:channels", string>;
+  systemColumnLabels: Record<"system:createdAt" | "system:updatedAt" | "system:assignedTo", string>;
   permittedActions: Action[];
   linkColors: RecordLinkColors;
   linkIcons: RecordLinkIcons;
@@ -83,7 +83,6 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           "system:createdAt": t("RecordModel.createdAt"),
           "system:updatedAt": t("RecordModel.updatedAt"),
           "system:assignedTo": t("RecordModel.assignedTo"),
-          "system:channels": t("EntityChannels.heading"),
         };
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
         if (!type || !policy.canReadType(type.id)) return failNotFound(CustomErrorCode.recordTypeNotFound);
@@ -159,8 +158,8 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         if (selections.length + pathSelections.length > 32) return fail(CustomErrorCode.recordCalculationBudget);
         query.includeRelationships = selections;
         query.includePaths = pathSelections;
-        query.includeIdentities =
-          !state.hiddenColumns.includes("system:channels") && recordChannelsEnabled(model, type.id);
+        const channels = recordChannelsField(model, type.id);
+        query.includeIdentities = channels?.archived === false && !state.hiddenColumns.includes(channels.id);
         query.grouping = state.grouping ?? undefined;
         query.groupSummaries = state.grouping ? type.defaults.groupSummaries : undefined;
         query.groupPage = state.grouping ? input.params.groupPage : undefined;

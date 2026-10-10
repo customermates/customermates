@@ -28,8 +28,9 @@ export function recordDraftValue(value: RecordScalar | null | undefined): unknow
 
 export function isRecordFieldWritable(field: RecordFieldView) {
   return (
-    field.behavior.kind === "input" ||
-    (field.behavior.kind === "snapshot" && Boolean(field.behavior.allowManualOverride))
+    field.valueType !== "channels" &&
+    (field.behavior.kind === "input" ||
+      (field.behavior.kind === "snapshot" && Boolean(field.behavior.allowManualOverride)))
   );
 }
 

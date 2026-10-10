@@ -247,3 +247,24 @@ export function participantAvatar(
 ): string | null | undefined {
   return participant.pictureUrl || (participant.records?.length === 1 ? participant.records[0]?.avatarUrl : null);
 }
+
+export function channelContact(
+  provider: MessagingProvider,
+  value: string,
+  profileUrl?: string | null,
+): { kind: "email" | "phone" | "url"; value: string; label: string } {
+  const label = channelDisplayLabel(provider, value, profileUrl);
+  if (isEmailProvider(provider)) return { kind: "email", value, label: label || value };
+  if (isPhoneProvider(provider)) {
+    return {
+      kind: "phone",
+      value: formatChannelIdentifier(provider, value) || value,
+      label,
+    };
+  }
+  return {
+    kind: "url",
+    value: channelUrl(provider, value, profileUrl) ?? value,
+    label: label || value,
+  };
+}

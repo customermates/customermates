@@ -6,6 +6,7 @@ export type RecordFilterField = Pick<RecordField, "id" | "label" | "valueType" |
 export function recordFilterOperators(
   field: Pick<RecordField, "valueType" | "multiple">,
 ): RecordQuery["filters"][number]["operator"][] {
+  if (field.valueType === "channels") return [];
   if (field.valueType === "richText") return ["contains", "empty", "notEmpty"];
   if (field.valueType === "select" && field.multiple) return ["in", "all", "notIn", "empty", "notEmpty"];
   if (["dateRange", "dateTimeRange"].includes(field.valueType))

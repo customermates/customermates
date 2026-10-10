@@ -115,7 +115,9 @@ export function createCrmPreset(companyId: string): RecordModel {
   addField("contact", "contact.firstName", "First name", "text");
   addField("contact", "contact.lastName", "Last name", "text");
   addField("contact", "contact.avatarUrl", "Avatar", "url");
-  recordInvariant(types.find((type) => type.id === id("contact"))).defaults.columns.push("system:channels");
+  const channels = addField("contact", "capability.identity", "Channels", "channels");
+  channels.format = { onClick: "open", providerAvatar: true };
+  recordInvariant(types.find((type) => type.id === id("contact"))).defaults.columns.push(channels.id);
   recordInvariant(types.find((type) => type.id === id("contact"))).defaults.hiddenColumns = [
     id("contact.firstName"),
     id("contact.lastName"),
@@ -319,16 +321,6 @@ export function createCrmPreset(companyId: string): RecordModel {
     relationships,
     accessPresets: [],
     capabilities: [
-      {
-        id: id("capability.identity"),
-        kind: "channels",
-        providerAvatar: true,
-        typeId: id("contact"),
-        fields: [
-          { role: "firstName", fieldId: id("contact.firstName") },
-          { role: "lastName", fieldId: id("contact.lastName") },
-        ],
-      },
       {
         id: id("capability.avatar"),
         kind: "avatar",

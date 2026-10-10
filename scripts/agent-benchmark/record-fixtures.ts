@@ -1,8 +1,7 @@
-import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import { randomUUID } from "node:crypto";
 import { Prisma, type PrismaClient } from "@/generated/prisma";
 import { presetId } from "@/features/records/crm-preset";
-import { type RecordModel, type RecordScalar } from "@/features/records/record-model.schema";
+import { RecordModelSchema, type RecordModel, type RecordScalar } from "@/features/records/record-model.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { decodeRecordValue, recordJson } from "@/features/records/record-storage";
@@ -121,7 +120,7 @@ const valueString = (value: RecordScalar | null) => !value ? null : value.kind =
 /** The old case vocabulary is a read-only projection. Raw generic state additionally protects read-only and foreign-workspace oracles. */
 export async function benchmarkRecordSnapshot(prisma: PrismaClient, companyId: string) {
   const state = await prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
-  const model = readRecordModelSnapshot((await prisma.recordSchemaRevision.findUniqueOrThrow({ where: { companyId_revision: { companyId, revision: state.revision } } })).snapshot);
+  const model = RecordModelSchema.parse((await prisma.recordSchemaRevision.findUniqueOrThrow({ where: { companyId_revision: { companyId, revision: state.revision } } })).snapshot);
   const records = await prisma.crmRecord.findMany({ where: { companyId }, include: { values: true }, orderBy: { id: "asc" } });
   const links = await prisma.recordLink.findMany({ where: { companyId }, orderBy: { id: "asc" } });
   const assignments = await prisma.recordAssignment.findMany({ where: { companyId }, orderBy: [{ typeId: "asc" }, { recordId: "asc" }, { userId: "asc" }] });

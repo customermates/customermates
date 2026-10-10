@@ -1,8 +1,12 @@
-import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
 import { SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS } from "./hosted-ai-operator";
 import { Prisma, type PrismaClient } from "@/generated/prisma";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
-import { type RecordModel, type RecordRef, type RecordScalar } from "@/features/records/record-model.schema";
+import {
+  RecordModelSchema,
+  type RecordModel,
+  type RecordRef,
+  type RecordScalar,
+} from "@/features/records/record-model.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { RecordCalculationService, type CalculationRecordRepo } from "@/features/records/record-calculation.service";
 import { encodeRecordValue, recordJson } from "@/features/records/record-storage";
@@ -61,7 +65,7 @@ export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: 
       };
     }),
   };
-  const parsed = readRecordModelSnapshot(model);
+  const parsed = RecordModelSchema.parse(model);
   const issues = validateRecordModel(parsed).issues;
   if (issues.length) throw new Error(`Invalid synthetic record configuration: ${JSON.stringify(issues)}`);
   return parsed;
@@ -78,7 +82,7 @@ async function initialize(
     const revision = await prisma.recordSchemaRevision.findUniqueOrThrow({
       where: { companyId_revision: { companyId, revision: current.revision } },
     });
-    return readRecordModelSnapshot(revision.snapshot);
+    return RecordModelSchema.parse(revision.snapshot);
   }
   for (const type of proposed.types) {
     await prisma.recordTypeDefinition.create({
@@ -315,7 +319,7 @@ export async function calculateSyntheticRecords(prisma: PrismaClient, companyId:
       const revision = await tx.recordSchemaRevision.findUniqueOrThrow({
         where: { companyId_revision: { companyId, revision: state.revision } },
       });
-      const model = readRecordModelSnapshot(revision.snapshot);
+      const model = RecordModelSchema.parse(revision.snapshot);
       const refs: RecordRef[] = (
         await tx.crmRecord.findMany({ where: { companyId }, select: { typeId: true, id: true } })
       ).map((row) => ({ typeId: row.typeId, recordId: row.id }));

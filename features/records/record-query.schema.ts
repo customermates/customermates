@@ -87,7 +87,7 @@ export const RecordQuerySchema = z
     includeIdentities: z
       .boolean()
       .optional()
-      .describe("Include registered identifiers for returned records of a type with Channels enabled."),
+      .describe("Include registered identifiers for returned records of a list with a Channels field."),
     search: z.string().trim().max(500).optional(),
     filters: z.array(RecordFilterSchema).max(50).default([]),
     relatedFilters: z.array(RecordRelatedFilterSchema).max(16).optional(),

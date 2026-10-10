@@ -24,6 +24,7 @@ export const RecordValueTypeSchema = z.enum([
   "phone",
   "url",
   "member",
+  "channels",
 ]);
 export type RecordValueType = z.infer<typeof RecordValueTypeSchema>;
 
@@ -286,7 +287,9 @@ export const RecordFieldSchema = z
     id: z.uuid(),
     typeId: z.uuid(),
     label: z.string().trim().min(1).max(200),
-    valueType: RecordValueTypeSchema,
+    valueType: RecordValueTypeSchema.describe(
+      "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields).",
+    ),
     behavior: FieldBehaviorSchema,
     required: z.boolean(),
     multiple: z
@@ -310,7 +313,13 @@ export const RecordFieldSchema = z
           .nullable()
           .optional()
           .describe(
-            "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
+            "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+          ),
+        providerAvatar: z
+          .boolean()
+          .optional()
+          .describe(
+            "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
           ),
       })
       .strict()
@@ -411,9 +420,7 @@ export const RecordAccessPresetSchema = z
 export const RecordCapabilitySchema = z
   .object({
     id: z.uuid(),
-    kind: z.enum(["channels", "membershipAuthorization", "avatar", "calendar"]),
-    enabled: z.boolean().optional(),
-    providerAvatar: z.boolean().optional(),
+    kind: z.enum(["membershipAuthorization", "avatar", "calendar"]),
     typeId: z.uuid(),
     fields: z.array(
       z

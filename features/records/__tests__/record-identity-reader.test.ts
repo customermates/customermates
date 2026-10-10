@@ -21,11 +21,17 @@ function fixture() {
     recordId: "70000000-0000-4000-8000-000000000003",
   };
   const identityId = "70000000-0000-4000-8000-000000000004";
-  model.capabilities.push({
+  model.fields.push({
     id: "70000000-0000-4000-8000-000000000005",
-    kind: "channels",
     typeId: organization.typeId,
-    fields: [],
+    label: "Channels",
+    valueType: "channels",
+    behavior: { kind: "input" },
+    required: false,
+    archived: false,
+    publishedSummary: false,
+    options: [],
+    position: 99,
   });
   const owners = [contact, organization].map((ref) => ({
     channelClass: "email",
@@ -157,11 +163,11 @@ describe("shared identifier resolution", () => {
       [f.organization.typeId],
       { access: expect.any(Map), limitPerKey: IDENTITY_MATCH_DISPLAY_LIMIT },
     );
-    const binding = f.model.capabilities.find(
-      (binding) => binding.kind === "channels" && binding.typeId === f.organization.typeId,
+    const channels = f.model.fields.find(
+      (field) => field.valueType === "channels" && field.typeId === f.organization.typeId,
     );
-    if (!binding) throw new Error("Missing fixture capability");
-    binding.enabled = false;
+    if (!channels) throw new Error("Missing fixture Channels field");
+    channels.archived = true;
     expect(
       (await f.reader.resolve([{ provider: "mail", value: "alice@example.test" }]))[0].records.map(
         (record) => record.ref,

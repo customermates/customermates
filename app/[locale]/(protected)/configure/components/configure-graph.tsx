@@ -58,7 +58,7 @@ import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { recordChannelsBinding } from "@/features/records/record-channels";
+import { recordChannelsField } from "@/features/records/record-channels";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { cn } from "@/core/utils/cn";
 import { highlightFocusTarget } from "@/components/focus/focus-target";
@@ -113,21 +113,13 @@ type Props = {
   onSelectList: (typeId: string) => void;
   onEditField: (typeId: string, field: RecordField) => void;
   onAdd: (typeId: string, kind: ConfigureListAddKind) => void;
-  onEditChannels: (typeId: string) => void;
   onEditRelationship: (relation: RecordRelationship) => void;
   onConnect: (sourceTypeId: string, targetTypeId: string) => void;
 };
 
 type GraphActions = Pick<
   Props,
-  | "canManage"
-  | "canAddSublist"
-  | "disabled"
-  | "onSelectList"
-  | "onEditField"
-  | "onAdd"
-  | "onEditChannels"
-  | "onEditRelationship"
+  "canManage" | "canAddSublist" | "disabled" | "onSelectList" | "onEditField" | "onAdd" | "onEditRelationship"
 > & {
   labelOf: (typeId: string) => string;
   typeOf: (typeId: string) => RecordType | undefined;
@@ -213,7 +205,6 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
     onSelectList,
     onEditField,
     onAdd,
-    onEditChannels,
   } = useGraphActions();
   const open = isExpanded(list.type.id);
   const visible = open ? list.fields : list.fields.slice(0, GRAPH_VISIBLE_FIELDS);
@@ -294,18 +285,6 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
             </li>
           );
         })}
-
-        {list.channels && (
-          <li>
-            <ConfigureNodeRow
-              data-configure-graph-channels={list.type.id}
-              disabled={disabled || !canManage}
-              kind={t("RecordModel.channelsField.short")}
-              name={t("EntityChannels.heading")}
-              onClick={() => onEditChannels(list.type.id)}
-            />
-          </li>
-        )}
 
         {hidden > 0 && (
           <ConfigureNodeMore
@@ -633,7 +612,6 @@ function ConfigureGraphCanvas({
   onSelectList,
   onEditField,
   onAdd,
-  onEditChannels,
   onEditRelationship,
   onConnect,
 }: Props) {
@@ -881,7 +859,7 @@ function ConfigureGraphCanvas({
         highlightFocusTarget({ kind: "list", id: typeId });
       },
       listOf: (items) => new Intl.ListFormat(locale, { style: "short", type: "unit" }).format(items),
-      hasChannels: (typeId) => Boolean(recordChannelsBinding(model, typeId)),
+      hasChannels: (typeId) => Boolean(recordChannelsField(model, typeId)),
       isExpanded: (nodeId) => layout?.expanded?.includes(nodeId) ?? false,
       toggleExpanded: (nodeId) =>
         runUserAction(async () => {
@@ -892,7 +870,6 @@ function ConfigureGraphCanvas({
       onSelectList,
       onEditField,
       onAdd,
-      onEditChannels,
       onEditRelationship,
     }),
     [
@@ -905,7 +882,6 @@ function ConfigureGraphCanvas({
       onSelectList,
       onEditField,
       onAdd,
-      onEditChannels,
       onEditRelationship,
       persistLayout,
       flow,

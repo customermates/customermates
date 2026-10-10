@@ -253,6 +253,7 @@ export function calculableFields(
       !field.archived &&
       field.id !== excludeFieldId &&
       field.valueType !== "richText" &&
+      field.valueType !== "channels" &&
       !(field.valueType === "select" && field.multiple) &&
       (!types || types.includes(field.valueType)),
   );

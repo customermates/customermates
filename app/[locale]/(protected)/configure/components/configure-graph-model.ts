@@ -12,7 +12,7 @@ import {
   expressionRelationshipDependencies,
 } from "@/features/records/record-model-validation";
 
-import { configureChannelsField, configureLists, configureParentId } from "./configure-model";
+import { configureLists, configureParentId } from "./configure-model";
 
 export type ConfigureGraphCatalog = ReadonlyArray<Pick<DiscoveredRecordTypes["types"][number], "id" | "recordCount">>;
 
@@ -41,7 +41,6 @@ export type ConfigureGraphList = {
   recordCount: number | null | undefined;
   parentId: string | null;
   fields: ConfigureGraphField[];
-  channels: RecordModelView["capabilities"][number] | null;
 };
 
 export type ConfigureGraphEdge =
@@ -125,7 +124,6 @@ export function configureGraphData(
         }
         return { field, calculated, sources };
       }),
-    channels: configureChannelsField(model, type.id),
   }));
   const relationships: ConfigureGraphEdge[] = model.relationships
     .filter((relation) => visible.has(relation.sourceTypeId) && visible.has(relation.targetTypeId))
@@ -150,9 +148,7 @@ export function configureGraphData(
   });
   const channelLists = types.filter((type) => recordChannelsEnabled(model, type.id));
   const calendarLists = types.filter((type) =>
-    model.capabilities.some(
-      (binding) => binding.kind === "calendar" && binding.enabled !== false && binding.typeId === type.id,
-    ),
+    model.capabilities.some((binding) => binding.kind === "calendar" && binding.typeId === type.id),
   );
   const targets = new Set(
     accounts.length

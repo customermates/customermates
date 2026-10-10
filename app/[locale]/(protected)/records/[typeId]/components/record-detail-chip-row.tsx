@@ -309,8 +309,8 @@ const DetailChip = observer(function DetailChip({
   if (column.kind === "relationship" || column.kind === "relationshipPath")
     return <LinkedChip editable={!personalizing && editsInChip(store, column)} entry={entry} row={row} store={store} />;
 
-  if (column.kind === "identity") {
-    if (!entry.empty) return <IdentityChips record={row} />;
+  if (column.kind === "field" && column.field.valueType === "channels") {
+    if (!entry.empty) return <IdentityChips field={column.field} record={row} />;
     const placeholder = <PlaceholderChip column={column} store={store} />;
     if (!editable || store.isDisabled) return placeholder;
     return (
@@ -414,11 +414,7 @@ export const RecordDetailChipRow = observer(function RecordDetailChipRow({
   const all = recordColumns(store.presentation.typeId, store.presentation.model)
     .filter((column) => store.record || column.kind !== "system" || column.id === "system:assignedTo")
     .map((column) =>
-      column.kind === "system"
-        ? { ...column, label: t(`RecordModel.${column.label}`) }
-        : column.kind === "identity"
-          ? { ...column, label: t("EntityChannels.heading") }
-          : column,
+      column.kind === "system" ? { ...column, label: t(`RecordModel.${column.label}`) } : column,
     ) as RecordChipColumn[];
   const byId = new Map(all.map((column) => [column.id, column]));
   const pinned = starredFieldIds.flatMap((id) => byId.get(id) ?? []);
