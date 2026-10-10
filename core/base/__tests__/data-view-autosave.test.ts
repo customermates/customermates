@@ -27,6 +27,7 @@ vi.mock("@/app/[locale]/(protected)/records/actions", () => ({}));
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "../base-query-builder";
 import { RecordActivityViewsStore } from "@/features/messaging/activities/record-activity-views.store";
+import { forgetOtherViewQueryDrafts, viewQueryDraftOwner } from "../base-data-view.store";
 import type { RecordActivityPresentation } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
 
 const VIEW_ID = "9d3a4a0e-0e34-4d7f-9f4a-2f7a2c9c1a11";
@@ -80,10 +81,11 @@ function serverEcho(params?: GetQueryParams): GetResult<Item> {
   };
 }
 
-function rootStore() {
+function rootStore(user = { id: "draft-user", companyId: "draft-company" }) {
   return {
     loadingOverlayStore: { isLoading: false },
     localeStore: { getTranslation: (key: string) => key },
+    userStore: { user },
   } as unknown as RootStore;
 }
 
@@ -826,11 +828,11 @@ describe("modified view query", () => {
     vi.useRealTimers();
   });
 
-  async function modifiedSavedView(): Promise<TestStore> {
+  async function modifiedSavedView({ searchTerm = "acme" }: { searchTerm?: string } = {}): Promise<TestStore> {
     const store = hydrated();
     store.applyView(VIEW_ID);
     await vi.advanceTimersByTimeAsync(0);
-    store.setQueryOptions({ filters: [filter("won")], searchTerm: "acme" });
+    store.setQueryOptions({ filters: [filter("won")], searchTerm });
     await vi.advanceTimersByTimeAsync(1500);
     return store;
   }
@@ -855,14 +857,15 @@ describe("modified view query", () => {
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         viewKey: VIEW_ID,
-        state: expect.objectContaining({ filters: [filter("won")], searchTerm: "acme" }),
+        state: expect.objectContaining({ filters: [filter("won")], searchTerm: "" }),
       }),
     );
-    expect(store.views[0]?.state).toMatchObject({ filters: [filter("won")], searchTerm: "acme" });
+    expect(store.views[0]?.state).toMatchObject({ filters: [filter("won")], searchTerm: "" });
     expect(store.isQueryModified).toBe(false);
+    expect(store.searchTerm).toBe("acme");
   });
 
-  it("resets the temporary query to the saved filters and search without writing", async () => {
+  it("resets the temporary filters to the saved ones without writing and keeps the session search", async () => {
     const store = await modifiedSavedView();
     store.requestedParams = [];
 
@@ -870,7 +873,7 @@ describe("modified view query", () => {
     await vi.advanceTimersByTimeAsync(1500);
 
     expect(store.filters).toEqual([filter("open")]);
-    expect(store.searchTerm).toBe("");
+    expect(store.searchTerm).toBe("acme");
     expect(store.isQueryModified).toBe(false);
     expect(store.requestedParams.at(-1)).toMatchObject({ filters: [filter("open")] });
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
@@ -923,20 +926,80 @@ describe("modified view query", () => {
     expect(later.filters).toEqual([filter("lost")]);
   });
 
-  it("forgets the temporary query once it is saved or reset", async () => {
-    const saved = await modifiedSavedView();
+  it("forgets the temporary filters once they are saved or reset", async () => {
+    const saved = await modifiedSavedView({ searchTerm: "" });
     await saved.saveQueryToView();
     const afterSave = new TestStore(rootStore());
     afterSave.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
     afterSave.restoreQueryDraft();
     expect(afterSave.filters).toEqual([filter("open")]);
 
-    const reset = await modifiedSavedView();
+    const reset = await modifiedSavedView({ searchTerm: "" });
     reset.resetQueryToView();
     const afterReset = new TestStore(rootStore());
     afterReset.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
     afterReset.restoreQueryDraft();
     expect(afterReset.filters).toEqual([filter("open")]);
+  });
+
+  it("keeps a search for the browser session without marking the view modified or offering to save it", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    store.setQueryOptions({ searchTerm: "acme" });
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(store.isQueryModified).toBe(false);
+    await store.saveQueryToView();
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+
+    const next = new TestStore(rootStore());
+    next.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
+    next.restoreQueryDraft();
+    expect(next.searchTerm).toBe("acme");
+    expect(next.filters).toEqual([filter("open")]);
+    expect(next.isQueryModified).toBe(false);
+  });
+
+  it("treats the same filters in another order as unchanged", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    store.setQueryOptions({ filters: [filter("won"), filter("open")] });
+    expect(store.isQueryModified).toBe(true);
+    const saved = new TestStore(rootStore());
+    saved.setItems({
+      ...serverEcho({ viewId: VIEW_ID, filters: [filter("open"), filter("won")] }),
+      views: [{ ...VIEW, state: { filters: [filter("won"), filter("open")] } }],
+    });
+    expect(saved.isQueryModified).toBe(false);
+
+    const reordered = new TestStore(rootStore());
+    reordered.setItems({
+      ...serverEcho({ viewId: VIEW_ID, filters: [filter("open")] }),
+      views: [
+        {
+          ...VIEW,
+          state: { filters: [{ value: "open", operator: FilterOperatorKey.contains, field: "stage" } as Filter] },
+        },
+      ],
+    });
+    expect(reordered.isQueryModified).toBe(false);
+  });
+
+  it("keeps drafts per person and company and forgets other people's drafts when a person signs in", async () => {
+    await modifiedSavedView();
+    const otherPerson = new TestStore(rootStore({ id: "someone-else", companyId: "draft-company" }));
+    otherPerson.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
+    otherPerson.restoreQueryDraft();
+    expect(otherPerson.filters).toEqual([filter("open")]);
+    expect(otherPerson.isQueryModified).toBe(false);
+
+    forgetOtherViewQueryDrafts(viewQueryDraftOwner({ id: "someone-else", companyId: "draft-company" }));
+    const samePerson = new TestStore(rootStore());
+    samePerson.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
+    samePerson.restoreQueryDraft();
+    expect(samePerson.filters).toEqual([filter("open")]);
   });
 
   it("never reports a modified query on a surface that cannot save views", async () => {

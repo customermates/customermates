@@ -263,7 +263,24 @@ const KanbanColumn = observer(function KanbanColumn({
   return (
     <div ref={setNodeRef} className={DATA_KANBAN_COLUMN_CLASS_NAME} data-group-key={id}>
       <div className={cn(DATA_KANBAN_HEADER_CLASS_NAME, "group/header")}>
-        <KanbanColumnLabel color={color} label={label} />
+        {editHref ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="flex min-w-0 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                data-kanban-edit-option=""
+                type="button"
+                onClick={() => navigateToHref(editHref)}
+              >
+                <KanbanColumnLabel color={color} label={label} tooltip={false} />
+              </button>
+            </TooltipTrigger>
+
+            <TooltipContent>{t("RecordModel.editField")}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <KanbanColumnLabel color={color} label={label} />
+        )}
 
         <KanbanCount count={count} details={summaries?.length ? [] : details} recordLabels={recordLabels} />
 

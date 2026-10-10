@@ -160,6 +160,18 @@ describe("board column order and labels", () => {
     expect(columnLabels(host)).toEqual(["NEW", "WON", "Common.inputs.unavailableSelection", "DataView.noValue"]);
   });
 
+  it("makes the column chip an Edit field link only where the store offers one", () => {
+    const plain = renderBoard(boardStore());
+    expect(plain.querySelectorAll("[data-kanban-edit-option]")).toHaveLength(0);
+
+    const editable = renderBoard(
+      boardStore({ groupEditHref: (groupKey: string) => (groupKey === "new" ? "/configure" : undefined) }),
+    );
+    const links = editable.querySelectorAll("[data-kanban-edit-option]");
+    expect(links).toHaveLength(1);
+    expect(links[0]?.textContent).toBe("NEW");
+  });
+
   it("draws each column's cards from the group's own itemIds", () => {
     const host = renderBoard(boardStore());
     const cards = [...host.querySelectorAll('[data-slot="card"]')];
