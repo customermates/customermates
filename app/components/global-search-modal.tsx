@@ -288,7 +288,13 @@ export const GlobalSearchModal = observer(() => {
       icon: BookOpen,
       onSelect: () => closeThen(() => navigationGuard.tryNavigate(() => router.push(hit.href))),
     }));
-  const resolvable = mateAvailable && !level && scope === null && term.split(/\s+/).length >= 2 && !bestKey;
+  const resolvable =
+    mateAvailable &&
+    !level &&
+    scope === null &&
+    term.split(/\s+/).length >= 2 &&
+    globalSearchModalStore.results !== null &&
+    !bestKey;
   const resolveQuery = () =>
     runUserAction(async () => {
       const resolution = await globalSearchModalStore.resolveCommand(term);
