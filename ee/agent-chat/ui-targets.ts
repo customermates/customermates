@@ -17,7 +17,6 @@ import {
   FORM_PAGES,
   PRIMARY_NAV_PAGES,
   SCOPES_WITHOUT_FILTER,
-  SCOPES_WITHOUT_SEARCH,
   MENU_NAV_TARGETS,
   SETTINGS_NAV_DESCRIPTIONS,
   TOOLBAR_PAGES_WITH_ADD,
@@ -80,22 +79,13 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
           },
         ]
       : []),
-    ...(SCOPES_WITHOUT_SEARCH.has(page.scope)
-      ? []
-      : [
-          {
-            id: `${page.scope}-search`,
-            route: page.route,
-            description: `Search input over ${page.label}`,
-          },
-        ]),
     ...(SCOPES_WITHOUT_FILTER.has(page.scope)
       ? []
       : [
           {
             id: `${page.scope}-filter`,
             route: page.route,
-            description: `Filter popover for ${page.label}`,
+            description: `Filter popover for ${page.label}: search by text and add filters`,
           },
         ]),
     {
@@ -228,16 +218,6 @@ export function agentUiPageLabelKeys(route: string): string[] {
 export function agentSidebarGroupId(targetId: string) {
   const [section] = routeSegments(findAgentUiTarget(targetId)?.route ?? "");
   return section === "settings" && targetId.startsWith("nav-settings-") ? SETTINGS_MENU_TARGET : null;
-}
-
-const TOOLBAR_SEARCH_TARGET_IDS = new Set(
-  [...TOOLBAR_PAGES_WITH_ADD, ...TOOLBAR_PAGES_WITHOUT_ADD]
-    .filter((page) => !SCOPES_WITHOUT_SEARCH.has(page.scope))
-    .map((page) => `${page.scope}-search`),
-);
-
-export function isToolbarSearchTarget(targetId: string) {
-  return TOOLBAR_SEARCH_TARGET_IDS.has(targetId) || recordUiTarget(targetId)?.elementId === "records-search";
 }
 
 export function agentRouteVisible(path: string, appMode: AppMode, canAccess: (resource: Resource) => boolean) {

@@ -689,7 +689,7 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-do-i-import-or-export-records",
       query: "Wie läuft der Import ab?",
       facts: [
-        "Öffnen Sie **Import und Export** in der Toolbar, zum Beispiel bei [Kontakte](http://localhost:4000/open/records/contact)",
+        "Öffnen Sie [Weitere Aktionen](http://localhost:4000/open/records/contact?focus=more) in der Toolbar, zum Beispiel bei [Kontakte](http://localhost:4000/open/records/contact)",
         "Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt",
         "Excel- und CSV-Dateien müssen zuerst in das Exportformat übertragen werden",
       ],

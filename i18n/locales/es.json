@@ -943,7 +943,6 @@
     },
     "ariaLabels": {
       "breadcrumb": "Ruta de navegación",
-      "collapseSearch": "Contraer la búsqueda",
       "explainField": "Acerca de {field}",
       "hidePassword": "Ocultar contraseña",
       "selectOption": "Selecciona una opción",
@@ -1360,7 +1359,10 @@
         "fieldsGroup": "Filtrar por",
         "limitReached": "Puedes aplicar hasta {count} filtros.",
         "removeFilter": "Quitar filtro",
-        "title": "Filtros"
+        "searchContains": "{field} contiene «{text}»",
+        "searchOrAddFilter": "Buscar o añadir filtro…",
+        "title": "Filtros",
+        "trigger": "Filtro"
       },
       "selectionLimit": "Puedes seleccionar hasta {count} valores.",
       "selectOperator": "Selecciona una condición…",
@@ -1929,7 +1931,6 @@
       "chooseFile": "Elegir archivo",
       "fileRejected": "No se pudo leer ese archivo."
     },
-    "menu": "Importar y exportar",
     "recordImport": {
       "create": "Crear con los ID exportados",
       "failed": "No se pudieron importar los registros. Revisa el archivo y los permisos.",
@@ -1959,10 +1960,12 @@
     "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
+    "editOption": "Editar opción",
     "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Más acciones",
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
@@ -2483,6 +2486,7 @@
       "goList": "Listas según su posición en tu barra lateral",
       "goRoutines": "Rutinas",
       "goSettings": "Ajustes",
+      "openFilters": "Abrir los filtros de una lista",
       "save": "Guardar el formulario abierto",
       "search": "Buscar",
       "searchAlias": "Buscar",
@@ -2828,7 +2832,6 @@
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el registro.",
     "emptyTitle": "Ningún evento coincide con estos filtros",
     "navigation": "Registro de auditoría",
-    "searchPlaceholder": "Buscar por acción",
     "values": {
       "action": {
         "auditRead": "Auditoría de operador leída",
@@ -2955,7 +2958,6 @@
       "title": "Restablecimiento de créditos",
       "zeroBalance": "Poner a cero el saldo restante"
     },
-    "searchPlaceholder": "Buscar por nombre o correo de la cuenta",
     "values": {
       "noSubscription": "Sin suscripción",
       "operator": "Operador de la plataforma"
@@ -2995,7 +2997,6 @@
       "workspaceId": "ID del espacio de trabajo"
     },
     "navigation": "Espacios de trabajo",
-    "searchPlaceholder": "Buscar por correo de un miembro",
     "stats": {
       "assistantConversations": "Chats del asistente",
       "connectedAccounts": "Cuentas conectadas",
@@ -3098,6 +3099,13 @@
         "max": "Máximo",
         "min": "Mínimo",
         "sum": "Suma"
+      },
+      "describe": {
+        "failed": "No se pudo convertir en un cálculo. Prueba a describirlo de otra forma.",
+        "label": "Describe el cálculo",
+        "pending": "Preparando el cálculo",
+        "placeholder": "Por ejemplo: total de los importes de todas las líneas vinculadas",
+        "unavailable": "La redacción no está disponible ahora."
       },
       "example": {
         "next": "Mostrar otro ejemplo",
@@ -3300,6 +3308,7 @@
       "restoreTitle": "Restaurar {name}"
     },
     "configure": "Configurar",
+    "configureList": "Configurar {list}",
     "connectionType": "Conexión",
     "constant": "Valor fijo",
     "contactFullName": "Nombre completo",
@@ -4152,7 +4161,6 @@
     "restoredInBackground": "Restaurado",
     "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
     "restorePending": "Restaurando en segundo plano. La papelera muestra el progreso.",
-    "searchPlaceholder": "Buscar en la papelera",
     "undo": "Deshacer"
   },
   "TrialExpiredOffer": {
