@@ -202,7 +202,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
             ) : undefined
           }
           panelLayout={panelLayout}
-          summary={<RecordDetailChipRow className="px-4 pb-3" store={store} />}
+          summary={<RecordDetailChipRow className="px-4 pt-2 pb-3" store={store} />}
         />
       </AppForm>
     );
