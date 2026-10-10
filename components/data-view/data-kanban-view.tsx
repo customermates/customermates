@@ -15,7 +15,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { ChevronsLeftRight, Ellipsis, Plus, Settings2 } from "lucide-react";
+import { ChevronsLeftRight, Ellipsis, EyeOff, Plus, Settings2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -234,6 +234,7 @@ const KanbanColumn = observer(function KanbanColumn({
   editHref,
   onCreate,
   onCollapse,
+  onHide,
   children,
 }: {
   id: string;
@@ -248,6 +249,7 @@ const KanbanColumn = observer(function KanbanColumn({
   editHref?: string;
   onCreate?: (returnFocusTo: HTMLElement | null) => void;
   onCollapse: () => void;
+  onHide: () => void;
   children: ReactNode;
 }) {
   const t = useTranslations();
@@ -311,6 +313,12 @@ const KanbanColumn = observer(function KanbanColumn({
                 <ChevronsLeftRight className="size-4" />
 
                 {t("DataView.collapseColumn")}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onSelect={onHide}>
+                <EyeOff className="size-4" />
+
+                {t("DataView.hideColumn")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -414,7 +422,9 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     supportsDragWriteBack ? keyboardSensor : null,
   );
 
-  const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true });
+  const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true }).filter(
+    (group) => !store.isGroupHidden(group.key) && !(store.grouping?.hideEmpty && group.count === 0),
+  );
   const openGroups = groups.filter((group) => !store.isBoardStrip(group.key, group.count));
   const collapsedGroups = groups.filter((group) => store.isBoardStrip(group.key, group.count));
 
@@ -530,6 +540,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                     ? (returnFocusTo) => store.createInGroup(group.key, returnFocusTo)
                     : undefined
                 }
+                onHide={() => store.hideGroup(group.key)}
               >
                 {group.itemIds.map((itemId) => {
                   const item = itemsById.get(itemId);

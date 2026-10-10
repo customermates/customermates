@@ -30,11 +30,15 @@ export function resolveGrouping(
   const spec = specs.find((candidate) => candidate.field === grouping.field);
   if (!spec) return undefined;
 
-  if (spec.kind !== "dateBucket") return { spec, grouping: { field: spec.field } };
+  const presentation = {
+    ...(grouping.hidden?.length ? { hidden: grouping.hidden } : {}),
+    ...(grouping.hideEmpty ? { hideEmpty: true } : {}),
+  };
+  if (spec.kind !== "dateBucket") return { spec, grouping: { field: spec.field, ...presentation } };
 
   const bucket = grouping.bucket && spec.buckets.includes(grouping.bucket) ? grouping.bucket : DEFAULT_DATE_BUCKET;
 
-  return { spec, grouping: { field: spec.field, bucket } };
+  return { spec, grouping: { field: spec.field, bucket, ...presentation } };
 }
 
 export function resolveGroupAxis(input: GroupAxisInput): GroupAxis {

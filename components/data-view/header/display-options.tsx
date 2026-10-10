@@ -18,10 +18,12 @@ import { Label } from "@/components/ui/label";
 import { ResponsiveOverlay } from "@/components/modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
+import { useGroupLabel } from "@/components/data-view/group-label";
 import { cn } from "@/core/utils/cn";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
@@ -108,6 +110,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const pendingAi = useRef<(() => void) | null>(null);
   const columnLabel = useColumnLabel();
   const groupableLabel = useGroupableFieldLabel();
+  const groupLabel = useGroupLabel(store.groupingResult);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor),
@@ -125,6 +128,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const hasActiveOption = Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0;
 
   const currentLayout: DataViewMode = store.viewMode === ViewMode.card && canBoard ? "board" : "table";
+  const boardGrouped = currentLayout === "board" && Boolean(store.grouping && store.groupingResult);
+  const hiddenGroups = (store.groupingResult?.groups ?? []).filter((group) => store.isGroupHidden(group.key));
   const offersManualOrder =
     (store.supportsManualOrder && currentLayout === "board") || currentSortField === MANUAL_ORDER_SORT_KEY;
   const sortable = [
@@ -296,6 +301,44 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                   ))}
                 </SelectContent>
               </Select>
+
+              {boardGrouped && (
+                <Label
+                  className="mt-1 flex items-center justify-between gap-2 text-sm font-normal"
+                  htmlFor="board-hide-empty"
+                >
+                  {t("DataView.hideEmptyColumns")}
+
+                  <Switch
+                    checked={Boolean(store.grouping?.hideEmpty)}
+                    id="board-hide-empty"
+                    size="sm"
+                    onCheckedChange={(checked) => store.setHideEmptyGroups(checked)}
+                  />
+                </Label>
+              )}
+            </Section>
+          )}
+
+          {boardGrouped && hiddenGroups.length > 0 && (
+            <Section label={t("DataView.hiddenColumns")}>
+              <div className="flex flex-col gap-0.5">
+                {hiddenGroups.map((group) => (
+                  <Label
+                    key={group.key}
+                    className="flex items-center gap-2 rounded-md p-1 text-sm font-normal cursor-pointer hover:bg-accent min-w-0"
+                    htmlFor={`hidden-group-${group.key}`}
+                  >
+                    <Checkbox
+                      checked={false}
+                      id={`hidden-group-${group.key}`}
+                      onCheckedChange={(checked) => checked === true && store.showGroup(group.key)}
+                    />
+
+                    <span className="truncate">{groupLabel(group)}</span>
+                  </Label>
+                ))}
+              </div>
             </Section>
           )}
 
