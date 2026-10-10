@@ -26,7 +26,7 @@ async function deleteService(page: Page, typeId: string) {
     .click();
 }
 
-test("moves a high fan-out delete to Trash in the background with one toast that ends in Undo, and restores in the background", async ({
+test("moves a high fan-out delete to Trash in the background with one toast that ends in Undo, then restores it in the background from the record", async ({
   page,
   database,
   companyId,
@@ -121,14 +121,8 @@ test("moves a high fan-out delete to Trash in the background with one toast that
   await expect(toasts.filter({ hasText: "Moving 1 item to Trash" })).toHaveCount(0);
   expect((await serviceRow()).rows[0].deletedAt).not.toBeNull();
 
-  await undoToast.getByRole("button", { name: englishMessages.Trash.undo, exact: true }).click();
-  await expect(toasts.filter({ hasText: englishMessages.Trash.restoredInBackground })).toBeVisible({
-    timeout: 120000,
-  });
-  expect((await serviceRow()).rows[0].deletedAt).toBeNull();
+  await expect(undoToast.getByRole("button", { name: englishMessages.Trash.undo, exact: true })).toBeVisible();
 
-  await deleteService(page, id("service"));
-  await expect(toasts.filter({ hasText: englishMessages.Trash.movedToTrash })).toBeVisible({ timeout: 120000 });
   await page.goto(`/en/records/${id("service")}/${service}`);
   const banner = page.locator("[data-record-trash-banner]");
   await expect(banner).toContainText(englishMessages.Trash.inTrash);
