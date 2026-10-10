@@ -39,8 +39,6 @@ export type RecordWidgetChartProps = Pick<
   "data" | "groupOptions" | "displayOptions" | "measure" | "status"
 > & { name: string };
 
-const MISSING_NUMBER = "—";
-
 type ChartRow = {
   label: string;
   axisLabel: string;
@@ -144,7 +142,7 @@ export function RecordWidgetChart({
     return frame(
       <WidgetNumber
         caption={t("RecordWidgets.recordCount", { count: data.total.count })}
-        value={total.state === "missing" ? MISSING_NUMBER : format(total)}
+        value={total.state === "missing" ? "" : format(total)}
       />,
     );
   }

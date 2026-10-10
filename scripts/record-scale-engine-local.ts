@@ -7,6 +7,7 @@ import { assertLocalDatabaseEnvironment } from "./local-database-safety";
 import { RecordQuerySchema } from "../features/records/record-query.schema";
 import { RecordMeasureSchema } from "../features/records/record-measure.schema";
 import { TenantUserSchema } from "../features/user/user.schema";
+import { recordInvariant } from "../features/records/record-invariant";
 import type { Validated } from "../core/validation/validation.utils";
 
 const { values } = parseArgs({
@@ -356,7 +357,7 @@ try {
             action: "create",
             typeId: sourceType.id,
             fields: [
-              { fieldId: sourceType.primaryFieldId, value: { kind: "text", value: "Fan-out source" } },
+              { fieldId: recordInvariant(sourceType.primaryFieldId), value: { kind: "text", value: "Fan-out source" } },
               { fieldId: inputId, value: { kind: "decimal", value: "10", currency: null } },
             ],
           },

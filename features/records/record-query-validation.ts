@@ -156,3 +156,23 @@ export function invalidRecordQueryPart(
   }
   return null;
 }
+
+type QueryParts = Pick<RecordQuery, "filters" | "relationships" | "relatedFilters">;
+
+export function keepValidQueryParts<T extends Partial<QueryParts> & { typeId: string }>(
+  query: T,
+  model: RecordModel,
+): T {
+  const parsed = RecordQuerySchema.parse(query);
+  const empty = { ...parsed, filters: [], relationships: [], relatedFilters: [] };
+  const keeps = <K extends keyof QueryParts>(key: K) =>
+    (query[key] as unknown[] | undefined)?.filter(
+      (item) => !invalidRecordQueryPart({ ...empty, [key]: [item] }, model),
+    );
+  return {
+    ...query,
+    filters: keeps("filters") ?? [],
+    relationships: keeps("relationships") ?? [],
+    ...(query.relatedFilters ? { relatedFilters: keeps("relatedFilters") } : {}),
+  };
+}

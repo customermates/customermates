@@ -31,7 +31,7 @@ import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
+import { VIEW_TAB_CLASS, ViewChip } from "./view-chip";
 import { ViewMenuItems } from "./view-menu-items";
 import { VIEW_META_NAME_INPUT_ID, ViewMetaOverlay } from "./view-meta-overlay";
 import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
@@ -280,7 +280,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           <DropdownMenuTrigger asChild>
             <Button
               aria-label={t("DataView.views.menu")}
-              className={cn(joinsTopBar && [VIEW_SURFACE_CLASS, "size-7 rounded-full"])}
+              className={cn(joinsTopBar && "size-7")}
               id="global-data-views-menu"
               size="icon-sm"
               variant="ghost"
