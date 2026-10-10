@@ -87,6 +87,55 @@ describe("calculation draft parsing", () => {
     ).toBeNull();
   });
 
+  it("rejects wrong-list fields and empty inputs inside counts and comparisons", () => {
+    const lineItems = {
+      kind: "related",
+      relationId: alias(aliases, id("lineItem.deal")),
+      direction: "incoming",
+      reducer: "count",
+    };
+    expect(parse({ ...lineItems, expression: { kind: "literal", value: null } })).not.toBeNull();
+    expect(parse({ ...lineItems, expression: { kind: "field", fieldId: alias(aliases, id("deal.name")) } })).toBeNull();
+    expect(
+      parse({
+        kind: "operation",
+        operator: "equal",
+        arguments: [
+          { kind: "field", fieldId: alias(aliases, id("lineItem.amount")) },
+          { kind: "literal", value: { kind: "decimal", value: "1", currency: null } },
+        ],
+      }),
+    ).toBeNull();
+    expect(
+      parse({
+        kind: "operation",
+        operator: "equal",
+        arguments: [
+          { kind: "field", fieldId: alias(aliases, id("deal.name")) },
+          { kind: "literal", value: null },
+        ],
+      }),
+    ).toBeNull();
+  });
+
+  it("refuses a draft that reaches the edited field through another calculated field", () => {
+    const edited = id("deal.totalValue");
+    const { prompt, aliases: editAliases } = request(edited);
+    expect(prompt).not.toContain("Weighted value");
+    expect(
+      parseCalculationDraft({
+        output: {
+          source: "formula",
+          expression: JSON.stringify({ kind: "field", fieldId: id("deal.weightedValue") }),
+        },
+        aliases: editAliases,
+        model,
+        typeId: id("deal"),
+        fieldId: edited,
+      }),
+    ).toBeNull();
+  });
+
   it("refuses a draft that uses the field being edited", () => {
     const field = id("deal.totalValue");
     expect(

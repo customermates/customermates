@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { useDataViewItemLayout } from "@/components/data-view/data-view-item-layout";
@@ -27,7 +27,7 @@ const actionClass =
 
 export function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnType<typeof useTranslations>) {
   const title = record.fields.find((field) => field.fieldId === store.type?.primaryFieldId)?.result;
-  return recordTitle(title, store.type?.label, t);
+  return recordDisplayName(title, store.type?.label, t);
 }
 
 export const RecordRowActions = observer(function RecordRowActions({

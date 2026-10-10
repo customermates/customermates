@@ -39,11 +39,12 @@ function useTrashedRecordActions(store: RecordEditorStore, name: string): AppMod
       id: "restore",
       icon: RotateCcw,
       label: t("Trash.restore"),
-      busy: trashStore.isMutating,
+      busy: trashStore.isMutating || trashStore.isRestoring(trash.itemId),
       onClick: async () => {
-        if (!(await trashStore.restoreItems([trash.itemId]))) return;
-        store.setTrash(null);
-        await store.refreshRecord();
+        await trashStore.restoreItems([trash.itemId], async () => {
+          store.setTrash(null);
+          await store.refreshRecord();
+        });
       },
     },
     {
@@ -52,7 +53,7 @@ function useTrashedRecordActions(store: RecordEditorStore, name: string): AppMod
       icon: Trash2,
       label: t("Trash.deletePermanently"),
       variant: "destructive",
-      busy: trashStore.isMutating,
+      busy: trashStore.isMutating || trashStore.isRestoring(trash.itemId),
       onClick: () => trashStore.requestPermanentDelete([trash.itemId], name, store.deletionCompleted),
     },
   ];

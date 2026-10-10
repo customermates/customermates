@@ -11,7 +11,9 @@ import { Sigma } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordCell } from "./record-cell";
+import { UNTITLED_COLUMN_ID } from "./records.store";
 import {
   RecordCalculatedValue,
   RecordInlineField,
@@ -38,9 +40,19 @@ export function useRecordTableColumns(
   const locale = intl.formattingLocale;
   const avatarFieldId = recordAvatarFieldId(store);
   const columnHeaders = JSON.stringify(store.recordColumns.map((column) => [column.id, column.label]));
+  const untitledHeader = store.type && !store.type.primaryFieldId ? store.type.label : null;
   return useMemo<ColumnDef<RecordRow>[]>(
-    () =>
-      (JSON.parse(columnHeaders) as [string, string][]).map(([id, label]) => {
+    () => [
+      ...(untitledHeader
+        ? [
+            {
+              id: UNTITLED_COLUMN_ID,
+              header: untitledHeader,
+              cell: () => <span>{recordDisplayName(undefined, untitledHeader, t)}</span>,
+            },
+          ]
+        : []),
+      ...(JSON.parse(columnHeaders) as [string, string][]).map(([id, label]): ColumnDef<RecordRow> => {
         const definition = store.recordColumns.find((candidate) => candidate.id === id);
         const calculated =
           markCalculated && definition?.kind === "field" && isCalculatedField(store, definition.field)
@@ -117,6 +129,7 @@ export function useRecordTableColumns(
           },
         };
       }),
-    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, locale],
+    ],
+    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, locale, untitledHeader],
   );
 }

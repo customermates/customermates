@@ -31,25 +31,44 @@ export function recordEventSubscriptionIsValid(
 function cleanTrigger<T extends { changedFieldIds: string[]; query: { typeId: string } | null }>(
   trigger: T,
   model: RecordModel,
-): T | null {
+): { trigger: T; emptied: boolean } {
   const changedFieldIds = trigger.changedFieldIds.filter((id) =>
     model.fields.some((field) => field.id === id && !field.archived),
   );
-  if (trigger.changedFieldIds.length && !changedFieldIds.length) return null;
-  return { ...trigger, changedFieldIds, query: trigger.query && keepValidQueryParts(trigger.query, model) };
+  return {
+    trigger: { ...trigger, changedFieldIds, query: trigger.query && keepValidQueryParts(trigger.query, model) },
+    emptied: trigger.changedFieldIds.length > 0 && changedFieldIds.length === 0,
+  };
 }
 
 export function cleanRecordEventSubscription(
   subscription: RecordEventSubscriptionDefinition,
   model: RecordModel,
-): RecordEventSubscriptionDefinition | null {
+): { subscription: RecordEventSubscriptionDefinition; paused: boolean } {
+  const pause = (kept: RecordEventSubscriptionDefinition) => ({
+    subscription: { ...kept, enabled: false },
+    paused: true,
+  });
   if (subscription.sources?.length) {
-    const sources = subscription.sources.flatMap((source) => cleanTrigger(source, model) ?? []);
-    if (!sources.length) return null;
+    const sources = subscription.sources.flatMap((source) => {
+      const cleaned = cleanTrigger(source, model);
+      return cleaned.emptied ? [] : [cleaned.trigger];
+    });
+    if (!sources.length)
+      return pause({ ...subscription, sources: null, typeId: null, query: null, changedFieldIds: [] });
     const events = subscription.events.filter((event) => sources.some((source) => source.events.includes(event)));
     const cleaned = { ...subscription, sources, events };
-    return recordEventSubscriptionIsValid(cleaned, model) ? cleaned : null;
+    return recordEventSubscriptionIsValid(cleaned, model)
+      ? { subscription: cleaned, paused: false }
+      : pause({ ...subscription, sources: null, typeId: null, query: null, changedFieldIds: [] });
   }
   const cleaned = cleanTrigger(subscription, model);
-  return cleaned && recordEventSubscriptionIsValid(cleaned, model) ? cleaned : null;
+  if (cleaned.emptied || !recordEventSubscriptionIsValid(cleaned.trigger, model)) {
+    return pause(
+      recordEventSubscriptionIsValid(cleaned.trigger, model)
+        ? cleaned.trigger
+        : { ...cleaned.trigger, typeId: null, query: null, changedFieldIds: [] },
+    );
+  }
+  return { subscription: cleaned.trigger, paused: false };
 }

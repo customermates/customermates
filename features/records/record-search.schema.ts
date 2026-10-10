@@ -53,13 +53,6 @@ export function recordSearchKey(item: Pick<RecordSearchHit, "ref">) {
   return `${item.ref.typeId}:${item.ref.recordId}`;
 }
 
-export function recordSearchLabel(item: RecordSearchHit, translate: (key: string) => string) {
-  if (item.title.state === "value" && item.title.value.kind === "text") return item.title.value.value || item.typeLabel;
-  if (item.title.state === "restricted") return translate("RecordModel.restricted");
-  if (item.title.state === "error") return translate("RecordModel.calculationError");
-  return item.typeLabel;
-}
-
 export const StoredSearchReferenceSchema = RecordRefSchema;
 export type StoredSearchReference = z.infer<typeof StoredSearchReferenceSchema>;
 export const ResolveRecordSearchSchema = z.object({ refs: z.array(StoredSearchReferenceSchema).max(50) }).strict();
