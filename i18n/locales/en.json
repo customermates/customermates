@@ -857,6 +857,8 @@
       "deleteNamed": "Delete {name}"
     },
     "resolve": "Go to “{query}”",
+    "resolveNoCredits": "You have no AI credits left, so this request can't be resolved.",
+    "resolveUnavailable": "Resolving requests isn't available right now. Pick a result or try again later.",
     "resolving": "Finding the best match…",
     "synonyms": {
       "action": {
