@@ -1,9 +1,15 @@
 "use client";
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
+import type {
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  ReactNode,
+  TouchEvent as ReactTouchEvent,
+} from "react";
 
 import { Fragment, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import {
   DndContext,
@@ -82,7 +88,7 @@ function KanbanCard({
   groupKey,
   draggable,
   dropTarget,
-  hidden,
+  dragState,
   children,
   onClick,
   href,
@@ -93,7 +99,7 @@ function KanbanCard({
   groupKey: string;
   draggable: boolean;
   dropTarget: boolean;
-  hidden: boolean;
+  dragState: "idle" | "origin" | "moved";
   children: ReactNode;
   onClick?: () => void;
   href?: string;
@@ -108,9 +114,16 @@ function KanbanCard({
     disabled: !draggable,
   });
   const drop = useDroppable({ id: `card:${itemId}`, data: { groupKey, itemId }, disabled: !dropTarget });
-  const { onKeyDown: dragKeyDown, onPointerDown: dragPointerDown } = (listeners ?? {}) as {
+  const startsDrag = (card: HTMLElement, target: EventTarget) =>
+    draggable && target instanceof Element && card.contains(target) && target.closest("[data-card-actions]") === null;
+  const {
+    onKeyDown: dragKeyDown,
+    onMouseDown: dragMouseDown,
+    onTouchStart: dragTouchStart,
+  } = (listeners ?? {}) as {
     onKeyDown?: (event: ReactKeyboardEvent<HTMLElement>) => void;
-    onPointerDown?: (event: ReactPointerEvent<HTMLElement>) => void;
+    onMouseDown?: (event: ReactMouseEvent<HTMLElement>) => void;
+    onTouchStart?: (event: ReactTouchEvent<HTMLElement>) => void;
   };
 
   return (
@@ -123,7 +136,8 @@ function KanbanCard({
         "group/card gap-2 py-3 select-none relative",
         draggable && "touch-manipulation",
         (onClick || href) && !isDragging && "interactive-surface",
-        hidden && "hidden",
+        dragState === "origin" && "border-2 border-dashed border-primary/40 bg-primary/5 shadow-none *:invisible",
+        dragState === "moved" && "hidden",
         className,
       )}
       data-item-id={itemId}
@@ -147,8 +161,11 @@ function KanbanCard({
         if (onClick) onClick();
         else if (href) navigateToHref(href);
       }}
-      onPointerDown={(event) => {
-        if (draggable && event.currentTarget.contains(event.target as Node)) dragPointerDown?.(event);
+      onMouseDown={(event) => {
+        if (startsDrag(event.currentTarget, event.target)) dragMouseDown?.(event);
+      }}
+      onTouchStart={(event) => {
+        if (startsDrag(event.currentTarget, event.target)) dragTouchStart?.(event);
       }}
       {...(draggable ? attributes : onClick || href ? { role: "button", tabIndex: 0 } : {})}
     >
@@ -169,7 +186,11 @@ function KanbanCard({
       <div className="relative">{children}</div>
 
       {actions && (
-        <div className="absolute top-2 right-2 z-10" onPointerDown={(event) => event.stopPropagation()}>
+        <div
+          className="absolute top-2 right-2 z-10"
+          data-card-actions=""
+          onPointerDown={(event) => event.stopPropagation()}
+        >
           {actions}
         </div>
       )}
@@ -506,6 +527,12 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     drag === null
       ? null
       : (target ?? { groupKey: drag.fromGroupKey, beforeId: nextOf(drag.itemId, drag.fromGroupKey) });
+  const movedPlacement =
+    drag &&
+    placement &&
+    (placement.groupKey !== drag.fromGroupKey || placement.beforeId !== nextOf(drag.itemId, drag.fromGroupKey))
+      ? placement
+      : null;
   const dragged = drag ? itemsById.get(drag.itemId) : undefined;
   const loadMoreLabel = t("Common.actions.loadMore");
   const overflow = store.groupingResult?.overflow;
@@ -587,16 +614,16 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
                   return (
                     <Fragment key={itemId}>
-                      {placement?.groupKey === group.key && placement.beforeId === itemId && (
+                      {movedPlacement?.groupKey === group.key && movedPlacement.beforeId === itemId && (
                         <KanbanPlaceholder height={drag?.height ?? 0} />
                       )}
 
                       <KanbanCard
                         actions={cardActions?.(item)}
+                        dragState={drag?.itemId !== itemId ? "idle" : movedPlacement ? "moved" : "origin"}
                         draggable={supportsDragWriteBack && store.canMoveItemBetweenGroups?.(item) !== false}
                         dropTarget={supportsDragWriteBack && manualOrder && group.writable !== false}
                         groupKey={group.key}
-                        hidden={drag?.itemId === itemId}
                         href={cardHref?.(item)}
                         itemId={itemId}
                         onClick={onCardClick ? () => onCardClick(item) : undefined}
@@ -607,7 +634,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                   );
                 })}
 
-                {placement?.groupKey === group.key && placement.beforeId === null && (
+                {movedPlacement?.groupKey === group.key && movedPlacement.beforeId === null && (
                   <KanbanPlaceholder height={drag?.height ?? 0} />
                 )}
               </KanbanColumn>
@@ -635,13 +662,17 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         )}
       </div>
 
-      <DragOverlay>
-        {dragged ? (
-          <Card className="cursor-grabbing gap-2 py-3 shadow-xl ring-1 ring-border/60 rotate-1 motion-reduce:rotate-0">
-            <CardContent className="px-3">{renderCard(dragged)}</CardContent>
-          </Card>
-        ) : null}
-      </DragOverlay>
+      {typeof document !== "undefined" &&
+        createPortal(
+          <DragOverlay>
+            {dragged ? (
+              <Card className="cursor-grabbing gap-2 py-3 shadow-xl ring-1 ring-border/60 rotate-1 motion-reduce:rotate-0">
+                <CardContent className="px-3">{renderCard(dragged)}</CardContent>
+              </Card>
+            ) : null}
+          </DragOverlay>,
+          document.body,
+        )}
     </DndContext>
   );
 });
