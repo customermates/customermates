@@ -10,7 +10,7 @@ import type { Filter, FilterOption, GetQueryParams } from "@/core/base/base-get.
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { parseRecordReferenceKey, recordReferenceKey } from "@/features/records/record-reference-key";
-import { recordSearchLabel } from "@/features/records/record-search.schema";
+import { recordDisplayName } from "@/features/records/record-display-name";
 
 import {
   ConnectedAccountStatus,
@@ -424,14 +424,7 @@ export function useFilterSelectItems(
             items: data.records.map((record) => ({
               key: record.ref.recordId,
               value: record.ref.recordId,
-              textValue:
-                record.title.state === "value" && record.title.value.kind === "text"
-                  ? record.title.value.value
-                  : t(
-                      record.title.state === "restricted"
-                        ? "RecordModel.restricted"
-                        : "Common.filters.unavailableValue",
-                    ),
+              textValue: recordDisplayName(record.title, data.typeLabel, t),
             })),
             pagination: {
               page: data.page,
@@ -486,8 +479,8 @@ export function useFilterSelectItems(
             ...result.data.results.map((record) => ({
               key: record.ref.recordId,
               value: record.ref.recordId,
-              textValue: recordSearchLabel(record, t),
-              startContent: renderAvatar(recordSearchLabel(record, t), record.pictureUrl),
+              textValue: recordDisplayName(record.title, record.typeLabel, t),
+              startContent: renderAvatar(recordDisplayName(record.title, record.typeLabel, t), record.pictureUrl),
             })),
           );
         }

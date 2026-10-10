@@ -22,7 +22,6 @@ import {
 } from "@/components/entity-detail/entity-detail-personalization";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { RecordValueTypeIcon } from "@/components/records/record-value-type-icon";
-import { ContactValue } from "@/components/records/contact-value";
 import { CommandGroup, CommandItem } from "@/components/ui/command";
 import {
   DropdownMenu,
@@ -32,15 +31,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { IconButton } from "@/components/ui/icon-button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
-import { getChannelIcon } from "@/ee/messaging/provider-icon";
-import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { type RecordChipColumn, type RecordChipEntry, recordChipRowModel } from "./record-chip-row-model";
-import { RecordPropertyChipView } from "./record-chip-row";
+import { IdentityChips, RecordPropertyChipView } from "./record-chip-row";
 import { RecordChannelPopover } from "./record-identity-editor";
 import { focusFirstControl, RecordLinkPicker } from "./record-inline-field";
 import { RecordInputField } from "./record-input-field";
@@ -288,26 +284,6 @@ const LinkedChip = observer(function LinkedChip({
   );
 });
 
-function IdentityChips({ row }: { row: RecordRow }) {
-  return (
-    <>
-      {(row.identities ?? []).map((identity) => {
-        const Icon = getChannelIcon(identity.provider);
-        const label =
-          channelDisplayLabel(identity.provider, identity.value, identity.profileUrl) ||
-          identity.displayName ||
-          identity.value;
-        const kind = isEmailProvider(identity.provider) ? "email" : isPhoneProvider(identity.provider) ? "phone" : null;
-        return (
-          <AppChip key={identity.id} startContent={<Icon className="size-3" />}>
-            {kind ? <ContactValue kind={kind} label={label} value={identity.value} /> : label}
-          </AppChip>
-        );
-      })}
-    </>
-  );
-}
-
 function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
   if (store.isReadOnly) return false;
   if (column.kind === "field") {
@@ -370,7 +346,7 @@ const DetailChip = observer(function DetailChip({
     return <LinkedChip editable={!personalizing && editsInChip(store, column)} entry={entry} row={row} store={store} />;
 
   if (column.kind === "identity") {
-    if (!entry.empty) return <IdentityChips row={row} />;
+    if (!entry.empty) return <IdentityChips record={row} />;
     const placeholder = <PlaceholderChip column={column} store={store} />;
     if (!editable || store.isDisabled) return placeholder;
     return (

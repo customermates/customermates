@@ -73,6 +73,7 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? t("Common.actions.add") : undefined}
         anchorScope="routines"
+        searchLabel={t("Common.filters.searchFields.routines")}
         store={routinesStore}
         onAdd={handleAdd}
       />

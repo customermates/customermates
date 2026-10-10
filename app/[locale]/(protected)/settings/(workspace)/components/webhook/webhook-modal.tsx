@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 
 import { AppModal } from "@/components/modal";
+import { Alert } from "@/components/shared/alert";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppForm } from "@/components/forms/form-context";
@@ -71,6 +72,10 @@ export const WebhookModal = observer(() => {
           </AppCardHeader>
 
           <AppCardBody>
+            {webhookModalStore.form.pausedReason === "triggerFieldDeleted" && (
+              <Alert color="warning" data-webhook-paused="" description={t("WebhookModal.pausedTriggerFieldDeleted")} />
+            )}
+
             <div className="space-y-1.5">
               <FormInput required id="url" inputId="webhook-modal-url" type="url" />
 

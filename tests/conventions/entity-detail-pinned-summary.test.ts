@@ -16,8 +16,10 @@ describe("generic record detail pinned summaries", () => {
     expect(summary).toContain("recordChipRowModel(pinned, row, { keepEmpty: true })");
   });
   it("keeps assignees and identity channels actionable", () => {
+    const chips = read("app/[locale]/(protected)/records/[typeId]/components/record-chip-row.tsx");
     expect(summary).toContain("userModalStore.loadById(item.id)");
-    expect(summary).toContain("channelDisplayLabel(identity.provider, identity.value, identity.profileUrl)");
-    expect(summary).toContain("<ContactValue");
+    expect(summary).toContain("<IdentityChips");
+    expect(chips).toContain("channelDisplayLabel(identity.provider, identity.value, identity.profileUrl)");
+    expect(chips).toContain("<ContactValue");
   });
 });

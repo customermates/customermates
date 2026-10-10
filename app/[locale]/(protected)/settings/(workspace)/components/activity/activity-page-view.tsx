@@ -11,10 +11,7 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 const ActivityPageViewContent = observer(function ActivityPageView() {
   const store = useRecordActivityViews(null, false);
-  const toolbar = useMemo(
-    () => <DataViewToolbar isSearchable={false} showDisplayOptions={false} store={store} />,
-    [store],
-  );
+  const toolbar = useMemo(() => <DataViewToolbar showDisplayOptions={false} store={store} />, [store]);
   useSetTopBarActions(toolbar);
 
   return (

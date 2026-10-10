@@ -87,6 +87,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
         headers: formatWebhookHeaderLines(item.headers),
         bodyTemplate: item.bodyTemplate ?? undefined,
         enabled: item.enabled,
+        pausedReason: item.pausedReason ?? null,
       }),
     [webhookModalStore],
   );
@@ -132,6 +133,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? t("Common.actions.add") : undefined}
         anchorScope="settings-webhooks"
+        searchLabel={t("Common.filters.searchFields.webhooks")}
         store={webhooksStore}
         onAdd={handleAdd}
       />

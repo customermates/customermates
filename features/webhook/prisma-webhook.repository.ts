@@ -110,6 +110,16 @@ export class PrismaWebhookRepo
       : input.recordTrigger === undefined
         ? previous?.recordTrigger
         : input.recordTrigger;
+    const filtered = Boolean(
+      sources?.length ||
+        trigger?.query.typeId ||
+        trigger?.changedFieldIds.length ||
+        trigger?.query.filters?.length ||
+        trigger?.query.relationships?.length ||
+        trigger?.query.relatedFilters?.length,
+    );
+    if (previous?.pausedReason && webhook.enabled && !filtered)
+      throw new RecordWriteError(CustomErrorCode.webhookTriggerRequired);
     await this.subscriptions.save(
       {
         id: webhook.id,
@@ -137,6 +147,7 @@ export class PrismaWebhookRepo
       headers: true,
       bodyTemplate: true,
       enabled: true,
+      pausedReason: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -214,6 +225,7 @@ export class PrismaWebhookRepo
           headers: webhookData.headers === undefined ? undefined : (webhookData.headers ?? Prisma.DbNull),
           bodyTemplate: webhookData.bodyTemplate,
           enabled: webhookData.enabled,
+          ...(previous?.pausedReason && webhookData.enabled ? { pausedReason: null } : {}),
         },
       });
 

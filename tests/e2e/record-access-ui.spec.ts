@@ -33,7 +33,7 @@ import {
   deleteSelectedList,
 } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, runRowAction } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
@@ -278,13 +278,14 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect(member.page.locator("#records-add")).toHaveCount(0);
     await expect(member.page.locator("#nav-configure-records")).toHaveCount(0);
     const memberMenu = member.page.locator("#records-more");
-    if (await memberMenu.count()) {
-      await memberMenu.click();
-      await expect(member.page.getByRole("menu")).toBeVisible();
-      await expect(member.page.locator("#records-configure")).toHaveCount(0);
-      await member.page.keyboard.press("Escape");
-    }
-    await expect(member.page.locator("#records-configure")).toHaveCount(0);
+    await expect(memberMenu).toBeVisible();
+    await memberMenu.click();
+    const memberMenuItems = member.page.getByRole("menu");
+    await expect(memberMenuItems).toBeVisible();
+    await expect(memberMenuItems.getByRole("menuitem").first()).toBeVisible();
+    await expect(memberMenuItems.locator("#records-configure")).toHaveCount(0);
+    await member.page.keyboard.press("Escape");
+    await expect(memberMenuItems).toHaveCount(0);
     await openRecordDetails(member.page, "Assigned project");
     const drawer = member.page.getByRole("dialog", {
       name: "Project",
@@ -2454,13 +2455,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
     ).toEqual([type.primaryFieldId, budgetId, stageId]);
     await presentationCloseAppearanceUi(reader.page, testInfo);
     const alphaCard = reader.page.locator(`[data-item-id="${alpha.recordId}"]`);
-    await alphaCard.hover();
-    await alphaCard
-      .getByRole("button", { name: "More actions for Alpha portfolio", exact: true })
-      .click();
-    await reader.page
-      .getByRole("menuitem", { name: "Open details", exact: true })
-      .click();
+    await runRowAction(reader.page, alphaCard, "Alpha portfolio", "Open details");
     const readerDetail = reader.page.getByRole("dialog", {
       name: type.label,
       exact: true,

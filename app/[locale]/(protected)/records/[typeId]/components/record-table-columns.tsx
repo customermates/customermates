@@ -5,13 +5,16 @@ import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Sigma } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordCell } from "./record-cell";
+import { RecordCardContent } from "./record-chip-row";
+import { UNTITLED_COLUMN_ID } from "./records.store";
 import {
   RecordCalculatedValue,
   RecordInlineField,
@@ -31,16 +34,26 @@ export function recordAvatarFieldId(store: RecordsStore) {
 export function useRecordTableColumns(
   store: RecordsStore,
   openRelated: (ref: RecordRef) => void,
-  { markCalculated = false }: { markCalculated?: boolean } = {},
+  { markCalculated = false, openRecord }: { markCalculated?: boolean; openRecord?: (record: RecordRow) => void } = {},
 ) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;
   const avatarFieldId = recordAvatarFieldId(store);
   const columnHeaders = JSON.stringify(store.recordColumns.map((column) => [column.id, column.label]));
+  const untitledHeader = store.type && !store.type.primaryFieldId ? store.type.label : null;
   return useMemo<ColumnDef<RecordRow>[]>(
-    () =>
-      (JSON.parse(columnHeaders) as [string, string][]).map(([id, label]) => {
+    () => [
+      ...(untitledHeader
+        ? [
+            {
+              id: UNTITLED_COLUMN_ID,
+              header: untitledHeader,
+              cell: () => <span>{recordDisplayName(undefined, untitledHeader, t)}</span>,
+            },
+          ]
+        : []),
+      ...(JSON.parse(columnHeaders) as [string, string][]).map(([id, label]): ColumnDef<RecordRow> => {
         const definition = store.recordColumns.find((candidate) => candidate.id === id);
         const calculated =
           markCalculated && definition?.kind === "field" && isCalculatedField(store, definition.field)
@@ -77,6 +90,7 @@ export function useRecordTableColumns(
                 linkIcons={store.presentation.linkIcons}
                 linkLabels={store.presentation.linkLabels}
                 record={row.original}
+                onMore={openRecord ? () => openRecord(row.original) : undefined}
                 onOpen={openRelated}
               />
             );
@@ -116,6 +130,40 @@ export function useRecordTableColumns(
           },
         };
       }),
-    [columnHeaders, openRelated, avatarFieldId, store, markCalculated, t, locale],
+    ],
+    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, locale, untitledHeader],
+  );
+}
+
+export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: RecordRef) => void) {
+  const t = useTranslations();
+  const avatarFieldId = recordAvatarFieldId(store);
+  return useCallback(
+    (record: RecordRow) => {
+      const primary = store.recordColumns.find((column) => column.id === store.primaryColumnId);
+      return (
+        <RecordCardContent
+          record={record}
+          records={store}
+          title={
+            primary ? (
+              <RecordCell
+                avatarFieldId={avatarFieldId}
+                column={primary}
+                linkColors={store.presentation.linkColors}
+                linkIcons={store.presentation.linkIcons}
+                linkLabels={store.presentation.linkLabels}
+                record={record}
+                onOpen={openRelated}
+              />
+            ) : (
+              <span className="truncate">{recordDisplayName(undefined, store.type?.label, t)}</span>
+            )
+          }
+          onOpenRecord={openRelated}
+        />
+      );
+    },
+    [avatarFieldId, openRelated, store, t],
   );
 }
