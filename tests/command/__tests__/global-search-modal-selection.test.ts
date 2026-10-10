@@ -71,6 +71,8 @@ function searchStore(recentItems: RecordSearchHit[]) {
       recentItems,
       recentCommandKeys: [] as string[],
       catalog: null as CommandCatalog | null,
+      semantic: [] as { key: string; similarity: number }[],
+      docs: [] as { key: string; title: string; section: string | null; href: string; similarity: number }[],
       level: null,
       form: { searchTerm: "" },
       focusReturnTarget: null,
@@ -79,6 +81,9 @@ function searchStore(recentItems: RecordSearchHit[]) {
       close: vi.fn(),
       pushRecentItem: vi.fn(),
       pushRecentCommand: vi.fn(),
+      setInstantMatcher: vi.fn(),
+      resolving: false,
+      resolveCommand: vi.fn(),
       pushLevel: vi.fn(),
       popLevel: vi.fn(),
       setWithUnsavedChangesGuard: vi.fn(),
@@ -93,6 +98,8 @@ function searchStore(recentItems: RecordSearchHit[]) {
       onChange: action,
       pushRecentItem: false,
       pushRecentCommand: false,
+      setInstantMatcher: false,
+      resolveCommand: false,
       pushLevel: false,
       popLevel: false,
       setWithUnsavedChangesGuard: false,
@@ -255,7 +262,7 @@ describe("GlobalSearchModal highlighted hit", () => {
 
     await showResults(store, "who owns BMW", [TUI]);
     expect(options().at(-1)).toContain("GlobalSearch.askMateWith");
-    expectHighlighted("TUI");
+    expectHighlighted("CommandPalette.resolve");
 
     press("Tab");
 
@@ -319,5 +326,29 @@ describe("GlobalSearchModal highlighted hit", () => {
     expect(after.slice(0, before.length)).toEqual(before);
     expect(after.at(-1)).toContain("TUI");
     expect(selectedOption()?.textContent).toBe(highlighted);
+  });
+  it("resolves an unmatched request on Enter to a filtered list and falls back to Ask Mate", async () => {
+    harness.mateEnabled = true;
+    const deals = "30000000-0000-4000-8000-000000000001";
+    const store = await openWith([]);
+    store.resolveCommand.mockResolvedValueOnce({
+      kind: "list",
+      typeId: deals,
+      viewId: null,
+      filters: [{ field: "stage", operator: "in", value: ["won"] }],
+    });
+    await showResults(store, "won deals over 10k", []);
+    expectHighlighted("CommandPalette.resolve");
+    press("Enter");
+    await settle(() => undefined);
+    expect(store.resolveCommand).toHaveBeenCalledWith("won deals over 10k");
+    expect(harness.push).toHaveBeenCalledWith(`/records/${deals}?filters=stage%3Ain%3Awon`);
+
+    store.resolveCommand.mockResolvedValueOnce(null);
+    await showResults(store, "something nobody configured", []);
+    press("Enter");
+    await settle(() => undefined);
+    expect(harness.openWithDraft).toHaveBeenCalledWith("something nobody configured");
+    expect(harness.submitDraft).toHaveBeenCalled();
   });
 });

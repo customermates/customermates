@@ -22,6 +22,7 @@ type Props = {
   controlStartAddon?: ReactNode;
   className?: string;
   outputClassName?: string;
+  plain?: boolean;
 };
 
 export function FormOutputField({
@@ -34,6 +35,7 @@ export function FormOutputField({
   controlStartAddon,
   className,
   outputClassName,
+  plain,
 }: Props) {
   const t = useTranslations();
   const labelId = useId();
@@ -56,6 +58,7 @@ export function FormOutputField({
           aria-describedby={description ? descriptionId : undefined}
           aria-labelledby={labelId}
           className={outputClassName}
+          plain={plain}
         >
           {children}
         </FormOutput>

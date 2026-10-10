@@ -52,20 +52,21 @@ function rejectedBeforeGeneration(error: unknown): boolean {
   return typeof status === "number" && status >= 400 && status < 500 && status !== 408;
 }
 
-function synthesisFailure(model: string, error: unknown): string {
+function callFailure(label: string, model: string, error: unknown): string {
   const name = error instanceof Error ? error.name : typeof error;
   const status =
     typeof error === "object" && error !== null && "statusCode" in error && typeof error.statusCode === "number"
       ? ` HTTP ${error.statusCode}`
       : "";
-  return `Website import model call to ${model} failed: ${name}${status}.`;
+  return `${label} model call to ${model} failed: ${name}${status}.`;
 }
 
-export function wikiSynthesisWorstCaseMicrocents(model: AgentModelEntry, system: string, prompt: string): number {
+export function structuredCallWorstCaseMicrocents(model: AgentModelEntry, system: string, prompt: string): number {
   return estimatedCharge(model, promptTokens(system, prompt), model.maxOutputTokens).costMicrocents;
 }
 
-export async function generateWikiSynthesisObject<T>(args: {
+export async function generateStructuredObject<T>(args: {
+  label: string;
   model: AgentModelEntry;
   schema: z.ZodType<T>;
   system: string;
@@ -103,7 +104,7 @@ export async function generateWikiSynthesisObject<T>(args: {
           };
     return { output: result.output, charge };
   } catch (error) {
-    const failure = synthesisFailure(args.model.modelId, error);
+    const failure = callFailure(args.label, args.model.modelId, error);
     if (rejectedBeforeGeneration(error)) return { output: null, charge: null, failure };
     const usage = NoObjectGeneratedError.isInstance(error) ? error.usage : undefined;
     return {

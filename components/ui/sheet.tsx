@@ -12,7 +12,10 @@ import {
   OVERLAY_HEADER_ALIGNMENT_CLASS,
   OVERLAY_SAFE_CLOSE_POSITION_CLASS,
   OVERLAY_SCROLL_REGION,
+  isSheetHandoff,
 } from "./overlay-contract";
+
+const SHEET_HANDOFF_CLASS = "data-[state=closed]:animate-none! data-[state=open]:animate-none!";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -56,10 +59,11 @@ function SheetContent({
   overlayClassName?: string;
 }) {
   const t = useTranslations();
+  const handoff = isSheetHandoff();
 
   return (
     <SheetPortal>
-      <SheetOverlay className={overlayClassName} />
+      <SheetOverlay className={cn(handoff && SHEET_HANDOFF_CLASS, overlayClassName)} />
 
       <SheetPrimitive.Content
         className={cn(
@@ -72,6 +76,7 @@ function SheetContent({
             "inset-x-0 top-0 h-auto max-h-(--sheet-block-budget) border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
           side === "bottom" &&
             "inset-x-0 bottom-0 h-auto max-h-(--sheet-block-budget) border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          handoff && SHEET_HANDOFF_CLASS,
           className,
         )}
         data-overlay-close={showCloseButton ? "" : undefined}
