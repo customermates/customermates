@@ -119,7 +119,7 @@ const LinkedChipQuery = observer(function LinkedChipQuery({
           : { linkedTo: { ref: store.record.ref, relationId: column.relation.id, direction: column.direction } }
         : {}),
     },
-    store.record !== null && store.isOpen,
+    store.record !== null && store.isOpen && !store.trash,
     store.record?.version ?? 0,
   );
   const changes =
@@ -128,7 +128,13 @@ const LinkedChipQuery = observer(function LinkedChipQuery({
           (change) => change.relationId === column.relation.id && change.direction === column.direction,
         )
       : [];
-  const original = query.data?.records ?? [];
+  const own =
+    column.kind === "relationship"
+      ? row.relationships.find(
+          (summary) => summary.relationId === column.relation.id && summary.direction === column.direction,
+        )
+      : row.relationshipPaths?.find((summary) => summary.pathId === column.definition.id);
+  const original = (store.trash ? own?.records : query.data?.records) ?? [];
   const records: RecordChoice[] = [
     ...original.filter(
       (record) =>
@@ -141,7 +147,9 @@ const LinkedChipQuery = observer(function LinkedChipQuery({
       )
       .map((change) => ({ ref: change.record, title: change.title })),
   ];
-  const hidden = Math.max(0, (query.data?.total ?? 0) - original.length);
+  const hidden = store.trash
+    ? Math.max(0, (own?.readableCount ?? 0) - original.length)
+    : Math.max(0, (query.data?.total ?? 0) - original.length);
   const summary = { records, readableCount: records.length + hidden, hasMore: hidden > 0 };
   if (!records.length) return <PlaceholderChip column={column} store={store} />;
   const linkedRow = {

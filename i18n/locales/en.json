@@ -874,7 +874,8 @@
         "inbox": "messages, email, mail, conversations, chats",
         "knowledgeBase": "wiki, notes, pages, articles",
         "routines": "automations, schedules, recurring tasks",
-        "settings": "preferences, options, account, workspace"
+        "settings": "preferences, options, account, workspace",
+        "trash": "deleted items, recycle bin, restore, undo delete"
       },
       "setting": {
         "apiKeys": {
