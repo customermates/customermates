@@ -54,3 +54,15 @@ export function rowActionFocusTarget(item: Locator, name: string) {
     .locator(`[data-row-action-group] button[aria-label="Open details"], button[aria-label="More actions for ${name}"]`)
     .filter({ visible: true });
 }
+
+export async function runNamedRowAction(page: Page, scope: Locator, name: string, label: string) {
+  const group = scope.getByRole("group", { name, exact: true }).and(scope.locator("[data-row-action-group]"));
+  const menu = scope.getByRole("button", { name: `More actions for ${name}`, exact: true });
+  await expect(group.or(menu).first()).toBeAttached();
+  if (await group.isVisible()) {
+    await group.getByRole("button", { name: label, exact: true }).click();
+    return;
+  }
+  await menu.click();
+  await page.getByRole("menuitem", { name: label, exact: true }).click();
+}

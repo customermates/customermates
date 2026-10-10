@@ -1,7 +1,6 @@
 "use client";
 
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
-import type { WidgetGallery } from "@/features/widget/widget-gallery";
 import type { DashboardWidgets } from "@/features/widget/get-widgets.interactor";
 import type { ComponentType, ReactNode } from "react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout/legacy";
@@ -50,19 +49,18 @@ const ResponsiveGridLayout = dynamic(
 
 type Props = {
   dashboard: DashboardWidgets;
-  gallery?: WidgetGallery;
   recordTypes?: DiscoveredRecordTypes;
 };
 
 const WIDGET_FOCUS_KINDS: FocusKind[] = ["widget"];
 
-const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, gallery, recordTypes }: Props) {
+const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, recordTypes }: Props) {
   const { widgetModalStore, widgetsStore } = useRootStore();
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableKinds.length > 0;
   useEffect(() => {
-    if (recordTypes) widgetModalStore.setRecordTypes(recordTypes, gallery);
-  }, [gallery, recordTypes, widgetModalStore]);
+    if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);
+  }, [recordTypes, widgetModalStore]);
   const isTouchDevice = useIsTouchDevice();
   const pointerStart = useRef<{
     id: string;
