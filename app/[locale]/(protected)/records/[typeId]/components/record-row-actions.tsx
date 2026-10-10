@@ -42,7 +42,10 @@ export const RecordRowActions = observer(function RecordRowActions({
 }) {
   const t = useTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
-  const openedDetails = useRef(false);
+  const pending = useRef<{ run: () => void; keepFocus: boolean } | null>(null);
+  const afterClose = (run: () => void, keepFocus = false) => {
+    pending.current = { run, keepFocus };
+  };
   const moreLabel = t("RecordModel.moreActions", { name });
   return (
     <div
@@ -65,13 +68,15 @@ export const RecordRowActions = observer(function RecordRowActions({
         <DropdownMenuContent
           align="end"
           onCloseAutoFocus={(event) => {
-            if (!openedDetails.current) return;
-            openedDetails.current = false;
-            event.preventDefault();
+            const action = pending.current;
+            if (!action) return;
+            pending.current = null;
+            if (action.keepFocus) event.preventDefault();
+            action.run();
           }}
         >
           {contextAction && (
-            <DropdownMenuItem onSelect={contextAction.onSelect}>
+            <DropdownMenuItem onSelect={() => afterClose(contextAction.onSelect)}>
               <contextAction.icon className="size-4" />
 
               {contextAction.label}
@@ -79,12 +84,7 @@ export const RecordRowActions = observer(function RecordRowActions({
           )}
 
           {onOpen && (
-            <DropdownMenuItem
-              onSelect={() => {
-                openedDetails.current = true;
-                onOpen(trigger.current);
-              }}
-            >
+            <DropdownMenuItem onSelect={() => afterClose(() => onOpen(trigger.current), true)}>
               <PanelLeftOpen className="size-4" />
 
               {t("RecordModel.openDetails")}
@@ -92,7 +92,7 @@ export const RecordRowActions = observer(function RecordRowActions({
           )}
 
           {onDelete && (
-            <DropdownMenuItem variant="destructive" onSelect={() => runUserAction(onDelete)}>
+            <DropdownMenuItem variant="destructive" onSelect={() => afterClose(() => runUserAction(onDelete))}>
               <Trash2 className="size-4" />
 
               {deleteLabel ?? t("Common.actions.delete")}
