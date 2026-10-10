@@ -6,21 +6,35 @@ import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { cn } from "@/core/utils/cn";
 import { OVERLAY_COLLISION_PADDING } from "./overlay-contract";
 
+const pointerMovesClaimedByTooltip = new WeakSet<Event>();
+
 function TooltipProvider({ delayDuration = 0, ...props }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
-  return <TooltipPrimitive.Provider data-slot="tooltip-provider" delayDuration={delayDuration} {...props} />;
+  return (
+    <TooltipPrimitive.Provider
+      disableHoverableContent
+      data-slot="tooltip-provider"
+      delayDuration={delayDuration}
+      {...props}
+    />
+  );
 }
 
 function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
 
-function TooltipTrigger({ onFocus, ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+function TooltipTrigger({ onFocus, onPointerMove, ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return (
     <TooltipPrimitive.Trigger
       data-slot="tooltip-trigger"
       onFocus={(event) => {
         if (!event.currentTarget.matches(":focus-visible")) event.preventDefault();
         onFocus?.(event);
+      }}
+      onPointerMove={(event) => {
+        if (pointerMovesClaimedByTooltip.has(event.nativeEvent)) event.preventDefault();
+        pointerMovesClaimedByTooltip.add(event.nativeEvent);
+        onPointerMove?.(event);
       }}
       {...props}
     />

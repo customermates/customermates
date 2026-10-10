@@ -70,4 +70,48 @@ describe("TooltipContent", () => {
     expect(classes).toContain("motion-reduce:animate-none");
     act(() => root.unmount());
   });
+
+  it("opens only the innermost tooltip when triggers are nested", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const root = createRoot(host);
+    act(() => {
+      root.render(
+        createElement(
+          TooltipProvider,
+          null,
+          createElement(
+            Tooltip,
+            null,
+            createElement(
+              TooltipTrigger,
+              { asChild: true },
+              createElement(
+                "span",
+                null,
+                "Assigned to ",
+                createElement(
+                  Tooltip,
+                  null,
+                  createElement(TooltipTrigger, { asChild: true }, createElement("span", { id: "avatar" }, "BA")),
+                  createElement(TooltipContent, null, "Browser Administrator"),
+                ),
+              ),
+            ),
+            createElement(TooltipContent, null, "Assigned to"),
+          ),
+        ),
+      );
+    });
+
+    await act(async () => {
+      document.getElementById("avatar")?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true }));
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    expect(
+      [...document.querySelectorAll('[data-slot="tooltip-content"]')].map((content) => content.firstChild?.textContent),
+    ).toEqual(["Browser Administrator"]);
+    act(() => root.unmount());
+  });
 });
