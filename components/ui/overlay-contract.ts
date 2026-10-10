@@ -28,6 +28,19 @@ export function overlayIconControlClass(variant: OverlayIconControlVariant = "ne
 
 export const OVERLAY_CLOSE_CLASS = `absolute ${overlayIconControlClass()}`;
 
+const SHEET_HANDOFF_MS = 600;
+let sheetHandoffUntil = 0;
+
+export function handOffSheet() {
+  sheetHandoffUntil = Date.now() + SHEET_HANDOFF_MS;
+}
+
+export function isSheetHandoff() {
+  return Date.now() < sheetHandoffUntil;
+}
+
+export const OVERLAY_SIDE_SHEET_CLASS = "w-full gap-0 bg-background sm:max-w-[640px]";
+
 export const OVERLAY_HEADER_ALIGNMENT_CLASS = "text-left";
 
 export const OVERLAY_SCROLL_REGION = "min-h-0 flex-1 overflow-y-auto overscroll-contain";

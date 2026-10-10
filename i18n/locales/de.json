@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Aktionen",
       "bestMatch": "Bester Treffer",
+      "docs": "Dokumentation",
       "listsAndViews": "Listen und Ansichten",
       "pagesAndSettings": "Seiten und Einstellungen",
       "records": "Datensätze",
@@ -3675,6 +3676,14 @@
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "valueSource": {
+      "calculated": "Berechnet · {formula}",
+      "from": "Aus {list} · {value}",
+      "savedOnCreate": "Gespeichert, wenn {list} angelegt wird",
+      "savedOnRequest": "Auf Anfrage gespeichert",
+      "savedWhenChanged": "Gespeichert, wenn sich {field} ändert",
+      "savedWhenChangedTo": "Gespeichert, wenn sich {field} zu {value} ändert"
+    },
     "valueType": "Werttyp",
     "yes": "Ja"
   },

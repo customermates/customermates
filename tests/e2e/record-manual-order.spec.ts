@@ -72,48 +72,38 @@ test("sorts a list in manual order from display options and follows placements",
       .evaluateAll((rows) => rows.map((row) => row.getAttribute("data-row-id")))
       .then((ids) => ids.filter((rowId) => rowId && names.has(rowId)).map((rowId) => names.get(rowId as string)));
 
+  const sortSelect = page.getByRole("combobox", { name: englishMessages.Common.sort.field, exact: true });
+  const manualOption = page.getByRole("option", { name: englishMessages.Common.sort.manual, exact: true });
+  const openAppearance = () => page.getByRole("button", { name: "Appearance", exact: true }).click();
+  const closeAppearance = async () => {
+    if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
+    else await page.keyboard.press("Escape");
+    await expect(page.getByRole("heading", { name: "Appearance", exact: true })).not.toBeVisible();
+  };
+  const expectSortOptionsWithoutManual = async () => {
+    await sortSelect.click();
+    await expect(page.getByRole("option", { name: "Name", exact: true })).toBeVisible();
+    await expect(manualOption).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("option", { name: "Name", exact: true })).toHaveCount(0);
+  };
+
   await page.reload();
-  await page.getByRole("button", { name: "Appearance", exact: true }).click();
-  await page
-    .getByRole("combobox", {
-      name: englishMessages.Common.sort.field,
-      exact: true,
-    })
-    .click();
-  await page
-    .getByRole("option", {
-      name: englishMessages.Common.sort.manual,
-      exact: true,
-    })
-    .click();
-  await expect(
-    page.getByRole("button", {
-      name: englishMessages.Common.sort.ascending,
-      exact: true,
-    }),
-  ).toHaveCount(0);
-  await expect(
-    page.getByRole("button", {
-      name: englishMessages.Common.sort.descending,
-      exact: true,
-    }),
-  ).toHaveCount(0);
-  await page.screenshot({
-    path: testInfo.outputPath("manual-order-display-options.png"),
-    animations: "disabled",
-  });
-  if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
-  else await page.keyboard.press("Escape");
-  await expect
-    .poll(async () => {
-      const result = await database.query('SELECT "sortDescriptor" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
-        companyId,
-        `records:${typeId}`,
-      ]);
-      return result.rows[0]?.sortDescriptor;
-    })
-    .toEqual({ field: "system:manual", direction: "asc" });
+  await openAppearance();
+  await expectSortOptionsWithoutManual();
+  await page.locator("#records-layout-board").click();
+  await expectSortOptionsWithoutManual();
+  await page.locator("#records-layout-table").click();
+  await closeAppearance();
+
+  await page.goto(`/en/records/${typeId}?sort=${encodeURIComponent("system:manual:asc")}`);
   await expect.poll(rowOrder).toEqual(["Manual third", "Manual second", "Manual first"]);
+  await openAppearance();
+  await expect(sortSelect).toContainText(englishMessages.Common.sort.manual);
+  await expect(page.getByRole("button", { name: englishMessages.Common.sort.ascending, exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: englishMessages.Common.sort.descending, exact: true })).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath("manual-order-display-options.png"), animations: "disabled" });
+  await closeAppearance();
 
   const version = async (recordId: string) =>
     (await database.query('SELECT version FROM "CrmRecord" WHERE "companyId"=$1 AND id=$2', [companyId, recordId]))
