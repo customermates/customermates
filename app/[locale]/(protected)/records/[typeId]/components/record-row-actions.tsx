@@ -51,12 +51,14 @@ export const RecordRowActions = observer(function RecordRowActions({
   return (
     <div className="flex items-center justify-end" data-record-row-actions="">
       <div
+        aria-label={name}
         className={cn(
           "hidden items-center gap-1 rounded-md p-0.5 opacity-0 transition-opacity group-hover/card:bg-card group-hover/card:opacity-100 group-hover/row:bg-accent group-hover/row:opacity-100 group-data-[state=selected]/row:bg-selected focus-within:opacity-100 md:pointer-fine:flex",
           layout === "row" &&
             "md:pointer-fine:absolute md:pointer-fine:top-1/2 md:pointer-fine:right-2 md:pointer-fine:-translate-y-1/2",
         )}
         data-row-action-group=""
+        role="group"
       >
         {contextAction && (
           <RowActionButton icon={contextAction.icon} label={contextAction.label} onClick={contextAction.onSelect} />
