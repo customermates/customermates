@@ -63,7 +63,7 @@ describe("configured record interface targets", () => {
       { typeId, recordId, url: "https://example.com" },
     ])
       expect(NavigateInputSchema.safeParse(input).success).toBe(false);
-    expect(agentGuidedTour([{ targetId: `records:${typeId}:search`, note: "Search the list" }])).toMatchObject([
+    expect(agentGuidedTour([{ targetId: `records:${typeId}:filter`, note: "Filter the list" }])).toMatchObject([
       { route: `/records/${typeId}` },
     ]);
   });

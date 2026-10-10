@@ -536,6 +536,12 @@ export function calculatedFieldLabel(
     : t("RecordModel.calculatedValuePlain");
 }
 
+export function CalculatedFieldText({ field, model }: { field: RecordFieldView; model: SentenceModel }) {
+  const t = useTranslations();
+  const valueFormat = useRecordValueFormat();
+  return calculatedFieldLabel(field, model, t, valueFormat);
+}
+
 export function RecordCalculatedValue({
   field,
   model,
@@ -545,8 +551,6 @@ export function RecordCalculatedValue({
   model: SentenceModel;
   children: ReactNode;
 }) {
-  const t = useTranslations();
-  const valueFormat = useRecordValueFormat();
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -555,7 +559,9 @@ export function RecordCalculatedValue({
         </span>
       </TooltipTrigger>
 
-      <TooltipContent>{calculatedFieldLabel(field, model, t, valueFormat)}</TooltipContent>
+      <TooltipContent>
+        <CalculatedFieldText field={field} model={model} />
+      </TooltipContent>
     </Tooltip>
   );
 }
