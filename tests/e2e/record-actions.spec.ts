@@ -22,19 +22,30 @@ async function setListColor(page: Page, typeId: string, color: string) {
   });
 }
 
-test("records list header keeps Configure icon-only and left of the primary Add action", async ({ page, companyId }) => {
+test("records list top bar orders Filter, Appearance and More actions before Add and keeps Configure in the menu", async ({
+  page,
+  companyId,
+}) => {
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const header = page.locator("header.sticky");
-  const configure = header.locator("#records-configure");
-  const add = header.locator("#records-add");
-  await expect(configure).toBeVisible();
-  await expect(add).toBeVisible();
-  await expect(configure).toHaveAccessibleName("Configure");
-  await expect(configure).toHaveText("");
-  const [configureBox, addBox] = await Promise.all([configure.boundingBox(), add.boundingBox()]);
-  expect(configureBox!.x).toBeLessThan(addBox!.x);
-  await configure.hover();
-  await expect(page.getByRole("tooltip", { name: "Configure" })).toBeVisible();
+  const controls = ["#records-filter", "#records-display-options", "#records-more", "#records-add"].map((id) =>
+    header.locator(id),
+  );
+  for (const control of controls) await expect(control).toBeVisible();
+  await expect(header.locator("#records-search")).toHaveCount(0);
+  await expect(header.locator("#records-configure")).toHaveCount(0);
+  const boxes = await Promise.all(controls.map((control) => control.boundingBox()));
+  for (let index = 1; index < boxes.length; index += 1) expect(boxes[index - 1]!.x).toBeLessThan(boxes[index]!.x);
+  const more = header.locator("#records-more");
+  await expect(more).toHaveAccessibleName("More actions");
+  await more.hover();
+  await expect(page.getByRole("tooltip", { name: "More actions" })).toBeVisible();
+  await more.click();
+  const menu = page.getByRole("menu");
+  await expect(menu.getByRole("menuitem", { name: "Export", exact: true })).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Configure Contacts", exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
 });
 
 test("record drawer keeps record actions icon-only in the header row next to Close", async ({ page, companyId }) => {
