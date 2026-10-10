@@ -12,11 +12,6 @@ export type ExpiredTrashRepo = {
   ): Promise<Array<{ companyId: string; actorUserId: string | null }>>;
 };
 
-/**
- * Daily retention: walks every company with expired Trash items, page by page, and starts one purge per company. The
- * purge acts as the company's system-role user (an active one when there is one) and records its changes as the
- * system, so companies without an active administrator are purged too.
- */
 @SystemInteractor
 export class PurgeExpiredTrashInteractor {
   constructor(

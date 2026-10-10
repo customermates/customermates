@@ -41,5 +41,4 @@ export interface TrashRepo {
   deletedBy(userIds: string[]): Promise<Map<string, TrashDeletedBy>>;
 }
 
-/** Position after the last expired item a retention batch handled; items that failed stay behind it. */
 export type TrashExpiryCursor = { expiresAt: string; id: string };

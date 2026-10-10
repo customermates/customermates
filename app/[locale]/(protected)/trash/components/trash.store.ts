@@ -197,13 +197,10 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     store.open();
   }
 
-  /** Items that went to the background or failed stay in Trash, so the toast must not claim they are gone. */
   private reportDeletion(result: TrashDeletionResult) {
-    const successKey = result.failedItemIds.length
-      ? "Trash.deletionPartlyFailed"
-      : result.pendingItemIds.length
-        ? "Trash.deletionPending"
-        : "Trash.deletedPermanently";
+    let successKey = "Trash.deletedPermanently";
+    if (result.pendingItemIds.length) successKey = "Trash.deletionPending";
+    if (result.failedItemIds.length) successKey = "Trash.deletionPartlyFailed";
     runInAction(() => {
       this.rootStore.deleteConfirmationModalStore.form.successKey = successKey;
     });

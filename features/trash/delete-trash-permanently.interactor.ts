@@ -21,10 +21,6 @@ import { itemsByHandler, trashDeletionPreview, trashVisibility } from "./trash-h
 
 export type TrashPurgeOutcome = Pick<TrashDeletionResult, "deletedItemIds" | "pendingItemIds" | "failedItemIds">;
 
-/**
- * Purges item by item, each in its own savepoint: a failing item is skipped and reported, never rolling back the rest.
- * An item still in Trash after its handler succeeded continues in the background (a large list) and is pending.
- */
 export async function purgeTrashItems(
   trash: Pick<TrashRepo, "find">,
   handlers: TrashKindHandler[],

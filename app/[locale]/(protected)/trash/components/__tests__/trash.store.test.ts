@@ -24,7 +24,7 @@ const ITEM_ID = "40000000-0000-4000-8000-000000000002";
 function makeStore({ isSystemRole = true } = {}) {
   const invalidate = vi.fn(() => Promise.resolve());
   const refreshNavigation = vi.fn(() => Promise.resolve());
-  const deleteConfirmation = { onInitOrRefresh: vi.fn(), open: vi.fn() };
+  const deleteConfirmation = { onInitOrRefresh: vi.fn(), open: vi.fn(), form: {} as { successKey?: string } };
   const store = new TrashStore({
     localeStore: {
       getTranslation: (key: string, values?: Record<string, unknown>) =>
@@ -112,7 +112,10 @@ describe("TrashStore", () => {
         impactHash: "a".repeat(64),
       },
     });
-    trashActions.deleteTrashPermanentlyAction.mockResolvedValue({ ok: true, data: { deletedItemIds: [ITEM_ID] } });
+    trashActions.deleteTrashPermanentlyAction.mockResolvedValue({
+      ok: true,
+      data: { deletedItemIds: [ITEM_ID], pendingItemIds: [], failedItemIds: [] },
+    });
     trashActions.getTrashAction.mockResolvedValue({ items: [] });
 
     await store.requestPermanentDelete([ITEM_ID], "Acme");
@@ -130,5 +133,29 @@ describe("TrashStore", () => {
       itemIds: [ITEM_ID],
       expectedImpactHash: "a".repeat(64),
     });
+    expect(deleteConfirmation.form.successKey).toBe("Trash.deletedPermanently");
+  });
+
+  it("does not report a permanent delete that continues in the background as done", async () => {
+    const { store, deleteConfirmation } = makeStore();
+    trashActions.previewTrashDeletionAction.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [{ itemId: ITEM_ID, kind: "list", label: "Projects" }],
+        removedRecords: [],
+        removedLinks: 0,
+        impactHash: "b".repeat(64),
+      },
+    });
+    trashActions.deleteTrashPermanentlyAction.mockResolvedValue({
+      ok: true,
+      data: { deletedItemIds: [], pendingItemIds: [ITEM_ID], failedItemIds: [] },
+    });
+    trashActions.getTrashAction.mockResolvedValue({ items: [] });
+
+    await store.requestPermanentDelete([ITEM_ID], "Projects");
+
+    expect(await deleteConfirmation.onInitOrRefresh.mock.calls[0][0].onConfirm()).toBe(true);
+    expect(deleteConfirmation.form.successKey).toBe("Trash.deletionPending");
   });
 });

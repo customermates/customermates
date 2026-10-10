@@ -7,14 +7,12 @@ import { purgeTrashItems } from "./delete-trash-permanently.interactor";
 export const TRASH_PURGE_BATCH_SIZE = 100;
 
 export type CompanyTrashPurgeBatch = {
-  /** Where the next batch starts; null when this company has no more expired items. */
   next: TrashExpiryCursor | null;
   deleted: number;
   pending: number;
   failed: number;
 };
 
-/** One batch of the retention job. Every item runs in its own savepoint, so a failing item is skipped, never retried. */
 export function purgeExpiredCompanyTrash(
   trash: TrashRepo,
   handlers: TrashKindHandler[],

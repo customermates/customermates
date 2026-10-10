@@ -914,8 +914,6 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         where: { companyId: this.companyId, kind: { in: ["list", "field", "relationship", "channels"] } },
         select: { id: true, kind: true, targetId: true, typeId: true },
       });
-      // Besides the named targets and the items of a removed list, drop every item whose target the change removed,
-      // such as a trashed relationship to a list deleted permanently, so no orphan blocks Trash later.
       const present = new Set([
         ...model.types.map((type) => type.id),
         ...model.fields.map((field) => field.id),

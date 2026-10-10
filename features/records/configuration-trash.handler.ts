@@ -16,7 +16,6 @@ import { RecordWriteError } from "./record-write-error";
 const CONFIGURATION_KINDS = ["list", "field", "relationship", "channels"] as const;
 const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2, channels: 3 };
 
-/** Whether the item's list, field, relationship or Channels field still exists (archived) in the model. */
 function targetExists(model: RecordModel, item: TrashItem) {
   if (item.kind === "list") return model.types.some((type) => type.id === item.targetId);
   if (item.kind === "field") return model.fields.some((field) => field.id === item.targetId);
@@ -101,7 +100,6 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     let removedLinks: number | null = 0;
     for (const item of items) {
       const preview = await this.preview.run(await this.change(item, "deletePermanently"));
-      // An item that can't be previewed removes nothing; deleting it permanently skips or clears it per item.
       if (!preview.ok) continue;
       const removed = preview.data.deletion?.removed;
       if (!removed) continue;
@@ -120,12 +118,10 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
   async purge(items: TrashItem[]): Promise<void> {
     for (const item of [...items].sort((left, right) => ORDER[right.kind] - ORDER[left.kind])) {
       if (!targetExists(await this.records.getModel(), item)) {
-        // Its target is already gone, for example a relationship to a list deleted permanently: only the item is left.
         await this.trash.remove([item.id]);
         continue;
       }
       const applied = await this.apply.run(await this.change(item, "deletePermanently"));
-      // A large list is deleted in the background; its item stays in Trash until that operation completes.
       if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashChanged, "conflict");
     }
   }

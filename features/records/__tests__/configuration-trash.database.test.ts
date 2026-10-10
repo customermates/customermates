@@ -452,21 +452,21 @@ describeDatabase("configuration trash", () => {
       );
       return (await f.items()).find((item) => item.targetId === f.id("deal.notes"));
     };
-    // A relationship item without its relationship, as left behind before this fix.
     const stale = await orphan("relationship");
     const notes = await deleteNotes();
     expect(await f.as(() => f.trash.restore.invoke({ itemIds: [stale.id, notes?.id ?? ""] }))).toMatchObject({
       ok: true,
       data: { restoredItemIds: [notes?.id], blocked: [{ itemId: stale.id, reason: "notFound" }] },
     });
-    const preview = await f.as(() => f.trash.preview.invoke({ itemIds: [stale.id] }));
+    expect(await f.items()).toEqual([]);
+    const leftover = await orphan("relationship");
+    const preview = await f.as(() => f.trash.preview.invoke({ itemIds: [leftover.id] }));
     if (!preview.ok) throw new Error(JSON.stringify(preview));
     expect(
-      await f.as(() => f.trash.remove.invoke({ itemIds: [stale.id], expectedImpactHash: preview.data.impactHash })),
-    ).toMatchObject({ ok: true, data: { deletedItemIds: [stale.id], failedItemIds: [] } });
+      await f.as(() => f.trash.remove.invoke({ itemIds: [leftover.id], expectedImpactHash: preview.data.impactHash })),
+    ).toMatchObject({ ok: true, data: { deletedItemIds: [leftover.id], failedItemIds: [] } });
     expect(await f.items()).toEqual([]);
 
-    // A handler that always fails, standing in for any item that can't be purged.
     const failing = {
       kinds: ["widget"] as const,
       restoreOrder: 9,
@@ -500,7 +500,6 @@ describeDatabase("configuration trash", () => {
     await runWithoutTenant(() =>
       prisma.trashItem.updateMany({ where: { companyId }, data: { expiresAt: new Date(Date.now() - 1000) } }),
     );
-    // No active administrator: the job still purges, as the company's system-role user.
     await runWithoutTenant(() => prisma.user.update({ where: { id: f.admin.id }, data: { status: "inactive" } }));
     const dispatched: unknown[] = [];
     await new PurgeExpiredTrashInteractor(
@@ -568,7 +567,6 @@ describeDatabase("configuration trash", () => {
       f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
     );
     const before = (await f.items()).map((item) => [item.kind, item.targetId, item.label, item.deletedById]);
-    // The organization's Notes field was deleted before its list, so it keeps its own item and comes back with it.
     expect(before.map(([kind, targetId]) => [kind, targetId])).toEqual([
       ["field", f.id("deal.notes")],
       ["field", f.id("organization.notes")],
