@@ -132,10 +132,21 @@ test("board columns add a record with the column value, open the option, and col
   await expect(won).toHaveAttribute("data-kanban-strip", "");
   await expect.poll(async () => (await storedGrouping())?.hideEmpty).toBeUndefined();
 
+  const optionRow = page.locator(`[data-focus-target="option:${id("deal.stage")}.${id("deal.stage.new")}"]`);
   await open.getByRole("button", { name: "More actions for New", exact: true }).click();
   await page.getByRole("menuitem", { name: "Edit option", exact: true }).click();
-  await expect(page).toHaveURL(
-    new RegExp(`/configure\\?typeId=${typeId}&tab=fields&focus=${encodeURIComponent(`field:${id("deal.stage")}`)}`),
-  );
+  await expect(page).toHaveURL(new RegExp(`/configure\\?typeId=${typeId}&tab=fields`));
+  await expect(optionRow).toBeVisible();
+  await expect(optionRow).toHaveAttribute("data-focus-highlight", "");
+  await page.screenshot({ path: testInfo.outputPath("board-edit-option.png"), animations: "disabled" });
+
+  await page.goto(`/en/records/${typeId}`);
+  const chip = open.locator("[data-kanban-edit-option]");
+  await chip.hover();
+  await expect(page.getByRole("tooltip")).toHaveText("Edit field");
+  await chip.focus();
+  await page.keyboard.press("Enter");
+  await expect(optionRow).toBeVisible();
+  await expect(optionRow).toHaveAttribute("data-focus-highlight", "");
   expect(errors).toEqual([]);
 });
