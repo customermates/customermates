@@ -212,6 +212,9 @@ test("resolves a request with conditions to a filtered list and falls back to As
   await expect(page).toHaveURL(new RegExp(`/en/records/${id("deal")}\\?.*filters=`));
   await expect(page.getByText(`Won resolver deal ${suffix}`).first()).toBeVisible({ timeout: 30000 });
   await expect(page.getByText(`Open resolver deal ${suffix}`)).toHaveCount(0);
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
+  await expect(page.locator("#records-filter-save")).toBeVisible();
+  await expect(page.locator("#records-filter-reset")).toBeVisible();
 
   const again = await openPalette(page);
   await again.fill("something nobody configured here");
