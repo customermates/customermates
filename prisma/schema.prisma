@@ -1632,7 +1632,6 @@ enum TrashKind {
   list
   field
   relationship
-  channels
   view
   widget
   routine

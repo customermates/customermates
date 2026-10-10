@@ -541,13 +541,15 @@ export class RecordConfigurationService extends UserAccessor {
             const kind = consumer.key.startsWith("view:") ? "view" : "personalLayout";
             const id = consumer.key.slice(consumer.key.indexOf(":") + 1);
             cleanups.push({ kind, id, state });
-            cleaned.push({
-              consumer: { kind, id, typeId: consumer.typeId, label: consumer.name ?? "" },
-              target: cause,
-            });
+            if (!consumer.trashed) {
+              cleaned.push({
+                consumer: { kind, id, typeId: consumer.typeId, label: consumer.name ?? "" },
+                target: cause,
+              });
+            }
             continue;
           }
-          if (blockedTypes.has(consumer.typeId)) continue;
+          if (consumer.trashed || blockedTypes.has(consumer.typeId)) continue;
           {
             blockedTypes.add(consumer.typeId);
             validation.issues.push({
@@ -572,10 +574,12 @@ export class RecordConfigurationService extends UserAccessor {
           if (measure) {
             cleanups.push({ kind: "widget", id: widget.id, measure });
             const counts = measure.aggregation === "count" && widget.measure.aggregation !== "count";
-            cleaned.push({ consumer, target: cause, ...(counts ? { effect: "countsRecords" as const } : {}) });
-          } else blockers.push({ reason: "widget", source: consumer, target: cause });
+            if (!widget.trashed)
+              cleaned.push({ consumer, target: cause, ...(counts ? { effect: "countsRecords" as const } : {}) });
+          } else if (!widget.trashed) blockers.push({ reason: "widget", source: consumer, target: cause });
           continue;
         }
+        if (widget.trashed) continue;
         {
           validation.issues.push({
             code: "widget_incompatible",
@@ -590,7 +594,8 @@ export class RecordConfigurationService extends UserAccessor {
     let activityWidgetCursor = "";
     for (;;) {
       const widgets = await this.records.getActivityWidgetQueriesCompanyWide(activityWidgetCursor);
-      for (const { id, name, query } of widgets) {
+      for (const { id, name, query, trashed } of widgets) {
+        if (trashed) continue;
         const typeIds = [
           ...query.scope.typeIds,
           ...query.scope.records.map((ref) => ref.typeId),

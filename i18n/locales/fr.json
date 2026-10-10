@@ -761,7 +761,7 @@
       "cronExpression": "Planification",
       "currency": "Devise",
       "debounceSeconds": "Délai d’attente",
-      "delete": "Supprimé",
+      "delete": "Placé dans la corbeille",
       "deletePermanently": "Supprimé définitivement",
       "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
@@ -1835,7 +1835,6 @@
       "kind": {
         "activityTimelineDescription": "Suivez les modifications d'enregistrements, les messages et l'activité des comptes ou agendas dans l'ordre chronologique.",
         "change": "Choisir un autre widget",
-        "chartDescription": "Comparez vos données CRM dans un graphique.",
         "description": "Choisissez un format et sélectionnez vous-même les données.",
         "scratchTitle": "Partir de zéro",
         "title": "Choisir un widget"
@@ -1855,6 +1854,40 @@
       "sharing": {
         "template": "Partager comme modèle"
       },
+      "starters": {
+        "areaChart": {
+          "description": "Montrer l’évolution d’une valeur dans le temps.",
+          "title": "Aire dans le temps"
+        },
+        "doughnutChart": {
+          "description": "Montrer comment un total se répartit.",
+          "title": "Anneau"
+        },
+        "funnelChart": {
+          "description": "Suivre les éléments à travers les étapes d’un champ de choix.",
+          "title": "Entonnoir"
+        },
+        "horizontalBarChart": {
+          "description": "Comparer des groupes aux noms plus longs.",
+          "title": "Barres horizontales"
+        },
+        "number": {
+          "description": "Un total, comme un décompte ou une somme.",
+          "title": "Nombre"
+        },
+        "radarChart": {
+          "description": "Comparer des groupes sur une échelle commune.",
+          "title": "Radar"
+        },
+        "rankedTable": {
+          "description": "Lister les principaux groupes dans l’ordre.",
+          "title": "Tableau classé"
+        },
+        "verticalBarChart": {
+          "description": "Comparer une valeur entre groupes.",
+          "title": "Diagramme en barres"
+        }
+      },
       "steps": {
         "chooseDescription": "Commencez par une recommandation, un format vierge ou une configuration partagée dans votre espace de travail.",
         "configureDescription": "Choisissez ce que ce widget affiche et son apparence."
@@ -1870,56 +1903,8 @@
         "title": "Partir d'un modèle"
       }
     },
-    "widgetGallery": {
-      "creationDate": "date de création",
-      "description": "Suggestions créées à partir des types d’enregistrement et des champs de votre espace de travail. Vous pouvez tout modifier avant d’enregistrer.",
-      "recipes": {
-        "countBySelect": {
-          "description": "Nombre de {type} pour chaque {group}.",
-          "name": "{type} par {group}"
-        },
-        "countPerMember": {
-          "description": "Nombre de {type} pour chaque {group}.",
-          "name": "{type} par {group}"
-        },
-        "openCountPerAssignee": {
-          "description": "{type} qui ne sont pas dans un {group} clôturé, comptés pour chaque utilisateur assigné.",
-          "name": "{type} ouverts par responsable"
-        },
-        "openValueTotal": {
-          "description": "Total de {field} des {type} qui ne sont pas dans un {group} clôturé.",
-          "name": "{field} en cours"
-        },
-        "stageFunnel": {
-          "description": "{type} à chaque {group}, dans l’ordre, avec la conversion d’une étape à l’autre.",
-          "name": "{type} par {group}"
-        },
-        "topRelatedByValue": {
-          "description": "{related} classés selon le {field} de leurs {type} liés, avec la part de chacun dans le total.",
-          "name": "Meilleurs {related} par {field}"
-        },
-        "topRelatedByWonValue": {
-          "description": "{related} classés selon le {field} de leurs {type} gagnés, avec la part de chacun dans le total.",
-          "name": "Meilleurs {related} par {field} gagné"
-        },
-        "valueOverTime": {
-          "description": "{field} des {type} par mois, selon {date}.",
-          "name": "{field} par mois"
-        },
-        "valueTotal": {
-          "description": "Somme de {field} sur tous les {type}.",
-          "name": "{field} total"
-        },
-        "wonValueOverTime": {
-          "description": "{field} des {type} gagnés par mois, selon {date}.",
-          "name": "{field} gagné par mois"
-        }
-      },
-      "title": "Recommandé pour vos données"
-    },
     "widgetKinds": {
-      "activityTimeline": "Chronologie des activités",
-      "chart": "Graphique"
+      "activityTimeline": "Chronologie des activités"
     }
   },
   "DataTransfer": {
@@ -1966,6 +1951,9 @@
     "expandColumn": "Développer {name}",
     "expandGroup": "Développer le groupe {group}",
     "groupOverflow": "Seuls {count} groupes sont affichés",
+    "hiddenColumns": "Colonnes masquées",
+    "hideColumn": "Masquer la colonne",
+    "hideEmptyColumns": "Masquer les colonnes vides",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "moreActions": "Plus d’actions",
     "noValue": "Aucune valeur",
@@ -3247,7 +3235,6 @@
       "cleaned": {
         "bindingAvatar": "{target} n’est plus utilisé comme photo de profil de {consumers}.",
         "bindingCalendar": "{target} n’est plus utilisé pour les événements d’agenda de {consumers}.",
-        "bindingChannels": "{target} n’est plus utilisé pour les canaux dans {consumers}.",
         "listDefaults": "{target} est retiré de la mise en page par défaut de {consumers}.",
         "nameField": "{consumers} sera affiché avec {replacement} à la place.",
         "nameFieldNone": "{consumers} n’a plus de champ pour nommer ses éléments, ils s’affichent donc sans nom.",
@@ -3262,13 +3249,9 @@
       "deleteColumn": "Supprimer la colonne",
       "deleteColumnMessage": "La colonne d’enregistrements liés {name} est retirée de {list}.",
       "deleteColumnTitle": "Supprimer la colonne {name} ?",
-      "deletedBy": "Supprimé",
       "deleteField": "Supprimer le champ",
       "deleteList": "Supprimer la liste",
-      "deleteMessage": "{name} est déplacé dans Supprimés récemment dans Configurer. Vous pouvez l’y restaurer.",
-      "deletePermanently": "Supprimer définitivement",
-      "deletePermanentlyMessage": "Cela supprime définitivement {name} et tout ce qui y est enregistré. Cette action est irréversible.",
-      "deletePermanentlyTitle": "Supprimer {name} définitivement ?",
+      "deleteMessage": "{name} est déplacé dans la Corbeille. Vous pouvez l’y restaurer pendant 30 jours.",
       "deleteRelationship": "Supprimer la relation",
       "deleteTitle": "Supprimer {name} ?",
       "issues": {
@@ -3279,32 +3262,7 @@
         "savedView": "Des vues enregistrées ou mises en page personnelles utilisent encore {subject}.",
         "summaryApproval": "{subject} nécessite une nouvelle approbation du résumé."
       },
-      "kind": "Type",
-      "kinds": {
-        "field": "Champ",
-        "relationship": "Relation",
-        "type": "Liste"
-      },
-      "list": "Liste",
-      "moved": "Déplacé dans Supprimés récemment",
-      "noAccess": "Seules les personnes qui gèrent le modèle de données voient Supprimés récemment.",
-      "openConfigure": "Ouvrir Configurer",
-      "recentlyDeleted": "Supprimés récemment",
-      "recentlyDeletedEmpty": "Rien n’a été supprimé",
-      "recentlyDeletedHelp": "Les listes, champs, relations et champs des canaux supprimés restent ici jusqu’à ce que vous les restauriez ou les supprimiez définitivement.",
-      "removed": {
-        "grants": "{count, plural, one {# droit de rôle} other {# droits de rôle}}",
-        "hidden": "Contient des fiches que vous ne pouvez pas voir.",
-        "identifiers": "{count, plural, one {# identifiant} other {# identifiants}} sur {records, plural, one {# enregistrement} other {# enregistrements}}",
-        "links": "{count, plural, one {# lien entre enregistrements} other {# liens entre enregistrements}}",
-        "nothingStored": "Aucune donnée enregistrée n’est supprimée.",
-        "records": "{count, plural, one {# enregistrement} other {# enregistrements}}",
-        "values": "{count, plural, one {# valeur enregistrée} other {# valeurs enregistrées}}",
-        "views": "{count, plural, one {# vue enregistrée ou mise en page personnelle} other {# vues enregistrées ou mises en page personnelles}}"
-      },
-      "restore": "Restaurer",
-      "restoreMessage": "{name} ne peut pas encore être restauré.",
-      "restoreTitle": "Restaurer {name}"
+      "moved": "Déplacé dans la Corbeille"
     },
     "configure": "Configurer",
     "configureList": "Configurer {list}",
@@ -3977,16 +3935,15 @@
   "SidebarCustomize": {
     "deleteSection": "Supprimer la section",
     "deleteSectionEmpty": "La section est vide, aucun élément n'est déplacé.",
-    "deleteSectionMoves": "Ses éléments retournent à leur place par défaut dans votre barre latérale ; les éléments masqués restent masqués :",
+    "deleteSectionMoves": "Ses éléments passent au niveau supérieur de votre barre latérale ; les éléments masqués restent masqués :",
     "deleteSectionTitle": "Supprimer la section « {section} » ?",
     "dragItem": "Déplacer {item}",
     "dragSection": "Déplacer la section {section}",
     "emptySection": "Glissez des éléments ici ou utilisez Déplacer vers la section",
     "hide": "Masquer de la barre latérale",
-    "hint": "Faites glisser les poignées pour réorganiser les éléments et les sections, ou utilisez les menus …. Cliquez sur le nom d'une section personnelle pour la renommer.",
+    "hint": "Faites glisser les poignées pour réorganiser les éléments et les sections, ou utilisez les menus …. Les éléments peuvent se trouver au niveau supérieur ou dans une section. Cliquez sur le nom d’une section pour la renommer.",
     "itemActions": "Options pour {item}",
     "moveDown": "Descendre",
-    "movesBackTo": "{item} retourne dans {section}",
     "moveToSection": "Déplacer vers la section",
     "moveUp": "Monter",
     "newSection": "Nouvelle section",
@@ -4000,7 +3957,8 @@
     "sectionDeleted": "Section supprimée",
     "sectionName": "Nom de la section",
     "show": "Afficher {item}",
-    "title": "Personnaliser la barre latérale"
+    "title": "Personnaliser la barre latérale",
+    "topLevel": "Niveau supérieur"
   },
   "SignInForm": {
     "agreeToTerms": "En continuant, vous acceptez nos <termsOfServiceLink>conditions générales</termsOfServiceLink> et reconnaissez avoir lu notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>. Consultez notre <dpaLink>DPA</dpaLink>.",
@@ -4133,7 +4091,6 @@
     "inTrash": "Dans la corbeille",
     "kindInList": "{kind} dans {list}",
     "kinds": {
-      "channels": "Canaux",
       "dashboardView": "Vue du tableau de bord",
       "field": "Champ",
       "list": "Liste",

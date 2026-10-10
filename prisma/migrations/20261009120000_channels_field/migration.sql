@@ -9,7 +9,8 @@
 -- record detail layout stores it, and is removed where the list has no live Channels field. Stored
 -- configuration changes are converted too: putCapability for channels becomes putField, and delete, restore,
 -- deletePermanently and deletion records that target channels now target the field. Identifiers and their
--- links to records ("RecordIdentity", "RecordIdentityKey", "RecordIdentityLink") are not touched.
+-- links to records ("RecordIdentity", "RecordIdentityKey", "RecordIdentityLink") are not touched. Trash entries of
+-- the retired kind channels become field entries for the same id, and the TrashKind enum loses channels.
 -- Re-running the migration changes nothing.
 
 CREATE SCHEMA channels_field_upgrade;
@@ -269,6 +270,23 @@ SET "columnOrder" = channels_field_upgrade.rekey_list(personalization."columnOrd
 FROM (SELECT id, channels_field_upgrade.surface_field_id("companyId", "p13nId") AS field_id FROM "P13n") AS target
 WHERE target.id = personalization.id
   AND to_jsonb(personalization)::text LIKE '%system:channels%';
+
+UPDATE "TrashItem" item
+SET kind = 'field',
+  label = coalesce((
+    SELECT current.field ->> 'label' FROM channels_field_upgrade.current_field AS current
+    WHERE current.company_id = item."companyId" AND current.field ->> 'id' = item."targetId"), item.label)
+WHERE item.kind::text = 'channels'
+  AND NOT EXISTS (
+    SELECT 1 FROM "TrashItem" other
+    WHERE other."companyId" = item."companyId" AND other.kind::text = 'field' AND other."targetId" = item."targetId");
+
+DELETE FROM "TrashItem" WHERE kind::text = 'channels';
+
+ALTER TYPE "TrashKind" RENAME TO "TrashKind_channels_upgrade";
+CREATE TYPE "TrashKind" AS ENUM ('record', 'list', 'field', 'relationship', 'view', 'widget', 'routine', 'wikiPage');
+ALTER TABLE "TrashItem" ALTER COLUMN kind TYPE "TrashKind" USING kind::text::"TrashKind";
+DROP TYPE "TrashKind_channels_upgrade";
 
 DO $$
 BEGIN

@@ -1787,6 +1787,10 @@
                               },
                               {
                                 "type": "string",
+                                "const": "system:channels"
+                              },
+                              {
+                                "type": "string",
                                 "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                               },
                               {
@@ -1820,6 +1824,10 @@
                               },
                               {
                                 "type": "string",
+                                "const": "system:channels"
+                              },
+                              {
+                                "type": "string",
                                 "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                               },
                               {
@@ -1850,6 +1858,10 @@
                                     ]
                                   }
                                 ]
+                              },
+                              {
+                                "type": "string",
+                                "const": "system:channels"
                               },
                               {
                                 "type": "string",
@@ -1893,6 +1905,10 @@
                                     ]
                                   }
                                 ]
+                              },
+                              {
+                                "type": "string",
+                                "const": "system:channels"
                               },
                               {
                                 "type": "string",
@@ -2055,6 +2071,10 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "system:channels"
+                                },
+                                {
+                                  "type": "string",
                                   "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                                 },
                                 {
@@ -2088,6 +2108,10 @@
                                 },
                                 {
                                   "type": "string",
+                                  "const": "system:channels"
+                                },
+                                {
+                                  "type": "string",
                                   "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                                 },
                                 {
@@ -2118,6 +2142,10 @@
                                       ]
                                     }
                                   ]
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "system:channels"
                                 },
                                 {
                                   "type": "string",
@@ -2204,6 +2232,10 @@
                               },
                               {
                                 "type": "string",
+                                "const": "system:channels"
+                              },
+                              {
+                                "type": "string",
                                 "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                               },
                               {
@@ -2237,6 +2269,10 @@
                               },
                               {
                                 "type": "string",
+                                "const": "system:channels"
+                              },
+                              {
+                                "type": "string",
                                 "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                               },
                               {
@@ -2267,6 +2303,10 @@
                                     ]
                                   }
                                 ]
+                              },
+                              {
+                                "type": "string",
+                                "const": "system:channels"
                               },
                               {
                                 "type": "string",
@@ -2310,6 +2350,10 @@
                                     ]
                                   }
                                 ]
+                              },
+                              {
+                                "type": "string",
+                                "const": "system:channels"
                               },
                               {
                                 "type": "string",
@@ -3272,8 +3316,7 @@
                                                     "email",
                                                     "phone",
                                                     "url",
-                                                    "member",
-                                                    "channels"
+                                                    "member"
                                                   ]
                                                 },
                                                 "format": {
@@ -3325,7 +3368,7 @@
                                                       ]
                                                     },
                                                     "onClick": {
-                                                      "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                                      "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                                       "anyOf": [
                                                         {
                                                           "type": "string",
@@ -3338,10 +3381,6 @@
                                                           "type": "null"
                                                         }
                                                       ]
-                                                    },
-                                                    "providerAvatar": {
-                                                      "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                                      "type": "boolean"
                                                     }
                                                   },
                                                   "additionalProperties": false
@@ -4024,8 +4063,7 @@
                                                     "email",
                                                     "phone",
                                                     "url",
-                                                    "member",
-                                                    "channels"
+                                                    "member"
                                                   ]
                                                 },
                                                 "format": {
@@ -4077,7 +4115,7 @@
                                                       ]
                                                     },
                                                     "onClick": {
-                                                      "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                                      "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                                       "anyOf": [
                                                         {
                                                           "type": "string",
@@ -4090,10 +4128,6 @@
                                                           "type": "null"
                                                         }
                                                       ]
-                                                    },
-                                                    "providerAvatar": {
-                                                      "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                                      "type": "boolean"
                                                     }
                                                   },
                                                   "additionalProperties": false
@@ -11358,7 +11392,7 @@
                                 ]
                               },
                               "includeIdentities": {
-                                "description": "Include registered identifiers for returned records of a list with a Channels field.",
+                                "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                                 "type": "boolean"
                               },
                               "search": {
@@ -13340,7 +13374,7 @@
                                   ]
                                 },
                                 "includeIdentities": {
-                                  "description": "Include registered identifiers for returned records of a list with a Channels field.",
+                                  "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                                   "type": "boolean"
                                 },
                                 "search": {
@@ -18643,8 +18677,7 @@
                                                                 "email",
                                                                 "phone",
                                                                 "url",
-                                                                "member",
-                                                                "channels"
+                                                                "member"
                                                               ]
                                                             },
                                                             "format": {
@@ -18696,7 +18729,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                                                  "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -18709,10 +18742,6 @@
                                                                       "type": "null"
                                                                     }
                                                                   ]
-                                                                },
-                                                                "providerAvatar": {
-                                                                  "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                                                  "type": "boolean"
                                                                 }
                                                               },
                                                               "additionalProperties": false
@@ -19395,8 +19424,7 @@
                                                                 "email",
                                                                 "phone",
                                                                 "url",
-                                                                "member",
-                                                                "channels"
+                                                                "member"
                                                               ]
                                                             },
                                                             "format": {
@@ -19448,7 +19476,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                                                  "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -19461,10 +19489,6 @@
                                                                       "type": "null"
                                                                     }
                                                                   ]
-                                                                },
-                                                                "providerAvatar": {
-                                                                  "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                                                  "type": "boolean"
                                                                 }
                                                               },
                                                               "additionalProperties": false
@@ -22519,7 +22543,7 @@
                                   ]
                                 },
                                 "includeIdentities": {
-                                  "description": "Include registered identifiers for returned records of a list with a Channels field.",
+                                  "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                                   "type": "boolean"
                                 },
                                 "search": {
@@ -27822,8 +27846,7 @@
                                                                 "email",
                                                                 "phone",
                                                                 "url",
-                                                                "member",
-                                                                "channels"
+                                                                "member"
                                                               ]
                                                             },
                                                             "format": {
@@ -27875,7 +27898,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                                                  "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -27888,10 +27911,6 @@
                                                                       "type": "null"
                                                                     }
                                                                   ]
-                                                                },
-                                                                "providerAvatar": {
-                                                                  "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                                                  "type": "boolean"
                                                                 }
                                                               },
                                                               "additionalProperties": false
@@ -28574,8 +28593,7 @@
                                                                 "email",
                                                                 "phone",
                                                                 "url",
-                                                                "member",
-                                                                "channels"
+                                                                "member"
                                                               ]
                                                             },
                                                             "format": {
@@ -28627,7 +28645,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                                                  "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -28640,10 +28658,6 @@
                                                                       "type": "null"
                                                                     }
                                                                   ]
-                                                                },
-                                                                "providerAvatar": {
-                                                                  "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                                                  "type": "boolean"
                                                                 }
                                                               },
                                                               "additionalProperties": false
@@ -31694,7 +31708,7 @@
                                         ]
                                       },
                                       "includeIdentities": {
-                                        "description": "Include registered identifiers for returned records of a list with a Channels field.",
+                                        "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                                         "type": "boolean"
                                       },
                                       "search": {
@@ -36997,8 +37011,7 @@
                                                                       "email",
                                                                       "phone",
                                                                       "url",
-                                                                      "member",
-                                                                      "channels"
+                                                                      "member"
                                                                     ]
                                                                   },
                                                                   "format": {
@@ -37050,7 +37063,7 @@
                                                                         ]
                                                                       },
                                                                       "onClick": {
-                                                                        "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                                                        "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                                                         "anyOf": [
                                                                           {
                                                                             "type": "string",
@@ -37063,10 +37076,6 @@
                                                                             "type": "null"
                                                                           }
                                                                         ]
-                                                                      },
-                                                                      "providerAvatar": {
-                                                                        "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                                                        "type": "boolean"
                                                                       }
                                                                     },
                                                                     "additionalProperties": false
@@ -37749,8 +37758,7 @@
                                                                       "email",
                                                                       "phone",
                                                                       "url",
-                                                                      "member",
-                                                                      "channels"
+                                                                      "member"
                                                                     ]
                                                                   },
                                                                   "format": {
@@ -37802,7 +37810,7 @@
                                                                         ]
                                                                       },
                                                                       "onClick": {
-                                                                        "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                                                        "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                                                         "anyOf": [
                                                                           {
                                                                             "type": "string",
@@ -37815,10 +37823,6 @@
                                                                             "type": "null"
                                                                           }
                                                                         ]
-                                                                      },
-                                                                      "providerAvatar": {
-                                                                        "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                                                        "type": "boolean"
                                                                       }
                                                                     },
                                                                     "additionalProperties": false
@@ -40913,7 +40917,7 @@
                           },
                           "archived": {
                             "type": "boolean",
-                            "description": "True while the item is in Recently deleted."
+                            "description": "True while the item is in Trash."
                           },
                           "position": {
                             "type": "integer",
@@ -40946,6 +40950,10 @@
                                     },
                                     {
                                       "type": "string",
+                                      "const": "system:channels"
+                                    },
+                                    {
+                                      "type": "string",
                                       "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                                     },
                                     {
@@ -40975,6 +40983,10 @@
                                           ]
                                         }
                                       ]
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "system:channels"
                                     },
                                     {
                                       "type": "string",
@@ -41014,6 +41026,10 @@
                                             ]
                                           }
                                         ]
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "system:channels"
                                       },
                                       {
                                         "type": "string",
@@ -41117,6 +41133,10 @@
                                           ]
                                         }
                                       ]
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "system:channels"
                                     },
                                     {
                                       "type": "string",
@@ -41251,10 +41271,8 @@
                               "email",
                               "phone",
                               "url",
-                              "member",
-                              "channels"
-                            ],
-                            "description": "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields)."
+                              "member"
+                            ]
                           },
                           "behavior": {
                             "oneOf": [
@@ -41929,7 +41947,7 @@
                                 ]
                               },
                               "onClick": {
-                                "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                 "anyOf": [
                                   {
                                     "type": "string",
@@ -41942,17 +41960,13 @@
                                     "type": "null"
                                   }
                                 ]
-                              },
-                              "providerAvatar": {
-                                "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                "type": "boolean"
                               }
                             },
                             "additionalProperties": false
                           },
                           "archived": {
                             "type": "boolean",
-                            "description": "True while the item is in Recently deleted."
+                            "description": "True while the item is in Trash."
                           },
                           "publishedSummary": {
                             "type": "boolean"
@@ -42356,7 +42370,7 @@
                           },
                           "archived": {
                             "type": "boolean",
-                            "description": "True while the item is in Recently deleted."
+                            "description": "True while the item is in Trash."
                           }
                         },
                         "required": [
@@ -42450,10 +42464,17 @@
                           "kind": {
                             "type": "string",
                             "enum": [
+                              "channels",
                               "membershipAuthorization",
                               "avatar",
                               "calendar"
                             ]
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "providerAvatar": {
+                            "type": "boolean"
                           },
                           "typeId": {
                             "type": "string",
@@ -42500,202 +42521,6 @@
                     "relationships",
                     "accessPresets",
                     "capabilities"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not authenticated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not authorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/model/deleted": {
-      "post": {
-        "operationId": "readRecentlyDeletedConfiguration",
-        "summary": "Read lists, fields and relationships in Recently deleted",
-        "tags": [
-          "records"
-        ],
-        "security": [
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The operation was accepted or completed.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "schemaRevision": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "target": {
-                            "type": "object",
-                            "properties": {
-                              "kind": {
-                                "type": "string",
-                                "enum": [
-                                  "type",
-                                  "field",
-                                  "relationship"
-                                ]
-                              },
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                              }
-                            },
-                            "required": [
-                              "kind",
-                              "id"
-                            ],
-                            "additionalProperties": false
-                          },
-                          "label": {
-                            "type": "string"
-                          },
-                          "typeId": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "format": "uuid",
-                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "typeLabel": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "deletedAt": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "deletedBy": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          }
-                        },
-                        "required": [
-                          "target",
-                          "label",
-                          "typeId",
-                          "typeLabel",
-                          "deletedAt",
-                          "deletedBy"
-                        ],
-                        "additionalProperties": false
-                      }
-                    }
-                  },
-                  "required": [
-                    "schemaRevision",
-                    "items"
                   ],
                   "additionalProperties": false
                 }
@@ -42980,7 +42805,7 @@
                                   "type": "boolean"
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 },
                                 "position": {
@@ -43013,6 +42838,10 @@
                                                     ]
                                                   }
                                                 ]
+                                              },
+                                              {
+                                                "type": "string",
+                                                "const": "system:channels"
                                               },
                                               {
                                                 "type": "string",
@@ -43070,6 +42899,10 @@
                                                     ]
                                                   }
                                                 ]
+                                              },
+                                              {
+                                                "type": "string",
+                                                "const": "system:channels"
                                               },
                                               {
                                                 "type": "string",
@@ -43134,6 +42967,10 @@
                                                       ]
                                                     }
                                                   ]
+                                                },
+                                                {
+                                                  "type": "string",
+                                                  "const": "system:channels"
                                                 },
                                                 {
                                                   "type": "string",
@@ -43290,6 +43127,10 @@
                                               },
                                               {
                                                 "type": "string",
+                                                "const": "system:channels"
+                                              },
+                                              {
+                                                "type": "string",
                                                 "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                                               },
                                               {
@@ -43394,7 +43235,7 @@
                                         }
                                       },
                                       "archived": {
-                                        "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                        "description": "Always false. Use the delete operation to move an item to Trash.",
                                         "type": "boolean"
                                       }
                                     },
@@ -43484,10 +43325,8 @@
                                     "email",
                                     "phone",
                                     "url",
-                                    "member",
-                                    "channels"
-                                  ],
-                                  "description": "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields)."
+                                    "member"
+                                  ]
                                 },
                                 "behavior": {
                                   "type": "object",
@@ -43761,7 +43600,7 @@
                                       ]
                                     },
                                     "onClick": {
-                                      "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                      "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                       "anyOf": [
                                         {
                                           "type": "string",
@@ -43774,16 +43613,12 @@
                                           "type": "null"
                                         }
                                       ]
-                                    },
-                                    "providerAvatar": {
-                                      "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                      "type": "boolean"
                                     }
                                   },
                                   "additionalProperties": false
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 },
                                 "options": {
@@ -44045,7 +43880,7 @@
                                   "description": "Show the messages of directly linked source records on each target record's activity timeline."
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 }
                               },
@@ -44173,10 +44008,17 @@
                                 "kind": {
                                   "type": "string",
                                   "enum": [
+                                    "channels",
                                     "membershipAuthorization",
                                     "avatar",
                                     "calendar"
                                   ]
+                                },
+                                "enabled": {
+                                  "type": "boolean"
+                                },
+                                "providerAvatar": {
+                                  "type": "boolean"
                                 },
                                 "typeId": {
                                   "anyOf": [
@@ -44289,7 +44131,8 @@
                                   "enum": [
                                     "type",
                                     "field",
-                                    "relationship"
+                                    "relationship",
+                                    "channels"
                                   ]
                                 },
                                 "id": {
@@ -44310,83 +44153,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field (including a Channels field) or relationship to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
-                              "const": "restore"
-                            },
-                            "target": {
-                              "type": "object",
-                              "properties": {
-                                "kind": {
-                                  "type": "string",
-                                  "enum": [
-                                    "type",
-                                    "field",
-                                    "relationship"
-                                  ]
-                                },
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                }
-                              },
-                              "required": [
-                                "kind",
-                                "id"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "target"
-                          ],
-                          "additionalProperties": false,
-                          "description": "Restore an item from Recently deleted together with what was deleted with it."
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
-                              "const": "deletePermanently"
-                            },
-                            "target": {
-                              "type": "object",
-                              "properties": {
-                                "kind": {
-                                  "type": "string",
-                                  "enum": [
-                                    "type",
-                                    "field",
-                                    "relationship"
-                                  ]
-                                },
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                }
-                              },
-                              "required": [
-                                "kind",
-                                "id"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "target"
-                          ],
-                          "additionalProperties": false,
-                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and a Channels field the links between its records and their identifiers."
+                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -44611,6 +44378,7 @@
                                       "type",
                                       "field",
                                       "relationship",
+                                      "channels",
                                       "routine",
                                       "webhook",
                                       "widget",
@@ -44647,6 +44415,7 @@
                                       "type",
                                       "field",
                                       "relationship",
+                                      "channels",
                                       "routine",
                                       "webhook",
                                       "widget",
@@ -44697,6 +44466,7 @@
                                       "type",
                                       "field",
                                       "relationship",
+                                      "channels",
                                       "routine",
                                       "webhook",
                                       "widget",
@@ -44733,6 +44503,7 @@
                                       "type",
                                       "field",
                                       "relationship",
+                                      "channels",
                                       "routine",
                                       "webhook",
                                       "widget",
@@ -44772,6 +44543,7 @@
                                           "type",
                                           "field",
                                           "relationship",
+                                          "channels",
                                           "routine",
                                           "webhook",
                                           "widget",
@@ -45226,7 +44998,7 @@
                                   "type": "boolean"
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 },
                                 "position": {
@@ -45259,6 +45031,10 @@
                                                     ]
                                                   }
                                                 ]
+                                              },
+                                              {
+                                                "type": "string",
+                                                "const": "system:channels"
                                               },
                                               {
                                                 "type": "string",
@@ -45316,6 +45092,10 @@
                                                     ]
                                                   }
                                                 ]
+                                              },
+                                              {
+                                                "type": "string",
+                                                "const": "system:channels"
                                               },
                                               {
                                                 "type": "string",
@@ -45380,6 +45160,10 @@
                                                       ]
                                                     }
                                                   ]
+                                                },
+                                                {
+                                                  "type": "string",
+                                                  "const": "system:channels"
                                                 },
                                                 {
                                                   "type": "string",
@@ -45536,6 +45320,10 @@
                                               },
                                               {
                                                 "type": "string",
+                                                "const": "system:channels"
+                                              },
+                                              {
+                                                "type": "string",
                                                 "pattern": "^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
                                               },
                                               {
@@ -45640,7 +45428,7 @@
                                         }
                                       },
                                       "archived": {
-                                        "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                        "description": "Always false. Use the delete operation to move an item to Trash.",
                                         "type": "boolean"
                                       }
                                     },
@@ -45730,10 +45518,8 @@
                                     "email",
                                     "phone",
                                     "url",
-                                    "member",
-                                    "channels"
-                                  ],
-                                  "description": "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields)."
+                                    "member"
+                                  ]
                                 },
                                 "behavior": {
                                   "type": "object",
@@ -46007,7 +45793,7 @@
                                       ]
                                     },
                                     "onClick": {
-                                      "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                      "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                       "anyOf": [
                                         {
                                           "type": "string",
@@ -46020,16 +45806,12 @@
                                           "type": "null"
                                         }
                                       ]
-                                    },
-                                    "providerAvatar": {
-                                      "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                      "type": "boolean"
                                     }
                                   },
                                   "additionalProperties": false
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 },
                                 "options": {
@@ -46291,7 +46073,7 @@
                                   "description": "Show the messages of directly linked source records on each target record's activity timeline."
                                 },
                                 "archived": {
-                                  "description": "Always false. Use the delete operation to move an item to Recently deleted.",
+                                  "description": "Always false. Use the delete operation to move an item to Trash.",
                                   "type": "boolean"
                                 }
                               },
@@ -46419,10 +46201,17 @@
                                 "kind": {
                                   "type": "string",
                                   "enum": [
+                                    "channels",
                                     "membershipAuthorization",
                                     "avatar",
                                     "calendar"
                                   ]
+                                },
+                                "enabled": {
+                                  "type": "boolean"
+                                },
+                                "providerAvatar": {
+                                  "type": "boolean"
                                 },
                                 "typeId": {
                                   "anyOf": [
@@ -46535,7 +46324,8 @@
                                   "enum": [
                                     "type",
                                     "field",
-                                    "relationship"
+                                    "relationship",
+                                    "channels"
                                   ]
                                 },
                                 "id": {
@@ -46556,83 +46346,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field (including a Channels field) or relationship to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
-                              "const": "restore"
-                            },
-                            "target": {
-                              "type": "object",
-                              "properties": {
-                                "kind": {
-                                  "type": "string",
-                                  "enum": [
-                                    "type",
-                                    "field",
-                                    "relationship"
-                                  ]
-                                },
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                }
-                              },
-                              "required": [
-                                "kind",
-                                "id"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "target"
-                          ],
-                          "additionalProperties": false,
-                          "description": "Restore an item from Recently deleted together with what was deleted with it."
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "operation": {
-                              "type": "string",
-                              "const": "deletePermanently"
-                            },
-                            "target": {
-                              "type": "object",
-                              "properties": {
-                                "kind": {
-                                  "type": "string",
-                                  "enum": [
-                                    "type",
-                                    "field",
-                                    "relationship"
-                                  ]
-                                },
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid",
-                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                                }
-                              },
-                              "required": [
-                                "kind",
-                                "id"
-                              ],
-                              "additionalProperties": false
-                            }
-                          },
-                          "required": [
-                            "operation",
-                            "target"
-                          ],
-                          "additionalProperties": false,
-                          "description": "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and a Channels field the links between its records and their identifiers."
+                          "description": "Move a list, field, relationship or Channels field (target id: its channels capability) to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -48568,7 +48282,7 @@
                     }
                   },
                   "includeIdentities": {
-                    "description": "Include registered identifiers for returned records of a list with a Channels field.",
+                    "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                     "type": "boolean"
                   },
                   "search": {
@@ -49273,6 +48987,20 @@
                           "week",
                           "month"
                         ]
+                      },
+                      "hidden": {
+                        "description": "Group keys the board hides (value:<optionId> or __empty__); Display options lists them to show again.",
+                        "maxItems": 50,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        }
+                      },
+                      "hideEmpty": {
+                        "description": "The board hides columns without records.",
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -50763,6 +50491,20 @@
                                 "week",
                                 "month"
                               ]
+                            },
+                            "hidden": {
+                              "description": "Group keys the board hides (value:<optionId> or __empty__); Display options lists them to show again.",
+                              "maxItems": 50,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 256
+                              }
+                            },
+                            "hideEmpty": {
+                              "description": "The board hides columns without records.",
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -51670,7 +51412,7 @@
                           ],
                           "additionalProperties": false
                         },
-                        "description": "Replaces this record's channel associations on a list with a Channels field. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged. Ordinary email fields are separate."
+                        "description": "Replaces this record's channel associations on a channels-enabled type. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged. Ordinary email fields are separate."
                       },
                       "links": {
                         "maxItems": 100,
@@ -53195,7 +52937,7 @@
                         ]
                       },
                       "includeIdentities": {
-                        "description": "Include registered identifiers for returned records of a list with a Channels field.",
+                        "description": "Include registered identifiers for returned records of a type with Channels enabled.",
                         "type": "boolean"
                       },
                       "search": {
@@ -78781,8 +78523,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -78834,7 +78575,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -78847,10 +78588,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -79184,8 +78921,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -79237,7 +78973,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -79250,10 +78986,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -80127,8 +79859,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -80180,7 +79911,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -80193,10 +79924,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -80530,8 +80257,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -80583,7 +80309,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -80596,10 +80322,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -81473,8 +81195,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -81526,7 +81247,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -81539,10 +81260,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -81876,8 +81593,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -81929,7 +81645,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -81942,10 +81658,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -82819,8 +82531,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -82872,7 +82583,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -82885,10 +82596,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -83222,8 +82929,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -83275,7 +82981,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -83288,10 +82994,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -84165,8 +83867,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -84218,7 +83919,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -84231,10 +83932,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false
@@ -84568,8 +84265,7 @@
                                             "email",
                                             "phone",
                                             "url",
-                                            "member",
-                                            "channels"
+                                            "member"
                                           ]
                                         },
                                         "format": {
@@ -84621,7 +84317,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+                                              "description": "Email, phone and url fields only: what clicking a value does. open (default) starts mail, a call or opens the link; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -84634,10 +84330,6 @@
                                                   "type": "null"
                                                 }
                                               ]
-                                            },
-                                            "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
-                                              "type": "boolean"
                                             }
                                           },
                                           "additionalProperties": false

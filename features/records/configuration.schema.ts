@@ -60,10 +60,10 @@ export const DeletionCleanupSchema = z
       .optional()
       .describe("For a deleted name field: the field that now names the records, or null when none is left."),
     effect: z
-      .enum(["countsRecords", "triggerChanged", "subscriptionRemoved", "channels", "avatar", "calendar"])
+      .enum(["countsRecords", "triggerChanged", "subscriptionRemoved", "avatar", "calendar"])
       .optional()
       .describe(
-        "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the Channels, avatar or calendar setting.",
+        "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
       ),
   })
   .strict();
@@ -71,8 +71,8 @@ export type DeletionCleanup = z.infer<typeof DeletionCleanupSchema>;
 const LiveDefinitionSchema = z
   .boolean()
   .optional()
-  .refine((archived): boolean => archived !== true, "Use the delete operation to move an item to Recently deleted.")
-  .describe("Always false. Use the delete operation to move an item to Recently deleted.");
+  .refine((archived): boolean => archived !== true, "Use the delete operation to move an item to Trash.")
+  .describe("Always false. Use the delete operation to move an item to Trash.");
 export const ConfigurationReferenceSchema = z.union([z.uuid(), z.string().regex(/^\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$/)]);
 const ConfigurationColumnKeySchema = z.union([
   RecordColumnKeySchema,
@@ -171,7 +171,7 @@ const ExpressionSchema: z.ZodType<ConfigurationExpression> = z.lazy(() =>
   ]),
 );
 const BoundedExpressionSchema = ExpressionBudgetSchema.pipe(ExpressionSchema);
-export function configurationSchemaWithExpression<T extends z.ZodType>(expressionSchema: T) {
+export function configurationSchemaWithExpression<T extends z.ZodType>(expressionSchema: T, trashOperations = false) {
   const ValidatedBehaviorSchema = z.discriminatedUnion("kind", [
     z
       .object({
@@ -333,18 +333,14 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({ operation: z.literal("delete"), target: ConfigurationTargetSchema })
               .strict()
               .describe(
-                "Move a list, field (including a Channels field) or relationship to Recently deleted. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+                "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
               ),
-            z
-              .object({ operation: z.literal("restore"), target: ConfigurationTargetSchema })
-              .strict()
-              .describe("Restore an item from Recently deleted together with what was deleted with it."),
-            z
-              .object({ operation: z.literal("deletePermanently"), target: ConfigurationTargetSchema })
-              .strict()
-              .describe(
-                "Permanently remove an item that is in Recently deleted, with its stored values; a list also loses its records, links and relationships, and a Channels field the links between its records and their identifiers.",
-              ),
+            ...(trashOperations
+              ? ([
+                  z.object({ operation: z.literal("restore"), target: ConfigurationTargetSchema }).strict(),
+                  z.object({ operation: z.literal("deletePermanently"), target: ConfigurationTargetSchema }).strict(),
+                ] as const)
+              : ([] as const)),
             z
               .object({
                 operation: z.literal("setTypeGrants"),
@@ -359,7 +355,8 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
     })
     .strict();
 }
-export const ConfigurationChangeSchema = configurationSchemaWithExpression(BoundedExpressionSchema);
+export const ConfigurationChangeSchema = configurationSchemaWithExpression(BoundedExpressionSchema, true);
+export const PublicConfigurationChangeSchema = configurationSchemaWithExpression(BoundedExpressionSchema);
 export const ConfigurationContractSchema = configurationSchemaWithExpression(ExpressionSchema);
 export type ConfigurationChange = z.infer<typeof ConfigurationChangeSchema>;
 export const ConfigurationPreviewSchema = z

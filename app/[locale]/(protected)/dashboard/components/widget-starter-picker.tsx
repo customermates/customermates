@@ -2,48 +2,23 @@
 
 import type { ReactElement, ReactNode } from "react";
 import type { CompanyWidget } from "@/features/widget/widget.schema";
-import type { WidgetGalleryTemplate } from "@/features/widget/widget-gallery";
 
 import { useTranslations } from "next-intl";
 import { WidgetKind } from "@/generated/prisma";
 
 import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/core/utils/cn";
 import { DisplayType } from "@/features/widget/widget.schema";
-import { WIDGET_GALLERY_CREATED_AT_LABEL } from "@/features/widget/widget-gallery";
+import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { ChartTypeIllustration } from "./widget-display-type-picker";
 
 type Props = {
   availableKinds: WidgetKind[];
   disabled?: boolean;
-  gallery: WidgetGalleryTemplate[];
   templates: CompanyWidget[];
-  onSelectGalleryTemplate: (template: WidgetGalleryTemplate) => void;
-  onSelectKind: (kind: WidgetKind) => void;
+  onSelectKind: (kind: WidgetKind, displayType?: DisplayType) => void;
   onSelectTemplate: (id: string) => void;
 };
-
-export function useStarterText() {
-  const t = useTranslations();
-  return (template: WidgetGalleryTemplate) => {
-    const { labels } = template;
-    const values = {
-      type: labels.type,
-      field: labels.field ?? "",
-      group: labels.group ?? "",
-      related: labels.related ?? "",
-      date:
-        labels.date === WIDGET_GALLERY_CREATED_AT_LABEL
-          ? t("Dashboard.widgetGallery.creationDate")
-          : (labels.date ?? ""),
-    };
-    return {
-      name: t(`Dashboard.widgetGallery.recipes.${template.recipe}.name`, values),
-      description: t(`Dashboard.widgetGallery.recipes.${template.recipe}.description`, values),
-    };
-  };
-}
 
 export function ActivityTimelineIllustration({ className }: { className?: string }) {
   return (
@@ -142,49 +117,12 @@ const KIND_PREVIEW: Record<WidgetKind, ReactNode> = {
   [WidgetKind.activityTimeline]: <ActivityTimelineIllustration className="size-full" />,
 };
 
-export function WidgetStarterPicker({
-  availableKinds,
-  disabled,
-  gallery,
-  templates,
-  onSelectGalleryTemplate,
-  onSelectKind,
-  onSelectTemplate,
-}: Props) {
+export function WidgetStarterPicker({ availableKinds, disabled, templates, onSelectKind, onSelectTemplate }: Props) {
   const t = useTranslations();
-  const starterText = useStarterText();
+  const chartAvailable = availableKinds.includes(WidgetKind.chart);
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      {gallery.length > 0 && (
-        <ChooserSection
-          heading={
-            <ChooserHeading
-              description={t("Dashboard.widgetGallery.description")}
-              id="widget-gallery-heading"
-              title={t("Dashboard.widgetGallery.title")}
-            />
-          }
-        >
-          {gallery.map((template, index) => {
-            const repeat = gallery.slice(0, index).filter((other) => other.recipe === template.recipe).length;
-            const text = starterText(template);
-            return (
-              <ChooserCard
-                key={template.key}
-                description={text.description}
-                disabled={disabled}
-                id={`widget-gallery-${template.recipe}${repeat ? `-${repeat + 1}` : ""}`}
-                meta={<Badge variant="secondary">{template.labels.type}</Badge>}
-                preview={<ChartTypeIllustration className="size-full" type={template.displayOptions.displayType} />}
-                title={text.name}
-                onSelect={() => onSelectGalleryTemplate(template)}
-              />
-            );
-          })}
-        </ChooserSection>
-      )}
-
       <ChooserSection
         heading={
           <ChooserHeading
@@ -195,17 +133,29 @@ export function WidgetStarterPicker({
         }
         id="widget-modal-kind"
       >
-        {availableKinds.map((kind) => (
+        {chartAvailable &&
+          WIDGET_STARTER_DISPLAY_TYPES.map((displayType) => (
+            <ChooserCard
+              key={displayType}
+              description={t(`Dashboard.widgetEditor.starters.${displayType}.description`)}
+              disabled={disabled}
+              id={`widget-starter-${displayType}`}
+              preview={<ChartTypeIllustration className="size-full" type={displayType} />}
+              title={t(`Dashboard.widgetEditor.starters.${displayType}.title`)}
+              onSelect={() => onSelectKind(WidgetKind.chart, displayType)}
+            />
+          ))}
+
+        {availableKinds.includes(WidgetKind.activityTimeline) && (
           <ChooserCard
-            key={kind}
-            description={t(`Dashboard.widgetEditor.kind.${kind}Description`)}
+            description={t("Dashboard.widgetEditor.kind.activityTimelineDescription")}
             disabled={disabled}
-            id={`widget-kind-${kind}`}
-            preview={KIND_PREVIEW[kind]}
-            title={t(`Dashboard.widgetKinds.${kind}`)}
-            onSelect={() => onSelectKind(kind)}
+            id={`widget-kind-${WidgetKind.activityTimeline}`}
+            preview={KIND_PREVIEW[WidgetKind.activityTimeline]}
+            title={t("Dashboard.widgetKinds.activityTimeline")}
+            onSelect={() => onSelectKind(WidgetKind.activityTimeline)}
           />
-        ))}
+        )}
       </ChooserSection>
 
       {templates.length > 0 && (

@@ -17,7 +17,7 @@ import {
   writePartialStoredState,
   writePersonalizationState,
 } from "@/features/data-view/data-view-row-mapping";
-import { targetKey, type ConfigurationDeletionRecord } from "./configuration-lifecycle";
+import { deletionReference, targetKey, type ConfigurationDeletionRecord } from "./configuration-lifecycle";
 import type { ConfigurationTarget } from "./configuration.schema";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 
@@ -74,6 +74,7 @@ import { RecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layou
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 import { TRASH_RETENTION_DAYS } from "@/features/trash/trash-retention";
 import { deleteTrashItems, insertTrashItems } from "@/features/trash/trash-item-store";
+import { configurationTrashBatchId } from "./configuration-trash-batch";
 
 export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   constructor(
@@ -436,7 +437,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         activityQuery: { not: Prisma.AnyNull },
         ...(afterId ? { id: { gt: afterId } } : {}),
       },
-      select: { id: true, name: true, activityQuery: true },
+      select: { id: true, name: true, activityQuery: true, deletedAt: true, view: { select: { deletedAt: true } } },
       orderBy: { id: "asc" },
       take: 200,
     });
@@ -444,6 +445,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       id: row.id,
       name: row.name,
       query: RecordActivityQuerySchema.parse(row.activityQuery),
+      trashed: row.deletedAt !== null || Boolean(row.view?.deletedAt),
     }));
   }
   async getWidgetMeasuresCompanyWide(afterId?: string) {
@@ -453,7 +455,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         measure: { not: Prisma.AnyNull },
         ...(afterId ? { id: { gt: afterId } } : {}),
       },
-      select: { id: true, name: true, measure: true },
+      select: { id: true, name: true, measure: true, deletedAt: true, view: { select: { deletedAt: true } } },
       orderBy: { id: "asc" },
       take: 200,
     });
@@ -461,6 +463,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       id: row.id,
       name: row.name,
       measure: RecordMeasureSchema.parse(row.measure),
+      trashed: row.deletedAt !== null || Boolean(row.view?.deletedAt),
     }));
   }
   async getEventSubscriptionsCompanyWide(afterId?: string) {
@@ -680,7 +683,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         key: string;
         surface: string;
         kind: "view" | "personalization";
-        payload: StoredStateRow & StoredPersonalizationRow & { name?: string };
+        payload: StoredStateRow & StoredPersonalizationRow & { name?: string; deletedAt?: string | null };
       }>
     >(Prisma.sql`
       SELECT * FROM (
@@ -695,6 +698,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       key: row.key,
       typeId: row.surface.slice(8),
       name: row.kind === "view" ? (row.payload.name ?? null) : null,
+      trashed: row.kind === "view" && Boolean(row.payload.deletedAt),
       state: row.kind === "view" ? readStoredState(row.payload) : readStoredPersonalizationState(row.payload),
     }));
   }
@@ -714,22 +718,28 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   async countDefinitionDeletion({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion) {
     const companyId = this.companyId;
     const surfaces = typeIds.map(recordSurfaceKey);
-    const [records, values, links, relationships, views, personalizations, grants, identityLinks] = await Promise.all([
-      this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
-      this.prisma.recordValue.count({
-        where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
-      }),
-      this.prisma.recordLink.count({ where: { companyId, relationId: { in: relationIds } } }),
-      this.prisma.recordRelationshipDefinition.count({ where: { companyId, id: { in: relationIds } } }),
-      this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaces } } }),
-      this.prisma.p13n.count({
-        where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
-      }),
-      this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
-      this.countIdentityLinks(channelTypeIds),
-    ]);
+    const [records, cascaded, values, links, relationships, views, personalizations, grants, identityLinks] =
+      await Promise.all([
+        this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
+        this.prisma.$queryRaw<Array<{ count: number }>>(Prisma.sql`
+        SELECT COUNT(*)::integer AS count FROM "CrmRecord" record
+        JOIN "TrashItem" item ON item."companyId" = record."companyId" AND item.id = record."trashItemId"
+        WHERE record."companyId" = ${companyId} AND item.kind = 'record'
+          AND item."typeId" = ANY(${typeIds}::text[]) AND NOT record."typeId" = ANY(${typeIds}::text[])`),
+        this.prisma.recordValue.count({
+          where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
+        }),
+        this.prisma.recordLink.count({ where: { companyId, relationId: { in: relationIds } } }),
+        this.prisma.recordRelationshipDefinition.count({ where: { companyId, id: { in: relationIds } } }),
+        this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaces } } }),
+        this.prisma.p13n.count({
+          where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
+        }),
+        this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
+        this.countIdentityLinks(channelTypeIds),
+      ]);
     return {
-      records,
+      records: records + (cascaded[0]?.count ?? 0),
       values,
       links,
       relationships,
@@ -751,12 +761,16 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   async deleteDefinitions({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion): Promise<void> {
     const companyId = this.companyId;
-    const trashed = await this.prisma.trashItem.findMany({
-      where: { companyId, kind: "record", typeId: { in: typeIds } },
+    const surfaces = typeIds.map(recordSurfaceKey);
+    const views = await this.prisma.trashItem.findMany({
+      where: { companyId, kind: "view", surfaceKey: { in: surfaces } },
       select: { id: true },
     });
-    await this.purgeTrashItems(trashed.map((item) => item.id));
-    const surfaces = typeIds.map(recordSurfaceKey);
+    await deleteTrashItems(
+      this.prisma,
+      companyId,
+      views.map((item) => item.id),
+    );
     await this.prisma.dataView.deleteMany({ where: { companyId, surfaceKey: { in: surfaces } } });
     await this.prisma.p13n.deleteMany({
       where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
@@ -884,6 +898,51 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         ...(change ? { change: recordJson(RecordRevisionChangeSchema.parse(change)) } : {}),
       },
     });
+    if (change) await this.syncConfigurationTrash(model, actorId, change);
+  }
+
+  private async syncConfigurationTrash(model: RecordModel, actorId: string, change: RecordRevisionChange) {
+    const operations = change.configuration?.operations ?? [];
+    const leaving = operations.flatMap((operation) =>
+      operation.operation === "restore" || operation.operation === "deletePermanently" ? [operation.target.id] : [],
+    );
+    const removedTypeIds = operations.flatMap((operation) =>
+      operation.operation === "deletePermanently" && operation.target.kind === "type" ? [operation.target.id] : [],
+    );
+    if (leaving.length || removedTypeIds.length) {
+      const items = await this.prisma.trashItem.findMany({
+        where: {
+          companyId: this.companyId,
+          kind: { in: ["list", "field", "relationship"] },
+          OR: [{ targetId: { in: leaving } }, { typeId: { in: removedTypeIds } }],
+        },
+        select: { id: true },
+      });
+      await deleteTrashItems(
+        this.prisma,
+        this.companyId,
+        items.map((item) => item.id),
+      );
+    }
+    if (!change.deletions?.length) return;
+    const batchId = configurationTrashBatchId(this.companyId, change.causeId);
+    const kinds = { type: "list", field: "field", relationship: "relationship" } as const;
+    await insertTrashItems(
+      this.prisma,
+      this.companyId,
+      change.deletions.map(({ target }) => {
+        const reference = deletionReference(model, target);
+        return {
+          id: randomUUID(),
+          kind: kinds[target.kind],
+          targetId: target.id,
+          typeId: target.kind === "type" ? target.id : (reference.typeId ?? null),
+          label: reference.label,
+          batchId,
+          deletedById: actorId,
+        };
+      }),
+    );
   }
 
   async setGrants(typeId: string, grants: Array<{ roleId: string; actions: Action[] }>): Promise<void> {
@@ -1112,6 +1171,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     selections: RecordRelationshipSelection[],
     model: RecordModel,
     access: RecordAccessMap,
+    options: TrashReadOptions = {},
   ) {
     const summaries = new Map<string, RecordRelationshipSummary[]>(
       recordIds.map((id) => [
@@ -1125,7 +1185,15 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         })),
       ]),
     );
-    const sql = compileRecordRelationshipSummaries(this.companyId, typeId, recordIds, selections, model, access);
+    const sql = compileRecordRelationshipSummaries(
+      this.companyId,
+      typeId,
+      recordIds,
+      selections,
+      model,
+      access,
+      options.includeTrash,
+    );
     if (!sql) return summaries;
     const rows = await this.prisma.$queryRaw<RecordRelationshipRow[]>(sql);
     for (const row of rows) {
@@ -1314,12 +1382,16 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     );
   }
 
-  async getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string }) {
+  async getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string } | { typeIds: string[] }) {
     const rows = await this.prisma.trashItem.findMany({
       where: {
         companyId: this.companyId,
         kind: "record",
-        ...("ids" in selection ? { id: { in: selection.ids } } : { batchId: selection.batchId }),
+        ...("ids" in selection
+          ? { id: { in: selection.ids } }
+          : "typeIds" in selection
+            ? { typeId: { in: selection.typeIds } }
+            : { batchId: selection.batchId }),
       },
       orderBy: [{ deletedAt: "asc" }, { id: "asc" }],
     });

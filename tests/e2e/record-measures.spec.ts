@@ -31,7 +31,7 @@ test("keeps source totals separate from filtered widget groups across save and r
   }
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
-  await dialogs.locator("#widget-kind-chart").click();
+  await dialogs.locator("#widget-starter-verticalBarChart").click();
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Selected service prices");
   await dialogs.getByRole("combobox", { name: "Records from", exact: true }).click();
   await page.locator('[data-slot="popover-content"]').getByRole("combobox").fill("Services");

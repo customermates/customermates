@@ -16,6 +16,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { confirmationSentence } from "@/components/modal/confirmation-sentence";
 import { focusHref } from "@/components/focus/focus-href";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
+import { movedToTrashOr } from "@/features/trash/moved-to-trash";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import { typeDefinition } from "./configure-model";
@@ -24,7 +25,6 @@ import { applyRecordConfigurationAction, previewRecordConfigurationAction } from
 
 type Deletion = NonNullable<ConfigurationPreview["deletion"]>;
 type Translate = ReturnType<typeof useTranslations>;
-type Lifecycle = "delete" | "restore" | "deletePermanently";
 
 const DUPLICATE_ISSUES = {
   duplicate_list_name: "RecordModel.duplicateListName",
@@ -73,7 +73,6 @@ const EFFECT_SENTENCES = {
   countsRecords: "widgetCount",
   triggerChanged: "webhookTrigger",
   subscriptionRemoved: "webhookRemoved",
-  channels: "bindingChannels",
   avatar: "bindingAvatar",
   calendar: "bindingCalendar",
 } as const;
@@ -165,33 +164,12 @@ export function issueSentences(
   });
 }
 
-function removedSentences(t: Translate, deletion: Deletion): ConfirmationSentence[] {
-  const removed = deletion.removed;
-  if (!removed) return [];
-  const lines = [
-    removed.records === null && t("RecordModel.configurationDeletion.removed.hidden"),
-    (removed.records ?? 0) > 0 &&
-      t("RecordModel.configurationDeletion.removed.records", { count: removed.records ?? 0 }),
-    (removed.values ?? 0) > 0 && t("RecordModel.configurationDeletion.removed.values", { count: removed.values ?? 0 }),
-    (removed.links ?? 0) > 0 && t("RecordModel.configurationDeletion.removed.links", { count: removed.links ?? 0 }),
-    removed.views > 0 && t("RecordModel.configurationDeletion.removed.views", { count: removed.views }),
-    removed.grants > 0 && t("RecordModel.configurationDeletion.removed.grants", { count: removed.grants }),
-    (removed.identifiers ?? 0) > 0 &&
-      t("RecordModel.configurationDeletion.removed.identifiers", {
-        count: removed.identifiers ?? 0,
-        records: removed.identifierRecords ?? 0,
-      }),
-  ].filter((line): line is string => Boolean(line));
-  return (lines.length ? lines : [t("RecordModel.configurationDeletion.removed.nothingStored")]).map((line) => [line]);
-}
-
-export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Promise<void>) {
+export function useConfigurationDeletion(onChanged: () => Promise<void>) {
   const t = useTranslations();
   const { showConfirmation } = useDeleteConfirmation();
   const [isBusy, setIsBusy] = useState(false);
 
   const run = async (
-    operation: Lifecycle,
     target: ConfigurationTarget,
     expectedRevision: number,
     name: string,
@@ -201,7 +179,7 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
     const change: ConfigurationChange = {
       expectedRevision,
       idempotencyKey: crypto.randomUUID(),
-      operations: [{ operation, target }],
+      operations: [{ operation: "delete", target }],
     };
     const apply = async () => {
       const applied = await applyRecordConfigurationAction(change);
@@ -209,8 +187,8 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
         toastZodErrorTree(applied.error);
         return false;
       }
-      await onChanged(operation);
-      return true;
+      await onChanged();
+      return applied.data.status === "completed" ? movedToTrashOr(applied.data) : true;
     };
     setIsBusy(true);
     try {
@@ -238,36 +216,16 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
               model,
             )),
       ];
-      if (operation === "restore" && !blockers.length) {
-        await apply();
-        return;
-      }
       showConfirmation({
-        title:
-          operation === "delete"
-            ? t("RecordModel.configurationDeletion.deleteTitle", { name })
-            : operation === "restore"
-              ? t("RecordModel.configurationDeletion.restoreTitle", { name })
-              : t("RecordModel.configurationDeletion.deletePermanentlyTitle", { name }),
-        message:
-          blockers.length && operation !== "restore"
-            ? t("RecordModel.configurationDeletion.blockedMessage", { name })
-            : operation === "delete"
-              ? t("RecordModel.configurationDeletion.deleteMessage", { name })
-              : operation === "restore"
-                ? t("RecordModel.configurationDeletion.restoreMessage", { name })
-                : t("RecordModel.configurationDeletion.deletePermanentlyMessage", { name }),
-        details: blockers.length
-          ? []
-          : operation === "delete"
-            ? cleanedSentences(t, deletion, model)
-            : removedSentences(t, deletion),
+        title: t("RecordModel.configurationDeletion.deleteTitle", { name }),
+        message: blockers.length
+          ? t("RecordModel.configurationDeletion.blockedMessage", { name })
+          : t("RecordModel.configurationDeletion.deleteMessage", { name }),
+        details: blockers.length ? [] : cleanedSentences(t, deletion, model),
         blockers,
-        ...(operation === "deletePermanently"
-          ? { confirmationText: name, confirmLabel: t("RecordModel.configurationDeletion.deletePermanently") }
-          : {}),
-        successKey: operation === "delete" ? "RecordModel.configurationDeletion.moved" : "Common.notifications.deleted",
+        successKey: "RecordModel.configurationDeletion.moved",
         onConfirm: apply,
+        onRestored: onChanged,
       });
     } finally {
       setIsBusy(false);
@@ -317,7 +275,7 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
             toastZodErrorTree(applied.error);
             return false;
           }
-          await onChanged("deletePermanently");
+          await onChanged();
           return true;
         },
       });
@@ -330,10 +288,6 @@ export function useConfigurationDeletion(onChanged: (operation: Lifecycle) => Pr
     isBusy,
     requestDeleteColumn,
     requestDelete: (model: RecordModelView, target: ConfigurationTarget, name: string) =>
-      run("delete", target, model.revision, name, model),
-    requestRestore: (target: ConfigurationTarget, revision: number, name: string) =>
-      run("restore", target, revision, name, null),
-    requestDeletePermanently: (target: ConfigurationTarget, revision: number, name: string) =>
-      run("deletePermanently", target, revision, name, null),
+      run(target, model.revision, name, model),
   };
 }

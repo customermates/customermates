@@ -1,3 +1,4 @@
+import { restoreFromTrash } from "./trash";
 import { createHmac, randomBytes, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -30,7 +31,6 @@ import {
   saveDrawer,
   deleteFromDrawer,
   deleteSelectedList,
-  restoreRecentlyDeleted,
 } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
@@ -1737,7 +1737,7 @@ test("configures self-type singular and many relationships, edits from both ends
     relationshipFieldUi(page, type.label, related.id, "outgoing"),
   ).toHaveCount(0);
   await relationshipCloseRecordUi(page, type.label);
-  await restoreRecentlyDeleted(page, `${type.pluralLabel} → ${type.pluralLabel}`);
+  await restoreFromTrash(page, `${type.pluralLabel} → ${type.pluralLabel}`);
   expect(
     (await storedModel(database, companyId)).relationships.find(
       (relation) => relation.id === related.id,
@@ -3591,7 +3591,7 @@ test("copies another member's widget template into an independent owned widget w
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
   const dialog = page.getByRole("dialog");
-  await dialog.locator("#widget-kind-chart").click();
+  await dialog.locator("#widget-starter-verticalBarChart").click();
   await dialog
     .getByRole("textbox", { name: "Name", exact: false })
     .fill(sourceName);
