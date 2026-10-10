@@ -34,6 +34,11 @@ describe("system grouping axes", () => {
   it("rejects undeclared grouping fields and normalizes an invalid date bucket", () => {
     const spec = dateGroupable({ model: "user", field: FilterFieldKey.createdAt });
     expect(resolveGrouping({ field: "missing" }, [spec])).toBeUndefined();
+    expect(
+      resolveGrouping({ field: FilterFieldKey.createdAt, hidden: ["2026-10-01"], hideEmpty: true }, [spec]),
+    ).toMatchObject({
+      grouping: { field: FilterFieldKey.createdAt, bucket: "month", hidden: ["2026-10-01"], hideEmpty: true },
+    });
     expect(resolveGrouping({ field: FilterFieldKey.createdAt, bucket: "invalid" as never }, [spec])).toMatchObject({
       grouping: { field: FilterFieldKey.createdAt, bucket: "month" },
     });

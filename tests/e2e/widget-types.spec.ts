@@ -10,6 +10,7 @@ import type { RecordRef } from "../../features/records/record-model.schema";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { presetId } from "../../features/records/crm-preset";
+import { WIDGET_STARTER_DISPLAY_TYPES, widgetDisplayRequirement } from "../../features/widget/widget-display-rules";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const TIME_ZONE = "Europe/Berlin";
@@ -255,7 +256,7 @@ async function showTab(page: Page, name: "Data" | "Appearance") {
 async function startChart(page: Page, name: string, source: string) {
   const dialog = page.getByRole("dialog");
   await page.locator("#dashboard-add-widget").click();
-  await dialog.locator("#widget-kind-chart").click();
+  await dialog.locator("#widget-starter-verticalBarChart").click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
   await dialog.getByRole("combobox", { name: "Records from", exact: true }).click();
   await page.locator('[data-slot="popover-content"]').getByRole("combobox").fill(source);
@@ -478,168 +479,25 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
   expect(errors).toEqual([]);
 });
 
-test("adds every starter template resolved against the model and keeps them editable", async ({
-  page,
-  database,
-  companyId,
-  workspace,
-  isMobile,
-}, testInfo) => {
-  test.setTimeout(420000);
+test("starts a widget from every display type card with that type preset on the Data segment", async ({ page }) => {
   const errors = await trackErrors(page);
   const dialog = page.getByRole("dialog");
   await page.goto("/en/dashboard");
-  const { id, closeDateId, statusId, secondUserId } = await seedPipeline(page, database, companyId, workspace.userId);
-  await page.reload();
-  const won = DEALS.filter((deal) => deal.stage === "won");
-  const open = DEALS.filter((deal) => !["won", "lost"].includes(deal.stage));
-  const wonTotal = won.reduce((sum, deal) => sum + dealValue(deal), 0);
-
-  const templates = [
-    { key: "openValueTotal", name: "Open Value", displayType: "number" },
-    { key: "stageFunnel", name: "Deals by Stage", displayType: "funnelChart" },
-    { key: "wonValueOverTime", name: "Won Value per month", displayType: "areaChart" },
-    { key: "topRelatedByWonValue", name: "Top Organizations by won Value", displayType: "rankedTable" },
-    { key: "openCountPerAssignee", name: "Open Tasks per assignee", displayType: "horizontalBarChart" },
-  ];
-  for (const template of templates) {
+  for (const displayType of WIDGET_STARTER_DISPLAY_TYPES) {
     await page.locator("#dashboard-add-widget").click();
-    await expect(dialog.locator("#widget-gallery-heading")).toHaveText("Recommended for your data");
-    await dialog.locator(`#widget-gallery-${template.key}`).click();
-    await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(template.name);
+    await expect(dialog.locator("#widget-gallery-heading")).toHaveCount(0);
+    await dialog.locator(`#widget-starter-${displayType}`).click();
+    await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("");
+    await expect(dialog.getByRole("tab", { name: "Data", exact: true })).toHaveAttribute("aria-selected", "true");
+    const requirement = widgetDisplayRequirement(displayType);
+    const hint = dialog.locator("[data-widget-display-requirement]");
+    if (requirement && requirement !== "noGrouping")
+      await expect(hint).toHaveText(englishMessages.Dashboard.displayTypeRequirements[requirement]);
+    else await expect(hint).toHaveCount(0);
     await showTab(page, "Appearance");
-    await expect(dialog.locator(`[id="display-type-${template.displayType}"]`)).toBeChecked();
-    await save(page);
-    expect((await readWidget(database, companyId, template.name)).displayOptions.displayType).toBe(
-      template.displayType,
-    );
+    await expect(dialog.locator(`[id="display-type-${displayType}"]`)).toBeChecked();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
   }
-  const select = (operator: string, values: string[]) => ({
-    operator,
-    value: null,
-    values: values.map((value) => ({ kind: "select", value })),
-  });
-  expect((await readWidget(database, companyId, "Open Value")).measure).toMatchObject({
-    source: {
-      typeId: id("deal"),
-      filters: [{ fieldId: id("deal.stage"), ...select("notIn", [id("deal.stage.won"), id("deal.stage.lost")]) }],
-    },
-    aggregation: "sum",
-    valueFieldId: id("deal.totalValue"),
-    groupBy: null,
-  });
-  expect((await readWidget(database, companyId, "Deals by Stage")).measure).toMatchObject({
-    source: { filters: [{ fieldId: id("deal.stage"), ...select("notIn", [id("deal.stage.lost")]) }] },
-    aggregation: "count",
-    groupBy: { path: [], fieldId: id("deal.stage") },
-  });
-  expect((await readWidget(database, companyId, "Won Value per month")).measure).toMatchObject({
-    source: { filters: [{ fieldId: id("deal.stage"), ...select("in", [id("deal.stage.won")]) }] },
-    aggregation: "sum",
-    groupBy: { path: [], fieldId: closeDateId, dateInterval: "month", timeZone: TIME_ZONE },
-    groupLimit: 1000,
-  });
-  expect((await readWidget(database, companyId, "Top Organizations by won Value")).measure).toMatchObject({
-    groupBy: { path: [{ relationId: id("deal.organizations"), direction: "outgoing" }], fieldId: null },
-  });
-  expect((await readWidget(database, companyId, "Open Tasks per assignee")).measure).toMatchObject({
-    source: { typeId: id("task"), filters: [{ fieldId: statusId, ...select("notIn", ["done", "archived"]) }] },
-    aggregation: "count",
-    groupBy: { path: [], fieldId: "system:assignedTo" },
-  });
-
-  const pipeline = card(page, "Open Value");
-  await expect(pipeline.locator('[data-slot="widget-number"] p').first()).toHaveText(
-    money(open.reduce((sum, deal) => sum + dealValue(deal), 0)),
-  );
-  await expect(pipeline.locator('[data-slot="widget-number"]')).toContainText(`${open.length} records`);
-
-  const stages = ["new", "qualified", "proposal", "won"] as const;
-  const stageCounts = stages.map((stage) => DEALS.filter((deal) => deal.stage === stage).length);
-  await expect
-    .poll(() => definitionList(card(page, "Deals by Stage")))
-    .toEqual(
-      stages.map((stage, index) => [
-        STAGE_LABELS[stage],
-        index === 0
-          ? String(stageCounts[0])
-          : `${stageCounts[index]} (${percent(stageCounts[index] / stageCounts[index - 1])} of the previous step)`,
-      ]),
-    );
-
-  const monthly = ["2026-01", "2026-02", "2026-03", "2026-04"].map((month) => [
-    new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(
-      new Date(`${month}-01T00:00:00Z`),
-    ),
-    money(won.filter((deal) => deal.close?.startsWith(month)).reduce((sum, deal) => sum + dealValue(deal), 0)),
-  ]);
-  expect(monthly.map(([, value]) => value)).toEqual([money(2250.5), money(0), money(0), money(1501)]);
-  const series = card(page, "Won Value per month");
-  await expect.poll(() => definitionList(series)).toEqual(monthly);
-  await expect(series.locator('[data-slot="widget-chart-notes"]')).toHaveText(
-    `${won.filter((deal) => !deal.close).length} record has no date and is not shown.`,
-  );
-
-  const byOrganization = new Map<string, number>();
-  for (const deal of won) {
-    if (deal.organization)
-      byOrganization.set(deal.organization, (byOrganization.get(deal.organization) ?? 0) + dealValue(deal));
-  }
-  const ranked = [...byOrganization]
-    .sort((left, right) => right[1] - left[1])
-    .map(([name, value], index) => [String(index + 1), name, money(value), percent(value / wonTotal)]);
-  expect(ranked.map((row) => row[1])).toEqual(["Acme", "Gamma", "Beta"]);
-  await expect.poll(() => rankedRows(card(page, "Top Organizations by won Value"))).toEqual(ranked);
-  await expect(card(page, "Top Organizations by won Value")).toContainText(`Overall: ${money(wonTotal)}`);
-
-  const tasks = card(page, "Open Tasks per assignee");
-  await expect(tasks.locator("svg.recharts-surface")).toBeVisible();
-  await expect
-    .poll(async () => Object.fromEntries(await definitionList(tasks)))
-    .toEqual({
-      "Browser Administrator": "3",
-      "Nora Second": "2",
-      [englishMessages.Diagrams.noGroup]: "1",
-    });
-  expect(secondUserId).toBeTruthy();
-  await expectWholeTicks(tasks, "xAxis");
-  await expect(tasks).toContainText("Overall: 5");
-  await expect(tasks).toContainText("A record can appear in several groups.");
-
-  await openEditor(page, "Open Value");
-  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Open deal count");
-  await selectOption(page, "Measure", "Count");
-  await dialog.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
-  const edited = await readWidget(database, companyId, "Open deal count");
-  expect(edited.version).toBe(2);
-  expect(edited.measure).toMatchObject({ aggregation: "count", valueFieldId: null, groupBy: null });
-  await expect(card(page, "Open deal count").locator('[data-slot="widget-number"] p').first()).toHaveText(
-    String(open.length),
-  );
-
-  await page.reload();
-  for (const name of [
-    "Open deal count",
-    "Deals by Stage",
-    "Won Value per month",
-    "Top Organizations by won Value",
-    "Open Tasks per assignee",
-  ]) {
-    const widget = card(page, name);
-    await widget.scrollIntoViewIfNeeded();
-    await expect(widget).toBeVisible();
-    if (isMobile) {
-      const bounds = await widget.boundingBox();
-      expect(bounds && bounds.x >= 0 && bounds.x + bounds.width <= (page.viewportSize()?.width ?? 0)).toBe(true);
-    }
-  }
-  if (isMobile) await expectNoHorizontalOverflow(page);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await keepShot(page, testInfo, "starter-widgets-light");
-  await page.emulateMedia({ colorScheme: "dark" });
-  await page.reload();
-  await expect(card(page, "Won Value per month").locator("svg.recharts-surface")).toBeVisible();
-  await keepShot(page, testInfo, "starter-widgets-dark");
   expect(errors).toEqual([]);
 });
