@@ -126,6 +126,7 @@ describe("FormattedTextField", () => {
     await dispatch(area(field), new MouseEvent("click", { bubbles: true }));
     const menu = document.createElement("div");
     menu.dataset.editorMenu = "";
+    menu.dataset.state = "open";
     document.body.append(menu);
     await dispatch(editorElement(field), new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     expect(field.dataset.state).toBe("editing");

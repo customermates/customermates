@@ -61,7 +61,7 @@ export function FormattedTextField({
     };
     const finishOnEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || !(event.target instanceof Node) || !rootRef.current?.contains(event.target)) return;
-      if (document.querySelector(EDITOR_MENU)) return;
+      if (document.querySelector(`${EDITOR_MENU}[data-state="open"]`)) return;
       event.preventDefault();
       event.stopPropagation();
       setEditing(false);

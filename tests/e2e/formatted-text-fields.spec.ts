@@ -175,7 +175,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
   await openRecordDetails(page, names[0]);
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
   const field = drawer.locator("[data-formatted-text-field]").filter({
-    has: drawer.getByRole("textbox", { name: "Notes", exact: true }),
+    has: page.getByRole("textbox", { name: "Notes", exact: true }),
   });
   await expect(field).toHaveAttribute("data-state", "display");
   const link = field.getByRole("link", { name: "https://example.com/brief", exact: true });
