@@ -1835,7 +1835,6 @@
       "kind": {
         "activityTimelineDescription": "Segui in ordine cronologico le modifiche ai record, i messaggi e le attività di account e calendario.",
         "change": "Scegli un altro widget",
-        "chartDescription": "Confronta i dati del CRM in un grafico.",
         "description": "Scegli un formato e seleziona tu i dati.",
         "scratchTitle": "Parti da zero",
         "title": "Scegli un widget"
@@ -1855,6 +1854,40 @@
       "sharing": {
         "template": "Condividi come modello"
       },
+      "starters": {
+        "areaChart": {
+          "description": "Mostra come cambia un valore nel tempo.",
+          "title": "Area nel tempo"
+        },
+        "doughnutChart": {
+          "description": "Mostra come un totale si divide in parti.",
+          "title": "Anello"
+        },
+        "funnelChart": {
+          "description": "Segui i record attraverso le fasi di un campo di scelta.",
+          "title": "Imbuto"
+        },
+        "horizontalBarChart": {
+          "description": "Confronta gruppi con nomi più lunghi.",
+          "title": "Barre orizzontali"
+        },
+        "number": {
+          "description": "Un totale, come un conteggio o una somma.",
+          "title": "Numero"
+        },
+        "radarChart": {
+          "description": "Confronta gruppi su una scala comune.",
+          "title": "Radar"
+        },
+        "rankedTable": {
+          "description": "Elenca i gruppi principali in ordine.",
+          "title": "Classifica"
+        },
+        "verticalBarChart": {
+          "description": "Confronta un valore tra gruppi.",
+          "title": "Grafico a barre"
+        }
+      },
       "steps": {
         "chooseDescription": "Inizia da un suggerimento, da un formato vuoto o da una configurazione condivisa nel tuo spazio di lavoro.",
         "configureDescription": "Scegli cosa mostra questo widget e come appare."
@@ -1870,56 +1903,8 @@
         "title": "Parti da un modello"
       }
     },
-    "widgetGallery": {
-      "creationDate": "data di creazione",
-      "description": "Suggerimenti creati dai tipi di record e dai campi del tuo spazio di lavoro. Puoi modificare tutto prima di salvare.",
-      "recipes": {
-        "countBySelect": {
-          "description": "Numero di {type} per ogni {group}.",
-          "name": "{type} per {group}"
-        },
-        "countPerMember": {
-          "description": "Numero di {type} per ogni {group}.",
-          "name": "{type} suddivisi per {group}"
-        },
-        "openCountPerAssignee": {
-          "description": "{type} che non sono in un {group} chiuso, contati per ogni utente assegnato.",
-          "name": "{type} aperti per assegnatario"
-        },
-        "openValueTotal": {
-          "description": "Totale di {field} dei {type} che non sono in un {group} chiuso.",
-          "name": "{field} aperto"
-        },
-        "stageFunnel": {
-          "description": "{type} in ogni {group}, in ordine, con la conversione tra le fasi.",
-          "name": "{type} per {group}"
-        },
-        "topRelatedByValue": {
-          "description": "{related} ordinati per il {field} dei loro {type} collegati, con la quota di ciascuno sul totale.",
-          "name": "Migliori {related} per {field}"
-        },
-        "topRelatedByWonValue": {
-          "description": "{related} ordinati per il {field} dei loro {type} vinti, con la quota di ciascuno sul totale.",
-          "name": "Migliori {related} per {field} vinto"
-        },
-        "valueOverTime": {
-          "description": "{field} dei {type} al mese, in base a {date}.",
-          "name": "{field} al mese"
-        },
-        "valueTotal": {
-          "description": "Somma di {field} su tutti i {type}.",
-          "name": "{field} totale"
-        },
-        "wonValueOverTime": {
-          "description": "{field} dei {type} vinti al mese, in base a {date}.",
-          "name": "{field} vinto al mese"
-        }
-      },
-      "title": "Consigliati per i tuoi dati"
-    },
     "widgetKinds": {
-      "activityTimeline": "Cronologia attività",
-      "chart": "Grafico"
+      "activityTimeline": "Cronologia attività"
     }
   },
   "DataTransfer": {
@@ -3980,16 +3965,15 @@
   "SidebarCustomize": {
     "deleteSection": "Elimina sezione",
     "deleteSectionEmpty": "La sezione è vuota, quindi nessun elemento viene spostato.",
-    "deleteSectionMoves": "I suoi elementi tornano al loro posto predefinito nella barra laterale; gli elementi nascosti restano nascosti:",
+    "deleteSectionMoves": "I suoi elementi passano al livello superiore della barra laterale; gli elementi nascosti restano nascosti:",
     "deleteSectionTitle": "Eliminare la sezione «{section}»?",
     "dragItem": "Sposta {item}",
     "dragSection": "Sposta la sezione {section}",
     "emptySection": "Trascina qui gli elementi o usa Sposta nella sezione",
     "hide": "Nascondi dalla barra laterale",
-    "hint": "Trascina le maniglie per riordinare elementi e sezioni, oppure usa i menu …. Fai clic sul nome di una sezione personale per rinominarla.",
+    "hint": "Trascina le maniglie per riordinare elementi e sezioni, oppure usa i menu …. Gli elementi possono stare al livello superiore o in una sezione. Fai clic sul nome di una sezione per rinominarla.",
     "itemActions": "Opzioni per {item}",
     "moveDown": "Sposta giù",
-    "movesBackTo": "{item} torna in {section}",
     "moveToSection": "Sposta nella sezione",
     "moveUp": "Sposta su",
     "newSection": "Nuova sezione",
@@ -4003,7 +3987,8 @@
     "sectionDeleted": "Sezione eliminata",
     "sectionName": "Nome della sezione",
     "show": "Mostra {item}",
-    "title": "Personalizza barra laterale"
+    "title": "Personalizza barra laterale",
+    "topLevel": "Livello superiore"
   },
   "SignInForm": {
     "agreeToTerms": "Continuando, accetti i nostri <termsOfServiceLink>Termini</termsOfServiceLink> e dichiari di aver letto la nostra <dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>. Consulta il nostro <dpaLink>DPA</dpaLink>.",

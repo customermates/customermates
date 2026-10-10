@@ -1835,7 +1835,6 @@
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
         "change": "Choose another widget",
-        "chartDescription": "Compare CRM data in a visual chart.",
         "description": "Pick a format and choose the data yourself.",
         "scratchTitle": "Start from scratch",
         "title": "Choose a Widget"
@@ -1855,6 +1854,40 @@
       "sharing": {
         "template": "Share as a template"
       },
+      "starters": {
+        "areaChart": {
+          "description": "Show how a value develops over time.",
+          "title": "Area over time"
+        },
+        "doughnutChart": {
+          "description": "Show how a total splits into parts.",
+          "title": "Doughnut"
+        },
+        "funnelChart": {
+          "description": "Follow records through the steps of a choice field.",
+          "title": "Funnel"
+        },
+        "horizontalBarChart": {
+          "description": "Compare groups with longer names.",
+          "title": "Horizontal bars"
+        },
+        "number": {
+          "description": "One total, such as a count or a sum.",
+          "title": "Number"
+        },
+        "radarChart": {
+          "description": "Compare groups on one shared scale.",
+          "title": "Radar"
+        },
+        "rankedTable": {
+          "description": "List the top groups in order.",
+          "title": "Ranked table"
+        },
+        "verticalBarChart": {
+          "description": "Compare a value across groups.",
+          "title": "Bar chart"
+        }
+      },
       "steps": {
         "chooseDescription": "Start from a recommendation, a blank format, or a setup shared in your workspace.",
         "configureDescription": "Choose what this widget shows and how it looks."
@@ -1870,56 +1903,8 @@
         "title": "Start from a template"
       }
     },
-    "widgetGallery": {
-      "creationDate": "creation date",
-      "description": "Suggestions built from the record types and fields in your workspace. You can change everything before saving.",
-      "recipes": {
-        "countBySelect": {
-          "description": "Number of {type} for each {group}.",
-          "name": "{type} by {group}"
-        },
-        "countPerMember": {
-          "description": "Number of {type} for each {group}.",
-          "name": "{type} per {group}"
-        },
-        "openCountPerAssignee": {
-          "description": "{type} that are not in a closed {group}, counted for each assigned user.",
-          "name": "Open {type} per assignee"
-        },
-        "openValueTotal": {
-          "description": "Total {field} of {type} that are not in a closed {group}.",
-          "name": "Open {field}"
-        },
-        "stageFunnel": {
-          "description": "{type} in each {group}, in order, with step-to-step conversion.",
-          "name": "{type} by {group}"
-        },
-        "topRelatedByValue": {
-          "description": "{related} ranked by the {field} of their linked {type}, with each share of the total.",
-          "name": "Top {related} by {field}"
-        },
-        "topRelatedByWonValue": {
-          "description": "{related} ranked by the {field} of their won {type}, with each share of the total.",
-          "name": "Top {related} by won {field}"
-        },
-        "valueOverTime": {
-          "description": "{field} of {type} per month, by {date}.",
-          "name": "{field} per month"
-        },
-        "valueTotal": {
-          "description": "Sum of {field} across all {type}.",
-          "name": "Total {field}"
-        },
-        "wonValueOverTime": {
-          "description": "{field} of won {type} per month, by {date}.",
-          "name": "Won {field} per month"
-        }
-      },
-      "title": "Recommended for your data"
-    },
     "widgetKinds": {
-      "activityTimeline": "Activity timeline",
-      "chart": "Chart"
+      "activityTimeline": "Activity timeline"
     }
   },
   "DataTransfer": {
@@ -3980,16 +3965,15 @@
   "SidebarCustomize": {
     "deleteSection": "Delete section",
     "deleteSectionEmpty": "The section is empty, so no items move.",
-    "deleteSectionMoves": "Its items move back to their default place in your sidebar; hidden items stay hidden:",
+    "deleteSectionMoves": "Its items move to the top level of your sidebar; hidden items stay hidden:",
     "deleteSectionTitle": "Delete section “{section}”?",
     "dragItem": "Move {item}",
     "dragSection": "Move section {section}",
     "emptySection": "Drag items here or use Move to section",
     "hide": "Hide from sidebar",
-    "hint": "Drag the handles to reorder items and sections, or use the … menus. Click a personal section's name to rename it.",
+    "hint": "Drag the handles to reorder items and sections, or use the … menus. Items can sit at the top level or inside a section. Click a section's name to rename it.",
     "itemActions": "Options for {item}",
     "moveDown": "Move down",
-    "movesBackTo": "{item} moves back to {section}",
     "moveToSection": "Move to section",
     "moveUp": "Move up",
     "newSection": "New section",
@@ -4003,7 +3987,8 @@
     "sectionDeleted": "Section deleted",
     "sectionName": "Section name",
     "show": "Show {item}",
-    "title": "Customize sidebar"
+    "title": "Customize sidebar",
+    "topLevel": "Top level"
   },
   "SignInForm": {
     "agreeToTerms": "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
