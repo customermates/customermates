@@ -29,11 +29,11 @@ const t = (key: string, values: Record<string, string> = {}) =>
     }[key] ?? key,
   );
 type SourceField = Parameters<typeof recordValueSource>[0]["field"];
-const source = (field: SourceField) => recordValueSource({ model, field, t });
+const source = (field: SourceField) => recordValueSource({ model, field, t, locale: "en" });
 const calculated = model.fields.filter((field) => field.behavior.kind !== "input");
 const ofShape = (match: (described: NonNullable<ReturnType<typeof calculationSentence>>) => boolean) =>
   calculated.find((field) => {
-    const described = calculationSentence({ model, field, t });
+    const described = calculationSentence({ model, field, t, locale: "en" });
     return described !== null && described.saved === null && match(described);
   });
 
@@ -73,7 +73,12 @@ describe("record value source line", () => {
   it("shows when a snapshot is saved, with its trigger field as a reference", () => {
     const result = source(fieldOf("lineItem.savedPrice"));
     expect(sentenceText(result?.segments ?? [])).toBe("Saved when Pricing changes to Saved price");
-    expect(result?.segments).toContainEqual({ kind: "field", id: id("lineItem.pricingMode"), label: "Pricing" });
+    expect(result?.segments).toContainEqual({
+      kind: "field",
+      id: id("lineItem.pricingMode"),
+      label: "Pricing",
+      typeId: id("lineItem"),
+    });
   });
 
   it("gives readers without the formula no calculation line", () => {
