@@ -165,6 +165,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     presentation: RecordEditorContext,
     record: RecordDto | null,
     parentLink: RecordEditorStore["parentLink"] = null,
+    seed: Record<string, RecordScalar> = {},
   ) => {
     this.sessionGeneration += 1;
     this.refreshGeneration += 1;
@@ -178,13 +179,14 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     this.staleChange = false;
     this.conflicts = [];
     this.requestKey = null;
-    this.onInitOrRefresh(this.draftFor(presentation, record, parentLink));
+    this.onInitOrRefresh(this.draftFor(presentation, record, parentLink, seed));
     this.open();
   };
   private draftFor(
     presentation: RecordEditorContext,
     record: RecordDto | null,
     parentLink: RecordEditorStore["parentLink"],
+    seed: Record<string, RecordScalar> = {},
   ): RecordDraft {
     return {
       id: record?.ref.recordId,
@@ -219,7 +221,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
               result?.state === "value"
                 ? result.value
                 : !record && field.behavior.kind === "input"
-                  ? (field.behavior.defaultValue ?? null)
+                  ? (seed[field.id] ?? field.behavior.defaultValue ?? null)
                   : null,
             ),
           ];
