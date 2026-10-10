@@ -4126,10 +4126,9 @@
       "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord."
     },
     "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
-    "restoredInBackground": "Restaur\u00e9",
+    "restoredInBackground": "Restauré",
     "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
     "restorePending": "Restauration en arrière-plan. La corbeille affiche la progression.",
-    "searchPlaceholder": "Rechercher dans la corbeille",
     "undo": "Annuler"
   },
   "TrialExpiredOffer": {

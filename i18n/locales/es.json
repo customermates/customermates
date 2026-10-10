@@ -4129,7 +4129,6 @@
     "restoredInBackground": "Restaurado",
     "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
     "restorePending": "Restaurando en segundo plano. La papelera muestra el progreso.",
-    "searchPlaceholder": "Buscar en la papelera",
     "undo": "Deshacer"
   },
   "TrialExpiredOffer": {

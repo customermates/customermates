@@ -4129,7 +4129,6 @@
     "restoredInBackground": "Wiederhergestellt",
     "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
     "restorePending": "Wird im Hintergrund wiederhergestellt. Der Papierkorb zeigt den Fortschritt.",
-    "searchPlaceholder": "Papierkorb durchsuchen",
     "undo": "Rückgängig"
   },
   "TrialExpiredOffer": {

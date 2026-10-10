@@ -139,7 +139,10 @@ test("restores and deletes permanently in bulk and empties the trash", async ({ 
   for (const name of names) await deleteFromRow(page, name);
 
   await page.goto("/en/trash");
+  await page.locator("#trash-more").click();
   await expect(page.locator("#trash-empty")).toBeVisible();
+  await expect(page.locator("#trash-empty")).toHaveAttribute("data-variant", "destructive");
+  await page.keyboard.press("Escape");
   const select = async (selected: string[]) => {
     for (const name of selected) await trashRow(page, name).getByRole("checkbox").check();
     await expect(page.locator("[data-trash-mass-actions]")).toContainText(`${selected.length} ${selected.length === 1 ? "item" : "items"} selected`);
@@ -160,12 +163,14 @@ test("restores and deletes permanently in bulk and empties the trash", async ({ 
   await confirmation.getByRole("button", { name: "Delete permanently", exact: true }).click();
   await expect(trashRow(page, "Bulk Three")).toHaveCount(0);
 
+  await page.locator("#trash-more").click();
   await page.locator("#trash-empty").click();
   await expect(confirmation).toContainText("Empty trash?");
   await expect(confirmation.getByRole("button", { name: "Delete permanently", exact: true })).toBeDisabled();
   await confirmation.getByRole("textbox").fill("empty trash");
   await confirmation.getByRole("button", { name: "Delete permanently", exact: true }).click();
   await expect(page.getByText("Trash is empty", { exact: true })).toBeVisible();
+  await expect(page.locator("#trash-more")).toHaveCount(0);
   await expect(page.locator("#trash-empty")).toHaveCount(0);
   for (const scheme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: scheme });

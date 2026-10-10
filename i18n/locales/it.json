@@ -4129,7 +4129,6 @@
     "restoredInBackground": "Ripristinato",
     "restoredWithDroppedLinks": "Ripristinato. {count, plural, one {# collegamento non è stato ripristinato} other {# collegamenti non sono stati ripristinati}} perché il record collegato è stato eliminato definitivamente.",
     "restorePending": "Ripristino in background. Il cestino mostra l'avanzamento.",
-    "searchPlaceholder": "Cerca nel cestino",
     "undo": "Annulla"
   },
   "TrialExpiredOffer": {

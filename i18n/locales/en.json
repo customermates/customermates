@@ -4129,7 +4129,6 @@
     "restoredInBackground": "Restored",
     "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
     "restorePending": "Restoring in the background. Trash shows the progress.",
-    "searchPlaceholder": "Search Trash",
     "undo": "Undo"
   },
   "TrialExpiredOffer": {
