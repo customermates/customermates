@@ -207,8 +207,9 @@ test("resolves a request with conditions to a filtered list and falls back to As
   const input = await openPalette(page);
   await input.fill(`won deals ${suffix}`);
   const resolve = dialog.getByRole("option").filter({ hasText: `Go to “won deals ${suffix}”` });
-  await expect(resolve).toHaveAttribute("aria-selected", "true");
-  await page.keyboard.press("Enter");
+  await expect(resolve).toBeVisible();
+  await expect(resolve).toHaveAttribute("aria-selected", "false");
+  await resolve.click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${id("deal")}\\?.*filters=`));
   await expect(page.getByText(`Won resolver deal ${suffix}`).first()).toBeVisible({ timeout: 30000 });
   await expect(page.getByText(`Open resolver deal ${suffix}`)).toHaveCount(0);
@@ -224,4 +225,36 @@ test("resolves a request with conditions to a filtered list and falls back to As
   await page.keyboard.press("Enter");
   await expect(page.locator("#global-search-input")).toHaveCount(0);
   await expect(page.getByText("something nobody configured here").first()).toBeVisible();
+});
+
+test("opens a record on Enter for a two-word partial name without calling the resolver", async ({ page, companyId }) => {
+  test.setTimeout(120000);
+  const id = (key: string) => presetId(companyId, key);
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const suffix = randomUUID().slice(0, 6);
+  await api(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "create",
+      typeId: id("deal"),
+      fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: `Anna${suffix} Schmidt renewal` } }],
+    },
+  });
+  const resolverIds = serverActionIds("app/[locale]/(protected)/search/actions.ts", "resolveCommandAction");
+  let resolverCalls = 0;
+  await page.route("**/*", async (route) => {
+    if (invokesServerAction(route.request(), resolverIds)) resolverCalls += 1;
+    await route.fallback();
+  });
+
+  await page.goto("/en/dashboard");
+  const input = await openPalette(page);
+  await input.fill(`Anna${suffix} Schm`);
+  const record = page.getByRole("dialog").getByRole("option").filter({ hasText: `Anna${suffix} Schmidt renewal` });
+  await expect(record).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#global-search-input")).toHaveCount(0);
+  await expect(page.getByRole("dialog").getByText(`Anna${suffix} Schmidt renewal`).first()).toBeVisible();
+  expect(resolverCalls).toBe(0);
 });
