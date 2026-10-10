@@ -1,6 +1,6 @@
 "use client";
 
-import type { FilterTarget } from "./filter-target";
+import type { FilterPaletteSearch, FilterTarget } from "./filter-target";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { KeyboardEvent } from "react";
 
@@ -33,9 +33,10 @@ import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
 type Props = {
   store: FilterTarget;
   palette: FilterPaletteStore;
+  search?: FilterPaletteSearch;
 };
 
-export const FilterPalette = observer(function FilterPalette({ store: host, palette }: Props) {
+export const FilterPalette = observer(function FilterPalette({ store: host, palette, search }: Props) {
   const t = useTranslations();
   const store = palette.activeTarget ?? host;
   const paletteRef = useRef<HTMLDivElement>(null);
@@ -100,7 +101,14 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
           disabled={palette.isDisabled}
           filters={palette.appliedFilters}
           isAtLimit={palette.isAtFilterLimit}
+          query={palette.query}
+          search={store === host ? search : undefined}
           store={store}
+          onApplySearch={(term) => {
+            search?.apply(term);
+            palette.setQuery("");
+            palette.close();
+          }}
           onPickField={palette.pickField}
           onPickFilter={palette.editFilterAt}
           onPickGroup={palette.openGroup}
@@ -195,8 +203,14 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
             >
               <div className="shrink-0" id="filter-palette-search">
                 <CommandInput
-                  autoFocus={!isRoot}
-                  placeholder={isRoot ? t("Common.filters.palette.addFilter") : t("Common.table.search")}
+                  autoFocus={!isRoot || search !== undefined}
+                  placeholder={
+                    !isRoot
+                      ? t("Common.table.search")
+                      : search
+                        ? t("Common.filters.palette.searchOrAddFilter")
+                        : t("Common.filters.palette.addFilter")
+                  }
                   value={palette.query}
                   onKeyDown={handleInputKeyDown}
                   onValueChange={palette.setQuery}
