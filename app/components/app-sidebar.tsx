@@ -216,13 +216,6 @@ const FullAppSidebar = observer(
               icon: Repeat,
               visible: rootStore.appMode !== "self-hosted" && canAccess(Resource.routines),
             },
-            {
-              key: "trash",
-              title: t("NavigationBar.trash"),
-              href: "/trash",
-              icon: Trash2,
-              visible: true,
-            },
           ].filter((i) => i.visible),
         },
         {
@@ -248,6 +241,20 @@ const FullAppSidebar = observer(
                   },
                 ]
               : []),
+          ],
+        },
+        {
+          key: "top-level",
+          label: t("SidebarCustomize.topLevel"),
+          topLevel: true,
+          items: [
+            {
+              key: "trash",
+              title: t("NavigationBar.trash"),
+              href: "/trash",
+              icon: Trash2,
+              visible: true,
+            },
           ],
         },
       ].filter((g) => g.items.length > 0);
